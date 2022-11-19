@@ -9,11 +9,12 @@ of things like attacking, nuking, pulling, skill chaining, tanking and more.
 
 ## Setup
 
-You will need the latest version of [trust](https://github.com/cyritegamestudios/trust), either by downloading the zip file on Github or cloning the repo.
+You will need the latest version of [cylibs](https://github.com/seancretella/cylibs) in order to use Trust. You will need to update *both* the `addons` and `cylibs` repo when you pull new changes, as `addons` is powered by `cylibs` and will not work properly if the versions don't match.
 
-1. Git clone or download [trust](https://github.com/cyritegamestudios/trust) from Github.
+1. Git clone or download [cylibs](https://github.com/seancretella/cylibs) from Github.
 2. Copy the `cylibs` folder into your `Windower/addons/libs` folder. The hierarchy should be `Windower/addons/libs/cylibs`. Make sure you do not have two nested `cylibs` folders.
-4. Copy the `Trust` and `follow` addon folders into your `Windower/addons` folder. The hierarchy should be `Windower/addons/Trust` and `Windower/addons/follow`.
+3. Git clone or download [addons](https://github.com/seancretella/addons) from Github.
+4. Copy the `Trust` and `Follow` addon folders into your `Windower/addons` folder. The hierarchy should be `Windower/addons/Trust` and `Windower/addons/follow`.
 5. Run `// lua r trust` and you're ready to get started!
 
 ### Optional
@@ -25,6 +26,8 @@ You will need the latest version of [trust](https://github.com/cyritegamestudios
 
 Currently, Trust depends on the following libraries and addons:
 
+* [cylibs](https://github.com/seancretella/cylibs)
+* [follow](https://github.com/seancretella/addons/tree/main/follow)
 * Shortcuts
 * Gearswap
 
