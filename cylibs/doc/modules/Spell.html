@@ -1,0 +1,346 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Cylibs</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Functions</h2>
+<ul class="nowrap">
+    <li><a href="#new">new (spell_name, job_abilities, job_names, target, consumable_name)</a></li>
+    <li><a href="#get_spell">get_spell ()</a></li>
+    <li><a href="#get_job_abilities">get_job_abilities ()</a></li>
+    <li><a href="#get_job_names">get_job_names ()</a></li>
+    <li><a href="#is_aoe">is_aoe ()</a></li>
+    <li><a href="#num_targets_required">num_targets_required ()</a></li>
+    <li><a href="#get_target">get_target ()</a></li>
+    <li><a href="#get_range">get_range ()</a></li>
+    <li><a href="#get_consumable">get_consumable ()</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/ActionMessageUtil.html">ActionMessageUtil</a></li>
+  <li><a href="../modules/BattleUtil.html">BattleUtil</a></li>
+  <li><a href="../modules/BuffUtil.html">BuffUtil</a></li>
+  <li><a href="../modules/CureUtil.html">CureUtil</a></li>
+  <li><a href="../modules/GeometryUtil.html">GeometryUtil</a></li>
+  <li><a href="../modules/JobUtil.html">JobUtil</a></li>
+  <li><a href="../modules/jsonencode.html">jsonencode</a></li>
+  <li><a href="../modules/MonsterUtil.html">MonsterUtil</a></li>
+  <li><a href="../modules/party_util.html">party_util</a></li>
+  <li><a href="../modules/pet_util.html">pet_util</a></li>
+  <li><a href="../modules/PupUtil.html">PupUtil</a></li>
+  <li><a href="../modules/SpellUtil.html">SpellUtil</a></li>
+  <li><a href="../modules/AuraTracker.html">AuraTracker</a></li>
+  <li><a href="../modules/BattleStatTracker.html">BattleStatTracker</a></li>
+  <li><a href="../modules/DamageMemory.html">DamageMemory</a></li>
+  <li><a href="../modules/MobTracker.html">MobTracker</a></li>
+  <li><a href="../modules/Monster.html">Monster</a></li>
+  <li><a href="../modules/MonsterBuffTracker.html">MonsterBuffTracker</a></li>
+  <li><a href="../modules/Skillchain.html">Skillchain</a></li>
+  <li><a href="../modules/SkillchainMaker.html">SkillchainMaker</a></li>
+  <li><strong>Spell</strong></li>
+  <li><a href="../modules/Buff.html">Buff</a></li>
+  <li><a href="../modules/Debuff.html">Debuff</a></li>
+  <li><a href="../modules/Refresh.html">Refresh</a></li>
+  <li><a href="../modules/Automaton.html">Automaton</a></li>
+  <li><a href="../modules/Avatar.html">Avatar</a></li>
+  <li><a href="../modules/Entity.html">Entity</a></li>
+  <li><a href="../modules/Geocolure.html">Geocolure</a></li>
+  <li><a href="../modules/BlueMage.html">BlueMage</a></li>
+  <li><a href="../modules/Bard.html">Bard</a></li>
+  <li><a href="../modules/Corsair.html">Corsair</a></li>
+  <li><a href="../modules/Dragoon.html">Dragoon</a></li>
+  <li><a href="../modules/DarkKnight.html">DarkKnight</a></li>
+  <li><a href="../modules/Geomancer.html">Geomancer</a></li>
+  <li><a href="../modules/Ninja.html">Ninja</a></li>
+  <li><a href="../modules/Paladin.html">Paladin</a></li>
+  <li><a href="../modules/Puppetmaster.html">Puppetmaster</a></li>
+  <li><a href="../modules/Red.html">Red</a></li>
+  <li><a href="../modules/RuneFencer.html">RuneFencer</a></li>
+  <li><a href="../modules/Samurai.html">Samurai</a></li>
+  <li><a href="../modules/Scholar.html">Scholar</a></li>
+  <li><a href="../modules/Summoner.html">Summoner</a></li>
+  <li><a href="../modules/Warrior.html">Warrior</a></li>
+  <li><a href="../modules/White.html">White</a></li>
+  <li><a href="../modules/Job.html">Job</a></li>
+  <li><a href="../modules/Party.html">Party</a></li>
+  <li><a href="../modules/PartyMember.html">PartyMember</a></li>
+  <li><a href="../modules/Player.html">Player</a></li>
+  <li><a href="../modules/BlueMage.html">BlueMage</a></li>
+  <li><a href="../modules/Bard.html">Bard</a></li>
+  <li><a href="../modules/Corsair.html">Corsair</a></li>
+  <li><a href="../modules/Dragoon.html">Dragoon</a></li>
+  <li><a href="../modules/DarkKnight.html">DarkKnight</a></li>
+  <li><a href="../modules/Geomancer.html">Geomancer</a></li>
+  <li><a href="../modules/Ninja.html">Ninja</a></li>
+  <li><a href="../modules/Paladin.html">Paladin</a></li>
+  <li><a href="../modules/Puppetmaster.html">Puppetmaster</a></li>
+  <li><a href="../modules/Red.html">Red</a></li>
+  <li><a href="../modules/RuneFencer.html">RuneFencer</a></li>
+  <li><a href="../modules/Samurai.html">Samurai</a></li>
+  <li><a href="../modules/Scholar.html">Scholar</a></li>
+  <li><a href="../modules/Summoner.html">Summoner</a></li>
+  <li><a href="../modules/Warrior.html">Warrior</a></li>
+  <li><a href="../modules/White.html">White</a></li>
+  <li><a href="../modules/Job.html">Job</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>Spell</code></h1>
+<p>Wrapper around a spell.</p>
+<p>
+
+</p>
+
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "new"></a>
+    <strong>new (spell_name, job_abilities, job_names, target, consumable_name)</strong>
+    </dt>
+    <dd>
+    Default initializer for a new spell.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">spell_name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         Localized name of the spell
+        </li>
+        <li><span class="parameter">job_abilities</span>
+            <span class="types"><span class="type">list</span></span>
+         List of job abilities to use, if any
+        </li>
+        <li><span class="parameter">job_names</span>
+            <span class="types"><span class="type">list</span></span>
+         List of job short names that this spell applies to
+        </li>
+        <li><span class="parameter">target</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         Spell target (options: bt, p0...pn)
+        </li>
+        <li><span class="parameter">consumable_name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         Name of consumable required to cast this spell (optional)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Spell</span></span>
+        A spell
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "get_spell"></a>
+    <strong>get_spell ()</strong>
+    </dt>
+    <dd>
+    Returns the full metadata for the spell.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">SpellMetadata</span></span>
+        metadata (see spells.lua)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "get_job_abilities"></a>
+    <strong>get_job_abilities ()</strong>
+    </dt>
+    <dd>
+    Returns the names of the job abilities that should be used with this spell.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">list</span></span>
+        Localized job ability names
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "get_job_names"></a>
+    <strong>get_job_names ()</strong>
+    </dt>
+    <dd>
+    Returns the list of jobs this spell applies to.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">list</span></span>
+        List of job short names (e.g. BLU, RDM, WAR)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "is_aoe"></a>
+    <strong>is_aoe ()</strong>
+    </dt>
+    <dd>
+    Returns whether or not this spell is AOE (e.g.  Protectra).
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Boolean</span></span>
+        True if the spell is AOE and false otherwise.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "num_targets_required"></a>
+    <strong>num_targets_required ()</strong>
+    </dt>
+    <dd>
+    The spell will not be cast unless at least this number of party members are in range (including the player).
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        Number of targets
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "get_target"></a>
+    <strong>get_target ()</strong>
+    </dt>
+    <dd>
+    Returns the spell target.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+        Spell target (e.g. bt, p1, p2)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "get_range"></a>
+    <strong>get_range ()</strong>
+    </dt>
+    <dd>
+    Returns the range of the spell in yalms.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        Range of the spell (e.g. 18, 21, etc.)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "get_consumable"></a>
+    <strong>get_consumable ()</strong>
+    </dt>
+    <dd>
+    Return the name of the consumable required to cast this spell.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+        Name of the consumable (e.g. Shihei), or nil if none is required
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-11-19 05:16:10 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

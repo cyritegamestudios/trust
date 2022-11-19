@@ -1,0 +1,391 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Cylibs</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Functions</h2>
+<ul class="nowrap">
+    <li><a href="#new">new ()</a></li>
+    <li><a href="#destroy">destroy ()</a></li>
+    <li><a href="#monitor">monitor ()</a></li>
+    <li><a href="#add_member">add_member (mob_id, main_job_id, sub_job_id, hpp, hp)</a></li>
+    <li><a href="#get_party_members">get_party_members (include_self, range_check)</a></li>
+    <li><a href="#get_party_member">get_party_member (mob_id)</a></li>
+    <li><a href="#get_party_member_named">get_party_member_named (mob_name)</a></li>
+    <li><a href="#prune_party_members">prune_party_members ()</a></li>
+    <li><a href="#num_party_members">num_party_members ()</a></li>
+    <li><a href="#set_assist_target">set_assist_target (party_member)</a></li>
+    <li><a href="#get_assist_target">get_assist_target ()</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/ActionMessageUtil.html">ActionMessageUtil</a></li>
+  <li><a href="../modules/BattleUtil.html">BattleUtil</a></li>
+  <li><a href="../modules/BuffUtil.html">BuffUtil</a></li>
+  <li><a href="../modules/CureUtil.html">CureUtil</a></li>
+  <li><a href="../modules/GeometryUtil.html">GeometryUtil</a></li>
+  <li><a href="../modules/JobUtil.html">JobUtil</a></li>
+  <li><a href="../modules/jsonencode.html">jsonencode</a></li>
+  <li><a href="../modules/MonsterUtil.html">MonsterUtil</a></li>
+  <li><a href="../modules/party_util.html">party_util</a></li>
+  <li><a href="../modules/pet_util.html">pet_util</a></li>
+  <li><a href="../modules/PupUtil.html">PupUtil</a></li>
+  <li><a href="../modules/SpellUtil.html">SpellUtil</a></li>
+  <li><a href="../modules/AuraTracker.html">AuraTracker</a></li>
+  <li><a href="../modules/BattleStatTracker.html">BattleStatTracker</a></li>
+  <li><a href="../modules/DamageMemory.html">DamageMemory</a></li>
+  <li><a href="../modules/MobTracker.html">MobTracker</a></li>
+  <li><a href="../modules/Monster.html">Monster</a></li>
+  <li><a href="../modules/MonsterBuffTracker.html">MonsterBuffTracker</a></li>
+  <li><a href="../modules/Skillchain.html">Skillchain</a></li>
+  <li><a href="../modules/SkillchainMaker.html">SkillchainMaker</a></li>
+  <li><a href="../modules/Spell.html">Spell</a></li>
+  <li><a href="../modules/Buff.html">Buff</a></li>
+  <li><a href="../modules/Debuff.html">Debuff</a></li>
+  <li><a href="../modules/Refresh.html">Refresh</a></li>
+  <li><a href="../modules/Automaton.html">Automaton</a></li>
+  <li><a href="../modules/Avatar.html">Avatar</a></li>
+  <li><a href="../modules/Entity.html">Entity</a></li>
+  <li><a href="../modules/Geocolure.html">Geocolure</a></li>
+  <li><a href="../modules/BlueMage.html">BlueMage</a></li>
+  <li><a href="../modules/Bard.html">Bard</a></li>
+  <li><a href="../modules/Corsair.html">Corsair</a></li>
+  <li><a href="../modules/Dragoon.html">Dragoon</a></li>
+  <li><a href="../modules/DarkKnight.html">DarkKnight</a></li>
+  <li><a href="../modules/Geomancer.html">Geomancer</a></li>
+  <li><a href="../modules/Ninja.html">Ninja</a></li>
+  <li><a href="../modules/Paladin.html">Paladin</a></li>
+  <li><a href="../modules/Puppetmaster.html">Puppetmaster</a></li>
+  <li><a href="../modules/Red.html">Red</a></li>
+  <li><a href="../modules/RuneFencer.html">RuneFencer</a></li>
+  <li><a href="../modules/Samurai.html">Samurai</a></li>
+  <li><a href="../modules/Scholar.html">Scholar</a></li>
+  <li><a href="../modules/Summoner.html">Summoner</a></li>
+  <li><a href="../modules/Warrior.html">Warrior</a></li>
+  <li><a href="../modules/White.html">White</a></li>
+  <li><a href="../modules/Job.html">Job</a></li>
+  <li><strong>Party</strong></li>
+  <li><a href="../modules/PartyMember.html">PartyMember</a></li>
+  <li><a href="../modules/Player.html">Player</a></li>
+  <li><a href="../modules/BlueMage.html">BlueMage</a></li>
+  <li><a href="../modules/Bard.html">Bard</a></li>
+  <li><a href="../modules/Corsair.html">Corsair</a></li>
+  <li><a href="../modules/Dragoon.html">Dragoon</a></li>
+  <li><a href="../modules/DarkKnight.html">DarkKnight</a></li>
+  <li><a href="../modules/Geomancer.html">Geomancer</a></li>
+  <li><a href="../modules/Ninja.html">Ninja</a></li>
+  <li><a href="../modules/Paladin.html">Paladin</a></li>
+  <li><a href="../modules/Puppetmaster.html">Puppetmaster</a></li>
+  <li><a href="../modules/Red.html">Red</a></li>
+  <li><a href="../modules/RuneFencer.html">RuneFencer</a></li>
+  <li><a href="../modules/Samurai.html">Samurai</a></li>
+  <li><a href="../modules/Scholar.html">Scholar</a></li>
+  <li><a href="../modules/Summoner.html">Summoner</a></li>
+  <li><a href="../modules/Warrior.html">Warrior</a></li>
+  <li><a href="../modules/White.html">White</a></li>
+  <li><a href="../modules/Job.html">Job</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>Party</code></h1>
+<p>Wrapper class around a party.</p>
+<p>
+
+</p>
+
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "new"></a>
+    <strong>new ()</strong>
+    </dt>
+    <dd>
+    Default initializer for a Party.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Party</span></span>
+        A party
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "destroy"></a>
+    <strong>destroy ()</strong>
+    </dt>
+    <dd>
+    Stops tracking the player's actions and disposes of all registered event handlers.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "monitor"></a>
+    <strong>monitor ()</strong>
+    </dt>
+    <dd>
+    Starts monitoring the player's actions.  Note that it is necessary to call this before events will start being
+ triggered. You should call destroy() to clean up listeners when you are done.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "add_member"></a>
+    <strong>add_member (mob_id, main_job_id, sub_job_id, hpp, hp)</strong>
+    </dt>
+    <dd>
+    Adds a member to the party if they aren't in the party already, and updates the party member's main/sub job if they are.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">mob_id</span>
+            <span class="types"><span class="type">number</span></span>
+         Party member id
+        </li>
+        <li><span class="parameter">main_job_id</span>
+            <span class="types"><span class="type">number</span></span>
+         Optional main job id
+        </li>
+        <li><span class="parameter">sub_job_id</span>
+            <span class="types"><span class="type">number</span></span>
+         Optional sub job id
+        </li>
+        <li><span class="parameter">hpp</span>
+            <span class="types"><span class="type">number</span></span>
+         Current hit point percentage
+        </li>
+        <li><span class="parameter">hp</span>
+            <span class="types"><span class="type">number</span></span>
+         Current hit points
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "get_party_members"></a>
+    <strong>get_party_members (include_self, range_check)</strong>
+    </dt>
+    <dd>
+    Returns all party members, optionally including the player.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">include_self</span>
+            <span class="types"><span class="type">Boolean</span></span>
+         If true, the player will be returned
+        </li>
+        <li><span class="parameter">range_check</span>
+            <span class="types"><span class="type">number</span></span>
+         If non-nil, only returns party members that are &lt; range_check yalms away from the player
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">list</span></span>
+        Party members
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "get_party_member"></a>
+    <strong>get_party_member (mob_id)</strong>
+    </dt>
+    <dd>
+    Returns the party member with the given mob id.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">mob_id</span>
+            <span class="types"><span class="type">number</span></span>
+         Party member mob id
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">PartyMember</span></span>
+        Party member, or nil if none exists
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "get_party_member_named"></a>
+    <strong>get_party_member_named (mob_name)</strong>
+    </dt>
+    <dd>
+    Returns the party member with the given name.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">mob_name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         Party member mob name
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">PartyMember</span></span>
+        Party member, or nil if none exists
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "prune_party_members"></a>
+    <strong>prune_party_members ()</strong>
+    </dt>
+    <dd>
+    Checks to see if each party member is still in the party.  Removes invalid party members.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "num_party_members"></a>
+    <strong>num_party_members ()</strong>
+    </dt>
+    <dd>
+    Returns the number of party members.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        Number of party members
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "set_assist_target"></a>
+    <strong>set_assist_target (party_member)</strong>
+    </dt>
+    <dd>
+    Sets the assist target.  The party's target will change to match the assist target.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">party_member</span>
+            <span class="types"><span class="type">PartyMember</span></span>
+         Party member to assist
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "get_assist_target"></a>
+    <strong>get_assist_target ()</strong>
+    </dt>
+    <dd>
+    Returns the assist target of the party.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">PartyMember</span></span>
+        Assist target
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-11-19 05:16:10 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

@@ -1,0 +1,432 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Lua</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Functions</h2>
+<ul class="nowrap">
+    <li><a href="#close">close (file)</a></li>
+    <li><a href="#flush">flush ()</a></li>
+    <li><a href="#input">input (file)</a></li>
+    <li><a href="#lines">lines (filename)</a></li>
+    <li><a href="#open">open (filename, mode)</a></li>
+    <li><a href="#output">output (file)</a></li>
+    <li><a href="#popen">popen (prog, mode)</a></li>
+    <li><a href="#read">read (...)</a></li>
+    <li><a href="#tmpfile">tmpfile ()</a></li>
+    <li><a href="#type">type (obj)</a></li>
+    <li><a href="#write">write (...)</a></li>
+    <li><a href="#file:close">file:close ()</a></li>
+    <li><a href="#file:flush">file:flush ()</a></li>
+    <li><a href="#file:lines">file:lines ()</a></li>
+    <li><a href="#file:read">file:read (...)</a></li>
+    <li><a href="#file:seek">file:seek (whence, offset)</a></li>
+    <li><a href="#file:setvbuf">file:setvbuf (mode, size)</a></li>
+    <li><a href="#file:write">file:write (...)</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/coroutine.html">coroutine</a></li>
+  <li><a href="../modules/debug.html">debug</a></li>
+  <li><a href="../modules/global.html">global</a></li>
+  <li><strong>io</strong></li>
+  <li><a href="../modules/lfs.html">lfs</a></li>
+  <li><a href="../modules/lpeg.html">lpeg</a></li>
+  <li><a href="../modules/math.html">math</a></li>
+  <li><a href="../modules/os.html">os</a></li>
+  <li><a href="../modules/package.html">package</a></li>
+  <li><a href="../modules/string.html">string</a></li>
+  <li><a href="../modules/table.html">table</a></li>
+  <li><a href="../modules/utf8.html">utf8</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>io</code></h1>
+<p>Reading and Writing Files.</p>
+<p>
+
+</p>
+
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "close"></a>
+    <strong>close (file)</strong>
+    </dt>
+    <dd>
+    Equivalent to <code>file:close()</code>.  Without a <code>file</code>, closes the default
+ output file.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "flush"></a>
+    <strong>flush ()</strong>
+    </dt>
+    <dd>
+    Equivalent to <a href="../modules/io.html#file:flush">file:flush</a> over the default output file.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "input"></a>
+    <strong>input (file)</strong>
+    </dt>
+    <dd>
+    When called with a file name, it opens the named file (in text mode),
+ and sets its handle as the default input file.  When called with a file
+ handle, it simply sets this file handle as the default input file. When
+ called without parameters, it returns the current default input file.
+ In case of errors this function raises the error, instead of returning an
+ error code.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lines"></a>
+    <strong>lines (filename)</strong>
+    </dt>
+    <dd>
+    Opens the given file name in read mode and returns an iterator function
+ that, each time it is called, returns a new line from the file.  Therefore,
+ the construction
+   for line in io.lines(filename) do <em>body</em> end
+ will iterate over all lines of the file. When the iterator function detects
+ the end of file, it returns nil (to finish the loop) and automatically
+ closes the file.
+ The call <code>io.lines()</code> (with no file name) is equivalent to
+ <code>io.input():lines()</code>; that is, it iterates over the lines of the default
+ input file. In this case it does not close the file when the loop ends.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "open"></a>
+    <strong>open (filename, mode)</strong>
+    </dt>
+    <dd>
+    This function opens a file, in the mode specified in the string <code>mode</code>.  It
+ returns a new file handle, or, in case of errors, nil plus an error message.
+ The <code>mode</code> string can be any of the following:
+   "r": read mode (the default);
+   "w": write mode;
+   "a": append mode;
+   "r+": update mode, all previous data is preserved;
+   "w+": update mode, all previous data is erased;
+   "a+": append update mode, previous data is preserved, writing is only
+   allowed at the end of file.
+ The <code>mode</code> string can also have a '<code>b</code>' at the end, which is needed in
+ some systems to open the file in binary mode. This string is exactly what
+ is used in the standard C function <code>fopen</code>.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "output"></a>
+    <strong>output (file)</strong>
+    </dt>
+    <dd>
+    Similar to <a href="../modules/io.html#input">io.input</a>, but operates over the default output file.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "popen"></a>
+    <strong>popen (prog, mode)</strong>
+    </dt>
+    <dd>
+    Starts program <code>prog</code> in a separated process and returns a file handle
+ that you can use to read data from this program (if <code>mode</code> is <code>&quot;r&quot;</code>,
+ the default) or to write data to this program (if <code>mode</code> is <code>&quot;w&quot;</code>).
+ This function is system dependent and is not available on all platforms.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "read"></a>
+    <strong>read (...)</strong>
+    </dt>
+    <dd>
+    Equivalent to <code>io.input():read</code>.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tmpfile"></a>
+    <strong>tmpfile ()</strong>
+    </dt>
+    <dd>
+    Returns a handle for a temporary file.  This file is opened in update
+ mode and it is automatically removed when the program ends.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "type"></a>
+    <strong>type (obj)</strong>
+    </dt>
+    <dd>
+    Checks whether <code>obj</code> is a valid file handle.  Returns the string <code>&quot;file&quot;</code>
+ if <code>obj</code> is an open file handle, <code>&quot;closed file&quot;</code> if <code>obj</code> is a closed file
+ handle, or nil if <code>obj</code> is not a file handle.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "write"></a>
+    <strong>write (...)</strong>
+    </dt>
+    <dd>
+    Equivalent to <code>io.output():write</code>.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "file:close"></a>
+    <strong>file:close ()</strong>
+    </dt>
+    <dd>
+    Closes <code>file</code>.  Note that files are automatically closed when their
+ handles are garbage collected, but that takes an unpredictable amount of
+ time to happen.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "file:flush"></a>
+    <strong>file:flush ()</strong>
+    </dt>
+    <dd>
+    Saves any written data to <code>file</code>.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "file:lines"></a>
+    <strong>file:lines ()</strong>
+    </dt>
+    <dd>
+    Returns an iterator function that, each time it is called, returns a
+ new line from the file.  Therefore, the construction
+   for line in file:lines() do <em>body</em> end
+ will iterate over all lines of the file. (Unlike <a href="../modules/io.html#lines">io.lines</a>, this function
+ does not close the file when the loop ends.)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "file:read"></a>
+    <strong>file:read (...)</strong>
+    </dt>
+    <dd>
+    Reads the file <code>file</code>, according to the given formats, which specify
+ what to read.  For each format, the function returns a string (or a number)
+ with the characters read, or nil if it cannot read data with the specified
+ format. When called without formats, it uses a default format that reads
+ the entire next line (see below).
+ The available formats are
+   "<em>n": reads a number; this is the only format that returns a number
+   instead of a string.
+   "</em>a": reads the whole file, starting at the current position. On end of
+   file, it returns the empty string.
+   "<em>l": reads the next line (skipping the end of line), returning nil on
+   end of file. This is the default format.
+   *number</em>: reads a string with up to this number of characters, returning
+   nil on end of file. If number is zero, it reads nothing and returns an
+   empty string, or nil on end of file.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "file:seek"></a>
+    <strong>file:seek (whence, offset)</strong>
+    </dt>
+    <dd>
+    Sets and gets the file position, measured from the beginning of the
+ file, to the position given by <code>offset</code> plus a base specified by the string
+ <code>whence</code>, as follows:
+   "set": base is position 0 (beginning of the file);
+   "cur": base is current position;
+   "end": base is end of file;
+ In case of success, function <a href="../modules/io.html#file:seek">seek</a> returns the final file position,
+ measured in bytes from the beginning of the file.  If this function fails,
+ it returns nil, plus a string describing the error.
+ The default value for <code>whence</code> is <code>&quot;cur&quot;</code>, and for <code>offset</code> is 0. Therefore,
+ the call <code>file:seek()</code> returns the current file position, without changing
+ it; the call <code>file:seek(&quot;set&quot;)</code> sets the position to the beginning of the
+ file (and returns 0); and the call <code>file:seek(&quot;end&quot;)</code> sets the position
+ to the end of the file, and returns its size.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "file:setvbuf"></a>
+    <strong>file:setvbuf (mode, size)</strong>
+    </dt>
+    <dd>
+
+<p>Sets the buffering mode for an output file.  There are three available
+ modes:</p>
+
+<ul>
+    <li>"no": no buffering; the result of any output operation appears immediately.</li>
+    <li>"full": full buffering; output operation is performed only when the
+    buffer is full (or when you explicitly <a href="../modules/io.html#flush">flush</a> the file (see <a href="../modules/io.html#flush">io.flush</a>)).</li>
+    <li>"line": line buffering; output is buffered until a newline is output or
+    there is any input from some special files (such as a terminal device).
+    For the last two cases, <code>size</code> specifies the size of the buffer, in
+    bytes. The default is an appropriate size.</li>
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "file:write"></a>
+    <strong>file:write (...)</strong>
+    </dt>
+    <dd>
+    Writes the value of each of its arguments to the <code>file</code>.  The arguments
+ must be strings or numbers. To write other values, use <a href="https://www.lua.org/manual/5.4/manual.html#pdf-tostring">tostring</a> or
+ <a href="../modules/string.html#format">string.format</a> before <a href="../modules/io.html#write">write</a>.
+
+
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-05-26 00:30:52 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
