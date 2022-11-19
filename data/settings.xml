@@ -8,7 +8,7 @@
             <trusts>Monberaux,Sylvie (UC),Koru-Moru,Qultada,Brygid</trusts>
         </battle>
         <remote_commands>
-            <whitelist></whitelist>
+            <whitelist>Cypan,Agerine,Bregor,Bregolas,Korubi,Jyana,Wapiti,Slapshot,Naveed,Sixsixthree,Cyrite</whitelist>
         </remote_commands>
         <trusts>
             <backline>
@@ -494,4 +494,25 @@
         </trusts>
         <verbose>true</verbose>
     </global>
+    <agerine>
+    </agerine>
+    <bregolas>
+    </bregolas>
+    <bregor>
+    </bregor>
+    <cypan>
+    </cypan>
+    <cyrite>
+        <trusts>
+            <warrior>
+                <autopullmode>Multi</autopullmode>
+            </warrior>
+        </trusts>
+    </cyrite>
+    <korubi>
+    </korubi>
+    <sixsixthree>
+    </sixsixthree>
+    <wapiti>
+    </wapiti>
 </settings>
