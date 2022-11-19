@@ -494,25 +494,4 @@
         </trusts>
         <verbose>true</verbose>
     </global>
-    <agerine>
-    </agerine>
-    <bregolas>
-    </bregolas>
-    <bregor>
-    </bregor>
-    <cypan>
-    </cypan>
-    <cyrite>
-        <trusts>
-            <warrior>
-                <autopullmode>Multi</autopullmode>
-            </warrior>
-        </trusts>
-    </cyrite>
-    <korubi>
-    </korubi>
-    <sixsixthree>
-    </sixsixthree>
-    <wapiti>
-    </wapiti>
 </settings>
