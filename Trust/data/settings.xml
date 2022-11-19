@@ -8,7 +8,7 @@
             <trusts>Monberaux,Sylvie (UC),Koru-Moru,Qultada,Brygid</trusts>
         </battle>
         <remote_commands>
-            <whitelist>Cypan,Agerine,Bregor,Bregolas,Korubi,Jyana,Wapiti,Slapshot,Naveed,Sixsixthree,Cyrite</whitelist>
+            <whitelist></whitelist>
         </remote_commands>
         <trusts>
             <backline>
