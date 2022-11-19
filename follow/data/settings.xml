@@ -1,0 +1,40 @@
+<?xml version="1.1" ?>
+<settings>
+    <global>
+        <target>Cyrite</target>
+		<distance>2</distance>
+		<maxfollowdistance>35</maxfollowdistance>
+        <maxfollowpoints>100</maxfollowpoints>
+        <keybind>f1</keybind>
+        <follow_mode>Auto</follow_mode>
+    </global>
+    <Cypan>
+        <target>Cyrite</target>
+        <follow_mode>Lock</follow_mode>
+    </Cypan>
+    <Cyrite>
+        <target>Wapiti</target>
+    </Cyrite>
+    <Wapiti>
+        <target>Cyrite</target>
+        <follow_mode>Lock</follow_mode>
+    </Wapiti>
+    <Bregolas>
+        <target>Bregor</target>
+        <keybind>@a</keybind>
+    </Bregolas>
+    <Bregor>
+        <target>Bregolas</target>
+        <keybind>@a</keybind>
+    </Bregor>
+    <Korubi>
+        <target>Sixsixthree</target>
+        <keybind>f1</keybind>
+        <follow_mode>Lock</follow_mode>
+    </Korubi>
+    <Sixsixthree>
+        <target>Korubi</target>
+        <keybind>@f1</keybind>
+        <follow_mode>Lock</follow_mode>
+    </Sixsixthree>
+</settings>
