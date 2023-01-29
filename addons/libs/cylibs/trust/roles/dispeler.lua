@@ -8,7 +8,7 @@ function Dispeler.new(action_queue, spells, job_ability_names)
     local self = setmetatable(Role.new(action_queue), Dispeler)
     self.spells = (spells or L{}):filter(function(spell)
         if spell ~= nil then
-            if spell:get_job_abilities():contains('Addendum: Black') then
+            if spell:get_job_abilities() and spell:get_job_abilities():contains('Addendum: Black') then
                 return true
             end
             return spell_util.knows_spell(spell:get_spell().id)

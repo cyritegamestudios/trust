@@ -17,7 +17,7 @@ local Puller = require('cylibs/trust/roles/puller')
 function DarkKnightTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local roles = S{
 		Buffer.new(action_queue, trust_settings.JobAbilities, trust_settings.SelfBuffs),
-		Dispeler.new(action_queue, L{ 'Absorb-Attri' }),
+		Dispeler.new(action_queue, L{ Spell.new('Absorb-Attri') }),
 		Puller.new(action_queue, battle_settings.targets, 'Stone', nil),
 		--Puller.new(action_queue, battle_settings.targets, nil, nil),
 	}
