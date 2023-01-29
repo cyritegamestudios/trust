@@ -457,7 +457,7 @@ local function addon_command(cmd, ...)
 		local msg = nil
 		if cmd == 'shortcut' then
 			msg = commands['shortcut'](...)
-		else
+		elseif not L{'cycle', 'set', 'help'}:contains(cmd) then
 			msg = commands[cmd](unpack({...}))
 		end
 		if msg then
