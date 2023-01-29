@@ -1,1 +1,1 @@
-mv addons/Trust/data/README.md .
+cp addons/Trust/data/README.md .
