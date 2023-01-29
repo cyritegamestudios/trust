@@ -29,7 +29,6 @@ To update Trust, either do a `git pull --rebase` or follow the steps above again
 
 6. Override [job settings](#job-settings) to customize what your trust does.
 
-
 ## Dependencies
 
 Trust also requires the following libraries and addons:
@@ -157,9 +156,9 @@ important ones and what they do.
 
 To see the full list of Modes availabile on the player's current job, use `// trust status`.
 
-You can combine these modes to customize Trust behavior. For example, to make your Trust assist a player named Avesta and automatically engage and approach the mob:
+You can combine these modes to customize Trust behavior. For example, to make your Trust assist a player named Jerry and automatically engage and approach the mob:
 
-* `// trust assist Avesta`
+* `// trust assist Jerry`
 * `// trust set AutoEngageMode Always`
 * `// trust set CombatMode Melee`
 
