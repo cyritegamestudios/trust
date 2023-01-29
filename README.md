@@ -179,7 +179,7 @@ To send a remote command, send the player a tell with one of the following comma
 | /warp                              | Warps (requires Gearswap warp ring/cudgel shortcut).        |
 | /refa, /refa all                   | Dismisses a player's trusts.                                |
 
-You can combine these commands to control another player's actions using Trust. For example, if you wanted to join an AFK master level party, you would do:
+You can combine these commands to control another player's actions using Trust. For example, if you wanted to join a party, you would do:
 
 * `/t Ashylarry trust stop`
 * `/t Ashylarry /refa all`
