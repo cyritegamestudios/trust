@@ -7,8 +7,6 @@ require('luau')
 require('pack')
 require('actions')
 
-local file = require('files')
-local texts = require('texts')
 local skills = require('cylibs/res/skills')
 local res = require('resources')
 
