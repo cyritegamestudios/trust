@@ -1,0 +1,30 @@
+-- Modes file for WHM
+return {
+    ["Default"]={
+        ["skillchainpartnermode"]="Off",
+        ["autoraisemode"]="Off",
+        ["skillchainprioritymode"]="Off",
+        ["subtrustsettingsmode"]="Default",
+        ["autosilencemode"]="Auto",
+        ["autoaftermathmode"]="Off",
+        ["autoartsmode"]="LightArts",
+        ["autoskillchainmode"]="Off",
+        ["automagicburstmode"]="Off",
+        ["autobuffmode"]="Auto",
+        ["autodetectauramode"]="Auto",
+        ["autoengagemode"]="Off",
+        ["autodebuffmode"]="Auto",
+        ["skillchaindelaymode"]="Off",
+        ["engagemode"]="None",
+        ["combatmode"]="Off",
+        ["maintrustsettingsmode"]="Default",
+        ["autofacemobmode"]="Auto",
+        ["autotargetmode"]="Off",
+        ["autobarspellmode"]="Off",
+        ["autotrustsmode"]="Off",
+        ["autofoodmode"]="Off",
+        ["autofollowmode"]="Always",
+        ["autohealmode"]="Auto",
+        ["autoenmityreductionmode"]="Auto"
+    }
+}

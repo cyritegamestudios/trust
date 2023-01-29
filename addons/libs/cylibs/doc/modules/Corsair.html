@@ -1,0 +1,586 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Cylibs</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Functions</h2>
+<ul class="nowrap">
+    <li><a href="#new">new (action_queue)</a></li>
+    <li><a href="#is_roll">is_roll (job_ability_id)</a></li>
+    <li><a href="#is_lucky_roll">is_lucky_roll (roll_id, roll_num)</a></li>
+    <li><a href="#is_unlucky_roll">is_unlucky_roll (roll_id, roll_num)</a></li>
+    <li><a href="#can_double_up">can_double_up ()</a></li>
+    <li><a href="#should_double_up">should_double_up (roll_id, roll_num)</a></li>
+    <li><a href="#double_up">double_up ()</a></li>
+    <li><a href="#is_snake_eye_active">is_snake_eye_active ()</a></li>
+    <li><a href="#can_snake_eye">can_snake_eye ()</a></li>
+    <li><a href="#should_snake_eye">should_snake_eye (roll_id, roll_num)</a></li>
+    <li><a href="#snake_eye">snake_eye ()</a></li>
+    <li><a href="#can_crooked_cards">can_crooked_cards ()</a></li>
+    <li><a href="#crooked_cards">crooked_cards ()</a></li>
+    <li><a href="#busted">busted ()</a></li>
+    <li><a href="#fold">fold ()</a></li>
+    <li><a href="#has_roll">has_roll (roll_id)</a></li>
+    <li><a href="#can_roll">can_roll ()</a></li>
+    <li><a href="#roll">roll (should_use_crooked_cards, roll_id)</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/Action.html">Action</a></li>
+  <li><a href="../modules/ActionQueue.html">ActionQueue</a></li>
+  <li><a href="../modules/BloodPactRage.html">BloodPactRage</a></li>
+  <li><a href="../modules/BloodPactWard.html">BloodPactWard</a></li>
+  <li><a href="../modules/CureAction.html">CureAction</a></li>
+  <li><a href="../modules/JobAbility.html">JobAbility</a></li>
+  <li><a href="../modules/PullAction.html">PullAction</a></li>
+  <li><a href="../modules/ReadyMoveAction.html">ReadyMoveAction</a></li>
+  <li><a href="../modules/RunToAction.html">RunToAction</a></li>
+  <li><a href="../modules/SequenceAction.html">SequenceAction</a></li>
+  <li><a href="../modules/SpellAction.html">SpellAction</a></li>
+  <li><a href="../modules/StatusRemovalAction.html">StatusRemovalAction</a></li>
+  <li><a href="../modules/Strategem.html">Strategem</a></li>
+  <li><a href="../modules/TargetAction.html">TargetAction</a></li>
+  <li><a href="../modules/ActionMessageUtil.html">ActionMessageUtil</a></li>
+  <li><a href="../modules/BattleUtil.html">BattleUtil</a></li>
+  <li><a href="../modules/BuffUtil.html">BuffUtil</a></li>
+  <li><a href="../modules/CureUtil.html">CureUtil</a></li>
+  <li><a href="../modules/TableExtension.html">TableExtension</a></li>
+  <li><a href="../modules/GeometryUtil.html">GeometryUtil</a></li>
+  <li><a href="../modules/JobUtil.html">JobUtil</a></li>
+  <li><a href="../modules/MonsterUtil.html">MonsterUtil</a></li>
+  <li><a href="../modules/party_util.html">party_util</a></li>
+  <li><a href="../modules/pet_util.html">pet_util</a></li>
+  <li><a href="../modules/PupUtil.html">PupUtil</a></li>
+  <li><a href="../modules/SpellUtil.html">SpellUtil</a></li>
+  <li><a href="../modules/AuraTracker.html">AuraTracker</a></li>
+  <li><a href="../modules/BattleStatTracker.html">BattleStatTracker</a></li>
+  <li><a href="../modules/SongTracker.html">SongTracker</a></li>
+  <li><a href="../modules/DamageMemory.html">DamageMemory</a></li>
+  <li><a href="../modules/MobTracker.html">MobTracker</a></li>
+  <li><a href="../modules/Monster.html">Monster</a></li>
+  <li><a href="../modules/MonsterBuffTracker.html">MonsterBuffTracker</a></li>
+  <li><a href="../modules/Roll.html">Roll</a></li>
+  <li><a href="../modules/Skillchain.html">Skillchain</a></li>
+  <li><a href="../modules/MagicBurstMaker.html">MagicBurstMaker</a></li>
+  <li><a href="../modules/SkillchainMaker.html">SkillchainMaker</a></li>
+  <li><a href="../modules/SongTracker.html">SongTracker</a></li>
+  <li><a href="../modules/SongRecord.html">SongRecord</a></li>
+  <li><a href="../modules/Spell.html">Spell</a></li>
+  <li><a href="../modules/Buff.html">Buff</a></li>
+  <li><a href="../modules/Debuff.html">Debuff</a></li>
+  <li><a href="../modules/Refresh.html">Refresh</a></li>
+  <li><a href="../modules/SongRecord.html">SongRecord</a></li>
+  <li><a href="../modules/Buff.html">Buff</a></li>
+  <li><a href="../modules/Debuff.html">Debuff</a></li>
+  <li><a href="../modules/Refresh.html">Refresh</a></li>
+  <li><a href="../modules/AlterEgo.html">AlterEgo</a></li>
+  <li><a href="../modules/Automaton.html">Automaton</a></li>
+  <li><a href="../modules/Avatar.html">Avatar</a></li>
+  <li><a href="../modules/Entity.html">Entity</a></li>
+  <li><a href="../modules/Familiar.html">Familiar</a></li>
+  <li><a href="../modules/Geocolure.html">Geocolure</a></li>
+  <li><a href="../modules/BlueMage.html">BlueMage</a></li>
+  <li><a href="../modules/Bard.html">Bard</a></li>
+  <li><a href="../modules/Beastmaster.html">Beastmaster</a></li>
+  <li><strong>Corsair</strong></li>
+  <li><a href="../modules/Dragoon.html">Dragoon</a></li>
+  <li><a href="../modules/DarkKnight.html">DarkKnight</a></li>
+  <li><a href="../modules/Geomancer.html">Geomancer</a></li>
+  <li><a href="../modules/Ninja.html">Ninja</a></li>
+  <li><a href="../modules/Paladin.html">Paladin</a></li>
+  <li><a href="../modules/Puppetmaster.html">Puppetmaster</a></li>
+  <li><a href="../modules/RedMage.html">RedMage</a></li>
+  <li><a href="../modules/RuneFencer.html">RuneFencer</a></li>
+  <li><a href="../modules/Samurai.html">Samurai</a></li>
+  <li><a href="../modules/Scholar.html">Scholar</a></li>
+  <li><a href="../modules/Summoner.html">Summoner</a></li>
+  <li><a href="../modules/Warrior.html">Warrior</a></li>
+  <li><a href="../modules/White.html">White</a></li>
+  <li><a href="../modules/Job.html">Job</a></li>
+  <li><a href="../modules/Party.html">Party</a></li>
+  <li><a href="../modules/PartyMember.html">PartyMember</a></li>
+  <li><a href="../modules/Player.html">Player</a></li>
+  <li><a href="../modules/BlueMage.html">BlueMage</a></li>
+  <li><a href="../modules/Bard.html">Bard</a></li>
+  <li><a href="../modules/Beastmaster.html">Beastmaster</a></li>
+  <li><strong>Corsair</strong></li>
+  <li><a href="../modules/Dragoon.html">Dragoon</a></li>
+  <li><a href="../modules/DarkKnight.html">DarkKnight</a></li>
+  <li><a href="../modules/Geomancer.html">Geomancer</a></li>
+  <li><a href="../modules/Ninja.html">Ninja</a></li>
+  <li><a href="../modules/Paladin.html">Paladin</a></li>
+  <li><a href="../modules/Puppetmaster.html">Puppetmaster</a></li>
+  <li><a href="../modules/RedMage.html">RedMage</a></li>
+  <li><a href="../modules/RuneFencer.html">RuneFencer</a></li>
+  <li><a href="../modules/Samurai.html">Samurai</a></li>
+  <li><a href="../modules/Scholar.html">Scholar</a></li>
+  <li><a href="../modules/Summoner.html">Summoner</a></li>
+  <li><a href="../modules/Warrior.html">Warrior</a></li>
+  <li><a href="../modules/White.html">White</a></li>
+  <li><a href="../modules/Job.html">Job</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>Corsair</code></h1>
+<p>Job file for Corsair.</p>
+<p>
+
+</p>
+
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "new"></a>
+    <strong>new (action_queue)</strong>
+    </dt>
+    <dd>
+    Default initializer for a new Corsair.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">action_queue</span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">COR</span></span>
+        A Corsair
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "is_roll"></a>
+    <strong>is_roll (job_ability_id)</strong>
+    </dt>
+    <dd>
+    Returns whether a job ablility is a roll
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">job_ability_id</span>
+            <span class="types"><span class="type">number</span></span>
+         Job ability id (see job_abilities.lua)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Boolean</span></span>
+        True if the job ability is a roll
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "is_lucky_roll"></a>
+    <strong>is_lucky_roll (roll_id, roll_num)</strong>
+    </dt>
+    <dd>
+    Returns whether a roll is a lucky roll.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">roll_id</span>
+            <span class="types"><span class="type">number</span></span>
+         Job ability id (see job_abilities.lua)
+        </li>
+        <li><span class="parameter">roll_num</span>
+            <span class="types"><span class="type">number</span></span>
+         Roll number
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Boolean</span></span>
+        True if the roll is a lucky roll
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "is_unlucky_roll"></a>
+    <strong>is_unlucky_roll (roll_id, roll_num)</strong>
+    </dt>
+    <dd>
+    Returns whether a roll is an unlucky roll.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">roll_id</span>
+            <span class="types"><span class="type">number</span></span>
+         Job ability id (see job_abilities.lua)
+        </li>
+        <li><span class="parameter">roll_num</span>
+            <span class="types"><span class="type">number</span></span>
+         Roll number
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Boolean</span></span>
+        True if the roll is a lucky roll
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "can_double_up"></a>
+    <strong>can_double_up ()</strong>
+    </dt>
+    <dd>
+    Returns true if double up can be used.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Boolean</span></span>
+        True if double up can be used
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "should_double_up"></a>
+    <strong>should_double_up (roll_id, roll_num)</strong>
+    </dt>
+    <dd>
+    Returns whether a the roll should be doubled up.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">roll_id</span>
+            <span class="types"><span class="type">number</span></span>
+         Job ability id (see job_abilities.lua)
+        </li>
+        <li><span class="parameter">roll_num</span>
+            <span class="types"><span class="type">number</span></span>
+         Roll number
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Boolean</span></span>
+        True if the roll should be doubled up
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "double_up"></a>
+    <strong>double_up ()</strong>
+    </dt>
+    <dd>
+    Doubles up, if double up can be used
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "is_snake_eye_active"></a>
+    <strong>is_snake_eye_active ()</strong>
+    </dt>
+    <dd>
+    Returns true if snake eye is active.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Boolean</span></span>
+        True if snake eye is active
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "can_snake_eye"></a>
+    <strong>can_snake_eye ()</strong>
+    </dt>
+    <dd>
+    Returns true if snake eye can be used.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Boolean</span></span>
+        True if snake eye can be used
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "should_snake_eye"></a>
+    <strong>should_snake_eye (roll_id, roll_num)</strong>
+    </dt>
+    <dd>
+    Returns whether snake eye should be used.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">roll_id</span>
+            <span class="types"><span class="type">number</span></span>
+         Job ability id (see job_abilities.lua)
+        </li>
+        <li><span class="parameter">roll_num</span>
+            <span class="types"><span class="type">number</span></span>
+         Roll number
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Boolean</span></span>
+        True if snake eye should be used
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "snake_eye"></a>
+    <strong>snake_eye ()</strong>
+    </dt>
+    <dd>
+    Uses snake eye, if snake eye can be used.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "can_crooked_cards"></a>
+    <strong>can_crooked_cards ()</strong>
+    </dt>
+    <dd>
+    Returns true if crooked cards can be used.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Boolean</span></span>
+        True if crooked cards can be used
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "crooked_cards"></a>
+    <strong>crooked_cards ()</strong>
+    </dt>
+    <dd>
+    Uses crooked cards, if crooked cards can be used.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "busted"></a>
+    <strong>busted ()</strong>
+    </dt>
+    <dd>
+    Returns whether bust is active.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Boolean</span></span>
+        True if bust is active
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "fold"></a>
+    <strong>fold ()</strong>
+    </dt>
+    <dd>
+    Uses fold, if bust is active and fold can be used.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "has_roll"></a>
+    <strong>has_roll (roll_id)</strong>
+    </dt>
+    <dd>
+    Returns whether a roll is active.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">roll_id</span>
+            <span class="types"><span class="type">number</span></span>
+         Job ability id (see job_abilities.lua)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Boolean</span></span>
+        True if the given roll is active
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "can_roll"></a>
+    <strong>can_roll ()</strong>
+    </dt>
+    <dd>
+    Returns whether phantom roll can be used.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Boolean</span></span>
+        True if the given roll is active
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "roll"></a>
+    <strong>roll (should_use_crooked_cards, roll_id)</strong>
+    </dt>
+    <dd>
+    Uses a roll, optionally using crooked cards first.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">should_use_crooked_cards</span>
+            <span class="types"><span class="type">Boolean</span></span>
+         Whether crooked cards should be used first
+        </li>
+        <li><span class="parameter">roll_id</span>
+            <span class="types"><span class="type">number</span></span>
+         Job ability id (see job_abilities.lua)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2023-01-29 00:28:34 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

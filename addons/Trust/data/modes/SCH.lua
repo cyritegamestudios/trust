@@ -1,0 +1,33 @@
+-- Modes file for SCH
+return {
+    ["Default"]={
+        ["autodispelmode"]="Auto",
+        ["autosilencemode"]="Off",
+        ["autofacemobmode"]="Auto",
+        ["autoraisemode"]="Off",
+        ["autodebuffmode"]="Auto",
+        ["subtrustsettingsmode"]="Default",
+        ["autotargetmode"]="Off",
+        ["maintrustsettingsmode"]="Default",
+        ["automagicburstmode"]="Off",
+        ["autobuffmode"]="Auto",
+        ["autoartsmode"]="LightArts",
+        ["autodetectauramode"]="Auto",
+        ["autopullmode"]="Off",
+        ["autoengagemode"]="Off",
+        ["skillchaindelaymode"]="Off",
+        ["autofollowmode"]="Always",
+        ["autoskillchainmode"]="Auto",
+        ["autoconvertmode"]="Off",
+        ["skillchainprioritymode"]="Prefer",
+        ["skillchainpartnermode"]="Off",
+        ["autoaftermathmode"]="Off",
+        ["combatmode"]="Off",
+        ["autofoodmode"]="Off",
+        ["engagemode"]="None",
+        ["autobarspellmode"]="Off",
+        ["autotrustsmode"]="Off",
+        ["autohealmode"]="Auto",
+        ["autoenmityreductionmode"]="Auto"
+    }
+}

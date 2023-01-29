@@ -1,0 +1,348 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Cylibs</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Functions</h2>
+<ul class="nowrap">
+    <li><a href="#WhiteMage.new">WhiteMage.new (cure_settings)</a></li>
+    <li><a href="#WhiteMage:get_cure_spell">WhiteMage:get_cure_spell (hp_missing)</a></li>
+    <li><a href="#WhiteMage:get_aoe_cure_spell">WhiteMage:get_aoe_cure_spell (hp_missing)</a></li>
+    <li><a href="#WhiteMage:get_status_removal_spell">WhiteMage:get_status_removal_spell (debuff_id, num_targets)</a></li>
+    <li><a href="#WhiteMage:get_raise_spell">WhiteMage:get_raise_spell ()</a></li>
+    <li><a href="#WhiteMage:get_cure_threshold">WhiteMage:get_cure_threshold (is_backup_healer)</a></li>
+    <li><a href="#WhiteMage:set_cure_settings">WhiteMage:set_cure_settings (cure_settings)</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/Action.html">Action</a></li>
+  <li><a href="../modules/ActionQueue.html">ActionQueue</a></li>
+  <li><a href="../modules/BloodPactRage.html">BloodPactRage</a></li>
+  <li><a href="../modules/BloodPactWard.html">BloodPactWard</a></li>
+  <li><a href="../modules/CureAction.html">CureAction</a></li>
+  <li><a href="../modules/JobAbility.html">JobAbility</a></li>
+  <li><a href="../modules/PullAction.html">PullAction</a></li>
+  <li><a href="../modules/ReadyMoveAction.html">ReadyMoveAction</a></li>
+  <li><a href="../modules/RunToAction.html">RunToAction</a></li>
+  <li><a href="../modules/SequenceAction.html">SequenceAction</a></li>
+  <li><a href="../modules/SpellAction.html">SpellAction</a></li>
+  <li><a href="../modules/StatusRemovalAction.html">StatusRemovalAction</a></li>
+  <li><a href="../modules/Strategem.html">Strategem</a></li>
+  <li><a href="../modules/TargetAction.html">TargetAction</a></li>
+  <li><a href="../modules/ActionMessageUtil.html">ActionMessageUtil</a></li>
+  <li><a href="../modules/BattleUtil.html">BattleUtil</a></li>
+  <li><a href="../modules/BuffUtil.html">BuffUtil</a></li>
+  <li><a href="../modules/CureUtil.html">CureUtil</a></li>
+  <li><a href="../modules/TableExtension.html">TableExtension</a></li>
+  <li><a href="../modules/GeometryUtil.html">GeometryUtil</a></li>
+  <li><a href="../modules/JobUtil.html">JobUtil</a></li>
+  <li><a href="../modules/MonsterUtil.html">MonsterUtil</a></li>
+  <li><a href="../modules/party_util.html">party_util</a></li>
+  <li><a href="../modules/pet_util.html">pet_util</a></li>
+  <li><a href="../modules/PupUtil.html">PupUtil</a></li>
+  <li><a href="../modules/SpellUtil.html">SpellUtil</a></li>
+  <li><a href="../modules/AuraTracker.html">AuraTracker</a></li>
+  <li><a href="../modules/BattleStatTracker.html">BattleStatTracker</a></li>
+  <li><a href="../modules/SongTracker.html">SongTracker</a></li>
+  <li><a href="../modules/DamageMemory.html">DamageMemory</a></li>
+  <li><a href="../modules/MobTracker.html">MobTracker</a></li>
+  <li><a href="../modules/Monster.html">Monster</a></li>
+  <li><a href="../modules/MonsterBuffTracker.html">MonsterBuffTracker</a></li>
+  <li><a href="../modules/Roll.html">Roll</a></li>
+  <li><a href="../modules/Skillchain.html">Skillchain</a></li>
+  <li><a href="../modules/MagicBurstMaker.html">MagicBurstMaker</a></li>
+  <li><a href="../modules/SkillchainMaker.html">SkillchainMaker</a></li>
+  <li><a href="../modules/SongTracker.html">SongTracker</a></li>
+  <li><a href="../modules/SongRecord.html">SongRecord</a></li>
+  <li><a href="../modules/Spell.html">Spell</a></li>
+  <li><a href="../modules/Buff.html">Buff</a></li>
+  <li><a href="../modules/Debuff.html">Debuff</a></li>
+  <li><a href="../modules/Refresh.html">Refresh</a></li>
+  <li><a href="../modules/SongRecord.html">SongRecord</a></li>
+  <li><a href="../modules/Buff.html">Buff</a></li>
+  <li><a href="../modules/Debuff.html">Debuff</a></li>
+  <li><a href="../modules/Refresh.html">Refresh</a></li>
+  <li><a href="../modules/AlterEgo.html">AlterEgo</a></li>
+  <li><a href="../modules/Automaton.html">Automaton</a></li>
+  <li><a href="../modules/Avatar.html">Avatar</a></li>
+  <li><a href="../modules/Entity.html">Entity</a></li>
+  <li><a href="../modules/Familiar.html">Familiar</a></li>
+  <li><a href="../modules/Geocolure.html">Geocolure</a></li>
+  <li><a href="../modules/BlueMage.html">BlueMage</a></li>
+  <li><a href="../modules/Bard.html">Bard</a></li>
+  <li><a href="../modules/Beastmaster.html">Beastmaster</a></li>
+  <li><a href="../modules/Corsair.html">Corsair</a></li>
+  <li><a href="../modules/Dragoon.html">Dragoon</a></li>
+  <li><a href="../modules/DarkKnight.html">DarkKnight</a></li>
+  <li><a href="../modules/Geomancer.html">Geomancer</a></li>
+  <li><a href="../modules/Ninja.html">Ninja</a></li>
+  <li><a href="../modules/Paladin.html">Paladin</a></li>
+  <li><a href="../modules/Puppetmaster.html">Puppetmaster</a></li>
+  <li><a href="../modules/RedMage.html">RedMage</a></li>
+  <li><a href="../modules/RuneFencer.html">RuneFencer</a></li>
+  <li><a href="../modules/Samurai.html">Samurai</a></li>
+  <li><a href="../modules/Scholar.html">Scholar</a></li>
+  <li><a href="../modules/Summoner.html">Summoner</a></li>
+  <li><a href="../modules/Warrior.html">Warrior</a></li>
+  <li><strong>White</strong></li>
+  <li><a href="../modules/Job.html">Job</a></li>
+  <li><a href="../modules/Party.html">Party</a></li>
+  <li><a href="../modules/PartyMember.html">PartyMember</a></li>
+  <li><a href="../modules/Player.html">Player</a></li>
+  <li><a href="../modules/BlueMage.html">BlueMage</a></li>
+  <li><a href="../modules/Bard.html">Bard</a></li>
+  <li><a href="../modules/Beastmaster.html">Beastmaster</a></li>
+  <li><a href="../modules/Corsair.html">Corsair</a></li>
+  <li><a href="../modules/Dragoon.html">Dragoon</a></li>
+  <li><a href="../modules/DarkKnight.html">DarkKnight</a></li>
+  <li><a href="../modules/Geomancer.html">Geomancer</a></li>
+  <li><a href="../modules/Ninja.html">Ninja</a></li>
+  <li><a href="../modules/Paladin.html">Paladin</a></li>
+  <li><a href="../modules/Puppetmaster.html">Puppetmaster</a></li>
+  <li><a href="../modules/RedMage.html">RedMage</a></li>
+  <li><a href="../modules/RuneFencer.html">RuneFencer</a></li>
+  <li><a href="../modules/Samurai.html">Samurai</a></li>
+  <li><a href="../modules/Scholar.html">Scholar</a></li>
+  <li><a href="../modules/Summoner.html">Summoner</a></li>
+  <li><a href="../modules/Warrior.html">Warrior</a></li>
+  <li><strong>White</strong></li>
+  <li><a href="../modules/Job.html">Job</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>White</code></h1>
+<p>Job file for White Mage.</p>
+<p>
+
+</p>
+
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "WhiteMage.new"></a>
+    <strong>WhiteMage.new (cure_settings)</strong>
+    </dt>
+    <dd>
+    Default initializer for a new White Mage.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">cure_settings</span>
+            <span class="types"><span class="type">T</span></span>
+         Cure thresholds
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">WHM</span></span>
+        A White Mage
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "WhiteMage:get_cure_spell"></a>
+    <strong>WhiteMage:get_cure_spell (hp_missing)</strong>
+    </dt>
+    <dd>
+    Returns the Spell for the cure that should be used to restore the given amount of hp.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">hp_missing</span>
+            <span class="types"><span class="type">number</span></span>
+         Amount of hp missing
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Spell</span></span>
+        Cure spell
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "WhiteMage:get_aoe_cure_spell"></a>
+    <strong>WhiteMage:get_aoe_cure_spell (hp_missing)</strong>
+    </dt>
+    <dd>
+    Returns the Spell for the aoe cure that should be used to restore the given amount of hp.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">hp_missing</span>
+            <span class="types"><span class="type">number</span></span>
+         Amount of hp missing
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Spell</span></span>
+        Aoe cure spell
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "WhiteMage:get_status_removal_spell"></a>
+    <strong>WhiteMage:get_status_removal_spell (debuff_id, num_targets)</strong>
+    </dt>
+    <dd>
+    Returns the spell that removes the given status effect.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">debuff_id</span>
+            <span class="types"><span class="type">number</span></span>
+         Debuff id (see buffs.lua)
+        </li>
+        <li><span class="parameter">num_targets</span>
+            <span class="types"><span class="type">number</span></span>
+         Number of targets afflicted with the status effect
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Spell</span></span>
+        Status removal spell
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "WhiteMage:get_raise_spell"></a>
+    <strong>WhiteMage:get_raise_spell ()</strong>
+    </dt>
+    <dd>
+    Returns the spell that can raise a party member.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Spell</span></span>
+        Raise spell
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "WhiteMage:get_cure_threshold"></a>
+    <strong>WhiteMage:get_cure_threshold (is_backup_healer)</strong>
+    </dt>
+    <dd>
+    Returns the threshold below which players should be healed.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">is_backup_healer</span>
+            <span class="types"><span class="type">Boolean</span></span>
+         Whether the player is the backup healer
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        HP percentage
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "WhiteMage:set_cure_settings"></a>
+    <strong>WhiteMage:set_cure_settings (cure_settings)</strong>
+    </dt>
+    <dd>
+    Sets the cure settings.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">cure_settings</span>
+            <span class="types"><span class="type">T</span></span>
+         Cure settings
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2023-01-29 00:28:34 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
