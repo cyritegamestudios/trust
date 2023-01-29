@@ -7,6 +7,10 @@ of things like attacking, nuking, pulling, skill chaining, tanking and more.
 
 --------------------------------------------------------------------------------
 
+## Support
+
+Get help or request a feature in the [Cyrite Game Studios Discord](https://discord.gg/rUa52rWK). Do NOT ask questions about Trust in game.
+
 ## Setup
 
 You will need the latest version of [Trust](https://github.com/cyritegamestudios/trust) in order to use Trust. You will need to update *both* the `addons` and `cylibs` repo when you pull new changes, as `addons` is powered by `cylibs` and will not work properly if the versions don't match.
