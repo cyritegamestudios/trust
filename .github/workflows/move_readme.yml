@@ -1,0 +1,25 @@
+name: Move readme
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      - name: Move the readme file
+        run: ./generate_readme.sh
+      
+      - name: Commit and push changes
+        run: |
+          git config user.name "cyrite"
+          git config user.email "cyritegamestudios@gmail.com"
+          
+          git add -A
+          git commit -m "Automatically updating README.md"
+          git push
