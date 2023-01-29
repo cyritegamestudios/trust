@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          persist-credentials: false
+          token: ${{ secrets.PUSH_KEY }}
       - name: Move the readme file
         run: ./generate_readme.sh
       
