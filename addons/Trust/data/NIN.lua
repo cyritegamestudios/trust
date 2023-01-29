@@ -14,7 +14,7 @@ TrustSettings = {
             starterws = {'Blade: Kamu','Tachi: Ageha'},
             preferws = {'Blade: Ku','Evisceration','Blade: To','Blade: Chi','Blade: Teki'},
             amws = 'Blade: Kamu'
-        }
+        },
     }
 }
 return TrustSettings
