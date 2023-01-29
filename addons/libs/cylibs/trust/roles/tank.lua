@@ -47,7 +47,7 @@ function Tank:check_enmity()
                 SpellAction.new(0, 0, 0, enmity_spell:get_spell().id, self.target_index, self:get_player()),
                 WaitAction.new(0, 0, 0, 2),
                 SpellAction.new(0, 0, 0, spell_util.spell_id('Foil'), nil, self:get_player()),
-            }, 'RUN_enmity')
+            }, 'tank_enmity')
             spell_action.priority = ActionPriority.high
 
             self.action_queue:push_action(spell_action, true)
