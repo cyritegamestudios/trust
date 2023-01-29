@@ -2,7 +2,6 @@ local Tank = setmetatable({}, {__index = Role })
 Tank.__index = Tank
 
 state.AutoTankMode = M{['description'] = 'Auto Tank Mode', 'Off', 'Auto'}
-state.AutoTankMode:set_description('Off', "Okay, I'll no longer try to tank.")
 state.AutoTankMode:set_description('Auto', "Okay, I'll tank for the party.")
 
 function Tank.new(action_queue, job_ability_names, spells)
