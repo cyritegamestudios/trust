@@ -3,8 +3,12 @@ name: Move readme
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'addons/Trust/data/README.md'
   pull_request:
     branches: [ main ]
+    paths:
+      - 'addons/Trust/data/README.md'
     
 jobs:
   build:
@@ -29,7 +33,7 @@ jobs:
       - name: Commit and push changes
         run: |
           git config user.name "cyrite"
-          git config user.email "cyritegamestudios@gmail.com"
+          git config user.email "cyritegamestudios@gmail.com" 
           
           git add -A
           git commit -m "Automatically updating README.md"
