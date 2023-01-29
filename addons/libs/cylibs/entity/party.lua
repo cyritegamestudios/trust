@@ -104,7 +104,7 @@ function Party:monitor()
             local main_job_id = p['Main job']
             local sub_job_id = p['Sub job']
 
-            if mob_id and hpp and self.party_members[mob_id] then
+            if mob_id and hpp and self.party_members[mob_id] and self.party_members[mob_id]:get_mob() then
                 self:add_member(mob_id, self.party_members[mob_id]:get_name(), main_job_id, sub_job_id, hpp, hp)
 
                 if hpp > 0 then
