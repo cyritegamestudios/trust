@@ -2,8 +2,7 @@
 
 ## Summary
 
-The Trust addon turns your character into a Trust. It works for all jobs and takes
-of things like attacking, nuking, pulling, skill chaining, tanking and more.
+Trust is a Windower 4 addon for FFXI that turns your character into a Trust. It works for all jobs and can attack, nuke, pull, skillchain and more.
 
 --------------------------------------------------------------------------------
 
