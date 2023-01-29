@@ -8,8 +8,15 @@ local Healer = setmetatable({}, {__index = Role })
 Healer.__index = Healer
 
 state.AutoHealMode = M{['description'] = 'Auto Heal Mode', 'Auto', 'Emergency', 'Off'}
+state.AutoHealMode:set_description('Auto', "You can count on me to heal the party.")
+state.AutoHealMode:set_description('Emergency', "Okay, I'll only heal when you're in a pinch.")
+
 state.AutoDetectAuraMode = M{['description'] = 'Auto Detect Aura Mode', 'Off', 'Auto'}
+state.AutoDetectAuraMode:set_description('Auto', "Okay, I'll try not to remove status effects caused by auras.")
+
 state.AutoBarSpellMode = M{['description'] = 'Auto Barspell Mode', 'Off', 'Manual', 'Auto'}
+state.AutoBarSpellMode:set_description('Manual', "Okay, I'll make sure to remember the last barspell you tell me to cast.")
+state.AutoBarSpellMode:set_description('Auto', "Okay, I'll try to figure out which barspell to cast on my own.")
 
 -------
 -- Default initializer for a healer.

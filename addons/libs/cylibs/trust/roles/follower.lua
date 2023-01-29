@@ -4,6 +4,7 @@ Follower.__index = Follower
 local WalkAction = require('cylibs/actions/walk')
 
 state.AutoFollowMode = M{['description'] = 'Auto Follow Mode', 'Off', 'Always'}
+state.AutoFollowMode:set_description('Always', "Okay, I'll follow whomever I'm assisting when not in battle.")
 
 function Follower.new(action_queue)
     local self = setmetatable(Role.new(action_queue), Follower)

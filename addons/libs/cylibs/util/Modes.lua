@@ -96,6 +96,8 @@ function M(t, ...)
 
     m._state_change = Event.newEvent()
 
+    m._value_descriptions = {}
+
     return setmetatable(m, _meta.M)
 end
 
@@ -368,6 +370,14 @@ end
 
 _meta.M.__methods['on_state_change'] = function(m)
     return m._state_change
+end
+
+_meta.M.__methods['set_description'] = function(m, value, text)
+    m._value_descriptions[value] = text
+end
+
+_meta.M.__methods['get_description'] = function(m, value)
+    return m._value_descriptions[value]
 end
 
 

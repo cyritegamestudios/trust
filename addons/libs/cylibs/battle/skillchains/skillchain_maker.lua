@@ -88,6 +88,8 @@ function SkillchainMaker:on_perform_next_weapon_skill()
     return self.perform_next_weapon_skill
 end
 
+tagdelay = 0.5
+
 -------
 -- Default initializer for a SkillchainMaker.
 -- @tparam T skillchain_settings Specifies weapon skills

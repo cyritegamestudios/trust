@@ -2,6 +2,7 @@ local Shooter = setmetatable({}, {__index = Role })
 Shooter.__index = Shooter
 
 state.AutoShootMode = M{['description'] = 'Auto Shoot Mode', 'Off', 'Auto'}
+state.AutoShootMode:set_description('Auto', "Okay, I'll start shooting again after I weapon skill.")
 
 function Shooter.new(action_queue)
     local self = setmetatable(Role.new(action_queue), Shooter)

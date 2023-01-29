@@ -2,7 +2,11 @@ local Attacker = setmetatable({}, {__index = Role })
 Attacker.__index = Attacker
 
 state.AutoEngageMode = M{['description'] = 'Auto Engage Mode', 'Off', 'Always', 'Assist'}
+state.AutoEngageMode:set_description('Always', "Okay, I'll automatically engage when our party is fighting.")
+state.AutoEngageMode:set_description('Assist', "Okay, I'll lock onto the target but I won't draw my weapons.")
+
 state.EngageMode = M{['description'] = 'Engage Mode', 'None', 'Behind'}
+state.EngageMode:set_description('Behind', "Okay, I'll get behind the monster when fighting.")
 
 function Attacker.new(action_queue)
     local self = setmetatable(Role.new(action_queue), Attacker)

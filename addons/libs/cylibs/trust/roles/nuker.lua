@@ -4,6 +4,7 @@ Nuker.__index = Nuker
 local MagicBurstMaker = require('cylibs/battle/skillchains/magic_burst_maker')
 
 state.AutoMagicBurstMode = M{['description'] = 'Auto Magic Burst Mode', 'Off', 'Auto'}
+state.AutoMagicBurstMode:set_description('Auto', "Okay, if you make skillchains I'll try to magic burst.")
 
 function Nuker.new(action_queue, magic_burst_cooldown, magic_burst_mpp, fast_cast)
     local self = setmetatable(Role.new(action_queue), Nuker)

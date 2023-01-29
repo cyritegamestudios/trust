@@ -5,6 +5,9 @@ local Puller = setmetatable({}, {__index = Role })
 Puller.__index = Puller
 
 state.AutoPullMode = M{['description'] = 'Auto Pull Mode', 'Off', 'Auto','Multi','Target'}
+state.AutoPullMode:set_description('Auto', "Okay, I'll automatically pull monsters for the party.")
+state.AutoPullMode:set_description('Multi', "Okay, I'll pull my own monster even if we're already fighting.")
+state.AutoPullMode:set_description('Target', "Okay, I'll pull whatever monster I'm currently targeting.")
 
 function Puller.new(action_queue, target_names, spell_name, job_ability_name)
     local self = setmetatable(Role.new(action_queue), Puller)

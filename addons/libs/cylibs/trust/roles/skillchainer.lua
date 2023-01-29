@@ -4,10 +4,24 @@ Skillchainer.__index = Skillchainer
 local SkillchainMaker = require('cylibs/battle/skillchains/skillchain_maker')
 
 state.AutoAftermathMode = M{['description'] = 'Auto Aftermath Mode', 'Off', 'Auto'}
+state.AutoAftermathMode:set_description('Auto', "Okay, I'll try to keep aftermath on.")
+
 state.AutoSkillchainMode = M{['description'] = 'Auto Skillchain Mode', 'Off', 'Auto', 'Cleave', 'Spam'}
-state.SkillchainDelayMode = M{['description'] = 'Skillchain Delay Mode', 'Off', 'Maximum'} --
+state.AutoSkillchainMode:set_description('Auto', "Okay, I'll try to make skillchains.")
+state.AutoSkillchainMode:set_description('Cleave', "Okay, I'll try to cleave monsters.")
+state.AutoSkillchainMode:set_description('Spam', "Okay, I'll use the same weapon skill as soon as I get TP.")
+
+state.SkillchainDelayMode = M{['description'] = 'Skillchain Delay Mode', 'Off', 'Maximum'}
+state.SkillchainDelayMode:set_description('Maximum', "Okay, I'll wait until the end of the skillchain window to use my next weapon skill.")
+
 state.SkillchainPartnerMode = M{['description'] = 'Skillchain Partner Mode', 'Off', 'Auto', 'Open', 'Close'}
+state.SkillchainPartnerMode:set_description('Auto', "Okay, I'll let party members with the highest TP go first.")
+state.SkillchainPartnerMode:set_description('Open', "Okay, I'll only open skillchains.")
+state.SkillchainPartnerMode:set_description('Close', "Okay, I'll only close skillchains.")
+
 state.SkillchainPriorityMode = M{['description'] = 'Skillchain Priority Mode', 'Off', 'Prefer', 'Strict'}
+state.SkillchainPartnerMode:set_description('Prefer', "Okay, I'll prioritize using certain weapon skills.")
+state.SkillchainPartnerMode:set_description('Strict', "Okay, I'll only use certain weapon skills.")
 
 function Skillchainer.new(action_queue, skillchain_params, skillchain_settings)
     local self = setmetatable(Role.new(action_queue), Skillchainer)

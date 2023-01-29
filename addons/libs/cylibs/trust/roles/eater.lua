@@ -2,6 +2,7 @@ local Eater = setmetatable({}, {__index = Role })
 Eater.__index = Eater
 
 state.AutoFoodMode = M{['description'] = 'Auto Food Mode', 'Off', 'Auto'}
+state.AutoFoodMode:set_description('Auto', "Okay, I'll eat when I'm hungry.")
 
 function Eater.new(action_queue, food_name)
     local self = setmetatable(Role.new(action_queue), Eater)

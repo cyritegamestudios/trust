@@ -2,6 +2,8 @@ local Roller = setmetatable({}, {__index = Role })
 Roller.__index = Roller
 
 state.AutoRollMode = M{['description'] = 'Auto Roll Mode', 'Manual', 'Auto', 'Off'}
+state.AutoRollMode:set_description('Manual', "Okay, you do the first roll and I'll double up on my own.")
+state.AutoRollMode:set_description('Auto', "Okay, I'll roll on my own.")
 
 function Roller.new(action_queue, job, roll1, roll2, party)
     local self = setmetatable(Role.new(action_queue), Roller)

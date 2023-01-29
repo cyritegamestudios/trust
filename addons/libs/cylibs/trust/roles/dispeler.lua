@@ -2,6 +2,7 @@ local Dispeler = setmetatable({}, {__index = Role })
 Dispeler.__index = Dispeler
 
 state.AutoDispelMode = M{['description'] = 'Auto Dispel Mode', 'Auto', 'Off'}
+state.AutoDispelMode:set_description('Auto', "Okay, I'll try to dispel monster buffs.")
 
 function Dispeler.new(action_queue, spells, job_ability_names)
     local self = setmetatable(Role.new(action_queue), Dispeler)

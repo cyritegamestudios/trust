@@ -2,6 +2,8 @@ local Targeter = setmetatable({}, {__index = Role })
 Targeter.__index = Targeter
 
 state.AutoTargetMode = M{['description'] = 'Auto Target Mode', 'Off', 'Auto', 'Same'}
+state.AutoTargetMode:set_description('Auto', "Okay, I'll automatically target a new monster after we defeat one.")
+state.AutoTargetMode:set_description('Same', "Okay, I'll automatically target a new monster with the same name as the last one we defeated.")
 
 function Targeter.new(action_queue)
     local self = setmetatable(Role.new(action_queue), Targeter)

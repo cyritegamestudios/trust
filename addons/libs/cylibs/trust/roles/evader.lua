@@ -4,6 +4,7 @@ local Evader = setmetatable({}, {__index = Role })
 Evader.__index = Evader
 
 state.AutoAvoidAggroMode = M{['description'] = 'Auto Avoid Aggro Mode', 'Auto', 'Off'}
+state.AutoAvoidAggroMode:set_description('Auto', "Okay, I'll try not to aggro monsters.")
 
 local magic_aggro_mobs = L{
     'Elemental'

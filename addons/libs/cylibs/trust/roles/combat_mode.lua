@@ -2,7 +2,11 @@ local CombatMode = setmetatable({}, {__index = Role })
 CombatMode.__index = CombatMode
 
 state.AutoFaceMobMode = M{['description'] = 'Auto Face Mob Mode', 'Auto', 'Off'}
+state.AutoFaceMobMode:set_description('Auto', "Okay, I'll make sure to look the monster straight in the eyes.")
+
 state.CombatMode = M{['description'] = 'Combat Mode', 'Off', 'Melee', 'Ranged'}
+state.CombatMode:set_description('Melee', "Okay, I'll fight on the front lines.")
+state.CombatMode:set_description('Ranged', "Okay, I'll stand back in battle.")
 
 function CombatMode.new(action_queue, melee_distance, range_distance)
     local self = setmetatable(Role.new(action_queue), CombatMode)

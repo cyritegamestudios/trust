@@ -14,7 +14,11 @@ local Puller = require('cylibs/trust/roles/puller')
 local Singer = require('cylibs/trust/roles/singer')
 
 state.AutoSongMode = M{['description'] = 'Auto Song Mode', 'Off', 'Auto', 'Dummy'}
+state.AutoSongMode:set_description('Auto', "Okay, I'll keep songs on the party.")
+state.AutoSongMode:set_description('Dummy', "Okay, I'll only sing dummy songs.")
+
 state.AutoSleepMode = M{['description'] = 'Auto Sleep Mode', 'Off', 'Auto'}
+state.AutoSleepMode:set_description('Auto', "Okay, I'll automatically try to sleep large groups of monsters.")
 
 function BardTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = Bard.new(trust_settings)

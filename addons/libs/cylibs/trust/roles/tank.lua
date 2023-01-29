@@ -2,6 +2,8 @@ local Tank = setmetatable({}, {__index = Role })
 Tank.__index = Tank
 
 state.AutoTankMode = M{['description'] = 'Auto Tank Mode', 'Off', 'Auto'}
+state.AutoTankMode:set_description('Off', "Okay, I'll no longer try to tank.")
+state.AutoTankMode:set_description('Auto', "Okay, I'll tank for the party.")
 
 function Tank.new(action_queue, job_ability_names, spells)
     local self = setmetatable(Role.new(settings, action_queue), Tank)
@@ -33,7 +35,9 @@ function Tank:tic(_, _)
 end
 
 function Tank:check_enmity()
-    if state.AutoTankMode.value == 'Off' or os.time() - self.enmity_last_checked < 5 then
+    local target = windower.ffxi.get_mob_by_index(self.target_index)
+
+    if state.AutoTankMode.value == 'Off' or os.time() - self.enmity_last_checked < 5 or not party_util.party_claimed(target.id) then
         return
     end
     self.enmity_last_checked = os.time()
