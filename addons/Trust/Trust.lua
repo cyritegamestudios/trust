@@ -8,6 +8,7 @@ require('actions')
 require('lists')
 
 require('cylibs/Cylibs-Include')
+require('TrustHelp')
 require('TrustShortcuts')
 
 local Attacker = require('cylibs/trust/roles/attacker')
@@ -28,6 +29,8 @@ default = {
 	verbose=true
 }
 
+default.help = {}
+default.help.mode_text_enabled = true
 default.battle = {}
 default.battle.melee_distance = 3
 default.battle.range_distance = 21
@@ -46,7 +49,10 @@ player = {}
 -- States
 
 state.AutoBuffMode = M{['description'] = 'Auto Buff Mode', 'Off', 'Auto'}
+state.AutoBuffMode:set_description('Auto', "Okay, I'll automatically buff myself and the party.")
+
 state.AutoEnmityReductionMode = M{['description'] = 'Auto Enmity Reduction Mode', 'Off', 'Auto'}
+state.AutoEnmityReductionMode:set_description('Auto', "Okay, I'll automatically try to reduce my enmity.")
 
 -- Main
 
@@ -155,7 +161,9 @@ function load_trust_modes(job_name_short)
 		for state_name, value in pairs(modes) do
 			local state_var = get_state(state_name)
 			if state_var then
+				unregister_help_text(state_name, state_var)
 				state_var:set(value)
+				register_help_text(state_name, state_var)
 			end
 		end
 	end
@@ -166,6 +174,8 @@ function load_trust_modes(job_name_short)
 	end)
 
 	update_trust_for_modes(trust_modes.Default)
+
+	set_help_text_enabled(settings.help.mode_text_enabled)
 
 	addon_message(207, 'Trust modes set to Default')
 
