@@ -30,6 +30,7 @@ function init_include()
 	Condition = require('cylibs/conditions/condition')
 	InBattleCondition = require('cylibs/conditions/in_battle')
 	IdleCondition = require('cylibs/conditions/idle')
+	HasBuffCondition = require('cylibs/conditions/has_buff_condition')
 
 	-- Battle
 	MobTracker = require('cylibs/battle/mob_tracker')

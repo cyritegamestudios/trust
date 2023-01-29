@@ -2,7 +2,7 @@ require('tables')
 require('lists')
 require('logger')
 
-DarkKnight = require('cylibs/entity/jobs/DRK')
+local DarkKnight = require('cylibs/entity/jobs/DRK')
 
 local Trust = require('cylibs/trust/trust')
 local DarkKnightTrust = setmetatable({}, {__index = Trust })
@@ -19,7 +19,6 @@ function DarkKnightTrust.new(settings, action_queue, battle_settings, trust_sett
 		Buffer.new(action_queue, trust_settings.JobAbilities, trust_settings.SelfBuffs),
 		Dispeler.new(action_queue, L{ Spell.new('Absorb-Attri') }),
 		Puller.new(action_queue, battle_settings.targets, 'Stone', nil),
-		--Puller.new(action_queue, battle_settings.targets, nil, nil),
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, DarkKnight.new()), DarkKnightTrust)
 
@@ -52,16 +51,6 @@ function DarkKnightTrust:job_target_change(target_index)
 	self.target_index = target_index
 
 	self.battle_stat_tracker:reset()
-
-	if self.target_index == nil then
-		if buff_util.is_buff_active(buff_util.buff_id('Max HP Boost')) and not buff_util.is_buff_active(buff_util.buff_id('Dread Spikes')) then
-			self.action_queue:push_action(SequenceAction.new(L{
-				WaitAction.new(0, 0, 0, 3),
-				SpellAction.new(0, 0, 0, spell_util.spell_id('Dread Spikes'), nil, self:get_player()),
-				WaitAction.new(0, 0, 0, 5)
-			}, 'dread-spikes'), true)
-		end
-	end
 end
 
 function DarkKnightTrust:tic(old_time, new_time)

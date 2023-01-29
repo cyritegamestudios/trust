@@ -167,6 +167,7 @@ function Buffer:cast_spell(spell, target_index)
                 end
             end
         end
+
         if can_cast_spell then
             self.last_buff_time = os.time()
 

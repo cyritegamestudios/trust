@@ -4,7 +4,7 @@ Raiser.__index = Raiser
 local cure_util = require('cylibs/util/cure_util')
 
 state.AutoRaiseMode = M{['description'] = 'Auto Raise Mode', 'Off', 'Auto'}
-state.AutoRaiseMode:set_description('Auto', "Okay, I'll try to pull party members who have fallen in battle.")
+state.AutoRaiseMode:set_description('Auto', "Okay, I'll try to raise party members who have fallen in battle.")
 
 function Raiser.new(action_queue, job)
     local self = setmetatable(Role.new(action_queue), Raiser)

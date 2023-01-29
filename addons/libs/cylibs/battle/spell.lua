@@ -19,10 +19,10 @@ Spell.__index = Spell
 -- @tparam list job_abilities List of job abilities to use, if any
 -- @tparam list job_names List of job short names that this spell applies to
 -- @tparam string target Spell target (options: bt, p0...pn)
--- @tparam string consumable_name Name of consumable required to cast this spell (optional)
 -- @tparam list conditions List of conditions that must be satisfied to cast the spell (optional)
+-- @tparam string consumable_name Name of consumable required to cast this spell (optional)
 -- @treturn Spell A spell
-function Spell.new(spell_name, job_abilities, job_names, target, consumable, conditions)
+function Spell.new(spell_name, job_abilities, job_names, target, conditions, consumable)
     local self = setmetatable({
         spell_name = spell_name;
         job_abilities = job_abilities or L{};
