@@ -5,7 +5,7 @@ return {
         ["autoraisemode"]="Off",
         ["skillchainprioritymode"]="Off",
         ["subtrustsettingsmode"]="Default",
-        ["autosilencemode"]="Auto",
+        ["autosilencemode"]="Off",
         ["autoaftermathmode"]="Off",
         ["autoartsmode"]="LightArts",
         ["autoskillchainmode"]="Off",
