@@ -11,10 +11,19 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
         with:
           token: ${{ secrets.PUSH_KEY }}
+      
+      - name: Check readme exists
+        id: check_readme
+        uses: andstor/file-existence-action@v2
+        with:
+          files: "addons/Trust/data/README.md"
+      
       - name: Move the readme file
+        if: steps.check_readme.outputs.file_exists == 'true'
         run: ./generate_readme.sh
       
       - name: Commit and push changes
