@@ -12,6 +12,8 @@ jobs:
     
     steps:
       - uses: actions/checkout@v3
+        with:
+          persist-credentials: false
       - name: Move the readme file
         run: ./generate_readme.sh
       
