@@ -99,6 +99,17 @@ function ffxi_util.mob_id_for_index(index)
 	return nil
 end
 
+function ffxi_util.mob_for_index(index)
+	if index == nil then
+		return nil
+	end
+	local mob = windower.ffxi.get_mob_by_index(index)
+	if mob then
+		return mob
+	end
+	return nil
+end
+
 return ffxi_util
 
 

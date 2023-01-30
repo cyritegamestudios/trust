@@ -128,14 +128,16 @@ function Puller:get_pull_target()
             end
         end
     else
+        local player_target = ffxi_util.mob_for_index(windower.ffxi.get_player().target_index)
         local current_targets = party_util.get_party_claimed_mobs()
         if current_targets and #current_targets > 0 then
             --print('already have target 0')
             return windower.ffxi.get_mob_by_index(current_targets[1])
-        elseif battle_util.is_valid_monster_target(ffxi_util.mob_id_for_index(windower.ffxi.get_player().target_index))
-                and monster_util.is_unclaimed(ffxi_util.mob_id_for_index(windower.ffxi.get_player().target_index)) then
+        elseif player_target and battle_util.is_valid_monster_target(player_target.id)
+                and monster_util.is_unclaimed(player_target.id)
+                and player_target.distance:sqrt() < self:get_pull_distance() then
             --print('already have target 2')
-            return windower.ffxi.get_mob_by_index(windower.ffxi.get_player().target_index)
+            return player_target
         else
             return ffxi_util.find_closest_mob(self.target_names)
         end
