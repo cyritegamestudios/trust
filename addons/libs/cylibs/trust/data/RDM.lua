@@ -30,7 +30,7 @@ state.AutoConvertMode = M{['description'] = 'Auto Convert Mode', 'Off', 'Auto'}
 function RedMageTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = RedMage.new(trust_settings.CureSettings)
 	local roles = S{
-		Buffer.new(action_queue, S{'Composure'}, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
+		Buffer.new(action_queue, trust_settings.JobAbilities, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
 		Debuffer.new(action_queue, trust_settings.Debuffs),
 		Dispeler.new(action_queue, L{ Spell.new('Dispel') }),
 		Healer.new(action_queue, job),
