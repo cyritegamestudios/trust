@@ -4,7 +4,7 @@ TrustSettings = {
         JobAbilities = L{
         },
         SelfBuffs = L{
-            Spell.new('Utsusemi: Ni', L{}, L{}, nil),
+            --Spell.new('Utsusemi: Ni', L{}, L{}, nil),
         },
         Skillchains = {
             defaultws = {'Blade: Hi','Blade: Shun','Tachi: Ageha','Evisceration','Asuran Fists'},

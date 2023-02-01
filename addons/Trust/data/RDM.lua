@@ -5,7 +5,7 @@ TrustSettings = {
             Buff.new('Refresh'),
             Buff.new('Haste'),
             Buff.new('Temper', L{}, L{}, nil, L{ InBattleCondition.new() }),
-            Spell.new('Enblizzard', L{}, L{}, nil, nil, L{ InBattleCondition.new() }),
+            Spell.new('Enblizzard', L{}, L{}, nil, L{ InBattleCondition.new() }),
             Spell.new('Gain-INT'),
             Spell.new('Phalanx')
         },
@@ -14,7 +14,7 @@ TrustSettings = {
             Buff.new('Haste', L{}, job_util.melee_jobs():extend(L{'SCH','BLM'})),
             Buff.new('Haste', L{}, L{ 'COR' }, nil, L{ InBattleCondition.new() }),
             Buff.new('Flurry', L{}, L{'RNG','COR'}, nil, L{ IdleCondition.new() }),
-            Spell.new('Phalanx II', L{}, job_util.melee_jobs(), nil, nil, L{ InBattleCondition.new() }),
+            Spell.new('Phalanx II', L{}, job_util.melee_jobs(), nil, L{ InBattleCondition.new() }),
         },
         CureSettings = {
             Thresholds = {
