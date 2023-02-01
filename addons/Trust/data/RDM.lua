@@ -1,13 +1,19 @@
 -- Default trust settings for RDM
 TrustSettings = {
     Default = {
+        JobAbilities = L{
+            'Composure'
+        },
         SelfBuffs = L{
             Buff.new('Refresh'),
             Buff.new('Haste'),
             Buff.new('Temper', L{}, L{}, nil, L{ InBattleCondition.new() }),
             Spell.new('Enblizzard', L{}, L{}, nil, L{ InBattleCondition.new() }),
-            Spell.new('Gain-INT'),
-            Spell.new('Phalanx')
+            Spell.new('Gain-INT', L{}, L{}, nil, L{ IdleCondition.new() }),
+            Spell.new('Gain-STR', L{}, L{}, nil, L{ InBattleCondition.new() }),
+            Spell.new('Phalanx'),
+            Buff.new('Protect'),
+            Buff.new('Shell')
         },
         PartyBuffs = L{
             Buff.new('Refresh', L{}, L{'DRK','PUP','PLD','BLU','BLM','BRD','GEO','SMN','WHM','RUN'}),
@@ -19,7 +25,7 @@ TrustSettings = {
         CureSettings = {
             Thresholds = {
                 ['Default'] = 78,
-                ['Emergency'] = 25,
+                ['Emergency'] = 35,
                 ['Cure IV'] = 1500,
                 ['Cure III'] = 600,
                 ['Cure II'] = 0
@@ -30,7 +36,7 @@ TrustSettings = {
         },
         Skillchains = {
             defaultws = {'Savage Blade','Seraph Blade','Death Blossom','Black Halo'},
-            tpws = {},
+            tpws = {'Savage Blade'},
             spamws = {'Savage Blade','Black Halo'},
             starterws = {'Death Blossom','Savage Blade'},
             preferws = {'Death Blossom','Savage Blade','Black Halo','Realmrazer'},
