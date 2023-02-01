@@ -114,10 +114,12 @@ function Buffer:check_buffs()
         for spell in self.self_spells:it() do
             local buff = buff_util.buff_for_spell(spell:get_spell().id)
             if buff and not buff_util.is_buff_active(buff.id, player_buff_ids) and not buff_util.conflicts_with_buffs(buff.id, player_buff_ids)
-                    and self:range_check(spell) then
+                    and self:range_check(spell) and spell_util.can_cast_spell(spell:get_spell().id) then
                 local target = self:get_spell_target(spell)
                 if target and self:conditions_check(spell, target) then
-                    self:cast_spell(spell, target.index)
+                    if self:cast_spell(spell, target.index) then
+                        return
+                    end
                 end
             end
         end
@@ -129,11 +131,13 @@ function Buffer:check_buffs()
             if party_member:is_alive() then
                 for spell in self.party_spells:it() do
                     local buff = buff_util.buff_for_spell(spell:get_spell().id)
-                    if buff and not (party_member:has_buff(buff.id) or self.buff_tracker:has_buff(party_member:get_mob().id, buff.id)) and spell:get_job_names():contains(party_member:get_main_job_short()) then
+                    if buff and not (party_member:has_buff(buff.id) or self.buff_tracker:has_buff(party_member:get_mob().id, buff.id))
+                            and spell:get_job_names():contains(party_member:get_main_job_short()) and spell_util.can_cast_spell(spell:get_spell().id) then
                         local target = party_member:get_mob()
                         if target and self:conditions_check(spell, target) then
-                            self:cast_spell(spell, target.index)
-                            return
+                            if self:cast_spell(spell, target.index) then
+                                return
+                            end
                         end
                     end
                 end
@@ -145,7 +149,7 @@ end
 function Buffer:cast_spell(spell, target_index)
     if spell_util.can_cast_spell(spell:get_spell().id) then
         if spell:get_consumable() and not player_util.has_item(spell:get_consumable()) then
-            return
+            return false
         end
 
         local actions = L{ WaitAction.new(0, 0, 0, 1.5) }
@@ -175,9 +179,12 @@ function Buffer:cast_spell(spell, target_index)
             actions:append(WaitAction.new(0, 0, 0, 2))
 
             self.action_queue:push_action(SequenceAction.new(actions, 'buffer_'..spell:get_spell().en), true)
-
-            return
+            return true
+        else
+            return false
         end
+    else
+        return false
     end
 end
 

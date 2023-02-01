@@ -276,14 +276,14 @@ function SkillchainMaker:start_monitoring()
 end
 
 function SkillchainMaker:on_settings_changed(skillchain_settings)
-    defaultws = skillchain_settings.defaultws;
-    tpws = skillchain_settings.tpws;
-    spamws = skillchain_settings.spamws;
-    starterws = skillchain_settings.starterws;
-    preferws = skillchain_settings.preferws;
-    cleavews = skillchain_settings.cleavews;
-    amws = skillchain_settings.amws;
-    petws = skillchain_settings.petws;
+    defaultws = skillchain_settings.defaultws
+    tpws = skillchain_settings.tpws
+    spamws = skillchain_settings.spamws
+    starterws = skillchain_settings.starterws
+    preferws = skillchain_settings.preferws
+    cleavews = skillchain_settings.cleavews
+    amws = skillchain_settings.amws
+    petws = skillchain_settings.petws
 end
 
 function SkillchainMaker:varclean()
