@@ -39,7 +39,7 @@ TrustSettings = {
             tpws = {'Savage Blade'},
             spamws = {'Savage Blade','Black Halo'},
             starterws = {'Death Blossom','Savage Blade'},
-            preferws = {'Death Blossom','Savage Blade','Black Halo','Realmrazer'},
+            preferws = {'Flat Blade','Death Blossom','Savage Blade','Black Halo','Realmrazer'},
             cleavews = {'Aeolian Edge'},
             amws = 'Death Blossom'
         },
