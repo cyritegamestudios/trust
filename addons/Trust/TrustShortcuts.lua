@@ -10,7 +10,7 @@ function handle_shortcut(cmd, ...)
             toggle_mode('AutoSkillchainMode', 'Cleave', 'Off')
         elseif mode_var == 'am' then
             toggle_mode('AutoAftermathMode', 'Auto', 'Off')
-        elseif mode_var == 'buddy' then
+        elseif mode_var == 'partner' then
             toggle_mode('SkillchainPartnerMode', 'Auto', 'Off')
         elseif mode_var == 'open' then
             toggle_mode('SkillchainPartnerMode', 'Open', 'Off')
