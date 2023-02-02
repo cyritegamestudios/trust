@@ -20,8 +20,8 @@ state.SkillchainPartnerMode:set_description('Open', "Okay, I'll only open skillc
 state.SkillchainPartnerMode:set_description('Close', "Okay, I'll only close skillchains.")
 
 state.SkillchainPriorityMode = M{['description'] = 'Skillchain Priority Mode', 'Off', 'Prefer', 'Strict'}
-state.SkillchainPartnerMode:set_description('Prefer', "Okay, I'll prioritize using certain weapon skills.")
-state.SkillchainPartnerMode:set_description('Strict', "Okay, I'll only use certain weapon skills.")
+state.SkillchainPriorityMode:set_description('Prefer', "Okay, I'll prioritize using certain weapon skills.")
+state.SkillchainPriorityMode:set_description('Strict', "Okay, I'll only use certain weapon skills.")
 
 function Skillchainer.new(action_queue, skillchain_params, skillchain_settings)
     local self = setmetatable(Role.new(action_queue), Skillchainer)
