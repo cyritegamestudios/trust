@@ -3,17 +3,23 @@ function handle_shortcut(cmd, ...)
     if cmd == 'sc' then
         local mode_var = arg[1]
         if mode_var == 'auto' then
-            if state.AutoSkillchainMode.value == 'Off' then
-                handle_set('AutoSkillchainMode', 'Auto')
-            else
-                handle_set('AutoSkillchainMode', 'Off')
-            end
+            toggle_mode('AutoSkillchainMode', 'Auto', 'Off')
         elseif mode_var == 'spam' then
-            handle_set('AutoSkillchainMode', 'Spam')
+            toggle_mode('AutoSkillchainMode', 'Spam', 'Off')
         elseif mode_var == 'cleave' then
-            handle_set('AutoSkillchainMode', 'Cleave')
+            toggle_mode('AutoSkillchainMode', 'Cleave', 'Off')
         elseif mode_var == 'am' then
-            handle_cycle('AutoAftermathMode')
+            toggle_mode('AutoAftermathMode', 'Auto', 'Off')
+        elseif mode_var == 'buddy' then
+            toggle_mode('SkillchainPartnerMode', 'Auto', 'Off')
+        elseif mode_var == 'open' then
+            toggle_mode('SkillchainPartnerMode', 'Open', 'Off')
+        elseif mode_var == 'close' then
+            toggle_mode('SkillchainPartnerMode', 'Close', 'Off')
+        elseif mode_var == 'prefer' then
+            toggle_mode('SkillchainPriorityMode', 'Prefer', 'Off')
+        elseif mode_var == 'strict' then
+            toggle_mode('SkillchainPriorityMode', 'Strict', 'Off')
         end
     end
     --[[local command = ''
@@ -24,4 +30,13 @@ function handle_shortcut(cmd, ...)
         windower.send_command('@input '..command:trim())
         --action_queue:push_action(CommandAction.new(0, 0, 0, command:trim()), true)
     end]]
+end
+
+function toggle_mode(mode_var_name, on_value, off_value)
+    local mode_var = get_state(mode_var_name)
+    if mode_var.value == on_value then
+        handle_set(mode_var_name, off_value)
+    else
+        handle_set(mode_var_name, on_value)
+    end
 end
