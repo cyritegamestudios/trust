@@ -52,7 +52,6 @@ function Skillchainer:on_add()
 end
 
 function Skillchainer:job_weapon_skill(weapon_skill_name)
-    -- FIXME: uncomment line below out
     if state.AutoSkillchainMode.value == 'Off' then return end
 
     local ws = res.weapon_skills:with('en', weapon_skill_name)
