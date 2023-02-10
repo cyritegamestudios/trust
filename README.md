@@ -12,7 +12,7 @@ Get help or request a feature in the [Cyrite Game Studios Discord](https://disco
 
 ## Setup
 
-You will need the latest version of [Trust](https://github.com/cyritegamestudios/trust) in order to use Trust.
+You will need the latest version of [Trust](https://github.com/cyritegamestudios/trust) in order to use Trust. You will need to update *both* the `addons` and `cylibs` repo when you pull new changes, as `addons` is powered by `cylibs` and will not work properly if the versions don't match.
 
 1. Git clone or download [Trust](https://github.com/cyritegamestudios/trust) from Github.
 2. Copy the `addons` folder into your `Windower` folder so that you are pasting the new `addons` folder on top of your existing `addons` folder. Note that this will *not* override your entire existing `addons` folder, only addons related to Trust.
