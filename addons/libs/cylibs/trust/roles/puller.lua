@@ -10,6 +10,11 @@ state.AutoPullMode:set_description('Multi', "Okay, I'll pull my own monster even
 state.AutoPullMode:set_description('Target', "Okay, I'll pull whatever monster I'm currently targeting.")
 
 function Puller.new(action_queue, target_names, spell_name, job_ability_name)
+    return Puller.new(action_queue, target_names, spell_name, job_ability_name, false)
+
+end
+
+function Puller.new(action_queue, target_names, spell_name, job_ability_name, ranged_attack)
     local self = setmetatable(Role.new(action_queue), Puller)
 
     self.action_queue = action_queue
@@ -17,7 +22,8 @@ function Puller.new(action_queue, target_names, spell_name, job_ability_name)
     self.target_names = target_names
     self.spell_name = spell_name
     self.job_ability_name = job_ability_name
-    self.approach = spell_name == nil and job_ability_name == nil
+    self.ranged_attack = ranged_attack
+    self.approach = spell_name == nil and job_ability_name == nil and ranged_attack == false
     self.out_of_range_counter = 0
     self.last_pull_time = os.time()
     self.last_target_check_time = os.time()
@@ -166,6 +172,11 @@ function Puller:get_pull_action(target_index)
         return pull_action
     elseif self.job_ability_name then
         local pull_action = JobAbilityAction.new(0, 0, 0, self.job_ability_name, target_index)
+        pull_action.priority = ActionPriority.highest
+        return pull_action
+    elseif self.ranged_attack then
+        print(target_index)
+        local pull_action = CommandAction.new(0, 0, 0, '/ra '..target_index)
         pull_action.priority = ActionPriority.highest
         return pull_action
     end

@@ -19,7 +19,7 @@ function CorsairTrust.new(settings, action_queue, battle_settings, trust_setting
 		Dispeler.new(action_queue, L{}, L{ 'Dark Shot' }),
 		Shooter.new(action_queue),
 		Roller.new(action_queue, job, trust_settings.Roll1, trust_settings.Roll2),
-		Puller.new(action_queue, battle_settings.targets, nil, nil)
+		Puller.new(action_queue, battle_settings.targets, nil, nil, true)
 	}
 
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), CorsairTrust)
