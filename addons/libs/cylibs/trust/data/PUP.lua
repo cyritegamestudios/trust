@@ -94,6 +94,10 @@ function PuppetmasterTrust:tic(old_time, new_time)
 end
 
 function PuppetmasterTrust:check_deploy()
+	if self.target_index == nil then
+		return
+	end
+
 	local target = windower.ffxi.get_mob_by_index(self.target_index)
 
 	if state.AutoAssaultMode.value == 'Off' or target == nil or not self.automaton:is_idle()
