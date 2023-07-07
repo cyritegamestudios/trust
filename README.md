@@ -8,7 +8,7 @@ Trust is a Windower 4 addon for FFXI that turns your character into a Trust. It 
 
 ## Support
 
-Get help or request a feature in the [Cyrite Game Studios Discord](https://discord.gg/CfPxDy759J). Do NOT ask questions about Trust in game.
+Get help or request a feature in the [Cyrite Game Studios Discord](https://discord.gg/rUa52rWK). Do NOT ask questions about Trust in game.
 
 ## Setup
 
