@@ -185,4 +185,4 @@ You can combine these commands to control another player's actions using Trust. 
 * `/t Ashylarry /pcmd add Jerry` (requires autojoin)
 * `/t Ashylarry trust start`
 
-v1.0.6
+v1.0.7
