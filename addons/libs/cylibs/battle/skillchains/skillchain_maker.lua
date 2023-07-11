@@ -21,6 +21,7 @@ default.Show = { burst = _static, pet = S { 'BST', 'SMN' }, props = _static, spe
 default.UpdateFrequency = 0.2
 default.aeonic = false
 default.color = false
+default.blu_spells = false
 
 local message_ids = S { 110, 185, 187, 317, 802 }
 local skillchain_ids = S { 288, 289, 290, 291, 292, 293, 294, 295, 296, 297, 298, 299, 300, 301, 385, 386, 387, 388, 389, 390, 391, 392, 393, 394, 395, 396, 397, 767, 768, 769, 770 }
@@ -565,7 +566,9 @@ function SkillchainMaker:check_results(reson)
     if info.job == 'SCH' then
         t = self:add_skills(t, {0,1,2,3,4,5,6,7}, reson.active, 'elements')
     elseif info.job == 'BLU' then
-        t = self:add_skills(t, windower.ffxi.get_mjob_data().spells, reson.active, 'spells')
+        if default.blu_spells then
+            t = self:add_skills(t, windower.ffxi.get_mjob_data().spells, reson.active, 'spells')
+        end
     elseif windower.ffxi.get_mob_by_target('pet') then
         t = self:add_skills(t, windower.ffxi.get_abilities().job_abilities, reson.active, 'job_abilities')
     end
