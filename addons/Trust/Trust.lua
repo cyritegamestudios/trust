@@ -467,7 +467,7 @@ local function addon_command(cmd, ...)
 		player.trust.main_job_commands:handle_command(unpack({...}))
 	elseif L{player.sub_job_name_short, player.sub_job_name_short:lower()}:contains(cmd) and player.trust.sub_job_commands then
 		player.trust.sub_job_commands:handle_command(unpack({...}))
-	elseif cmd == 'sc' then
+	elseif L{'sc', 'pull', 'engage'}:contains(cmd) then
 		handle_shortcut(cmd, unpack({...}))
 	else
 		if not L{'cycle', 'set', 'help'}:contains(cmd) then
