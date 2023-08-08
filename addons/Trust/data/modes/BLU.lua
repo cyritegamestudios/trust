@@ -1,7 +1,7 @@
 -- Modes file for BLU
 return {
     ["Default"]={
-        ["autodispelmode"]="Auto",
+        ["autodispelmode"]="Off",
         ["subtrustsettingsmode"]="Default",
         ["automagicburstmode"]="Off",
         ["autofollowmode"]="Always",

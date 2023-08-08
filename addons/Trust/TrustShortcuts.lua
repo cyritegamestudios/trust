@@ -21,24 +21,6 @@ function handle_shortcut(cmd, ...)
         elseif mode_var == 'strict' then
             toggle_mode('SkillchainPriorityMode', 'Strict', 'Off')
         end
-    -- Pulling
-    elseif cmd == 'pull' then
-        local mode_var = arg[1]
-        if mode_var == 'auto' then
-            toggle_mode('AutoPullMode', 'Auto', 'Off')
-        elseif mode_var == 'multi' then
-            toggle_mode('AutoPullMode', 'Multi', 'Off')
-        elseif mode_var == 'target' then
-            toggle_mode('AutoPullMode', 'Target', 'Off')
-        end
-    -- Engaging
-    elseif cmd == 'engage' then
-        local mode_var = arg[1]
-        if mode_var == 'always' then
-            toggle_mode('AutoEngageMode', 'Always', 'Off')
-        elseif mode_var == 'assist' then
-            toggle_mode('AutoEngageMode', 'Assist', 'Off')
-        end
     end
     --[[local command = ''
     for _,v in ipairs(arg) do
