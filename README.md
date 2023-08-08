@@ -161,31 +161,6 @@ You can combine these modes to customize Trust behavior. For example, to make yo
 * `// trust set AutoEngageMode Always`
 * `// trust set CombatMode Melee`
 
-## Shortcuts
-There are several built-in shortcuts that can make things like cycling between modes easier. The syntax is `// trust`, followed by a category of commands, and then one or more arguments, e.g. `// trust sc auto` will toggle between`AutoSkillchainMode` `Auto` and `Off`.
-
-### Skillchains
-| Command             | Action                                                            |
-|---------------------|-------------------------------------------------------------------|
-| // trust sc auto    | Short for `// trust set AutoSkillchainMode` `Auto` or `Off`       |
-| // trust sc spam    | Short for `// trust set AutoSkillchainMode` `Spam` or `Off`       |
-| // trust sc cleave  | Short for `// trust set AutoSkillchainMode` `Cleave` or `Off`     |
-| // trust sc am      | Short for `// trust set AutoAftermathMode` `Auto` or `Off`        |
-| // trust sc partner | Short for `// trust set SkillchainPartnerMode` `Auto` or `Off`    |
-| // trust sc open    | Short for `// trust set SkillchainPartnerMode` `Open` or `Off`    |
-| // trust sc close   | Short for `// trust set SkillchainPartnerMode` `Close` or `Off`   |
-| // trust sc prefer  | Short for `// trust set SkillchainPriorityMode` `Prefer` or `Off` |
-| // trust sc strict  | Short for `// trust set SkillchainPriorityMode` `Strict` or `Off` |
-
-### Battle
-| Command                | Action                                                            |
-|------------------------|-------------------------------------------------------------------|
-| // trust pull auto     | Short for `// trust set AutoPullMode` `Auto` or `Off`             |
-| // trust pull multi    | Short for `// trust set AutoPullMode` `Multi` or `Off`            |
-| // trust pull target   | Short for `// trust set AutoPullMode` `Target` or `Off`           |
-| // trust engage auto   | Short for `// trust set AutoEngageMode` `Always` or `Off`         |
-| // trust engage assist | Short for `// trust set AutoEngageMode` `Assist` or `Off`         |
-
 ## Remote Commands
 You can execute commands remotely on a player using Trust. This allows you to do things like add yourself to the player's party, even if they are AFK.
 
