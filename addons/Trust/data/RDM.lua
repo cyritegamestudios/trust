@@ -29,7 +29,8 @@ TrustSettings = {
                 ['Cure IV'] = 1500,
                 ['Cure III'] = 600,
                 ['Cure II'] = 0
-            }
+            },
+            Delay = 2,
         },
         Debuffs = L{
             Debuff.new('Distract'),

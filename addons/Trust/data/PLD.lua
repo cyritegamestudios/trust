@@ -18,6 +18,7 @@ TrustSettings = {
                 ['Cure III'] = 400,
                 ['Cure II'] = 0,
             },
+            Delay = 2,
             StatusRemovals = {
                 Blacklist = L{
                 }

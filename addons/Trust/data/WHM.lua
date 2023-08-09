@@ -28,6 +28,7 @@ TrustSettings = {
                 ['Curaga II'] = 600,
                 ['Curaga'] = 0
             },
+            Delay = 2,
             StatusRemovals = {
                 Blacklist = L{
                 }
