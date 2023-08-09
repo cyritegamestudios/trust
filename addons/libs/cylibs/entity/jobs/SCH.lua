@@ -63,6 +63,13 @@ function Scholar:get_cure_threshold(is_backup_healer)
 end
 
 -------
+-- Returns the delay between cures.
+-- @treturn number Delay between cures in seconds
+function Scholar:get_cure_delay()
+    return self.cure_settings.Delay or 2
+end
+
+-------
 -- Returns the spell that removes the given status effect.
 -- @tparam number debuff_id Debuff id (see buffs.lua)
 -- @tparam number num_targets Number of targets afflicted with the status effect

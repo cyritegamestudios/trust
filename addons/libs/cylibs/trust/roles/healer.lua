@@ -29,6 +29,7 @@ function Healer.new(action_queue, main_job)
     self.action_events = {}
     self.main_job = main_job
     self.last_cure_time = os.time()
+    self.cure_delay = main_job:get_cure_delay()
     self.damage_memory = DamageMemory.new(0)
     self.damage_memory:monitor()
     self.aura_list = S{}
@@ -88,7 +89,7 @@ end
 
 function Healer:tic(old_time, new_time)
     if state.AutoHealMode.value == 'Off'
-            or (os.time() - self.last_cure_time) < 2
+            or (os.time() - self.last_cure_time) < self.cure_delay
             or self:get_party() == nil then
         return
     end
@@ -142,7 +143,7 @@ end
 -- @tparam PartyMember party_member Party member to cure
 function Healer:cure_party_member(party_member)
     if state.AutoHealMode.value == 'Off'
-            or (os.time() - self.last_cure_time) < 2
+            or (os.time() - self.last_cure_time) < self.cure_delay
             or not party_member:is_alive() then
         return
     end
@@ -175,7 +176,7 @@ end
 -- @tparam list party_members List of party members to cure
 function Healer:cure_party_members(party_members)
     if state.AutoHealMode.value == 'Off'
-            or (os.time() - self.last_cure_time) < 2 then
+            or (os.time() - self.last_cure_time) < self.cure_delay then
         return
     end
 

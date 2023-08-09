@@ -70,6 +70,13 @@ function RedMage:get_cure_threshold(is_backup_healer)
 end
 
 -------
+-- Returns the delay between cures.
+-- @treturn number Delay between cures in seconds
+function RedMage:get_cure_delay()
+    return self.cure_settings.Delay or 2
+end
+
+-------
 -- Sets the cure settings.
 -- @tparam T cure_settings Cure settings
 function RedMage:set_cure_settings(cure_settings)

@@ -60,4 +60,11 @@ function Paladin:get_cure_threshold(is_backup_healer)
     end
 end
 
+-------
+-- Returns the delay between cures.
+-- @treturn number Delay between cures in seconds
+function Paladin:get_cure_delay()
+    return self.cure_settings.Delay or 2
+end
+
 return Paladin
