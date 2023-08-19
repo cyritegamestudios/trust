@@ -12,7 +12,7 @@ Get help or request a feature in the [Cyrite Game Studios Discord](https://disco
 
 ## Setup
 
-You will need the latest version of [Trust](https://github.com/cyritegamestudios/trust) in order to use Trust. You will need to update *both* the `addons` and `cylibs` repo when you pull new changes, as `addons` is powered by `cylibs` and will not work properly if the versions don't match.
+You will need the latest version of [Trust](https://github.com/cyritegamestudios/trust) in order to use Trust.
 
 1. Git clone or download [Trust](https://github.com/cyritegamestudios/trust) from Github.
 2. Copy the `addons` folder into your `Windower` folder so that you are pasting the new `addons` folder on top of your existing `addons` folder. Note that this will *not* override your entire existing `addons` folder, only addons related to Trust.
@@ -130,28 +130,7 @@ You can cycle through all Mode settings for a job using `// trust cycle TrustMod
 Modes control the behavior of the Trust. This is not an exhaustive list of Modes, however here are some of the
 important ones and what they do.
 
-| Mode                   | Values                  | Description                                                                                                                                                                                                        |
-|------------------------|-------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| AutoPullMode           | Off, Auto, Multi        | Pulls mobs using the job's default pulling ability or spell. Battle targets are specified in settings.xml. If `Multi`, will use `SmartTarget` logic and prioritize pulling different mobs than your party members. |
-| AutoBuffMode           | Off, Auto               | Applies the buffs in the job settings file.                                                                                                                                                                        |
-| AutoSongMode           | Off, Auto, Dummy        | Sings the songs specified in the job settings file. `Auto` will sing dummy songs as needed. `Dummy` will only sing dummy songs.                                                                                    |
-| AutoDebuffMode         | Off, Auto               | Applies the debuffs in the job settings file.                                                                                                                                                                      |
-| AutoSilenceMode        | Off, Auto               | Automatically casts silence when a mob finishes casting a spell.                                                                                                                                                   |
-| AutoHealMode           | Off, Auto, Emergency    | Heals party members. If `Emergency`, only heals below 25% HP.                                                                                                                                                      |
-| AutoRaiseMode          | Off, Auto               | Automatically raises a party member when they are KO'ed.                                                                                                                                                           |
-| AutoEngageMode         | Off, Always, Assist     | If `Always`, engages the party's current target. If `Assist`, locks onto the target but does not engage.                                                                                                           |
-| CombatMode             | Off, Melee, Ranged      | If `Melee`, will maintain a 3 yalm distance from the target. If `Ranged`, will maintain a 21 yalm distance from the target.                                                                                        |
-| AutoFollowMode         | Off, Always             | Automatically follows the assist target after the current target dies.                                                                                                                                             |
-| AutoManeuverMode       | Off, Auto               | Automatically applies maneuvers specified in the job settings file.                                                                                                                                                |
-| AutoFoodMode           | Off, Auto               | Automatically uses the food specified by `AutoFood` in the job settings file.                                                                                                                                      |
-| AutoTrustsMode         | Off, Auto               | Automatically summons trusts when not in combat.                                                                                                                                                                   |
-| AutoAssaultMode        | Off, Auto               | Automatically deploys, assaults, or fights your pet on the battle target.                                                                                                                                          |
-| AutoPetMode            | Off, Auto               | Automatically summons an automaton or familiar.                                                                                                                                                                    |
-| AutoAvatarMode         | Off, Ifrit, Shiva, etc. | Automatically summons an avatar.                                                                                                                                                                                   |
-| AutoRollMode           | Off, Manual, Auto       | Automatically uses Phantom Roll. If `Manual`, the player must initiate the roll. If `Auto`, rolls in the job settings file will be initiated automatically.                                                        |
-| AutoSkillchainMode     | Off, Auto, Cleave, Spam | Automatically performs skillchains. If `Cleave`, will spam AOE weaopn skills. If `Spam`, will spam a single weapon skill instead of making skillchains.                                                            |
-| SkillchainPriorityMode | Off, Prefer, Strict     | If `Prefer`, will perform weapon skills specified in `preferws` in the job settings file when possible. If `Strict`, will only perform those weapon skills.                                                        |
-| AutoMagicBurstMode     | Off, Auto               | If `Auto`, will attempt to magic burst skillchains.                                                                                                                                                                |
+See [Modes](https://github.com/cyritegamestudios/trust/wiki/Modes) for an exhaustive list of Modes and what they do.
 
 To see the full list of Modes availabile on the player's current job, use `// trust status`.
 
