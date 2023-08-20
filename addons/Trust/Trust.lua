@@ -419,7 +419,7 @@ function handle_command(args)
 	action_queue:push_action(action, false)
 end
 
-function handle_debug(arg)
+function handle_debug(verbose)
 	for action_type, count in pairs(actions_counter) do
 		print('type: '..action_type..' count: '..count)
 		print('actions created: '..actions_created..' actions destroyed: '..actions_destroyed)
@@ -432,6 +432,13 @@ function handle_debug(arg)
 
 	for party_member in player.party:get_party_members(false, 21):it() do
 		print(party_member:get_mob().name..' buffs: '..tostring(party_member:get_buffs()))
+	end
+
+	if verbose then
+		action_queue.verbose = true
+	else
+		action_queue.verbose = false
+		hud:set_debug_text('')
 	end
 end
 
