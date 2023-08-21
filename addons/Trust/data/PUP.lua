@@ -11,7 +11,6 @@ TrustSettings = {
                 {Name='Water Maneuver',	  Amount=1},
                 {Name='Earth Maneuver',	  Amount=0},
             },
-
             Ranged = L{
                 {Name='Wind Maneuver', 	  Amount=1},
                 {Name='Fire Maneuver',	  Amount=2},
