@@ -114,8 +114,8 @@ function ScholarTrust:update_for_arts(new_arts_mode)
             Buffer.new(self.action_queue, S{'Light Arts'}, self:get_job():get_light_arts_self_buffs(), self:get_job():get_light_arts_party_buffs()),
             Debuffer.new(self.action_queue),
             Healer.new(self.action_queue, self:get_job()),
-            StatusRemover.new(action_queue, job),
-            Skillchainer.new(action_queue, L{'auto', 'prefer'}, self:get_trust_settings().Skillchains),
+            StatusRemover.new(self.action_queue, self:get_job()),
+            Skillchainer.new(self.action_queue, L{'auto', 'prefer'}, self:get_trust_settings().Skillchains),
             --Puller.new(self.action_queue, self.battle_settings.targets, 'Dia II', nil)
         }
     elseif new_arts_mode == 'DarkArts' then
@@ -124,7 +124,7 @@ function ScholarTrust:update_for_arts(new_arts_mode)
             Debuffer.new(self.action_queue),
             Dispeler.new(self.action_queue, L{ Spell.new('Dispel') }, L{'Addendum: Black'}),
             Nuker.new(self.action_queue),
-            Skillchainer.new(action_queue, L{'auto', 'prefer'}, self:get_trust_settings().Skillchains),
+            Skillchainer.new(self.action_queue, L{'auto', 'prefer'}, self:get_trust_settings().Skillchains),
             --Puller.new(self.action_queue, self.battle_settings.targets, 'Dia II', nil)
         }
     end
