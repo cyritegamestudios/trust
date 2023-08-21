@@ -127,6 +127,14 @@ function WeaponSkillAction:get_weapon_skill_name()
 	return self.weapon_skill_name
 end
 
+function WeaponSkillAction:get_target()
+	if L{ 'Moonlight', 'Myrkr' }:contains(self:get_weapon_skill_name()) then
+		return windower.ffxi.get_player()
+	else
+		return windower.ffxi.get_mob_by_target('t')
+	end
+end
+
 function WeaponSkillAction:gettype()
 	return "weaponskillaction"
 end
@@ -144,7 +152,11 @@ function WeaponSkillAction:is_equal(action)
 end
 
 function WeaponSkillAction:tostring()
-    return "WeaponSkillAction: %s":format(self:get_weapon_skill_name())
+	return self:get_weapon_skill_name()..' → '..self:get_target().name
+end
+
+function WeaponSkillAction:debug_string()
+	return "WeaponSkillAction: %s":format(self:get_weapon_skill_name())
 end
 
 return WeaponSkillAction

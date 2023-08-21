@@ -184,6 +184,12 @@ function StatusRemovalAction:is_equal(action)
 end
 
 function StatusRemovalAction:tostring()
+	local spell = res.spells:with('id', self.spell_id)
+	local target = windower.ffxi.get_mob_by_index(self.target_index)
+	return spell.en..' → '..target.name
+end
+
+function StatusRemovalAction:debug_string()
     return "StatusRemovalAction: (%d, %d, %d)":format(self.x, self.y, self.z)
 end
 

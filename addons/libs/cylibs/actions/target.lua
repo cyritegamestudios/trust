@@ -63,6 +63,11 @@ function TargetAction:getrawdata()
 end
 
 function TargetAction:tostring()
+	local target = windower.ffxi.get_mob_by_id(self.target_id)
+	return 'Targeting → '..target.name
+end
+
+function TargetAction:debug_string()
 	local mob = windower.ffxi.get_mob_by_id(self.target_id)
     return "TargetAction: %s (%d)":format(mob.name, mob.id)
 end

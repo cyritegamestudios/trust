@@ -160,6 +160,12 @@ function CureAction:is_equal(action)
 end
 
 function CureAction:tostring()
+    local cure_spell = self:get_cure_spell()
+    local target = windower.ffxi.get_mob_by_id(self.party_member:get_id() or windower.ffxi.get_player().id)
+    return cure_spell:get_spell().en..' → '..target.name
+end
+
+function CureAction:debug_string()
     return "CureAction: (%d, %d, %d)":format(self.x, self.y, self.z)
 end
 

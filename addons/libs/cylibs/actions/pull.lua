@@ -82,6 +82,11 @@ function PullAction:is_equal(action)
 end
 
 function PullAction:tostring()
+    local target = windower.ffxi.get_mob_by_id(self.target_id)
+    return self:get_job_ability_name()..' → '..target.name
+end
+
+function PullAction:debug_string()
     return "PullAction command: %s":format(self.command)
 end
 
