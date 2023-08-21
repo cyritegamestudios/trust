@@ -59,9 +59,12 @@ state.AutoEnmityReductionMode:set_description('Auto', "Okay, I'll automatically 
 -- Main
 
 function load_user_files(main_job_id, sub_job_id)
-	action_queue = ActionQueue.new(nil, true, 5, false, false)
+	action_queue = ActionQueue.new(nil, true, 5, false, true)
 	action_queue:on_action_start():addAction(function(_, s)
 		hud:set_debug_text(s or '')
+	end)
+	action_queue:on_action_end():addAction(function(_, s)
+		hud:set_debug_text('')
 	end)
 
 	main_job_id = tonumber(main_job_id)
