@@ -42,15 +42,6 @@ function RedMage:get_aoe_cure_spell(hp_missing)
 end
 
 -------
--- Returns the spell that removes the given status effect.
--- @tparam number debuff_id Debuff id (see buffs.lua)
--- @tparam number num_targets Number of targets afflicted with the status effect
--- @treturn Spell Status removal spell
-function RedMage:get_status_removal_spell(debuff_id, num_targets)
-    return nil
-end
-
--------
 -- Returns the spell that can raise a party member.
 -- @treturn Spell Raise spell
 function RedMage:get_raise_spell()

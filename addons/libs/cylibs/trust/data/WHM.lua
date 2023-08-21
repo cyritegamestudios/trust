@@ -13,6 +13,7 @@ local Raiser = require('cylibs/trust/roles/raiser')
 local Debuffer = require('cylibs/trust/roles/debuffer')
 local Nuker = require('cylibs/trust/roles/nuker')
 local Buffer = require('cylibs/trust/roles/buffer')
+local StatusRemover = require('cylibs/trust/roles/status_remover')
 
 function WhiteMageTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = WhiteMage.new(trust_settings.CureSettings)
@@ -21,6 +22,7 @@ function WhiteMageTrust.new(settings, action_queue, battle_settings, trust_setti
 		Debuffer.new(action_queue, trust_settings.Debuffs),
 		Nuker.new(action_queue, 10),
 		Healer.new(action_queue, job),
+		StatusRemover.new(action_queue, job),
 		Raiser.new(action_queue, job),
 		--Evader.new(settings, action_queue)
 	}

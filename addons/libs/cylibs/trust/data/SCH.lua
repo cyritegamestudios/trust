@@ -14,6 +14,7 @@ local Healer = require('cylibs/trust/roles/healer')
 local Nuker = require('cylibs/trust/roles/nuker')
 local Buffer = require('cylibs/trust/roles/buffer')
 local Skillchainer = require('cylibs/trust/roles/skillchainer')
+local StatusRemover = require('cylibs/trust/roles/status_remover')
 
 state.AutoArtsMode = M{['description'] = 'Auto Arts Mode', 'Off', 'LightArts', 'DarkArts'}
 
@@ -113,6 +114,7 @@ function ScholarTrust:update_for_arts(new_arts_mode)
             Buffer.new(self.action_queue, S{'Light Arts'}, self:get_job():get_light_arts_self_buffs(), self:get_job():get_light_arts_party_buffs()),
             Debuffer.new(self.action_queue),
             Healer.new(self.action_queue, self:get_job()),
+            StatusRemover.new(action_queue, job),
             Skillchainer.new(action_queue, L{'auto', 'prefer'}, self:get_trust_settings().Skillchains),
             --Puller.new(self.action_queue, self.battle_settings.targets, 'Dia II', nil)
         }

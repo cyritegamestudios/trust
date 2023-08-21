@@ -31,15 +31,6 @@ function Summoner:get_cure_spell(hp_missing)
 end
 
 -------
--- Returns the spell that removes the given status effect.
--- @tparam number debuff_id Debuff id (see buffs.lua)
--- @tparam number num_targets Number of targets afflicted with the status effect
--- @treturn Spell Status removal spell
-function Summoner:get_status_removal_spell(debuff_id, num_targets)
-    return nil
-end
-
--------
 -- Returns the name of the spirit pact that aligns with the current day.
 -- @treturn string Localized name of the spirit pact (e.g. Earth Spirit)
 function Summoner:get_spirit_for_current_day()
