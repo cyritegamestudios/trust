@@ -24,6 +24,7 @@ local Truster = require('cylibs/trust/roles/truster')
 local TrustFactory = require('cylibs/trust/trust_factory')
 local TrustRemoteCommands = require('TrustRemoteCommands')
 local TrustUI = require('TrustUI')
+local TrustUnitTests = require('TrustUnitTests')
 
 default = {
 	verbose=true
@@ -31,6 +32,7 @@ default = {
 
 default.help = {}
 default.help.mode_text_enabled = true
+default.help.wiki_base_url = 'https://github.com/cyritegamestudios/trust/wiki'
 default.battle = {}
 default.battle.melee_distance = 3
 default.battle.range_distance = 21
@@ -456,6 +458,8 @@ commands['create'] = handle_create_trust
 commands['status'] = handle_trust_status
 commands['command'] = handle_command
 commands['debug'] = handle_debug
+commands['tests'] = handle_tests
+commands['help'] = handle_help
 
 local function addon_command(cmd, ...)
     local cmd = cmd or 'help'
@@ -464,7 +468,7 @@ local function addon_command(cmd, ...)
 		local msg = nil
 		if cmd == 'shortcut' then
 			msg = commands['shortcut'](...)
-		elseif not L{'cycle', 'set', 'help'}:contains(cmd) then
+		elseif not L{'cycle', 'set'}:contains(cmd) then
 			msg = commands[cmd](unpack({...}))
 		end
 		if msg then
