@@ -11,7 +11,9 @@ function SequenceAction.new(actions, identifier)
 	local self = setmetatable(Action.new(0, 0, 0), SequenceAction)
   	self.queue = Q{}
 	self.max_duration = 0
+	self.display_name = ""
 	for action in actions:it() do
+		self.display_name = self.display_name..action:tostring()..' '
 		self.queue:push(action)
 		self.max_duration = self.max_duration + action:get_max_duration()
 	end
@@ -105,7 +107,11 @@ function SequenceAction:copy()
 end
 
 function SequenceAction:tostring()
-  return "SequenceAction: %s":format(self:getidentifier())
+	return self.display_name
+end
+
+function SequenceAction:debug_string()
+	return 'SequenceAction: '..self.identifier
 end
 
 function SequenceAction:get_max_duration()

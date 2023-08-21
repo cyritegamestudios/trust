@@ -49,8 +49,12 @@ function WaitAction:copy()
     return WaitAction.new(self:get_position()[1], self:get_position()[2], self:get_position()[3], self:get_duration())
 end
 
-function WaitAction:tostring()
+function WaitAction:debug_string()
     return "WaitAction delay: %d":format(self:get_duration())
+end
+
+function WaitAction:tostring()
+    return ""
 end
 
 return WaitAction

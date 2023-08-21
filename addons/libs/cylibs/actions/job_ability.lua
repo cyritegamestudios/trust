@@ -82,6 +82,11 @@ function JobAbility:is_equal(action)
 end
 
 function JobAbility:tostring()
+    local target = windower.ffxi.get_mob_by_index(self.target_index or windower.ffxi.get_player().index)
+    return self:get_job_ability_name()..' → '..target.name
+end
+
+function JobAbility:debug_string()
     return "JobAbility: %s":format(self:get_job_ability_name())
 end
 

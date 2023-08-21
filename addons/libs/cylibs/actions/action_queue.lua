@@ -22,6 +22,11 @@ function ActionQueue:on_action_start()
 	return self.action_start
 end
 
+-- Event called when an action ends.
+function ActionQueue:on_action_end()
+	return self.action_end
+end
+
 function ActionQueue.new(completion, is_priority_queue, max_size, debugging_enabled, verbose)
 	local self = setmetatable({
 		current_action = nil;
@@ -35,6 +40,7 @@ function ActionQueue.new(completion, is_priority_queue, max_size, debugging_enab
 	self.verbose = verbose
 	self.identifier = os.time()
 	self.action_start = Event.newEvent()
+	self.action_end = Event.newEvent()
 	--[[self.action_complete_id = Action.action_complete:addAction(
 			function (a, success)
 				if a:get_action_queue_id() == self.identifier and self.current_action ~= nil and self.current_action:is_equal(a) then
@@ -59,6 +65,8 @@ end
 
 function ActionQueue:destroy()
 	Action.action_complete:removeAction(self.action_complete_id)
+	self:on_action_start():removeAllActions()
+	self:on_action_end():removeAllActions()
 end
 
 -- Performs the next action in the queue if the
@@ -107,6 +115,8 @@ function ActionQueue:handle_action_completed(a, success)
 		windower.chat.input('// lua m')
 	end
 	--print(a:gettype()..' '..(a:getidentifier() or 'nil')..' end, success: '..tostring(success))
+
+	self:on_action_end():trigger()
 
 	self:perform_next_action()
 end

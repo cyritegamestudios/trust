@@ -170,7 +170,13 @@ function SpellAction:is_equal(action)
 end
 
 function SpellAction:tostring()
-    return "SpellAction: (%d, %d, %d)":format(self.x, self.y, self.z)
+	local spell = res.spells[self:getspellid()]
+	local target = windower.ffxi.get_mob_by_index(self:gettargetindex())
+	return spell.en..' → '..target.name
+end
+
+function SpellAction:debug_string()
+	return "SpellAction: (%d, %d, %d)":format(self.x, self.y, self.z)
 end
 
 return SpellAction
