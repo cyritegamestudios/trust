@@ -70,7 +70,7 @@ function Healer:on_add()
                 end
             end)
 
-    for party_member in self:get_party():get_party_members(false):it() do
+    for party_member in self:get_party():get_party_members(true):it() do
         party_member:on_gain_debuff():addAction(
             function (p, debuff_id)
                 self:remove_status_effect(L{p}, debuff_id)
@@ -127,7 +127,7 @@ function Healer:check_party_status_effects()
                 and #party_member:get_debuffs() > 0 and party_member:is_alive()
     end)
     for party_member in party_members:it() do
-        local debuff_ids = party_member:get_debuffs():filter(function(debuff_id) return self.main_job:get_status_removal_spell(debuff_id, 1) ~= nil  end)
+        local debuff_ids = party_member:get_debuff_ids():filter(function(debuff_id) return self.main_job:get_status_removal_spell(debuff_id, 1) ~= nil  end)
         if debuff_ids:length() > 0 then
             local debuff_id = res.buffs:with('enl', party_member:get_debuffs()[1]).id
             local targets = party_members:filter(function(p) return p:has_debuff(debuff_id) end)

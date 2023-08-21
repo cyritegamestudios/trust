@@ -21,6 +21,7 @@ function Trust.new(action_queue, roles, trust_settings, job)
 		user_events = {};
 		status = 0;
 		battle_target = nil;
+		role_blacklist = S{};
 		trust_settings_changed = Event.newEvent()
 	}, Trust)
 
@@ -72,6 +73,9 @@ function Trust:on_deinit()
 end
 
 function Trust:add_role(role)
+	if self.role_blacklist:contains(role:get_type()) then
+		return
+	end
 	self.roles:add(role)
 
 	if role.on_add then
@@ -96,6 +100,10 @@ function Trust:replace_role(role_type, new_role)
 		self:remove_role(old_role)
 	end
 	self:add_role(new_role)
+end
+
+function Trust:blacklist_role(role_type)
+	self.role_blacklist:add(role_type)
 end
 
 function Trust:role_with_type(role_type)

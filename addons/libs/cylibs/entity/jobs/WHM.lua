@@ -53,7 +53,7 @@ end
 -- @tparam number num_targets Number of targets afflicted with the status effect
 -- @treturn Spell Status removal spell
 function WhiteMage:get_status_removal_spell(debuff_id, num_targets)
-    if self.ignore_debuff_ids:contains(debuff_id) then return end
+    if self.ignore_debuff_ids:contains(debuff_id) then return nil end
 
     local spell_id = cure_util.spell_id_for_debuff_id(debuff_id)
     if spell_id then
