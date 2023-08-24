@@ -98,19 +98,6 @@ function Action:cancel()
     self:complete(false)
 end
 
-function Action:check_conditions(conditions, target_index)
-    local target = windower.ffxi.get_mob_by_index(target_index)
-    if target == nil then
-        return false
-    end
-    for condition in conditions:it() do
-        if not condition:is_satisfied(target.index) then
-            return false
-        end
-    end
-    return true
-end
-
 function Action:get_position()
     local v = vector.zero(3)
 

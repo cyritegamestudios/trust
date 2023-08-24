@@ -1341,7 +1341,7 @@ function SkillchainMaker:chain_buff(t)
 end
 
 function SkillchainMaker:perform_pet(petws_name)
-    player = windower.ffxi.get_player()
+    local player = windower.ffxi.get_player()
     petws_name = string.gsub(petws_name, '[ \t]+%f[\r\n%z]', '')
     petws_mp = res.job_abilities:with('en', petws_name).mp_cost
     if petdelay == 0 then
