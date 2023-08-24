@@ -1054,7 +1054,10 @@ function SkillchainMaker:on_prerender()
         end
 
         if autosc ~= nil and info.job ~= 'SMN' and info.job ~= 'BST' and info.job ~= 'SCH' then
-            wsclean = string.gsub(autosc, '[ \t]+%f[\r\n%z]', '')
+            -- cleans up non-ascii chars
+            local wsnonascii = string.gsub(autosc, '[^\x00-\x7F]', '')
+            -- removes spaces from both ends
+            wsclean = string.gsub(wsnonascii, '[ \t]+%f[\r\n%z]', '')
             wsrange = res.weapon_skills:with('en', wsclean).range
         elseif openws ~= nil then
             wsrange = res.weapon_skills:with('en', openws).range
