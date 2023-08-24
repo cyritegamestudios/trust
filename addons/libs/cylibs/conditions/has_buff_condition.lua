@@ -1,7 +1,7 @@
 ---------------------------
 -- Condition checking whether the player has a buff.
 -- @class module
--- @name InBattleCondition
+-- @name HasBuffCondition
 
 local Condition = require('cylibs/conditions/condition')
 local HasBuffCondition = setmetatable({}, { __index = Condition })
@@ -19,6 +19,10 @@ function HasBuffCondition:is_satisfied(target_index)
         return buff_util.is_buff_active(self.buff_id)
     end
     return false
+end
+
+function HasBuffCondition:is_player_only()
+    return true
 end
 
 return HasBuffCondition

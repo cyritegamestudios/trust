@@ -40,11 +40,13 @@ actions_counter = {}
 -- @tparam number y Y coordinate of action
 -- @tparam number z Z coordinate of action
 -- @treturn Action An action
-function Action.new(x, y, z)
+function Action.new(x, y, z, target_index, conditions)
     local self = setmetatable({
         x = x;
         y = y;
         z = z;
+        target_index = target_index or windower.ffxi.get_player().index;
+        conditions = conditions or L{};
         cancelled = false;
         priority = ActionPriority.default;
         identifier = os.time();
@@ -66,6 +68,15 @@ function Action:can_perform()
     if self:is_cancelled() then
         return false
     end
+    for condition in self.conditions:it() do
+        local check_target_index = self.target_index
+        if condition:is_player_only() then
+            check_target_index = windower.ffxi.get_player().index
+        end
+        if not condition:is_satisfied(check_target_index) then
+            return false
+        end
+    end
     return true
 end
 
@@ -85,6 +96,19 @@ function Action:cancel()
     self.cancelled = true
 
     self:complete(false)
+end
+
+function Action:check_conditions(conditions, target_index)
+    local target = windower.ffxi.get_mob_by_index(target_index)
+    if target == nil then
+        return false
+    end
+    for condition in conditions:it() do
+        if not condition:is_satisfied(target.index) then
+            return false
+        end
+    end
+    return true
 end
 
 function Action:get_position()

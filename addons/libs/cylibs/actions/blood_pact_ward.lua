@@ -53,7 +53,7 @@ function BloodPactWard:getrawdata()
     res.bloodpactward.x = self.x
     res.bloodpactward.y = self.y
     res.bloodpactward.z = self.z
-    res.bloodpactward.command = self:get_command()
+    res.bloodpactward.blood_pact_name = self:get_blood_pact_name()
 
     return res
 end
@@ -73,7 +73,7 @@ function BloodPactWard:is_equal(action)
 end
 
 function BloodPactWard:tostring()
-    return "BloodPactWard command: %s":format(self.command)
+    return "BloodPactWard command: %s":format(self.blood_pact_name)
 end
 
 return BloodPactWard

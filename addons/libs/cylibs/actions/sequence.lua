@@ -52,12 +52,16 @@ function SequenceAction:perform()
 
 	if self.queue:length() > 0 then
 		local next_action = self.queue:pop()
-		next_action:on_action_complete():addAction(function(a, success)
-			a:destroy()
-			self:perform()
-		end)
-		next_action:set_start_time(os.time())
-		next_action:perform()
+		if next_action:can_perform() then
+			next_action:on_action_complete():addAction(function(a, success)
+				a:destroy()
+				self:perform()
+			end)
+			next_action:set_start_time(os.time())
+			next_action:perform()
+		else
+			self:complete(false)
+		end
 	else
 		self:complete(true)
 	end

@@ -23,6 +23,10 @@ function Condition:is_satisfied()
     return true
 end
 
+function Condition:is_player_only()
+    return false
+end
+
 return Condition
 
 

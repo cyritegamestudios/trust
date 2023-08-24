@@ -12,8 +12,15 @@ local Action = require('cylibs/actions/action')
 local CureAction = setmetatable({}, {__index = Action })
 CureAction.__index = CureAction
 
-function CureAction.new(x, y, z, party_member, cure_threshold, healer_job, player)
-    local self = setmetatable(Action.new(x, y, z), CureAction)
+function CureAction.new(x, y, z, party_member, cure_threshold, mp_cost, healer_job, player)
+    local conditions = L{
+        HitPointsPercentRangeCondition.new(1, cure_threshold),
+        MaxDistanceCondition.new(20),
+        NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'mute'}, false)}),
+        MinManaPointsCondition.new(mp_cost)
+    }
+
+    local self = setmetatable(Action.new(x, y, z, party_member:get_mob().index, conditions), CureAction)
 
     self.party_member = party_member
     self.cure_threshold = cure_threshold
@@ -48,24 +55,6 @@ function CureAction:destroy()
     Action.destroy(self)
 end
 
-function CureAction:can_perform()
-    if not spell_util.can_cast_spells() then
-        return false
-    end
-
-    local target = self.party_member:get_mob()
-    if target and target.distance:sqrt() > 21 then
-        return false
-    end
-
-    local spell = res.spells:with('id', self.spell_id)
-    if spell and windower.ffxi.get_player().vitals.mp > spell.mp_cost then
-        return true
-    end
-
-    return true
-end
-
 function CureAction:get_cure_spell()
     local hp_missing = self.party_member:get_max_hp() - self.party_member:get_hp()
 
@@ -74,12 +63,6 @@ end
 
 function CureAction:perform()
     if self:is_cancelled() then
-        self:complete(false)
-        return
-    end
-
-    -- Party member has already been cured
-    if self.party_member:get_hpp() > self.cure_threshold then
         self:complete(false)
         return
     end
@@ -100,7 +83,7 @@ function CureAction:perform()
     local target = self.party_member:get_mob()
 
     self.spell_finish_id = self.player:on_spell_finish():addAction(
-            function(p, spell_id, targets)
+            function(p, spell_id, _)
                 if p:get_mob().id == windower.ffxi.get_player().id then
                     if spell_id == cure_spell:get_spell().id then
                         self:complete(true)
@@ -146,7 +129,6 @@ end
 function CureAction:getidentifier()
     return self.spell_id
 end
-
 
 function CureAction:copy()
     return CureAction.new(self:get_position()[1], self:get_position()[2], self:get_position()[3])

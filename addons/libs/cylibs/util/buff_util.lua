@@ -94,6 +94,27 @@ function buff_util.is_buff_active(buff_id, player_buff_ids)
 end
 
 -------
+-- Determines if the player has any of the given buffs active.
+-- @tparam list buff_ids List of buff ids (see buffs.lua)
+-- @tparam list player_buff_ids List of active buff ids, included for performance reasons (optional)
+-- @treturn Bool True if any buff is active and false otherwise.
+function buff_util.is_any_buff_active(buff_ids, player_buff_ids)
+	if player_buff_ids == nil then
+		player_buff_ids = L{}
+		local player = windower.ffxi.get_player()
+		if player then
+			player_buff_ids = L(player.buffs)
+		end
+	end
+	for buff_id in buff_ids:it() do
+		if buff_util.is_buff_active(buff_id, player_buff_ids) then
+			return true
+		end
+	end
+	return false
+end
+
+-------
 -- Returns the buff name for the given buff id.
 -- @tparam string buff_id Buff id (see buffs.lua)
 -- @treturn string Buff name (see buffs.lua)

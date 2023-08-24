@@ -31,6 +31,13 @@ function init_include()
 	InBattleCondition = require('cylibs/conditions/in_battle')
 	IdleCondition = require('cylibs/conditions/idle')
 	HasBuffCondition = require('cylibs/conditions/has_buff_condition')
+	HasBuffsCondition = require('cylibs/conditions/has_buffs')
+	MinHitPointsPercentCondition = require('cylibs/conditions/min_hpp')
+	MaxHitPointsPercentCondition = require('cylibs/conditions/max_hpp')
+	HitPointsPercentRangeCondition = require('cylibs/conditions/hpp_range')
+	MaxDistanceCondition = require('cylibs/conditions/max_distance')
+	MinManaPointsCondition = require('cylibs/conditions/min_mp')
+	NotCondition = require('cylibs/conditions/not_condition')
 
 	-- Battle
 	MobTracker = require('cylibs/battle/mob_tracker')

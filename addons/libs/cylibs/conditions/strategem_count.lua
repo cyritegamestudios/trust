@@ -21,6 +21,10 @@ function StrategemCountCondition:is_satisfied(target_index)
     end
 end
 
+function StrategemCountCondition:is_player_only()
+    return true
+end
+
 return StrategemCountCondition
 
 

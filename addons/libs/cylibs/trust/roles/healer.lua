@@ -121,7 +121,7 @@ function Healer:cure_party_member(party_member)
             actions:append(WaitAction.new(0, 0, 0, 1))
         end
 
-        actions:append(CureAction.new(0, 0, 0, party_member, 90, self.main_job, self:get_player()))
+        actions:append(CureAction.new(0, 0, 0, party_member, 90, cure_spell:get_spell().mp_cost, self.main_job, self:get_player()))
         actions:append(WaitAction.new(0, 0, 0, 1))
 
         local cure_action = SequenceAction.new(actions, 'healer_cure_'..party_member:get_mob().id)
