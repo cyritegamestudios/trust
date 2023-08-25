@@ -111,6 +111,11 @@ function AttackAction:getrawdata()
 end
 
 function AttackAction:tostring()
+	local target = windower.ffxi.get_mob_by_index(self.target_index or windower.ffxi.get_player().index)
+	return 'Attacking '..target.name
+end
+
+function AttackAction:debug_string()
 	local mob = windower.ffxi.get_mob_by_id(self:gettargetid())
     return "AttackAction: %s (%d)":format(mob.name, mob.id)
 end
