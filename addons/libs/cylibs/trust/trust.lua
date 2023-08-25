@@ -131,33 +131,12 @@ function Trust:job_weapon_skill(weapon_skill_name)
 	end
 end
 
-function Trust:job_filtered_action(spell, eventArgs)
-end
-
-function Trust:job_pretarget(spell, spellMap, eventArgs)
-end
-
 function Trust:job_target_change(target_index)
 	for role in self.roles:it() do
 		if role.target_change then
 			role:target_change(target_index)
 		end
 	end
-end
-
-function Trust:job_precast(spell, spellMap, eventArgs)
-end
-
-function Trust:job_post_midcast(spell, spellMap, eventArgs)
-end
-
-function Trust:job_midcast(spell, action, spellMap, eventArgs)
-end
-
-function Trust:job_buff_change(buff, gain)
-end
-
-function Trust:job_post_precast(spell, spellMap, eventArgs)
 end
 
 function Trust:tic(old_time, new_time)

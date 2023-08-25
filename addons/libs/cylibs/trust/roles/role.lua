@@ -14,7 +14,6 @@ function Role:destroy()
 end
 
 function Role:on_add()
-
 end
 
 function Role:target_change(target_index)
