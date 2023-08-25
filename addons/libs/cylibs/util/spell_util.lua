@@ -151,4 +151,20 @@ function spell_util.can_cast_spells()
     return true
 end
 
+-------
+-- Returns true if the spell_id corresponds to a barspell that improves resistance to an element.
+-- @tparam number spell_id Spell id (see spells.lua)
+-- @treturn boolean True if a barspell, false otherwise
+function spell_util.is_barelement(spell_id)
+    return L{60,61,62,63,64,65,66,67,68,69,70,71}:contains(spell_id)
+end
+
+-------
+-- Returns true if the spell_id corresponds to a barspell that improves resistance to a status effect.
+-- @tparam number spell_id Spell id (see spells.lua)
+-- @treturn boolean True if a barspell, false otherwise
+function spell_util.is_barstatus(spell_id)
+    return L{72,73,74,75,76,77,78,84,85,86,87,88,89,90,91,92}:contains(spell_id)
+end
+
 return spell_util

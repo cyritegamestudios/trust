@@ -8,6 +8,7 @@ local Trust = require('cylibs/trust/trust')
 local WhiteMageTrust = setmetatable({}, {__index = Trust })
 WhiteMageTrust.__index = WhiteMageTrust
 
+local Barspeller = require('cylibs/trust/roles/barspeller')
 local Healer = require('cylibs/trust/roles/healer')
 local Raiser = require('cylibs/trust/roles/raiser')
 local Debuffer = require('cylibs/trust/roles/debuffer')
@@ -18,6 +19,7 @@ local StatusRemover = require('cylibs/trust/roles/status_remover')
 function WhiteMageTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = WhiteMage.new(trust_settings.CureSettings)
 	local roles = S{
+		Barspeller.new(action_queue, job),
 		Buffer.new(action_queue, trust_settings.JobAbilities, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
 		Debuffer.new(action_queue, trust_settings.Debuffs),
 		Nuker.new(action_queue, 10),

@@ -1,6 +1,5 @@
 local cure_util = require('cylibs/util/cure_util')
 local DamageMemory = require('cylibs/battle/damage_memory')
-local AuraTracker = require('cylibs/battle/aura_tracker')
 local CureAction = require('cylibs/actions/cure')
 
 local Healer = setmetatable({}, {__index = Role })
@@ -9,10 +8,6 @@ Healer.__index = Healer
 state.AutoHealMode = M{['description'] = 'Auto Heal Mode', 'Auto', 'Emergency', 'Off'}
 state.AutoHealMode:set_description('Auto', "You can count on me to heal the party.")
 state.AutoHealMode:set_description('Emergency', "Okay, I'll only heal when you're in a pinch.")
-
-state.AutoBarSpellMode = M{['description'] = 'Auto Barspell Mode', 'Off', 'Manual', 'Auto'}
-state.AutoBarSpellMode:set_description('Manual', "Okay, I'll make sure to remember the last barspell you tell me to cast.")
-state.AutoBarSpellMode:set_description('Auto', "Okay, I'll try to figure out which barspell to cast on my own.")
 
 -------
 -- Default initializer for a healer.
@@ -173,12 +168,6 @@ function Healer:cure_party_members(party_members)
         cure_action.priority = cure_util.get_cure_priority(spell_target:get_hpp(), is_trust_only, true)
 
         self.action_queue:push_action(cure_action, true)
-    end
-end
-
-function Healer:check_barspells()
-    if state.AutoBarSpellMode.value == 'Off' then
-        return
     end
 end
 
