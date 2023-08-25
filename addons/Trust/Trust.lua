@@ -432,10 +432,8 @@ function handle_debug(verbose)
 
 	local action_names = action_queue:get_actions():map(function(a) return a:gettype()..' '..a:getidentifier()  end)
 	print(action_names)
-
-	print('Player buffs: '..tostring(L(windower.ffxi.get_player().buffs)))
-
-	for party_member in player.party:get_party_members(false, 21):it() do
+	
+	for party_member in player.party:get_party_members(true, 21):it() do
 		print(party_member:get_mob().name..' buffs: '..tostring(party_member:get_buffs()))
 	end
 
