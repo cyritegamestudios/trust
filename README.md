@@ -12,6 +12,8 @@ Get help or request a feature in the [Cyrite Game Studios Discord](https://disco
 
 ## Setup
 
+See the [Setup Guide](https://github.com/cyritegamestudios/trust/wiki/Getting-Started#setup) or read below:
+
 You will need the latest version of [Trust](https://github.com/cyritegamestudios/trust) in order to use Trust.
 
 1. Git clone or download [Trust](https://github.com/cyritegamestudios/trust) from Github.
@@ -36,7 +38,7 @@ See [Windower Commands](https://github.com/cyritegamestudios/trust/wiki/Commands
 
 ## User Guide
 
-**NEW!** Trust documentation is now available in the [**Wiki**](https://github.com/cyritegamestudios/trust/wiki). [Get Started](https://github.com/cyritegamestudios/trust/wiki#getting-started) now!
+**NEW!** Trust documentation is now available at the [**Wiki**](https://github.com/cyritegamestudios/trust/wiki). See [Getting Started](https://github.com/cyritegamestudios/trust/wiki#getting-started) to start using Trust.
 
 * [**Settings**](https://github.com/cyritegamestudios/trust/wiki/Settings)
 * [**Modes**](https://github.com/cyritegamestudios/trust/wiki/Modes)
