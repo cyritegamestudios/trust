@@ -43,6 +43,7 @@ See [Windower Commands](https://github.com/cyritegamestudios/trust/wiki/Commands
 * [**Getting Started**](https://github.com/cyritegamestudios/trust/wiki/Getting-Started)
     * [**Commands**](https://github.com/cyritegamestudios/trust/wiki/Commands)
     * [**Shortcuts**](https://github.com/cyritegamestudios/trust/wiki/Shortcuts)
+* [**How To**](https://github.com/cyritegamestudios/trust/wiki/How-To)
 * [**Settings**](https://github.com/cyritegamestudios/trust/wiki/Settings)
     * [**Job Settings**](https://github.com/cyritegamestudios/trust/wiki/Job-Settings)
     * [**Modes**](https://github.com/cyritegamestudios/trust/wiki/Modes)
