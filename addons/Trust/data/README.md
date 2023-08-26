@@ -31,7 +31,7 @@ Trust also requires the following addons, which can be installed through [Window
 
 ### Optional
 
-6. Override [job settings](#job-settings) to customize what your trust does.
+6. Override [job settings](https://github.com/cyritegamestudios/trust/wiki/Settings#job-settings) to customize what your trust does.
 
 ### Commands
 See [Windower Commands](https://github.com/cyritegamestudios/trust/wiki/Commands), [Shortcuts](https://github.com/cyritegamestudios/trust/wiki/Shortcuts)
