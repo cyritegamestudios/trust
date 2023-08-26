@@ -31,20 +31,22 @@ Trust also requires the following addons, which can be installed through [Window
 
 ### Optional
 
-6. Override [job settings](https://github.com/cyritegamestudios/trust/wiki/Settings#job-settings) to customize what your trust does.
+6. Override [job settings](https://github.com/cyritegamestudios/trust/wiki/Job-Settings) to customize what your trust does.
 
 ### Commands
 See [Windower Commands](https://github.com/cyritegamestudios/trust/wiki/Commands), [Shortcuts](https://github.com/cyritegamestudios/trust/wiki/Shortcuts)
 
 ## User Guide
 
-**NEW!** Trust documentation is now available at the [**Wiki**](https://github.com/cyritegamestudios/trust/wiki). See [Getting Started](https://github.com/cyritegamestudios/trust/wiki#getting-started) to start using Trust.
+**NEW!** Trust documentation is now available at the [**Wiki**](https://github.com/cyritegamestudios/trust/wiki).
 
+* [**Getting Started**](https://github.com/cyritegamestudios/trust/wiki/Getting-Started)
+    * [**Commands**](https://github.com/cyritegamestudios/trust/wiki/Commands)
+    * [**Shortcuts**](https://github.com/cyritegamestudios/trust/wiki/Shortcuts)
 * [**Settings**](https://github.com/cyritegamestudios/trust/wiki/Settings)
-* [**Modes**](https://github.com/cyritegamestudios/trust/wiki/Modes)
-* [**Conditions**](https://github.com/cyritegamestudios/trust/wiki/Conditions)
-* [**Commands**](https://github.com/cyritegamestudios/trust/wiki/Commands)
-* [**Shortcuts**](https://github.com/cyritegamestudios/trust/wiki/Shortcuts)
+    * [**Job Settings**](https://github.com/cyritegamestudios/trust/wiki/Job-Settings)
+    * [**Modes**](https://github.com/cyritegamestudios/trust/wiki/Modes)
+    * [**Conditions**](https://github.com/cyritegamestudios/trust/wiki/Conditions)
 * [**Trusts**](https://github.com/cyritegamestudios/trust/wiki/Trusts)
     * [**Bard**](https://github.com/cyritegamestudios/trust/wiki/Bard)
     * [**Beastmaster**](https://github.com/cyritegamestudios/trust/wiki/Beastmaster)
