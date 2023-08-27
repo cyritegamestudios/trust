@@ -20,7 +20,7 @@ return {
         ["maintrustsettingsmode"]="Default",
         ["autofacemobmode"]="Auto",
         ["autotargetmode"]="Off",
-        ["autobarspellmode"]="Off",
+        ["autobarspellmode"]="Manual",
         ["autotrustsmode"]="Off",
         ["autofoodmode"]="Off",
         ["autofollowmode"]="Always",
