@@ -89,6 +89,14 @@ function load_user_files(main_job_id, sub_job_id)
 
 	player.party = Party.new()
 	player.party:monitor()
+	player.party:on_party_target_change():addAction(function(_, target_index)
+		if target_index == nil then
+			hud:set_target_text('')
+		else
+			local target = windower.ffxi.get_mob_by_index(target_index)
+			hud:set_target_text(target.name)
+		end
+	end)
 
 	handle_status_change(windower.ffxi.get_player().status, windower.ffxi.get_player().status)
 
