@@ -24,12 +24,13 @@ function TrustDetailsView:on_render()
     return self.rendered
 end
 
-function TrustDetailsView.new(trust)
+function TrustDetailsView.new(trust, trust_job_name)
     local self = setmetatable({
         action_events = {};
         view = texts.new('${text||%8s}', settings);
         text = '';
         trust = trust;
+        trust_job_name = trust_job_name;
         rendered = Event.newEvent();
     }, TrustDetailsView)
 
@@ -45,8 +46,6 @@ function TrustDetailsView:destroy()
 end
 
 function TrustDetailsView:render()
-
-
     self:on_render():trigger(self)
 end
 
@@ -74,6 +73,19 @@ function TrustDetailsView:set_visible(visible)
         self:update_text()
     end
     self:get_view():visible(visible)
+
+    self:render()
+end
+
+-------
+-- Sets the visibility of the view.
+-- @tparam Trust trust Trust to show information for
+-- @tparam string trust_job_name Job name
+function TrustDetailsView:set_trust(trust, trust_job_name)
+    self.trust = trust
+    self.trust_job_name = trust_job_name
+
+    self:update_text()
 
     self:render()
 end
