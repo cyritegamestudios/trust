@@ -23,7 +23,7 @@ local Targeter = require('cylibs/trust/roles/targeter')
 local Truster = require('cylibs/trust/roles/truster')
 local TrustFactory = require('cylibs/trust/trust_factory')
 local TrustRemoteCommands = require('TrustRemoteCommands')
-local TrustUI = require('TrustUI')
+local TrustUI = require('ui/TrustUI')
 local TrustUnitTests = require('TrustUnitTests')
 
 default = {
@@ -44,8 +44,6 @@ default.remote_commands.whitelist = S{}
 
 settings = config.load(default)
 
-hud = TrustUI.new()
-
 player = {}
 
 -- States
@@ -60,12 +58,6 @@ state.AutoEnmityReductionMode:set_description('Auto', "Okay, I'll automatically 
 
 function load_user_files(main_job_id, sub_job_id)
 	action_queue = ActionQueue.new(nil, true, 5, false, true)
-	action_queue:on_action_start():addAction(function(_, s)
-		hud:set_debug_text(s or '')
-	end)
-	action_queue:on_action_end():addAction(function(_, s)
-		hud:set_debug_text('')
-	end)
 
 	main_job_id = tonumber(main_job_id)
 
@@ -89,14 +81,6 @@ function load_user_files(main_job_id, sub_job_id)
 
 	player.party = Party.new()
 	player.party:monitor()
-	player.party:on_party_target_change():addAction(function(_, target_index)
-		if target_index == nil then
-			hud:set_target_text('')
-		else
-			local target = windower.ffxi.get_mob_by_index(target_index)
-			hud:set_target_text(target.name)
-		end
-	end)
 
 	handle_status_change(windower.ffxi.get_player().status, windower.ffxi.get_player().status)
 
@@ -141,6 +125,7 @@ function load_user_files(main_job_id, sub_job_id)
 	default_trust_name = string.gsub(string.lower(player.main_job_name), "%s+", "")
 
 	load_trust_modes(player.main_job_name_short)
+	load_ui()
 
 	handle_start()
 end
@@ -206,6 +191,13 @@ function load_trust_commands(job_name_short, trust, action_queue)
 		return TrustCommands.new(trust, action_queue)
 	end
 	return nil
+end
+
+function load_ui()
+	hud = TrustUI.new(player, action_queue)
+
+	--details_hud = TrustDetailsUI.new(player.trust.main_job)
+	--details_hud:visible(true)
 end
 
 function trust_for_job_short(job_name_short, settings, trust_settings, action_queue, player, party)
