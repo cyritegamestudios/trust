@@ -25,6 +25,7 @@ local TrustFactory = require('cylibs/trust/trust_factory')
 local TrustRemoteCommands = require('TrustRemoteCommands')
 local TrustUI = require('ui/TrustUI')
 local TrustUnitTests = require('TrustUnitTests')
+local ValueRelay = require('cylibs/events/value_relay')
 
 default = {
 	verbose=true
@@ -43,6 +44,8 @@ default.remote_commands = {}
 default.remote_commands.whitelist = S{}
 
 settings = config.load(default)
+
+addon_enabled = ValueRelay.new(false)
 
 player = {}
 
@@ -120,7 +123,7 @@ function load_user_files(main_job_id, sub_job_id)
 
 	target_change_time = os.time()
 
-	addon_enabled = true
+	addon_enabled:setValue(true)
 
 	default_trust_name = string.gsub(string.lower(player.main_job_name), "%s+", "")
 
@@ -193,11 +196,16 @@ function load_trust_commands(job_name_short, trust, action_queue)
 	return nil
 end
 
-function load_ui()
-	hud = TrustUI.new(player, action_queue)
 
-	--details_hud = TrustDetailsUI.new(player.trust.main_job)
-	--details_hud:visible(true)
+function load_ui()
+	local TrustHud = require('ui/TrustHud')
+
+	hud = TrustHud.new(player, action_queue, addon_enabled)
+
+	local info = windower.get_windower_settings()
+
+	hud:set_pos(info.ui_x_res - info.ui_x_res / 2, 20)
+	hud:render()
 end
 
 function trust_for_job_short(job_name_short, settings, trust_settings, action_queue, player, party)
@@ -286,7 +294,7 @@ end
 -- Handlers
 
 function handle_tic(old_time, new_time)
-	if not trust or not windower.ffxi.get_player() or not addon_enabled or not player or not player.trust then return end
+	if not trust or not windower.ffxi.get_player() or not addon_enabled:getValue() or not player or not player.trust then return end
 
 	player.trust.main_job:tic(old_time, new_time)
 	player.trust.sub_job:tic(old_time, new_time)
@@ -301,16 +309,16 @@ function handle_status_change(new_status_id, old_status_id)
 end
 
 function handle_start()
-	addon_enabled = true
+	addon_enabled:setValue(true)
 	player.player:monitor()
 	action_queue:enable()
-	hud:set_enabled(true)
+	--hud:set_enabled(true)
 end
 
 function handle_stop()
-	addon_enabled = false
+	addon_enabled:setValue(false)
 	action_queue:disable()
-	hud:set_enabled(false)
+	--hud:set_enabled(false)
 end
 
 function handle_reload()

@@ -98,6 +98,13 @@ function TrustDetailsView:get_view()
 end
 
 -------
+-- Returns the trust job name.
+-- @treturn string The trust job name
+function TrustDetailsView:get_trust_job_name()
+    return self.trust_job_name
+end
+
+-------
 -- Updates the text.
 function TrustDetailsView:update_text()
     local text = ""
