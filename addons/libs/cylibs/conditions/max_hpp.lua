@@ -21,6 +21,10 @@ function MaxHitPointsPercentCondition:is_satisfied(target_index)
     return false
 end
 
+function MaxHitPointsPercentCondition:tostring()
+    return "MaxHitPointsPercentCondition"
+end
+
 return MaxHitPointsPercentCondition
 
 

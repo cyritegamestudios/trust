@@ -15,15 +15,18 @@ local SpellAction = setmetatable({}, {__index = Action })
 SpellAction.__index = SpellAction
 
 function SpellAction.new(x, y, z, spell_id, target_index, player)
-	local self = setmetatable(Action.new(x, y, z), SpellAction)
+	local conditions = L{
+		MaxDistanceCondition.new(20),
+		NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'mute'}, false)}),
+		MinManaPointsCondition.new(res.spells[spell_id].mp_cost or 0),
+		SpellRecastReadyCondition.new(spell_id),
+		ValidTargetCondition.new(),
+	}
+
+	local self = setmetatable(Action.new(x, y, z, target_index, conditions), SpellAction)
+
 	self.spell_id = spell_id
-	self.target_index = target_index
 	self.player = player
-
-	if target_index == nil then
-		self.target_index = windower.ffxi.get_player().index
-	end
-
 	self.user_events = {}
 
 	self:debug_log_create(self:gettype())
@@ -55,51 +58,8 @@ function SpellAction:destroy()
 	Action.destroy(self)
 end
 
-function SpellAction:can_perform()
-	if L(windower.ffxi.get_player().buffs):contains(L{2,7,14,19,28,29}) then
-		return false
-	end
-
-	if not spell_util.can_cast_spell(self.spell_id) then
-		return false
-	end
-
-	local target = windower.ffxi.get_mob_by_index(self.target_index)
-	if target and target.distance:sqrt() > 21 then
-		return false
-	end
-
-	local spell = res.spells:with('id', self.spell_id)
-	if spell and windower.ffxi.get_player().vitals.mp > spell.mp_cost then
-		return true
-	end
-
-	return false
-end
-
 function SpellAction:perform()
-	if self:is_cancelled() then
-		self:complete(false)
-		return
-	end
-
 	windower.ffxi.run(false)
-	
-	local target = windower.ffxi.get_mob_by_index(self.target_index)
-
-	local all_spells = windower.ffxi.get_spells()
-	local recast_times = windower.ffxi.get_spell_recasts()
-	
-	if target == nil or self.spell_id == nil or all_spells[self.spell_id] == nil or recast_times[self.spell_id] > 0 then
-		self:complete(false)
-		return
-	end
-	
-	local spell = res.spells:with('id', self.spell_id)
-	if spell == nil then
-		self:complete(false)
-		return
-	end
 
 	self.spell_finish_id = self.player:on_spell_finish():addAction(
 			function(p, spell_id, _)
@@ -128,15 +88,14 @@ function SpellAction:perform()
 				end
 			end)
 
+	local target = windower.ffxi.get_mob_by_index(self.target_index)
+	local spell = res.spells[self.spell_id]
+
 	windower.send_command('@input /ma "'..spell.name..'" '..target.id)
 end
 
 function SpellAction:getspellid()
 	return self.spell_id
-end
-
-function SpellAction:gettargetindex()
-	return self.target_index
 end
 
 function SpellAction:gettype()
@@ -171,7 +130,7 @@ end
 
 function SpellAction:tostring()
 	local spell = res.spells[self:getspellid()]
-	local target = windower.ffxi.get_mob_by_index(self:gettargetindex())
+	local target = windower.ffxi.get_mob_by_index(self.target_index)
 	return spell.en..' → '..target.name
 end
 

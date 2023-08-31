@@ -8,7 +8,9 @@ TrustFactory.__index = TrustFactory
 function TrustFactory.trusts(main_job_trust, sub_job_trust)
 	if sub_job_trust then
 		for role in main_job_trust:get_roles():it() do
-			sub_job_trust:blacklist_role(role:get_type())
+			if not role:allows_duplicates() then
+				sub_job_trust:blacklist_role(role:get_type())
+			end
 		end
 		for role in sub_job_trust:get_roles():it() do
 			if role.allows_duplicates and not role:allows_duplicates() and

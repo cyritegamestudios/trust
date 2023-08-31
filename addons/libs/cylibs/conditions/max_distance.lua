@@ -21,6 +21,10 @@ function MaxDistanceCondition:is_satisfied(target_index)
     return false
 end
 
+function MaxDistanceCondition:tostring()
+    return "MaxDistanceCondition"
+end
+
 return MaxDistanceCondition
 
 

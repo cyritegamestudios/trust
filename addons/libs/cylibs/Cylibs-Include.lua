@@ -21,7 +21,6 @@ function init_include()
 	JobAbilityAction = require('cylibs/actions/job_ability')
 	StrategemAction = require('cylibs/actions/strategem')
 	WeaponSkillAction = require('cylibs/actions/weapon_skill')
-	PullAction = require('cylibs/actions/pull')
 	SequenceAction = require('cylibs/actions/sequence')
 	BlockAction = require('cylibs/actions/block')
 
@@ -37,6 +36,8 @@ function init_include()
 	MaxDistanceCondition = require('cylibs/conditions/max_distance')
 	MinManaPointsCondition = require('cylibs/conditions/min_mp')
 	NotCondition = require('cylibs/conditions/not_condition')
+	SpellRecastReadyCondition = require('cylibs/conditions/spell_recast_ready')
+	ValidTargetCondition = require('cylibs/conditions/valid_target')
 
 	-- Battle
 	MobTracker = require('cylibs/battle/mob_tracker')

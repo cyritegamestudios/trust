@@ -20,6 +20,10 @@ function IdleCondition:is_satisfied(target_index)
     return false
 end
 
+function IdleCondition:tostring()
+    return "IdleCondition"
+end
+
 return IdleCondition
 
 

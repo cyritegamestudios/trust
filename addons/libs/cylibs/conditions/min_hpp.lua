@@ -21,6 +21,10 @@ function MinHitPointsPercentCondition:is_satisfied(target_index)
     return false
 end
 
+function MinHitPointsPercentCondition:tostring()
+    return "MinHitPointsPercentCondition"
+end
+
 return MinHitPointsPercentCondition
 
 

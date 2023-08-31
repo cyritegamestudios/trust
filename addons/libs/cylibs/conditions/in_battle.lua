@@ -20,6 +20,10 @@ function InBattleCondition:is_satisfied(target_index)
     return false
 end
 
+function InBattleCondition:tostring()
+    return "InBattleCondition"
+end
+
 return InBattleCondition
 
 

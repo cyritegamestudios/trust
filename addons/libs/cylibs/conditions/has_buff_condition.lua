@@ -25,6 +25,10 @@ function HasBuffCondition:is_player_only()
     return true
 end
 
+function HasBuffCondition:tostring()
+    return "HasBuffCondition"
+end
+
 return HasBuffCondition
 
 

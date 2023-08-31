@@ -25,6 +25,10 @@ function StrategemCountCondition:is_player_only()
     return true
 end
 
+function StrategemCountCondition:tostring()
+    return "StrategemCountCondition"
+end
+
 return StrategemCountCondition
 
 

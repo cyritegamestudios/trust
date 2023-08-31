@@ -99,7 +99,7 @@ function Puller:check_pull()
     self.last_pull_time = os.time()
 
     if state.AutoPullMode.value ~= 'Off' then
-        if player.status == 'Idle' then
+        if self:should_pull() then
             local target = self:get_pull_target()
             self:pull_target(target)
         end
@@ -118,6 +118,14 @@ function Puller:check_target()
         end
         self.last_target_check_time = os.time()
     end
+end
+
+function Puller:should_pull()
+    if player.status == 'Idle' or self.target_index == nil
+            and (party_util.get_mobs_targeting_party():length() > 0 or party_util.get_party_claimed_mobs():length() > 0) then
+        return true
+    end
+    return false
 end
 
 function Puller:get_pull_target()
@@ -175,7 +183,6 @@ function Puller:get_pull_action(target_index)
         pull_action.priority = ActionPriority.highest
         return pull_action
     elseif self.ranged_attack then
-        print(target_index)
         local pull_action = CommandAction.new(0, 0, 0, '/ra '..target_index)
         pull_action.priority = ActionPriority.highest
         return pull_action

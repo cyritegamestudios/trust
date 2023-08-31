@@ -25,6 +25,10 @@ function NotCondition:is_satisfied(target_index)
     return true
 end
 
+function NotCondition:tostring()
+    return "NotCondition"
+end
+
 return NotCondition
 
 

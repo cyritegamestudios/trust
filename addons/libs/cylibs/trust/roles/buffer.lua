@@ -211,4 +211,37 @@ function Buffer:get_type()
     return "buffer"
 end
 
+function Buffer:tostring()
+    local result = ""
+
+    result = "Job Abilities:\n"
+    if self.job_ability_names:length() > 0 then
+        for job_ability_name in self.job_ability_names:it() do
+            result = result..'• '..job_ability_name..'\n'
+        end
+    else
+        result = result..'N/A'..'\n'
+    end
+
+    result = result.."\nSelf Buffs:\n"
+    if self.self_spells:length() > 0 then
+        for spell in self.self_spells:it() do
+            result = result..'• '..spell:description()..'\n'
+        end
+    else
+        result = result..'N/A'..'\n'
+    end
+
+    result = result.."\nParty Buffs:\n"
+    if self.party_spells:length() > 0 then
+        for spell in self.party_spells:it() do
+            result = result..'• '..spell:description()..'\n'
+        end
+    else
+        result = result..'N/A'..'\n'
+    end
+
+    return result
+end
+
 return Buffer

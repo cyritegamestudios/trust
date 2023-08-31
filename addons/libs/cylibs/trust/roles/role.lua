@@ -50,5 +50,8 @@ function Role:get_party()
     return self.party
 end
 
+function Role:tostring()
+    return nil
+end
 
 return Role

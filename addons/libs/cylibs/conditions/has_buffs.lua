@@ -42,6 +42,10 @@ function HasBuffsCondition:is_player_only()
     return true
 end
 
+function HasBuffsCondition:tostring()
+    return "HasBuffsCondition"
+end
+
 return HasBuffsCondition
 
 

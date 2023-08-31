@@ -22,6 +22,10 @@ function HitPointsPercentRangeCondition:is_satisfied(target_index)
     return false
 end
 
+function HitPointsPercentRangeCondition:tostring()
+    return "HitPointsPercentRangeCondition"
+end
+
 return HitPointsPercentRangeCondition
 
 

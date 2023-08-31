@@ -25,6 +25,10 @@ function MinManaPointsCondition:is_player_only()
     return true
 end
 
+function MinManaPointsCondition:tostring()
+    return "MinManaPointsCondition"
+end
+
 return MinManaPointsCondition
 
 

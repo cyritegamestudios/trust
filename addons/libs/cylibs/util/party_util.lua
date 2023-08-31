@@ -151,6 +151,21 @@ function party_util.party_targeted(target_id)
 end
 
 -------
+-- Returns all nearby mobs that are targeting party members.
+-- @treturn list A list of indices of all mobs currently targeting party members.
+function party_util.get_mobs_targeting_party()
+    local mobs_targeting_party = L{}
+
+    local nearby_mobs = windower.ffxi.get_mob_array()
+    for _, target in pairs(nearby_mobs) do
+        if target and target.hpp > 0 and target.status ~= 3 and party_util.party_targeted(target.id) then
+            mobs_targeting_party:append(target.index)
+        end
+    end
+    return mobs_targeting_party
+end
+
+-------
 -- Returns a list of indices of all mobs currently targeted by party members. The mobs do not have to be claimed as
 -- long as the target_index field of a party member's MobMetadata is not nil.
 -- @treturn list A list of indices of all mobs currently targeted by party members.

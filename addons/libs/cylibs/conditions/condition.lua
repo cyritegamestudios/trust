@@ -27,6 +27,10 @@ function Condition:is_player_only()
     return false
 end
 
+function Condition:tostring()
+    return "condition"
+end
+
 return Condition
 
 
