@@ -127,4 +127,19 @@ function Debuffer:get_type()
     return "debuffer"
 end
 
+function Debuffer:tostring()
+    local result = ""
+
+    result = result.."Spells:\n"
+    if self.debuff_spells:length() > 0 then
+        for spell in self.debuff_spells:it() do
+            result = result..'• '..spell:description()..'\n'
+        end
+    else
+        result = result..'N/A'..'\n'
+    end
+
+    return result
+end
+
 return Debuffer
