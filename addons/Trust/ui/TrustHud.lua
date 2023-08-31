@@ -4,8 +4,8 @@ local ListItemView = require('cylibs/ui/list_item_view')
 local ListItem = require('cylibs/ui/list_item')
 local HorizontalListlayout = require('cylibs/ui/layouts/horizontal_list_layout')
 local VerticalListlayout = require('cylibs/ui/layouts/vertical_list_layout')
+local TabbedView = require('cylibs/ui/tabs/tabbed_view')
 local TextListItemView = require('cylibs/ui/items/text_list_item_view')
-local TrustDetailsView = require('ui/TrustDetailsView')
 local ValueRelay = require('cylibs/events/value_relay')
 
 local Event = require('cylibs/events/Luvent')
@@ -22,8 +22,12 @@ end
 function TrustHud.new(player, action_queue, addon_enabled)
     local self = setmetatable(View.new(), TrustHud)
 
-    self.detailsView = TrustDetailsView.new(player.trust.main_job, player.main_job_name);
-    self.actionView = TrustActionHud.new(action_queue);
+    self.actionView = TrustActionHud.new(action_queue)
+
+    self.tabbed_view = TabbedView.new()
+    self.tabbed_view:set_pos(500, 200)
+    self.tabbed_view:set_size(500, 500)
+    self.tabbed_view:set_visible(false)
 
     self.listView = ListView.new(HorizontalListlayout.new(25, 5))
 
@@ -38,9 +42,17 @@ function TrustHud.new(player, action_queue, addon_enabled)
         if item:getIdentifier() == "AddonEnabled" then
             addon_enabled:setValue(not addon_enabled:getValue())
         elseif item:getIdentifier() == "MainJobButton" then
-            self:showDetailsView(player.trust.main_job, player.main_job_name_short)
+            if not self.tabbed_view:is_visible() then
+                self:updateTabbedView(player.trust.main_job)
+            end
+            self.tabbed_view:set_visible(not self.tabbed_view:is_visible())
+            self.tabbed_view:render()
         elseif item:getIdentifier() == "SubJobButton" then
-            self:showDetailsView(player.trust.sub_job, player.sub_job_name_short)
+            if not self.tabbed_view:is_visible() then
+                self:updateTabbedView(player.trust.sub_job)
+            end
+            self.tabbed_view:set_visible(not self.tabbed_view:is_visible())
+            self.tabbed_view:render()
         end
     end)
 
@@ -101,17 +113,24 @@ function TrustHud:render()
     self.actionView:render()
 end
 
-function TrustHud:showDetailsView(trust, trust_job_name)
-    if self.detailsView:get_view():visible() then
-        if trust_job_name == self.detailsView:get_trust_job_name() then
-            self.detailsView:set_visible(false)
-        else
-            self.detailsView:set_trust(trust, trust_job_name)
+function TrustHud:updateTabbedView(trust)
+    self.tabbed_view:removeAllViews()
+
+    for role in trust:get_roles():it() do
+        local role_details = role:tostring()
+        if role_details then
+            local view = ListView.new(VerticalListlayout.new(500, 0))
+            view:addItem(ListItem.new({text = role_details, height = 500, settings = T{text = {font = 'Arial', size = 12, stroke = {width = 1, alpha = 150}}, flags = {bold = false}}}, role:get_type(), TextListItemView.new))
+
+            self.tabbed_view:addView(view, role:get_type())
+
+            view:render()
         end
-    else
-        self.detailsView:set_trust(trust, trust_job_name)
-        self.detailsView:set_visible(true)
     end
+
+    self.tabbed_view:switchToTab(1)
+    self.tabbed_view:set_visible(false)
+    self.tabbed_view:render()
 end
 
 return TrustHud

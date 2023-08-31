@@ -444,13 +444,6 @@ function handle_debug(verbose)
 	for party_member in player.party:get_party_members(true, 21):it() do
 		print(party_member:get_mob().name..' buffs: '..tostring(party_member:get_buffs()))
 	end
-
-	if verbose then
-		action_queue.verbose = true
-	else
-		action_queue.verbose = false
-		hud:set_debug_text('')
-	end
 end
 
 -- Setup
