@@ -2,6 +2,7 @@
 local ListView = require('cylibs/ui/list_view')
 local ListItemView = require('cylibs/ui/list_item_view')
 local ListItem = require('cylibs/ui/list_item')
+local ListViewItemStyle = require('cylibs/ui/style/list_view_item_style')
 local HorizontalListlayout = require('cylibs/ui/layouts/horizontal_list_layout')
 local VerticalListlayout = require('cylibs/ui/layouts/vertical_list_layout')
 local TabbedView = require('cylibs/ui/tabs/tabbed_view')
@@ -31,12 +32,12 @@ function TrustHud.new(player, action_queue, addon_enabled)
 
     self.listView = ListView.new(HorizontalListlayout.new(25, 5))
 
-    self.listView:addItem(ListItem.new({text = '', width = 250, settings = T{text = {red = 255, green = 128, blue = 128, font = 'Arial', size = 14, stroke = {width = 2, alpha = 150}}}}, "Target", TextListItemView.new))
-    self.listView:addItem(ListItem.new({text = player.main_job_name_short, width = 60}, "MainJobButton", TextListItemView.new))
-    self.listView:addItem(ListItem.new({text = '/', width = 10}, "Separator", TextListItemView.new))
-    self.listView:addItem(ListItem.new({text = player.sub_job_name_short, width = 60}, "SubJobButton", TextListItemView.new))
-    self.listView:addItem(ListItem.new({text = '', width = 20}, "Spacer", TextListItemView.new))
-    self.listView:addItem(ListItem.new({text = 'ON', width = 105, pattern = 'Trust: ${text}'}, "AddonEnabled", TextListItemView.new))
+    self.listView:addItem(ListItem.new({text = '', width = 250}, "Target", TextListItemView.new), ListViewItemStyle.DarkMode.Header)
+    self.listView:addItem(ListItem.new({text = player.main_job_name_short, width = 60}, "MainJobButton", TextListItemView.new), ListViewItemStyle.DarkMode.Header)
+    self.listView:addItem(ListItem.new({text = '/', width = 10}, "Separator", TextListItemView.new), ListViewItemStyle.DarkMode.Header)
+    self.listView:addItem(ListItem.new({text = player.sub_job_name_short, width = 60}, "SubJobButton", TextListItemView.new), ListViewItemStyle.DarkMode.Header)
+    self.listView:addItem(ListItem.new({text = '', width = 20}, "Spacer", TextListItemView.new), ListViewItemStyle.DarkMode.Header)
+    self.listView:addItem(ListItem.new({text = 'ON', width = 105, pattern = 'Trust: ${text}'}, "AddonEnabled", TextListItemView.new), ListViewItemStyle.DarkMode.Header)
 
     self.listView:onClick():addAction(function(item)
         if item:getIdentifier() == "AddonEnabled" then
@@ -116,15 +117,18 @@ end
 function TrustHud:updateTabbedView(trust)
     self.tabbed_view:removeAllViews()
 
+    local index = 1
     for role in trust:get_roles():it() do
         local role_details = role:tostring()
         if role_details then
             local view = ListView.new(VerticalListlayout.new(500, 0))
-            view:addItem(ListItem.new({text = role_details, height = 500, settings = T{text = {font = 'Arial', size = 12, stroke = {width = 1, alpha = 150}}, flags = {bold = false}}}, role:get_type(), TextListItemView.new))
+            view:addItem(ListItem.new({text = role_details, height = 500}, role:get_type(), TextListItemView.new), ListViewItemStyle.DarkMode.Text)
 
-            self.tabbed_view:addView(view, role:get_type())
+            self.tabbed_view:addView(view, role:get_type(), index)
 
             view:render()
+
+            index = index + 1
         end
     end
 
