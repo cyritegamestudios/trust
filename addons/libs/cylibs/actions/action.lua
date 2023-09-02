@@ -184,6 +184,10 @@ function Action:debug_log_destroy(action_type)
     end
 end
 
+function Action:gettargetindex()
+    return self.target_index
+end
+
 return Action
 
 
