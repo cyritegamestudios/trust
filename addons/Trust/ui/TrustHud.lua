@@ -4,7 +4,9 @@ local ListItemView = require('cylibs/ui/list_item_view')
 local ListItem = require('cylibs/ui/list_item')
 local ListViewItemStyle = require('cylibs/ui/style/list_view_item_style')
 local HorizontalListlayout = require('cylibs/ui/layouts/horizontal_list_layout')
+local Mouse = require('cylibs/ui/input/mouse')
 local VerticalListlayout = require('cylibs/ui/layouts/vertical_list_layout')
+local TabItem = require('cylibs/ui/tabs/tab_item')
 local TabbedView = require('cylibs/ui/tabs/tabbed_view')
 local TextListItemView = require('cylibs/ui/items/text_list_item_view')
 local ValueRelay = require('cylibs/events/value_relay')
@@ -16,6 +18,8 @@ local View = require('cylibs/ui/view')
 local TrustHud = setmetatable({}, {__index = View })
 TrustHud.__index = TrustHud
 
+input = Mouse.new()
+
 function ListView:onEnabledClick()
     return self.enabledClick
 end
@@ -25,35 +29,28 @@ function TrustHud.new(player, action_queue, addon_enabled)
 
     self.actionView = TrustActionHud.new(action_queue)
 
-    self.tabbed_view = TabbedView.new()
-    self.tabbed_view:set_pos(500, 200)
-    self.tabbed_view:set_size(500, 500)
-    self.tabbed_view:set_visible(false)
+    self.tabbed_view = nil
 
     self.listView = ListView.new(HorizontalListlayout.new(25, 5))
 
-    self.listView:addItem(ListItem.new({text = '', width = 250}, "Target", TextListItemView.new), ListViewItemStyle.DarkMode.Header)
-    self.listView:addItem(ListItem.new({text = player.main_job_name_short, width = 60}, "MainJobButton", TextListItemView.new), ListViewItemStyle.DarkMode.Header)
-    self.listView:addItem(ListItem.new({text = '/', width = 10}, "Separator", TextListItemView.new), ListViewItemStyle.DarkMode.Header)
-    self.listView:addItem(ListItem.new({text = player.sub_job_name_short, width = 60}, "SubJobButton", TextListItemView.new), ListViewItemStyle.DarkMode.Header)
-    self.listView:addItem(ListItem.new({text = '', width = 20}, "Spacer", TextListItemView.new), ListViewItemStyle.DarkMode.Header)
-    self.listView:addItem(ListItem.new({text = 'ON', width = 105, pattern = 'Trust: ${text}'}, "AddonEnabled", TextListItemView.new), ListViewItemStyle.DarkMode.Header)
+    local listItems = L{
+        ListItem.new({text = '', width = 250}, ListViewItemStyle.DarkMode.Header, "Target", TextListItemView.new),
+        ListItem.new({text = player.main_job_name_short, width = 60}, ListViewItemStyle.DarkMode.Header, "MainJobButton", TextListItemView.new),
+        ListItem.new({text = '/', width = 10}, ListViewItemStyle.DarkMode.Header, "Separator", TextListItemView.new),
+        ListItem.new({text = player.sub_job_name_short, width = 60}, ListViewItemStyle.DarkMode.Header, "SubJobButton", TextListItemView.new),
+        ListItem.new({text = '', width = 20}, ListViewItemStyle.DarkMode.Header, "Spacer", TextListItemView.new),
+        ListItem.new({text = 'ON', width = 105, pattern = 'Trust: ${text}'}, ListViewItemStyle.DarkMode.Header, "AddonEnabled", TextListItemView.new)
+    }
+
+    self.listView:addItems(listItems)
 
     self.listView:onClick():addAction(function(item)
         if item:getIdentifier() == "AddonEnabled" then
             addon_enabled:setValue(not addon_enabled:getValue())
         elseif item:getIdentifier() == "MainJobButton" then
-            if not self.tabbed_view:is_visible() then
-                self:updateTabbedView(player.trust.main_job)
-            end
-            self.tabbed_view:set_visible(not self.tabbed_view:is_visible())
-            self.tabbed_view:render()
+            self:toggleMenu(player.trust.main_job)
         elseif item:getIdentifier() == "SubJobButton" then
-            if not self.tabbed_view:is_visible() then
-                self:updateTabbedView(player.trust.sub_job)
-            end
-            self.tabbed_view:set_visible(not self.tabbed_view:is_visible())
-            self.tabbed_view:render()
+            self:toggleMenu(player.trust.sub_job)
         end
     end)
 
@@ -114,27 +111,65 @@ function TrustHud:render()
     self.actionView:render()
 end
 
-function TrustHud:updateTabbedView(trust)
-    self.tabbed_view:removeAllViews()
+function TrustHud:toggleMenu(trust)
+    if self.tabbed_view then
+        self.tabbed_view:destroy()
+        self.tabbed_view = nil
+    else
+        local tabItems = L{}
 
-    local index = 1
-    for role in trust:get_roles():it() do
-        local role_details = role:tostring()
-        if role_details then
-            local view = ListView.new(VerticalListlayout.new(500, 0))
-            view:addItem(ListItem.new({text = role_details, height = 500}, role:get_type(), TextListItemView.new), ListViewItemStyle.DarkMode.Text)
+        -- Roles
+        for role in trust:get_roles():it() do
+            local role_details = role:tostring()
+            if role_details then
+                local view = ListView.new(VerticalListlayout.new(500, 0))
+                view:addItem(ListItem.new({text = role_details, height = 500}, ListViewItemStyle.DarkMode.Text, role:get_type(), TextListItemView.new))
 
-            self.tabbed_view:addView(view, role:get_type(), index)
-
-            view:render()
-
-            index = index + 1
+                tabItems:append(TabItem.new(role:get_type(), view))
+            end
         end
-    end
 
-    self.tabbed_view:switchToTab(1)
-    self.tabbed_view:set_visible(false)
-    self.tabbed_view:render()
+        -- Modes
+        local statuses = L{}
+        for key,var in pairs(state) do
+            statuses:append(key..': '..var.value)
+        end
+        statuses:sort()
+
+        local modeTabs = L{}
+        local modeTab = L{}
+
+        for status in statuses:it() do
+            if modeTab:length() < 19 then
+                modeTab:append(ListItem.new({text = status, height = 15}, ListViewItemStyle.DarkMode.TextSmall, status, TextListItemView.new))
+            else
+                modeTabs:append(modeTab)
+                modeTab = L{}
+                modeTab:append(ListItem.new({text = status, height = 15}, ListViewItemStyle.DarkMode.TextSmall, status, TextListItemView.new))
+            end
+        end
+        if modeTab:length() > 0 then
+            modeTabs:append(modeTab)
+        end
+
+        local modeTabIndex = 1
+        for modeTab in modeTabs:it() do
+            local modesView = ListView.new(VerticalListlayout.new(500, 5))
+            modesView:addItems(modeTab)
+
+            tabItems:append(TabItem.new("Modes "..modeTabIndex, modesView))
+
+            modeTabIndex = modeTabIndex + 1
+        end
+
+        self.tabbed_view = TabbedView.new(tabItems)
+        self.tabbed_view:set_pos(500, 200)
+        self.tabbed_view:set_size(500, 500)
+        self.tabbed_view:set_color(150, 0, 0, 0)
+
+        self.tabbed_view:set_visible(true)
+        self.tabbed_view:render()
+    end
 end
 
 return TrustHud
