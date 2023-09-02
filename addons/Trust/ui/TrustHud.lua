@@ -31,7 +31,7 @@ function TrustHud.new(player, action_queue, addon_enabled)
 
     self.tabbed_view = nil
 
-    self.listView = ListView.new(HorizontalListlayout.new(25, 5))
+    self.listView = ListView.new(HorizontalListlayout.new(40, 5))
 
     local listItems = L{
         ListItem.new({text = '', width = 250}, ListViewItemStyle.DarkMode.Header, "Target", TextListItemView.new),
@@ -56,13 +56,17 @@ function TrustHud.new(player, action_queue, addon_enabled)
 
     player.party:on_party_target_change():addAction(function(_, target_index)
         local item = self.listView:getItem("Target")
+        local newItemDataText = ''
         if target_index == nil then
-            item.data.text = ''
+            newItemDataText = ''
         else
             local target = windower.ffxi.get_mob_by_index(target_index)
-            item.data.text = target.name
+            newItemDataText = target.name
         end
-        self.listView:updateItemView(item)
+        if newItemDataText ~= item.data.text then
+            item.data.text = newItemDataText
+            self.listView:updateItemView(item)
+        end
     end)
 
     addon_enabled:onValueChanged():addAction(function(_, isEnabled)
@@ -130,22 +134,17 @@ function TrustHud:toggleMenu(trust)
         end
 
         -- Modes
-        local statuses = L{}
-        for key,var in pairs(state) do
-            statuses:append(key..': '..var.value)
-        end
-        statuses:sort()
-
+        local modeNames = L(T(state):keyset()):sort()
         local modeTabs = L{}
         local modeTab = L{}
 
-        for status in statuses:it() do
+        for modeName in modeNames:it() do
             if modeTab:length() < 19 then
-                modeTab:append(ListItem.new({text = status, height = 15}, ListViewItemStyle.DarkMode.TextSmall, status, TextListItemView.new))
+                modeTab:append(ListItem.new({text = modeName..': '..state[modeName].value, mode = state[modeName], modeName = modeName, height = 20}, ListViewItemStyle.DarkMode.TextSmall, modeName, TextListItemView.new))
             else
                 modeTabs:append(modeTab)
                 modeTab = L{}
-                modeTab:append(ListItem.new({text = status, height = 15}, ListViewItemStyle.DarkMode.TextSmall, status, TextListItemView.new))
+                modeTab:append(ListItem.new({text = modeName..': '..state[modeName].value, mode = state[modeName], modeName = modeName, height = 20}, ListViewItemStyle.DarkMode.TextSmall, modeName, TextListItemView.new))
             end
         end
         if modeTab:length() > 0 then
@@ -154,12 +153,18 @@ function TrustHud:toggleMenu(trust)
 
         local modeTabIndex = 1
         for modeTab in modeTabs:it() do
-            local modesView = ListView.new(VerticalListlayout.new(500, 5))
+            local modesView = ListView.new(VerticalListlayout.new(380, 0))
             modesView:addItems(modeTab)
 
             tabItems:append(TabItem.new("Modes "..modeTabIndex, modesView))
 
             modeTabIndex = modeTabIndex + 1
+
+            modesView:onClick():addAction(function(item)
+                item.data.mode:cycle()
+                item.data.text = item.data.modeName..': '..state[item.data.modeName].value
+                modesView:updateItemView(item)
+            end)
         end
 
         self.tabbed_view = TabbedView.new(tabItems)
