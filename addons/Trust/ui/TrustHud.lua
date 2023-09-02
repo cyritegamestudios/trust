@@ -1,4 +1,6 @@
 local BufferView = require('ui/menus/buffer_view')
+local DebufferView = require('ui/menus/debuffer_view')
+local HelpView = require('ui/menus/help_view')
 local ListView = require('cylibs/ui/list_view')
 local ListItemView = require('cylibs/ui/list_item_view')
 local ListItem = require('cylibs/ui/list_item')
@@ -49,9 +51,9 @@ function TrustHud.new(player, action_queue, addon_enabled)
         if item:getIdentifier() == "AddonEnabled" then
             addon_enabled:setValue(not addon_enabled:getValue())
         elseif item:getIdentifier() == "MainJobButton" then
-            self:toggleMenu(player.trust.main_job)
+            self:toggleMenu(player.main_job_name_short, player.trust.main_job)
         elseif item:getIdentifier() == "SubJobButton" then
-            self:toggleMenu(player.trust.sub_job)
+            self:toggleMenu(player.sub_job_name_short, player.trust.sub_job)
         end
     end)
 
@@ -116,7 +118,7 @@ function TrustHud:render()
     self.actionView:render()
 end
 
-function TrustHud:toggleMenu(trust)
+function TrustHud:toggleMenu(job_name_short, trust)
     if self.tabbed_view then
         self.tabbed_view:destroy()
         self.tabbed_view = nil
@@ -126,20 +128,13 @@ function TrustHud:toggleMenu(trust)
         -- Roles
         local buffer = trust:role_with_type("buffer")
         if buffer then
-            tabItems:append(TabItem.new("buffs", BufferView.new(buffer, VerticalListlayout.new(500, 0))))
-            tabItems:append(TabItem.new("party", PartyBufferView.new(buffer, VerticalListlayout.new(500, 0))))
+            tabItems:append(TabItem.new("buffs", BufferView.new(buffer, VerticalListlayout.new(380, 0))))
+            tabItems:append(TabItem.new("party", PartyBufferView.new(buffer, VerticalListlayout.new(380, 0))))
         end
 
-        for role in trust:get_roles():it() do
-            if role:get_type() ~= "buffer" then
-                local role_details = role:tostring()
-                if role_details then
-                    local view = ListView.new(VerticalListlayout.new(500, 0))
-                    view:addItem(ListItem.new({text = role_details, height = 500}, ListViewItemStyle.DarkMode.Text, role:get_type(), TextListItemView.new))
-
-                    tabItems:append(TabItem.new(role:get_type(), view))
-                end
-            end
+        local debuffer = trust:role_with_type("debuffer")
+        if debuffer then
+            tabItems:append(TabItem.new("debuffs", DebufferView.new(debuffer, debuffer:get_battle_target(), VerticalListlayout.new(380, 0))))
         end
 
         -- Modes
@@ -148,7 +143,7 @@ function TrustHud:toggleMenu(trust)
         local modeTab = L{}
 
         for modeName in modeNames:it() do
-            if modeTab:length() < 19 then
+            if modeTab:length() < 18 then
                 modeTab:append(ListItem.new({text = modeName..': '..state[modeName].value, mode = state[modeName], modeName = modeName, height = 20}, ListViewItemStyle.DarkMode.TextSmall, modeName, TextListItemView.new))
             else
                 modeTabs:append(modeTab)
@@ -175,6 +170,8 @@ function TrustHud:toggleMenu(trust)
                 modesView:updateItemView(item)
             end)
         end
+
+        tabItems:append(TabItem.new("help", HelpView.new(job_name_short, VerticalListlayout.new(380, 0))))
 
         self.tabbed_view = TabbedView.new(tabItems)
         self.tabbed_view:set_pos(500, 200)
