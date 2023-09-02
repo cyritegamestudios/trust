@@ -1,10 +1,11 @@
-
+local BufferView = require('ui/menus/buffer_view')
 local ListView = require('cylibs/ui/list_view')
 local ListItemView = require('cylibs/ui/list_item_view')
 local ListItem = require('cylibs/ui/list_item')
 local ListViewItemStyle = require('cylibs/ui/style/list_view_item_style')
 local HorizontalListlayout = require('cylibs/ui/layouts/horizontal_list_layout')
 local Mouse = require('cylibs/ui/input/mouse')
+local PartyBufferView = require('ui/menus/party_buffer_view')
 local VerticalListlayout = require('cylibs/ui/layouts/vertical_list_layout')
 local TabItem = require('cylibs/ui/tabs/tab_item')
 local TabbedView = require('cylibs/ui/tabs/tabbed_view')
@@ -123,13 +124,21 @@ function TrustHud:toggleMenu(trust)
         local tabItems = L{}
 
         -- Roles
-        for role in trust:get_roles():it() do
-            local role_details = role:tostring()
-            if role_details then
-                local view = ListView.new(VerticalListlayout.new(500, 0))
-                view:addItem(ListItem.new({text = role_details, height = 500}, ListViewItemStyle.DarkMode.Text, role:get_type(), TextListItemView.new))
+        local buffer = trust:role_with_type("buffer")
+        if buffer then
+            tabItems:append(TabItem.new("buffs", BufferView.new(buffer, VerticalListlayout.new(500, 0))))
+            tabItems:append(TabItem.new("party", PartyBufferView.new(buffer, VerticalListlayout.new(500, 0))))
+        end
 
-                tabItems:append(TabItem.new(role:get_type(), view))
+        for role in trust:get_roles():it() do
+            if role:get_type() ~= "buffer" then
+                local role_details = role:tostring()
+                if role_details then
+                    local view = ListView.new(VerticalListlayout.new(500, 0))
+                    view:addItem(ListItem.new({text = role_details, height = 500}, ListViewItemStyle.DarkMode.Text, role:get_type(), TextListItemView.new))
+
+                    tabItems:append(TabItem.new(role:get_type(), view))
+                end
             end
         end
 
