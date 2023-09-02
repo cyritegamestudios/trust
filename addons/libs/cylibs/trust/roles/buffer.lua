@@ -132,6 +132,7 @@ function Buffer:check_buffs()
                 for spell in self.party_spells:it() do
                     local buff = buff_util.buff_for_spell(spell:get_spell().id)
                     if buff and not (party_member:has_buff(buff.id) or self.buff_tracker:has_buff(party_member:get_mob().id, buff.id))
+                            and not (buff_util.conflicts_with_buffs(buff.id, party_member:get_buff_ids()))
                             and spell:get_job_names():contains(party_member:get_main_job_short()) and spell_util.can_cast_spell(spell:get_spell().id) then
                         local target = party_member:get_mob()
                         if target and self:conditions_check(spell, target) then
@@ -188,9 +189,17 @@ function Buffer:cast_spell(spell, target_index)
     end
 end
 
+function Buffer:get_job_ability_names()
+    return self.job_ability_names
+end
+
 function Buffer:set_job_ability_names(job_ability_names)
     self.job_ability_names = (job_ability_names or L{}):filter(function(job_ability_name) return job_util.knows_job_ability(job_util.job_ability_id(job_ability_name)) == true  end)
     self.job_abilities_enabled = true
+end
+
+function Buffer:get_self_spells()
+    return self.self_spells
 end
 
 function Buffer:set_self_spells(self_spells)
@@ -198,9 +207,36 @@ function Buffer:set_self_spells(self_spells)
     self.self_spells_enabled = true
 end
 
+function Buffer:get_party_spells()
+    return self.party_spells
+end
+
 function Buffer:set_party_spells(party_spells)
     self.party_spells = (party_spells or L{}):filter(function(spell) return spell ~= nil and spell_util.knows_spell(spell:get_spell().id)  end)
     self.party_spells_enabled = true
+end
+
+function Buffer:is_self_buff_active(spell)
+    local player_buff_ids = L(windower.ffxi.get_player().buffs)
+
+    local buff = buff_util.buff_for_spell(spell:get_spell().id)
+    if buff and buff_util.is_buff_active(buff.id, player_buff_ids) or buff_util.conflicts_with_buffs(buff.id, player_buff_ids) then
+        return true
+    end
+    return false
+end
+
+function Buffer:is_job_ability_buff_active(job_ability_name)
+    local player_buff_ids = L(windower.ffxi.get_player().buffs)
+
+    local job_ability = res.job_abilities:with('en', job_ability_name)
+    if job_ability then
+        local buff = buff_util.buff_for_job_ability(job_ability.id)
+        if buff and buff_util.is_buff_active(buff.id, player_buff_ids) or buff_util.conflicts_with_buffs(buff.id, player_buff_ids) then
+            return true
+        end
+    end
+    return false
 end
 
 function Buffer:allows_duplicates()
