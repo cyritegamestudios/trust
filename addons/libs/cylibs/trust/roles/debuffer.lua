@@ -119,6 +119,14 @@ function Debuffer:set_debuff_spells(debuff_spells)
     self.debuff_spells = (debuff_spells or L{}):filter(function(spell) return spell ~= nil and spell_util.knows_spell(spell:get_spell().id) end)
 end
 
+function Debuffer:get_debuff_spells()
+    return self.debuff_spells
+end
+
+function Debuffer:get_battle_target()
+    return self.battle_target
+end
+
 function Debuffer:allows_duplicates()
     return true
 end
