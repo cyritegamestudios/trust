@@ -48,7 +48,7 @@ function Healer:on_add()
                 if hpp > 0 then
                     if hpp < 25 then
                         if p:get_mob().distance:sqrt() < 21 then
-                            self:cure_party_member(p)
+                            self:check_party_hp(25)
                         end
                     else
                         self:check_party_hp()
@@ -76,13 +76,24 @@ end
 
 -------
 -- Checks the hp of party members and cures if needed.
-function Healer:check_party_hp()
+-- @tparam number cure_threshold (optional) Cure threshold, defaults to self:get_cure_threshold()
+function Healer:check_party_hp(cure_threshold)
+    cure_threshold = cure_threshold or self:get_cure_threshold()
+
     local party_members = self:get_party():get_party_members(true, 21):filter(function(party_member)
         return party_member:get_mob() and party_member:get_mob().distance:sqrt() < 21
-                and party_member:get_hpp() <= self:get_cure_threshold() and party_member:is_alive()
+                and party_member:get_hpp() <= cure_threshold and party_member:is_alive()
     end):sort(function(p1, p2)
         return p1:get_hpp() < p2:get_hpp()
     end)
+
+    if #party_members > 2 then
+        local spell_target = party_members[1]
+        party_members = party_members:filter(function(party_member)
+            local distance = geometry_util.distance(spell_target:get_mob(), party_member:get_mob())
+            return distance < 10
+        end)
+    end
 
     if #party_members > 2 then
         self:cure_party_members(party_members)
