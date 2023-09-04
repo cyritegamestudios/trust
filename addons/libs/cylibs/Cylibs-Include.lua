@@ -1,7 +1,7 @@
-current_cylibs_include_version = 1
+current_cylibs_include_version = "1.1.0"
 
 function init_include()
-	print('Loaded Cylibs Version: %i':format(current_cylibs_include_version))
+	print('Loaded Cylibs Version: '..current_cylibs_include_version)
 
 	require('cylibs/util/Modes')
 	require('cylibs/util/States')
@@ -69,6 +69,10 @@ function init_include()
 	-- Entities
 	Player = require('cylibs/entity/player')
 	PartyMember = require('cylibs/entity/party_member')
+end
+
+function check_cylibs_version(addon_version)
+	return addon_version == current_cylibs_include_version
 end
 
 init_include()
