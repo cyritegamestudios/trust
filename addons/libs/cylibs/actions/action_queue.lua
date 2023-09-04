@@ -15,7 +15,14 @@ local Action = require('cylibs/actions/action')
 local ActionQueue = {}
 ActionQueue.__index = ActionQueue
 
+ActionQueue.Mode = {}
+ActionQueue.Mode.Default = "default"
+ActionQueue.Mode.Batch = "batch"
+
 ActionQueue.empty = Event.newEvent()
+
+state.ActionBatchingMode = M{['description'] = 'Actions Batching Mode', 'Off', 'Auto'}
+state.ActionBatchingMode:set_description('Auto', "Okay, I'll think about my decisions more carefully.")
 
 -- Event called when an action starts.
 function ActionQueue:on_action_start()
@@ -25,6 +32,11 @@ end
 -- Event called when an action ends.
 function ActionQueue:on_action_end()
 	return self.action_end
+end
+
+-- Event called when an action is added to the queue.
+function ActionQueue:on_action_queued()
+	return self.action_queued
 end
 
 function ActionQueue.new(completion, is_priority_queue, max_size, debugging_enabled, verbose)
@@ -39,8 +51,11 @@ function ActionQueue.new(completion, is_priority_queue, max_size, debugging_enab
 	self.debugging_enabled = debugging_enabled
 	self.verbose = verbose
 	self.identifier = os.time()
+	self.mode = ActionQueue.Mode.Default
+	self.batch_actions = L{}
 	self.action_start = Event.newEvent()
 	self.action_end = Event.newEvent()
+	self.action_queued = Event.newEvent()
 	--[[self.action_complete_id = Action.action_complete:addAction(
 			function (a, success)
 				if a:get_action_queue_id() == self.identifier and self.current_action ~= nil and self.current_action:is_equal(a) then
@@ -65,8 +80,10 @@ end
 
 function ActionQueue:destroy()
 	Action.action_complete:removeAction(self.action_complete_id)
+
 	self:on_action_start():removeAllActions()
 	self:on_action_end():removeAllActions()
+	self:on_action_queued():removeAllActions()
 end
 
 -- Performs the next action in the queue if the
@@ -88,11 +105,12 @@ function ActionQueue:perform_next_action()
 			print(tostring(self.identifier)..' '..next_action:gettype()..' '..(next_action:getidentifier() or 'nil')..' start')
 			windower.chat.input('// lua m')
 		end
+		self.current_action = next_action
 		if self.verbose then
 			self:on_action_start():trigger(self, next_action:tostring())
 		end
 		--print(tostring(self.identifier)..' '..next_action:gettype()..' '..(next_action:getidentifier() or 'nil')..' start')
-		self.current_action = next_action
+
 		self.current_action:on_action_complete():addAction(function(a, success) self:handle_action_completed(a, success) end)
 		self.current_action:set_start_time(os.time())
 		self.current_action:perform()
@@ -130,6 +148,11 @@ function ActionQueue:push_action(action, check_duplicates)
 		return
 	end
 
+	if self.mode == ActionQueue.Mode.Batch then
+		self.batch_actions:append(action)
+		return
+	end
+
 	self.queue:push(action)
 
 	if self.is_priority_queue and self.queue:length() > 1 then
@@ -146,6 +169,8 @@ function ActionQueue:push_action(action, check_duplicates)
 
 	if self.current_action == nil then
 		self:perform_next_action()
+	else
+		self:on_action_queued():trigger(self)
 	end
 end
 
@@ -163,6 +188,12 @@ function ActionQueue:push_actions(actions, check_duplicates)
 	end
 
 	if actions:length() == 0 then
+		return
+	end
+	if self.mode == ActionQueue.Mode.Batch then
+		for action in actions:it() do
+			self.batch_actions:append(action)
+		end
 		return
 	end
 
@@ -183,6 +214,8 @@ function ActionQueue:push_actions(actions, check_duplicates)
 	end
 	if self.current_action == nil then
 		self:perform_next_action()
+	else
+		self:on_action_queued():trigger(self)
 	end
 end
 
@@ -195,6 +228,9 @@ end
 function ActionQueue:contains(action)
 	for a in self.queue:it() do
 		if a:is_equal(action) then return true end
+	end
+	if self.current_action and action:is_equal(self.current_action) then
+		return true
 	end
 	return false
 end
@@ -255,11 +291,49 @@ function ActionQueue:disable()
 	self:clear()
 end
 
+---
+-- Sets the mode of the ActionQueue object.
+--
+-- This function allows you to set the operating mode for the ActionQueue.
+--
+-- @tparam ActionQueue.Mode mode The mode to set. Should be one of ActionQueue.Mode.Default or ActionQueue.Mode.Batch.
+-- @see ActionQueue.Mode
+--
+function ActionQueue:set_mode(mode)
+	if state.ActionBatchingMode.value == 'Off' then
+		return
+	end
+	if not L{ ActionQueue.Mode.Default, ActionQueue.Mode.Batch }:contains(mode) then
+		mode = ActionQueue.Mode.default
+	end
+	if self.mode == mode then
+		return
+	end
+	if self.mode == ActionQueue.Mode.Batch then
+		self.mode = mode
+		self:push_actions(self.batch_actions, true)
+		self.batch_actions = L{}
+	else
+		self.mode = mode
+	end
+end
+
+---
+-- Gets the current operating mode of the ActionQueue object.
+--
+-- @treturn ActionQueue.Mode Returns the current mode, which can be ActionQueue.Mode.Default or ActionQueue.Mode.Batch.
+-- @see ActionQueue.Mode
+--
+function ActionQueue:get_mode()
+	return self.mode
+end
+
 -- Debug functions
 
 -------
 -- Returns the list of actions in the queue.
 -- @treturn L List of actions
+--
 function ActionQueue:get_actions()
 	local actions = L{}
 	if self.current_action then

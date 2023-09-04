@@ -3,8 +3,10 @@
 -- @class module
 -- @name Player
 
+local battle_util = require('cylibs/util/battle_util')
 local Entity = require('cylibs/entity/entity')
 local Event = require('cylibs/events/Luvent')
+local ffxi_util = require('cylibs/util/ffxi_util')
 local packets = require('packets')
 local res = require('resources')
 

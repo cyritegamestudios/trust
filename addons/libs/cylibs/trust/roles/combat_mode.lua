@@ -60,7 +60,7 @@ end
 
 function CombatMode:face_target(target)
     if state.AutoFaceMobMode.value ~= 'Off' then
-        self.action_queue:push_action(BlockAction.new(function() player_util.face(target)  end, 'face_target'))
+        self.action_queue:push_action(BlockAction.new(function() player_util.face(target)  end, "face target"))
     end
 end
 

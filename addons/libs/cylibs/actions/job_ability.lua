@@ -3,6 +3,9 @@
 -- @class module
 -- @name JobAbility
 
+local job_util = require('cylibs/util/job_util')
+local player_util = require('cylibs/util/player_util')
+
 require('coroutine')
 require('vectors')
 require('math')

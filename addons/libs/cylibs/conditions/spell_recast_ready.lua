@@ -3,6 +3,8 @@
 -- @class module
 -- @name SpellRecastReadyCondition
 
+local spell_util = require('cylibs/util/spell_util')
+
 local Condition = require('cylibs/conditions/condition')
 local SpellRecastReadyCondition = setmetatable({}, { __index = Condition })
 SpellRecastReadyCondition.__index = SpellRecastReadyCondition

@@ -3,6 +3,8 @@
 -- @class module
 -- @name HasBuffsCondition
 
+local buff_util = require('cylibs/util/buff_util')
+
 local Condition = require('cylibs/conditions/condition')
 local HasBuffsCondition = setmetatable({}, { __index = Condition })
 HasBuffsCondition.__index = HasBuffsCondition

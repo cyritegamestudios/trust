@@ -1,6 +1,9 @@
 local cure_util = require('cylibs/util/cure_util')
 local DamageMemory = require('cylibs/battle/damage_memory')
 local CureAction = require('cylibs/actions/cure')
+local WaitAction = require('cylibs/actions/wait')
+local SequenceAction = require('cylibs/actions/sequence')
+local SpellAction = require('cylibs/actions/spell')
 
 local Healer = setmetatable({}, {__index = Role })
 Healer.__index = Healer

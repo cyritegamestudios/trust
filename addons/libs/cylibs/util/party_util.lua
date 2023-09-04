@@ -9,6 +9,7 @@ require('lists')
 
 local table = require('table')
 local packets = require('packets')
+local tables_ext = require('cylibs/util/extensions/tables')
 
 local party_util = {}
 

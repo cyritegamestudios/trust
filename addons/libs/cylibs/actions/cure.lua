@@ -8,6 +8,8 @@ require('math')
 require('logger')
 require('lists')
 
+local spell_util = require('cylibs/util/spell_util')
+
 local Action = require('cylibs/actions/action')
 local CureAction = setmetatable({}, {__index = Action })
 CureAction.__index = CureAction

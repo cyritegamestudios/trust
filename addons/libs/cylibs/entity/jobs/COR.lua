@@ -3,6 +3,12 @@
 -- @class module
 -- @name Corsair
 
+local JobAbilityAction = require('cylibs/actions/job_ability')
+local job_util = require('cylibs/util/job_util')
+local buff_util = require('cylibs/util/buff_util')
+local SequenceAction = require('cylibs/actions/sequence')
+local WaitAction = require('cylibs/actions/wait')
+
 local Job = require('cylibs/entity/jobs/job')
 local Corsair = setmetatable({}, {__index = Job })
 Corsair.__index = Corsair

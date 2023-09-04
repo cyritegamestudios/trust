@@ -1,4 +1,5 @@
 local DamageMemory = require('cylibs/battle/damage_memory')
+local spell_util = require('cylibs/util/spell_util')
 
 local Barspeller = setmetatable({}, {__index = Role })
 Barspeller.__index = Barspeller

@@ -1,5 +1,11 @@
 local BuffTracker = require('cylibs/battle/buff_tracker')
 local res = require('resources')
+local buff_util = require('cylibs/util/buff_util')
+local spell_util = require('cylibs/util/spell_util')
+local JobAbilityAction = require('cylibs/actions/job_ability')
+local WaitAction = require('cylibs/actions/wait')
+local SequenceAction = require('cylibs/actions/sequence')
+local SpellAction = require('cylibs/actions/spell')
 
 local Buffer = setmetatable({}, {__index = Role })
 Buffer.__index = Buffer
@@ -52,6 +58,7 @@ function Buffer:tic(_, _)
             or (os.time() - self.last_buff_time) < 8 then
         return
     end
+
     self:check_buffs()
 end
 

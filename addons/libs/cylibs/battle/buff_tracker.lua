@@ -7,6 +7,9 @@ require('tables')
 require('lists')
 require('logger')
 
+local buff_util = require('cylibs/util/buff_util')
+local party_util = require('cylibs/util/party_util')
+
 local BuffTracker = {}
 BuffTracker.__index = BuffTracker
 

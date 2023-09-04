@@ -2,10 +2,11 @@ local Action = require('cylibs/actions/action')
 local BlockAction = setmetatable({}, { __index = Action })
 BlockAction.__index = BlockAction
 
-function BlockAction.new(block, identifier)
+function BlockAction.new(block, identifier, description)
     local self = setmetatable(Action.new(0, 0, 0), BlockAction)
     self.block = block
     self.identifier = identifier or os.time()
+    self.description = description
     return self
 end
 
@@ -48,6 +49,10 @@ function BlockAction:getidentifier()
 end
 
 function BlockAction:tostring()
+    return self.description or ""
+end
+
+function BlockAction:debug_string()
     return "BlockAction: "..self:getidentifier()
 end
 

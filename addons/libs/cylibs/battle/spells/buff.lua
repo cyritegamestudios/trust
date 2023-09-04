@@ -6,6 +6,8 @@
 require('tables')
 require('lists')
 
+local spell_util = require('cylibs/util/spell_util')
+
 local Spell = require('cylibs/battle/spell')
 
 local Buff = setmetatable({}, {__index = Spell })

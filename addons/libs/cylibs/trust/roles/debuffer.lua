@@ -1,3 +1,5 @@
+local spell_util = require('cylibs/util/spell_util')
+
 local Debuffer = setmetatable({}, {__index = Role })
 Debuffer.__index = Debuffer
 

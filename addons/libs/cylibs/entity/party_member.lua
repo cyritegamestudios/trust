@@ -3,9 +3,13 @@
 -- @class module
 -- @name PartyMember
 
+local battle_util = require('cylibs/util/battle_util')
+local buff_util = require('cylibs/util/buff_util')
 local Entity = require('cylibs/entity/entity')
 local Event = require('cylibs/events/Luvent')
+local ffxi_util = require('cylibs/util/ffxi_util')
 local packets = require('packets')
+local party_util = require('cylibs/util/party_util')
 local res = require('resources')
 
 local PartyMember = setmetatable({}, {__index = Entity })
@@ -279,6 +283,13 @@ end
 -- @treturn Boolean True if the party member is a trust, and false otherwise
 function PartyMember:is_trust()
     return false
+end
+
+-------
+-- Returns the index of the current target.
+-- @treturn number Index of the current target, or nil if none.
+function PartyMember:get_target_index()
+    return self.target_index
 end
 
 -------

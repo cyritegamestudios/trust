@@ -8,6 +8,7 @@ local Entity = require('cylibs/entity/entity')
 local Event = require('cylibs/events/Luvent')
 local packets = require('packets')
 local PartyMember = require('cylibs/entity/party_member')
+local party_util = require('cylibs/util/party_util')
 local res = require('resources')
 local trusts = require('cylibs/res/trusts')
 
@@ -252,6 +253,12 @@ end
 -- @tparam PartyMember party_member Party member to assist
 function Party:set_assist_target(party_member)
     self.assist_target = party_member
+    if party_member then
+        local initial_target_index = party_member:get_target_index()
+        if initial_target_index then
+            self:on_party_target_change():trigger(self, initial_target_index, nil)
+        end
+    end
     self:on_party_assist_target_change():trigger(self, self.assist_target)
 end
 
