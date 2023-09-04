@@ -23,7 +23,7 @@ TrustHud.__index = TrustHud
 
 input = Mouse.new()
 
-function ListView:onEnabledClick()
+function TrustHud:onEnabledClick()
     return self.enabledClick
 end
 
