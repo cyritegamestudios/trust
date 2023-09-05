@@ -3,6 +3,7 @@
 -- @class module
 -- @name AlterEgo
 
+local buff_util = require('cylibs/util/buff_util')
 local PartyMember = require('cylibs/entity/party_member')
 
 local AlterEgo = setmetatable({}, {__index = PartyMember })

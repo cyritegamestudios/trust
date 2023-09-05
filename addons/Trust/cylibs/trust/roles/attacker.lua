@@ -1,5 +1,7 @@
 local battle_util = require('cylibs/util/battle_util')
 local party_util = require('cylibs/util/party_util')
+local BlockAction = require('cylibs/actions/block')
+local CommandAction = require('cylibs/actions/command')
 
 local Attacker = setmetatable({}, {__index = Role })
 Attacker.__index = Attacker

@@ -18,7 +18,8 @@ function RunToAction.new(target_index, distance)
 	self.user_events = {}
 	self.target_index = target_index
 	self.distance = distance
- 	return self
+	self.was_locked_on = false
+	return self
 end
 
 function RunToAction:can_perform()
@@ -42,6 +43,7 @@ end
 function RunToAction:perform()
 	if windower.ffxi.get_player().target_locked then
 		windower.send_command('input /lockon')
+		self.was_locked_on = true
 	end
 	self:run_to(self.distance, 0)
 end
@@ -59,7 +61,10 @@ function RunToAction:run_to(distance, retry_count)
 
 	local dist = self:target_distance()
 	if dist < self.distance then
-		windower.ffxi.run(false) 
+		windower.ffxi.run(false)
+		if self.was_locked_on then
+			windower.send_command('input /lockon')
+		end
 		self:complete(true)
 	else
 		if self:is_cancelled() then
@@ -102,12 +107,12 @@ end
 
 function RunToAction:getrawdata()
 	local res = {}
-	
+
 	res.runtoaction = {}
 	res.runtoaction.x = self.x
 	res.runtoaction.y = self.y
 	res.runtoaction.z = self.z
-	
+
 	return res
 end
 
@@ -116,7 +121,7 @@ function RunToAction:copy()
 end
 
 function RunToAction:tostring()
-    return "RunToAction: (%d, %d, %d)":format(self.x, self.y, self.z)
+	return "RunToAction: (%d, %d, %d)":format(self.x, self.y, self.z)
 end
 
 return RunToAction
