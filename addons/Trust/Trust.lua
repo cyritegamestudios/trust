@@ -3,29 +3,8 @@ _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
 _addon.version = '1.1'
 
-require('luau')
-require('actions')
-require('lists')
-
-require('cylibs/Cylibs-Include')
-require('TrustHelp')
-require('TrustShortcuts')
-
-local Attacker = require('cylibs/trust/roles/attacker')
-local CombatMode = require('cylibs/trust/roles/combat_mode')
-local Eater = require('cylibs/trust/roles/eater')
-local Follower = require('cylibs/trust/roles/follower')
-local res = require('resources')
-local files = require('files')
-local Party = require('cylibs/entity/party')
-local Skillchainer = require('cylibs/trust/roles/skillchainer')
-local Targeter = require('cylibs/trust/roles/targeter')
-local Truster = require('cylibs/trust/roles/truster')
-local TrustFactory = require('cylibs/trust/trust_factory')
-local TrustRemoteCommands = require('TrustRemoteCommands')
-local TrustUI = require('ui/TrustUI')
-local TrustUnitTests = require('TrustUnitTests')
-local ValueRelay = require('cylibs/events/value_relay')
+require('Trust-Include')
+--require('cylibs/Cylibs-Include')
 
 default = {
 	verbose=true
@@ -198,8 +177,6 @@ end
 
 
 function load_ui()
-	local TrustHud = require('ui/TrustHud')
-
 	hud = TrustHud.new(player, action_queue, addon_enabled)
 
 	local info = windower.get_windower_settings()
@@ -296,8 +273,12 @@ end
 function handle_tic(old_time, new_time)
 	if not trust or not windower.ffxi.get_player() or not addon_enabled:getValue() or not player or not player.trust then return end
 
+	action_queue:set_mode(ActionQueue.Mode.Batch)
+
 	player.trust.main_job:tic(old_time, new_time)
 	player.trust.sub_job:tic(old_time, new_time)
+
+	action_queue:set_mode(ActionQueue.Mode.Default)
 end
 
 function handle_status_change(new_status_id, old_status_id)

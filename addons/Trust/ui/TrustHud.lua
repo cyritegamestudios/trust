@@ -1,13 +1,14 @@
-local BufferView = require('ui/menus/buffer_view')
-local DebufferView = require('ui/menus/debuffer_view')
-local HelpView = require('ui/menus/help_view')
+local BufferView = require('cylibs/trust/roles/ui/buffer_view')
+local DebufferView = require('cylibs/trust/roles/ui/debuffer_view')
+local DebugView = require('cylibs/actions/ui/debug_view')
+local HelpView = require('cylibs/trust/ui/help_view')
 local ListView = require('cylibs/ui/list_view')
 local ListItemView = require('cylibs/ui/list_item_view')
 local ListItem = require('cylibs/ui/list_item')
 local ListViewItemStyle = require('cylibs/ui/style/list_view_item_style')
 local HorizontalListlayout = require('cylibs/ui/layouts/horizontal_list_layout')
 local Mouse = require('cylibs/ui/input/mouse')
-local PartyBufferView = require('ui/menus/party_buffer_view')
+local PartyBufferView = require('cylibs/trust/roles/ui/party_buffer_view')
 local VerticalListlayout = require('cylibs/ui/layouts/vertical_list_layout')
 local TabItem = require('cylibs/ui/tabs/tab_item')
 local TabbedView = require('cylibs/ui/tabs/tabbed_view')
@@ -15,7 +16,7 @@ local TextListItemView = require('cylibs/ui/items/text_list_item_view')
 local ValueRelay = require('cylibs/events/value_relay')
 
 local Event = require('cylibs/events/Luvent')
-local TrustActionHud = require('ui/TrustActionHud')
+local TrustActionHud = require('cylibs/actions/ui/action_hud')
 local View = require('cylibs/ui/view')
 
 local TrustHud = setmetatable({}, {__index = View })
@@ -38,11 +39,11 @@ function TrustHud.new(player, action_queue, addon_enabled)
 
     local listItems = L{
         ListItem.new({text = '', width = 250}, ListViewItemStyle.DarkMode.Header, "Target", TextListItemView.new),
-        ListItem.new({text = player.main_job_name_short, width = 60}, ListViewItemStyle.DarkMode.Header, "MainJobButton", TextListItemView.new),
+        ListItem.new({text = player.main_job_name_short, highlightable = true, width = 60}, ListViewItemStyle.DarkMode.Header, "MainJobButton", TextListItemView.new),
         ListItem.new({text = '/', width = 10}, ListViewItemStyle.DarkMode.Header, "Separator", TextListItemView.new),
-        ListItem.new({text = player.sub_job_name_short, width = 60}, ListViewItemStyle.DarkMode.Header, "SubJobButton", TextListItemView.new),
+        ListItem.new({text = player.sub_job_name_short, highlightable = true, width = 60}, ListViewItemStyle.DarkMode.Header, "SubJobButton", TextListItemView.new),
         ListItem.new({text = '', width = 20}, ListViewItemStyle.DarkMode.Header, "Spacer", TextListItemView.new),
-        ListItem.new({text = 'ON', width = 105, pattern = 'Trust: ${text}'}, ListViewItemStyle.DarkMode.Header, "AddonEnabled", TextListItemView.new)
+        ListItem.new({text = 'ON', highlightable = true, width = 105, pattern = 'Trust: ${text}'}, ListViewItemStyle.DarkMode.Header, "AddonEnabled", TextListItemView.new)
     }
 
     self.listView:addItems(listItems)
@@ -114,7 +115,7 @@ function TrustHud:render()
 
     local info = windower.get_windower_settings()
 
-    self.actionView:get_view():pos(-340, y + height + 15)
+    self.actionView:set_pos(x + 250 + 10, y + height + 15)
     self.actionView:render()
 end
 
@@ -144,11 +145,11 @@ function TrustHud:toggleMenu(job_name_short, trust)
 
         for modeName in modeNames:it() do
             if modeTab:length() < 18 then
-                modeTab:append(ListItem.new({text = modeName..': '..state[modeName].value, mode = state[modeName], modeName = modeName, height = 20}, ListViewItemStyle.DarkMode.TextSmall, modeName, TextListItemView.new))
+                modeTab:append(ListItem.new({text = modeName..': '..state[modeName].value, mode = state[modeName], modeName = modeName, highlightable = true, height = 20}, ListViewItemStyle.DarkMode.TextSmall, modeName, TextListItemView.new))
             else
                 modeTabs:append(modeTab)
                 modeTab = L{}
-                modeTab:append(ListItem.new({text = modeName..': '..state[modeName].value, mode = state[modeName], modeName = modeName, height = 20}, ListViewItemStyle.DarkMode.TextSmall, modeName, TextListItemView.new))
+                modeTab:append(ListItem.new({text = modeName..': '..state[modeName].value, mode = state[modeName], modeName = modeName, highlightable = true, height = 20}, ListViewItemStyle.DarkMode.TextSmall, modeName, TextListItemView.new))
             end
         end
         if modeTab:length() > 0 then
@@ -172,6 +173,7 @@ function TrustHud:toggleMenu(job_name_short, trust)
         end
 
         tabItems:append(TabItem.new("help", HelpView.new(job_name_short, VerticalListlayout.new(380, 0))))
+        tabItems:append(TabItem.new("debug", DebugView.new(action_queue, VerticalListlayout.new(380, 0))))
 
         self.tabbed_view = TabbedView.new(tabItems)
         self.tabbed_view:set_pos(500, 200)
