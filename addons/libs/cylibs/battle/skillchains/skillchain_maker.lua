@@ -1502,6 +1502,7 @@ function SkillchainMaker:set_spam(new_value)
         auto = 0
         open = 0
         close = 0
+        cleave = 0
     end
 end
 
