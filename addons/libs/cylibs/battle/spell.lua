@@ -30,6 +30,8 @@ function Spell.new(spell_name, job_abilities, job_names, target, conditions, con
         target = target;
         consumable = consumable;
         conditions = conditions or L{};
+        -- performance optimization, cache the spell data
+        cached_spell_metadata = res.spells:with('en', spell_name);
     }, Spell)
 
     local strategem_count = self.job_abilities:filter(function(job_ability_name)
@@ -46,7 +48,7 @@ end
 -- Returns the full metadata for the spell.
 -- @treturn SpellMetadata metadata (see spells.lua)
 function Spell:get_spell()
-    return res.spells:with('en', self.spell_name)
+    return self.cached_spell_metadata or res.spells:with('en', self.spell_name)
 end
 
 -------
