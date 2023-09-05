@@ -41,7 +41,7 @@ function Roller:on_add()
 end
 
 function Roller:on_roll_used(roll_id, targets)
-    should_double_up = false
+    self.should_double_up = false
 
     local roll_num = targets[1].actions[1].param
 
@@ -78,7 +78,7 @@ function Roller:check_rolls()
         return
     end
 
-    last_roll_time = os.time()
+    self.last_roll_time = os.time()
 
     if self.job:busted() then
         self.job:fold()

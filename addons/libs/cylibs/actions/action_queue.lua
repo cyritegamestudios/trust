@@ -183,8 +183,8 @@ function ActionQueue:push_actions(actions, check_duplicates)
 		return
 	end
 
-	if check_duplicates and check_duplicates == true then
-		actions = L(actions:filter(function(a) return not self:contains(a)  end))
+	if check_duplicates then
+		actions = L(actions:filter(function(a) return not self:contains(a) end))
 	end
 
 	if actions:length() == 0 then

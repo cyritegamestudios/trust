@@ -88,6 +88,7 @@ function Singer:sing_next_song()
         -- Get next dummy song
         for song in self.dummy_songs:it() do
             if not self.song_tracker:has_song(song_target_id, song:get_spell().id, player_buff_ids) then
+                windower.send_command('gs c set ExtraSongsMode Dummy')
                 self:sing_song(song)
                 return true
             end
@@ -104,6 +105,7 @@ function Singer:sing_next_song()
         -- Get next real song
         for song in self.songs:it() do
             if not self.song_tracker:has_song(song_target_id, song:get_spell().id, player_buff_ids) then
+                windower.send_command('gs c set ExtraSongsMode None')
                 self:sing_song(song)
                 return true
             end

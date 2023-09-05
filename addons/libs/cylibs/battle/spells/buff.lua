@@ -18,7 +18,6 @@ Buff.__index = Buff
 local aoe_buff_prefixes = L{
     'Protectra',
     'Shellra',
-    'Auspice',
     'Boost',
     'Bar'
 }

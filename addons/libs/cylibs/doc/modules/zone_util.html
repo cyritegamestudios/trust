@@ -33,6 +33,10 @@
 
 
 
+<h2>Functions</h2>
+<ul class="nowrap">
+    <li><a href="#is_city">is_city (zone_id)</a></li>
+</ul>
 <h2>Modules</h2>
 <ul class="nowrap">
   <li><a href="../modules/Action.html">Action</a></li>
@@ -60,7 +64,7 @@
   <li><a href="../modules/pet_util.html">pet_util</a></li>
   <li><a href="../modules/PupUtil.html">PupUtil</a></li>
   <li><a href="../modules/SpellUtil.html">SpellUtil</a></li>
-  <li><a href="../modules/zone_util.html">zone_util</a></li>
+  <li><strong>zone_util</strong></li>
   <li><a href="../modules/AuraTracker.html">AuraTracker</a></li>
   <li><a href="../modules/BattleStatTracker.html">BattleStatTracker</a></li>
   <li><a href="../modules/SongTracker.html">SongTracker</a></li>
@@ -69,7 +73,7 @@
   <li><a href="../modules/Monster.html">Monster</a></li>
   <li><a href="../modules/MonsterBuffTracker.html">MonsterBuffTracker</a></li>
   <li><a href="../modules/Roll.html">Roll</a></li>
-  <li><strong>Skillchain</strong></li>
+  <li><a href="../modules/Skillchain.html">Skillchain</a></li>
   <li><a href="../modules/MagicBurstMaker.html">MagicBurstMaker</a></li>
   <li><a href="../modules/SkillchainMaker.html">SkillchainMaker</a></li>
   <li><a href="../modules/SongTracker.html">SongTracker</a></li>
@@ -133,14 +137,43 @@
 
 <div id="content">
 
-<h1>Module <code>Skillchain</code></h1>
-<p>Wrapper around a skillchain.</p>
+<h1>Module <code>zone_util</code></h1>
+<p>Utility functions for zones.</p>
 <p>
 
 </p>
 
 
 
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "is_city"></a>
+    <strong>is_city (zone_id)</strong>
+    </dt>
+    <dd>
+    Checks if a given zone identifier corresponds to a city.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">zone_id</span>
+         (string) The identifier of the zone to be checked.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        (boolean) True if the zone is a city, false otherwise.
+    </ol>
+
+
+
+
+</dd>
+</dl>
 
 
 </div> <!-- id="content" -->

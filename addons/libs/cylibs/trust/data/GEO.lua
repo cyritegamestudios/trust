@@ -20,7 +20,6 @@ function GeomancerTrust.new(settings, action_queue, battle_settings, trust_setti
 	local job = Geomancer.new()
 	local roles = S{
 		Buffer.new(action_queue, S{}, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
-		Dispeler.new(action_queue),
 		Nuker.new(action_queue),
 	}
 
