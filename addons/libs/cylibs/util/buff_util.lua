@@ -64,10 +64,12 @@ local spell_id_to_buff = T{
 
 -- Set of buffs that conflict with a given buff and cannot be overridden
 local buff_conflicts = T{
-	[43] = S{187, 188}, -- Refresh
+	[43] = S{187, 188}, -- Refresh = Sublimation: Active/Sublimation: Complete
 	[68] = S{460}, -- Warcry
 	[460] = S{68}, -- Blood Rage
-	[33] = S{13, 565} -- Haste
+	[33] = S{13, 565, 265, 581}, -- Haste
+	[358] = S{401}, -- Light Arts/Addendum: White
+	[359] = S{402}, -- Dark Arts/Addendum: Black
 }
 
 
@@ -84,13 +86,7 @@ function buff_util.is_buff_active(buff_id, player_buff_ids)
 			player_buff_ids = L(player.buffs)
 		end
 	end
-	if buff_id == 358 then
-		return player_buff_ids:contains(buff_id) or player_buff_ids:contains(401)
-	elseif buff_id == 359 then
-		return player_buff_ids:contains(buff_id) or player_buff_ids:contains(402)
-	else
-		return player_buff_ids:contains(buff_id)
-	end
+	return buff_util.conflicts_with_buffs(buff_id, player_buff_ids) or player_buff_ids:contains(buff_id)
 end
 
 -------
