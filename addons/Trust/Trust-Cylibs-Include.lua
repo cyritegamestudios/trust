@@ -71,9 +71,6 @@ Trust = require('cylibs/trust/trust')
 Monster = require('cylibs/battle/monster')
 Party = require('cylibs/entity/party')
 Player = require('cylibs/entity/player')
-
--- Entities
-Player = require('cylibs/entity/player')
 PartyMember = require('cylibs/entity/party_member')
 
 -- Trusts

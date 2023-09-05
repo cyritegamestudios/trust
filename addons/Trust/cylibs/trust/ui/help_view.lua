@@ -10,14 +10,14 @@ function HelpView.new(main_job_name_short, layout)
     local self = setmetatable(ListView.new(layout), HelpView)
 
     self:addItem(ListItem.new({text = "Wiki", height = 20}, ListViewItemStyle.DarkMode.Text, "wiki-header", TextListItemView.new))
-    self:addItem(ListItem.new({text = "• "..main_job_name_short, height = 20}, ListViewItemStyle.DarkMode.TextSmall, "job", TextListItemView.new))
-    self:addItem(ListItem.new({text = "• Commands", height = 20}, ListViewItemStyle.DarkMode.TextSmall, "commands", TextListItemView.new))
-    self:addItem(ListItem.new({text = "• Shortcuts", height = 20}, ListViewItemStyle.DarkMode.TextSmall, "shortcuts", TextListItemView.new))
+    self:addItem(ListItem.new({text = "• "..main_job_name_short, highlightable = true, height = 20}, ListViewItemStyle.DarkMode.TextSmall, "job", TextListItemView.new))
+    self:addItem(ListItem.new({text = "• Commands", highlightable = true, height = 20}, ListViewItemStyle.DarkMode.TextSmall, "commands", TextListItemView.new))
+    self:addItem(ListItem.new({text = "• Shortcuts", highlightable = true, height = 20}, ListViewItemStyle.DarkMode.TextSmall, "shortcuts", TextListItemView.new))
 
     self:addItem(ListItem.new({text = '', height = 20}, ListViewItemStyle.DarkMode.Text, "spacer-1", TextListItemView.new))
 
     self:addItem(ListItem.new({text = "Discord", height = 20}, ListViewItemStyle.DarkMode.Text, "discord-header", TextListItemView.new))
-    self:addItem(ListItem.new({text = "• Join the Discord", height = 20}, ListViewItemStyle.DarkMode.TextSmall, "join-discord", TextListItemView.new))
+    self:addItem(ListItem.new({text = "• Join the Discord", highlightable = true, height = 20}, ListViewItemStyle.DarkMode.TextSmall, "join-discord", TextListItemView.new))
 
     self:onClick():addAction(function(item)
         local identifier = item:getIdentifier()
