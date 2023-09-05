@@ -1,6 +1,13 @@
+local buff_util = require('cylibs/util/buff_util')
+local party_util = require('cylibs/util/party_util')
 local spell_util = require('cylibs/util/spell_util')
 local job_util = require('cylibs/util/job_util')
 local Monster = require('cylibs/battle/monster')
+local JobAbilityAction = require('cylibs/actions/job_ability')
+local StrategemAction = require('cylibs/actions/strategem')
+local WaitAction = require('cylibs/actions/wait')
+local SequenceAction = require('cylibs/actions/sequence')
+local SpellAction = require('cylibs/actions/spell')
 
 local Dispeler = setmetatable({}, {__index = Role })
 Dispeler.__index = Dispeler
