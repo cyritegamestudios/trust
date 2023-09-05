@@ -3,6 +3,9 @@
 -- @class module
 -- @name Puppetmaster
 
+local buff_util = require('cylibs/util/buff_util')
+local job_util = require('cylibs/util/job_util')
+local zone_util = require('cylibs/util/zone_util')
 local res = require('resources')
 
 local Job = require('cylibs/entity/jobs/job')
@@ -45,6 +48,22 @@ function Puppetmaster:can_repair()
         end
     end
     return false
+end
+
+---
+-- Checks whether the Puppetmaster can use activate.
+--
+-- @return (boolean) True if the Puppetmaster can use activate, false otherwise.
+---
+function Puppetmaster:can_activate()
+    if not job_util.can_use_job_ability('Activate') then
+        return false
+    end
+    local info = windower.ffxi.get_info()
+    if zone_util.is_city(info.zone) then
+        return false
+    end
+    return true
 end
 
 -------

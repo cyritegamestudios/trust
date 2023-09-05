@@ -1,3 +1,10 @@
+local BlockAction = require('cylibs/actions/block')
+local RunAwayAction = require('cylibs/actions/runaway')
+local RunToAction = require('cylibs/actions/runto')
+local battle_util = require('cylibs/util/battle_util')
+local party_util = require('cylibs/util/party_util')
+local player_util = require('cylibs/util/player_util')
+
 local CombatMode = setmetatable({}, {__index = Role })
 CombatMode.__index = CombatMode
 

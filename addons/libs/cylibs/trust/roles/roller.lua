@@ -11,7 +11,7 @@ function Roller.new(action_queue, job, roll1, roll2, party)
     self.action_queue = action_queue
     self.job = job
     self.should_double_up = false
-    self.is_winning_streak_active = false
+    self.is_xi_streak_active = false
     self.roll1 = roll1
     self.roll1_current = 0
     self.roll2 = roll2

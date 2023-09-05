@@ -1,5 +1,6 @@
 local spell_util = require('cylibs/util/spell_util')
 local job_util = require('cylibs/util/job_util')
+local Monster = require('cylibs/battle/monster')
 
 local Dispeler = setmetatable({}, {__index = Role })
 Dispeler.__index = Dispeler

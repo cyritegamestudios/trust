@@ -9,6 +9,8 @@ require('logger')
 
 local Event = require('cylibs/events/Luvent')
 local res = require('resources')
+local action_message_util = require('cylibs/util/action_message_util')
+local buff_util = require('cylibs/util/buff_util')
 local monster_abilities_ext = require('cylibs/res/monster_abilities')
 
 local Monster = setmetatable({}, {__index = Trust })

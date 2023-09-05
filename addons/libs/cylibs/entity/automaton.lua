@@ -5,6 +5,7 @@
 
 local Entity = require('cylibs/entity/entity')
 local Event = require('cylibs/events/Luvent')
+local pup_util = require('cylibs/util/pup_util')
 local res = require('resources')
 
 local Automaton = setmetatable({}, {__index = Entity })

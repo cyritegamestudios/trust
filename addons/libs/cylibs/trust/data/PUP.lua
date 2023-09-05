@@ -4,6 +4,13 @@ require('logger')
 
 Puppetmaster = require('cylibs/entity/jobs/PUP')
 
+local JobAbilityAction = require('cylibs/actions/job_ability')
+local WaitAction = require('cylibs/actions/wait')
+local SequenceAction = require('cylibs/actions/sequence')
+local buff_util = require('cylibs/util/buff_util')
+local party_util = require('cylibs/util/party_util')
+local pet_util = require('cylibs/util/pet_util')
+
 local Trust = require('cylibs/trust/trust')
 local PuppetmasterTrust = setmetatable({}, {__index = Trust })
 PuppetmasterTrust.__index = PuppetmasterTrust
@@ -100,7 +107,7 @@ function PuppetmasterTrust:check_deploy()
 
 	local target = windower.ffxi.get_mob_by_index(self.target_index)
 
-	if state.AutoAssaultMode.value == 'Off' or target == nil or not self.automaton:is_idle()
+	if state.AutoAssaultMode.value == 'Off' or target == nil or target.hpp <= 0 or not self.automaton:is_idle()
 			or (os.time() - self.target_change_time < 2) or not party_util.party_claimed(target.id) then
 		return
 	end
@@ -112,7 +119,7 @@ end
 
 function PuppetmasterTrust:check_automaton()
 	if self.automaton == nil then
-		if state.AutoPetMode.value == 'Auto' then
+		if state.AutoPetMode.value == 'Auto' and self:get_job():can_activate() then
 			self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, 'Activate'), true)
 		end
 	else
