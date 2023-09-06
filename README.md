@@ -19,9 +19,8 @@ You will need the latest version of [Trust](https://github.com/cyritegamestudios
 1. Git clone or download [Trust](https://github.com/cyritegamestudios/trust) from Github.
 2. Copy the `addons` folder into your `Windower` folder so that you are pasting the new `addons` folder on top of your existing `addons` folder. Note that this will *not* override your entire existing `addons` folder, only addons related to Trust.
 3. Double check that the `Windower/addons/Trust` folder exists.
-5. Double check that the `Windower/addons/libs/cylibs` folder exists.
-6. Run `// lua r trust` and you're ready to get started!
-7. To update Trust, either do a `git pull --rebase` or follow the steps above again.
+4. Run `// lua r trust` and you're ready to get started!
+5. To update Trust, either do a `git pull --rebase` or follow the steps above again.
 
 ### Dependencies
 
