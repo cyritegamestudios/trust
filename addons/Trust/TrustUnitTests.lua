@@ -1,5 +1,6 @@
 require('cylibs/tests/run_tests')
 
+local ActionQueueTests = require('cylibs/tests/action_queue/action_queue_tests')
 local ListTests = require('cylibs/tests/list_tests')
 local TabbedViewTests = require('cylibs/tests/tabbed_view_tests')
 
@@ -19,6 +20,16 @@ function handle_tests(test_name)
         test:run()
     elseif test_name == 'tabs' then
         local test = TabbedViewTests.new()
+
+        test:onCompleted():addAction(function(success)
+            print('Success is: '..tostring(success))
+        end)
+
+        runningTests:append(test)
+
+        test:run()
+    elseif test_name == 'actions' then
+        local test = ActionQueueTests.new()
 
         test:onCompleted():addAction(function(success)
             print('Success is: '..tostring(success))
