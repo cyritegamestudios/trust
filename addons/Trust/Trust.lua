@@ -4,7 +4,6 @@ _addon.name = 'Trust'
 _addon.version = '1.1'
 
 require('Trust-Include')
---require('cylibs/Cylibs-Include')
 
 default = {
 	verbose=true

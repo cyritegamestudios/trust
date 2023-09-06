@@ -74,7 +74,7 @@ end
 ---
 -- Gets the font color.
 --
--- @treturn table The font color as {r, g, b}.
+-- @treturn table The font color as {red, green, blue}.
 --
 function ListViewItemStyle:getFontColor()
     return self.fontColor
@@ -83,7 +83,7 @@ end
 ---
 -- Gets the highlighted font color.
 --
--- @treturn table The font color as {r, g, b}.
+-- @treturn table The font color as {red, green, blue}.
 --
 function ListViewItemStyle:getHighlightColor()
     return self.highlightColor
@@ -125,6 +125,11 @@ function ListViewItemStyle:isBold()
     return self.bold
 end
 
+
+ListViewItemStyle.TextColor = {
+    Red = {red = 255, green = 132, blue = 132}
+}
+
 ListViewItemStyle.LightMode = {
     -- Default style for headers in light mode
     Header = ListViewItemStyle.new(
@@ -162,6 +167,19 @@ ListViewItemStyle.DarkMode = {
             "Arial",
             14,
             {red = 255, green = 255, blue = 255},
+            {red = 205, green = 205, blue = 205},
+            2,
+            2,
+            150,
+            true
+    ),
+    -- Style for red headers in dark mode
+    HeaderRed = ListViewItemStyle.new(
+            {alpha = 0, red = 0, green = 0, blue = 0},
+            {alpha = 0, red = 0, green = 0, blue = 0},
+            "Arial",
+            14,
+            ListViewItemStyle.TextColor.Red,
             {red = 205, green = 205, blue = 205},
             2,
             2,

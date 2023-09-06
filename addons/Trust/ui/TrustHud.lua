@@ -9,6 +9,7 @@ local ListViewItemStyle = require('cylibs/ui/style/list_view_item_style')
 local HorizontalListlayout = require('cylibs/ui/layouts/horizontal_list_layout')
 local Mouse = require('cylibs/ui/input/mouse')
 local PartyBufferView = require('cylibs/trust/roles/ui/party_buffer_view')
+local party_util = require('cylibs/util/party_util')
 local VerticalListlayout = require('cylibs/ui/layouts/vertical_list_layout')
 local TabItem = require('cylibs/ui/tabs/tab_item')
 local TabbedView = require('cylibs/ui/tabs/tabbed_view')
@@ -66,6 +67,14 @@ function TrustHud.new(player, action_queue, addon_enabled)
         else
             local target = windower.ffxi.get_mob_by_index(target_index)
             newItemDataText = target.name
+            local itemView = self.listView:getItemView(item)
+            if party_util.party_claimed(target.id) then
+                local redColor = ListViewItemStyle.TextColor.Red
+                itemView:setTextColor(redColor.red, redColor.green, redColor.blue)
+            else
+                local defaultColor = item:getStyle():getFontColor()
+                itemView:setTextColor(defaultColor.red, defaultColor.green, defaultColor.blue)
+            end
         end
         if newItemDataText ~= item.data.text then
             item.data.text = newItemDataText
@@ -112,8 +121,6 @@ function TrustHud:render()
     self.listView:render()
 
     local _, height = self.listView:get_size()
-
-    local info = windower.get_windower_settings()
 
     self.actionView:set_pos(x + 250 + 10, y + height + 15)
     self.actionView:render()
@@ -175,8 +182,10 @@ function TrustHud:toggleMenu(job_name_short, trust)
         tabItems:append(TabItem.new("help", HelpView.new(job_name_short, VerticalListlayout.new(380, 0))))
         tabItems:append(TabItem.new("debug", DebugView.new(action_queue, VerticalListlayout.new(380, 0))))
 
+        local info = windower.get_windower_settings()
+
         self.tabbed_view = TabbedView.new(tabItems)
-        self.tabbed_view:set_pos(500, 200)
+        self.tabbed_view:set_pos((info.ui_x_res - 500) / 2, (info.ui_y_res - 500) / 2)
         self.tabbed_view:set_size(500, 500)
         self.tabbed_view:set_color(150, 0, 0, 0)
 
