@@ -6,6 +6,7 @@ local JobAbilityAction = require('cylibs/actions/job_ability')
 local WaitAction = require('cylibs/actions/wait')
 local SequenceAction = require('cylibs/actions/sequence')
 local SpellAction = require('cylibs/actions/spell')
+local job_util = require('cylibs/util/job_util')
 
 local Buffer = setmetatable({}, {__index = Role })
 Buffer.__index = Buffer

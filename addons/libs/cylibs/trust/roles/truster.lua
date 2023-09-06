@@ -1,3 +1,5 @@
+local spell_util = require('cylibs/util/spell_util')
+
 local Truster = setmetatable({}, {__index = Role })
 Truster.__index = Truster
 

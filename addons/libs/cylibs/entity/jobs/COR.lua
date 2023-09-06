@@ -177,10 +177,15 @@ function Corsair:should_double_up(roll_id, roll_num)
     if self:is_unlucky_roll(roll_id, roll_num) then
         return true
     end
-    if roll_num > 8 then
+    if roll_num > 5 and not self:can_fold() then
         return false
     end
     return true
+end
+
+function Corsair:can_fold()
+    return job_util.knows_job_ability(job_util.job_ability_id('Fold')) == true
+        and job_util.can_use_job_ability('Fold')
 end
 
 -------
