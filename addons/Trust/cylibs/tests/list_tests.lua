@@ -1,6 +1,7 @@
 local CyTest = require('cylibs/tests/cy_test')
 local Event = require('cylibs/events/Luvent')
 local ListItem = require('cylibs/ui/list_item')
+local ListItemDataProvider = require('cylibs/ui/lists/list_item_data_provider')
 local ListView = require('cylibs/ui/list_view')
 local ListViewItemStyle = require('cylibs/ui/style/list_view_item_style')
 local TextListItemView = require('cylibs/ui/items/text_list_item_view')
@@ -29,6 +30,9 @@ end
 
 function ListTests:run()
     self:testLists()
+    self:testListItemDataProvider()
+
+    self:onCompleted():trigger(true)
 end
 
 -- Tests
@@ -87,7 +91,24 @@ function ListTests:testLists()
         CyTest.assert(self.listView:numItems() == 0, "getNumItems() should be 0 after destroy()")
     end
 
-    self:onCompleted():trigger(true)
+
+end
+
+function ListTests:testListItemDataProvider()
+    local dataProvider = ListItemDataProvider.new()
+
+    local item1 = ListItem.new({text = 'Item1'}, ListViewItemStyle.DarkMode.Header, '1', TextListItemView.new)
+    local item2 = ListItem.new({text = 'Item2'}, ListViewItemStyle.DarkMode.Header, '2', TextListItemView.new)
+
+    dataProvider:addItem(item1)
+    dataProvider:addItem(item2)
+
+    CyTest.assertEqual(function() return dataProvider:numItems()  end, 2, "numItems()")
+
+    dataProvider:removeItem(item1)
+
+    CyTest.assertEqual(function() return dataProvider:numItems()  end, 1, "numItems() after calling removeItem()")
+    CyTest.assertEqual(function() return dataProvider:itemAtIndex(1):getIdentifier()  end, '2', "itemAtIndex() after calling removeItem()")
 end
 
 return ListTests

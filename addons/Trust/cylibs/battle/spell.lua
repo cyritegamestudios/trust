@@ -117,7 +117,7 @@ end
 function Spell:description()
     local result = self.spell_name
     if self.job_names and self.job_names:length() > 0 then
-        local job_names = self.job_names:tostring()
+        local job_names = "Some Jobs"
         if self.job_names:equals(job_util.all_jobs()) then
             job_names = "All Jobs"
         end

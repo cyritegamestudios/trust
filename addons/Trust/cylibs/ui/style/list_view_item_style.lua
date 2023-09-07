@@ -225,13 +225,26 @@ ListViewItemStyle.DarkMode = {
             0,
             false
     ),
+    -- Default style for images
+    Image = ListViewItemStyle.new(
+            {alpha = 0, red = 0, green = 0, blue = 0},
+            {alpha = 0, red = 0, green = 0, blue = 0},
+            "Arial",
+            12,
+            {red = 0, green = 0, blue = 0},
+            {red = 0, green = 0, blue = 0},
+            2,
+            0,
+            0,
+            true
+    ),
     Button = ListViewItemStyle.new(
             {alpha = 0, red = 0, green = 0, blue = 0},
-            {alpha = 225, red = 255, green = 255, blue = 255},
+            {alpha = 0, red = 0, green = 0, blue = 0},
             "Arial",
             12,
             {red = 255, green = 255, blue = 255},
-            {red = 255, green = 255, blue = 255},
+            {red = 205, green = 205, blue = 205},
             2,
             2,
             150,

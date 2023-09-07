@@ -22,7 +22,8 @@ end
 
 function HorizontalListLayout:layout(itemViews, items)
     local _, layoutHeight = self:getSize()
-    local layoutWidth, yOffset = self:getOffset()
+    local xOffset, yOffset = self:getOffset()
+    local layoutWidth = xOffset
 
     for item in items:it() do
         local itemView = itemViews[item]
@@ -34,8 +35,7 @@ function HorizontalListLayout:layout(itemViews, items)
             layoutWidth = layoutWidth + width + self.itemOffset
         end
     end
-
-    self:setSize(layoutWidth, layoutHeight)
+    self:setSize(layoutWidth - xOffset, layoutHeight)
 end
 
 return HorizontalListLayout

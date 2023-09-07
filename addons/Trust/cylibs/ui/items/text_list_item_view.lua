@@ -92,7 +92,9 @@ function TextListItemView:hover(x, y)
         return false
     end
 
-    local xPos, yPos = self:get_pos()
+    return self.textView:hover(x, y + 20)
+
+    --[[local xPos, yPos = self:get_pos()
     local width, height = self:get_size()
     -- FIXME: (scretella) why is this needed?
     yPos = yPos - 20
@@ -101,7 +103,7 @@ function TextListItemView:hover(x, y)
     if x >= xPos - buffer and x <= xPos + width + buffer and y >= yPos - buffer and y <= yPos + height + buffer then
         return true
     end
-    return false
+    return false]]
 end
 
 return TextListItemView

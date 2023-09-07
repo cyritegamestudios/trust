@@ -1,3 +1,9 @@
+local job_util = require('cylibs/util/job_util')
+local SequenceAction = require('cylibs/actions/sequence')
+local SpellAction = require('cylibs/actions/spell')
+local spell_util = require('cylibs/util/spell_util')
+local WaitAction = require('cylibs/actions/wait')
+
 local Tank = setmetatable({}, {__index = Role })
 Tank.__index = Tank
 

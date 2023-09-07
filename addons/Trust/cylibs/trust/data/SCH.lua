@@ -11,6 +11,7 @@ local Scholar = require('cylibs/entity/jobs/SCH')
 local Debuffer = require('cylibs/trust/roles/debuffer')
 local Dispeler = require('cylibs/trust/roles/dispeler')
 local Healer = require('cylibs/trust/roles/healer')
+local ManaRestorer = require('cylibs/trust/roles/mana_restorer')
 local Nuker = require('cylibs/trust/roles/nuker')
 local Buffer = require('cylibs/trust/roles/buffer')
 local Skillchainer = require('cylibs/trust/roles/skillchainer')
@@ -66,7 +67,6 @@ function ScholarTrust:tic(old_time, new_time)
 
     self:check_arts()
     self:check_sublimation()
-    self:check_mp()
 end
 
 function ScholarTrust:check_arts()
@@ -83,14 +83,6 @@ function ScholarTrust:check_sublimation()
         end
     elseif job_util.can_use_job_ability('Sublimation') then
         self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, 'Sublimation'), true)
-    end
-end
-
-function ScholarTrust:check_mp()
-    if windower.ffxi.get_player().vitals.mpp < 40 then
-        if self.target_index and windower.ffxi.get_player().vitals.tp > 1000 then
-            self.action_queue:push_action(WeaponSkillAction.new('Myrkr'), true)
-        end
     end
 end
 
@@ -114,6 +106,7 @@ function ScholarTrust:update_for_arts(new_arts_mode)
             Buffer.new(self.action_queue, S{'Light Arts'}, self:get_job():get_light_arts_self_buffs(), self:get_job():get_light_arts_party_buffs()),
             Debuffer.new(self.action_queue),
             Healer.new(self.action_queue, self:get_job()),
+            ManaRestorer.new(self.action_queue, L{'Myrkr', 'Spirit Taker'}, 40),
             StatusRemover.new(self.action_queue, self:get_job()),
             Skillchainer.new(self.action_queue, L{'auto', 'prefer'}, self:get_trust_settings().Skillchains),
             --Puller.new(self.action_queue, self.battle_settings.targets, 'Dia II', nil)
@@ -123,6 +116,7 @@ function ScholarTrust:update_for_arts(new_arts_mode)
             Buffer.new(self.action_queue, S{'Dark Arts'}, self:get_job():get_dark_arts_self_buffs(), self:get_job():get_dark_arts_party_buffs()),
             Debuffer.new(self.action_queue),
             Dispeler.new(self.action_queue, L{ Spell.new('Dispel') }, L{'Addendum: Black'}),
+            ManaRestorer.new(self.action_queue, L{'Myrkr', 'Spirit Taker'}, 40),
             Nuker.new(self.action_queue),
             Skillchainer.new(self.action_queue, L{'auto', 'prefer'}, self:get_trust_settings().Skillchains),
             --Puller.new(self.action_queue, self.battle_settings.targets, 'Dia II', nil)

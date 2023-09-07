@@ -8,6 +8,7 @@ BlackMageTrust.__index = BlackMageTrust
 
 local Buffer = require('cylibs/trust/roles/buffer')
 local Debuffer = require('cylibs/trust/roles/debuffer')
+local ManaRestorer = require('cylibs/trust/roles/mana_restorer')
 local Nuker = require('cylibs/trust/roles/nuker')
 local Puller = require('cylibs/trust/roles/puller')
 
@@ -15,6 +16,7 @@ function BlackMageTrust.new(settings, action_queue, battle_settings, trust_setti
 	local roles = S{
 		Buffer.new(action_queue, trust_settings.JobAbilities, trust_settings.SelfBuffs),
 		Debuffer.new(action_queue),
+		ManaRestorer.new(action_queue, L{'Myrkr', 'Spirit Taker', 'Moonlight'}, 40),
 		Nuker.new(action_queue),
 		Puller.new(action_queue, battle_settings.targets, 'Burn', nil),
 	}
@@ -50,16 +52,6 @@ end
 
 function BlackMageTrust:tic(old_time, new_time)
 	Trust.tic(self, old_time, new_time)
-
-	self:check_mp()
-end
-
-function BlackMageTrust:check_mp()
-	if windower.ffxi.get_player().vitals.mpp < 40 then
-		if self.target_index and windower.ffxi.get_player().vitals.tp > 1000 then
-			self.action_queue:push_action(WeaponSkillAction.new('Myrkr'), true)
-		end
-	end
 end
 
 return BlackMageTrust

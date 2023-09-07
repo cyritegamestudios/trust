@@ -26,6 +26,9 @@ function VerticalListLayout:layout(itemViews, items)
 
     for item in items:it() do
         local itemView = itemViews[item]
+        if itemView:is_destroyed() then
+            print('bad bad')
+        end
         if itemView then
             local _, height = itemView:get_size()
             itemView:set_size(layoutWidth, height)

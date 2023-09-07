@@ -4,6 +4,7 @@ local RunToAction = require('cylibs/actions/runto')
 local battle_util = require('cylibs/util/battle_util')
 local party_util = require('cylibs/util/party_util')
 local player_util = require('cylibs/util/player_util')
+local flanking_util = require("cylibs/util/flanking_util")
 
 local CombatMode = setmetatable({}, {__index = Role })
 CombatMode.__index = CombatMode
@@ -14,6 +15,11 @@ state.AutoFaceMobMode:set_description('Auto', "Okay, I'll make sure to look the 
 state.CombatMode = M{['description'] = 'Combat Mode', 'Off', 'Melee', 'Ranged'}
 state.CombatMode:set_description('Melee', "Okay, I'll fight on the front lines.")
 state.CombatMode:set_description('Ranged', "Okay, I'll stand back in battle.")
+
+state.FlankMode = M{['description'] = 'Flanking Mode', 'Off', 'Back', 'Left', 'Right'}
+state.FlankMode:set_description('Back', "Ok, I'll flank from the back in battle.")
+state.FlankMode:set_description('Left', "Ok, I'll flank from the left in battle.")
+state.FlankMode:set_description('Right', "Ok, I'll flank from the right in battle.")
 
 function CombatMode.new(action_queue, melee_distance, range_distance)
     local self = setmetatable(Role.new(action_queue), CombatMode)
@@ -51,11 +57,28 @@ function CombatMode:check_distance()
                 self.action_queue:push_action(BlockAction.new(function() player_util.face(target)  end))
             end
         elseif L{'Melee'}:contains(state.CombatMode.value) then
-            if target.distance:sqrt() > self.melee_distance then
-                self.action_queue:push_action(BlockAction.new(function() player_util.face(target)  end))
-                self.action_queue:push_action(RunToAction.new(target.index, self.melee_distance), true)
+            -- Handle FlankMode for melee
+            if not L{'Off'}:contains(state.FlankMode.value) then
+                -- If we have a relative location, use that
+                local target_location = flanking_util.get_relative_location_for_target(target.id, flanking_util[state.FlankMode.value], self.melee_distance - 2)
+                local distance = player_util.distance(player_util.get_player_position(), target_location)
+                if target_location then
+                    -- TODO(Aldros): Ensure that we only do this if the mob isn't targeting us
+                    if distance > self.melee_distance then
+                        -- TODO(Aldros): Double check if this face target should have a check or not in front of it
+                        self.action_queue:push_action(RunToLocationAction.new(target_location[1], target_location[2], target_location[3], 1), true)
+                        self.action_queue:push_action(BlockAction.new(function() player_util.face(target) end))
+                    else
+                        self.action_queue:push_action(BlockAction.new(function() player_util.face(target) end))
+                    end
+                end
             else
-                self.action_queue:push_action(BlockAction.new(function() player_util.face(target)  end))
+                if target.distance:sqrt() > self.melee_distance then
+                    self.action_queue:push_action(BlockAction.new(function() player_util.face(target) end))
+                    self.action_queue:push_action(RunToAction.new(target.index, self.melee_distance), true)
+                else
+                    self.action_queue:push_action(BlockAction.new(function() player_util.face(target) end))
+                end
             end
         else
             self:face_target(target)

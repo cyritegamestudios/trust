@@ -12,12 +12,14 @@ local BattleStatTracker = require('cylibs/battle/battle_stat_tracker')
 
 local Buffer = require('cylibs/trust/roles/buffer')
 local Dispeler = require('cylibs/trust/roles/dispeler')
+local ManaRestorer = require('cylibs/trust/roles/mana_restorer')
 local Puller = require('cylibs/trust/roles/puller')
 
 function DarkKnightTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local roles = S{
 		Buffer.new(action_queue, trust_settings.JobAbilities, trust_settings.SelfBuffs),
 		Dispeler.new(action_queue, L{ Spell.new('Absorb-Attri') }),
+		ManaRestorer.new(action_queue, L{'Entropy'}, 40),
 		Puller.new(action_queue, battle_settings.targets, 'Stone', nil),
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, DarkKnight.new()), DarkKnightTrust)
@@ -57,7 +59,6 @@ function DarkKnightTrust:tic(old_time, new_time)
 	Trust.tic(self, old_time, new_time)
 
 	self:check_accuracy()
-	self:check_mp()
 end
 
 function DarkKnightTrust:check_accuracy()
@@ -68,14 +69,6 @@ function DarkKnightTrust:check_accuracy()
 				SpellAction.new(0, 0, 0, spell_util.spell_id('Absorb-ACC'), self.target_index, self:get_player()),
 				WaitAction.new(0, 0, 0, 1),
 			}, 'absorb-acc'), true)
-		end
-	end
-end
-
-function DarkKnightTrust:check_mp()
-	if windower.ffxi.get_player().vitals.mpp < 40 then
-		if self.target_index and windower.ffxi.get_player().vitals.tp > 1000 then
-			self.action_queue:push_action(WeaponSkillAction.new('Entropy'), true)
 		end
 	end
 end

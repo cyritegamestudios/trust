@@ -14,6 +14,7 @@ require('TrustShortcuts')
 
 TrustHud = require('ui/TrustHud')
 TrustRemoteCommands = require('TrustRemoteCommands')
+TrustUnitTests = require('TrustUnitTests')
 
 require('Trust-Cylibs-Include')
 

@@ -9,11 +9,14 @@ SummonerTrust.__index = SummonerTrust
 
 local Avatar = require('cylibs/entity/avatar')
 
+local ManaRestorer = require('cylibs/trust/roles/mana_restorer')
+
 state.AutoAssaultMode = M{['description'] = 'Auto Assault Mode', 'Off', 'Auto'}
 state.AutoAvatarMode = M{['description'] = 'Avatar Mode', 'Off', 'Ifrit', 'Ramuh', 'Shiva'}
 
 function SummonerTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local roles = S{
+		ManaRestorer.new(action_queue, L{'Myrkr', 'Spirit Taker'}, 40),
 	}
 
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, Summoner.new()), SummonerTrust)
@@ -133,13 +136,6 @@ function SummonerTrust:check_buffs()
 end
 
 function SummonerTrust:check_mp()
-	if windower.ffxi.get_player().vitals.mpp < 40 then
-		if self.target_index and windower.ffxi.get_player().vitals.tp > 1000 then
-			self.action_queue:push_action(WeaponSkillAction.new('Myrkr'), true)
-			return
-		end
-	end
-
 	if windower.ffxi.get_player().vitals.mpp < 20 then
 		local actions = L{
 			JobAbilityAction.new(0, 0, 0, 'Release'),

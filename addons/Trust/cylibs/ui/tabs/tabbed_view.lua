@@ -50,7 +50,7 @@ TabbedView.Style = {
 --
 -- @treturn TabbedView The newly created TabbedView instance.
 --
-function TabbedView.new(tabItems)
+function TabbedView.new()
     local self = setmetatable(View.new(), TabbedView)
 
     self.views = T{}
@@ -58,6 +58,7 @@ function TabbedView.new(tabItems)
     self.activeTabIndex = 1
     self.tabWidth = 120
     self.padding = 5
+
     self.tabListView = ListView.new(VerticalListLayout.new(self.tabWidth, 25))
 
     self:set_color(150, 0, 0, 0)
@@ -75,6 +76,15 @@ function TabbedView.new(tabItems)
         self:render()
     end)
 
+    return self
+end
+
+function TabbedView:setTabItems(tabItems)
+    if self.tab_items_set then
+        return
+    end
+    self.tab_items_set = true
+
     local tabIndex = 1
     for tabItem in tabItems:it() do
         self:addChild(tabItem:getView())
@@ -89,14 +99,12 @@ function TabbedView.new(tabItems)
 
         tabIndex = tabIndex + 1
     end
-
-    return self
 end
 
 function TabbedView:removeAllViews()
     self:removeAllChildren()
 
-    for tabIndex, view in pairs(self.views) do
+    for _, view in pairs(self.views) do
         view:destroy()
     end
 

@@ -1,3 +1,5 @@
+local Image = require('images')
+
 ---
 -- A generic view class for creating and managing graphical views.
 --
@@ -25,9 +27,12 @@ function View.new()
     self.selectable = false
     self.highlightable = false
     self.destroyed = false
+    self.backgroundImageView = Image.new()
+    self.backgroundImageView:draggable(false)
+    self.backgroundImageView:visible(false)
     self.children = L{}
 
-    windower.prim.create(self.uuid)
+    --windower.prim.create(self.uuid)
 
     return self
 end
@@ -36,9 +41,15 @@ end
 -- Destroys the view, cleaning up its resources.
 --
 function View:destroy()
+    if self.destroyed then
+        return
+    end
     self.destroyed = true
 
-    windower.prim.delete(self:get_uuid())
+    self:removeAllChildren()
+
+    self.backgroundImageView:destroy()
+    self.backgroundImageView = nil
 end
 
 ---
@@ -66,7 +77,8 @@ end
 function View:set_pos(x, y)
     self.x = x
     self.y = y
-    windower.prim.set_position(self:get_uuid(), x, y)
+    self.backgroundImageView:pos(x, y)
+    --windower.prim.set_position(self:get_uuid(), x, y)
 end
 
 ---
@@ -95,7 +107,7 @@ end
 --
 function View:set_visible(visible)
     self.visible = visible
-    windower.prim.set_visibility(self:get_uuid(), visible)
+    self.backgroundImageView:visible(visible)
     for child in self.children:it() do
         child:set_visible(visible)
     end
@@ -120,7 +132,7 @@ end
 function View:set_size(width, height)
     self.width = width
     self.height = height
-    windower.prim.set_size(self:get_uuid(), width, height)
+    self.backgroundImageView:size(width, height)
 end
 
 ---
@@ -132,7 +144,9 @@ end
 -- @tparam number blue The blue component of the color, ranging from 0 to 255.
 --
 function View:set_color(alpha, red, green, blue)
-    windower.prim.set_color(self:get_uuid(), alpha, red, green, blue)
+    self.backgroundImageView:color(red, green, blue)
+    self.backgroundImageView:alpha(alpha)
+    --windower.prim.set_color(self:get_uuid(), alpha, red, green, blue)
 end
 
 ---
@@ -206,7 +220,6 @@ function View:is_highlightable()
     return self.highlightable
 end
 
-
 ---
 -- Checks if the specified coordinates are within the hover area of the view.
 --
@@ -218,6 +231,11 @@ function View:hover(x, y)
     if not self:is_visible() then
         return false
     end
+
+    if self.backgroundImageView:hover(x, y) then
+        return true
+    end
+
     local xPos, yPos = self:get_pos()
     local width, height = self:get_size()
     local buffer = 0
@@ -234,6 +252,21 @@ function View:addChild(view)
     if not self:containsChild(view) then
         self.children:append(view)
     end
+end
+
+---
+-- Removes a child view.
+--
+-- @tparam View view The view to add.
+--
+function View:removeChild(view)
+    local newChildren = L{}
+    for child in self:getChildren():it() do
+        if child ~= view then
+            newChildren:append(child)
+        end
+    end
+    self.children = newChildren
 end
 
 ---

@@ -1,4 +1,5 @@
 local BufferView = require('cylibs/trust/roles/ui/buffer_view')
+local Button = require('cylibs/ui/button')
 local DebufferView = require('cylibs/trust/roles/ui/debuffer_view')
 local DebugView = require('cylibs/actions/ui/debug_view')
 local HelpView = require('cylibs/trust/ui/help_view')
@@ -6,9 +7,11 @@ local ListView = require('cylibs/ui/list_view')
 local ListItemView = require('cylibs/ui/list_item_view')
 local ListItem = require('cylibs/ui/list_item')
 local ListViewItemStyle = require('cylibs/ui/style/list_view_item_style')
+local ModesView = require('cylibs/modes/ui/modes_view')
 local HorizontalListlayout = require('cylibs/ui/layouts/horizontal_list_layout')
 local Mouse = require('cylibs/ui/input/mouse')
 local PartyBufferView = require('cylibs/trust/roles/ui/party_buffer_view')
+local PartyMemberView = require('cylibs/entity/party/ui/party_member_view')
 local party_util = require('cylibs/util/party_util')
 local VerticalListlayout = require('cylibs/ui/layouts/vertical_list_layout')
 local TabItem = require('cylibs/ui/tabs/tab_item')
@@ -53,9 +56,9 @@ function TrustHud.new(player, action_queue, addon_enabled)
         if item:getIdentifier() == "AddonEnabled" then
             addon_enabled:setValue(not addon_enabled:getValue())
         elseif item:getIdentifier() == "MainJobButton" then
-            self:toggleMenu(player.main_job_name_short, player.trust.main_job)
+            self:toggleMenu(player.main_job_name_short, player.trust.main_job, player.party)
         elseif item:getIdentifier() == "SubJobButton" then
-            self:toggleMenu(player.sub_job_name_short, player.trust.sub_job)
+            self:toggleMenu(player.sub_job_name_short, player.trust.sub_job, player.party)
         end
     end)
 
@@ -126,18 +129,23 @@ function TrustHud:render()
     self.actionView:render()
 end
 
-function TrustHud:toggleMenu(job_name_short, trust)
+function TrustHud:toggleMenu(job_name_short, trust, party)
     if self.tabbed_view then
         self.tabbed_view:destroy()
         self.tabbed_view = nil
     else
+        self.tabbed_view = TabbedView.new()
+
         local tabItems = L{}
+
+        -- Party
+        tabItems:append(TabItem.new("party", PartyMemberView.new(party, VerticalListlayout.new(380, 0))))
 
         -- Roles
         local buffer = trust:role_with_type("buffer")
         if buffer then
             tabItems:append(TabItem.new("buffs", BufferView.new(buffer, VerticalListlayout.new(380, 0))))
-            tabItems:append(TabItem.new("party", PartyBufferView.new(buffer, VerticalListlayout.new(380, 0))))
+            --tabItems:append(TabItem.new("party", PartyBufferView.new(buffer, VerticalListlayout.new(380, 0))))
         end
 
         local debuffer = trust:role_with_type("debuffer")
@@ -165,18 +173,12 @@ function TrustHud:toggleMenu(job_name_short, trust)
 
         local modeTabIndex = 1
         for modeTab in modeTabs:it() do
-            local modesView = ListView.new(VerticalListlayout.new(380, 0))
+            local modesView = ModesView.new(VerticalListlayout.new(380, 0))
             modesView:addItems(modeTab)
 
             tabItems:append(TabItem.new("Modes "..modeTabIndex, modesView))
 
             modeTabIndex = modeTabIndex + 1
-
-            modesView:onClick():addAction(function(item)
-                item.data.mode:cycle()
-                item.data.text = item.data.modeName..': '..state[item.data.modeName].value
-                modesView:updateItemView(item)
-            end)
         end
 
         tabItems:append(TabItem.new("help", HelpView.new(job_name_short, VerticalListlayout.new(380, 0))))
@@ -184,7 +186,7 @@ function TrustHud:toggleMenu(job_name_short, trust)
 
         local info = windower.get_windower_settings()
 
-        self.tabbed_view = TabbedView.new(tabItems)
+        self.tabbed_view:setTabItems(tabItems)
         self.tabbed_view:set_pos((info.ui_x_res - 500) / 2, (info.ui_y_res - 500) / 2)
         self.tabbed_view:set_size(500, 500)
         self.tabbed_view:set_color(150, 0, 0, 0)

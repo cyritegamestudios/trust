@@ -36,6 +36,16 @@ function BufferView.new(buffer, layout)
         end
     end
 
+    self:addItem(ListItem.new({text = '', height = 20}, ListViewItemStyle.DarkMode.Text, "spacer-2", TextListItemView.new))
+
+    local partySpells = buffer:get_party_spells()
+    if partySpells:length() > 0 then
+        self:addItem(ListItem.new({text = "Party Spells", height = 20}, ListViewItemStyle.DarkMode.Text, "party-spells-header", TextListItemView.new))
+        for spell in partySpells:it() do
+            self:addItem(ListItem.new({text = '• '..spell:description(), height = 20}, ListViewItemStyle.DarkMode.Text, "party-"..spell:get_spell().name, TextListItemView.new))
+        end
+    end
+
     return self
 end
 

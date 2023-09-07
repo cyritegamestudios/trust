@@ -15,6 +15,16 @@ local trusts = require('cylibs/res/trusts')
 local Party = setmetatable({}, {__index = Entity })
 Party.__index = Party
 
+-- Event called when the party member is added.
+function Party:on_party_member_added()
+    return self.party_member_added
+end
+
+-- Event called when the party member is removed.
+function Party:on_party_member_removed()
+    return self.party_member_removed
+end
+
 -- Event called when a party member's HP changes.
 function Party:on_party_member_hp_change()
     return self.hp_change
@@ -50,6 +60,8 @@ function Party.new()
     self.is_monitoring = false
     self.party_members = T{}
 
+    self.party_member_added = Event.newEvent()
+    self.party_member_removed = Event.newEvent()
     self.hp_change = Event.newEvent()
     self.mp_change = Event.newEvent()
     self.party_member_ko = Event.newEvent()
@@ -78,6 +90,8 @@ function Party:destroy()
         party_member:destroy()
     end
 
+    self:on_party_member_added():removeAllActions()
+    self:on_party_member_removed():removeAllActions()
     self:on_party_member_hp_change():removeAllActions()
     self:on_party_member_mp_change():removeAllActions()
     self:on_party_member_ko():removeAllActions()
@@ -143,7 +157,7 @@ end
 function Party:add_member(mob_id, name, main_job_id, sub_job_id, hpp, hp)
     if mob_id and not self.party_members[mob_id] then
         if party_util.is_alter_ego(name) then
-            self.party_members[mob_id] = AlterEgo.new(mob_id)
+            self.party_members[mob_id] = AlterEgo.new(mob_id, name)
         else
             self.party_members[mob_id] = PartyMember.new(mob_id)
         end
@@ -156,6 +170,7 @@ function Party:add_member(mob_id, name, main_job_id, sub_job_id, hpp, hp)
         if not self.party_members[mob_id]:is_alive() then
             self:on_party_member_ko():trigger(self.party_members[mob_id])
         end
+        self:on_party_member_added():trigger(self.party_members[mob_id])
     end
 
     local party_member = self.party_members[mob_id]
@@ -234,6 +249,7 @@ function Party:prune_party_members()
                 if party_member:get_id() == self:get_assist_target():get_id() then
                     self:set_assist_target(self:get_party_member(windower.ffxi.get_player().id))
                 end
+                self:on_party_member_removed():trigger(party_member)
                 party_member:destroy()
                 self.party_members[party_member:get_id()] = nil
             end
