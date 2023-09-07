@@ -1,0 +1,231 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Cylibs</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Functions</h2>
+<ul class="nowrap">
+    <li><a href="#point_to_vector">point_to_vector (x, y)</a></li>
+    <li><a href="#get_point_behind_mob">get_point_behind_mob (target)</a></li>
+    <li><a href="#target_direction">target_direction (target)</a></li>
+    <li><a href="#is_behind">is_behind (target)</a></li>
+    <li><a href="#is_in_front">is_in_front (target)</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/action_message_util.html">action_message_util</a></li>
+  <li><a href="../modules/battle_util.html">battle_util</a></li>
+  <li><a href="../modules/buff_util.html">buff_util</a></li>
+  <li><strong>geometry_util</strong></li>
+  <li><a href="../modules/job_util.html">job_util</a></li>
+  <li><a href="../modules/jsonencode.html">jsonencode</a></li>
+  <li><a href="../modules/party_util.html">party_util</a></li>
+  <li><a href="../modules/pet_util.html">pet_util</a></li>
+  <li><a href="../modules/pup_util.html">pup_util</a></li>
+  <li><a href="../modules/spell_util.html">spell_util</a></li>
+  <li><a href="../modules/MobTracker.html">MobTracker</a></li>
+  <li><a href="../modules/Monster.html">Monster</a></li>
+  <li><a href="../modules/MonsterBuffTracker.html">MonsterBuffTracker</a></li>
+  <li><a href="../modules/Skillchain.html">Skillchain</a></li>
+  <li><a href="../modules/SkillchainMaker.html">SkillchainMaker</a></li>
+  <li><a href="../modules/Spell.html">Spell</a></li>
+  <li><a href="../modules/entity.html">entity</a></li>
+  <li><a href="../modules/player.html">player</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>geometry_util</code></h1>
+<p>Utility functions for distance and geometry.</p>
+<p>
+
+</p>
+
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "point_to_vector"></a>
+    <strong>point_to_vector (x, y)</strong>
+    </dt>
+    <dd>
+    Converts an (x,y) coordinate to a vector.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
+         X coordinate
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
+         Y coordinate
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Vector</span></span>
+        The (x,y) coordinate as a Vector.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "get_point_behind_mob"></a>
+    <strong>get_point_behind_mob (target)</strong>
+    </dt>
+    <dd>
+    Gets a vector behind the target mob.  Useful if you want to position the playe behind a mob.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">target</span>
+            <span class="types"><span class="type">MobMetadata</span></span>
+         Target mob
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Vector</span></span>
+        A vector 5 yalms behind the target mob.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "target_direction"></a>
+    <strong>target_direction (target)</strong>
+    </dt>
+    <dd>
+    The direction that the given target is facing, in radians.  0 is east, pi/2 south, -pi or pi is west, -pi/2 is north.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">target</span>
+            <span class="types"><span class="type">MobMetadata</span></span>
+         Target mob
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        Direction of the target in radians.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "is_behind"></a>
+    <strong>is_behind (target)</strong>
+    </dt>
+    <dd>
+    Determines if the player is behind a target.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">target</span>
+            <span class="types"><span class="type">MobMetadata</span></span>
+         Target mob
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Bool</span></span>
+        True if the player is behind the target mob and false otherwise.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "is_in_front"></a>
+    <strong>is_in_front (target)</strong>
+    </dt>
+    <dd>
+    Determines if the player is in front of a target.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">target</span>
+            <span class="types"><span class="type">MobMetadata</span></span>
+         Target mob
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Bool</span></span>
+        True if the player is in front of the target mob and false otherwise.
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-05-31 06:46:34 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

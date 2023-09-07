@@ -1,0 +1,310 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Lua</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Functions</h2>
+<ul class="nowrap">
+    <li><a href="#clock">clock ()</a></li>
+    <li><a href="#date">date (format, time)</a></li>
+    <li><a href="#difftime">difftime (t2, t1)</a></li>
+    <li><a href="#execute">execute (command)</a></li>
+    <li><a href="#exit">exit (code)</a></li>
+    <li><a href="#getenv">getenv (varname)</a></li>
+    <li><a href="#remove">remove (filename)</a></li>
+    <li><a href="#rename">rename (oldname, newname)</a></li>
+    <li><a href="#setlocale">setlocale (locale, category)</a></li>
+    <li><a href="#time">time (table)</a></li>
+    <li><a href="#tmpname">tmpname ()</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/coroutine.html">coroutine</a></li>
+  <li><a href="../modules/debug.html">debug</a></li>
+  <li><a href="../modules/global.html">global</a></li>
+  <li><a href="../modules/io.html">io</a></li>
+  <li><a href="../modules/lfs.html">lfs</a></li>
+  <li><a href="../modules/lpeg.html">lpeg</a></li>
+  <li><a href="../modules/math.html">math</a></li>
+  <li><strong>os</strong></li>
+  <li><a href="../modules/package.html">package</a></li>
+  <li><a href="../modules/string.html">string</a></li>
+  <li><a href="../modules/table.html">table</a></li>
+  <li><a href="../modules/utf8.html">utf8</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>os</code></h1>
+<p>Operating System facilities like date, time and program execution.</p>
+<p>
+
+</p>
+
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "clock"></a>
+    <strong>clock ()</strong>
+    </dt>
+    <dd>
+    Returns an approximation of the amount in seconds of CPU time used by
+ the program.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "date"></a>
+    <strong>date (format, time)</strong>
+    </dt>
+    <dd>
+    Returns a string or a table containing date and time, formatted according
+ to the given string <code>format</code>. </p>
+
+<p> If the <a href="../modules/os.html#time">time</a> argument is present, this is the time to be formatted
+ (see the <a href="../modules/os.html#time">os.time</a> function for a description of this value). Otherwise,
+ <a href="../modules/os.html#date">date</a> formats the current time.</p>
+
+<p> If <code>format</code> starts with '<code>!</code>', then the date is formatted in Coordinated
+ Universal Time. After this optional character, if <code>format</code> is the string
+ "<code>*t</code>", then <a href="../modules/os.html#date">date</a> returns a table with the following fields:</p>
+
+<ul>
+    <li><code>year</code> (four digits)</li>
+    <li><code>month</code> (1--12)</li>
+    <li><code>day</code> (1--31)</li>
+    <li><code>hour</code> (0--23)</li>
+    <li><code>min</code> (0--59)</li>
+    <li><code>sec</code> (0--61)</li>
+    <li><code>wday</code> (weekday, Sunday is 1)</li>
+    <li><code>yday</code> (day of the year)</li>
+    <li><code>isdst</code> (daylight saving flag, a boolean).</li>
+</ul>
+
+<p> If <code>format</code> is not "<code>*t</code>", then <a href="../modules/os.html#date">date</a> returns the date as a string,
+ formatted according to the same rules as the C function <code>strftime</code>.
+ When called without arguments, <a href="../modules/os.html#date">date</a> returns a reasonable date and time
+ representation that depends on the host system and on the current locale
+ (that is, <code>os.date()</code> is equivalent to <code>os.date(&quot;%c&quot;)</code>).
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "difftime"></a>
+    <strong>difftime (t2, t1)</strong>
+    </dt>
+    <dd>
+    Returns the number of seconds from time <code>t1</code> to time <code>t2</code>.  In POSIX,
+ Windows, and some other systems, this value is exactly <code>t2</code><em>-</em><code>t1</code>.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "execute"></a>
+    <strong>execute (command)</strong>
+    </dt>
+    <dd>
+    This function is equivalent to the C function <code>system</code>.  It passes
+ <code>command</code> to be executed by an operating system shell. It returns a status
+ code, which is system-dependent. If <code>command</code> is absent, then it returns
+ nonzero if a shell is available and zero otherwise.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "exit"></a>
+    <strong>exit (code)</strong>
+    </dt>
+    <dd>
+    Calls the C function <a href="../modules/os.html#exit">exit</a>, with an optional <code>code</code>, to terminate the
+ host program.  The default value for <code>code</code> is the success code.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "getenv"></a>
+    <strong>getenv (varname)</strong>
+    </dt>
+    <dd>
+    Returns the value of the process environment variable <code>varname</code>, or
+ nil if the variable is not defined.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "remove"></a>
+    <strong>remove (filename)</strong>
+    </dt>
+    <dd>
+    Deletes the file or directory with the given name.  Directories must be
+ empty to be removed. If this function fails, it returns nil, plus a string
+ describing the error.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "rename"></a>
+    <strong>rename (oldname, newname)</strong>
+    </dt>
+    <dd>
+    Renames file or directory named <code>oldname</code> to <code>newname</code>.  If this function
+ fails, it returns nil, plus a string describing the error.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "setlocale"></a>
+    <strong>setlocale (locale, category)</strong>
+    </dt>
+    <dd>
+    Sets the current locale of the program.  <code>locale</code> is a string specifying
+ a locale; <code>category</code> is an optional string describing which category to
+ change: <code>&quot;all&quot;</code>, <code>&quot;collate&quot;</code>, <code>&quot;ctype&quot;</code>, <code>&quot;monetary&quot;</code>, <code>&quot;numeric&quot;</code>, or
+ <code>&quot;time&quot;</code>; the default category is <code>&quot;all&quot;</code>. The function returns the name
+ of the new locale, or nil if the request cannot be honored.
+ If <code>locale</code> is the empty string, the current locale is set to an
+ implementation-defined native locale. If <code>locale</code> is the string "<code>C</code>",
+ the current locale is set to the standard C locale.
+ When called with nil as the first argument, this function only returns
+ the name of the current locale for the given category.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "time"></a>
+    <strong>time (table)</strong>
+    </dt>
+    <dd>
+    Returns the current time when called without arguments, or a time
+ representing the date and time specified by the given table.  This table
+ must have fields <code>year</code>, <code>month</code>, and <code>day</code>, and may have fields <code>hour</code>,
+ <code>min</code>, <code>sec</code>, and <code>isdst</code> (for a description of these fields, see the
+ <a href="../modules/os.html#date">os.date</a> function).
+ The returned value is a number, whose meaning depends on your system. In
+ POSIX, Windows, and some other systems, this number counts the number
+ of seconds since some given start time (the "epoch"). In other systems,
+ the meaning is not specified, and the number returned by <a href="../modules/os.html#time">time</a> can be
+ used only as an argument to <a href="../modules/os.html#date">date</a> and <a href="../modules/os.html#difftime">difftime</a>.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tmpname"></a>
+    <strong>tmpname ()</strong>
+    </dt>
+    <dd>
+    Returns a string with a file name that can be used for a temporary
+ file.  The file must be explicitly opened before its use and explicitly
+ removed when no longer needed.
+ On some systems (POSIX), this function also creates a file with that
+ name, to avoid security risks. (Someone else might create the file with
+ wrong permissions in the time between getting the name and creating the
+ file.) You still have to open the file to use it and to remove it (even
+ if you do not use it).
+ When possible, you may prefer to use <a href="../modules/io.html#tmpfile">io.tmpfile</a>, which automatically
+ removes the file when the program ends.
+
+
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-05-26 00:30:52 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
