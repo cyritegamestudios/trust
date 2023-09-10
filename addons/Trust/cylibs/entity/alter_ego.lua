@@ -14,9 +14,11 @@ local BuffTracker = require('cylibs/battle/buff_tracker')
 -------
 -- Default initializer for an AlterEgo.
 -- @tparam number id Mob id
+-- @tparam string name Mob name
 -- @treturn AlterEgo An alter ego
-function AlterEgo.new(id)
+function AlterEgo.new(id, name)
     local self = setmetatable(PartyMember.new(id), AlterEgo)
+    self.name = name
     self.buff_tracker = BuffTracker.new()
     return self
 end
@@ -40,19 +42,19 @@ function AlterEgo:monitor()
 
     self.buff_tracker:on_gain_buff():addAction(function(target_id, buff_id)
         if target_id == self:get_id() then
-            local buff_ids = self:get_buff_ids()
-            buff_ids:add(buff_id)
+            local new_buff_ids = self:get_buff_ids():copy(true)
+            new_buff_ids:add(buff_id)
 
-            self:update_buffs(buff_ids)
+            self:update_buffs(new_buff_ids)
         end
     end)
 
     self.buff_tracker:on_lose_buff():addAction(function(target_id, buff_id)
         if target_id == self:get_id() then
-            local buff_ids = self:get_buff_ids()
-            buff_ids:remove(buff_id)
+            local new_buff_ids = self:get_buff_ids():copy(true)
+            new_buff_ids:remove(buff_id)
 
-            self:update_buffs(buff_ids)
+            self:update_buffs(new_buff_ids)
         end
     end)
 
@@ -64,7 +66,12 @@ end
 -- @tparam list List of buff ids (see buffs.lua)
 function AlterEgo:update_buffs(buff_ids)
     local buff_ids = S(buff_util.buffs_for_buff_ids(buff_ids))
-    local delta = set.sdiff(buff_ids, self.buff_ids)
+    local old_buff_ids = self.buff_ids
+
+    self.buff_ids = buff_ids
+
+    local delta = set.sdiff(buff_ids, old_buff_ids)
+
     for buff_id in delta:it() do
         if buff_ids:contains(buff_id) then
             self:on_gain_buff():trigger(self, buff_id)
@@ -72,7 +79,6 @@ function AlterEgo:update_buffs(buff_ids)
             self:on_lose_buff():trigger(self, buff_id)
         end
     end
-    self.buff_ids = buff_ids
 end
 
 -------

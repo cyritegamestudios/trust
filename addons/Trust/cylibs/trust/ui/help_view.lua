@@ -1,47 +1,53 @@
-local ListItem = require('cylibs/ui/list_item')
-local ListView = require('cylibs/ui/list_view')
-local ListViewItemStyle = require('cylibs/ui/style/list_view_item_style')
-local TextListItemView = require('cylibs/ui/items/text_list_item_view')
+local CollectionView = require('cylibs/ui/collection_view/collection_view')
+local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
+local IndexPath = require('cylibs/ui/collection_view/index_path')
+local Padding = require('cylibs/ui/style/padding')
+local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
+local TextItem = require('cylibs/ui/collection_view/items/text_item')
+local TextStyle = require('cylibs/ui/style/text_style')
+local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 
-local HelpView = setmetatable({}, {__index = ListView })
+local HelpView = setmetatable({}, {__index = CollectionView })
 HelpView.__index = HelpView
 
-function HelpView.new(main_job_name_short, layout)
-    local self = setmetatable(ListView.new(layout), HelpView)
-
-    self:addItem(ListItem.new({text = "Wiki", height = 20}, ListViewItemStyle.DarkMode.Text, "wiki-header", TextListItemView.new))
-    self:addItem(ListItem.new({text = "• "..main_job_name_short, highlightable = true, height = 20}, ListViewItemStyle.DarkMode.TextSmall, "job", TextListItemView.new))
-    self:addItem(ListItem.new({text = "• Commands", highlightable = true, height = 20}, ListViewItemStyle.DarkMode.TextSmall, "commands", TextListItemView.new))
-    self:addItem(ListItem.new({text = "• Shortcuts", highlightable = true, height = 20}, ListViewItemStyle.DarkMode.TextSmall, "shortcuts", TextListItemView.new))
-
-    self:addItem(ListItem.new({text = '', height = 20}, ListViewItemStyle.DarkMode.Text, "spacer-1", TextListItemView.new))
-
-    self:addItem(ListItem.new({text = "Discord", height = 20}, ListViewItemStyle.DarkMode.Text, "discord-header", TextListItemView.new))
-    self:addItem(ListItem.new({text = "• Join the Discord", highlightable = true, height = 20}, ListViewItemStyle.DarkMode.TextSmall, "join-discord", TextListItemView.new))
-
-    self:onClick():addAction(function(item)
-        local identifier = item:getIdentifier()
-        if identifier == 'job' then
-            local urlSuffix = self:getJobWikiPageSuffix(main_job_name_short)
-            self:openUrl(urlSuffix)
-        elseif identifier == 'commands' then
-            self:openUrl('Commands')
-        elseif identifier == 'shortcuts' then
-            self:openUrl('Shortcuts')
-        elseif identifier == 'join-discord' then
-            self:openUrl('#support')
-        end
+function HelpView.new(main_job_name_short)
+    local dataSource = CollectionViewDataSource.new(function(item)
+        local cell = TextCollectionViewCell.new(item)
+        cell:setItemSize(20)
+        cell:setUserInteractionEnabled(true)
+        return cell
     end)
 
+    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0))), HelpView)
+
+    dataSource:addItem(TextItem.new("Wiki", TextStyle.Default.Text), IndexPath.new(1, 1))
+    dataSource:addItem(TextItem.new("• "..main_job_name_short, TextStyle.Default.Text), IndexPath.new(1, 2))
+    dataSource:addItem(TextItem.new("• Commands", TextStyle.Default.Text), IndexPath.new(1, 3))
+    dataSource:addItem(TextItem.new("• Shortcuts", TextStyle.Default.Text), IndexPath.new(1, 4))
+    dataSource:addItem(TextItem.new("", TextStyle.Default.Text), IndexPath.new(1, 5))
+
+    dataSource:addItem(TextItem.new("Discord", TextStyle.Default.Text), IndexPath.new(2, 1))
+    dataSource:addItem(TextItem.new("• Join the Discord", TextStyle.Default.Text), IndexPath.new(2, 2))
+
+    self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(item, indexPath)
+        local row = indexPath.row
+        if indexPath.section == 1 then
+            if row == 2 then
+                local urlSuffix = self:getJobWikiPageSuffix(main_job_name_short)
+                self:openUrl(urlSuffix)
+            elseif row == 3 then
+                self:openUrl('Commands')
+            elseif row == 4 then
+                self:openUrl('Shortcuts')
+            end
+        elseif indexPath.section == 2 then
+            if row == 2 then
+                self:openUrl('#support')
+            end
+        end
+    end), self:getDelegate():didSelectItemAtIndexPath())
+
     return self
-end
-
-function HelpView:destroy()
-    ListView.destroy(self)
-end
-
-function HelpView:render()
-    ListView.render(self)
 end
 
 function HelpView:openUrl(url_suffix)

@@ -377,7 +377,10 @@ _meta.M.__methods['set_description'] = function(m, value, text)
 end
 
 _meta.M.__methods['get_description'] = function(m, value)
-    return m._value_descriptions[value]
+    if value == nil then
+        return m._track._description
+    else
+        return m._value_descriptions[value]
+    end
 end
-
 

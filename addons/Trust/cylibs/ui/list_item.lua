@@ -34,6 +34,10 @@ function ListItem.new(data, style, identifier, viewConstructor)
     return self
 end
 
+function ListItem:destroy()
+    self.viewConstructor = nil
+end
+
 function ListItem:getData()
     return self.data
 end
@@ -48,6 +52,14 @@ end
 
 function ListItem:getViewConstructor()
     return self.viewConstructor
+end
+
+function ListItem:isEqual(otherItem)
+    return self:getIdentifier() == otherItem:getIdentifier()
+end
+
+function ListItem:__eq(otherItem)
+    return self:isEqual(otherItem)
 end
 
 return ListItem

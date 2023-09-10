@@ -10,9 +10,9 @@ GeomancerTrust.__index = GeomancerTrust
 
 local Geocolure = require('cylibs/entity/geocolure')
 
-local Dispeler = require('cylibs/trust/roles/dispeler')
 local Nuker = require('cylibs/trust/roles/nuker')
 local Buffer = require('cylibs/trust/roles/buffer')
+local ManaRestorer = require('cylibs/trust/roles/mana_restorer')
 
 state.AutoGeoMode = M{['description'] = 'Auto Geo Mode', 'Off', 'Auto'}
 
@@ -21,6 +21,7 @@ function GeomancerTrust.new(settings, action_queue, battle_settings, trust_setti
 	local roles = S{
 		Buffer.new(action_queue, S{}, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
 		Nuker.new(action_queue),
+		ManaRestorer.new(action_queue, L{"Spirit Taker", "Moonlight"}, 40)
 	}
 
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), GeomancerTrust)

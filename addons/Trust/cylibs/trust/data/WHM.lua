@@ -12,6 +12,7 @@ local Barspeller = require('cylibs/trust/roles/barspeller')
 local Healer = require('cylibs/trust/roles/healer')
 local Raiser = require('cylibs/trust/roles/raiser')
 local Debuffer = require('cylibs/trust/roles/debuffer')
+local ManaRestorer = require('cylibs/trust/roles/mana_restorer')
 local Nuker = require('cylibs/trust/roles/nuker')
 local Buffer = require('cylibs/trust/roles/buffer')
 local StatusRemover = require('cylibs/trust/roles/status_remover')
@@ -22,11 +23,11 @@ function WhiteMageTrust.new(settings, action_queue, battle_settings, trust_setti
 		Barspeller.new(action_queue, job),
 		Buffer.new(action_queue, trust_settings.JobAbilities, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
 		Debuffer.new(action_queue, trust_settings.Debuffs),
+		ManaRestorer.new(action_queue, L{'Mystic Boon', 'Dagan', 'Spirit Taker', 'Moonlight'}, 40),
 		Nuker.new(action_queue, 10),
 		Healer.new(action_queue, job),
 		StatusRemover.new(action_queue, job),
 		Raiser.new(action_queue, job),
-		--Evader.new(settings, action_queue)
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), WhiteMageTrust)
 
@@ -62,10 +63,6 @@ function WhiteMageTrust:job_target_change(target_index)
 	Trust.job_target_change(self, target_index)
 
 	self.target_index = target_index
-
-	if self.target_index then
-		--self.action_queue:push_action(SpellAction.new(0, 0, 0, res.spells:with('name', 'Dia II').id, self.target_index), true)
-	end
 end
 
 function WhiteMageTrust:tic(old_time, new_time)

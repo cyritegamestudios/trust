@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '2.0.0'
+_addon.version = '3.0.0'
 
 require('Trust-Include')
 
@@ -20,6 +20,8 @@ default.battle.trusts = L{'Monberaux','Sylvie (UC)','Koru-Moru','Qultada','Brygi
 default.battle.targets = L{'Locus Colibri','Locus Dire Bat','Locus Thousand Eyes','Locus Spartoi Warrior','Locus Spartoi Sorcerer','Locus Hati','Locus Ghost Crab'}
 default.remote_commands = {}
 default.remote_commands.whitelist = S{}
+default.logging = {}
+default.logging.logtofile = false
 
 settings = config.load(default)
 
@@ -38,6 +40,10 @@ state.AutoEnmityReductionMode:set_description('Auto', "Okay, I'll automatically 
 -- Main
 
 function load_user_files(main_job_id, sub_job_id)
+	load_logger_settings()
+
+	notice('Loaded '.._addon.name..' ('.._addon.version..')')
+
 	action_queue = ActionQueue.new(nil, true, 5, false, true)
 
 	main_job_id = tonumber(main_job_id)
@@ -174,7 +180,6 @@ function load_trust_commands(job_name_short, trust, action_queue)
 	return nil
 end
 
-
 function load_ui()
 	hud = TrustHud.new(player, action_queue, addon_enabled)
 
@@ -182,6 +187,13 @@ function load_ui()
 
 	hud:set_pos(info.ui_x_res - info.ui_x_res / 2, 20)
 	hud:render()
+end
+
+function load_logger_settings()
+	local logger = _libs.logger
+
+	logger.settings.logtofile = settings.logging.logtofile
+	logger.settings.defaultfile = 'logs/'..string.format("%s.log", os.date("%m-%d-%y"))
 end
 
 function trust_for_job_short(job_name_short, settings, trust_settings, action_queue, player, party)

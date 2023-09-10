@@ -14,6 +14,15 @@ function ListView:onClick()
 end
 
 ---
+-- Gets the event object for hovering over an item in the list view.
+--
+-- @treturn Event Returns the event object for hover events.
+--
+function ListView:onHover()
+    return self.hoverOver
+end
+
+---
 -- Gets the event object for items changed events on the list view.
 --
 -- @treturn Event Returns the event object for items changed events.
@@ -25,10 +34,11 @@ end
 function ListView.new(layout)
     local self = setmetatable(View.new(), ListView)
     self.layout = layout
-    self.itemViews = {}
+    self.itemViews = T{}
     self.items = L{} -- in order
     self.events = {}
     self.click = Event.newEvent()
+    self.hoverOver = Event.newEvent()
     self.itemsChanged = Event.newEvent()
 
     self.onClickId = input:onClick():addAction(function(type, x, y, delta, blocked)
@@ -53,13 +63,14 @@ function ListView.new(layout)
         end
 
         if type == 0 then
-            for _, itemView in pairs(self.itemViews) do
-                if itemView:is_highlightable() then
-                    if itemView:hover(x, y) then
+            for item, itemView in pairs(self.itemViews) do
+                if itemView:hover(x, y) then
+                    self:onHover():trigger(itemView, item)
+                    if itemView:is_highlightable() then
                         itemView:set_highlighted(true)
-                    else
-                        itemView:set_highlighted(false)
                     end
+                else
+                    itemView:set_highlighted(false)
                 end
             end
         end
@@ -73,8 +84,10 @@ end
 
 function ListView:destroy()
     input:onClick():removeAction(self.onClickId)
+    input:onMove():removeAction(self.onMoveId)
 
     self:onClick():removeAllActions()
+    self:onHover():removeAllActions()
     self:onItemsChanged():removeAllActions()
 
     self.layout:destroy()
@@ -89,11 +102,12 @@ function ListView:destroy()
 end
 
 function ListView:getItemView(item)
-    return self.itemViews[item]
-end
-
-function ListView:getItemView(item)
-    return self.itemViews[item]
+    for existingItem, itemView in pairs(self.itemViews) do
+        if existingItem == item then
+            return itemView
+        end
+    end
+    return nil
 end
 
 function ListView:getItem(identifier)
@@ -133,8 +147,6 @@ function ListView:addItems(items)
         end
     end
     self:render()
-
-    --self:onItemsChanged():trigger(self.items)
 end
 
 ---
@@ -147,23 +159,41 @@ function ListView:addItem(item)
 end
 
 function ListView:contains(item)
-    return self.itemViews[item] ~= nil
+    return self:getItemView(item) ~= nil
 end
 
 function ListView:indexOf(item)
     for i = 1, self.items:length() do
         local otherItem = self.items[i]
-        if otherItem and otherItem:getIdentifier() == item:getIdentifier() then
+        if otherItem and otherItem == item then
             return i
         end
     end
     return -1
 end
 
+function ListView:removeItems(items)
+    for item in items:it() do
+        local itemView = self:getItemView(item)
+        if itemView ~= nil then
+            self:removeChild(itemView)
+            itemView:destroy()
+            for key, value in pairs(self.itemViews) do
+                if key == item then
+                    self.itemViews[key] = nil
+                end
+            end
+            --self.itemViews[item] = nil
+        end
+    end
+    self.items = self.items:filter(function(item) return not items:contains(item)  end)
+    self:render()
+end
+
 function ListView:removeAllItems()
     self:removeAllChildren()
 
-    for item, itemView in pairs(self.itemViews) do
+    for _, itemView in pairs(self.itemViews) do
         itemView:destroy()
     end
 
@@ -171,8 +201,14 @@ function ListView:removeAllItems()
     self.items = L{}
 end
 
+function ListView:updateItems(items)
+    for item in items:it() do
+        self:updateItemView(item)
+    end
+end
+
 function ListView:updateItemView(item)
-    local itemView = self.itemViews[item]
+    local itemView = self:getItemView(item)
     if itemView then
         itemView:setItem(item)
         self:render()
@@ -189,7 +225,7 @@ function ListView:deselectAllItems()
 end
 
 function ListView:selectItem(item)
-    local itemView = self.itemViews[item]
+    local itemView = self:getItemView(item)
     if itemView then
         if itemView:is_selectable() then
             itemView:set_selected(true)
