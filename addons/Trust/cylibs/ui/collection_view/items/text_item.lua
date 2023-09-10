@@ -71,7 +71,7 @@ end
 ---
 -- Gets the style associated with the text item.
 --
--- @treturn TextStyle The style of the text item.
+-- @treturn ListViewItemStyle The style of the text item.
 --
 function TextItem:getStyle()
     return self.style

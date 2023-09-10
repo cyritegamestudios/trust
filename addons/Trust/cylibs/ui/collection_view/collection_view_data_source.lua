@@ -119,7 +119,7 @@ function CollectionViewDataSource:cellForItemAtIndexPath(indexPath)
     if cachedCell then
         return cachedCell
     else
-        local newCell = self.cellForItem(item, indexPath)
+        local newCell = self.cellForItem(item)
 
         -- Create a cache for the section if it doesn't exist
         self.cellCache[indexPath.section] = self.cellCache[indexPath.section] or {}

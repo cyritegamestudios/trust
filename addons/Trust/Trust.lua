@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '3.1.0'
+_addon.version = '3.0.0'
 
 require('Trust-Include')
 
@@ -185,9 +185,8 @@ function load_ui()
 
 	local info = windower.get_windower_settings()
 
-	hud:setPosition(info.ui_x_res - info.ui_x_res / 2, 20)
-	hud:setNeedsLayout()
-	hud:layoutIfNeeded()
+	hud:set_pos(info.ui_x_res - info.ui_x_res / 2, 20)
+	hud:render()
 end
 
 function load_logger_settings()
@@ -406,7 +405,7 @@ function get_assist_target(name)
 end
 
 function handle_assist(param)
-	local party_member = player.party:get_party_member_named(param)
+	local party_member = player.party:get_party_member(windower.ffxi.get_mob_by_name(param).id)
 	if party_member then
 		addon_message(207, 'Now assisting '..party_member:get_name())
 		player.party:set_assist_target(party_member)
@@ -473,7 +472,7 @@ local function addon_command(cmd, ...)
 		player.trust.main_job_commands:handle_command(unpack({...}))
 	elseif L{player.sub_job_name_short, player.sub_job_name_short:lower()}:contains(cmd) and player.trust.sub_job_commands then
 		player.trust.sub_job_commands:handle_command(unpack({...}))
-	elseif L{'sc', 'pull', 'engage', 'follow'}:contains(cmd) then
+	elseif L{'sc', 'pull', 'engage'}:contains(cmd) then
 		handle_shortcut(cmd, unpack({...}))
 	else
 		if not L{'cycle', 'set', 'help'}:contains(cmd) then

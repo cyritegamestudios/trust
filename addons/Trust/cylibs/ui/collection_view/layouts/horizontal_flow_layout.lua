@@ -44,8 +44,6 @@ function HorizontalFlowLayout:layoutSubviews(collectionView)
 
     self.width = xOffset + self.padding.right
     self.height = collectionView:getSize().height
-
-    collectionView:setSize(self.width, self.height)
 end
 
 function HorizontalFlowLayout:setNeedsLayout(collectionView, addedIndexPaths, removedIndexPaths, updatedIndexPaths)

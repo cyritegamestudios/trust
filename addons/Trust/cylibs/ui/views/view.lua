@@ -1,14 +1,13 @@
----
--- A generic view class for creating and managing graphical views.
---
--- @class module
--- @name View
---
-
 local Color = require('cylibs/ui/views/color')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Frame = require('cylibs/ui/views/frame')
 local Image = require('images')
+
+---
+-- A generic view class for creating and managing graphical views.
+--
+-- @classmod View
+--
 
 local View = {}
 View.__index = View

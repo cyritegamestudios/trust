@@ -27,7 +27,6 @@ function PartyMemberView.new(party)
         if item.__type == TextItem.__type then
             local cell = TextCollectionViewCell.new(item)
             cell:setItemSize(20)
-            cell:setUserInteractionEnabled(true)
             return cell
         elseif item.__type == ViewItem.__type then
             local cell = ContainerCollectionViewCell.new(item)
@@ -67,14 +66,6 @@ function PartyMemberView.new(party)
 
     self:updatePartyMembers(party)
 
-    self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(_, indexPath)
-        local partyMembers = party:get_party_members(true)
-        local partyMember = partyMembers[indexPath.section]
-        if partyMember then
-            windower.send_command('trust assist '..partyMember:get_name())
-        end
-    end), self:getDelegate():didSelectItemAtIndexPath())
-
     return self
 end
 
@@ -103,21 +94,6 @@ function PartyMemberView:updateBuffs(partyMember, buffsView)
     end
 end
 
-function PartyMemberView:createBuffsView()
-    local dataSource = CollectionViewDataSource.new(function(item)
-        local cell = ImageCollectionViewCell.new(item)
-        cell:setItemSize(20)
-        return cell
-    end)
-    local collectionView = CollectionView.new(dataSource, HorizontalFlowLayout.new(2, Padding.equal(0)))
-
-    for buffIndex = 1, 15 do
-        dataSource:addItem(ImageItem.new('', 20, 20), IndexPath.new(1, buffIndex))
-    end
-
-    return collectionView
-end
-
 function PartyMemberView:updatePartyMembers(party, partyMemberFilter)
     partyMemberFilter = partyMemberFilter or function(_) return true  end
 
@@ -138,6 +114,21 @@ function PartyMemberView:updatePartyMembers(party, partyMemberFilter)
             self:getDataSource():updateItem(TextItem.new("Empty", TextStyle.Default.Text), IndexPath.new(partyMemberIndex, 1))
         end
     end
+end
+
+function PartyMemberView:createBuffsView()
+    local dataSource = CollectionViewDataSource.new(function(item)
+        local cell = ImageCollectionViewCell.new(item)
+        cell:setItemSize(20)
+        return cell
+    end)
+    local collectionView = CollectionView.new(dataSource, HorizontalFlowLayout.new(2, Padding.equal(0)))
+
+    for buffIndex = 1, 15 do
+        dataSource:addItem(ImageItem.new('', 20, 20), IndexPath.new(1, buffIndex))
+    end
+
+    return collectionView
 end
 
 return PartyMemberView
