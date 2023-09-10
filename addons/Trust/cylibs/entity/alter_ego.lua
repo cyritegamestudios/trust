@@ -66,7 +66,11 @@ end
 -- @tparam list List of buff ids (see buffs.lua)
 function AlterEgo:update_buffs(buff_ids)
     local buff_ids = S(buff_util.buffs_for_buff_ids(buff_ids))
-    local delta = set.sdiff(buff_ids, self.buff_ids)
+    local old_buff_ids = self.buff_ids
+
+    self.buff_ids = buff_ids
+
+    local delta = set.sdiff(buff_ids, old_buff_ids)
 
     for buff_id in delta:it() do
         if buff_ids:contains(buff_id) then
@@ -75,7 +79,6 @@ function AlterEgo:update_buffs(buff_ids)
             self:on_lose_buff():trigger(self, buff_id)
         end
     end
-    self.buff_ids = buff_ids
 end
 
 -------

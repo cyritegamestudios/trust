@@ -14,6 +14,15 @@ function ListView:onClick()
 end
 
 ---
+-- Gets the event object for hovering over an item in the list view.
+--
+-- @treturn Event Returns the event object for hover events.
+--
+function ListView:onHover()
+    return self.hoverOver
+end
+
+---
 -- Gets the event object for items changed events on the list view.
 --
 -- @treturn Event Returns the event object for items changed events.
@@ -29,6 +38,7 @@ function ListView.new(layout)
     self.items = L{} -- in order
     self.events = {}
     self.click = Event.newEvent()
+    self.hoverOver = Event.newEvent()
     self.itemsChanged = Event.newEvent()
 
     self.onClickId = input:onClick():addAction(function(type, x, y, delta, blocked)
@@ -53,13 +63,14 @@ function ListView.new(layout)
         end
 
         if type == 0 then
-            for _, itemView in pairs(self.itemViews) do
-                if itemView:is_highlightable() then
-                    if itemView:hover(x, y) then
+            for item, itemView in pairs(self.itemViews) do
+                if itemView:hover(x, y) then
+                    self:onHover():trigger(itemView, item)
+                    if itemView:is_highlightable() then
                         itemView:set_highlighted(true)
-                    else
-                        itemView:set_highlighted(false)
                     end
+                else
+                    itemView:set_highlighted(false)
                 end
             end
         end
@@ -76,6 +87,7 @@ function ListView:destroy()
     input:onMove():removeAction(self.onMoveId)
 
     self:onClick():removeAllActions()
+    self:onHover():removeAllActions()
     self:onItemsChanged():removeAllActions()
 
     self.layout:destroy()

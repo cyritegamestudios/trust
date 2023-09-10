@@ -1,7 +1,9 @@
 local BufferView = require('cylibs/trust/roles/ui/buffer_view')
 local Button = require('cylibs/ui/button')
+local Color = require('cylibs/ui/views/color')
 local DebufferView = require('cylibs/trust/roles/ui/debuffer_view')
 local DebugView = require('cylibs/actions/ui/debug_view')
+local Frame = require('cylibs/ui/views/frame')
 local HelpView = require('cylibs/trust/ui/help_view')
 local ListView = require('cylibs/ui/list_view')
 local ListItemView = require('cylibs/ui/list_item_view')
@@ -13,9 +15,10 @@ local Mouse = require('cylibs/ui/input/mouse')
 local PartyBufferView = require('cylibs/trust/roles/ui/party_buffer_view')
 local PartyMemberView = require('cylibs/entity/party/ui/party_member_view')
 local party_util = require('cylibs/util/party_util')
+local SkillchainsView = require('cylibs/battle/skillchains/ui/skillchains_view')
 local VerticalListlayout = require('cylibs/ui/layouts/vertical_list_layout')
 local TabItem = require('cylibs/ui/tabs/tab_item')
-local TabbedView = require('cylibs/ui/tabs/tabbed_view')
+local TabbedView = require('cylibs/ui/tabs/tabbed_view_v2')
 local TextListItemView = require('cylibs/ui/items/text_list_item_view')
 local ValueRelay = require('cylibs/events/value_relay')
 
@@ -56,9 +59,9 @@ function TrustHud.new(player, action_queue, addon_enabled)
         if item:getIdentifier() == "AddonEnabled" then
             addon_enabled:setValue(not addon_enabled:getValue())
         elseif item:getIdentifier() == "MainJobButton" then
-            self:toggleMenu(player.main_job_name_short, player.trust.main_job, player.party)
+            self:toggleMenu(player.main_job_name_short, player.trust.main_job, player.party, action_queue)
         elseif item:getIdentifier() == "SubJobButton" then
-            self:toggleMenu(player.sub_job_name_short, player.trust.sub_job, player.party)
+            self:toggleMenu(player.sub_job_name_short, player.trust.sub_job, player.party, action_queue)
         end
     end)
 
@@ -129,14 +132,50 @@ function TrustHud:render()
     self.actionView:render()
 end
 
-function TrustHud:toggleMenu(job_name_short, trust, party)
-    if self.tabbed_view then
-        self.tabbed_view:destroy()
-        self.tabbed_view = nil
+function TrustHud:toggleMenu(job_name_short, trust, party, action_queue)
+    if self.tabbedView then
+        self.tabbedView:destroy()
+        self.tabbedView = nil
     else
-        self.tabbed_view = TabbedView.new()
+        local tabbedView = TabbedView.new(Frame.new(500, 200, 500, 500))
+        tabbedView:setBackgroundColor(Color.black:withAlpha(175))
 
-        local tabItems = L{}
+        tabbedView:addTab(PartyMemberView.new(party), string.upper("party"))
+
+        local buffer = trust:role_with_type("buffer")
+        if buffer then
+            tabbedView:addTab(BufferView.new(buffer), string.upper("buffer"))
+        end
+
+        local debuffer = trust:role_with_type("debuffer")
+        if debuffer then
+            tabbedView:addTab(DebufferView.new(debuffer, debuffer:get_battle_target()), string.upper("debuffer"))
+        end
+
+        local skillchainer = trust:role_with_type("skillchainer")
+        if skillchainer then
+            tabbedView:addTab(SkillchainsView.new(skillchainer), string.upper("skillchains"))
+        end
+
+        local allModeNames = L(T(state):keyset()):sort()
+        local splitIndex = math.floor(allModeNames:length() / 2)
+
+        local modes1 = allModeNames:copy():slice(1, splitIndex)
+        local modes2 = allModeNames:copy():slice(splitIndex, allModeNames:length())
+
+        tabbedView:addTab(ModesView.new(modes1), string.upper("modes 1"))
+        tabbedView:addTab(ModesView.new(modes2), string.upper("modes 2"))
+
+        tabbedView:addTab(HelpView.new(job_name_short), string.upper("help"))
+
+        tabbedView:selectTab(1)
+
+        tabbedView:setNeedsLayout()
+        tabbedView:layoutIfNeeded()
+
+        self.tabbedView = tabbedView
+
+        --[[local tabItems = L{}
 
         -- Party
         tabItems:append(TabItem.new("party", PartyMemberView.new(party, VerticalListlayout.new(380, 0))))
@@ -181,6 +220,11 @@ function TrustHud:toggleMenu(job_name_short, trust, party)
             modeTabIndex = modeTabIndex + 1
         end
 
+        local skillchainer = trust:role_with_type("skillchainer")
+        if skillchainer then
+            tabItems:append(TabItem.new("skillchains", SkillchainsView.new(skillchainer, VerticalListlayout.new(380, 0))))
+        end
+
         tabItems:append(TabItem.new("help", HelpView.new(job_name_short, VerticalListlayout.new(380, 0))))
         tabItems:append(TabItem.new("debug", DebugView.new(action_queue, VerticalListlayout.new(380, 0))))
 
@@ -192,7 +236,7 @@ function TrustHud:toggleMenu(job_name_short, trust, party)
         self.tabbed_view:set_color(150, 0, 0, 0)
 
         self.tabbed_view:set_visible(true)
-        self.tabbed_view:render()
+        self.tabbed_view:render()]]
     end
 end
 

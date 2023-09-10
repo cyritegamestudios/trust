@@ -1,10 +1,10 @@
-local DisposeBag = require('cylibs/events/dispose_bag')
 local Event = require('cylibs/events/Luvent')
-local ListItem = require('cylibs/ui/list_item')
-local ListViewItemStyle = require('cylibs/ui/style/list_view_item_style')
-local TextListItemView = require('cylibs/ui/items/text_list_item_view')
+local Mouse = require('cylibs/ui/input/mouse')
+local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
+local TextItem = require('cylibs/ui/collection_view/items/text_item')
+local TextStyle = require('cylibs/ui/style/text_style')
 
-local Button = setmetatable({}, {__index = TextListItemView })
+local Button = setmetatable({}, {__index = TextCollectionViewCell })
 Button.__index = Button
 
 -- Event called when the button is clicked.
@@ -18,47 +18,53 @@ end
 -- @tparam number height The height of the button.
 -- @treturn Button The newly created Button instance.
 function Button.new(text, width, height)
-    local self = setmetatable(TextListItemView.new(ListItem.new({ text = text, width = width, height = height, highlightable = true }, ListViewItemStyle.DarkMode.Button, 'button_'..text, Button.new)), Button)
+    local self = setmetatable(TextCollectionViewCell.new(TextItem.new(text, TextStyle.Default.Button)), Button)
+
+    self:setSize(width, height)
 
     self.click = Event.newEvent()
 
-    self.disposeBag = DisposeBag.new()
-
-    self.disposeBag:add(input:onClick():addAction(function(type, x, y, delta, blocked)
-        if blocked then
+    self:getDisposeBag():add(Mouse.input():onClick():addAction(function(type, x, y, delta, blocked)
+        if blocked or not self:isVisible() then
             return
         end
-        if type == 1 then
-            if self:hover(x, y) then
-                self:onClick():trigger(self, x, y)
-                return false
-            end
+        if self:hitTest(x, y) then
+            self:setSelected(true)
         end
         return false
-    end), input:onClick())
+    end), Mouse.input():onClick())
 
-    self.disposeBag:add(input:onMove():addAction(function(_, x, y, delta, blocked)
-        if blocked or not self:is_visible() then
+    self:getDisposeBag():add(Mouse.input():onClickRelease():addAction(function(type, x, y, delta, blocked)
+        if blocked or not self:isVisible() then
+            return
+        end
+        self:setSelected(false)
+        if self:hitTest(x, y) then
+            self:onClick():trigger(self, x, y)
+        end
+        return false
+    end), Mouse.input():onClickRelease())
+
+    self:getDisposeBag():add(Mouse.input():onMove():addAction(function(_, x, y, delta, blocked)
+        if blocked or not self:isVisible() then
             return false
         end
-
-        if self:hover(x, y) then
-            self:set_highlighted(true)
+        if self:hitTest(x, y) then
+            self:setHighlighted(true)
         else
-            self:set_highlighted(false)
+            self:setHighlighted(false)
         end
-
         return false
-    end), input:onMove())
+    end), Mouse.input():onMove())
+
+    self:layoutIfNeeded()
 
     return self
 end
 
 -- Destroys the Button, cleaning up any resources.
 function Button:destroy()
-    TextListItemView.destroy(self)
-
-    self.disposeBag:destroy()
+    TextCollectionViewCell.destroy(self)
 
     self:onClick():removeAllActions()
 end

@@ -66,6 +66,10 @@ function Skillchainer:job_weapon_skill(weapon_skill_name)
     end
 end
 
+function Skillchainer:get_skillchain_settings()
+    return self.skillchain_settings
+end
+
 function Skillchainer:allows_duplicates()
     return false
 end

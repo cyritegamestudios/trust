@@ -177,7 +177,11 @@ function PartyMember:update_buffs(buff_ids)
     end
 
     local buff_ids = S(buff_util.buffs_for_buff_ids(buff_ids))
-    local delta = set.sdiff(buff_ids, self.buff_ids)
+    local old_buff_ids = self.buff_ids
+
+    self.buff_ids = buff_ids
+
+    local delta = set.sdiff(buff_ids, old_buff_ids)
     for buff_id in delta:it() do
         if buff_ids:contains(buff_id) then
             self:on_gain_buff():trigger(self, buff_id)

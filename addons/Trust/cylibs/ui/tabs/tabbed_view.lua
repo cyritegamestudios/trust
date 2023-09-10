@@ -19,7 +19,7 @@ TabbedView.Style = {
                 {alpha = 0, red = 0, green = 0, blue = 0},
                 {alpha = 0, red = 0, green = 0, blue = 0},
                 "Arial",
-                12,
+                11,
                 {red = 255, green = 255, blue = 255},
                 {red = 205, green = 205, blue = 205},
                 2,
@@ -56,7 +56,7 @@ function TabbedView.new()
     self.views = T{}
     self.tabs = T{}
     self.activeTabIndex = 1
-    self.tabWidth = 120
+    self.tabWidth = 200
     self.padding = 5
 
     self.tabListView = ListView.new(VerticalListLayout.new(self.tabWidth, 25))

@@ -1,15 +1,14 @@
-local ListItem = require('cylibs/ui/list_item')
-local ListViewItemStyle = require('cylibs/ui/style/list_view_item_style')
-local PartyMemberListItemView = require('cylibs/entity/party/ui/party_member_list_item_view')
+local TextItem = require('cylibs/ui/collection_view/items/text_item')
+local TextStyle = require('cylibs/ui/style/text_style')
 
-local PartyMemberListItem = setmetatable({}, {__index = ListItem })
+local PartyMemberListItem = setmetatable({}, {__index = TextItem })
 PartyMemberListItem.__index = PartyMemberListItem
 
 -- Creates a new PartyMemberListItem instance.
 -- @tparam PartyMember party_member The party member data.
 -- @treturn PartyMemberListItem The newly created PartyMemberListItem instance.
 function PartyMemberListItem.new(party_member)
-    local self = setmetatable(ListItem.new({ text = party_member:get_name(), height = 60 }, ListViewItemStyle.DarkMode.Text, party_member:get_id(), PartyMemberListItemView.new), PartyMemberListItem)
+    local self = setmetatable(TextItem.new(party_member:get_name(), TextStyle.Default.Text), PartyMemberListItem)
 
     self.partyMember = party_member
     self.partyMemberId = party_member:get_id()
@@ -49,7 +48,7 @@ end
 -- @tparam PartyMemberListItem otherItem The other PartyMemberListItem to compare.
 -- @treturn bool Returns true if the items are equal, false otherwise.
 function PartyMemberListItem:__eq(otherItem)
-    return self:getIdentifier() == otherItem:getIdentifier()
+    return self.partyMemberId == otherItem.partyMemberId
 end
 
 return PartyMemberListItem

@@ -173,6 +173,18 @@ ListViewItemStyle.DarkMode = {
             150,
             true
     ),
+    HeaderSmall = ListViewItemStyle.new(
+            {alpha = 0, red = 0, green = 0, blue = 0},
+            {alpha = 0, red = 0, green = 0, blue = 0},
+            "Arial",
+            10,
+            {red = 255, green = 255, blue = 255},
+            {red = 205, green = 205, blue = 205},
+            2,
+            2,
+            150,
+            true
+    ),
     -- Style for red headers in dark mode
     HeaderRed = ListViewItemStyle.new(
             {alpha = 0, red = 0, green = 0, blue = 0},
@@ -211,6 +223,18 @@ ListViewItemStyle.DarkMode = {
             0,
             0,
             false
+    ),
+    TextSmallBold = ListViewItemStyle.new(
+            {alpha = 0, red = 0, green = 0, blue = 0},
+            {alpha = 0, red = 0, green = 0, blue = 0},
+            "Arial",
+            10,
+            {red = 255, green = 255, blue = 255},
+            {red = 205, green = 205, blue = 205},
+            2,
+            0,
+            0,
+            true
     ),
     -- Default style for highlighted text in dark mode
     HighlightedText = ListViewItemStyle.new(

@@ -11,10 +11,11 @@ ImageListItem.__index = ImageListItem
 -- @tparam string imagePath The path to the associated image.
 -- @tparam number imageWidth The width of the associated image.
 -- @tparam number imageHeight The height of the associated image.
+-- @tparam T extras Extra metadata associated with the image.
 -- @treturn ImageListItem The newly created ImageListItem instance.
 --
-function ImageListItem.new(imagePath, imageWidth, imageHeight)
-    local self = setmetatable(ListItem.new({width = imageWidth, height = imageHeight}, ListViewItemStyle.DarkMode.Image, imagePath, ImageListItemView.new), ImageListItem)
+function ImageListItem.new(imagePath, imageWidth, imageHeight, extras)
+    local self = setmetatable(ListItem.new({width = imageWidth, height = imageHeight, extras = extras or {} }, ListViewItemStyle.DarkMode.Image, imagePath, ImageListItemView.new), ImageListItem)
     self.imagePath = imagePath
     self.imageWidth = imageWidth
     self.imageHeight = imageHeight

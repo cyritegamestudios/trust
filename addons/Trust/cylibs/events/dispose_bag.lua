@@ -10,6 +10,7 @@ function DisposeBag.new()
     local self = setmetatable({}, DisposeBag)
 
     self.eventMap = T{}
+    self.destroyables = L{}
 
     return self
 end
@@ -19,6 +20,10 @@ end
 --
 function DisposeBag:destroy()
     self:dispose()
+
+    for destroyable in self.destroyables:it() do
+        destroyable:destroy()
+    end
 end
 
 ---
@@ -42,6 +47,17 @@ function DisposeBag:add(actionId, event)
         return
     end
     self.eventMap[actionId] = event
+end
+
+---
+-- Adds a list of destroyable items to the DisposeBag.
+--
+-- @param destroyables A list of destroyable items to add.
+--
+function DisposeBag:addAny(destroyables)
+    for destroyable in destroyables:it() do
+        self.destroyables:append(destroyable)
+    end
 end
 
 return DisposeBag

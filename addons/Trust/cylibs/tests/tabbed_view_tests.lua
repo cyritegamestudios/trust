@@ -1,3 +1,4 @@
+local Color = require('cylibs/ui/views/color')
 local CyTest = require('cylibs/tests/cy_test')
 local Event = require('cylibs/events/Luvent')
 local ListItem = require('cylibs/ui/list_item')
@@ -8,6 +9,8 @@ local TabItem = require('cylibs/ui/tabs/tab_item')
 local TabbedView = require('cylibs/ui/tabs/tabbed_view')
 local TextListItemView = require('cylibs/ui/items/text_list_item_view')
 local VerticalListLayout = require('cylibs/ui/layouts/vertical_list_layout')
+local TabbedViewV2 = require('cylibs/ui/tabs/tabbed_view_v2')
+local View = require('cylibs/ui/views/view')
 
 local TabbedViewTests = {}
 TabbedViewTests.__index = TabbedViewTests
@@ -29,7 +32,8 @@ function TabbedViewTests:destroy()
 end
 
 function TabbedViewTests:run()
-    self:testTabbedView()
+    --self:testTabbedView()
+    self:debug()
 end
 
 -- Tests
@@ -93,6 +97,44 @@ function TabbedViewTests:testTabbedView()
     CyTest.assert(self.tabbed_view:is_destroyed(), "TabbedView should be destroyed after destroy()")
 
     self:onCompleted():trigger(true)
+end
+
+local Frame = require('cylibs/ui/views/frame')
+
+function TabbedViewTests:debug()
+    --[[local view1 = View.new(Frame.new(500, 200, 500, 500))
+    view1:setBackgroundColor(Color.black:withAlpha(175))
+
+    local view2 = View.new(Frame.new(0, 0, 300, 300))
+    view2:setBackgroundColor(Color.new(175, 255, 0, 0))
+
+    view1:addSubview(view2)
+
+    local view3 = View.new(Frame.new(0, 0, 200, 200))
+    view3:setBackgroundColor(Color.new(175, 0, 255, 0))
+
+    view2:addSubview(view3)
+
+    view1:layoutIfNeeded()]]
+
+    --view1:setPosition(200, 100)
+    --view1:layoutIfNeeded()
+
+    local tabbedView = TabbedViewV2.new(Frame.new(500, 200, 500, 500))
+    tabbedView:setBackgroundColor(Color.black:withAlpha(175))
+
+    local view1 = View.new()
+    view1:setBackgroundColor(Color.new(175, 255, 0, 0))
+    tabbedView:addTab(view1, string.upper("party"))
+
+    local view2 = View.new()
+    view2:setBackgroundColor(Color.new(175, 0, 255, 0))
+    tabbedView:addTab(view2, string.upper("buffs"))
+
+    tabbedView:selectTab(1)
+
+    tabbedView:setNeedsLayout()
+    tabbedView:layoutIfNeeded()
 end
 
 return TabbedViewTests

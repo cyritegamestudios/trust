@@ -33,8 +33,12 @@ function ImageListItemView:destroy()
     self.imageView:destroy()
 end
 
-function ImageListItemView:render()
-    ListItemView.render(self)
+function ImageListItemView:hover(x, y)
+    return self.imageView:hover(x, y)
+end
+
+function ImageListItemView:layoutIfNeeded()
+    ListItemView.layoutIfNeeded(self)
 
     local x, y = self:get_pos()
     local width, height = self:get_size()
