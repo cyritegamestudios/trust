@@ -1,0 +1,191 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Lua</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Functions</h2>
+<ul class="nowrap">
+    <li><a href="#create">create (f)</a></li>
+    <li><a href="#resume">resume (co, ...)</a></li>
+    <li><a href="#running">running ()</a></li>
+    <li><a href="#status">status (co)</a></li>
+    <li><a href="#wrap">wrap (f)</a></li>
+    <li><a href="#yield">yield (...)</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><strong>coroutine</strong></li>
+  <li><a href="../modules/debug.html">debug</a></li>
+  <li><a href="../modules/global.html">global</a></li>
+  <li><a href="../modules/io.html">io</a></li>
+  <li><a href="../modules/lfs.html">lfs</a></li>
+  <li><a href="../modules/lpeg.html">lpeg</a></li>
+  <li><a href="../modules/math.html">math</a></li>
+  <li><a href="../modules/os.html">os</a></li>
+  <li><a href="../modules/package.html">package</a></li>
+  <li><a href="../modules/string.html">string</a></li>
+  <li><a href="../modules/table.html">table</a></li>
+  <li><a href="../modules/utf8.html">utf8</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>coroutine</code></h1>
+<p>creating and controlling coroutines.</p>
+<p>
+
+</p>
+
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "create"></a>
+    <strong>create (f)</strong>
+    </dt>
+    <dd>
+    Creates a new coroutine, with body <code>f</code>.  <code>f</code> must be a Lua
+ function. Returns this new coroutine, an object with type <code>&quot;thread&quot;</code>.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "resume"></a>
+    <strong>resume (co, ...)</strong>
+    </dt>
+    <dd>
+    Starts or continues the execution of coroutine <code>co</code>.  The first time
+ you resume a coroutine, it starts running its body. The values
+ ... are passed as the arguments to the body function. If the coroutine
+ has yielded, <a href="../modules/coroutine.html#resume">resume</a> restarts it; the values  ... are passed
+ as the results from the yield.
+ If the coroutine runs without any errors, <a href="../modules/coroutine.html#resume">resume</a> returns true plus any
+ values passed to <a href="../modules/coroutine.html#yield">yield</a> (if the coroutine yields) or any values returned
+ by the body function (if the coroutine terminates). If there is any error,
+ <a href="../modules/coroutine.html#resume">resume</a> returns false plus the error message.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "running"></a>
+    <strong>running ()</strong>
+    </dt>
+    <dd>
+    Returns the running coroutine.  Or nil when called by the main thread.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "status"></a>
+    <strong>status (co)</strong>
+    </dt>
+    <dd>
+    Returns the status of coroutine <code>co</code>.  Result is a string: <code>&quot;running&quot;</code>, if
+ the coroutine is running (that is, it called <a href="../modules/coroutine.html#status">status</a>); <code>&quot;suspended&quot;</code>, if
+ the coroutine is suspended in a call to <a href="../modules/coroutine.html#yield">yield</a>, or if it has not started
+ running yet; <code>&quot;normal&quot;</code> if the coroutine is active but not running (that
+ is, it has resumed another coroutine); and <code>&quot;dead&quot;</code> if the coroutine has
+ finished its body function, or if it has stopped with an error.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "wrap"></a>
+    <strong>wrap (f)</strong>
+    </dt>
+    <dd>
+    Creates a new coroutine, with body <code>f</code>.  <code>f</code> must be a Lua
+ function. Returns a function that resumes the coroutine each time it is
+ called. Any arguments passed to the function behave as the extra arguments to
+ <a href="../modules/coroutine.html#resume">resume</a>. Returns the same values returned by <a href="../modules/coroutine.html#resume">resume</a>, except the first
+ boolean. In case of error, propagates the error.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "yield"></a>
+    <strong>yield (...)</strong>
+    </dt>
+    <dd>
+    Suspends the execution of the calling coroutine.  The coroutine cannot
+ be running a C function, a metamethod, or an iterator. Any arguments to
+ <a href="../modules/coroutine.html#yield">yield</a> are passed as extra results to <a href="../modules/coroutine.html#resume">resume</a>.
+
+
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-05-26 00:30:52 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

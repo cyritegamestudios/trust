@@ -1,0 +1,617 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Cylibs</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Functions</h2>
+<ul class="nowrap">
+    <li><a href="#new">new (id)</a></li>
+    <li><a href="#destroy">destroy ()</a></li>
+    <li><a href="#monitor">monitor ()</a></li>
+    <li><a href="#update_debuffs">update_debuffs (List)</a></li>
+    <li><a href="#update_buffs">update_buffs (List)</a></li>
+    <li><a href="#get_buff_ids">get_buff_ids ()</a></li>
+    <li><a href="#get_buffs">get_buffs ()</a></li>
+    <li><a href="#get_debuff_ids">get_debuff_ids ()</a></li>
+    <li><a href="#get_debuffs">get_debuffs ()</a></li>
+    <li><a href="#has_buff">has_buff (buff_id)</a></li>
+    <li><a href="#has_debuff">has_debuff (debuff_id)</a></li>
+    <li><a href="#get_main_job_short">get_main_job_short ()</a></li>
+    <li><a href="#get_sub_job_short">get_sub_job_short ()</a></li>
+    <li><a href="#get_hpp">get_hpp ()</a></li>
+    <li><a href="#get_hp">get_hp ()</a></li>
+    <li><a href="#get_max_hp">get_max_hp ()</a></li>
+    <li><a href="#is_alive">is_alive ()</a></li>
+    <li><a href="#is_trust">is_trust ()</a></li>
+    <li><a href="#get_target_index">get_target_index ()</a></li>
+    <li><a href="#get_heartbeat_time">get_heartbeat_time ()</a></li>
+    <li><a href="#set_heartbeat_time">set_heartbeat_time (time_in_sec)</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/Action.html">Action</a></li>
+  <li><a href="../modules/ActionQueue.html">ActionQueue</a></li>
+  <li><a href="../modules/BloodPactRage.html">BloodPactRage</a></li>
+  <li><a href="../modules/BloodPactWard.html">BloodPactWard</a></li>
+  <li><a href="../modules/CureAction.html">CureAction</a></li>
+  <li><a href="../modules/JobAbility.html">JobAbility</a></li>
+  <li><a href="../modules/ReadyMoveAction.html">ReadyMoveAction</a></li>
+  <li><a href="../modules/RunToAction.html">RunToAction</a></li>
+  <li><a href="../modules/RunToLocationAction.html">RunToLocationAction</a></li>
+  <li><a href="../modules/SequenceAction.html">SequenceAction</a></li>
+  <li><a href="../modules/SpellAction.html">SpellAction</a></li>
+  <li><a href="../modules/StatusRemovalAction.html">StatusRemovalAction</a></li>
+  <li><a href="../modules/Strategem.html">Strategem</a></li>
+  <li><a href="../modules/TargetAction.html">TargetAction</a></li>
+  <li><a href="../modules/ActionMessageUtil.html">ActionMessageUtil</a></li>
+  <li><a href="../modules/BattleUtil.html">BattleUtil</a></li>
+  <li><a href="../modules/BuffUtil.html">BuffUtil</a></li>
+  <li><a href="../modules/CureUtil.html">CureUtil</a></li>
+  <li><a href="../modules/TableExtension.html">TableExtension</a></li>
+  <li><a href="../modules/FlankingUtil.html">FlankingUtil</a></li>
+  <li><a href="../modules/GeometryUtil.html">GeometryUtil</a></li>
+  <li><a href="../modules/JobUtil.html">JobUtil</a></li>
+  <li><a href="../modules/MonsterUtil.html">MonsterUtil</a></li>
+  <li><a href="../modules/party_util.html">party_util</a></li>
+  <li><a href="../modules/pet_util.html">pet_util</a></li>
+  <li><a href="../modules/PupUtil.html">PupUtil</a></li>
+  <li><a href="../modules/SpellUtil.html">SpellUtil</a></li>
+  <li><a href="../modules/zone_util.html">zone_util</a></li>
+  <li><a href="../modules/AuraTracker.html">AuraTracker</a></li>
+  <li><a href="../modules/BattleStatTracker.html">BattleStatTracker</a></li>
+  <li><a href="../modules/SongTracker.html">SongTracker</a></li>
+  <li><a href="../modules/DamageMemory.html">DamageMemory</a></li>
+  <li><a href="../modules/MobTracker.html">MobTracker</a></li>
+  <li><a href="../modules/Monster.html">Monster</a></li>
+  <li><a href="../modules/MonsterBuffTracker.html">MonsterBuffTracker</a></li>
+  <li><a href="../modules/Roll.html">Roll</a></li>
+  <li><a href="../modules/Skillchain.html">Skillchain</a></li>
+  <li><a href="../modules/MagicBurstMaker.html">MagicBurstMaker</a></li>
+  <li><a href="../modules/SkillchainMaker.html">SkillchainMaker</a></li>
+  <li><a href="../modules/SongTracker.html">SongTracker</a></li>
+  <li><a href="../modules/SongRecord.html">SongRecord</a></li>
+  <li><a href="../modules/Spell.html">Spell</a></li>
+  <li><a href="../modules/Buff.html">Buff</a></li>
+  <li><a href="../modules/Debuff.html">Debuff</a></li>
+  <li><a href="../modules/Refresh.html">Refresh</a></li>
+  <li><a href="../modules/SongRecord.html">SongRecord</a></li>
+  <li><a href="../modules/Buff.html">Buff</a></li>
+  <li><a href="../modules/Debuff.html">Debuff</a></li>
+  <li><a href="../modules/Refresh.html">Refresh</a></li>
+  <li><a href="../modules/AlterEgo.html">AlterEgo</a></li>
+  <li><a href="../modules/Automaton.html">Automaton</a></li>
+  <li><a href="../modules/Avatar.html">Avatar</a></li>
+  <li><a href="../modules/Entity.html">Entity</a></li>
+  <li><a href="../modules/Familiar.html">Familiar</a></li>
+  <li><a href="../modules/Geocolure.html">Geocolure</a></li>
+  <li><a href="../modules/BlueMage.html">BlueMage</a></li>
+  <li><a href="../modules/Bard.html">Bard</a></li>
+  <li><a href="../modules/Beastmaster.html">Beastmaster</a></li>
+  <li><a href="../modules/Corsair.html">Corsair</a></li>
+  <li><a href="../modules/Dragoon.html">Dragoon</a></li>
+  <li><a href="../modules/DarkKnight.html">DarkKnight</a></li>
+  <li><a href="../modules/Geomancer.html">Geomancer</a></li>
+  <li><a href="../modules/Ninja.html">Ninja</a></li>
+  <li><a href="../modules/Paladin.html">Paladin</a></li>
+  <li><a href="../modules/Puppetmaster.html">Puppetmaster</a></li>
+  <li><a href="../modules/RedMage.html">RedMage</a></li>
+  <li><a href="../modules/RuneFencer.html">RuneFencer</a></li>
+  <li><a href="../modules/Samurai.html">Samurai</a></li>
+  <li><a href="../modules/Scholar.html">Scholar</a></li>
+  <li><a href="../modules/Summoner.html">Summoner</a></li>
+  <li><a href="../modules/Warrior.html">Warrior</a></li>
+  <li><a href="../modules/White.html">White</a></li>
+  <li><a href="../modules/Job.html">Job</a></li>
+  <li><a href="../modules/Party.html">Party</a></li>
+  <li><strong>PartyMember</strong></li>
+  <li><a href="../modules/Player.html">Player</a></li>
+  <li><a href="../modules/BlueMage.html">BlueMage</a></li>
+  <li><a href="../modules/Bard.html">Bard</a></li>
+  <li><a href="../modules/Beastmaster.html">Beastmaster</a></li>
+  <li><a href="../modules/Corsair.html">Corsair</a></li>
+  <li><a href="../modules/Dragoon.html">Dragoon</a></li>
+  <li><a href="../modules/DarkKnight.html">DarkKnight</a></li>
+  <li><a href="../modules/Geomancer.html">Geomancer</a></li>
+  <li><a href="../modules/Ninja.html">Ninja</a></li>
+  <li><a href="../modules/Paladin.html">Paladin</a></li>
+  <li><a href="../modules/Puppetmaster.html">Puppetmaster</a></li>
+  <li><a href="../modules/RedMage.html">RedMage</a></li>
+  <li><a href="../modules/RuneFencer.html">RuneFencer</a></li>
+  <li><a href="../modules/Samurai.html">Samurai</a></li>
+  <li><a href="../modules/Scholar.html">Scholar</a></li>
+  <li><a href="../modules/Summoner.html">Summoner</a></li>
+  <li><a href="../modules/Warrior.html">Warrior</a></li>
+  <li><a href="../modules/White.html">White</a></li>
+  <li><a href="../modules/Job.html">Job</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>PartyMember</code></h1>
+<p>Wrapper class around a party member.</p>
+<p>
+
+</p>
+
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "new"></a>
+    <strong>new (id)</strong>
+    </dt>
+    <dd>
+    Default initializer for a PartyMember.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">id</span>
+            <span class="types"><span class="type">number</span></span>
+         Mob id
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Player</span></span>
+        A player
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "destroy"></a>
+    <strong>destroy ()</strong>
+    </dt>
+    <dd>
+    Stops tracking the player's actions and disposes of all registered event handlers.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "monitor"></a>
+    <strong>monitor ()</strong>
+    </dt>
+    <dd>
+    Starts monitoring the player's actions.  Note that it is necessary to call this before events will start being
+ triggered. You should call destroy() to clean up listeners when you are done.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "update_debuffs"></a>
+    <strong>update_debuffs (List)</strong>
+    </dt>
+    <dd>
+    Filters a list of buffs and updates the player's cached list of debuffs.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">List</span>
+            <span class="types"><span class="type">list</span></span>
+         of buff ids (see buffs.lua)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "update_buffs"></a>
+    <strong>update_buffs (List)</strong>
+    </dt>
+    <dd>
+    Filters a list of buffs and updates the player's cached list of buffs.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">List</span>
+            <span class="types"><span class="type">list</span></span>
+         of buff ids (see buffs.lua)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "get_buff_ids"></a>
+    <strong>get_buff_ids ()</strong>
+    </dt>
+    <dd>
+    Returns a list of the party member's buff ids.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">List</span></span>
+        of buff ids (see buffs.lua)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "get_buffs"></a>
+    <strong>get_buffs ()</strong>
+    </dt>
+    <dd>
+    Returns a list of the party member's buffs.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">List</span></span>
+        of localized buff names (see buffs.lua)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "get_debuff_ids"></a>
+    <strong>get_debuff_ids ()</strong>
+    </dt>
+    <dd>
+    Returns a list of the party member's debuff ids.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">List</span></span>
+        of debuff ids (see buffs.lua)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "get_debuffs"></a>
+    <strong>get_debuffs ()</strong>
+    </dt>
+    <dd>
+    Returns a list of the party member's debuffs.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">List</span></span>
+        of localized debuff names (see buffs.lua)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "has_buff"></a>
+    <strong>has_buff (buff_id)</strong>
+    </dt>
+    <dd>
+    Returns true if the party member has the given buff active.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">buff_id</span>
+            <span class="types"><span class="type">number</span></span>
+         Buff id (see buffs.lua)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+        True if the buff is active, false otherwise
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "has_debuff"></a>
+    <strong>has_debuff (debuff_id)</strong>
+    </dt>
+    <dd>
+    Returns true if the party member has the given debuff.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">debuff_id</span>
+            <span class="types"><span class="type">number</span></span>
+         Debuff id (see buffs.lua)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+        True if the party member has the given debuff, false otherwise
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "get_main_job_short"></a>
+    <strong>get_main_job_short ()</strong>
+    </dt>
+    <dd>
+    Returns the main job short (e.g.  BLU, RDM, WAR)
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+        Main job short, or nil if unknown
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "get_sub_job_short"></a>
+    <strong>get_sub_job_short ()</strong>
+    </dt>
+    <dd>
+    Returns the sub job short (e.g.  BLU, RDM, WAR)
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+        Sub job short, or nil if unknown
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "get_hpp"></a>
+    <strong>get_hpp ()</strong>
+    </dt>
+    <dd>
+    Returns the player's current hit point percentage.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        Hit point percentage
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "get_hp"></a>
+    <strong>get_hp ()</strong>
+    </dt>
+    <dd>
+    Returns the player's current hit point.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        Hit point
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "get_max_hp"></a>
+    <strong>get_max_hp ()</strong>
+    </dt>
+    <dd>
+    Returns the player's maximum hit points.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        Maximum hit points
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "is_alive"></a>
+    <strong>is_alive ()</strong>
+    </dt>
+    <dd>
+    Returns whether the party member is alive.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Boolean</span></span>
+        True if the party member is alive, and false otherwise.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "is_trust"></a>
+    <strong>is_trust ()</strong>
+    </dt>
+    <dd>
+    Returns whether this party member is a trust.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Boolean</span></span>
+        True if the party member is a trust, and false otherwise
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "get_target_index"></a>
+    <strong>get_target_index ()</strong>
+    </dt>
+    <dd>
+    Returns the index of the current target.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        Index of the current target, or nil if none.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "get_heartbeat_time"></a>
+    <strong>get_heartbeat_time ()</strong>
+    </dt>
+    <dd>
+    Returns the last heartbeat time.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        Last heartbeat time
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "set_heartbeat_time"></a>
+    <strong>set_heartbeat_time (time_in_sec)</strong>
+    </dt>
+    <dd>
+    Sets the heartbeat time.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">time_in_sec</span>
+            <span class="types"><span class="type">number</span></span>
+         Time
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2023-09-07 04:13:59 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
