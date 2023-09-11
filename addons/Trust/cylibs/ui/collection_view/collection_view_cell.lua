@@ -13,6 +13,7 @@ function CollectionViewCell.new(item)
     local self = setmetatable(View.new(), CollectionViewCell)
     self.item = item
     self.itemSize = 40
+    self.highlighted = false
     return self
 end
 

@@ -25,7 +25,7 @@ function display_help_text(text)
     if not is_help_text_enabled then
         return
     end
-    windower.chat.input('/p '..text)
+    addon_message(260, '('..windower.ffxi.get_player().name..') '..text)
 end
 
 function set_help_text_enabled(enabled)

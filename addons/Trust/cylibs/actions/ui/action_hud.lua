@@ -13,7 +13,7 @@ settings.flags = {}
 settings.flags.bold = true
 settings.flags.right = false
 
-local View = require('cylibs/ui/view')
+local View = require('cylibs/ui/views/view')
 
 local ActionHud = setmetatable({}, {__index = View })
 ActionHud.__index = ActionHud
@@ -24,41 +24,39 @@ function ActionHud.new(actionQueue)
     self.actionQueue = actionQueue
     self.text = ''
 
-    self:set_color(0, 0, 0, 0)
-
     self.textView = texts.new('${text||%8s}', settings)
     self.textView:bg_alpha(175)
 
-    self.actionStartId = actionQueue:on_action_start():addAction(function(_, s)
+    self:getDisposeBag():add(actionQueue:on_action_start():addAction(function(_, s)
         self:setText(s or '')
-    end)
-    self.actionEndId = actionQueue:on_action_end():addAction(function(_, s)
+    end), actionQueue:on_action_start())
+    self:getDisposeBag():add(actionQueue:on_action_end():addAction(function(_, s)
         self:setText('')
-    end)
+    end), actionQueue:on_action_end())
 
-    self:render()
+    self:setNeedsLayout()
+    self:layoutIfNeeded()
 
     return self
 end
 
 function ActionHud:destroy()
-    self:removeAllChildren()
+    View.destroy(self)
 
     self.textView:destroy()
-
-    self.actionQueue:on_action_start():removeAction(self.actionStartId)
-    self.actionQueue:on_action_end():removeAction(self.actionEndId)
 end
 
-function ActionHud:render()
-    View.render(self)
+function ActionHud:layoutIfNeeded()
+    if not View.layoutIfNeeded(self) then
+        return
+    end
 
-    self:set_visible(self:getText():length() > 0)
+    self:setVisible(self:getText():length() > 0)
 
-    local x, y = self:get_pos()
+    local position = self:getAbsolutePosition()
 
-    self.textView:visible(self:is_visible())
-    self.textView:pos(x, y)
+    self.textView:visible(self:isVisible())
+    self.textView:pos(position.x, position.y)
     self.textView.text = self:getText()
 end
 
@@ -68,7 +66,8 @@ end
 function ActionHud:setText(text)
     self.text = text
 
-    self:render()
+    self:setNeedsLayout()
+    self:layoutIfNeeded()
 end
 
 -------

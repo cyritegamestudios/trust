@@ -143,4 +143,8 @@ function Follower:get_follow_target()
     return self:get_party():get_assist_target()
 end
 
+function Follower:set_distance(distance)
+    self.distance = distance
+end
+
 return Follower

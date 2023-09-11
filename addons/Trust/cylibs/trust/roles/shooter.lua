@@ -1,11 +1,15 @@
 local Shooter = setmetatable({}, {__index = Role })
 Shooter.__index = Shooter
 
-state.AutoShootMode = M{['description'] = 'Auto Shoot Mode', 'Off', 'Auto'}
-state.AutoShootMode:set_description('Auto', "Okay, I'll start shooting again after I weapon skill.")
+state.AutoShootMode = M{['description'] = 'Auto Shoot Mode', 'Off', 'Auto', 'Manual'}
+-- state.AutoShootMode:set_description('Auto', "Okay, so anyway I'll just start blasting 'em.") -- https://knowyourmeme.com/memes/so-anyway-i-started-blasting
+state.AutoShootMode:set_description('Auto', "Okay, I'll automatically shoot at the enemy.")
+state.AutoShootMode:set_description('Manual', "Okay, I'll keep shooting once started until I've got TP.")
 
 function Shooter.new(action_queue)
     local self = setmetatable(Role.new(action_queue), Shooter)
+
+    self.last_shot = os.clock()
 
     self.action_events = {}
 
@@ -21,7 +25,8 @@ function Shooter:on_add()
 
     self:get_player():on_ranged_attack_end():addAction(
             function (_, target)
-                if state.AutoShootMode.value == 'Auto' then
+                self.last_shot = os.clock()
+                if state.AutoShootMode.value == 'Auto' or state.AutoShootMode == 'Manual' then
                     if windower.ffxi.get_player().vitals.tp < 1000 then
                         self:ranged_attack(target)
                     end
@@ -40,8 +45,8 @@ end
 
 function Shooter:ranged_attack(target)
     local actions = L{
-        WaitAction.new(0, 0, 0, 3),
-        CommandAction.new(0, 0, 0, '/ra '..target.id)
+        CommandAction.new(0, 0, 0, '/ra '..target.id),
+        WaitAction.new(0, 0, 0, 1.5),
     }
     self.action_queue:push_action(SequenceAction.new(actions, 'ranged_attack'), true)
 end
@@ -52,6 +57,13 @@ end
 
 function Shooter:tic(_, _)
     if self.target_index == nil then return end
+
+    if state.AutoShootMode.value == 'Auto' and os.clock() - self.last_shot > 1.5 then
+        if windower.ffxi.get_player().vitals.tp < 1000 then
+            self:ranged_attack(target)
+        end
+    end
+
 end
 
 function Shooter:allows_duplicates()

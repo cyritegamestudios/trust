@@ -1,66 +1,82 @@
-local ListItem = require('cylibs/ui/list_item')
-local ListView = require('cylibs/ui/list_view')
-local ListViewItemStyle = require('cylibs/ui/style/list_view_item_style')
-local TextListItemView = require('cylibs/ui/items/text_list_item_view')
+local CollectionView = require('cylibs/ui/collection_view/collection_view')
+local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
+local Color = require('cylibs/ui/views/color')
+local IndexPath = require('cylibs/ui/collection_view/index_path')
+local Padding = require('cylibs/ui/style/padding')
+local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
+local TextItem = require('cylibs/ui/collection_view/items/text_item')
+local TextStyle = require('cylibs/ui/style/text_style')
+local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 
-local DebugView = setmetatable({}, {__index = ListView })
+local DebugView = setmetatable({}, {__index = CollectionView })
 DebugView.__index = DebugView
 
-function DebugView.new(action_queue, layout)
-    local self = setmetatable(ListView.new(layout), DebugView)
+TextStyle.DebugView = {
+    Text = TextStyle.new(
+            Color.clear,
+            Color.clear,
+            "Arial",
+            11,
+            Color.white,
+            Color.green,
+            2,
+            0,
+            0,
+            false
+    ),
+}
+
+function DebugView.new(actionQueue)
+    local dataSource = CollectionViewDataSource.new(function(item)
+        local cell = TextCollectionViewCell.new(item)
+        cell:setItemSize(20)
+        return cell
+    end)
+
+    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0))), DebugView)
 
     self.action_queue = action_queue
 
     self:updateActions()
 
-    self.action_queued_id = action_queue:on_action_queued():addAction(function(_)
+    self:getDisposeBag():add(actionQueue:on_action_queued():addAction(function(_)
         self:updateActions()
-    end)
-    self.action_start_id = action_queue:on_action_start():addAction(function(_, _)
+    end), actionQueue:on_action_queued())
+    self:getDisposeBag():add(actionQueue:on_action_start():addAction(function(_)
         self:updateActions()
-    end)
-    self.action_end_id = action_queue:on_action_end():addAction(function()
+    end), actionQueue:on_action_start())
+    self:getDisposeBag():add(actionQueue:on_action_end():addAction(function(_)
         self:updateActions()
-    end)
+    end), actionQueue:on_action_end())
 
     return self
 end
 
-function DebugView:destroy()
-    ListView.destroy(self)
-
-    self.action_queue:on_action_queued():removeAction(self.action_queued_id)
-    self.action_queue:on_action_start():removeAction(self.action_start_id)
-    self.action_queue:on_action_end():removeAction(self.action_end_id)
-    self.action_queue = nil
-end
-
-function DebugView:render()
-    ListView.render(self)
-end
-
 function DebugView:updateActions()
-    if not self:is_visible() then
+    if not self:isVisible() then
         return
     end
 
-    self:removeAllItems()
+    self:getDataSource():removeAllItems()
 
-    self:addItem(ListItem.new({text = "Actions", height = 20}, ListViewItemStyle.DarkMode.Text, "actions-header", TextListItemView.new))
+    self:getDataSource():addItem(TextItem.new("Actions", TextStyle.Default.Text), IndexPath.new(1, 1))
 
     local actions = self.action_queue:get_actions()
     if actions:length() > 0 then
+        local rowIndex = 2
         for action in actions:it() do
             if action:tostring():len() > 0 then
-                local style = ListViewItemStyle.DarkMode.Text
+                local indexPath = IndexPath.new(1, rowIndex)
+                local item = TextItem.new('• '..action:tostring(), TextStyle.DebugView.Text)
+                self:getDataSource():addItem(item, indexPath)
                 if action:is_equal(actions[1]) then
-                    style = ListViewItemStyle.DarkMode.HighlightedText
+                    self:getDelegate():highlightItemAtIndexPath(item, indexPath)
                 end
-                self:addItem(ListItem.new({text = '• '..action:tostring(), height = 20}, style, action:getidentifier(), TextListItemView.new))
+                rowIndex = rowIndex + 1
             end
         end
     else
-        self:addItem(ListItem.new({text = '• Idle', height = 20}, ListViewItemStyle.DarkMode.Text, 'idle', TextListItemView.new))
+        self:getDataSource():addItem(TextItem.new("• Idle", TextStyle.Default.Text), IndexPath.new(1, 2))
     end
 end
 
