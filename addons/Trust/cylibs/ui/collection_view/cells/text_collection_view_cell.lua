@@ -98,7 +98,8 @@ end
 --
 function TextCollectionViewCell:hitTest(x, y)
     -- FIXME: (scretella) this is messed up
-    return self.textView:hover(x, y + 20)
+    local _, height = self.textView:extents()
+    return self.textView:hover(x, y + height / 2)
 end
 
 return TextCollectionViewCell

@@ -1,46 +1,46 @@
-local VerticalListLayout = require('cylibs/ui/layouts/vertical_list_layout')
-local ListView = require('cylibs/ui/list_view')
-local ListItem = require('cylibs/ui/list_item')
-local ListViewItemStyle = require('cylibs/ui/style/list_view_item_style')
-local TextListItemView = require('cylibs/ui/items/text_list_item_view')
-local View = require('cylibs/ui/view')
+local Color = require('cylibs/ui/views/color')
+local CollectionView = require('cylibs/ui/collection_view/collection_view')
+local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
+local IndexPath = require('cylibs/ui/collection_view/index_path')
+local Padding = require('cylibs/ui/style/padding')
+local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
+local TextItem = require('cylibs/ui/collection_view/items/text_item')
+local TextStyle = require('cylibs/ui/style/text_style')
+local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
+local View = require('cylibs/ui/views/view')
 
 ---
 -- @module TabbedView
 --
-
 local TabbedView = setmetatable({}, {__index = View })
 TabbedView.__index = TabbedView
+TabbedView.__type = "TabbedView"
 
 TabbedView.Style = {
-    DarkMode = {
-        -- Default style for headers in light mode
-        Header = ListViewItemStyle.new(
-                {alpha = 0, red = 0, green = 0, blue = 0},
-                {alpha = 0, red = 0, green = 0, blue = 0},
-                "Arial",
-                11,
-                {red = 255, green = 255, blue = 255},
-                {red = 205, green = 205, blue = 205},
-                2,
-                1,
-                255,
-                true
-        ),
-        -- Default style for text in light mode
-        Text = ListViewItemStyle.new(
-                {alpha = 0, red = 0, green = 0, blue = 0},
-                {alpha = 0, red = 0, green = 0, blue = 0},
-                "Arial",
-                12,
-                {red = 255, green = 255, blue = 255},
-                {red = 205, green = 205, blue = 205},
-                2,
-                0,
-                0,
-                false
-        )
-    }
+    Header = TextStyle.new(
+            Color.lightGrey:withAlpha(50),
+            Color.clear,
+            "Arial",
+            12,
+            Color.white,
+            Color.lightGrey,
+            2,
+            1,
+            255,
+            true
+    ),
+    Text = TextStyle.new(
+            Color.clear,
+            Color.clear,
+            "Arial",
+            12,
+            Color.white,
+            Color.lightGrey,
+            2,
+            0,
+            0,
+            false
+    )
 }
 
 ---
@@ -50,69 +50,37 @@ TabbedView.Style = {
 --
 -- @treturn TabbedView The newly created TabbedView instance.
 --
-function TabbedView.new()
-    local self = setmetatable(View.new(), TabbedView)
+function TabbedView.new(frame)
+    local self = setmetatable(View.new(frame), TabbedView)
 
-    self.views = T{}
-    self.tabs = T{}
-    self.activeTabIndex = 1
-    self.tabWidth = 200
-    self.padding = 5
+    self.views = {}
+    self.contentViewPadding = Padding.new(0, 0, 0, 0)
+    self.selectedIndex = nil
+    self.selectedView = nil
 
-    self.tabListView = ListView.new(VerticalListLayout.new(self.tabWidth, 25))
-
-    self:set_color(150, 0, 0, 0)
-    self:addChild(self.tabListView)
-
-    self.tabListView:set_color(0, 0, 0, 0)
-    self.tabListView:onClick():addAction(function(item)
-        local tabIndex = self.tabListView:indexOf(item)
-        if tabIndex ~= -1 then
-            self:switchToTab(tabIndex)
-            self:render()
-        end
+    self.tabBarDataSource = CollectionViewDataSource.new(function(item)
+        local cell = TextCollectionViewCell.new(item)
+        cell:setUserInteractionEnabled(true)
+        return cell
     end)
-    self.tabListView:onItemsChanged():addAction(function(_)
-        self:render()
-    end)
+
+    self.tabBarWidth = 130
+    self.tabBarView = CollectionView.new(self.tabBarDataSource, VerticalFlowLayout.new(0))
+
+    self.tabBarView:setBackgroundColor(Color.clear)
+    self.tabBarView:setSize(self.tabBarWidth, frame.height)
+
+    self:addSubview(self.tabBarView)
+
+    self:setNeedsLayout()
+    self:layoutIfNeeded()
+
+    -- Add observers
+    self:getDisposeBag():add(self.tabBarView:getDelegate():didSelectItemAtIndexPath():addAction(function(_, indexPath)
+        self:selectTab(indexPath.row)
+    end), self.tabBarView:getDelegate():didSelectItemAtIndexPath())
 
     return self
-end
-
-function TabbedView:setTabItems(tabItems)
-    if self.tab_items_set then
-        return
-    end
-    self.tab_items_set = true
-
-    local tabIndex = 1
-    for tabItem in tabItems:it() do
-        self:addChild(tabItem:getView())
-
-        tabItem:getView():set_visible(false)
-        self.views[tabIndex] = tabItem:getView()
-
-        local tabLabelItem = ListItem.new({text = tabItem:getTabName():upper(), height = 25, tabName = tabItem:getTabName(), highlightable = true, selectable = true}, TabbedView.Style.DarkMode.Header, tabItem:getTabName(), TextListItemView.new)
-
-        self.tabs[tabIndex] = tabLabelItem
-        self.tabListView:addItem(tabLabelItem)
-
-        tabIndex = tabIndex + 1
-    end
-end
-
-function TabbedView:removeAllViews()
-    self:removeAllChildren()
-
-    for _, view in pairs(self.views) do
-        view:destroy()
-    end
-
-    self.tabListView:removeAllItems()
-
-    self.views = T{}
-    self.tabs = T{}
-    self.activeTabIndex = 1
 end
 
 ---
@@ -121,79 +89,62 @@ end
 function TabbedView:destroy()
     View.destroy(self)
 
-    self:removeAllViews()
-
-    self.tabListView:destroy()
-end
-
----
--- Switches to the view at the specified tab index.
---
--- @tparam number tabIndex The index of the tab to switch to.
---
-function TabbedView:switchToTab(tabIndex)
-    if self.tabs[tabIndex] then
-        self.activeTabIndex = tabIndex
-
-        self:render()
+    for _, view in pairs(self.views) do
+        view:destroy()
     end
 end
 
----
--- Gets the currently active view in the tabbed view.
+-- Add a tab to the TabBarController
 --
--- @treturn View|nil Returns the active view or `nil` if there are no tabs or if the active tab index is out of bounds.
---
-function TabbedView:getActiveView()
-    return self.views[self.activeTabIndex]
+-- @tparam View view The view associated with the tab.
+-- @tparam string title The title of the tab.
+function TabbedView:addTab(view, title)
+    local tabIndex = self.tabBarDataSource:numberOfItemsInSection(1) + 1
+    self.tabBarDataSource:addItem(TextItem.new(string.upper(title), TabbedView.Style.Header), IndexPath.new(1, tabIndex))
+
+    view:setVisible(false)
+
+    table.insert(self.views, tabIndex, view)
 end
 
----
--- Gets the tab item at the specified index.
+-- Select a specific tab by its index
 --
--- @tparam number tabIndex The index of the tab to retrieve.
--- @treturn TabItem|nil Returns the tab item at the specified index or `nil` if the index is out of bounds.
---
-function TabbedView:getTabAtIndex(tabIndex)
-    return self.tabs[tabIndex]
-end
+-- @tparam number index The index of the tab to select.
+function TabbedView:selectTab(index)
+    if self.selectedView then
+        self.selectedView:removeFromSuperview()
+        self.selectedView:setVisible(false)
+        self.selectedView:layoutIfNeeded()
+    end
 
+    self.selectedIndex = index
+    self.selectedView = self.views[self.selectedIndex]
+    if self.selectedView then
+        self:addSubview(self.selectedView)
 
-function TabbedView:getNumTabs()
-    return #self.tabs:keyset()
-end
+        self.selectedView:setVisible(true)
 
----
--- Renders the active view of the tabbed interface.
---
-function TabbedView:render()
-    View.render(self)
+        local item = self.tabBarView:getDataSource():itemAtIndexPath(IndexPath.new(1, index))
+        self.tabBarView:getDelegate():selectItemAtIndexPath(item, IndexPath.new(1, index))
 
-    local x, y = self:get_pos()
-    local width, height = self:get_size()
-
-    self.tabListView:set_pos(x + 5, y + 5)
-    self.tabListView:deselectAllItems()
-    self.tabListView:selectItem(self.tabs[self.activeTabIndex])
-    self.tabListView:set_visible(self:is_visible())
-    self.tabListView:render()
-
-    local activeView = self.views[self.activeTabIndex]
-    if activeView then
-        for _, view in ipairs(self.views) do
-            if view == activeView then
-                view:set_pos(x + self.tabWidth + self.padding, y + self.padding)
-                view:set_size(width - self.tabWidth - 2 * self.padding, height - 2 * self.padding)
-                view:set_visible(true and self:is_visible())
-                view:render()
-            else
-                view:set_visible(false)
-                view:render()
-            end
-        end
-    else
-        print("No active view to render.")
+        self:setNeedsLayout()
+        self:layoutIfNeeded()
     end
 end
+
+function TabbedView:layoutIfNeeded()
+    self.tabBarView:setPosition(0, 0)
+    self.tabBarView:setSize(self.tabBarWidth, self.frame.height)
+
+    if self.selectedView then
+        self.selectedView:setPosition(self.tabBarWidth + self.contentViewPadding.left, self.contentViewPadding.top)
+        self.selectedView:setSize(self.frame.width - self.tabBarWidth - self.contentViewPadding.left - self.contentViewPadding.right,
+                self.frame.height - self.contentViewPadding.left - self.contentViewPadding.right)
+        self.selectedView:setVisible(true)
+    end
+
+    View.layoutIfNeeded(self)
+end
+
 
 return TabbedView
