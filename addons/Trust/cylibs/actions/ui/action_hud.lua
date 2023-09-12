@@ -64,6 +64,9 @@ end
 -- Sets the text to be displayed.
 -- @tparam string text Text
 function ActionHud:setText(text)
+    if self.text == text then
+        return
+    end
     self.text = text
 
     self:setNeedsLayout()

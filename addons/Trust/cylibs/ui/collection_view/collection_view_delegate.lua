@@ -45,7 +45,7 @@ function CollectionViewDelegate.new(collectionView)
             for row = 1, numberOfItems do
                 local indexPath = IndexPath.new(section, row)
                 local cell = dataSource:cellForItemAtIndexPath(indexPath)
-                if cell:isUserInteractionEnabled() then
+                if cell:isVisible() and cell:isUserInteractionEnabled() then
                     if cell:hitTest(x, y) then
                         local item = dataSource:itemAtIndexPath(indexPath)
                         if type == Mouse.Event.Click then

@@ -21,6 +21,7 @@ function Button.new(text, width, height)
     local self = setmetatable(TextCollectionViewCell.new(TextItem.new(text, TextStyle.Default.Button)), Button)
 
     self:setSize(width, height)
+    self:setUserInteractionEnabled(true)
 
     self.click = Event.newEvent()
 

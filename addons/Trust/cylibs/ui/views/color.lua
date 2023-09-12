@@ -63,4 +63,7 @@ Color.green = Color.new(255, 0, 255, 0)
 -- @treturn Color Red color.
 Color.red = Color.new(255, 255, 132, 132)
 
+-- @treturn Color Blue color.
+Color.blue = Color.new(255, 132, 132, 255)
+
 return Color

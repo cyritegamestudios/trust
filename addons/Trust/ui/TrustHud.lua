@@ -87,12 +87,13 @@ function TrustHud.new(player, action_queue, addon_enabled)
     self:getDisposeBag():add(addon_enabled:onValueChanged():addAction(function(_, isEnabled)
         local indexPath = IndexPath.new(1, 4)
         local item = self.listView:getDataSource():itemAtIndexPath(indexPath)
+        local newText = ''
         if isEnabled then
-            item:setText('ON')
+            newText = 'ON'
         else
-            item:setText('OFF')
+            newText = 'OFF'
         end
-        self.listView:getDataSource():updateItem(item, indexPath)
+        self.listView:getDataSource():updateItem(TextItem.new(newText, item:getStyle(), item:getPattern()), indexPath)
     end), addon_enabled:onValueChanged())
 
     self:getDisposeBag():add(player.party:on_party_target_change():addAction(function(_, target_index)
@@ -112,8 +113,7 @@ function TrustHud.new(player, action_queue, addon_enabled)
         end
         local cell = self.listView:getDataSource():cellForItemAtIndexPath(indexPath)
         if newItemDataText ~= item:getText() or (cell and cell:isHighlighted() ~= isClaimed) then
-            item:setText(newItemDataText)
-            self.listView:getDataSource():updateItem(item, indexPath)
+            self.listView:getDataSource():updateItem(TextItem.new(newItemDataText, item:getStyle(), item:getPattern()), indexPath)
             if isClaimed then
                 self.listView:getDelegate():highlightItemAtIndexPath(item, indexPath)
             end
@@ -178,7 +178,7 @@ function TrustHud:toggleMenu(job_name_short, trust, party, action_queue)
         local splitIndex = math.floor(allModeNames:length() / 2)
 
         local modes1 = allModeNames:copy():slice(1, splitIndex)
-        local modes2 = allModeNames:copy():slice(splitIndex, allModeNames:length())
+        local modes2 = allModeNames:copy():slice(splitIndex + 1, allModeNames:length())
 
         tabbedView:addTab(ModesView.new(modes1), string.upper("modes 1"))
         tabbedView:addTab(ModesView.new(modes2), string.upper("modes 2"))

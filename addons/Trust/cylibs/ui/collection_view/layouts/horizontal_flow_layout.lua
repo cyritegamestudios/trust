@@ -96,4 +96,11 @@ function HorizontalFlowLayout:setNeedsLayout(collectionView, addedIndexPaths, re
     self.height = collectionView:getSize().height
 end
 
+function HorizontalFlowLayout:enableScrolling(collectionView)
+    if self.scrollEnabled then
+        return
+    end
+    self.scrollEnabled = true
+end
+
 return HorizontalFlowLayout
