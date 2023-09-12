@@ -5,6 +5,8 @@
 Trust is a Windower 4 addon for FFXI that turns your character into a Trust. It works for all jobs and can attack, nuke, pull, skillchain and more.
 
 ![menu_1](https://github.com/cyritegamestudios/trust/assets/123847593/af0c6a14-a93c-4480-945b-1ec50bb15673)
+![modes_2](https://github.com/cyritegamestudios/trust/assets/123847593/29994883-f7bf-40f4-822c-95445ade661b)
+
 
 
 --------------------------------------------------------------------------------
