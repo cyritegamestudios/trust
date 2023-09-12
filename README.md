@@ -2,7 +2,7 @@
 
 ## Summary
 
-Trust is a Windower 4 addon for FFXI that turns your character into a Trust. It works for all jobs and can attack, nuke, pull, skillchain and more.
+Trust is a Windower 4 addon for FFXI that turns your character into a Trust. It works for all jobs and can attack, nuke, pull, skillchain, follow, roll, sing and more.
 
 ![menu_1](https://github.com/cyritegamestudios/trust/assets/123847593/af0c6a14-a93c-4480-945b-1ec50bb15673)
 ![modes_2](https://github.com/cyritegamestudios/trust/assets/123847593/29994883-f7bf-40f4-822c-95445ade661b)
@@ -19,9 +19,9 @@ Get help or request a feature in the [Cyrite Game Studios Discord](https://disco
 
 See the [Setup Guide](https://github.com/cyritegamestudios/trust/wiki/Getting-Started#setup) or read below:
 
-You will need the latest version of [Trust](https://github.com/cyritegamestudios/trust) in order to use Trust.
+You will need the latest version of [Trust](https://github.com/cyritegamestudios/trust/releases) in order to use Trust.
 
-1. Git clone or download [Trust](https://github.com/cyritegamestudios/trust) from Github.
+1. Git clone or download [Trust]([https://github.com/cyritegamestudios/trust](https://github.com/cyritegamestudios/trust/releases)) from Github.
 2. Copy the `addons` folder into your `Windower` folder so that you are pasting the new `addons` folder on top of your existing `addons` folder. Note that this will *not* override your entire existing `addons` folder, only addons related to Trust.
 3. Double check that the `Windower/addons/Trust` folder exists.
 4. Run `// lua r trust` and you're ready to get started!
