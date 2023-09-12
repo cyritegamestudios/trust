@@ -1,4 +1,10 @@
+local ContainerCollectionViewCell = require('cylibs/ui/collection_view/cells/container_collection_view_cell')
 local Event = require('cylibs/events/Luvent')
+local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_collection_view_cell')
+local ImageItem = require('cylibs/ui/collection_view/items/image_item')
+local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
+local TextItem = require('cylibs/ui/collection_view/items/text_item')
+local ViewItem = require('cylibs/ui/collection_view/items/view_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 
 -- Define a simple collection data source table
@@ -9,11 +15,24 @@ function CollectionViewDataSource:onItemsChanged()
     return self.itemsChanged
 end
 
+-- Maps item types to cell initializers
+local typeMap = {
+    [ImageItem.__type] = ImageCollectionViewCell.new,
+    [TextItem.__type] = TextCollectionViewCell.new,
+    [ViewItem.__type] = ContainerCollectionViewCell.new
+}
+
 -- Initialize a new collection
 function CollectionViewDataSource.new(cellForItem)
     local self = setmetatable({}, CollectionViewDataSource)
 
-    self.cellForItem = cellForItem
+    self.cellForItem = cellForItem or function(item, _)
+        local cellConstructor = typeMap[item.__type]
+        if cellConstructor then
+            return cellConstructor(item)
+        end
+        return nil
+    end
     self.sections = {}
     self.cellCache = {}
     self.itemsChanged = Event.newEvent()
@@ -80,6 +99,11 @@ end
 
 -- Update an item at a specific IndexPath
 function CollectionViewDataSource:updateItem(item, indexPath)
+    local currentItem = self.sections[indexPath.section].items[indexPath.row]
+    if currentItem and currentItem == item then
+        return
+    end
+
     local snapshot = self:createSnapshot()  -- Create a snapshot before making changes
 
     self.sections[indexPath.section].items[indexPath.row] = item
@@ -120,6 +144,7 @@ function CollectionViewDataSource:cellForItemAtIndexPath(indexPath)
         return cachedCell
     else
         local newCell = self.cellForItem(item, indexPath)
+        newCell:setClipsToBounds(true)
 
         -- Create a cache for the section if it doesn't exist
         self.cellCache[indexPath.section] = self.cellCache[indexPath.section] or {}

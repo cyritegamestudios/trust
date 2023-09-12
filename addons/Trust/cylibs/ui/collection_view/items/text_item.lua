@@ -102,7 +102,7 @@ end
 -- @treturn boolean True if they are equal, false otherwise.
 --
 function TextItem:__eq(otherItem)
-    return getmetatable(otherItem).__type == TextItem.__type
+    return otherItem.__type == TextItem.__type
             and self.text == otherItem:getText()
 end
 

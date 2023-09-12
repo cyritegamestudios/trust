@@ -50,10 +50,11 @@ end
 -- @tparam any item The item to associate with the cell.
 --
 function CollectionViewCell:setItem(item)
-    self.item = item
-    self:setNeedsLayout()
+    if self.item ~= item then
+        self.item = item
+        self:setNeedsLayout()
+    end
 end
-
 
 ---
 -- Checks if the CollectionViewCell is selected.
@@ -91,6 +92,9 @@ end
 -- @tparam boolean highlighted The new highlighted state.
 --
 function CollectionViewCell:setHighlighted(highlighted)
+    if self.highlighted == highlighted then
+        return
+    end
     self.highlighted = highlighted
     self:setNeedsLayout()
     self:layoutIfNeeded()

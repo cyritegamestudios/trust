@@ -17,7 +17,7 @@ function TextCollectionViewCell.new(item)
     self.textView = texts.new(item:getPattern(), item:getSettings())
     self.textView:bg_alpha(0)
     self.textView:hide()
-    --self.textView.text = item:getText()
+    self.isTextLoaded = false
 
     self:getDisposeBag():addAny(L{ self.textView })
 
@@ -44,8 +44,6 @@ function TextCollectionViewCell:layoutIfNeeded()
         return false
     end
 
-    local isTextLoaded = self.textView:text() and string.len(self.textView:text()) > 0
-
     local position = self:getAbsolutePosition()
 
     self.textView.text = self:getItem():getText()
@@ -58,16 +56,37 @@ function TextCollectionViewCell:layoutIfNeeded()
         self:setTextColor(style:getFontColor())
     end
 
-    if isTextLoaded then
+    if self.isTextLoaded then
         self.textView:visible(self:getAbsoluteVisibility() and self:isVisible())
     else
-        self.scheduler = coroutine.schedule(function()
-            self:setNeedsLayout()
-            self:layoutIfNeeded()
-        end, 0.1)
+        self:scheduleUpdate()
     end
 
     return true
+end
+
+function TextCollectionViewCell:scheduleUpdate()
+    if self.isTextLoaded then
+        return
+    end
+    if self.scheduler ~= nil then
+        return
+    end
+
+    self.scheduler = coroutine.schedule(function()
+        self.isTextLoaded = true
+        self:cancelUpdate()
+
+        self:setNeedsLayout()
+        self:layoutIfNeeded()
+    end, 0.1)
+end
+
+function TextCollectionViewCell:cancelUpdate()
+    if self.scheduler ~= nil then
+        coroutine.close(self.scheduler)
+        self.scheduler = nil
+    end
 end
 
 function TextCollectionViewCell:setHighlighted(highlighted)
@@ -87,6 +106,18 @@ end
 function TextCollectionViewCell:setTextColor(color)
     self.textView:alpha(color.alpha)
     self.textView:color(color.red, color.green, color.blue)
+end
+
+---
+-- Sets the item associated with the cell.
+--
+-- @tparam any item The item to associate with the cell.
+--
+function TextCollectionViewCell:setItem(item)
+    if self.item ~= item then
+        self.isTextLoaded = false
+    end
+    CollectionViewCell.setItem(self, item)
 end
 
 ---

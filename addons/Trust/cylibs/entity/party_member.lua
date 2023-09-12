@@ -139,11 +139,15 @@ function PartyMember:update_target(target_index)
             if target then
             --if target and party_util.party_claimed(target.id) then
                 self.target_index = target.index
-                self:on_target_change():trigger(self, self.target_index, old_target_index)
+                if old_target_index ~= target.index then
+                    self:on_target_change():trigger(self, self.target_index, old_target_index)
+                end
             end
         else
             self.target_index = nil
-            self:on_target_change():trigger(self, self.target_index, old_target_index)
+            if old_target_index ~= self.target_index then
+                self:on_target_change():trigger(self, self.target_index, old_target_index)
+            end
         end
     end
 end

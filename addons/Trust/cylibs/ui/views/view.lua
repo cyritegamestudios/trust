@@ -27,6 +27,7 @@ function View.new(frame)
     self.backgroundColor = Color.new(0, 0, 0, 0)
     self.backgroundView = Image.new()
     self.backgroundView:draggable(false)
+    self.clipsToBounds = false
     self.frame = frame or Frame.new(0, 0, 0 , 0)
     self.needsLayout = true
     self.subviews = {}
@@ -93,13 +94,15 @@ end
 -- @tparam number y The y-coordinate to set.
 --
 function View:setPosition(x, y)
+    if self.frame.x == x and self.frame.y == y then
+        return
+    end
     self.frame.x = x
     self.frame.y = y
 
     for _, subview in pairs(self.subviews) do
         subview:setPosition(x - self.frame.x, y - self.frame.y)
     end
-
     self:setNeedsLayout()
 end
 
@@ -119,6 +122,9 @@ end
 -- @tparam number height The height to set.
 --
 function View:setSize(width, height)
+    if self.frame.width == width and self.frame.height == height then
+        return
+    end
     self.frame.width = width
     self.frame.height = height
     self:setNeedsLayout()
@@ -149,6 +155,9 @@ end
 -- @tparam boolean visible True to make the view visible, false to hide it.
 --
 function View:setVisible(visible)
+    if self.visible == visible then
+        return
+    end
     self.visible = visible
     for _, subview in pairs(self.subviews) do
         subview:setNeedsLayout()
@@ -173,6 +182,22 @@ end
 --
 function View:setUserInteractionEnabled(userInteractionEnabled)
     self.userInteractionEnabled = userInteractionEnabled
+end
+
+---
+-- Gets the current clipsToBounds value of the view.
+-- @treturn boolean The current clipsToBounds value.
+--
+function View:getClipsToBounds()
+    return self.clipsToBounds
+end
+
+---
+-- Sets whether the view clips its content to its bounds.
+-- @tparam boolean clipsToBounds True to clip the content, false otherwise.
+--
+function View:setClipsToBounds(clipsToBounds)
+    self.clipsToBounds = clipsToBounds
 end
 
 ---
@@ -262,7 +287,6 @@ function View:layoutIfNeeded()
         subview:setNeedsLayout()
         subview:layoutIfNeeded()
     end
-
     return true
 end
 

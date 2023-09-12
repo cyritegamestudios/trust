@@ -71,7 +71,24 @@ function CollectionViewTests:testCollectionView()
 end
 
 function CollectionViewTests:debug()
-    local dataSource = CollectionViewDataSource.new(function(item)
+    local ListView = require('cylibs/ui/list_view/list_view')
+
+    local items = L{}
+    for i = 1, 18 do
+        items:append("Item "..i)
+    end
+
+    local listView = ListView.verticalList(items, TextStyle.Default.Button, 15)
+
+    listView:setScrollEnabled(true)
+    listView:setPosition(500, 200)
+    listView:setSize(300, 150)
+    listView:setBackgroundColor(Color.new(175, 0, 0, 0))
+
+    listView:setNeedsLayout()
+    listView:layoutIfNeeded()
+
+    --[[local dataSource = CollectionViewDataSource.new(function(item)
         local cell = TextCollectionViewCell.new(item)
         return cell
     end)
@@ -88,7 +105,7 @@ function CollectionViewTests:debug()
     dataSource:addItem(item1, IndexPath.new(1, 1))
 
     local item2 = TextItem.new('Item 2', TextStyle.Default.Text)
-    dataSource:addItem(item2, IndexPath.new(1, 2))
+    dataSource:addItem(item2, IndexPath.new(1, 2))]]
 end
 
 function CollectionViewTests:testViews()

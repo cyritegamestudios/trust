@@ -1,3 +1,5 @@
+local Button = require('cylibs/ui/button')
+local DisposeBag = require('cylibs/events/dispose_bag')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Padding = require('cylibs/ui/style/padding')
 
@@ -6,13 +8,18 @@ VerticalFlowLayout.__index = VerticalFlowLayout
 
 function VerticalFlowLayout.new(itemSpacing, padding, sectionSpacing)
     local self = setmetatable({}, VerticalFlowLayout)
+
+    self.disposeBag = DisposeBag.new()
     self.itemSpacing = itemSpacing or 0
     self.sectionSpacing = sectionSpacing or 0
     self.padding = padding or Padding.equal(0)
+    self.scrollEnabled = false
+
     return self
 end
 
 function VerticalFlowLayout:destroy()
+    self.disposeBag:destroy()
 end
 
 -- Add a function to determine the size of a cell
@@ -34,7 +41,7 @@ function VerticalFlowLayout:layoutSubviews(collectionView)
             local cell = collectionView:getDataSource():cellForItemAtIndexPath(indexPath)
             cell:setItem(item)
 
-            collectionView:addSubview(cell)
+            collectionView:getContentView():addSubview(cell)
 
             local cellSize = self:sizeForItemAtIndexPath(collectionView, cell)
 
@@ -53,7 +60,18 @@ function VerticalFlowLayout:layoutSubviews(collectionView)
     self.width = collectionView:getSize().width
     self.height = yOffset
 
-    collectionView:setSize(self.width, self.height)
+    if not self.scrollEnabled then
+        collectionView:setSize(self.width, self.height)
+    else
+        local offset = 40
+        self.upArrow:setPosition(collectionView.frame.width - offset, offset)
+        self.downArrow:setPosition(collectionView.frame.width - offset, collectionView.frame.height - offset)
+
+        self.upArrow:layoutIfNeeded()
+        self.downArrow:layoutIfNeeded()
+
+        collectionView:updateContentView()
+    end
 end
 
 function VerticalFlowLayout:setNeedsLayout(collectionView, addedIndexPaths, removedIndexPaths, updatedIndexPaths)
@@ -107,6 +125,34 @@ function VerticalFlowLayout:setNeedsLayout(collectionView, addedIndexPaths, remo
     -- Set the width and height of the layout
     self.width = collectionView:getWidth()
     self.height = yOffset
+end
+
+function VerticalFlowLayout:enableScrolling(collectionView)
+    if self.scrollEnabled then
+        return
+    end
+    self.scrollEnabled = true
+
+    self.upArrow = Button.new("▲", 20, 20)
+    self.upArrow:setVisible(false)
+
+    self.downArrow = Button.new("▼", 20, 20)
+    self.downArrow:setVisible(false)
+
+    self.disposeBag:addAny(L{ self.upArrow, self.downArrow })
+
+    collectionView:addSubview(self.upArrow)
+    collectionView:addSubview(self.downArrow)
+
+    self.disposeBag:add(self.upArrow:onClick():addAction(function(_, _, _)
+        collectionView:setContentOffset(math.max(collectionView:getContentOffset().x, -self.width), math.max(collectionView:getContentOffset().y - 10, -self.height / 2))
+    end), self.upArrow:onClick())
+
+    self.disposeBag:add(self.downArrow:onClick():addAction(function(_, _, _)
+        collectionView:setContentOffset(math.min(collectionView:getContentOffset().x, 0), math.min(collectionView:getContentOffset().y + 10, 0))
+    end), self.downArrow:onClick())
+
+    self:layoutSubviews(collectionView)
 end
 
 return VerticalFlowLayout
