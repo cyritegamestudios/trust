@@ -20,7 +20,7 @@ function ModesAssistantView.new(main_job_name_short)
 
     local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0))), ModesAssistantView)
 
-    dataSource:addItem(TextItem.new("What would you like to do?", TextStyle.Default.Text), IndexPath.new(1, 1))
+    dataSource:addItem(TextItem.new("What would you like to do?", TextStyle.Default.HeaderSmall), IndexPath.new(1, 1))
     dataSource:addItem(TextItem.new("• I'd like to engage and stay in combat range.", TextStyle.Default.TextSmall), IndexPath.new(1, 2))
     dataSource:addItem(TextItem.new("• I'd like to stay on the back line.", TextStyle.Default.TextSmall), IndexPath.new(1, 3))
     dataSource:addItem(TextItem.new("• I want to be the main healer.", TextStyle.Default.TextSmall), IndexPath.new(1, 4))

@@ -50,7 +50,7 @@ function PartyMemberView.new(party)
 
     local partyMembers = party:get_party_members(true)
     for partyMemberIndex = 1, 6 do
-        self:getDataSource():addItem(TextItem.new("Empty", TextStyle.Default.Text), IndexPath.new(partyMemberIndex, 1))
+        self:getDataSource():addItem(TextItem.new("Empty", TextStyle.Default.HeaderSmall), IndexPath.new(partyMemberIndex, 1))
 
         local buffsView = self:createBuffsView()
         table.insert(self.buffViews, partyMemberIndex, buffsView)
@@ -126,7 +126,7 @@ function PartyMemberView:updatePartyMembers(party, partyMemberFilter)
         local partyMember = partyMembers[partyMemberIndex]
         if partyMember then
             if partyMemberFilter(partyMember) then
-                self:getDataSource():updateItem(TextItem.new(partyMembers[partyMemberIndex]:get_name(), TextStyle.Default.Text), IndexPath.new(partyMemberIndex, 1))
+                self:getDataSource():updateItem(TextItem.new(partyMembers[partyMemberIndex]:get_name(), TextStyle.Default.HeaderSmall), IndexPath.new(partyMemberIndex, 1))
 
                 local buffsView = self.buffViews[partyMemberIndex]
                 self:updateBuffs(partyMember, buffsView)
@@ -135,7 +135,7 @@ function PartyMemberView:updatePartyMembers(party, partyMemberFilter)
                 buffsView:layoutIfNeeded()
             end
         else
-            self:getDataSource():updateItem(TextItem.new("Empty", TextStyle.Default.Text), IndexPath.new(partyMemberIndex, 1))
+            self:getDataSource():updateItem(TextItem.new("Empty", TextStyle.Default.HeaderSmall), IndexPath.new(partyMemberIndex, 1))
         end
     end
 end

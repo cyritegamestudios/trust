@@ -10,6 +10,8 @@ local IndexPath = require('cylibs/ui/collection_view/index_path')
 local ModesAssistantView = require('cylibs/modes/ui/modes_assistant_view')
 local ModesView = require('cylibs/modes/ui/modes_view')
 local HorizontalFlowLayout = require('cylibs/ui/collection_view/layouts/horizontal_flow_layout')
+local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_collection_view_cell')
+local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local Mouse = require('cylibs/ui/input/mouse')
 local PartyMemberView = require('cylibs/entity/party/ui/party_member_view')
 local party_util = require('cylibs/util/party_util')
@@ -18,6 +20,7 @@ local TabbedView = require('cylibs/ui/tabs/tabbed_view')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
+local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 
 local TrustActionHud = require('cylibs/actions/ui/action_hud')
 local View = require('cylibs/ui/views/view')
@@ -50,6 +53,7 @@ function TrustHud.new(player, action_queue, addon_enabled)
     self:addSubview(self.actionView)
 
     self.tabbed_view = nil
+    self.backgroundImageView = self:getBackgroundImageView()
 
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = TextCollectionViewCell.new(item)
@@ -153,9 +157,12 @@ function TrustHud:toggleMenu(job_name_short, trust, party, action_queue)
     if self.tabbedView then
         self.tabbedView:destroy()
         self.tabbedView = nil
+
+        self.backgroundImageView:setVisible(false)
+        self.backgroundImageView:layoutIfNeeded()
     else
         local tabbedView = TabbedView.new(Frame.new(500, 200, 500, 500))
-        tabbedView:setBackgroundColor(Color.black:withAlpha(175))
+        tabbedView:setBackgroundColor(Color.clear)
 
         tabbedView:addTab(PartyMemberView.new(party), string.upper("party"))
 
@@ -193,7 +200,56 @@ function TrustHud:toggleMenu(job_name_short, trust, party, action_queue)
         tabbedView:layoutIfNeeded()
 
         self.tabbedView = tabbedView
+
+        self.backgroundImageView:setPosition(500, 200)
+        self.backgroundImageView:setSize(500, 500)
+        self.backgroundImageView:setVisible(true)
+
+        self.backgroundImageView:setNeedsLayout()
+        self.backgroundImageView:layoutIfNeeded()
+
     end
+end
+
+function TrustHud:getBackgroundImageView()
+    local dataSource = CollectionViewDataSource.new(function(item, indexPath)
+        local cell = ImageCollectionViewCell.new(item)
+        if L{ 1, 3 }:contains(indexPath.row) then
+            cell:setItemSize(10)
+        else
+            cell:setItemSize(480)
+        end
+        return cell
+    end)
+
+    local bgView = CollectionView.new(dataSource, VerticalFlowLayout.new(0))
+
+    bgView:setSize(500, 500)
+    bgView:setVisible(false)
+
+
+    local topItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_bg_top.png', 500, 10)
+    topItem:setRepeat(1, 1)
+    topItem:setAlpha(225)
+
+    local midItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_bg_mid.png', 500, 480)
+    midItem:setRepeat(1, 500 / 4 - 2)
+    midItem:setAlpha(225)
+
+    local bottomItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_bg_bottom.png', 500, 10)
+    bottomItem:setRepeat(1, 1)
+    bottomItem:setAlpha(225)
+
+    dataSource:addItem(topItem, IndexPath.new(1, 1))
+    dataSource:addItem(midItem, IndexPath.new(1, 2))
+    dataSource:addItem(bottomItem, IndexPath.new(1, 3))
+
+    bgView:setVisible(false)
+
+    bgView:setNeedsLayout()
+    bgView:layoutIfNeeded()
+
+    return bgView
 end
 
 return TrustHud

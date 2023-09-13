@@ -1,6 +1,8 @@
 local Color = require('cylibs/ui/views/color')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
+local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_collection_view_cell')
+local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Padding = require('cylibs/ui/style/padding')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
@@ -18,13 +20,13 @@ TabbedView.__type = "TabbedView"
 
 TabbedView.Style = {
     Header = TextStyle.new(
-            Color.lightGrey:withAlpha(50),
+            Color.clear,
             Color.clear,
             "Arial",
             12,
             Color.white,
             Color.lightGrey,
-            2,
+            8,
             1,
             255,
             true
@@ -65,12 +67,22 @@ function TabbedView.new(frame)
     end)
 
     self.tabBarWidth = 130
+    self.tabBarHeight = 40
     self.tabBarView = CollectionView.new(self.tabBarDataSource, VerticalFlowLayout.new(0))
 
     self.tabBarView:setBackgroundColor(Color.clear)
     self.tabBarView:setSize(self.tabBarWidth, frame.height)
 
     self:addSubview(self.tabBarView)
+
+    local selectionBackgroundItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', self.tabBarWidth, self.tabBarHeight)
+    selectionBackgroundItem:setAlpha(125)
+
+    self.selectionBackground = ImageCollectionViewCell.new(selectionBackgroundItem)
+
+    self:addSubview(self.selectionBackground)
+
+    self:getDisposeBag():addAny(L{ self.tabBarView, self.selectionBackground })
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
@@ -126,6 +138,9 @@ function TabbedView:selectTab(index)
 
         local item = self.tabBarView:getDataSource():itemAtIndexPath(IndexPath.new(1, index))
         self.tabBarView:getDelegate():selectItemAtIndexPath(item, IndexPath.new(1, index))
+
+        self.selectionBackground:setPosition(-5, (index - 1) * self.tabBarHeight)
+        self.selectionBackground:layoutIfNeeded()
 
         self:setNeedsLayout()
         self:layoutIfNeeded()

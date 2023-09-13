@@ -167,6 +167,18 @@ TextStyle.Default = {
             255,
             true
     ),
+    HeaderSmall = TextStyle.new(
+            Color.clear,
+            Color.clear,
+            "Arial",
+            11,
+            Color.white,
+            Color.lightGrey,
+            2,
+            1,
+            255,
+            true
+    ),
 }
 
 return TextStyle

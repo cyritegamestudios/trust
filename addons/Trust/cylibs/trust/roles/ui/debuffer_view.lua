@@ -18,8 +18,8 @@ TextStyle.DebufferView = {
             Color.clear,
             "Arial",
             11,
+            Color.new(175, 205, 205, 205),
             Color.white,
-            Color.green,
             2,
             0,
             0,
@@ -38,7 +38,7 @@ function DebufferView.new(debuffer, battle_target)
 
     local debuffSpells = debuffer:get_debuff_spells()
     if debuffSpells:length() > 0 then
-        dataSource:addItem(TextItem.new("Spells", TextStyle.DebufferView.Text), IndexPath.new(1, 1))
+        dataSource:addItem(TextItem.new("Spells", TextStyle.Default.HeaderSmall), IndexPath.new(1, 1))
         local currentRow = 2
         for spell in debuffSpells:it() do
             local item = TextItem.new('• '..spell:description(), TextStyle.DebufferView.Text)

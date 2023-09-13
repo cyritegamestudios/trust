@@ -70,7 +70,7 @@ end
 -- @tparam number message_id Action message id (see action_messages.lua)
 -- @treturn Bool True if a given message_id corresponds to a message indicating the target has gained a debuff and false otherwise
 function action_message_util.is_gain_debuff_message(message_id)
-    return L{2,27,75,236,237,268}:contains(message_id)
+    return L{2,27,75,236,237,268, 269, 272}:contains(message_id)
 end
 
 -------
@@ -88,6 +88,17 @@ end
 -- @treturn Bool True if a given message_id corresponds to a message indicating a target has finished casting a spell
 function action_message_util.is_spell_finish_message(message_id, param)
     if L{2,7,42,227,228,236,237,309}:contains(message_id) then
+        return true
+    end
+end
+
+-------
+-- Determines if an action message indicates that a spell has finished casting.
+-- @tparam number message_id Action message id (see action_messages.lua)
+-- @tparam number param Spell id, weapon skill id, etc (see spells.lua, monster_skills.lua)
+-- @treturn Bool True if a given message_id corresponds to a message indicating a target has finished casting a spell
+function action_message_util.is_resist_spell_message(message_id, param)
+    if L{85}:contains(message_id) then
         return true
     end
 end

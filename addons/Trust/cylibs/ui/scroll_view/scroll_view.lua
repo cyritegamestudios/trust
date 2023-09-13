@@ -78,6 +78,7 @@ function ScrollView:layoutIfNeeded()
     end
 
     self.contentView.frame = Frame.new(self.contentOffset.x, self.contentOffset.y, self.frame.width, self.frame.height)
+    self.contentView:setVisible(self:isVisible())
 
     self.contentView:setNeedsLayout()
     self.contentView:layoutIfNeeded()

@@ -45,7 +45,7 @@ function SkillchainsView:reload(modeNames)
         if mode then
             local description = mode:get_description(mode.value)
             if description and description:length() > 0 then
-                self:getDataSource():addItem(TextItem.new(mode:get_description() or modeName, TextStyle.Default.TextSmall), IndexPath.new(currentSection, 1))
+                self:getDataSource():addItem(TextItem.new(mode:get_description() or modeName, TextStyle.Default.HeaderSmall), IndexPath.new(currentSection, 1))
 
                 local text = string.gsub(description, "Okay, ", "")
 

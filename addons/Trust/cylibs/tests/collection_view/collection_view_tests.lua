@@ -85,6 +85,14 @@ function CollectionViewTests:debug()
     listView:setSize(300, 150)
     listView:setBackgroundColor(Color.new(175, 0, 0, 0))
 
+    local ImageView = require('cylibs/ui/image_view')
+
+    local imageView = ImageView.new(1, 150 / 4)
+    imageView:loadImage(windower.addon_path..'assets/backgrounds/menu_bg_mid.png')
+    imageView.image:alpha(175)
+
+    listView:setBackgroundImageView(imageView)
+
     listView:setNeedsLayout()
     listView:layoutIfNeeded()
 
