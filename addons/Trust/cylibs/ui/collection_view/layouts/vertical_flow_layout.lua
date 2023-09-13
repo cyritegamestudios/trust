@@ -48,6 +48,7 @@ function VerticalFlowLayout:layoutSubviews(collectionView)
             -- Set position and size of the cell
             cell:setPosition(self.padding.left, yOffset)
             cell:setSize(cellSize.width - self.padding.left - self.padding.right, cellSize.height)
+            cell:setVisible(collectionView:getContentView():isVisible())
             cell:layoutIfNeeded()
 
             yOffset = yOffset + cellSize.height + self.itemSpacing

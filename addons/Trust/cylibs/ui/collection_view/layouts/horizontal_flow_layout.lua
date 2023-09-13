@@ -4,10 +4,12 @@ local Padding = require('cylibs/ui/style/padding')
 local HorizontalFlowLayout = {}
 HorizontalFlowLayout.__index = HorizontalFlowLayout
 
-function HorizontalFlowLayout.new(itemSpacing, padding)
+function HorizontalFlowLayout.new(itemSpacing, padding, sectionSpacing)
     local self = setmetatable({}, HorizontalFlowLayout)
     self.itemSpacing = itemSpacing or 0
     self.padding = padding or Padding.equal(0)
+    self.sectionSpacing = sectionSpacing or 0
+    self.scrollEnabled = false
     return self
 end
 
@@ -30,16 +32,18 @@ function HorizontalFlowLayout:layoutSubviews(collectionView)
             local cell = collectionView:getDataSource():cellForItemAtIndexPath(indexPath)
             cell:setItem(item)
 
-            collectionView:addSubview(cell)
+            collectionView:getContentView():addSubview(cell)
 
             local cellSize = self:sizeForItemAtIndexPath(collectionView, cell)
 
             cell:setPosition(xOffset, self.padding.top)
-            cell:setSize(cellSize.width, cellSize.height)
+            cell:setSize(cellSize.width, cellSize.height - self.padding.top - self.padding.bottom)
+            cell:setVisible(collectionView:getContentView():isVisible())
             cell:layoutIfNeeded()
 
             xOffset = xOffset + cellSize.width + self.itemSpacing
         end
+        xOffset = xOffset + self.sectionSpacing
     end
 
     self.width = xOffset + self.padding.right

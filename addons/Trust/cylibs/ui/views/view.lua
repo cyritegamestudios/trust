@@ -27,6 +27,7 @@ function View.new(frame)
     self.backgroundColor = Color.new(0, 0, 0, 0)
     self.backgroundView = Image.new()
     self.backgroundView:draggable(false)
+    self.backgroundImageView = nil
     self.clipsToBounds = false
     self.frame = frame or Frame.new(0, 0, 0 , 0)
     self.needsLayout = true
@@ -35,7 +36,7 @@ function View.new(frame)
     self.uuid = os.time()..'-'..math.random(1000)
     self.destroyed = false
     self.disposeBag = DisposeBag.new()
-    self.disposeBag:addAny(L{self.backgroundView})
+    self.disposeBag:addAny(L{ self.backgroundView, self.backgroundImageView })
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
@@ -211,6 +212,22 @@ function View:setBackgroundColor(color)
 end
 
 ---
+-- Sets the background image of the view.
+--
+-- @tparam string imagePath The color to set as the background.
+--
+function View:setBackgroundImageView(backgroundImageView)
+    if self.backgroundImageView ~= nil then
+        return
+    end
+    self.backgroundImageView = backgroundImageView
+
+    self:addSubview(self.backgroundImageView)
+    self:setNeedsLayout()
+    self:layoutIfNeeded()
+end
+
+---
 -- Adds a subview to the current view.
 --
 -- @tparam View view The view to be added as a subview.
@@ -282,6 +299,11 @@ function View:layoutIfNeeded()
     self.backgroundView:pos(x, y)
     self.backgroundView:size(self.frame.width, self.frame.height)
     self.backgroundView:visible(self:isVisible())
+
+    if self.backgroundImageView then
+        self.backgroundImageView:setSize(self.frame.width, self.frame.height)
+        self.backgroundImageView:setVisible(self:isVisible())
+    end
 
     for _, subview in pairs(self.subviews) do
         subview:setNeedsLayout()

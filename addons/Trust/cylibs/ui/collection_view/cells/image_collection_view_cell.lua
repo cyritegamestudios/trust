@@ -9,7 +9,7 @@ ImageCollectionViewCell.__index = ImageCollectionViewCell
 function ImageCollectionViewCell.new(item)
     local self = setmetatable(CollectionViewCell.new(item), ImageCollectionViewCell)
 
-    self.imageView = ImageView.new(item:getImagePath())
+    self.imageView = ImageView.new(item:getRepeat().x, item:getRepeat().y, item:getAlpha())
 
     self:addSubview(self.imageView)
 

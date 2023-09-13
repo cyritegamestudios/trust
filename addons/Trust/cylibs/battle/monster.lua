@@ -12,6 +12,7 @@ local res = require('resources')
 local action_message_util = require('cylibs/util/action_message_util')
 local buff_util = require('cylibs/util/buff_util')
 local monster_abilities_ext = require('cylibs/res/monster_abilities')
+local spell_util = require('cylibs/util/spell_util')
 
 local Monster = setmetatable({}, {__index = Trust })
 Monster.__index = Monster
@@ -34,6 +35,10 @@ end
 -- Event called when the monster gains a debuff.
 function Monster:on_gain_debuff()
     return self.gain_debuff
+end
+
+function Monster:on_spell_resisted()
+    return self.spell_resisted
 end
 
 -- Event called when the monster starts casting a spell.
@@ -63,6 +68,7 @@ function Monster.new(mob_id)
     self.gain_buff = Event.newEvent()
     self.gain_debuff = Event.newEvent()
     self.lose_debuff = Event.newEvent()
+    self.spell_resisted = Event.newEvent()
     self.spell_begin = Event.newEvent()
     self.spell_finish = Event.newEvent()
 
@@ -83,6 +89,7 @@ function Monster:destroy()
     self.gain_buff:removeAllActions()
     self.gain_debuff:removeAllActions()
     self.lose_debuff:removeAllActions()
+    self.spell_resisted:removeAllActions()
     self.spell_begin:removeAllActions()
     self.spell_finish:removeAllActions()
 end
@@ -158,6 +165,19 @@ function Monster:handle_action_on_monster(act)
                 elseif action_message_util.is_spikes_message(action.message) then
                     -- Note: since we don't know the source of the spikes, we are just using the id for Ice Spikes
                     self:on_gain_buff():trigger(self, target.index, 35)
+                -- resist: 85, 284 (AOE)
+                -- completely resist: 655, 656 (AOE)
+                -- immunobreak: 653, 654
+                elseif L{85, 284}:contains(action.message) then -- regular resist spell
+                    local spell_name = spell_util.spell_name(act.param)
+                    if spell_name then
+                        self:on_spell_resisted():trigger(self, spell_name, false)
+                    end
+                elseif L{655}:contains(action.message) then
+                    local spell_name = spell_util.spell_name(act.param)
+                    if spell_name then
+                        self:on_spell_resisted():trigger(self, spell_name, true)
+                    end
                 end
             end
         end

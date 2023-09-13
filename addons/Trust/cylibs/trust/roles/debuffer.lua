@@ -1,3 +1,6 @@
+local DisposeBag = require('cylibs/events/dispose_bag')
+local ResistTracker = require('cylibs/battle/resist_tracker')
+local buff_util = require('cylibs/util/buff_util')
 local spell_util = require('cylibs/util/spell_util')
 
 local Debuffer = setmetatable({}, {__index = Role })
@@ -13,6 +16,7 @@ function Debuffer.new(action_queue, debuff_spells)
     local self = setmetatable(Role.new(action_queue), Debuffer)
 
     self:set_debuff_spells(debuff_spells)
+    self.battle_target_destroyables = DisposeBag.new()
     self.last_debuff_time = os.time()
 
     return self
@@ -21,21 +25,17 @@ end
 function Debuffer:destroy()
     Role.destroy(self)
 
-    if self.battle_target then
-        self.battle_target:destroy()
-        self.battle_target = nil
-    end
+    self.battle_target_destroyables:destroy()
 end
 
 function Debuffer:target_change(target_index)
     Role.target_change(self, target_index)
 
-    if self.battle_target then
-        self.battle_target:destroy()
-        self.battle_target = nil
-    end
+    self.battle_target_destroyables:destroy()
 
     if target_index then
+        self.last_debuff_time = os.time()
+
         self.battle_target = Monster.new(windower.ffxi.get_mob_by_index(target_index).id)
         self.battle_target:monitor()
         self.battle_target:on_spell_finish():addAction(
@@ -49,6 +49,9 @@ function Debuffer:target_change(target_index)
                         end
                     end
                 end)
+        self.resist_tracker = ResistTracker.new(self.battle_target)
+
+        self.battle_target_destroyables:addAny(L{ self.battle_target, self.resist_tracker })
     end
 end
 
@@ -65,7 +68,8 @@ function Debuffer:check_debuffs()
 
     for spell in self.debuff_spells:it() do
         local debuff = buff_util.debuff_for_spell(spell:get_spell().id)
-        if debuff and not self.battle_target:has_debuff(debuff.id) then
+        if debuff and not self.battle_target:has_debuff(debuff.id) and not self.resist_tracker:isImmune(spell:get_spell().id)
+                and self.resist_tracker:numResists(spell:get_spell().id) < 4 then
             self:cast_spell(spell, self.battle_target:get_mob().index)
             return
         end

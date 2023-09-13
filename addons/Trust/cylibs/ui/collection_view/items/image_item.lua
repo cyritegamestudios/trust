@@ -15,6 +15,9 @@ function ImageItem.new(imagePath, width, height)
     local self = setmetatable({}, ImageItem)
     self.imagePath = imagePath
     self.size = Frame.new(0, 0, width, height)
+    self.alpha = 255
+    self.repeatX = 1
+    self.repeatY = 1
     return self
 end
 
@@ -33,6 +36,43 @@ end
 function ImageItem:getSize()
     return { width = self.size.width, height = self.size.height }
 end
+
+---
+-- Sets the pattern repeat of the image.
+-- @tparam number x Repeat X
+-- @tparam number y Repeat Y
+--
+function ImageItem:setRepeat(x, y)
+    self.repeatX = x
+    self.repeatY = y
+end
+
+---
+-- Get the pattern repeat of the image.
+-- @treturn Frame A frame containing the repeatX and repeatY
+--
+function ImageItem:getRepeat()
+    return Frame.new(self.repeatX, self.repeatY)
+end
+
+---
+-- Sets the alpha (transparency) value of the image item.
+--
+-- @tparam number alpha The alpha value (0 for fully transparent, 255 for fully opaque).
+--
+function ImageItem:setAlpha(alpha)
+    self.alpha = alpha
+end
+
+---
+-- Retrieves the alpha (transparency) value of the image item.
+--
+-- @treturn number The alpha value (0 for fully transparent, 255 for fully opaque).
+--
+function ImageItem:getAlpha()
+    return self.alpha
+end
+
 
 ---
 -- Checks if this ImageItem is equal to another.

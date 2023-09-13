@@ -7,6 +7,8 @@ require('tables')
 require('lists')
 require('logger')
 
+local action_message_util = require('cylibs/util/action_message_util')
+
 local BattleStatTracker = {}
 BattleStatTracker.__index = BattleStatTracker
 
@@ -73,7 +75,7 @@ end
 -- Returns the player's accuracy since the battle stat tracker was last reset.
 -- @treturn number Player's accuracy (between 0 and 100)
 function BattleStatTracker:get_accuracy()
-    if self.num_hits == 0 then return 100 end
+    if self.num_hits < 6 then return 100 end
 
     return (self.hit_sum / self.num_hits) * 100.0
 end

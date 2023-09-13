@@ -13,13 +13,17 @@ num_images_created = 0
 -- @tparam string imagePath The path to the image to be displayed in the ImageView.
 -- @treturn ImageView The newly created ImageView instance.
 --
-function ImageView.new()
+function ImageView.new(repeatX, repeatY, alpha)
     local self = setmetatable(View.new(), ImageView)
 
+    self.repeatX = repeatX or 1
+    self.repeatY = repeatY or 1
+    self.alpha = alpha or 255
     self.imageLoader = ImageLoader.new()
     self.image = Image.new()
     self.image:fit(true)
     self.image:hide()
+    self.image:draggable(false)
 
     self:getDisposeBag():addAny(L{ self.imageLoader, self.image })
 
@@ -76,9 +80,16 @@ function ImageView:layoutIfNeeded()
         --self.image:hide()
     end
 
-    self.image:visible(self:isVisible() and self.imageLoader:isLoaded() and string.len(self.image:path()) > 0)
+    local isVisible = self:isVisible() and self.imageLoader:isLoaded() and string.len(self.image:path()) > 0
+    if self.superview then
+        isVisible = isVisible and self.superview:isVisible()
+    end
+
+    self.image:repeat_xy(self.repeatX, self.repeatY)
+    self.image:visible(isVisible)
     self.image:pos(position.x, position.y)
     self.image:size(self:getSize().width, self:getSize().height)
+    self.image:alpha(self.alpha)
 end
 
 return ImageView

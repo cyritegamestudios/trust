@@ -17,8 +17,8 @@ TextStyle.BufferView = {
             Color.clear,
             "Arial",
             11,
+            Color.new(175, 205, 205, 205),
             Color.white,
-            Color.green,
             2,
             0,
             0,
@@ -37,7 +37,7 @@ function BufferView.new(buffer)
 
     local jobAbilityNames = buffer:get_job_ability_names()
     if jobAbilityNames:length() > 0 then
-        dataSource:addItem(TextItem.new("Job Abilities", TextStyle.BufferView.Text), IndexPath.new(1, 1))
+        dataSource:addItem(TextItem.new("Job Abilities", TextStyle.Default.HeaderSmall), IndexPath.new(1, 1))
         local currentRow = 2
         for job_ability_name in jobAbilityNames:it() do
             local item = TextItem.new('• '..job_ability_name, TextStyle.BufferView.Text)
@@ -53,7 +53,7 @@ function BufferView.new(buffer)
 
     local selfSpells = buffer:get_self_spells()
     if selfSpells:length() > 0 then
-        dataSource:addItem(TextItem.new("Self Spells", TextStyle.BufferView.Text), IndexPath.new(2, 1))
+        dataSource:addItem(TextItem.new("Self Spells", TextStyle.Default.HeaderSmall), IndexPath.new(2, 1))
         local currentRow = 2
         for spell in selfSpells:it() do
             local item = TextItem.new('• '..spell:description(), TextStyle.BufferView.Text)
@@ -69,7 +69,7 @@ function BufferView.new(buffer)
 
     local partySpells = buffer:get_party_spells()
     if partySpells:length() > 0 then
-        dataSource:addItem(TextItem.new("Party Spells", TextStyle.BufferView.Text), IndexPath.new(3, 1))
+        dataSource:addItem(TextItem.new("Party Spells", TextStyle.Default.HeaderSmall), IndexPath.new(3, 1))
         local currentRow = 2
         for spell in partySpells:it() do
             dataSource:addItem(TextItem.new('• '..spell:description(), TextStyle.BufferView.Text), IndexPath.new(3, currentRow))

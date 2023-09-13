@@ -9,8 +9,12 @@ local DarkKnightTrust = setmetatable({}, {__index = Trust })
 DarkKnightTrust.__index = DarkKnightTrust
 
 local BattleStatTracker = require('cylibs/battle/battle_stat_tracker')
+local Spell = require('cylibs/battle/spell')
+local buff_util = require('cylibs/util/buff_util')
+local spell_util = require('cylibs/util/spell_util')
 
 local Buffer = require('cylibs/trust/roles/buffer')
+local Debuffer = require('cylibs/trust/roles/debuffer')
 local Dispeler = require('cylibs/trust/roles/dispeler')
 local ManaRestorer = require('cylibs/trust/roles/mana_restorer')
 local Puller = require('cylibs/trust/roles/puller')
@@ -18,6 +22,7 @@ local Puller = require('cylibs/trust/roles/puller')
 function DarkKnightTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local roles = S{
 		Buffer.new(action_queue, trust_settings.JobAbilities, trust_settings.SelfBuffs),
+		Debuffer.new(action_queue,trust_settings.Debuffs or L{}),
 		Dispeler.new(action_queue, L{ Spell.new('Absorb-Attri') }),
 		ManaRestorer.new(action_queue, L{'Entropy'}, 40),
 		Puller.new(action_queue, battle_settings.targets, 'Stone', nil),

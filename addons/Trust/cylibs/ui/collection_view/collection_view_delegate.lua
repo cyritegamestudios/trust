@@ -28,6 +28,7 @@ function CollectionViewDelegate.new(collectionView)
 
     self.collectionView = collectionView
     self.selectedIndexPaths = S{}
+    self.highlightedIndexPaths = S{}
 
     self.disposeBag = DisposeBag.new()
 
@@ -56,6 +57,7 @@ function CollectionViewDelegate.new(collectionView)
                             end
                         elseif type == Mouse.Event.Move then
                             if not cell:isHighlighted() then
+                                self:deHighlightAllItems()
                                 self:highlightItemAtIndexPath(item, indexPath)
                             end
                         end
@@ -180,6 +182,8 @@ function CollectionViewDelegate:highlightItemAtIndexPath(item, indexPath)
     local cell = self.collectionView:getDataSource():cellForItemAtIndexPath(indexPath)
     cell:setHighlighted(true)
 
+    self.highlightedIndexPaths:add(indexPath)
+
     self:didHighlightItemAtIndexPath():trigger(item, indexPath)
 end
 
@@ -198,7 +202,20 @@ function CollectionViewDelegate:deHighlightItemAtIndexPath(item, indexPath)
     local cell = self.collectionView:getDataSource():cellForItemAtIndexPath(indexPath)
     cell:setHighlighted(false)
 
+    self.highlightedIndexPaths = self.highlightedIndexPaths:filter(function(existingIndexPath) return existingIndexPath ~= indexPath  end)
+
     self:didDehighlightItemAtIndexPath():trigger(item, indexPath)
 end
+
+---
+-- De-highlights all currently highlighted items in the collection view.
+--
+function CollectionViewDelegate:deHighlightAllItems()
+    for indexPath in self.highlightedIndexPaths:it() do
+        local item = self.collectionView:getDataSource():itemAtIndexPath(indexPath)
+        self:deHighlightItemAtIndexPath(item, indexPath)
+    end
+end
+
 
 return CollectionViewDelegate
