@@ -118,14 +118,20 @@ function Party:monitor()
             local hp = p['HP']
             local main_job_id = p['Main job']
             local sub_job_id = p['Sub job']
+            local mob = windower.ffxi.get_mob_by_id(mob_id)
 
-            if mob_id and hpp and self.party_members[mob_id] and self.party_members[mob_id]:get_mob() then
-                self:add_member(mob_id, self.party_members[mob_id]:get_name(), main_job_id, sub_job_id, hpp, hp)
+            if mob_id and hpp then
+                if self.party_members[mob_id] and self.party_members[mob_id]:get_mob() then
+                    self:add_member(mob_id, self.party_members[mob_id]:get_name(), main_job_id, sub_job_id, hpp, hp)
 
-                if hpp > 0 then
-                    self:on_party_member_hp_change():trigger(self.party_members[mob_id], hpp, hp / (hpp / 100.0))
-                else
-                    self:on_party_member_ko():trigger(self.party_members[mob_id])
+                    if hpp > 0 then
+                        self:on_party_member_hp_change():trigger(self.party_members[mob_id], hpp, hp / (hpp / 100.0))
+                    else
+                        self:on_party_member_ko():trigger(self.party_members[mob_id])
+                    end
+                -- Alter Egos do not send 0x0DD packet
+                elseif mob and party_util.is_party_member(mob_id) then
+                    self:add_member(mob_id, mob.name, main_job_id, sub_job_id, hpp, hp)
                 end
             end
 
@@ -170,6 +176,7 @@ function Party:add_member(mob_id, name, main_job_id, sub_job_id, hpp, hp)
         if not self.party_members[mob_id]:is_alive() then
             self:on_party_member_ko():trigger(self.party_members[mob_id])
         end
+
         self:on_party_member_added():trigger(self.party_members[mob_id])
     end
 
@@ -249,9 +256,11 @@ function Party:prune_party_members()
                 if party_member:get_id() == self:get_assist_target():get_id() then
                     self:set_assist_target(self:get_party_member(windower.ffxi.get_player().id))
                 end
-                self:on_party_member_removed():trigger(party_member)
-                party_member:destroy()
                 self.party_members[party_member:get_id()] = nil
+                coroutine.schedule(function()
+                    self:on_party_member_removed():trigger(party_member)
+                    party_member:destroy()
+                end, 1)
             end
         end
     end

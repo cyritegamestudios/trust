@@ -4,6 +4,7 @@ local ContainerCollectionViewCell = require('cylibs/ui/collection_view/cells/con
 local HorizontalFlowLayout = require('cylibs/ui/collection_view/layouts/horizontal_flow_layout')
 local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_collection_view_cell')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
+local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Padding = require('cylibs/ui/style/padding')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
@@ -42,20 +43,24 @@ function PartyMemberView.new(party)
 
     self:getDisposeBag():add(party:on_party_member_added():addAction(function(partyMember)
         self:addPartyMember(party, partyMember)
+        self:updatePartyMembers(party)
     end), party:on_party_member_added())
 
     self:getDisposeBag():add(party:on_party_member_removed():addAction(function(party_member)
         self:updatePartyMembers(party)
+        self:updatePartyMembers(party)
     end), party:on_party_member_removed())
+
+    local itemsToAdd = L{}
 
     local partyMembers = party:get_party_members(true)
     for partyMemberIndex = 1, 6 do
-        self:getDataSource():addItem(TextItem.new("Empty", TextStyle.Default.HeaderSmall), IndexPath.new(partyMemberIndex, 1))
+        itemsToAdd:append(IndexedItem.new(TextItem.new("Empty", TextStyle.Default.HeaderSmall), IndexPath.new(partyMemberIndex, 1)))
 
         local buffsView = self:createBuffsView()
         table.insert(self.buffViews, partyMemberIndex, buffsView)
 
-        self:getDataSource():addItem(ViewItem.new(buffsView), IndexPath.new(partyMemberIndex, 2))
+        itemsToAdd:append(IndexedItem.new(ViewItem.new(buffsView), IndexPath.new(partyMemberIndex, 2)))
 
         self:getDisposeBag():addAny(L{ buffsView })
 
@@ -64,6 +69,8 @@ function PartyMemberView.new(party)
             self:addPartyMember(party, partyMember)
         end
     end
+
+    self:getDataSource():addItems(itemsToAdd)
 
     self:updatePartyMembers(party)
 
@@ -91,16 +98,20 @@ end
 function PartyMemberView:updateBuffs(partyMember, buffsView)
     local allBuffIds = partyMember:get_buff_ids():sort()
 
+    local buffItems = L{}
+
     local buffIndex = 1
     for buffId in allBuffIds:it() do
         if buffIndex <= 15 then
-            buffsView:getDataSource():updateItem(ImageItem.new(windower.addon_path..'assets/buffs/'..buffId..'.png', 20, 20), IndexPath.new(1, buffIndex))
+            buffItems:append(IndexedItem.new(ImageItem.new(windower.addon_path..'assets/buffs/'..buffId..'.png', 20, 20), IndexPath.new(1, buffIndex)))
             buffIndex = buffIndex + 1
         end
     end
     for i = buffIndex, 15 do
-        buffsView:getDataSource():updateItem(ImageItem.new('', 20, 20), IndexPath.new(1, buffIndex))
+        buffItems:append(IndexedItem.new(ImageItem.new('', 20, 20), IndexPath.new(1, buffIndex)))
     end
+
+    buffsView:getDataSource():updateItems(buffItems)
 end
 
 function PartyMemberView:createBuffsView()
@@ -111,9 +122,12 @@ function PartyMemberView:createBuffsView()
     end)
     local collectionView = CollectionView.new(dataSource, HorizontalFlowLayout.new(2, Padding.equal(0)))
 
+    local buffItems = L{}
     for buffIndex = 1, 15 do
-        dataSource:addItem(ImageItem.new('', 20, 20), IndexPath.new(1, buffIndex))
+        buffItems:append(IndexedItem.new(ImageItem.new('', 20, 20), IndexPath.new(1, buffIndex)))
     end
+
+    dataSource:addItems(buffItems)
 
     return collectionView
 end
@@ -121,12 +135,14 @@ end
 function PartyMemberView:updatePartyMembers(party, partyMemberFilter)
     partyMemberFilter = partyMemberFilter or function(_) return true  end
 
+    local itemsToUpdate = L{}
+
     local partyMembers = party:get_party_members(true)
     for partyMemberIndex = 1, 6 do
         local partyMember = partyMembers[partyMemberIndex]
         if partyMember then
             if partyMemberFilter(partyMember) then
-                self:getDataSource():updateItem(TextItem.new(partyMembers[partyMemberIndex]:get_name(), TextStyle.Default.HeaderSmall), IndexPath.new(partyMemberIndex, 1))
+                itemsToUpdate:append(IndexedItem.new(TextItem.new(partyMembers[partyMemberIndex]:get_name(), TextStyle.Default.HeaderSmall), IndexPath.new(partyMemberIndex, 1)))
 
                 local buffsView = self.buffViews[partyMemberIndex]
                 self:updateBuffs(partyMember, buffsView)
@@ -135,9 +151,11 @@ function PartyMemberView:updatePartyMembers(party, partyMemberFilter)
                 buffsView:layoutIfNeeded()
             end
         else
-            self:getDataSource():updateItem(TextItem.new("Empty", TextStyle.Default.HeaderSmall), IndexPath.new(partyMemberIndex, 1))
+            itemsToUpdate:append(IndexedItem.new(TextItem.new("Empty", TextStyle.Default.HeaderSmall), IndexPath.new(partyMemberIndex, 1)))
         end
     end
+
+    self:getDataSource():updateItems(itemsToUpdate)
 end
 
 return PartyMemberView

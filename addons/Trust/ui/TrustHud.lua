@@ -227,7 +227,6 @@ function TrustHud:getBackgroundImageView()
     bgView:setSize(500, 500)
     bgView:setVisible(false)
 
-
     local topItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_bg_top.png', 500, 10)
     topItem:setRepeat(1, 1)
     topItem:setAlpha(225)

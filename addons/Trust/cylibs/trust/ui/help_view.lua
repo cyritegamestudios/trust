@@ -1,5 +1,6 @@
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
+local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Padding = require('cylibs/ui/style/padding')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
@@ -20,14 +21,17 @@ function HelpView.new(main_job_name_short)
 
     local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0))), HelpView)
 
-    dataSource:addItem(TextItem.new("Wiki", TextStyle.Default.Text), IndexPath.new(1, 1))
-    dataSource:addItem(TextItem.new("• "..main_job_name_short, TextStyle.Default.Text), IndexPath.new(1, 2))
-    dataSource:addItem(TextItem.new("• Commands", TextStyle.Default.Text), IndexPath.new(1, 3))
-    dataSource:addItem(TextItem.new("• Shortcuts", TextStyle.Default.Text), IndexPath.new(1, 4))
-    dataSource:addItem(TextItem.new("", TextStyle.Default.Text), IndexPath.new(1, 5))
+    local itemsToAdd = L{}
 
-    dataSource:addItem(TextItem.new("Discord", TextStyle.Default.Text), IndexPath.new(2, 1))
-    dataSource:addItem(TextItem.new("• Join the Discord", TextStyle.Default.Text), IndexPath.new(2, 2))
+    itemsToAdd:append(IndexedItem.new(TextItem.new("Wiki", TextStyle.Default.HeaderSmall), IndexPath.new(1, 1)))
+    itemsToAdd:append(IndexedItem.new(TextItem.new("• "..main_job_name_short, TextStyle.Default.TextSmall), IndexPath.new(1, 2)))
+    itemsToAdd:append(IndexedItem.new(TextItem.new("• Commands", TextStyle.Default.TextSmall), IndexPath.new(1, 3)))
+    itemsToAdd:append(IndexedItem.new(TextItem.new("• Shortcuts", TextStyle.Default.TextSmall), IndexPath.new(1, 4)))
+    itemsToAdd:append(IndexedItem.new(TextItem.new("", TextStyle.Default.Text), IndexPath.new(1, 5)))
+    itemsToAdd:append(IndexedItem.new(TextItem.new("Discord", TextStyle.Default.HeaderSmall), IndexPath.new(2, 1)))
+    itemsToAdd:append(IndexedItem.new(TextItem.new("• Join the Discord", TextStyle.Default.TextSmall), IndexPath.new(2, 2)))
+
+    dataSource:addItems(itemsToAdd)
 
     self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(item, indexPath)
         local row = indexPath.row

@@ -2,6 +2,7 @@ local Button = require('cylibs/ui/button')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
 local Color = require('cylibs/ui/views/color')
+local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Padding = require('cylibs/ui/style/padding')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
@@ -28,11 +29,15 @@ function ModesView.new(modeNames)
 
     self:addSubview(self.collectionView)
 
+    local itemsToAdd = L{}
+
     local currentRow = 1
     for modeName in modeNames:it() do
-        dataSource:addItem(TextItem.new(modeName..': '..state[modeName].value, TextStyle.Default.TextSmall), IndexPath.new(1, currentRow))
+        itemsToAdd:append(IndexedItem.new(TextItem.new(modeName..': '..state[modeName].value, TextStyle.Default.TextSmall), IndexPath.new(1, currentRow)))
         currentRow = currentRow + 1
     end
+
+    dataSource:addItems(itemsToAdd)
 
     self:getDisposeBag():add(self.collectionView:getDelegate():didSelectItemAtIndexPath():addAction(function(item, indexPath)
         local selectedModeName = modeNames[indexPath.row]
@@ -59,7 +64,7 @@ function ModesView:layoutIfNeeded()
     self.collectionView:setPosition(0, 0)
     self.collectionView:setSize(self.frame.width, self.frame.height)
 
-    self.saveButton:setPosition(self.frame.width - self.saveButton.frame.width - 5, 5)
+    self.saveButton:setPosition(self.frame.width - self.saveButton.frame.width - 45, 5)
 
     if not View.layoutIfNeeded(self) then
         return false

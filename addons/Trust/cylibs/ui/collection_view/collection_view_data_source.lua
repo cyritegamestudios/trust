@@ -2,10 +2,12 @@ local ContainerCollectionViewCell = require('cylibs/ui/collection_view/cells/con
 local Event = require('cylibs/events/Luvent')
 local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_collection_view_cell')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
+local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
+local IndexPath = require('cylibs/ui/collection_view/index_path')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local ViewItem = require('cylibs/ui/collection_view/items/view_item')
-local IndexPath = require('cylibs/ui/collection_view/index_path')
+
 
 -- Define a simple collection data source table
 local CollectionViewDataSource = {}
@@ -52,15 +54,26 @@ end
 
 -- Add an item to a specific section, creating the section if it doesn't exist
 function CollectionViewDataSource:addItem(item, indexPath)
+    self:addItems(L{ IndexedItem.new(item, indexPath) })
+end
+
+---
+-- Adds a list of IndexedItems to the collection view.
+--
+-- @tparam list indexedItems A list of IndexedItems containing both items and their corresponding index paths.
+--
+function CollectionViewDataSource:addItems(indexedItems)
     local snapshot = self:createSnapshot()  -- Create a snapshot before making changes
 
-    local section = indexPath.section
-    local row = indexPath.row
+    for indexedItem in indexedItems:it() do
+        local section = indexedItem:getIndexPath().section
+        local row = indexedItem:getIndexPath().row
 
-    if not self.sections[section] then
-        table.insert(self.sections, section, {items = {}})
+        if not self.sections[section] then
+            table.insert(self.sections, section, {items = {}})
+        end
+        table.insert(self.sections[section].items, row, indexedItem:getItem())
     end
-    table.insert(self.sections[section].items, row, item)
 
     -- Generate a diff
     local diff = self:generateDiff(snapshot)
@@ -99,14 +112,18 @@ end
 
 -- Update an item at a specific IndexPath
 function CollectionViewDataSource:updateItem(item, indexPath)
-    local currentItem = self.sections[indexPath.section].items[indexPath.row]
-    if currentItem and currentItem == item then
-        return
-    end
+    self:updateItems(L{ IndexedItem.new(item, indexPath) })
+end
 
+function CollectionViewDataSource:updateItems(indexedItems)
     local snapshot = self:createSnapshot()  -- Create a snapshot before making changes
 
-    self.sections[indexPath.section].items[indexPath.row] = item
+    for indexedItem in indexedItems:it() do
+        local currentItem = self.sections[indexedItem:getIndexPath().section].items[indexedItem:getIndexPath().row]
+        if not (currentItem and currentItem == indexedItem:getItem()) then
+            self.sections[indexedItem:getIndexPath().section].items[indexedItem:getIndexPath().row] = indexedItem:getItem()
+        end
+    end
 
     -- Generate a diff
     local diff = self:generateDiff(snapshot)

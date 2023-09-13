@@ -78,7 +78,7 @@ end
 -------
 -- Determines if a mob is a member of the player's party.
 -- @param target_id Mob id
--- @treturn Boolean True if the mob is the party leader and false otherwise.
+-- @treturn Boolean True if the mob is in the party and false otherwise.
 function party_util.is_party_member(target_id)
     local target = windower.ffxi.get_mob_by_id(target_id)
     if target then

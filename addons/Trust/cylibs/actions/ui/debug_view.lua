@@ -59,7 +59,7 @@ function DebugView:updateActions()
 
     self:getDataSource():removeAllItems()
 
-    self:getDataSource():addItem(TextItem.new("Actions", TextStyle.Default.Text), IndexPath.new(1, 1))
+    self:getDataSource():addItem(TextItem.new("Actions", TextStyle.Default.HeaderSmall), IndexPath.new(1, 1))
 
     local actions = self.action_queue:get_actions()
     if actions:length() > 0 then
@@ -76,7 +76,7 @@ function DebugView:updateActions()
             end
         end
     else
-        self:getDataSource():addItem(TextItem.new("• Idle", TextStyle.Default.Text), IndexPath.new(1, 2))
+        self:getDataSource():addItem(TextItem.new("• Idle", TextStyle.DebugView.Text), IndexPath.new(1, 2))
     end
 end
 

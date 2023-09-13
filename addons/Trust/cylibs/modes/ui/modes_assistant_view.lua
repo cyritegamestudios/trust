@@ -1,5 +1,6 @@
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
+local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Padding = require('cylibs/ui/style/padding')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
@@ -20,13 +21,17 @@ function ModesAssistantView.new(main_job_name_short)
 
     local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0))), ModesAssistantView)
 
-    dataSource:addItem(TextItem.new("What would you like to do?", TextStyle.Default.HeaderSmall), IndexPath.new(1, 1))
-    dataSource:addItem(TextItem.new("• I'd like to engage and stay in combat range.", TextStyle.Default.TextSmall), IndexPath.new(1, 2))
-    dataSource:addItem(TextItem.new("• I'd like to stay on the back line.", TextStyle.Default.TextSmall), IndexPath.new(1, 3))
-    dataSource:addItem(TextItem.new("• I want to be the main healer.", TextStyle.Default.TextSmall), IndexPath.new(1, 4))
-    dataSource:addItem(TextItem.new("• I want to be the backup healer.", TextStyle.Default.TextSmall), IndexPath.new(1, 5))
-    dataSource:addItem(TextItem.new("• I want to make skillchains with my party.", TextStyle.Default.TextSmall), IndexPath.new(1, 6))
-    dataSource:addItem(TextItem.new("• I want to let my party magic burst.", TextStyle.Default.TextSmall), IndexPath.new(1, 7))
+    local itemsToAdd = L{}
+
+    itemsToAdd:append(IndexedItem.new(TextItem.new("What would you like to do?", TextStyle.Default.HeaderSmall), IndexPath.new(1, 1)))
+    itemsToAdd:append(IndexedItem.new(TextItem.new("• I'd like to engage and stay in combat range.", TextStyle.Default.TextSmall), IndexPath.new(1, 2)))
+    itemsToAdd:append(IndexedItem.new(TextItem.new("• I'd like to stay on the back line.", TextStyle.Default.TextSmall), IndexPath.new(1, 3)))
+    itemsToAdd:append(IndexedItem.new(TextItem.new("• I want to be the main healer.", TextStyle.Default.TextSmall), IndexPath.new(1, 4)))
+    itemsToAdd:append(IndexedItem.new(TextItem.new("• I want to be the backup healer.", TextStyle.Default.TextSmall), IndexPath.new(1, 5)))
+    itemsToAdd:append(IndexedItem.new(TextItem.new("• I want to make skillchains with my party.", TextStyle.Default.TextSmall), IndexPath.new(1, 6)))
+    itemsToAdd:append(IndexedItem.new(TextItem.new("• I want to let my party magic burst.", TextStyle.Default.TextSmall), IndexPath.new(1, 7)))
+
+    dataSource:addItems(itemsToAdd)
 
     self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(item, indexPath)
         local row = indexPath.row

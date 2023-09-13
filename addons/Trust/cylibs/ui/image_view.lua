@@ -54,11 +54,10 @@ function ImageView:loadImage(imagePath)
 
     self.imageLoader = ImageLoader.new()
 
-    self:getDisposeBag():add(self.imageLoader:onImageLoaded():addAction(function(_)
+    self.imageLoader:onImageLoaded():addAction(function(_)
         self:setNeedsLayout()
         self:layoutIfNeeded()
-    end), self.imageLoader:onImageLoaded())
-
+    end)
     self.imageLoader:loadImage(self.image, imagePath)
 end
 
@@ -75,10 +74,6 @@ function ImageView:layoutIfNeeded()
     View.layoutIfNeeded(self)
 
     local position = self:getAbsolutePosition()
-
-    if not self:isVisible() then
-        --self.image:hide()
-    end
 
     local isVisible = self:isVisible() and self.imageLoader:isLoaded() and string.len(self.image:path()) > 0
     if self.superview then

@@ -38,7 +38,7 @@ function ImageLoader:loadImage(image, imagePath)
         self.scheduler = coroutine.schedule(function()
             image:show()
             self:handleImageLoaded(imagePath)
-        end, 0.5)
+        end, 0.3)
     else
         self:handleImageLoaded(imagePath)
     end

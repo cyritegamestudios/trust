@@ -29,7 +29,11 @@ function VerticalFlowLayout:sizeForItemAtIndexPath(collectionView, cell)
     return { width = collectionView:getSize().width, height = cell:getItemSize() }  -- Adjust as needed
 end
 
+local num_layout_called = 0
+
 function VerticalFlowLayout:layoutSubviews(collectionView)
+    num_layout_called = num_layout_called + 1
+
     local yOffset = self.padding.top
     for section = 1, collectionView:getDataSource():numberOfSections() do
         local numberOfItems = collectionView:getDataSource():numberOfItemsInSection(section)
