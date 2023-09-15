@@ -21,6 +21,10 @@ function Frame.new(x, y, width, height)
     return self
 end
 
+function Frame.zero()
+    return Frame.new(0, 0, 0, 0)
+end
+
 function Frame:__eq(otherItem)
     return self.x == otherItem.x and self.y == otherItem.y and self.width == otherItem.width
             and self.height == otherItem.height

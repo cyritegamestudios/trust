@@ -185,9 +185,9 @@ end
 
 -- Generate a diff based on changes to the dataSource
 function CollectionViewDataSource:generateDiff(snapshot)
-    local addedIndexPaths = {}
-    local removedIndexPaths = {}
-    local updatedIndexPaths = {}
+    local addedIndexPaths = T{}
+    local removedIndexPaths = T{}
+    local updatedIndexPaths = T{}
 
     -- Compare sections and items
     for sectionIndex, section in ipairs(self.sections) do

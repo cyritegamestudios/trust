@@ -23,6 +23,8 @@ function ListView.new(items, layout, itemSize)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = TextCollectionViewCell.new(item)
         cell:setItemSize(itemSize or 40)
+        cell:setClipsToBounds(true)
+        cell:setUserInteractionEnabled(true)
         return cell
     end)
 
