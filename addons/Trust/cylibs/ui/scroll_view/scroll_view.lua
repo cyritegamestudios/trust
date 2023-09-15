@@ -1,4 +1,5 @@
 local Frame = require('cylibs/ui/views/frame')
+local ScrollBar = require('cylibs/ui/scroll_view/scroll_bar')
 local View = require('cylibs/ui/views/view')
 
 require('queues')
@@ -11,10 +12,40 @@ function ScrollView.new(frame)
     local self = setmetatable(View.new(frame), ScrollView)
 
     self.contentView = View.new(frame)
+    self.contentSize = Frame.new(0, 0, frame.width, frame.height)
     self.contentOffset = Frame.new(0, 0, 0, 0)
-    self.scrollEnabled = false
+    self.scrollEnabled = true
+    self.horizontalScrollBar = ScrollBar.new()
+    self.verticalScrollBar = ScrollBar.new()
+    self.scrollBars = L{ self.horizontalScrollBar, self.verticalScrollBar }
+    self.scrollBarSize = 10
+    self.scrollDelta = 10
+
+    for scrollBar in self.scrollBars:it() do
+        self:getDisposeBag():add(scrollBar:onScrollBackClick():addAction(function(s)
+            local newContentOffset = Frame.new(self:getContentOffset().x, self:getContentOffset().y, 0, 0)
+            if s == self.horizontalScrollBar then
+                newContentOffset.x = math.min(self:getContentOffset().x + self:getScrollDelta(), 0)
+            else
+                newContentOffset.y = math.min(self:getContentOffset().y + self:getScrollDelta(), 0)
+            end
+            self:setContentOffset(newContentOffset.x, newContentOffset.y)
+        end), scrollBar:onScrollForwardClick())
+
+        self:getDisposeBag():add(scrollBar:onScrollForwardClick():addAction(function(s)
+            local newContentOffset = Frame.new(self:getContentOffset().x, self:getContentOffset().y, 0, 0)
+            if s == self.horizontalScrollBar then
+                newContentOffset.x = math.max(self:getContentOffset().x - self:getScrollDelta(), -self:getContentSize().width / 2)
+            else
+                newContentOffset.y = math.max(self:getContentOffset().y - self:getScrollDelta(), -self:getContentSize().height / 2)
+            end
+            self:setContentOffset(newContentOffset.x, newContentOffset.y)
+        end), scrollBar:onScrollForwardClick())
+    end
 
     self:addSubview(self.contentView)
+    self:addSubview(self.horizontalScrollBar)
+    self:addSubview(self.verticalScrollBar)
 
     return self
 end
@@ -57,6 +88,28 @@ function ScrollView:setContentOffset(contentOffsetX, contentOffsetY)
 end
 
 ---
+-- Get the content size of the ScrollView.
+--
+-- @treturn Frame The content size of the ScrollView.
+--
+function ScrollView:getContentSize()
+    return self.contentSize
+end
+
+---
+-- Set a new content size for the ScrollView.
+--
+-- @tparam number contentWidth The new content width.
+-- @tparam number contentHeight The new content height.
+--
+function ScrollView:setContentSize(contentWidth, contentHeight)
+    self.contentSize.width = contentWidth
+    self.contentSize.height = contentHeight
+
+    self:updateContentView()
+end
+
+---
 -- Checks whether scrolling is enabled for the ScrollView.
 -- @treturn boolean True if scrolling is enabled, false otherwise.
 --
@@ -72,6 +125,27 @@ function ScrollView:setScrollEnabled(scrollEnabled)
     self.scrollEnabled = scrollEnabled
 end
 
+---
+-- Get the scroll delta value.
+--
+-- @treturn number The scroll delta value.
+--
+function ScrollView:getScrollDelta()
+    return self.scrollDelta
+end
+
+---
+-- Set a new scroll delta value.
+--
+-- @tparam number delta The new scroll delta value.
+--
+function ScrollView:setScrollDelta(delta)
+    self.scrollDelta = delta
+end
+
+---
+-- Ensure that the ScrollView is laid out based on its current state.
+--
 function ScrollView:layoutIfNeeded()
     if not View.layoutIfNeeded(self) or self.contentView == nil then
         return
@@ -82,6 +156,18 @@ function ScrollView:layoutIfNeeded()
 
     self.contentView:setNeedsLayout()
     self.contentView:layoutIfNeeded()
+
+    self.horizontalScrollBar:setVisible(self:isScrollEnabled() and self.contentSize.width > self.frame.width)
+    self.horizontalScrollBar:setPosition(0, self.frame.height - self.scrollBarSize)
+    self.horizontalScrollBar:setSize(self.frame.width, self.scrollBarSize)
+
+    self.verticalScrollBar:setVisible(self:isScrollEnabled() and self.contentSize.height > self.frame.height)
+    self.verticalScrollBar:setPosition(self.frame.width - self.scrollBarSize, 0)
+    self.verticalScrollBar:setSize(self.scrollBarSize, self.frame.height)
+
+    for scrollBar in self.scrollBars:it() do
+        scrollBar:layoutIfNeeded()
+    end
 
     self:updateContentView()
 end
@@ -102,6 +188,7 @@ function ScrollView:updateContentView()
         end
         if self:shouldClipToBounds(view) then
             view:setVisible(false)
+            view:layoutIfNeeded()
         else
             view:setVisible(true)
         end

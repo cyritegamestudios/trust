@@ -98,12 +98,12 @@ function View:setPosition(x, y)
     if self.frame.x == x and self.frame.y == y then
         return
     end
-    self.frame.x = x
-    self.frame.y = y
+    self.frame = Frame.new(x, y, self.frame.width, self.frame.height)
 
     for _, subview in pairs(self.subviews) do
         subview:setPosition(x - self.frame.x, y - self.frame.y)
     end
+
     self:setNeedsLayout()
 end
 
@@ -126,8 +126,8 @@ function View:setSize(width, height)
     if self.frame.width == width and self.frame.height == height then
         return
     end
-    self.frame.width = width
-    self.frame.height = height
+    self.frame = Frame.new(self.frame.x, self.frame.y, width, height)
+
     self:setNeedsLayout()
 end
 

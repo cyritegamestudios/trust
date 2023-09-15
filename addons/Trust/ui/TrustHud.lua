@@ -1,3 +1,4 @@
+local BackgroundView = require('cylibs/ui/views/background/background_view')
 local BufferView = require('cylibs/trust/roles/ui/buffer_view')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
@@ -45,9 +46,10 @@ TextStyle.TargetView = TextStyle.new(
         true
 )
 
-function TrustHud.new(player, action_queue, addon_enabled)
+function TrustHud.new(player, action_queue, addon_enabled, menu_width, menu_height)
     local self = setmetatable(View.new(), TrustHud)
 
+    self.menuSize = Frame.new(0, 0, menu_width, menu_height)
     self.actionView = TrustActionHud.new(action_queue)
 
     self:addSubview(self.actionView)
@@ -161,7 +163,12 @@ function TrustHud:toggleMenu(job_name_short, trust, party, action_queue)
         self.backgroundImageView:setVisible(false)
         self.backgroundImageView:layoutIfNeeded()
     else
-        local tabbedView = TabbedView.new(Frame.new(500, 200, 500, 500))
+        local info = windower.get_windower_settings()
+
+        local xPos = (info.ui_x_res - self.menuSize.width) / 2
+        local yPos = (info.ui_y_res - self.menuSize.height) / 2
+
+        local tabbedView = TabbedView.new(Frame.new(xPos, yPos, self.menuSize.width, self.menuSize.height))
         tabbedView:setBackgroundColor(Color.clear)
 
         tabbedView:addTab(PartyMemberView.new(party), string.upper("party"))
@@ -201,54 +208,20 @@ function TrustHud:toggleMenu(job_name_short, trust, party, action_queue)
 
         self.tabbedView = tabbedView
 
-        self.backgroundImageView:setPosition(500, 200)
-        self.backgroundImageView:setSize(500, 500)
+        self.backgroundImageView:setPosition(xPos, yPos)
+        self.backgroundImageView:setSize(self.menuSize.width, self.menuSize.height)
         self.backgroundImageView:setVisible(true)
 
         self.backgroundImageView:setNeedsLayout()
         self.backgroundImageView:layoutIfNeeded()
-
     end
 end
 
 function TrustHud:getBackgroundImageView()
-    local dataSource = CollectionViewDataSource.new(function(item, indexPath)
-        local cell = ImageCollectionViewCell.new(item)
-        if L{ 1, 3 }:contains(indexPath.row) then
-            cell:setItemSize(10)
-        else
-            cell:setItemSize(480)
-        end
-        return cell
-    end)
-
-    local bgView = CollectionView.new(dataSource, VerticalFlowLayout.new(0))
-
-    bgView:setSize(500, 500)
-    bgView:setVisible(false)
-
-    local topItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_bg_top.png', 500, 10)
-    topItem:setRepeat(1, 1)
-    topItem:setAlpha(225)
-
-    local midItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_bg_mid.png', 500, 480)
-    midItem:setRepeat(1, 500 / 4 - 2)
-    midItem:setAlpha(225)
-
-    local bottomItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_bg_bottom.png', 500, 10)
-    bottomItem:setRepeat(1, 1)
-    bottomItem:setAlpha(225)
-
-    dataSource:addItem(topItem, IndexPath.new(1, 1))
-    dataSource:addItem(midItem, IndexPath.new(1, 2))
-    dataSource:addItem(bottomItem, IndexPath.new(1, 3))
-
-    bgView:setVisible(false)
-
-    bgView:setNeedsLayout()
-    bgView:layoutIfNeeded()
-
-    return bgView
+    return BackgroundView.new(Frame.new(0, 0, self.menuSize.width, self.menuSize.height),
+            windower.addon_path..'assets/backgrounds/menu_bg_top.png',
+            windower.addon_path..'assets/backgrounds/menu_bg_mid.png',
+            windower.addon_path..'assets/backgrounds/menu_bg_bottom.png')
 end
 
 return TrustHud

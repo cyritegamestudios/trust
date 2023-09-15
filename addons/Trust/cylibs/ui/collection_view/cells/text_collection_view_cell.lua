@@ -128,9 +128,7 @@ end
 -- @treturn bool True if the coordinates are within the view's bounds, otherwise false.
 --
 function TextCollectionViewCell:hitTest(x, y)
-    -- FIXME: (scretella) this is messed up
-    local _, height = self.textView:extents()
-    return self.textView:hover(x, y + height / 2)
+    return self.textView:hover(x, y)
 end
 
 return TextCollectionViewCell

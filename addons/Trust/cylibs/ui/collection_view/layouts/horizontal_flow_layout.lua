@@ -9,7 +9,6 @@ function HorizontalFlowLayout.new(itemSpacing, padding, sectionSpacing)
     self.itemSpacing = itemSpacing or 0
     self.padding = padding or Padding.equal(0)
     self.sectionSpacing = sectionSpacing or 0
-    self.scrollEnabled = false
     return self
 end
 
@@ -20,7 +19,12 @@ function HorizontalFlowLayout:sizeForItemAtIndexPath(collectionView, cell)
     return { width = cell:getItemSize(), height = collectionView:getSize().height }
 end
 
-function HorizontalFlowLayout:layoutSubviews(collectionView)
+function HorizontalFlowLayout:layoutSubviews(collectionView, indexPathFilter)
+    if indexPathFilter == nil then
+        indexPathFilter = function (_)
+            return true
+        end
+    end
     local xOffset = self.padding.left
     for section = 1, collectionView:getDataSource():numberOfSections() do
         local numberOfItems = collectionView:getDataSource():numberOfItemsInSection(section)
@@ -30,16 +34,20 @@ function HorizontalFlowLayout:layoutSubviews(collectionView)
             local item = collectionView:getDataSource():itemAtIndexPath(indexPath)
 
             local cell = collectionView:getDataSource():cellForItemAtIndexPath(indexPath)
-            cell:setItem(item)
-
-            collectionView:getContentView():addSubview(cell)
-
             local cellSize = self:sizeForItemAtIndexPath(collectionView, cell)
 
-            cell:setPosition(xOffset, self.padding.top)
-            cell:setSize(cellSize.width, cellSize.height - self.padding.top - self.padding.bottom)
-            cell:setVisible(collectionView:getContentView():isVisible())
-            cell:layoutIfNeeded()
+            if indexPathFilter(indexPath) then
+                cell:setItem(item)
+
+                collectionView:getContentView():addSubview(cell)
+
+                cellSize = self:sizeForItemAtIndexPath(collectionView, cell)
+
+                cell:setPosition(xOffset, self.padding.top)
+                cell:setSize(cellSize.width, cellSize.height - self.padding.top - self.padding.bottom)
+                cell:setVisible(collectionView:getContentView():isVisible())
+                cell:layoutIfNeeded()
+            end
 
             xOffset = xOffset + cellSize.width + self.itemSpacing
         end
@@ -53,13 +61,18 @@ function HorizontalFlowLayout:layoutSubviews(collectionView)
 end
 
 function HorizontalFlowLayout:setNeedsLayout(collectionView, addedIndexPaths, removedIndexPaths, updatedIndexPaths)
-    local totalChanges = #addedIndexPaths + #removedIndexPaths
-    if totalChanges >= 0 then
-        self:layoutSubviews(collectionView)
+    if #addedIndexPaths + #removedIndexPaths + #updatedIndexPaths == 0 then
         return
     end
+    if #addedIndexPaths + #removedIndexPaths == 0 then
+        self:layoutSubviews(collectionView, function(indexPath)
+            return updatedIndexPaths:contains(indexPath)
+        end)
+    else
+        self:layoutSubviews(collectionView)
+    end
 
-    local x, y = collectionView:getPosition()
+    --[[local x, y = collectionView:getPosition()
     local xOffset = x
 
     for section = 1, collectionView:getDataSource():numberOfSections() do
@@ -97,14 +110,7 @@ function HorizontalFlowLayout:setNeedsLayout(collectionView, addedIndexPaths, re
     end
 
     self.width = xOffset
-    self.height = collectionView:getSize().height
-end
-
-function HorizontalFlowLayout:enableScrolling(collectionView)
-    if self.scrollEnabled then
-        return
-    end
-    self.scrollEnabled = true
+    self.height = collectionView:getSize().height]]
 end
 
 return HorizontalFlowLayout

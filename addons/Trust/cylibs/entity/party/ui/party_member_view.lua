@@ -48,11 +48,11 @@ function PartyMemberView.new(party)
 
     self:getDisposeBag():add(party:on_party_member_removed():addAction(function(party_member)
         self:updatePartyMembers(party)
-        self:updatePartyMembers(party)
     end), party:on_party_member_removed())
 
     local itemsToAdd = L{}
 
+    -- Create placeholder cells
     local partyMembers = party:get_party_members(true)
     for partyMemberIndex = 1, 6 do
         itemsToAdd:append(IndexedItem.new(TextItem.new("Empty", TextStyle.Default.HeaderSmall), IndexPath.new(partyMemberIndex, 1)))

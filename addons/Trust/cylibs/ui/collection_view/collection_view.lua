@@ -1,4 +1,5 @@
 local CollectionViewDelegate = require('cylibs/ui/collection_view/collection_view_delegate')
+local Frame = require('cylibs/ui/views/frame')
 local ScrollView = require('cylibs/ui/scroll_view/scroll_view')
 
 local CollectionView = setmetatable({}, {__index = ScrollView })
@@ -13,7 +14,7 @@ CollectionView.__index = CollectionView
 -- @treturn CollectionView The newly created CollectionView instance.
 --
 function CollectionView.new(dataSource, layout, delegate)
-    local self = setmetatable(ScrollView.new(), CollectionView)
+    local self = setmetatable(ScrollView.new(Frame.zero()), CollectionView)
 
     self.layout = layout
     self.dataSource = dataSource
@@ -51,18 +52,6 @@ function CollectionView:layoutIfNeeded()
     ScrollView.layoutIfNeeded(self)
 
     self.layout:layoutSubviews(self)
-end
-
----
--- Sets whether scrolling is enabled for the ScrollView.
--- @tparam boolean scrollEnabled True to enable scrolling, false to disable.
---
-function CollectionView:setScrollEnabled(scrollEnabled)
-    ScrollView.setScrollEnabled(self, scrollEnabled)
-
-    if scrollEnabled then
-        self.layout:enableScrolling(self)
-    end
 end
 
 return CollectionView

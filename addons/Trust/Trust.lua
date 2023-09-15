@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '4.0.1'
+_addon.version = '4.1.0'
 
 require('Trust-Include')
 
@@ -9,6 +9,10 @@ default = {
 	verbose=true
 }
 
+default.hud = {}
+default.hud.position = {}
+default.hud.position.x = 0
+default.hud.position.y = 0
 default.help = {}
 default.help.mode_text_enabled = true
 default.help.wiki_base_url = 'https://github.com/cyritegamestudios/trust/wiki'
@@ -181,11 +185,21 @@ function load_trust_commands(job_name_short, trust, action_queue)
 end
 
 function load_ui()
-	hud = TrustHud.new(player, action_queue, addon_enabled)
+	hud = TrustHud.new(player, action_queue, addon_enabled, 500, 500)
 
 	local info = windower.get_windower_settings()
 
-	hud:setPosition(info.ui_x_res - info.ui_x_res / 2, 20)
+	local xPos = info.ui_x_res - info.ui_x_res / 2
+	local yPos = 20
+
+	if settings.hud.position.x > 0 then
+		xPos = settings.hud.position.x
+	end
+	if settings.hud.position.y > 0 then
+		yPos = settings.hud.position.y
+	end
+
+	hud:setPosition(xPos, yPos)
 	hud:setNeedsLayout()
 	hud:layoutIfNeeded()
 end
