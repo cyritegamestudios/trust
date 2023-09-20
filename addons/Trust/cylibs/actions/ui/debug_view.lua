@@ -98,7 +98,7 @@ function DebugView:onSelectMenuItemAtIndexPath(textItem, indexPath)
         elseif self.actionQueue.current_action ~= nil then
             addon_message(260, '('..windower.ffxi.get_player().name..') '.."I'm in the middle of something!")
         else
-            addon_message(260, '('..windower.ffxi.get_player().name..') '.."I'm not doing anything'...")
+            addon_message(260, '('..windower.ffxi.get_player().name..') '.."I'm not doing anything...")
         end
     end
 end

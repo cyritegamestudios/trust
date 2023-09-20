@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '4.2.0'
+_addon.version = '4.2.1'
 
 require('Trust-Include')
 
@@ -643,12 +643,12 @@ end
 
 function loaded()
     if not user_events then
+		load_chunk_event()
         user_events = {}
 		user_events.status = windower.register_event('time change', handle_tic)
 		user_events.status = windower.register_event('status change', handle_status_change)
 		user_events.job_change = windower.register_event('job change', handle_job_change)
 		user_events.zone_change = windower.register_event('zone change', handle_zone_change)
-		load_chunk_event()
     end
 
 	windower.send_command('bind %s trust menu':format(default.menu_key))

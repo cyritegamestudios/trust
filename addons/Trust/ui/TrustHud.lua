@@ -398,7 +398,9 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, jobNameS
         ButtonItem.default('Clear', 18)
     }, {},
     function()
-        return setupView(DebugView.new(self.actionQueue))
+        local debugView = setupView(DebugView.new(self.actionQueue))
+        debugView:setShouldRequestFocus(false)
+        return debugView
     end)
 
     local partyMenuItem = MenuItem.new(L{}, {},
@@ -432,7 +434,9 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, jobNameS
         Debug = debugMenuItem,
     },
     function()
-        return setupView(HelpView.new(jobNameShort))
+        local helpView = setupView(HelpView.new(jobNameShort))
+        helpView:setShouldRequestFocus(false)
+        return helpView
     end)
 
     -- Main
