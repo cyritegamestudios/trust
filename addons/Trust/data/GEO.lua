@@ -1,11 +1,11 @@
 -- Default trust settings for GEO
 TrustSettings = {
     Default = {
-        JobAbilities = S{
+        JobAbilities = L{
         },
-        SelfBuffs = S{
+        SelfBuffs = L{
         },
-        PartyBuffs = S{
+        PartyBuffs = L{
             Spell.new('Indi-STR', L{'Entrust'}, L{'DRK','SAM','WAR','MNK'}),
             Spell.new('Indi-Fury', L{'Entrust'}, L{'RUN'})
         },

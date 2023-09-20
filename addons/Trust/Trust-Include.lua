@@ -17,6 +17,8 @@ require('TrustShortcuts')
 TrustHud = require('ui/TrustHud')
 TrustRemoteCommands = require('TrustRemoteCommands')
 TrustUnitTests = require('TrustUnitTests')
+TrustSettingsLoader = require('TrustSettings')
+TrustSettingsEditor = require('ui/settings/TrustSettingsEditor')
 
 require('Trust-Cylibs-Include')
 

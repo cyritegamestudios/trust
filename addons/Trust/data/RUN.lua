@@ -1,7 +1,7 @@
 -- Default trust settings for RUN
 TrustSettings = {
     Default = {
-        SelfBuffs = S{
+        SelfBuffs = L{
             Spell.new('Temper'),
             Spell.new('Crusade'),
             Spell.new('Refresh'),
@@ -9,9 +9,9 @@ TrustSettings = {
             Spell.new('Shell V'),
             Spell.new('Phalanx'),
         },
-        PartyBuffs = S{
+        PartyBuffs = L{
         },
-        JobAbilities = S{
+        JobAbilities = L{
             'Swordplay'
         },
         Skillchains = {

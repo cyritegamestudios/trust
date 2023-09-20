@@ -1,7 +1,7 @@
 -- Default trust settings for BLU
 TrustSettings = {
     Default = {
-        SelfBuffs = S{
+        SelfBuffs = L{
             Spell.new('Erratic Flutter', L{}),
             Spell.new('Cocoon', L{}),
             Spell.new('Barrier Tusk', L{}),

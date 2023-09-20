@@ -36,6 +36,25 @@ function CollectionViewCell:setItemSize(itemSize)
 end
 
 ---
+-- Returns the estimated size of the content. If no estimated size is specified, the
+-- height of the cell will be returned instead.
+--
+-- @treturn number The estimated size of the content.
+--
+function CollectionViewCell:getEstimatedSize()
+    return self.estimatedSize or self:getSize().height
+end
+
+---
+-- Sets the estimated size of the content. This differs from the itemSize which is fixed.
+--
+-- @tparam number estimatedSize The estimateed size of the item.
+--
+function CollectionViewCell:setEstimatedSize(estimatedSize)
+    self.estimatedSize = estimatedSize
+end
+
+---
 -- Returns the item associated with the cell.
 --
 -- @treturn any The associated item.
@@ -70,10 +89,12 @@ end
 --
 function CollectionViewCell:setSelected(selected)
     self.selected = selected
-    if self.selected then
-        self:setBackgroundColor(self:getItem():getStyle():getSelectedBackgroundColor())
-    else
-        self:setBackgroundColor(self:getItem():getStyle():getDefaultBackgroundColor())
+    if type(self:getItem().getStyle) == "function" then
+        if self.selected then
+            self:setBackgroundColor(self:getItem():getStyle():getSelectedBackgroundColor())
+        else
+            self:setBackgroundColor(self:getItem():getStyle():getDefaultBackgroundColor())
+        end
     end
     self:setNeedsLayout()
     self:layoutIfNeeded()

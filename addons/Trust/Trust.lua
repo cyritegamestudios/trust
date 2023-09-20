@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '4.1.0'
+_addon.version = '4.2.1'
 
 require('Trust-Include')
 
@@ -9,6 +9,7 @@ default = {
 	verbose=true
 }
 
+default.menu_key = 'numpad+'
 default.hud = {}
 default.hud.position = {}
 default.hud.position.x = 0
@@ -75,18 +76,34 @@ function load_user_files(main_job_id, sub_job_id)
 
 	handle_status_change(windower.ffxi.get_player().status, windower.ffxi.get_player().status)
 
-	player.trust = {}
-	player.trust.main_job_settings = load_trust_settings(player.main_job_name_short)
-	player.trust.sub_job_settings = load_trust_settings(player.sub_job_name_short)
+	state.MainTrustSettingsMode = M{['description'] = 'Main Trust Settings Mode', 'Default'}
 
-	state.MainTrustSettingsMode = M{['description'] = 'Main Trust Settings Mode', T(T(player.trust.main_job_settings):keyset())}
-	state.MainTrustSettingsMode:set('Default')
+	main_trust_settings = TrustSettingsLoader.new(player.main_job_name_short, true)
+	main_trust_settings:onSettingsChanged():addAction(function(newSettings)
+		player.trust.main_job_settings = newSettings
+
+		state.MainTrustSettingsMode:options(T(T(newSettings):keyset()):unpack())
+		state.MainTrustSettingsMode:set('Default')
+	end)
+
+	state.SubTrustSettingsMode = M{['description'] = 'Sub Trust Settings Mode', 'Default'}
+
+	sub_trust_settings = TrustSettingsLoader.new(player.sub_job_name_short, true)
+	sub_trust_settings:onSettingsChanged():addAction(function(newSettings)
+		player.trust.sub_job_settings = newSettings
+
+		state.SubTrustSettingsMode:options(T(T(newSettings):keyset()):unpack())
+		state.SubTrustSettingsMode:set('Default')
+	end)
+
+	player.trust = {}
+	player.trust.main_job_settings = main_trust_settings:loadSettings()
+	player.trust.sub_job_settings = sub_trust_settings:loadSettings()
+
 	state.MainTrustSettingsMode:on_state_change():addAction(function(_, new_value)
 		player.trust.main_job:set_trust_settings(player.trust.main_job_settings[new_value])
 	end)
 
-	state.SubTrustSettingsMode = M{['description'] = 'Sub Trust Settings Mode', T(T(player.trust.sub_job_settings):keyset())}
-	state.SubTrustSettingsMode:set('Default')
 	state.SubTrustSettingsMode:on_state_change():addAction(function(_, new_value)
 		player.trust.sub_job:set_trust_settings(player.trust.sub_job_settings[new_value])
 	end)
@@ -118,19 +135,10 @@ function load_user_files(main_job_id, sub_job_id)
 	load_trust_modes(player.main_job_name_short)
 	load_ui()
 
-	handle_start()
-end
+	main_trust_settings:copySettings()
+	sub_trust_settings:copySettings()
 
-function load_trust_settings(job_name_short)
-	local file_prefix = windower.addon_path..'data/'..job_name_short
-	if windower.file_exists(file_prefix..'_'..windower.ffxi.get_player().name..'.lua') then
-		--return dofile(file_prefix..'_'..windower.ffxi.get_player().name..'.lua')
-		return require('data/'..job_name_short..'_'..windower.ffxi.get_player().name)
-	elseif windower.file_exists(file_prefix..'.lua') then
-		--return dofile(file_prefix..'.lua')
-		return require('data/'..job_name_short)
-	end
-	return nil
+	handle_start()
 end
 
 function load_trust_modes(job_name_short)
@@ -185,7 +193,7 @@ function load_trust_commands(job_name_short, trust, action_queue)
 end
 
 function load_ui()
-	hud = TrustHud.new(player, action_queue, addon_enabled, 500, 500)
+	hud = TrustHud.new(player, action_queue, addon_enabled, 500, 500, settings)
 
 	local info = windower.get_windower_settings()
 
@@ -329,7 +337,8 @@ function handle_stop()
 end
 
 function handle_reload()
-	windower.chat.input('// lua r trust')
+	main_trust_settings:loadSettings()
+	sub_trust_settings:loadSettings()
 end
 
 function handle_unload()
@@ -373,26 +382,21 @@ function handle_save_trust(mode_name)
 end
 
 function handle_create_trust(job_name_short)
-	if job_util.all_jobs():contains(job_name_short) then
-		local default_settings = files.new('data/'..job_name_short..'.lua')
-		if not default_settings:exists() then
-			addon_message(100, 'No default settings exists for '..(job_name_short or 'nil'))
-			return
-		end
-		local file_paths = L{
-			'data/'..job_name_short..'_'..windower.ffxi.get_player().name..'.lua',
-		}
-		for file_path in file_paths:it() do
-			local trust_settings = files.new(file_path)
-			if not trust_settings:exists() then
-				trust_settings:write(default_settings:read())
+	main_trust_settings:copySettings()
+	sub_trust_settings:copySettings()
+end
 
-				addon_message(207, 'Created trust override '..file_path)
+function handle_migrate_settings()
+	for job_name_short in job_util.all_jobs():it() do
+		if windower.file_exists(windower.addon_path..'data/'..job_name_short..'_'..windower.ffxi.get_player().name..'.lua') then
+			local legacy_trust_settings = TrustSettingsLoader.new(job_name_short, true)
+			local settings = legacy_trust_settings:loadSettings()
+			if settings then
+				TrustSettingsLoader.migrateSettings(job_name_short, settings, true)
 			end
 		end
-	else
-		addon_message(100, 'Invalid job name short '..(job_name_short or 'nil'))
 	end
+	addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, all of my settings have been upgraded to the latest and greatest!")
 end
 
 function handle_trust_status()
@@ -422,7 +426,7 @@ end
 function handle_assist(param)
 	local party_member = player.party:get_party_member_named(param)
 	if party_member then
-		addon_message(207, 'Now assisting '..party_member:get_name())
+		addon_message(260, '('..windower.ffxi.get_player().name..') '.."Okay, I'll assist "..param.." in battle.")
 		player.party:set_assist_target(party_member)
 	end
 end
@@ -439,8 +443,12 @@ function handle_command(args)
 	action_queue:push_action(action, false)
 end
 
+function handle_toggle_menu()
+	hud:toggleMenu()
+end
+
 function handle_debug(verbose)
-	for action_type, count in pairs(actions_counter) do
+	--[[for action_type, count in pairs(actions_counter) do
 		print('type: '..action_type..' count: '..count)
 		print('actions created: '..actions_created..' actions destroyed: '..actions_destroyed)
 	end
@@ -450,7 +458,111 @@ function handle_debug(verbose)
 	
 	for party_member in player.party:get_party_members(true, 21):it() do
 		print(party_member:get_mob().name..' buffs: '..tostring(party_member:get_buffs()))
+	end]]
+
+	local ButtonCollectionViewCell = require('cylibs/ui/collection_view/cells/button_collection_view_cell')
+	local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
+	local CollectionView = require('cylibs/ui/collection_view/collection_view')
+	local CollectionViewCell = require('cylibs/ui/collection_view/collection_view_cell')
+	local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
+	local ImageItem = require('cylibs/ui/collection_view/items/image_item')
+	local IndexPath = require('cylibs/ui/collection_view/index_path')
+	local MenuView = require('cylibs/ui/menu/menu_view')
+	local TextItem = require('cylibs/ui/collection_view/items/text_item')
+	local TextStyle = require('cylibs/ui/style/text_style')
+	local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
+	local ViewStack = require('cylibs/ui/views/view_stack')
+
+	local buttonHeight = 18
+
+	--[[local dataSource = CollectionViewDataSource.new(function(item, indexPath)
+		local cell = ButtonCollectionViewCell.new(item)
+		cell:setItemSize(buttonHeight)
+		return cell
+	end)
+
+	local collectionView = CollectionView.new(dataSource, VerticalFlowLayout.new())
+
+	collectionView:setSize(100, 80)
+	collectionView:setPosition(500, 500)
+
+	local centerImageItem = ImageItem.new(windower.addon_path..'assets/buttons/button-mid.png', 45, buttonHeight)
+	centerImageItem:setRepeat(6, 1)
+
+	local buttonItem = ButtonItem.new(
+			TextItem.new("Settings", TextStyle.Default.ButtonSmall),
+			ImageItem.new(windower.addon_path..'assets/buttons/button-left.png', 20, buttonHeight),
+			centerImageItem,
+			ImageItem.new(windower.addon_path..'assets/buttons/button-right.png', 20, buttonHeight)
+	)
+
+	collectionView:getDataSource():addItem(buttonItem, IndexPath.new(1, 1))
+
+	collectionView:setNeedsLayout()
+	collectionView:layoutIfNeeded()]]
+
+	local viewStack = ViewStack.new()
+
+
+	local buttonItems = L{}
+
+	for i = 1, 5 do
+		local centerImageItem = ImageItem.new(windower.addon_path..'assets/buttons/button-mid.png', 45, buttonHeight)
+		centerImageItem:setRepeat(6, 1)
+
+		local buttonItem = ButtonItem.new(
+				TextItem.new("Button"..i, TextStyle.Default.ButtonSmall),
+				ImageItem.new(windower.addon_path..'assets/buttons/button-left.png', 20, buttonHeight),
+				centerImageItem,
+				ImageItem.new(windower.addon_path..'assets/buttons/button-right.png', 20, buttonHeight)
+		)
+		buttonItems:append(buttonItem)
 	end
+
+	local menu = MenuView.new(buttonItems)
+	menu:setPosition(500, 200)
+	menu:setVisible(false)
+
+	menu:layoutIfNeeded()
+
+	menu:onSelectMenuItemAtIndexPath():addAction(function(_, item, indexPath)
+		if indexPath.row == 2 then
+			local centerImageItem = ImageItem.new(windower.addon_path..'assets/buttons/button-mid.png', 45, buttonHeight)
+			centerImageItem:setRepeat(6, 1)
+
+			local buttonItem = ButtonItem.new(
+					TextItem.new("Modes", TextStyle.Default.ButtonSmall),
+					ImageItem.new(windower.addon_path..'assets/buttons/button-left.png', 20, buttonHeight),
+					centerImageItem,
+					ImageItem.new(windower.addon_path..'assets/buttons/button-right.png', 20, buttonHeight)
+			)
+
+			local menu2 = MenuView.new(L{ buttonItem })
+			menu2:setPosition(500, 200)
+			menu2:setVisible(false)
+
+			viewStack:present(menu2)
+		end
+	end)
+
+	viewStack:present(menu)
+
+
+	--[[if settings_editor then
+		settings_editor:destroy()
+	end
+	local Frame = require('cylibs/ui/views/frame')
+
+	local info = windower.get_windower_settings()
+
+	local xPos = (info.ui_x_res - 500) / 2
+	local yPos = (info.ui_y_res - 500) / 2
+
+	settings_editor = TrustSettingsEditor.new(Frame.new(xPos, yPos, 500, 500), main_trust_settings, state.MainTrustSettingsMode)
+	settings_editor:setSize(500, 500)
+	settings_editor:setVisible(true)
+	settings_editor:setNeedsLayout()
+	settings_editor:layoutIfNeeded()]]
 end
 
 -- Setup
@@ -469,6 +581,8 @@ commands['command'] = handle_command
 commands['debug'] = handle_debug
 commands['tests'] = handle_tests
 commands['help'] = handle_help
+commands['migrate'] = handle_migrate_settings
+commands['menu'] = handle_toggle_menu
 
 local function addon_command(cmd, ...)
     local cmd = cmd or 'help'
@@ -503,6 +617,9 @@ function load_chunk_event()
 end
 
 function unload_chunk_event()
+	for key in L{'up','down','enter', default.menu_key}:it() do
+		windower.send_command('unbind %s':format(key))
+	end
 end
 
 function unloaded()
@@ -512,23 +629,31 @@ function unloaded()
         end
         user_events = nil
     end
-	player.trust.main_job:destroy()
-	player.trust.sub_job:destroy()
+	if player.trust then
+		if player.trust.main_job then
+			player.trust.main_job:destroy()
+		end
+		if player.trust.sub_job then
+			player.trust.sub_job:destroy()
+		end
+	end
 	player.trust = nil
-	coroutine.schedule(unload_chunk_event,0.1)
+	unload_chunk_event()
 end
 
 function loaded()
     if not user_events then
+		load_chunk_event()
         user_events = {}
 		user_events.status = windower.register_event('time change', handle_tic)
 		user_events.status = windower.register_event('status change', handle_status_change)
 		user_events.job_change = windower.register_event('job change', handle_job_change)
 		user_events.zone_change = windower.register_event('zone change', handle_zone_change)
-		coroutine.schedule(load_chunk_event,0.1)
     end
+
+	windower.send_command('bind %s trust menu':format(default.menu_key))
 end
 
 windower.register_event('addon command', addon_command)
 windower.register_event('login','load', loaded)
-windower.register_event('logout', unloaded)
+windower.register_event('logout', 'unload', unloaded)

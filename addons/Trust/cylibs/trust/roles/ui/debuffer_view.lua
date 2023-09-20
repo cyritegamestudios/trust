@@ -19,8 +19,8 @@ TextStyle.DebufferView = {
             Color.clear,
             "Arial",
             11,
-            Color.new(175, 205, 205, 205),
             Color.white,
+            Color.yellow,
             2,
             0,
             0,
@@ -57,11 +57,17 @@ function DebufferView.new(debuffer, battle_target)
         dataSource:addItems(itemsToAdd)
 
         for indexedItem in itemsToHighlight:it() do
-            self:getDelegate():highlightItemAtIndexPath(indexedItem:getItem(), indexedItem:getIndexPath())
+            self:getDelegate():highlightItemAtIndexPath(indexedItem:getIndexPath())
         end
     end
 
     return self
+end
+
+function DebufferView:layoutIfNeeded()
+    CollectionView.layoutIfNeeded(self)
+
+    self:setTitle("View debuffs on the current battle target.")
 end
 
 return DebufferView

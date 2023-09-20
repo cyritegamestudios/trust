@@ -7,6 +7,7 @@ local CollectionViewDelegate = {}
 CollectionViewDelegate.__index = CollectionViewDelegate
 CollectionViewDelegate.__type = "CollectionViewDelegate"
 
+
 function CollectionViewDelegate:didSelectItemAtIndexPath()
     return self.didSelectItem
 end
@@ -48,25 +49,23 @@ function CollectionViewDelegate.new(collectionView)
                 local cell = dataSource:cellForItemAtIndexPath(indexPath)
                 if cell:isVisible() and cell:isUserInteractionEnabled() then
                     if cell:hitTest(x, y) then
-                        local item = dataSource:itemAtIndexPath(indexPath)
                         if type == Mouse.Event.Click then
                             if cell:isSelected() then
-                                self:deselectItemAtIndexPath(item, indexPath)
+                                self:deselectItemAtIndexPath(indexPath)
                             else
-                                self:selectItemAtIndexPath(item, indexPath)
+                                self:selectItemAtIndexPath(indexPath)
                             end
                         elseif type == Mouse.Event.Move then
                             if not cell:isHighlighted() then
                                 self:deHighlightAllItems()
-                                self:highlightItemAtIndexPath(item, indexPath)
+                                self:highlightItemAtIndexPath(indexPath)
                             end
                         end
                         return true
                     else
                         if type == Mouse.Event.Move then
-                            local item = dataSource:itemAtIndexPath(indexPath)
                             if cell:isHighlighted() then
-                                self:deHighlightItemAtIndexPath(item, indexPath)
+                                self:deHighlightItemAtIndexPath(indexPath)
                             end
                         end
                     end
@@ -77,6 +76,20 @@ function CollectionViewDelegate.new(collectionView)
     end), Mouse.input():onMouseEvent())
 
     return self
+end
+
+function CollectionViewDelegate:shouldClipToBounds(collectionView, view)
+    local absolutePosition = collectionView:getAbsolutePosition()
+    local viewAbsolutePosition = view:getAbsolutePosition()
+
+    if view:getClipsToBounds() then
+        if (viewAbsolutePosition.y < absolutePosition.y or viewAbsolutePosition.y + view.frame.height > absolutePosition.y + collectionView.frame.height)
+                or (viewAbsolutePosition.x < absolutePosition.x or viewAbsolutePosition.x + view.frame.width > absolutePosition.x + collectionView.frame.width) then
+            return true
+        else
+            return false
+        end
+    end
 end
 
 ---
@@ -92,6 +105,14 @@ function CollectionViewDelegate:destroy()
     end
 end
 
+function CollectionViewDelegate:deleteItemAtIndexPath(indexPath)
+    self.highlightedIndexPaths = self.highlightedIndexPaths:filter(function(existingIndexPath) return existingIndexPath ~= indexPath  end)
+    --self:didDehighlightItemAtIndexPath():trigger(indexPath)
+
+    self.selectedIndexPaths = self.selectedIndexPaths:filter(function(existingIndexPath) return existingIndexPath ~= indexPath  end)
+    --self:didDeselectItemAtIndexPath():trigger(indexPath)
+end
+
 ---
 -- Determines whether the item at the specified index path should be selected.
 --
@@ -99,7 +120,7 @@ end
 -- @tparam IndexPath indexPath The index path of the item.
 -- @treturn boolean Returns true if the item should be selected, false otherwise.
 --
-function CollectionViewDelegate:shouldSelectItemAtIndexPath(item, indexPath)
+function CollectionViewDelegate:shouldSelectItemAtIndexPath(indexPath)
     local cell = self.collectionView:getDataSource():cellForItemAtIndexPath(indexPath)
     return not cell:isSelected()
 end
@@ -107,15 +128,14 @@ end
 ---
 -- Selects the item at the specified index path.
 --
--- @tparam any item The item to select.
 -- @tparam IndexPath indexPath The index path of the item.
 --
-function CollectionViewDelegate:selectItemAtIndexPath(item, indexPath)
-    if not self:shouldSelectItemAtIndexPath(item, indexPath) then
+function CollectionViewDelegate:selectItemAtIndexPath(indexPath)
+    if not self:shouldSelectItemAtIndexPath(indexPath) then
         return
     end
 
-    if not self.collectionView.allowsMultipleSelection then
+    if not self.collectionView:getAllowsMultipleSelection() then
         self:deselectAllItems()
     end
 
@@ -124,7 +144,7 @@ function CollectionViewDelegate:selectItemAtIndexPath(item, indexPath)
 
     self.selectedIndexPaths:add(indexPath)
 
-    self:didSelectItemAtIndexPath():trigger(item, indexPath)
+    self:didSelectItemAtIndexPath():trigger(indexPath)
 end
 
 ---
@@ -133,8 +153,8 @@ end
 -- @tparam any item The item to deselect.
 -- @tparam IndexPath indexPath The index path of the item.
 --
-function CollectionViewDelegate:deselectItemAtIndexPath(item, indexPath)
-    if self:shouldSelectItemAtIndexPath(item, indexPath) then
+function CollectionViewDelegate:deselectItemAtIndexPath(indexPath)
+    if self:shouldSelectItemAtIndexPath(indexPath) then
         return
     end
 
@@ -143,7 +163,7 @@ function CollectionViewDelegate:deselectItemAtIndexPath(item, indexPath)
 
     self.selectedIndexPaths = self.selectedIndexPaths:filter(function(existingIndexPath) return existingIndexPath ~= indexPath  end)
 
-    self:didDeselectItemAtIndexPath():trigger(item, indexPath)
+    self:didDeselectItemAtIndexPath():trigger(indexPath)
 end
 
 ---
@@ -151,9 +171,17 @@ end
 --
 function CollectionViewDelegate:deselectAllItems()
     for indexPath in self.selectedIndexPaths:it() do
-        local item = self.collectionView:getDataSource():itemAtIndexPath(indexPath)
-        self:deselectItemAtIndexPath(item, indexPath)
+        self:deselectItemAtIndexPath(indexPath)
     end
+end
+
+---
+-- Gets the selected IndexPaths.
+--
+-- @treturn S Returns the set of selected IndexPaths
+--
+function CollectionViewDelegate:getSelectedIndexPaths()
+    return self.selectedIndexPaths
 end
 
 ---
@@ -163,7 +191,7 @@ end
 -- @tparam IndexPath indexPath The index path of the item.
 -- @treturn boolean Returns true if the item should be highlighted, false otherwise.
 --
-function CollectionViewDelegate:shouldHighlightItemAtIndexPath(item, indexPath)
+function CollectionViewDelegate:shouldHighlightItemAtIndexPath(indexPath)
     local cell = self.collectionView:getDataSource():cellForItemAtIndexPath(indexPath)
     return not cell:isHighlighted()
 end
@@ -174,8 +202,8 @@ end
 -- @tparam any item The item to highlight.
 -- @tparam IndexPath indexPath The index path of the item.
 --
-function CollectionViewDelegate:highlightItemAtIndexPath(item, indexPath)
-    if not self:shouldHighlightItemAtIndexPath(item, indexPath) then
+function CollectionViewDelegate:highlightItemAtIndexPath(indexPath)
+    if not self:shouldHighlightItemAtIndexPath(indexPath) then
         return
     end
 
@@ -184,18 +212,17 @@ function CollectionViewDelegate:highlightItemAtIndexPath(item, indexPath)
 
     self.highlightedIndexPaths:add(indexPath)
 
-    self:didHighlightItemAtIndexPath():trigger(item, indexPath)
+    self:didHighlightItemAtIndexPath():trigger(indexPath)
 end
 
 ---
-
 -- De-highlights the item at the specified index path.
 --
 -- @tparam any item The item to de-highlight.
 -- @tparam IndexPath indexPath The index path of the item.
 --
-function CollectionViewDelegate:deHighlightItemAtIndexPath(item, indexPath)
-    if self:shouldHighlightItemAtIndexPath(item, indexPath) then
+function CollectionViewDelegate:deHighlightItemAtIndexPath(indexPath)
+    if self:shouldHighlightItemAtIndexPath(indexPath) then
         return
     end
 
@@ -204,7 +231,7 @@ function CollectionViewDelegate:deHighlightItemAtIndexPath(item, indexPath)
 
     self.highlightedIndexPaths = self.highlightedIndexPaths:filter(function(existingIndexPath) return existingIndexPath ~= indexPath  end)
 
-    self:didDehighlightItemAtIndexPath():trigger(item, indexPath)
+    self:didDehighlightItemAtIndexPath():trigger(indexPath)
 end
 
 ---
@@ -212,10 +239,8 @@ end
 --
 function CollectionViewDelegate:deHighlightAllItems()
     for indexPath in self.highlightedIndexPaths:it() do
-        local item = self.collectionView:getDataSource():itemAtIndexPath(indexPath)
-        self:deHighlightItemAtIndexPath(item, indexPath)
+        self:deHighlightItemAtIndexPath(indexPath)
     end
 end
-
 
 return CollectionViewDelegate

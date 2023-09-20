@@ -155,6 +155,17 @@ function spell_util.can_cast_spells()
 end
 
 -------
+-- Returns the spell metadata for all spells matching the given filter.
+-- @treturn list List of SpellMetadata (see res/spells.lua).
+function spell_util.get_spells(filter)
+    local all_spell_ids = L(T(windower.ffxi.get_spells()):keyset())
+            :filter(function(spellId) return spell_util.knows_spell(spellId) end)
+    local all_spells = all_spell_ids:map(function(spell_id) return res.spells[spell_id] end)
+            :filter(function(spell) return filter(spell)  end)
+    return all_spells
+end
+
+-------
 -- Returns true if the spell_id corresponds to a barspell that improves resistance to an element.
 -- @tparam number spell_id Spell id (see spells.lua)
 -- @treturn boolean True if a barspell, false otherwise

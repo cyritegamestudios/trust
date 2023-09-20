@@ -1,13 +1,13 @@
 -- Default trust settings for DRK
 TrustSettings = {
     Default = {
-        SelfBuffs = S{
+        SelfBuffs = L{
             Spell.new('Endark II', L{}),
             Spell.new('Absorb-DEX', L{}, L{}, 'bt'),
             Spell.new('Absorb-STR', L{}, L{}, 'bt'),
             Spell.new('Dread Spikes', L{}, L{}, nil, L{ HasBuffCondition.new('Max HP Boost'), IdleCondition.new() })
         },
-        JobAbilities = S{
+        JobAbilities = L{
             'Last Resort',
             'Scarlet Delirium'
         },

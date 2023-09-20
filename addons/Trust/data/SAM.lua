@@ -1,7 +1,7 @@
 -- Default trust settings for SAM
 TrustSettings = {
     Default = {
-        JobAbilities = S{
+        JobAbilities = L{
             'Hasso'
         },
         Skillchains = {

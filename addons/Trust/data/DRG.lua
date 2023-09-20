@@ -1,7 +1,7 @@
 -- Default trust settings for DRG
 TrustSettings = {
     Default = {
-        JobAbilities = S{
+        JobAbilities = L{
         },
         Skillchains = {
             defaultws = {"Impulse Drive","Stardiver","Savage Blade","Retribution"},

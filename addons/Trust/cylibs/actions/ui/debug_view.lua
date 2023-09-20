@@ -1,3 +1,4 @@
+local Button = require('cylibs/ui/button')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
 local Color = require('cylibs/ui/views/color')
@@ -35,16 +36,18 @@ function DebugView.new(actionQueue)
 
     local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0))), DebugView)
 
-    self.action_queue = action_queue
+    self.actionQueue = actionQueue
 
     self:updateActions()
 
     self:getDisposeBag():add(actionQueue:on_action_queued():addAction(function(_)
         self:updateActions()
     end), actionQueue:on_action_queued())
+
     self:getDisposeBag():add(actionQueue:on_action_start():addAction(function(_)
         self:updateActions()
     end), actionQueue:on_action_start())
+
     self:getDisposeBag():add(actionQueue:on_action_end():addAction(function(_)
         self:updateActions()
     end), actionQueue:on_action_end())
@@ -61,7 +64,7 @@ function DebugView:updateActions()
 
     self:getDataSource():addItem(TextItem.new("Actions", TextStyle.Default.HeaderSmall), IndexPath.new(1, 1))
 
-    local actions = self.action_queue:get_actions()
+    local actions = self.actionQueue:get_actions()
     if actions:length() > 0 then
         local rowIndex = 2
         for action in actions:it() do
@@ -70,13 +73,33 @@ function DebugView:updateActions()
                 local item = TextItem.new('• '..action:tostring(), TextStyle.DebugView.Text)
                 self:getDataSource():addItem(item, indexPath)
                 if action:is_equal(actions[1]) then
-                    self:getDelegate():highlightItemAtIndexPath(item, indexPath)
+                    self:getDelegate():highlightItemAtIndexPath(indexPath)
                 end
                 rowIndex = rowIndex + 1
             end
         end
     else
         self:getDataSource():addItem(TextItem.new("• Idle", TextStyle.DebugView.Text), IndexPath.new(1, 2))
+        self:getDelegate():deHighlightAllItems()
+    end
+end
+
+function DebugView:layoutIfNeeded()
+    CollectionView.layoutIfNeeded(self)
+
+    self:setTitle("View current and queued actions.")
+end
+
+function DebugView:onSelectMenuItemAtIndexPath(textItem, indexPath)
+    if textItem:getText() == 'Clear' then
+        if self.actionQueue:length() > 0 then
+            self.actionQueue:clear()
+            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Okay, I'll reconsider what I was going to do.")
+        elseif self.actionQueue.current_action ~= nil then
+            addon_message(260, '('..windower.ffxi.get_player().name..') '.."I'm in the middle of something!")
+        else
+            addon_message(260, '('..windower.ffxi.get_player().name..') '.."I'm not doing anything...")
+        end
     end
 end
 

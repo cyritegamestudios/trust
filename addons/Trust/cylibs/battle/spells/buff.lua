@@ -12,6 +12,7 @@ local Spell = require('cylibs/battle/spell')
 
 local Buff = setmetatable({}, {__index = Spell })
 Buff.__index = Buff
+Buff.__type = "Buff"
 
 -------
 -- List of AOE buffs prefixes
@@ -35,10 +36,25 @@ function Buff.new(spell_name, job_abilities, job_names, spell_prefix, conditions
     spell = spell_util.highest_spell_for_buff_id(spell_util.buff_id_for_spell(spell.id), spell_name)
     if spell then
         local self = setmetatable(Spell.new(spell.en, job_abilities or L{}, job_names, nil, conditions, nil), Buff)
+        self.original_spell_name = spell_name
         return self
     else
         return nil
     end
+end
+
+function Buff.decode(rawSettings)
+    local buff = Buff.new(rawSettings.spell_name, L(rawSettings.job_abilities), L(rawSettings.job_names), nil, rawSettings.conditions)
+    return buff
+end
+
+function Buff:encode()
+    local settings = Spell.encode(self)
+
+    settings.type = Buff.__type
+    settings.spell_name = self.original_spell_name
+
+    return settings
 end
 
 -------

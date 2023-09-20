@@ -30,6 +30,7 @@ function Puller.new(action_queue, target_names, spell_name, job_ability_name, ra
     self.out_of_range_counter = 0
     self.last_pull_time = os.time()
     self.last_target_check_time = os.time()
+    self.no_pull_counter = 0
 
     return self
 end
@@ -195,6 +196,7 @@ end
 
 function Puller:pull_target(target)
     if target ~= nil and target.distance:sqrt() < self:get_pull_distance() then
+        self.no_pull_counter = 0
         local pull_action = self:get_pull_action(target.index)
         if pull_action and pull_action:can_perform() then
             local sequence_action = SequenceAction.new(L{
@@ -204,6 +206,13 @@ function Puller:pull_target(target)
             }, 'puller_target_' .. target.index)
             sequence_action.priority = ActionPriority.high
             self.action_queue:push_action(sequence_action, true)
+        end
+    else
+        self.no_pull_counter = self.no_pull_counter + 1
+        if self.no_pull_counter == 4 then
+            addon_message(260, '('..windower.ffxi.get_player().name..') '.."I can't find anything to pull. I'll check again soon.")
+        elseif self.no_pull_counter == 8 then
+            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Hmm...I still can't find anything. Should we pick different monsters to fight?")
         end
     end
 end

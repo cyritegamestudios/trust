@@ -1,7 +1,7 @@
 -- Default trust settings for WAR
 TrustSettings = {
     Default = {
-        JobAbilities = S{
+        JobAbilities = L{
             'Berserk',
             'Aggressor',
             'Warcry',

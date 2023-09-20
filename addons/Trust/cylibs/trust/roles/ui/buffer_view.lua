@@ -11,6 +11,7 @@ local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_f
 
 local BufferView = setmetatable({}, {__index = CollectionView })
 BufferView.__index = BufferView
+BufferView.__type = 'BufferView'
 
 TextStyle.BufferView = {
     Text = TextStyle.new(
@@ -18,8 +19,8 @@ TextStyle.BufferView = {
             Color.clear,
             "Arial",
             11,
-            Color.new(175, 205, 205, 205),
             Color.white,
+            Color.yellow,
             2,
             0,
             0,
@@ -39,47 +40,50 @@ function BufferView.new(buffer)
     local itemsToAdd = L{}
     local itemsToHighlight = L{}
 
+    local sectionNum = 1
+
     local jobAbilityNames = buffer:get_job_ability_names()
     if jobAbilityNames:length() > 0 then
-        itemsToAdd:append(IndexedItem.new(TextItem.new("Job Abilities", TextStyle.Default.HeaderSmall), IndexPath.new(1, 1)))
+        itemsToAdd:append(IndexedItem.new(TextItem.new("Job Abilities", TextStyle.Default.HeaderSmall), IndexPath.new(sectionNum, 1)))
         local currentRow = 2
         for job_ability_name in jobAbilityNames:it() do
             local item = TextItem.new('• '..job_ability_name, TextStyle.BufferView.Text)
-            local indexPath = IndexPath.new(1, currentRow)
+            local indexPath = IndexPath.new(sectionNum, currentRow)
             itemsToAdd:append(IndexedItem.new(item, indexPath))
             if buffer:is_job_ability_buff_active(job_ability_name) then
                 itemsToHighlight:append(IndexedItem.new(item, indexPath))
             end
             currentRow = currentRow + 1
         end
-        itemsToAdd:append(IndexedItem.new(TextItem.new("", TextStyle.BufferView.Text), IndexPath.new(1, currentRow)))
+        itemsToAdd:append(IndexedItem.new(TextItem.new("", TextStyle.BufferView.Text), IndexPath.new(sectionNum, currentRow)))
+        sectionNum = sectionNum + 1
     end
 
     local selfSpells = buffer:get_self_spells()
     if selfSpells:length() > 0 then
-        itemsToAdd:append(IndexedItem.new(TextItem.new("Self Spells", TextStyle.Default.HeaderSmall), IndexPath.new(2, 1)))
+        itemsToAdd:append(IndexedItem.new(TextItem.new("Self Spells", TextStyle.Default.HeaderSmall), IndexPath.new(sectionNum, 1)))
         local currentRow = 2
         for spell in selfSpells:it() do
             local item = TextItem.new('• '..spell:description(), TextStyle.BufferView.Text)
-            local indexPath = IndexPath.new(2, currentRow)
+            local indexPath = IndexPath.new(sectionNum, currentRow)
             itemsToAdd:append(IndexedItem.new(item, indexPath))
             if buffer:is_self_buff_active(spell) then
                 itemsToHighlight:append(IndexedItem.new(item, indexPath))
             end
             currentRow = currentRow + 1
         end
-        itemsToAdd:append(IndexedItem.new(TextItem.new("", TextStyle.BufferView.Text), IndexPath.new(2, currentRow)))
+        itemsToAdd:append(IndexedItem.new(TextItem.new("", TextStyle.BufferView.Text), IndexPath.new(sectionNum, currentRow)))
+        sectionNum = sectionNum + 1
     end
 
     local partySpells = buffer:get_party_spells()
     if partySpells:length() > 0 then
-        itemsToAdd:append(IndexedItem.new(TextItem.new("Party Spells", TextStyle.Default.HeaderSmall), IndexPath.new(3, 1)))
+        itemsToAdd:append(IndexedItem.new(TextItem.new("Party Spells", TextStyle.Default.HeaderSmall), IndexPath.new(sectionNum, 1)))
         local currentRow = 2
         for spell in partySpells:it() do
             local item = TextItem.new('• '..spell:description(), TextStyle.BufferView.Text)
-            local indexPath = IndexPath.new(3, currentRow)
+            local indexPath = IndexPath.new(sectionNum, currentRow)
             itemsToAdd:append(IndexedItem.new(item, indexPath))
-            itemsToHighlight:append(IndexedItem.new(item, indexPath))
             currentRow = currentRow + 1
         end
     end
@@ -87,10 +91,16 @@ function BufferView.new(buffer)
     dataSource:addItems(itemsToAdd)
 
     for indexedItem in itemsToHighlight:it() do
-        self:getDelegate():highlightItemAtIndexPath(indexedItem:getItem(), indexedItem:getIndexPath())
+        self:getDelegate():highlightItemAtIndexPath(indexedItem:getIndexPath())
     end
 
     return self
+end
+
+function BufferView:layoutIfNeeded()
+    CollectionView.layoutIfNeeded(self)
+
+    self:setTitle("View current buffs on the player and party.")
 end
 
 return BufferView

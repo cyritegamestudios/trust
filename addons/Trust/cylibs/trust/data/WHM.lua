@@ -44,10 +44,12 @@ function WhiteMageTrust:on_init()
 		self:get_job():set_cure_settings(new_trust_settings.CureSettings)
 
 		local buffer = self:role_with_type("buffer")
+		if buffer then
 
-		buffer:set_job_ability_names(new_trust_settings.JobAbilities)
-		buffer:set_self_spells(new_trust_settings.SelfBuffs)
-		buffer:set_party_spells(new_trust_settings.PartyBuffs)
+			buffer:set_job_ability_names(new_trust_settings.JobAbilities)
+			buffer:set_self_spells(new_trust_settings.SelfBuffs)
+			buffer:set_party_spells(new_trust_settings.PartyBuffs)
+		end
 
 		local debuffer = self:role_with_type("debuffer")
 

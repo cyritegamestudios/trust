@@ -21,9 +21,10 @@ TextStyle.__type = "TextStyle"
 -- @tparam number strokeWidth The stroke width.
 -- @tparam number strokeAlpha The stroke alpha.
 -- @tparam boolean bold Whether the text should be bolded.
+-- @tparam Color selectedColor The selected font color.
 -- @treturn TextStyle The newly created TextStyle instance.
 --
-function TextStyle.new(selectedBackgroundColor, defaultBackgroundColor, fontName, fontSize, fontColor, highlightColor, padding, strokeWidth, strokeAlpha, bold)
+function TextStyle.new(selectedBackgroundColor, defaultBackgroundColor, fontName, fontSize, fontColor, highlightColor, padding, strokeWidth, strokeAlpha, bold, selectedColor)
     local self = setmetatable({}, TextStyle)
 
     self.selectedBackgroundColor = selectedBackgroundColor
@@ -36,6 +37,7 @@ function TextStyle.new(selectedBackgroundColor, defaultBackgroundColor, fontName
     self.strokeWidth = strokeWidth
     self.strokeAlpha = strokeAlpha
     self.bold = bold
+    self.selectedColor = selectedColor or self.fontColor
 
     return self
 end
@@ -92,6 +94,15 @@ end
 --
 function TextStyle:getHighlightColor()
     return self.highlightColor
+end
+
+---
+-- Gets the selected font color.
+--
+-- @treturn Color The font color.
+--
+function TextStyle:getSelectedColor()
+    return self.selectedColor
 end
 
 ---
@@ -167,9 +178,33 @@ TextStyle.Default = {
             255,
             true
     ),
+    ButtonSmall = TextStyle.new(
+            Color.lightGrey:withAlpha(50),
+            Color.clear,
+            "Arial",
+            10,
+            Color.white,
+            Color.lightGrey,
+            0,
+            0,
+            0,
+            true
+    ),
     HeaderSmall = TextStyle.new(
             Color.clear,
             Color.clear,
+            "Arial",
+            11,
+            Color.white,
+            Color.lightGrey,
+            2,
+            1,
+            255,
+            true
+    ),
+    NavigationTitle = TextStyle.new(
+            Color.clear,
+            Color.white:withAlpha(50),
             "Arial",
             11,
             Color.white,

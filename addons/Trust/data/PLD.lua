@@ -1,14 +1,14 @@
 -- Default trust settings for PLD
 TrustSettings = {
     Default = {
-        JobAbilities = S{
+        JobAbilities = L{
             'Majesty'
         },
-        SelfBuffs = S{
+        SelfBuffs = L{
             Spell.new('Phalanx', L{}),
             Spell.new('Protect V', L{}),
         },
-        PartyBuffs = S{
+        PartyBuffs = L{
         },
         CureSettings = {
             Thresholds = {

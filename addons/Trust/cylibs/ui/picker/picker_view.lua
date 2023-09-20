@@ -3,23 +3,21 @@ local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
 local Color = require('cylibs/ui/views/color')
 local Frame = require('cylibs/ui/views/frame')
-local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_collection_view_cell')
-local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Padding = require('cylibs/ui/style/padding')
+local PickerItem = require('cylibs/ui/picker/picker_item')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
-local View = require('cylibs/ui/views/view')
 
 local PickerView = setmetatable({}, {__index = CollectionView })
 PickerView.__index = PickerView
 
 TextStyle.PickerView = {
     Text = TextStyle.new(
-            Color.white:withAlpha(50),
+            Color.clear,
             Color.clear,
             "Arial",
             11,
@@ -28,11 +26,21 @@ TextStyle.PickerView = {
             0,
             0,
             0,
-            false
+            false,
+            Color.yellow
     ),
 }
 
-function PickerView.new(items, frame)
+---
+-- Creates a new PickerView.
+--
+-- @tparam list pickerItems A list of PickerItems.
+-- @tparam boolean allowsMultipleSelection Indicates if multiple selection is allowed.
+-- @tparam number width The width of the PickerView.
+-- @tparam number height The height of the PickerView.
+-- @treturn PickerView The created PickerView.
+--
+function PickerView.new(pickerItems, allowsMultipleSelection)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = TextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
@@ -41,35 +49,29 @@ function PickerView.new(items, frame)
         return cell
     end)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(0, Padding.new(0, 5, 0, 0))), PickerView)
+    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(0, Padding.new(10, 5, 10, 0))), PickerView)
 
-    self.allowsMultipleSelection = true
-
-    self:setPosition(frame.x, frame.y)
-    self:setSize(frame.width, frame.height)
-    self:setScrollEnabled(true)
+    self:setAllowsMultipleSelection(allowsMultipleSelection)
     self:setScrollDelta(20)
 
-    self.bgView = BackgroundView.new(frame,
-            windower.addon_path..'assets/backgrounds/menu_bg_top.png',
-            windower.addon_path..'assets/backgrounds/menu_bg_mid.png',
-            windower.addon_path..'assets/backgrounds/menu_bg_bottom.png')
-
-    self:addSubview(self.bgView)
-
-    self.bgView:setVisible(true)
-    self.bgView:setNeedsLayout()
-    self.bgView:layoutIfNeeded()
-
     local indexedItems = L{}
+    local selectedIndexedItems = L{}
 
     local rowIndex = 1
-    for item in items:it() do
-        indexedItems:append(IndexedItem.new(item, IndexPath.new(1, rowIndex)))
+    for pickerItem in pickerItems:it() do
+        local indexedItem = IndexedItem.new(pickerItem:getItem(), IndexPath.new(1, rowIndex))
+        indexedItems:append(indexedItem)
+        if pickerItem:isSelected() then
+            selectedIndexedItems:append(indexedItem)
+        end
         rowIndex = rowIndex + 1
     end
 
     dataSource:addItems(indexedItems)
+
+    for indexedItem in selectedIndexedItems:it() do
+        self:getDelegate():selectItemAtIndexPath(indexedItem:getIndexPath())
+    end
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
@@ -78,40 +80,20 @@ function PickerView.new(items, frame)
 end
 
 ---
--- Creates a PickerView with the given text items, frame, and style.
+-- Creates a new PickerView with text items.
 --
--- @tparam list texts A list of text strings to be displayed in each row.
--- @tparam Frame frame The frame of the PickerView.
--- @tparam[opt] TextStyle style The text style to be applied to the items.
+-- @tparam list texts A list of text strings.
+-- @tparam list selectedTexts A list of selected text strings.
+-- @tparam boolean allowsMultipleSelection Indicates if multiple selection is allowed.
+-- @tparam number width The width of the PickerView.
+-- @tparam number height The height of the PickerView.
 -- @treturn PickerView The created PickerView.
 --
-function PickerView.withTextItems(texts, frame, style)
-    local style = style or TextStyle.PickerView.Text
-    local items = texts:map(function(string) return TextItem.new(string, style)  end)
-    return PickerView.new(items, frame)
-end
-
----
--- Destroys the PickerView.
---
-function PickerView:destroy()
-    CollectionView.destroy(self)
-end
-
----
--- Checks if layout updates are needed and triggers layout if necessary.
--- This function is typically called before rendering to ensure that the View's layout is up to date.
---
-function PickerView:layoutIfNeeded()
-    CollectionView.layoutIfNeeded(self)
-
-    if self.bgView then
-        self.bgView:setVisible(self:isVisible())
-        self.bgView:setSize(self.frame.width, self.frame.height)
-        self.bgView:setVisible(self:isVisible())
-    end
-
-    return true
+function PickerView.withItems(texts, selectedTexts, allowsMultipleSelection)
+    local pickerItems = texts:map(function(text)
+        return PickerItem.new(TextItem.new(text, TextStyle.PickerView.Text), selectedTexts:contains(text))
+    end)
+    return PickerView.new(pickerItems, allowsMultipleSelection)
 end
 
 return PickerView

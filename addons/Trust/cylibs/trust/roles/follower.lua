@@ -67,7 +67,7 @@ function Follower:follow_target(target_name)
 
     windower.ffxi.run(false)
 
-    addon_message(207, 'Now following '..target_name..' with mode '..state.AutoFollowMode.current)
+    addon_message(260, '('..windower.ffxi.get_player().name..') '.."Okay, I'll follow "..target_name.." when I'm not in battle.")
 end
 
 function Follower:stop_following()

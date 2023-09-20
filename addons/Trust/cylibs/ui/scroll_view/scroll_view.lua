@@ -1,4 +1,5 @@
 local Frame = require('cylibs/ui/views/frame')
+local Mouse = require('cylibs/ui/input/mouse')
 local ScrollBar = require('cylibs/ui/scroll_view/scroll_bar')
 local View = require('cylibs/ui/views/view')
 
@@ -37,10 +38,24 @@ function ScrollView.new(frame)
             if s == self.horizontalScrollBar then
                 newContentOffset.x = math.max(self:getContentOffset().x - self:getScrollDelta(), -self:getContentSize().width / 2)
             else
-                newContentOffset.y = math.max(self:getContentOffset().y - self:getScrollDelta(), -self:getContentSize().height / 2)
+                local minY = -(self:getContentSize().height - self:getSize().height)
+                newContentOffset.y = math.max(self:getContentOffset().y - self:getScrollDelta(), minY)
             end
             self:setContentOffset(newContentOffset.x, newContentOffset.y)
         end), scrollBar:onScrollForwardClick())
+
+        self:getDisposeBag():add(Mouse.input():onMouseWheel():addAction(function(type, x, y, delta, blocked)
+            if blocked or not self:isVisible() or not self:isScrollEnabled() or self:getContentSize().height <= self:getSize().height then
+                return
+            end
+            if self:hitTest(x, y) then
+                if delta < 0 then
+                    self.verticalScrollBar:onScrollForwardClick():trigger(self.verticalScrollBar)
+                else
+                    self.verticalScrollBar:onScrollBackClick():trigger(self.verticalScrollBar)
+                end
+            end
+        end), Mouse.input():onMouseWheel())
     end
 
     self:addSubview(self.contentView)
@@ -148,7 +163,7 @@ end
 --
 function ScrollView:layoutIfNeeded()
     if not View.layoutIfNeeded(self) or self.contentView == nil then
-        return
+        return false
     end
 
     self.contentView.frame = Frame.new(self.contentOffset.x, self.contentOffset.y, self.frame.width, self.frame.height)
@@ -170,6 +185,8 @@ function ScrollView:layoutIfNeeded()
     end
 
     self:updateContentView()
+
+    return true
 end
 
 ---
@@ -177,18 +194,23 @@ end
 -- If scrolling is disabled, this function does nothing.
 --
 function ScrollView:updateContentView()
-    if not self:isScrollEnabled() or not self:isVisible() then
+    if not self:isVisible() then
         return
     end
-    local subviews = Q{ self }
+    local subviews = Q{ self:getContentView() }
     while not subviews:empty() do
         local view = subviews:pop()
         for _, subview in pairs(view.subviews) do
             subviews:push(subview)
         end
-        if self:shouldClipToBounds(view) then
-            view:setVisible(false)
-            view:layoutIfNeeded()
+        if self:isScrollEnabled() then
+            if self:shouldClipToBounds(view) then
+                view:setVisible(false)
+                view:layoutIfNeeded()
+            else
+                view:setVisible(true)
+                view:layoutIfNeeded()
+            end
         else
             view:setVisible(true)
         end

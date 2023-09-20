@@ -1,7 +1,7 @@
 -- Default trust settings for MNK
 TrustSettings = {
     Default = {
-        JobAbilities = S{
+        JobAbilities = L{
             'Impetus',
             'Footwork',
             'Mantra'
