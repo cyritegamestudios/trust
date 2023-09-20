@@ -7,9 +7,11 @@ local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Padding = require('cylibs/ui/style/padding')
+local SpellAction = require('cylibs/actions/spell')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
+local trusts = require('cylibs/res/trusts')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 local ViewItem = require('cylibs/ui/collection_view/items/view_item')
 
@@ -19,11 +21,11 @@ PartyMemberView.__index = PartyMemberView
 ---
 -- Creates a new PartyMemberView.
 --
--- @tparam table party The party data.
--- @tparam Layout layout The layout for the view.
+-- @tparam Party party The party data.
+-- @tparam list trusts The list of alter egos.
 -- @treturn PartyMemberView The newly created PartyMemberView instance.
 --
-function PartyMemberView.new(party)
+function PartyMemberView.new(party, player, actionQueue, trusts)
     local dataSource = CollectionViewDataSource.new(function(item)
         if item.__type == TextItem.__type then
             local cell = TextCollectionViewCell.new(item)
@@ -39,6 +41,7 @@ function PartyMemberView.new(party)
 
     local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0), 10)), PartyMemberView)
 
+    self.trusts = trusts
     self.buffViews = {}
 
     self:getDisposeBag():add(party:on_party_member_added():addAction(function(partyMember)
@@ -71,16 +74,22 @@ function PartyMemberView.new(party)
     end
 
     self:getDataSource():addItems(itemsToAdd)
+    self:setScrollEnabled(false)
 
     self:updatePartyMembers(party)
 
-    self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(_, indexPath)
+    self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
         local partyMembers = party:get_party_members(true)
         local partyMember = partyMembers[indexPath.section]
         if partyMember then
             windower.send_command('trust assist '..partyMember:get_name())
+        else
+            self:callAlterEgo(party, player, actionQueue)
         end
     end), self:getDelegate():didSelectItemAtIndexPath())
+
+    self:setNeedsLayout()
+    self:layoutIfNeeded()
 
     return self
 end
@@ -121,6 +130,7 @@ function PartyMemberView:createBuffsView()
         return cell
     end)
     local collectionView = CollectionView.new(dataSource, HorizontalFlowLayout.new(2, Padding.equal(0)))
+    collectionView:setScrollEnabled(false)
 
     local buffItems = L{}
     for buffIndex = 1, 15 do
@@ -156,6 +166,31 @@ function PartyMemberView:updatePartyMembers(party, partyMemberFilter)
     end
 
     self:getDataSource():updateItems(itemsToUpdate)
+end
+
+function PartyMemberView:callAlterEgo(party, player, actionQueue)
+    for trust in self.trusts:it() do
+        local sanitizedName = trust
+        if trusts:with('enl', trust) then
+            sanitizedName = trusts:with('enl', trust).en
+        end
+        if party:get_party_member_named(sanitizedName) == nil then
+            local spell = res.spells:with('name', trust)
+            if spell then
+                local callAction = SpellAction.new(0, 0, 0, spell.id, nil, player)
+                callAction.priority = ActionPriority.highest
+
+                actionQueue:push_action(callAction, true)
+            end
+            return
+        end
+    end
+end
+
+function PartyMemberView:layoutIfNeeded()
+    CollectionView.layoutIfNeeded(self)
+
+    self:setTitle("Choose a party member to assist.")
 end
 
 return PartyMemberView

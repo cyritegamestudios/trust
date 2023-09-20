@@ -33,7 +33,8 @@ function View.new(frame)
     self.needsLayout = true
     self.subviews = {}
     self.superview = nil
-    self.uuid = os.time()..'-'..math.random(1000)
+    self.requestFocus = true
+    self.uuid = os.time()..'-'..math.random(100000)
     self.destroyed = false
     self.disposeBag = DisposeBag.new()
     self.disposeBag:addAny(L{ self.backgroundView, self.backgroundImageView })
@@ -217,14 +218,73 @@ end
 -- @tparam string imagePath The color to set as the background.
 --
 function View:setBackgroundImageView(backgroundImageView)
-    if self.backgroundImageView ~= nil then
-        return
-    end
-    self.backgroundImageView = backgroundImageView
+    if backgroundImageView == nil then
+        if self.backgroundImageView then
+            self.backgroundImageView:removeFromSuperview()
+            self.backgroundImageView:setVisible(false)
+            self.backgroundImageView:layoutIfNeeded()
+            self.backgroundImageView = nil
+        end
+    else
+        if self.backgroundImageView ~= nil then
+            return
+        end
+        self.backgroundImageView = backgroundImageView
 
-    self:addSubview(self.backgroundImageView)
+        self:addSubview(self.backgroundImageView)
+
+        self:setNeedsLayout()
+        self:layoutIfNeeded()
+    end
+end
+
+---
+-- Gets the navigation bar associated with the view.
+--
+-- @treturn NavigationBar The navigation bar associated with the view.
+--
+function View:getNavigationBar()
+    return self.navigationBar
+end
+
+---
+-- Sets the navigation bar for the view.
+--
+-- @tparam NavigationBar navigationBar The navigation bar to set.
+function View:setNavigationBar(navigationBar)
+    self.navigationBar = navigationBar
+
+    self:addSubview(self.navigationBar)
+
     self:setNeedsLayout()
     self:layoutIfNeeded()
+end
+
+---
+-- Sets the title of the navigation bar, if it exists.
+--
+-- @tparam string title The navigation bar title.
+function View:setTitle(title)
+    if self.navigationBar then
+        self.navigationBar:setTitle(title)
+    end
+end
+
+---
+-- Returns whether the view should request focus when being presented.
+--
+-- @treturn boolean If the view should request focus.
+function View:shouldRequestFocus()
+    return self.requestFocus
+end
+
+---
+-- Sets whether the view should request focus when being presented.
+--
+-- @tparam boolean requestFocus Whether the view should request focus.
+--
+function View:setShouldRequestFocus(requestFocus)
+    self.requestFocus = requestFocus
 end
 
 ---
@@ -233,8 +293,12 @@ end
 -- @tparam View view The view to be added as a subview.
 --
 function View:addSubview(view)
+    if self.subviews[view:getUUID()] ~= nil then
+        return
+    end
     self.subviews[view:getUUID()] = view
     view.superview = self
+    view:setNeedsLayout()
 end
 
 ---
@@ -303,11 +367,21 @@ function View:layoutIfNeeded()
     if self.backgroundImageView then
         self.backgroundImageView:setSize(self.frame.width, self.frame.height)
         self.backgroundImageView:setVisible(self:isVisible())
+        self.backgroundImageView:layoutIfNeeded()
+    end
+
+    if self.navigationBar then
+        self.navigationBar:setPosition(0, -self.navigationBar:getSize().height - 5)
+        self.navigationBar:setSize(self.frame.width, self.navigationBar:getSize().height)
+        self.navigationBar:setVisible(self:isVisible())
+        self.navigationBar:layoutIfNeeded()
     end
 
     for _, subview in pairs(self.subviews) do
-        subview:setNeedsLayout()
-        subview:layoutIfNeeded()
+        if subview ~= self.backgroundImageView then
+            subview:setNeedsLayout()
+            subview:layoutIfNeeded()
+        end
     end
     return true
 end
@@ -320,7 +394,7 @@ end
 -- @treturn bool True if the coordinates are within the view's bounds, otherwise false.
 --
 function View:hitTest(x, y)
-    -- FIXME: (scretella) add manual checking using absolute coordinates
+    -- FIXME: add manual checking using absolute coordinates
     return self.backgroundView:hover(x, y)
 end
 
@@ -348,7 +422,8 @@ end
 -- @treturn bool True if the Views have the same UUID, false otherwise.
 --
 function View:__eq(otherItem)
-    return self:getUUID() == otherItem:getUUID() and getmetatable(otherItem).__type == View.__type
+    return getmetatable(otherItem).__type == View.__type
+            and self:getUUID() == otherItem:getUUID()
 end
 
 return View

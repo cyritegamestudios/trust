@@ -1,12 +1,12 @@
 -- Default trust settings for BLM
 TrustSettings = {
     Default = {
-        JobAbilities = S{
+        JobAbilities = L{
             'Mana Wall',
         },
-        SelfBuffs = S{
+        SelfBuffs = L{
         },
-        Debuffs = S{
+        Debuffs = L{
         },
         Skillchains = {
             defaultws = {'Vidohunir'},

@@ -1,7 +1,7 @@
 -- Default trust settings for DNC
 TrustSettings = {
     Default = {
-        JobAbilities = S{
+        JobAbilities = L{
             'Haste Samba'
         },
         Skillchains = {

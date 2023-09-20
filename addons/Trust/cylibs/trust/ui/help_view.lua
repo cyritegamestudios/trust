@@ -33,7 +33,7 @@ function HelpView.new(main_job_name_short)
 
     dataSource:addItems(itemsToAdd)
 
-    self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(item, indexPath)
+    self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
         local row = indexPath.row
         if indexPath.section == 1 then
             if row == 2 then
@@ -65,6 +65,12 @@ function HelpView:getJobWikiPageSuffix(job_name_short)
         return url_suffix
     end
     return 'Trusts'
+end
+
+function HelpView:layoutIfNeeded()
+    CollectionView.layoutIfNeeded(self)
+
+    self:setTitle("Learn more about how to use Trust.")
 end
 
 return HelpView

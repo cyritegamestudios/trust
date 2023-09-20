@@ -81,7 +81,7 @@ function CollectionViewTests:debug()
         items:append("Item "..i)
     end
 
-    local pickerView = PickerView.withTextItems(items, Frame.new(500, 200, 200, 300))
+    local pickerView = PickerView.withItems(items, L{"Item 11", "Item 14"}, true,200, 300)
 
     pickerView:setPosition(500, 200)
     pickerView:setSize(200, 300)

@@ -13,6 +13,10 @@ local ViewItem = require('cylibs/ui/collection_view/items/view_item')
 local CollectionViewDataSource = {}
 CollectionViewDataSource.__index = CollectionViewDataSource
 
+function CollectionViewDataSource:onItemsWillChange()
+    return self.itemsWillChange
+end
+
 function CollectionViewDataSource:onItemsChanged()
     return self.itemsChanged
 end
@@ -21,7 +25,7 @@ end
 local typeMap = {
     [ImageItem.__type] = ImageCollectionViewCell.new,
     [TextItem.__type] = TextCollectionViewCell.new,
-    [ViewItem.__type] = ContainerCollectionViewCell.new
+    [ViewItem.__type] = ContainerCollectionViewCell.new,
 }
 
 -- Initialize a new collection
@@ -37,12 +41,14 @@ function CollectionViewDataSource.new(cellForItem)
     end
     self.sections = {}
     self.cellCache = {}
+    self.itemsWillChange = Event.newEvent()
     self.itemsChanged = Event.newEvent()
 
     return self
 end
 
 function CollectionViewDataSource:destroy()
+    self.itemsWillChange:removeAllActions()
     self.itemsChanged:removeAllActions()
 
     for _, section in ipairs(self.cellCache) do
@@ -91,6 +97,16 @@ function CollectionViewDataSource:removeItem(indexPath)
     -- Generate a diff
     local diff = self:generateDiff(snapshot)
 
+    self.itemsWillChange:trigger(diff.added, diff.removed, diff.updated)
+
+    for _, indexPath in pairs(diff.removed) do
+        local cachedCell = self.cellCache[indexPath.section][indexPath.row]
+        if cachedCell then
+            cachedCell:destroy()
+            self.cellCache[indexPath.section][indexPath.row] = nil
+        end
+    end
+
     -- Trigger the itemsChanged event
     self.itemsChanged:trigger(diff.added, diff.removed, diff.updated)
 end
@@ -105,6 +121,16 @@ function CollectionViewDataSource:removeAllItems()
 
     -- Generate a diff
     local diff = self:generateDiff(snapshot)
+
+    self.itemsWillChange:trigger(diff.added, diff.removed, diff.updated)
+
+    for _, indexPath in pairs(diff.removed) do
+        local cachedCell = self.cellCache[indexPath.section][indexPath.row]
+        if cachedCell then
+            cachedCell:destroy()
+            self.cellCache[indexPath.section][indexPath.row] = nil
+        end
+    end
 
     -- Trigger the itemsChanged event
     self.itemsChanged:trigger(diff.added, diff.removed, diff.updated)
@@ -184,7 +210,7 @@ function CollectionViewDataSource:createSnapshot()
 end
 
 -- Generate a diff based on changes to the dataSource
-function CollectionViewDataSource:generateDiff(snapshot)
+--[[function CollectionViewDataSource:generateDiff(snapshot)
     local addedIndexPaths = T{}
     local removedIndexPaths = T{}
     local updatedIndexPaths = T{}
@@ -236,7 +262,79 @@ function CollectionViewDataSource:generateDiff(snapshot)
         removed = removedIndexPaths,
         updated = updatedIndexPaths
     }
+end]]
+
+function CollectionViewDataSource:generateDiff(snapshot)
+    local addedIndexPaths = T{}
+    local removedIndexPaths = T{}
+    local updatedIndexPaths = T{}
+
+    -- Compare sections and items
+    for sectionIndex, section in ipairs(self.sections) do
+        local snapshotSection = snapshot[sectionIndex]
+        if not snapshotSection then
+            -- Entire section is added
+            for rowIndex, _ in ipairs(section.items) do
+                table.insert(addedIndexPaths, IndexPath.new(sectionIndex, rowIndex))
+            end
+        else
+            -- Compare items within section
+            for rowIndex, _ in ipairs(section.items) do
+                local indexPath = IndexPath.new(sectionIndex, rowIndex)
+                local snapshotItem = snapshotSection.items[rowIndex]
+                local newItem = section.items[rowIndex]
+                if snapshotItem ~= newItem then
+                    table.insert(updatedIndexPaths, indexPath)
+                end
+            end
+
+            -- Check for removed or shifted items
+            for rowIndex, _ in ipairs(snapshotSection.items) do
+                local indexPath = IndexPath.new(sectionIndex, rowIndex)
+                if not section.items[rowIndex] then
+                    table.insert(removedIndexPaths, indexPath)
+                end
+            end
+        end
+    end
+
+    -- Check for removed sections or items
+    for sectionIndex, section in ipairs(snapshot) do
+        local selfSection = self.sections[sectionIndex]
+        if not selfSection then
+            -- Entire section is removed
+            for rowIndex, _ in ipairs(section.items) do
+                table.insert(removedIndexPaths, IndexPath.new(sectionIndex, rowIndex))
+            end
+        else
+            -- Compare items within section
+            for rowIndex, _ in ipairs(section.items) do
+                local indexPath = IndexPath.new(sectionIndex, rowIndex)
+                local snapshotItem = section.items[rowIndex]
+                local newItem = selfSection.items[rowIndex]
+                if snapshotItem ~= newItem then
+                    table.insert(updatedIndexPaths, indexPath)
+                end
+            end
+            -- Check for added items
+            local snapshotSection = snapshot[sectionIndex]
+            for rowIndex, _ in ipairs(selfSection.items) do
+                local indexPath = IndexPath.new(sectionIndex, rowIndex)
+                if not snapshotSection.items[rowIndex] then
+                    local newItem = selfSection.items[rowIndex]
+                    table.insert(addedIndexPaths, indexPath)
+                end
+            end
+        end
+    end
+
+    return {
+        added = addedIndexPaths,
+        removed = removedIndexPaths,
+        updated = updatedIndexPaths
+    }
 end
+
 
 return CollectionViewDataSource
 

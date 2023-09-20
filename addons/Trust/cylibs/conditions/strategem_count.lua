@@ -6,6 +6,7 @@
 local Condition = require('cylibs/conditions/condition')
 local StrategemCountCondition = setmetatable({}, { __index = Condition })
 StrategemCountCondition.__index = StrategemCountCondition
+StrategemCountCondition.__type = "StrategemCountCondition"
 
 function StrategemCountCondition.new(strategem_count)
     local self = setmetatable(Condition.new(), StrategemCountCondition)

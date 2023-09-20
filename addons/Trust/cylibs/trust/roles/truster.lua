@@ -1,4 +1,5 @@
 local spell_util = require('cylibs/util/spell_util')
+local trusts = require('cylibs/res/trusts')
 
 local Truster = setmetatable({}, {__index = Role })
 Truster.__index = Truster
@@ -57,7 +58,13 @@ function Truster:check_trusts()
         return
     end
 
-    local trust_names = self.trusts:copy():filter(function(trust_name) return self:get_party():get_party_member_named(trust_name) == nil and spell_util.can_cast_spell(spell_util.spell_id(trust_name)) end)
+    local trust_names = self.trusts:copy():filter(function(trust_name)
+        local sanitized_name = trust_name
+        if trusts:with('enl', trust_name) then
+            sanitized_name = trusts:with('enl', trust_name).en
+        end
+        return self:get_party():get_party_member_named(sanitized_name) == nil and spell_util.can_cast_spell(spell_util.spell_id(trust_name))
+    end)
     trust_names = trust_names:slice(1, math.min(6 - self:get_party():num_party_members(), trust_names:length()))
 
     for trust_name in trust_names:it() do

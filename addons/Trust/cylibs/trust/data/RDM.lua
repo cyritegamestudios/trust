@@ -22,6 +22,7 @@ local Puller = require('cylibs/trust/roles/puller')
 local Raiser = require('cylibs/trust/roles/raiser')
 
 state.AutoConvertMode = M{['description'] = 'Auto Convert Mode', 'Off', 'Auto'}
+state.AutoConvertMode:set_description('Auto', "Okay, I'll use Convert when my MP gets low.")
 
 -------
 -- Default initializer for a Red Mage trust.
@@ -52,6 +53,8 @@ function RedMageTrust:on_init()
 	Trust.on_init(self)
 
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
+		self:get_job():set_cure_settings(new_trust_settings.CureSettings)
+
 		local buffer = self:role_with_type("buffer")
 
 		buffer:set_job_ability_names(new_trust_settings.JobAbilities)

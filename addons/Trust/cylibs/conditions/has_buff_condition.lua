@@ -8,11 +8,24 @@ local buff_util = require('cylibs/util/buff_util')
 local Condition = require('cylibs/conditions/condition')
 local HasBuffCondition = setmetatable({}, { __index = Condition })
 HasBuffCondition.__index = HasBuffCondition
+HasBuffCondition.__type = "HasBuffCondition"
 
 function HasBuffCondition.new(buff_name)
     local self = setmetatable(Condition.new(), HasBuffCondition)
+    self.buff_name = buff_name
     self.buff_id = buff_util.buff_id(buff_name)
     return self
+end
+
+function HasBuffCondition.decode(rawSettings)
+    return HasBuffCondition.new(rawSettings.buff_name)
+end
+
+function HasBuffCondition:encode()
+    local settings = {}
+    settings.type = HasBuffCondition.__type
+    settings.buff_name = self.buff_name
+    return settings
 end
 
 function HasBuffCondition:is_satisfied(target_index)

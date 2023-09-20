@@ -13,6 +13,7 @@ local Geocolure = require('cylibs/entity/geocolure')
 local Nuker = require('cylibs/trust/roles/nuker')
 local Buffer = require('cylibs/trust/roles/buffer')
 local ManaRestorer = require('cylibs/trust/roles/mana_restorer')
+local zone_util = require('cylibs/util/zone_util')
 
 state.AutoGeoMode = M{['description'] = 'Auto Geo Mode', 'Off', 'Auto'}
 
@@ -68,7 +69,9 @@ end
 function GeomancerTrust:destroy()
 	Trust.destroy(self)
 
-	self:get_player():on_pet_change():removeAction(self.pet_changed_action_id)
+	if self.pet_changed_action_id then
+		self:get_player():on_pet_change():removeAction(self.pet_changed_action_id)
+	end
 end
 
 function GeomancerTrust:job_target_change(target_index)
@@ -86,7 +89,7 @@ function GeomancerTrust:tic(old_time, new_time)
 end
 
 function GeomancerTrust:check_indi()
-	if not buff_util.is_buff_active(buff_util.buff_id('Colure Active')) then
+	if not zone_util.is_city(windower.ffxi.get_info().zone) and not buff_util.is_buff_active(buff_util.buff_id('Colure Active')) then
 		self.action_queue:push_action(SpellAction.new(0, 0, 0, self.indi_spell:get_spell().id, nil, self:get_player()), true)
 	end
 end
@@ -105,7 +108,7 @@ function GeomancerTrust:check_geo()
 			self.geocolure:ecliptic_attrition()
 		end
 	else
-		if self.geo_spell and delta_time > 8 then
+		if self.geo_spell and delta_time > 8 and not zone_util.is_city(windower.ffxi.get_info().zone) then
 			local target = windower.ffxi.get_mob_by_target(self.geo_spell:get_target())
 			if target then
 				local actions = L{}

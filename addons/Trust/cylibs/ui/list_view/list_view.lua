@@ -44,12 +44,14 @@ end
 -- @tparam list strings A table containing text strings to be displayed in each row.
 -- @tparam TextStyle style (Optional) The style to be applied to the text items.
 -- @tparam number textWidth (Optional) The width of the text.
+-- @tparam Padding padding (Optional) The content padding.
 -- @treturn ListView The created horizontal ListView.
 --
-function ListView.horizontalList(strings, style, textWidth)
+function ListView.horizontalList(strings, style, textWidth, padding)
     local style = style or TextStyle.Default.Text
+    local padding = padding or Padding.new(0, 0, 0, 0)
     local items = strings:map(function(string) return TextItem.new(string, style)  end):reverse()
-    local listView = ListView.new(items, HorizontalFlowLayout.new(2), textWidth)
+    local listView = ListView.new(items, HorizontalFlowLayout.new(2, padding), textWidth)
     return listView
 end
 
@@ -59,12 +61,14 @@ end
 -- @tparam table strings A table containing text strings to be displayed in each row.
 -- @tparam TextStyle style (Optional) The style to be applied to the text items.
 -- @tparam number textHeight (Optional) The height of the text.
+-- @tparam Padding padding (Optional) The content padding.
 -- @treturn ListView The created horizontal ListView.
 --
-function ListView.verticalList(strings, style, textHeight)
+function ListView.verticalList(strings, style, textHeight, padding)
     local style = style or TextStyle.Default.Text
+    local padding = padding or Padding.new(0, 10, 0, 0)
     local items = strings:map(function(string) return TextItem.new(string, style)  end):reverse()
-    local listView = ListView.new(items, VerticalFlowLayout.new(2, Padding.new(0, 10, 0, 0)), textHeight)
+    local listView = ListView.new(items, VerticalFlowLayout.new(2, padding), textHeight)
     return listView
 end
 

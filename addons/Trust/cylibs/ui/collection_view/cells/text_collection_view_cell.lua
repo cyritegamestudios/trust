@@ -4,6 +4,7 @@ local CollectionViewCell = require('cylibs/ui/collection_view/collection_view_ce
 
 local TextCollectionViewCell = setmetatable({}, {__index = CollectionViewCell })
 TextCollectionViewCell.__index = TextCollectionViewCell
+TextCollectionViewCell.__type = "TextCollectionViewCell"
 
 ---
 -- Creates a new CollectionViewCell.
@@ -17,7 +18,6 @@ function TextCollectionViewCell.new(item)
     self.textView = texts.new(item:getPattern(), item:getSettings())
     self.textView:bg_alpha(0)
     self.textView:hide()
-    self.isTextLoaded = false
 
     self:getDisposeBag():addAny(L{ self.textView })
 
@@ -29,10 +29,6 @@ end
 
 function TextCollectionViewCell:destroy()
     CollectionViewCell.destroy(self)
-
-    if self.scheduler then
-        coroutine.close(self.scheduler)
-    end
 end
 
 ---
@@ -40,53 +36,30 @@ end
 -- This function is typically called before rendering to ensure that the View's layout is up to date.
 --
 function TextCollectionViewCell:layoutIfNeeded()
-    if not CollectionViewCell.layoutIfNeeded(self) then
+    if not CollectionViewCell.layoutIfNeeded(self) or self.superview == nil then
         return false
     end
 
     local position = self:getAbsolutePosition()
 
     self.textView.text = self:getItem():getText()
-    self.textView:pos(position.x, position.y)
+    self.textView:pos(position.x, position.y + (self:getSize().height - self:getEstimatedSize()) / 2)
 
     local style = self:getItem():getStyle()
-    if self:isHighlighted() then
+    if self:isSelected() then
+        self:setTextColor(style:getSelectedColor())
+        self.textView:bold(true)
+    elseif self:isHighlighted() then
         self:setTextColor(style:getHighlightColor())
+        self.textView:bold(style:isBold())
     else
         self:setTextColor(style:getFontColor())
+        self.textView:bold(style:isBold())
     end
 
-    if self.isTextLoaded then
-        self.textView:visible(self:getAbsoluteVisibility() and self:isVisible())
-    else
-        self:scheduleUpdate()
-    end
+    self.textView:visible(self:getAbsoluteVisibility() and self:isVisible())
 
     return true
-end
-
-function TextCollectionViewCell:scheduleUpdate()
-    if self.isTextLoaded then
-        return
-    end
-    if self.scheduler ~= nil then
-        return
-    end
-
-    self.scheduler = coroutine.schedule(function()
-        self.isTextLoaded = true
-        self:cancelUpdate()
-
-        self:setNeedsLayout()
-        self:layoutIfNeeded()
-    end, 0.1)
-end
-
-function TextCollectionViewCell:cancelUpdate()
-    if self.scheduler ~= nil then
-        coroutine.close(self.scheduler)
-        self.scheduler = nil
-    end
 end
 
 function TextCollectionViewCell:setHighlighted(highlighted)
@@ -96,6 +69,15 @@ function TextCollectionViewCell:setHighlighted(highlighted)
         self:setTextColor(self:getItem():getStyle():getFontColor())
     end
     CollectionViewCell.setHighlighted(self, highlighted)
+end
+
+function TextCollectionViewCell:setSelected(selected)
+    if selected then
+        self:setTextColor(self:getItem():getStyle():getSelectedColor())
+    else
+        self:setTextColor(self:getItem():getStyle():getFontColor())
+    end
+    CollectionViewCell.setSelected(self, selected)
 end
 
 ---
@@ -114,9 +96,6 @@ end
 -- @tparam any item The item to associate with the cell.
 --
 function TextCollectionViewCell:setItem(item)
-    if self.item ~= item then
-        self.isTextLoaded = false
-    end
     CollectionViewCell.setItem(self, item)
 end
 

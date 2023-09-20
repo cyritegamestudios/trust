@@ -1,7 +1,7 @@
 -- Default trust settings for RNG
 TrustSettings = {
     Default = {
-        JobAbilities = S{
+        JobAbilities = L{
             'Velocity Shot'
         },
         Skillchains = {

@@ -5,6 +5,7 @@
 
 local Roll = {}
 Roll.__index = Roll
+Roll.__type = "Roll"
 
 -------
 -- Default initializer for a new roll.
@@ -17,6 +18,21 @@ function Roll.new(roll_name, use_crooked_cards)
         use_crooked_cards = use_crooked_cards;
     }, Roll)
     return self
+end
+
+function Roll.decode(rawSettings)
+    local roll = Roll.new(rawSettings.roll_name, rawSettings.use_crooked_cards)
+    return roll
+end
+
+function Roll:encode()
+    local settings = {}
+    settings.type = Roll.__type
+
+    for encoding_key in L{'roll_name', 'use_crooked_cards'}:it() do
+        settings[encoding_key] = self[encoding_key]
+    end
+    return settings
 end
 
 -------

@@ -106,4 +106,8 @@ function TextItem:__eq(otherItem)
             and self.text == otherItem:getText()
 end
 
+function TextItem:tostring()
+    return self:getText()
+end
+
 return TextItem

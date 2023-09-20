@@ -13,8 +13,7 @@ function TrustFactory.trusts(main_job_trust, sub_job_trust)
 			end
 		end
 		for role in sub_job_trust:get_roles():it() do
-			if role.allows_duplicates and not role:allows_duplicates() and
-					TrustFactory.trust_contains_role(main_job_trust, role) then
+			if sub_job_trust:is_blacklisted(role:get_type()) then
 				sub_job_trust:remove_role(role)
 			end
 		end

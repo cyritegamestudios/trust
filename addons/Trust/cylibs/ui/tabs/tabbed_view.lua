@@ -68,27 +68,24 @@ function TabbedView.new(frame)
 
     self.tabBarWidth = 130
     self.tabBarHeight = 40
-    self.tabBarView = CollectionView.new(self.tabBarDataSource, VerticalFlowLayout.new(0))
+
+    local selectionImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', self.tabBarWidth, self.tabBarHeight)
+    selectionImageItem:setAlpha(125)
+
+    self.tabBarView = CollectionView.new(self.tabBarDataSource, VerticalFlowLayout.new(0), nil, selectionImageItem)
 
     self.tabBarView:setBackgroundColor(Color.clear)
     self.tabBarView:setSize(self.tabBarWidth, frame.height)
 
     self:addSubview(self.tabBarView)
 
-    local selectionBackgroundItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', self.tabBarWidth, self.tabBarHeight)
-    selectionBackgroundItem:setAlpha(125)
-
-    self.selectionBackground = ImageCollectionViewCell.new(selectionBackgroundItem)
-
-    self:addSubview(self.selectionBackground)
-
-    self:getDisposeBag():addAny(L{ self.tabBarView, self.selectionBackground })
+    self:getDisposeBag():addAny(L{ self.tabBarView })
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
 
     -- Add observers
-    self:getDisposeBag():add(self.tabBarView:getDelegate():didSelectItemAtIndexPath():addAction(function(_, indexPath)
+    self:getDisposeBag():add(self.tabBarView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
         self:selectTab(indexPath.row)
     end), self.tabBarView:getDelegate():didSelectItemAtIndexPath())
 
@@ -136,11 +133,7 @@ function TabbedView:selectTab(index)
 
         self.selectedView:setVisible(true)
 
-        local item = self.tabBarView:getDataSource():itemAtIndexPath(IndexPath.new(1, index))
-        self.tabBarView:getDelegate():selectItemAtIndexPath(item, IndexPath.new(1, index))
-
-        self.selectionBackground:setPosition(-5, (index - 1) * self.tabBarHeight)
-        self.selectionBackground:layoutIfNeeded()
+        self.tabBarView:getDelegate():selectItemAtIndexPath(IndexPath.new(1, index))
 
         self:setNeedsLayout()
         self:layoutIfNeeded()

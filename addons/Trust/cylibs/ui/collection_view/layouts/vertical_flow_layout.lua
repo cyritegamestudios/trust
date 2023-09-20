@@ -44,7 +44,6 @@ function VerticalFlowLayout:layoutSubviews(collectionView, indexPathFilter)
         for row = 1, numberOfItems do
             local indexPath = IndexPath.new(section, row)
             local item = collectionView:getDataSource():itemAtIndexPath(indexPath)
-
             local cell = collectionView:getDataSource():cellForItemAtIndexPath(indexPath)
             local cellSize = self:sizeForItemAtIndexPath(collectionView, cell)
 
@@ -58,7 +57,7 @@ function VerticalFlowLayout:layoutSubviews(collectionView, indexPathFilter)
                 -- Set position and size of the cell
                 cell:setPosition(self.padding.left, yOffset)
                 cell:setSize(cellSize.width - self.padding.left - self.padding.right, cellSize.height)
-                cell:setVisible(collectionView:getContentView():isVisible())
+                cell:setVisible(collectionView:getContentView():isVisible() and cell:isVisible())
                 cell:layoutIfNeeded()
             end
 

@@ -106,6 +106,10 @@ function Trust:blacklist_role(role_type)
 	self.role_blacklist:add(role_type)
 end
 
+function Trust:is_blacklisted(role_type)
+	return self.role_blacklist:contains(role_type)
+end
+
 function Trust:role_with_type(role_type)
 	for role in self.roles:it() do
 		if role:get_type() == role_type then

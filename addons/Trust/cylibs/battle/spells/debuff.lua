@@ -10,6 +10,7 @@ local Spell = require('cylibs/battle/spell')
 
 local Debuff = setmetatable({}, {__index = Spell })
 Debuff.__index = Debuff
+Debuff.__type = "Debuff"
 
 -------
 -- Default initializer for a new debuff spell.
@@ -23,10 +24,25 @@ function Debuff.new(spell_name, job_abilities, job_names, spell_prefix)
     spell = spell_util.highest_spell_for_buff_id(spell_util.buff_id_for_spell(spell.id), spell_name)
     if spell then
         local self = setmetatable(Spell.new(spell.en, job_abilities or L{}, job_names), Debuff)
+        self.original_spell_name = spell_name
         return self
     else
         return nil
     end
+end
+
+function Debuff.decode(rawSettings)
+    local buff = Debuff.new(rawSettings.spell_name, L(rawSettings.job_abilities), L(rawSettings.job_names))
+    return buff
+end
+
+function Debuff:encode()
+    local settings = Spell.encode(self)
+
+    settings.type = Debuff.__type
+    settings.spell_name = self.original_spell_name
+
+    return settings
 end
 
 return Debuff

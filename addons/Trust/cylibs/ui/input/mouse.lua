@@ -15,6 +15,10 @@ function Mouse:onClickRelease()
     return self.clickRelease
 end
 
+function Mouse:onMouseWheel()
+    return self.mouseWheel
+end
+
 function Mouse:onMouseEvent()
     return self.mouseEvent
 end
@@ -26,6 +30,7 @@ function Mouse.new()
     self.move = Event.newEvent()
     self.click = Event.newEvent()
     self.clickRelease = Event.newEvent()
+    self.mouseWheel = Event.newEvent()
     self.mouseEvent = Event.newEvent()
 
     self.events.mouse = windower.register_event('mouse', function(type, x, y, delta, blocked)
@@ -35,6 +40,9 @@ function Mouse.new()
             self:onClick():trigger(type, x, y, delta, blocked)
         elseif type == Mouse.Event.ClickRelease then
             self:onClickRelease():trigger(type, x, y, delta, blocked)
+        elseif type == Mouse.Event.Wheel then
+            self:onMouseWheel():trigger(type, x, y, delta, blocked)
+            return true
         end
         self:onMouseEvent():trigger(type, x, y, delta, blocked)
         return false
@@ -52,6 +60,7 @@ function Mouse:destroy()
     self:onMove():removeAllActions()
     self:onClick():removeAllActions()
     self:onClickRelease():removeAllActions()
+    self:onMouseWheel():removeAllActions()
     self:onMouseEvent():removeAllActions()
 end
 
@@ -66,5 +75,6 @@ Mouse.Event = {}
 Mouse.Event.Move = 0
 Mouse.Event.Click = 1
 Mouse.Event.ClickRelease = 2
+Mouse.Event.Wheel = 10
 
 return Mouse
