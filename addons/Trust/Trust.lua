@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '4.2.2'
+_addon.version = '4.2.3'
 
 require('Trust-Include')
 

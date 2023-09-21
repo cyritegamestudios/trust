@@ -39,27 +39,14 @@ function BuffSettingsEditor.new(trustSettings, settingsMode, width)
 
     local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0)), nil, selectionImageItem), BuffSettingsEditor)
 
-
     self.trustSettings = trustSettings
+    self.settingsMode = settingsMode
 
     self.allBuffs = spell_util.get_spells(function(spell)
         return spell.status ~= nil and S{'Self', 'Party'}:intersection(S(spell.targets)):length() > 0
     end)
 
-    local items = L{}
-
-    self.selfSpells = L(T(trustSettings:getRawSettings())[settingsMode.value].SelfBuffs)
-
-    local rowIndex = 1
-    for spell in self.selfSpells:it() do
-        items:append(IndexedItem.new(TextItem.new(spell['spell_name'], TextStyle.Default.TextSmall), IndexPath.new(1, rowIndex)))
-        rowIndex = rowIndex + 1
-    end
-
-    self:getDataSource():addItems(items)
-
-
-    self:getDelegate():selectItemAtIndexPath(items[1]:getIndexPath())
+    self:reloadSettings()
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
@@ -102,16 +89,50 @@ end
 function BuffSettingsEditor:onRemoveSpellClick()
     local selectedIndexPaths = L(self:getDelegate():getSelectedIndexPaths())
     if selectedIndexPaths:length() > 0 then
-        self:getDataSource():removeItem(selectedIndexPaths[1])
+        -- TODO: remove spell from trustSettings as well
+        local item = self:getDataSource():itemAtIndexPath(selectedIndexPaths[1])
+        if item then
+            local indexPath = selectedIndexPaths[1]
+            self.selfSpells:remove(indexPath.row)
+            self:getDataSource():removeItem(indexPath)
+            self.trustSettings:saveSettings(false)
+        end
+
     end
 end
 
 function BuffSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
     if textItem:getText() == 'Save' then
-        print('Save')
+        -- TODO: uncomment when saving legacy settings is implemented
+        self.trustSettings:saveSettings(false)
     elseif textItem:getText() == 'Remove' then
         self:onRemoveSpellClick()
     end
+end
+
+function BuffSettingsEditor:setVisible(visible)
+    CollectionView.setVisible(self, visible)
+    if visible then
+        self:reloadSettings()
+    end
+end
+
+function BuffSettingsEditor:reloadSettings()
+    self:getDataSource():removeAllItems()
+
+    local items = L{}
+
+    self.selfSpells = L(T(self.trustSettings:getSettings())[self.settingsMode.value].SelfBuffs)
+
+    local rowIndex = 1
+    for spell in self.selfSpells:it() do
+        items:append(IndexedItem.new(TextItem.new(spell:get_spell().name, TextStyle.Default.TextSmall), IndexPath.new(1, rowIndex)))
+        rowIndex = rowIndex + 1
+    end
+
+    self:getDataSource():addItems(items)
+
+    self:getDelegate():selectItemAtIndexPath(items[1]:getIndexPath())
 end
 
 return BuffSettingsEditor

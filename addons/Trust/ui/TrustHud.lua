@@ -23,6 +23,7 @@ local PartyMemberView = require('cylibs/entity/party/ui/party_member_view')
 local party_util = require('cylibs/util/party_util')
 local PickerView = require('cylibs/ui/picker/picker_view')
 local SkillchainsView = require('cylibs/battle/skillchains/ui/skillchains_view')
+local SpellPickerView = require('ui/settings/pickers/SpellPickerView')
 local spell_util = require('cylibs/util/spell_util')
 local TabbedView = require('cylibs/ui/tabs/tabbed_view')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
@@ -363,7 +364,7 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, jobNameS
             return spell.status ~= nil and S{'Self', 'Party'}:intersection(S(spell.targets)):length() > 0
         end):map(function(spell) return spell.name end)
 
-        local chooseSpellsView = setupView(PickerView.withItems(allBuffs, L{}, true))
+        local chooseSpellsView = setupView(SpellPickerView.new(trustSettings, L(T(trustSettings:getSettings())[trustSettingsMode.value].SelfBuffs)))
         chooseSpellsView:setTitle("Choose buffs to add.")
         chooseSpellsView:setShouldRequestFocus(false)
         return chooseSpellsView
