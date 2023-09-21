@@ -60,12 +60,13 @@ function TrustSettings:getSettingsFilePath()
     return nil
 end
 
-function TrustSettings:saveSettings()
-    local filePath = self.settingsFolder..self.jobNameShort..'_'..windower.ffxi.get_player().name..'.lua'
+function TrustSettings:saveSettings(saveToFile)
+    if saveToFile then
+        local filePath = self.settingsFolder..self.jobNameShort..'_'..windower.ffxi.get_player().name..'.lua'
 
-    local file = FileIO.new(filePath)
-    file:write('-- Settings file for '..self.jobNameShort ..'\nreturn ' .. T(self.rawSettings):tovstring())
-
+        local file = FileIO.new(filePath)
+        file:write('-- Settings file for '..self.jobNameShort ..'\nreturn ' .. T(self.rawSettings):tovstring())
+    end
     self:onSettingsChanged():trigger(self.settings)
 end
 
