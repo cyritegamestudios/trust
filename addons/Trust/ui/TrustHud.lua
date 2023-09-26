@@ -1,3 +1,4 @@
+local AutomatonView = require('cylibs/entity/automaton/ui/automaton_view')
 local BackgroundView = require('cylibs/ui/views/background/background_view')
 local BufferView = require('cylibs/trust/roles/ui/buffer_view')
 local BuffSettingsEditor = require('ui/settings/BuffSettingsEditor')
@@ -6,10 +7,12 @@ local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
 local Color = require('cylibs/ui/views/color')
 local DebufferView = require('cylibs/trust/roles/ui/debuffer_view')
+local DebuffSettingsEditor = require('ui/settings/DebuffSettingsEditor')
 local DebugView = require('cylibs/actions/ui/debug_view')
 local Frame = require('cylibs/ui/views/frame')
 local HelpView = require('cylibs/trust/ui/help_view')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
+local JobAbilitiesSettingsEditor = require('ui/settings/JobAbilitiesSettingsEditor')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local MenuView = require('cylibs/ui/menu/menu_view')
 local ModesAssistantView = require('cylibs/modes/ui/modes_assistant_view')
@@ -18,12 +21,16 @@ local NavigationBar = require('cylibs/ui/navigation/navigation_bar')
 local HorizontalFlowLayout = require('cylibs/ui/collection_view/layouts/horizontal_flow_layout')
 local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_collection_view_cell')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
+local JobAbilityPickerView = require('ui/settings/pickers/JobAbilityPickerView')
+local job_util = require('cylibs/util/job_util')
+local LoadSettingsView = require('ui/settings/LoadSettingsView')
 local Mouse = require('cylibs/ui/input/mouse')
 local PartyMemberView = require('cylibs/entity/party/ui/party_member_view')
 local party_util = require('cylibs/util/party_util')
 local PickerView = require('cylibs/ui/picker/picker_view')
 local SkillchainsView = require('cylibs/battle/skillchains/ui/skillchains_view')
 local SpellPickerView = require('ui/settings/pickers/SpellPickerView')
+local SpellSettingsEditor = require('ui/settings/SpellSettingsEditor')
 local spell_util = require('cylibs/util/spell_util')
 local TabbedView = require('cylibs/ui/tabs/tabbed_view')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
@@ -32,6 +39,8 @@ local TextStyle = require('cylibs/ui/style/text_style')
 local Menu = require('cylibs/ui/menu/menu')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 local ViewStack = require('cylibs/ui/views/view_stack')
+local WeaponSkillPickerView = require('ui/settings/pickers/WeaponSkillPickerView')
+local WeaponSkillsSettingsEditor = require('ui/settings/WeaponSkillSettingsEditor')
 
 local TrustActionHud = require('cylibs/actions/ui/action_hud')
 local View = require('cylibs/ui/views/view')
@@ -290,33 +299,253 @@ function TrustHud:getMainMenuItem()
     return self.mainMenuItem
 end
 
-function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, jobNameShort)
+local function createBackgroundView(width, height)
+    local backgroundView = BackgroundView.new(Frame.new(0, 0, width, height),
+            windower.addon_path..'assets/backgrounds/menu_bg_top.png',
+            windower.addon_path..'assets/backgrounds/menu_bg_mid.png',
+            windower.addon_path..'assets/backgrounds/menu_bg_bottom.png')
+    return backgroundView
+end
+
+local function createTitleView(viewSize)
+    local titleView = NavigationBar.new(Frame.new(0, 0, viewSize.width, 35))
+    return titleView
+end
+
+local function setupView(view, viewSize)
+    view:setBackgroundImageView(createBackgroundView(viewSize.width, viewSize.height))
+    view:setNavigationBar(createTitleView(viewSize))
+    view:setSize(viewSize.width, viewSize.height)
+    return view
+end
+
+function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, jobNameShort)
     local viewSize = Frame.new(0, 0, 500, 500)
 
-    local function createBackgroundView(width, height)
-        local backgroundView = BackgroundView.new(Frame.new(0, 0, width, height),
-                windower.addon_path..'assets/backgrounds/menu_bg_top.png',
-                windower.addon_path..'assets/backgrounds/menu_bg_mid.png',
-                windower.addon_path..'assets/backgrounds/menu_bg_bottom.png')
-        return backgroundView
+    local editSpellItem = MenuItem.new(L{
+        ButtonItem.default('Save', 18),
+        ButtonItem.default('Clear All', 18),
+    }, {
+    },
+            function(args)
+                local spell = args['spell']
+                local editSpellView = setupView(SpellSettingsEditor.new(trustSettings, spell), viewSize)
+                editSpellView:setTitle("Edit buff.")
+                editSpellView:setShouldRequestFocus(false)
+                return editSpellView
+            end)
+
+    local chooseSpellsItem = MenuItem.new(L{
+        ButtonItem.default('Confirm', 18),
+        ButtonItem.default('Clear', 18),
+    }, {},
+            function(args)
+                local spellSettings = args['spells']
+                local targets = args['targets']
+
+                local jobId = res.jobs:with('ens', jobNameShort).id
+                local allBuffs = spell_util.get_spells(function(spell)
+                    return spell.levels[jobId] ~= nil and spell.status ~= nil and targets:intersection(S(spell.targets)):length() > 0
+                end):map(function(spell) return spell.name end)
+
+                local chooseSpellsView = setupView(SpellPickerView.new(trustSettings, spellSettings, allBuffs), viewSize)
+                chooseSpellsView:setTitle("Choose buffs to add.")
+                chooseSpellsView:setShouldRequestFocus(false)
+                return chooseSpellsView
+            end)
+
+    local buffSettingsItem = MenuItem.new(L{
+        --ButtonItem.default('Save', 18),
+        ButtonItem.default('Add', 18),
+        ButtonItem.default('Remove', 18),
+        ButtonItem.default('Edit', 18),
+    }, {
+        Add = chooseSpellsItem,
+        Edit = editSpellItem
+    },
+            function()
+                local backgroundImageView = createBackgroundView(viewSize.width, viewSize.height)
+                local buffSettingsView = BuffSettingsEditor.new(trustSettings, trustSettingsMode, viewSize.width)
+                buffSettingsView:setBackgroundImageView(backgroundImageView)
+                buffSettingsView:setNavigationBar(createTitleView(viewSize))
+                buffSettingsView:setSize(viewSize.width, viewSize.height)
+                buffSettingsView:setShouldRequestFocus(false)
+                return buffSettingsView
+            end)
+
+    local chooseDebuffsItem = MenuItem.new(L{
+        ButtonItem.default('Confirm', 18),
+        ButtonItem.default('Clear', 18),
+    }, {},
+            function()
+                local jobId = res.jobs:with('ens', jobNameShort).id
+                local allDebuffs = spell_util.get_spells(function(spell)
+                    return spell.levels[jobId] ~= nil and spell.status ~= nil and L{32, 35, 36, 39, 40, 41, 42}:contains(spell.skill)
+                end):map(function(spell) return spell.name end)
+
+                local chooseSpellsView = setupView(SpellPickerView.new(trustSettings, L(T(trustSettings:getSettings())[trustSettingsMode.value].Debuffs), allDebuffs), viewSize)
+                chooseSpellsView:setTitle("Choose debuffs to add.")
+                chooseSpellsView:setShouldRequestFocus(false)
+                return chooseSpellsView
+            end)
+
+    local debuffSettingsItem = MenuItem.new(L{
+        --ButtonItem.default('Save', 18),
+        ButtonItem.default('Add', 18),
+        ButtonItem.default('Remove', 18),
+    }, {
+        Add = chooseDebuffsItem
+    },
+    function()
+        local backgroundImageView = createBackgroundView(viewSize.width, viewSize.height)
+        local debuffSettingsView = DebuffSettingsEditor.new(trustSettings, trustSettingsMode, viewSize.width)
+        debuffSettingsView:setBackgroundImageView(backgroundImageView)
+        debuffSettingsView:setNavigationBar(createTitleView(viewSize))
+        debuffSettingsView:setSize(viewSize.width, viewSize.height)
+        debuffSettingsView:setShouldRequestFocus(false)
+        return debuffSettingsView
+    end)
+
+    local chooseJobAbilitiesItem = MenuItem.new(L{
+        ButtonItem.default('Confirm', 18),
+        ButtonItem.default('Clear', 18),
+    }, {},
+            function()
+                local jobId = res.jobs:with('ens', jobNameShort).id
+                local allJobAbilities = player_util.get_job_abilities():map(function(jobAbilityId) return res.job_abilities[jobAbilityId] end):filter(function(jobAbility)
+                    return jobAbility.status ~= nil and S{'Self'}:intersection(S(jobAbility.targets)):length() > 0
+                end):map(function(jobAbility) return jobAbility.name end)
+
+                local chooseJobAbilitiesView = setupView(JobAbilityPickerView.new(trustSettings, T(trustSettings:getSettings())[trustSettingsMode.value].JobAbilities, allJobAbilities), viewSize)
+                chooseJobAbilitiesView:setTitle("Choose job abilities to add.")
+                chooseJobAbilitiesView:setShouldRequestFocus(false)
+                return chooseJobAbilitiesView
+            end)
+
+    local jobAbilitiesSettingsItem = MenuItem.new(L{
+        ButtonItem.default('Add', 18),
+        ButtonItem.default('Remove', 18),
+    }, {
+        Add = chooseJobAbilitiesItem,
+    },
+    function()
+        local backgroundImageView = createBackgroundView(viewSize.width, viewSize.height)
+        local jobAbilitiesSettingsView = JobAbilitiesSettingsEditor.new(trustSettings, trustSettingsMode, viewSize.width)
+        jobAbilitiesSettingsView:setBackgroundImageView(backgroundImageView)
+        jobAbilitiesSettingsView:setNavigationBar(createTitleView(viewSize))
+        jobAbilitiesSettingsView:setSize(viewSize.width, viewSize.height)
+        jobAbilitiesSettingsView:setShouldRequestFocus(false)
+        return jobAbilitiesSettingsView
+    end)
+
+    local function createWeaponSkillsItem(skill)
+        local chooseWeaponSkillsItem = MenuItem.new(L{
+            ButtonItem.default('Confirm', 18),
+            ButtonItem.default('Clear', 18),
+        }, {},
+        function(args)
+            local weaponSkills = args['weapon_skills']
+
+            local allWeaponSkills = res.weapon_skills:filter(function(weaponSkill) return weaponSkill.skill == skill end):map(function(weaponSkill) return weaponSkill.name end)
+
+            local chooseWeaponSkillsView = setupView(WeaponSkillPickerView.new(trustSettings, weaponSkills, allWeaponSkills), viewSize)
+            chooseWeaponSkillsView:setTitle("Choose weapon skills to add.")
+            chooseWeaponSkillsView:setShouldRequestFocus(false)
+            return chooseWeaponSkillsView
+        end)
+        return chooseWeaponSkillsItem
     end
 
-    local function createTitleView()
-        local titleView = NavigationBar.new(Frame.new(0, 0, viewSize.width, 35))
-        return titleView
+    local chooseWeaponSkillsItem = MenuItem.new(L{
+        ButtonItem.default('H2H', 18),
+        ButtonItem.default('Dagger', 18),
+        ButtonItem.default('Sword', 18),
+        ButtonItem.default('GreatSword', 18),
+        ButtonItem.default('Axe', 18),
+        ButtonItem.default('GreatAxe', 18),
+        ButtonItem.default('Scythe', 18),
+        ButtonItem.default('Polearm', 18),
+        ButtonItem.default('Katana', 18),
+        ButtonItem.default('GreatKatana', 18),
+        ButtonItem.default('Club', 18),
+        ButtonItem.default('Staff', 18),
+        ButtonItem.default('Archery', 18),
+        ButtonItem.default('Marksmanship', 18),
+    }, {
+        H2H = createWeaponSkillsItem(1),
+        Dagger = createWeaponSkillsItem(2),
+        Sword = createWeaponSkillsItem(3),
+        GreatSword = createWeaponSkillsItem(4),
+        Axe = createWeaponSkillsItem(5),
+        GreatAxe = createWeaponSkillsItem(6),
+        Scythe = createWeaponSkillsItem(7),
+        Polearm = createWeaponSkillsItem(8),
+        Katana = createWeaponSkillsItem(9),
+        GreatKatana = createWeaponSkillsItem(10),
+        Club = createWeaponSkillsItem(11),
+        Staff = createWeaponSkillsItem(12),
+        Archery = createWeaponSkillsItem(25),
+        Marksmanship = createWeaponSkillsItem(26)
+    })
+
+    local weaponItems = L{
+        ButtonItem.default('Remove', 18),
+        ButtonItem.default('Move Up', 18),
+        ButtonItem.default('Move Down', 18),
+    }
+    local childMenuItems = {}
+    
+    local combatSkills = L(job_util.get_skills_for_job(res.jobs:with('ens', jobNameShort).id))
+    for combatSkillId in combatSkills:it() do
+        weaponItems:append(ButtonItem.default(res.skills[combatSkillId].name, 18))
+        childMenuItems[res.skills[combatSkillId].name] = createWeaponSkillsItem(combatSkillId)
     end
 
-    local function setupView(view)
-        view:setBackgroundImageView(createBackgroundView(viewSize.width, viewSize.height))
-        view:setNavigationBar(createTitleView())
-        view:setSize(viewSize.width, viewSize.height)
-        return view
+
+    local weaponSkillsSettingsItem = MenuItem.new(weaponItems, childMenuItems,
+    function()
+        local backgroundImageView = createBackgroundView(viewSize.width, viewSize.height)
+        local weaponSkillsSettingsView = WeaponSkillsSettingsEditor.new(trustSettings, trustSettingsMode, viewSize.width)
+        weaponSkillsSettingsView:setBackgroundImageView(backgroundImageView)
+        weaponSkillsSettingsView:setNavigationBar(createTitleView(viewSize))
+        weaponSkillsSettingsView:setSize(viewSize.width, viewSize.height)
+        weaponSkillsSettingsView:setShouldRequestFocus(false)
+        return weaponSkillsSettingsView
+    end)
+
+    -- Settings
+    local menuItems = L{}
+
+    local buffer = trust:role_with_type("buffer")
+    if buffer then
+        menuItems:append(ButtonItem.default('Abilities', 18))
+        menuItems:append(ButtonItem.default('Buffs', 18))
     end
+
+    -- Add menu items only if the Trust has the appropriate role
+    local debuffer = trust:role_with_type("debuffer")
+    if debuffer then
+        menuItems:append(ButtonItem.default('Debuffs', 18))
+    end
+
+    menuItems:append(ButtonItem.default('Weaponskills', 18))
+
+    local settingsMenuItem = MenuItem.new(menuItems, {
+        Abilities = jobAbilitiesSettingsItem,
+        Buffs = buffSettingsItem,
+        Debuffs = debuffSettingsItem,
+        Weaponskills = weaponSkillsSettingsItem
+    })
+    return settingsMenuItem
+end
+
+function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, jobNameShort)
+    local viewSize = Frame.new(0, 0, 500, 500)
 
     -- Modes Assistant
     local modesAssistantMenuItem = MenuItem.new(L{}, {},
     function()
-        local modesAssistantView = setupView(ModesAssistantView.new())
+        local modesAssistantView = setupView(ModesAssistantView.new(), viewSize)
         --modesAssistantView:setShouldRequestFocus(false)
         return modesAssistantView
     end)
@@ -329,77 +558,19 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, jobNameS
         Assistant = modesAssistantMenuItem
     },
     function()
-        local modesView = setupView(ModesView.new(L(T(state):keyset()):sort()))
+        local modesView = setupView(ModesView.new(L(T(state):keyset()):sort()), viewSize)
         modesView:setShouldRequestFocus(false)
         return modesView
     end)
 
-    -- Buffs
-    local buffsMenuItem = MenuItem.new(L{}, {},
-    function()
-        local buffer = trust:role_with_type("buffer")
-        if buffer then
-            return setupView(BufferView.new(buffer))
-        end
-        return nil
-    end)
-
-    -- Debuffs
-    local debuffsMenuItem = MenuItem.new(L{}, {},
-    function()
-        local debuffer = trust:role_with_type("debuffer")
-        if debuffer then
-            return setupView(DebufferView.new(debuffer, debuffer:get_battle_target()))
-        end
-        return nil
-    end)
-
-    local chooseSpellsItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
-        ButtonItem.default('Clear', 18),
-    }, {},
-    function()
-
-        local allBuffs = spell_util.get_spells(function(spell)
-            return spell.status ~= nil and S{'Self', 'Party'}:intersection(S(spell.targets)):length() > 0
-        end):map(function(spell) return spell.name end)
-
-        local chooseSpellsView = setupView(SpellPickerView.new(trustSettings, L(T(trustSettings:getSettings())[trustSettingsMode.value].SelfBuffs)))
-        chooseSpellsView:setTitle("Choose buffs to add.")
-        chooseSpellsView:setShouldRequestFocus(false)
-        return chooseSpellsView
-    end)
-
-    local buffSettingsItem = MenuItem.new(L{
-        ButtonItem.default('Save', 18),
-        ButtonItem.default('Add', 18),
-        ButtonItem.default('Remove', 18),
-    }, {
-        Add = chooseSpellsItem
-    },
-    function()
-        local backgroundImageView = createBackgroundView(viewSize.width, viewSize.height)
-        local buffSettingsView = BuffSettingsEditor.new(trustSettings, trustSettingsMode, viewSize.width)
-        buffSettingsView:setBackgroundImageView(backgroundImageView)
-        buffSettingsView:setNavigationBar(createTitleView())
-        buffSettingsView:setSize(viewSize.width, viewSize.height)
-        buffSettingsView:setShouldRequestFocus(false)
-        return buffSettingsView
-    end)
-
-    -- Settings
-    local settingsMenuItem = MenuItem.new(L{
-        ButtonItem.default('Buffs', 18),
-    }, {
-        Buffs = buffSettingsItem,
-    })
+    local settingsMenuItem = self:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, jobNameShort)
 
     -- Debug
     local debugMenuItem = MenuItem.new(L{
         ButtonItem.default('Clear', 18)
     }, {},
     function()
-        local debugView = setupView(DebugView.new(self.actionQueue))
+        local debugView = setupView(DebugView.new(self.actionQueue), viewSize)
         debugView:setShouldRequestFocus(false)
         return debugView
     end)
@@ -410,19 +581,56 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, jobNameS
         local truster =  trust:role_with_type("truster")
         local partyMemberView = PartyMemberView.new(self.party, self.player.player, self.actionQueue, truster and truster.trusts or L{})
         partyMemberView:setBackgroundImageView(backgroundImageView)
-        partyMemberView:setNavigationBar(createTitleView())
+        partyMemberView:setNavigationBar(createTitleView(viewSize))
         partyMemberView:setSize(viewSize.width, viewSize.height)
         return partyMemberView
     end)
 
+    -- Buffs
+    local buffsMenuItem = MenuItem.new(L{}, {},
+    function()
+        local buffer = trust:role_with_type("buffer")
+        if buffer then
+            return setupView(BufferView.new(buffer), viewSize)
+        end
+        return nil
+    end)
+
+    -- Debuffs
+    local debuffsMenuItem = MenuItem.new(L{}, {},
+    function()
+        local debuffer = trust:role_with_type("debuffer")
+        if debuffer then
+            return setupView(DebufferView.new(debuffer, debuffer:get_battle_target()), viewSize)
+        end
+        return nil
+    end)
+
+    -- Puppetmaster
+    local automatonMenuItem = MenuItem.new(L{}, {},
+    function()
+        local backgroundImageView = createBackgroundView(viewSize.width, viewSize.height)
+        local automatonView = AutomatonView.new(trustSettings, trustSettingsMode)
+        automatonView:setBackgroundImageView(backgroundImageView)
+        automatonView:setNavigationBar(createTitleView(viewSize))
+        automatonView:setSize(viewSize.width, viewSize.height)
+        return automatonView
+    end)
+
     -- Status
-    local statusMenuItem = MenuItem.new(L{
+    local statusMenuButtons = L{
         ButtonItem.default('Party', 18),
         ButtonItem.default('Buffs', 18),
         ButtonItem.default('Debuffs', 18),
         ButtonItem.default('Modes', 18),
-    }, {
+    }
+    if jobNameShort == 'PUP' then
+        statusMenuButtons:insert(2, ButtonItem.default('Automaton', 18))
+    end
+
+    local statusMenuItem = MenuItem.new(statusMenuButtons, {
         Party = partyMenuItem,
+        Automaton = automatonMenuItem,
         Buffs = buffsMenuItem,
         Debuffs = debuffsMenuItem,
         Modes = modesMenuItem,
@@ -435,8 +643,15 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, jobNameS
         Debug = debugMenuItem,
     },
     function()
-        local helpView = setupView(HelpView.new(jobNameShort))
+        local helpView = setupView(HelpView.new(jobNameShort), viewSize)
         helpView:setShouldRequestFocus(false)
+        return helpView
+    end)
+
+    -- Load
+    local loadSettingsItem = MenuItem.new(L{}, {},
+    function()
+        local helpView = setupView(LoadSettingsView.new(jobNameShort), viewSize)
         return helpView
     end)
 
@@ -444,10 +659,12 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, jobNameS
     local mainMenuItem = MenuItem.new(L{
         ButtonItem.default('Status', 18),
         ButtonItem.default('Settings', 18),
+        ButtonItem.default('Load', 18),
         ButtonItem.default('Help', 18),
     }, {
         Status = statusMenuItem,
         Settings = settingsMenuItem,
+        Load = loadSettingsItem,
         Help = helpMenuItem
     })
 

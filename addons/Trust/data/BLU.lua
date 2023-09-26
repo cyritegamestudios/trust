@@ -1,24 +1,38 @@
--- Default trust settings for BLU
-TrustSettings = {
+-- Settings file for BLU
+return {
     Default = {
-        SelfBuffs = L{
-            Spell.new('Erratic Flutter', L{}),
-            Spell.new('Cocoon', L{}),
-            Spell.new('Barrier Tusk', L{}),
-            Spell.new('Nat. Meditation', L{}),
-            Spell.new('Occultation', L{}),
-            Spell.new('Mighty Guard', L{'Unbridled Learning'})
-        },
         Skillchains = {
-            defaultws = {'Expiacion','Savage Blade'},
-            tpws = {'Expiacion','Savage Blade'},
-            spamws = {'Savage Blade','Black Halo'},
-            starterws = {'Savage Blade'},
-            preferws = {'Expiacion','Savage Blade'},
-            cleavews = {},
-            amws = 'Expiacion'
+            spamws = L{
+                "Savage Blade",
+                "Black Halo"
+            },
+            starterws = L{
+                "Savage Blade"
+            },
+            defaultws = L{
+                "Expiacion",
+                "Savage Blade"
+            },
+            preferws = L{
+                "Expiacion",
+                "Savage Blade"
+            },
+            cleavews = L{
+
+            },
+            amws = "Expiacion",
+            tpws = L{
+                "Expiacion",
+                "Savage Blade"
+            }
+        },
+        SelfBuffs = L{
+            Spell.new("Erratic Flutter", L{}, nil, nil, L{}),
+            Spell.new("Cocoon", L{}, nil, nil, L{}),
+            Spell.new("Barrier Tusk", L{}, nil, nil, L{}),
+            Spell.new("Nat. Meditation", L{}, nil, nil, L{}),
+            Spell.new("Occultation", L{}, nil, nil, L{}),
+            Spell.new("Mighty Guard", L{"Unbridled Learning"}, nil, nil, L{})
         }
     }
 }
-return TrustSettings
-

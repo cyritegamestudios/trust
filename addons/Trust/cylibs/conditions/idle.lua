@@ -2,6 +2,7 @@
 -- Condition checking whether the player is idle.
 -- @class module
 -- @name IdleCondition
+local serializer_util = require('cylibs/util/serializer_util')
 
 local Condition = require('cylibs/conditions/condition')
 local IdleCondition = setmetatable({}, { __index = Condition })
@@ -33,6 +34,10 @@ end
 
 function IdleCondition:tostring()
     return "IdleCondition"
+end
+
+function IdleCondition:serialize()
+    return "IdleCondition.new(" .. serializer_util.serialize_args() .. ")"
 end
 
 return IdleCondition

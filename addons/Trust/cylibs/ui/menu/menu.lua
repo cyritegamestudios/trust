@@ -86,9 +86,13 @@ function Menu:showMenu(menuItem)
     local menu = self:createMenu(menuItem)
     if menu then
         menu:onSelectMenuItemAtIndexPath():addAction(function(m, textItem, indexPath)
+            local currentView = self.contentViewStack:getCurrentView()
+            if currentView and type(currentView.onSelectMenuItemAtIndexPath) == 'function' then
+                currentView:onSelectMenuItemAtIndexPath(textItem, indexPath)
+            end
             local childMenuItem = m:getItem():getChildMenuItem(textItem:getText())
             if childMenuItem then
-                local contentView = childMenuItem:getContentView()
+                local contentView = childMenuItem:getContentView(currentView and type(currentView.getMenuArgs) == 'function' and currentView:getMenuArgs())
                 if contentView then
                     if contentView:shouldRequestFocus() then
                         self.contentViewStack:focus()
@@ -99,10 +103,10 @@ function Menu:showMenu(menuItem)
                     self:showMenu(childMenuItem)
                 end
             else
-                local currentView = self.contentViewStack:getCurrentView()
-                if currentView and type(currentView.onSelectMenuItemAtIndexPath) == 'function' then
-                    currentView:onSelectMenuItemAtIndexPath(textItem, indexPath)
-                end
+                --local currentView = self.contentViewStack:getCurrentView()
+                --if currentView and type(currentView.onSelectMenuItemAtIndexPath) == 'function' then
+                --    currentView:onSelectMenuItemAtIndexPath(textItem, indexPath)
+                --end
             end
         end)
         self.viewStack:present(menu)

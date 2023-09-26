@@ -6,6 +6,7 @@
 _libs = _libs or {}
 
 local res = require('resources')
+local jobs_ext = require('cylibs/res/jobs')
 
 local job_util = {}
 
@@ -121,6 +122,14 @@ function job_util.get_job_points(job_short)
         return job_data.jp_spent
     end
     return 0
+end
+
+-------
+-- Returns the skills for a job.
+-- @tparam number job_id Job id
+-- @treturn list List of skill ids (see skills.lua)
+function job_util.get_skills_for_job(job_id)
+    return jobs_ext[job_id].skills or L{}
 end
 
 return job_util

@@ -1,18 +1,30 @@
--- Default trust settings for THF
-TrustSettings = {
+-- Settings file for THF
+return {
     Default = {
-        SelfBuffs = L{
-        },
         Skillchains = {
-            defaultws = {'Evisceration'},
-            tpws = {},
-            spamws = {"Rudra's Storm",'Savage Blade'},
-            cleavews = {},
-            starterws = {'Evisceration'},
-            preferws = {'Evisceration'},
-            amws = 'Mandalic Stab',
+            spamws = L{
+                "Rudra's Storm",
+                "Savage Blade"
+            },
+            starterws = L{
+                "Evisceration"
+            },
+            defaultws = L{
+                "Evisceration"
+            },
+            cleavews = L{
+
+            },
+            preferws = L{
+                "Evisceration"
+            },
+            amws = "Mandalic Stab",
+            tpws = L{
+
+            }
         },
+        SelfBuffs = L{
+
+        }
     }
 }
-return TrustSettings
-

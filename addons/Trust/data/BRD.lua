@@ -1,40 +1,58 @@
--- Default trust settings for BRD
-TrustSettings = {
+-- Settings file for BRD
+return {
     Default = {
-        SelfBuffs = L{},
-        PartyBuffs = L{
-            Spell.new("Mage's Ballad III", L{'Pianissimo'}, L{'BLM','WHM','GEO','SCH'}),
-            Spell.new("Sage Etude", L{'Pianissimo'}, L{'BLM'}),
-        },
-        Debuffs = L{
-            Spell.new('Carnage Elegy')
-        },
-        Songs = L{
-            Spell.new("Honor March", L{'Marcato'}),
-            Spell.new("Valor Minuet V", L{}),
-            Spell.new("Valor Minuet IV", L{}),
-            Spell.new("Blade Madrigal", L{}),
-            Spell.new("Valor Minuet III", L{}),
-        },
-        DummySongs = L{
-            Spell.new("Goddess's Hymnus"),
-            Spell.new("Army's Paeon IV"),
-            Spell.new("Scop's Operetta"),
-            Spell.new("Sheepfoe Mambo"),
-            Spell.new("Goblin Gavotte")
-        },
         NumSongs = 4,
+        SelfBuffs = L{
+
+        },
         SongDuration = 240,
         Skillchains = {
-            defaultws = {'Savage Blade','Mordant Rime','Retribution'},
-            tpws = {'Mordant Rime'},
-            spamws = {'Savage Blade','Mordant Rime'},
-            cleavews = {'Aeolian Edge'},
-            starterws = {'Savage Blade','Mordant Rime'},
-            preferws = {'Savage Blade','Mordant Rime',"Rudra's Storm"},
-            amws = 'Mordant Rime'
+            spamws = L{
+                "Savage Blade",
+                "Mordant Rime"
+            },
+            starterws = L{
+                "Savage Blade",
+                "Mordant Rime"
+            },
+            defaultws = L{
+                "Savage Blade",
+                "Mordant Rime",
+                "Retribution"
+            },
+            cleavews = L{
+                "Aeolian Edge"
+            },
+            preferws = L{
+                "Savage Blade",
+                "Mordant Rime",
+                "Rudra's Storm"
+            },
+            amws = "Mordant Rime",
+            tpws = L{
+                "Mordant Rime"
+            }
+        },
+        PartyBuffs = L{
+            Spell.new("Mage's Ballad III", L{"Pianissimo"}, L{"BLM", "WHM", "GEO", "SCH"}, nil, L{}),
+            Spell.new("Sage Etude", L{"Pianissimo"}, L{"BLM"}, nil, L{})
+        },
+        DummySongs = L{
+            Spell.new("Goddess's Hymnus", L{}, nil, nil, L{}),
+            Spell.new("Army's Paeon IV", L{}, nil, nil, L{}),
+            Spell.new("Scop's Operetta", L{}, nil, nil, L{}),
+            Spell.new("Sheepfoe Mambo", L{}, nil, nil, L{}),
+            Spell.new("Goblin Gavotte", L{}, nil, nil, L{})
+        },
+        Debuffs = L{
+            Spell.new("Carnage Elegy", L{}, nil, nil, L{})
+        },
+        Songs = L{
+            Spell.new("Honor March", L{"Marcato"}, nil, nil, L{}),
+            Spell.new("Valor Minuet V", L{}, nil, nil, L{}),
+            Spell.new("Valor Minuet IV", L{}, nil, nil, L{}),
+            Spell.new("Blade Madrigal", L{}, nil, nil, L{}),
+            Spell.new("Valor Minuet III", L{}, nil, nil, L{})
         }
     }
 }
-return TrustSettings
-

@@ -2,6 +2,7 @@
 -- Condition checking whether the player is in battle.
 -- @class module
 -- @name InBattleCondition
+local serializer_util = require('cylibs/util/serializer_util')
 
 local Condition = require('cylibs/conditions/condition')
 
@@ -34,6 +35,10 @@ end
 
 function InBattleCondition:tostring()
     return "InBattleCondition"
+end
+
+function InBattleCondition:serialize()
+    return "InBattleCondition.new(" .. serializer_util.serialize_args() .. ")"
 end
 
 return InBattleCondition

@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '4.2.3'
+_addon.version = '5.0.1'
 
 require('Trust-Include')
 
@@ -78,7 +78,7 @@ function load_user_files(main_job_id, sub_job_id)
 
 	state.MainTrustSettingsMode = M{['description'] = 'Main Trust Settings Mode', 'Default'}
 
-	main_trust_settings = TrustSettingsLoader.new(player.main_job_name_short, true)
+	main_trust_settings = TrustSettingsLoader.new(player.main_job_name_short)
 	main_trust_settings:onSettingsChanged():addAction(function(newSettings)
 		player.trust.main_job_settings = newSettings
 
@@ -88,7 +88,7 @@ function load_user_files(main_job_id, sub_job_id)
 
 	state.SubTrustSettingsMode = M{['description'] = 'Sub Trust Settings Mode', 'Default'}
 
-	sub_trust_settings = TrustSettingsLoader.new(player.sub_job_name_short, true)
+	sub_trust_settings = TrustSettingsLoader.new(player.sub_job_name_short)
 	sub_trust_settings:onSettingsChanged():addAction(function(newSettings)
 		player.trust.sub_job_settings = newSettings
 
@@ -389,7 +389,7 @@ end
 function handle_migrate_settings()
 	for job_name_short in job_util.all_jobs():it() do
 		if windower.file_exists(windower.addon_path..'data/'..job_name_short..'_'..windower.ffxi.get_player().name..'.lua') then
-			local legacy_trust_settings = TrustSettingsLoader.new(job_name_short, true)
+			local legacy_trust_settings = TrustSettingsLoader.new(job_name_short)
 			local settings = legacy_trust_settings:loadSettings()
 			if settings then
 				TrustSettingsLoader.migrateSettings(job_name_short, settings, true)
@@ -448,121 +448,11 @@ function handle_toggle_menu()
 end
 
 function handle_debug(verbose)
-	--[[for action_type, count in pairs(actions_counter) do
-		print('type: '..action_type..' count: '..count)
-		print('actions created: '..actions_created..' actions destroyed: '..actions_destroyed)
+	for jobNameShort in job_util:all_jobs():it() do
+		local settings = TrustSettingsLoader.new(jobNameShort)
+		settings:loadSettings()
+		settings:saveSettings(true)
 	end
-
-	local action_names = action_queue:get_actions():map(function(a) return a:gettype()..' '..a:getidentifier()  end)
-	print(action_names)
-	
-	for party_member in player.party:get_party_members(true, 21):it() do
-		print(party_member:get_mob().name..' buffs: '..tostring(party_member:get_buffs()))
-	end]]
-
-	local ButtonCollectionViewCell = require('cylibs/ui/collection_view/cells/button_collection_view_cell')
-	local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
-	local CollectionView = require('cylibs/ui/collection_view/collection_view')
-	local CollectionViewCell = require('cylibs/ui/collection_view/collection_view_cell')
-	local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
-	local ImageItem = require('cylibs/ui/collection_view/items/image_item')
-	local IndexPath = require('cylibs/ui/collection_view/index_path')
-	local MenuView = require('cylibs/ui/menu/menu_view')
-	local TextItem = require('cylibs/ui/collection_view/items/text_item')
-	local TextStyle = require('cylibs/ui/style/text_style')
-	local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
-	local ViewStack = require('cylibs/ui/views/view_stack')
-
-	local buttonHeight = 18
-
-	--[[local dataSource = CollectionViewDataSource.new(function(item, indexPath)
-		local cell = ButtonCollectionViewCell.new(item)
-		cell:setItemSize(buttonHeight)
-		return cell
-	end)
-
-	local collectionView = CollectionView.new(dataSource, VerticalFlowLayout.new())
-
-	collectionView:setSize(100, 80)
-	collectionView:setPosition(500, 500)
-
-	local centerImageItem = ImageItem.new(windower.addon_path..'assets/buttons/button-mid.png', 45, buttonHeight)
-	centerImageItem:setRepeat(6, 1)
-
-	local buttonItem = ButtonItem.new(
-			TextItem.new("Settings", TextStyle.Default.ButtonSmall),
-			ImageItem.new(windower.addon_path..'assets/buttons/button-left.png', 20, buttonHeight),
-			centerImageItem,
-			ImageItem.new(windower.addon_path..'assets/buttons/button-right.png', 20, buttonHeight)
-	)
-
-	collectionView:getDataSource():addItem(buttonItem, IndexPath.new(1, 1))
-
-	collectionView:setNeedsLayout()
-	collectionView:layoutIfNeeded()]]
-
-	local viewStack = ViewStack.new()
-
-
-	local buttonItems = L{}
-
-	for i = 1, 5 do
-		local centerImageItem = ImageItem.new(windower.addon_path..'assets/buttons/button-mid.png', 45, buttonHeight)
-		centerImageItem:setRepeat(6, 1)
-
-		local buttonItem = ButtonItem.new(
-				TextItem.new("Button"..i, TextStyle.Default.ButtonSmall),
-				ImageItem.new(windower.addon_path..'assets/buttons/button-left.png', 20, buttonHeight),
-				centerImageItem,
-				ImageItem.new(windower.addon_path..'assets/buttons/button-right.png', 20, buttonHeight)
-		)
-		buttonItems:append(buttonItem)
-	end
-
-	local menu = MenuView.new(buttonItems)
-	menu:setPosition(500, 200)
-	menu:setVisible(false)
-
-	menu:layoutIfNeeded()
-
-	menu:onSelectMenuItemAtIndexPath():addAction(function(_, item, indexPath)
-		if indexPath.row == 2 then
-			local centerImageItem = ImageItem.new(windower.addon_path..'assets/buttons/button-mid.png', 45, buttonHeight)
-			centerImageItem:setRepeat(6, 1)
-
-			local buttonItem = ButtonItem.new(
-					TextItem.new("Modes", TextStyle.Default.ButtonSmall),
-					ImageItem.new(windower.addon_path..'assets/buttons/button-left.png', 20, buttonHeight),
-					centerImageItem,
-					ImageItem.new(windower.addon_path..'assets/buttons/button-right.png', 20, buttonHeight)
-			)
-
-			local menu2 = MenuView.new(L{ buttonItem })
-			menu2:setPosition(500, 200)
-			menu2:setVisible(false)
-
-			viewStack:present(menu2)
-		end
-	end)
-
-	viewStack:present(menu)
-
-
-	--[[if settings_editor then
-		settings_editor:destroy()
-	end
-	local Frame = require('cylibs/ui/views/frame')
-
-	local info = windower.get_windower_settings()
-
-	local xPos = (info.ui_x_res - 500) / 2
-	local yPos = (info.ui_y_res - 500) / 2
-
-	settings_editor = TrustSettingsEditor.new(Frame.new(xPos, yPos, 500, 500), main_trust_settings, state.MainTrustSettingsMode)
-	settings_editor:setSize(500, 500)
-	settings_editor:setVisible(true)
-	settings_editor:setNeedsLayout()
-	settings_editor:layoutIfNeeded()]]
 end
 
 -- Setup

@@ -2,6 +2,7 @@
 -- Condition checking whether the target is valid.
 -- @class module
 -- @name ValidTargetCondition
+local serializer_util = require('cylibs/util/serializer_util')
 
 local Condition = require('cylibs/conditions/condition')
 local ValidTargetCondition = setmetatable({}, { __index = Condition })
@@ -23,6 +24,10 @@ end
 
 function ValidTargetCondition:tostring()
     return "ValidTargetCondition"
+end
+
+function ValidTargetCondition:serialize()
+    return "ValidTargetCondition.new(" .. serializer_util.serialize_args(self.monster_target_only) .. ")"
 end
 
 return ValidTargetCondition

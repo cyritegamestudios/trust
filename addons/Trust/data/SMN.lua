@@ -1,23 +1,51 @@
--- Default trust settings for SMN
-TrustSettings = {
+-- Settings file for SMN
+return {
     Default = {
         PartyBuffs = L{
-            {Avatar='Garuda', Buff='Haste', BloodPact='Hastega II'},
-            {Avatar='Shiva', Buff='TP Bonus', BloodPact='Crystal Blessing'},
-            {Avatar='Fenrir', Buff='Accuracy Boost', BloodPact='Ecliptic Howl'},
-            {Avatar='Ifrit', Buff='Warcry', BloodPact='Crimson Howl'},
+            {
+                BloodPact = "Hastega II",
+                Buff = "Haste",
+                Avatar = "Garuda"
+            },
+            {
+                BloodPact = "Crystal Blessing",
+                Buff = "TP Bonus",
+                Avatar = "Shiva"
+            },
+            {
+                BloodPact = "Ecliptic Howl",
+                Buff = "Accuracy Boost",
+                Avatar = "Fenrir"
+            },
+            {
+                BloodPact = "Crimson Howl",
+                Buff = "Warcry",
+                Avatar = "Ifrit"
+            }
         },
         Skillchains = {
-            defaultws = {'Garland of Bliss'},
-            tpws = {},
-            spamws = {'Garland of Bliss'},
-            starterws = {'Garland of Bliss'},
-            preferws = {'Garland of Bliss'},
-            cleavews = {},
-            amws = 'Garland of Bliss',
-            petws = {'Flaming Crush'}
-        },
+            spamws = L{
+                "Garland of Bliss"
+            },
+            starterws = L{
+                "Garland of Bliss"
+            },
+            defaultws = L{
+                "Garland of Bliss"
+            },
+            petws = L{
+                "Flaming Crush"
+            },
+            preferws = L{
+                "Garland of Bliss"
+            },
+            cleavews = L{
+
+            },
+            amws = "Garland of Bliss",
+            tpws = L{
+
+            }
+        }
     }
 }
-return TrustSettings
-

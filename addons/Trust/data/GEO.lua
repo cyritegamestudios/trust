@@ -1,28 +1,40 @@
--- Default trust settings for GEO
-TrustSettings = {
+-- Settings file for GEO
+return {
     Default = {
-        JobAbilities = L{
-        },
         SelfBuffs = L{
+
+        },
+        JobAbilities = L{
+
         },
         PartyBuffs = L{
-            Spell.new('Indi-STR', L{'Entrust'}, L{'DRK','SAM','WAR','MNK'}),
-            Spell.new('Indi-Fury', L{'Entrust'}, L{'RUN'})
-        },
-        Geomancy = {
-            Indi = Spell.new('Indi-Acumen', L{}, L{}),
-            Geo = Spell.new('Geo-Malaise', L{}, L{}, 'bt')
+            Spell.new("Indi-STR", L{"Entrust"}, L{"DRK", "SAM", "WAR", "MNK"}, nil, L{}),
+            Spell.new("Indi-Fury", L{"Entrust"}, L{"RUN"}, nil, L{})
         },
         Skillchains = {
-            defaultws = {'Black Halo'},
-            tpws = {'Black Halo'},
-            spamws = {'Black Halo'},
-            starterws = {},
-            preferws = {'Black Halo'},
-            cleavews = {},
-            amws = 'Exudation'
+            spamws = L{
+                "Black Halo"
+            },
+            starterws = L{
+
+            },
+            defaultws = L{
+                "Black Halo"
+            },
+            preferws = L{
+                "Black Halo"
+            },
+            cleavews = L{
+
+            },
+            amws = "Exudation",
+            tpws = L{
+                "Black Halo"
+            }
+        },
+        Geomancy = {
+            Indi = Spell.new("Indi-Acumen", L{}, L{}, nil, L{}),
+            Geo = Spell.new("Geo-Malaise", L{}, L{}, "bt", L{})
         }
     }
 }
-return TrustSettings
-

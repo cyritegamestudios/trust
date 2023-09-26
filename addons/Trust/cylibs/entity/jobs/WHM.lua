@@ -8,6 +8,7 @@ local WhiteMage = setmetatable({}, {__index = Job })
 WhiteMage.__index = WhiteMage
 
 local cure_util = require('cylibs/util/cure_util')
+local spell_util = require('cylibs/util/spell_util')
 
 -------
 -- Default initializer for a new White Mage.
@@ -25,11 +26,23 @@ end
 -- @treturn Spell Cure spell
 function WhiteMage:get_cure_spell(hp_missing)
     if hp_missing > self.cure_settings.Thresholds['Cure IV'] then
-        return Spell.new('Cure IV', L{}, L{})
+        if not spell_util.is_spell_on_cooldown(res.spells:with('name', 'Cure IV').id) then
+            return Spell.new('Cure IV', L{}, L{})
+        else
+            return Spell.new('Cure V', L{}, L{})
+        end
     elseif hp_missing > self.cure_settings.Thresholds['Cure III'] then
-        return Spell.new('Cure III', L{}, L{})
+        if not spell_util.is_spell_on_cooldown(res.spells:with('name', 'Cure III').id) then
+            return Spell.new('Cure III', L{}, L{})
+        else
+            return Spell.new('Cure IV', L{}, L{})
+        end
     else
-        return Spell.new('Cure II', L{}, L{})
+        if not spell_util.is_spell_on_cooldown(res.spells:with('name', 'Cure II').id) then
+            return Spell.new('Cure II', L{}, L{})
+        else
+            return Spell.new('Cure III', L{}, L{})
+        end
     end
 end
 
@@ -39,11 +52,23 @@ end
 -- @treturn Spell Aoe cure spell
 function WhiteMage:get_aoe_cure_spell(hp_missing)
     if hp_missing > self.cure_settings.Thresholds['Curaga III'] then
-        return Spell.new('Curaga III', L{}, L{})
+        if not spell_util.is_spell_on_cooldown(res.spells:with('name', 'Curaga III').id) then
+            return Spell.new('Curaga III', L{}, L{})
+        else
+            return Spell.new('Curaga IV', L{}, L{})
+        end
     elseif hp_missing > self.cure_settings.Thresholds['Curaga II'] then
-        return Spell.new('Curaga II', L{}, L{})
+        if not spell_util.is_spell_on_cooldown(res.spells:with('name', 'Curaga II').id) then
+            return Spell.new('Curaga II', L{}, L{})
+        else
+            return Spell.new('Curaga III', L{}, L{})
+        end
     else
-        return Spell.new('Curaga', L{}, L{})
+        if not spell_util.is_spell_on_cooldown(res.spells:with('name', 'Curaga').id) then
+            return Spell.new('Curaga', L{}, L{})
+        else
+            return Spell.new('Curaga II', L{}, L{})
+        end
     end
 end
 

@@ -136,6 +136,10 @@ function CollectionViewDataSource:removeAllItems()
     self.itemsChanged:trigger(diff.added, diff.removed, diff.updated)
 end
 
+function CollectionViewDataSource:swapItems(indexedItem1, indexedItem2)
+    self:updateItems(L{ IndexedItem.new(indexedItem1:getItem(), indexedItem2:getIndexPath()), IndexedItem.new(indexedItem2:getItem(), indexedItem1:getIndexPath()) })
+end
+
 -- Update an item at a specific IndexPath
 function CollectionViewDataSource:updateItem(item, indexPath)
     self:updateItems(L{ IndexedItem.new(item, indexPath) })

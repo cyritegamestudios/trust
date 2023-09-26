@@ -6,11 +6,13 @@ local Frame = require('cylibs/ui/views/frame')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
+local job_util = require('cylibs/util/job_util')
 local ListView = require('cylibs/ui/list_view/list_view')
 local NavigationBar = require('cylibs/ui/navigation/navigation_bar')
 local Padding = require('cylibs/ui/style/padding')
 local PickerItem = require('cylibs/ui/picker/picker_item')
 local PickerView = require('cylibs/ui/picker/picker_view')
+local player_util = require('cylibs/util/player_util')
 local spell_util = require('cylibs/util/spell_util')
 local TabbedView = require('cylibs/ui/tabs/tabbed_view')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
@@ -24,12 +26,14 @@ local SpellSettingsEditor = setmetatable({}, {__index = CollectionView })
 SpellSettingsEditor.__index = SpellSettingsEditor
 
 
-function SpellSettingsEditor.new(spellSettings, actionsMenu, width)
+function SpellSettingsEditor.new(trustSettings, spell)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = TextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
         cell:setItemSize(20)
-        cell:setUserInteractionEnabled(true)
+        --if indexPath.row ~= 1 then
+            cell:setUserInteractionEnabled(true)
+        --end
         return cell
     end)
 
@@ -40,27 +44,58 @@ function SpellSettingsEditor.new(spellSettings, actionsMenu, width)
 
     local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), SpellSettingsEditor)
 
-    self.spellSettings = spellSettings
-    self.actionsMenu = actionsMenu
+    self.trustSettings = trustSettings
+    self.spell = spell
 
-    local backgroundView = BackgroundView.new(Frame.new(0, 0, 300, 300),
-            windower.addon_path..'assets/backgrounds/menu_bg_top.png',
-            windower.addon_path..'assets/backgrounds/menu_bg_mid.png',
-            windower.addon_path..'assets/backgrounds/menu_bg_bottom.png')
+    self:setAllowsMultipleSelection(true)
 
-    self:setBackgroundImageView(backgroundView)
+    local allJobAbilities = player_util.get_job_abilities():map(function(jobAbilityId) return res.job_abilities[jobAbilityId].name end)
 
     local items = L{}
+    local itemsToSelect = L{}
+    local rowIndex = 1
 
-    items:append(IndexedItem.new(TextItem.new(spellSettings['type'], TextStyle.Default.TextSmall), IndexPath.new(1, 1)))
-    items:append(IndexedItem.new(TextItem.new(spellSettings['job_names'], TextStyle.Default.TextSmall), IndexPath.new(1, 2)))
-    items:append(IndexedItem.new(TextItem.new(spellSettings['job_abilities'], TextStyle.Default.TextSmall), IndexPath.new(1, 3)))
-    items:append(IndexedItem.new(TextItem.new(spellSettings['conditions'], TextStyle.Default.TextSmall), IndexPath.new(1, 4)))
+    items:append(IndexedItem.new(TextItem.new("Use with job abilities", TextStyle.Default.HeaderSmall), IndexPath.new(1, 1)))
+    rowIndex = rowIndex + 1
+    for jobAbilityName in allJobAbilities:it() do
+        local indexPath = IndexPath.new(1, rowIndex)
+        items:append(IndexedItem.new(TextItem.new(jobAbilityName, TextStyle.PickerView.Text), indexPath))
+        if spell:get_job_abilities():contains(jobAbilityName) then
+            itemsToSelect:append(indexPath)
+        end
+        rowIndex = rowIndex + 1
+    end
+
+    rowIndex = 1
+
+    items:append(IndexedItem.new(TextItem.new("Use on specific jobs", TextStyle.Default.HeaderSmall), IndexPath.new(2, 1)))
+    rowIndex = rowIndex + 1
+    for jobName in job_util.all_jobs():it() do
+        local indexPath = IndexPath.new(2, rowIndex)
+        items:append(IndexedItem.new(TextItem.new(jobName, TextStyle.PickerView.Text), indexPath))
+        if spell:get_job_names():contains(jobName) then
+            itemsToSelect:append(indexPath)
+        end
+        rowIndex = rowIndex + 1
+    end
 
     self:getDataSource():addItems(items)
 
-    backgroundView:setNeedsLayout()
-    backgroundView:layoutIfNeeded()
+    for indexPath in itemsToSelect:it() do
+        self:getDelegate():selectItemAtIndexPath(indexPath)
+    end
+
+    self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
+        if indexPath.row == 1 then
+            self:getDelegate():selectItemsInSection(indexPath.section)
+            self:getDelegate():deselectItemAtIndexPath(indexPath)
+        end
+        if indexPath.section == 1 then
+
+        elseif indexPath.section == 2 then
+
+        end
+    end), self:getDelegate():didSelectItemAtIndexPath())
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
@@ -77,24 +112,40 @@ function SpellSettingsEditor:layoutIfNeeded()
         return false
     end
 
-    if self:getNavigationBar() then
-        --self:getNavigationBar():setTitle('Choose spells to buff yourself with.')
+    self:setTitle("Edit settings for "..self.spell:get_spell().en..'.')
+end
+
+function SpellSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
+    if textItem:getText() == 'Save' then
+        self:updateSpell()
+    elseif textItem:getText() == 'Clear All' then
+        self:getDelegate():deselectAllItems()
     end
 end
 
-function SpellSettingsEditor:setVisible(visible)
-    if self:isVisible() == visible then
-        return
-    end
-    CollectionView.setVisible(self, visible)
+function SpellSettingsEditor:updateSpell()
+    local jobAbilityNames = L{}
+    local jobNames = L{}
 
-    --[[if self:isVisible() then
-        self:updateActionsMenu()
-    else
-        if self.spellPicker then
-            self.spellPicker:destroy()
+    local selectedIndexPaths = L(self:getDelegate():getSelectedIndexPaths())
+    if selectedIndexPaths:length() > 0 then
+        for indexPath in selectedIndexPaths:it() do
+            if indexPath.section == 1 then
+                local item = self:getDataSource():itemAtIndexPath(indexPath)
+                jobAbilityNames:append(item:getText())
+            elseif indexPath.section == 2 then
+                local item = self:getDataSource():itemAtIndexPath(indexPath)
+                jobNames:append(item:getText())
+            end
         end
-    end]]
+    end
+
+    self.spell:set_job_abilities(jobAbilityNames)
+    self.spell:set_job_names(jobNames)
+
+    self.trustSettings:saveSettings(true)
+
+    addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll follow these rules for "..self.spell:get_spell().en..'.')
 end
 
 

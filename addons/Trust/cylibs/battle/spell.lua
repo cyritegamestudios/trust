@@ -7,6 +7,8 @@ require('tables')
 require('lists')
 require('logger')
 
+local serializer_util = require('cylibs/util/serializer_util')
+
 local res = require('resources')
 local StrategemCountCondition = require('cylibs/conditions/strategem_count')
 
@@ -40,8 +42,12 @@ function Spell.new(spell_name, job_abilities, job_names, target, conditions, con
         return job_ability.type == 'Scholar'
     end):length()
     if strategem_count > 0 then
-        self.conditions:append(StrategemCountCondition.new(strategem_count))
+        local strategem_condition = (conditions or L{}):filter(function(condition) return condition.__type == StrategemCountCondition.__type end)
+        if strategem_condition:length() == 0 then
+            self.conditions:append(StrategemCountCondition.new(strategem_count))
+        end
     end
+
     return self
 end
 
@@ -78,11 +84,28 @@ function Spell:get_job_abilities()
     return self.job_abilities
 end
 
+---
+-- Set the job abilities associated with this Spell.
+--
+-- @tparam list job_ability_names Localized job ability names
+--
+function Spell:set_job_abilities(job_ability_names)
+    self.job_abilities = job_ability_names
+end
+
 -------
 -- Returns the list of jobs this spell applies to.
 -- @treturn list List of job short names (e.g. BLU, RDM, WAR)
 function Spell:get_job_names()
     return self.job_names
+end
+
+-------
+-- Set the job names associated with this Spell.
+--
+-- @tparam list job_names A list of jobs this spell applies to (e.g. BLU, RDM, WAR)
+function Spell:set_job_names(job_names)
+    self.job_names = job_names
 end
 
 -------
@@ -144,6 +167,10 @@ function Spell:description()
         result = result..' → '..job_names
     end
     return result
+end
+
+function Spell:serialize()
+    return "Spell.new(" .. serializer_util.serialize_args(self.spell_name, self.job_abilities, self.job_names, self.target, self.conditions, self.consumable) .. ")"
 end
 
 return Spell

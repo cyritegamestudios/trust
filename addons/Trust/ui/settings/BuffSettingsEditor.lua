@@ -30,7 +30,9 @@ function BuffSettingsEditor.new(trustSettings, settingsMode, width)
         local cell = TextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
         cell:setItemSize(20)
-        cell:setUserInteractionEnabled(true)
+        if indexPath.row ~= 1 then
+            cell:setUserInteractionEnabled(true)
+        end
         return cell
     end)
 
@@ -41,6 +43,7 @@ function BuffSettingsEditor.new(trustSettings, settingsMode, width)
 
     self.trustSettings = trustSettings
     self.settingsMode = settingsMode
+    self.menuArgs = {}
 
     self.allBuffs = spell_util.get_spells(function(spell)
         return spell.status ~= nil and S{'Self', 'Party'}:intersection(S(spell.targets)):length() > 0
@@ -66,26 +69,6 @@ function BuffSettingsEditor:layoutIfNeeded()
     self:setTitle("Edit buffs on the player and party.")
 end
 
-function BuffSettingsEditor:onEditSpellClick(indexPath)
-    local selectedIndexPaths = L(self:getDelegate():getSelectedIndexPaths())
-    if selectedIndexPaths:length() > 0 then
-        local spellSettings = self.selfSpells[selectedIndexPaths[1].row]
-        if spellSettings then
-            for k, v in pairs(spellSettings) do
-                print(k, v)
-            end
-            local spellSettingsEditor = SpellSettingsEditor.new(spellSettings, self.actionsMenu, 300)
-
-            spellSettingsEditor:setSize(300, 300)
-            spellSettingsEditor:setPosition(100, 100)
-            spellSettingsEditor:setVisible(true)
-
-            spellSettingsEditor:setNeedsLayout()
-            spellSettingsEditor:layoutIfNeeded()
-        end
-    end
-end
-
 function BuffSettingsEditor:onRemoveSpellClick()
     local selectedIndexPaths = L(self:getDelegate():getSelectedIndexPaths())
     if selectedIndexPaths:length() > 0 then
@@ -93,9 +76,14 @@ function BuffSettingsEditor:onRemoveSpellClick()
         local item = self:getDataSource():itemAtIndexPath(selectedIndexPaths[1])
         if item then
             local indexPath = selectedIndexPaths[1]
-            self.selfSpells:remove(indexPath.row)
+            if indexPath.section == 1 then
+                self.selfSpells:remove(indexPath.row - 1)
+            elseif indexPath.section == 2 then
+                self.partySpells:remove(indexPath.row - 1)
+            end
+
             self:getDataSource():removeItem(indexPath)
-            self.trustSettings:saveSettings(false)
+            self.trustSettings:saveSettings(true)
         end
 
     end
@@ -104,10 +92,39 @@ end
 function BuffSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
     if textItem:getText() == 'Save' then
         -- TODO: uncomment when saving legacy settings is implemented
-        self.trustSettings:saveSettings(false)
+        self.trustSettings:saveSettings(true)
+    elseif textItem:getText() == 'Add' then
+        local selectedIndexPaths = L(self:getDelegate():getSelectedIndexPaths())
+        if selectedIndexPaths:length() > 0 then
+            local indexPath = selectedIndexPaths[1]
+            if indexPath.section == 1 then
+                self.menuArgs['spells'] = self.selfSpells
+                self.menuArgs['targets'] = S{'Self', 'Party'}
+            elseif indexPath.section == 2 then
+                self.menuArgs['spells'] = self.partySpells
+                self.menuArgs['targets'] = S{'Party'}
+            end
+        else
+            self.menuArgs['spells'] = self.selfSpells
+            self.menuArgs['targets'] = S{'Self', 'Party'}
+        end
+    elseif textItem:getText() == 'Edit' then
+        local selectedIndexPaths = L(self:getDelegate():getSelectedIndexPaths())
+        if selectedIndexPaths:length() > 0 then
+            local indexPath = selectedIndexPaths[1]
+            if indexPath.section == 1 then
+                self.menuArgs['spell'] = self.selfSpells[indexPath.row - 1]
+            elseif indexPath.section == 2 then
+                self.menuArgs['spell'] = self.partySpells[indexPath.row - 1]
+            end
+        end
     elseif textItem:getText() == 'Remove' then
         self:onRemoveSpellClick()
     end
+end
+
+function BuffSettingsEditor:getMenuArgs()
+    return self.menuArgs
 end
 
 function BuffSettingsEditor:setVisible(visible)
@@ -123,16 +140,33 @@ function BuffSettingsEditor:reloadSettings()
     local items = L{}
 
     self.selfSpells = L(T(self.trustSettings:getSettings())[self.settingsMode.value].SelfBuffs)
+    self.partySpells = L(T(self.trustSettings:getSettings())[self.settingsMode.value].PartyBuffs)
 
     local rowIndex = 1
+
+    items:append(IndexedItem.new(TextItem.new("Buffs on self", TextStyle.Default.HeaderSmall), IndexPath.new(1, 1)))
+    rowIndex = rowIndex + 1
     for spell in self.selfSpells:it() do
         items:append(IndexedItem.new(TextItem.new(spell:get_spell().name, TextStyle.Default.TextSmall), IndexPath.new(1, rowIndex)))
         rowIndex = rowIndex + 1
     end
 
+    rowIndex = 1
+
+    items:append(IndexedItem.new(TextItem.new("Buffs on party", TextStyle.Default.HeaderSmall), IndexPath.new(2, 1)))
+    rowIndex = rowIndex + 1
+    for spell in self.partySpells:it() do
+        items:append(IndexedItem.new(TextItem.new(spell:get_spell().name, TextStyle.Default.TextSmall), IndexPath.new(2, rowIndex)))
+        rowIndex = rowIndex + 1
+    end
+
     self:getDataSource():addItems(items)
 
-    self:getDelegate():selectItemAtIndexPath(items[1]:getIndexPath())
+    if self.selfSpells:length() > 0 then
+        self:getDelegate():selectItemAtIndexPath(IndexPath.new(1, 2))
+    elseif self.partySpells:length() > 0 then
+        self:getDelegate():selectItemAtIndexPath(IndexPath.new(2, 2))
+    end
 end
 
 return BuffSettingsEditor

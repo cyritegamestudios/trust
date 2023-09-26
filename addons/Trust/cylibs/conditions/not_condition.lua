@@ -2,6 +2,7 @@
 -- Condition checking whether a list of conditions all return `false`.
 -- @class module
 -- @name NotCondition
+local serializer_util = require('cylibs/util/serializer_util')
 
 local Condition = require('cylibs/conditions/condition')
 local NotCondition = setmetatable({}, { __index = Condition })
@@ -27,6 +28,10 @@ end
 
 function NotCondition:tostring()
     return "NotCondition"
+end
+
+function NotCondition:serialize()
+    return "NotCondition.new(" .. serializer_util.serialize_args(self.conditions) .. ")"
 end
 
 return NotCondition

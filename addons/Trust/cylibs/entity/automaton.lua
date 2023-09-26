@@ -47,6 +47,10 @@ end
 -- Starts monitoring the automaton's actions. Note that it is necessary to call this before events will start being
 -- triggered. You should call destroy() to clean up listeners when you are done.
 function Automaton:monitor()
+    if self.is_monitoring then
+        return
+    end
+    self.is_monitoring = true
     self.action_events.action = windower.register_event('action', function(action)
         if action.actor_id == self:get_id() then
             if action.category == 11 then

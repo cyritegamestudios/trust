@@ -139,7 +139,7 @@ function Buffer:check_buffs()
             if party_member:is_alive() then
                 for spell in self.party_spells:it() do
                     local buff = buff_util.buff_for_spell(spell:get_spell().id)
-                    if buff and not (party_member:has_buff(buff.id) or self.buff_tracker:has_buff(party_member:get_mob().id, buff.id))
+                    if buff and not (party_member:has_buff(buff.id) or (party_member:is_trust() and self.buff_tracker:has_buff(party_member:get_mob().id, buff.id)))
                             and not (buff_util.conflicts_with_buffs(buff.id, party_member:get_buff_ids()))
                             and spell:get_job_names():contains(party_member:get_main_job_short()) and spell_util.can_cast_spell(spell:get_spell().id) then
                         local target = party_member:get_mob()

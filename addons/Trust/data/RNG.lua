@@ -1,19 +1,29 @@
--- Default trust settings for RNG
-TrustSettings = {
+-- Settings file for RNG
+return {
     Default = {
-        JobAbilities = L{
-            'Velocity Shot'
-        },
         Skillchains = {
-            defaultws = {'Trueflight'},
-            tpws = {},
-            spamws = {'Trueflight'},
-            starterws = {'Trueflight'},
-            preferws = {'Trueflight'},
-            cleavews = {},
-            amws = 'Trueflight'
+            spamws = L{
+                "Trueflight"
+            },
+            starterws = L{
+                "Trueflight"
+            },
+            defaultws = L{
+                "Trueflight"
+            },
+            preferws = L{
+                "Trueflight"
+            },
+            cleavews = L{
+
+            },
+            amws = "Trueflight",
+            tpws = L{
+
+            }
+        },
+        JobAbilities = L{
+            "Velocity Shot"
         }
     }
 }
-return TrustSettings
-

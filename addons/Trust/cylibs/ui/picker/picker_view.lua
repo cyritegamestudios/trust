@@ -20,10 +20,10 @@ TextStyle.PickerView = {
             Color.clear,
             Color.clear,
             "Arial",
-            11,
+            10,
             Color.white,
             Color.lightGrey,
-            0,
+            2,
             0,
             0,
             false,
@@ -49,7 +49,7 @@ function PickerView.new(pickerItems, allowsMultipleSelection)
         return cell
     end)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(0, Padding.new(10, 5, 10, 0))), PickerView)
+    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(0, Padding.new(15, 10, 0, 0))), PickerView)
 
     self:setAllowsMultipleSelection(allowsMultipleSelection)
     self:setScrollDelta(20)
