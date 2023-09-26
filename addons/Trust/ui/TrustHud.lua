@@ -651,7 +651,7 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, jobNameS
     -- Load
     local loadSettingsItem = MenuItem.new(L{}, {},
     function()
-        local helpView = setupView(LoadSettingsView.new(jobNameShort), viewSize)
+        local helpView = setupView(LoadSettingsView.new(trustSettingsMode), viewSize)
         return helpView
     end)
 

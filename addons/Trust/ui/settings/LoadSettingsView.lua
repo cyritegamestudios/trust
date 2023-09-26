@@ -25,7 +25,7 @@ local LoadSettingsView = setmetatable({}, {__index = CollectionView })
 LoadSettingsView.__index = LoadSettingsView
 
 
-function LoadSettingsView.new()
+function LoadSettingsView.new(jobSettingsMode)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = TextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
@@ -53,8 +53,6 @@ function LoadSettingsView.new()
     end
 
     itemsToAdd:append(IndexedItem.new(TextItem.new("Load job settings", TextStyle.Default.HeaderSmall), IndexPath.new(2, 1)))
-
-    local jobSettingsMode = state['MainTrustSettingsMode']
 
     rowIndex = 2
     for _, v in ipairs(jobSettingsMode) do
