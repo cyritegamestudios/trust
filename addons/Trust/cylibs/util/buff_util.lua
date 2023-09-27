@@ -268,4 +268,10 @@ function buff_util.active_synth_support()
 	return nil
 end
 
+function buff_util.get_all_debuffs()
+	return L(T(debuffs):keyset()):map(function(debuff_id)
+		return res.buffs[debuff_id].en:gsub("^%l", string.upper)
+	end)
+end
+
 return buff_util
