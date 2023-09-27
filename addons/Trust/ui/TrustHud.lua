@@ -32,6 +32,7 @@ local SkillchainsView = require('cylibs/battle/skillchains/ui/skillchains_view')
 local SpellPickerView = require('ui/settings/pickers/SpellPickerView')
 local SpellSettingsEditor = require('ui/settings/SpellSettingsEditor')
 local spell_util = require('cylibs/util/spell_util')
+local StatusRemovalPickerView = require('ui/settings/pickers/StatusRemovalPickerView')
 local TabbedView = require('cylibs/ui/tabs/tabbed_view')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
@@ -456,6 +457,29 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
         return chooseWeaponSkillsItem
     end
 
+    -- Status Removal
+    local statusRemovalMenuItem = MenuItem.new(L{
+        ButtonItem.default('Confirm', 18),
+        ButtonItem.default('Clear', 18),
+    }, {},
+            function()
+                local statusRemovalSettings = T(trustSettings:getSettings())[trustSettingsMode.value].CureSettings
+                if not statusRemovalSettings.StatusRemovals or not statusRemovalSettings.StatusRemovals.Blacklist then
+                    statusRemovalSettings.StatusRemovals = {}
+                    statusRemovalSettings.StatusRemovals.Blacklist = L{}
+                end
+                local blacklistPickerView = setupView(StatusRemovalPickerView.new(trustSettings, statusRemovalSettings.StatusRemovals.Blacklist), viewSize)
+                blacklistPickerView:setTitle('Choose status effects to ignore.')
+                blacklistPickerView:setShouldRequestFocus(false)
+                return blacklistPickerView
+            end)
+
+    local healerMenuItem = MenuItem.new(L{
+        ButtonItem.default('Blacklist', 18),
+    }, {
+        ['Blacklist'] = statusRemovalMenuItem
+    })
+
     local chooseWeaponSkillsItem = MenuItem.new(L{
         ButtonItem.default('H2H', 18),
         ButtonItem.default('Dagger', 18),
@@ -501,7 +525,6 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
         childMenuItems[res.skills[combatSkillId].name] = createWeaponSkillsItem(combatSkillId)
     end
 
-
     local weaponSkillsSettingsItem = MenuItem.new(weaponItems, childMenuItems,
     function()
         local backgroundImageView = createBackgroundView(viewSize.width, viewSize.height)
@@ -528,12 +551,17 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
         menuItems:append(ButtonItem.default('Debuffs', 18))
     end
 
+    if trust:role_with_type("healer") then
+        menuItems:append(ButtonItem.default('Healing', 18))
+    end
+
     menuItems:append(ButtonItem.default('Weaponskills', 18))
 
     local settingsMenuItem = MenuItem.new(menuItems, {
         Abilities = jobAbilitiesSettingsItem,
         Buffs = buffSettingsItem,
         Debuffs = debuffSettingsItem,
+        Healing = healerMenuItem,
         Weaponskills = weaponSkillsSettingsItem
     })
     return settingsMenuItem
