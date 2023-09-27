@@ -145,6 +145,15 @@ function spell_util.get_spell_recast(spell_id)
 end
 
 -------
+-- Returns whether the spell is on cooldown.
+-- @tparam number spell_id Spell id (see spells.lua)
+-- @treturn boolean Whether the spell is on cooldown.
+function spell_util.is_spell_on_cooldown(spell_id)
+    local recast_time = spell_util.get_spell_recast(spell_id)
+    return recast_time > 0
+end
+
+-------
 -- Returns whether the player is able to cast spells (e.g. if they are silenced).
 -- @treturn Boolean True if the player can cast spells and false otherwise
 function spell_util.can_cast_spells()
@@ -179,6 +188,20 @@ end
 -- @treturn boolean True if a barspell, false otherwise
 function spell_util.is_barstatus(spell_id)
     return L{72,73,74,75,76,77,78,84,85,86,87,88,89,90,91,92}:contains(spell_id)
+end
+
+-------
+-- Returns the spell_name with all roman numerals removed.
+-- @tparam string spell_name Spell name (e.g. Cure IV)
+-- @treturn string Spell name with roman numerals removed
+function spell_util.base_spell_name(spell_name)
+    local patterns = L{"II", "III", "IV", "V", "VI", "VIII"}
+    for pattern in patterns:it() do
+        if string.match(spell_name, pattern) then
+            return spell_name:match("%S+")
+        end
+    end
+    return spell_name
 end
 
 return spell_util

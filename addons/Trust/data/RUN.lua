@@ -1,29 +1,43 @@
--- Default trust settings for RUN
-TrustSettings = {
+-- Settings file for RUN
+return {
     Default = {
-        SelfBuffs = L{
-            Spell.new('Temper'),
-            Spell.new('Crusade'),
-            Spell.new('Refresh'),
-            Spell.new('Regen IV'),
-            Spell.new('Shell V'),
-            Spell.new('Phalanx'),
-        },
         PartyBuffs = L{
+
         },
-        JobAbilities = L{
-            'Swordplay'
+        SelfBuffs = L{
+            Spell.new("Temper", L{}, nil, nil, L{}),
+            Spell.new("Crusade", L{}, nil, nil, L{}),
+            Spell.new("Refresh", L{}, nil, nil, L{}),
+            Spell.new("Regen IV", L{}, nil, nil, L{}),
+            Spell.new("Shell V", L{}, nil, nil, L{}),
+            Spell.new("Phalanx", L{}, nil, nil, L{})
         },
         Skillchains = {
-            defaultws = {'Dimidiation','Steel Cyclone'},
-            tpws = {},
-            spamws = {'Dimidiation','Savage Blade'},
-            starterws = {'Dimidiation'},
-            preferws = {'Dimidiation','Savage Blade'},
-            cleavews = {},
-            amws = 'Dimidiation'
+            spamws = L{
+                "Dimidiation",
+                "Savage Blade"
+            },
+            starterws = L{
+                "Dimidiation"
+            },
+            defaultws = L{
+                "Dimidiation",
+                "Steel Cyclone"
+            },
+            preferws = L{
+                "Dimidiation",
+                "Savage Blade"
+            },
+            cleavews = L{
+
+            },
+            amws = "Dimidiation",
+            tpws = L{
+
+            }
         },
+        JobAbilities = L{
+            "Swordplay"
+        }
     }
 }
-return TrustSettings
-

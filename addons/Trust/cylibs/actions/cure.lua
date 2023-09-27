@@ -3,6 +3,7 @@
 -- @class module
 -- @name CureAction
 
+local DisposeBag = require('cylibs/events/dispose_bag')
 require('vectors')
 require('math')
 require('logger')
@@ -16,7 +17,7 @@ CureAction.__index = CureAction
 
 function CureAction.new(x, y, z, party_member, cure_threshold, mp_cost, healer_job, player)
     local conditions = L{
-        HitPointsPercentRangeCondition.new(1, cure_threshold),
+        HitPointsPercentRangeCondition.new(1, cure_threshold, party_member),
         MaxDistanceCondition.new(20),
         NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'mute'}, false)}),
         MinManaPointsCondition.new(mp_cost)
@@ -28,8 +29,7 @@ function CureAction.new(x, y, z, party_member, cure_threshold, mp_cost, healer_j
     self.cure_threshold = cure_threshold
     self.healer_job = healer_job
     self.player = player
-
-    self.user_events = {}
+    self.dispose_bag = DisposeBag.new()
 
     self:debug_log_create(self:gettype())
 
@@ -37,18 +37,7 @@ function CureAction.new(x, y, z, party_member, cure_threshold, mp_cost, healer_j
 end
 
 function CureAction:destroy()
-    if self.user_events then
-        for _,event in pairs(self.user_events) do
-            windower.unregister_event(event)
-        end
-    end
-
-    if self.spell_finish_id then
-        self.player:on_spell_finish():removeAction(self.spell_finish_id)
-    end
-    if self.spell_interrupted_id then
-        self.player:on_spell_interrupted():removeAction(self.spell_interrupted_id)
-    end
+    self.dispose_bag:destroy()
 
     self.player = nil
 
@@ -78,29 +67,30 @@ function CureAction:perform()
     end
 
     if not spell_util.can_cast_spell(cure_spell:get_spell().id) then
+        addon_message(260, '('..windower.ffxi.get_player().name..') '.."Hold on a second, I'm having a hard time keeping up with cures.")
         self:complete(false)
         return
     end
 
     local target = self.party_member:get_mob()
 
-    self.spell_finish_id = self.player:on_spell_finish():addAction(
+    self.dispose_bag:add(self.player:on_spell_finish():addAction(
             function(p, spell_id, _)
                 if p:get_mob().id == windower.ffxi.get_player().id then
                     if spell_id == cure_spell:get_spell().id then
                         self:complete(true)
                     end
                 end
-            end)
+            end), self.player:on_spell_finish())
 
-    self.spell_interrupted_id = self.player:on_spell_interrupted():addAction(
+    self.dispose_bag:add(self.player:on_spell_interrupted():addAction(
             function(p, spell_id)
                 if p:get_mob().id == windower.ffxi.get_player().id then
                     if spell_id == cure_spell:get_spell().id then
                         self:complete(false)
                     end
                 end
-            end)
+            end), self.player:on_spell_interrupted())
 
     windower.send_command('@input /ma "'..cure_spell:get_spell().name..'" '..target.id)
 end

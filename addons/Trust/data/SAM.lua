@@ -1,19 +1,31 @@
--- Default trust settings for SAM
-TrustSettings = {
+-- Settings file for SAM
+return {
     Default = {
-        JobAbilities = L{
-            'Hasso'
-        },
         Skillchains = {
-            defaultws = {'Tachi: Fudo'},
-            tpws = {'Tachi: Fudo'},
-            spamws = {'Tachi: Fudo'},
-            starterws = {'Tachi: Ageha'},
-            preferws = {'Tachi: Kasha','Tachi: Shoha','Tachi: Fudo'},
-            cleavews = {},
-            amws = 'Tachi: Rana'
+            spamws = L{
+                "Tachi: Fudo"
+            },
+            starterws = L{
+                "Tachi: Ageha"
+            },
+            defaultws = L{
+                "Tachi: Fudo"
+            },
+            preferws = L{
+                "Tachi: Kasha",
+                "Tachi: Shoha",
+                "Tachi: Fudo"
+            },
+            cleavews = L{
+
+            },
+            amws = "Tachi: Rana",
+            tpws = L{
+                "Tachi: Fudo"
+            }
         },
+        JobAbilities = L{
+            "Hasso"
+        }
     }
 }
-return TrustSettings
-

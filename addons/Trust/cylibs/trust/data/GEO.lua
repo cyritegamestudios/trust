@@ -69,7 +69,7 @@ end
 function GeomancerTrust:destroy()
 	Trust.destroy(self)
 
-	if self.pet_changed_action_id then
+	if self.pet_changed_action_id and self:get_player() then
 		self:get_player():on_pet_change():removeAction(self.pet_changed_action_id)
 	end
 end

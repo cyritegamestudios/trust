@@ -4,6 +4,7 @@
 -- @name HasBuffCondition
 
 local buff_util = require('cylibs/util/buff_util')
+local serializer_util = require('cylibs/util/serializer_util')
 
 local Condition = require('cylibs/conditions/condition')
 local HasBuffCondition = setmetatable({}, { __index = Condition })
@@ -42,6 +43,10 @@ end
 
 function HasBuffCondition:tostring()
     return "HasBuffCondition"
+end
+
+function HasBuffCondition:serialize()
+    return "HasBuffCondition.new(" .. serializer_util.serialize_args(self.buff_name) .. ")"
 end
 
 return HasBuffCondition

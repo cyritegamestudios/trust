@@ -71,7 +71,7 @@ function Strategem:is_equal(action)
 end
 
 function Strategem:tostring()
-    return "Strategem command: %s":format(self.command)
+    return "Strategem: %s":format(self.strategem_name)
 end
 
 return Strategem

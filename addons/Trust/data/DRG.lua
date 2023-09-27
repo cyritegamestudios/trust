@@ -1,18 +1,39 @@
--- Default trust settings for DRG
-TrustSettings = {
+-- Settings file for DRG
+return {
     Default = {
-        JobAbilities = L{
-        },
         Skillchains = {
-            defaultws = {"Impulse Drive","Stardiver","Savage Blade","Retribution"},
-            tpws = {},
-            spamws = {"Impulse Drive","Stardiver","Savage Blade","Retribution"},
-            starterws = {"Stardiver","Savage Blade","Retribution"},
-            preferws = {"Stardiver","Savage Blade","Retribution"},
-            cleavews = {"Sonic Thrust"},
-            amws = "Drakesbane"
+            spamws = L{
+                "Impulse Drive",
+                "Stardiver",
+                "Savage Blade",
+                "Retribution"
+            },
+            starterws = L{
+                "Stardiver",
+                "Savage Blade",
+                "Retribution"
+            },
+            defaultws = L{
+                "Impulse Drive",
+                "Stardiver",
+                "Savage Blade",
+                "Retribution"
+            },
+            preferws = L{
+                "Stardiver",
+                "Savage Blade",
+                "Retribution"
+            },
+            cleavews = L{
+                "Sonic Thrust"
+            },
+            amws = "Drakesbane",
+            tpws = L{
+
+            }
         },
+        JobAbilities = L{
+
+        }
     }
 }
-return TrustSettings
-

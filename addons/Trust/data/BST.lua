@@ -1,24 +1,44 @@
--- Default trust settings for BST
-TrustSettings = {
+-- Settings file for BST
+return {
     Default = {
-        JobAbilities = L{
-            'Killer Instinct',
-            'Spur'
+        Skillchains = {
+            spamws = L{
+                "Cloudsplitter"
+            },
+            starterws = L{
+
+            },
+            defaultws = L{
+                "Decimation",
+                "Cloudsplitter"
+            },
+            petws = L{
+                "Pentapeck"
+            },
+            preferws = L{
+                "Decimation",
+                "Primal Rend",
+                "Cloudsplitter"
+            },
+            cleavews = L{
+
+            },
+            amws = "Primal Rend",
+            tpws = L{
+                "Decimation",
+                "Cloudsplitter"
+            }
         },
         SelfBuffs = L{
-            { Familiar='VivaciousVickie', Buff='Counter Boost', ReadyMove='Zealous Snort' },
+            {
+                Familiar = "VivaciousVickie",
+                ReadyMove = "Zealous Snort",
+                Buff = "Counter Boost"
+            }
         },
-        Skillchains = {
-            defaultws = {'Decimation','Cloudsplitter'},
-            tpws = {'Decimation','Cloudsplitter'},
-            spamws = {'Cloudsplitter'},
-            starterws = {},
-            preferws = {'Decimation','Primal Rend','Cloudsplitter'},
-            cleavews = {},
-            amws = 'Primal Rend',
-            petws = {'Pentapeck'},
+        JobAbilities = L{
+            "Killer Instinct",
+            "Spur"
         }
     }
 }
-return TrustSettings
-

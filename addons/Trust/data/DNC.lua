@@ -1,19 +1,34 @@
--- Default trust settings for DNC
-TrustSettings = {
+-- Settings file for DNC
+return {
     Default = {
-        JobAbilities = L{
-            'Haste Samba'
-        },
         Skillchains = {
-            defaultws = {"Rudra's Storm",'Pyrrhic Kleos','Asuran Fists'},
-            tpws = {"Rudra's Storm",'Asuran Fists'},
-            spamws = {"Rudra's Storm",'Asuran Fists'},
-            cleavews = {},
-            starterws = {'Shark Bite'},
-            preferws = {"Rudra's Storm",'Asuran Fists'},
-            amws = 'Pyrrhic Kleos',
+            spamws = L{
+                "Rudra's Storm",
+                "Asuran Fists"
+            },
+            starterws = L{
+                "Shark Bite"
+            },
+            defaultws = L{
+                "Rudra's Storm",
+                "Pyrrhic Kleos",
+                "Asuran Fists"
+            },
+            cleavews = L{
+
+            },
+            preferws = L{
+                "Rudra's Storm",
+                "Asuran Fists"
+            },
+            amws = "Pyrrhic Kleos",
+            tpws = L{
+                "Rudra's Storm",
+                "Asuran Fists"
+            }
+        },
+        JobAbilities = L{
+            "Haste Samba"
         }
     }
 }
-return TrustSettings
-

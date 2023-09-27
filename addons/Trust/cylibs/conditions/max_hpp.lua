@@ -2,6 +2,7 @@
 -- Condition checking whether the target's hpp <= max_hpp.
 -- @class module
 -- @name MinHitPointsPercentCondition
+local serializer_util = require('cylibs/util/serializer_util')
 
 local Condition = require('cylibs/conditions/condition')
 local MaxHitPointsPercentCondition = setmetatable({}, { __index = Condition })
@@ -23,6 +24,10 @@ end
 
 function MaxHitPointsPercentCondition:tostring()
     return "MaxHitPointsPercentCondition"
+end
+
+function MaxHitPointsPercentCondition:serialize()
+    return "MaxHitPointsPercentCondition.new(" .. serializer_util.serialize_args(self.max_hpp) .. ")"
 end
 
 return MaxHitPointsPercentCondition

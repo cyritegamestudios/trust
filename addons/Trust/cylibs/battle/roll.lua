@@ -2,6 +2,7 @@
 -- Wrapper around a roll
 -- @class module
 -- @name Roll
+local serializer_util = require('cylibs/util/serializer_util')
 
 local Roll = {}
 Roll.__index = Roll
@@ -47,6 +48,10 @@ end
 -- @treturn Boolean True if Crooked Cards should be used.
 function Roll:should_use_crooked_cards()
     return self.use_crooked_cards
+end
+
+function Roll:serialize()
+    return "Roll.new(" .. serializer_util.serialize_args(self.roll_name, self.use_crooked_cards) .. ")"
 end
 
 return Roll

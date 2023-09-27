@@ -148,6 +148,20 @@ function CollectionViewDelegate:selectItemAtIndexPath(indexPath)
 end
 
 ---
+-- Selects all items in a section of the collection view.
+--
+-- @tparam number section Section in the collection view.
+--
+function CollectionViewDelegate:selectItemsInSection(section)
+    for row = 1, self.collectionView:getDataSource():numberOfItemsInSection(section) do
+        local indexPath = IndexPath.new(section, row)
+        if indexPath.section == section then
+            self:selectItemAtIndexPath(indexPath)
+        end
+    end
+end
+
+---
 -- Deselects the item at the specified index path.
 --
 -- @tparam any item The item to deselect.

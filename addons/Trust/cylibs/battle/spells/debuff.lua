@@ -6,6 +6,8 @@
 require('tables')
 require('lists')
 
+local serializer_util = require('cylibs/util/serializer_util')
+
 local Spell = require('cylibs/battle/spell')
 
 local Debuff = setmetatable({}, {__index = Spell })
@@ -43,6 +45,10 @@ function Debuff:encode()
     settings.spell_name = self.original_spell_name
 
     return settings
+end
+
+function Debuff:serialize()
+    return "Debuff.new(" .. serializer_util.serialize_args(self.spell_name, self.job_abilities, self.job_names, self.spell_prefix) .. ")"
 end
 
 return Debuff

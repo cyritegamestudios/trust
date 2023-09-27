@@ -2,6 +2,7 @@
 -- Condition checking whether the target's hpp >= min_hpp.
 -- @class module
 -- @name MinHitPointsPercentCondition
+local serializer_util = require('cylibs/util/serializer_util')
 
 local Condition = require('cylibs/conditions/condition')
 local MinHitPointsPercentCondition = setmetatable({}, { __index = Condition })
@@ -23,6 +24,10 @@ end
 
 function MinHitPointsPercentCondition:tostring()
     return "MinHitPointsPercentCondition"
+end
+
+function MinHitPointsPercentCondition:serialize()
+    return "MinHitPointsPercentCondition.new(" .. serializer_util.serialize_args(self.min_hpp) .. ")"
 end
 
 return MinHitPointsPercentCondition

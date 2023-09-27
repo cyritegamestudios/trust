@@ -1,39 +1,54 @@
--- Default trust settings for PLD
-TrustSettings = {
+-- Settings file for PLD
+return {
     Default = {
-        JobAbilities = L{
-            'Majesty'
-        },
         SelfBuffs = L{
-            Spell.new('Phalanx', L{}),
-            Spell.new('Protect V', L{}),
-        },
-        PartyBuffs = L{
+            Spell.new("Phalanx", L{}, nil, nil, L{}),
+            Spell.new("Protect V", L{}, nil, nil, L{})
         },
         CureSettings = {
             Thresholds = {
-                ['Default'] = 78,
-                ['Emergency'] = 25,
-                ['Cure IV'] = 1000,
-                ['Cure III'] = 400,
-                ['Cure II'] = 0,
+                ["Cure IV"] = 1000,
+                Emergency = 25,
+                Default = 78,
+                ["Cure II"] = 0,
+                ["Cure III"] = 400
             },
             Delay = 2,
             StatusRemovals = {
                 Blacklist = L{
+
                 }
             }
         },
+        JobAbilities = L{
+            "Majesty"
+        },
+        PartyBuffs = L{
+
+        },
         Skillchains = {
-            defaultws = {'Savage Blade','Torcleaver'},
-            tpws = {},
-            spamws = {'Savage Blade','Torcleaver'},
-            starterws = {'Red Lotus Blade'},
-            preferws = {'Red Lotus Blade','Torcleaver'},
-            cleavews = {'Circle Blade'},
-            amws = 'Torcleaver'
+            spamws = L{
+                "Savage Blade",
+                "Torcleaver"
+            },
+            starterws = L{
+                "Red Lotus Blade"
+            },
+            defaultws = L{
+                "Savage Blade",
+                "Torcleaver"
+            },
+            preferws = L{
+                "Red Lotus Blade",
+                "Torcleaver"
+            },
+            cleavews = L{
+                "Circle Blade"
+            },
+            amws = "Torcleaver",
+            tpws = L{
+
+            }
         }
     }
 }
-return TrustSettings
-

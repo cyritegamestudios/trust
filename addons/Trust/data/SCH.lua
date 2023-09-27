@@ -1,52 +1,64 @@
--- Default trust settings for SCH
-TrustSettings = {
+-- Settings file for SCH
+return {
     Default = {
         LightArts = {
-            SelfBuffs = L{
-                Buff.new('Reraise'),
-                Buff.new('Protect', L{'Accession'}),
-                Buff.new('Shell', L{'Accession'}),
-                Buff.new('Regen', L{'Accession', 'Perpetuance'}),
-                Spell.new('Phalanx', L{'Accession', 'Perpetuance'}),
-                Spell.new('Aurorastorm II', L{})
-            },
             PartyBuffs = L{
-                --Spell.new('Firestorm II', L {}, L { 'WAR', 'BLU', 'MNK' }),
-                Spell.new('Adloquium', L {}, L { 'WAR', 'PUP' })
+                Spell.new("Adloquium", L{}, L{"WAR", "PUP"}, nil, L{})
+            },
+            SelfBuffs = L{
+                Buff.new("Protect", L{"Accession"}, L{}, nil, L{StrategemCountCondition.new(1, ">=")}),
+                Buff.new("Shell", L{"Accession"}, L{}, nil, L{StrategemCountCondition.new(1, ">=")}),
+                Buff.new("Regen", L{"Accession", "Perpetuance"}, L{}, nil, L{StrategemCountCondition.new(2, ">=")}),
+                Spell.new("Phalanx", L{"Accession", "Perpetuance"}, nil, nil, L{StrategemCountCondition.new(2, ">=")}),
+                Spell.new("Aurorastorm II", L{}, nil, nil, L{})
             }
         },
-        DarkArts = {
-            SelfBuffs = L{
-                Spell.new('Klimaform', L{}),
-            },
-            PartyBuffs = L{
-            }
-        },
+        StrategemCooldown = 33,
         CureSettings = {
             Thresholds = {
-                ['Default'] = 78,
-                ['Emergency'] = 25,
-                ['Cure IV'] = 1200,
-                ['Cure III'] = 500,
-                ['Cure II'] = 0,
+                ["Cure IV"] = 1200,
+                Emergency = 25,
+                Default = 78,
+                ["Cure II"] = 0,
+                ["Cure III"] = 500
             },
             Delay = 2,
             StatusRemovals = {
                 Blacklist = L{
+
                 }
             }
         },
-        StrategemCooldown = 33,
         Skillchains = {
-            defaultws = {'Retribution','Black Halo'},
-            tpws = {},
-            spamws = {'Black Halo'},
-            starterws = {'Black Halo'},
-            preferws = {'Retribution','Black Halo'},
-            cleavews = {},
-            amws = 'Omniscience'
+            spamws = L{
+                "Black Halo"
+            },
+            starterws = L{
+                "Black Halo"
+            },
+            defaultws = L{
+                "Retribution",
+                "Black Halo"
+            },
+            preferws = L{
+                "Retribution",
+                "Black Halo"
+            },
+            cleavews = L{
+
+            },
+            amws = "Omniscience",
+            tpws = L{
+
+            }
         },
+        DarkArts = {
+            PartyBuffs = L{
+
+            },
+            SelfBuffs = L{
+                Spell.new("Klimaform", L{}, nil, nil, L{})
+            }
+        }
     }
 }
-return TrustSettings
-

@@ -3,6 +3,7 @@
 -- @class module
 -- @name SpellRecastReadyCondition
 
+local serializer_util = require('cylibs/util/serializer_util')
 local spell_util = require('cylibs/util/spell_util')
 
 local Condition = require('cylibs/conditions/condition')
@@ -21,6 +22,10 @@ end
 
 function SpellRecastReadyCondition:tostring()
     return "SpellRecastReadyCondition"
+end
+
+function SpellRecastReadyCondition:serialize()
+    return "SpellRecastReadyCondition.new(" .. serializer_util.serialize_args(self.spell_id) .. ")"
 end
 
 return SpellRecastReadyCondition

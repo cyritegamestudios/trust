@@ -1,21 +1,44 @@
--- Default trust settings for NIN
-TrustSettings = {
+-- Settings file for NIN
+return {
     Default = {
-        JobAbilities = L{
+        Skillchains = {
+            spamws = L{
+                "Blade: Ku",
+                "Tachi: Gekko",
+                "Asuran Fists"
+            },
+            starterws = L{
+                "Blade: Kamu",
+                "Tachi: Ageha"
+            },
+            defaultws = L{
+                "Blade: Hi",
+                "Blade: Shun",
+                "Tachi: Ageha",
+                "Evisceration",
+                "Asuran Fists"
+            },
+            cleavews = L{
+
+            },
+            preferws = L{
+                "Blade: Ku",
+                "Evisceration",
+                "Blade: To",
+                "Blade: Chi",
+                "Blade: Teki"
+            },
+            amws = "Blade: Kamu",
+            tpws = L{
+                "Blade: Shun",
+                "Evisceration"
+            }
         },
         SelfBuffs = L{
-            Spell.new('Utsusemi: Ni', L{}, L{}, nil),
+            Spell.new("Utsusemi: Ni", L{}, L{}, nil, L{})
         },
-        Skillchains = {
-            defaultws = {'Blade: Hi','Blade: Shun','Tachi: Ageha','Evisceration','Asuran Fists'},
-            tpws = {'Blade: Shun','Evisceration'},
-            spamws = {'Blade: Ku','Tachi: Gekko','Asuran Fists'},
-            cleavews = {},
-            starterws = {'Blade: Kamu','Tachi: Ageha'},
-            preferws = {'Blade: Ku','Evisceration','Blade: To','Blade: Chi','Blade: Teki'},
-            amws = 'Blade: Kamu'
-        },
+        JobAbilities = L{
+
+        }
     }
 }
-return TrustSettings
-

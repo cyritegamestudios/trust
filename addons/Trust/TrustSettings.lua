@@ -2,6 +2,8 @@ local Event = require('cylibs/events/Luvent')
 local JSON = require('cylibs/util/jsonencode')
 local FileIO = require('files')
 
+local serializer_util = require('cylibs/util/serializer_util')
+
 require('logger')
 
 local TrustSettings = {}
@@ -12,15 +14,10 @@ function TrustSettings:onSettingsChanged()
     return self.settingsChanged
 end
 
-function TrustSettings.new(jobNameShort, isLegacy)
+function TrustSettings.new(jobNameShort)
     local self = setmetatable({}, TrustSettings)
     self.jobNameShort = jobNameShort
-    self.isLegacy = isLegacy
-    if self.isLegacy then
-        self.settingsFolder = 'data/'
-    else
-        self.settingsFolder = 'data/settings/'
-    end
+    self.settingsFolder = 'data/'
     self.settingsChanged = Event.newEvent()
     self.settings = {}
     self.rawSettings = {}
@@ -36,11 +33,7 @@ function TrustSettings:loadSettings()
         else
             addon_message(207, 'Loaded trust settings from '..filePath)
             self.rawSettings = loadJobSettings()
-            if self.isLegacy then
-                self.settings = self.rawSettings
-            else
-                self.settings = TrustSettings.decodeSettings(table.copy(self.rawSettings, true))
-            end
+            self.settings = self.rawSettings
             self:onSettingsChanged():trigger(self.settings)
             return self.settings
         end
@@ -65,28 +58,19 @@ function TrustSettings:saveSettings(saveToFile)
         local filePath = self.settingsFolder..self.jobNameShort..'_'..windower.ffxi.get_player().name..'.lua'
 
         local file = FileIO.new(filePath)
-        file:write('-- Settings file for '..self.jobNameShort ..'\nreturn ' .. T(self.rawSettings):tovstring())
+        file:write('-- Settings file for '..self.jobNameShort ..'\nreturn ' .. serializer_util.serialize(self.settings)) -- Uses our new lua serializer!
     end
     self:onSettingsChanged():trigger(self.settings)
 end
 
 function TrustSettings:copySettings()
     local filePath = self.settingsFolder..self.jobNameShort..'_'..windower.ffxi.get_player().name..'.lua'
-    if self.isLegacy then
-        local playerSettings = FileIO.new(filePath)
-        if not playerSettings:exists() then
-            local defaultSettings = FileIO.new(self.settingsFolder..self.jobNameShort..'.lua')
-            playerSettings:write(defaultSettings:read())
+    local playerSettings = FileIO.new(filePath)
+    if not playerSettings:exists() then
+        local defaultSettings = FileIO.new(self.settingsFolder..self.jobNameShort..'.lua')
+        playerSettings:write(defaultSettings:read())
 
-            addon_message(207, 'Copied settings to '..filePath)
-        end
-    else
-        if not windower.file_exists(windower.addon_path..filePath) then
-            local file = FileIO.new(filePath)
-            file:write('-- Settings file for '..self.jobNameShort ..'\nreturn ' .. T(self.rawSettings):tovstring())
-
-            addon_message(207, 'Copied settings to '..filePath)
-        end
+        addon_message(207, 'Copied settings to '..filePath)
     end
 end
 

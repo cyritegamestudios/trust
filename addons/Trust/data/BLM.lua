@@ -1,23 +1,35 @@
--- Default trust settings for BLM
-TrustSettings = {
+-- Settings file for BLM
+return {
     Default = {
-        JobAbilities = L{
-            'Mana Wall',
+        Skillchains = {
+            spamws = L{
+                "Vidohunir"
+            },
+            starterws = L{
+                "Shattersoul"
+            },
+            defaultws = L{
+                "Vidohunir"
+            },
+            preferws = L{
+                "Vidohunir"
+            },
+            cleavews = L{
+
+            },
+            amws = "Vidohunir",
+            tpws = L{
+                "Full Swing"
+            }
         },
         SelfBuffs = L{
+
         },
         Debuffs = L{
+
         },
-        Skillchains = {
-            defaultws = {'Vidohunir'},
-            tpws = {'Full Swing'},
-            spamws = {'Vidohunir'},
-            starterws = {'Shattersoul'},
-            preferws = {'Vidohunir'},
-            cleavews = {},
-            amws = 'Vidohunir',
+        JobAbilities = L{
+            "Mana Wall"
         }
     }
 }
-return TrustSettings
-
