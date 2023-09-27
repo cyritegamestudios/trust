@@ -59,6 +59,11 @@ function Action.new(x, y, z, target_index, conditions)
 end
 
 function Action:destroy()
+    if self.is_destroyed then
+        return
+    end
+    self.is_destroyed = true
+
     actions_destroyed = actions_destroyed + 1
 
     self:on_action_complete():removeAllActions()

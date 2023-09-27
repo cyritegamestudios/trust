@@ -8,6 +8,7 @@ require('math')
 require('logger')
 require('lists')
 
+local DisposeBag = require('cylibs/events/dispose_bag')
 local res = require('resources')
 
 local Action = require('cylibs/actions/action')
@@ -25,6 +26,7 @@ function SpellAction.new(x, y, z, spell_id, target_index, player)
 
 	local self = setmetatable(Action.new(x, y, z, target_index, conditions), SpellAction)
 
+	self.dispose_bag = DisposeBag.new()
 	self.spell_id = spell_id
 	self.player = player
 	self.user_events = {}
@@ -41,15 +43,7 @@ function SpellAction:destroy()
 		end
 	end
 
-	if self.spell_finish_id then
-		self.player:on_spell_finish():removeAction(self.spell_finish_id)
-	end
-	if self.spell_interrupted_id then
-		self.player:on_spell_interrupted():removeAction(self.spell_interrupted_id)
-	end
-	if self.unable_to_cast_id then
-		self.player:on_unable_to_cast():removeAction(self.spell_interrupted_id)
-	end
+	self.dispose_bag:destroy()
 
 	self.player = nil
 
@@ -61,7 +55,7 @@ end
 function SpellAction:perform()
 	windower.ffxi.run(false)
 
-	self.spell_finish_id = self.player:on_spell_finish():addAction(
+	self.dispose_bag:add(self.player:on_spell_finish():addAction(
 			function(p, spell_id, _)
 				if p:get_mob().id == windower.ffxi.get_player().id then
 					if spell_id == self.spell_id then
@@ -69,9 +63,9 @@ function SpellAction:perform()
 						self:complete(true)
 					end
 				end
-			end)
+			end), self.player:on_spell_finish())
 
-	self.spell_interrupted_id = self.player:on_spell_interrupted():addAction(
+	self.dispose_bag:add(self.player:on_spell_interrupted():addAction(
 			function(p, spell_id)
 				if p:get_mob().id == windower.ffxi.get_player().id then
 					if spell_id == self.spell_id then
@@ -79,14 +73,14 @@ function SpellAction:perform()
 						self:complete(false)
 					end
 				end
-			end)
+			end), self.player:on_spell_interrupted())
 
-	self.unable_to_cast_id = self.player:on_unable_to_cast():addAction(
+	self.dispose_bag:add(self.player:on_unable_to_cast():addAction(
 			function(p)
 				if p:get_mob().id == windower.ffxi.get_player().id then
 					self:complete(false)
 				end
-			end)
+			end), self.player:on_unable_to_cast())
 
 	local target = windower.ffxi.get_mob_by_index(self.target_index)
 	local spell = res.spells[self.spell_id]

@@ -2,6 +2,7 @@ local Button = require('cylibs/ui/button')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
 local Color = require('cylibs/ui/views/color')
+local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Padding = require('cylibs/ui/style/padding')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
@@ -62,25 +63,47 @@ function DebugView:updateActions()
 
     self:getDataSource():removeAllItems()
 
-    self:getDataSource():addItem(TextItem.new("Actions", TextStyle.Default.HeaderSmall), IndexPath.new(1, 1))
+    local itemsToAdd = L{}
+    local itemsToHighlight = L{}
+
+    -- Memory
+    itemsToAdd:append(IndexedItem.new(TextItem.new("Memory", TextStyle.Default.HeaderSmall), IndexPath.new(1, 1)))
+
+    itemsToAdd:append(IndexedItem.new(TextItem.new("Actions created: "..actions_created, TextStyle.Default.TextSmall), IndexPath.new(1, 2)))
+    itemsToAdd:append(IndexedItem.new(TextItem.new("Actions destroyed: "..actions_destroyed, TextStyle.Default.TextSmall), IndexPath.new(1, 3)))
+
+    local rowIndex = 4
+    for action_type, count in pairs(actions_counter) do
+        itemsToAdd:append(IndexedItem.new(TextItem.new(action_type..': '..count, TextStyle.Default.TextSmall), IndexPath.new(1, rowIndex)))
+        rowIndex = rowIndex + 1
+    end
+
+    -- Actions
+    itemsToAdd:append(IndexedItem.new(TextItem.new("Actions", TextStyle.Default.HeaderSmall), IndexPath.new(2, 1)))
 
     local actions = self.actionQueue:get_actions()
     if actions:length() > 0 then
         local rowIndex = 2
         for action in actions:it() do
             if action:tostring():len() > 0 then
-                local indexPath = IndexPath.new(1, rowIndex)
+                local indexPath = IndexPath.new(2, rowIndex)
                 local item = TextItem.new('• '..action:tostring(), TextStyle.DebugView.Text)
-                self:getDataSource():addItem(item, indexPath)
+                itemsToAdd:append(IndexedItem.new(item, indexPath))
                 if action:is_equal(actions[1]) then
-                    self:getDelegate():highlightItemAtIndexPath(indexPath)
+                    itemsToHighlight:append(indexPath)
                 end
                 rowIndex = rowIndex + 1
             end
         end
     else
-        self:getDataSource():addItem(TextItem.new("• Idle", TextStyle.DebugView.Text), IndexPath.new(1, 2))
+        itemsToAdd:append(IndexedItem.new(TextItem.new("• Idle", TextStyle.DebugView.Text), IndexPath.new(2, 2)))
         self:getDelegate():deHighlightAllItems()
+    end
+
+    self:getDataSource():addItems(itemsToAdd)
+
+    for indexPath in itemsToHighlight:it() do
+        self:getDelegate():highlightItemAtIndexPath(indexPath)
     end
 end
 

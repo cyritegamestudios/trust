@@ -111,6 +111,43 @@ function CollectionViewDataSource:removeItem(indexPath)
     self.itemsChanged:trigger(diff.added, diff.removed, diff.updated)
 end
 
+function CollectionViewDataSource:removeItems(indexPaths)
+    local snapshot = self:createSnapshot()  -- Create a snapshot before making changes
+
+    for indexPath in indexPaths:it() do
+        table.remove(self.sections[indexPath.section].items, indexPath.row)
+    end
+
+    -- Generate a diff
+    local diff = self:generateDiff(snapshot)
+
+    self.itemsWillChange:trigger(diff.added, diff.removed, diff.updated)
+
+    for _, indexPath in pairs(diff.removed) do
+        local cachedCell = self.cellCache[indexPath.section][indexPath.row]
+        if cachedCell then
+            cachedCell:destroy()
+            self.cellCache[indexPath.section][indexPath.row] = nil
+        end
+    end
+
+    -- Trigger the itemsChanged event
+    self.itemsChanged:trigger(diff.added, diff.removed, diff.updated)
+end
+
+function CollectionViewDataSource:removeItemsInSection(section)
+    if not self.sections[section] then
+        return
+    end
+
+    local indexPathsToRemove = L{}
+    for rowIndex = 1, self:numberOfItemsInSection(section) do
+        indexPathsToRemove:append(IndexPath.new(section, rowIndex))
+    end
+
+    self:removeItems(indexPathsToRemove)
+end
+
 function CollectionViewDataSource:removeAllItems()
     local snapshot = self:createSnapshot()  -- Create a snapshot before making changes
 
