@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '5.0.2'
+_addon.version = '5.1.0'
 
 require('Trust-Include')
 
@@ -26,6 +26,7 @@ default.battle.targets = L{'Locus Colibri','Locus Dire Bat','Locus Thousand Eyes
 default.remote_commands = {}
 default.remote_commands.whitelist = S{}
 default.logging = {}
+default.logging.enabled = false
 default.logging.logtofile = false
 
 settings = config.load(default)
@@ -213,10 +214,12 @@ function load_ui()
 end
 
 function load_logger_settings()
-	local logger = _libs.logger
+	_libs.logger.settings.logtofile = settings.logging.logtofile
+	_libs.logger.settings.defaultfile = 'logs/'..string.format("%s.log", os.date("%m-%d-%y"))
 
-	logger.settings.logtofile = settings.logging.logtofile
-	logger.settings.defaultfile = 'logs/'..string.format("%s.log", os.date("%m-%d-%y"))
+	logger.isEnabled = settings.logging.enabled
+
+	logger.notice('test notice')
 end
 
 function trust_for_job_short(job_name_short, settings, trust_settings, action_queue, player, party)
@@ -540,6 +543,7 @@ function loaded()
 		user_events.job_change = windower.register_event('job change', handle_job_change)
 		user_events.zone_change = windower.register_event('zone change', handle_zone_change)
     end
+	
 	windower.send_command('bind %s trust menu':format(settings.menu_key))
 end
 

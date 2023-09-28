@@ -37,11 +37,6 @@ function SpellSettingsEditor.new(trustSettings, spell)
         return cell
     end)
 
-    -- type
-    -- job names
-    -- job abilities
-    -- conditions
-
     local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), SpellSettingsEditor)
 
     self.trustSettings = trustSettings

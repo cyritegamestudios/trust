@@ -14,7 +14,6 @@ state.AutoPullMode:set_description('Target', "Okay, I'll pull whatever monster I
 
 function Puller.new(action_queue, target_names, spell_name, job_ability_name)
     return Puller.new(action_queue, target_names, spell_name, job_ability_name, false)
-
 end
 
 function Puller.new(action_queue, target_names, spell_name, job_ability_name, ranged_attack)
@@ -223,6 +222,10 @@ end
 
 function Puller:allows_duplicates()
     return false
+end
+
+function Puller:set_target_names(target_names)
+    self.target_names = target_names
 end
 
 return Puller

@@ -67,7 +67,7 @@ function ffxi_util.find_closest_mob(target_mobs, exclude_target_indices)
     	
 		-- Check to see if mob is in target_mob list
 		local is_target_mob = false
-		for i, target_mob in pairs(target_mobs) do
+		for target_mob in target_mobs:it() do
 			if string.match(mob.name, target_mob) then
 				is_target_mob = true
 			end
