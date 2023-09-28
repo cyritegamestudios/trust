@@ -218,8 +218,6 @@ function load_logger_settings()
 	_libs.logger.settings.defaultfile = 'logs/'..string.format("%s.log", os.date("%m-%d-%y"))
 
 	logger.isEnabled = settings.logging.enabled
-
-	logger.notice('test notice')
 end
 
 function trust_for_job_short(job_name_short, settings, trust_settings, action_queue, player, party)
