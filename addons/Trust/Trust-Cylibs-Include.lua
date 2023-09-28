@@ -1,6 +1,9 @@
 require('cylibs/util/Modes')
 require('cylibs/util/States')
 
+-- Logging
+logger = require('cylibs/logger/logger')
+
 -- Actions
 ActionQueue = require('cylibs/actions/action_queue')
 ValueRelay = require('cylibs/events/value_relay')

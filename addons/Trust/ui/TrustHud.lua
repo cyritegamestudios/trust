@@ -18,6 +18,7 @@ local MenuView = require('cylibs/ui/menu/menu_view')
 local ModesAssistantView = require('cylibs/modes/ui/modes_assistant_view')
 local ModesView = require('cylibs/modes/ui/modes_view')
 local NavigationBar = require('cylibs/ui/navigation/navigation_bar')
+local PullSettingsEditor = require('ui/settings/PullSettingsEditor')
 local HorizontalFlowLayout = require('cylibs/ui/collection_view/layouts/horizontal_flow_layout')
 local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_collection_view_cell')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
@@ -34,6 +35,7 @@ local SpellSettingsEditor = require('ui/settings/SpellSettingsEditor')
 local spell_util = require('cylibs/util/spell_util')
 local StatusRemovalPickerView = require('ui/settings/pickers/StatusRemovalPickerView')
 local TabbedView = require('cylibs/ui/tabs/tabbed_view')
+local TargetsPickerView = require('ui/settings/pickers/TargetsPickerView')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
@@ -439,6 +441,29 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
         return jobAbilitiesSettingsView
     end)
 
+    local chooseTargetsItem = MenuItem.new(L{
+        ButtonItem.default('Confirm', 18),
+        ButtonItem.default('Clear', 18),
+    }, {},
+    function()
+        local chooseTargetsView = setupView(TargetsPickerView.new(settings, trust), viewSize)
+        chooseTargetsView:setTitle("Choose mobs to pull.")
+        chooseTargetsView:setShouldRequestFocus(false)
+        return chooseTargetsView
+    end)
+
+    local pullerSettingsItem = MenuItem.new(L{
+        ButtonItem.default('Add', 18),
+        ButtonItem.default('Remove', 18),
+    }, {
+        Add = chooseTargetsItem
+    },
+    function()
+        local pullSettingsView = setupView(PullSettingsEditor.new(settings, trust), viewSize)
+        pullSettingsView:setShouldRequestFocus(false)
+        return pullSettingsView
+    end)
+
     local function createWeaponSkillsItem(skill)
         local chooseWeaponSkillsItem = MenuItem.new(L{
             ButtonItem.default('Confirm', 18),
@@ -555,6 +580,10 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
         menuItems:append(ButtonItem.default('Healing', 18))
     end
 
+    if trust:role_with_type("puller") then
+        menuItems:append(ButtonItem.default('Pulling', 18))
+    end
+
     menuItems:append(ButtonItem.default('Weaponskills', 18))
 
     local settingsMenuItem = MenuItem.new(menuItems, {
@@ -562,6 +591,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
         Buffs = buffSettingsItem,
         Debuffs = debuffSettingsItem,
         Healing = healerMenuItem,
+        Pulling = pullerSettingsItem,
         Weaponskills = weaponSkillsSettingsItem
     })
     return settingsMenuItem
