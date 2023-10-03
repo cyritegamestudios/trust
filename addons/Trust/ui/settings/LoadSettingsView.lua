@@ -30,7 +30,9 @@ function LoadSettingsView.new(jobSettingsMode)
         local cell = TextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
         cell:setItemSize(20)
-        cell:setUserInteractionEnabled(true)
+        if indexPath.row ~= 1 then
+            cell:setUserInteractionEnabled(true)
+        end
         return cell
     end)
 

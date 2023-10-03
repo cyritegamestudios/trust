@@ -92,6 +92,13 @@ function WhiteMage:get_status_removal_spell(debuff_id, num_targets)
 end
 
 -------
+-- Returns the delay between status removals.
+-- @treturn number Delay between status removals in seconds
+function WhiteMage:get_status_removal_delay()
+    return self.cure_settings.StatusRemovals.Delay or 3
+end
+
+-------
 -- Returns the spell that can raise a party member.
 -- @treturn Spell Raise spell
 function WhiteMage:get_raise_spell()

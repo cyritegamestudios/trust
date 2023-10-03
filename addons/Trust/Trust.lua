@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '5.1.0'
+_addon.version = '5.2.0'
 
 require('Trust-Include')
 
@@ -23,6 +23,8 @@ default.battle.range_distance = 21
 default.battle.targets = L{}
 default.battle.trusts = L{'Monberaux','Sylvie (UC)','Koru-Moru','Qultada','Brygid'}
 default.battle.targets = L{'Locus Colibri','Locus Dire Bat','Locus Thousand Eyes','Locus Spartoi Warrior','Locus Spartoi Sorcerer','Locus Hati','Locus Ghost Crab'}
+default.chat = {}
+default.chat.ipc_enabled = true
 default.remote_commands = {}
 default.remote_commands.whitelist = S{}
 default.logging = {}
@@ -72,7 +74,7 @@ function load_user_files(main_job_id, sub_job_id)
 
 	player.player = Player.new(windower.ffxi.get_player().id)
 
-	player.party = Party.new()
+	player.party = Party.new(PartyChat.new(settings.chat.ipc_enabled))
 	player.party:monitor()
 
 	handle_status_change(windower.ffxi.get_player().status, windower.ffxi.get_player().status)

@@ -77,6 +77,7 @@ function ScholarTrust:check_sublimation()
     if buff_util.is_buff_active(buff_util.buff_id('Refresh')) then
         return
     end
+
     if self:get_job():is_sublimation_active() then
         if windower.ffxi.get_player().vitals.mpp < 20 then
             self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, 'Sublimation'), true)

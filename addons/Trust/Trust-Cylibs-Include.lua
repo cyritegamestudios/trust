@@ -4,6 +4,9 @@ require('cylibs/util/States')
 -- Logging
 logger = require('cylibs/logger/logger')
 
+-- Chat
+PartyChat = require('cylibs/chat/party_chat')
+
 -- Actions
 ActionQueue = require('cylibs/actions/action_queue')
 ValueRelay = require('cylibs/events/value_relay')

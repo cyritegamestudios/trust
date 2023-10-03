@@ -24,6 +24,7 @@ return {
             },
             Delay = 2,
             StatusRemovals = {
+                Delay = 3,
                 Blacklist = L{
 
                 }

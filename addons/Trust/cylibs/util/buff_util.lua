@@ -53,7 +53,7 @@ local debuffs = T{
 	[597] = S{879}, --inundation
 }
 
-local aura_debuff_names = L{'Defense Down','Magic Atk. Down','Magic Def. Down','Accuracy Down','Evasion Down','Magic Acc. Down','Magic Evasion Down'}
+local aura_debuff_names = L{'Defense Down','Magic Atk. Down','Magic Def. Down','Accuracy Down','Evasion Down','Magic Acc. Down','Magic Evasion Down','disease'}
 
 -- Buffs that are exceptions and not linked to their spell
 local spell_id_to_buff = T{
@@ -86,7 +86,7 @@ function buff_util.is_buff_active(buff_id, player_buff_ids)
 			player_buff_ids = L(player.buffs)
 		end
 	end
-	return buff_util.conflicts_with_buffs(buff_id, player_buff_ids) or player_buff_ids:contains(buff_id)
+	return player_buff_ids:contains(buff_id)
 end
 
 -------

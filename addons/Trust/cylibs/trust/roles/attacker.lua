@@ -37,6 +37,8 @@ function Attacker:target_change(target_index)
     Role.target_change(self, target_index)
 
     self.target_index = target_index
+
+    self:tic(os.time() - 3, os.time())
 end
 
 function Attacker:tic(_, _)

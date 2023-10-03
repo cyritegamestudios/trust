@@ -2,7 +2,12 @@
 return {
     Default = {
         SelfBuffs = L{
-            Buff.new("Haste", L{}, L{}, nil, L{})
+            Buff.new("Haste", L{}, L{}, nil, L{}),
+            Buff.new("Protectra", L{}, L{}, nil, L{}),
+            Buff.new("Shellra", L{}, L{}, nil, L{}),
+            Buff.new("Boost-STR", L{}, L{}, nil, L{}),
+            Buff.new("Auspice", L{}, L{}, nil, L{}),
+            Buff.new("Reraise", L{}, L{}, nil, L{})
         },
         CureSettings = {
             Thresholds = {
@@ -17,6 +22,7 @@ return {
             },
             Delay = 2,
             StatusRemovals = {
+                Delay = 3,
                 Blacklist = L{
 
                 }

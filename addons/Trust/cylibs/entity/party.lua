@@ -53,9 +53,9 @@ end
 -------
 -- Default initializer for a Party.
 -- @treturn Party A party
-function Party.new()
+function Party.new(party_chat)
     local self = setmetatable(Entity.new(0), Party)
-    self.id = id
+    self.party_chat = party_chat
     self.action_events = {}
     self.is_monitoring = false
     self.party_members = T{}
@@ -247,6 +247,13 @@ function Party:get_party_member_named(mob_name)
 end
 
 -------
+-- Returns the party member for the player.
+-- @treturn PartyMember Party member for the player, or nil if none exists
+function Party:get_player()
+    return self:get_party_member(windower.ffxi.get_player().id)
+end
+
+-------
 -- Checks to see if each party member is still in the party. Removes invalid party members.
 function Party:prune_party_members()
     local current_time = os.time()
@@ -294,5 +301,12 @@ function Party:get_assist_target()
     return self.assist_target or self:get_party_member(windower.ffxi.get_player().id)
 end
 
+-------
+-- Sends a message to the party chat.
+-- @tparam PartyMember Message sender
+-- @tparam string Message
+function Party:add_to_chat(party_member, message, throttle_key, throttle_duration)
+    self.party_chat:add_to_chat(party_member:get_name(), message, throttle_key, throttle_duration)
+end
 
 return Party
