@@ -447,7 +447,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
     }, {},
     function()
         local chooseTargetsView = setupView(TargetsPickerView.new(settings, trust), viewSize)
-        chooseTargetsView:setTitle("Choose mobs to pull.")
+        chooseTargetsView:setTitle("Choose mobs to pull from nearby targets.")
         chooseTargetsView:setShouldRequestFocus(false)
         return chooseTargetsView
     end)
@@ -603,8 +603,7 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, jobNameS
     -- Modes Assistant
     local modesAssistantMenuItem = MenuItem.new(L{}, {},
     function()
-        local modesAssistantView = setupView(ModesAssistantView.new(), viewSize)
-        --modesAssistantView:setShouldRequestFocus(false)
+        local modesAssistantView = setupView(ModesAssistantView.new(trust), viewSize)
         return modesAssistantView
     end)
 

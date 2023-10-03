@@ -78,17 +78,11 @@ end
 function Targeter:target_change(target_index)
     Role.target_change(self, target_index)
 
-    --if state.AutoTargetMode ~= 'Off' then return end
-
     self.target_index = target_index
 end
 
 function Targeter:tic(new_time, old_time)
     Role.tic(self, new_time, old_time)
-
-    if self.target_index == nil then
-        return
-    end
 end
 
 function Targeter:allows_duplicates()

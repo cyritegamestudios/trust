@@ -74,7 +74,7 @@ end
 
 function Buffer:range_check(spell)
     if spell:is_aoe() then
-        return #self:get_party():get_party_members(true, spell:get_spell().range) >= math.min(self:get_party():num_party_members(), spell:num_targets_required())
+        return #self:get_party():get_party_members(true, spell:get_range()) >= math.min(self:get_party():num_party_members(), spell:num_targets_required())
     else
         return true
     end
@@ -122,12 +122,16 @@ function Buffer:check_buffs()
         for spell in self.self_spells:it() do
             local buff = buff_util.buff_for_spell(spell:get_spell().id)
             if buff and not buff_util.is_buff_active(buff.id, player_buff_ids) and not buff_util.conflicts_with_buffs(buff.id, player_buff_ids)
-                    and self:range_check(spell) and spell_util.can_cast_spell(spell:get_spell().id) then
-                local target = self:get_spell_target(spell)
-                if target and self:conditions_check(spell, target) then
-                    if self:cast_spell(spell, target.index) then
-                        return
+                    and spell_util.can_cast_spell(spell:get_spell().id) then
+                if self:range_check(spell) then
+                    local target = self:get_spell_target(spell)
+                    if target and self:conditions_check(spell, target) then
+                        if self:cast_spell(spell, target.index) then
+                            return
+                        end
                     end
+                else
+                    self:get_party():add_to_chat(self:get_party():get_player(), "I can't cast "..spell:get_spell().en.." unless at least "..spell:num_targets_required().." party members are in range.", "buffer_party_member_out_of_range", 30)
                 end
             end
         end

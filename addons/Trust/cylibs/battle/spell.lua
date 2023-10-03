@@ -116,6 +116,14 @@ function Spell:is_aoe()
 end
 
 -------
+-- Returns whether or not this spell only targets self.
+-- @treturn Boolean True if the spell only targets self.
+function Spell:is_self_target()
+    local targets = self:get_spell().targets
+    return targets:length() == 1 and targets:contains('Self')
+end
+
+-------
 -- The spell will not be cast unless at least this number of party members are in range (including the player).
 -- @treturn number Number of targets
 function Spell:num_targets_required()
@@ -137,6 +145,11 @@ end
 -- Returns the range of the spell in yalms.
 -- @treturn number Range of the spell (e.g. 18, 21, etc.)
 function Spell:get_range()
+    if self:is_aoe() then
+        if self:is_self_target() then
+            return math.max(self:get_spell().range, 10)
+        end
+    end
     return 21
 end
 

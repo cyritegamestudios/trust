@@ -15,7 +15,7 @@ local Action = require('cylibs/actions/action')
 local CureAction = setmetatable({}, {__index = Action })
 CureAction.__index = CureAction
 
-function CureAction.new(x, y, z, party_member, cure_threshold, mp_cost, healer_job, player)
+function CureAction.new(x, y, z, party_member, cure_threshold, mp_cost, healer_job, player, party)
     local conditions = L{
         HitPointsPercentRangeCondition.new(1, cure_threshold, party_member),
         MaxDistanceCondition.new(20),
@@ -29,6 +29,7 @@ function CureAction.new(x, y, z, party_member, cure_threshold, mp_cost, healer_j
     self.cure_threshold = cure_threshold
     self.healer_job = healer_job
     self.player = player
+    self.party = party
     self.dispose_bag = DisposeBag.new()
 
     self:debug_log_create(self:gettype())
@@ -40,6 +41,7 @@ function CureAction:destroy()
     self.dispose_bag:destroy()
 
     self.player = nil
+    self.party = nil
 
     self:debug_log_destroy(self:gettype())
 
@@ -67,7 +69,7 @@ function CureAction:perform()
     end
 
     if not spell_util.can_cast_spell(cure_spell:get_spell().id) then
-        addon_message(260, '('..windower.ffxi.get_player().name..') '.."Hold on a second, I'm having a hard time keeping up with cures.")
+        self.party:add_to_chat(self.party:get_player(), "Hold on a second, I'm having a hard time keeping up with cures.", "cure_action_no_cast", 30)
         self:complete(false)
         return
     end

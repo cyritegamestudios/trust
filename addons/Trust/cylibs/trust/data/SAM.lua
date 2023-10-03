@@ -9,6 +9,8 @@ local SamuraiTrust = setmetatable({}, {__index = Trust })
 SamuraiTrust.__index = SamuraiTrust
 
 local Buffer = require('cylibs/trust/roles/buffer')
+local JobAbility = require('cylibs/actions/job_ability')
+local job_util = require('cylibs/util/job_util')
 
 function SamuraiTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local roles = S{
@@ -44,6 +46,21 @@ end
 
 function SamuraiTrust:tic(old_time, new_time)
 	Trust.tic(self, old_time, new_time)
+
+	self:check_tp()
+end
+
+function SamuraiTrust:check_tp()
+	local tp = windower.ffxi.get_player().vitals.tp
+	if tp < 1000 then
+		if job_util.can_use_job_ability('Meditate') then
+			self.action_queue:push_action(JobAbility.new(0, 0, 0, 'Meditate'))
+		end
+	elseif tp > 1500 then
+		if job_util.can_use_job_ability('Sekkanoki') then
+			self.action_queue:push_action(JobAbility.new(0, 0, 0, 'Sekkanoki'))
+		end
+	end
 end
 
 return SamuraiTrust

@@ -44,7 +44,7 @@ function PullSettingsEditor:layoutIfNeeded()
         return false
     end
 
-    self:setTitle("Choose targets to pull.")
+    self:setTitle("Choose mobs to pull.")
 end
 
 function PullSettingsEditor:setVisible(visible)

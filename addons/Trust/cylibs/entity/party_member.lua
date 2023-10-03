@@ -68,6 +68,7 @@ function PartyMember.new(id)
         self.hpp = self:get_mob().hpp
     end
 
+    self:update_buffs(party_util.get_buffs(self.id))
     self:update_debuffs(party_util.get_buffs(self.id))
 
     return self

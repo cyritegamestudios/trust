@@ -19,10 +19,11 @@ Buff.__type = "Buff"
 -------
 -- List of AOE buffs prefixes
 local aoe_buff_prefixes = L{
+    'Auspice',
+    'Bar',
+    'Boost',
     'Protectra',
     'Shellra',
-    'Boost',
-    'Bar'
 }
 
 -------

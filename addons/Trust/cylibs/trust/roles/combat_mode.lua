@@ -1,6 +1,7 @@
 local BlockAction = require('cylibs/actions/block')
 local RunAwayAction = require('cylibs/actions/runaway')
 local RunToAction = require('cylibs/actions/runto')
+local RunToLocationAction = require('cylibs/actions/runtolocation')
 local battle_util = require('cylibs/util/battle_util')
 local party_util = require('cylibs/util/party_util')
 local player_util = require('cylibs/util/player_util')

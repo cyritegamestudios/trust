@@ -14,6 +14,7 @@ local TextStyle = require('cylibs/ui/style/text_style')
 local trusts = require('cylibs/res/trusts')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 local ViewItem = require('cylibs/ui/collection_view/items/view_item')
+local zone_util = require('cylibs/util/zone_util')
 
 local PartyMemberView = setmetatable({}, {__index = CollectionView })
 PartyMemberView.__index = PartyMemberView
@@ -105,7 +106,7 @@ function PartyMemberView:addPartyMember(party, partyMember)
 end
 
 function PartyMemberView:updateBuffs(partyMember, buffsView)
-    local allBuffIds = partyMember:get_buff_ids():sort()
+    local allBuffIds = partyMember and partyMember:get_buff_ids():sort() or L{}
 
     local buffItems = L{}
 
@@ -161,6 +162,9 @@ function PartyMemberView:updatePartyMembers(party, partyMemberFilter)
                 buffsView:layoutIfNeeded()
             end
         else
+            local buffsView = self.buffViews[partyMemberIndex]
+            self:updateBuffs(nil, buffsView)
+
             itemsToUpdate:append(IndexedItem.new(TextItem.new("Empty", TextStyle.Default.HeaderSmall), IndexPath.new(partyMemberIndex, 1)))
         end
     end
@@ -169,6 +173,10 @@ function PartyMemberView:updatePartyMembers(party, partyMemberFilter)
 end
 
 function PartyMemberView:callAlterEgo(party, player, actionQueue)
+    local info = windower.ffxi.get_info()
+    if zone_util.is_city(info.zone) then
+        return
+    end
     for trust in self.trusts:it() do
         local sanitizedName = trust
         if trusts:with('enl', trust) then
