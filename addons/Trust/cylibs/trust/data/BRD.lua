@@ -8,6 +8,7 @@ local Trust = require('cylibs/trust/trust')
 local BardTrust = setmetatable({}, {__index = Trust })
 BardTrust.__index = BardTrust
 
+local BardTrustCommands = require('cylibs/trust/commands/BRD')
 local Debuffer = require('cylibs/trust/roles/debuffer')
 local Dispeler = require('cylibs/trust/roles/dispeler')
 local Puller = require('cylibs/trust/roles/puller')
