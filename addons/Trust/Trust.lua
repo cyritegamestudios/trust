@@ -184,13 +184,16 @@ function load_trust_modes(job_name_short)
 end
 
 function load_trust_commands(job_name_short, trust, action_queue)
-	local file_prefix = windower.windower_path..'addons/libs/cylibs/trust/commands/'..job_name_short
-	if windower.file_exists(file_prefix..'_'..windower.ffxi.get_player().name..'.lua') then
-		local TrustCommands = require('cylibs/trust/commands/'..job_name_short..'_'..windower.ffxi.get_player().name)
-		return TrustCommands.new(trust, action_queue)
-	elseif windower.file_exists(file_prefix..'.lua') then
-		local TrustCommands = require('cylibs/trust/commands/'..job_name_short)
-		return TrustCommands.new(trust, action_queue)
+	local root_paths = L{windower.windower_path..'addons/libs/', windower.addon_path}
+	for root_path in root_paths:it() do
+		local file_prefix = root_path..'cylibs/trust/commands/'..job_name_short
+		if windower.file_exists(file_prefix..'_'..windower.ffxi.get_player().name..'.lua') then
+			local TrustCommands = require('cylibs/trust/commands/'..job_name_short..'_'..windower.ffxi.get_player().name)
+			return TrustCommands.new(trust, action_queue)
+		elseif windower.file_exists(file_prefix..'.lua') then
+			local TrustCommands = require('cylibs/trust/commands/'..job_name_short)
+			return TrustCommands.new(trust, action_queue)
+		end
 	end
 	return nil
 end
