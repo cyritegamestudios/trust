@@ -13,13 +13,11 @@ local Debuffer = require('cylibs/trust/roles/debuffer')
 local Dispeler = require('cylibs/trust/roles/dispeler')
 local Puller = require('cylibs/trust/roles/puller')
 local Singer = require('cylibs/trust/roles/singer')
+local Sleeper = require('cylibs/trust/roles/sleeper')
 
 state.AutoSongMode = M{['description'] = 'Auto Song Mode', 'Off', 'Auto', 'Dummy'}
 state.AutoSongMode:set_description('Auto', "Okay, I'll keep songs on the party.")
 state.AutoSongMode:set_description('Dummy', "Okay, I'll only sing dummy songs.")
-
-state.AutoSleepMode = M{['description'] = 'Auto Sleep Mode', 'Off', 'Auto'}
-state.AutoSleepMode:set_description('Auto', "Okay, I'll automatically try to sleep large groups of monsters.")
 
 function BardTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = Bard.new(trust_settings)
@@ -27,7 +25,8 @@ function BardTrust.new(settings, action_queue, battle_settings, trust_settings)
 		Debuffer.new(action_queue, trust_settings.Debuffs),
 		Singer.new(action_queue, trust_settings.DummySongs, trust_settings.Songs, trust_settings.PartyBuffs, job, state.AutoSongMode, ActionPriority.medium),
 		Dispeler.new(action_queue, L{ Spell.new('Magic Finale') }),
-		Puller.new(action_queue, battle_settings.targets, 'Carnage Elegy', nil)
+		Puller.new(action_queue, battle_settings.targets, 'Carnage Elegy', nil),
+		Sleeper.new(action_queue, L{ Spell.new('Horde Lullaby'), Spell.new('Horde Lullaby II') }, 4)
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), BardTrust)
 
@@ -68,23 +67,6 @@ end
 
 function BardTrust:tic(old_time, new_time)
 	Trust.tic(self, old_time, new_time)
-end
-
-function BardTrust:check_lullaby()
-	if state.AutoSleepMode.value == 'Off' then
-		return
-	end
-
-	local nearby_mobs = windower.ffxi.get_mob_array()
-	for _, p in pairs(nearby_mobs) do
-		if p.is_npc and p.distance:sqrt() < 10 and p.claim_id ~= nil and p.status ~= 3 then
-			local target = windower.ffxi.get_mob_by_id(p.claim_id)
-			if target ~= nil and L{"Hydranger","Myunmyunmyun"}:contains(target.name) then
-				return true
-			end
-		end
-	end
-	return false
 end
 
 return BardTrust

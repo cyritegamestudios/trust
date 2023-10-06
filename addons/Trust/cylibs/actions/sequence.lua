@@ -70,7 +70,7 @@ end
 function SequenceAction:cancel()
 	for action in self.queue:it() do
 		action:cancel()
-		action:destroy()
+		-- action:destroy()
 	end
 
 	Action.cancel(self)

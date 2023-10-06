@@ -16,6 +16,7 @@ function Debuffer.new(action_queue, debuff_spells)
     local self = setmetatable(Role.new(action_queue), Debuffer)
 
     self:set_debuff_spells(debuff_spells)
+
     self.battle_target_destroyables = DisposeBag.new()
     self.last_debuff_time = os.time()
 
@@ -26,6 +27,10 @@ function Debuffer:destroy()
     Role.destroy(self)
 
     self.battle_target_destroyables:destroy()
+end
+
+function Debuffer:on_add()
+    Role.on_add(self)
 end
 
 function Debuffer:target_change(target_index)
@@ -56,7 +61,7 @@ function Debuffer:target_change(target_index)
 end
 
 function Debuffer:tic(new_time, old_time)
-    if state.AutoDebuffMode.value == 'Off' or (os.time() - self.last_debuff_time) < 8 then
+    if self:get_player():is_moving() then
         return
     end
 
@@ -64,6 +69,10 @@ function Debuffer:tic(new_time, old_time)
 end
 
 function Debuffer:check_debuffs()
+    if state.AutoDebuffMode.value == 'Off' or (os.time() - self.last_debuff_time) < 8 then
+        return
+    end
+
     if self.battle_target == nil or not party_util.party_claimed(self.battle_target:get_mob().id) then return end
 
     for spell in self.debuff_spells:it() do

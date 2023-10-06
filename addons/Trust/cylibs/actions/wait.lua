@@ -14,9 +14,9 @@ function WaitAction.new(x, y, z, duration)
 end
 
 function WaitAction:destroy()
-    Action.destroy(self)
-
     self:debug_log_destroy(self:gettype())
+
+    Action.destroy(self)
 end
 
 function WaitAction:perform()

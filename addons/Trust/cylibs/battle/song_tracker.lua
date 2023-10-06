@@ -291,7 +291,7 @@ end
 -- @treturn Boolean True if all of the given songs are active
 function SongTracker:has_all_songs(target_id, song_ids, buff_ids)
     local songs_active = song_ids:filter(function(song_id)
-        return self:has_song(windower.ffxi.get_player().id, song_id, buff_ids)
+        return self:has_song(target_id, song_id, buff_ids)
     end)
     return songs_active:length() >= self.job:get_max_num_songs()
 end

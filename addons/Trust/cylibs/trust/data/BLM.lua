@@ -11,14 +11,16 @@ local Debuffer = require('cylibs/trust/roles/debuffer')
 local ManaRestorer = require('cylibs/trust/roles/mana_restorer')
 local Nuker = require('cylibs/trust/roles/nuker')
 local Puller = require('cylibs/trust/roles/puller')
+local Sleeper = require('cylibs/trust/roles/sleeper')
 
 function BlackMageTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local roles = S{
 		Buffer.new(action_queue, trust_settings.JobAbilities, trust_settings.SelfBuffs),
-		Debuffer.new(action_queue),
+		Debuffer.new(action_queue, trust_settings.Debuffs),
 		ManaRestorer.new(action_queue, L{'Myrkr', 'Spirit Taker', 'Moonlight'}, 40),
 		Nuker.new(action_queue),
 		Puller.new(action_queue, battle_settings.targets, 'Burn', nil),
+		Sleeper.new(action_queue, L{ Spell.new('Sleepga'), Spell.new('Sleepga II') })
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings), BlackMageTrust)
 

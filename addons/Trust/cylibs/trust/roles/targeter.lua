@@ -30,7 +30,7 @@ function Targeter:on_add()
         end
     end)
 
-    self.action_events.target_change = windower.register_event('action message', function(actor_id, target_id, actor_index, target_index, message_id, _, _, _)
+    self.action_events.action_message = windower.register_event('action message', function(actor_id, target_id, actor_index, target_index, message_id, _, _, _)
         if state.AutoTargetMode.value == 'Off' or self.auto_target_index == nil or self.auto_target_index ~= target_index then
             return
         end
