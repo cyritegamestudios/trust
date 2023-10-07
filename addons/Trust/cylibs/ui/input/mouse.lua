@@ -32,8 +32,16 @@ function Mouse.new()
     self.clickRelease = Event.newEvent()
     self.mouseWheel = Event.newEvent()
     self.mouseEvent = Event.newEvent()
+    self.mouseEventCooldown = 0.0
+    self.lastMouseEvent = {}
 
     self.events.mouse = windower.register_event('mouse', function(type, x, y, delta, blocked)
+        local lastTime = self.lastMouseEvent[type] or 0
+        if os.time() - lastTime < self:getCooldown(type) then
+            return
+        end
+        self.lastMouseEvent[type] = os.time()
+
         if type == Mouse.Event.Move then
             self:onMove():trigger(type, x, y, delta, blocked)
         elseif type == Mouse.Event.Click then
@@ -76,5 +84,16 @@ Mouse.Event.Move = 0
 Mouse.Event.Click = 1
 Mouse.Event.ClickRelease = 2
 Mouse.Event.Wheel = 10
+
+function Mouse:setMouseEventCooldown(mouseEventCooldown)
+    self.mouseEventCooldown = mouseEventCooldown
+end
+
+function Mouse:getCooldown(mouseEvent)
+    if L{ Mouse.Event.Click, Mouse.Event.ClickRelease }:contains(mouseEvent) then
+        return self.mouseEventCooldown
+    end
+    return 0.0
+end
 
 return Mouse

@@ -11,6 +11,7 @@ function Singer.new(action_queue, dummy_songs, songs, pianissimo_songs, brd_job,
     self:set_dummy_songs(dummy_songs)
     self:set_songs(songs)
     self:set_pianissimo_songs(pianissimo_songs)
+
     self.state_var = state_var or state.AutoSongMode
     self.sing_action_priority = sing_action_priority or ActionPriority.default
     self.last_sing_time = os.time()
@@ -71,31 +72,31 @@ function Singer:check_songs()
         return
     end
 
-    if not self:sing_next_song() then
+    if not self:sing_next_song(self:get_party():get_player()) then
         self:sing_next_piannisimo_song()
     end
 end
 
-function Singer:sing_next_song()
-    local song_target_id = windower.ffxi.get_player().id
-    local player_buff_ids = L(windower.ffxi.get_player().buffs)
+function Singer:sing_next_song(party_member)
+    local song_target_id = party_member:get_mob().id
+    local buff_ids = L(party_member:get_buff_ids())
 
     local song_ids = self.songs:map(function(spell) return spell:get_spell().id end)
     local dummy_song_ids = self.dummy_songs:map(function(spell) return spell:get_spell().id  end)
 
-    if not self.song_tracker:has_all_songs(song_target_id, dummy_song_ids, player_buff_ids)
-            and (not self.song_tracker:has_any_song(song_target_id, song_ids, player_buff_ids) or self.song_tracker:get_num_songs(song_target_id, player_buff_ids) < self.brd_job:get_max_num_songs()) then
+    if not self.song_tracker:has_all_songs(song_target_id, dummy_song_ids, buff_ids)
+            and (not self.song_tracker:has_any_song(song_target_id, song_ids, buff_ids) or self.song_tracker:get_num_songs(song_target_id, buff_ids) < self.brd_job:get_max_num_songs()) then
         -- Get next dummy song
         for song in self.dummy_songs:it() do
-            if not self.song_tracker:has_song(song_target_id, song:get_spell().id, player_buff_ids) then
+            if not self.song_tracker:has_song(song_target_id, song:get_spell().id, buff_ids) then
                 windower.send_command('gs c set ExtraSongsMode Dummy')
                 self:sing_song(song)
                 return true
             end
         end
-    elseif self.song_tracker:get_num_songs(song_target_id, player_buff_ids) == self.brd_job:get_max_num_songs() then
+    elseif self.song_tracker:get_num_songs(song_target_id, buff_ids) == self.brd_job:get_max_num_songs() then
         -- Already has the maximum number of real songs
-        if self.song_tracker:get_num_songs(song_target_id, player_buff_ids, self.songs) >= self.brd_job:get_max_num_songs() then
+        if self.song_tracker:get_num_songs(song_target_id, buff_ids, self.songs) >= self.brd_job:get_max_num_songs() then
             return false
         end
         if self.brd_job:is_nitro_ready() --[[]and not self.song_tracker:has_any_song(song_target_id, song_ids, player_buff_ids)]] then
@@ -104,7 +105,7 @@ function Singer:sing_next_song()
         end
         -- Get next real song
         for song in self.songs:it() do
-            if not self.song_tracker:has_song(song_target_id, song:get_spell().id, player_buff_ids) then
+            if not self.song_tracker:has_song(song_target_id, song:get_spell().id, buff_ids) then
                 windower.send_command('gs c set ExtraSongsMode None')
                 self:sing_song(song)
                 return true

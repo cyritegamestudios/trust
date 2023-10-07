@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '5.2.2'
+_addon.version = '5.2.3'
 
 require('Trust-Include')
 
@@ -14,6 +14,7 @@ default.hud = {}
 default.hud.position = {}
 default.hud.position.x = 0
 default.hud.position.y = 0
+default.click_cooldown = 0.0
 default.help = {}
 default.help.mode_text_enabled = true
 default.help.wiki_base_url = 'https://github.com/cyritegamestudios/trust/wiki'
@@ -199,6 +200,9 @@ function load_trust_commands(job_name_short, trust, action_queue)
 end
 
 function load_ui()
+	local Mouse = require('cylibs/ui/input/mouse')
+	Mouse.input():setMouseEventCooldown(settings.click_cooldown or 0.0)
+
 	hud = TrustHud.new(player, action_queue, addon_enabled, 500, 500, settings)
 
 	local info = windower.get_windower_settings()
