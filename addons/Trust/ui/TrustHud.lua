@@ -29,6 +29,7 @@ local Mouse = require('cylibs/ui/input/mouse')
 local PartyMemberView = require('cylibs/entity/party/ui/party_member_view')
 local party_util = require('cylibs/util/party_util')
 local PickerView = require('cylibs/ui/picker/picker_view')
+local SingerView = require('cylibs/trust/roles/ui/singer_view')
 local SkillchainsView = require('cylibs/battle/skillchains/ui/skillchains_view')
 local SpellPickerView = require('ui/settings/pickers/SpellPickerView')
 local SpellSettingsEditor = require('ui/settings/SpellSettingsEditor')
@@ -674,6 +675,18 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, jobNameS
         return automatonView
     end)
 
+    -- Bard
+    local singerMenuItem = MenuItem.new(L{}, {},
+        function()
+            local backgroundImageView = createBackgroundView(viewSize.width, viewSize.height)
+            local singer = trust:role_with_type("singer")
+            local singerView = SingerView.new(singer)
+            singerView:setBackgroundImageView(backgroundImageView)
+            singerView:setNavigationBar(createTitleView(viewSize))
+            singerView:setSize(viewSize.width, viewSize.height)
+            return singerView
+        end)
+
     -- Status
     local statusMenuButtons = L{
         ButtonItem.default('Party', 18),
@@ -683,6 +696,8 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, jobNameS
     }
     if jobNameShort == 'PUP' then
         statusMenuButtons:insert(2, ButtonItem.default('Automaton', 18))
+    elseif jobNameShort == 'BRD' then
+        statusMenuButtons:insert(2, ButtonItem.default('Songs', 18))
     end
 
     local statusMenuItem = MenuItem.new(statusMenuButtons, {
@@ -691,6 +706,7 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, jobNameS
         Buffs = buffsMenuItem,
         Debuffs = debuffsMenuItem,
         Modes = modesMenuItem,
+        Songs = singerMenuItem,
     })
 
     -- Help

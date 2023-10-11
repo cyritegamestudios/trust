@@ -11,6 +11,7 @@ local RedMageTrust = setmetatable({}, {__index = Trust })
 RedMageTrust.__index = RedMageTrust
 
 local BattleStatTracker = require('cylibs/battle/battle_stat_tracker')
+local Debuff = require('cylibs/battle/spells/debuff')
 local Monster = require('cylibs/battle/monster')
 local buff_util = require('cylibs/util/buff_util')
 
@@ -38,7 +39,7 @@ function RedMageTrust.new(settings, action_queue, battle_settings, trust_setting
 		Dispeler.new(action_queue, L{ Spell.new('Dispel') }),
 		Healer.new(action_queue, job),
 		Raiser.new(action_queue, job),
-		Puller.new(action_queue, battle_settings.targets, 'Dia II', nil),
+		Puller.new(action_queue, battle_settings.targets, Debuff.new('Dia'):get_spell().name, nil),
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), RedMageTrust)
 

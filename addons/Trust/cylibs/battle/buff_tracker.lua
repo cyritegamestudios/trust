@@ -8,10 +8,12 @@ require('lists')
 require('logger')
 
 local buff_util = require('cylibs/util/buff_util')
+local logger = require('cylibs/logger/logger')
 local party_util = require('cylibs/util/party_util')
 
 local BuffTracker = {}
 BuffTracker.__index = BuffTracker
+BuffTracker.__class = 'BuffTracker'
 
 local Event = require('cylibs/events/Luvent')
 
@@ -27,7 +29,7 @@ end
 
 -------
 -- Default initializer for a new buff tracker.
--- @treturn SongTracker A buff tracker
+-- @treturn BuffTracker A buff tracker
 function BuffTracker.new()
     local self = setmetatable({
         action_events = {};
@@ -40,7 +42,7 @@ function BuffTracker.new()
 
     -- Attempt to guess which buffs the player already has
     for party_member in party_util.get_party_members():it() do
-        self.active_buffs[party_member.id] = S(party_util.get_buffs(party_member.id))
+        self.active_buffs[party_member.id] = L(party_util.get_buffs(party_member.id))
     end
 
     return self
@@ -90,10 +92,6 @@ function BuffTracker:monitor()
                 elseif action.message == 230 then
                     self:on_gain_buff_from_spell(target.id, action.param)
                 end
-                if self.debug then
-                    print('message '..action.message) -- 266 ${target} gains the effect of ${status}
-                    print('param '..action.param) -- 195 paeon (status)
-                end
             end
         end
     end)
@@ -115,8 +113,8 @@ end
 -- @tparam number target_id Target id
 -- @tparam number buff_id Buff id (see buffs.lua)
 function BuffTracker:on_gain_buff_from_spell(target_id, buff_id)
-    local target_buffs = self.active_buffs[target_id] or S{}
-    target_buffs:add(buff_id)
+    local target_buffs = self.active_buffs[target_id] or L{}
+    target_buffs:append(buff_id)
 
     self.active_buffs[target_id] = target_buffs
 
@@ -139,8 +137,8 @@ end
 -- @tparam number target_id Target id
 -- @tparam number buff_id Buff id (see buffs.lua)
 function BuffTracker:on_lose_buff_from_spell(target_id, buff_id)
-    local target_buffs = self.active_buffs[target_id] or S{}
-    target_buffs:remove(buff_id)
+    local target_buffs = self.active_buffs[target_id] or L{}
+    target_buffs = target_buffs:filter(function(existing_buff_id) return existing_buff_id ~= buff_id  end)
 
     self.active_buffs[target_id] = target_buffs
 
@@ -157,7 +155,7 @@ end
 -- @tparam number target_id Target id
 -- @treturn List Buff ids (see buffs.lua)
 function BuffTracker:get_buffs(target_id)
-   return self.active_buffs[target_id] or S{}
+   return self.active_buffs[target_id] or L{}
 end
 
 -------

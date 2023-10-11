@@ -38,11 +38,9 @@ return {
             Spell.new("Sage Etude", L{"Pianissimo"}, L{"BLM"}, nil, L{})
         },
         DummySongs = L{
-            Spell.new("Goddess's Hymnus", L{}, nil, nil, L{}),
-            Spell.new("Army's Paeon IV", L{}, nil, nil, L{}),
             Spell.new("Scop's Operetta", L{}, nil, nil, L{}),
+            Spell.new("Goblin Gavotte", L{}, nil, nil, L{}),
             Spell.new("Sheepfoe Mambo", L{}, nil, nil, L{}),
-            Spell.new("Goblin Gavotte", L{}, nil, nil, L{})
         },
         Debuffs = L{
             Spell.new("Carnage Elegy", L{}, nil, nil, L{})

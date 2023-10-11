@@ -4,6 +4,7 @@
 -- @name AlterEgo
 
 local buff_util = require('cylibs/util/buff_util')
+local logger = require('cylibs/logger/logger')
 local PartyMember = require('cylibs/entity/party_member')
 
 local AlterEgo = setmetatable({}, {__index = PartyMember })
@@ -42,8 +43,10 @@ function AlterEgo:monitor()
 
     self.buff_tracker:on_gain_buff():addAction(function(target_id, buff_id)
         if target_id == self:get_id() then
+            logger.notice(self:get_name(), "gained the effect of", res.buffs[buff_id].en)
+
             local new_buff_ids = self:get_buff_ids():copy(true)
-            new_buff_ids:add(buff_id)
+            new_buff_ids:append(buff_id)
 
             self:update_buffs(new_buff_ids)
         end
@@ -51,8 +54,9 @@ function AlterEgo:monitor()
 
     self.buff_tracker:on_lose_buff():addAction(function(target_id, buff_id)
         if target_id == self:get_id() then
-            local new_buff_ids = self:get_buff_ids():copy(true)
-            new_buff_ids:remove(buff_id)
+            logger.notice(self:get_name(), "lost the effect of", res.buffs[buff_id].en)
+
+            local new_buff_ids = self:get_buff_ids():copy(true):filter(function(existing_buff_id) return existing_buff_id ~= buff_id  end)
 
             self:update_buffs(new_buff_ids)
         end
@@ -65,12 +69,12 @@ end
 -- Filters a list of buffs and updates the player's cached list of buffs.
 -- @tparam list List of buff ids (see buffs.lua)
 function AlterEgo:update_buffs(buff_ids)
-    local buff_ids = S(buff_util.buffs_for_buff_ids(buff_ids))
+    local buff_ids = L(buff_util.buffs_for_buff_ids(buff_ids))
     local old_buff_ids = self.buff_ids
 
     self.buff_ids = buff_ids
 
-    local delta = set.sdiff(buff_ids, old_buff_ids)
+    local delta = list.diff(old_buff_ids, buff_ids)
 
     for buff_id in delta:it() do
         if buff_ids:contains(buff_id) then
