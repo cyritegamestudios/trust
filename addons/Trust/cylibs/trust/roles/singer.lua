@@ -1,9 +1,21 @@
+local DisposeBag = require('cylibs/events/dispose_bag')
+local Event = require('cylibs/events/Luvent')
 local res = require('resources')
 
 local Singer = setmetatable({}, {__index = Role })
 Singer.__index = Singer
 
 local SongTracker = require('cylibs/battle/song_tracker')
+
+-- Event called when singing begins
+function Singer:on_songs_begin()
+    return self.songs_begin
+end
+
+-- Event called when all songs have been sung
+function Singer:on_songs_end()
+    return self.songs_end
+end
 
 function Singer.new(action_queue, dummy_songs, songs, pianissimo_songs, brd_job, state_var, sing_action_priority)
     local self = setmetatable(Role.new(action_queue), Singer)
@@ -14,8 +26,12 @@ function Singer.new(action_queue, dummy_songs, songs, pianissimo_songs, brd_job,
 
     self.state_var = state_var or state.AutoSongMode
     self.sing_action_priority = sing_action_priority or ActionPriority.default
+    self.is_singing = false
     self.last_sing_time = os.time()
     self.brd_job = brd_job
+    self.songs_begin = Event.newEvent()
+    self.songs_end = Event.newEvent()
+    self.dispose_bag = DisposeBag.new()
     self.debug = false
 
     self:validate_songs(dummy_songs, songs)
@@ -37,7 +53,7 @@ end
 function Singer:destroy()
     Role.destroy(self)
 
-    self.song_tracker:destroy()
+    self.dispose_bag:destroy()
 end
 
 function Singer:on_add()
@@ -45,21 +61,40 @@ function Singer:on_add()
 
     self.song_tracker = SongTracker.new(self:get_player(), self.dummy_songs, self.songs, self.pianissimo_songs, self.brd_job)
     self.song_tracker:monitor()
-    self.song_tracker:on_song_duration_warning():addAction(function(song_record)
-        if self.debug then
-            print(res.spells:with('id', song_record:get_song_id()).en..' is expiring soon')
+
+    self.dispose_bag:add(self.state_var:on_state_change():addAction(function(_, newValue)
+        if newValue == 'Off' then
+            self.is_singing = false
         end
-        self:resing_song(song_record:get_song_id())
-    end)
+    end), self.state_var:on_state_change())
+
+    self.dispose_bag:addAny(L{ self.song_tracker })
 end
 
 function Singer:target_change(target_index)
     Role.target_change(self, target_index)
 end
 
+function Singer:set_is_singing(is_singing)
+    if self.is_singing == is_singing then
+        return
+    end
+    self.is_singing = is_singing
+    if self.is_singing then
+        self:on_songs_begin():trigger(self)
+    else
+        self:on_songs_end():trigger(self)
+    end
+end
+
+function Singer:get_is_singing()
+    return self.is_singing
+end
+
 function Singer:tic(new_time, old_time)
     if self.state_var.value == 'Off'
-            or (os.time() - self.last_sing_time) < 7 then
+            or (os.time() - self.last_sing_time) < 7
+            or self:get_player():is_moving() then
         return
     end
     self.song_tracker:tic(new_time, old_time)
@@ -68,78 +103,107 @@ function Singer:tic(new_time, old_time)
 end
 
 function Singer:check_songs()
-    if self:get_player():is_moving() then
+    local player = self:get_party():get_player()
+
+    if self:should_nitro() then
+        self:nitro()
         return
     end
 
-    if not self:sing_next_song(self:get_party():get_player()) then
-        self:sing_next_piannisimo_song()
+    for party_member in list.extend(L{player}, self:get_party():get_party_members(false)):it() do
+        if party_member:is_alive() then
+            --if party_member:is_trust() then -- can potentially remove since AlterEgo has its own buff_id list now
+            --    self.song_tracker:prune_expired_songs(party_member:get_id())
+            --end
+            local next_song = self:get_next_song(party_member, self.dummy_songs, self:get_merged_songs(party_member))
+            if next_song then
+                if self.dummy_songs:contains(next_song) then
+                    windower.send_command('gs c set ExtraSongsMode Dummy')
+                else
+                    windower.send_command('gs c set ExtraSongsMode None')
+                end
+                self:sing_song(next_song, party_member:get_mob().index)
+                return
+            end
+        end
     end
+
+    self:set_is_singing(false)
 end
 
-function Singer:sing_next_song(party_member)
-    local song_target_id = party_member:get_mob().id
-    local buff_ids = L(party_member:get_buff_ids())
+function Singer:should_nitro()
+    if self.brd_job:is_nitro_ready() then
+        local player = self:get_party():get_player()
+        local buff_ids = L(player:get_buff_ids())
+        local songs = self:get_merged_songs(player)
 
-    local song_ids = self.songs:map(function(spell) return spell:get_spell().id end)
-    local dummy_song_ids = self.dummy_songs:map(function(spell) return spell:get_spell().id  end)
-
-    if not self.song_tracker:has_all_songs(song_target_id, dummy_song_ids, buff_ids)
-            and (not self.song_tracker:has_any_song(song_target_id, song_ids, buff_ids) or self.song_tracker:get_num_songs(song_target_id, buff_ids) < self.brd_job:get_max_num_songs()) then
-        -- Get next dummy song
-        for song in self.dummy_songs:it() do
-            if not self.song_tracker:has_song(song_target_id, song:get_spell().id, buff_ids) then
-                windower.send_command('gs c set ExtraSongsMode Dummy')
-                self:sing_song(song)
-                return true
-            end
-        end
-    elseif self.song_tracker:get_num_songs(song_target_id, buff_ids) == self.brd_job:get_max_num_songs() then
-        -- Already has the maximum number of real songs
-        if self.song_tracker:get_num_songs(song_target_id, buff_ids, self.songs) >= self.brd_job:get_max_num_songs() then
-            return false
-        end
-        if self.brd_job:is_nitro_ready() --[[]and not self.song_tracker:has_any_song(song_target_id, song_ids, player_buff_ids)]] then
-            self:nitro()
+        local total_num_songs = self.song_tracker:get_num_songs(player:get_mob().id, buff_ids)
+        if total_num_songs == 0 then
+            logger.notice("Using nitro (no songs)")
             return true
         end
-        -- Get next real song
-        for song in self.songs:it() do
-            if not self.song_tracker:has_song(song_target_id, song:get_spell().id, buff_ids) then
-                windower.send_command('gs c set ExtraSongsMode None')
-                self:sing_song(song)
-                return true
-            end
+
+        local total_num_active_songs = self.song_tracker:get_num_songs(player:get_mob().id, buff_ids, songs)
+        if total_num_active_songs == self.brd_job:get_max_num_songs() and self.song_tracker:is_expiring_soon(player:get_mob().id, songs) then
+            logger.notice("Using nitro (all songs)")
+            return true
         end
     end
     return false
 end
 
-function Singer:sing_next_piannisimo_song()
-    for party_member in self:get_party():get_party_members(false, 21):it() do
-        if party_member:is_alive() then
-            if party_member:is_trust() then
-                self.song_tracker:prune_expired_songs(party_member:get_id())
+function Singer:get_next_song(party_member, dummy_songs, songs)
+    local song_target_id = party_member:get_mob().id
+    local buff_ids = L(party_member:get_buff_ids())
+
+    logger.notice("Songs for", party_member:get_mob().name, songs:map(function(song) return song:get_spell().name end))
+
+    local total_num_songs = self.song_tracker:get_num_songs(song_target_id, buff_ids)
+    if total_num_songs < 2 then
+        for song in songs:it() do
+            if not self.song_tracker:has_song(song_target_id, song:get_spell().id, buff_ids) then
+                return song
             end
-            for song in self.pianissimo_songs:it() do
-                if not self.song_tracker:has_song(party_member:get_mob().id, song:get_spell().id, party_member:get_buff_ids())
-                        and song:get_job_names():contains(party_member:get_main_job_short()) then
-                    self:sing_song(song, party_member:get_mob().index)
-                    return true
+        end
+    else
+        if total_num_songs < self.brd_job:get_max_num_songs() then
+            for song in dummy_songs:it() do
+                if not self.song_tracker:has_song(song_target_id, song:get_spell().id, buff_ids) then
+                    return song
+                end
+            end
+        else
+            local total_num_active_songs = self.song_tracker:get_num_songs(song_target_id, buff_ids, songs)
+            for song in songs:it() do
+                if total_num_active_songs < self.brd_job:get_max_num_songs() then
+                    if not self.song_tracker:has_song(song_target_id, song:get_spell().id, buff_ids) then
+                        return song
+                    end
+                else
+                    if self.song_tracker:is_expiring_soon(song_target_id, L{ song }) then
+                        logger.notice("Resinging", song:get_spell().name)
+                        return song
+                    end
                 end
             end
         end
     end
-    return false
+    return nil
 end
 
 function Singer:sing_song(song, target_index)
     if spell_util.can_cast_spell(song:get_spell().id) then
+        self:set_is_singing(true)
+
         local actions = L{}
 
         self.last_sing_time = os.time()
 
-        for job_ability_name in song:get_job_abilities():it() do
+        local job_abilities = S(song:get_job_abilities():copy())
+        if target_index ~= windower.ffxi.get_player().index then
+            job_abilities:add('Pianissimo')
+        end
+        for job_ability_name in job_abilities:it() do
             local job_ability = res.job_abilities:with('en', job_ability_name)
             if job_ability and not buff_util.is_buff_active(job_ability.status) then
                 if job_util.can_use_job_ability(job_ability_name) then
@@ -156,19 +220,10 @@ function Singer:sing_song(song, target_index)
         sing_action.priority = ActionPriority.highest
 
         self.action_queue:push_action(sing_action, true)
-    end
-end
 
-function Singer:resing_song(song_id)
-    if self.debug then
-        print('resinging '..res.spells:with('id', song_id).name)
+        return true
     end
-    for song in self.songs:it() do
-        if song:get_spell().id == song_id then
-            self:sing_song(song)
-            return
-        end
-    end
+    return false
 end
 
 function Singer:nitro()
@@ -185,12 +240,31 @@ function Singer:nitro()
     self.action_queue:push_action(nitro_action, true)
 end
 
+function Singer:get_merged_songs(party_member)
+    local max_num_songs = self.brd_job:get_max_num_songs()
+    if party_member:get_mob().id == windower.ffxi.get_player().id then
+        return self.songs:slice(1, max_num_songs)
+    end
+    local pianissimo_songs = self.pianissimo_songs:filter(function(song) return song:get_job_names():contains(party_member:get_main_job_short()) end)
+    local all_songs = self.songs:slice(1, max_num_songs):extend(pianissimo_songs):reverse()
+    all_songs = all_songs:slice(1, max_num_songs)
+    return all_songs
+end
+
 function Singer:set_dummy_songs(dummy_songs)
     self.dummy_songs = (dummy_songs or L{}):filter(function(spell) return spell ~= nil and spell_util.knows_spell(spell:get_spell().id) end)
 end
 
+function Singer:get_dummy_songs()
+    return self.dummy_songs
+end
+
 function Singer:set_songs(songs)
     self.songs = (songs or L{}):filter(function(spell) return spell ~= nil and spell_util.knows_spell(spell:get_spell().id)  end)
+end
+
+function Singer:get_songs()
+    return self.songs
 end
 
 function Singer:set_pianissimo_songs(pianissimo_songs)

@@ -1,6 +1,8 @@
 local buff_util = require('cylibs/util/buff_util')
 local cure_util = require('cylibs/util/cure_util')
 local AuraTracker = require('cylibs/battle/aura_tracker')
+local DisposeBag = require('cylibs/events/dispose_bag')
+local logger = require('cylibs/logger/logger')
 local StatusRemovalAction = require('cylibs/actions/status_removal')
 
 local StatusRemover = setmetatable({}, {__index = Role })
@@ -25,31 +27,33 @@ function StatusRemover.new(action_queue, main_job)
     self.last_status_removal_time = os.time()
     self.status_removal_delay = main_job:get_status_removal_delay()
     self.aura_list = S{}
+    self.dispose_bag = DisposeBag.new()
 
     return self
 end
 
 function StatusRemover:destroy()
     self.is_disposed = true
+
+    self.dispose_bag:destroy()
+
     if self.action_events then
         for _,event in pairs(self.action_events) do
             windower.unregister_event(event)
         end
-    end
-
-    if self.aura_tracker then
-        self.aura_tracker:destroy()
     end
 end
 
 function StatusRemover:on_add()
     self.aura_tracker = AuraTracker.new(buff_util.debuffs_for_auras(), self:get_party())
 
+    self.dispose_bag:addAny(L{ self.aura_tracker })
+
     for party_member in self:get_party():get_party_members(true):it() do
-        party_member:on_gain_debuff():addAction(
+        self.dispose_bag:add(party_member:on_gain_debuff():addAction(
             function (p, debuff_id)
                 self:remove_status_effect(L{p}, debuff_id)
-            end)
+            end), party_member:on_gain_debuff())
     end
 end
 
@@ -98,6 +102,7 @@ function StatusRemover:remove_status_effect(party_members, debuff_id)
         return
     end
     if state.AutoDetectAuraMode.value ~= 'Off' and self.aura_tracker:get_aura_probability(debuff_id) >= 75 then
+        logger.notice("Detected", res.buffs[debuff_id].en, "aura.")
         return
     end
     local status_removal_spell = self.main_job:get_status_removal_spell(debuff_id, party_members:length())
@@ -130,6 +135,10 @@ function StatusRemover:remove_status_effect(party_members, debuff_id)
         status_removal_action.priority = cure_util.get_status_removal_priority(debuff_id, party_members[1]:is_trust())
 
         self.action_queue:push_action(status_removal_action, true)
+
+        logger.notice("Removing", res.buffs[debuff_id].en, "from", party_members[1]:get_name())
+    else
+        logger.error("No status removal spell found for", res.buffs[debuff_id].en, "effect on", party_members[1]:get_name())
     end
 end
 

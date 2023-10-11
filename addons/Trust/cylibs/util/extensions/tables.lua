@@ -39,3 +39,21 @@ function table.with_all(t, attr, val)
     end
     return result
 end
+
+function table.diff(t, other_table)
+    local table_diff = T{}
+    for key, value in pairs(t) do
+        if value ~= other_table[key] then
+            table_diff[key] = value
+        end
+    end
+    return table_diff
+end
+
+function table.merge(table1, table2)
+    local merged_table = table1:copy()
+    for key, value in pairs(table2) do
+        merged_table[key] = value
+    end
+    return merged_table
+end

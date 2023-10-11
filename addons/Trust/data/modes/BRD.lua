@@ -1,6 +1,7 @@
 -- Modes file for BRD
 return {
     ["Default"]={
+        ["actionbatchingmode"]="Off",
         ["autodispelmode"]="Auto",
         ["maintrustsettingsmode"]="Default",
         ["autosleepmode"]="Off",
@@ -17,6 +18,7 @@ return {
         ["autoengagemode"]="Off",
         ["skillchaindelaymode"]="Off",
         ["engagemode"]="None",
+        ["flankmode"]="Off",
         ["autoskillchainmode"]="Off",
         ["autosongmode"]="Off",
         ["skillchainprioritymode"]="Off",

@@ -165,6 +165,9 @@ function Party:add_member(mob_id, name, main_job_id, sub_job_id, hpp, hp)
         if party_util.is_alter_ego(name) then
             self.party_members[mob_id] = AlterEgo.new(mob_id, name)
         else
+            if not party_util.is_party_member(mob_id) then
+                return
+            end
             self.party_members[mob_id] = PartyMember.new(mob_id)
         end
         self.party_members[mob_id]:monitor()

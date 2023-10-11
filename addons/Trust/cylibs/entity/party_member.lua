@@ -8,6 +8,7 @@ local buff_util = require('cylibs/util/buff_util')
 local Entity = require('cylibs/entity/entity')
 local Event = require('cylibs/events/Luvent')
 local ffxi_util = require('cylibs/util/ffxi_util')
+local list_ext = require('cylibs/util/extensions/lists')
 local packets = require('packets')
 local party_util = require('cylibs/util/party_util')
 local res = require('resources')
@@ -53,8 +54,8 @@ function PartyMember.new(id)
     self.hp = 0
     self.target_index = nil
     self.action_events = {}
-    self.debuff_ids = S{}
-    self.buff_ids = S{}
+    self.debuff_ids = L{}
+    self.buff_ids = L{}
     self.is_monitoring = false
     self.heartbeat_time = os.time()
 
@@ -161,8 +162,8 @@ function PartyMember:update_debuffs(buff_ids)
         return
     end
 
-    local debuff_ids = S(buff_util.debuffs_for_buff_ids(buff_ids))
-    local delta = set.sdiff(debuff_ids, self.debuff_ids)
+    local debuff_ids = L(buff_util.debuffs_for_buff_ids(buff_ids))
+    local delta = list.diff(debuff_ids, self.debuff_ids)
     for buff_id in delta:it() do
         if debuff_ids:contains(buff_id) then
             self:on_gain_debuff():trigger(self, buff_id)
@@ -180,13 +181,12 @@ function PartyMember:update_buffs(buff_ids)
     if buff_ids == nil then
         return
     end
-
-    local buff_ids = S(buff_util.buffs_for_buff_ids(buff_ids))
+    local buff_ids = L(buff_util.buffs_for_buff_ids(buff_ids))
     local old_buff_ids = self.buff_ids
 
     self.buff_ids = buff_ids
 
-    local delta = set.sdiff(buff_ids, old_buff_ids)
+    local delta = list.diff(old_buff_ids, buff_ids)
     for buff_id in delta:it() do
         if buff_ids:contains(buff_id) then
             self:on_gain_buff():trigger(self, buff_id)

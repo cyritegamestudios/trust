@@ -22,7 +22,9 @@ function Trust.new(action_queue, roles, trust_settings, job)
 		status = 0;
 		battle_target = nil;
 		role_blacklist = S{};
-		trust_settings_changed = Event.newEvent()
+		trust_settings_changed = Event.newEvent();
+		trust_modes_override = Event.newEvent();
+		trust_modes_reset = Event.newEvent();
 	}, Trust)
 
 	return self
@@ -59,6 +61,8 @@ function Trust:destroy()
 	end
 
 	self.trust_settings_changed:removeAllActions()
+	self.trust_modes_override:removeAllActions()
+	self.trust_modes_reset:removeAllActions()
 
 	self:on_deinit()
 

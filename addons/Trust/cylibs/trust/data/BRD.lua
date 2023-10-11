@@ -8,9 +8,11 @@ local Trust = require('cylibs/trust/trust')
 local BardTrust = setmetatable({}, {__index = Trust })
 BardTrust.__index = BardTrust
 
-local BardTrustCommands = require('cylibs/trust/commands/BRD')
+local BardTrustCommands = require('cylibs/trust/commands/BRD') -- keep this for dependency script
+local BardModes = require('cylibs/trust/data/modes/BRD')
 local Debuffer = require('cylibs/trust/roles/debuffer')
 local Dispeler = require('cylibs/trust/roles/dispeler')
+local ModeDelta = require('cylibs/modes/mode_delta')
 local Puller = require('cylibs/trust/roles/puller')
 local Singer = require('cylibs/trust/roles/singer')
 local Sleeper = require('cylibs/trust/roles/sleeper')
@@ -33,12 +35,25 @@ function BardTrust.new(settings, action_queue, battle_settings, trust_settings)
 	self.settings = settings
 	self.num_songs = trust_settings.NumSongs
 	self.action_queue = action_queue
+	self.song_modes_delta = ModeDelta.new(BardModes.Singing)
 
 	return self
 end
 
 function BardTrust:on_init()
 	Trust.on_init(self)
+
+	local singer = self:role_with_type("singer")
+	if singer then
+		singer:on_songs_begin():addAction(function()
+			self:get_party():add_to_chat(self.party:get_player(), "Singing songs, hold tight.", "on_songs_begin", 5)
+			self.song_modes_delta:apply()
+		end)
+		singer:on_songs_end():addAction(function()
+			self:get_party():add_to_chat(self.party:get_player(), "Alright, you're good to go!", "on_songs_end", 5)
+			self.song_modes_delta:remove()
+		end)
+	end
 
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
 		self.num_songs = new_trust_settings.NumSongs

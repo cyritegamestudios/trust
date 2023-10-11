@@ -23,15 +23,24 @@ local debuffs = T{
 	[5] = S{254,276,347,348}, --Blind
 	[6] = S{59,687,727}, --Silence
 	[7] = S{255,365,722}, --Break
+	[9] = S{}, -- curse
 	[11] = S{258,531}, --Bind
 	[12] = S{216,217,708}, --Gravity
 	[13] = S{56,79,344,345,703}, --Slow
 	[15] = S{751}, -- doom
-	[19] = S{}, -- curse
+	[19] = S{}, -- sleep
 	[20] = S{}, -- curse
 	[21] = S{286,472,884}, --addle/nocturne
 	[28] = S{575,720,738,746}, --terror
 	[31] = S{682}, --plague
+	[128] = S{}, -- Burn
+	[129] = S{}, -- Frost
+	[130] = S{}, -- Choke
+	[131] = S{}, -- Rasp
+	[132] = S{}, -- Shock
+	[133] = S{}, -- Drown
+	[134] = S{}, -- Dia
+	[135] = S{}, -- Bio
 	[136] = S{240,705}, --str down
 	[137] = S{238}, --dex down
 	[138] = S{237}, --VIT down
@@ -45,6 +54,7 @@ local debuffs = T{
 	[156] = S{112,707,725}, --Flash
 	[167] = S{656}, --Magic Def. Down
 	[168] = S{508}, --inhibit TP
+	[186] = S{}, -- Helix
 	[192] = S{368,369,370,371,372,373,374,375}, --requiem
 	[193] = S{463,471,376,377}, --lullabies
 	[194] = S{421,422,423}, --elegy
@@ -135,7 +145,7 @@ end
 -- @tparam list buff_ids List of buff ids (see buffs.lua)
 -- @treturn list Full metadata for the buff (see buffs.lua)
 function buff_util.buffs_for_buff_ids(buff_ids)
-	return set.diff(S(buff_ids), S(debuffs:keyset()))
+	return list.subtract(L(buff_ids), L(debuffs:keyset()))
 end
 
 -------

@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '5.2.3'
+_addon.version = '6.0.0'
 
 require('Trust-Include')
 
@@ -137,6 +137,7 @@ function load_user_files(main_job_id, sub_job_id)
 	default_trust_name = string.gsub(string.lower(player.main_job_name), "%s+", "")
 
 	load_trust_modes(player.main_job_name_short)
+	load_trust_reactions(player.main_job_name_short)
 	load_ui()
 
 	main_trust_settings:copySettings()
@@ -146,20 +147,11 @@ function load_user_files(main_job_id, sub_job_id)
 end
 
 function load_trust_modes(job_name_short)
-	local trust_modes = {}
+	trust_mode_settings = TrustModeSettings.new(job_name_short)
+	trust_mode_settings:copySettings()
 
-	local file_prefix = windower.addon_path..'data/modes/'..job_name_short
-	if windower.file_exists(file_prefix..'_'..windower.ffxi.get_player().name..'.lua') then
-		trust_modes = require('data/modes/'..job_name_short..'_'..windower.ffxi.get_player().name)
-	elseif windower.file_exists(file_prefix..'.lua') then
-		trust_modes = require('data/modes/'..job_name_short)
-	else
-		addon_message(100, 'No default trust modes for '..(job_name_short or 'nil'))
-		return
-	end
-
-	function update_trust_for_modes(modes)
-		for state_name, value in pairs(modes) do
+	local function update_for_new_modes(new_modes)
+		for state_name, value in pairs(new_modes) do
 			local state_var = get_state(state_name)
 			if state_var then
 				unregister_help_text(state_name, state_var)
@@ -169,19 +161,24 @@ function load_trust_modes(job_name_short)
 		end
 	end
 
-	state.TrustMode = M{['description'] = 'Trust Mode', T(T(trust_modes):keyset())}
 	state.TrustMode:on_state_change():addAction(function(_, new_value)
-		update_trust_for_modes(player.trust.trust_modes[new_value])
+		logger.notice("TrustMode is now", new_value)
+		local new_modes = trust_mode_settings:getSettings()[new_value]
+		update_for_new_modes(new_modes)
 	end)
 
-	update_trust_for_modes(trust_modes.Default)
+	trust_mode_settings:loadSettings()
 
 	set_help_text_enabled(settings.help.mode_text_enabled)
 
-	addon_message(207, 'Trust modes set to Default')
+	addon_message(207, 'Trust modes set to '..state.TrustMode.value)
 
 	player.trust.trust_name = job_name_short
-	player.trust.trust_modes = trust_modes
+end
+
+function load_trust_reactions(job_name_short)
+	--trust_reactions = TrustReactions.new(job_name_short)
+	--trust_reactions:loadReactions()
 end
 
 function load_trust_commands(job_name_short, trust, action_queue)
@@ -337,13 +334,11 @@ function handle_start()
 	addon_enabled:setValue(true)
 	player.player:monitor()
 	action_queue:enable()
-	--hud:set_enabled(true)
 end
 
 function handle_stop()
 	addon_enabled:setValue(false)
 	action_queue:disable()
-	--hud:set_enabled(false)
 end
 
 function handle_reload()
@@ -356,8 +351,10 @@ function handle_unload()
 end
 
 function handle_job_change(_, _, _, _)
+	handle_stop()
 	unloaded()
 	handle_unload()
+	--windower.send_command('lua r trust')
 end
 
 function handle_zone_change(_, _, _, _)
@@ -366,29 +363,7 @@ function handle_zone_change(_, _, _, _)
 end
 
 function handle_save_trust(mode_name)
-	mode_name = mode_name or 'Default'
-
-	local file_paths = L{
-		'data/modes/'..player.main_job_name_short ..'_'..windower.ffxi.get_player().name..'.lua',
-	}
-	local trust_modes = {}
-	for state_name, _ in pairs(state) do
-		if state_name ~= 'TrustMode' then
-			trust_modes[state_name:lower()] = state[state_name].value
-		end
-	end
-
-	player.trust.trust_modes[mode_name] = trust_modes
-
-	for file_path in file_paths:it() do
-		local trust_modes = files.new(file_path)
-		if not trust_modes:exists() then
-			addon_message(207, 'Created trust modes override '..file_path)
-		else
-			addon_message(207, 'Updated trust modes '..file_path)
-		end
-		trust_modes:write('-- Modes file for '..player.main_job_name_short ..'\nreturn ' .. T(player.trust.trust_modes):tovstring())
-	end
+	trust_mode_settings:saveSettings(mode_name or state.TrustMode.value)
 end
 
 function handle_create_trust(job_name_short)

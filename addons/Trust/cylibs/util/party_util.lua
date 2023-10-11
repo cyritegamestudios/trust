@@ -53,9 +53,11 @@ end
 -- @treturn list List of MobMetada for party members, or an empty list if the player is not in a party
 function party_util.get_party_members()
     local party_members = L{}
-    for _, party_member in pairs(windower.ffxi.get_party()) do
+    for key, party_member in pairs(windower.ffxi.get_party()) do
         if type(party_member) == 'table' and party_member.mob then
-            party_members:append(party_member.mob)
+            if party_member.mob.in_party then
+                party_members:append(party_member.mob)
+            end
         end
     end
     return party_members
@@ -228,7 +230,7 @@ end
 -- @treturn Boolean True if the target is an alter ego
 function party_util.is_alter_ego(target_name)
     local trust_names = L(res.spells:with_all('type', 'Trust'):map(function(trust) return trust.name end))
-    return trust_names:contains(target_name)
+    return trust_names:contains(target_name) or trust_names:contains(target_name..' (UC)')
 end
 
 return party_util
