@@ -119,6 +119,7 @@ function SongTracker:monitor()
 
     self.action_events.lose_buff = windower.register_event('lose buff', function(buff_id)
         if self.job:is_bard_song_buff(buff_id) then
+            logger.notice(windower.ffxi.get_player().name.."'s", "effect of", res.buffs[buff_id].name, "wears off")
             self:prune_songs(windower.ffxi.get_player().id, self.dummy_songs, L(windower.ffxi.get_player().buffs))
             self:prune_songs(windower.ffxi.get_player().id, self.songs, L(windower.ffxi.get_player().buffs))
         end
@@ -142,7 +143,10 @@ function SongTracker:check_song_expiration()
     if self.active_songs[target_id] then
         for song_record in self.active_songs[target_id]:it() do
             logger.notice(song_record:get_expire_time() - os.time(), "seconds remaining on", res.spells[song_record:get_song_id()].name)
-            if song_record:get_expire_time() - os.time() < 45 then
+            if song_record:is_expired() then
+                self:on_lose_song(target_id, song_record:get_song_id(), song_record:get_buff_id())
+                logger.notice(res.spells[song_record:get_song_id()].name, "is expired")
+            elseif song_record:get_expire_time() - os.time() < 45 then
                 self:on_song_duration_warning():trigger(song_record)
                 logger.notice(res.spells[song_record:get_song_id()].name, "is expiring soon")
             elseif song_record:is_expired() then
