@@ -680,12 +680,9 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, jobNameS
         ButtonItem.default('Clear All', 18),
     }, {},
         function()
-            local backgroundImageView = createBackgroundView(viewSize.width, viewSize.height)
             local singer = trust:role_with_type("singer")
-            local singerView = SingerView.new(singer)
-            singerView:setBackgroundImageView(backgroundImageView)
-            singerView:setNavigationBar(createTitleView(viewSize))
-            singerView:setSize(viewSize.width, viewSize.height)
+            local singerView = setupView(SingerView.new(singer), viewSize)
+            singerView:setShouldRequestFocus(false)
             return singerView
         end)
 

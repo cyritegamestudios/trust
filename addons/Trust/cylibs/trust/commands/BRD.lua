@@ -18,6 +18,10 @@ function BardTrustCommands:handle_command(...)
             self:sing_songs()
         elseif cmd == 'ballad' then
             self:ballad()
+        elseif cmd == 'status' then
+            if arg[2] then
+                self:get_songs(arg[2])
+            end
         end
     end
 end
@@ -62,6 +66,15 @@ function BardTrustCommands:ballad()
     song_action.priority = ActionPriority.highest
 
     self.action_queue:push_action(song_action, true)
+end
+
+function BardTrustCommands:get_songs(target_name)
+    local target = windower.ffxi.get_mob_by_name(target_name)
+    if target then
+        local singer = self.trust:role_with_type("singer")
+        local songs = singer.song_tracker:get_songs(target.id):map(function(song_record) return res.spells[song_record:get_song_id()].name end)
+        addon_message(207, "Songs for "..target.name.." are "..tostring(songs))
+    end
 end
 
 return BardTrustCommands
