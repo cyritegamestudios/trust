@@ -47,7 +47,7 @@ end
 -------
 -- Returns whether the player has Troubadour active.
 -- @treturn Boolean True if Troubadour is active
-function Bard:is_troubaduor_active()
+function Bard:is_troubadour_active()
     local player_buff_ids = L(windower.ffxi.get_player().buffs)
     return player_buff_ids:contains(348)
 end
@@ -77,13 +77,29 @@ function Bard:is_clarion_call_active()
 end
 
 -------
+-- Returns whether clarion call is ready to use.
+-- @treturn Boolean True if clarion call is ready to use
+function Bard:is_clarion_call_ready()
+    return not self:is_clarion_call_active() and job_util.can_use_job_ability("Clarion Call")
+end
+
+-------
 -- Returns the maximum number of songs that the player can have active.
 -- @treturn number Number of songs
 function Bard:get_max_num_songs()
-    if self:is_clarion_call_active() then
-        return self.max_num_songs + 1
+    local current_num_songs = 0
+    local player_buff_ids = L(windower.ffxi.get_player().buffs)
+    for buff_id in player_buff_ids:it() do
+        if self:is_bard_song_buff(buff_id) then
+            current_num_songs = current_num_songs + 1
+        end
     end
-    return self.max_num_songs
+    local num_songs = math.max(self.max_num_songs, current_num_songs)
+    if self:is_clarion_call_active() then
+        num_songs = math.max(self.max_num_songs + 1, num_songs)
+    end
+
+    return num_songs
 end
 
 -------

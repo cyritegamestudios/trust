@@ -5,6 +5,7 @@
 
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Event = require('cylibs/events/Luvent')
+local list_ext = require('cylibs/util/extensions/lists')
 local logger = require('cylibs/logger/logger')
 local SongRecord = require('cylibs/battle/songs/song_record')
 
@@ -52,6 +53,17 @@ function SongTracker.new(player, dummy_songs, songs, pianissimo_songs, job)
             self:on_gain_song(windower.ffxi.get_player().id, song:get_spell().id, buff_id)
         end
     end
+
+    local song_buff_ids = player_buff_ids:filter(function(buff_id) return job:is_bard_song_buff(buff_id) end)
+    for song in songs:it() do
+        local buff_id = res.buffs[song:get_spell().status].id
+        if song_buff_ids:contains(buff_id) then
+            song_buff_ids:remove(song_buff_ids:indexOf(buff_id))
+            self:on_gain_song(windower.ffxi.get_player().id, song:get_spell().id, buff_id)
+        end
+    end
+
+    self:set_expiring_soon(windower.ffxi.get_player().id)
 
     return self
 end
@@ -126,12 +138,16 @@ function SongTracker:check_song_expiration()
         return
     end
     self.last_expiration_check = os.time()
-    if self.active_songs[windower.ffxi.get_player().id] then
-        for song_record in self.active_songs[windower.ffxi.get_player().id]:it() do
+    local target_id = windower.ffxi.get_player().id
+    if self.active_songs[target_id] then
+        for song_record in self.active_songs[target_id]:it() do
             logger.notice(song_record:get_expire_time() - os.time(), "seconds remaining on", res.spells[song_record:get_song_id()].name)
             if song_record:get_expire_time() - os.time() < 45 then
                 self:on_song_duration_warning():trigger(song_record)
                 logger.notice(res.spells[song_record:get_song_id()].name, "is expiring soon")
+            elseif song_record:is_expired() then
+                self:on_lose_song(target_id, song_record:get_song_id(), song_record:get_buff_id())
+                logger.notice(res.spells[song_record:get_song_id()].name, "is expired")
             end
         end
     end
@@ -168,7 +184,7 @@ function SongTracker:set_expiring_soon(target_id)
     end)
     local i = 0
     for song_record in active_songs:it() do
-        local new_expire_time = os.time() + 45 + i * 5
+        local new_expire_time = os.time() + 45 + i * 3
         song_record:set_expire_time(new_expire_time)
         i = i + 1
         logger.notice("Setting expiration time of", res.spells[song_record:get_song_id()].name, "to", new_expire_time)
@@ -190,12 +206,13 @@ end
 -- @tparam number target_id Target id
 -- @tparam number song_id Song id (see spells.lua)
 -- @tparam number buff_id Buff id (see buffs.lua)
-function SongTracker:on_gain_song(target_id, song_id, buff_id)
+-- @tparam number song_duration (optional) Song duration, or job default if not specified
+function SongTracker:on_gain_song(target_id, song_id, buff_id, song_duration)
     if self:has_song(target_id, song_id) then
         self:on_lose_song(target_id, song_id, buff_id)
     end
 
-    local target_songs = (self.active_songs[target_id] or S{}):add(SongRecord.new(song_id, self.job:get_song_duration()))
+    local target_songs = (self.active_songs[target_id] or S{}):add(SongRecord.new(song_id, song_duration or self.job:get_song_duration()))
 
     self.active_songs[target_id] = target_songs
 

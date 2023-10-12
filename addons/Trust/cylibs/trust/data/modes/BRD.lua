@@ -9,7 +9,6 @@ return {
         ["autosilencemode"]="Off",
         ["autopullmode"]="Off",
         ["autobuffmode"]="Off",
-        ["autoengagemode"]="Off",
         ["autohealmode"]="Emergency",
         ["autoskillchainmode"]="Off",
         ["combatmode"]="Off",

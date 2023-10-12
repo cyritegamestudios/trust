@@ -115,4 +115,10 @@ function SingerView:reloadActiveSongs()
     self:layoutIfNeeded()
 end
 
+function SingerView:onSelectMenuItemAtIndexPath(textItem, _)
+    if textItem:getText() == 'Clear All' then
+        self.singer.song_tracker:reset()
+    end
+end
+
 return SingerView

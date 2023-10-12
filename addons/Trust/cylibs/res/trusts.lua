@@ -9,4 +9,5 @@ return T{
     [6] = {id=6,en="Joachim",enl="Joachim",main_job_short="BRD",sub_job_short="WHM"},
     [7] = {id=7,en="Matsui-P",enl="Matsui-P",main_job_short="NIN",sub_job_short="BLM"},
     [8] = {id=8,en="Yoran-Oran",enl="Yoran-Oran (UC)",main_job_short="WHM",sub_job_short="NON"},
+    [9] = {id=9,en="Amchuchu",enl="Amchuchu",main_job_short="PLD",sub_job_short="NON"},
 }, {"id", "en", "enl","main_job_short", "sub_job_short"}

@@ -30,6 +30,7 @@ return {
         ["autobarspellmode"]="Off",
         ["autotrustsmode"]="Off",
         ["autohealmode"]="Emergency",
-        ["autoenmityreductionmode"]="Off"
+        ["autoenmityreductionmode"]="Off",
+        ["autoclarioncallmode"]="Off"
     }
 }
