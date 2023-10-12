@@ -6,6 +6,7 @@ return {
 
         },
         SongDuration = 240,
+        SongDelay = 6,
         Skillchains = {
             spamws = L{
                 "Savage Blade",

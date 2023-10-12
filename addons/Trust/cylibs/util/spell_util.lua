@@ -15,6 +15,11 @@ _raw = _raw or {}
 
 _libs.spell_util = spell_util
 
+-- Spells that come from things like items
+local spells_whitelist = L{
+    'Honor March'
+}
+
 -------
 -- Returns the spell id for the given localized spell name.
 -- @tparam string spell_name Localized spell name
@@ -56,7 +61,7 @@ function spell_util.knows_spell(spell_id)
     -- Check if spell_id exists
     local spell = res.spells[spell_id]
     -- Check get_spells to get a list of all known spells, true if known, false or nil if not known
-    local spell_known = windower.ffxi.get_spells()[spell_id]
+    local spell_known = windower.ffxi.get_spells()[spell_id] or spells_whitelist:contains(spell_util.spell_name(spell_id))
     -- If both are true, check if player can cast
     if spell and spell_known then
         local player = windower.ffxi.get_player()

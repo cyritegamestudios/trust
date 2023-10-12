@@ -127,7 +127,6 @@ function SongTracker:check_song_expiration()
     end
     self.last_expiration_check = os.time()
     if self.active_songs[windower.ffxi.get_player().id] then
-        local min_expire_time
         for song_record in self.active_songs[windower.ffxi.get_player().id]:it() do
             logger.notice(song_record:get_expire_time() - os.time(), "seconds remaining on", res.spells[song_record:get_song_id()].name)
             if song_record:get_expire_time() - os.time() < 45 then
@@ -155,6 +154,25 @@ function SongTracker:is_expiring_soon(target_id, songs)
         end
     end
     return false
+end
+
+-------
+-- Sets all songs to expire soon.
+-- @tparam number target_id Target id
+function SongTracker:set_expiring_soon(target_id)
+    if not self.active_songs[target_id] then
+        return
+    end
+    local active_songs = self.active_songs[target_id]:sort(function(song_record1, song_record2)
+        return song_record1:get_expire_time() < song_record2:get_expire_time()
+    end)
+    local i = 0
+    for song_record in active_songs:it() do
+        local new_expire_time = os.time() + 45 + i * 5
+        song_record:set_expire_time(new_expire_time)
+        i = i + 1
+        logger.notice("Setting expiration time of", res.spells[song_record:get_song_id()].name, "to", new_expire_time)
+    end
 end
 
 -------
