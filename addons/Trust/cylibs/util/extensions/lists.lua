@@ -56,3 +56,14 @@ function list.subtract(l1, l2)
     end
     return result
 end
+
+---
+--- Returns the index of the element in the list, or -1 if the element is not in the list
+function list.indexOf(l, el)
+    for key = 1, l.n do
+        if rawget(l, key) == el then
+            return key
+        end
+    end
+    return -1
+end

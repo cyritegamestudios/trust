@@ -676,7 +676,9 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, jobNameS
     end)
 
     -- Bard
-    local singerMenuItem = MenuItem.new(L{}, {},
+    local singerMenuItem = MenuItem.new(L{
+        ButtonItem.default('Clear All', 18),
+    }, {},
         function()
             local backgroundImageView = createBackgroundView(viewSize.width, viewSize.height)
             local singer = trust:role_with_type("singer")
