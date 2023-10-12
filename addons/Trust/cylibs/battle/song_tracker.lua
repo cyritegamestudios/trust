@@ -149,6 +149,9 @@ function SongTracker:check_song_expiration()
             elseif song_record:get_expire_time() - os.time() < 45 then
                 self:on_song_duration_warning():trigger(song_record)
                 logger.notice(res.spells[song_record:get_song_id()].name, "is expiring soon")
+            elseif song_record:is_expired() then
+                self:on_lose_song(target_id, song_record:get_song_id(), song_record:get_buff_id())
+                logger.notice(res.spells[song_record:get_song_id()].name, "is expired")
             end
         end
     end
