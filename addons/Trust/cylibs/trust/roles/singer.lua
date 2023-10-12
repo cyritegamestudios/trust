@@ -1,5 +1,6 @@
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Event = require('cylibs/events/Luvent')
+local logger = require('cylibs/logger/logger')
 local res = require('resources')
 
 local Singer = setmetatable({}, {__index = Role })
@@ -92,8 +93,10 @@ function Singer:get_is_singing()
 end
 
 function Singer:tic(new_time, old_time)
+    logger.notice("Song delay is", self.brd_job:get_song_delay(), "seconds")
+
     if self.state_var.value == 'Off'
-            or (os.time() - self.last_sing_time) < 7
+            or (os.time() - self.last_sing_time) <= self.brd_job:get_song_delay()
             or self:get_player():is_moving() then
         return
     end
@@ -227,7 +230,12 @@ function Singer:sing_song(song, target_index)
 end
 
 function Singer:nitro()
+    local player = self:get_party():get_player()
+
+    self.song_tracker:set_expiring_soon(player:get_mob().id)
+
     local actions = L{
+        WaitAction.new(0, 0, 0, 1.5),
         JobAbilityAction.new(0, 0, 0, 'Nightingale'),
         WaitAction.new(0, 0, 0, 1.5),
         JobAbilityAction.new(0, 0, 0, 'Troubadour'),

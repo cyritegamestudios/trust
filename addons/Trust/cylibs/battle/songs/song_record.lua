@@ -36,6 +36,13 @@ function SongRecord:get_expire_time()
 end
 
 -------
+-- Sets the expiration time.
+-- @tparam number expire_time Expiration time
+function SongRecord:set_expire_time(expire_time)
+    self.expire_time = expire_time
+end
+
+-------
 -- Returns the song id.
 -- @treturn number Song id (see spells.lua)
 function SongRecord:get_song_id()

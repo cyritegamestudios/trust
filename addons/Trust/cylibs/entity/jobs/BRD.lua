@@ -24,6 +24,7 @@ function Bard.new(trust_settings)
     local self = setmetatable(Job.new(), Bard)
     self.max_num_songs = trust_settings.NumSongs or 4
     self.song_duration = trust_settings.SongDuration or 240
+    self.song_delay = trust_settings.SongDelay or 6
     return self
 end
 
@@ -33,6 +34,22 @@ end
 function Bard:is_nitro_active()
     local player_buff_ids = L(windower.ffxi.get_player().buffs)
     return player_buff_ids:contains(347) or player_buff_ids:contains(player_buff_ids:contains(348))
+end
+
+-------
+-- Returns whether the player has Nightingale active.
+-- @treturn Boolean True if Nightingale is active
+function Bard:is_nightingale_active()
+    local player_buff_ids = L(windower.ffxi.get_player().buffs)
+    return player_buff_ids:contains(347)
+end
+
+-------
+-- Returns whether the player has Troubadour active.
+-- @treturn Boolean True if Troubadour is active
+function Bard:is_troubaduor_active()
+    local player_buff_ids = L(windower.ffxi.get_player().buffs)
+    return player_buff_ids:contains(348)
 end
 
 -------
@@ -77,6 +94,17 @@ function Bard:get_song_duration()
         return self.song_duration * 2
     end
     return self.song_duration
+end
+
+-------
+-- Returns the delay between songs, taking into account whether troubadour is active.
+-- @treturn number Duration of song
+function Bard:get_song_delay()
+    local song_delay = self.song_delay
+    if self:is_nitro_active() then
+        song_delay = math.max(song_delay * 0.5, 3)
+    end
+    return song_delay
 end
 
 return Bard
