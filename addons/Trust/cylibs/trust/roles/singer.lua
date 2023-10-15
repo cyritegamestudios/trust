@@ -60,7 +60,7 @@ end
 function Singer:on_add()
     Role.on_add(self)
 
-    self.song_tracker = SongTracker.new(self:get_player(), self.dummy_songs, self.songs, self.pianissimo_songs, self.brd_job)
+    self.song_tracker = SongTracker.new(self:get_player(), self:get_party(), self.dummy_songs, self.songs, self.pianissimo_songs, self.brd_job)
     self.song_tracker:monitor()
 
     self.dispose_bag:add(self.state_var:on_state_change():addAction(function(_, newValue)
@@ -105,10 +105,28 @@ function Singer:tic(new_time, old_time)
     self:check_songs()
 end
 
+function Singer:assert_num_songs(party_member)
+    local max_num_songs = self.brd_job:get_max_num_songs()
+
+    logger.notice("Maximum number of songs is", max_num_songs)
+
+    local current_num_songs = L(self.song_tracker:get_songs(party_member:get_mob().id)):length()
+    local current_num_song_buffs = self.brd_job:get_song_buff_ids():length()
+
+    if current_num_songs ~= current_num_song_buffs then
+        logger.error("Expected", current_num_song_buffs, "songs but got", current_num_songs, "song records")
+
+        local songs_from_records = L(self.song_tracker:get_songs(party_member:get_mob().id)):map(function(song_record) return res.spells[song_record:get_song_id()].name end)
+        local song_buff_names = self.brd_job:get_song_buff_ids():map(function(buff_id) return res.buffs[buff_id].name  end)
+
+        logger.error("Song records are", tostring(songs_from_records), "but buffs are", tostring(song_buff_names))
+    end
+end
+
 function Singer:check_songs()
     local player = self:get_party():get_player()
 
-    logger.notice("Maximum number of songs is", self.brd_job:get_max_num_songs())
+    self:assert_num_songs(player)
 
     if self:should_nitro() then
         self:nitro()
@@ -117,16 +135,8 @@ function Singer:check_songs()
 
     for party_member in list.extend(L{player}, self:get_party():get_party_members(false)):it() do
         if party_member:is_alive() then
-            if party_member:is_trust() then -- can potentially remove since AlterEgo has its own buff_id list now
-                self.song_tracker:prune_expired_songs(party_member:get_id())
-            end
             local next_song = self:get_next_song(party_member, self.dummy_songs, self:get_merged_songs(party_member))
             if next_song then
-                if self.dummy_songs:contains(next_song) then
-                    windower.send_command('gs c set ExtraSongsMode Dummy')
-                else
-                    windower.send_command('gs c set ExtraSongsMode None')
-                end
                 self:sing_song(next_song, party_member:get_mob().index)
                 return
             end
@@ -180,6 +190,7 @@ function Singer:sing_song(song, target_index)
         self:set_is_singing(true)
 
         local actions = L{}
+        local conditions = L{}
 
         self.last_sing_time = os.time()
 
@@ -189,6 +200,7 @@ function Singer:sing_song(song, target_index)
                 return false
             end
             job_abilities:add('Pianissimo')
+            conditions:append(HasBuffCondition.new('Pianissimo'))
         end
         for job_ability_name in job_abilities:it() do
             local job_ability = res.job_abilities:with('en', job_ability_name)
@@ -200,13 +212,16 @@ function Singer:sing_song(song, target_index)
             end
         end
 
-        actions:append(SpellAction.new(0, 0, 0, song:get_spell().id, target_index, self:get_player()))
+        local spell_action = SpellAction.new(0, 0, 0, song:get_spell().id, target_index, self:get_player(), conditions)
+        actions:append(spell_action)
         actions:append(WaitAction.new(0, 0, 0, 2))
 
-        local sing_action = SequenceAction.new(actions, 'singer_'..song:get_spell().en)
+        local sing_action = SequenceAction.new(actions, 'singer_'..song:get_spell().en, true)
         sing_action.priority = ActionPriority.highest
 
         self.action_queue:push_action(sing_action, true)
+
+        logger.notice("Singing", res.spells[song:get_spell().id].name, "on", windower.ffxi.get_mob_by_index(target_index).name)
 
         return true
     end
@@ -244,11 +259,13 @@ function Singer:nitro()
     }
 
     if state.AutoClarionCallMode.value == 'Auto' and self.brd_job:is_clarion_call_ready() then
-        local buff_ids = L(player:get_buff_ids())
-        local total_num_songs = self.song_tracker:get_num_songs(player:get_mob().id, buff_ids)
-        if total_num_songs < self.brd_job:get_max_num_songs() + 1 then
+        local current_num_songs = self.song_tracker:get_num_songs(player:get_mob().id, L(player:get_buff_ids()))
+        if current_num_songs < self.brd_job:get_max_num_songs(true) then
             actions:append(JobAbilityAction.new(0, 0, 0, 'Clarion Call'))
             actions:append(WaitAction.new(0, 0, 0, 1.5))
+
+            logger.notice("Using Clarion Call")
+            logger.notice("Current songs for", player:get_mob().name, "are", self.song_tracker:get_songs(player:get_id(), L(player:get_buff_ids())):map(function(song_record) return res.spells[song_record:get_song_id()].name  end))
         end
     end
 

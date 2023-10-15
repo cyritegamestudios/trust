@@ -86,30 +86,40 @@ end
 -------
 -- Returns the maximum number of songs that the player can have active.
 -- @treturn number Number of songs
-function Bard:get_max_num_songs()
-    local current_num_songs = 0
-    local player_buff_ids = L(windower.ffxi.get_player().buffs)
-    for buff_id in player_buff_ids:it() do
-        if self:is_bard_song_buff(buff_id) then
-            current_num_songs = current_num_songs + 1
-        end
+function Bard:get_max_num_songs(include_clarion_call)
+    local num_songs = math.max(self:get_song_buff_ids():length(), self.max_num_songs)
+    if include_clarion_call or self:is_clarion_call_active() then
+        num_songs = math.max(num_songs, self.max_num_songs + 1)
     end
-    local num_songs = math.max(self.max_num_songs, current_num_songs)
-    if self:is_clarion_call_active() then
-        num_songs = math.max(self.max_num_songs + 1, num_songs)
-    end
-
     return num_songs
 end
 
 -------
+-- Returns the buff ids for songs the player currently has.
+-- @treturn list List of song buff ids
+function Bard:get_song_buff_ids()
+    local player_buff_ids = L(windower.ffxi.get_player().buffs)
+    return player_buff_ids:filter(function(buff_id)
+        return self:is_bard_song_buff(buff_id)
+    end)
+end
+
+-------
 -- Returns the maximum duration of a song, taking into account whether troubadour is active.
+-- @tparam number song_name (optional) Name of the song (see res/spells.lua)
 -- @treturn number Duration of song
-function Bard:get_song_duration()
-    if self:is_nitro_active() then
-        return self.song_duration * 2
+function Bard:get_song_duration(song_name)
+    local modifier = 1.0
+    if song_name then
+        if song_name == 'Honor March' then
+            modifier = 1.1
+        end
     end
-    return self.song_duration
+    local base_song_duration = self.song_duration * modifier
+    if self:is_nitro_active() then
+        return base_song_duration * 2
+    end
+    return base_song_duration
 end
 
 -------

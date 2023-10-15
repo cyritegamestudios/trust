@@ -1,4 +1,4 @@
--- Modes file for DRK
+-- Modes file for DNC
 return {
     ["Default"]={
         ["skillchainpartnermode"]="Off",

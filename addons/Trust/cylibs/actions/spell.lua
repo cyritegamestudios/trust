@@ -15,14 +15,14 @@ local Action = require('cylibs/actions/action')
 local SpellAction = setmetatable({}, {__index = Action })
 SpellAction.__index = SpellAction
 
-function SpellAction.new(x, y, z, spell_id, target_index, player)
-	local conditions = L{
+function SpellAction.new(x, y, z, spell_id, target_index, player, conditions)
+	local conditions = (conditions or L{}):extend(L{
 		MaxDistanceCondition.new(20),
 		NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'mute'}, false)}),
 		MinManaPointsCondition.new(res.spells[spell_id].mp_cost or 0),
 		SpellRecastReadyCondition.new(spell_id),
 		ValidTargetCondition.new(),
-	}
+	})
 
 	local self = setmetatable(Action.new(x, y, z, target_index, conditions), SpellAction)
 
