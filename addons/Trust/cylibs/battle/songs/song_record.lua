@@ -6,6 +6,7 @@
 local SongRecord = {}
 SongRecord.__index = SongRecord
 SongRecord.__eq = SongRecord.equals
+SongRecord.__class = "SongRecord"
 
 -------
 -- Default initializer for a new spell.

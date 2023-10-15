@@ -1,4 +1,4 @@
--- Modes file for DRK
+-- Modes file for DRG
 return {
     ["Default"]={
         ["skillchainpartnermode"]="Off",

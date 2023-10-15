@@ -1,4 +1,4 @@
--- Modes file for BLU
+-- Modes file for BLM
 return {
     ["Default"]={
         ["autodispelmode"]="Auto",

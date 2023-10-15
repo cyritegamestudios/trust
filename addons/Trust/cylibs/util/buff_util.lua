@@ -100,6 +100,18 @@ function buff_util.is_buff_active(buff_id, player_buff_ids)
 end
 
 -------
+-- Determines how many of the given buff a player has active.
+-- @tparam number buff_id Buff id (see buffs.lua)
+-- @tparam list buff_ids List of active buff ids, required for performance reasons
+-- @treturn number Number of the given buff a player has active
+function buff_util.buff_count(buff_id, buff_ids)
+	if not buff_ids then
+		return 0
+	end
+	return L(buff_ids):count(function(b) return b == buff_id end)
+end
+
+-------
 -- Determines if the player has any of the given buffs active.
 -- @tparam list buff_ids List of buff ids (see buffs.lua)
 -- @tparam list player_buff_ids List of active buff ids, included for performance reasons (optional)
