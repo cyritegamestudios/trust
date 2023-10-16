@@ -53,8 +53,10 @@ end
 function SamuraiTrust:check_tp()
 	local tp = windower.ffxi.get_player().vitals.tp
 	if tp < 1000 then
-		if job_util.can_use_job_ability('Meditate') then
-			self.action_queue:push_action(JobAbility.new(0, 0, 0, 'Meditate'))
+		if state.AutoBuffMode.value ~= 'Off' then
+			if job_util.can_use_job_ability('Meditate') then
+				self.action_queue:push_action(JobAbility.new(0, 0, 0, 'Meditate'))
+			end
 		end
 	elseif tp > 1500 then
 		if job_util.can_use_job_ability('Sekkanoki') then

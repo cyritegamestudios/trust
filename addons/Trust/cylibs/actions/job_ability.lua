@@ -3,22 +3,24 @@
 -- @class module
 -- @name JobAbility
 
-local job_util = require('cylibs/util/job_util')
-local player_util = require('cylibs/util/player_util')
-
-require('coroutine')
-require('vectors')
-require('math')
-
 local Action = require('cylibs/actions/action')
 local JobAbility = setmetatable({}, {__index = Action })
 JobAbility.__index = JobAbility
+JobAbility.__eq = JobAbility.is_equal
+JobAbility.__class = "JobAbility"
 
 function JobAbility.new(x, y, z, job_ability_name, target_index)
-    local self = setmetatable(Action.new(x, y, z), JobAbility)
+    local conditions = L{
+        NotCondition.new(L{InMogHouseCondition.new()}, true),
+        JobAbilityRecastReadyCondition.new(job_ability_name)
+    }
+
+    local self = setmetatable(Action.new(x, y, z, target_index, conditions), JobAbility)
+
     self.job_ability_name = job_ability_name
-    self.target_index = target_index
+
     self:debug_log_create(self:gettype())
+
     return self
 end
 
@@ -26,13 +28,6 @@ function JobAbility:destroy()
     Action.destroy(self)
 
     self:debug_log_destroy(self:gettype())
-end
-
-function JobAbility:can_perform()
-    local job_abilities = player_util.get_job_abilities()
-    if not job_abilities:contains(res.job_abilities:with('en', self.job_ability_name).id) then return false end
-
-    return job_util.can_use_job_ability(self.job_ability_name)
 end
 
 function JobAbility:perform()
@@ -69,7 +64,7 @@ function JobAbility:getrawdata()
     res.jobability.x = self.x
     res.jobability.y = self.y
     res.jobability.z = self.z
-    res.jobability.command = self:get_command()
+    res.jobability.job_ability_name = self:get_job_ability_name()
 
     return res
 end

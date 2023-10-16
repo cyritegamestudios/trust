@@ -56,25 +56,7 @@ function ActionQueue.new(completion, is_priority_queue, max_size, debugging_enab
 	self.action_start = Event.newEvent()
 	self.action_end = Event.newEvent()
 	self.action_queued = Event.newEvent()
-	--[[self.action_complete_id = Action.action_complete:addAction(
-			function (a, success)
-				if a:get_action_queue_id() == self.identifier and self.current_action ~= nil and self.current_action:is_equal(a) then
-					self.current_action:destroy()
-					self.current_action = nil
 
-					if self.debugging_enabled then
-						print('actions created: '..actions_created..' actions destroyed: '..actions_destroyed)
-
-						print(a:gettype()..' '..(a:getidentifier() or 'nil')..' end, success: '..tostring(success))
-						windower.chat.input('// lua m')
-					end
-					--print(a:gettype()..' '..(a:getidentifier() or 'nil')..' end, success: '..tostring(success))
-
-					self:perform_next_action()
-				else
-					print(a:gettype()..' '..(a:getidentifier() or 'nil')..' extra action end, success: '..tostring(success))
-				end
-			end)]]
 	return self
 end
 

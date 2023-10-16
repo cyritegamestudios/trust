@@ -1,9 +1,22 @@
+local DisposeBag = require('cylibs/events/dispose_bag')
+local Event = require('cylibs/events/Luvent')
+
 local Roller = setmetatable({}, {__index = Role })
 Roller.__index = Roller
 
 state.AutoRollMode = M{['description'] = 'Auto Roll Mode', 'Manual', 'Auto', 'Off'}
 state.AutoRollMode:set_description('Manual', "Okay, you do the first roll and I'll double up on my own.")
 state.AutoRollMode:set_description('Auto', "Okay, I'll roll on my own.")
+
+-- Event called when rolls begin
+function Roller:on_rolls_begin()
+    return self.rolls_begin
+end
+
+-- Event called when rolls end
+function Roller:on_rolls_end()
+    return self.rolls_end
+end
 
 function Roller.new(action_queue, job, roll1, roll2, party)
     local self = setmetatable(Role.new(action_queue), Roller)
@@ -17,6 +30,10 @@ function Roller.new(action_queue, job, roll1, roll2, party)
     self.roll2 = roll2
     self.roll2_current = 0
     self.last_roll_time = os.time()
+    self.is_rolling = false
+    self.rolls_begin = Event.newEvent()
+    self.rolls_end = Event.newEvent()
+    self.dispose_bag = DisposeBag.new()
 
     return self
 end
@@ -24,20 +41,29 @@ end
 function Roller:destroy()
     Role.destroy(self)
 
-    self:get_player():on_job_ability_used():removeAction(self.job_ability_used_id)
+    self.dispose_bag:destroy()
+
+    self:on_rolls_begin():removeAllActions()
+    self:on_rolls_end():removeAllActions()
 end
 
 function Roller:on_add()
     Role.on_add(self)
 
-    self.job_ability_used_id = self:get_player():on_job_ability_used():addAction(
+    self.dispose_bag:add(self:get_player():on_job_ability_used():addAction(
             function(_, job_ability_id, targets)
                 if self.job:is_roll(job_ability_id) then
                     coroutine.schedule(function()
                         self:on_roll_used(job_ability_id, targets)
                     end, 1)
                 end
-            end)
+            end), self:get_player():on_job_ability_used())
+
+    self.dispose_bag:add(state.AutoRollMode:on_state_change():addAction(function(_, newValue)
+        if L{'Off', 'Manual'}:contains(newValue) then
+            self:set_is_rolling(false)
+        end
+    end), state.AutoRollMode:on_state_change())
 end
 
 function Roller:on_roll_used(roll_id, targets)
@@ -52,6 +78,9 @@ function Roller:on_roll_used(roll_id, targets)
             self.job:snake_eye()
         else
             self.should_double_up = self.job:should_double_up(roll.id, roll_num)
+            if not self.should_double_up then
+                self:set_is_rolling(false)
+            end
         end
     elseif roll.name == self.roll2:get_roll_name() then
         self.roll2_current = roll_num
@@ -59,6 +88,9 @@ function Roller:on_roll_used(roll_id, targets)
             self.job:snake_eye()
         else
             self.should_double_up = self.job:should_double_up(roll.id, roll_num)
+            if not self.should_double_up then
+                self:set_is_rolling(false)
+            end
         end
     end
 end
@@ -73,6 +105,22 @@ function Roller:tic(new_time, old_time)
     self:check_rolls()
 end
 
+function Roller:set_is_rolling(is_rolling)
+    if self.is_rolling == is_rolling then
+        return
+    end
+    self.is_rolling = is_rolling
+    if self.is_rolling then
+        self:on_rolls_begin():trigger(self)
+    else
+        self:on_rolls_end():trigger(self)
+    end
+end
+
+function Roller:get_is_rolling()
+    return self.is_rolling
+end
+
 function Roller:check_rolls()
     if state.AutoRollMode.value == 'Off' or (not self.job:can_double_up() and (os.time() - self.last_roll_time) < 5) then
         return
@@ -82,6 +130,7 @@ function Roller:check_rolls()
 
     if self.job:busted() then
         self.job:fold()
+        self:set_is_rolling(false)
         return
     end
 
@@ -94,11 +143,13 @@ function Roller:check_rolls()
         if self.job:can_roll() then
             local roll1 = res.job_abilities:with('name', self.roll1:get_roll_name())
             if not self.job:has_roll(roll1.id) then
+                self:set_is_rolling(true)
                 self.job:roll(roll1.id, self.roll1:should_use_crooked_cards())
                 return
             end
             local roll2 = res.job_abilities:with('name', self.roll2:get_roll_name())
             if not self.job:has_roll(roll2.id) then
+                self:set_is_rolling(true)
                 self.job:roll(roll2.id, self.roll2:should_use_crooked_cards())
                 return
             end

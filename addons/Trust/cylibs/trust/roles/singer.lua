@@ -3,6 +3,8 @@ local Event = require('cylibs/events/Luvent')
 local logger = require('cylibs/logger/logger')
 local res = require('resources')
 
+local BlockAction = require('cylibs/actions/block')
+
 local Singer = setmetatable({}, {__index = Role })
 Singer.__index = Singer
 
@@ -212,6 +214,15 @@ function Singer:sing_song(song, target_index)
             end
         end
 
+        --[[local sel_gs_action
+        if self.dummy_songs:contains(song) then
+            sel_gs_action = BlockAction.new(function() windower.send_command('gs c set ExtraSongsMode Dummy') end, "Set to Dummy Song in Selindrile's GS")
+        else
+            sel_gs_action = BlockAction.new(function() windower.send_command('gs c set ExtraSongsMode None') end, "Set to Real Song in Selindrile's GS")
+        end
+
+        actions:append(sel_gs_action)]]
+
         local spell_action = SpellAction.new(0, 0, 0, song:get_spell().id, target_index, self:get_player(), conditions)
         actions:append(spell_action)
         actions:append(WaitAction.new(0, 0, 0, 2))
@@ -272,7 +283,7 @@ function Singer:nitro()
     actions:append(JobAbilityAction.new(0, 0, 0, 'Nightingale'))
     actions:append(WaitAction.new(0, 0, 0, 1.5))
     actions:append(JobAbilityAction.new(0, 0, 0, 'Troubadour'))
-    actions:append(WaitAction.new(0, 0, 0, 1))
+    actions:append(WaitAction.new(0, 0, 0, 1.5))
 
     local nitro_action = SequenceAction.new(actions, 'nitro')
     nitro_action.priority = ActionPriority.highest
