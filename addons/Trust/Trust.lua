@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '6.0.4'
+_addon.version = '6.0.5'
 
 require('Trust-Include')
 
@@ -221,7 +221,7 @@ end
 
 function load_logger_settings()
 	_libs.logger.settings.logtofile = settings.logging.logtofile
-	_libs.logger.settings.defaultfile = 'logs/'..string.format("%s.log", os.date("%m-%d-%y"))
+	_libs.logger.settings.defaultfile = 'logs/'..windower.ffxi.get_player().name..'_'..string.format("%s.log", os.date("%m-%d-%y"))
 
 	logger.isEnabled = settings.logging.enabled
 end
@@ -358,6 +358,7 @@ function handle_job_change(_, _, _, _)
 end
 
 function handle_zone_change(_, _, _, _)
+	action_queue:clear()
 	player.party:set_assist_target(nil)
 	handle_stop()
 end

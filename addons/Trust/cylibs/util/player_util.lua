@@ -183,7 +183,7 @@ function player_util.get_job_abilities()
 	local abilities = windower.ffxi.get_abilities()
 
 	local result = L{}
-	for key,value in pairs(abilities.job_abilities) do
+	for _, value in pairs(abilities.job_abilities) do
 		result:append(value)
 	end
 	return result

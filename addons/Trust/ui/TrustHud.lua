@@ -31,6 +31,8 @@ local party_util = require('cylibs/util/party_util')
 local PickerView = require('cylibs/ui/picker/picker_view')
 local SingerView = require('cylibs/trust/roles/ui/singer_view')
 local SkillchainsView = require('cylibs/battle/skillchains/ui/skillchains_view')
+local SongPickerView = require('ui/settings/pickers/SongPickerView')
+local SongSettingsEditor = require('ui/settings/SongSettingsEditor')
 local SpellPickerView = require('ui/settings/pickers/SpellPickerView')
 local SpellSettingsEditor = require('ui/settings/SpellSettingsEditor')
 local spell_util = require('cylibs/util/spell_util')
@@ -384,7 +386,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
             function()
                 local jobId = res.jobs:with('ens', jobNameShort).id
                 local allDebuffs = spell_util.get_spells(function(spell)
-                    return spell.levels[jobId] ~= nil and spell.status ~= nil and L{32, 35, 36, 39, 40, 41, 42}:contains(spell.skill)
+                    return spell.levels[jobId] ~= nil and spell.status ~= nil and L{32, 35, 36, 39, 40, 41, 42}:contains(spell.skill) and spell.targets:contains('Enemy')
                 end):map(function(spell) return spell.name end)
 
                 local chooseSpellsView = setupView(SpellPickerView.new(trustSettings, L(T(trustSettings:getSettings())[trustSettingsMode.value].Debuffs), allDebuffs), viewSize)
@@ -506,6 +508,39 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
         ['Blacklist'] = statusRemovalMenuItem
     })
 
+    -- Songs
+    local chooseSongsItem = MenuItem.new(L{
+        ButtonItem.default('Confirm', 18),
+    }, {},
+            function(args)
+                local songs = args['songs']
+
+                local allSongs = spell_util.get_spells(function(spell)
+                    return spell.type == 'BardSong' and S{'Self'}:intersection(S(spell.targets)):length() > 0
+                end):map(function(spell) return spell.name  end)
+
+                local chooseSongsView = setupView(SongPickerView.new(trustSettings, songs, allSongs, args['validator']), viewSize)
+                chooseSongsView:setTitle("Choose songs.")
+                chooseSongsView:setShouldRequestFocus(false)
+                return chooseSongsView
+            end)
+
+    local songsSettingsItem = MenuItem.new(L{
+        ButtonItem.default('Edit', 18),
+    }, {
+        Edit = chooseSongsItem
+    },
+    function()
+        local backgroundImageView = createBackgroundView(viewSize.width, viewSize.height)
+        local songSettingsView = SongSettingsEditor.new(trustSettings, trustSettingsMode, viewSize.width)
+        songSettingsView:setBackgroundImageView(backgroundImageView)
+        songSettingsView:setNavigationBar(createTitleView(viewSize))
+        songSettingsView:setSize(viewSize.width, viewSize.height)
+        songSettingsView:setShouldRequestFocus(false)
+
+        return songSettingsView
+    end)
+
     local chooseWeaponSkillsItem = MenuItem.new(L{
         ButtonItem.default('H2H', 18),
         ButtonItem.default('Dagger', 18),
@@ -585,6 +620,10 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
         menuItems:append(ButtonItem.default('Pulling', 18))
     end
 
+    if trust:role_with_type("singer") then
+        menuItems:append(ButtonItem.default('Songs', 18))
+    end
+
     menuItems:append(ButtonItem.default('Weaponskills', 18))
 
     local settingsMenuItem = MenuItem.new(menuItems, {
@@ -593,6 +632,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
         Debuffs = debuffSettingsItem,
         Healing = healerMenuItem,
         Pulling = pullerSettingsItem,
+        Songs = songsSettingsItem,
         Weaponskills = weaponSkillsSettingsItem
     })
     return settingsMenuItem

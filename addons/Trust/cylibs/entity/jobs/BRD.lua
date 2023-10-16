@@ -33,7 +33,7 @@ end
 -- @treturn Boolean True if nitro is active
 function Bard:is_nitro_active()
     local player_buff_ids = L(windower.ffxi.get_player().buffs)
-    return player_buff_ids:contains(347) or player_buff_ids:contains(player_buff_ids:contains(348))
+    return player_buff_ids:contains(347) and player_buff_ids:contains(player_buff_ids:contains(348))
 end
 
 -------
@@ -116,7 +116,7 @@ function Bard:get_song_duration(song_name)
         end
     end
     local base_song_duration = self.song_duration * modifier
-    if self:is_nitro_active() then
+    if self:is_troubadour_active() then
         return base_song_duration * 2
     end
     return base_song_duration

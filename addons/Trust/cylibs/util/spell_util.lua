@@ -173,7 +173,7 @@ end
 -- @treturn list List of SpellMetadata (see res/spells.lua).
 function spell_util.get_spells(filter)
     local all_spell_ids = L(T(windower.ffxi.get_spells()):keyset())
-            :filter(function(spellId) return spell_util.knows_spell(spellId) end)
+            :filter(function(spellId) return res.spells[spellId] ~= nil and spell_util.knows_spell(spellId) end)
     local all_spells = all_spell_ids:map(function(spell_id) return res.spells[spell_id] end)
             :filter(function(spell) return filter(spell)  end)
     return all_spells

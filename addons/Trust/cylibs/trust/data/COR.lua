@@ -8,7 +8,10 @@ local Trust = require('cylibs/trust/trust')
 local CorsairTrust = setmetatable({}, {__index = Trust })
 CorsairTrust.__index = CorsairTrust
 
+local CorsairModes = require('cylibs/trust/data/modes/COR')
 local Dispeler = require('cylibs/trust/roles/dispeler')
+local DisposeBag = require('cylibs/events/dispose_bag')
+local ModeDelta = require('cylibs/modes/mode_delta')
 local Puller = require('cylibs/trust/roles/puller')
 local Roller = require('cylibs/trust/roles/roller')
 local Shooter = require('cylibs/trust/roles/shooter')
@@ -26,6 +29,8 @@ function CorsairTrust.new(settings, action_queue, battle_settings, trust_setting
 
 	self.settings = settings
 	self.action_queue = action_queue
+	self.roll_modes_delta = ModeDelta.new(CorsairModes.Rolling)
+	self.dispose_bag = DisposeBag.new()
 
 	return self
 end
@@ -38,10 +43,24 @@ function CorsairTrust:on_init()
 
 		roller:set_rolls(new_trust_settings.Roll1, new_trust_settings.Roll2)
 	end)
+
+	local roller = self:role_with_type("roller")
+
+	self.dispose_bag:add(roller:on_rolls_begin():addAction(function(_)
+		self:get_party():add_to_chat(self.party:get_player(), "Doing rolls, hold tight.", "on_rolls_begin", 5)
+		self.roll_modes_delta:apply()
+	end), roller:on_rolls_begin())
+
+	self.dispose_bag:add(roller:on_rolls_end():addAction(function(_)
+		self:get_party():add_to_chat(self.party:get_player(), "Alright, you're good to go for now!", "on_rolls_end", 5)
+		self.roll_modes_delta:remove()
+	end), roller:on_rolls_end())
 end
 
 function CorsairTrust:destroy()
 	Trust.destroy(self)
+
+	self.dispose_bag:destroy()
 
 	if self.battle_target then
 		self.battle_target:destroy()
