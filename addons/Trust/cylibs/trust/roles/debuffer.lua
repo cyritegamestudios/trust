@@ -73,7 +73,7 @@ function Debuffer:check_debuffs()
         return
     end
 
-    if self.battle_target == nil or not party_util.party_claimed(self.battle_target:get_mob().id) then return end
+    if self.battle_target == nil or not self.battle_target:get_mob() or not party_util.party_claimed(self.battle_target:get_mob().id) then return end
 
     for spell in self.debuff_spells:it() do
         local debuff = buff_util.debuff_for_spell(spell:get_spell().id)

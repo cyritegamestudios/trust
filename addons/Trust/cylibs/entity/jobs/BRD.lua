@@ -127,7 +127,7 @@ end
 -- @treturn number Duration of song
 function Bard:get_song_delay()
     local song_delay = self.song_delay
-    if self:is_nitro_active() then
+    if self:is_nightingale_active() then
         song_delay = math.max(song_delay * 0.5, 3)
     end
     return song_delay

@@ -48,11 +48,11 @@ return {
             Spell.new("Carnage Elegy", L{}, nil, nil, L{})
         },
         Songs = L{
-            Spell.new("Honor March", L{"Marcato"}, nil, nil, L{}),
-            Spell.new("Valor Minuet V", L{}, nil, nil, L{}),
-            Spell.new("Valor Minuet IV", L{}, nil, nil, L{}),
-            Spell.new("Blade Madrigal", L{}, nil, nil, L{}),
-            Spell.new("Valor Minuet III", L{}, nil, nil, L{})
+            Spell.new("Honor March", L{"Marcato"}, L{'WAR','PLD','BRD','SAM','DRG','BLU','PUP','RUN','MNK','THF','BST','NIN','DNC','DRK','WHM'}, nil, L{}),
+            Spell.new("Valor Minuet V", L{}, L{'WAR','PLD','BRD','SAM','DRG','BLU','PUP','RUN','MNK','THF','BST','NIN','DNC','DRK'}, nil, L{}),
+            Spell.new("Valor Minuet IV", L{}, L{'WAR','PLD','BRD','SAM','DRG','BLU','PUP','RUN','MNK','THF','BST','NIN','DNC','DRK'}, nil, L{}),
+            Spell.new("Blade Madrigal", L{}, L{'WAR','PLD','BRD','SAM','DRG','BLU','PUP','RUN','MNK','THF','BST','NIN','DNC','DRK'}, nil, L{}),
+            Spell.new("Valor Minuet III", L{}, L{'WAR','PLD','BRD','SAM','DRG','BLU','PUP','RUN','MNK','THF','BST','NIN','DNC','DRK'}, nil, L{})
         }
     }
 }

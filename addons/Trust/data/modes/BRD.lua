@@ -31,6 +31,6 @@ return {
         ["autotrustsmode"]="Off",
         ["autohealmode"]="Emergency",
         ["autoenmityreductionmode"]="Off",
-        ["autoclarioncallmode"]="Off"
+        ["autoclarioncallmode"]="Off",
     }
 }
