@@ -167,9 +167,6 @@ end
 -- Checks to see if any of the given songs are expiring soon.
 -- @treturn boolean True if a song is expiring in less than 45 seconds.
 function SongTracker:is_expiring_soon(target_id, songs)
-    if target_id ~= windower.ffxi.get_player().id then
-        return false
-    end
     if self.active_songs[target_id] then
         for song_record in self.active_songs[target_id]:it() do
             for song in songs:it() do
@@ -180,6 +177,16 @@ function SongTracker:is_expiring_soon(target_id, songs)
         end
     end
     return false
+end
+
+-------
+-- Returns the subset of the given songs that are expiring soon.
+-- @treturn list List of expiring songs
+function SongTracker:get_expiring_songs(target_id, songs)
+    local expiring_songs = songs:filter(function(song)
+        return self:is_expiring_soon(target_id, L{ song })
+    end)
+    return expiring_songs
 end
 
 -------
@@ -240,7 +247,7 @@ function SongTracker:on_gain_song(target_id, song_id, buff_id, song_duration)
         local oldest_song = L(target_songs):sort(function(song_record1, song_record2)
             return song_record1:get_expire_time() < song_record2:get_expire_time()
         end)[1]
-        logger.notice("Overwriting", target.name.."'s"..res.spells[oldest_song:get_song_id()].name, "with", res.spells[song_id].name)
+        logger.notice("Overwriting", target.name.."'s", res.spells[oldest_song:get_song_id()].name, "with", res.spells[song_id].name)
 
         self:on_lose_song(target_id, oldest_song:get_song_id(), oldest_song:get_buff_id())
     end

@@ -152,35 +152,30 @@ function Singer:get_next_song(party_member, dummy_songs, songs)
     local song_target_id = party_member:get_mob().id
     local buff_ids = L(party_member:get_buff_ids())
 
-    logger.notice("Songs for", party_member:get_mob().name, songs:map(function(song) return song:get_spell().name end))
+    logger.notice("Target songs for", party_member:get_mob().name, songs:map(function(song) return song:get_spell().name end))
 
-    local total_num_songs = self.song_tracker:get_num_songs(song_target_id, buff_ids)
-    if total_num_songs < 2 then
-        for song in songs:it() do
-            if not self.song_tracker:has_song(song_target_id, song:get_spell().id, buff_ids) then
-                return song
-            end
-        end
-    else
-        if total_num_songs < self.brd_job:get_max_num_songs() then
-            for song in dummy_songs:it() do
+    local current_num_songs = self.song_tracker:get_num_songs(song_target_id, buff_ids)
+    if current_num_songs < songs:length() then
+        if current_num_songs < 2 then
+            for song in songs:it() do
                 if not self.song_tracker:has_song(song_target_id, song:get_spell().id, buff_ids) then
                     return song
                 end
             end
         else
-            local total_num_active_songs = self.song_tracker:get_num_songs(song_target_id, buff_ids, songs)
-            for song in songs:it() do
-                if total_num_active_songs < self.brd_job:get_max_num_songs() then
-                    if not self.song_tracker:has_song(song_target_id, song:get_spell().id, buff_ids) then
-                        return song
-                    end
-                else
-                    if self.song_tracker:is_expiring_soon(song_target_id, L{ song }) then
-                        logger.notice("Resinging", song:get_spell().name)
-                        return song
-                    end
+            for song in dummy_songs:it() do
+                if not self.song_tracker:has_song(song_target_id, song:get_spell().id, buff_ids) then
+                    return song
                 end
+            end
+        end
+    else
+        for song in songs:it() do
+            if not self.song_tracker:has_song(song_target_id, song:get_spell().id, buff_ids) then
+                return song
+            elseif self.song_tracker:is_expiring_soon(song_target_id, L{ song }) then
+                logger.notice("Resinging", song:get_spell().name)
+                return song
             end
         end
     end
@@ -213,15 +208,6 @@ function Singer:sing_song(song, target_index)
                 end
             end
         end
-
-        --[[local sel_gs_action
-        if self.dummy_songs:contains(song) then
-            sel_gs_action = BlockAction.new(function() windower.send_command('gs c set ExtraSongsMode Dummy') end, "Set to Dummy Song in Selindrile's GS")
-        else
-            sel_gs_action = BlockAction.new(function() windower.send_command('gs c set ExtraSongsMode None') end, "Set to Real Song in Selindrile's GS")
-        end
-
-        actions:append(sel_gs_action)]]
 
         local spell_action = SpellAction.new(0, 0, 0, song:get_spell().id, target_index, self:get_player(), conditions)
         actions:append(spell_action)
@@ -297,8 +283,9 @@ function Singer:get_merged_songs(party_member)
         return self.songs:slice(1, max_num_songs)
     end
     local pianissimo_songs = self.pianissimo_songs:filter(function(song) return song:get_job_names():contains(party_member:get_main_job_short()) end)
-    local all_songs = self.songs:slice(1, max_num_songs):extend(pianissimo_songs):reverse()
-    all_songs = all_songs:slice(1, max_num_songs)
+    local songs = self.songs:filter(function(song) return not song:get_job_names() or song:get_job_names():contains(party_member:get_main_job_short()) end)
+    local all_songs = pianissimo_songs:extend(songs)
+    all_songs = all_songs:slice(1, math.min(all_songs:length(), max_num_songs))
 
     if all_songs:length() == 0 then
         logger.error("No valid songs found for", party_member:get_name())

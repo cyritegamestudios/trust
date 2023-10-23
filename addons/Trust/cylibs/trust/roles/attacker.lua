@@ -62,6 +62,11 @@ function Attacker:check_engage()
                 self.action_queue:push_action(CommandAction.new(0, 0, 0, '/assist '..player.assist_target:get_name()), true)
             end
         end
+    elseif player.status == 'Engaged' then
+        if target.index ~= windower.ffxi.get_player().target_index then
+            self:get_party():add_to_chat(self:get_party():get_player(), "Alright, I'll fight the "..target.name.." with you now.", 30)
+            self:attack_mob(target)
+        end
     end
 end
 
