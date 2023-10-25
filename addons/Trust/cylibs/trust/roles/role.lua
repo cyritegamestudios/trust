@@ -5,6 +5,7 @@ function Role.new(action_queue)
     local self = setmetatable({
         action_queue = action_queue;
         target_index = nil;
+        last_tic_time = os.time();
     }, Role)
 
     return self
@@ -48,6 +49,14 @@ end
 
 function Role:get_party()
     return self.party
+end
+
+function Role:set_last_tic_time(last_tic_time)
+    self.last_tic_time = last_tic_time
+end
+
+function Role:get_last_tic_time()
+    return self.last_tic_time
 end
 
 function Role:tostring()

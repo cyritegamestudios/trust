@@ -64,6 +64,7 @@ Truster = require('cylibs/trust/roles/truster')
 
 -- Util
 action_message_util = require('cylibs/util/action_message_util')
+alter_ego_util = require('cylibs/util/alter_ego_util')
 player_util = require('cylibs/util/player_util')
 pet_util = require('cylibs/util/pet_util')
 buff_util = require('cylibs/util/buff_util')

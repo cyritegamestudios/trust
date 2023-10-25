@@ -12,7 +12,7 @@ local SongRecord = require('cylibs/battle/songs/song_record')
 local SongTracker = {}
 SongTracker.__index = SongTracker
 
--- Event called when a song is < 45 seconds from wearing off
+-- Event called when a song is < self.expiring_duration seconds from wearing off
 function SongTracker:on_song_duration_warning()
     return self.song_duration_warning
 end
@@ -40,6 +40,7 @@ function SongTracker.new(player, party, dummy_songs, songs, pianissimo_songs, jo
         songs = songs;
         job = job;
         active_songs = {};
+        expiring_duration = 60;
         last_expiration_check = os.time();
     }, SongTracker)
 
@@ -117,15 +118,15 @@ function SongTracker:monitor()
     for party_member in self.party:get_party_members(true):it() do
         self.dispose_bag:add(party_member:on_gain_buff():addAction(function(p, buff_id)
             if self.job:is_bard_song_buff(buff_id) then
-                self:prune_songs(p:get_id(), self.dummy_songs, p:get_buff_ids())
+                logger.notice(p:get_name(), "gains the effect of", res.buffs[buff_id].name)
+                self:prune_all_songs(p:get_id(), p:get_buff_ids())
             end
         end), party_member:on_gain_buff())
 
         self.dispose_bag:add(party_member:on_lose_buff():addAction(function(p, buff_id)
             if self.job:is_bard_song_buff(buff_id) then
                 logger.notice(p:get_mob().name.."'s", "effect of", res.buffs[buff_id].name, "wears off")
-                self:prune_songs(p:get_id(), self.dummy_songs, p:get_buff_ids())
-                self:prune_songs(p:get_id(), self.songs, p:get_buff_ids())
+                self:prune_all_songs(p:get_id(), p:get_buff_ids())
             end
         end), party_member:on_lose_buff())
     end
@@ -140,7 +141,7 @@ end
 -------
 -- Checks to see if songs are expiring soon an triggers on_song_duration_warning() for all expiring songs.
 function SongTracker:check_song_expiration()
-    if os.time() - self.last_expiration_check < 10 then
+    if os.time() - self.last_expiration_check < 9 then
         return
     end
     self.last_expiration_check = os.time()
@@ -153,7 +154,7 @@ function SongTracker:check_song_expiration()
                 if song_record:is_expired() then
                     self:on_lose_song(target_id, song_record:get_song_id(), song_record:get_buff_id())
                     logger.notice(target.name.."'s", res.spells[song_record:get_song_id()].name, "is expired")
-                elseif song_record:get_expire_time() - os.time() < 45 then
+                elseif song_record:get_expire_time() - os.time() < self.expiring_duration then
                     self:on_song_duration_warning():trigger(song_record)
                     logger.notice(target.name.."'s", res.spells[song_record:get_song_id()].name, "is expiring soon")
                 end
@@ -165,12 +166,12 @@ end
 
 -------
 -- Checks to see if any of the given songs are expiring soon.
--- @treturn boolean True if a song is expiring in less than 45 seconds.
+-- @treturn boolean True if a song is expiring in less than self.expiring_duration seconds.
 function SongTracker:is_expiring_soon(target_id, songs)
     if self.active_songs[target_id] then
         for song_record in self.active_songs[target_id]:it() do
             for song in songs:it() do
-                if song_record:get_song_id() == song:get_spell().id and song_record:get_expire_time() - os.time() < 45 then
+                if song_record:get_song_id() == song:get_spell().id and song_record:get_expire_time() - os.time() < self.expiring_duration then
                     return true
                 end
             end
@@ -192,18 +193,19 @@ end
 -------
 -- Sets all songs to expire soon.
 -- @tparam number target_id Target id
--- @tparam number expiring_in (optional) Number of seconds until first song expires (defaults to 45)
+-- @tparam number expiring_in (optional) Number of seconds until first song expires (defaults to self.expiring_duration)
 function SongTracker:set_expiring_soon(target_id, expiring_in)
     if not self.active_songs[target_id] then
         return
     end
-    expiring_in = expiring_in or 45
-    local active_songs = self.active_songs[target_id]:sort(function(song_record1, song_record2)
-        return song_record1:get_expire_time() < song_record2:get_expire_time()
-    end)
+    expiring_in = expiring_in or self.expiring_duration
+    --local active_songs = self.active_songs[target_id]:sort(function(song_record1, song_record2)
+    --    return song_record1:get_expire_time() < song_record2:get_expire_time()
+    --end)
+    local active_songs = self.active_songs[target_id]
     local i = 0
     for song_record in active_songs:it() do
-        local new_expire_time = os.time() + expiring_in + i * 3
+        local new_expire_time = math.min(song_record:get_expire_time(), os.time() + expiring_in) --+ i * 3
         song_record:set_expire_time(new_expire_time)
         i = i + 1
         logger.notice("Setting expiration time of", res.spells[song_record:get_song_id()].name, "to", new_expire_time)
@@ -214,7 +216,7 @@ end
 -- Sets all songs to expire soon for all party members.
 function SongTracker:set_all_expiring_soon()
     local player = self.party:get_player()
-    local expiring_in = 45
+    local expiring_in = self.expiring_duration
     for party_member in list.extend(L{player}, self.party:get_party_members(false)):it() do
         self:set_expiring_soon(party_member:get_id(), expiring_in)
     end
@@ -240,23 +242,17 @@ function SongTracker:on_gain_song(target_id, song_id, buff_id, song_duration)
     if self:has_song(target_id, song_id) then
         self:on_lose_song(target_id, song_id, buff_id)
     end
-    local target = windower.ffxi.get_mob_by_id(target_id)
+
+    local party_member = self.party:get_party_member(target_id)
+
+    logger.notice("Current buffs for", party_member:get_name(), "are", tostring(L(party_util.get_buffs(target_id)):map(function(buff_id) return res.buffs[buff_id].name  end)))
 
     local target_songs = (self.active_songs[target_id] or S{}):add(SongRecord.new(song_id, song_duration or self.job:get_song_duration(res.spells[song_id].name)))
-    if target_songs:length() > self.job:get_max_num_songs() then
-        local oldest_song = L(target_songs):sort(function(song_record1, song_record2)
-            return song_record1:get_expire_time() < song_record2:get_expire_time()
-        end)[1]
-        logger.notice("Overwriting", target.name.."'s", res.spells[oldest_song:get_song_id()].name, "with", res.spells[song_id].name)
-
-        self:on_lose_song(target_id, oldest_song:get_song_id(), oldest_song:get_buff_id())
-    end
-
     self.active_songs[target_id] = target_songs
 
     self:on_songs_changed():trigger(self, target_id, self.active_songs[target_id])
 
-    logger.notice(target.name, "gains the effect of "..res.buffs[buff_id].name.." from "..res.spells[song_id].name)
+    logger.notice(party_member:get_name(), "gains the effect of "..res.buffs[buff_id].name.." from "..res.spells[song_id].name)
 end
 
 -------
@@ -269,15 +265,16 @@ function SongTracker:on_lose_song(target_id, song_id, buff_id)
         return
     end
 
-    -- 206: ${target}'s ${status} effect wears off.
-    local target_songs = (self.active_songs[target_id] or S{}):filter(function(song_record) return song_record:get_song_id() ~= song_id  end)
+    local party_member = self.party:get_party_member(target_id)
 
+    logger.notice("Current buffs for", party_member:get_name(), "are", tostring(L(party_util.get_buffs(target_id)):map(function(buff_id) return res.buffs[buff_id].name  end)))
+
+    local target_songs = (self.active_songs[target_id] or S{}):filter(function(song_record) return song_record:get_song_id() ~= song_id  end)
     self.active_songs[target_id] = target_songs
 
     self:on_songs_changed():trigger(self, target_id, self.active_songs[target_id])
 
-    local target = windower.ffxi.get_mob_by_id(target_id)
-    logger.notice(target.name, "loses the effect of "..res.buffs[buff_id].name.." from "..res.spells[song_id].name)
+    logger.notice(party_member:get_name(), "loses the effect of "..res.buffs[buff_id].name.." from "..res.spells[song_id].name)
 end
 
 -------
@@ -296,9 +293,34 @@ end
 -- @tparam List songs List of songs (see Spell.lua)
 -- @tparam List buff_ids The target's buff ids (see buffs.lua)
 function SongTracker:prune_songs(target_id, songs, buff_ids)
+    local party_member = self.party:get_party_member(target_id)
+
+    local song_buff_ids = S{}
     for song in songs:it() do
-        if not buff_util.is_buff_active(song:get_spell().status, buff_ids) then
+        local buff_id = song:get_spell().status
+        if not buff_util.is_buff_active(buff_id, buff_ids) then
             self:on_lose_song(target_id, song:get_spell().id, song:get_spell().status)
+        else
+            song_buff_ids:add(buff_id)
+        end
+    end
+
+    local buff_id_to_records = {}
+    for buff_id in song_buff_ids:it() do
+        buff_id_to_records[buff_id] = self:get_songs(target_id, buff_id)
+    end
+
+    for buff_id, song_records in pairs(buff_id_to_records) do
+        local buff_count = buff_util.buff_count(buff_id, buff_ids)
+        if song_records:length() > buff_count then
+            logger.notice(party_member:get_name(), "has", buff_count, res.buffs[buff_id].name, "buffs but song records of", tostring(song_records:map(function(song) return res.spells[song:get_song_id()].name end)))
+            local songs_to_remove = L(song_records):sort(function(song_record1, song_record2)
+                return song_record1:get_expire_time() < song_record2:get_expire_time()
+            end):slice(1, song_records:length() - buff_count)
+            for song in songs_to_remove:it() do
+                logger.notice("Overwriting", party_member:get_name().."'s", res.spells[song:get_song_id()].name)
+                self:on_lose_song(target_id, song:get_song_id(), song:get_buff_id())
+            end
         end
     end
 end
@@ -325,7 +347,6 @@ end
 function SongTracker:has_song(target_id, song_id, buff_ids)
     if self.active_songs[target_id] and self.active_songs[target_id]:filter(function(song_record) return song_record:get_song_id() == song_id end):length() > 0 then
         if buff_ids and not buff_ids:contains(res.spells:with('id', song_id).status) then
-            self:prune_all_songs(target_id, buff_ids)
             return false
         end
         return true
@@ -358,7 +379,7 @@ function SongTracker:has_all_songs(target_id, song_ids, buff_ids)
     local songs_active = song_ids:filter(function(song_id)
         return self:has_song(target_id, song_id, buff_ids)
     end)
-    return songs_active:length() >= self.job:get_max_num_songs()
+    return songs_active:length() >= self:get_max_num_songs(target_id)
 end
 
 -------
@@ -393,6 +414,15 @@ function SongTracker:get_num_songs(target_id, buff_ids, song_list)
     else
         return (self.active_songs[target_id] or S{}):length()
     end
+end
+
+-------
+-- Returns the maximum number of songs that can be sung on a target.
+-- @tparam number target_id Target id
+-- @treturn number Maximum number of songs
+function SongTracker:get_max_num_songs(target_id)
+    local party_member = self.party:get_party_member(target_id)
+    return self.job:get_max_num_songs(false, self.job:get_song_buff_ids(party_member:get_buff_ids()):length())
 end
 
 return SongTracker

@@ -148,7 +148,9 @@ function Trust:job_target_change(target_index)
 end
 
 function Trust:tic(old_time, new_time)
+	local tic_time = os.time()
 	for role in self.roles:it() do
+		role:set_last_tic_time(tic_time)
 		if role.tic then
 			role:tic(old_time, new_time)
 		end
