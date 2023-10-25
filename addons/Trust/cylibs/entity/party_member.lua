@@ -101,7 +101,7 @@ function PartyMember:monitor()
     self.is_monitoring = true
 
     self.action_events.incoming = windower.register_event('incoming chunk', function(id, original, _, _, _)
-        -- Update debuffs
+        -- Update buffs and debuffs
         if id == 0x076 then
             self:update_debuffs(party_util.get_buffs(self.id))
             self:update_buffs(party_util.get_buffs(self.id))
@@ -112,9 +112,6 @@ function PartyMember:monitor()
             if self:get_mob() and p.ID == self:get_mob().id and windower.ffxi.get_mob_by_id(p.ID) then
                 if p.ID == windower.ffxi.get_player().id then
                     self:update_target(windower.ffxi.get_player().target_index)
-                    local player_buff_ids = party_util.get_buffs(self:get_mob().id)
-                    self:update_debuffs(player_buff_ids)
-                    self:update_buffs(player_buff_ids)
                 else
                     self:update_target(windower.ffxi.get_mob_by_id(p.ID).target_index)
                 end
@@ -129,6 +126,16 @@ function PartyMember:monitor()
                 local p = packets.parse('outgoing', original)
                 self:update_target(p['Target Index'])
             end
+        end)
+        self.action_events.gain_buff = windower.register_event('gain buff', function(buff_id)
+            local player_buff_ids = party_util.get_buffs(self:get_mob().id)
+            self:update_debuffs(player_buff_ids)
+            self:update_buffs(player_buff_ids)
+        end)
+        self.action_events.lose_buff = windower.register_event('lose buff', function(buff_id)
+            local player_buff_ids = party_util.get_buffs(self:get_mob().id)
+            self:update_debuffs(player_buff_ids)
+            self:update_buffs(player_buff_ids)
         end)
     end
 end

@@ -32,5 +32,6 @@ return {
         ["autohealmode"]="Emergency",
         ["autoenmityreductionmode"]="Off",
         ["autoclarioncallmode"]="Off",
+        ["autopianissimomode"]="Merged",
     }
 }

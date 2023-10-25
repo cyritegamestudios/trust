@@ -85,9 +85,12 @@ end
 
 -------
 -- Returns the maximum number of songs that the player can have active.
+-- @tparam boolean include_clarion_call (optional) Whether to take Clarion Call into account. If Clarion Call is active this will be set to true
+-- @tparam number current_num_bard_songs (optional) The number of song buffs currently active
 -- @treturn number Number of songs
-function Bard:get_max_num_songs(include_clarion_call)
-    local num_songs = math.max(self:get_song_buff_ids():length(), self.max_num_songs)
+function Bard:get_max_num_songs(include_clarion_call, current_num_bard_songs)
+    local current_num_bard_songs = current_num_bard_songs or self:get_song_buff_ids():length()
+    local num_songs = math.max(current_num_bard_songs, self.max_num_songs)
     if include_clarion_call or self:is_clarion_call_active() then
         num_songs = math.max(num_songs, self.max_num_songs + 1)
     end
@@ -96,10 +99,11 @@ end
 
 -------
 -- Returns the buff ids for songs the player currently has.
+-- @tparam list buff_ids (optional) Buff ids (see res/buffs.lua)
 -- @treturn list List of song buff ids
-function Bard:get_song_buff_ids()
-    local player_buff_ids = L(windower.ffxi.get_player().buffs)
-    return player_buff_ids:filter(function(buff_id)
+function Bard:get_song_buff_ids(buff_ids)
+    local buff_ids = buff_ids or L(windower.ffxi.get_player().buffs)
+    return buff_ids:filter(function(buff_id)
         return self:is_bard_song_buff(buff_id)
     end)
 end

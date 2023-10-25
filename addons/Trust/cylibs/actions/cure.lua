@@ -20,7 +20,8 @@ function CureAction.new(x, y, z, party_member, cure_threshold, mp_cost, healer_j
         HitPointsPercentRangeCondition.new(1, cure_threshold, party_member),
         MaxDistanceCondition.new(20),
         NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'mute'}, false)}),
-        MinManaPointsCondition.new(mp_cost)
+        MinManaPointsCondition.new(mp_cost),
+        ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos()),
     }
 
     local self = setmetatable(Action.new(x, y, z, party_member:get_mob().index, conditions), CureAction)

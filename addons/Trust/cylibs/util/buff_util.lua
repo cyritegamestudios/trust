@@ -253,6 +253,15 @@ function buff_util.buff_for_job_ability(job_ability_id)
 end
 
 -------
+-- Cancels the buff with the given buff_id.
+-- @tparam number buff_id Buff id (see buffs.lua)
+function buff_util.cancel_buff(buff_id)
+	if res.buffs[buff_id] then
+		windower.ffxi.cancel_buff(buff_id)
+	end
+end
+
+-------
 -- Determines if the player has a food effect active.
 -- @treturn Bool True if the player has a food effect active and false otherwise.
 function buff_util.is_food_active()
