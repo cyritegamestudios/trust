@@ -112,9 +112,6 @@ function PartyMember:monitor()
             if self:get_mob() and p.ID == self:get_mob().id and windower.ffxi.get_mob_by_id(p.ID) then
                 if p.ID == windower.ffxi.get_player().id then
                     self:update_target(windower.ffxi.get_player().target_index)
-                    --local player_buff_ids = party_util.get_buffs(self:get_mob().id)
-                    --self:update_debuffs(player_buff_ids)
-                    --self:update_buffs(player_buff_ids)
                 else
                     self:update_target(windower.ffxi.get_mob_by_id(p.ID).target_index)
                 end

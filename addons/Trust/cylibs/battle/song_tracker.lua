@@ -199,15 +199,10 @@ function SongTracker:set_expiring_soon(target_id, expiring_in)
         return
     end
     expiring_in = expiring_in or self.expiring_duration
-    --local active_songs = self.active_songs[target_id]:sort(function(song_record1, song_record2)
-    --    return song_record1:get_expire_time() < song_record2:get_expire_time()
-    --end)
     local active_songs = self.active_songs[target_id]
-    local i = 0
     for song_record in active_songs:it() do
-        local new_expire_time = math.min(song_record:get_expire_time(), os.time() + expiring_in) --+ i * 3
+        local new_expire_time = math.min(song_record:get_expire_time(), os.time() + expiring_in)
         song_record:set_expire_time(new_expire_time)
-        i = i + 1
         logger.notice("Setting expiration time of", res.spells[song_record:get_song_id()].name, "to", new_expire_time)
     end
 end
@@ -216,9 +211,8 @@ end
 -- Sets all songs to expire soon for all party members.
 function SongTracker:set_all_expiring_soon()
     local player = self.party:get_player()
-    local expiring_in = self.expiring_duration
     for party_member in list.extend(L{player}, self.party:get_party_members(false)):it() do
-        self:set_expiring_soon(party_member:get_id(), expiring_in)
+        self:set_expiring_soon(party_member:get_id(), self.expiring_duration)
     end
 end
 
