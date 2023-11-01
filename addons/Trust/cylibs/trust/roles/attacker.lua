@@ -6,8 +6,9 @@ local CommandAction = require('cylibs/actions/command')
 local Attacker = setmetatable({}, {__index = Role })
 Attacker.__index = Attacker
 
-state.AutoEngageMode = M{['description'] = 'Auto Engage Mode', 'Off', 'Always', 'Assist'}
+state.AutoEngageMode = M{['description'] = 'Auto Engage Mode', 'Off', 'Always', 'Mirror', 'Assist'}
 state.AutoEngageMode:set_description('Always', "Okay, I'll automatically engage when our party is fighting.")
+state.AutoEngageMode:set_description('Mirror', "Okay, I'll only engage if the person I'm assisting is fighting.")
 state.AutoEngageMode:set_description('Assist', "Okay, I'll lock onto the target but I won't draw my weapons.")
 
 state.EngageMode = M{['description'] = 'Engage Mode', 'None', 'Behind'}
@@ -54,18 +55,31 @@ function Attacker:check_engage()
         return
     end
 
-    if player.status == 'Idle' then
+    local current_player_status = player.status
+    if current_player_status == 'Idle' then
         if state.AutoEngageMode.value == 'Always' then
             self:attack_mob(target)
-        elseif state.AutoEngageMode.value == 'Assist' then
-            if player.assist_target then
-                self.action_queue:push_action(CommandAction.new(0, 0, 0, '/assist '..player.assist_target:get_name()), true)
+        elseif state.AutoEngageMode.value == 'Mirror' then
+            if self:get_party():get_assist_target():get_status() == 'Engaged' then
+                self:attack_mob(target)
             end
+        elseif state.AutoEngageMode.value == 'Assist' then
+            self.action_queue:push_action(CommandAction.new(0, 0, 0, '/assist '..self:get_party():get_assist_target():get_name()), true)
         end
-    elseif player.status == 'Engaged' then
-        if target.index ~= windower.ffxi.get_player().target_index then
-            self:get_party():add_to_chat(self:get_party():get_player(), "Alright, I'll fight the "..target.name.." with you now.", 30)
-            self:attack_mob(target)
+    elseif current_player_status == 'Engaged' then
+        if state.AutoEngageMode.value == 'Mirror' then
+            if self:get_party():get_assist_target():get_status() == 'Idle' then
+                self.action_queue:push_action(CommandAction.new(0, 0, 0, '/attackoff'), true)
+            end
+        else
+            if target.index ~= windower.ffxi.get_player().target_index then
+                if state.AutoEngageMode.value == 'Always' then
+                    self:attack_mob(target)
+                elseif state.AutoEngageMode.value == 'Assist' then
+                    self.action_queue:push_action(CommandAction.new(0, 0, 0, '/assist '..self:get_party():get_assist_target():get_name()), true)
+                end
+                self:get_party():add_to_chat(self:get_party():get_player(), "Alright, I'll fight the "..target.name.." with you now.", 30)
+            end
         end
     end
 end

@@ -309,6 +309,17 @@ function PartyMember:get_target_index()
 end
 
 -------
+-- Returns the localized status of the party member.
+-- @treturn string Status of the party member (see res/statuses.lua)
+function PartyMember:get_status()
+    local mob = self:get_mob()
+    if mob then
+        return res.statuses[mob.status].name
+    end
+    return 'Idle'
+end
+
+-------
 -- Returns the last heartbeat time.
 -- @treturn number Last heartbeat time
 function PartyMember:get_heartbeat_time()
