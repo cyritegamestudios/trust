@@ -750,17 +750,17 @@ function nukes.darkness()
 end
 
 function nukes.get_nuke(cmd)
-	if cmd == 'thundermb' then
+	if L{'Lightning', 'thundermb'}:contains(cmd) then
 		return nukes.thunder()
-	elseif cmd == 'blizzardmb' then
+	elseif L{'Ice', 'blizzardmb'}:contains(cmd) then
 		return nukes.blizzard()
-	elseif cmd == 'firemb' then
+	elseif L{'Fire', 'firemb'}:contains(cmd) then
 		return nukes.fire()
-	elseif cmd == 'aeromb' then
+	elseif L{'Wind', 'aeromb'}:contains(cmd) then
 		return nukes.aero()
-	elseif cmd == 'watermb' then
+	elseif L{'Water', 'watermb'}:contains(cmd) then
 		return nukes.water()
-	elseif cmd == 'stonemb' then
+	elseif L{'Earth', 'stonemb'}:contains(cmd) then
 		return nukes.stone()
 	elseif cmd == 'gravmb' then
 		return nukes.grav()
@@ -774,9 +774,9 @@ function nukes.get_nuke(cmd)
 		return nukes.light()
 	elseif cmd == 'darknessmb' then
 		return nukes.darkness()
-  elseif cmd == 'darkmb' then
+  elseif L{'Dark', 'darkmb'}:contains(cmd) then
     return nukes.dark()
-  elseif cmd == 'holymb' then
+  elseif L{'Light', 'holymb'}:contains(cmd) then
     return nukes.holy()
   elseif cmd == 'ongomb' then
     return nukes.ongo()
