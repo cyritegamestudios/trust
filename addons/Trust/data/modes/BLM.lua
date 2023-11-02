@@ -9,6 +9,7 @@ return {
         ["autoaftermathmode"]="Off",
         ["autoskillchainmode"]="Off",
         ["automagicburstmode"]="Auto",
+        ["autonukemode"]="Off",
         ["skillchainprioritymode"]="Off",
         ["autoengagemode"]="Off",
         ["autodebuffmode"]="Auto",
