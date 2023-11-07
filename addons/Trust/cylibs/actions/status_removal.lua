@@ -3,11 +3,7 @@
 -- @class module
 -- @name StatusRemovalAction
 
-require('vectors')
-require('math')
-require('logger')
-require('lists')
-
+local DisposeBag = require('cylibs/events/dispose_bag')
 local Event = require('cylibs/events/Luvent')
 
 local Action = require('cylibs/actions/action')
@@ -25,17 +21,24 @@ function StatusRemovalAction:on_status_removed()
 end
 
 function StatusRemovalAction.new(x, y, z, spell_id, target_index, debuff_id, player)
-	local self = setmetatable(Action.new(x, y, z), StatusRemovalAction)
+	local conditions = L{
+		NotCondition.new(L{InMogHouseCondition.new()}, true),
+		MaxDistanceCondition.new(20),
+		NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'mute'}, false)}),
+		HasBuffCondition.new(buff_util.buff_name(debuff_id)),
+		MinManaPointsCondition.new(res.spells[spell_id].mp_cost or 0),
+		SpellRecastReadyCondition.new(spell_id),
+		ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos()),
+	}
+
+	local self = setmetatable(Action.new(x, y, z, target_index or windower.ffxi.get_player().index, conditions), StatusRemovalAction)
+
+	self.dispose_bag = DisposeBag.new()
 	self.spell_id = spell_id
-	self.target_index = target_index
 	self.debuff_id = debuff_id
 	self.player = player
-
-	if target_index == nil then
-		self.target_index = windower.ffxi.get_player().index
-	end
-
 	self.user_events = {}
+
 	self.status_removal_no_effect = Event.newEvent()
 	self.status_removed = Event.newEvent()
 
@@ -51,70 +54,22 @@ function StatusRemovalAction:destroy()
 		end
 	end
 
-	if self.spell_finish_id then
-		self.player:on_spell_finish():removeAction(self.spell_finish_id)
-	end
-	if self.spell_interrupted_id then
-		self.player:on_spell_interrupted():removeAction(self.spell_interrupted_id)
-	end
-
-	self.player = nil
+	self.dispose_bag:destroy()
 
 	self.status_removal_no_effect:removeAllActions()
 	self.status_removed:removeAllActions()
+
+	self.player = nil
 
 	self:debug_log_destroy(self:gettype())
 
 	Action.destroy(self)
 end
 
-function StatusRemovalAction:can_perform()
-	if L(windower.ffxi.get_player().buffs):contains(L{2,7,14,19,28,29}) then
-		return false
-	end
-
-	local target = windower.ffxi.get_mob_by_index(self.target_index)
-	if target and target.distance:sqrt() > 21 then
-		return false
-	end
-
-	local spell = res.spells:with('id', self.spell_id)
-	if spell and windower.ffxi.get_player().vitals.mp > spell.mp_cost then
-		return true
-	end
-
-	local target = windower.ffxi.get_mob_by_index(self.target_index)
-	if not target or not party_util.get_buffs(target.id):contains(self.debuff_id) then
-		return false
-	end
-	return true
-end
-
 function StatusRemovalAction:perform()
-	if self:is_cancelled() then
-		self:complete(false)
-		return
-	end
-
 	windower.ffxi.run(false)
 
-	local target = windower.ffxi.get_mob_by_index(self.target_index)
-
-	local all_spells = windower.ffxi.get_spells()
-	local recast_times = windower.ffxi.get_spell_recasts()
-
-	if target == nil or self.spell_id == nil or all_spells[self.spell_id] == nil or recast_times[self.spell_id] > 0 then
-		self:complete(false)
-		return
-	end
-
-	local spell = res.spells:with('id', self.spell_id)
-	if spell == nil then
-		self:complete(false)
-		return
-	end
-
-	self.spell_finish_id = self.player:on_spell_finish():addAction(
+	self.dispose_bag:add(self.player:on_spell_finish():addAction(
 			function(p, spell_id, targets)
 				if p:get_mob().id == windower.ffxi.get_player().id then
 					if spell_id == self.spell_id then
@@ -130,18 +85,20 @@ function StatusRemovalAction:perform()
 						self:complete(true)
 					end
 				end
-			end)
+			end), self.player:on_spell_finish())
 
-	self.spell_interrupted_id = self.player:on_spell_interrupted():addAction(
+	self.dispose_bag:add(self.player:on_spell_interrupted():addAction(
 			function(p, spell_id)
 				if p:get_mob().id == windower.ffxi.get_player().id then
 					if spell_id == self.spell_id then
 						self:complete(false)
 					end
 				end
-			end)
+			end), self.player:on_spell_interrupted())
 
-	windower.send_command('@input /ma "'..spell.name..'" '..target.id)
+	local target = windower.ffxi.get_mob_by_index(self.target_index)
+
+	windower.send_command('@input /ma "'..res.spells[self.spell_id].name..'" '..target.id)
 end
 
 function StatusRemovalAction:getspellid()

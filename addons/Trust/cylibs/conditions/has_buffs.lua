@@ -11,7 +11,7 @@ local HasBuffsCondition = setmetatable({}, { __index = Condition })
 HasBuffsCondition.__index = HasBuffsCondition
 
 function HasBuffsCondition.new(buff_names, require_all)
-    local self = setmetatable(Condition.new(), HasBuffsCondition)
+    local self = setmetatable(Condition.new(windower.ffxi.get_player().index), HasBuffsCondition)
     self.buff_names = buff_names -- save arg for serializer
     self.buff_ids = buff_names:map(function(buff_name) return buff_util.buff_id(buff_name)  end)
     self.require_all = require_all
@@ -40,10 +40,6 @@ function HasBuffsCondition:is_satisfied(target_index)
     else
         return false
     end
-end
-
-function HasBuffsCondition:is_player_only()
-    return true
 end
 
 function HasBuffsCondition:tostring()

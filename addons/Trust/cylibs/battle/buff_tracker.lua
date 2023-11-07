@@ -91,6 +91,12 @@ function BuffTracker:monitor()
                     self:on_gain_buff_from_spell(target.id, action.param)
                 elseif action.message == 230 then
                     self:on_gain_buff_from_spell(target.id, action.param)
+                -- ${actor}'s ${spell} has no effect on ${target}
+                elseif action.message == 75 then
+                    local status = res.spells[act.param].status
+                    if status then
+                        self:on_gain_buff_from_spell(target.id, status)
+                    end
                 end
             end
         end

@@ -13,7 +13,7 @@ function Sleeper.new(action_queue, sleep_spells, min_mobs_to_sleep)
     self:set_sleep_spells(sleep_spells)
 
     self.last_sleep_time = os.time()
-    self.min_mobs_to_sleep = min_mobs_to_sleep
+    self.min_mobs_to_sleep = min_mobs_to_sleep or 2
 
     return self
 end

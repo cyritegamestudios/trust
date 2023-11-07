@@ -21,7 +21,7 @@ function handle_shortcut(cmd, ...)
         elseif mode_var == 'strict' then
             toggle_mode('SkillchainPriorityMode', 'Strict', 'Off')
         end
-        -- Pulling
+    -- Pulling
     elseif cmd == 'pull' then
         local mode_var = arg[1]
         if mode_var == 'auto' then
@@ -31,7 +31,7 @@ function handle_shortcut(cmd, ...)
         elseif mode_var == 'target' then
             toggle_mode('AutoPullMode', 'Target', 'Off')
         end
-        -- Engaging
+    -- Engaging
     elseif cmd == 'engage' then
         local mode_var = arg[1]
         if mode_var == 'always' then
@@ -39,6 +39,7 @@ function handle_shortcut(cmd, ...)
         elseif mode_var == 'assist' then
             toggle_mode('AutoEngageMode', 'Assist', 'Off')
         end
+    -- Following
     elseif cmd == 'follow' then
         local trust = player.trust.main_job
         local follower = trust:role_with_type("follower")
@@ -48,6 +49,8 @@ function handle_shortcut(cmd, ...)
                 local distance = tonumber(param)
                 follower:set_distance(distance)
                 addon_message(207, 'Follow distance set to '..distance)
+            else
+                follower:follow_target(param)
             end
         end
     end

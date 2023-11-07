@@ -74,10 +74,7 @@ function Action:can_perform()
         return false
     end
     for condition in self.conditions:it() do
-        local check_target_index = self.target_index
-        if condition:is_player_only() then
-            check_target_index = windower.ffxi.get_player().index
-        end
+        local check_target_index = condition:get_target_index() or self.target_index
         if not condition:is_satisfied(check_target_index) then
             return false
         end

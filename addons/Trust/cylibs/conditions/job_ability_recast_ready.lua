@@ -11,7 +11,7 @@ local JobAbilityRecastReadyCondition = setmetatable({}, { __index = Condition })
 JobAbilityRecastReadyCondition.__index = JobAbilityRecastReadyCondition
 
 function JobAbilityRecastReadyCondition.new(job_ability_name)
-    local self = setmetatable(Condition.new(), JobAbilityRecastReadyCondition)
+    local self = setmetatable(Condition.new(windower.ffxi.get_player().index), JobAbilityRecastReadyCondition)
     self.job_ability_name = job_ability_name
     return self
 end
@@ -19,10 +19,6 @@ end
 function JobAbilityRecastReadyCondition:is_satisfied(target_index)
     return job_util.knows_job_ability(job_util.job_ability_id(self.job_ability_name))
             and job_util.can_use_job_ability(self.job_ability_name)
-end
-
-function JobAbilityRecastReadyCondition:is_player_only()
-    return true
 end
 
 function JobAbilityRecastReadyCondition:tostring()

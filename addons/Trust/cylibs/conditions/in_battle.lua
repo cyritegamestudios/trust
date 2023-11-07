@@ -1,5 +1,5 @@
 ---------------------------
--- Condition checking whether the player is in battle.
+-- Condition checking whether the target is in battle.
 -- @class module
 -- @name InBattleCondition
 local serializer_util = require('cylibs/util/serializer_util')
@@ -13,16 +13,6 @@ InBattleCondition.__type = "InBattleCondition"
 function InBattleCondition.new()
     local self = setmetatable(Condition.new(), InBattleCondition)
     return self
-end
-
-function InBattleCondition.decode(rawSettings)
-    return InBattleCondition.new()
-end
-
-function InBattleCondition:encode()
-    local settings = {}
-    settings.type = InBattleCondition.__type
-    return settings
 end
 
 function InBattleCondition:is_satisfied(target_index)

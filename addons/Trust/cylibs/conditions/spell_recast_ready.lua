@@ -11,7 +11,7 @@ local SpellRecastReadyCondition = setmetatable({}, { __index = Condition })
 SpellRecastReadyCondition.__index = SpellRecastReadyCondition
 
 function SpellRecastReadyCondition.new(spell_id)
-    local self = setmetatable(Condition.new(), SpellRecastReadyCondition)
+    local self = setmetatable(Condition.new(windower.ffxi.get_player().index), SpellRecastReadyCondition)
     self.spell_id = spell_id
     return self
 end
