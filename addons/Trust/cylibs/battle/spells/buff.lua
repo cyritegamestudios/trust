@@ -46,20 +46,6 @@ function Buff.new(spell_name, job_abilities, job_names, spell_prefix, conditions
     end
 end
 
-function Buff.decode(rawSettings)
-    local buff = Buff.new(rawSettings.spell_name, L(rawSettings.job_abilities), L(rawSettings.job_names), nil, rawSettings.conditions)
-    return buff
-end
-
-function Buff:encode()
-    local settings = Spell.encode(self)
-
-    settings.type = Buff.__type
-    settings.spell_name = self.original_spell_name
-
-    return settings
-end
-
 -------
 -- Returns whether or not this spell is AOE (e.g. Protectra).
 -- @treturn Boolean True if the spell is AOE and false otherwise.

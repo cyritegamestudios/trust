@@ -39,7 +39,7 @@ function RedMageTrust.new(settings, action_queue, battle_settings, trust_setting
 		Dispeler.new(action_queue, L{ Spell.new('Dispel') }),
 		Healer.new(action_queue, job),
 		Raiser.new(action_queue, job),
-		Puller.new(action_queue, battle_settings.targets, Debuff.new('Dia'):get_spell().name, nil),
+		Puller.new(action_queue, battle_settings.targets, Debuff.new('Dia') and Debuff.new('Dia'):get_spell().name, nil),
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), RedMageTrust)
 

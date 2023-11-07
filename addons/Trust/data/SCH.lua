@@ -2,6 +2,7 @@
 return {
     Default = {
         LightArts = {
+            JobAbilities = L{ 'Light Arts' },
             PartyBuffs = L{
                 Spell.new("Adloquium", L{}, L{"WAR", "PUP"}, nil, L{})
             },
@@ -54,6 +55,7 @@ return {
             }
         },
         DarkArts = {
+            JobAbilities = L{ 'Dark Arts' },
             PartyBuffs = L{
 
             },
