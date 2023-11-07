@@ -16,9 +16,11 @@ Condition.Operator.LessThanOrEqualTo = "<="
 
 -------
 -- Default initializer for a condition.
+-- @tparam number target_index (optional) Target index, will override target_index passed into is_satisfied
 -- @treturn Condition A condition
-function Condition.new()
+function Condition.new(target_index)
     local self = setmetatable({
+        target_index = target_index;
     }, Condition)
 
     return self
@@ -27,7 +29,7 @@ end
 function Condition:destroy()
 end
 
-function Condition:is_satisfied()
+function Condition:is_satisfied(target_index)
     return true
 end
 
@@ -47,8 +49,12 @@ function Condition:eval(arg1, arg2, operator)
     end
 end
 
-function Condition:is_player_only()
-    return false
+function Condition:set_target_index(target_index)
+    self.target_index = target_index
+end
+
+function Condition:get_target_index()
+    return self.target_index
 end
 
 function Condition:tostring()

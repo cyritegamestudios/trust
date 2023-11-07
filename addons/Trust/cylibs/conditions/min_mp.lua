@@ -9,7 +9,7 @@ local MinManaPointsCondition = setmetatable({}, { __index = Condition })
 MinManaPointsCondition.__index = MinManaPointsCondition
 
 function MinManaPointsCondition.new(min_mp)
-    local self = setmetatable(Condition.new(), MinManaPointsCondition)
+    local self = setmetatable(Condition.new(windower.ffxi.get_player().index), MinManaPointsCondition)
     self.min_mp = min_mp
     return self
 end
@@ -20,10 +20,6 @@ function MinManaPointsCondition:is_satisfied(target_index)
         return true
     end
     return false
-end
-
-function MinManaPointsCondition:is_player_only()
-    return true
 end
 
 function MinManaPointsCondition:tostring()

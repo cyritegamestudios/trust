@@ -40,7 +40,7 @@ function Eater:check_food()
         return
     end
 
-    last_check_food_time = os.time()
+    self.last_check_food_time = os.time()
 
     if not buff_util.is_food_active() then
         local food_action = SequenceAction.new(L{

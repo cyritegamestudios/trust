@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '6.2.0'
+_addon.version = '6.2.2'
 
 require('Trust-Include')
 
@@ -39,6 +39,9 @@ addon_enabled = ValueRelay.new(false)
 player = {}
 
 -- States
+
+state.AutoEnableMode = M{['description'] = 'Auto Enable Mode', 'Auto', 'Off'}
+state.AutoEnableMode:set_description('Auto', "Okay, I'll automatically get to work after the addon loads.")
 
 state.AutoBuffMode = M{['description'] = 'Auto Buff Mode', 'Off', 'Auto'}
 state.AutoBuffMode:set_description('Auto', "Okay, I'll automatically buff myself and the party.")
@@ -132,8 +135,6 @@ function load_user_files(main_job_id, sub_job_id)
 
 	target_change_time = os.time()
 
-	addon_enabled:setValue(true)
-
 	default_trust_name = string.gsub(string.lower(player.main_job_name), "%s+", "")
 
 	load_trust_modes(player.main_job_name_short)
@@ -143,7 +144,11 @@ function load_user_files(main_job_id, sub_job_id)
 	main_trust_settings:copySettings()
 	sub_trust_settings:copySettings()
 
-	handle_start()
+	if state.AutoEnableMode.value == 'Auto' then
+		handle_start()
+	else
+		handle_stop()
+	end
 end
 
 function load_trust_modes(job_name_short)

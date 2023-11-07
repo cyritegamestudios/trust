@@ -203,7 +203,7 @@ function Singer:sing_song(song, target_index)
                 return false
             end
             job_abilities:add('Pianissimo')
-            conditions:append(HasBuffCondition.new('Pianissimo'))
+            conditions:append(HasBuffCondition.new('Pianissimo', windower.ffxi.get_player().index))
         end
         for job_ability_name in job_abilities:it() do
             local job_ability = res.job_abilities:with('en', job_ability_name)

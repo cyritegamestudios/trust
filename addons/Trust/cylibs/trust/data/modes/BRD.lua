@@ -4,6 +4,7 @@ return {
         ["autodispelmode"]="Off",
         ["autosleepmode"]="Off",
         ["autoraisemode"]="Off",
+        ["autobuffmode"]="Off",
         ["autodebuffmode"]="Off",
         ["autofacemobmode"]="Off",
         ["autosilencemode"]="Off",
