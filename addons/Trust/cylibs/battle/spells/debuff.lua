@@ -33,22 +33,8 @@ function Debuff.new(spell_name, job_abilities, job_names, spell_prefix)
     end
 end
 
-function Debuff.decode(rawSettings)
-    local buff = Debuff.new(rawSettings.spell_name, L(rawSettings.job_abilities), L(rawSettings.job_names))
-    return buff
-end
-
-function Debuff:encode()
-    local settings = Spell.encode(self)
-
-    settings.type = Debuff.__type
-    settings.spell_name = self.original_spell_name
-
-    return settings
-end
-
 function Debuff:serialize()
-    return "Debuff.new(" .. serializer_util.serialize_args(self.spell_name, self.job_abilities, self.job_names, self.spell_prefix) .. ")"
+    return "Debuff.new(" .. serializer_util.serialize_args(self.original_spell_name, self.job_abilities, self.job_names, self.spell_prefix) .. ")"
 end
 
 return Debuff

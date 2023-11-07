@@ -17,6 +17,28 @@ Thunder = 0
 Darkness = 0
 Lightness = 0
 
+function nukes.reset()
+    Earth = 0
+    Water = 0
+    Wind = 0
+    Fire = 0
+    Ice = 0
+    Thunder = 0
+    Darkness = 0
+    Lightness = 0
+end
+
+function nukes.disable()
+    Earth = 1
+    Water = 1
+    Wind = 1
+    Fire = 1
+    Ice = 1
+    Thunder = 1
+    Darkness = 1
+    Lightness = 1
+end
+
 function ele.earth()
 
   if Earth == 0 then
@@ -117,7 +139,9 @@ end
 -- Nuke Functions
 
 function nukes.dark()
-
+    if Darkness == 1 then
+        return nil
+    end
   if (nukes.blm() and (windower.ffxi.get_spell_recasts()[219] * 0.66) < 1) then
    return "Comet"
   elseif (nukes.blm() and (windower.ffxi.get_spell_recasts()[881] * 0.66) < 1) then
@@ -140,7 +164,9 @@ end
 
 
 function nukes.holy()
-
+    if Lightness == 1 then
+        return nil
+    end
   if nukes.whm() then
    if (windower.ffxi.get_spell_recasts()[22] * 0.66) < 1 then
     return "Holy II"
@@ -161,7 +187,9 @@ end
 
 
 function nukes.thunder()
-
+    if Thunder == 1 then
+        return nil
+    end
   if (nukes.blm() and (windower.ffxi.get_spell_recasts()[853] * 0.66) < 1) then
    return "Thunder VI"
   elseif nukes.blm() or nukes.sch() or nukes.geo() or nukes.rdm() then
@@ -194,7 +222,9 @@ end
 
 
 function nukes.blizzard()
-
+    if Ice == 1 then
+        return nil
+    end
   if (nukes.blm() and (windower.ffxi.get_spell_recasts()[850] * 0.66) < 1) then
 	 return "Blizzard VI"
   elseif nukes.blm() or nukes.sch() or nukes.geo() or nukes.rdm() then
@@ -227,7 +257,9 @@ end
 
 
 function nukes.fire()
-
+    if Fire == 1 then
+        return nil
+    end
   if (nukes.blm() and (windower.ffxi.get_spell_recasts()[849] * 0.66) < 1) then
 	 return "Fire VI"
   elseif nukes.blm() or nukes.sch() or nukes.geo() or nukes.rdm() then
@@ -260,7 +292,9 @@ end
 
 
 function nukes.aero()
-
+    if Wind == 1 then
+        return nil
+    end
   if (nukes.blm() and (windower.ffxi.get_spell_recasts()[851] * 0.66) < 1) then
      return "Aero VI"
   elseif nukes.blm() or nukes.sch() or nukes.geo() or nukes.rdm() then
@@ -293,7 +327,9 @@ end
 
 
 function nukes.water()
-
+    if Water == 1 then
+        return nil
+    end
   if (nukes.blm() and (windower.ffxi.get_spell_recasts()[854] * 0.66) < 1) then
 	 return "Water VI"
   elseif nukes.blm() or nukes.sch() or nukes.geo() or nukes.rdm() then
@@ -326,7 +362,9 @@ end
 
 
 function nukes.stone()
-
+    if Earth == 1 then
+        return nil
+    end
   if (nukes.blm() and (windower.ffxi.get_spell_recasts()[852] * 0.66) < 1) then
 	 return "Stone VI"
   elseif nukes.blm() or nukes.sch() or nukes.geo() or nukes.rdm() then
@@ -403,16 +441,16 @@ end
 
 function nukes.fusion()
 
-  if (nukes.blm() and (windower.ffxi.get_spell_recasts()[849] * 0.67) < 1) then
+  if (nukes.blm() and (windower.ffxi.get_spell_recasts()[849] * 0.67) < 1) and Fire == 0 then
 	 return "Fire VI"
   elseif nukes.blm() or nukes.sch() or nukes.geo() or nukes.rdm() then
-    if ((windower.ffxi.get_spell_recasts()[148] * 0.66) < 1) then
+    if ((windower.ffxi.get_spell_recasts()[148] * 0.66) < 1) and Fire == 0 then
   	 return "Fire V"
-    elseif ((windower.ffxi.get_spell_recasts()[147] * 0.66) < 1) then
+    elseif ((windower.ffxi.get_spell_recasts()[147] * 0.66) < 1) and Fire == 0  then
   	 return "Fire IV"
-    elseif ((windower.ffxi.get_spell_recasts()[146] * 0.66) < 1) then
+    elseif ((windower.ffxi.get_spell_recasts()[146] * 0.66) < 1) and Fire == 0 then
   	 return "Fire III"
-    elseif ((windower.ffxi.get_spell_recasts()[145] * 0.66) < 1) then
+    elseif ((windower.ffxi.get_spell_recasts()[145] * 0.66) < 1) and Fire == 0 then
   	 return "Fire II"
     else
      return nil
@@ -420,11 +458,11 @@ function nukes.fusion()
   end
 
   if nukes.nin() then
-    if ((windower.ffxi.get_spell_recasts()[321] * 0.25) < 1) then
+    if ((windower.ffxi.get_spell_recasts()[321] * 0.25) < 1) and Fire == 0 then
       return "Katon: Ni"
-    elseif ((windower.ffxi.get_spell_recasts()[322] * 0.25) < 1) then
+    elseif ((windower.ffxi.get_spell_recasts()[322] * 0.25) < 1) and Fire == 0 then
       return "Katon: San"
-    elseif ((windower.ffxi.get_spell_recasts()[320] * 0.25) < 1) then
+    elseif ((windower.ffxi.get_spell_recasts()[320] * 0.25) < 1) and Fire == 0 then
       return "Katon: Ichi"
     else
        return nil
@@ -481,7 +519,7 @@ function nukes.disto()
   end
 
     if nukes.smn() then
-        if (windower.ffxi.get_ability_recasts()[173] < 1) then
+        if (windower.ffxi.get_ability_recasts()[173] < 1) and Ice == 0 then
             return "Heavenly Strike"
         else
             return nil
@@ -495,16 +533,16 @@ function nukes.grav()
 
   if (nukes.blm() and (windower.ffxi.get_spell_recasts()[219] * 0.66) < 1) and Darkness == 0 then
     return "Comet"
-  elseif (nukes.blm() and (windower.ffxi.get_spell_recasts()[852] * 0.66) < 1) then
+  elseif (nukes.blm() and (windower.ffxi.get_spell_recasts()[852] * 0.66) < 1) and Earth == 0 then
 	  return "Stone VI"
   elseif nukes.blm() or nukes.sch() or nukes.geo() or nukes.rdm() then
-    if ((windower.ffxi.get_spell_recasts()[163] * 0.66) < 1) then
+    if ((windower.ffxi.get_spell_recasts()[163] * 0.66) < 1) and Earth == 0 then
        return "Stone V"
-    elseif ((windower.ffxi.get_spell_recasts()[162] * 0.66) < 1) then
+    elseif ((windower.ffxi.get_spell_recasts()[162] * 0.66) < 1) and Earth == 0 then
        return "Stone IV"
-    elseif ((windower.ffxi.get_spell_recasts()[161] * 0.66) < 1) then
+    elseif ((windower.ffxi.get_spell_recasts()[161] * 0.66) < 1) and Earth == 0 then
        return "Stone III"
-    elseif ((windower.ffxi.get_spell_recasts()[160] * 0.66) < 1) then
+    elseif ((windower.ffxi.get_spell_recasts()[160] * 0.66) < 1) and Earth == 0 then
        return "Stone II"
     else
        return nil
@@ -512,11 +550,11 @@ function nukes.grav()
   end
 
   if nukes.nin() then
-    if ((windower.ffxi.get_spell_recasts()[330] * 0.25) < 1) then
+    if ((windower.ffxi.get_spell_recasts()[330] * 0.25) < 1) and Earth == 0 then
       return "Doton: Ni"
-    elseif ((windower.ffxi.get_spell_recasts()[331] * 0.25) < 1) then
+    elseif ((windower.ffxi.get_spell_recasts()[331] * 0.25) < 1) and Earth == 0 then
       return "Doton: San"
-    elseif ((windower.ffxi.get_spell_recasts()[329] * 0.25) < 1) then
+    elseif ((windower.ffxi.get_spell_recasts()[329] * 0.25) < 1) and Earth == 0 then
       return "Doton: Ichi"
     else
       return nil
@@ -560,7 +598,7 @@ function nukes.frag()
        return nil
     end
   elseif nukes.smn() then
-      if (windower.ffxi.get_ability_recasts()[173] < 1) then
+      if (windower.ffxi.get_ability_recasts()[173] < 1) and Thunder == 0 then
           return "Thunderstorm"
       else
           return nil
@@ -589,7 +627,6 @@ end
 
 
 function nukes.light()
-
   if (nukes.blm() and (windower.ffxi.get_spell_recasts()[853] * 0.66) < 1) and Thunder == 0 then
   	 return "Thunder VI"
   elseif (nukes.blm() and (windower.ffxi.get_spell_recasts()[849] * 0.66) < 1) and Fire == 0 then
@@ -625,15 +662,15 @@ function nukes.light()
        return nil
     end
   elseif nukes.whm() then
-      if ((windower.ffxi.get_spell_recasts()[23] * 0.66) < 1) then
+      if ((windower.ffxi.get_spell_recasts()[23] * 0.66) < 1) and Lightness == 0 then
           return "Holy II"
-      elseif ((windower.ffxi.get_spell_recasts()[22] * 0.66) < 1) then
+      elseif ((windower.ffxi.get_spell_recasts()[22] * 0.66) < 1) and Lightness == 0 then
           return "Holy"
       else
           return nil
       end
   elseif nukes.smn() then
-      if (windower.ffxi.get_ability_recasts()[173] < 1) then
+      if (windower.ffxi.get_ability_recasts()[173] < 1) and Fire == 0 then
           return "Meteor Strike"
       else
           return nil
@@ -732,7 +769,7 @@ function nukes.darkness()
   end
 
     if nukes.smn() then
-        if (windower.ffxi.get_ability_recasts()[173] < 1) then
+        if (windower.ffxi.get_ability_recasts()[173] < 1) and Ice == 0 then
             return "Heavenly Strike"
         else
             return nil

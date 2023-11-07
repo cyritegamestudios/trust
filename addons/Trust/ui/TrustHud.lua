@@ -520,7 +520,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
                 end):map(function(spell) return spell.name  end)
 
                 local chooseSongsView = setupView(SongPickerView.new(trustSettings, songs, allSongs, args['validator']), viewSize)
-                chooseSongsView:setTitle("Choose songs.")
+                chooseSongsView:setTitle(args['help_text'])
                 chooseSongsView:setShouldRequestFocus(false)
                 return chooseSongsView
             end)

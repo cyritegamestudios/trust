@@ -45,6 +45,9 @@ return {
         JobAbilities = L{
             "Last Resort",
             "Scarlet Delirium"
+        },
+        Debuffs = L {
+
         }
     }
 }

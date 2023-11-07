@@ -1,19 +1,17 @@
-require('tables')
-require('lists')
-require('logger')
-
 local Trust = require('cylibs/trust/trust')
 local ScholarTrust = setmetatable({}, {__index = Trust })
 ScholarTrust.__index = ScholarTrust
 
 local Scholar = require('cylibs/entity/jobs/SCH')
 
+local Buffer = require('cylibs/trust/roles/buffer')
 local Debuffer = require('cylibs/trust/roles/debuffer')
 local Dispeler = require('cylibs/trust/roles/dispeler')
+local DisposeBag = require('cylibs/events/dispose_bag')
 local Healer = require('cylibs/trust/roles/healer')
 local ManaRestorer = require('cylibs/trust/roles/mana_restorer')
 local Nuker = require('cylibs/trust/roles/nuker')
-local Buffer = require('cylibs/trust/roles/buffer')
+local Puller = require('cylibs/trust/roles/puller')
 local Skillchainer = require('cylibs/trust/roles/skillchainer')
 local StatusRemover = require('cylibs/trust/roles/status_remover')
 
@@ -27,6 +25,7 @@ function ScholarTrust.new(settings, action_queue, battle_settings, trust_setting
     self.action_queue = action_queue
     self.current_arts_mode = 'Off'
     self.arts_roles = S{}
+    self.dispose_bag = DisposeBag.new()
 
     if state.AutoArtsMode.value ~= 'Off' then
         self:switch_arts(state.AutoArtsMode.value)
@@ -38,17 +37,15 @@ end
 function ScholarTrust:destroy()
     Role.destroy(self)
 
-    if self.auto_arts_mode_id then
-        state.AutoArtsMode:on_state_change():removeAction(self.auto_arts_mode_id)
-    end
+    self.dispose_bag:destroy()
 end
 
 function ScholarTrust:on_init()
     Trust.on_init(self)
 
-    self.auto_arts_mode_id = state.AutoArtsMode:on_state_change():addAction(function(_, new_value)
+    self.dispose_bag:add(state.AutoArtsMode:on_state_change():addAction(function(_, new_value)
         self:switch_arts(new_value)
-    end)
+    end), state.AutoArtsMode:on_state_change())
 
     self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
         self:get_job():set_trust_settings(new_trust_settings)
@@ -104,23 +101,22 @@ function ScholarTrust:update_for_arts(new_arts_mode)
 
     if new_arts_mode == 'LightArts' then
         self.arts_roles = S{
-            Buffer.new(self.action_queue, S{'Light Arts'}, self:get_job():get_light_arts_self_buffs(), self:get_job():get_light_arts_party_buffs()),
+            Buffer.new(self.action_queue, self:get_job():get_light_arts_job_abilities(), self:get_job():get_light_arts_self_buffs(), self:get_job():get_light_arts_party_buffs()),
             Debuffer.new(self.action_queue),
             Healer.new(self.action_queue, self:get_job()),
             ManaRestorer.new(self.action_queue, L{'Myrkr', 'Spirit Taker'}, 40),
             StatusRemover.new(self.action_queue, self:get_job()),
-            Skillchainer.new(self.action_queue, L{'auto', 'prefer'}, self:get_trust_settings().Skillchains),
-            --Puller.new(self.action_queue, self.battle_settings.targets, 'Dia II', nil)
+            Skillchainer.new(self.action_queue, L{}, self:get_trust_settings().Skillchains),
         }
     elseif new_arts_mode == 'DarkArts' then
         self.arts_roles = S{
-            Buffer.new(self.action_queue, S{'Dark Arts'}, self:get_job():get_dark_arts_self_buffs(), self:get_job():get_dark_arts_party_buffs()),
+            Buffer.new(self.action_queue, self:get_job():get_dark_arts_job_abilities(), self:get_job():get_dark_arts_self_buffs(), self:get_job():get_dark_arts_party_buffs()),
             Debuffer.new(self.action_queue),
             Dispeler.new(self.action_queue, L{ Spell.new('Dispel') }, L{'Addendum: Black'}),
             ManaRestorer.new(self.action_queue, L{'Myrkr', 'Spirit Taker'}, 40),
             Nuker.new(self.action_queue),
-            Skillchainer.new(self.action_queue, L{'auto', 'prefer'}, self:get_trust_settings().Skillchains),
-            --Puller.new(self.action_queue, self.battle_settings.targets, 'Dia II', nil)
+            Skillchainer.new(self.action_queue, L{}, self:get_trust_settings().Skillchains),
+            Puller.new(self.action_queue, self.battle_settings.targets, 'Stone', nil),
         }
     end
 

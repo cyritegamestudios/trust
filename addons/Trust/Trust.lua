@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '6.2.2'
+_addon.version = '7.0.0'
 
 require('Trust-Include')
 
@@ -35,6 +35,14 @@ default.logging.logtofile = false
 settings = config.load(default)
 
 addon_enabled = ValueRelay.new(false)
+addon_enabled:onValueChanged():addAction(function(_, isEnabled)
+	if isEnabled then
+		player.player:monitor()
+		action_queue:enable()
+	else
+		action_queue:disable()
+	end
+end)
 
 player = {}
 
@@ -337,13 +345,10 @@ end
 
 function handle_start()
 	addon_enabled:setValue(true)
-	player.player:monitor()
-	action_queue:enable()
 end
 
 function handle_stop()
 	addon_enabled:setValue(false)
-	action_queue:disable()
 end
 
 function handle_reload()

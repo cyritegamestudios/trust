@@ -64,7 +64,7 @@ return {
             }
         },
         Debuffs = L{
-            Debuff.new("Distract III", L{})
+            Debuff.new("Distract", L{})
         }
     }
 }

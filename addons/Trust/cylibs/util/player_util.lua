@@ -199,8 +199,7 @@ function player_util.get_job_ability_recast(job_ability_name)
 end
 
 function player_util.get_current_strategem_count()
-	if not (buff_util.is_buff_active(buff_util.buff_id('Light Arts'))
-			or buff_util.is_buff_active(buff_util.buff_id('Dark Arts'))) then
+	if not buff_util.is_any_buff_active(L{ buff_util.buff_id('Light Arts'), buff_util.buff_id('Addendum: White'), buff_util.buff_id('Dark Arts'), buff_util.buff_id('Addendum: Black') }) then
 		return 0
 	end
 

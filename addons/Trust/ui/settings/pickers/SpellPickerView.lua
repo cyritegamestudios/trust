@@ -1,4 +1,5 @@
 local Buff = require('cylibs/battle/spells/buff')
+local Debuff = require('cylibs/battle/spells/debuff')
 local PickerView = require('cylibs/ui/picker/picker_view')
 local Spell = require('cylibs/battle/spell')
 local spell_util = require('cylibs/util/spell_util')
@@ -25,8 +26,12 @@ function SpellPickerView:onSelectMenuItemAtIndexPath(textItem, _)
                 if item then
                     local spell = res.spells:with('name', item:getText())
                     if spell then
-                        if spell.status then
-                            self.spells:append(Buff.new(spell_util.base_spell_name(item:getText())))
+                        if spell.status and not L{ 40, 41, 42 }:contains(spell.skill) then
+                            if spell.targets:contains('Enemy') then
+                                self.spells:append(Debuff.new(spell_util.base_spell_name(item:getText())))
+                            else
+                                self.spells:append(Buff.new(spell_util.base_spell_name(item:getText())))
+                            end
                         else
                             self.spells:append(Spell.new(item:getText(), L{}, L{}))
                         end

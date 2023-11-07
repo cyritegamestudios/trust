@@ -149,7 +149,28 @@ function MagicBurstMaker:start_monitoring()
     self.is_monitoring = true
 
     self.state_var_change_id = self.state_var:on_state_change():addAction(function(_, new_value)
-        self:set_auto_nuke(new_value == 'Auto')
+        nukes.reset()
+        self:set_auto_nuke(new_value ~= 'Off')
+        if L{'Earth', 'Lightning', 'Water', 'Fire', 'Ice', 'Wind', 'Light', 'Dark'}:contains(new_value) then
+            nukes.disable()
+            if new_value == 'Earth' then
+                Earth = 0
+            elseif new_value == 'Lightning' then
+                Thunder = 0
+            elseif new_value == 'Water' then
+                Water = 0
+            elseif new_value == 'Fire' then
+                Fire = 0
+            elseif new_value == 'Ice' then
+                Ice = 0
+            elseif new_value == 'Wind' then
+                Wind = 0
+            elseif new_value == 'Light' then
+                Lightness = 0
+            elseif new_value == 'Dark' then
+                Darkness = 0
+            end
+        end
     end)
 
     self.action_events.prerender = windower.register_event('prerender', function()

@@ -77,6 +77,7 @@ function SongSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
         if selectedIndexPaths:length() > 0 then
             local indexPath = selectedIndexPaths[1]
             if indexPath.section == 1 then
+                self.menuArgs['help_text'] = "Choose 3 dummy songs."
                 self.menuArgs['songs'] = self.dummySongs
                 self.menuArgs['validator'] = function(songNames)
                     local buffsForDummySongs = S(songNames:map(function(songName)
@@ -93,6 +94,7 @@ function SongSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
                     return nil
                 end
             elseif indexPath.section == 2 then
+                self.menuArgs['help_text'] = "Choose 5 songs."
                 self.menuArgs['songs'] = self.songs
                 self.menuArgs['validator'] = function(songNames)
                     if songNames:length() ~= 5 then

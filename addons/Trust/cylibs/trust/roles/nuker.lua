@@ -4,8 +4,16 @@ Nuker.__index = Nuker
 local MagicBurstMaker = require('cylibs/battle/skillchains/magic_burst_maker')
 local Nukes = require('cylibs/res/nukes')
 
-state.AutoMagicBurstMode = M{['description'] = 'Auto Magic Burst Mode', 'Off', 'Auto'}
+state.AutoMagicBurstMode = M{['description'] = 'Auto Magic Burst Mode', 'Off', 'Auto', 'Earth', 'Lightning', 'Water', 'Fire', 'Ice', 'Wind', 'Light', 'Dark'}
 state.AutoMagicBurstMode:set_description('Auto', "Okay, if you make skillchains I'll try to magic burst.")
+state.AutoMagicBurstMode:set_description('Earth', "Okay, I'll only magic burst with earth spells.")
+state.AutoMagicBurstMode:set_description('Lightning', "Okay, I'll only magic burst with lightning spells.")
+state.AutoMagicBurstMode:set_description('Water', "Okay, I'll only magic burst with water spells.")
+state.AutoMagicBurstMode:set_description('Fire', "Okay, I'll only magic burst with fire spells.")
+state.AutoMagicBurstMode:set_description('Ice', "Okay, I'll only magic burst with ice spells.")
+state.AutoMagicBurstMode:set_description('Wind', "Okay, I'll only magic burst with wind spells.")
+state.AutoMagicBurstMode:set_description('Light', "Okay, I'll only magic burst with light spells.")
+state.AutoMagicBurstMode:set_description('Dark', "Okay, I'll only magic burst with dark spells.")
 
 state.AutoNukeMode = M{['description'] = 'Auto Nuke Mode', 'Off', 'Earth', 'Lightning', 'Water', 'Fire', 'Ice', 'Wind', 'Light', 'Dark'}
 state.AutoNukeMode:set_description('Earth', "Okay, I'll free nuke with earth spells.")
@@ -42,7 +50,7 @@ function Nuker:on_add()
     self.magic_burst_maker = MagicBurstMaker.new(state.AutoMagicBurstMode)
     self.magic_burst_maker:start_monitoring()
     self.magic_burst_maker:on_perform_next_nuke():addAction(function(_, spell_name)
-        if state.AutoMagicBurstMode.value == 'Auto' then
+        if state.AutoMagicBurstMode.value ~= 'Off' then
             local spell = res.spells:with('name', spell_name)
             if spell then
                 self:cast_spell(spell, true)
