@@ -85,3 +85,7 @@ PartyMember = require('cylibs/entity/party_member')
 
 -- Trusts
 TrustFactory = require('cylibs/trust/trust_factory')
+
+-- Ipc
+IpcRelay = require('cylibs/messages/ipc/ipc_relay')
+CommandMessage = require('cylibs/messages/command_message')

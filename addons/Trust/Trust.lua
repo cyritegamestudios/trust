@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '7.0.0'
+_addon.version = '7.1.0'
 
 require('Trust-Include')
 
@@ -26,6 +26,8 @@ default.battle.trusts = L{'Monberaux','Sylvie (UC)','Koru-Moru','Qultada','Brygi
 default.battle.targets = L{'Locus Colibri','Locus Dire Bat','Locus Thousand Eyes','Locus Spartoi Warrior','Locus Spartoi Sorcerer','Locus Hati','Locus Ghost Crab'}
 default.chat = {}
 default.chat.ipc_enabled = true
+default.follow = {}
+default.follow.distance = 1
 default.remote_commands = {}
 default.remote_commands.whitelist = S{}
 default.logging = {}
@@ -136,7 +138,7 @@ function load_user_files(main_job_id, sub_job_id)
 	player.trust.main_job:add_role(Attacker.new(action_queue))
 	player.trust.main_job:add_role(CombatMode.new(action_queue, settings.battle.melee_distance, settings.battle.range_distance))
 	player.trust.main_job:add_role(Eater.new(action_queue, main_job_trust:get_trust_settings().AutoFood))
-	player.trust.main_job:add_role(Follower.new(action_queue))
+	player.trust.main_job:add_role(Follower.new(action_queue, settings.follow.distance))
 	player.trust.main_job:add_role(Skillchainer.new(action_queue, L{}, main_job_trust:get_trust_settings().Skillchains))
 	player.trust.main_job:add_role(Targeter.new(action_queue))
 	player.trust.main_job:add_role(Truster.new(action_queue, settings.battle.trusts))
@@ -351,6 +353,10 @@ function handle_stop()
 	addon_enabled:setValue(false)
 end
 
+function handle_toggle_addon()
+	addon_enabled:setValue(not addon_enabled:getValue())
+end
+
 function handle_reload()
 	main_trust_settings:loadSettings()
 	sub_trust_settings:loadSettings()
@@ -443,12 +449,7 @@ function handle_toggle_menu()
 	hud:toggleMenu()
 end
 
-function handle_debug(verbose)
-	for jobNameShort in job_util:all_jobs():it() do
-		local settings = TrustSettingsLoader.new(jobNameShort)
-		settings:loadSettings()
-		settings:saveSettings(true)
-	end
+function handle_debug()
 end
 
 -- Setup
@@ -457,6 +458,7 @@ local commands = T{}
 
 commands['start'] = handle_start
 commands['stop'] = handle_stop
+commands['toggle'] = handle_toggle_addon
 commands['reload'] = handle_reload
 commands['shortcut'] = handle_shortcut
 commands['assist'] = handle_assist
@@ -487,7 +489,7 @@ local function addon_command(cmd, ...)
 		player.trust.main_job_commands:handle_command(unpack({...}))
 	elseif L{player.sub_job_name_short, player.sub_job_name_short:lower()}:contains(cmd) and player.trust.sub_job_commands then
 		player.trust.sub_job_commands:handle_command(unpack({...}))
-	elseif L{'sc', 'pull', 'engage', 'follow'}:contains(cmd) then
+	elseif L{'sc', 'pull', 'engage', 'follow', 'sendall'}:contains(cmd) then
 		handle_shortcut(cmd, unpack({...}))
 	else
 		if not L{'cycle', 'set', 'help'}:contains(cmd) then
@@ -500,12 +502,19 @@ function load_chunk_event()
 	load_user_files(windower.ffxi.get_player().main_job_id, windower.ffxi.get_player().sub_job_id)
 
 	trust_remote_commands = TrustRemoteCommands.new(settings.remote_commands.whitelist, commands:keyset())
+
+	IpcRelay.shared():on_message_received():addAction(function(ipc_message)
+		if ipc_message.__class == CommandMessage.__class then
+			windower.send_command(ipc_message:get_windower_command())
+		end
+	end)
 end
 
 function unload_chunk_event()
 	for key in L{'up','down','enter', settings.menu_key}:it() do
 		windower.send_command('unbind %s':format(key))
 	end
+	IpcRelay.shared():destroy()
 end
 
 function unloaded()

@@ -1,22 +1,34 @@
 local Follower = setmetatable({}, {__index = Role })
 Follower.__index = Follower
 
-local WalkAction = require('cylibs/actions/walk')
+local BlockAction = require('cylibs/actions/block')
+local DisposeBag = require('cylibs/events/dispose_bag')
+local logger = require('cylibs/logger/logger')
+local player_util = require('cylibs/util/player_util')
+local res = require('resources')
+local RunToLocation = require('cylibs/actions/runtolocation')
+local SequenceAction = require('cylibs/actions/sequence')
+local WaitAction = require('cylibs/actions/wait')
+local zone_util = require('cylibs/util/zone_util')
 
 state.AutoFollowMode = M{['description'] = 'Auto Follow Mode', 'Off', 'Always'}
 state.AutoFollowMode:set_description('Always', "Okay, I'll follow whomever I'm assisting when not in battle.")
 
-function Follower.new(action_queue)
+function Follower.new(action_queue, follow_distance)
     local self = setmetatable(Role.new(action_queue), Follower)
 
     self.action_queue = action_queue
     self.walk_action_queue = ActionQueue.new(nil, false, 100, false, false)
     self.action_events = {}
-    self.distance = 6
+    self.distance = follow_distance or 1
     self.maxfollowdistance = 35
     self.maxfollowpoints = 100
-    self.keybind = 'f1'
-    self.follow_mode = 'Auto'
+    self.max_zone_distance = 2
+    self.zone_cooldown = 3
+    self.last_position = vector.zero(3)
+    self.last_zone_time = os.time() - self.zone_cooldown
+    self.follow_target_dispose_bag = DisposeBag.new()
+    self.dispose_bag = DisposeBag.new()
 
     return self
 end
@@ -24,79 +36,106 @@ end
 function Follower:destroy()
     Role.destroy(self)
 
-    if self.party_assist_target_change_id then
-        self:get_party():on_party_assist_target_change():removeAction(self.party_assist_target_change_id)
-    end
-
     if self.action_events then
         for _,event in pairs(self.action_events) do
             windower.unregister_event(event)
         end
     end
+    self.dispose_bag:destroy()
+
+    self:stop_following()
 end
 
 function Follower:on_add()
-    self.party_assist_target_change_id = self:get_party():on_party_assist_target_change():addAction(function(_, party_member)
-        if party_member then
-            self:follow_target(party_member:get_name())
-        else
-            self:stop_following()
-        end
-    end)
+    self.conditions = L{
+        MaxDistanceCondition.new(self.maxfollowdistance),
+        ValidTargetCondition.new(),
+    }
 
-    self.action_events.postrender = windower.register_event('postrender', function()
-        self:check_distance()
-    end)
+    self.dispose_bag:add(self:get_party():on_party_assist_target_change():addAction(function(_, assist_target)
+        if self:get_follow_target() == nil and assist_target then
+            self:follow_target_named(assist_target:get_name())
+        end
+    end), self:get_party():on_party_assist_target_change())
 
     self.action_events.status = windower.register_event('status change', function(new_status_id, old_status_id)
         self:on_player_status_change(new_status_id, old_status_id)
     end)
 end
 
-function Follower:follow_target(target_name)
-    self:stop_following()
-
+-------
+-- Follows the target with the given name.
+-- @tparam string target_name Name of the target
+-- @treturn string Error message, or nil if there is none
+function Follower:follow_target_named(target_name)
     target_name = target_name:gsub("^%l", string.upper)
 
-    local player = windower.ffxi.get_player()
-    if target_name == player.name or not self:check_target_in_range(target_name) then
+    local target = self:get_party():get_party_member_named(target_name)
+    if target == nil or not self:is_valid_target(target_name) then
+        logger.error("Invalid target", target_name, target == nil, not self:is_valid_target(target_name))
         return "Invalid target %s":format(target_name)
     end
+    self:set_follow_target(target)
 
+    self:start_following()
+
+    self:get_party():add_to_chat(self:get_party():get_player(), "Okay, I'll follow "..target_name.." when I'm not in battle.")
+end
+
+function Follower:start_following()
+    self.walk_action_queue:clear()
     self.walk_action_queue:enable()
-
     windower.ffxi.run(false)
-
-    addon_message(260, '('..windower.ffxi.get_player().name..') '.."Okay, I'll follow "..target_name.." when I'm not in battle.")
 end
 
 function Follower:stop_following()
     self.walk_action_queue:clear()
     self.walk_action_queue:disable()
+    windower.ffxi.run(false)
+end
+
+-------
+-- Checks whether the target can be followed.
+-- @tparam string target_name Name of the target
+-- @treturn boolean True if the target can be followed
+function Follower:is_valid_target(target_name)
+    local target = self:get_party():get_party_member_named(target_name)
+    if target == nil or target:get_name() == windower.ffxi.get_player().name or target:get_zone_id() ~= windower.ffxi.get_info().zone or target:get_mob() == nil then
+        return false
+    end
+    for condition in self.conditions:it() do
+        if not condition:is_satisfied(target:get_mob().index) then
+            return false
+        end
+    end
+    return true
 end
 
 function Follower:check_distance()
-    if state.AutoFollowMode.value == 'Off' or self:get_follow_target() == nil or self:get_follow_target():get_mob() == nil then
+    if state.AutoFollowMode.value == 'Off' then
+        return
+    end
+    local follow_target = self:get_follow_target()
+    if follow_target == nil or not self:is_valid_target(follow_target:get_name()) then
+        if follow_target then
+            logger.error("Unable to follow", follow_target:get_name()..",", "expected", res.zones[windower.ffxi.get_info().zone].en, "but got", res.zones[follow_target:get_zone_id()].en)
+            self:get_party():add_to_chat(self.party:get_player(), "I can't find you. Whatever happened to no Trust left behind?", 'follower_follow_failure', 30)
+        end
         return
     end
 
-    local follow_target = self:get_follow_target():get_mob()
+    local follow_target = self:get_follow_target()
 
-    if self.walk_action_queue:last() == nil or self.walk_action_queue:last():distance(follow_target.x, follow_target.y, follow_target.z) > 1 then
-        if math.abs(follow_target.z - windower.ffxi.get_mob_by_id(windower.ffxi.get_player().id).z) > 1 or math.sqrt(follow_target.distance) > self.distance then
-            self.walk_action_queue:push_action(WalkAction.new(follow_target.x, follow_target.y, follow_target.z, 2))
-        end
-    end
-end
+    local x = follow_target:get_position()[1]
+    local y = follow_target:get_position()[2]
+    local z = follow_target:get_position()[3]
 
-function Follower:check_target_in_range(target_name)
-    local follow_target = windower.ffxi.get_mob_by_name(target_name)
-    if follow_target then
-        if follow_target.distance:sqrt() < self.maxfollowdistance then
-            return true
-        end
+    local player = windower.ffxi.get_mob_by_id(windower.ffxi.get_player().id)
+
+    local distance = player_util.distance(player_util.get_player_position(), follow_target:get_position())
+    if distance < self.maxfollowdistance and (math.abs(z - player.z) > 1 or distance > self.distance) then
+        self.walk_action_queue:push_action(RunToLocation.new(x, y, z, self.distance))
     end
-    return false
 end
 
 function Follower:on_player_status_change(new_status_id, old_status_id)
@@ -107,25 +146,13 @@ function Follower:on_player_status_change(new_status_id, old_status_id)
     end
 
     if state.AutoFollowMode.value == 'Always' then
-        local assist_target = self:get_follow_target()
-        if assist_target and assist_target:get_name() == windower.ffxi.get_player().name then
-            return
-        end
         if player.status == 'Idle' then
             coroutine.sleep(1)
-            if assist_target and assist_target:get_name() ~= windower.ffxi.get_player().name then
-                self:follow_target(assist_target:get_name())
-            end
+            self:start_following()
         else
             self:stop_following()
         end
     end
-end
-
-function Follower:target_change(target_index)
-    Role.target_change(self, target_index)
-
-    self.target_index = target_index
 end
 
 function Follower:tic(_, _)
@@ -139,8 +166,87 @@ function Follower:get_type()
     return "follower"
 end
 
+function Follower:set_follow_target(target)
+    self:stop_following()
+
+    self.follow_target = target
+    self.follow_target_dispose_bag:destroy()
+
+    if self.follow_target then
+        self.follow_target_dispose_bag:add(self.follow_target:on_position_change():addAction(function(_, x, y, z)
+            self:check_distance()
+        end), self.follow_target:on_position_change())
+        self.follow_target_dispose_bag:add(self.follow_target:on_zone_change():addAction(function(p, zone_id, x, y, z, zone_line, zone_type)
+            local is_zone_request = zone_line and zone_type
+            if is_zone_request then
+                logger.notice(p:get_name(), "zoned from", res.zones[zone_id].en, zone_line, zone_type)
+                self:zone(zone_id, x, y, z, zone_line, zone_type)
+            end
+        end), self.follow_target:on_zone_change())
+    end
+end
+
+function Follower:can_zone(zone_id)
+    local player = self:get_party():get_player()
+    if not player or (os.time() - player:get_last_zone_time()) < self.zone_cooldown
+            or zone_id ~= windower.ffxi.get_info().zone then
+        return false
+    end
+    return true
+end
+
+function Follower:zone(zone_id, x, y, z, zone_line, zone_type, num_attempts)
+    num_attempts = num_attempts or 0
+
+    logger.notice("Zone request attempt", num_attempts)
+
+    if num_attempts > 10 or not self:can_zone(zone_id) then
+        logger.notice("Unable to zone", res.zones[zone_id].en, num_attempts)
+        return
+    end
+
+    local pos = vector.zero(3)
+
+    pos[1] = x
+    pos[2] = y
+    pos[3] = z
+
+    self.walk_action_queue:clear()
+
+    local actions = L{}
+
+    local distance_to_zone = player_util.distance(player_util.get_player_position(), pos)
+    if distance_to_zone < self.max_zone_distance then
+        logger.notice("Attemping to zone from", res.zones[zone_id].en, zone_line, zone_type)
+
+        actions:append(WaitAction.new(x, y, z, math.random() * 2))
+
+        local zone_action = BlockAction.new(function()
+            zone_util.zone(zone_id, zone_line, zone_type)
+        end, 'follower_zone_request', 'Zoning')
+
+        actions:append(zone_action)
+    elseif distance_to_zone < 25 then
+        logger.notice("Attempting to walk to zone line", res.zones[zone_id].en, zone_line, zone_type, distance_to_zone, self.max_zone_distance)
+
+        actions:append(RunToLocation.new(x, y, z, self.max_zone_distance))
+
+        local zone_retry_action = BlockAction.new(function()
+            self:zone(zone_id, x, y, z, zone_line, zone_type, num_attempts + 1)
+        end, 'follower_zone_request_retry', 'Zoning Retry')
+
+        actions:append(zone_retry_action)
+    else
+        logger.error("Too far to zone from", res.zones[zone_id].en, zone_line, zone_type, distance_to_zone, self.max_zone_distance)
+    end
+
+    if actions:length() > 0 then
+        self.walk_action_queue:push_action(SequenceAction.new(actions, 'follower_zone_'..num_attempts), true)
+    end
+end
+
 function Follower:get_follow_target()
-    return self:get_party():get_assist_target()
+    return self.follow_target
 end
 
 function Follower:set_distance(distance)

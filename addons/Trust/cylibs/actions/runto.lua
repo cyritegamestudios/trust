@@ -55,6 +55,7 @@ function RunToAction:run_to(distance, retry_count)
 	windower.ffxi.follow()
 
 	if retry_count > 100 then
+		windower.ffxi.run(false)
 		self:complete(false)
 		return
 	end

@@ -4,10 +4,14 @@
 -- @name Party
 
 local AlterEgo = require('cylibs/entity/alter_ego')
+local DisposeBag = require('cylibs/events/dispose_bag')
 local Entity = require('cylibs/entity/entity')
 local Event = require('cylibs/events/Luvent')
+local MobUpdateMessage = require('cylibs/messages/mob_update_message')
+local ZoneMessage = require('cylibs/messages/zone_message')
 local packets = require('packets')
 local PartyMember = require('cylibs/entity/party_member')
+local Player = require('cylibs/entity/party/player')
 local party_util = require('cylibs/util/party_util')
 local res = require('resources')
 local trusts = require('cylibs/res/trusts')
@@ -55,10 +59,12 @@ end
 -- @treturn Party A party
 function Party.new(party_chat)
     local self = setmetatable(Entity.new(0), Party)
+
     self.party_chat = party_chat
     self.action_events = {}
     self.is_monitoring = false
     self.party_members = T{}
+    self.dispose_bag = DisposeBag.new()
 
     self.party_member_added = Event.newEvent()
     self.party_member_removed = Event.newEvent()
@@ -86,6 +92,8 @@ function Party:destroy()
         end
     end
 
+    self.dispose_bag:destroy()
+
     for party_member in self:get_party_members(true):it() do
         party_member:destroy()
     end
@@ -108,6 +116,20 @@ function Party:monitor()
     end
     self.is_monitoring = true
 
+    self.dispose_bag:add(IpcRelay.shared():on_message_received():addAction(function(ipc_message)
+        if ipc_message.__class == MobUpdateMessage.__class then
+            local party_member = self:get_party_member_named(ipc_message:get_mob_name())
+            if party_member then
+                party_member:set_position(ipc_message:get_position()[1], ipc_message:get_position()[2], ipc_message:get_position()[3])
+            end
+        elseif ipc_message.__class == ZoneMessage.__class then
+            local party_member = self:get_party_member_named(ipc_message:get_mob_name())
+            if party_member then
+                party_member:set_zone_id(ipc_message:get_zone_id(), ipc_message:get_zone_line(), ipc_message:get_zone_type())
+            end
+        end
+    end), IpcRelay.shared():on_message_received())
+
     -- Update party members
     self.action_events.incoming = windower.register_event('incoming chunk', function(id, original, _, _, _)
         if id == 0x0DF then
@@ -119,25 +141,27 @@ function Party:monitor()
             local main_job_id = p['Main job']
             local sub_job_id = p['Sub job']
             local mob = windower.ffxi.get_mob_by_id(mob_id)
+            local zone = windower.ffxi.get_info().zone
 
             if mob_id and hpp then
-                if self.party_members[mob_id] and self.party_members[mob_id]:get_mob() then
-                    self:add_member(mob_id, self.party_members[mob_id]:get_name(), main_job_id, sub_job_id, hpp, hp)
+                local party_member = self:get_party_member(mob_id)
+                if party_member and party_member:get_mob() then
+                    self:add_member(mob_id, party_member:get_name(), main_job_id, sub_job_id, hpp, hp, zone)
 
                     if hpp > 0 then
-                        self:on_party_member_hp_change():trigger(self.party_members[mob_id], hpp, hp / (hpp / 100.0))
+                        self:on_party_member_hp_change():trigger(party_member, hpp, hp / (hpp / 100.0))
                     else
-                        self:on_party_member_ko():trigger(self.party_members[mob_id])
+                        self:on_party_member_ko():trigger(party_member)
                     end
                 -- Alter Egos do not send 0x0DD packet
                 elseif mob and party_util.is_party_member(mob_id) then
-                    self:add_member(mob_id, mob.name, main_job_id, sub_job_id, hpp, hp)
+                    self:add_member(mob_id, mob.name, main_job_id, sub_job_id, hpp, hp, zone)
                 end
             end
 
             self:prune_party_members()
+        -- Called when party member is added, removed, or while not in the same zone as the player
         elseif id == 0x0DD then
-            -- called when party member is added (and removed?)
             local p = packets.parse('incoming', original)
 
             local mob_id = p['ID']
@@ -146,8 +170,9 @@ function Party:monitor()
             local main_job_id = p['Main job']
             local sub_job_id = p['Sub job']
             local name = p['Name']
+            local zone = p['Zone'] or windower.ffxi.get_info().zone
 
-            self:add_member(mob_id, name, main_job_id, sub_job_id, hpp, hp)
+            self:add_member(mob_id, name, main_job_id, sub_job_id, hpp, hp, zone)
         end
     end)
 end
@@ -160,7 +185,8 @@ end
 -- @tparam number sub_job_id Optional sub job id
 -- @tparam number hpp Current hit point percentage
 -- @tparam number hp Current hit points
-function Party:add_member(mob_id, name, main_job_id, sub_job_id, hpp, hp)
+-- @tparam number zone_id Zone id (see res/zones.lua)
+function Party:add_member(mob_id, name, main_job_id, sub_job_id, hpp, hp, zone_id)
     if mob_id and not self.party_members[mob_id] then
         if party_util.is_alter_ego(name) then
             self.party_members[mob_id] = AlterEgo.new(mob_id, name)
@@ -168,7 +194,11 @@ function Party:add_member(mob_id, name, main_job_id, sub_job_id, hpp, hp)
             if not party_util.is_party_member(mob_id) then
                 return
             end
-            self.party_members[mob_id] = PartyMember.new(mob_id)
+            if mob_id == windower.ffxi.get_player().id then
+                self.party_members[mob_id] = Player.new(mob_id)
+            else
+                self.party_members[mob_id] = PartyMember.new(mob_id)
+            end
         end
         self.party_members[mob_id]:monitor()
         self.party_members[mob_id]:on_target_change():addAction(function(p, new_target_index, old_target_index)
@@ -189,6 +219,10 @@ function Party:add_member(mob_id, name, main_job_id, sub_job_id, hpp, hp)
     party_member.hp = hp or 0
     party_member:set_heartbeat_time(os.time())
 
+    if zone_id then
+        party_member:set_zone_id(zone_id)
+    end
+
     if not party_member:is_trust() then
         if main_job_id then
             party_member.main_job_short = res.jobs[main_job_id]['ens']
@@ -198,7 +232,7 @@ function Party:add_member(mob_id, name, main_job_id, sub_job_id, hpp, hp)
         end
     else
         if party_member:get_mob() then
-            local trust = trusts:with('en', party_member:get_name())
+            local trust = trusts:with('en', party_member:get_name()) or trusts:with('enl', party_member:get_name())
             if trust then
                 party_member.main_job_short = trust.main_job_short
                 party_member.sub_job_short = trust.sub_job_short

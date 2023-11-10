@@ -39,18 +39,49 @@ function handle_shortcut(cmd, ...)
         elseif mode_var == 'assist' then
             toggle_mode('AutoEngageMode', 'Assist', 'Off')
         end
+    -- Send
+    elseif cmd == 'sendall' then
+        local windower_command = ''
+        for _, token in ipairs(arg) do
+            windower_command = windower_command..token..' '
+        end
+        if #windower_command > 0 then
+            if L{'All', 'Send'}:contains(state.IpcMode.value) then
+                IpcRelay.shared():send_message(CommandMessage.new(windower_command))
+            else
+                error('IpcMode must be set to All or Send to use this command')
+            end
+        end
     -- Following
     elseif cmd == 'follow' then
         local trust = player.trust.main_job
         local follower = trust:role_with_type("follower")
         if follower then
             local param = arg[1]
-            if param:match("^%d+$") then
+            if param == 'me' then
+                if L{'All', 'Send'}:contains(state.IpcMode.value) then
+                    IpcRelay.shared():send_message(CommandMessage.new('trust follow '..windower.ffxi.get_player().name))
+                else
+                    error('IpcMode must be set to All or Send to use this command')
+                end
+            elseif param == 'stopall' then
+                if L{'All', 'Send'}:contains(state.IpcMode.value) then
+                    IpcRelay.shared():send_message(CommandMessage.new('trust set AutoFollowMode Off'))
+                else
+                    error('IpcMode must be set to All or Send to use this command')
+                end
+            elseif param:match("^%d+$") then
                 local distance = tonumber(param)
                 follower:set_distance(distance)
                 addon_message(207, 'Follow distance set to '..distance)
             else
-                follower:follow_target(param)
+                if follower:is_valid_target(param) then
+                    handle_set('AutoFollowMode', 'Always')
+                    local error_message = follower:follow_target_named(param)
+                    if error_message then
+                        error(error_message)
+                    end
+                end
             end
         end
     end

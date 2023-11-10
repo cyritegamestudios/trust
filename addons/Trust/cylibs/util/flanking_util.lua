@@ -36,8 +36,9 @@ function flanking_util.get_relative_location_for_target(mob_id, angle, distance)
     -- Get the unit vector for the mob, due to a FFXI angle quirk, use negative angles
     local u = V{math.cos(-mob.facing), math.sin(-mob.facing), mob.z}
 
-    -- Get a distance relative to mob size/scale
-    local d = mob.model_size * mob.model_scale + distance
+    -- Get a distance relative to mob size
+    local my_size = windower.ffxi.get_mob_by_target('me').model_size or 0
+    local d = mob.model_size + my_size + distance
 
     local locations = {
         back = V{ mob.x - d * u[1], mob.y - d * u[2], mob.z },

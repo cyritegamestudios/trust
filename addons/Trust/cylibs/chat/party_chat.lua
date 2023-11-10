@@ -4,6 +4,10 @@ local PartyChatMessage = require('cylibs/messages/party_chat_message')
 local PartyChat = {}
 PartyChat.__index = PartyChat
 
+state.PartyChatMode = M{['description'] = 'Party Chat Mode', 'Private', 'Party', 'Off'}
+state.PartyChatMode:set_description('Private', "Okay, only you'll be able to see my messages.")
+state.PartyChatMode:set_description('Party', "Okay, I'll send messages to party chat.")
+
 function PartyChat.new(ipcEnabled)
     local self = setmetatable({}, PartyChat)
 
@@ -46,10 +50,14 @@ function PartyChat:add_to_chat(sender_name, message, throttle_key, throttle_dura
         self.message_last_sent[throttle_key] = os.time()
     end
 
-    addon_message(260, "(%s) %s":format(sender_name, message))
+    if state.PartyChatMode.value == 'Private' then
+        addon_message(260, "(%s) %s":format(sender_name, message))
 
-    if self.ipcEnabled then
+        if self.ipcEnabled then
         windower.send_ipc_message("party_chat %s %s":format(sender_name, message))
+        end
+    elseif state.PartyChatMode.value == 'Party' then
+        windower.chat.input('/p '..message)
     end
 end
 

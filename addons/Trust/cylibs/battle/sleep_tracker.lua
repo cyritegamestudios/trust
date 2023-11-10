@@ -42,10 +42,12 @@ function SleepTracker:monitor()
 
     self.action_events.action = windower.register_event('action', function(act)
         local actor = windower.ffxi.get_mob_by_id(act.actor_id)
-        if actor.spawn_type == 16 then
-            self:handle_action_by_monster(act)
-        else
-            self:handle_action_on_monster(act)
+        if actor then
+            if actor.spawn_type == 16 then
+                self:handle_action_by_monster(act)
+            else
+                self:handle_action_on_monster(act)
+            end
         end
     end)
 end

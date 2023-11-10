@@ -22,10 +22,10 @@ function unregister_help_text(state_name, state_var)
 end
 
 function display_help_text(text)
-    if not is_help_text_enabled then
+    if not is_help_text_enabled or player.party == nil then
         return
     end
-    addon_message(260, '('..windower.ffxi.get_player().name..') '..text)
+    player.party:add_to_chat(player.party:get_player(), text)
 end
 
 function set_help_text_enabled(enabled)

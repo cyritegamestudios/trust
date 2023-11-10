@@ -134,6 +134,7 @@ function SkillchainMaker:destroy()
     coroutine.close(check_weapon)
     check_weapon = nil
     info = {}
+
     resonating = {}
     buffs = {}
 

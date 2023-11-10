@@ -8,8 +8,9 @@ local Action = require('cylibs/actions/action')
 local WalkAction = setmetatable({}, {__index = Action })
 WalkAction.__index = WalkAction
 
-function WalkAction.new(x, y, z)
+function WalkAction.new(x, y, z, min_dist)
 	local self = setmetatable(Action.new(x, y, z), WalkAction)
+	self.min_dist = min_dist or 2
  	return self
 end
 
@@ -25,7 +26,7 @@ function WalkAction:can_perform()
 
 	local dist = PlayerUtil.distance(PlayerUtil.get_player_position(), self:get_position())
 
-	if dist < 3 or dist > 500 then
+	if dist < self.min_dist or dist > 500 then
 		return false
 	end
 	
@@ -44,6 +45,7 @@ function WalkAction:walk_to_point(v, retry_count)
 	windower.ffxi.follow()
 
 	if retry_count > 20 then
+		windower.ffxi.run(false)
 		self:complete(false)
 		return
 	end
@@ -58,7 +60,7 @@ function WalkAction:walk_to_point(v, retry_count)
 
 	local dist = math.sqrt((p[1]-v[1])^2+(p[2]-v[2])^2+(p[3]-v[3])^2)
 
-	if dist < 2 then
+	if dist < self.min_dist then
 		windower.ffxi.run(false) 
 		self:complete(true)
 	else
