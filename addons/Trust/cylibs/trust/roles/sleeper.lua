@@ -1,3 +1,4 @@
+local monster_util = require('cylibs/util/monster_util')
 local SleepTracker = require('cylibs/battle/sleep_tracker')
 local spell_util = require('cylibs/util/spell_util')
 
@@ -48,6 +49,10 @@ function Sleeper:check_sleep()
     local nearby_mobs = windower.ffxi.get_mob_array()
     for _, target in pairs(nearby_mobs) do
         if target and target.hpp > 0 and target.status == 1 and target.distance:sqrt() <= 12 and target.valid_target and target.spawn_type == 16 then
+            if monster_util.immune_to_debuff(target.name, 'sleep') then
+                self:get_party():add_to_chat(self:get_party():get_player(), "I can't sleep because the "..target.name.." is in the way.", "sleeper_immune_sleep", 15)
+                return
+            end
             if not self.sleep_tracker:is_sleeping(target.id) then
                 mobs_to_sleep:append(target)
             end

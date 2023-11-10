@@ -227,6 +227,9 @@ end
 
 -- Returns the last element in the queue, without removing it
 function ActionQueue:last()
+	if self.queue:empty() then
+		return nil
+	end
 	return self.queue[self:length()-1]
 end
 

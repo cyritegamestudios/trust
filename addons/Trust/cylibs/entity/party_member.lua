@@ -41,10 +41,20 @@ function PartyMember:on_lose_buff()
     return self.lose_buff
 end
 
+-- Event called when the party member's position changes.
+function PartyMember:on_position_change()
+    return self.position_change
+end
+
+-- Event called when the party member's zone changes. Only works when IpcMode is not set to Off.
+function PartyMember:on_zone_change()
+    return self.zone_change
+end
+
 -------
 -- Default initializer for a PartyMember.
 -- @tparam number id Mob id
--- @treturn Player A player
+-- @treturn PartyMember A party member
 function PartyMember.new(id)
     local self = setmetatable(Entity.new(id), PartyMember)
     self.id = id
@@ -53,10 +63,12 @@ function PartyMember.new(id)
     self.hpp = 100
     self.hp = 0
     self.target_index = nil
+    self.zone_id = nil
     self.action_events = {}
     self.debuff_ids = L{}
     self.buff_ids = L{}
     self.is_monitoring = false
+    self.last_zone_time = os.time()
     self.heartbeat_time = os.time()
 
     self.target_change = Event.newEvent()
@@ -64,9 +76,14 @@ function PartyMember.new(id)
     self.lose_debuff = Event.newEvent()
     self.gain_buff = Event.newEvent()
     self.lose_buff = Event.newEvent()
+    self.position_change = Event.newEvent()
+    self.zone_change = Event.newEvent()
 
-    if self:get_mob() then
+    local mob = self:get_mob()
+    if mob then
         self.hpp = self:get_mob().hpp
+        self:set_position(mob.x, mob.y, mob.z)
+        self:set_zone_id(windower.ffxi.get_info().zone)
     end
 
     self:update_buffs(party_util.get_buffs(self.id))
@@ -89,6 +106,8 @@ function PartyMember:destroy()
     self.lose_debuff:removeAllActions()
     self.gain_buff:removeAllActions()
     self.lose_buff:removeAllActions()
+    self.position_change:removeAllActions()
+    self.zone_change:removeAllActions()
 end
 
 -------
@@ -96,7 +115,7 @@ end
 -- triggered. You should call destroy() to clean up listeners when you are done.
 function PartyMember:monitor()
     if self.is_monitoring then
-        return
+        return false
     end
     self.is_monitoring = true
 
@@ -116,28 +135,18 @@ function PartyMember:monitor()
                     self:update_target(windower.ffxi.get_mob_by_id(p.ID).target_index)
                 end
             end
+        elseif id == 0x00D then
+            local p = packets.parse('incoming', original)
+            if self:get_mob() and p.Player == self:get_mob().id then
+                if not IpcRelay.shared():is_connected(self:get_name()) then
+                    if p['X'] ~= 0 or p['Y'] ~= 0 or p['Z'] ~= 0 then
+                        self:set_position(p['X'], p['Y'], p['Z'])
+                    end
+                end
+            end
         end
     end)
-
-    if windower.ffxi.get_player().id == self.id then
-        self.action_events.outgoing = windower.register_event('outgoing chunk', function(id, original, _, _, _)
-            -- Notify target changes
-            if id == 0x015 then
-                local p = packets.parse('outgoing', original)
-                self:update_target(p['Target Index'])
-            end
-        end)
-        self.action_events.gain_buff = windower.register_event('gain buff', function(buff_id)
-            local player_buff_ids = party_util.get_buffs(self:get_mob().id)
-            self:update_debuffs(player_buff_ids)
-            self:update_buffs(player_buff_ids)
-        end)
-        self.action_events.lose_buff = windower.register_event('lose buff', function(buff_id)
-            local player_buff_ids = party_util.get_buffs(self:get_mob().id)
-            self:update_debuffs(player_buff_ids)
-            self:update_buffs(player_buff_ids)
-        end)
-    end
+    return true
 end
 
 function PartyMember:update_target(target_index)
@@ -317,6 +326,51 @@ function PartyMember:get_status()
         return res.statuses[mob.status].name
     end
     return 'Idle'
+end
+
+-------
+-- Sets the (x, y, z) coordinate of the mob.
+-- @tparam number x X coordinate
+-- @tparam number y Y coordinate
+-- @tparam number z Z coordinate
+function PartyMember:set_position(x, y, z)
+    local last_position = self:get_position()
+    if last_position[1] == x and last_position[2] == y and last_position[3] == z then
+        return
+    end
+    Entity.set_position(self, x, y, z)
+
+    self:on_position_change():trigger(self, x, y,  z)
+end
+
+-------
+-- Returns the zone id of the party member. If the zone id is not set and the mob is non-nil, returns the player's current zone.
+-- @treturn number Zone id (see res/zones.lua)
+function PartyMember:get_zone_id()
+    return self.zone_id
+end
+
+-------
+-- Sets the zone id.
+-- @tparam number zone_id Zone id (see res/zones.lua)
+-- @tparam number zone_line (optional) Zone line, only set via IPC
+-- @tparam number zone_type (optional) Zone type, only set via IPC
+function PartyMember:set_zone_id(zone_id, zone_line, zone_type)
+    zone_id = tonumber(zone_id)
+    if zone_id == 0 or (self.zone_id == zone_id and zone_line == nil and zone_type == nil) then
+        return
+    end
+    self.zone_id = zone_id
+    self.last_zone_time = os.time()
+
+    self:on_zone_change():trigger(self, zone_id, self:get_position()[1], self:get_position()[2], self:get_position()[3], tonumber(zone_line), tonumber(zone_type))
+end
+
+-------
+-- Returns the last time the party member changed zones.
+-- @treturn number Timestamp in seconds
+function PartyMember:get_last_zone_time()
+    return self.last_zone_time
 end
 
 -------

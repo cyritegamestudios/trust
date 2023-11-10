@@ -6,6 +6,7 @@
 _libs = _libs or {}
 
 require('lists')
+local buff_util = require('cylibs/util/buff_util')
 
 local monster_util = {}
 
@@ -60,6 +61,20 @@ function monster_util.is_unclaimed(target_id)
     local target = windower.ffxi.get_mob_by_id(target_id)
     if target ~= nil and target.claim_id == nil or target.claim_id == 0 then
         return true
+    end
+    return false
+end
+
+-------
+-- Determines if a mob is immune to a given debuff.
+-- @param target_name Mob name
+-- @param debuff_name Debuff name (see res/buffs.lua)
+-- @treturn Boolean True if the mob is immune to the given debuff.
+function monster_util.immune_to_debuff(target_name, debuff_name)
+    if debuff_name == 'sleep' then
+        return L{
+            'Nostos Qutrub',
+        }:contains(target_name) or string.find(target_name, 'Agon (%a+ ?)+')
     end
     return false
 end

@@ -109,4 +109,11 @@ function AlterEgo:is_trust()
     return true
 end
 
+-------
+-- Returns the zone id of the alter ego.
+-- @treturn number Zone id (see res/zones.lua)
+function AlterEgo:get_zone_id()
+    return windower.ffxi.get_info().zone
+end
+
 return AlterEgo

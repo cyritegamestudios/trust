@@ -71,37 +71,6 @@ TextStyle.TargetView = TextStyle.new(
         true
 )
 
---[[TrustHud.Menus = {
-    Default = L{
-        ButtonItem.default('Modes', 18),
-        --ButtonItem.default('Party', 18),
-        ButtonItem.default('Debug', 18),
-        ButtonItem.default('Settings', 18),
-    },
-    Settings = L{
-        ButtonItem.default('Buffs', 18),
-        ButtonItem.default('Debuffs', 18),
-        ButtonItem.default('Skillchains', 18),
-    },
-    Modes = L{
-        ButtonItem.default('Save', 18),
-    },
-    Debug = L{
-        ButtonItem.default('Clear', 18),
-    },
-    Buffs = L{
-        ButtonItem.default('Edit', 18),
-    },
-    Debuffs = L{
-        ButtonItem.default('Edit', 18),
-    },
-    Edit = L{
-        ButtonItem.default('Add', 18),
-        ButtonItem.default('Edit', 18),
-        ButtonItem.default('Delete', 18),
-    }
-}]]
-
 function TrustHud.new(player, action_queue, addon_enabled, menu_width, menu_height)
     local self = setmetatable(View.new(), TrustHud)
 
@@ -115,57 +84,6 @@ function TrustHud.new(player, action_queue, addon_enabled, menu_width, menu_heig
     self.menuViewStack = ViewStack.new(Frame.new(windower.get_windower_settings().ui_x_res - 128, 50, 0, 0))
     self.mainMenuItem = self:getMainMenuItem()
     self.trustMenu = Menu.new(self.viewStack, self.menuViewStack)
-    --[[self.trustMenu = Menu.new(self.viewStack, self.menuViewStack, function(textItem)
-        local viewSize = Frame.new(0, 0, 500, 500)
-
-        local function createBackgroundView(width, height)
-            local backgroundView = BackgroundView.new(Frame.new(0, 0, width, height),
-                    windower.addon_path..'assets/backgrounds/menu_bg_top.png',
-                    windower.addon_path..'assets/backgrounds/menu_bg_mid.png',
-                    windower.addon_path..'assets/backgrounds/menu_bg_bottom.png')
-            return backgroundView
-        end
-
-        local function createTitleView()
-            local titleView = NavigationBar.new(Frame.new(0, 0, viewSize.width, 35))
-            return titleView
-        end
-
-        if textItem:getText() == 'Modes' then
-            local modesView = ModesView.new(L(T(state):keyset()):sort(), self.menuViewStack)
-            modesView:setBackgroundImageView(createBackgroundView(viewSize.width, viewSize.height))
-            modesView:setNavigationBar(createTitleView())
-            modesView:setSize(viewSize.width, viewSize.height)
-            return modesView
-        elseif textItem:getText() == 'Debug' then
-            local debugView = DebugView.new(action_queue)
-            debugView:setBackgroundImageView(createBackgroundView(viewSize.width, viewSize.height))
-            debugView:setNavigationBar(createTitleView())
-            debugView:setSize(viewSize.width, viewSize.height)
-            return debugView
-        elseif textItem:getText() == 'Buffs' then
-            local buffer = player.trust.main_job:role_with_type("buffer")
-            if buffer then
-                local bufferView = BufferView.new(buffer)
-                bufferView:setBackgroundImageView(createBackgroundView(viewSize.width, viewSize.height))
-                bufferView:setNavigationBar(createTitleView())
-                bufferView:setSize(viewSize.width, viewSize.height)
-                return bufferView
-            end
-        elseif textItem:getText() == 'Edit' then
-            local currentView = self.viewStack:getCurrentView()
-            if currentView then
-                if currentView.__type == 'BufferView' then
-                    local bufferEditor = BuffSettingsEditor.new(main_trust_settings, state.MainTrustSettingsMode, viewSize.width, self.menuViewStack)
-                    bufferEditor:setBackgroundImageView(createBackgroundView(viewSize.width, viewSize.height))
-                    bufferEditor:setNavigationBar(createTitleView())
-                    bufferEditor:setSize(viewSize.width, viewSize.height)
-                    return bufferEditor
-                end
-            end
-        end
-        return nil
-    end, TrustHud.Menus)]]
 
     self:addSubview(self.actionView)
 
@@ -178,6 +96,9 @@ function TrustHud.new(player, action_queue, addon_enabled, menu_width, menu_heig
         if indexPath.row == 1 then
             cellSize = 250
         else
+            if indexPath.row == 2 then
+                cellSize = 120
+            end
             cell:setUserInteractionEnabled(true)
         end
         cell:setItemSize(cellSize)
@@ -190,23 +111,20 @@ function TrustHud.new(player, action_queue, addon_enabled, menu_width, menu_heig
     self:addSubview(self.listView)
 
     dataSource:addItem(TextItem.new('', TextStyle.TargetView), IndexPath.new(1, 1))
-    dataSource:addItem(TextItem.new(player.main_job_name_short, TextStyle.Default.Button), IndexPath.new(1, 2))
-    dataSource:addItem(TextItem.new(player.sub_job_name_short, TextStyle.Default.Button), IndexPath.new(1, 3))
-    dataSource:addItem(TextItem.new('ON', TextStyle.Default.Button, "Trust: ${text}"), IndexPath.new(1, 4))
+    dataSource:addItem(TextItem.new(player.main_job_name_short..' / '..player.sub_job_name_short, TextStyle.Default.Button), IndexPath.new(1, 2))
+    dataSource:addItem(TextItem.new('ON', TextStyle.Default.Button, "Trust: ${text}"), IndexPath.new(1, 3))
 
     self:getDisposeBag():add(self.listView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
         self.listView:getDelegate():deselectItemAtIndexPath(indexPath)
         if indexPath.row == 2 then
             self:toggleMenu()
         elseif indexPath.row == 3 then
-            self:toggleMenu()
-        elseif indexPath.row == 4 then
             addon_enabled:setValue(not addon_enabled:getValue())
         end
     end), self.listView:getDelegate():didSelectItemAtIndexPath())
 
     self:getDisposeBag():add(addon_enabled:onValueChanged():addAction(function(_, isEnabled)
-        local indexPath = IndexPath.new(1, 4)
+        local indexPath = IndexPath.new(1, 3)
         local item = self.listView:getDataSource():itemAtIndexPath(indexPath)
         local newText = ''
         if isEnabled then
