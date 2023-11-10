@@ -1,7 +1,11 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
+<<<<<<< HEAD
 _addon.version = '7.1.0'
+=======
+_addon.version = '7.0.0'
+>>>>>>> main
 
 require('Trust-Include')
 
@@ -351,10 +355,13 @@ end
 
 function handle_stop()
 	addon_enabled:setValue(false)
+<<<<<<< HEAD
 end
 
 function handle_toggle_addon()
 	addon_enabled:setValue(not addon_enabled:getValue())
+=======
+>>>>>>> main
 end
 
 function handle_reload()
