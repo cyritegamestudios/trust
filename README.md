@@ -2,7 +2,7 @@
 
 ## Summary
 
-Trust is a Windower 4 addon for FFXI that turns your character into a Trust. It works for all jobs and can attack, nuke, pull, skillchain, follow, roll, sing and more.
+Trust is a Windower 4 addon for FFXI that turns your character into a Trust. It works for all [22 jobs](https://github.com/cyritegamestudios/trust/wiki/Trusts) and can attack, nuke, pull, skillchain, follow, roll, sing, and more, consolidating the functionality of EasyFarm, Cure Please, Rollbot, FastFollow and [many others](https://github.com/cyritegamestudios/trust/wiki#why-use-trust) into a single add-on.
 
 ![menu_2 1](https://github.com/cyritegamestudios/trust/assets/123847593/6d9fc536-f025-4378-b1a1-fa99dd0b2184)
 ![menu_2 2](https://github.com/cyritegamestudios/trust/assets/123847593/18c15caa-b88e-4534-80a6-64684916c065)
