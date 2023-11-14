@@ -58,7 +58,7 @@ function RedMageTrust:on_init()
 
 		local buffer = self:role_with_type("buffer")
 
-		buffer:set_job_ability_names(new_trust_settings.JobAbilities)
+		buffer:set_job_abilities(new_trust_settings.JobAbilities)
 		buffer:set_self_spells(new_trust_settings.SelfBuffs)
 		buffer:set_party_spells(new_trust_settings.PartyBuffs)
 

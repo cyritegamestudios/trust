@@ -1,5 +1,6 @@
 -- Settings file for NIN
 return {
+    Version = 1,
     Default = {
         Skillchains = {
             spamws = L{
@@ -38,7 +39,7 @@ return {
             Spell.new("Utsusemi: Ni", L{}, L{}, nil, L{})
         },
         JobAbilities = L{
-
+            JobAbility.new('Yonin', L{}, L{InBattleCondition.new()}, nil),
         }
     }
 }

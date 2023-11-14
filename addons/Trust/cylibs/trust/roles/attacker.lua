@@ -7,6 +7,7 @@ local Attacker = setmetatable({}, {__index = Role })
 Attacker.__index = Attacker
 
 state.AutoEngageMode = M{['description'] = 'Auto Engage Mode', 'Off', 'Always', 'Mirror', 'Assist'}
+state.AutoEngageMode:set_description('Off', "Okay, I won't engage or target mobs our party is fighting.")
 state.AutoEngageMode:set_description('Always', "Okay, I'll automatically engage when our party is fighting.")
 state.AutoEngageMode:set_description('Mirror', "Okay, I'll only engage if the person I'm assisting is fighting.")
 state.AutoEngageMode:set_description('Assist', "Okay, I'll lock onto the target but I won't draw my weapons.")

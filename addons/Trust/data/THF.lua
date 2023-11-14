@@ -1,5 +1,6 @@
 -- Settings file for THF
 return {
+    Version = 1,
     Default = {
         Skillchains = {
             spamws = L{
@@ -23,6 +24,9 @@ return {
 
             }
         },
+        JobAbilities = L{
+
+        }
         SelfBuffs = L{
 
         }

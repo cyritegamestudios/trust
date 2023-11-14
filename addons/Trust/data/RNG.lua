@@ -1,5 +1,6 @@
 -- Settings file for RNG
 return {
+    Version = 1,
     Default = {
         Skillchains = {
             spamws = L{
@@ -23,7 +24,7 @@ return {
             }
         },
         JobAbilities = L{
-            "Velocity Shot"
+            JobAbility.new('Velocity Shot', L{}, L{InBattleCondition.new()}, nil),
         }
     }
 }

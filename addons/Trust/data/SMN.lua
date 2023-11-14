@@ -1,5 +1,6 @@
 -- Settings file for SMN
 return {
+    Version = 1,
     Default = {
         PartyBuffs = L{
             {

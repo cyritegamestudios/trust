@@ -26,7 +26,7 @@ function DancerTrust:on_init()
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
 		local buffer = self:role_with_type("buffer")
 		if buffer then
-			buffer:set_job_ability_names(new_trust_settings.JobAbilities)
+			buffer:set_job_abilities(new_trust_settings.JobAbilities)
 		end
 	end)
 end

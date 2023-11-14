@@ -42,7 +42,7 @@ function BufferView.new(buffer)
 
     local sectionNum = 1
 
-    local jobAbilityNames = buffer:get_job_ability_names()
+    local jobAbilityNames = buffer:get_job_abilities():map(function(job_ability) return job_ability:get_job_ability_name() end)
     if jobAbilityNames:length() > 0 then
         itemsToAdd:append(IndexedItem.new(TextItem.new("Job Abilities", TextStyle.Default.HeaderSmall), IndexPath.new(sectionNum, 1)))
         local currentRow = 2

@@ -71,4 +71,12 @@ function zone_util.zone(zone_id, zone_line, zone_type)
     packets.inject(packet)
 end
 
+function zone_util.is_valid_zone(zone_id)
+    return zone_id ~= nil and res.zones[tonumber(zone_id)] ~= nil
+end
+
+function zone_util.is_valid_zone_request(zone_line, zone_type)
+    return zone_line ~= nil and zone_type ~= nil and tonumber(zone_line) ~= 0
+end
+
 return zone_util

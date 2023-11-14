@@ -134,6 +134,8 @@ function WeaponSkillSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPa
         self:onMoveWeaponSkillUp()
     elseif textItem:getText() == 'Move Down' then
         self:onMoveWeaponSkillDown()
+    elseif textItem:getText() == 'Help' then
+        windower.open_url(settings.help.wiki_base_url..'/Skillchainer')
     end
 end
 

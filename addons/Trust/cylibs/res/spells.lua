@@ -35,6 +35,7 @@ return T{
     [493] = {id=493,en="Temper",status=432,overwrites={}},
     [504] = {id=504,en="Regen V",status=42,overwrites={108,110,111,477}},
     [848] = {id=848,en="Reraise IV",status=113,overwrites={135,141,142}},
+    [880] = {id=880,en="Drain III",status=88},
     [894] = {id=894,en="Refresh III",status=43,overwrites={109,473}},
     [895] = {id=895,en="Temper II",status=432,overwrites={493}},
 }, {"id", "en", "status", "overwrites"}

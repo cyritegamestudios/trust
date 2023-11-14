@@ -1,5 +1,6 @@
 -- Settings file for SAM
 return {
+    Version = 1,
     Default = {
         Skillchains = {
             spamws = L{
@@ -25,7 +26,7 @@ return {
             }
         },
         JobAbilities = L{
-            "Hasso"
+            JobAbility.new('Hasso', L{}, L{}, nil)
         }
     }
 }

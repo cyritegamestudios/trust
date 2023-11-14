@@ -49,25 +49,6 @@ function Spell.new(spell_name, job_abilities, job_names, target, conditions, con
     return self
 end
 
-function Spell.decode(rawSettings)
-    local spell = Spell.new(rawSettings.spell_name, L(rawSettings.job_abilities), L(rawSettings.job_names), rawSettings.target, rawSettings.conditions)
-    return spell
-end
-
-function Spell:encode()
-    local settings = {}
-    settings.type = Spell.__type
-
-    for encoding_key in L{'spell_name', 'job_abilities', 'job_names', 'target'}:it() do
-        settings[encoding_key] = self[encoding_key]
-    end
-    local conditions_blacklist = L{ StrategemCountCondition.__type }
-    settings.conditions = self.conditions:filter(function(condition) return not conditions_blacklist:contains(condition.__type)  end):map(function(condition)
-        return condition:encode()
-    end)
-    return settings
-end
-
 -------
 -- Returns the full metadata for the spell.
 -- @treturn SpellMetadata metadata (see spells.lua)

@@ -35,15 +35,15 @@ function ZoneMessage:get_mob_name()
 end
 
 function ZoneMessage:get_zone_id()
-	return self.zone_id
+	return tonumber(self.zone_id)
 end
 
 function ZoneMessage:get_zone_line()
-	return self.zone_line
+	return self.zone_line or 0
 end
 
 function ZoneMessage:get_zone_type()
-	return self.zone_type
+	return self.zone_type or 0
 end
 
 function ZoneMessage:get_position()

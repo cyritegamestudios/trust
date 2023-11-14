@@ -107,6 +107,8 @@ function DebuffSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
         self.trustSettings:saveSettings(true)
     elseif textItem:getText() == 'Remove' then
         self:onRemoveSpellClick()
+    elseif textItem:getText() == 'Help' then
+        windower.open_url(settings.help.wiki_base_url..'/Debuffer')
     end
 end
 

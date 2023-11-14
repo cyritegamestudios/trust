@@ -43,6 +43,9 @@ function handle_shortcut(cmd, ...)
     elseif cmd == 'sendall' then
         local windower_command = ''
         for _, token in ipairs(arg) do
+            if token == 'me' then
+                token = windower.ffxi.get_player().name
+            end
             windower_command = windower_command..token..' '
         end
         if #windower_command > 0 then
@@ -52,6 +55,32 @@ function handle_shortcut(cmd, ...)
                 error('IpcMode must be set to All or Send to use this command')
             end
         end
+    elseif cmd == 'send' then
+        local target_name = arg[1]
+
+        local windower_command = ''
+        for i, token in ipairs(arg) do
+            if i > 1 then
+                if token == 'me' then
+                    token = windower.ffxi.get_player().name
+                end
+                windower_command = windower_command..token..' '
+            end
+        end
+        if #windower_command > 0 then
+            if L{'All', 'Send'}:contains(state.IpcMode.value) then
+                IpcRelay.shared():send_message(CommandMessage.new(windower_command, target_name))
+            else
+                error('IpcMode must be set to All or Send to use this command')
+            end
+        end
+    elseif cmd == 'assist' then
+        local param = arg[1]
+        local party_member = player.party:get_party_member_named(param)
+        if party_member then
+            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Okay, I'll assist "..param.." in battle.")
+            player.party:set_assist_target(party_member)
+        end
     -- Following
     elseif cmd == 'follow' then
         local trust = player.trust.main_job
@@ -60,6 +89,7 @@ function handle_shortcut(cmd, ...)
             local param = arg[1]
             if param == 'me' then
                 if L{'All', 'Send'}:contains(state.IpcMode.value) then
+                    follower:set_follow_target(nil)
                     IpcRelay.shared():send_message(CommandMessage.new('trust follow '..windower.ffxi.get_player().name))
                 else
                     error('IpcMode must be set to All or Send to use this command')

@@ -1,5 +1,6 @@
 -- Settings file for WHM
 return {
+    Version = 1,
     Default = {
         SelfBuffs = L{
             Buff.new("Haste", L{}, L{}, nil, L{}),
@@ -29,7 +30,7 @@ return {
             }
         },
         JobAbilities = L{
-            "Afflatus Solace"
+            JobAbility.new('Afflatus Solace', L{}, L{}, nil),
         },
         PartyBuffs = L{
             Buff.new("Haste", L{}, L{"WAR", "MNK", "THF", "PLD", "DRK", "SAM", "DRG", "NIN", "PUP", "COR", "DNC", "BLU", "RUN", "BLM", "BRD", "BST"}, nil, L{}),

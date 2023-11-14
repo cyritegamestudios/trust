@@ -1,5 +1,6 @@
 -- Settings file for WAR
 return {
+    Version = 1,
     Default = {
         Skillchains = {
             spamws = L{
@@ -36,12 +37,12 @@ return {
             }
         },
         JobAbilities = L{
-            "Berserk",
-            "Aggressor",
-            "Warcry",
-            "Restraint",
-            "Blood Rage",
-            "Retaliation"
+            JobAbility.new('Berserk', L{InBattleCondition.new()}, L{}, nil),
+            JobAbility.new('Aggressor', L{InBattleCondition.new()}, L{}, nil),
+            JobAbility.new('Warcry', L{InBattleCondition.new()}, L{}, nil),
+            JobAbility.new('Restraint', L{InBattleCondition.new()}, L{}, nil),
+            JobAbility.new('Blood Rage', L{InBattleCondition.new()}, L{}, nil),
+            JobAbility.new('Retaliation', L{}, L{}, nil),
         }
     }
 }

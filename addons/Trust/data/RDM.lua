@@ -1,5 +1,6 @@
 -- Settings file for RDM
 return {
+    Version = 1,
     Default = {
         SelfBuffs = L{
             Buff.new("Refresh", L{}, L{}, nil, L{}),
@@ -23,7 +24,7 @@ return {
             Delay = 2
         },
         JobAbilities = L{
-            "Composure"
+            JobAbility.new('Composure', L{}, L{}, nil),
         },
         PartyBuffs = L{
             Buff.new("Refresh", L{}, L{"DRK", "PUP", "PLD", "BLU", "BLM", "BRD", "GEO", "SMN", "WHM", "RUN"}, nil, L{}),

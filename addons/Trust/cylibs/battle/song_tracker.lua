@@ -130,6 +130,9 @@ function SongTracker:monitor()
             end
         end), party_member:on_lose_buff())
     end
+    self.dispose_bag:add(self.party:on_party_member_ko():addAction(function(p)
+        self:reset(p:get_id())
+    end), self.party:on_party_member_ko())
 end
 
 -------
@@ -218,12 +221,13 @@ end
 
 -------
 -- Resets song records.
-function SongTracker:reset()
-    self.active_songs = {}
-
-    for target_id, target_songs in pairs(self.active_songs) do
-        self:on_songs_changed():trigger(self, target_id, target_songs)
+function SongTracker:reset(target_id)
+    for t_id, target_songs in pairs(self.active_songs) do
+        if target_id == nil or target_id == t_id then
+            self:on_songs_changed():trigger(self, t_id, target_songs)
+        end
     end
+    self.active_songs = {}
 end
 
 -------

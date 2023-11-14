@@ -1,8 +1,11 @@
 -- Settings file for SCH
 return {
+    Version = 1,
     Default = {
         LightArts = {
-            JobAbilities = L{ 'Light Arts' },
+            JobAbilities = L{
+                JobAbility.new('Light Arts', L{}, L{}, nil),
+            },
             PartyBuffs = L{
                 Spell.new("Adloquium", L{}, L{"WAR", "PUP"}, nil, L{})
             },
@@ -55,7 +58,9 @@ return {
             }
         },
         DarkArts = {
-            JobAbilities = L{ 'Dark Arts' },
+            JobAbilities = L{
+                JobAbility.new('Dark Arts', L{}, L{}, nil),
+            },
             PartyBuffs = L{
 
             },
