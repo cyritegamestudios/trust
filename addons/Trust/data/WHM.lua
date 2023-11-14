@@ -30,8 +30,7 @@ return {
             }
         },
         JobAbilities = L{
-            JobAbility.new('Afflatus Solace', L{}, L{IdleCondition.new()}, nil),
-            JobAbility.new('Afflatus Misery', L{}, L{InBattleCondition.new()}, nil),
+            JobAbility.new('Afflatus Solace', L{}, L{}, nil),
         },
         PartyBuffs = L{
             Buff.new("Haste", L{}, L{"WAR", "MNK", "THF", "PLD", "DRK", "SAM", "DRG", "NIN", "PUP", "COR", "DNC", "BLU", "RUN", "BLM", "BRD", "BST"}, nil, L{}),
