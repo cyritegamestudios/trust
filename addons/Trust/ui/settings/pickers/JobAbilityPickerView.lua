@@ -19,7 +19,7 @@ function JobAbilityPickerView:onSelectMenuItemAtIndexPath(textItem, _)
             for selectedIndexPath in selectedIndexPaths:it() do
                 local item = self:getDataSource():itemAtIndexPath(selectedIndexPath)
                 if item then
-                    self.jobAbilities:append(item:getText())
+                    self.jobAbilities:append(JobAbility.new(item:getText(), L{}, L{}, nil))
                 end
             end
             self:getDelegate():deselectAllItems()
