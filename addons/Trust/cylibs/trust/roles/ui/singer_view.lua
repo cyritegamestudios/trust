@@ -61,7 +61,7 @@ end
 function SingerView:layoutIfNeeded()
     CollectionView.layoutIfNeeded(self)
 
-    self:setTitle("View current songs on the player.")
+    self:setTitle("View current songs on the player and party.")
 end
 
 function SingerView:reloadActiveSongs()
@@ -93,7 +93,7 @@ function SingerView:reloadActiveSongs()
     local songs = self.singer:get_songs()
     if songs:length() > 0 then
         itemsToAdd:append(IndexedItem.new(TextItem.new("Songs", TextStyle.Default.HeaderSmall), IndexPath.new(sectionNum, 1)))
-        local currentRow = 2
+        currentRow = 2
         for song in songs:it() do
             local item = TextItem.new('• '..song:description(), TextStyle.SingerView.Text)
             local indexPath = IndexPath.new(sectionNum, currentRow)
@@ -102,6 +102,25 @@ function SingerView:reloadActiveSongs()
                 itemsToHighlight:append(IndexedItem.new(item, indexPath))
             end
             currentRow = currentRow + 1
+        end
+    end
+    itemsToAdd:append(IndexedItem.new(TextItem.new("", TextStyle.SingerView.Text), IndexPath.new(sectionNum, currentRow)))
+    sectionNum = sectionNum + 1
+
+    for party_member in self.singer:get_party():get_party_members(false):it() do
+        currentRow = 2
+        local song_records = self.singer.song_tracker:get_songs(party_member:get_id())
+        if song_records:length() > 0 then
+            itemsToAdd:append(IndexedItem.new(TextItem.new(party_member:get_name(), TextStyle.Default.HeaderSmall), IndexPath.new(sectionNum, 1)))
+            for song_record in song_records:it() do
+                local item = TextItem.new('• '..res.spells[song_record:get_song_id()].name..' → ('..song_record:get_time_remaining()..'s)', TextStyle.SingerView.Text)
+                local indexPath = IndexPath.new(sectionNum, currentRow)
+                itemsToAdd:append(IndexedItem.new(item, indexPath))
+                itemsToHighlight:append(IndexedItem.new(item, indexPath))
+                currentRow = currentRow + 1
+            end
+            itemsToAdd:append(IndexedItem.new(TextItem.new("", TextStyle.SingerView.Text), IndexPath.new(sectionNum, currentRow)))
+            sectionNum = sectionNum + 1
         end
     end
 

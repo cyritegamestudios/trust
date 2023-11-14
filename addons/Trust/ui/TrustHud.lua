@@ -314,9 +314,9 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
             end)
 
     local debuffSettingsItem = MenuItem.new(L{
-        --ButtonItem.default('Save', 18),
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
+        ButtonItem.default('Help', 18)
     }, {
         Add = chooseDebuffsItem
     },
@@ -445,8 +445,9 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
 
     local songsSettingsItem = MenuItem.new(L{
         ButtonItem.default('Edit', 18),
+        ButtonItem.default('Help', 18),
     }, {
-        Edit = chooseSongsItem
+        Edit = chooseSongsItem,
     },
     function()
         local backgroundImageView = createBackgroundView(viewSize.width, viewSize.height)
@@ -503,6 +504,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
         weaponItems:append(ButtonItem.default(res.skills[combatSkillId].name, 18))
         childMenuItems[res.skills[combatSkillId].name] = createWeaponSkillsItem(combatSkillId)
     end
+    weaponItems:append(ButtonItem.default('Help', 18))
 
     local weaponSkillsSettingsItem = MenuItem.new(weaponItems, childMenuItems,
     function()

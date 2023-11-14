@@ -104,6 +104,8 @@ function SongSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
                 end
             end
         end
+    elseif textItem:getText() == 'Help' then
+        windower.open_url(settings.help.wiki_base_url..'/Singer')
     end
 end
 

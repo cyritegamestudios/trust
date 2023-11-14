@@ -37,6 +37,13 @@ function SongRecord:get_expire_time()
 end
 
 -------
+-- Returns the time remaining.
+-- @treturn number Expiration time in seconds
+function SongRecord:get_time_remaining()
+    return math.max(self:get_expire_time() - os.time(), 0)
+end
+
+-------
 -- Sets the expiration time.
 -- @tparam number expire_time Expiration time
 function SongRecord:set_expire_time(expire_time)
