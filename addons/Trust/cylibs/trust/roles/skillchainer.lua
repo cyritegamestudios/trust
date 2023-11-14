@@ -1,6 +1,7 @@
 local Skillchainer = setmetatable({}, {__index = Role })
 Skillchainer.__index = Skillchainer
 
+local DisposeBag = require('cylibs/events/dispose_bag')
 local SkillchainMaker = require('cylibs/battle/skillchains/skillchain_maker')
 
 state.AutoAftermathMode = M{['description'] = 'Auto Aftermath Mode', 'Off', 'Auto'}
@@ -29,6 +30,7 @@ function Skillchainer.new(action_queue, skillchain_params, skillchain_settings)
     self.action_queue = action_queue
     self.skillchain_params = skillchain_params
     self.skillchain_settings = skillchain_settings
+    self.dispose_bag = DisposeBag.new()
 
     return self
 end
@@ -39,10 +41,18 @@ function Skillchainer:destroy()
     if self.skillchain_maker then
         self.skillchain_maker:destroy()
     end
+
+    self.dispose_bag:destroy()
 end
 
 function Skillchainer:on_add()
     Role.on_add(self)
+
+    self.dispose_bag:add(state.AutoSkillchainMode:on_state_change():addAction(function(_, new_value)
+        if new_value == 'Spam' then
+            state.SkillchainPartnerMode:set('Off')
+        end
+    end), state.AutoSkillchainMode:on_state_change())
 
     self.skillchain_maker = SkillchainMaker.new(self.skillchain_settings, state.AutoSkillchainMode, state.SkillchainPriorityMode, state.SkillchainPartnerMode, state.AutoAftermathMode)
     self.skillchain_maker:start_monitoring()

@@ -38,7 +38,7 @@ end
 
 -------
 -- Returns the time remaining.
--- @treturn number Expiration time in seconds
+-- @treturn number Time remaining in seconds
 function SongRecord:get_time_remaining()
     return math.max(self:get_expire_time() - os.time(), 0)
 end
