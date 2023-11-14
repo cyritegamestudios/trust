@@ -51,6 +51,7 @@ Spell = require('cylibs/battle/spell')
 Buff = require('cylibs/battle/spells/buff')
 Debuff = require('cylibs/battle/spells/debuff')
 Roll = require('cylibs/battle/roll')
+JobAbility = require('cylibs/battle/abilities/job_ability')
 
 -- Roles
 Role = require('cylibs/trust/roles/role')
@@ -75,6 +76,7 @@ battle_util = require('cylibs/util/battle_util')
 party_util = require('cylibs/util/party_util')
 pup_util = require('cylibs/util/pup_util')
 job_util = require('cylibs/util/job_util')
+lists_ext = require('cylibs/util/extensions/lists')
 
 -- Entities
 Trust = require('cylibs/trust/trust')

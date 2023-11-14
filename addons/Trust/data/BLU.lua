@@ -1,5 +1,6 @@
 -- Settings file for BLU
 return {
+    Version = 1,
     Default = {
         Skillchains = {
             spamws = L{

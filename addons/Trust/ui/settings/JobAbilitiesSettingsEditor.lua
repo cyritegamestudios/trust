@@ -111,7 +111,7 @@ function JobAbilitiesSettingsEditor:reloadSettings()
     items:append(IndexedItem.new(TextItem.new("Buffs on self", TextStyle.Default.HeaderSmall), IndexPath.new(1, 1)))
     rowIndex = rowIndex + 1
     for jobAbility in self.jobAbilities:it() do
-        items:append(IndexedItem.new(TextItem.new(jobAbility, TextStyle.Default.TextSmall), IndexPath.new(1, rowIndex)))
+        items:append(IndexedItem.new(TextItem.new(jobAbility:get_job_ability_name(), TextStyle.Default.TextSmall), IndexPath.new(1, rowIndex)))
         rowIndex = rowIndex + 1
     end
 

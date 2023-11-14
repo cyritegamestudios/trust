@@ -15,6 +15,7 @@ local Player = require('cylibs/entity/party/player')
 local party_util = require('cylibs/util/party_util')
 local res = require('resources')
 local trusts = require('cylibs/res/trusts')
+local zone_util = require('cylibs/util/zone_util')
 
 local Party = setmetatable({}, {__index = Entity })
 Party.__index = Party
@@ -124,7 +125,7 @@ function Party:monitor()
             end
         elseif ipc_message.__class == ZoneMessage.__class then
             local party_member = self:get_party_member_named(ipc_message:get_mob_name())
-            if party_member then
+            if party_member and zone_util.is_valid_zone(ipc_message:get_zone_id()) then
                 party_member:set_zone_id(ipc_message:get_zone_id(), ipc_message:get_zone_line(), ipc_message:get_zone_type())
             end
         end

@@ -1,5 +1,6 @@
 -- Settings file for MNK
 return {
+    Version = 1,
     Default = {
         Skillchains = {
             spamws = L{
@@ -25,9 +26,9 @@ return {
             }
         },
         JobAbilities = L{
-            "Impetus",
-            "Footwork",
-            "Mantra"
+            JobAbility.new('Impetus', L{}, L{InBattleCondition.new()}, nil),
+            JobAbility.new('Footwork', L{}, L{InBattleCondition.new()}, nil),
+            JobAbility.new('Mantra', L{}, L{InBattleCondition.new()}, nil),
         }
     }
 }

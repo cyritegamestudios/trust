@@ -1,5 +1,6 @@
 -- Settings file for RUN
 return {
+    Version = 1,
     Default = {
         PartyBuffs = L{
 
@@ -37,7 +38,7 @@ return {
             }
         },
         JobAbilities = L{
-            "Swordplay"
+            JobAbility.new('Swordplay', L{}, L{InBattleCondition.new()}, nil),
         }
     }
 }

@@ -1,5 +1,6 @@
 -- Settings file for BRD
 return {
+    Version = 1,
     Default = {
         NumSongs = 4,
         SelfBuffs = L{

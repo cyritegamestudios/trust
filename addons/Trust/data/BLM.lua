@@ -1,5 +1,6 @@
 -- Settings file for BLM
 return {
+    Version = 1,
     Default = {
         Skillchains = {
             spamws = L{
@@ -29,7 +30,8 @@ return {
 
         },
         JobAbilities = L{
-            "Mana Wall"
+            JobAbility.new('Mana Wall', L{}, L{}, nil),
+            JobAbility.new('Cascade', L{InBattleCondition.new()}, L{}, nil)
         }
     }
 }

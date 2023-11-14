@@ -12,6 +12,7 @@ local WaitAction = require('cylibs/actions/wait')
 local zone_util = require('cylibs/util/zone_util')
 
 state.AutoFollowMode = M{['description'] = 'Auto Follow Mode', 'Off', 'Always'}
+state.AutoFollowMode:set_description('Off', "Okay, I'll no longer follow anyone.")
 state.AutoFollowMode:set_description('Always', "Okay, I'll follow whomever I'm assisting when not in battle.")
 
 function Follower.new(action_queue, follow_distance)
@@ -177,8 +178,7 @@ function Follower:set_follow_target(target)
             self:check_distance()
         end), self.follow_target:on_position_change())
         self.follow_target_dispose_bag:add(self.follow_target:on_zone_change():addAction(function(p, zone_id, x, y, z, zone_line, zone_type)
-            local is_zone_request = zone_line and zone_type
-            if is_zone_request then
+            if zone_util.is_valid_zone_request(zone_line, zone_type) then
                 logger.notice(p:get_name(), "zoned from", res.zones[zone_id].en, zone_line, zone_type)
                 self:zone(zone_id, x, y, z, zone_line, zone_type)
             end

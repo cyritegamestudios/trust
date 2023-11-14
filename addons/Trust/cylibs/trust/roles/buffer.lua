@@ -11,10 +11,10 @@ local job_util = require('cylibs/util/job_util')
 local Buffer = setmetatable({}, {__index = Role })
 Buffer.__index = Buffer
 
-function Buffer.new(action_queue, job_ability_names, self_spells, party_spells, state_var, buff_action_priority)
+function Buffer.new(action_queue, job_abilities, self_spells, party_spells, state_var, buff_action_priority)
     local self = setmetatable(Role.new(action_queue), Buffer)
 
-    self:set_job_ability_names(job_ability_names)
+    self:set_job_abilities(job_abilities)
     self:set_self_spells(self_spells)
     self:set_party_spells(party_spells)
 
@@ -39,7 +39,7 @@ function Buffer:on_add()
         self.buff_tracker:monitor()
     end
 
-    if not self.job_ability_names:empty() then
+    if not self.job_abilities:empty() then
         self.job_abilities_enabled = true
     end
     if not self.self_spells:empty() then
@@ -97,17 +97,14 @@ function Buffer:check_buffs()
 
     -- Job abilities
     if self.job_abilities_enabled then
-        for job_ability_name in self.job_ability_names:it() do
-            local job_ability = res.job_abilities:with('en', job_ability_name)
-            if job_ability then
-                local buff = buff_util.buff_for_job_ability(job_ability.id)
-                if buff and not buff_util.is_buff_active(buff.id, player_buff_ids)
-                        and not buff_util.conflicts_with_buffs(buff.id, player_buff_ids) then
-                    if job_util.can_use_job_ability(job_ability_name) then
-                        self.last_buff_time = os.time()
-                        self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, job_ability.en), true)
-                        return
-                    end
+        for job_ability in self.job_abilities:it() do
+            local buff = buff_util.buff_for_job_ability(job_ability:get_job_ability_id())
+            if buff and not buff_util.is_buff_active(buff.id, player_buff_ids)
+                    and not buff_util.conflicts_with_buffs(buff.id, player_buff_ids) then
+                if job_util.can_use_job_ability(job_ability:get_job_ability_name()) and self:conditions_check(job_ability, windower.ffxi.get_player()) then
+                    self.last_buff_time = os.time()
+                    self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, job_ability:get_job_ability_name()), true)
+                    return
                 end
             end
         end
@@ -201,12 +198,12 @@ function Buffer:cast_spell(spell, target_index)
     end
 end
 
-function Buffer:get_job_ability_names()
-    return self.job_ability_names
+function Buffer:get_job_abilities()
+    return self.job_abilities
 end
 
-function Buffer:set_job_ability_names(job_ability_names)
-    self.job_ability_names = (job_ability_names or L{}):filter(function(job_ability_name) return job_util.knows_job_ability(job_util.job_ability_id(job_ability_name)) == true  end)
+function Buffer:set_job_abilities(job_abilities)
+    self.job_abilities = (job_abilities or L{}):filter(function(job_ability) return job_util.knows_job_ability(job_ability:get_job_ability_id()) == true  end)
     self.job_abilities_enabled = true
 end
 
@@ -263,9 +260,9 @@ function Buffer:tostring()
     local result = ""
 
     result = "Job Abilities:\n"
-    if self.job_ability_names:length() > 0 then
-        for job_ability_name in self.job_ability_names:it() do
-            result = result..'• '..job_ability_name..'\n'
+    if self.job_abilities:length() > 0 then
+        for job_ability in self.job_abilities:it() do
+            result = result..'• '..job_ability:get_job_ability_name()..'\n'
         end
     else
         result = result..'N/A'..'\n'

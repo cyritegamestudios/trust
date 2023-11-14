@@ -1,5 +1,6 @@
 -- Settings file for PLD
 return {
+    Version = 1,
     Default = {
         SelfBuffs = L{
             Spell.new("Phalanx", L{}, nil, nil, L{}),
@@ -21,7 +22,7 @@ return {
             }
         },
         JobAbilities = L{
-            "Majesty"
+            JobAbility.new('Majesty', L{}, L{InBattleCondition.new()}, nil),
         },
         PartyBuffs = L{
 

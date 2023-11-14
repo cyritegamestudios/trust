@@ -1,5 +1,6 @@
 -- Settings file for DRK
 return {
+    Version = 1,
     Default = {
         Skillchains = {
             spamws = L{
@@ -43,8 +44,8 @@ return {
             Spell.new("Dread Spikes", L{}, L{}, nil, L{HasBuffCondition.new("Max HP Boost"), IdleCondition.new()})
         },
         JobAbilities = L{
-            "Last Resort",
-            "Scarlet Delirium"
+            JobAbility.new('Last Resort', L{}, L{InBattleCondition.new()}, nil),
+            JobAbility.new('Scarlet Delirium', L{}, L{InBattleCondition.new()}, nil),
         },
         Debuffs = L {
 

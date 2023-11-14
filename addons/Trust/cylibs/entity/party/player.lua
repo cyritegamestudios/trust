@@ -12,6 +12,7 @@ Player.__index = Player
 -- @treturn Player A player
 function Player.new(id)
     local self = setmetatable(PartyMember.new(id), Player)
+    self:set_zone_id(windower.ffxi.get_info().zone)
     return self
 end
 
@@ -22,13 +23,13 @@ function Player:monitor()
     if not PartyMember.monitor(self) then
         return
     end
-
     self.action_events.outgoing = windower.register_event('outgoing chunk', function(id, original, _, _, _)
         -- Notify target changes
         if id == 0x015 then
             local p = packets.parse('outgoing', original)
             self:update_target(p['Target Index'])
             self:set_position(p['X'], p['Y'], p['Z'])
+            self:set_zone_id(windower.ffxi.get_info().zone)
         elseif id == 0x05E then
             local p = packets.parse('outgoing', original)
             local zone_line = p['Zone Line']
@@ -60,24 +61,14 @@ function Player:set_position(x, y, z)
 end
 
 -------
--- Returns the zone id of the player.
--- @treturn number Zone id (see res/zones.lua)
-function Player:get_zone_id()
-    return windower.ffxi.get_info().zone
-end
-
--------
 -- Sets the zone id. Always sets to value of windower.ffxi.get_info().zone regardless of input.
 -- @tparam number zone_id Zone id (see res/zones.lua)
 -- @tparam number zone_line (optional) Zone line
 -- @tparam number zone_type (optional) Zone type
-function Player:set_zone_id(_, zone_line, zone_type)
+function Player:set_zone_id(zone_id, zone_line, zone_type)
     PartyMember.set_zone_id(self, windower.ffxi.get_info().zone, zone_line, zone_type)
 
-    local is_zone_request = zone_line and zone_type
-    if is_zone_request then
-        IpcRelay.shared():send_message(ZoneMessage.new(self:get_name(), self:get_zone_id(), zone_line, zone_type, self:get_position()[1], self:get_position()[2], self:get_position()[3]))
-    end
+    IpcRelay.shared():send_message(ZoneMessage.new(self:get_name(), self:get_zone_id(), zone_line, zone_type, self:get_position()[1], self:get_position()[2], self:get_position()[3]))
 end
 
 return Player

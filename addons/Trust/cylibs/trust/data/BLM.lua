@@ -36,7 +36,7 @@ function BlackMageTrust:on_init()
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
 		local buffer = self:role_with_type("buffer")
 		if buffer then
-			buffer:set_job_ability_names(new_trust_settings.JobAbilities)
+			buffer:set_job_abilities(new_trust_settings.JobAbilities)
 			buffer:set_self_spells(new_trust_settings.SelfBuffs)
 			buffer:set_party_spells(new_trust_settings.PartyBuffs)
 		end

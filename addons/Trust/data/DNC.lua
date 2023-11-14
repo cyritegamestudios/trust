@@ -1,5 +1,6 @@
 -- Settings file for DNC
 return {
+    Version = 1,
     Default = {
         Skillchains = {
             spamws = L{
@@ -28,7 +29,7 @@ return {
             }
         },
         JobAbilities = L{
-            "Haste Samba"
+            JobAbility.new('Haste Samba', L{}, L{InBattleCondition.new()}, nil),
         }
     }
 }

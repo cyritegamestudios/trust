@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '7.1.0'
+_addon.version = '7.1.2'
 
 require('Trust-Include')
 
@@ -98,8 +98,8 @@ function load_user_files(main_job_id, sub_job_id)
 	main_trust_settings = TrustSettingsLoader.new(player.main_job_name_short)
 	main_trust_settings:onSettingsChanged():addAction(function(newSettings)
 		player.trust.main_job_settings = newSettings
-
-		state.MainTrustSettingsMode:options(T(T(newSettings):keyset()):unpack())
+		local mode_names = list.subtract(L(T(newSettings):keyset()), L{'Version'})
+		state.MainTrustSettingsMode:options(T(mode_names):unpack())
 		state.MainTrustSettingsMode:set('Default')
 	end)
 
@@ -108,8 +108,8 @@ function load_user_files(main_job_id, sub_job_id)
 	sub_trust_settings = TrustSettingsLoader.new(player.sub_job_name_short)
 	sub_trust_settings:onSettingsChanged():addAction(function(newSettings)
 		player.trust.sub_job_settings = newSettings
-
-		state.SubTrustSettingsMode:options(T(T(newSettings):keyset()):unpack())
+		local mode_names = list.subtract(L(T(newSettings):keyset()), L{'Version'})
+		state.SubTrustSettingsMode:options(T(mode_names):unpack())
 		state.SubTrustSettingsMode:set('Default')
 	end)
 
@@ -373,7 +373,7 @@ function handle_job_change(_, _, _, _)
 	--windower.send_command('lua r trust')
 end
 
-function handle_zone_change(_, _, _, _)
+function handle_zone_change(new_zone_id, old_zone_id)
 	action_queue:clear()
 	player.party:set_assist_target(nil)
 	handle_stop()
@@ -489,7 +489,7 @@ local function addon_command(cmd, ...)
 		player.trust.main_job_commands:handle_command(unpack({...}))
 	elseif L{player.sub_job_name_short, player.sub_job_name_short:lower()}:contains(cmd) and player.trust.sub_job_commands then
 		player.trust.sub_job_commands:handle_command(unpack({...}))
-	elseif L{'sc', 'pull', 'engage', 'follow', 'sendall'}:contains(cmd) then
+	elseif L{'sc', 'pull', 'engage', 'follow', 'sendall', 'send'}:contains(cmd) then
 		handle_shortcut(cmd, unpack({...}))
 	else
 		if not L{'cycle', 'set', 'help'}:contains(cmd) then
@@ -505,7 +505,10 @@ function load_chunk_event()
 
 	IpcRelay.shared():on_message_received():addAction(function(ipc_message)
 		if ipc_message.__class == CommandMessage.__class then
-			windower.send_command(ipc_message:get_windower_command())
+			local target_name = ipc_message:get_target_name()
+			if target_name == 'all' or target_name == windower.ffxi.get_player().name then
+				windower.send_command(ipc_message:get_windower_command())
+			end
 		end
 	end)
 end

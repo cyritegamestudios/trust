@@ -1,5 +1,6 @@
 -- Settings file for COR
 return {
+    Version = 1,
     Default = {
         Skillchains = {
             spamws = L{

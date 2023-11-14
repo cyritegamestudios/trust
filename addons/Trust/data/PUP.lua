@@ -1,5 +1,6 @@
 -- Settings file for PUP
 return {
+    Version = 1,
     Default = {
         JobAbilities = L{},
         Skillchains = {

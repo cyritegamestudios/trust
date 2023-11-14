@@ -1,5 +1,6 @@
 -- Settings file for GEO
 return {
+    Version = 1,
     Default = {
         SelfBuffs = L{
 

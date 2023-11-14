@@ -1,5 +1,6 @@
 -- Settings file for BST
 return {
+    Version = 1,
     Default = {
         Skillchains = {
             spamws = L{
@@ -37,8 +38,8 @@ return {
             }
         },
         JobAbilities = L{
-            "Killer Instinct",
-            "Spur"
+            JobAbility.new('Killer Instinct', L{}, L{InBattleCondition.new()}, nil),
+            JobAbility.new('Spur', L{}, L{InBattleCondition.new()}, nil),
         }
     }
 }

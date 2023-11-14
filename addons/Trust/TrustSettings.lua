@@ -18,9 +18,11 @@ function TrustSettings.new(jobNameShort)
     local self = setmetatable({}, TrustSettings)
     self.jobNameShort = jobNameShort
     self.settingsFolder = 'data/'
+    self.backupsFolder = 'backups/'
+    self.settingsVersion = 1
     self.settingsChanged = Event.newEvent()
+    self.defaultSettings = {}
     self.settings = {}
-    self.rawSettings = {}
     return self
 end
 
@@ -32,8 +34,15 @@ function TrustSettings:loadSettings()
             error(err)
         else
             addon_message(207, 'Loaded trust settings from '..filePath)
-            self.rawSettings = loadJobSettings()
-            self.settings = self.rawSettings
+            local loadDefaultJobSettings, _ = loadfile(self:getSettingsFilePath(true))
+            self.defaultSettings = loadDefaultJobSettings()
+            self.settings = loadJobSettings()
+            self.settingsVersion = self.settings.Version or -1
+            if not self:checkSettingsVersion() then
+                error("Trust has been upgraded! A new job settings file will be generated for", self.jobNameShort)
+                self:copySettings(true)
+                return self:loadSettings()
+            end
             self:onSettingsChanged():trigger(self.settings)
             return self.settings
         end
@@ -43,14 +52,22 @@ function TrustSettings:loadSettings()
     return nil
 end
 
-function TrustSettings:getSettingsFilePath()
+function TrustSettings:getSettingsFilePath(default_settings)
     local file_prefix = windower.addon_path..self.settingsFolder..self.jobNameShort
-    if windower.file_exists(file_prefix..'_'..windower.ffxi.get_player().name..'.lua') then
+    if windower.file_exists(file_prefix..'_'..windower.ffxi.get_player().name..'.lua') and not default_settings then
         return file_prefix..'_'..windower.ffxi.get_player().name..'.lua'
     elseif windower.file_exists(file_prefix..'.lua') then
         return file_prefix..'.lua'
     end
     return nil
+end
+
+function TrustSettings:getSettingsVersion()
+    return self.settingsVersion
+end
+
+function TrustSettings:checkSettingsVersion()
+    return self:getSettingsVersion() >= self.defaultSettings.Version
 end
 
 function TrustSettings:saveSettings(saveToFile)
@@ -63,14 +80,28 @@ function TrustSettings:saveSettings(saveToFile)
     self:onSettingsChanged():trigger(self.settings)
 end
 
-function TrustSettings:copySettings()
+function TrustSettings:copySettings(override)
     local filePath = self.settingsFolder..self.jobNameShort..'_'..windower.ffxi.get_player().name..'.lua'
     local playerSettings = FileIO.new(filePath)
-    if not playerSettings:exists() then
+    if not playerSettings:exists() or override then
+        if playerSettings:exists() then
+            self:backupSettings(filePath)
+        end
         local defaultSettings = FileIO.new(self.settingsFolder..self.jobNameShort..'.lua')
         playerSettings:write(defaultSettings:read())
 
-        addon_message(207, 'Copied settings to '..filePath)
+        addon_message(207, 'Copied default settings to '..filePath)
+    end
+end
+
+function TrustSettings:backupSettings(filePath)
+    local playerSettings = FileIO.new(filePath)
+    if playerSettings:exists() then
+        local backupFilePath = self.settingsFolder..self.backupsFolder..self.jobNameShort..'_'..windower.ffxi.get_player().name..'.lua'
+        local backupSettings = FileIO.new(backupFilePath)
+        backupSettings:write(playerSettings:read())
+
+        addon_message(207, 'Backed up old settings to '..backupFilePath)
     end
 end
 
@@ -139,10 +170,6 @@ end
 
 function TrustSettings:getSettings()
     return self.settings
-end
-
-function TrustSettings:getRawSettings()
-    return self.rawSettings
 end
 
 return TrustSettings
