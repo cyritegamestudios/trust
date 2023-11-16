@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '7.2.1'
+_addon.version = '7.3.1'
 
 require('Trust-Include')
 
@@ -450,6 +450,7 @@ function handle_toggle_menu()
 end
 
 function handle_debug()
+	logger.notice(T(player.party.target_tracker.mobs):tovstring())
 end
 
 -- Setup

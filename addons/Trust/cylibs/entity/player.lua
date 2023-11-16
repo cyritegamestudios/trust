@@ -4,6 +4,7 @@
 -- @name Player
 
 local battle_util = require('cylibs/util/battle_util')
+local DisposeBag = require('cylibs/events/dispose_bag')
 local Entity = require('cylibs/entity/entity')
 local Event = require('cylibs/events/Luvent')
 local ffxi_util = require('cylibs/util/ffxi_util')
@@ -75,7 +76,7 @@ function Player.new(id)
     self.pet_id = nil
     self.is_monitoring = false
     self.pet_id = nil
-
+    
     self.target_change = Event.newEvent()
     self.ranged_attack_begin = Event.newEvent()
     self.ranged_attack_end = Event.newEvent()
@@ -86,6 +87,7 @@ function Player.new(id)
     self.pet_change = Event.newEvent()
     self.unable_to_cast = Event.newEvent()
     self.job_ability_used = Event.newEvent()
+    self.dispose_bag = DisposeBag.new()
 
     return self
 end
@@ -105,6 +107,8 @@ function Player:destroy()
     if self.sub_job then
         self.sub_job:destroy()
     end
+
+    self.dispose_bag:destroy()
 
     self.target_change:removeAllActions()
     self.ranged_attack_begin:removeAllActions()
@@ -191,7 +195,7 @@ function Player:monitor()
                 end
             end
         end)
-        self.action_events.action_message = windower.register_event('action message', function(actor_id, target_id, actor_index, target_index, message_id, param_1, param_2, param_3)
+        self.dispose_bag:add(WindowerEvents.ActionMessage:addAction(function(actor_id, target_id, actor_index, target_index, message_id, param_1, param_2, param_3)
             if actor_id ~= windower.ffxi.get_player().id then return end
 
             if L{17, 18, 48, 49, 313}:contains(message_id) then
@@ -201,11 +205,11 @@ function Player:monitor()
             if L{12}:contains(message_id) then
                 --self:update_target(nil, true)
             end
-        end)
+        end), WindowerEvents.ActionMessage)
     end
 
     -- Notify actions
-    self.action_events.action = windower.register_event('action', function(action)
+    self.dispose_bag:add(WindowerEvents.Action:addAction(function(action)
         if action.actor_id ~= self.id then return end
 
         if action.category == 12 then
@@ -221,7 +225,7 @@ function Player:monitor()
         elseif action.category == 8 and action.param == 28787 then
             self:on_spell_interrupted():trigger(self, action.targets[1].actions[1].param)
         end
-    end)
+    end), WindowerEvents.Action)
 end
 
 -------

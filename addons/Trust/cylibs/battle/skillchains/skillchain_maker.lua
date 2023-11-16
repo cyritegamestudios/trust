@@ -340,6 +340,11 @@ function SkillchainMaker:varclean()
     self:on_settings_changed(self.skillchain_settings)
 end
 
+function SkillchainMaker:set_skillchain_settings(skillchain_settings)
+    self.skillchain_settings = skillchain_settings
+    self:on_settings_changed(skillchain_settings)
+end
+
 function SkillchainMaker:check_sc()
     if not windower.ffxi.get_info().logged_in then
         return false

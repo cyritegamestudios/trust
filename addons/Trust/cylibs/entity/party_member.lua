@@ -81,7 +81,8 @@ function PartyMember.new(id)
 
     local mob = self:get_mob()
     if mob then
-        self.hpp = self:get_mob().hpp
+        self.hpp = mob.hpp
+        self.target_index = mob.target_index
         self:set_position(mob.x, mob.y, mob.z)
         self:set_zone_id(windower.ffxi.get_info().zone)
     end

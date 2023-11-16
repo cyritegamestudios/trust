@@ -80,6 +80,12 @@ function Skillchainer:get_skillchain_settings()
     return self.skillchain_settings
 end
 
+function Skillchainer:set_skillchain_settings(skillchain_settings)
+    self.skillchain_settings = skillchain_settings
+    self.skillchain_maker:set_skillchain_settings(skillchain_settings)
+end
+
+
 function Skillchainer:allows_duplicates()
     return false
 end

@@ -20,7 +20,7 @@ function HasBuffCondition.new(buff_name, target_index)
 end
 
 function HasBuffCondition:is_satisfied(target_index)
-    local target = windower.ffxi.get_mob_by_index(target_index)
+    local target = windower.ffxi.get_mob_by_index(self:get_target_index() or target_index)
     if target then
         return L(party_util.get_buffs(target.id)):contains(self.buff_id)
     end

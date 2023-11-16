@@ -9,6 +9,7 @@ local Entity = require('cylibs/entity/entity')
 local Event = require('cylibs/events/Luvent')
 local MobUpdateMessage = require('cylibs/messages/mob_update_message')
 local ZoneMessage = require('cylibs/messages/zone_message')
+local MobTracker = require('cylibs/battle/monsters/mob_tracker')
 local packets = require('packets')
 local PartyMember = require('cylibs/entity/party_member')
 local Player = require('cylibs/entity/party/player')
@@ -65,6 +66,7 @@ function Party.new(party_chat)
     self.action_events = {}
     self.is_monitoring = false
     self.party_members = T{}
+    self.target_tracker = MobTracker.new()
     self.dispose_bag = DisposeBag.new()
 
     self.party_member_added = Event.newEvent()
@@ -99,6 +101,8 @@ function Party:destroy()
         party_member:destroy()
     end
 
+    self.target_tracker:destroy()
+
     self:on_party_member_added():removeAllActions()
     self:on_party_member_removed():removeAllActions()
     self:on_party_member_hp_change():removeAllActions()
@@ -116,6 +120,8 @@ function Party:monitor()
         return
     end
     self.is_monitoring = true
+
+    self.target_tracker:monitor()
 
     self.dispose_bag:add(IpcRelay.shared():on_message_received():addAction(function(ipc_message)
         if ipc_message.__class == MobUpdateMessage.__class then
@@ -201,8 +207,12 @@ function Party:add_member(mob_id, name, main_job_id, sub_job_id, hpp, hp, zone_i
                 self.party_members[mob_id] = PartyMember.new(mob_id)
             end
         end
+        self.target_tracker:add_player(mob_id)
+        self.target_tracker:add_mob_by_index(self.party_members[mob_id]:get_target_index())
+
         self.party_members[mob_id]:monitor()
         self.party_members[mob_id]:on_target_change():addAction(function(p, new_target_index, old_target_index)
+            self.target_tracker:add_mob_by_index(new_target_index)
             if self:get_assist_target():is_valid() and p:get_name() == self:get_assist_target():get_name() then
                 self:on_party_target_change():trigger(self, new_target_index, old_target_index)
             end
@@ -302,6 +312,7 @@ function Party:prune_party_members()
                     self:set_assist_target(self:get_party_member(windower.ffxi.get_player().id))
                 end
                 self.party_members[party_member:get_id()] = nil
+                self.target_tracker:remove_player(party_member:get_id())
                 coroutine.schedule(function()
                     self:on_party_member_removed():trigger(party_member)
                     party_member:destroy()
@@ -337,6 +348,14 @@ end
 -- @treturn PartyMember Assist target
 function Party:get_assist_target()
     return self.assist_target or self:get_party_member(windower.ffxi.get_player().id)
+end
+
+-------
+-- Returns a mob being targeted by the party.
+-- @tparam number target_id Target id
+-- @treturn Monster Target, or nil if not a party target
+function Party:get_target(target_id)
+    return self.target_tracker:get_mob(target_id)
 end
 
 -------

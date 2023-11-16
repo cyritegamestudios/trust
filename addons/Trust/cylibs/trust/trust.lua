@@ -47,6 +47,7 @@ function Trust:init()
 				end
 				-- TODO: prune invalid actions instead of clear
 				--self.action_queue:clear()
+				self.target_index = new_target_index
 				self:job_target_change(new_target_index)
 			end)
 end
@@ -86,6 +87,9 @@ function Trust:add_role(role)
 		role:set_player(self.player)
 		role:set_party(self.party)
 		role:on_add()
+		if role.target_change then
+			role:target_change(self.target_index)
+		end
 	end
 end
 
@@ -191,6 +195,11 @@ end
 function Trust:set_trust_settings(trust_settings)
 	local old_trust_settings = self.trust_settings
 	self.trust_settings = trust_settings
+
+	local skillchainer = self:role_with_type("skillchainer")
+	if skillchainer then
+		skillchainer:set_skillchain_settings(trust_settings.Skillchains)
+	end
 
 	self:on_trust_settings_changed():trigger(old_trust_settings, trust_settings)
 end

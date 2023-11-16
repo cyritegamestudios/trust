@@ -27,6 +27,7 @@ local job_util = require('cylibs/util/job_util')
 local LoadSettingsView = require('ui/settings/LoadSettingsView')
 local Mouse = require('cylibs/ui/input/mouse')
 local PartyMemberView = require('cylibs/entity/party/ui/party_member_view')
+local PartyTargetView = require('cylibs/entity/party/ui/party_target_view')
 local party_util = require('cylibs/util/party_util')
 local PickerView = require('cylibs/ui/picker/picker_view')
 local SingerView = require('cylibs/trust/roles/ui/singer_view')
@@ -624,6 +625,11 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, jobNameS
         return nil
     end)
 
+    local targetsMenuItem = MenuItem.new(L{}, {},
+        function(args)
+            return setupView(PartyTargetView.new(self.party.target_tracker), viewSize)
+        end)
+
     -- Puppetmaster
     local automatonMenuItem = MenuItem.new(L{}, {},
     function()
@@ -652,6 +658,7 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, jobNameS
         ButtonItem.default('Buffs', 18),
         ButtonItem.default('Debuffs', 18),
         ButtonItem.default('Modes', 18),
+        ButtonItem.default('Targets', 18)
     }
     if jobNameShort == 'PUP' then
         statusMenuButtons:insert(2, ButtonItem.default('Automaton', 18))
@@ -665,6 +672,7 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, jobNameS
         Buffs = buffsMenuItem,
         Debuffs = debuffsMenuItem,
         Modes = modesMenuItem,
+        Targets = targetsMenuItem,
         Songs = singerMenuItem,
     })
 

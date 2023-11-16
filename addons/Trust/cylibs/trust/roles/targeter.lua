@@ -1,6 +1,8 @@
 local Targeter = setmetatable({}, {__index = Role })
 Targeter.__index = Targeter
 
+local DisposeBag = require('cylibs/events/dispose_bag')
+
 state.AutoTargetMode = M{['description'] = 'Auto Target Mode', 'Off', 'Auto', 'Same'}
 state.AutoTargetMode:set_description('Auto', "Okay, I'll automatically target a new monster after we defeat one.")
 state.AutoTargetMode:set_description('Same', "Okay, I'll automatically target a new monster with the same name as the last one we defeated.")
@@ -10,6 +12,7 @@ function Targeter.new(action_queue)
     self.action_queue = action_queue
     self.action_events = {}
     self.auto_target_index = nil
+    self.dispose_bag = DisposeBag.new()
     return self
 end
 
@@ -21,6 +24,8 @@ function Targeter:destroy()
             windower.unregister_event(event)
         end
     end
+
+    self.dispose_bag:destroy()
 end
 
 function Targeter:on_add()
@@ -30,7 +35,7 @@ function Targeter:on_add()
         end
     end)
 
-    self.action_events.action_message = windower.register_event('action message', function(actor_id, target_id, actor_index, target_index, message_id, _, _, _)
+    self.dispose_bag:add(WindowerEvents.ActionMessage:addAction(function(actor_id, target_id, actor_index, target_index, message_id, _, _, _)
         if state.AutoTargetMode.value == 'Off' or self.auto_target_index == nil or self.auto_target_index ~= target_index then
             return
         end
@@ -57,7 +62,7 @@ function Targeter:on_add()
                 end
             end
         end
-    end)
+    end), WindowerEvents.ActionMessage)
 
     self.action_events.target_change = windower.register_event('target change', function(new_target_index)
         if state.AutoTargetMode.value == 'Off' then return end

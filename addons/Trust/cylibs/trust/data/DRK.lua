@@ -23,7 +23,7 @@ function DarkKnightTrust.new(settings, action_queue, battle_settings, trust_sett
 	local roles = S{
 		Buffer.new(action_queue, trust_settings.JobAbilities, trust_settings.SelfBuffs),
 		Debuffer.new(action_queue,trust_settings.Debuffs or L{}),
-		Dispeler.new(action_queue, L{ Spell.new('Absorb-Attri') }),
+		Dispeler.new(action_queue, L{ Spell.new('Absorb-Attri') }, L{}, false),
 		ManaRestorer.new(action_queue, L{'Entropy'}, 40),
 		Puller.new(action_queue, battle_settings.targets, 'Stone', nil),
 	}

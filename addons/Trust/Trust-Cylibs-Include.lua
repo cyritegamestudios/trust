@@ -4,6 +4,9 @@ require('cylibs/util/States')
 -- Logging
 logger = require('cylibs/logger/logger')
 
+-- Windower Event Handler
+WindowerEvents = require('cylibs/Cylibs-Windower-Events')
+
 -- Chat
 PartyChat = require('cylibs/chat/party_chat')
 
@@ -30,6 +33,7 @@ BlockAction = require('cylibs/actions/block')
 Condition = require('cylibs/conditions/condition')
 InBattleCondition = require('cylibs/conditions/in_battle')
 IdleCondition = require('cylibs/conditions/idle')
+HasAttachmentsCondition = require('cylibs/conditions/has_attachments_condition')
 HasBuffCondition = require('cylibs/conditions/has_buff_condition')
 HasBuffsCondition = require('cylibs/conditions/has_buffs')
 InMogHouseCondition = require('cylibs/conditions/in_mog_house')
@@ -45,7 +49,6 @@ StrategemCountCondition = require('cylibs/conditions/strategem_count')
 ValidTargetCondition = require('cylibs/conditions/valid_target')
 
 -- Battle
-MobTracker = require('cylibs/battle/mob_tracker')
 MonsterBuffTracker = require('cylibs/battle/monster_buff_tracker')
 Spell = require('cylibs/battle/spell')
 Buff = require('cylibs/battle/spells/buff')

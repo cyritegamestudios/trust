@@ -8,6 +8,7 @@ require('lists')
 require('logger')
 
 local action_message_util = require('cylibs/util/action_message_util')
+local DisposeBag = require('cylibs/events/dispose_bag')
 
 local BattleStatTracker = {}
 BattleStatTracker.__index = BattleStatTracker
@@ -22,6 +23,7 @@ function BattleStatTracker.new(player_id)
         player_id = player_id;
         hit_sum = 0;
         num_hits = 0;
+        dispose_bag = DisposeBag.new();
     }, BattleStatTracker)
 
     return self
@@ -35,6 +37,7 @@ function BattleStatTracker:destroy()
             windower.unregister_event(event)
         end
     end
+    self.dispose_bag:destroy()
 end
 
 -------
@@ -46,7 +49,7 @@ function BattleStatTracker:monitor()
     end
     self.is_monitoring = true
 
-    self.action_events.action = windower.register_event('action', function(action)
+    self.dispose_bag:add(WindowerEvents.Action:addAction(function(action)
         if action.actor_id ~= self.player_id or action.targets == nil then return end
 
         for _,target in pairs(action.targets) do
@@ -61,7 +64,7 @@ function BattleStatTracker:monitor()
                 end
             end
         end
-    end)
+    end), WindowerEvents.Action)
 end
 
 -------
