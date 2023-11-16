@@ -5,6 +5,7 @@
 
 local action_message_util = require('cylibs/util/action_message_util')
 local buff_util = require('cylibs/util/buff_util')
+local DisposeBag = require('cylibs/events/dispose_bag')
 
 local SleepTracker = {}
 SleepTracker.__index = SleepTracker
@@ -16,6 +17,7 @@ function SleepTracker.new()
     local self = setmetatable({
         action_events = {};
         sleeping_mob_ids = T{};
+        dispose_bag = DisposeBag.new();
     }, SleepTracker)
 
     return self
@@ -29,6 +31,7 @@ function SleepTracker:destroy()
             windower.unregister_event(event)
         end
     end
+    self.dispose_bag:destroy()
 end
 
 -------
@@ -40,7 +43,7 @@ function SleepTracker:monitor()
     end
     self.is_monitoring = true
 
-    self.action_events.action = windower.register_event('action', function(act)
+    self.dispose_bag:add(WindowerEvents.Action:addAction(function(act)
         local actor = windower.ffxi.get_mob_by_id(act.actor_id)
         if actor then
             if actor.spawn_type == 16 then
@@ -49,7 +52,7 @@ function SleepTracker:monitor()
                 self:handle_action_on_monster(act)
             end
         end
-    end)
+    end), WindowerEvents.Action)
 end
 
 function SleepTracker:handle_action_by_monster(act)

@@ -34,6 +34,30 @@ function monster_util.test(target_name)
 end
 
 -------
+-- Determines if a target is a monster.
+-- @tparam number target_id Mob id
+-- @treturn Bool True if the target is a monster
+function monster_util.is_monster(target_id)
+    local mob = windower.ffxi.get_mob_by_id(target_id)
+    return mob and mob.is_npc and mob.spawn_type == 16
+end
+
+-------
+-- Returns the id for a mob with a given index.
+-- @tparam number target_index Mob index
+-- @treturn number Target id, or nil if mob is nil
+function monster_util.id_for_index(target_index)
+    if target_index == nil then
+        return nil
+    end
+    local mob = windower.ffxi.get_mob_by_index(target_index)
+    if mob then
+        return mob.id
+    end
+    return nil
+end
+
+-------
 -- Determines if the monster aggroes by magic.
 -- @tparam number target_id Mob id
 -- @treturn Bool True if the monster aggroes by magic

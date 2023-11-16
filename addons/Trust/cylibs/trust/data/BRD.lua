@@ -33,7 +33,7 @@ function BardTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local roles = S{
 		Debuffer.new(action_queue, trust_settings.Debuffs),
 		Singer.new(action_queue, trust_settings.DummySongs, trust_settings.Songs, trust_settings.PartyBuffs, job, state.AutoSongMode, ActionPriority.medium),
-		Dispeler.new(action_queue, L{ Spell.new('Magic Finale') }),
+		Dispeler.new(action_queue, L{ Spell.new('Magic Finale') }, L{}, true),
 		Puller.new(action_queue, battle_settings.targets, 'Carnage Elegy', nil),
 		Sleeper.new(action_queue, L{ Spell.new('Horde Lullaby'), Spell.new('Horde Lullaby II') }, 4)
 	}

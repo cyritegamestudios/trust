@@ -1,5 +1,4 @@
 local DisposeBag = require('cylibs/events/dispose_bag')
-local Monster = require('cylibs/battle/monster')
 
 local ResistTracker = {}
 ResistTracker.__index = ResistTracker

@@ -3,6 +3,7 @@
 -- @class module
 -- @name Automaton
 
+local DisposeBag = require('cylibs/events/dispose_bag')
 local Entity = require('cylibs/entity/entity')
 local Event = require('cylibs/events/Luvent')
 local pup_util = require('cylibs/util/pup_util')
@@ -28,6 +29,7 @@ function Automaton.new(automaton_id, action_queue)
     self.ability_ready_times = {}
     self.pet_mode = pup_util.get_pet_mode()
     self.job_ability_finish = Event.newEvent()
+    self.dispose_bag = DisposeBag.new()
     return self
 end
 
@@ -39,6 +41,7 @@ function Automaton:destroy()
             windower.unregister_event(event)
         end
     end
+    self.dispose_bag:destroy()
 
     self.job_ability_finish:removeAllActions()
 end
@@ -51,7 +54,7 @@ function Automaton:monitor()
         return
     end
     self.is_monitoring = true
-    self.action_events.action = windower.register_event('action', function(action)
+    self.dispose_bag:add(WindowerEvents.Action:addAction(function(action)
         if action.actor_id == self:get_id() then
             if action.category == 11 then
                 local job_ability = res.monster_abilities:with('id', action.param)
@@ -63,7 +66,7 @@ function Automaton:monitor()
                 self:on_job_ability_finish():trigger(self, job_ability.name)
             end
         end
-    end)
+    end), WindowerEvents.Action)
 end
 
 -------

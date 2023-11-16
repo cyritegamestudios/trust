@@ -1,8 +1,10 @@
 local buff_util = require('cylibs/util/buff_util')
+local DisposeBag = require('cylibs/events/dispose_bag')
 local party_util = require('cylibs/util/party_util')
 local spell_util = require('cylibs/util/spell_util')
 local job_util = require('cylibs/util/job_util')
 local Monster = require('cylibs/battle/monster')
+local monster_util = require('cylibs/util/monster_util')
 local JobAbilityAction = require('cylibs/actions/job_ability')
 local StrategemAction = require('cylibs/actions/strategem')
 local WaitAction = require('cylibs/actions/wait')
@@ -15,33 +17,38 @@ Dispeler.__index = Dispeler
 state.AutoDispelMode = M{['description'] = 'Auto Dispel Mode', 'Auto', 'Off'}
 state.AutoDispelMode:set_description('Auto', "Okay, I'll try to dispel monster buffs.")
 
-function Dispeler.new(action_queue, spells, job_ability_names)
+-------
+-- Default initializer for a dispeler role.
+-- @tparam ActionQueue action_queue Action queue
+-- @tparam List spells List of Spell that can dispel
+-- @tparam List job_abilities List of JobAbility that can dispel
+-- @tparam boolean should_retry If true, will attempt to retry dispel on tic
+-- @treturn Dispeler A dispeler role
+function Dispeler.new(action_queue, spells, job_abilities, should_retry)
     local self = setmetatable(Role.new(action_queue), Dispeler)
-    self.spells = (spells or L{}):filter(function(spell)
-        if spell ~= nil then
-            if spell:get_job_abilities() and spell:get_job_abilities():contains('Addendum: Black') then
-                return true
-            end
-            return spell_util.knows_spell(spell:get_spell().id)
-        end
-        return false
+
+    self.spells = (spells or L{}):map(function(spell)
+        spell:get_conditions():append(SpellRecastReadyCondition.new(spell:get_spell().id))
+        return spell
     end)
-    self.job_ability_names = (job_ability_names or L{}):filter(function(job_ability_name)
-        if string.find(job_ability_name, 'Maneuver') then
-            return true
-        end
-        return job_util.knows_job_ability(job_util.job_ability_id(job_ability_name)) == true
+
+    self.job_abilities = (job_abilities or L{}):map(function(job_ability)
+        job_ability:get_conditions():append(JobAbilityRecastReadyCondition.new(job_ability:get_job_ability_name()))
+        return job_ability
     end)
+
+    self.should_retry = should_retry
+    self.check_buffs_cooldown = 6
+    self.last_check_buffs_time = os.time()
+    self.battle_target_dispose_bag = DisposeBag.new()
+
     return self
 end
 
 function Dispeler:destroy()
     Role.destroy(self)
 
-    if self.battle_target then
-        self.battle_target:destroy()
-        self.battle_target = nil
-    end
+    self.battle_target_dispose_bag:destroy()
 end
 
 function Dispeler:on_add()
@@ -51,44 +58,75 @@ end
 function Dispeler:target_change(target_index)
     Role.target_change(self, target_index)
 
-    if self.battle_target then
-        self.battle_target:destroy()
-        self.battle_target = nil
-    end
+    self.battle_target_dispose_bag:destroy()
 
     if target_index then
-        self.battle_target = Monster.new(windower.ffxi.get_mob_by_index(target_index).id)
-        self.battle_target:monitor()
-        self.battle_target:on_gain_buff():addAction(
-                function (_, target_index, _)
-                    self:dispel(target_index)
-                end)
+        self.battle_target = self:get_party():get_target(monster_util.id_for_index(target_index))
+        if self.battle_target then
+            self.battle_target_dispose_bag:add(self.battle_target:on_gain_buff():addAction(
+                    function (_, target_index, _)
+                        if state.AutoDispelMode.value ~= 'Off' then
+                            self.last_check_buffs_time = os.time()
+                            self:dispel(target_index)
+                        end
+                    end), self.battle_target:on_gain_buff())
+        end
+    end
+end
+
+function Dispeler:tic(_, _)
+    if state.AutoDispelMode.value == 'Off' or not self.should_retry
+            or (os.time() - self.last_check_buffs_time) < self.check_buffs_cooldown or self.battle_target == nil then
+        return
+    end
+    self.last_check_buffs_time = os.time()
+
+    self:check_buffs()
+end
+
+function Dispeler:check_buffs()
+    logger.notice("Checking", self.battle_target:get_name(), "for buffs")
+
+    local buff_ids = self.battle_target:get_buff_ids()
+    if buff_ids:length() > 0 then
+        self:dispel(self.battle_target:get_mob().index)
     end
 end
 
 function Dispeler:dispel(target_index)
-    local target = windower.ffxi.get_mob_by_index(target_index)
+    logger.notice("Dispelling", self.battle_target:get_name())
 
-    if state.AutoDispelMode.value == 'Off' or not party_util.party_claimed(target.id) then
+    if not party_util.party_claimed(self.battle_target:get_id()) then
         return
+    end
+
+    local check_conditions = function(conditions, target_index)
+        for condition in conditions:it() do
+            if not condition:is_satisfied(condition:get_target_index() or target_index) then
+                return false
+            end
+        end
+        return true
     end
 
     -- Spells
     for spell in self.spells:it() do
-        if spell_util.can_cast_spell(spell:get_spell().id) then
+        if check_conditions(spell:get_conditions(), target_index) and self.battle_target:get_resist_tracker():numResists(spell:get_spell().id) < 3 then
             self:cast_spell(spell, target_index)
+            return
         end
-        return
     end
 
     -- Job abilities
-    for job_ability_name in self.job_ability_names:it() do
-        if string.find(job_ability_name, 'Maneuver') then
-            self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, job_ability_name), true)
-        else
-            self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, job_ability_name, target_index), true)
+    for job_ability in self.job_abilities:it() do
+        if check_conditions(job_ability:get_conditions(), target_index) then
+            local target = job_ability:get_target()
+            if target then
+                target_index = target.index
+            end
+            self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, job_ability:get_job_ability_name(), target_index), true)
+            return
         end
-        return
     end
 end
 

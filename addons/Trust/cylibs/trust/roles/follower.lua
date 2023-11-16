@@ -24,7 +24,7 @@ function Follower.new(action_queue, follow_distance)
     self.distance = follow_distance or 1
     self.maxfollowdistance = 35
     self.maxfollowpoints = 100
-    self.max_zone_distance = 2
+    self.max_zone_distance = 1
     self.zone_cooldown = 3
     self.last_position = vector.zero(3)
     self.last_zone_time = os.time() - self.zone_cooldown

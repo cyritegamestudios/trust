@@ -109,10 +109,11 @@ function ScholarTrust:update_for_arts(new_arts_mode)
             Skillchainer.new(self.action_queue, L{}, self:get_trust_settings().Skillchains),
         }
     elseif new_arts_mode == 'DarkArts' then
+        print('adding dispeler')
         self.arts_roles = S{
             Buffer.new(self.action_queue, self:get_job():get_dark_arts_job_abilities(), self:get_job():get_dark_arts_self_buffs(), self:get_job():get_dark_arts_party_buffs()),
             Debuffer.new(self.action_queue),
-            Dispeler.new(self.action_queue, L{ Spell.new('Dispel') }, L{'Addendum: Black'}),
+            Dispeler.new(self.action_queue, L{ Spell.new('Dispel', L{'Addendum: Black'}) }, L{}, true),
             ManaRestorer.new(self.action_queue, L{'Myrkr', 'Spirit Taker'}, 40),
             Nuker.new(self.action_queue),
             Skillchainer.new(self.action_queue, L{}, self:get_trust_settings().Skillchains),

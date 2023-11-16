@@ -8,6 +8,7 @@ require('lists')
 require('logger')
 
 local buff_util = require('cylibs/util/buff_util')
+local DisposeBag = require('cylibs/events/dispose_bag')
 local logger = require('cylibs/logger/logger')
 local party_util = require('cylibs/util/party_util')
 
@@ -35,6 +36,7 @@ function BuffTracker.new()
         action_events = {};
         active_buffs = {};
         debug = false;
+        dispose_bag = DisposeBag.new();
     }, BuffTracker)
 
     self.gain_buff = Event.newEvent()
@@ -57,6 +59,8 @@ function BuffTracker:destroy()
         end
     end
 
+    self.dispose_bag:destroy()
+
     self.lose_buff:removeAllActions()
     self.gain_buff:removeAllActions()
 end
@@ -70,7 +74,7 @@ function BuffTracker:monitor()
     self.is_monitoring = true
 
     -- Lose effect only shows up from 'action message' event
-    self.action_events.action_message = windower.register_event('action message', function (actor_id, target_id, actor_index, target_index, message_id, param_1, param_2, param_3)
+    self.dispose_bag:add(WindowerEvents.ActionMessage:addAction(function(actor_id, target_id, actor_index, target_index, message_id, param_1, param_2, param_3)
         -- ${target} loses the effect of ${status}
         if message_id == 206 then
             self:on_lose_buff_from_spell(target_id, param_1)
@@ -79,10 +83,10 @@ function BuffTracker:monitor()
             print('message '..message_id) -- 266 ${target} gains the effect of ${status}
             print('param '..param_1) -- 195 paeon (status)
         end
-    end)
+    end), WindowerEvents.ActionMessage)
 
     -- Gain effect only shows up from 'action' event
-    self.action_events.action = windower.register_event('action', function(act)
+    self.dispose_bag:add(WindowerEvents.Action:addAction(function(act)
         for _, target in pairs(act.targets) do
             local action = target.actions[1]
             if action then
@@ -100,7 +104,7 @@ function BuffTracker:monitor()
                 end
             end
         end
-    end)
+    end), WindowerEvents.Action)
 end
 
 -------

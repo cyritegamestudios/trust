@@ -55,6 +55,16 @@ function JobAbility:get_conditions()
     return self.conditions
 end
 
+-------
+-- Returns the target of this job ability.
+-- @treturn Mob MobMetadata for the target
+function JobAbility:get_target()
+    if self.target then
+        return windower.ffxi.get_mob_by_target(self.target)
+    end
+    return nil
+end
+
 function JobAbility:serialize()
     return "JobAbility.new(" .. serializer_util.serialize_args(self.job_ability_name, self.conditions, self.job_names, self.target) .. ")"
 end

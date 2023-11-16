@@ -15,7 +15,7 @@ local Puller = require('cylibs/trust/roles/puller')
 function BlueMageTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local roles = S{
 		Buffer.new(action_queue, S{}, trust_settings.SelfBuffs),
-		Dispeler.new(action_queue, L{ Spell.new('Geist Wall'), Spell.new('Blank Gaze') }),
+		Dispeler.new(action_queue, L{ Spell.new('Geist Wall'), Spell.new('Blank Gaze') }, L{}, true),
 		Puller.new(action_queue, battle_settings.targets, 'Glutinous Dart', nil)
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, BlueMage.new()), BlueMageTrust)

@@ -50,7 +50,8 @@ function WeaponSkillAction:perform_weapon_skill(weapon_skill_name)
 		end
 	end
 
-	--[[self.user_events.action = windower.register_event('action', function(packet)
+	--[[
+		self.dispose_bag:add(WindowerEvents.Action:addAction(function(packet)
 		if self:is_cancelled() then
 			self:complete(false)
 			return
@@ -87,10 +88,10 @@ function WeaponSkillAction:perform_weapon_skill(weapon_skill_name)
 				end
 			end
 		end
-	end)
+	end), WindowerEvents.Action)
 
 
-	self.user_events.ws = windower.register_event('action message', function (actor_id, target_id, actor_index, target_index, message_id, param_1, param_2, param_3)
+	self.dispose_bag:add(WindowerEvents.ActionMessage:addAction(function (actor_id, target_id, actor_index, target_index, message_id, param_1, param_2, param_3)
 		local failure_message_ids = L{ 5, 84, 90, 217, 219 }
 		local success_message_ids = L{ 6 }
 
@@ -114,7 +115,8 @@ function WeaponSkillAction:perform_weapon_skill(weapon_skill_name)
 			--	self:complete(true)
 			end
 		end
-	end)]]
+	end), WindowerEvents.ActionMessage)
+	]]
 	
 	send_chat_input(weapon_skill_name)
 

@@ -1,4 +1,5 @@
 local CommandAction = require('cylibs/actions/command')
+local DisposeBag = require('cylibs/events/dispose_bag')
 local ffxi_util = require('cylibs/util/ffxi_util')
 local monster_util = require('cylibs/util/monster_util')
 local party_util = require('cylibs/util/party_util')
@@ -31,6 +32,8 @@ function Puller.new(action_queue, target_names, spell_name, job_ability_name, ra
     self.last_target_check_time = os.time()
     self.no_pull_counter = 0
 
+    self.dispose_bag = DisposeBag.new()
+
     return self
 end
 
@@ -40,11 +43,14 @@ function Puller:destroy()
     for _,event in pairs(self.action_events) do
         windower.unregister_event(event)
     end
+
+    self.dispose_bag:destroy()
+
     self.action_events = nil
 end
 
 function Puller:on_add()
-    self.action_events.message = windower.register_event('action message', function(_, _, _, _, message_id, param1, _, _)
+    self.dispose_bag:add(WindowerEvents.ActionMessage:addAction(function(_, _, _, _, message_id, param1, _, _)
         if state.AutoPullMode.value ~= 'Off' then
             -- Out of range
             if L{4, 5}:contains(message_id) then
@@ -68,7 +74,7 @@ function Puller:on_add()
                 return
             end
         end
-    end)
+    end), WindowerEvents.ActionMessage)
 end
 
 function Puller:target_change(target_index)
@@ -76,6 +82,10 @@ function Puller:target_change(target_index)
 
     self.target_index = target_index
     self.out_of_range_counter = 0
+
+    if target_index == nil then
+        self:tic(os.time() - 3, os.time())
+    end
 end
 
 function Puller:tic(_, _)
@@ -186,7 +196,8 @@ function Puller:get_pull_action(target_index)
         pull_action.priority = ActionPriority.highest
         return pull_action
     elseif self.ranged_attack then
-        local pull_action = CommandAction.new(0, 0, 0, '/ra '..target_index)
+        local target = windower.ffxi.get_mob_by_index(target_index)
+        local pull_action = CommandAction.new(0, 0, 0, '/ra '..target.id)
         pull_action.priority = ActionPriority.highest
         return pull_action
     end

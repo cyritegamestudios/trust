@@ -66,6 +66,39 @@ function action_message_util.is_monster_gain_buff(message_id, param)
 end
 
 -------
+-- Determines if an action message indicates that a spell has no effect on the target.
+-- @tparam number message_id Action message id (see action_messages.lua)
+-- @treturn Bool True if a given message_id corresponds to a message indicating the spell has no effect on the target
+function action_message_util.is_spell_no_effect_message(message_id)
+    if L{75}:contains(message_id) then
+        return true
+    end
+    return false
+end
+
+-------
+-- Determines if an action message indicates that a monster has lost a buff.
+-- @tparam number message_id Action message id (see action_messages.lua)
+-- @treturn Bool True if a given message_id corresponds to a message indicating the monster has lost a buff and false otherwise
+function action_message_util.is_lose_multiple_buffs(message_id)
+    if L{231,370,401,404,405,757,792}:contains(message_id) then
+        return true
+    end
+    return false
+end
+
+-------
+-- Determines if an action message indicates that a monster has lost a buff.
+-- @tparam number message_id Action message id (see action_messages.lua)
+-- @treturn Bool True if a given message_id corresponds to a message indicating the monster has lost a buff and false otherwise
+function action_message_util.is_monster_lose_buff(message_id)
+    if L{168,341,342,343,344,647,806}:contains(message_id) then
+        return true
+    end
+    return false
+end
+
+-------
 -- Determines if an action message indicates that a target has gained a debuff.
 -- @tparam number message_id Action message id (see action_messages.lua)
 -- @treturn Bool True if a given message_id corresponds to a message indicating the target has gained a debuff and false otherwise
