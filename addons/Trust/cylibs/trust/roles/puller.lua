@@ -82,10 +82,6 @@ function Puller:target_change(target_index)
 
     self.target_index = target_index
     self.out_of_range_counter = 0
-
-    if target_index == nil then
-        self:tic(os.time() - 3, os.time())
-    end
 end
 
 function Puller:tic(_, _)

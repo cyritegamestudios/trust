@@ -119,7 +119,6 @@ function ScholarTrust:update_for_arts(new_arts_mode)
             StatusRemover.new(self.action_queue, self:get_job()),
         }
     elseif new_arts_mode == 'DarkArts' then
-        print('adding dispeler')
         self.arts_roles = S{
             Buffer.new(self.action_queue, self:get_job():get_dark_arts_job_abilities(), self:get_job():get_dark_arts_self_buffs(), self:get_job():get_dark_arts_party_buffs()),
             Debuffer.new(self.action_queue),
