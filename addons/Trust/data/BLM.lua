@@ -31,7 +31,6 @@ return {
         },
         JobAbilities = L{
             JobAbility.new('Mana Wall', L{}, L{}, nil),
-            JobAbility.new('Cascade', L{InBattleCondition.new()}, L{}, nil)
         }
     }
 }

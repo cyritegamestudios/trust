@@ -112,7 +112,7 @@ end
 -- Returns whether light arts is active.
 -- @treturn Boolean True if light arts is active and false otherwise
 function Scholar:is_light_arts_active()
-    return buff_util.is_buff_active(buff_util.buff_id('Light Arts'))
+    return buff_util.is_buff_active(buff_util.buff_id('Light Arts')) or self:is_addendum_white_active()
 end
 
 -------
@@ -126,7 +126,7 @@ end
 -- Returns whether dark arts is active.
 -- @treturn Boolean True if dark arts is active and false otherwise
 function Scholar:is_dark_arts_active()
-    return buff_util.is_buff_active(buff_util.buff_id('Dark Arts'))
+    return buff_util.is_buff_active(buff_util.buff_id('Dark Arts')) or self:is_addendum_black_active()
 end
 
 -------

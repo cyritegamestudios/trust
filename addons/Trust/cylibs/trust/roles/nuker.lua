@@ -1,6 +1,7 @@
 local Nuker = setmetatable({}, {__index = Role })
 Nuker.__index = Nuker
 
+local DisposeBag = require('cylibs/events/dispose_bag')
 local MagicBurstMaker = require('cylibs/battle/skillchains/magic_burst_maker')
 local Nukes = require('cylibs/res/nukes')
 
@@ -25,13 +26,24 @@ state.AutoNukeMode:set_description('Wind', "Okay, I'll free nuke with wind spell
 state.AutoNukeMode:set_description('Light', "Okay, I'll free nuke with light spells.")
 state.AutoNukeMode:set_description('Dark', "Okay, I'll free nuke with dark spells.")
 
-function Nuker.new(action_queue, nuke_cooldown, nuke_mpp, fast_cast)
+-------
+-- Default initializer for a nuker role.
+-- @tparam ActionQueue action_queue Action queue
+-- @tparam number nuke_cooldown Minimum time between nukes in seconds
+-- @tparam number nuke_mpp Minimum mana percentage points to nuke
+-- @tparam fast_cast number Fast cast modifier (0.0 - 1.0)
+-- @tparam List job_ability_names List of job abilities to use with spells (e.g. Cascade, Ebullience)
+-- @treturn Nuker A nuker role
+function Nuker.new(action_queue, nuke_cooldown, nuke_mpp, fast_cast, job_ability_names)
     local self = setmetatable(Role.new(action_queue), Nuker)
 
     self.nuke_cooldown = nuke_cooldown or 2
     self.nuke_mpp = nuke_mpp or 20
     self.fast_cast = fast_cast or 0.8
+    self.job_ability_names = job_ability_names or L{}
     self.last_nuke_time = os.time()
+    self.dispose_bag = DisposeBag.new()
+    self.temp = os.time()
 
     return self
 end
@@ -39,9 +51,7 @@ end
 function Nuker:destroy()
     Role.destroy(self)
 
-    if self.magic_burst_maker then
-        self.magic_burst_maker:destroy()
-    end
+    self.dispose_bag:destroy()
 end
 
 function Nuker:on_add()
@@ -53,11 +63,13 @@ function Nuker:on_add()
         if state.AutoMagicBurstMode.value ~= 'Off' then
             local spell = res.spells:with('name', spell_name)
             if spell then
-                self:cast_spell(spell, true)
+                self:cast_spell(spell.name, true)
             end
         end
     end)
     self.magic_burst_maker:set_auto_nuke(state.AutoMagicBurstMode.value == 'Auto')
+
+    self.dispose_bag:addAny(L{ self.magic_burst_maker })
 end
 
 function Nuker:target_change(target_index)
@@ -65,7 +77,8 @@ function Nuker:target_change(target_index)
 end
 
 function Nuker:tic(_, _)
-    if state.AutoNukeMode.value == 'Off' or self.target_index == nil then
+    if L{'Off', 'Auto' }:contains(state.AutoNukeMode.value) or self.target_index == nil
+            or (os.time() - self.last_nuke_time) < self.nuke_cooldown then
         return
     end
     self:check_nukes()
@@ -74,28 +87,26 @@ end
 function Nuker:check_nukes()
     local spell_name = Nukes.get_nuke(state.AutoNukeMode.value)
     if spell_name then
-        self:cast_spell(res.spells:with('en', spell_name), false)
+        self:cast_spell(spell_name, false)
     end
 end
 
-function Nuker:cast_spell(spell, is_magic_burst)
-    if windower.ffxi.get_player().vitals.mpp < self.nuke_mpp
-            or (os.time() - self.last_nuke_time) < self.nuke_cooldown or not spell_util.can_cast_spell(spell.id) then
-        return
+function Nuker:cast_spell(spell_name, is_magic_burst)
+    local spell = Spell.new(spell_name, L{}, L{}, nil, L{ MinManaPointsPercentCondition.new(self.nuke_mpp) })
+    if Condition.check_conditions(spell:get_conditions(), self.target_index) then
+        self.last_nuke_time = os.time()
+
+        if is_magic_burst then
+            windower.send_command('gs c set MagicBurstMode Single')
+        end
+
+        spell:set_job_abilities(self.job_ability_names)
+
+        local spell_action = spell:to_action(self.target_index, self:get_player())
+        spell_action.priority = ActionPriority.high
+
+        self.action_queue:push_action(spell_action, true)
     end
-
-    self.last_nuke_time = os.time()
-
-    if is_magic_burst then
-        windower.send_command('gs c set MagicBurstMode Single')
-    end
-
-    self.nuke_cooldown = spell.cast_time * (1 - self.fast_cast) + 3.275
-
-    local spell_action = SpellAction.new(0, 0, 0, spell.id, self.target_index, self:get_player())
-    spell_action.priority = ActionPriority.high
-
-    self.action_queue:push_action(spell_action, true)
 end
 
 function Nuker:allows_duplicates()

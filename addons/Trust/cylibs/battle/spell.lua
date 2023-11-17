@@ -35,6 +35,8 @@ function Spell.new(spell_name, job_abilities, job_names, target, conditions, con
         conditions = conditions or L{};
     }, Spell)
 
+    self.conditions:append(SpellRecastReadyCondition.new(res.spells:with('name', spell_name).id))
+
     local strategem_count = self.job_abilities:filter(function(job_ability_name)
         local job_ability = res.job_abilities:with('en', job_ability_name)
         return job_ability.type == 'Scholar'
@@ -144,6 +146,41 @@ end
 -- @treturn list List of conditions
 function Spell:get_conditions()
     return self.conditions
+end
+
+-------
+-- Return the Action to cast this spell on a target. Optionally first uses job abilities where conditions are satisfied.
+-- @tparam number target_index Target for the spell
+-- @treturn Action Action to cast the spell
+function Spell:to_action(target_index, player)
+    local actions = L{ WaitAction.new(0, 0, 0, 1.5) }
+
+    local job_abilities = self:get_job_abilities():map(function(job_ability_name)
+        local conditions = L{}
+
+        local job_ability = res.job_abilities:with('en', job_ability_name)
+        if job_ability.status then
+            conditions:append(NotCondition.new(L{ HasBuffCondition.new(res.buffs[job_ability.status].name, player:get_mob().index) }))
+        end
+        return JobAbility.new(job_ability_name, conditions)
+    end):filter(function(job_ability)
+        return Condition.check_conditions(job_ability:get_conditions(), player:get_mob().index)
+    end)
+
+    for job_ability in job_abilities:it() do
+        if job_ability.type == 'Scholar' then
+            actions:append(StrategemAction.new(job_ability:get_job_ability_name()))
+            actions:append(WaitAction.new(0, 0, 0, 1))
+        else
+            actions:append(JobAbilityAction.new(0, 0, 0, job_ability:get_job_ability_name()))
+            actions:append(WaitAction.new(0, 0, 0, 1))
+        end
+    end
+
+    actions:append(SpellAction.new(0, 0, 0, self:get_spell().id, target_index, player))
+    actions:append(WaitAction.new(0, 0, 0, 2))
+
+    return SequenceAction.new(actions, 'spell_'..self:get_spell().en)
 end
 
 -------

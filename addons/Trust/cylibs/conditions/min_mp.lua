@@ -1,7 +1,7 @@
 ---------------------------
 -- Condition checking whether the player's mp >= min_mp. Does not work on other targets.
 -- @class module
--- @name MinHitPointsPercentCondition
+-- @name MinManaPointsCondition
 local serializer_util = require('cylibs/util/serializer_util')
 
 local Condition = require('cylibs/conditions/condition')

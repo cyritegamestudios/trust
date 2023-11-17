@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '7.3.1'
+_addon.version = '7.4.0'
 
 require('Trust-Include')
 
@@ -149,6 +149,7 @@ function load_user_files(main_job_id, sub_job_id)
 
 	load_trust_modes(player.main_job_name_short)
 	load_trust_reactions(player.main_job_name_short)
+	load_trust_scenarios(player.main_job_name_short)
 	load_ui()
 
 	main_trust_settings:copySettings()
@@ -194,6 +195,10 @@ end
 function load_trust_reactions(job_name_short)
 	--trust_reactions = TrustReactions.new(job_name_short)
 	--trust_reactions:loadReactions()
+end
+
+function load_trust_scenarios(job_name_short)
+	trust_scenarios = TrustScenarios.new(action_queue)
 end
 
 function load_trust_commands(job_name_short, trust, action_queue)
@@ -490,6 +495,8 @@ local function addon_command(cmd, ...)
 		player.trust.main_job_commands:handle_command(unpack({...}))
 	elseif L{player.sub_job_name_short, player.sub_job_name_short:lower()}:contains(cmd) and player.trust.sub_job_commands then
 		player.trust.sub_job_commands:handle_command(unpack({...}))
+	elseif L{'scenario'}:contains(cmd) then
+		trust_scenarios:handle_command(unpack{...})
 	elseif L{'sc', 'pull', 'engage', 'follow', 'sendall', 'send'}:contains(cmd) then
 		handle_shortcut(cmd, unpack({...}))
 	else
