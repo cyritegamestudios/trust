@@ -8,6 +8,7 @@ _libs = _libs or {}
 require('lists')
 
 local res = require('resources')
+local job_abilities_ext = require('cylibs/res/job_abilities')
 local spells_ext = require('cylibs/res/spells')
 
 local buff_util = {}
@@ -246,10 +247,10 @@ end
 -- @treturn BuffMetadata Full metadata for the buff (see buffs.lua)
 function buff_util.buff_for_job_ability(job_ability_id)
 	local job_ability = res.job_abilities:with('id', job_ability_id)
-	if job_ability and job_ability.status then
-		return res.buffs:with('id', job_ability.status)
+	if job_ability.status == nil then
+		job_ability = job_abilities_ext:with('id', job_ability_id)
 	end
-	return nil
+	return res.buffs:with('id', job_ability.status)
 end
 
 -------

@@ -3,6 +3,7 @@
 -- @class module
 -- @name JobAbility
 
+local JobAbilityRecastReadyCondition = require('cylibs/conditions/job_ability_recast_ready')
 local serializer_util = require('cylibs/util/serializer_util')
 
 local JobAbility = {}
@@ -20,10 +21,15 @@ function JobAbility.new(job_ability_name, conditions, job_names, target)
     local self = setmetatable({
         job_ability_name = job_ability_name;
         job_ability_id = res.job_abilities:with('name', job_ability_name).id;
-        conditions = conditions;
+        conditions = conditions or L{};
         job_names = job_names;
         target = target;
     }, JobAbility)
+
+    if self:get_job_ability().type ~= 'Scholar' then
+        self.conditions = self.conditions:extend(L{ JobAbilityRecastReadyCondition.new(job_ability_name) })
+    end
+
     return self
 end
 

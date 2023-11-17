@@ -20,6 +20,7 @@ TrustUnitTests = require('TrustUnitTests')
 TrustSettingsLoader = require('TrustSettings')
 TrustModeSettings = require('TrustModeSettings')
 TrustReactions = require('TrustReactions')
+TrustScenarios = require('scenarios/TrustScenarios')
 Reaction = require('data/reactions/Reaction')
 TrustSettingsEditor = require('ui/settings/TrustSettingsEditor')
 

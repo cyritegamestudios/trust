@@ -65,6 +65,16 @@ function Condition:serialize()
     return "Condition.new(" .. serializer_util.serialize_args() .. ")"
 end
 
+function Condition.check_conditions(conditions, target_index)
+    for condition in conditions:it() do
+        if not condition:is_satisfied(condition:get_target_index() or target_index) then
+            logger.error("Failed", condition:tostring())
+            return false
+        end
+    end
+    return true
+end
+
 return Condition
 
 

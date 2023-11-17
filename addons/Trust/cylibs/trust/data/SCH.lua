@@ -27,10 +27,6 @@ function ScholarTrust.new(settings, action_queue, battle_settings, trust_setting
     self.arts_roles = S{}
     self.dispose_bag = DisposeBag.new()
 
-    if state.AutoArtsMode.value ~= 'Off' then
-        self:switch_arts(state.AutoArtsMode.value)
-    end
-
     return self
 end
 
@@ -44,12 +40,17 @@ function ScholarTrust:on_init()
     Trust.on_init(self)
 
     self.dispose_bag:add(state.AutoArtsMode:on_state_change():addAction(function(_, new_value)
-        self:switch_arts(new_value)
+        if state.AutoArtsMode.value ~= 'Off' then
+            self:switch_arts(new_value)
+        end
     end), state.AutoArtsMode:on_state_change())
 
     self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
         self:get_job():set_trust_settings(new_trust_settings)
-        self:update_for_arts(self.current_arts_mode)
+
+        if state.AutoArtsMode.value ~= 'Off' then
+            self:switch_arts(state.AutoArtsMode.value)
+        end
     end)
 end
 
@@ -67,7 +68,15 @@ function ScholarTrust:tic(old_time, new_time)
 end
 
 function ScholarTrust:check_arts()
-    self:switch_arts(state.AutoArtsMode.value)
+    if state.AutoArtsMode.value ~= 'Off' then
+        self:switch_arts(state.AutoArtsMode.value)
+    else
+        if self:get_job():is_light_arts_active() then
+            self:switch_arts('LightArts')
+        elseif self:get_job():is_dark_arts_active() then
+            self:switch_arts('DarkArts')
+        end
+    end
 end
 
 function ScholarTrust:check_sublimation()
@@ -88,6 +97,8 @@ function ScholarTrust:switch_arts(new_arts_mode)
     if self.current_arts_mode == new_arts_mode then
         return
     end
+    logger.notice("Switching to", new_arts_mode, "from", self.current_arts_mode, "AutoArtsMode: ", state.AutoArtsMode.value)
+
     self.current_arts_mode = new_arts_mode
 
     self:update_for_arts(self.current_arts_mode)
@@ -106,17 +117,14 @@ function ScholarTrust:update_for_arts(new_arts_mode)
             Healer.new(self.action_queue, self:get_job()),
             ManaRestorer.new(self.action_queue, L{'Myrkr', 'Spirit Taker'}, 40),
             StatusRemover.new(self.action_queue, self:get_job()),
-            Skillchainer.new(self.action_queue, L{}, self:get_trust_settings().Skillchains),
         }
     elseif new_arts_mode == 'DarkArts' then
-        print('adding dispeler')
         self.arts_roles = S{
             Buffer.new(self.action_queue, self:get_job():get_dark_arts_job_abilities(), self:get_job():get_dark_arts_self_buffs(), self:get_job():get_dark_arts_party_buffs()),
             Debuffer.new(self.action_queue),
             Dispeler.new(self.action_queue, L{ Spell.new('Dispel', L{'Addendum: Black'}) }, L{}, true),
             ManaRestorer.new(self.action_queue, L{'Myrkr', 'Spirit Taker'}, 40),
-            Nuker.new(self.action_queue),
-            Skillchainer.new(self.action_queue, L{}, self:get_trust_settings().Skillchains),
+            Nuker.new(self.action_queue, 2, 20, 0.8, L{ 'Ebullience' }),
             Puller.new(self.action_queue, self.battle_settings.targets, 'Stone', nil),
         }
     end

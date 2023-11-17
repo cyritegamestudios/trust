@@ -115,14 +115,6 @@ function handle_shortcut(cmd, ...)
             end
         end
     end
-    --[[local command = ''
-    for _,v in ipairs(arg) do
-        command = command..' '..tostring(v)
-    end
-    if not command:empty() then
-        windower.send_command('@input '..command:trim())
-        --action_queue:push_action(CommandAction.new(0, 0, 0, command:trim()), true)
-    end]]
 end
 
 function toggle_mode(mode_var_name, on_value, off_value)
