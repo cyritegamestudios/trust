@@ -26,7 +26,7 @@ return {
         },
         JobAbilities = L{
 
-        }
+        },
         SelfBuffs = L{
 
         }
