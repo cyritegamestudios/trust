@@ -31,7 +31,3 @@ function MinManaPointsCondition:serialize()
 end
 
 return MinManaPointsCondition
-
-
-
-

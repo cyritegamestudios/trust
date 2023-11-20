@@ -36,9 +36,9 @@ function TargetAction:can_perform()
 		return false
 	end
 
-	if not monster_util.is_unclaimed(self.target_id) and party_util.not_party_claimed(self.target_id) then
-		return false
-	end
+	--if not monster_util.is_unclaimed(self.target_id) and party_util.not_party_claimed(self.target_id) then
+	--	return false
+	--end
 
 	return true
 end

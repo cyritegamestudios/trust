@@ -31,7 +31,3 @@ function MinManaPointsPercentCondition:serialize()
 end
 
 return MinManaPointsPercentCondition
-
-
-
-

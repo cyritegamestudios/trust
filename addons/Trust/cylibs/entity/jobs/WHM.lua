@@ -7,6 +7,7 @@ local Job = require('cylibs/entity/jobs/job')
 local WhiteMage = setmetatable({}, {__index = Job })
 WhiteMage.__index = WhiteMage
 
+local buff_util = require('cylibs/util/buff_util')
 local cure_util = require('cylibs/util/cure_util')
 local spell_util = require('cylibs/util/spell_util')
 
@@ -133,7 +134,7 @@ end
 -- @tparam T cure_settings Cure settings
 function WhiteMage:set_cure_settings(cure_settings)
     self.cure_settings = cure_settings or cure_util.default_cure_settings
-    self.ignore_debuff_ids = self.cure_settings.StatusRemovals.Blacklist:map(function(debuff_name) return res.buffs:with('name', debuff_name).id end)
+    self.ignore_debuff_ids = self.cure_settings.StatusRemovals.Blacklist:map(function(debuff_name) return buff_util.buff_id(debuff_name) end)
 end
 
 return WhiteMage

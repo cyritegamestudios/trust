@@ -5,6 +5,7 @@
 
 _libs = _libs or {}
 
+local buff_util = require('cylibs/util/buff_util')
 local res = require('resources')
 local spells_ext = require('cylibs/res/spells')
 local tables_ext = require('cylibs/util/extensions/tables')
@@ -207,6 +208,25 @@ function spell_util.base_spell_name(spell_name)
         end
     end
     return spell_name
+end
+
+-------
+-- Returns a list of valid targets for the given spell.
+-- @tparam number spell_id Spell id or spell name (see res/spells.lua)
+-- @treturn list List of valid targets (e.g. Self, Party, Alliance, Enemy)
+function spell_util.spell_targets(spell_id)
+    if type(spell_id) == 'string' then
+        spell_id = res.spells:with('name', spell_id).id
+    end
+    local spell = res.spells[spell_id]
+    if spell then
+        local targets = L(spell.targets)
+        if buff_util.is_buff_active(buff_util.buff_id('Pianissimo')) then
+            targets:append('Party')
+        end
+        return targets
+    end
+    return L{}
 end
 
 return spell_util

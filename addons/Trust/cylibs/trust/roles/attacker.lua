@@ -44,6 +44,12 @@ function Attacker:target_change(target_index)
 end
 
 function Attacker:tic(_, _)
+    if self.target_index then
+        logger.notice("Current target is", windower.ffxi.get_mob_by_index(self.target_index).name, self.target_index)
+    else
+        logger.notice("Current target index is", self.target_index or "nil")
+    end
+
     if state.AutoEngageMode.value == 'Off' or self.target_index == nil then
         return
     end
