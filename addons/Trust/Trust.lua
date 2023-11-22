@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '7.4.0'
+_addon.version = '7.6.0'
 
 require('Trust-Include')
 
@@ -9,7 +9,7 @@ default = {
 	verbose=true
 }
 
-default.menu_key = 'numpad+'
+default.menu_key = '%^numpad+'
 default.hud = {}
 default.hud.position = {}
 default.hud.position.x = 0

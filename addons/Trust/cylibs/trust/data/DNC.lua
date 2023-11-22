@@ -7,12 +7,16 @@ local DancerTrust = setmetatable({}, {__index = Trust })
 DancerTrust.__index = DancerTrust
 
 local Buffer = require('cylibs/trust/roles/buffer')
+local Dancer = require('cylibs/entity/jobs/DNC')
+local Healer = require('cylibs/trust/roles/healer')
 
 function DancerTrust.new(settings, action_queue, battle_settings, trust_settings)
+	local job = Dancer.new(trust_settings.CureSettings)
 	local roles = S{
 		Buffer.new(action_queue, trust_settings.JobAbilities),
+		Healer.new(action_queue, job),
 	}
-	local self = setmetatable(Trust.new(action_queue, roles, trust_settings), DancerTrust)
+	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), DancerTrust)
 
 	self.settings = settings
 	self.action_queue = action_queue
@@ -24,6 +28,8 @@ function DancerTrust:on_init()
 	Trust.on_init(self)
 
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
+		self:get_job():set_cure_settings(new_trust_settings.CureSettings)
+
 		local buffer = self:role_with_type("buffer")
 		if buffer then
 			buffer:set_job_abilities(new_trust_settings.JobAbilities)
@@ -43,14 +49,6 @@ end
 
 function DancerTrust:tic(old_time, new_time)
 	Trust.tic(self, old_time, new_time)
-
-	if windower.ffxi.get_player().vitals.hpp < 40 then
-		local actions = L{
-			JobAbilityAction.new(0, 0, 0, 'Curing Waltz III'),
-			WaitAction.new(0, 0, 0, 2.0),
-		}
-		self.action_queue:push_action(SequenceAction.new(actions, 'healer_waltz'), true)
-	end
 end
 
 return DancerTrust

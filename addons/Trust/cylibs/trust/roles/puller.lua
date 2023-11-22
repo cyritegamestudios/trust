@@ -89,6 +89,8 @@ function Puller:tic(_, _)
         return
     end
 
+    logger.notice("puller", "target is", target_index or "nil")
+
     if self.target_index then
         local target = windower.ffxi.get_mob_by_index(self.target_index)
         if target and party_util.party_claimed(target.id) then
@@ -106,9 +108,10 @@ function Puller:check_pull()
         return
     end
     self.last_pull_time = os.time()
-
+    logger.notice("puller", "checking pull")
     if state.AutoPullMode.value ~= 'Off' then
         if self:should_pull() then
+            logger.notice("puller", "trying to pull")
             local target = self:get_pull_target()
             self:pull_target(target)
         end
@@ -202,14 +205,21 @@ end
 
 function Puller:pull_target(target)
     if target ~= nil and target.distance:sqrt() < self:get_pull_distance() then
+        logger.notice("found target to pull", target.name)
         self.no_pull_counter = 0
         local pull_action = self:get_pull_action(target.index)
-        if pull_action and pull_action:can_perform() then
-            local sequence_action = SequenceAction.new(L{
+        if pull_action then
+            logger.notice("[Puller]", "Attempting to pull", target.name)
+            local actions = L{
                 TargetAction.new(target.id, self:get_player()),
                 WaitAction.new(0, 0, 0, 2),
-                pull_action,
-            }, 'puller_target_' .. target.index)
+            }
+            if pull_action:can_perform() then
+                actions:append(pull_action)
+            else
+                logger.notice("[Puller]", "Can't use pull action so just targeting")
+            end
+            local sequence_action = SequenceAction.new(actions, 'puller_target_' .. target.index)
             sequence_action.priority = ActionPriority.high
             self.action_queue:push_action(sequence_action, true)
         end

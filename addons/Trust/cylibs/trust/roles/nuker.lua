@@ -43,7 +43,6 @@ function Nuker.new(action_queue, nuke_cooldown, nuke_mpp, fast_cast, job_ability
     self.job_ability_names = job_ability_names or L{}
     self.last_nuke_time = os.time()
     self.dispose_bag = DisposeBag.new()
-    self.temp = os.time()
 
     return self
 end

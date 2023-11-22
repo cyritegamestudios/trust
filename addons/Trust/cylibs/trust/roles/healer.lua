@@ -120,20 +120,11 @@ function Healer:cure_party_member(party_member)
 
     local missing_hp = party_member:get_max_hp() - party_member:get_hp()
 
-    local cure_spell = self.main_job:get_cure_spell(missing_hp)
-    if cure_spell then
+    local cure_spell_or_job_ability = self.main_job:get_cure_spell(missing_hp)
+    if cure_spell_or_job_ability then
         self.last_cure_time = os.time()
 
-        local actions = L{}
-        for job_ability_name in cure_spell:get_job_abilities():it() do
-            actions:append(JobAbilityAction.new(0, 0, 0, job_ability_name))
-            actions:append(WaitAction.new(0, 0, 0, 1))
-        end
-
-        actions:append(CureAction.new(0, 0, 0, party_member, 90, cure_spell:get_spell().mp_cost, self.main_job, self:get_player(), self:get_party()))
-        actions:append(WaitAction.new(0, 0, 0, 1))
-
-        local cure_action = SequenceAction.new(actions, 'healer_cure_'..party_member:get_mob().id)
+        local cure_action = self:get_cure_action(cure_spell_or_job_ability, party_member)
         cure_action.priority = cure_util.get_cure_priority(party_member:get_hpp(), party_member:is_trust(), false)
 
         self.action_queue:push_action(cure_action, true)
@@ -165,24 +156,28 @@ function Healer:cure_party_members(party_members)
         end
     end
 
-    local cure_spell = self.main_job:get_aoe_cure_spell(max_missing_hp)
-    if cure_spell and spell_target then
+    local cure_spell_or_job_ability = self.main_job:get_aoe_cure_spell(max_missing_hp)
+    if cure_spell_or_job_ability and spell_target then
         self.last_cure_time = os.time()
 
-        local actions = L{}
-        for job_ability_name in cure_spell:get_job_abilities():it() do
-            actions:append(JobAbilityAction.new(0, 0, 0, job_ability_name))
-            actions:append(WaitAction.new(0, 0, 0, 1))
-        end
-
-        actions:append(SpellAction.new(0, 0, 0, cure_spell:get_spell().id, spell_target:get_mob().index, self:get_player()))
-        actions:append(WaitAction.new(0, 0, 0, 1))
-
-        local cure_action = SequenceAction.new(actions, 'healer_cure_'..spell_target:get_mob().id)
+        local cure_action = self:get_cure_action(cure_spell_or_job_ability, spell_target)
         cure_action.priority = cure_util.get_cure_priority(spell_target:get_hpp(), is_trust_only, true)
 
         self.action_queue:push_action(cure_action, true)
     end
+end
+
+function Healer:get_cure_action(spell_or_job_ability, party_member)
+    if spell_or_job_ability then
+        if spell_or_job_ability.__type == "Spell" then
+            local cure_action = spell_or_job_ability:to_action(party_member:get_mob().index, self:get_player())
+            return cure_action
+        else
+            local cure_action = spell_or_job_ability:to_action(party_member:get_mob().index)
+            return cure_action
+        end
+    end
+    return nil
 end
 
 function Healer:get_cure_threshold()

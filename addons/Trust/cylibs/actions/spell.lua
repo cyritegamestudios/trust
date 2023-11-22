@@ -10,6 +10,7 @@ require('lists')
 
 local DisposeBag = require('cylibs/events/dispose_bag')
 local res = require('resources')
+local ValidSpellTargetCondition = require('cylibs/conditions/valid_spell_target')
 
 local Action = require('cylibs/actions/action')
 local SpellAction = setmetatable({}, {__index = Action })
@@ -22,7 +23,7 @@ function SpellAction.new(x, y, z, spell_id, target_index, player, conditions)
 		NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'mute'}, false)}),
 		MinManaPointsCondition.new(res.spells[spell_id].mp_cost or 0),
 		SpellRecastReadyCondition.new(spell_id),
-		ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos()),
+		ValidSpellTargetCondition.new(res.spells[spell_id].name, alter_ego_util.untargetable_alter_egos()),
 	})
 
 	local self = setmetatable(Action.new(x, y, z, target_index, conditions), SpellAction)

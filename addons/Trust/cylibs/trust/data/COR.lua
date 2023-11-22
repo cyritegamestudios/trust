@@ -97,6 +97,14 @@ function CorsairTrust:quick_draw(debuff_name)
 		self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, 'Light Shot', self.target_index))
 	elseif L{'Silence'}:contains(debuff_name) then
 		self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, 'Wind Shot', self.target_index))
+	elseif L{'slow'}:contains(debuff_name) then
+		self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, 'Earth Shot', self.target_index))
+	elseif L{'Bio','blindness'}:contains(debuff_name) then
+		self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, 'Dark Shot', self.target_index))
+	elseif L{'poison'}:contains(debuff_name) then
+		self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, 'Water Shot', self.target_index))
+	elseif L{'paralysis'}:contains(debuff_name) then
+		self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, 'Ice Shot', self.target_index))
 	end
 end
 

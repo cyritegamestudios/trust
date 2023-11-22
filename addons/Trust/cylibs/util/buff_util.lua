@@ -146,11 +146,17 @@ end
 -- @tparam string buff_name Localized buff name
 -- @treturn number Buff id (see buffs.lua)
 function buff_util.buff_id(buff_name)
-	local buff = res.buffs:with('en', buff_name)
-	if buff == nil then
-		buff = res.buffs:with('enl', buff_name)
+	local buff_names = L{ buff_name, string.lower(buff_name), buff_name:gsub("^%l", string.upper) }
+	for buff_name in buff_names:it() do
+		local buff = res.buffs:with('en', buff_name)
+		if buff == nil then
+			buff = res.buffs:with('enl', buff_name)
+		end
+		if buff then
+			return buff.id
+		end
 	end
-	return buff.id
+	return nil
 end
 
 -------

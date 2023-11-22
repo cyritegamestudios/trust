@@ -71,6 +71,17 @@ function JobAbility:get_target()
     return nil
 end
 
+-------
+-- Return the Action to use this job ability on a target.
+-- @treturn Action Action to cast the spell
+function JobAbility:to_action(target_index)
+    local actions = L{
+        JobAbilityAction.new(0, 0, 0, self:get_job_ability_name(), target_index or self:get_target()),
+        WaitAction.new(0, 0, 0, 2),
+    }
+    return SequenceAction.new(actions, 'job_ability_'..self:get_job_ability_name())
+end
+
 function JobAbility:serialize()
     return "JobAbility.new(" .. serializer_util.serialize_args(self.job_ability_name, self.conditions, self.job_names, self.target) .. ")"
 end

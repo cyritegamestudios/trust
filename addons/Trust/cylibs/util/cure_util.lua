@@ -63,20 +63,42 @@ local debuff_to_spell = {
 	['Flash'] = 'Erase'
 }
 
--- Mapping of cure spell to hp missing threshold, status removal settings
+-- Default cure settings if none are specified
 cure_util.default_cure_settings = {
-	Thresholds = {
-		['Cure IV'] = 1500,
-		['Cure III'] = 600,
-		['Cure II'] = 0,
-		['Curaga III'] = 900,
-		['Curaga II'] = 600,
-		['Curaga'] = 0
-	},
-	StatusRemovals = {
-		Blacklist = L{
+	Magic = {
+		Thresholds = {
+			['Cure IV'] = 1500,
+			['Cure III'] = 600,
+			['Cure II'] = 0,
+			['Curaga III'] = 900,
+			['Curaga II'] = 600,
+			['Curaga'] = 0
+		},
+		Delay = 2,
+		StatusRemovals = {
+			Delay = 3,
+			Blacklist = L{
+			}
 		}
-	}
+	},
+	Waltz = {
+		Thresholds = {
+			Emergency = 40,
+			Default = 78,
+			["Curing Waltz II"] = 0,
+			["Curing Waltz III"] = 600,
+			["Curing Waltz IV"] = 1500,
+			["Divine Waltz"] = 0,
+			["Divine Waltz II"] = 600,
+		},
+		Delay = 2,
+		StatusRemovals = {
+			Delay = 3,
+			Blacklist = L{
+
+			}
+		}
+	},
 }
 
 -------
