@@ -47,7 +47,6 @@ return {
             }
         },
         JobAbilities = L{
-            JobAbility.new('Saber Dance', L{}, L{InBattleCondition.new()}, nil),
             JobAbility.new('Haste Samba', L{}, L{InBattleCondition.new()}, nil),
         }
     }
