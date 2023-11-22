@@ -133,7 +133,7 @@ end
 -- Sets the cure settings.
 -- @tparam T cure_settings Cure settings
 function WhiteMage:set_cure_settings(cure_settings)
-    self.cure_settings = cure_settings or cure_util.default_cure_settings
+    self.cure_settings = cure_settings or cure_util.default_cure_settings.Magic
     self.ignore_debuff_ids = self.cure_settings.StatusRemovals.Blacklist:map(function(debuff_name) return buff_util.buff_id(debuff_name) end)
 end
 

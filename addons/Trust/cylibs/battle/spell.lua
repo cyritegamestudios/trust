@@ -153,7 +153,7 @@ end
 -- @tparam number target_index Target for the spell
 -- @treturn Action Action to cast the spell
 function Spell:to_action(target_index, player)
-    local actions = L{ WaitAction.new(0, 0, 0, 1.5) }
+    local actions = L{}
 
     local job_abilities = self:get_job_abilities():map(function(job_ability_name)
         local conditions = L{}

@@ -211,7 +211,7 @@ end
 -- @tparam T trust_settings Trust settings
 function Scholar:set_trust_settings(trust_settings)
     self.trust_settings = trust_settings
-    self.cure_settings = trust_settings.CureSettings or cure_util.default_cure_settings
+    self.cure_settings = trust_settings.CureSettings or cure_util.default_cure_settings.Magic
 end
 
 return Scholar

@@ -100,7 +100,7 @@ end
 function job_util.can_use_job_ability(job_ability_name)
     local job_ability = res.job_abilities:with('en', job_ability_name)
     if job_ability.tp_cost > 0 then
-        if windower.ffxi.get_player().vitals.tp  < job_ability.tp_cost then
+        if windower.ffxi.get_player().vitals.tp < job_ability.tp_cost then
             return false
         end
     end
