@@ -183,7 +183,7 @@ function Puller:get_pull_action(target_index)
         local pull_action = SequenceAction.new(L{
             RunToAction.new(target_index, 3),
             BlockAction.new(function() battle_util.target_mob(target_index) end)
-        }, "puller_approach")
+        }, "puller_approach", true)
         pull_action.priority = ActionPriority.highest
         return pull_action
     elseif self.spell_name then
