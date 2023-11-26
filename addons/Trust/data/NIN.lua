@@ -39,7 +39,7 @@ return {
             Spell.new("Utsusemi: Ni", L{}, L{}, nil, L{})
         },
         JobAbilities = L{
-            JobAbility.new('Yonin', L{}, L{InBattleCondition.new()}, nil),
+            JobAbility.new('Yonin', L{InBattleCondition.new()}),
         }
     }
 }

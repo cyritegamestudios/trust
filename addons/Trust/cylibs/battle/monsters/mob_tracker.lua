@@ -91,12 +91,7 @@ function MobTracker:monitor()
             end
         end
     end)
-
-    self.action_events.time_change = windower.register_event('time change', function(_, _)
-        for mob in self:get_targets():it() do
-            logger.notice(mob:get_name(), mob:get_mob().hpp, mob:get_id(), mob.current_target and mob.current_target.name or "No target")
-        end
-    end)
+    
     self.action_events.zone_change = windower.register_event('zone change', function(_, _)
         self:reset()
     end)

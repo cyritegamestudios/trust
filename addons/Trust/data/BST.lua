@@ -38,8 +38,8 @@ return {
             }
         },
         JobAbilities = L{
-            JobAbility.new('Killer Instinct', L{}, L{InBattleCondition.new()}, nil),
-            JobAbility.new('Spur', L{}, L{InBattleCondition.new()}, nil),
+            JobAbility.new('Killer Instinct', L{InBattleCondition.new()}),
+            JobAbility.new('Spur', L{InBattleCondition.new()}),
         }
     }
 }

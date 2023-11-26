@@ -38,7 +38,7 @@ return {
             }
         },
         JobAbilities = L{
-            JobAbility.new('Swordplay', L{}, L{InBattleCondition.new()}, nil),
+            JobAbility.new('Swordplay', L{InBattleCondition.new()}),
         }
     }
 }

@@ -47,7 +47,7 @@ return {
             }
         },
         JobAbilities = L{
-            JobAbility.new('Haste Samba', L{}, L{InBattleCondition.new()}, nil),
+            JobAbility.new('Haste Samba', L{InBattleCondition.new()}),
         }
     }
 }

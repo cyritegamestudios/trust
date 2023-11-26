@@ -22,7 +22,7 @@ return {
             }
         },
         JobAbilities = L{
-            JobAbility.new('Majesty', L{}, L{InBattleCondition.new()}, nil),
+            JobAbility.new('Majesty', L{InBattleCondition.new()}),
         },
         PartyBuffs = L{
 

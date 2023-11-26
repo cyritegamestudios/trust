@@ -24,7 +24,7 @@ return {
             }
         },
         JobAbilities = L{
-            JobAbility.new('Velocity Shot', L{}, L{InBattleCondition.new()}, nil),
+            JobAbility.new('Velocity Shot', L{InBattleCondition.new()}),
         }
     }
 }

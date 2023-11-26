@@ -26,9 +26,9 @@ return {
             }
         },
         JobAbilities = L{
-            JobAbility.new('Impetus', L{}, L{InBattleCondition.new()}, nil),
-            JobAbility.new('Footwork', L{}, L{InBattleCondition.new()}, nil),
-            JobAbility.new('Mantra', L{}, L{InBattleCondition.new()}, nil),
+            JobAbility.new('Impetus', L{InBattleCondition.new()}),
+            JobAbility.new('Footwork', L{InBattleCondition.new()}),
+            JobAbility.new('Mantra', L{InBattleCondition.new()}),
         }
     }
 }
