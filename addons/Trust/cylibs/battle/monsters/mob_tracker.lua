@@ -19,7 +19,7 @@ function MobTracker:on_mob_ko()
     return self.mob_ko
 end
 
-function MobTracker.new()
+function MobTracker.new(on_party_member_added, on_party_member_removed)
     local self = setmetatable({
         player_ids = S{};
         mobs = T{};
@@ -28,6 +28,17 @@ function MobTracker.new()
     }, MobTracker)
 
     self.mob_ko = Event.newEvent()
+
+    self.dispose_bag:add(on_party_member_added:addAction(function(t)
+        self.dispose_bag:add(t:on_target_change():addAction(function(_, new_target_index, _)
+            self:add_mob_by_index(new_target_index)
+        end), t:on_target_change())
+        self:add_player(t:get_id())
+    end), on_party_member_added)
+
+    self.dispose_bag:add(on_party_member_removed:addAction(function(t)
+        self:remove_player(t:get_id())
+    end), on_party_member_removed)
 
     return self
 end
@@ -117,6 +128,8 @@ function MobTracker:add_mob(target_id)
     end
     mob = Monster.new(target_id)
     mob:monitor()
+
+    self:add_mob_by_index(mob:get_mob().target_index)
 
     self.mobs[target_id] = mob
 

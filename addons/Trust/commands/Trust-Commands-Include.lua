@@ -1,0 +1,7 @@
+AttackCommands = require('commands/AttackCommands')
+FollowCommands = require('commands/FollowCommands')
+PullCommands = require('commands/PullCommands')
+ScenarioCommands = require('commands/ScenarioCommands')
+SendAllCommands = require('commands/SendAllCommands')
+SendCommands = require('commands/SendCommands')
+SkillchainCommands = require('commands/SkillchainCommands')

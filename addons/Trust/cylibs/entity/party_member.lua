@@ -5,16 +5,17 @@
 
 local battle_util = require('cylibs/util/battle_util')
 local buff_util = require('cylibs/util/buff_util')
+local DisposeBag = require('cylibs/events/dispose_bag')
 local Entity = require('cylibs/entity/entity')
 local Event = require('cylibs/events/Luvent')
 local ffxi_util = require('cylibs/util/ffxi_util')
-local list_ext = require('cylibs/util/extensions/lists')
 local packets = require('packets')
 local party_util = require('cylibs/util/party_util')
 local res = require('resources')
 
 local PartyMember = setmetatable({}, {__index = Entity })
 PartyMember.__index = PartyMember
+PartyMember.__class = "PartyMember"
 
 -- Event called when the party member's target changes.
 function PartyMember:on_target_change()
@@ -41,6 +42,16 @@ function PartyMember:on_lose_buff()
     return self.lose_buff
 end
 
+-- Event called when a party member's HP changes.
+function PartyMember:on_hp_change()
+    return self.hp_change
+end
+
+-- Event called when a party member is knocked out.
+function PartyMember:on_ko()
+    return self.ko
+end
+
 -- Event called when the party member's position changes.
 function PartyMember:on_position_change()
     return self.position_change
@@ -57,11 +68,15 @@ end
 -- @treturn PartyMember A party member
 function PartyMember.new(id)
     local self = setmetatable(Entity.new(id), PartyMember)
+    self.uuid = os.time()
     self.id = id
     self.main_job_short = 'NON'
     self.sub_job_short = 'NON'
     self.hpp = 100
     self.hp = 0
+    self.mpp = 0
+    self.mp = 0
+    self.tp = 0
     self.target_index = nil
     self.zone_id = nil
     self.action_events = {}
@@ -70,25 +85,37 @@ function PartyMember.new(id)
     self.is_monitoring = false
     self.last_zone_time = os.time()
     self.heartbeat_time = os.time()
+    self.dispose_bag = DisposeBag.new()
 
     self.target_change = Event.newEvent()
     self.gain_debuff = Event.newEvent()
     self.lose_debuff = Event.newEvent()
     self.gain_buff = Event.newEvent()
     self.lose_buff = Event.newEvent()
+    self.hp_change = Event.newEvent()
+    self.ko = Event.newEvent()
     self.position_change = Event.newEvent()
     self.zone_change = Event.newEvent()
 
-    local mob = self:get_mob()
-    if mob then
-        self.hpp = mob.hpp
-        self.target_index = mob.target_index
-        self:set_position(mob.x, mob.y, mob.z)
-        self:set_zone_id(windower.ffxi.get_info().zone)
+    local party_member_info = party_util.get_party_member(id)
+    if party_member_info then
+        self.hp = party_member_info.hp
+        self.hpp = party_member_info.hpp
+        self.mp = party_member_info.mp
+        self.mpp = party_member_info.mpp
+        self.tp = party_member_info.tp
+        self.zone = party_member_info.zone
+        self.name = party_member_info.name
+
+        if party_member_info.mob then
+            self.target_index = party_member_info.mob.target_index
+            self:set_position(party_member_info.mob.x, party_member_info.mob.y, party_member_info.mob.z)
+            self:set_zone_id(windower.ffxi.get_info().zone)
+        end
     end
 
-    self:update_buffs(party_util.get_buffs(self.id))
-    self:update_debuffs(party_util.get_buffs(self.id))
+    self:set_buff_ids(party_util.get_buffs(self.id))
+    self:set_debuff_ids(party_util.get_buffs(self.id))
 
     return self
 end
@@ -102,11 +129,15 @@ function PartyMember:destroy()
         end
     end
 
+    self.dispose_bag:destroy()
+
     self.target_change:removeAllActions()
     self.gain_debuff:removeAllActions()
     self.lose_debuff:removeAllActions()
     self.gain_buff:removeAllActions()
     self.lose_buff:removeAllActions()
+    self.hp_change:removeAllActions()
+    self.ko:removeAllActions()
     self.position_change:removeAllActions()
     self.zone_change:removeAllActions()
 end
@@ -120,85 +151,113 @@ function PartyMember:monitor()
     end
     self.is_monitoring = true
 
-    self.action_events.incoming = windower.register_event('incoming chunk', function(id, original, _, _, _)
-        -- Update buffs and debuffs
-        if id == 0x076 then
-            self:update_debuffs(party_util.get_buffs(self.id))
-            self:update_buffs(party_util.get_buffs(self.id))
+    self.dispose_bag:add(WindowerEvents.CharacterUpdate:addAction(function(mob_id, name, hp, hpp, mp, mpp, tp, main_job_id, sub_job_id)
+        if self:get_id() == mob_id then
+            self.name = name
+            self.mp = mp
+            self.mpp = mpp
+            self.tp = tp
+            self.main_job_short = main_job_id and res.jobs[main_job_id]['ens'] or 'NON'
+            self.sub_job_short = sub_job_id and res.jobs[sub_job_id]['ens'] or 'NON'
+
+            self:set_hp(hp)
+            self:set_hpp(hpp)
         end
-        -- Update target
-        if id == 0x0DF then
-            local p = packets.parse('incoming', original)
-            if self:get_mob() and p.ID == self:get_mob().id and windower.ffxi.get_mob_by_id(p.ID) then
-                if p.ID == windower.ffxi.get_player().id then
-                    self:update_target(windower.ffxi.get_player().target_index)
-                else
-                    self:update_target(windower.ffxi.get_mob_by_id(p.ID).target_index)
-                end
-            end
-        elseif id == 0x00D then
-            local p = packets.parse('incoming', original)
-            if self:get_mob() and p.Player == self:get_mob().id then
-                if not IpcRelay.shared():is_connected(self:get_name()) then
-                    if p['X'] ~= 0 or p['Y'] ~= 0 or p['Z'] ~= 0 then
-                        self:set_position(p['X'], p['Y'], p['Z'])
-                    end
-                end
-            end
+    end), WindowerEvents.CharacterUpdate)
+
+    self.dispose_bag:add(WindowerEvents.PositionChanged:addAction(function(mob_id, x, y, z)
+        if self:get_id() == mob_id then
+            self:set_position(x, y, z)
         end
-    end)
+    end), WindowerEvents.PositionChanged)
+
+    self.dispose_bag:add(WindowerEvents.TargetIndexChanged:addAction(function(mob_id, target_index)
+        if self:get_id() == mob_id then
+            self:set_target_index(target_index)
+        end
+    end), WindowerEvents.TargetIndexChanged)
+
+    self.dispose_bag:add(WindowerEvents.BuffsChanged:addAction(function(mob_id, buff_ids)
+        if self:get_id() == mob_id then
+            self:set_buff_ids(buff_ids)
+        end
+    end), WindowerEvents.BuffsChanged)
+
+    self.dispose_bag:add(WindowerEvents.DebuffsChanged:addAction(function(mob_id, debuff_ids)
+        if self:get_id() == mob_id then
+            self:set_debuff_ids(debuff_ids)
+        end
+    end), WindowerEvents.BuffsChanged)
+
+    self.dispose_bag:add(WindowerEvents.ZoneUpdate:addAction(function(mob_id, zone_id)
+        if self:get_id() == mob_id then
+            self:set_zone_id(zone_id)
+        end
+    end), WindowerEvents.ZoneUpdate)
+
+    self.dispose_bag:add(WindowerEvents.ZoneRequest:addAction(function(mob_id, current_zone_id, zone_line, zone_type)
+        if mob_id == self:get_id() then
+            self:set_zone_id(current_zone_id, zone_line, zone_type)
+        end
+    end), WindowerEvents.ZoneRequest)
+
     return true
 end
 
 function PartyMember:update_target(target_index)
-    if self.target_index ~= target_index then
-        local old_target_index = self.target_index
-        if target_index and target_index ~= 0 and battle_util.is_valid_monster_target(ffxi_util.mob_id_for_index(target_index)) then
-            local target = windower.ffxi.get_mob_by_index(target_index)
-            if target then
-            --if target and party_util.party_claimed(target.id) then
-                self.target_index = target.index
-                if old_target_index ~= target.index then
-                    self:on_target_change():trigger(self, self.target_index, old_target_index)
-                end
-            end
-        else
-            self.target_index = nil
-            if old_target_index ~= self.target_index then
-                self:on_target_change():trigger(self, self.target_index, old_target_index)
-            end
-        end
-    end
+    self:set_target_index(target_index)
 end
 
 -------
 -- Filters a list of buffs and updates the player's cached list of debuffs.
 -- @tparam list List of buff ids (see buffs.lua)
-function PartyMember:update_debuffs(buff_ids)
-    if buff_ids == nil then
+function PartyMember:set_debuff_ids(debuff_ids)
+    if debuff_ids == nil then
         return
     end
 
-    local debuff_ids = L(buff_util.debuffs_for_buff_ids(buff_ids))
     local delta = list.diff(debuff_ids, self.debuff_ids)
-    for buff_id in delta:it() do
+    for debuff_id in delta:it() do
         if debuff_ids:contains(buff_id) then
-            self:on_gain_debuff():trigger(self, buff_id)
+            self:on_gain_debuff():trigger(self, debuff_id)
         else
-            self:on_lose_debuff():trigger(self, buff_id)
+            self:on_lose_debuff():trigger(self, debuff_id)
         end
     end
     self.debuff_ids = debuff_ids
 end
 
 -------
+-- Returns a list of the party member's debuff ids.
+-- @treturn List of debuff ids (see buffs.lua)
+function PartyMember:get_debuff_ids()
+    return self.debuff_ids
+end
+
+-------
+-- Returns a list of the party member's debuffs.
+-- @treturn List of localized debuff names (see buffs.lua)
+function PartyMember:get_debuffs()
+    return L(self.debuff_ids:map(function(debuff_id)
+        return res.buffs:with('id', debuff_id).enl
+    end))
+end
+
+-------
+-- Returns true if the party member has the given debuff.
+-- @tparam number debuff_id Debuff id (see buffs.lua)
+-- @treturn boolean True if the party member has the given debuff, false otherwise
+function PartyMember:has_debuff(debuff_id)
+    return self.debuff_ids:contains(debuff_id)
+end
+
+-------
 -- Filters a list of buffs and updates the player's cached list of buffs.
 -- @tparam list List of buff ids (see buffs.lua)
-function PartyMember:update_buffs(buff_ids)
+function PartyMember:set_buff_ids(buff_ids)
     if buff_ids == nil then
         return
     end
-    local buff_ids = L(buff_util.buffs_for_buff_ids(buff_ids))
     local old_buff_ids = self.buff_ids
 
     self.buff_ids = buff_ids
@@ -231,35 +290,11 @@ function PartyMember:get_buffs()
 end
 
 -------
--- Returns a list of the party member's debuff ids.
--- @treturn List of debuff ids (see buffs.lua)
-function PartyMember:get_debuff_ids()
-    return self.debuff_ids
-end
-
--------
--- Returns a list of the party member's debuffs.
--- @treturn List of localized debuff names (see buffs.lua)
-function PartyMember:get_debuffs()
-    return L(self.debuff_ids:map(function(debuff_id)
-        return res.buffs:with('id', debuff_id).enl
-    end))
-end
-
--------
 -- Returns true if the party member has the given buff active.
 -- @tparam number buff_id Buff id (see buffs.lua)
 -- @treturn boolean True if the buff is active, false otherwise
 function PartyMember:has_buff(buff_id)
     return self.buff_ids:contains(buff_id)
-end
-
--------
--- Returns true if the party member has the given debuff.
--- @tparam number debuff_id Debuff id (see buffs.lua)
--- @treturn boolean True if the party member has the given debuff, false otherwise
-function PartyMember:has_debuff(debuff_id)
-    return self.debuff_ids:contains(debuff_id)
 end
 
 -------
@@ -277,10 +312,40 @@ function PartyMember:get_sub_job_short()
 end
 
 -------
+-- Sets the party member's current hit point percentage.
+-- @tparam number Hit point percentage
+function PartyMember:set_hpp(hpp)
+    if self.hpp == hpp then
+        return
+    end
+    self.hpp = hpp
+    if self.hpp > 0 then
+        self:on_hp_change():trigger(self, hpp, self:get_hp() / (hpp / 100.0))
+    else
+        self:on_ko():trigger(self)
+    end
+end
+
+-------
 -- Returns the player's current hit point percentage.
 -- @treturn number Hit point percentage
 function PartyMember:get_hpp()
     return self.hpp
+end
+
+-------
+-- Sets the party member's current hit points.
+-- @tparam number Hit points
+function PartyMember:set_hp(hp)
+    if self.hp == hp then
+        return
+    end
+    self.hp = hp
+    if self.hp > 0 then
+        self:on_hp_change():trigger(self, self:get_hpp(), hp / (self:get_hpp() / 100.0))
+    else
+        self:on_ko():trigger(self)
+    end
 end
 
 -------
@@ -309,6 +374,30 @@ end
 -- @treturn Boolean True if the party member is a trust, and false otherwise
 function PartyMember:is_trust()
     return false
+end
+
+-------
+-- Sets the target index for the party member.
+-- @tparam number Index of the current target, or nil if none.
+function PartyMember:set_target_index(target_index)
+    if self.target_index ~= target_index then
+        local old_target_index = self.target_index
+        if target_index and target_index ~= 0 and battle_util.is_valid_monster_target(ffxi_util.mob_id_for_index(target_index)) then
+            local target = windower.ffxi.get_mob_by_index(target_index)
+            if target then
+                --if target and party_util.party_claimed(target.id) then
+                self.target_index = target.index
+                if old_target_index ~= target.index then
+                    self:on_target_change():trigger(self, self.target_index, old_target_index)
+                end
+            end
+        else
+            self.target_index = nil
+            if old_target_index ~= self.target_index then
+                self:on_target_change():trigger(self, self.target_index, old_target_index)
+            end
+        end
+    end
 end
 
 -------
@@ -358,9 +447,11 @@ end
 -- @tparam number zone_type (optional) Zone type, only set via IPC
 function PartyMember:set_zone_id(zone_id, zone_line, zone_type)
     zone_id = tonumber(zone_id)
-    if zone_id == 0 or (self.zone_id == zone_id and zone_line == nil and zone_type == nil) then
+    if (self.zone_id == zone_id and zone_line == nil and zone_type == nil) then
         return
     end
+    logger.notice(self.__class, "set_zone_id", self:get_name(), zone_id, zone_line, zone_type)
+
     self.zone_id = zone_id
     self.last_zone_time = os.time()
 

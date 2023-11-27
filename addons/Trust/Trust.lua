@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '7.6.2'
+_addon.version = '7.7.0'
 
 require('Trust-Include')
 
@@ -48,6 +48,8 @@ end)
 
 player = {}
 
+local shortcuts = T{}
+
 -- States
 
 state.AutoEnableMode = M{['description'] = 'Auto Enable Mode', 'Auto', 'Off'}
@@ -88,8 +90,10 @@ function load_user_files(main_job_id, sub_job_id)
 
 	player.player = Player.new(windower.ffxi.get_player().id)
 
-	player.party = Party.new(PartyChat.new(settings.chat.ipc_enabled))
-	player.party:monitor()
+	local party_chat = PartyChat.new(settings.chat.ipc_enabled)
+	player.alliance = Alliance.new(party_chat)
+	player.alliance:monitor()
+	player.party = player.alliance:get_parties()[1]
 
 	handle_status_change(windower.ffxi.get_player().status, windower.ffxi.get_player().status)
 
@@ -131,9 +135,9 @@ function load_user_files(main_job_id, sub_job_id)
 	sub_job_trust:init()
 
 	player.trust.main_job = main_job_trust
-	player.trust.main_job_commands = load_trust_commands(player.main_job_name_short, main_job_trust, action_queue)
+	player.trust.main_job_commands = load_job_commands(player.main_job_name_short, main_job_trust, action_queue, true)
 	player.trust.sub_job = sub_job_trust
-	player.trust.sub_job_commands = load_trust_commands(player.sub_job_name_short, sub_job_trust, action_queue)
+	player.trust.sub_job_commands = load_job_commands(player.sub_job_name_short, sub_job_trust, action_queue)
 
 	player.trust.main_job:add_role(Attacker.new(action_queue))
 	player.trust.main_job:add_role(CombatMode.new(action_queue, settings.battle.melee_distance, settings.battle.range_distance))
@@ -149,7 +153,7 @@ function load_user_files(main_job_id, sub_job_id)
 
 	load_trust_modes(player.main_job_name_short)
 	load_trust_reactions(player.main_job_name_short)
-	load_trust_scenarios(player.main_job_name_short)
+	load_trust_commands(player.trust.main_job, action_queue)
 	load_ui()
 
 	main_trust_settings:copySettings()
@@ -197,11 +201,22 @@ function load_trust_reactions(job_name_short)
 	--trust_reactions:loadReactions()
 end
 
-function load_trust_scenarios(job_name_short)
-	trust_scenarios = TrustScenarios.new(action_queue)
+function load_trust_commands(trust, action_queue)
+	local common_commands = L{
+		AttackCommands.new(trust, action_queue),
+		FollowCommands.new(trust, action_queue),
+		PullCommands.new(trust, action_queue),
+		ScenarioCommands.new(trust, action_queue),
+		SendAllCommands.new(trust, action_queue),
+		SendCommands.new(trust, action_queue),
+		SkillchainCommands.new(trust, action_queue),
+	}
+	for command in common_commands:it() do
+		shortcuts[command:get_command_name()] = command
+	end
 end
 
-function load_trust_commands(job_name_short, trust, action_queue)
+function load_job_commands(job_name_short, trust, action_queue)
 	local root_paths = L{windower.windower_path..'addons/libs/', windower.addon_path}
 	for root_path in root_paths:it() do
 		local file_prefix = root_path..'cylibs/trust/commands/'..job_name_short
@@ -455,7 +470,19 @@ function handle_toggle_menu()
 end
 
 function handle_debug()
-	logger.notice(T(player.party.target_tracker.mobs):tovstring())
+	local alliance = player.alliance
+	for i = 1, 3 do
+		local party = alliance:get_parties()[i]
+		logger.notice("Trust", "debug", "party", i, party:get_party_members(true):map(function(party_member) return party_member:get_name() end))
+	end
+end
+
+function handle_command_list()
+	local help_text = 'Addon Commands\n'
+	for command in shortcuts:it() do
+		help_text = help_text..command:description()..'\n'
+	end
+	addon_message(122, help_text)
 end
 
 -- Setup
@@ -466,7 +493,6 @@ commands['start'] = handle_start
 commands['stop'] = handle_stop
 commands['toggle'] = handle_toggle_addon
 commands['reload'] = handle_reload
-commands['shortcut'] = handle_shortcut
 commands['assist'] = handle_assist
 commands['save'] = handle_save_trust
 commands['create'] = handle_create_trust
@@ -477,15 +503,14 @@ commands['tests'] = handle_tests
 commands['help'] = handle_help
 commands['migrate'] = handle_migrate_settings
 commands['menu'] = handle_toggle_menu
+commands['commands'] = handle_command_list
 
 local function addon_command(cmd, ...)
     local cmd = cmd or 'help'
 
     if commands[cmd] then
 		local msg = nil
-		if cmd == 'shortcut' then
-			msg = commands['shortcut'](...)
-		elseif not L{'cycle', 'set'}:contains(cmd) then
+		if not L{'cycle', 'set'}:contains(cmd) then
 			msg = commands[cmd](unpack({...}))
 		end
 		if msg then
@@ -495,10 +520,8 @@ local function addon_command(cmd, ...)
 		player.trust.main_job_commands:handle_command(unpack({...}))
 	elseif L{player.sub_job_name_short, player.sub_job_name_short:lower()}:contains(cmd) and player.trust.sub_job_commands then
 		player.trust.sub_job_commands:handle_command(unpack({...}))
-	elseif L{'scenario'}:contains(cmd) then
-		trust_scenarios:handle_command(unpack{...})
-	elseif L{'sc', 'pull', 'engage', 'follow', 'sendall', 'send'}:contains(cmd) then
-		handle_shortcut(cmd, unpack({...}))
+	elseif shortcuts[cmd] then
+		shortcuts[cmd]:handle_command(...)
 	else
 		if not L{'cycle', 'set', 'help'}:contains(cmd) then
 			error("Unknown command %s":format(cmd))

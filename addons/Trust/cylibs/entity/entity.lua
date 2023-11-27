@@ -19,7 +19,7 @@ function Entity.new(id)
     local mob = windower.ffxi.get_mob_by_id(self.id)
     if mob then
         self.name = mob.name
-        self.position = ffxi_util.get_mob_position(mob.name)
+        self.position = ffxi_util.get_mob_position(mob.name) or V{0, 0, 0}
     end
     return self
 end
@@ -35,14 +35,18 @@ end
 -- Returns the mob name
 -- @treturn string Mob name
 function Entity:get_name()
-    return self.name or self:get_mob().name
+    return self.name or self:get_mob() and self:get_mob().name or "Unknown"
 end
 
 -------
--- Returns the full mob metadata.
--- @treturn MobMetadata Mob metadata
-function Entity:get_mob()
-    return windower.ffxi.get_mob_by_id(self.id)
+-- Returns the distance of the entity from the player, or 9999 if the mob is nil.
+-- @treturn number Distance from the player
+function Entity:get_distance()
+    local mob = self:get_mob()
+    if mob then
+        return mob.distance
+    end
+    return 9999
 end
 
 -------
@@ -63,7 +67,7 @@ end
 -- Returns the (x, y, z) coordinate of the mob.
 -- @treturn vector Position of the mob, or the last known position if the mob is not valid
 function Entity:get_position()
-    return self.position or ffxi_util.get_mob_position(self:get_name())
+    return self.position or ffxi_util.get_mob_position(self:get_name()) or V{0, 0, 0}
 end
 
 -------

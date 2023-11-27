@@ -83,6 +83,7 @@ job_util = require('cylibs/util/job_util')
 lists_ext = require('cylibs/util/extensions/lists')
 
 -- Entities
+Alliance = require('cylibs/entity/alliance/alliance')
 Trust = require('cylibs/trust/trust')
 Monster = require('cylibs/battle/monster')
 Party = require('cylibs/entity/party')

@@ -8,6 +8,7 @@ local ZoneMessage = require('cylibs/messages/zone_message')
 
 local IpcRelay = {}
 IpcRelay.__index = IpcRelay
+IpcRelay.__class = "IpcRelay"
 
 state.IpcMode = M{['description'] = 'Ipc Mode', 'Off', 'All', 'Send', 'Receive'}
 state.IpcMode:set_description('All', "Okay, I'll send and receive IPC messages.")
@@ -30,6 +31,7 @@ function IpcRelay.new()
             local sender_name, message = message:match("(%S+)%s(.+)$")
             local ipc_message = IpcMessage.new(message)
             if ipc_message:is_valid() then
+                logger.notice(self.__class, "ipc message received", ipc_message:get_message())
                 self:update_connection(sender_name)
                 local message_type = ipc_message:get_type()
                 if message_type == 'mob_update' then

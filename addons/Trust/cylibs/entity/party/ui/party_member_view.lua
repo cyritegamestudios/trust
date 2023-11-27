@@ -149,11 +149,16 @@ function PartyMemberView:updatePartyMembers(party, partyMemberFilter)
     local itemsToUpdate = L{}
 
     local partyMembers = party:get_party_members(true)
+    logger.notice("party_member_view", "found", partyMembers)
     for partyMemberIndex = 1, 6 do
         local partyMember = partyMembers[partyMemberIndex]
         if partyMember then
             if partyMemberFilter(partyMember) then
-                itemsToUpdate:append(IndexedItem.new(TextItem.new(partyMembers[partyMemberIndex]:get_name(), TextStyle.Default.HeaderSmall), IndexPath.new(partyMemberIndex, 1)))
+                local name = partyMember:get_name()
+                if partyMember:get_zone_id() ~= windower.ffxi.get_info().zone then
+                    name = name..' ('..res.zones[partyMember:get_zone_id()].name..')'
+                end
+                itemsToUpdate:append(IndexedItem.new(TextItem.new(name, TextStyle.Default.HeaderSmall), IndexPath.new(partyMemberIndex, 1)))
 
                 local buffsView = self.buffViews[partyMemberIndex]
                 self:updateBuffs(partyMember, buffsView)

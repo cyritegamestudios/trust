@@ -50,7 +50,7 @@ function SongTracker.new(player, party, dummy_songs, songs, pianissimo_songs, jo
 
     local has_songs = false
     local all_songs = dummy_songs:extend(songs):extend(pianissimo_songs)
-    for party_member in party:get_party_members(true):it() do
+    for party_member in party:get_party_members(true, 30):it() do
         for song in all_songs:it() do
             local buff_id = res.buffs:with('id', song:get_spell().status).id
             if buff_util.is_buff_active(buff_id, party_member:get_buff_ids()) then
@@ -115,7 +115,7 @@ function SongTracker:monitor()
         self:reset()
     end)
 
-    for party_member in self.party:get_party_members(true):it() do
+    local on_party_member_added = function(party_member)
         self.dispose_bag:add(party_member:on_gain_buff():addAction(function(p, buff_id)
             if self.job:is_bard_song_buff(buff_id) then
                 logger.notice(p:get_name(), "gains the effect of", res.buffs[buff_id].name)
@@ -129,10 +129,18 @@ function SongTracker:monitor()
                 self:prune_all_songs(p:get_id(), p:get_buff_ids())
             end
         end), party_member:on_lose_buff())
+
+        self.dispose_bag:add(party_member:on_ko():addAction(function(p)
+            self:reset(p:get_id())
+        end), party_member:on_ko())
     end
-    self.dispose_bag:add(self.party:on_party_member_ko():addAction(function(p)
-        self:reset(p:get_id())
-    end), self.party:on_party_member_ko())
+
+    self.dispose_bag:add(self.party:on_party_member_added():addAction(on_party_member_added), self.party:on_party_member_added())
+    self.dispose_bag:add(self.party:on_party_member_removed():addAction(function(p) self:reset(p:get_id()) end), self.party:on_party_member_removed())
+
+    for party_member in self.party:get_party_members(true):it() do
+        on_party_member_added(party_member)
+    end
 end
 
 -------

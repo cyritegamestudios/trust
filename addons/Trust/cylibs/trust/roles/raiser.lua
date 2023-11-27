@@ -2,6 +2,7 @@ local Raiser = setmetatable({}, {__index = Role })
 Raiser.__index = Raiser
 
 local cure_util = require('cylibs/util/cure_util')
+local DisposeBag = require('cylibs/events/dispose_bag')
 
 state.AutoRaiseMode = M{['description'] = 'Auto Raise Mode', 'Off', 'Auto'}
 state.AutoRaiseMode:set_description('Auto', "Okay, I'll try to raise party members who have fallen in battle.")
@@ -14,6 +15,7 @@ function Raiser.new(action_queue, job)
     self.last_raise_time = os.time()
     self.last_raise_spell_id = nil
     self.ko_party_member_ids = S{}
+    self.dispose_bag = DisposeBag.new()
 
     return self
 end
@@ -27,6 +29,8 @@ function Raiser:destroy()
         end
     end
 
+    self.dispose_bag:destroy()
+
     if self.on_party_member_ko_id then
         self:get_party():on_party_member_ko():removeAction(self.on_party_member_ko_id)
     end
@@ -35,21 +39,24 @@ end
 function Raiser:on_add()
     Role.on_add(self)
 
-    self.on_party_member_ko_id = self:get_party():on_party_member_ko():addAction(
-            function (p)
-                if not p:is_trust() then
-                    self.ko_party_member_ids:add(p:get_id())
-                end
-            end)
+    local on_party_member_added = function(p)
+        self.dispose_bag:add(p:on_ko():addAction(function(p)
+            if not p:is_trust() then
+                self.ko_party_member_ids:add(p:get_id())
+            end
+        end), p:on_ko())
+    end
 
-    self.on_spell_finish_id = self:get_player():on_spell_finish():addAction(
+    self.dispose_bag:add(self:get_party():on_party_member_added():addAction(on_party_member_added), self:get_party():on_party_member_added())
+
+    self.dispose_bag:add(self:get_player():on_spell_finish():addAction(
             function (_, spell_id, targets)
                 if self.last_raise_spell_id and spell_id == self.last_raise_spell_id  then
                     self:prune_party_ko(spell_id, targets)
                 end
-            end)
+            end), self:get_player():on_spell_finish())
 
-    self.unable_to_cast_id = self:get_player():on_unable_to_cast():addAction(
+    self.dispose_bag:add(self:get_player():on_unable_to_cast():addAction(
             function (_, target_index, message_id, spell_id)
                 if L{48}:contains(message_id) and self.last_raise_spell_id and self.last_raise_spell_id == spell_id then
                     local target = windower.ffxi.get_mob_by_index(target_index)
@@ -58,9 +65,10 @@ function Raiser:on_add()
                     end
                 end
 
-            end)
+            end), self:get_player():on_unable_to_cast())
 
     for party_member in self:get_party():get_party_members(false):it() do
+        on_party_member_added(party_member)
         if not party_member:is_alive() then
             self.ko_party_member_ids:add(party_member:get_id())
         end

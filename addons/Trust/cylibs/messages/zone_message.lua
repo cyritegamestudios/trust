@@ -2,9 +2,11 @@ local IpcMessage = require('cylibs/messages/ipc_message')
 
 local ZoneMessage = setmetatable({}, {__index = IpcMessage })
 ZoneMessage.__index = ZoneMessage
+ZoneMessage.__class = "ZoneMessage"
 
 --- Create a new ZoneMessage instance.
 -- @tparam string mob_name Name of the mob
+-- @tparam number mob_id Id of the mob
 -- @tparam string zone_id The id of the old zone (see res/zones.lua)
 -- @tparam string zone_line The zone line
 -- @tparam string zone_type The zone type
@@ -12,10 +14,11 @@ ZoneMessage.__index = ZoneMessage
 -- @tparam number y The last y-coordinate in the old zone
 -- @tparam number z The last z-coordinate in the old zone
 -- @treturn ZoneMessage A new ZoneMessage
-function ZoneMessage.new(mob_name, zone_id, zone_line, zone_type, x, y, z)
+function ZoneMessage.new(mob_name, mob_id, zone_id, zone_line, zone_type, x, y, z)
 	local self = setmetatable(IpcMessage.new(), ZoneMessage)
 
 	self.mob_name = mob_name
+	self.mob_id = mob_id
 	self.zone_id = zone_id
 	self.zone_line = zone_line
 	self.zone_type = zone_type
@@ -32,6 +35,10 @@ end
 
 function ZoneMessage:get_mob_name()
 	return self.mob_name
+end
+
+function ZoneMessage:get_mob_id()
+	return tonumber(self.mob_id)
 end
 
 function ZoneMessage:get_zone_id()
@@ -55,13 +62,13 @@ function ZoneMessage:get_position()
 end
 
 function ZoneMessage:serialize()
-	return "%s %s %d %d %d %f %f %f":format(self:get_command(), self:get_mob_name(), self:get_zone_id(), self:get_zone_line(), self:get_zone_type(), self:get_position()[1], self:get_position()[2], self:get_position()[3])
+	return "%s %s %d %d %d %d %f %f %f":format(self:get_command(), self:get_mob_name(), self:get_mob_id(), self:get_zone_id(), self:get_zone_line(), self:get_zone_type(), self:get_position()[1], self:get_position()[2], self:get_position()[3])
 end
 
 function ZoneMessage.deserialize(message)
 	local ipc_message = IpcMessage.new(message)
 
-	return ZoneMessage.new(ipc_message:get_args()[2], ipc_message:get_args()[3], ipc_message:get_args()[4], ipc_message:get_args()[5], ipc_message:get_args()[6], ipc_message:get_args()[7], ipc_message:get_args()[8])
+	return ZoneMessage.new(ipc_message:get_args()[2], ipc_message:get_args()[3], ipc_message:get_args()[4], ipc_message:get_args()[5], ipc_message:get_args()[6], ipc_message:get_args()[7], ipc_message:get_args()[8], ipc_message:get_args()[9])
 end
 
 function ZoneMessage:tostring()
