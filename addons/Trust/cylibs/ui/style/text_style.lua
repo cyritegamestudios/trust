@@ -152,7 +152,8 @@ TextStyle.Default = {
             2,
             0,
             0,
-            false
+            false,
+            Color.yellow
     ),
     TextSmall = TextStyle.new(
             Color.clear,
@@ -164,7 +165,8 @@ TextStyle.Default = {
             2,
             0,
             0,
-            false
+            false,
+            Color.yellow
     ),
     Button = TextStyle.new(
             Color.lightGrey:withAlpha(50),
@@ -191,7 +193,7 @@ TextStyle.Default = {
             true
     ),
     HeaderSmall = TextStyle.new(
-            Color.clear,
+            Color.yellow,
             Color.clear,
             "Arial",
             11,
@@ -200,7 +202,8 @@ TextStyle.Default = {
             2,
             1,
             255,
-            true
+            true,
+            Color.yellow
     ),
     NavigationTitle = TextStyle.new(
             Color.clear,

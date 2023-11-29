@@ -28,6 +28,7 @@ WindowerEvents.ZoneRequest = Event.newEvent()
 WindowerEvents.BuffsChanged = Event.newEvent()
 WindowerEvents.DebuffsChanged = Event.newEvent()
 WindowerEvents.AllianceMemberListUpdate = Event.newEvent()
+WindowerEvents.PetUpdate = Event.newEvent()
 
 
 local incoming_event_ids = S{
@@ -38,6 +39,8 @@ local incoming_event_ids = S{
     0x00D,
     0x076,
     0x0C8,
+    0x037,
+    0x068
 }
 
 local outgoing_event_ids = S{
@@ -170,6 +173,39 @@ local incoming_event_dispatcher = {
         for alliance_member in alliance_members:it() do
             WindowerEvents.ZoneUpdate:trigger(alliance_member.id, alliance_member.zone_id)
         end
+    end,
+
+    [0x037] = function(data)
+        local packet = packets.parse('incoming', data)
+
+        local pet_index = packet['Pet Index']
+        if pet_index and pet_index ~= 0 then
+            local mob = windower.ffxi.get_mob_by_index(pet_index)
+            if mob then
+                WindowerEvents.PetUpdate:trigger(windower.ffxi.get_player().id, mob.id, mob.index, mob.name, mob.hpp, mob.mpp, mob.tp)
+            end
+        end
+    end,
+
+    [0x068] = function(data)
+        local packet = packets.parse('incoming', data)
+
+        local owner_id = packet['Owner ID']
+        local pet_index = packet['Pet Index']
+        local pet_hpp = packet['Current HP%']
+        local pet_mpp = packet['Current MP%']
+        local pet_tp = packet['Pet TP']
+        local pet_name = packet['Pet Name']
+
+        if owner_id == windower.ffxi.get_player().id then
+            local mob = windower.ffxi.get_mob_by_index(pet_index)
+            if mob and mob.name == pet_name then
+                WindowerEvents.PetUpdate:trigger(owner_id, tonumber(mob.id or 0), tonumber(pet_index or 0), pet_name, pet_hpp, pet_mpp, pet_tp)
+            else
+                WindowerEvents.PetUpdate:trigger(owner_id, nil, pet_index, pet_name, pet_hpp, pet_mpp, pet_tp)
+            end
+        end
+
     end,
 
 }

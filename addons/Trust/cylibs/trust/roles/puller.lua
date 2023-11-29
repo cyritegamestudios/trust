@@ -173,6 +173,8 @@ end
 function Puller:get_pull_distance()
     if self.spell_name then
         return 18
+    elseif self.ranged_attack then
+        return 22
     else
         return 17
     end

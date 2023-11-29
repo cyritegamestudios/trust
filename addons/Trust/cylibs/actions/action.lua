@@ -76,6 +76,7 @@ function Action:can_perform()
     for condition in self.conditions:it() do
         local check_target_index = condition:get_target_index() or self.target_index
         if not condition:is_satisfied(check_target_index) then
+            logger.notice(self.__class, 'can_perform', 'failed condition', condition:tostring())
             return false
         end
     end

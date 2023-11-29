@@ -14,12 +14,12 @@ function GeneralTrustCommands.new(trust, action_queue)
     return self
 end
 
-function SendTrustCommands:get_command_name()
+function GeneralTrustCommands:get_command_name()
     return 'send'
 end
 
 -- // trust send player_name command
-function SendTrustCommands:handle_send_command(...)
+function GeneralTrustCommands:handle_send_command(...)
     local success = true
     local message
 
@@ -51,4 +51,4 @@ function SendTrustCommands:handle_send_command(...)
     return success, message
 end
 
-return SendTrustCommands
+return GeneralTrustCommands

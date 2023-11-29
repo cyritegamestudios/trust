@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '7.7.0'
+_addon.version = '7.7.1'
 
 require('Trust-Include')
 
@@ -205,6 +205,7 @@ function load_trust_commands(trust, action_queue)
 	local common_commands = L{
 		AttackCommands.new(trust, action_queue),
 		FollowCommands.new(trust, action_queue),
+		LoggingCommands.new(trust, action_queue),
 		PullCommands.new(trust, action_queue),
 		ScenarioCommands.new(trust, action_queue),
 		SendAllCommands.new(trust, action_queue),

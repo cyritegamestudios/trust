@@ -13,6 +13,7 @@ local res = require('resources')
 
 local Player = setmetatable({}, {__index = Entity })
 Player.__index = Player
+Player.__class = "Player"
 
 -- Event called when the player's target changes.
 function Player:on_target_change()
@@ -27,6 +28,11 @@ end
 -- Event called when the player's ranged attack begins.
 function Player:on_ranged_attack_begin()
     return self.ranged_attack_begin
+end
+
+-- Event called when the player's ranged attack is interrutped.
+function Player:on_ranged_attack_interrupted()
+    return self.ranged_attack_interrupted
 end
 
 -- Event called when the player's ranged attack ends.
@@ -79,6 +85,7 @@ function Player.new(id)
     
     self.target_change = Event.newEvent()
     self.ranged_attack_begin = Event.newEvent()
+    self.ranged_attack_interrupted = Event.newEvent()
     self.ranged_attack_end = Event.newEvent()
     self.weapon_skill_finish = Event.newEvent()
     self.spell_finish = Event.newEvent()
@@ -88,6 +95,11 @@ function Player.new(id)
     self.unable_to_cast = Event.newEvent()
     self.job_ability_used = Event.newEvent()
     self.dispose_bag = DisposeBag.new()
+
+    local pet = windower.ffxi.get_mob_by_target('pet')
+    if pet then
+        self:update_pet(pet.index)
+    end
 
     return self
 end
@@ -112,6 +124,7 @@ function Player:destroy()
 
     self.target_change:removeAllActions()
     self.ranged_attack_begin:removeAllActions()
+    self.ranged_attack_interrupted:removeAllActions()
     self.ranged_attack_end:removeAllActions()
     self.weapon_skill_finish:removeAllActions()
     self.spell_finish:removeAllActions()
@@ -137,17 +150,20 @@ function Player:update_target(target_index)
 end
 
 function Player:update_pet(pet_index)
-    local pet = windower.ffxi.get_mob_by_target('pet')
-    if pet then
-        if pet.index == pet_index and self.pet_id ~= pet.id then
-            self.pet_id = pet.id
-            self:on_pet_change():trigger(self, self.pet_id, pet.name)
+    local old_pet_id = self.pet_id
+    local new_pet_id
+    local new_pet_name
+    if pet_index and pet_index ~= 0 then
+        local pet = windower.ffxi.get_mob_by_index(pet_index)
+        if pet then
+            new_pet_id = pet.id
+            new_pet_name = pet.name
         end
-    else
-        if self.pet_id then
-            self.pet_id = nil
-            self:on_pet_change():trigger(self, nil, nil)
-        end
+    end
+    if new_pet_id ~= old_pet_id then
+        self.pet_id = new_pet_id
+        logger.notice(self.__class, 'pet change', 'old pet id', old_pet_id or 'none', 'new_pet_id', new_pet_id or 'none', new_pet_name or 'none')
+        self:on_pet_change():trigger(self, new_pet_id, new_pet_name)
     end
 end
 
@@ -160,6 +176,13 @@ function Player:monitor()
     end
     self.is_monitoring = true
 
+    self.dispose_bag:add(WindowerEvents.PetUpdate:addAction(function(owner_id, pet_id, pet_index, pet_name, pet_hpp, pet_mpp, pet_tp)
+        if owner_id == self.id then
+            logger.notice(self.__class, "pet update", pet_name, pet_index, pet_hpp, pet_mpp, pet_tp)
+            self:update_pet(pet_index)
+        end
+    end), WindowerEvents.PetUpdate)
+
     if windower.ffxi.get_player().id == self.id then
         self.action_events.outgoing = windower.register_event('outgoing chunk', function(id, original, _, _, _)
             -- Notify target changes
@@ -167,32 +190,6 @@ function Player:monitor()
                 local p = packets.parse('outgoing', original)
                 self.moving = p['Run Count'] > 2
                 self:update_target(p['Target Index'])
-            end
-        end)
-        self.action_events.incoming = windower.register_event('incoming chunk', function(id, original, _, _, _)
-            -- Notify pet changes--does not get called when the pet dies or is released
-            if id == 0x067 then
-                --[[]local p = packets.parse('incoming', original)
-                if p['Owner Index'] == windower.ffxi.get_player().index then
-                    -- TODO: get rid of coroutine and use action_queue. The reason we have to do this is because it takes
-                    -- several seconds before the pet is registered in memory, and the info in the packet is wrong
-                    coroutine.schedule(function()
-                        self:update_pet()
-                    end, 10)
-                end]]
-            elseif id == 0x037 then
-                local p = packets.parse('incoming', original)
-                if p['Player'] == self.id then
-                    local pet_index = p['Pet Index']
-                    -- Automatons take longer to fully load in memory than other pets
-                    if res.jobs[tonumber(windower.ffxi.get_player().main_job_id)]['ens'] == 'PUP' then
-                        coroutine.schedule(function()
-                            self:update_pet(pet_index)
-                        end, 10)
-                    else
-                        self:update_pet(pet_index)
-                    end
-                end
             end
         end)
         self.dispose_bag:add(WindowerEvents.ActionMessage:addAction(function(actor_id, target_id, actor_index, target_index, message_id, param_1, param_2, param_3)
@@ -213,7 +210,11 @@ function Player:monitor()
         if action.actor_id ~= self.id then return end
 
         if action.category == 12 then
-            self:on_ranged_attack_begin():trigger(self, action.targets[1])
+            if action.param == 28787 then
+                self:on_ranged_attack_interrupted():trigger(self, action.targets[1])
+            else
+                self:on_ranged_attack_begin():trigger(self, action.targets[1])
+            end
         elseif action.category == 2 then
             self:on_ranged_attack_end():trigger(self, action.targets[1])
         elseif action.category == 3 then

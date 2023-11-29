@@ -5,6 +5,7 @@
 
 local JobAbilityRecastReadyCondition = require('cylibs/conditions/job_ability_recast_ready')
 local serializer_util = require('cylibs/util/serializer_util')
+local WaltzAction = require('cylibs/actions/waltz')
 
 local JobAbility = {}
 JobAbility.__index = JobAbility
@@ -75,8 +76,15 @@ end
 -- Return the Action to use this job ability on a target.
 -- @treturn Action Action to cast the spell
 function JobAbility:to_action(target_index)
+    local job_ability_action
+    if string.find(self:get_job_ability_name(), 'Waltz') then
+        job_ability_action = WaltzAction.new(self:get_job_ability_name(), target_index or self:get_target())
+    else
+        job_ability_action = JobAbilityAction.new(0, 0, 0, self:get_job_ability_name(), target_index or self:get_target())
+    end
+
     local actions = L{
-        JobAbilityAction.new(0, 0, 0, self:get_job_ability_name(), target_index or self:get_target()),
+        job_ability_action,
         WaitAction.new(0, 0, 0, 2),
     }
     return SequenceAction.new(actions, 'job_ability_'..self:get_job_ability_name())

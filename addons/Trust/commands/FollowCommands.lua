@@ -70,7 +70,7 @@ function FollowTrustCommands:handle_follow_party_member(party_member_name)
 end
 
 -- // trust follow distance number
-function FollowTrustCommands:handle_set_follow_distance(distance)
+function FollowTrustCommands:handle_set_follow_distance(_, distance)
     local success
     local message
 

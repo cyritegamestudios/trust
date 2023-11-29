@@ -108,7 +108,7 @@ function Party:add_party_member(party_member_id, party_member_name)
 
     party_member:monitor()
     party_member:on_target_change():addAction(function(p, new_target_index, old_target_index)
-        if self:get_assist_target():is_valid() and p:get_name() == self:get_assist_target():get_name() then
+        if self:get_assist_target() and self:get_assist_target():is_valid() and p:get_name() == self:get_assist_target():get_name() then
             self:on_party_target_change():trigger(self, new_target_index, old_target_index)
         end
     end)
