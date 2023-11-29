@@ -6,6 +6,7 @@
 local buff_util = require('cylibs/util/buff_util')
 local logger = require('cylibs/logger/logger')
 local PartyMember = require('cylibs/entity/party_member')
+local trusts = require('cylibs/res/trusts')
 
 local AlterEgo = setmetatable({}, {__index = PartyMember })
 AlterEgo.__index = AlterEgo
@@ -107,6 +108,34 @@ end
 -- @treturn Boolean True if the party member is a trust, and false otherwise
 function AlterEgo:is_trust()
     return true
+end
+
+-------
+-- Returns the main job short (e.g. BLU, RDM, WAR)
+-- @treturn string Main job short, or nil if unknown
+function AlterEgo:get_main_job_short()
+    if self:get_name() == nil then
+        return 'NON'
+    end
+    local trust = trusts:with('en', self:get_name()) or trusts:with('enl', self:get_name())
+    if trust then
+        return trust.main_job_short
+    end
+    return 'NON'
+end
+
+-------
+-- Returns the sub job short (e.g. BLU, RDM, WAR)
+-- @treturn string Sub job short, or nil if unknown
+function AlterEgo:get_sub_job_short()
+    if self:get_name() == nil then
+        return 'NON'
+    end
+    local trust = trusts:with('en', self:get_name()) or trusts:with('enl', self:get_name())
+    if trust then
+        return trust.sub_job_short
+    end
+    return 'NON'
 end
 
 -------

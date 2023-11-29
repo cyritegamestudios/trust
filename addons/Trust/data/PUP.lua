@@ -26,7 +26,6 @@ return {
                 "Shijin Spiral"
             }
         },
-        AutomatonName = "Pamama",
         DefaultManeuvers = {
             Ranged = L{
                 {

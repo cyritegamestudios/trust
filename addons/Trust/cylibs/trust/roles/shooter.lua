@@ -1,6 +1,8 @@
 local Shooter = setmetatable({}, {__index = Role })
 Shooter.__index = Shooter
 
+local RangedAttackAction = require('cylibs/actions/ranged_attack')
+
 state.AutoShootMode = M{['description'] = 'Auto Shoot Mode', 'Off', 'Auto', 'Manual'}
 -- state.AutoShootMode:set_description('Auto', "Okay, so anyway I'll just start blasting 'em.") -- https://knowyourmeme.com/memes/so-anyway-i-started-blasting
 state.AutoShootMode:set_description('Auto', "Okay, I'll automatically shoot at the enemy.")
@@ -45,7 +47,7 @@ end
 
 function Shooter:ranged_attack(target)
     local actions = L{
-        CommandAction.new(0, 0, 0, '/ra '..target.id),
+        RangedAttackAction.new(target.index, self:get_player()),
         WaitAction.new(0, 0, 0, 1.5),
     }
     self.action_queue:push_action(SequenceAction.new(actions, 'ranged_attack'), true)

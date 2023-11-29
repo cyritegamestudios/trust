@@ -1,5 +1,6 @@
 local cure_util = require('cylibs/util/cure_util')
 local DamageMemory = require('cylibs/battle/damage_memory')
+local DisposeBag = require('cylibs/events/dispose_bag')
 local CureAction = require('cylibs/actions/cure')
 local WaitAction = require('cylibs/actions/wait')
 local SequenceAction = require('cylibs/actions/sequence')
@@ -20,44 +21,44 @@ state.AutoHealMode:set_description('Emergency', "Okay, I'll only heal when you'r
 function Healer.new(action_queue, main_job)
     local self = setmetatable(Role.new(action_queue), Healer)
 
-    self.action_events = {}
     self.main_job = main_job
     self.last_cure_time = os.time()
     self.cure_delay = main_job:get_cure_delay()
     self.damage_memory = DamageMemory.new(0)
     self.damage_memory:monitor()
 
+    self.dispose_bag = DisposeBag.new()
+    self.dispose_bag:addAny(L{ self.damage_memory })
+
     return self
 end
 
 function Healer:destroy()
     self.is_disposed = true
-    if self.action_events then
-        for _,event in pairs(self.action_events) do
-            windower.unregister_event(event)
-        end
-    end
 
-    if self.on_party_member_hp_change_id then
-        self:get_party():on_party_member_hp_change():removeAction(self.on_party_member_hp_change_id)
-    end
-
-    self.damage_memory:destroy()
+    self.dispose_bag:destroy()
 end
 
 function Healer:on_add()
-    self.on_party_member_hp_change_id = self:get_party():on_party_member_hp_change():addAction(
-            function (p, hpp, max_hp)
-                if hpp > 0 then
-                    if hpp < 25 then
-                        if p:get_mob().distance:sqrt() < 21 then
-                            self:check_party_hp(25)
-                        end
-                    else
-                        self:check_party_hp()
+    local on_party_member_added = function(p)
+        self.dispose_bag:add(p:on_hp_change():addAction(function(p, hpp, max_hp)
+            if hpp > 0 then
+                if hpp < 25 then
+                    if p:get_mob().distance:sqrt() < 21 then
+                        self:check_party_hp(25)
                     end
+                else
+                    self:check_party_hp()
                 end
-            end)
+            end
+        end), p:on_hp_change())
+    end
+
+    self.dispose_bag:add(self:get_party():on_party_member_added():addAction(on_party_member_added), self:get_party():on_party_member_added())
+
+    for party_member in self:get_party():get_party_members(true):it() do
+        on_party_member_added(party_member)
+    end
 end
 
 function Healer:target_change(target_index)

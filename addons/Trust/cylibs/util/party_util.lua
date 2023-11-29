@@ -50,17 +50,44 @@ end
 
 -------
 -- Returns a list of party members.
--- @treturn list List of MobMetada for party members, or an empty list if the player is not in a party
-function party_util.get_party_members()
+-- @treturn list List of MobMetadata for party members, or an empty list if the player is not in a party
+function party_util.get_party_members(include_alliance)
     local party_members = L{}
     for key, party_member in pairs(windower.ffxi.get_party()) do
         if type(party_member) == 'table' and party_member.mob then
-            if party_member.mob.in_party then
+            if party_member.mob.in_party or (party_member.mob.in_alliance and include_alliance) then
                 party_members:append(party_member.mob)
             end
         end
     end
     return party_members
+end
+
+-------
+-- Returns a list of parties in the alliance.
+-- @treturn table Table mapping party member to a list of MobMetadata for party members in each party
+function party_util.get_parties()
+    local party_info = windower.ffxi.get_party()
+
+    local parties = T{}
+
+    parties[1] = party_util.get_party_members()
+
+    local get_alliance_party = function(start_index, party_count)
+        local party_members = {}
+        for i = start_index, start_index + party_count do
+            local party_member_info = party_info['a'..i]
+            if party_member_info and party_member_info.mob then
+                party_members:append(party_member_info.mob)
+            end
+        end
+        return party_members
+    end
+
+    parties[2] = get_alliance_party(10, party_info.party2_count)
+    parties[3] = get_alliance_party(20, party_info.party3_count)
+
+    return parties
 end
 
 -------
@@ -199,7 +226,7 @@ buffs.last_incoming = nil
 -- @treturn list A list of buff ids for a party member, or an empty list if the target is not in the player's party.
 function party_util.get_buffs(target_id)
     if target_id == windower.ffxi.get_player().id then
-        return windower.ffxi.get_player().buffs
+        return L(windower.ffxi.get_player().buffs)
     end
     local data = windower.packets.last_incoming(0x076)
     if data and data ~= buffs.last_incoming then

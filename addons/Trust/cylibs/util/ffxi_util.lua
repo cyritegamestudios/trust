@@ -35,7 +35,7 @@ end
 function ffxi_util.get_mob_position(mob_name)
 	local mob = windower.ffxi.get_mob_by_name(mob_name)
 	if not mob then
-		return nil
+		return V{0, 0, 0}
 	end
 
 	local v = vector.zero(3)

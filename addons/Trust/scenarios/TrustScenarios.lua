@@ -35,25 +35,21 @@ function TrustScenarios:add_scenario(name)
     if not self:has_scenario(name) then
         if name == 'di' then
             local DomainInvasion = require('cylibs/scenarios/domain_invasion/domain_invasion')
-
             local scenario = DomainInvasion.new(self.action_queue)
             scenario:start()
-
             self.scenarios:add(scenario)
         end
     end
 end
 
 function TrustScenarios:remove_scenario(name)
-end
-
-function TrustScenarios:handle_command(cmd, arg1)
-    if cmd == 'load' then
-        self:add_scenario(arg1)
-    elseif L{'stop'}:contains(cmd) then
-        self:remove_scenario(arg1)
-    else
-        error('Unknown scenario command', cmd)
+    local scenarios = L(self.scenarios:filter(function(scenario)
+        return scenario:get_name() == name end))
+    if scenarios:length() > 0 then
+        local scenario = scenarios[1]
+        scenario:stop()
+        scenario:destroy()
+        self.scenarios:remove(scenario)
     end
 end
 

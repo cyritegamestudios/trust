@@ -38,9 +38,10 @@ function LoadSettingsView.new(jobSettingsMode)
 
     local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), LoadSettingsView)
 
-
+    self:setAllowsMultipleSelection(true)
 
     local itemsToAdd = L{}
+    local itemsToSelect = L{}
 
     itemsToAdd:append(IndexedItem.new(TextItem.new("Load mode set", TextStyle.Default.HeaderSmall), IndexPath.new(1, 1)))
 
@@ -51,6 +52,9 @@ function LoadSettingsView.new(jobSettingsMode)
         local item = TextItem.new(tostring(v), TextStyle.Default.TextSmall)
         local indexPath = IndexPath.new(1, rowIndex)
         itemsToAdd:append(IndexedItem.new(item, indexPath))
+        if item:getText() == trustMode.value then
+            itemsToSelect:append(indexPath)
+        end
         rowIndex = rowIndex + 1
     end
 
@@ -61,22 +65,55 @@ function LoadSettingsView.new(jobSettingsMode)
         local item = TextItem.new(tostring(v), TextStyle.Default.TextSmall)
         local indexPath = IndexPath.new(2, rowIndex)
         itemsToAdd:append(IndexedItem.new(item, indexPath))
+        if item:getText() == jobSettingsMode.value then
+            itemsToSelect:append(indexPath)
+        end
         rowIndex = rowIndex + 1
     end
 
     self:getDataSource():addItems(itemsToAdd)
 
+    for indexPath in itemsToSelect:it() do
+        self:getDelegate():selectItemAtIndexPath(indexPath)
+    end
+
+    local updateSelectedItems = function(section, selectedItem)
+        for row = 1, self:getDataSource():numberOfItemsInSection(section) do
+            local indexPath = IndexPath.new(1, row)
+            local item = self:getDataSource():itemAtIndexPath(indexPath)
+            if item and item:getText() ~= selectedItem:getText() then
+                self:getDelegate():deselectItemAtIndexPath(indexPath)
+            end
+        end
+    end
+
     self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
-        self:getDelegate():deselectAllItems()
         local item = self:getDataSource():itemAtIndexPath(indexPath)
         if item then
             if indexPath.section == 1 then
+                updateSelectedItems(1, item)
                 handle_set('TrustMode', item:getText())
             elseif indexPath.section == 2 then
+                updateSelectedItems(2, item)
                 handle_set('MainTrustSettingsMode', item:getText())
             end
         end
     end), self:getDelegate():didSelectItemAtIndexPath())
+
+    --[[self:getDisposeBag():add(trustMode:on_state_change():addAction(function(_, new_value)
+        print(new_value)
+        for row = 1, self:getDataSource():numberOfItemsInSection(1) do
+            local indexPath = IndexPath.new(1, row)
+            if not self:getDelegate():getSelectedIndexPaths():contains(indexPath) then
+                local item = self:getDataSource():itemAtIndexPath(indexPath)
+                if item and item:getText() == new_value then
+                    --self:getDelegate():deselectAllItems()
+                    --self:getDelegate():selectItemAtIndexPath(indexPath)
+                    return
+                end
+            end
+        end
+    end), trustMode:on_state_change())]]
 
     self:setNeedsLayout()
     self:layoutIfNeeded()

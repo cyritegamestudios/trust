@@ -11,8 +11,8 @@ require('pack')
 res = require('resources')
 files = require('files')
 
+require('commands/Trust-Commands-Include')
 require('TrustHelp')
-require('TrustShortcuts')
 
 TrustHud = require('ui/TrustHud')
 TrustRemoteCommands = require('TrustRemoteCommands')

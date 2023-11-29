@@ -4,6 +4,7 @@ require('logger')
 
 Puppetmaster = require('cylibs/entity/jobs/PUP')
 
+local DisposeBag = require('cylibs/events/dispose_bag')
 local JobAbilityAction = require('cylibs/actions/job_ability')
 local WaitAction = require('cylibs/actions/wait')
 local SequenceAction = require('cylibs/actions/sequence')
@@ -14,6 +15,7 @@ local pet_util = require('cylibs/util/pet_util')
 local Trust = require('cylibs/trust/trust')
 local PuppetmasterTrust = setmetatable({}, {__index = Trust })
 PuppetmasterTrust.__index = PuppetmasterTrust
+PuppetmasterTrust.__class = "PuppetmasterTrust"
 
 Automaton = require('cylibs/entity/automaton')
 
@@ -36,9 +38,9 @@ function PuppetmasterTrust.new(settings, action_queue, battle_settings, trust_se
 	self.action_queue = action_queue
 	self.defaultManeuvers = trust_settings.DefaultManeuvers
 	self.overdriveManeuvers = trust_settings.OverdriveManeuvers
-	self.automaton_name = trust_settings.AutomatonName
 	self.maneuver_last_used = os.time()
 	self.economizer_last_used = os.time()
+	self.dispose_bag = DisposeBag.new()
 
 	state.ManeuverMode = M{['description'] = 'Maneuver Mode', T(T(trust_settings.DefaultManeuvers):keyset())}
 
@@ -52,15 +54,14 @@ function PuppetmasterTrust:on_init()
 		self:update_automaton(pet_util.get_pet().id, pet_util.get_pet().name)
 	end
 
-	self.pet_changed_action_id = self:get_player():on_pet_change():addAction(
+	self.dispose_bag:add(self:get_player():on_pet_change():addAction(
 			function (_, pet_id, pet_name)
 				self:update_automaton(pet_id, pet_name)
-			end)
+			end), self:get_player():on_pet_change())
 
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
 		self.defaultManeuvers = new_trust_settings.DefaultManeuvers
 		self.overdriveManeuvers = new_trust_settings.OverdriveManeuvers
-		self.automaton_name = new_trust_settings.AutomatonName
 	end)
 
 	state.ManeuverMode:on_state_change():addAction(function(_, new_value)
@@ -73,11 +74,9 @@ end
 function PuppetmasterTrust:on_deinit()
 	self:update_automaton(nil, nil)
 
-	if self.pet_changed_action_id then
-		self:get_player():on_pet_change():removeAction(self.pet_changed_action_id)
-	end
-
 	state.ManeuverMode:on_state_change():removeAllActions()
+
+	self.dispose_bag:destroy()
 end
 
 function PuppetmasterTrust:job_target_change(target_index)
@@ -91,6 +90,8 @@ function PuppetmasterTrust:tic(old_time, new_time)
 	Trust.tic(self, old_time, new_time)
 
 	self:check_automaton()
+
+	logger.notice(self.__class, 'tic', 'pet status', self.automaton and self.automaton:get_name() or 'no pet')
 
 	if self.automaton then
 		self:check_repair()
@@ -183,7 +184,9 @@ function PuppetmasterTrust:update_automaton(pet_id, pet_name)
 		self.automaton = nil
 	end
 
-	if pet_id and L{self.automaton_name}:contains(pet_name) then
+	if pet_id then
+		logger.notice(self.__class, 'pet change', pet_name, pet_id)
+
 		self.automaton = Automaton.new(pet_id, self.action_queue)
 		self.automaton:monitor()
 

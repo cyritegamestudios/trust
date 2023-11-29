@@ -1,5 +1,6 @@
 local Follower = setmetatable({}, {__index = Role })
 Follower.__index = Follower
+Follower.__class = "Follower"
 
 local BlockAction = require('cylibs/actions/block')
 local DisposeBag = require('cylibs/events/dispose_bag')
@@ -119,7 +120,6 @@ function Follower:check_distance()
     local follow_target = self:get_follow_target()
     if follow_target == nil or not self:is_valid_target(follow_target:get_name()) then
         if follow_target then
-            logger.error("Unable to follow", follow_target:get_name()..",", "expected", res.zones[windower.ffxi.get_info().zone].en, "but got", res.zones[follow_target:get_zone_id()].en)
             self:get_party():add_to_chat(self.party:get_player(), "I can't find you. Whatever happened to no Trust left behind?", 'follower_follow_failure', 30)
         end
         return
@@ -179,7 +179,6 @@ function Follower:set_follow_target(target)
         end), self.follow_target:on_position_change())
         self.follow_target_dispose_bag:add(self.follow_target:on_zone_change():addAction(function(p, zone_id, x, y, z, zone_line, zone_type)
             if zone_util.is_valid_zone_request(zone_line, zone_type) then
-                logger.notice(p:get_name(), "zoned from", res.zones[zone_id].en, zone_line, zone_type)
                 self:zone(zone_id, x, y, z, zone_line, zone_type)
             end
         end), self.follow_target:on_zone_change())
@@ -198,27 +197,19 @@ end
 function Follower:zone(zone_id, x, y, z, zone_line, zone_type, num_attempts)
     num_attempts = num_attempts or 0
 
-    logger.notice("Zone request attempt", num_attempts)
+    logger.notice(self.__class, "zone", '('..x..', '..y..', '..z..')', zone_line, zone_type, num_attempts)
 
     if num_attempts > 10 or not self:can_zone(zone_id) then
-        logger.notice("Unable to zone", res.zones[zone_id].en, num_attempts)
+        logger.notice(self.__class, "zone", "error", res.zones[zone_id].en, zone_line, zone_type, num_attempts)
         return
     end
-
-    local pos = vector.zero(3)
-
-    pos[1] = x
-    pos[2] = y
-    pos[3] = z
-
     self.walk_action_queue:clear()
 
     local actions = L{}
 
+    local pos = V{x, y, z}
     local distance_to_zone = player_util.distance(player_util.get_player_position(), pos)
     if distance_to_zone < self.max_zone_distance then
-        logger.notice("Attemping to zone from", res.zones[zone_id].en, zone_line, zone_type)
-
         actions:append(WaitAction.new(x, y, z, math.random() * 2))
 
         local zone_action = BlockAction.new(function()
@@ -227,8 +218,6 @@ function Follower:zone(zone_id, x, y, z, zone_line, zone_type, num_attempts)
 
         actions:append(zone_action)
     elseif distance_to_zone < 25 then
-        logger.notice("Attempting to walk to zone line", res.zones[zone_id].en, zone_line, zone_type, distance_to_zone, self.max_zone_distance)
-
         actions:append(RunToLocation.new(x, y, z, self.max_zone_distance))
 
         local zone_retry_action = BlockAction.new(function()
@@ -237,7 +226,7 @@ function Follower:zone(zone_id, x, y, z, zone_line, zone_type, num_attempts)
 
         actions:append(zone_retry_action)
     else
-        logger.error("Too far to zone from", res.zones[zone_id].en, zone_line, zone_type, distance_to_zone, self.max_zone_distance)
+        logger.notice(self.__class, "zone", "error", "too far from zone", res.zones[zone_id].en, zone_line, zone_type, distance_to_zone)
     end
 
     if actions:length() > 0 then
