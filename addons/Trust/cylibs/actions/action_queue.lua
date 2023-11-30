@@ -116,7 +116,7 @@ function ActionQueue:handle_action_completed(a, success)
 	end
 	--print(a:gettype()..' '..(a:getidentifier() or 'nil')..' end, success: '..tostring(success))
 
-	self:on_action_end():trigger()
+	self:on_action_end():trigger(a, success)
 
 	self:perform_next_action()
 end
@@ -240,7 +240,7 @@ end
 
 -- Clears all actions if the current action has been executing for too long
 function ActionQueue:cleanup()
-	if self.current_action ~= nil then
+	if self.current_action ~= nil and self.current_action:get_start_time() then
 		if (os.time() - self.current_action:get_start_time()) > self.current_action:get_max_duration() then
 			if self.debugging_enabled then
 				print('clearing stale actions becasee '..self.current_action:gettype()..'_'..self.current_action:getidentifier())

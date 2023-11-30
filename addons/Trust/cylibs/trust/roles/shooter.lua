@@ -68,7 +68,6 @@ function Shooter:tic(_, _)
             end
         end
     end
-
 end
 
 function Shooter:allows_duplicates()

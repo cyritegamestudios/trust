@@ -7,10 +7,12 @@ local ThiefTrust = setmetatable({}, {__index = Trust })
 ThiefTrust.__index = ThiefTrust
 
 local Dispeler = require('cylibs/trust/roles/dispeler')
+local Puller = require('cylibs/trust/roles/puller')
 
 function ThiefTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local roles = S{
-		Dispeler.new(action_queue, L{}, L{ JobAbility.new('Steal') }, false)
+		Dispeler.new(action_queue, L{}, L{ JobAbility.new('Steal') }, false),
+		Puller.new(action_queue, battle_settings.targets, nil, nil, false)
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings), ThiefTrust)
 

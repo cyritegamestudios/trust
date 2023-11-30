@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '7.7.1'
+_addon.version = '7.7.3'
 
 require('Trust-Include')
 
@@ -143,6 +143,7 @@ function load_user_files(main_job_id, sub_job_id)
 	player.trust.main_job:add_role(CombatMode.new(action_queue, settings.battle.melee_distance, settings.battle.range_distance))
 	player.trust.main_job:add_role(Eater.new(action_queue, main_job_trust:get_trust_settings().AutoFood))
 	player.trust.main_job:add_role(Follower.new(action_queue, settings.follow.distance))
+	player.trust.main_job:add_role(Pather.new(action_queue, 'data/paths/'))
 	player.trust.main_job:add_role(Skillchainer.new(action_queue, L{}, main_job_trust:get_trust_settings().Skillchains))
 	player.trust.main_job:add_role(Targeter.new(action_queue))
 	player.trust.main_job:add_role(Truster.new(action_queue, settings.battle.trusts))
@@ -206,6 +207,7 @@ function load_trust_commands(trust, action_queue)
 		AttackCommands.new(trust, action_queue),
 		FollowCommands.new(trust, action_queue),
 		LoggingCommands.new(trust, action_queue),
+		PathCommands.new(trust, action_queue),
 		PullCommands.new(trust, action_queue),
 		ScenarioCommands.new(trust, action_queue),
 		SendAllCommands.new(trust, action_queue),

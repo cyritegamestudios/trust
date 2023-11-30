@@ -100,21 +100,6 @@ function LoadSettingsView.new(jobSettingsMode)
         end
     end), self:getDelegate():didSelectItemAtIndexPath())
 
-    --[[self:getDisposeBag():add(trustMode:on_state_change():addAction(function(_, new_value)
-        print(new_value)
-        for row = 1, self:getDataSource():numberOfItemsInSection(1) do
-            local indexPath = IndexPath.new(1, row)
-            if not self:getDelegate():getSelectedIndexPaths():contains(indexPath) then
-                local item = self:getDataSource():itemAtIndexPath(indexPath)
-                if item and item:getText() == new_value then
-                    --self:getDelegate():deselectAllItems()
-                    --self:getDelegate():selectItemAtIndexPath(indexPath)
-                    return
-                end
-            end
-        end
-    end), trustMode:on_state_change())]]
-
     self:setNeedsLayout()
     self:layoutIfNeeded()
 
