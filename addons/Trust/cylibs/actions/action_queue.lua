@@ -116,7 +116,7 @@ function ActionQueue:handle_action_completed(a, success)
 	end
 	--print(a:gettype()..' '..(a:getidentifier() or 'nil')..' end, success: '..tostring(success))
 
-	self:on_action_end():trigger()
+	self:on_action_end():trigger(a, success)
 
 	self:perform_next_action()
 end

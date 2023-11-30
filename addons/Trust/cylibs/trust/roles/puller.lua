@@ -175,6 +175,8 @@ function Puller:get_pull_distance()
         return 18
     elseif self.ranged_attack then
         return 22
+    elseif self.approach then
+        return 30
     else
         return 17
     end

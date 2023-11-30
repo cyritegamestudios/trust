@@ -3,6 +3,7 @@ require('math')
 require('logger')
 
 local PlayerUtil = require('cylibs/util/player_util')
+local serializer_util = require('cylibs/util/serializer_util')
 
 local Action = require('cylibs/actions/action')
 local WalkAction = setmetatable({}, {__index = Action })
@@ -12,6 +13,12 @@ function WalkAction.new(x, y, z, min_dist)
 	local self = setmetatable(Action.new(x, y, z), WalkAction)
 	self.min_dist = min_dist or 2
  	return self
+end
+
+function WalkAction:destroy()
+	Action.destroy(self)
+
+	windower.ffxi.run(false)
 end
 
 function WalkAction:can_perform()
@@ -26,7 +33,7 @@ function WalkAction:can_perform()
 
 	local dist = PlayerUtil.distance(PlayerUtil.get_player_position(), self:get_position())
 
-	if dist < self.min_dist or dist > 500 then
+	if --[[dist < self.min_dist or]] dist > 500 then
 		return false
 	end
 	
@@ -103,6 +110,10 @@ function WalkAction:getrawdata()
 	res.walkaction.z = self.z
 	
 	return res
+end
+
+function WalkAction:serialize()
+	return "WalkAction.new(" .. serializer_util.serialize_args(self.x, self.y, self.z, self.min_dist) .. ")"
 end
 
 function WalkAction:copy()
