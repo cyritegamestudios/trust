@@ -240,7 +240,7 @@ end
 
 -- Clears all actions if the current action has been executing for too long
 function ActionQueue:cleanup()
-	if self.current_action ~= nil then
+	if self.current_action ~= nil and self.current_action:get_start_time() then
 		if (os.time() - self.current_action:get_start_time()) > self.current_action:get_max_duration() then
 			if self.debugging_enabled then
 				print('clearing stale actions becasee '..self.current_action:gettype()..'_'..self.current_action:getidentifier())

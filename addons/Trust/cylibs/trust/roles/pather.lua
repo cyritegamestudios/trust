@@ -38,10 +38,6 @@ end
 function Pather:on_add()
     Role.on_add(self)
 
-    self.dispose_bag:add(state.AutoPathMode:on_state_change():addAction(function(_, new_value)
-
-    end), state.AutoPathMode:on_state_change())
-
     self.dispose_bag:add(self.action_queue:on_action_end():addAction(function(a, _)
         if a == self.actions[self.current_index] then
             logger.notice(self.__class, 'completed', a:tostring())
