@@ -47,6 +47,7 @@ function Trust:init()
 				if new_target_index == old_target_index then
 					return
 				end
+				logger.notice(self.__class, 'on_party_target_change', new_target_index or 'nil', old_target_index or 'nil')
 				-- TODO: prune invalid actions instead of clear
 				--self.action_queue:clear()
 				self.target_index = new_target_index
@@ -59,6 +60,7 @@ function Trust:destroy()
 		if role.destroy then
 			role:destroy()
 			role:set_player(nil)
+			role:set_alliance(nil)
 			role:set_party(nil)
 		end
 	end
@@ -90,6 +92,7 @@ function Trust:add_role(role)
 
 	if role.on_add then
 		role:set_player(self.player)
+		role:set_alliance(self.alliance)
 		role:set_party(self.party)
 		role:on_add()
 		if role.target_change then
@@ -184,6 +187,14 @@ end
 -- @treturn Job Job for this Trust
 function Trust:get_job()
 	return self.job
+end
+
+function Trust:set_alliance(alliance)
+	self.alliance = alliance
+end
+
+function Trust:get_alliance()
+	return self.alliance
 end
 
 function Trust:set_party(party)

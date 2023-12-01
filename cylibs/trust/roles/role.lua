@@ -43,6 +43,14 @@ function Role:get_player()
     return self.player
 end
 
+function Role:set_alliance(alliance)
+    self.alliance = alliance
+end
+
+function Role:get_alliance()
+    return self.alliance
+end
+
 function Role:set_party(party)
     self.party = party
 end

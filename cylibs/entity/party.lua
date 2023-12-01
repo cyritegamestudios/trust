@@ -47,6 +47,7 @@ function Party.new(party_chat)
     self.is_monitoring = false
     self.party_members = T{}
     self.dispose_bag = DisposeBag.new()
+    self.assist_target_dispose_bag = DisposeBag.new()
 
     self.party_member_added = Event.newEvent()
     self.party_member_removed = Event.newEvent()
@@ -55,7 +56,7 @@ function Party.new(party_chat)
 
     self.target_tracker = MobTracker.new(self:on_party_member_added(), self:on_party_member_removed())
 
-    self.dispose_bag:addAny(L{ self.target_tracker })
+    self.dispose_bag:addAny(L{ self.target_tracker, self.assist_target_dispose_bag })
 
     return self
 end
@@ -107,11 +108,12 @@ function Party:add_party_member(party_member_id, party_member_name)
     local party_member = self.party_members[party_member_id]
 
     party_member:monitor()
-    party_member:on_target_change():addAction(function(p, new_target_index, old_target_index)
-        if self:get_assist_target() and self:get_assist_target():is_valid() and p:get_name() == self:get_assist_target():get_name() then
-            self:on_party_target_change():trigger(self, new_target_index, old_target_index)
-        end
-    end)
+    --party_member:on_target_change():addAction(function(p, new_target_index, old_target_index)
+    --    logger.notice(self.__class, 'on_target_change', p:get_name(), new_target_index)
+    --    if self:get_assist_target() and self:get_assist_target():is_valid() and p:get_name() == self:get_assist_target():get_name() then
+    --        self:on_party_target_change():trigger(self, new_target_index, old_target_index)
+    --    end
+    --end)
 
     self:on_party_member_added():trigger(party_member)
 
@@ -224,12 +226,28 @@ end
 -- Sets the assist target. The party's target will change to match the assist target.
 -- @tparam PartyMember party_member Party member to assist
 function Party:set_assist_target(party_member)
+    if self.assist_target and self.assist_target:get_id() == party_member:get_id() then
+        self:add_to_chat(self:get_player(), "I'm already assisting "..party_member:get_name().."!")
+        return
+    end
     self.assist_target = party_member
+    self.assist_target_dispose_bag:dispose()
+
     if party_member then
+        self.assist_target_dispose_bag:add(party_member:on_target_change():addAction(function(p, new_target_index, old_target_index)
+            logger.notice(self.__class, 'set_assist_target', 'on_target_change', p:get_name(), new_target_index)
+            if self:get_assist_target() and self:get_assist_target():is_valid() and p:get_name() == self:get_assist_target():get_name() then
+                logger.notice(self.__class, 'set_assist_target', 'on_party_target_change', p:get_name(), new_target_index)
+                self:on_party_target_change():trigger(self, new_target_index, old_target_index)
+            end
+        end), party_member:on_target_change())
+
         local initial_target_index = party_member:get_target_index()
         if initial_target_index then
             self:on_party_target_change():trigger(self, initial_target_index, nil)
         end
+
+        self:add_to_chat(self:get_player(), "Okay, I'll assist "..party_member:get_name().." in battle.")
     end
     self:on_party_assist_target_change():trigger(self, self.assist_target)
 end

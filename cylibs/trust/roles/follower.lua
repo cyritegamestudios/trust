@@ -72,7 +72,7 @@ end
 function Follower:follow_target_named(target_name)
     target_name = target_name:gsub("^%l", string.upper)
 
-    local target = self:get_party():get_party_member_named(target_name)
+    local target = self:get_alliance():get_alliance_member_named(target_name)
     if target == nil or not self:is_valid_target(target_name) then
         logger.error("Invalid target", target_name, target == nil, not self:is_valid_target(target_name))
         return "Invalid target %s":format(target_name)
@@ -101,7 +101,7 @@ end
 -- @tparam string target_name Name of the target
 -- @treturn boolean True if the target can be followed
 function Follower:is_valid_target(target_name)
-    local target = self:get_party():get_party_member_named(target_name)
+    local target = self:get_alliance():get_alliance_member_named(target_name)
     if target == nil or target:get_name() == windower.ffxi.get_player().name or target:get_zone_id() ~= windower.ffxi.get_info().zone or target:get_mob() == nil then
         return false
     end

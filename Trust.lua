@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '7.7.3'
+_addon.version = '7.8.0'
 
 require('Trust-Include')
 
@@ -129,7 +129,7 @@ function load_user_files(main_job_id, sub_job_id)
 		player.trust.sub_job:set_trust_settings(player.trust.sub_job_settings[new_value])
 	end)
 
-	main_job_trust, sub_job_trust = TrustFactory.trusts(trust_for_job_short(player.main_job_name_short, settings, player.trust.main_job_settings.Default, action_queue, player.player, player.party), trust_for_job_short(player.sub_job_name_short, settings, player.trust.sub_job_settings.Default, action_queue, player.player, player.party))
+	main_job_trust, sub_job_trust = TrustFactory.trusts(trust_for_job_short(player.main_job_name_short, settings, player.trust.main_job_settings.Default, action_queue, player.player, player.alliance, player.party), trust_for_job_short(player.sub_job_name_short, settings, player.trust.sub_job_settings.Default, action_queue, player.player, player.alliance, player.party))
 
 	main_job_trust:init()
 	sub_job_trust:init()
@@ -264,7 +264,7 @@ function load_logger_settings()
 	logger.isEnabled = settings.logging.enabled
 end
 
-function trust_for_job_short(job_name_short, settings, trust_settings, action_queue, player, party)
+function trust_for_job_short(job_name_short, settings, trust_settings, action_queue, player, alliance, party)
 	if job_name_short == 'WHM' then
 		WhiteMageTrust = require('cylibs/trust/data/WHM')
 		trust = WhiteMageTrust.new(settings.WHM, action_queue, settings.battle, trust_settings)
@@ -336,6 +336,7 @@ function trust_for_job_short(job_name_short, settings, trust_settings, action_qu
 	end
 
 	trust:set_player(player)
+	trust:set_alliance(alliance)
 	trust:set_party(party)
 
 	return trust
@@ -458,7 +459,6 @@ function handle_assist(param)
 	if party then
 		local party_member = party:get_party_member_named(param)
 		if party_member then
-			player.party:add_to_chat(party_member, "Okay, I'll assist "..param.." in battle.")
 			player.party:set_assist_target(party_member)
 		end
 	end
