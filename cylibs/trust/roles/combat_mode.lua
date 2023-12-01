@@ -1,4 +1,5 @@
 local BlockAction = require('cylibs/actions/block')
+local DisposeBag = require('cylibs/events/dispose_bag')
 local RunAwayAction = require('cylibs/actions/runaway')
 local RunToAction = require('cylibs/actions/runto')
 local RunToLocationAction = require('cylibs/actions/runtolocation')
@@ -13,9 +14,10 @@ CombatMode.__index = CombatMode
 state.AutoFaceMobMode = M{['description'] = 'Auto Face Mob Mode', 'Auto', 'Off'}
 state.AutoFaceMobMode:set_description('Auto', "Okay, I'll make sure to look the monster straight in the eyes.")
 
-state.CombatMode = M{['description'] = 'Combat Mode', 'Off', 'Melee', 'Ranged'}
+state.CombatMode = M{['description'] = 'Combat Mode', 'Off', 'Melee', 'Ranged', 'Mirror'}
 state.CombatMode:set_description('Melee', "Okay, I'll fight on the front lines.")
 state.CombatMode:set_description('Ranged', "Okay, I'll stand back in battle.")
+state.CombatMode:set_description('Mirror', "Okay, I'll stand where the party member I'm assisting is standing.")
 
 state.FlankMode = M{['description'] = 'Flanking Mode', 'Off', 'Back', 'Left', 'Right'}
 state.FlankMode:set_description('Back', "Ok, I'll flank from the back in battle.")
@@ -24,10 +26,28 @@ state.FlankMode:set_description('Right', "Ok, I'll flank from the right in battl
 
 function CombatMode.new(action_queue, melee_distance, range_distance)
     local self = setmetatable(Role.new(action_queue), CombatMode)
+
     self.action_queue = action_queue
     self.melee_distance = melee_distance
     self.range_distance = range_distance
+    self.dispose_bag = DisposeBag.new()
+
     return self
+end
+
+function CombatMode:destroy()
+    Role.destroy(self)
+
+    self.dispose_bag:destroy()
+end
+
+function CombatMode:on_add()
+    self.dispose_bag:add(state.CombatMode:on_state_change():addAction(function(_, new_value)
+        local assist_target = self:get_party():get_assist_target()
+        if not assist_target or assist_target:get_id() == self:get_party():get_player():get_id() then
+            self:get_party():add_to_chat(self:get_party():get_player(), "I need to be assisting someone first in order to mirror their combat movements!")
+        end
+    end), state.CombatMode:on_state_change())
 end
 
 function CombatMode:target_change(target_index)
@@ -81,6 +101,16 @@ function CombatMode:check_distance()
                     self.action_queue:push_action(BlockAction.new(function() player_util.face(target) end))
                 end
             end
+        elseif L{'Mirror'}:contains(state.CombatMode.value) then
+            local assist_target = self:get_party():get_assist_target()
+            if assist_target then
+                local dist = player_util.distance(self:get_party():get_player():get_position(), assist_target:get_position())
+                if dist > 2 then
+                    self.action_queue:push_action(RunToAction.new(assist_target:get_mob().index, 1), true)
+                    return
+                end
+            end
+            self:face_target(target)
         else
             self:face_target(target)
         end
