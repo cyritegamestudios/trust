@@ -60,7 +60,8 @@ end
 -- Returns whether the mob is in memory.
 -- @treturn Boolean True if the mob is in memory.
 function Entity:is_valid()
-    return self:get_mob() ~= nil
+    local mob = self:get_mob()
+    return mob ~= nil and mob.hpp > 0
 end
 
 -------

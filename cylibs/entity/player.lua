@@ -243,4 +243,11 @@ function Player:is_moving()
     return self.moving
 end
 
+-------
+-- Returns whether the player is currently engaged.
+-- @treturn boolean True if the player is engaged, false otherwise.
+function Player:is_engaged()
+    return res.statuses[windower.ffxi.get_player().status].name == 'Engaged'
+end
+
 return Player

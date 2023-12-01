@@ -32,11 +32,13 @@ end
 
 function Trust:init()
 	for role in self.roles:it() do
-		role:set_player(self.player)
+		--[[role:set_player(self.player)
 		role:set_party(self.party)
 		if role.on_add then
+			print(role:get_type())
 			role:on_add()
-		end
+		end]]
+		self:add_role(role)
 	end
 	self:on_init()
 
@@ -77,6 +79,9 @@ end
 function Trust:on_deinit()
 end
 
+function Trust:on_role_added(role)
+end
+
 function Trust:add_role(role)
 	if self.role_blacklist:contains(role:get_type()) then
 		return
@@ -90,6 +95,7 @@ function Trust:add_role(role)
 		if role.target_change then
 			role:target_change(self.target_index)
 		end
+		self:on_role_added(role)
 	end
 end
 

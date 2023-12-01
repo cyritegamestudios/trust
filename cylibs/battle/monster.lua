@@ -177,6 +177,7 @@ function Monster:handle_action_on_monster(act)
                     local debuff = buff_util.debuff_for_spell(act.param)
                     if debuff then
                         self.debuff_ids:add(debuff.id)
+                        logger.notice(self.__class, 'handle_action_on_monster', 'gain_debuff', self:get_name(), debuff.name)
                         self:on_gain_debuff():trigger(self, debuff.en)
                     end
                 elseif action_message_util.is_spikes_message(action.message) then

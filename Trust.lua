@@ -398,7 +398,7 @@ end
 
 function handle_zone_change(new_zone_id, old_zone_id)
 	action_queue:clear()
-	player.party:set_assist_target(nil)
+	player.party:set_assist_target(player.party:get_player())
 	handle_stop()
 end
 
@@ -444,15 +444,23 @@ function get_assist_target(name)
 	if name == windower.ffxi.get_player().name then
 		return player.player
 	else
-		return player.party:get_party_member(windower.ffxi.get_mob_by_name(name).id)
+		local party = player.alliance:get_party(param)
+		if party then
+			local party_member = party:get_party_member_named(param)
+			return party_member
+		end
+		return nil
 	end
 end
 
 function handle_assist(param)
-	local party_member = player.party:get_party_member_named(param)
-	if party_member then
-		addon_message(260, '('..windower.ffxi.get_player().name..') '.."Okay, I'll assist "..param.." in battle.")
-		player.party:set_assist_target(party_member)
+	local party = player.alliance:get_party(param)
+	if party then
+		local party_member = party:get_party_member_named(param)
+		if party_member then
+			player.party:add_to_chat(party_member, "Okay, I'll assist "..param.." in battle.")
+			player.party:set_assist_target(party_member)
+		end
 	end
 end
 

@@ -10,6 +10,7 @@ local spell_util = require('cylibs/util/spell_util')
 local ValidTargetCondition = require('cylibs/conditions/valid_target')
 local ValidSpellTargetCondition = setmetatable({}, { __index = ValidTargetCondition })
 ValidSpellTargetCondition.__index = ValidSpellTargetCondition
+ValidSpellTargetCondition.__class = "ValidSpellTargetCondition"
 
 function ValidSpellTargetCondition.new(spell_name, blacklist_names)
     local self = setmetatable(ValidTargetCondition.new(blacklist_names), ValidSpellTargetCondition)
@@ -27,7 +28,9 @@ end
 
 function ValidSpellTargetCondition:get_target_type(target_index)
     local target = windower.ffxi.get_mob_by_index(target_index)
-    if target_index == windower.ffxi.get_player().index then
+    if res.statuses[target.status].name == 'Dead' then
+        return 'Corpse'
+    elseif target_index == windower.ffxi.get_player().index then
         return 'Self'
     elseif target.in_party then
         return 'Party'

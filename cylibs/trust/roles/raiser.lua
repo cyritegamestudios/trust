@@ -1,5 +1,6 @@
 local Raiser = setmetatable({}, {__index = Role })
 Raiser.__index = Raiser
+Raiser.__class = "Raiser"
 
 local cure_util = require('cylibs/util/cure_util')
 local DisposeBag = require('cylibs/events/dispose_bag')
@@ -43,6 +44,7 @@ function Raiser:on_add()
         self.dispose_bag:add(p:on_ko():addAction(function(p)
             if not p:is_trust() then
                 self.ko_party_member_ids:add(p:get_id())
+                logger.notice(self.__class, 'on_ko', p:get_name())
             end
         end), p:on_ko())
     end
@@ -134,6 +136,7 @@ function Raiser:prune_party_ko(raise_spell_id, targets)
         for _, action in pairs(target.actions) do
             if L{42}:contains(action.message) then
                 self.ko_party_member_ids:remove(target.id)
+                logger.notice(self.__class, 'prune_party_ko', target.name)
             end
         end
     end

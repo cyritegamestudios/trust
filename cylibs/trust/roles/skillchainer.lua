@@ -2,6 +2,7 @@ local Skillchainer = setmetatable({}, {__index = Role })
 Skillchainer.__index = Skillchainer
 
 local DisposeBag = require('cylibs/events/dispose_bag')
+local Event = require('cylibs/events/Luvent')
 local SkillchainMaker = require('cylibs/battle/skillchains/skillchain_maker')
 
 state.AutoAftermathMode = M{['description'] = 'Auto Aftermath Mode', 'Off', 'Auto'}
@@ -24,12 +25,18 @@ state.SkillchainPriorityMode = M{['description'] = 'Skillchain Priority Mode', '
 state.SkillchainPriorityMode:set_description('Prefer', "Okay, I'll prioritize using certain weapon skills.")
 state.SkillchainPriorityMode:set_description('Strict', "Okay, I'll only use certain weapon skills.")
 
+-- Event called when the player readies a weaponskill. Triggers before the weaponskill command is sent.
+function Skillchainer:on_ready_weaponskill()
+    return self.ready_weaponskill
+end
+
 function Skillchainer.new(action_queue, skillchain_params, skillchain_settings)
     local self = setmetatable(Role.new(action_queue), Skillchainer)
 
     self.action_queue = action_queue
     self.skillchain_params = skillchain_params
     self.skillchain_settings = skillchain_settings
+    self.ready_weaponskill = Event.newEvent()
     self.dispose_bag = DisposeBag.new()
 
     return self
@@ -38,9 +45,7 @@ end
 function Skillchainer:destroy()
     Role.destroy(self)
 
-    if self.skillchain_maker then
-        self.skillchain_maker:destroy()
-    end
+    self.ready_weaponskill:removeAllActions()
 
     self.dispose_bag:destroy()
 end
@@ -59,10 +64,14 @@ function Skillchainer:on_add()
     self.skillchain_maker:on_perform_next_weapon_skill():addAction(function(_, weapon_skill_name)
         self:job_weapon_skill(weapon_skill_name)
     end)
+
+    self.dispose_bag:addAny(L{ self.skillchain_maker })
 end
 
 function Skillchainer:job_weapon_skill(weapon_skill_name)
     if state.AutoSkillchainMode.value == 'Off' then return end
+
+    self:on_ready_weaponskill():trigger(weapon_skill_name, self.target_index)
 
     local ws = res.weapon_skills:with('en', weapon_skill_name)
     if ws then

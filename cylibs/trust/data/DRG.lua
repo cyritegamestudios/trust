@@ -16,6 +16,7 @@ function DragoonTrust.new(settings, action_queue, battle_settings, trust_setting
 
 	self.settings = settings
 	self.action_queue = action_queue
+	self.last_jump_time = os.time()
 
 	return self
 end
@@ -51,10 +52,17 @@ function DragoonTrust:jump()
 			self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, 'Super Jump', self.target_index))
 		end
 	else
-		local monster = windower.ffxi.get_mob_by_index(self.target_index)
-		if monster.hpp < 50 then
-			if job_util.can_use_job_ability('High Jump') then
-				self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, 'High Jump', self.target_index))
+		if os.time() - self.last_jump_time > 5 then
+			local monster = windower.ffxi.get_mob_by_index(self.target_index)
+			if monster.hpp < 50 then
+				local jump_abilities = L{'High Jump','Spirit Jump','Soul Jump'}
+				for jump_ability in jump_abilities:it() do
+					if job_util.can_use_job_ability(jump_ability) then
+						self.last_jump_time = os.time()
+						self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, jump_ability, self.target_index))
+						return
+					end
+				end
 			end
 		end
 	end
