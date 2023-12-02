@@ -43,9 +43,11 @@ end
 
 function CombatMode:on_add()
     self.dispose_bag:add(state.CombatMode:on_state_change():addAction(function(_, new_value)
-        local assist_target = self:get_party():get_assist_target()
-        if not assist_target or assist_target:get_id() == self:get_party():get_player():get_id() then
-            self:get_party():add_to_chat(self:get_party():get_player(), "I need to be assisting someone first in order to mirror their combat movements!")
+        if new_value == 'Mirror' then
+            local assist_target = self:get_party():get_assist_target()
+            if not assist_target or assist_target:get_id() == self:get_party():get_player():get_id() then
+                self:get_party():add_to_chat(self:get_party():get_player(), "I need to be assisting someone first in order to mirror their combat movements!")
+            end
         end
     end), state.CombatMode:on_state_change())
 end

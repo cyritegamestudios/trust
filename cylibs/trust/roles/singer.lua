@@ -6,6 +6,7 @@ local res = require('resources')
 
 local Singer = setmetatable({}, {__index = Role })
 Singer.__index = Singer
+Singer.__class = "Singer"
 
 local SongTracker = require('cylibs/battle/song_tracker')
 
@@ -233,20 +234,20 @@ function Singer:sing_song(song, target_index)
 end
 
 function Singer:should_nitro()
-    if self.brd_job:is_nitro_ready() then
+    if state.AutoNitroMode.value == 'Auto' and self.brd_job:is_nitro_ready() then
         local player = self:get_party():get_player()
         local buff_ids = L(player:get_buff_ids())
         local songs = self:get_merged_songs(player)
 
         local total_num_songs = self.song_tracker:get_num_songs(player:get_mob().id, buff_ids)
         if total_num_songs == 0 then
-            logger.notice("Using nitro (no songs)")
+            logger.notice(self.__class, 'should_nitro', 'using nitro', 'no songs')
             return true
         end
 
         local total_num_active_songs = self.song_tracker:get_num_songs(player:get_mob().id, buff_ids, songs)
         if total_num_active_songs == self.brd_job:get_max_num_songs() and self.song_tracker:is_expiring_soon(player:get_mob().id, songs) then
-            logger.notice("Using nitro (all songs)")
+            logger.notice(self.__class, 'should_nitro', 'using nitro', 'all songs')
             return true
         end
     end

@@ -94,6 +94,7 @@ function load_user_files(main_job_id, sub_job_id)
 	player.alliance = Alliance.new(party_chat)
 	player.alliance:monitor()
 	player.party = player.alliance:get_parties()[1]
+	player.party:set_assist_target(player.party:get_player())
 
 	handle_status_change(windower.ffxi.get_player().status, windower.ffxi.get_player().status)
 

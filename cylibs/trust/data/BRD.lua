@@ -25,6 +25,9 @@ state.AutoPianissimoMode = M{['description'] = 'Auto Pianissimo Mode', 'Merged',
 state.AutoPianissimoMode:set_description('Merged', "Okay, I'll make sure to keep all songs on everyone.")
 state.AutoPianissimoMode:set_description('Override', "Okay, I'll only focus on Pianissimo songs.")
 
+state.AutoNitroMode = M{['description'] = 'Auto Nitro Mode', 'Auto', 'Off'}
+state.AutoNitroMode:set_description('Auto', "Okay, I'll use Nightingale and Troubadour before singing songs.")
+
 state.AutoClarionCallMode = M{['description'] = 'Auto Clarion Call Mode', 'Off', 'Auto'}
 state.AutoClarionCallMode:set_description('Auto', "Okay, I'll try to sing as many songs as possible.")
 
