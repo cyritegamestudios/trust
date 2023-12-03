@@ -227,7 +227,9 @@ end
 -- @tparam PartyMember party_member Party member to assist
 function Party:set_assist_target(party_member)
     if self.assist_target and self.assist_target:get_id() == party_member:get_id() then
-        self:add_to_chat(self:get_player(), "I'm already assisting "..party_member:get_name().."!")
+        if self.assist_target:get_id() ~= windower.ffxi.get_player().id then
+            self:add_to_chat(self:get_player(), "I'm already assisting "..party_member:get_name().."!")
+        end
         return
     end
     self.assist_target = party_member

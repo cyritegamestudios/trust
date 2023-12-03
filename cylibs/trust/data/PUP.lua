@@ -142,7 +142,7 @@ function PuppetmasterTrust:check_restore_mp()
 end
 
 function PuppetmasterTrust:check_repair()
-	if state.AutoRepairMode.value ~= 'Off' and self.automaton:get_mob().hpp < 20 and self:get_job():can_repair() then
+	if state.AutoRepairMode.value ~= 'Off' and self.automaton:get_vitals().hpp < 20 and self:get_job():can_repair() then
 		self.automaton:repair()
 	end
 end
