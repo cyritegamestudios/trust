@@ -28,6 +28,8 @@ return {
         ["autoengagemode"]="Off",
         ["autofacemobmode"]="Auto",
         ["autofoodmode"]="Off",
-        ["autoenmityreductionmode"]="Auto"
+        ["autoenmityreductionmode"]="Auto",
+        ["ipcmode"]="All",
+
     }
 }

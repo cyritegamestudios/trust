@@ -22,6 +22,7 @@ return {
         ["combatmode"]="Off",
         ["autotrustsmode"]="Off",
         ["autoenmityreductionmode"]="Off",
-        ["autotankmode"]="Auto"
+        ["autotankmode"]="Auto",
+        ["ipcmode"]="All",
     }
 }

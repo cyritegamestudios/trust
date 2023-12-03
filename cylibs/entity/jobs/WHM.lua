@@ -26,6 +26,10 @@ end
 -- @tparam number hp_missing Amount of hp missing
 -- @treturn Spell Cure spell
 function WhiteMage:get_cure_spell(hp_missing)
+    if self:is_afflatus_solace_active() and self:is_overcure_enabled() then
+        hp_missing = hp_missing * 1.5
+    end
+
     if hp_missing > self.cure_settings.Thresholds['Cure IV'] then
         if not spell_util.is_spell_on_cooldown(res.spells:with('name', 'Cure IV').id) then
             return Spell.new('Cure IV', L{}, L{})
@@ -127,6 +131,20 @@ end
 -- @treturn number Delay between cures in seconds
 function WhiteMage:get_cure_delay()
     return self.cure_settings.Delay or 2
+end
+
+-------
+-- Returns if overcure is enabled
+-- @treturn Boolean if overcure is enabled
+function WhiteMage:is_overcure_enabled()
+    return self.cure_settings.Thresholds['Overcure'] or false
+end
+
+-------
+-- Returns if Afflatus Solace is active
+-- @treturn Boolean True if Afflatus Solace is active
+function WhiteMage:is_afflatus_solace_active()
+    return buff_util.is_buff_active(buff_util.buff_id('Afflatus Solace'))
 end
 
 -------

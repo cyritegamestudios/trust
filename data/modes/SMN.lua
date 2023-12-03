@@ -29,6 +29,7 @@ return {
         ["autobuffmode"]="Auto",
         ["autotrustsmode"]="Off",
         ["engagemode"]="None",
-        ["autoenmityreductionmode"]="Off"
+        ["autoenmityreductionmode"]="Off",
+        ["ipcmode"]="All",
     }
 }

@@ -20,6 +20,7 @@ return {
         ["combatmode"]="Off",
         ["engagemode"]="None",
         ["autofoodmode"]="Off",
-        ["autoenmityreductionmode"]="Off"
+        ["autoenmityreductionmode"]="Off",
+        ["ipcmode"]="All",
     }
 }

@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '7.8.2'
+_addon.version = '7.8.3'
 
 require('Trust-Include')
 
@@ -94,6 +94,7 @@ function load_user_files(main_job_id, sub_job_id)
 	player.alliance = Alliance.new(party_chat)
 	player.alliance:monitor()
 	player.party = player.alliance:get_parties()[1]
+	player.party:add_party_member(windower.ffxi.get_player().id, windower.ffxi.get_player().name)
 	player.party:set_assist_target(player.party:get_player())
 
 	handle_status_change(windower.ffxi.get_player().status, windower.ffxi.get_player().status)

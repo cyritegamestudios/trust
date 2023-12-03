@@ -28,6 +28,7 @@ return {
         ["autobarspellmode"]="Off",
         ["autotrustsmode"]="Off",
         ["autohealmode"]="Auto",
-        ["autoenmityreductionmode"]="Auto"
+        ["autoenmityreductionmode"]="Auto",
+        ["ipcmode"]="All",
     }
 }

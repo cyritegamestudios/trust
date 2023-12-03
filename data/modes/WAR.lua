@@ -19,6 +19,7 @@ return {
         ["autofoodmode"]="Off",
         ["combatmode"]="Off",
         ["autotrustsmode"]="Auto",
-        ["autoenmityreductionmode"]="Auto"
+        ["autoenmityreductionmode"]="Auto",
+        ["ipcmode"]="All",
     }
 }

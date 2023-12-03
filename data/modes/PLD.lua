@@ -23,6 +23,7 @@ return {
         ["autobarspellmode"]="Off",
         ["skillchaindelaymode"]="Off",
         ["autotrustsmode"]="Off",
-        ["autoenmityreductionmode"]="Off"
+        ["autoenmityreductionmode"]="Off",
+        ["ipcmode"]="All",
     }
 }

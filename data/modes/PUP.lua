@@ -25,6 +25,7 @@ return {
         ["combatmode"]="Off",
         ["autofoodmode"]="Off",
         ["automaneuvermode"]="Auto",
-        ["autoenmityreductionmode"]="Auto"
+        ["autoenmityreductionmode"]="Auto",
+        ["ipcmode"]="All",
     },
 }

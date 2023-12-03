@@ -27,7 +27,8 @@ return {
                 Blacklist = L{
 
                 }
-            }
+            },
+            Overcure = false
         },
         JobAbilities = L{
             JobAbility.new('Afflatus Solace', L{}, L{}, nil),

@@ -33,5 +33,6 @@ return {
         ["autoenmityreductionmode"]="Off",
         ["autoclarioncallmode"]="Off",
         ["autopianissimomode"]="Merged",
+        ["ipcmode"]="All",
     }
 }
