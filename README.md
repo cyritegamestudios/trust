@@ -21,11 +21,20 @@ See the [Setup Guide](https://github.com/cyritegamestudios/trust/wiki/Getting-St
 
 You will need the latest version of [Trust](https://github.com/cyritegamestudios/trust/releases) in order to use Trust.
 
-1. Git clone or download [Trust]([https://github.com/cyritegamestudios/trust](https://github.com/cyritegamestudios/trust/releases)) from Github.
-2. Copy the `addons` folder into your `Windower` folder so that you are pasting the new `addons` folder on top of your existing `addons` folder. Note that this will *not* override your entire existing `addons` folder, only addons related to Trust.
+You can try one of the two methods listed below:
+
+### Copy and Pasting
+1. Download [Trust]([https://github.com/cyritegamestudios/trust](https://github.com/cyritegamestudios/trust/releases)) from Github.
+2. Copy the `Trust` folder into your `Windower/addons` folder so that you are pasting the new `Trust` folder on top of your existing `Trust` folder. Note that this will *not* override your entire existing `Trust` folder, only addons related to Trust.
 3. Double check that the `Windower/addons/Trust` folder exists.
 4. Run `// lua r trust` and you're ready to get started!
-5. To update Trust, either do a `git pull --rebase` or follow the steps above again.
+5. To update Trust, follow the steps above again.
+
+### Using Git
+1. In your Command Line, `cd` to your `Windower/addons` directory
+2. Type `git clone git@github.com:cyritegamestudios/trust.git`
+3. Run `// lua r trust` and you're ready to get started!
+4. To update Trust, run `git pull` from your Command Line
 
 ### Dependencies
 
@@ -35,7 +44,7 @@ Trust also requires the following addons, which can be installed through [Window
 
 ### Optional
 
-6. Override [job settings](https://github.com/cyritegamestudios/trust/wiki/Job-Settings) to customize what your trust does.
+* Override [job settings](https://github.com/cyritegamestudios/trust/wiki/Job-Settings) to customize what your trust does.
 
 ### Commands
 See [Windower Commands](https://github.com/cyritegamestudios/trust/wiki/Commands), [Shortcuts](https://github.com/cyritegamestudios/trust/wiki/Shortcuts)
