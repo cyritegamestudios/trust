@@ -1,0 +1,84 @@
+local DisposeBag = require('cylibs/events/dispose_bag')
+local FileIO = require('files')
+local Path = require('cylibs/paths/path')
+local serializer_util = require('cylibs/util/serializer_util')
+local WalkAction = require('cylibs/actions/walk')
+
+local PathRecorder = {}
+PathRecorder.__index = PathRecorder
+PathRecorder.__class = "PathRecorder"
+
+function PathRecorder.new(output_folder, mob_id)
+    local self = setmetatable({}, PathRecorder)
+
+    self.output_folder = output_folder
+    self.mob_id = mob_id or windower.ffxi.get_player().id
+    self.recording = false
+    self.actions = L{}
+    self.dispose_bag = DisposeBag.new()
+
+    return self
+end
+
+function PathRecorder:destroy()
+    self.dispose_bag:destroy()
+end
+
+function PathRecorder:clear()
+    self.actions = L{}
+end
+
+function PathRecorder:start_recording()
+    if self:is_recording() then
+        return
+    end
+    self.recording = true
+
+    self.dispose_bag:add(WindowerEvents.PositionChanged:addAction(function(mob_id, x, y, z)
+        if mob_id == self.mob_id then
+            self:add_point(x, y, z)
+        end
+    end), WindowerEvents.PositionChanged)
+
+    logger.notice(self.__class, 'start_recording')
+end
+
+function PathRecorder:stop_recording(path_name)
+    if not self:is_recording() then
+        return
+    end
+    self.recording = false
+
+    if path_name then
+        local path = Path.new(windower.ffxi.get_info().zone, self.actions, false, 0)
+        if path then
+            local file_path = self.output_folder..path_name..'.lua'
+
+            local file = FileIO.new(file_path)
+            file:write('\nreturn ' .. serializer_util.serialize(path))
+
+            logger.notice(self.__class, 'stop_recording', 'saved path to', windower.addon_path..file_path)
+        end
+    end
+end
+
+function PathRecorder:add_point(x, y, z)
+    self.actions:append(WalkAction.new(x, y, z, 1))
+end
+
+function PathRecorder:get_actions()
+    return self.actions
+end
+
+function PathRecorder:is_recording()
+    return self.recording
+end
+
+function PathRecorder:get_output_folder()
+    return self.output_folder
+end
+
+return PathRecorder
+
+
+
