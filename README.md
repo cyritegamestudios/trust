@@ -16,25 +16,21 @@ Trust is a Windower 4 addon for FFXI that turns your character into a Trust. It 
 Get help or request a feature in the [Cyrite Game Studios Discord](https://discord.gg/CfPxDy759J). Do NOT ask questions about Trust in game.
 
 ## Setup
-
 See the [Setup Guide](https://github.com/cyritegamestudios/trust/wiki/Getting-Started#setup) or read below:
 
-You will need the latest version of [Trust](https://github.com/cyritegamestudios/trust/releases) in order to use Trust.
+You will need the latest version of [Trust](https://github.com/cyritegamestudios/trust) in order to use Trust.
 
-You can try one of the two methods listed below:
-
-### Copy and Pasting
-1. Download [Trust]([https://github.com/cyritegamestudios/trust](https://github.com/cyritegamestudios/trust/releases)) from Github.
-2. Copy the `Trust` folder into your `Windower/addons` folder so that you are pasting the new `Trust` folder on top of your existing `Trust` folder. Note that this will *not* override your entire existing `Trust` folder, only addons related to Trust.
+1. Download the latest release of [Trust](https://github.com/cyritegamestudios/trust/releases) from GitHub (trust.zip under `Assets` at the bottom of the release page).
+2. Unzip `trust.zip`, right click the `Trust` folder, copy it and paste it into the `Windower/addons` folder. Note that this will *not* override your entire existing `Trust` folder, only changed files.
 3. Double check that the `Windower/addons/Trust` folder exists.
 4. Run `// lua r trust` and you're ready to get started!
-5. To update Trust, follow the steps above again.
+5. To update your version of Trust, repeat steps 1-4 above.
+6. _**You can configure your Trust through the menu by pressing down Control and the Numpad+ buttons.**_
 
-### Using Git
-1. In your Command Line, `cd` to your `Windower/addons` directory
-2. Type `git clone git@github.com:cyritegamestudios/trust.git`
-3. Run `// lua r trust` and you're ready to get started!
-4. To update Trust, run `git pull` from your Command Line
+If using Git:
+1. Create a folder named `Trust` in your `Windower/addons` folder.
+2. Run `git clone git@github.com:cyritegamestudios/trust.git .` in that folder.
+3. To update, do a `git pull`.
 
 ### Dependencies
 
