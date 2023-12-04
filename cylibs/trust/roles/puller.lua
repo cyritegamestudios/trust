@@ -1,12 +1,14 @@
 local CommandAction = require('cylibs/actions/command')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local ffxi_util = require('cylibs/util/ffxi_util')
+local KeyAction = require('cylibs/actions/key')
 local monster_util = require('cylibs/util/monster_util')
 local party_util = require('cylibs/util/party_util')
 local TargetAction = require('cylibs/actions/target')
 
 local Puller = setmetatable({}, {__index = Role })
 Puller.__index = Puller
+Puller.__class = "Puller"
 
 state.AutoPullMode = M{['description'] = 'Auto Pull Mode', 'Off', 'Auto','Multi','Target'}
 state.AutoPullMode:set_description('Auto', "Okay, I'll automatically pull monsters for the party.")
@@ -89,7 +91,7 @@ function Puller:tic(_, _)
         return
     end
 
-    logger.notice("puller", "target is", target_index or "nil")
+    logger.notice(self.__class, 'tic', 'target_index', self.target_index or "nil")
 
     if self.target_index then
         local target = windower.ffxi.get_mob_by_index(self.target_index)
@@ -108,10 +110,10 @@ function Puller:check_pull()
         return
     end
     self.last_pull_time = os.time()
-    logger.notice("puller", "checking pull")
+
     if state.AutoPullMode.value ~= 'Off' then
+        logger.notice(self.__class, 'check_pull', state.AutoPullMode.value)
         if self:should_pull() then
-            logger.notice("puller", "trying to pull")
             local target = self:get_pull_target()
             self:pull_target(target)
         end
@@ -141,8 +143,20 @@ function Puller:should_pull()
 end
 
 function Puller:get_pull_target()
+    logger.notice(self.__class, 'check_pull', 'get_pull_target', state.AutoPullMode.value)
+
     if state.AutoPullMode.value == 'Multi' then
-        local auto_target_mob = ffxi_util.find_closest_mob(self.target_names, party_util.party_targets())
+        local player_id = windower.ffxi.get_player().id
+        local current_targets = party_util.get_party_claimed_mobs():filter(function(mob_index)
+            local mob = windower.ffxi.get_mob_by_index(mob_index)
+            return mob.claim_id == player_id
+        end)
+        if current_targets and #current_targets > 0 then
+            local mob = windower.ffxi.get_mob_by_index(current_targets[1])
+            logger.notice(self.__class, 'get_pull_target', 'returning claimed mob', mob.name, mob.index)
+            return mob
+        end
+        local auto_target_mob = ffxi_util.find_closest_mob(self.target_names, party_util.party_targets(windower.ffxi.get_player().id))
         if auto_target_mob then
             return auto_target_mob
         else
@@ -183,45 +197,57 @@ function Puller:get_pull_distance()
 end
 
 function Puller:get_pull_action(target_index)
+    local actions = L{
+    }
+
+    local current_target = player_util.get_current_target()
+    if current_target and current_target.index ~= target_index then
+        logger.notice(self.__class, 'get_pull_action', 'target mismatch')
+        actions:append(KeyAction.new(0, 0, 0, 'escape'))
+    end
+
     if self.approach then
-        local pull_action = SequenceAction.new(L{
-            RunToAction.new(target_index, 3),
-            BlockAction.new(function() battle_util.target_mob(target_index) end)
-        }, "puller_approach", true)
-        pull_action.priority = ActionPriority.highest
-        return pull_action
+        actions:append(RunToAction.new(target_index, 3))
+        actions:append(BlockAction.new(function() battle_util.target_mob(target_index) end))
     elseif self.spell_name then
-        local pull_action = SpellAction.new(0, 0, 0, res.spells:with('en', self.spell_name).id, target_index, self:get_player())
-        pull_action.priority = ActionPriority.highest
-        return pull_action
+        actions:append(SpellAction.new(0, 0, 0, res.spells:with('en', self.spell_name).id, target_index, self:get_player()))
     elseif self.job_ability_name then
-        local pull_action = JobAbilityAction.new(0, 0, 0, self.job_ability_name, target_index)
-        pull_action.priority = ActionPriority.highest
-        return pull_action
+        actions:append(JobAbilityAction.new(0, 0, 0, self.job_ability_name, target_index))
     elseif self.ranged_attack then
         local target = windower.ffxi.get_mob_by_index(target_index)
-        local pull_action = CommandAction.new(0, 0, 0, '/ra '..target.id)
-        pull_action.priority = ActionPriority.highest
-        return pull_action
+        actions:append(CommandAction.new(0, 0, 0, '/ra '..target.id))
+    else
+        return nil
     end
-    return nil
+
+    local pull_action = SequenceAction.new(actions, 'pull_action')
+    pull_action.priority = ActionPriority.highest
+
+    return pull_action
 end
 
 function Puller:pull_target(target)
     if target ~= nil and target.distance:sqrt() < self:get_pull_distance() then
-        logger.notice("found target to pull", target.name)
+        logger.notice(self.__class, 'pull_target', target.name)
         self.no_pull_counter = 0
         local pull_action = self:get_pull_action(target.index)
         if pull_action then
-            logger.notice("[Puller]", "Attempting to pull", target.name)
-            local actions = L{
-                TargetAction.new(target.id, self:get_player()),
-                WaitAction.new(0, 0, 0, 2),
-            }
+            logger.notice(self.__class, 'pull_target', target.name, pull_action:tostring())
+
+            local actions = L{}
+
+            local current_target = player_util.get_current_target()
+            if current_target and current_target.index ~= target.index then
+                logger.notice(self.__class, 'pull_target', 'target mismatch', current_target.name, target.name)
+                actions:append(KeyAction.new(0, 0, 0, 'escape'))
+            end
+            actions:append(TargetAction.new(target.id, self:get_player()))
+            actions:append(WaitAction.new(0, 0, 0, 2))
+
             if pull_action:can_perform() then
                 actions:append(pull_action)
             else
-                logger.notice("[Puller]", "Can't use pull action so just targeting")
+                logger.notice(self.__class, 'pull_target', 'pull action on cooldown')
             end
             local sequence_action = SequenceAction.new(actions, 'puller_target_' .. target.index)
             sequence_action.priority = ActionPriority.high

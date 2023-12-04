@@ -233,4 +233,12 @@ function player_util.has_item(item_name, quantity)
 	return false
 end
 
+function player_util.get_current_target()
+	local target_index = windower.ffxi.get_player().target_index
+	if target_index and target_index ~= 0 then
+		return windower.ffxi.get_mob_by_index(target_index)
+	end
+	return nil
+end
+
 return player_util
