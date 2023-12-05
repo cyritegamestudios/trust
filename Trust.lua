@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '7.8.4'
+_addon.version = '7.9.0'
 
 require('Trust-Include')
 
@@ -206,6 +206,7 @@ end
 
 function load_trust_commands(job_name_short, trust, action_queue)
 	local common_commands = L{
+		AssistCommands.new(trust, action_queue),
 		AttackCommands.new(trust, action_queue),
 		FollowCommands.new(trust, action_queue),
 		LoggingCommands.new(trust, action_queue),
@@ -444,29 +445,6 @@ function handle_trust_status()
 	end
 end
 
-function get_assist_target(name)
-	if name == windower.ffxi.get_player().name then
-		return player.player
-	else
-		local party = player.alliance:get_party(param)
-		if party then
-			local party_member = party:get_party_member_named(param)
-			return party_member
-		end
-		return nil
-	end
-end
-
-function handle_assist(param)
-	local party = player.alliance:get_party(param)
-	if party then
-		local party_member = party:get_party_member_named(param)
-		if party_member then
-			player.party:set_assist_target(party_member)
-		end
-	end
-end
-
 function handle_command(args)
 	local actions = L{
 		SpellAction.new(0, 0, 0, spell_util.spell_id('Cure'), nil, player.player),
@@ -507,7 +485,6 @@ commands['start'] = handle_start
 commands['stop'] = handle_stop
 commands['toggle'] = handle_toggle_addon
 commands['reload'] = handle_reload
-commands['assist'] = handle_assist
 commands['save'] = handle_save_trust
 commands['create'] = handle_create_trust
 commands['status'] = handle_trust_status

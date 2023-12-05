@@ -1,7 +1,3 @@
-require('tables')
-require('lists')
-require('logger')
-
 local Trust = require('cylibs/trust/trust')
 local BlackMageTrust = setmetatable({}, {__index = Trust })
 BlackMageTrust.__index = BlackMageTrust
@@ -18,7 +14,7 @@ function BlackMageTrust.new(settings, action_queue, battle_settings, trust_setti
 		Buffer.new(action_queue, trust_settings.JobAbilities, trust_settings.SelfBuffs),
 		Debuffer.new(action_queue, trust_settings.Debuffs),
 		ManaRestorer.new(action_queue, L{'Myrkr', 'Spirit Taker', 'Moonlight'}, 40),
-		Nuker.new(action_queue, 2, 20, 0.8, L{ 'Cascade' }),
+		Nuker.new(action_queue, 2, 20, 0.8, L{ 'Cascade', 'Manawell' }),
 		Puller.new(action_queue, battle_settings.targets, 'Burn', nil),
 		Sleeper.new(action_queue, L{ Spell.new('Sleepga'), Spell.new('Sleepga II') }, 4)
 	}

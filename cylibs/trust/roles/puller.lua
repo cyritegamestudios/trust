@@ -52,6 +52,16 @@ function Puller:destroy()
 end
 
 function Puller:on_add()
+    self.dispose_bag:add(state.AutoPullMode:on_state_change():addAction(function(_, new_value)
+        if new_value ~= 'Off' then
+            local assist_target = self:get_party():get_assist_target()
+            if assist_target:get_id() ~= windower.ffxi.get_player().id then
+                self:get_party():add_to_chat(self:get_party():get_player(), "I can't pull while I'm assisting someone else, so I'm going to stop assisting "..assist_target:get_name()..".")
+                self:get_party():set_assist_target(self:get_party():get_player())
+            end
+        end
+    end), state.AutoPullMode:on_state_change())
+
     self.dispose_bag:add(WindowerEvents.ActionMessage:addAction(function(_, _, _, _, message_id, param1, _, _)
         if state.AutoPullMode.value ~= 'Off' then
             -- Out of range

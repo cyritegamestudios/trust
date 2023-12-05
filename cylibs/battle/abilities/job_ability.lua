@@ -3,6 +3,7 @@
 -- @class module
 -- @name JobAbility
 
+local FlourishAction = require('cylibs/actions/flourish')
 local JobAbilityRecastReadyCondition = require('cylibs/conditions/job_ability_recast_ready')
 local serializer_util = require('cylibs/util/serializer_util')
 local WaltzAction = require('cylibs/actions/waltz')
@@ -79,6 +80,8 @@ function JobAbility:to_action(target_index)
     local job_ability_action
     if string.find(self:get_job_ability_name(), 'Waltz') then
         job_ability_action = WaltzAction.new(self:get_job_ability_name(), target_index or self:get_target())
+    elseif string.find(self:get_job_ability_name(), 'Flourish') then
+        job_ability_action = FlourishAction.new(self:get_job_ability_name(), target_index or self:get_target())
     else
         job_ability_action = JobAbilityAction.new(0, 0, 0, self:get_job_ability_name(), target_index or self:get_target())
     end

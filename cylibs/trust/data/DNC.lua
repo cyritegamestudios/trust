@@ -50,17 +50,7 @@ end
 
 function DancerTrust:on_role_added(role)
 	if role:get_type() == "skillchainer" then
-		self.dispose_bag:add(role:on_ready_weaponskill():addAction(function(weaponskill_name, _)
-			if L{"Rudra's Storm", "Pyrrhic Kleos"}:contains(weaponskill_name) then
-				if buff_util.is_any_buff_active(L{381,382,383,384,385,588}) then
-					local flourish_action = FlourishAction.new('Building Flourish')
-					flourish_action.priority = ActionPriority.highest
-
-					self.action_queue:push_action(flourish_action, true)
-				end
-
-			end
-		end), role:on_ready_weaponskill())
+		role:set_job_abilities(L{ JobAbility.new('Building Flourish'), JobAbility.new('Climactic Flourish') })
 	end
 end
 

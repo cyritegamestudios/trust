@@ -34,7 +34,6 @@ return {
             },
             amws = "Entropy",
             tpws = L{
-                "Cross Reaper"
             }
         },
         SelfBuffs = L{

@@ -30,7 +30,7 @@ function Skillchainer:on_ready_weaponskill()
     return self.ready_weaponskill
 end
 
-function Skillchainer.new(action_queue, skillchain_params, skillchain_settings)
+function Skillchainer.new(action_queue, skillchain_params, skillchain_settings, job_abilities)
     local self = setmetatable(Role.new(action_queue), Skillchainer)
 
     self.action_queue = action_queue
@@ -38,6 +38,8 @@ function Skillchainer.new(action_queue, skillchain_params, skillchain_settings)
     self.skillchain_settings = skillchain_settings
     self.ready_weaponskill = Event.newEvent()
     self.dispose_bag = DisposeBag.new()
+
+    self:set_job_abilities(job_abilities)
 
     return self
 end
@@ -75,10 +77,22 @@ function Skillchainer:job_weapon_skill(weapon_skill_name)
 
     local ws = res.weapon_skills:with('en', weapon_skill_name)
     if ws then
-        local ws_action = SequenceAction.new(L{
-            WeaponSkillAction.new(ws.name),
-            WaitAction.new(0, 0, 0, 2)
-        }, 'sc_'..ws.en)
+        local actions = L{}
+
+        for job_ability in self.job_abilities:it() do
+            local job_ability_action = job_ability:to_action(windower.ffxi.get_player().index)
+            if job_ability_action:can_perform() then
+                actions:append(job_ability_action)
+            else
+                job_ability_action:destroy()
+            end
+        end
+
+        actions:append(WeaponSkillAction.new(ws.name))
+        actions:append(WaitAction.new(0, 0, 0, 2))
+
+        local ws_action = SequenceAction.new(actions, 'sc_'..ws.en, true)
+        ws_action.max_duration = 10
         ws_action.priority = ActionPriority.highest
 
         self.action_queue:push_action(ws_action, true)
@@ -101,6 +115,10 @@ end
 
 function Skillchainer:get_type()
     return "skillchainer"
+end
+
+function Skillchainer:set_job_abilities(job_abilities)
+    self.job_abilities = (job_abilities or L{}):filter(function(job_ability) return job_util.knows_job_ability(job_ability:get_job_ability_id()) end)
 end
 
 return Skillchainer

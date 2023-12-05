@@ -12,7 +12,7 @@ local Healer = require('cylibs/trust/roles/healer')
 local ManaRestorer = require('cylibs/trust/roles/mana_restorer')
 local Nuker = require('cylibs/trust/roles/nuker')
 local Puller = require('cylibs/trust/roles/puller')
-local Skillchainer = require('cylibs/trust/roles/skillchainer')
+local ScholarTrustCommands = require('cylibs/trust/commands/SCH') -- keep this for dependency script
 local StatusRemover = require('cylibs/trust/roles/status_remover')
 
 state.AutoArtsMode = M{['description'] = 'Auto Arts Mode', 'Off', 'LightArts', 'DarkArts'}

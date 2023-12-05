@@ -10,9 +10,15 @@ local WeaponSkillAction = setmetatable({}, {__index = Action })
 WeaponSkillAction.__index = WeaponSkillAction
 
 function WeaponSkillAction.new(weapon_skill_name)
-	local self = setmetatable(Action.new(0, 0, 0), WeaponSkillAction)
+	local conditions = L{
+		NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'amnesia'}, false)}),
+	}
+
+	local self = setmetatable(Action.new(0, 0, 0, nil, conditions), WeaponSkillAction)
+
 	self.weapon_skill_name = weapon_skill_name
 	self.user_events = {}
+
  	return self
 end
 

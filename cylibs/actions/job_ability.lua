@@ -12,6 +12,7 @@ JobAbility.__class = "JobAbility"
 function JobAbility.new(x, y, z, job_ability_name, target_index)
     local conditions = L{
         NotCondition.new(L{InMogHouseCondition.new()}, true),
+        NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'amnesia','Invisible'}, false)}),
         JobAbilityRecastReadyCondition.new(job_ability_name)
     }
 

@@ -20,7 +20,7 @@ function SpellAction.new(x, y, z, spell_id, target_index, player, conditions)
 	local conditions = (conditions or L{}):extend(L{
 		NotCondition.new(L{InMogHouseCondition.new()}, true),
 		MaxDistanceCondition.new(20),
-		NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'mute'}, false)}),
+		NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'mute','Invisible'}, false)}),
 		MinManaPointsCondition.new(res.spells[spell_id].mp_cost or 0),
 		SpellRecastReadyCondition.new(spell_id),
 		ValidSpellTargetCondition.new(res.spells[spell_id].name, alter_ego_util.untargetable_alter_egos()),

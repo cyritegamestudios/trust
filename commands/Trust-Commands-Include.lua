@@ -1,3 +1,4 @@
+AssistCommands = require('commands/AssistCommands')
 AttackCommands = require('commands/AttackCommands')
 FollowCommands = require('commands/FollowCommands')
 LoggingCommands = require('commands/LoggingCommands')
