@@ -209,6 +209,10 @@ function Trust:get_roles()
 	return self.roles
 end
 
+function Trust:get_target_index()
+	return self.target_index
+end
+
 function Trust:set_trust_settings(trust_settings)
 	local old_trust_settings = self.trust_settings
 	self.trust_settings = trust_settings

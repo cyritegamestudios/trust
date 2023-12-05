@@ -31,6 +31,7 @@ function JobAbility:destroy()
 end
 
 function JobAbility:perform()
+    logger.notice("trying to perform", self.job_ability_name)
     if self.target_index == nil then
         windower.chat.input('/%s':format(self.job_ability_name))
     else

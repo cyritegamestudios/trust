@@ -137,9 +137,9 @@ function load_user_files(main_job_id, sub_job_id)
 	sub_job_trust:init()
 
 	player.trust.main_job = main_job_trust
-	player.trust.main_job_commands = load_job_commands(player.main_job_name_short, main_job_trust, action_queue, true)
+	--player.trust.main_job_commands = load_job_commands(player.main_job_name_short, main_job_trust, action_queue, true)
 	player.trust.sub_job = sub_job_trust
-	player.trust.sub_job_commands = load_job_commands(player.sub_job_name_short, sub_job_trust, action_queue)
+	--player.trust.sub_job_commands = load_job_commands(player.sub_job_name_short, sub_job_trust, action_queue)
 
 	player.trust.main_job:add_role(Attacker.new(action_queue))
 	player.trust.main_job:add_role(CombatMode.new(action_queue, settings.battle.melee_distance, settings.battle.range_distance))
@@ -156,7 +156,7 @@ function load_user_files(main_job_id, sub_job_id)
 
 	load_trust_modes(player.main_job_name_short)
 	load_trust_reactions(player.main_job_name_short)
-	load_trust_commands(player.trust.main_job, action_queue)
+	load_trust_commands(player.main_job_name_short, player.trust.main_job, action_queue)
 	load_ui()
 
 	main_trust_settings:copySettings()
@@ -204,7 +204,7 @@ function load_trust_reactions(job_name_short)
 	--trust_reactions:loadReactions()
 end
 
-function load_trust_commands(trust, action_queue)
+function load_trust_commands(job_name_short, trust, action_queue)
 	local common_commands = L{
 		AttackCommands.new(trust, action_queue),
 		FollowCommands.new(trust, action_queue),
@@ -215,25 +215,26 @@ function load_trust_commands(trust, action_queue)
 		SendAllCommands.new(trust, action_queue),
 		SendCommands.new(trust, action_queue),
 		SkillchainCommands.new(trust, action_queue),
-	}
+	}:extend(get_job_commands(job_name_short, trust, action_queue))
+
 	for command in common_commands:it() do
 		shortcuts[command:get_command_name()] = command
 	end
 end
 
-function load_job_commands(job_name_short, trust, action_queue)
+function get_job_commands(job_name_short, trust, action_queue)
 	local root_paths = L{windower.windower_path..'addons/libs/', windower.addon_path}
 	for root_path in root_paths:it() do
 		local file_prefix = root_path..'cylibs/trust/commands/'..job_name_short
 		if windower.file_exists(file_prefix..'_'..windower.ffxi.get_player().name..'.lua') then
 			local TrustCommands = require('cylibs/trust/commands/'..job_name_short..'_'..windower.ffxi.get_player().name)
-			return TrustCommands.new(trust, action_queue)
+			return L{ TrustCommands.new(trust, action_queue) }
 		elseif windower.file_exists(file_prefix..'.lua') then
 			local TrustCommands = require('cylibs/trust/commands/'..job_name_short)
-			return TrustCommands.new(trust, action_queue)
+			return L{ TrustCommands.new(trust, action_queue) }
 		end
 	end
-	return nil
+	return L{}
 end
 
 function load_ui()
