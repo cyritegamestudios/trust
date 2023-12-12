@@ -1,4 +1,5 @@
 local IpcMessage = require('cylibs/messages/ipc_message')
+local PartyChatMessageAction = require('cylibs/actions/party_chat_message')
 local PartyChatMessage = require('cylibs/messages/party_chat_message')
 
 local PartyChat = {}
@@ -12,6 +13,7 @@ function PartyChat.new(ipcEnabled)
     local self = setmetatable({}, PartyChat)
 
     self.ipcEnabled = ipcEnabled
+    self.message_queue = ActionQueue.new(nil, false, 10)
     self.message_last_sent = {}
     self.events = {}
     if ipcEnabled then
@@ -54,10 +56,14 @@ function PartyChat:add_to_chat(sender_name, message, throttle_key, throttle_dura
         addon_message(260, "(%s) %s":format(sender_name, message))
 
         if self.ipcEnabled then
-        windower.send_ipc_message("party_chat %s %s":format(sender_name, message))
+            windower.send_ipc_message("party_chat %s %s":format(sender_name, message))
         end
     elseif state.PartyChatMode.value == 'Party' then
-        windower.chat.input('/p '..message)
+        local message_action = SequenceAction.new(L{
+            PartyChatMessageAction.new(message),
+            WaitAction.new(0, 0, 0, 1.25)
+        }, 'party_chat_'..message)
+        self.message_queue:push_action(message_action, true)
     end
 end
 

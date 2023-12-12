@@ -2,6 +2,7 @@ local buff_util = require('cylibs/util/buff_util')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
 local Color = require('cylibs/ui/views/color')
+local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Padding = require('cylibs/ui/style/padding')
@@ -32,10 +33,15 @@ function DebufferView.new(debuffer, battle_target)
     local dataSource = CollectionViewDataSource.new(function(item)
         local cell = TextCollectionViewCell.new(item)
         cell:setItemSize(20)
+        cell:setIsSelectable(false)
         return cell
     end)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0))), DebufferView)
+    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
+
+    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0)), nil, cursorImageItem), DebufferView)
+
+    self:setScrollDelta(20)
 
     local debuffSpells = debuffer:get_debuff_spells()
     if debuffSpells:length() > 0 then
@@ -59,6 +65,10 @@ function DebufferView.new(debuffer, battle_target)
         for indexedItem in itemsToHighlight:it() do
             self:getDelegate():highlightItemAtIndexPath(indexedItem:getIndexPath())
         end
+    end
+
+    if self:getDataSource():numberOfItemsInSection(1) > 0 then
+        self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
     end
 
     return self

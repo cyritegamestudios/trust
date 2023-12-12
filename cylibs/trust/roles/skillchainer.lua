@@ -30,6 +30,11 @@ function Skillchainer:on_ready_weaponskill()
     return self.ready_weaponskill
 end
 
+-- Event called when a skillchain is made
+function Skillchainer:on_skillchain()
+    return self.skillchain_maker:on_skillchain()
+end
+
 function Skillchainer.new(action_queue, skillchain_params, skillchain_settings, job_abilities)
     local self = setmetatable(Role.new(action_queue), Skillchainer)
 

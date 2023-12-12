@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '7.9.0'
+_addon.version = '8.1.0'
 
 require('Trust-Include')
 
@@ -218,8 +218,12 @@ function load_trust_commands(job_name_short, trust, action_queue)
 		SkillchainCommands.new(trust, action_queue),
 	}:extend(get_job_commands(job_name_short, trust, action_queue))
 
-	for command in common_commands:it() do
+	local add_command = function(command)
 		shortcuts[command:get_command_name()] = command
+	end
+
+	for command in common_commands:it() do
+		add_command(command)
 	end
 end
 
@@ -470,11 +474,15 @@ function handle_debug()
 end
 
 function handle_command_list()
-	local help_text = 'Addon Commands\n'
-	for command in shortcuts:it() do
-		help_text = help_text..command:description()..'\n'
+	addon_message(122, 'Addon Commands')
+
+	local command_descriptions = shortcuts:map(function(command)
+		return command:description()
+	end)
+
+	for description in command_descriptions:it() do
+		windower.add_to_chat(122, description)
 	end
-	addon_message(122, help_text)
 end
 
 -- Setup
@@ -536,7 +544,7 @@ function load_chunk_event()
 end
 
 function unload_chunk_event()
-	for key in L{'up','down','enter', settings.menu_key}:it() do
+	for key in L{'up','down','left','right','enter', settings.menu_key}:it() do
 		windower.send_command('unbind %s':format(key))
 	end
 	IpcRelay.shared():destroy()

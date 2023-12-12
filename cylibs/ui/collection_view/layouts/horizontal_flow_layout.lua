@@ -113,4 +113,8 @@ function HorizontalFlowLayout:setNeedsLayout(collectionView, addedIndexPaths, re
     self.height = collectionView:getSize().height]]
 end
 
+function HorizontalFlowLayout:getItemSpacing()
+    return self.itemSpacing
+end
+
 return HorizontalFlowLayout

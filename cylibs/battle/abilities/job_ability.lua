@@ -29,7 +29,7 @@ function JobAbility.new(job_ability_name, conditions, job_names, target)
     }, JobAbility)
 
     if self:get_job_ability().type ~= 'Scholar' then
-        self.conditions = self.conditions:extend(L{ JobAbilityRecastReadyCondition.new(job_ability_name) })
+        self:add_condition(JobAbilityRecastReadyCondition.new(job_ability_name))
     end
 
     return self
@@ -54,6 +54,15 @@ end
 -- @treturn table Job ability metadata
 function JobAbility:get_job_ability()
     return res.job_abilities[self:get_job_ability_id()]
+end
+
+-------
+-- Adds a condition to the list of conditions.
+-- @tparam Condition condition Condition to add
+function JobAbility:add_condition(condition)
+    if not self:get_conditions():contains(condition) then
+        self.conditions:append(condition)
+    end
 end
 
 -------

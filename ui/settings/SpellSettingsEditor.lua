@@ -37,11 +37,14 @@ function SpellSettingsEditor.new(trustSettings, spell)
         return cell
     end)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), SpellSettingsEditor)
+    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
+
+    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0)), nil, cursorImageItem), SpellSettingsEditor)
 
     self.trustSettings = trustSettings
     self.spell = spell
 
+    self:setScrollDelta(20)
     self:setAllowsMultipleSelection(true)
 
     local allJobAbilities = player_util.get_job_abilities():map(function(jobAbilityId) return res.job_abilities[jobAbilityId].name end)
@@ -94,6 +97,8 @@ function SpellSettingsEditor.new(trustSettings, spell)
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
+
+    self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
 
     return self
 end

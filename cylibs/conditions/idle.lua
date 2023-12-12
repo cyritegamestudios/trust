@@ -8,6 +8,7 @@ local Condition = require('cylibs/conditions/condition')
 local IdleCondition = setmetatable({}, { __index = Condition })
 IdleCondition.__index = IdleCondition
 IdleCondition.__type = "IdleCondition"
+IdleCondition.__class = "IdleCondition"
 
 function IdleCondition.new()
     local self = setmetatable(Condition.new(), IdleCondition)
@@ -28,6 +29,10 @@ end
 
 function IdleCondition:serialize()
     return "IdleCondition.new(" .. serializer_util.serialize_args() .. ")"
+end
+
+function IdleCondition:__eq(otherItem)
+    return otherItem.__class == IdleCondition.__class
 end
 
 return IdleCondition

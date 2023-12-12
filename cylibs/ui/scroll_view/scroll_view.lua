@@ -31,7 +31,7 @@ function ScrollView.new(frame)
                 newContentOffset.y = math.min(self:getContentOffset().y + self:getScrollDelta(), 0)
             end
             self:setContentOffset(newContentOffset.x, newContentOffset.y)
-        end), scrollBar:onScrollForwardClick())
+        end), scrollBar:onScrollBackClick())
 
         self:getDisposeBag():add(scrollBar:onScrollForwardClick():addAction(function(s)
             local newContentOffset = Frame.new(self:getContentOffset().x, self:getContentOffset().y, 0, 0)
@@ -156,6 +156,14 @@ end
 --
 function ScrollView:setScrollDelta(delta)
     self.scrollDelta = delta
+end
+
+function ScrollView:scrollUp()
+    self.verticalScrollBar:onScrollBackClick():trigger(self.verticalScrollBar)
+end
+
+function ScrollView:scrollDown()
+    self.verticalScrollBar:onScrollForwardClick():trigger(self.verticalScrollBar)
 end
 
 ---

@@ -1,10 +1,10 @@
 local DisposeBag = require('cylibs/events/dispose_bag')
-local ResistTracker = require('cylibs/battle/resist_tracker')
 local buff_util = require('cylibs/util/buff_util')
 local spell_util = require('cylibs/util/spell_util')
 
 local Debuffer = setmetatable({}, {__index = Role })
 Debuffer.__index = Debuffer
+Debuffer.__class = "Debuffer"
 
 state.AutoDebuffMode = M{['description'] = 'Auto Debuff Mode', 'Off', 'Auto'}
 state.AutoDebuffMode:set_description('Auto', "Okay, I'll debuff the monster.")
@@ -17,7 +17,7 @@ function Debuffer.new(action_queue, debuff_spells)
 
     self:set_debuff_spells(debuff_spells)
 
-    self.battle_target_destroyables = DisposeBag.new()
+    self.dispose_bag = DisposeBag.new()
     self.last_debuff_time = os.time()
 
     return self
@@ -26,7 +26,7 @@ end
 function Debuffer:destroy()
     Role.destroy(self)
 
-    self.battle_target_destroyables:destroy()
+    self.dispose_bag:destroy()
 end
 
 function Debuffer:on_add()
@@ -36,14 +36,14 @@ end
 function Debuffer:target_change(target_index)
     Role.target_change(self, target_index)
 
-    self.battle_target_destroyables:destroy()
+    logger.notice(self.__class, 'target_change', target_index)
 
-    if target_index then
+    self.dispose_bag:dispose()
+
+    if self:get_target() then
         self.last_debuff_time = os.time()
 
-        self.battle_target = Monster.new(windower.ffxi.get_mob_by_index(target_index).id)
-        self.battle_target:monitor()
-        self.battle_target:on_spell_finish():addAction(
+        self.dispose_bag:add(self:get_target():on_spell_finish():addAction(
                 function (m, target_index, spell_id)
                     if self.target_index then
                         local spell = res.spells:with('id', spell_id)
@@ -53,14 +53,11 @@ function Debuffer:target_change(target_index)
                             end
                         end
                     end
-                end)
-        self.resist_tracker = ResistTracker.new(self.battle_target)
-
-        self.battle_target_destroyables:addAny(L{ self.battle_target, self.resist_tracker })
+                end), self:get_target():on_spell_finish())
     end
 end
 
-function Debuffer:tic(new_time, old_time)
+function Debuffer:tic(_, _)
     if self:get_player():is_moving() then
         return
     end
@@ -73,14 +70,16 @@ function Debuffer:check_debuffs()
         return
     end
 
-    if self.battle_target == nil or not self.battle_target:get_mob() or not party_util.party_claimed(self.battle_target:get_mob().id) then return end
-
-    for spell in self.debuff_spells:it() do
-        local debuff = buff_util.debuff_for_spell(spell:get_spell().id)
-        if debuff and not self.battle_target:has_debuff(debuff.id) and not self.resist_tracker:isImmune(spell:get_spell().id)
-                and self.resist_tracker:numResists(spell:get_spell().id) < 4 then
-            self:cast_spell(spell, self.battle_target:get_mob().index)
-            return
+    local battle_target = self:get_target()
+    if battle_target and battle_target:is_claimed() then
+        logger.notice(self.__class, 'check_debuffs', battle_target:get_name())
+        for spell in self.debuff_spells:it() do
+            local debuff = buff_util.debuff_for_spell(spell:get_spell().id)
+            if debuff and not battle_target:has_debuff(debuff.id) and not battle_target:get_resist_tracker():isImmune(spell:get_spell().id)
+                    and battle_target:get_resist_tracker():numResists(spell:get_spell().id) < 4 then
+                self:cast_spell(spell, battle_target:get_mob().index)
+                return
+            end
         end
     end
 end
@@ -90,6 +89,8 @@ function Debuffer:cast_spell(spell, target_index)
         if spell:get_consumable() and not player_util.has_item(spell:get_consumable()) then
             return
         end
+
+        logger.notice(self.__class, 'cast_spell', spell:get_spell().name, target_index)
 
         local actions = L{}
 
@@ -136,10 +137,6 @@ end
 
 function Debuffer:get_debuff_spells()
     return self.debuff_spells
-end
-
-function Debuffer:get_battle_target()
-    return self.battle_target
 end
 
 function Debuffer:allows_duplicates()

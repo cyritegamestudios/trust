@@ -89,6 +89,11 @@ function SkillchainMaker:on_perform_next_weapon_skill()
     return self.perform_next_weapon_skill
 end
 
+-- Event called when a skillchain is made
+function SkillchainMaker:on_skillchain()
+    return self.skillchain
+end
+
 tagdelay = 0.5
 
 -------
@@ -123,6 +128,7 @@ function SkillchainMaker.new(skillchain_settings, state_var, priority_mode_var, 
     buffs[info.player] = {}
 
     self.perform_next_weapon_skill = Event.newEvent()
+    self.skillchain = Event.newEvent()
 
     self:update_weapon()
     self:varclean()
@@ -153,6 +159,9 @@ function SkillchainMaker:destroy()
     if self.aftermath_mode_var_change_id then
         self.aftermath_mode_var:on_state_change():removeAction(self.aftermath_mode_var_change_id)
     end
+
+    self.perform_next_weapon_skill:removeAllActions()
+    self.skillchain:removeAllActions()
 
     for _, event in pairs(self.action_events) do
         windower.unregister_event(event)
@@ -1439,9 +1448,10 @@ function SkillchainMaker:action_handler(act)
         if level == 3 and reson and ability then
             level = self:check_props(reson.active, self:aeonic_prop(ability, actor))
         end
-
         local closed = level == 4
         self:apply_properties(target.id, resource, action_id, { skillchain }, delay, step, closed)
+
+        self:on_skillchain():trigger(target.id, skillchain, step, closed)
     elseif ability and (message_ids:contains(message_id) or message_id == 2 and buffs[actor] and self:chain_buff(buffs[actor])) then
         self:apply_properties(target.id, resource, action_id, self:aeonic_prop(ability, actor), ability.delay or 3, 1)
     elseif message_id == 529 then

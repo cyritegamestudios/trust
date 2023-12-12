@@ -34,6 +34,7 @@ function View.new(frame)
     self.subviews = {}
     self.superview = nil
     self.requestFocus = true
+    self.focus = false
     self.uuid = os.time()..'-'..math.random(100000)
     self.destroyed = false
     self.disposeBag = DisposeBag.new()
@@ -239,6 +240,15 @@ function View:setBackgroundImageView(backgroundImageView)
 end
 
 ---
+-- Returns the background image view
+--
+-- @treturn View Background image view
+--
+function View:getBackgroundImageView()
+    return self.backgroundImageView
+end
+
+---
 -- Gets the navigation bar associated with the view.
 --
 -- @treturn NavigationBar The navigation bar associated with the view.
@@ -285,6 +295,23 @@ end
 --
 function View:setShouldRequestFocus(requestFocus)
     self.requestFocus = requestFocus
+end
+
+---
+-- Returns whether the view has focus.
+--
+-- @treturn boolean If the view has focus.
+function View:hasFocus()
+    return self.focused
+end
+
+---
+-- Sets whether the view has focus.
+--
+-- @tparam boolean hasFocus Whether the view has focus.
+--
+function View:setHasFocus(hasFocus)
+    self.focused = hasFocus
 end
 
 ---

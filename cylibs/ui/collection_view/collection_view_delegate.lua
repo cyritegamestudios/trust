@@ -24,6 +24,10 @@ function CollectionViewDelegate:didDehighlightItemAtIndexPath()
     return self.didDehighlightItem
 end
 
+function CollectionViewDelegate:didMoveCursorToItemAtIndexPath()
+    return self.didMoveCursorToItem
+end
+
 function CollectionViewDelegate.new(collectionView)
     local self = setmetatable({}, { __index = CollectionViewDelegate })
 
@@ -37,8 +41,9 @@ function CollectionViewDelegate.new(collectionView)
     self.didDeselectItem = Event.newEvent()
     self.didHighlightItem = Event.newEvent()
     self.didDehighlightItem = Event.newEvent()
+    self.didMoveCursorToItem = Event.newEvent()
 
-    self.events = L{ self.didSelectItem, self.didDeselectItem, self.didHighlightItem, self.didDehighlightItem }
+    self.events = L{ self.didSelectItem, self.didDeselectItem, self.didHighlightItem, self.didDehighlightItem, self.didMoveCursorToItem }
 
     self.disposeBag:add(Mouse.input():onMouseEvent():addAction(function(type, x, y, delta, blocked)
         local dataSource = collectionView:getDataSource()
@@ -122,7 +127,7 @@ end
 --
 function CollectionViewDelegate:shouldSelectItemAtIndexPath(indexPath)
     local cell = self.collectionView:getDataSource():cellForItemAtIndexPath(indexPath)
-    return not cell:isSelected()
+    return cell:isSelectable() and not cell:isSelected()
 end
 
 ---
@@ -255,6 +260,41 @@ function CollectionViewDelegate:deHighlightAllItems()
     for indexPath in self.highlightedIndexPaths:it() do
         self:deHighlightItemAtIndexPath(indexPath)
     end
+end
+
+---
+-- Sets the `indexPath` of the cursor.
+--
+-- @tparam IndexPath indexPath The new value for `cursorIndexPath`
+--
+function CollectionViewDelegate:setCursorIndexPath(indexPath)
+    local cell = self.collectionView:getDataSource():cellForItemAtIndexPath(indexPath)
+    if cell then
+        self.cursorIndexPath = indexPath
+
+        if not self.collectionView:getAllowsMultipleSelection() then
+            for selectedIndexPath in self:getSelectedIndexPaths():it() do
+                if selectedIndexPath ~= indexPath then
+                    self:deselectItemAtIndexPath(selectedIndexPath)
+                end
+            end
+        end
+
+        if self.collectionView:getAllowsCursorSelection() then
+            self:selectItemAtIndexPath(indexPath)
+        end
+
+        self:didMoveCursorToItemAtIndexPath():trigger(self.cursorIndexPath)
+    end
+end
+
+---
+-- Gets the current `indexPath` of the cursor, or nil if there is none.
+--
+-- @treturn IndexPath The current value of `cursorIndexPath`
+--
+function CollectionViewDelegate:getCursorIndexPath()
+    return self.cursorIndexPath
 end
 
 return CollectionViewDelegate

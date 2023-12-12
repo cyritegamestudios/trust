@@ -32,14 +32,18 @@ function SongSettingsEditor.new(trustSettings, settingsMode, width)
         cell:setItemSize(20)
         if indexPath.row ~= 1 then
             cell:setUserInteractionEnabled(true)
+        else
+            cell:setIsSelectable(false)
         end
         return cell
     end)
 
-    local selectionImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', width / 4, 20)
-    selectionImageItem:setAlpha(125)
+    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0)), nil, selectionImageItem), SongSettingsEditor)
+    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0)), nil, cursorImageItem), SongSettingsEditor)
+
+    self:setAllowsCursorSelection(true)
+    self:setScrollDelta(20)
 
     self.trustSettings = trustSettings
     self.settingsMode = settingsMode
@@ -148,7 +152,9 @@ function SongSettingsEditor:reloadSettings()
 
     self:getDataSource():addItems(items)
 
-    self:getDelegate():selectItemAtIndexPath(IndexPath.new(1, 2))
+    if self:getDataSource():numberOfItemsInSection(1) > 0 then
+        self:getDelegate():setCursorIndexPath(IndexPath.new(1, 2))
+    end
 end
 
 return SongSettingsEditor

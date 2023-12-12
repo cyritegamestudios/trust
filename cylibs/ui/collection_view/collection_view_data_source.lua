@@ -217,6 +217,26 @@ function CollectionViewDataSource:itemAtIndexPath(indexPath)
     return self.sections[indexPath.section].items[indexPath.row]
 end
 
+function CollectionViewDataSource:getNextIndexPath(indexPath)
+    if self:numberOfItemsInSection(indexPath.section) >= indexPath.row + 1 then
+        return IndexPath.new(indexPath.section, indexPath.row + 1)
+    elseif self:numberOfSections() >= indexPath.section + 1 and self:numberOfItemsInSection(indexPath.section) >= 1 then
+        return IndexPath.new(indexPath.section + 1, 1)
+    else
+        return indexPath
+    end
+end
+
+function CollectionViewDataSource:getPreviousIndexPath(indexPath)
+    if indexPath.row > 1 then
+        return IndexPath.new(indexPath.section, indexPath.row - 1)
+    elseif indexPath.section > 1 then
+        return IndexPath.new(indexPath.section - 1, self:numberOfItemsInSection(indexPath.section - 1))
+    else
+        return indexPath
+    end
+end
+
 -- Get the cell for a specific IndexPath
 function CollectionViewDataSource:cellForItemAtIndexPath(indexPath)
     local item = self:itemAtIndexPath(indexPath)

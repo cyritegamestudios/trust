@@ -7,6 +7,7 @@ local AlterEgo = require('cylibs/entity/alter_ego')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Entity = require('cylibs/entity/entity')
 local Event = require('cylibs/events/Luvent')
+local monster_util = require('cylibs/util/monster_util')
 local MobTracker = require('cylibs/battle/monsters/mob_tracker')
 local PartyMember = require('cylibs/entity/party_member')
 local Player = require('cylibs/entity/party/player')
@@ -244,10 +245,13 @@ function Party:set_assist_target(party_member)
             end
         end), party_member:on_target_change())
 
-        local initial_target_index = party_member:get_target_index()
+        local party_targets = self.target_tracker:get_targets():filter(function(m) return m:is_claimed() end)
+
+        local initial_target_index = party_member:get_target_index() or party_targets:length() > 0 and party_targets[1]:get_mob().index
         if initial_target_index then
             self:on_party_target_change():trigger(self, initial_target_index, nil)
         end
+        logger.notice(self.__class, 'set_assist_target', party_member:get_name(), initial_target_index)
 
         self:add_to_chat(self:get_player(), "Okay, I'll assist "..party_member:get_name().." in battle.")
     end
@@ -267,6 +271,14 @@ end
 -- @treturn Monster Target, or nil if not a party target
 function Party:get_target(target_id)
     return self.target_tracker:get_mob(target_id)
+end
+
+-------
+-- Returns a mob being targeted by the party.
+-- @tparam number target_index Target index
+-- @treturn Monster Target, or nil if not a party target
+function Party:get_target_by_index(target_index)
+    return self:get_target(monster_util.id_for_index(target_index))
 end
 
 -------

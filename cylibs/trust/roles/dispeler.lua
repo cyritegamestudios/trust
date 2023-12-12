@@ -33,7 +33,7 @@ function Dispeler.new(action_queue, spells, job_abilities, should_retry)
     end)
 
     self.job_abilities = (job_abilities or L{}):map(function(job_ability)
-        job_ability:get_conditions():append(JobAbilityRecastReadyCondition.new(job_ability:get_job_ability_name()))
+        job_ability:add_condition(JobAbilityRecastReadyCondition.new(job_ability:get_job_ability_name()))
         return job_ability
     end)
 

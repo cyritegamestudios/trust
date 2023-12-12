@@ -31,13 +31,16 @@ function ViewStack.new(startPosition)
     self.viewDismissed = Event.newEvent()
     self.stackSizeChanged = Event.newEvent()
     self.empty = Event.newEvent()
+    self.name = os.time()
 
     self.events.keyboard = windower.register_event('keyboard', function(key, pressed, flags, blocked)
         if blocked or self.currentView == nil or not self:hasFocus() then
+            self:onKeyboardEvent():trigger(self, key, pressed, flags, true)
             return false
         end
         if pressed then
-            if key == 1 then
+            -- escape, left, right
+            if L{1, 203, 205}:contains(key) then
                 self:onKeyboardEvent():trigger(self, key, pressed, flags, blocked)
                 return true
             end
@@ -82,6 +85,10 @@ function ViewStack:present(view)
         self.currentView:setPosition((windower.get_windower_settings().ui_x_res - view:getSize().width) / 2, (windower.get_windower_settings().ui_y_res - view:getSize().height) / 2)
     end
 
+    if self.currentView:shouldRequestFocus() then
+        self:focus()
+        self.currentView:setHasFocus(true)
+    end
     self.currentView:setVisible(true)
     self.currentView:layoutIfNeeded()
 end
@@ -116,7 +123,15 @@ function ViewStack:hasFocus()
 end
 
 function ViewStack:focus()
+    if activeStack and activeStack ~= self then
+        if activeStack:getCurrentView() then
+            activeStack:getCurrentView():setHasFocus(false)
+        end
+    end
     activeStack = self
+    if self.currentView then
+        self.currentView:setHasFocus(true)
+    end
 end
 
 function ViewStack:blockInput()

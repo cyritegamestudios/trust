@@ -1,13 +1,19 @@
+local ImageItem = require('cylibs/ui/collection_view/items/image_item')
+local IndexPath = require('cylibs/ui/collection_view/index_path')
 local PickerView = require('cylibs/ui/picker/picker_view')
 
 local WeaponSkillPickerView = setmetatable({}, {__index = PickerView })
 WeaponSkillPickerView.__index = WeaponSkillPickerView
 
 function WeaponSkillPickerView.new(trustSettings, weaponSkills, allWeaponSkills)
-    local self = setmetatable(PickerView.withItems(allWeaponSkills, L{}, true), WeaponSkillPickerView)
+    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
+
+    local self = setmetatable(PickerView.withItems(allWeaponSkills, L{}, true, cursorImageItem), WeaponSkillPickerView)
 
     self.trustSettings = trustSettings
     self.weaponSkills = weaponSkills
+
+    self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
 
     return self
 end
@@ -23,7 +29,7 @@ function WeaponSkillPickerView:onSelectMenuItemAtIndexPath(textItem, _)
                 end
             end
             self:getDelegate():deselectAllItems()
-            self.trustSettings:saveSettings(false)
+            self.trustSettings:saveSettings(true)
             addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my weapon skills!")
         end
     elseif textItem:getText() == 'Clear' then

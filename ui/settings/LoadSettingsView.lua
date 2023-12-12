@@ -32,11 +32,15 @@ function LoadSettingsView.new(jobSettingsMode)
         cell:setItemSize(20)
         if indexPath.row ~= 1 then
             cell:setUserInteractionEnabled(true)
+        else
+            cell:setIsSelectable(false)
         end
         return cell
     end)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), LoadSettingsView)
+    local selectionImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
+
+    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0)), nil, selectionImageItem), LoadSettingsView)
 
     self:setAllowsMultipleSelection(true)
 
@@ -90,10 +94,10 @@ function LoadSettingsView.new(jobSettingsMode)
     self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
         local item = self:getDataSource():itemAtIndexPath(indexPath)
         if item then
-            if indexPath.section == 1 then
+            if indexPath.section == 1 and indexPath.row ~= 1 then
                 updateSelectedItems(1, item)
                 handle_set('TrustMode', item:getText())
-            elseif indexPath.section == 2 then
+            elseif indexPath.section == 2 and indexPath.row ~= 1 then
                 updateSelectedItems(2, item)
                 handle_set('MainTrustSettingsMode', item:getText())
             end
@@ -102,6 +106,8 @@ function LoadSettingsView.new(jobSettingsMode)
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
+
+    self:getDelegate():setCursorIndexPath(IndexPath.new(1, 2))
 
     return self
 end

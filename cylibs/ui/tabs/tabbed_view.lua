@@ -69,8 +69,8 @@ function TabbedView.new(frame)
     self.tabBarWidth = 130
     self.tabBarHeight = 40
 
-    local selectionImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', self.tabBarWidth, self.tabBarHeight)
-    selectionImageItem:setAlpha(125)
+    local selectionImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
+    --selectionImageItem:setAlpha(125)
 
     self.tabBarView = CollectionView.new(self.tabBarDataSource, VerticalFlowLayout.new(0), nil, selectionImageItem)
 

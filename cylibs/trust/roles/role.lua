@@ -59,6 +59,10 @@ function Role:get_party()
     return self.party
 end
 
+function Role:get_target()
+    return self:get_party():get_target_by_index(self.target_index)
+end
+
 function Role:set_last_tic_time(last_tic_time)
     self.last_tic_time = last_tic_time
 end

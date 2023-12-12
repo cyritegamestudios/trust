@@ -26,24 +26,24 @@ local WeaponSkillSettingsEditor = setmetatable({}, {__index = CollectionView })
 WeaponSkillSettingsEditor.__index = WeaponSkillSettingsEditor
 
 
-function WeaponSkillSettingsEditor.new(trustSettings, settingsMode, width)
+function WeaponSkillSettingsEditor.new(weaponSkills, trustSettings)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = TextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
         cell:setItemSize(20)
-        if indexPath.row ~= 1 then
-            cell:setUserInteractionEnabled(true)
-        end
         return cell
     end)
 
-    local selectionImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', width / 4, 20)
-    selectionImageItem:setAlpha(125)
+    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0)), nil, selectionImageItem), WeaponSkillSettingsEditor)
+    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0)), nil, cursorImageItem), WeaponSkillSettingsEditor)
 
+    self:setAllowsCursorSelection(true)
+    self:setScrollDelta(20)
+
+    self.weaponSkills = weaponSkills
     self.trustSettings = trustSettings
-    self.settingsMode = settingsMode
+
     self.menuArgs = {}
 
     self:reloadSettings()
@@ -63,71 +63,67 @@ function WeaponSkillSettingsEditor:layoutIfNeeded()
         return false
     end
 
-    self:setTitle("Edit weapon skills used in battle.")
+    --self:setTitle("Edit weapon skills used in battle.")
 end
 
 function WeaponSkillSettingsEditor:onRemoveWeaponSkillClick()
-    local selectedIndexPaths = L(self:getDelegate():getSelectedIndexPaths())
-    if selectedIndexPaths:length() > 0 then
-        local indexPath = selectedIndexPaths[1]
-        local weaponSkills = self.sectionMap[indexPath.section]
-        if #weaponSkills > 1 then
-            weaponSkills:remove(indexPath.row - 1)
+    local selectedIndexPath = self:getDelegate():getCursorIndexPath()
+    if selectedIndexPath then
+        local indexPath = selectedIndexPath
+        if #self.weaponSkills > 1 then
+            self.weaponSkills:remove(indexPath.row)
             self:getDataSource():removeItem(indexPath)
-            self.trustSettings:saveSettings(false)
+            self.trustSettings:saveSettings(true)
         end
     end
 end
 
 function WeaponSkillSettingsEditor:onMoveWeaponSkillUp()
-    local selectedIndexPaths = L(self:getDelegate():getSelectedIndexPaths())
-    if selectedIndexPaths:length() > 0 then
-        local indexPath = selectedIndexPaths[1]
-        local weaponSkills = self.sectionMap[indexPath.section]
-        if #weaponSkills > 1 and indexPath.row > 2 then
+    local selectedIndexPath = self:getDelegate():getCursorIndexPath()
+    if selectedIndexPath then
+        local indexPath = selectedIndexPath
+        if #self.weaponSkills > 1 and indexPath.row > 1 then
             local newIndexPath = IndexPath.new(indexPath.section, indexPath.row - 1)
             local item1 = self:getDataSource():itemAtIndexPath(indexPath)
             local item2 = self:getDataSource():itemAtIndexPath(newIndexPath)
             if item1 and item2 then
                 self:getDataSource():swapItems(IndexedItem.new(item1, indexPath), IndexedItem.new(item2, newIndexPath))
                 self:getDelegate():selectItemAtIndexPath(newIndexPath)
-                local item = weaponSkills:remove(newIndexPath.row)
-                weaponSkills:insert(newIndexPath.row - 1, item)
+                self.weaponSkills[indexPath.row] = item2:getText()
+                self.weaponSkills[indexPath.row - 1] = item1:getText()
             end
-            self.trustSettings:saveSettings(false)
+            self.trustSettings:saveSettings(true)
         end
     end
 end
 
 function WeaponSkillSettingsEditor:onMoveWeaponSkillDown()
-    local selectedIndexPaths = L(self:getDelegate():getSelectedIndexPaths())
-    if selectedIndexPaths:length() > 0 then
-        local indexPath = selectedIndexPaths[1]
-        local weaponSkills = self.sectionMap[indexPath.section]
-        if #weaponSkills > 1 and indexPath.row <= #weaponSkills then
+    local selectedIndexPath = self:getDelegate():getCursorIndexPath()
+    if selectedIndexPath then
+        local indexPath = selectedIndexPath
+        if #self.weaponSkills > 1 and indexPath.row <= #self.weaponSkills then
             local newIndexPath = IndexPath.new(indexPath.section, indexPath.row + 1)
             local item1 = self:getDataSource():itemAtIndexPath(indexPath)
             local item2 = self:getDataSource():itemAtIndexPath(newIndexPath)
             if item1 and item2 then
                 self:getDataSource():swapItems(IndexedItem.new(item1, indexPath), IndexedItem.new(item2, newIndexPath))
                 self:getDelegate():selectItemAtIndexPath(newIndexPath)
-                local item = weaponSkills:remove(indexPath.row - 1)
-                weaponSkills:insert(indexPath.row, item)
+                self.weaponSkills[indexPath.row] = item2:getText()
+                self.weaponSkills[indexPath.row + 1] = item1:getText()
             end
-            self.trustSettings:saveSettings(false)
+            self.trustSettings:saveSettings(true)
         end
     end
 end
 
 function WeaponSkillSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
-    if L{'Add', 'H2H', 'Dagger', 'Sword', 'GreatSword', 'Axe', 'GreatAxe', 'Scythe', 'Polearm', 'Katana', 'GreatKatana', 'Club', 'Staff', 'Archery', 'Marksmanship'}:contains(textItem:getText()) then
+    if L{'Add','H2H', 'Dagger', 'Sword', 'GreatSword', 'Axe', 'GreatAxe', 'Scythe', 'Polearm', 'Katana', 'GreatKatana', 'Club', 'Staff', 'Archery', 'Marksmanship'}:contains(textItem:getText()) then
         local selectedIndexPaths = L(self:getDelegate():getSelectedIndexPaths())
         if selectedIndexPaths:length() > 0 then
-            local indexPath = selectedIndexPaths[1]
-            self.menuArgs['weapon_skills'] = self.sectionMap[indexPath.section]
+            self.menuArgs['weapon_skills'] = self.weaponSkills
         end
     elseif textItem:getText() == 'Save' then
-        self.trustSettings:saveSettings(false)
+        self.trustSettings:saveSettings(true)
     elseif textItem:getText() == 'Remove' then
         self:onRemoveWeaponSkillClick()
     elseif textItem:getText() == 'Move Up' then
@@ -153,9 +149,16 @@ end
 function WeaponSkillSettingsEditor:reloadSettings()
     self:getDataSource():removeAllItems()
 
-    local items = L{}
+    local itemsToAdd = L{}
 
-    self.skillchains = T(self.trustSettings:getSettings())[self.settingsMode.value].Skillchains
+    local rowIndex = 1
+    for weaponSkillName in L(self.weaponSkills):it() do
+        itemsToAdd:append(IndexedItem.new(TextItem.new(weaponSkillName, TextStyle.Default.TextSmall), IndexPath.new(1, rowIndex)))
+        rowIndex = rowIndex + 1
+    end
+
+
+    --[[self.skillchains = T(self.trustSettings:getSettings())[self.settingsMode.value].Skillchains
     self.sectionMap = {}
 
     local rowIndex = 1
@@ -203,13 +206,15 @@ function WeaponSkillSettingsEditor:reloadSettings()
         items:append(IndexedItem.new(TextItem.new(weaponSkillName, TextStyle.Default.TextSmall), IndexPath.new(5, rowIndex)))
         rowIndex = rowIndex + 1
     end
-    self.sectionMap[5] = self.skillchains.cleavews
+    self.sectionMap[5] = self.skillchains.cleavews]]
 
-    self:getDataSource():addItems(items)
+    self:getDataSource():addItems(itemsToAdd)
 
-    if items:length() > 1 then
-        self:getDelegate():selectItemAtIndexPath(items[2]:getIndexPath())
+    if self:getDataSource():numberOfItemsInSection(1) > 0 then
+        self:getDelegate():selectItemAtIndexPath(IndexPath.new(1, 1))
     end
+
+    self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
 end
 
 return WeaponSkillSettingsEditor

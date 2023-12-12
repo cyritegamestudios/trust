@@ -36,11 +36,10 @@ TextStyle.PickerView = {
 --
 -- @tparam list pickerItems A list of PickerItems.
 -- @tparam boolean allowsMultipleSelection Indicates if multiple selection is allowed.
--- @tparam number width The width of the PickerView.
--- @tparam number height The height of the PickerView.
+-- @tparam ImageItem cursorImageItem (optional) The cursor image item
 -- @treturn PickerView The created PickerView.
 --
-function PickerView.new(pickerItems, allowsMultipleSelection)
+function PickerView.new(pickerItems, allowsMultipleSelection, cursorImageItem)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = TextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
@@ -49,7 +48,7 @@ function PickerView.new(pickerItems, allowsMultipleSelection)
         return cell
     end)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(0, Padding.new(15, 10, 0, 0))), PickerView)
+    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(0, Padding.new(15, 10, 0, 0)), nil, cursorImageItem), PickerView)
 
     self:setAllowsMultipleSelection(allowsMultipleSelection)
     self:setScrollDelta(20)
@@ -85,15 +84,14 @@ end
 -- @tparam list texts A list of text strings.
 -- @tparam list selectedTexts A list of selected text strings.
 -- @tparam boolean allowsMultipleSelection Indicates if multiple selection is allowed.
--- @tparam number width The width of the PickerView.
--- @tparam number height The height of the PickerView.
+-- @tparam ImageItem cursorImageItem (optional) The cursor image item
 -- @treturn PickerView The created PickerView.
 --
-function PickerView.withItems(texts, selectedTexts, allowsMultipleSelection)
+function PickerView.withItems(texts, selectedTexts, allowsMultipleSelection, cursorImageItem)
     local pickerItems = texts:map(function(text)
         return PickerItem.new(TextItem.new(text, TextStyle.PickerView.Text), selectedTexts:contains(text))
     end)
-    return PickerView.new(pickerItems, allowsMultipleSelection)
+    return PickerView.new(pickerItems, allowsMultipleSelection, cursorImageItem)
 end
 
 return PickerView

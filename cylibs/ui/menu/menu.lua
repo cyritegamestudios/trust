@@ -14,66 +14,45 @@ function Menu.new(contentViewStack, viewStack)
 
     self.buttonHeight = 18
     self.disposeBag = DisposeBag.new()
+    self.menuItemStack = L{}
+
     self.viewStack = viewStack
     self.contentViewStack = contentViewStack
 
     self.disposeBag:addAny(L{ self.viewStack })
 
-    self.disposeBag:add(contentViewStack:onKeyboardEvent():addAction(function(_, key, pressed, flags, blocked)
-        if pressed then
-            if key ==  1 then
-                if contentViewStack:getNumViews() > 0 then
-                    contentViewStack:dismiss()
-                end
-            end
-        end
-    end), contentViewStack:onKeyboardEvent())
-
-    self.disposeBag:add(contentViewStack:onViewDismissed():addAction(function(_, _)
-        if not self.contentViewStack:isEmpty() and not self.contentViewStack:getCurrentView():shouldRequestFocus() then
-            self.viewStack:focus()
-        end
-        self.viewStack:focus()
-    end), contentViewStack:onViewDismissed())
-
-    self.disposeBag:add(contentViewStack:onEmpty():addAction(function(_)
-        self.viewStack:focus()
-    end), contentViewStack:onEmpty())
-
-    self.disposeBag:add(viewStack:onKeyboardEvent():addAction(function(_, key, pressed, flags, blocked)
-        if pressed then
-            if key ==  1 then
-                if viewStack:getNumViews() > 0 then
-                    if not contentViewStack:isEmpty() and not contentViewStack:getCurrentView():shouldRequestFocus() then
-                        contentViewStack:dismiss()
-                    end
-                    --while not contentViewStack:isEmpty() and not contentViewStack:getCurrentView():shouldRequestFocus() do
-                    --    contentViewStack:dismiss()
-                    --end
-                    viewStack:dismiss()
-                end
-            end
-        end
-    end), viewStack:onKeyboardEvent())
-
     self.disposeBag:add(viewStack:onStackSizeChanged():addAction(function(stackSize)
         if stackSize > 0 then
-            for key in L{'up','down','enter'}:it() do
+            for key in L{'up','down','left','right','enter'}:it() do
                 windower.send_command('bind %s block':format(key))
             end
         end
     end), viewStack:onStackSizeChanged())
 
     self.disposeBag:add(viewStack:onEmpty():addAction(function(_)
-        for key in L{'up','down','enter'}:it() do
+        for key in L{'up','down','left','right','enter'}:it() do
             windower.send_command('unbind %s':format(key))
         end
     end
     ), viewStack:onEmpty())
 
-    self.disposeBag:add(contentViewStack:onEmpty():addAction(function(_)
-        viewStack:focus()
-    end), contentViewStack:onEmpty())
+    self.disposeBag:add(viewStack:onKeyboardEvent():addAction(function(_, key, pressed, flags, blocked)
+        -- escape
+        if key == 1 then
+            if not self.viewStack:hasFocus() then
+                self.viewStack:focus()
+            end
+        -- left
+        elseif key == 203 then
+            if self.contentViewStack:getCurrentView() and self.contentViewStack:getCurrentView():shouldRequestFocus() then
+                self.contentViewStack:focus()
+            end
+        -- right
+        elseif key == 205 then
+            self.viewStack:focus()
+        end
+        self:onKeyboardEvent(key, pressed, flags, blocked)
+    end), viewStack:onKeyboardEvent())
 
     return self
 end
@@ -83,46 +62,75 @@ function Menu:destroy()
 end
 
 function Menu:showMenu(menuItem)
-    local menu = self:createMenu(menuItem)
-    if menu then
-        menu:onSelectMenuItemAtIndexPath():addAction(function(m, textItem, indexPath)
+    self.menuItemStack:append(menuItem)
+
+    if not self.menuView then
+        self.menuView = MenuView.new(menuItem, self.contentViewStack)
+        self.menuView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
+            self.menuView:getDelegate():deselectAllItems()
+            local textItem = self.menuView:getDataSource():itemAtIndexPath(indexPath):getTextItem()
             local currentView = self.contentViewStack:getCurrentView()
             if currentView and type(currentView.onSelectMenuItemAtIndexPath) == 'function' then
                 currentView:onSelectMenuItemAtIndexPath(textItem, indexPath)
             end
-            local childMenuItem = m:getItem():getChildMenuItem(textItem:getText())
+
+            local childMenuItem = self.menuView:getItem():getChildMenuItem(textItem:getText())
             if childMenuItem then
-                local contentView = childMenuItem:getContentView(currentView and type(currentView.getMenuArgs) == 'function' and currentView:getMenuArgs())
-                if contentView then
-                    if contentView:shouldRequestFocus() then
-                        self.contentViewStack:focus()
-                    end
-                    self.contentViewStack:present(contentView)
-                end
                 if childMenuItem:getButtonItems():length() > 0 then
                     self:showMenu(childMenuItem)
+                else
+                    local menuArgs = {}
+                    local currentView = self.viewStack:getCurrentView()
+                    if currentView then
+                        menuArgs = currentView and type(currentView.getMenuArgs) == 'function' and currentView:getMenuArgs()
+                    end
+                    local contentView = childMenuItem:getContentView(menuArgs)
+                    if contentView then
+                        self.menuView.views:append(contentView)
+                        self.contentViewStack:present(contentView)
+                        if contentView:hasFocus() then
+                            self.menuView:setHasFocus(false)
+                        end
+                    end
                 end
-            else
-                --local currentView = self.contentViewStack:getCurrentView()
-                --if currentView and type(currentView.onSelectMenuItemAtIndexPath) == 'function' then
-                --    currentView:onSelectMenuItemAtIndexPath(textItem, indexPath)
-                --end
             end
         end)
-        self.viewStack:present(menu)
+    else
+        self.menuView:setItem(menuItem)
     end
+
+    if self.viewStack:isEmpty() then
+        self.viewStack:present(self.menuView)
+    end
+
+    self.viewStack:focus()
 end
 
-function Menu:createMenu(menuItem)
-    local menuView = MenuView.new(menuItem)
-
-    menuView:setVisible(false)
-    menuView:layoutIfNeeded()
-
-    return menuView
+function Menu:onKeyboardEvent(key, pressed, flags, blocked)
+    if blocked then
+        return blocked
+    end
+    if pressed then
+        if key == 1 then
+            if self.menuItemStack:length() > 1 then
+                self.menuItemStack:remove(self.menuItemStack:length())
+                self.menuView:setItem(self.menuItemStack[self.menuItemStack:length()])
+            else
+                self.viewStack:dismiss()
+                self.menuItemStack = L{}
+                self.menuView = nil
+            end
+        end
+    end
+    return L{1}:contains(key)
 end
 
 function Menu:closeAll()
+    if self.menuView then
+        self.menuView:destroy()
+        self.menuView = nil
+    end
+    self.menuItemStack = L{}
     self.viewStack:dismissAll()
 end
 

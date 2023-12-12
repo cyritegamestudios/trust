@@ -3,6 +3,7 @@ local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
 local Color = require('cylibs/ui/views/color')
+local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Menu = require('cylibs/ui/menu/menu')
@@ -14,7 +15,7 @@ local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_f
 local View = require('cylibs/ui/views/view')
 local ViewStack = require('cylibs/ui/views/view_stack')
 
-local ModesView = setmetatable({}, {__index = View })
+local ModesView = setmetatable({}, {__index = CollectionView })
 ModesView.__index = ModesView
 ModesView.__type = "ModesView"
 
@@ -29,9 +30,12 @@ function ModesView.new(modeNames)
         return cell
     end)
 
-    self.collectionView = CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0)))
+    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
 
-    self:addSubview(self.collectionView)
+    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0)), nil, cursorImageItem), ModesView)
+
+    self:setShouldRequestFocus(true)
+    self:setScrollDelta(20)
 
     local itemsToAdd = L{}
 
@@ -43,35 +47,28 @@ function ModesView.new(modeNames)
 
     dataSource:addItems(itemsToAdd)
 
-    self:getDisposeBag():add(self.collectionView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
+    self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
         local selectedModeName = modeNames[indexPath.row]
         if selectedModeName then
-            self.collectionView:getDelegate():deselectItemAtIndexPath(indexPath)
+            self:getDelegate():deselectItemAtIndexPath(indexPath)
             handle_cycle(selectedModeName)
-            local oldItem = self.collectionView:getDataSource():itemAtIndexPath(indexPath)
+            local oldItem = self:getDataSource():itemAtIndexPath(indexPath)
             if oldItem then
                 local newItem = TextItem.new(selectedModeName..': '..state[selectedModeName].value, oldItem:getStyle())
-                self.collectionView:getDataSource():updateItem(newItem, indexPath)
+                self:getDataSource():updateItem(newItem, indexPath)
             end
         end
-    end), self.collectionView:getDelegate():didSelectItemAtIndexPath())
+    end), self:getDelegate():didSelectItemAtIndexPath())
+
+    self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
 
     return self
 end
 
-function ModesView:destroy()
-    View.destroy(self)
-end
-
 function ModesView:layoutIfNeeded()
-    self.collectionView:setPosition(0, 0)
-    self.collectionView:setSize(self.frame.width, self.frame.height)
+    CollectionView.layoutIfNeeded(self)
 
     self:setTitle("Change trust behavior with modes.")
-
-    if not View.layoutIfNeeded(self) then
-        return false
-    end
 end
 
 function ModesView:onSelectMenuItemAtIndexPath(textItem, indexPath)

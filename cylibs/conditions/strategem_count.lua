@@ -9,6 +9,7 @@ local Condition = require('cylibs/conditions/condition')
 local StrategemCountCondition = setmetatable({}, { __index = Condition })
 StrategemCountCondition.__index = StrategemCountCondition
 StrategemCountCondition.__type = "StrategemCountCondition"
+StrategemCountCondition.__class = "StrategemCountCondition"
 
 function StrategemCountCondition.new(strategem_count, operator)
     local self = setmetatable(Condition.new(windower.ffxi.get_player().index), StrategemCountCondition)
@@ -27,6 +28,12 @@ end
 
 function StrategemCountCondition:serialize()
     return "StrategemCountCondition.new(" .. serializer_util.serialize_args(self.strategem_count, self.operator) .. ")"
+end
+
+function StrategemCountCondition:__eq(otherItem)
+    return otherItem.__class == StrategemCountCondition.__class
+            and self.strategem_count == otherItem.strategem_count
+            and self.operator == otherItem.operator
 end
 
 return StrategemCountCondition

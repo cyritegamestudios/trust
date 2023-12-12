@@ -6,6 +6,7 @@ local Event = require('cylibs/events/Luvent')
 
 local Trust = {}
 Trust.__index = Trust
+Trust.__class = "Trust"
 
 -- Event called when trust settings are changed.
 function Trust:on_trust_settings_changed()
@@ -20,7 +21,6 @@ function Trust.new(action_queue, roles, trust_settings, job)
 		job = job;
 		user_events = {};
 		status = 0;
-		battle_target = nil;
 		role_blacklist = S{};
 		trust_settings_changed = Event.newEvent();
 		trust_modes_override = Event.newEvent();
@@ -32,12 +32,6 @@ end
 
 function Trust:init()
 	for role in self.roles:it() do
-		--[[role:set_player(self.player)
-		role:set_party(self.party)
-		if role.on_add then
-			print(role:get_type())
-			role:on_add()
-		end]]
 		self:add_role(role)
 	end
 	self:on_init()
@@ -45,6 +39,7 @@ function Trust:init()
 	self.on_party_target_change_id = self.party:on_party_target_change():addAction(
 			function(_, new_target_index, old_target_index)
 				if new_target_index == old_target_index then
+					logger.notice(self.__class, 'on_party_target_change', 'same target index')
 					return
 				end
 				logger.notice(self.__class, 'on_party_target_change', new_target_index or 'nil', old_target_index or 'nil')
@@ -211,6 +206,10 @@ end
 
 function Trust:get_target_index()
 	return self.target_index
+end
+
+function Trust:get_target()
+	return self:get_party():get_target_by_index(self.target_index)
 end
 
 function Trust:set_trust_settings(trust_settings)

@@ -64,6 +64,9 @@ function ScholarTrustCommands:handle_skillchain(_, element)
     if spell2 == nil or spell2 == nil then
         success = false
         message = "No spells found to make skillchain of element "..(element or 'nil')
+    elseif self:get_job():get_current_num_strategems() < 2 then
+        success = false
+        message = "Insufficient strategems remaining"
     else
         success = true
         local actions = L{
@@ -79,12 +82,12 @@ function ScholarTrustCommands:handle_skillchain(_, element)
         for spell in spells:it() do
             if not Condition.check_conditions(spell:get_conditions(), target_index) then
                 success = false
-                message = "Unable to use spells or insufficient strategems"
+                message = "Unable to use spells"
                 break
             else
                 if step == spells:length() then
                     actions:append(BlockAction.new(function()
-                        self.trust:get_party():add_to_chat(self.trust:get_party():get_player(), "**[Closing]** Skillchain"..element)
+                        self.trust:get_party():add_to_chat(self.trust:get_party():get_player(), "**[Closing]** Skillchain "..element)
                     end, 'skillchain_'..spell:get_spell().name))
                 end
                 actions:append(StrategemAction.new('Immanence'))

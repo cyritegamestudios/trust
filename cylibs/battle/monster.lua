@@ -11,6 +11,7 @@ local action_message_util = require('cylibs/util/action_message_util')
 local buff_util = require('cylibs/util/buff_util')
 local logger = require('cylibs/logger/logger')
 local monster_abilities_ext = require('cylibs/res/monster_abilities')
+local monster_util = require('cylibs/util/monster_util')
 local ResistTracker = require('cylibs/battle/resist_tracker')
 local spell_util = require('cylibs/util/spell_util')
 
@@ -82,8 +83,19 @@ function Monster.new(mob_id)
 
     self.dispose_bag = DisposeBag.new()
 
-
     return self
+end
+
+-------
+-- Creates a new Monster by index
+-- @tparam number mob_index Mob index
+-- @treturn Monster A monster
+function Monster.get_by_index(mob_index)
+    local mob_id = monster_util.id_for_index(mob_index)
+    if monster_util.is_monster(mob_id) then
+        return Monster.new(mob_id)
+    end
+    return nil
 end
 
 -------
@@ -273,6 +285,24 @@ end
 -- @treturn MobMetadata Returns the full metadata for the monster's target, or nil if the monster isn't targeting anyone
 function Monster:get_current_target()
     return self.current_target
+end
+
+-------
+-- Returns whether the monster is party claimed.
+-- @treturn boolean True if the monster is party claimed
+function Monster:is_claimed()
+    return party_util.party_claimed(self:get_id())
+end
+
+-------
+-- Returns the localized status of the monster.
+-- @treturn string Status of the monster (see res/statuses.lua)
+function Monster:get_status()
+    local mob = self:get_mob()
+    if mob then
+        return res.statuses[mob.status].name
+    end
+    return 'Idle'
 end
 
 -------

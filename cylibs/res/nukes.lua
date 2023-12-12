@@ -17,6 +17,67 @@ Thunder = 0
 Darkness = 0
 Lightness = 0
 
+function nukes.toggle(element)
+    if element == 'earth' then
+        ele.earth()
+        return Earth == 0
+    elseif element == 'lightning' then
+        ele.thunder()
+        return Thunder == 0
+    elseif element == 'water' then
+        ele.water()
+        return Water == 0
+    elseif element == 'fire' then
+        ele.fire()
+        return Fire == 0
+    elseif element == 'ice' then
+        ele.ice()
+        return Ice == 0
+    elseif element == 'wind' then
+        ele.wind()
+        return Wind == 0
+    elseif element == 'light' then
+        ele.lightness()
+        return Lightness == 0
+    elseif element == 'dark' then
+        ele.darkness()
+        return Darkness == 0
+    end
+    return false
+end
+
+function nukes.get_disabled_elements()
+    local elements = L{}
+
+    if Earth == 1 then
+        elements:append('earth')
+    end
+    if Thunder == 1 then
+        elements:append('lightning')
+    end
+    if Water == 1 then
+        elements:append('water')
+    end
+    if Fire == 1 then
+        elements:append('fire')
+    end
+    if Ice == 1 then
+        elements:append('ice')
+    end
+    if Wind == 1 then
+        elements:append('wind')
+    end
+    if Lightness == 1 then
+        elements:append('light')
+    end
+    if Darkness == 1 then
+        elements:append('dark')
+    end
+
+    return elements
+end
+
+
 function nukes.reset()
     Earth = 0
     Water = 0

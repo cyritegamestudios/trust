@@ -22,6 +22,7 @@ TextStyle.__type = "TextStyle"
 -- @tparam number strokeAlpha The stroke alpha.
 -- @tparam boolean bold Whether the text should be bolded.
 -- @tparam Color selectedColor The selected font color.
+-- @tparam Color cursorColor The color when the cursor is next to the text.
 -- @treturn TextStyle The newly created TextStyle instance.
 --
 function TextStyle.new(selectedBackgroundColor, defaultBackgroundColor, fontName, fontSize, fontColor, highlightColor, padding, strokeWidth, strokeAlpha, bold, selectedColor)

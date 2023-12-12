@@ -32,6 +32,7 @@ function MobTracker.new(on_party_member_added, on_party_member_removed)
     self.dispose_bag:add(on_party_member_added:addAction(function(t)
         self.dispose_bag:add(t:on_target_change():addAction(function(_, new_target_index, _)
             self:add_mob_by_index(new_target_index)
+            self:prune_mobs()
         end), t:on_target_change())
         self:add_player(t:get_id())
     end), on_party_member_added)
@@ -129,8 +130,6 @@ function MobTracker:add_mob(target_id)
     mob = Monster.new(target_id)
     mob:monitor()
 
-    self:add_mob_by_index(mob:get_mob().target_index)
-
     self.mobs[target_id] = mob
 
     logger.notice("Started tracking", mob:get_name(), mob:get_id(), target_id)
@@ -156,6 +155,20 @@ function MobTracker:remove_mob(target_id)
     self.mobs[target_id] = nil
 
     logger.notice("Stopped tracking", mob:get_name(), mob:get_id())
+end
+
+-------
+-- Stops tracking mobs that are no longer targeted by the party.
+function MobTracker:prune_mobs()
+    local mob_ids_to_remove = L{}
+    for id, mob in pairs(self.mobs) do
+        if not battle_util.is_valid_target(id) or party_util.not_party_claimed(id) or L{ 'Idle' }:contains(mob:get_status()) and mob:get_distance():sqrt() > 50 then
+            mob_ids_to_remove:append(id)
+        end
+    end
+    for mob_id in mob_ids_to_remove:it() do
+        self:remove_mob(mob_id)
+    end
 end
 
 function MobTracker:add_player(player_id)

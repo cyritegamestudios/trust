@@ -196,6 +196,13 @@ function Scholar:is_sublimation_active()
 end
 
 -------
+-- Returns the current number of strategems remaining.
+-- @treturn number Number of strategems
+function Scholar:get_current_num_strategems()
+    return player_util.get_current_strategem_count()
+end
+
+-------
 -- Returns whether a spell can be cast.
 -- @tparam number spell_id Spell id (see spells.lua)
 -- @treturn Boolean True if the spell can be cast and false otherwise

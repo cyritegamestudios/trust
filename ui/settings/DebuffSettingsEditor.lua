@@ -34,10 +34,9 @@ function DebuffSettingsEditor.new(trustSettings, settingsMode, width)
         return cell
     end)
 
-    local selectionImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', width / 4, 20)
-    selectionImageItem:setAlpha(125)
+    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0)), nil, selectionImageItem), DebuffSettingsEditor)
+    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0)), nil, cursorImageItem, nil, selectionImageItem), DebuffSettingsEditor)
 
     self.trustSettings = trustSettings
     self.settingsMode = settingsMode
@@ -50,6 +49,10 @@ function DebuffSettingsEditor.new(trustSettings, settingsMode, width)
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
+
+    if self:getDataSource():numberOfItemsInSection(1) > 0 then
+        self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
+    end
 
     return self
 end
@@ -87,12 +90,12 @@ function DebuffSettingsEditor:onEditSpellClick(indexPath)
 end
 
 function DebuffSettingsEditor:onRemoveSpellClick()
-    local selectedIndexPaths = L(self:getDelegate():getSelectedIndexPaths())
-    if selectedIndexPaths:length() > 0 then
+    local selectedIndexPath = self:getDelegate():getCursorIndexPath()
+    if selectedIndexPath then
         -- TODO: remove spell from trustSettings as well
-        local item = self:getDataSource():itemAtIndexPath(selectedIndexPaths[1])
+        local item = self:getDataSource():itemAtIndexPath(selectedIndexPath)
         if item then
-            local indexPath = selectedIndexPaths[1]
+            local indexPath = selectedIndexPath
             self.selfSpells:remove(indexPath.row)
             self:getDataSource():removeItem(indexPath)
             self.trustSettings:saveSettings(true)

@@ -137,6 +137,7 @@ end
 function SingerView:onSelectMenuItemAtIndexPath(textItem, _)
     if textItem:getText() == 'Clear All' then
         self.singer.song_tracker:reset()
+        self.singer:get_party():add_to_chat(self.singer:get_party():get_player(), "I had a song stuck in my head, but now I can't remember what it was...")
     end
 end
 

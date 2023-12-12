@@ -1,5 +1,7 @@
 local Buff = require('cylibs/battle/spells/buff')
 local buff_util = require('cylibs/util/buff_util')
+local ImageItem = require('cylibs/ui/collection_view/items/image_item')
+local IndexPath = require('cylibs/ui/collection_view/index_path')
 local PickerView = require('cylibs/ui/picker/picker_view')
 local Spell = require('cylibs/battle/spell')
 local spell_util = require('cylibs/util/spell_util')
@@ -9,10 +11,14 @@ local StatusRemovalBlacklistPickerView = setmetatable({}, {__index = PickerView 
 StatusRemovalBlacklistPickerView.__index = StatusRemovalBlacklistPickerView
 
 function StatusRemovalBlacklistPickerView.new(trustSettings, statusEffectsBlacklist)
-    local self = setmetatable(PickerView.withItems(buff_util.get_all_debuffs():sort(), statusEffectsBlacklist, true), StatusRemovalBlacklistPickerView)
+    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
+
+    local self = setmetatable(PickerView.withItems(buff_util.get_all_debuffs():sort(), statusEffectsBlacklist, true, cursorImageItem), StatusRemovalBlacklistPickerView)
 
     self.trustSettings = trustSettings
     self.statusEffectsBlacklist = statusEffectsBlacklist
+
+    self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
 
     return self
 end

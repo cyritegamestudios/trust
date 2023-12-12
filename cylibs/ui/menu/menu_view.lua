@@ -12,6 +12,7 @@ local Event = require('cylibs/events/Luvent')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local Padding = require('cylibs/ui/style/padding')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
+local ViewStack = require('cylibs/ui/views/view_stack')
 
 local MenuView = setmetatable({}, {__index = CollectionView })
 MenuView.__index = MenuView
@@ -20,11 +21,8 @@ function MenuView:onSelectMenuItemAtIndexPath()
     return self.selectMenuItem
 end
 
-function MenuView.new(menuItem)
-    local buttonItems = menuItem:getButtonItems()
+function MenuView.new(menuItem, viewStack)
     local buttonHeight = 18
-    local menuHeight = buttonHeight * (buttonItems:length() + 1)
-    local menuWidth = 115
 
     local dataSource = CollectionViewDataSource.new(function(item, _)
         local cell = ButtonCollectionViewCell.new(item)
@@ -33,48 +31,21 @@ function MenuView.new(menuItem)
         return cell
     end)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(0, Padding.new(10, 5, 0, 0))), MenuView)
+    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
+
+    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(0, Padding.new(10, 5, 0, 0)), nil, cursorImageItem), MenuView)
+
+    self:setScrollDelta(buttonHeight)
+    self:setAllowsMultipleSelection(false)
 
     self.menuItem = menuItem
     self.selectMenuItem = Event.newEvent()
+    self.views = L{}
+    self.viewStack = viewStack
 
-    local backgroundView = BackgroundView.new(Frame.new(0, 0, menuWidth, menuHeight),
-            windower.addon_path..'assets/backgrounds/menu_bg_top.png',
-            windower.addon_path..'assets/backgrounds/menu_bg_mid.png',
-            windower.addon_path..'assets/backgrounds/menu_bg_bottom.png')
-
-    self:setBackgroundImageView(backgroundView)
     self:setScrollEnabled(false)
-    self:setSize(menuWidth, menuHeight)
-
-    self.cursor = ImageCollectionViewCell.new(ImageItem.new(windower.addon_path..'assets/icons/cursor.png', 37, 24))
-
-    self:getContentView():addSubview(self.cursor)
-
-    self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
-        local cell = self.dataSource:cellForItemAtIndexPath(indexPath)
-        if cell then
-            self.cursor:setPosition(cell:getPosition().x - 35, cell:getPosition().y - 2)
-            self.cursor:setNeedsLayout()
-            self.cursor:layoutIfNeeded()
-        end
-    end)
-
-    local indexedItems = L{}
-
-    local rowIndex = 1
-    for buttonItem in buttonItems:it() do
-        local indexedItem = IndexedItem.new(buttonItem, IndexPath.new(1, rowIndex))
-        indexedItems:append(indexedItem)
-        rowIndex = rowIndex + 1
-    end
-
-    dataSource:addItems(indexedItems)
-
-    self:getDelegate():selectItemAtIndexPath(IndexPath.new(1, 1))
-
-    self:setNeedsLayout()
-    self:layoutIfNeeded()
+    self:setItem(menuItem)
+    self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
 
     return self
 end
@@ -82,6 +53,7 @@ end
 function MenuView:destroy()
     CollectionView.destroy(self)
 
+    self.viewStack:dismissAll()
     self.selectMenuItem:removeAllActions()
 end
 
@@ -91,35 +63,73 @@ function MenuView:layoutIfNeeded()
     end
 end
 
-function MenuView:onKeyboardEvent(key, pressed, flags, blocked)
-    if not self:isVisible() or blocked then
-        return blocked
+function MenuView:setItem(menuItem)
+    local menuArgs = {}
+
+    local currentView = self.viewStack:getCurrentView()
+    if currentView then
+        menuArgs = currentView and type(currentView.getMenuArgs) == 'function' and currentView:getMenuArgs()
     end
-    if pressed then
-        local selectedIndexPaths = L(self:getDelegate():getSelectedIndexPaths())
-        if selectedIndexPaths:length() > 0 then
-            local currentIndexPath = selectedIndexPaths[1]
-            if key == 208 then
-                local nextIndexPath = IndexPath.new(currentIndexPath.section, math.min(currentIndexPath.row + 1, self:getDataSource():numberOfItemsInSection(currentIndexPath.section)))
-                self:getDelegate():selectItemAtIndexPath(nextIndexPath)
-                return true
-            elseif key == 200 then
-                local nextIndexPath = IndexPath.new(currentIndexPath.section, math.max(currentIndexPath.row - 1, 1))
-                self:getDelegate():selectItemAtIndexPath(nextIndexPath)
-                return true
-            elseif key == 28 then
-                local item = self:getDataSource():itemAtIndexPath(currentIndexPath)
-                if item then
-                    self:onSelectMenuItemAtIndexPath():trigger(self, item:getTextItem(), currentIndexPath)
-                end
-            end
+
+    while self.views:contains(self.viewStack:getCurrentView()) do
+        self.viewStack:dismiss()
+    end
+    self.views = L{}
+
+    self.menuItem = menuItem
+
+    local buttonItems = menuItem:getButtonItems()
+    if buttonItems:length() > 0 then
+        local buttonHeight = 18
+        local menuHeight = buttonHeight * (buttonItems:length() + 1)
+        local menuWidth = 115
+
+        self:setBackgroundImageView(nil)
+
+        local backgroundView = BackgroundView.new(Frame.new(0, 0, menuWidth, menuHeight),
+                windower.addon_path..'assets/backgrounds/menu_bg_top.png',
+                windower.addon_path..'assets/backgrounds/menu_bg_mid.png',
+                windower.addon_path..'assets/backgrounds/menu_bg_bottom.png')
+
+        self:setBackgroundImageView(backgroundView)
+
+        self:getBackgroundImageView():setNeedsLayout()
+        self:getBackgroundImageView():layoutIfNeeded()
+
+        self:getDataSource():removeAllItems()
+
+        local indexedItems = L{}
+
+        local rowIndex = 1
+        for buttonItem in buttonItems:it() do
+            local indexedItem = IndexedItem.new(buttonItem, IndexPath.new(1, rowIndex))
+            indexedItems:append(indexedItem)
+            rowIndex = rowIndex + 1
         end
+
+        self:getDataSource():addItems(indexedItems)
+
+        self:setSize(menuWidth, menuHeight)
+
+        self:setNeedsLayout()
+        self:layoutIfNeeded()
+
+        self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
     end
-    return L{200, 208}:contains(key)
+
+    local contentView = menuItem:getContentView(menuArgs)
+    if contentView then
+        self.views:append(contentView)
+        self.viewStack:present(contentView)
+    end
 end
 
 function MenuView:getItem()
     return self.menuItem
+end
+
+function MenuView:getViewStack()
+    return self.viewStack
 end
 
 return MenuView

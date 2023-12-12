@@ -1,6 +1,7 @@
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
 local config = require('config')
+local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Padding = require('cylibs/ui/style/padding')
@@ -22,7 +23,12 @@ function PullSettingsEditor.new(settings, trust)
         return cell
     end)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), PullSettingsEditor)
+    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
+
+    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0)), nil, cursorImageItem), PullSettingsEditor)
+
+    self:setAllowsCursorSelection(true)
+    self:setScrollDelta(20)
 
     self.settings = settings
     self.puller = trust:role_with_type("puller")
@@ -69,6 +75,10 @@ function PullSettingsEditor:reloadSettings()
     end
 
     self:getDataSource():addItems(items)
+
+    if self:getDataSource():numberOfItemsInSection(1) > 0 then
+        self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
+    end
 end
 
 function PullSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)

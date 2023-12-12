@@ -37,10 +37,11 @@ function JobAbilitiesSettingsEditor.new(trustSettings, settingsMode, width)
         return cell
     end)
 
-    local selectionImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', width / 4, 20)
-    selectionImageItem:setAlpha(125)
+    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0)), nil, selectionImageItem), JobAbilitiesSettingsEditor)
+    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0)), nil, cursorImageItem), JobAbilitiesSettingsEditor)
+
+    self:setScrollDelta(20)
 
     self.trustSettings = trustSettings
     self.settingsMode = settingsMode
@@ -54,6 +55,8 @@ function JobAbilitiesSettingsEditor.new(trustSettings, settingsMode, width)
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
+
+    self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
 
     return self
 end
@@ -71,11 +74,11 @@ function JobAbilitiesSettingsEditor:layoutIfNeeded()
 end
 
 function JobAbilitiesSettingsEditor:onRemoveJobAbilityClick()
-    local selectedIndexPaths = L(self:getDelegate():getSelectedIndexPaths())
-    if selectedIndexPaths:length() > 0 then
-        local item = self:getDataSource():itemAtIndexPath(selectedIndexPaths[1])
+    local selectedIndexPath = self:getDelegate():getCursorIndexPath()
+    if selectedIndexPath then
+        local item = self:getDataSource():itemAtIndexPath(selectedIndexPath)
         if item then
-            local indexPath = selectedIndexPaths[1]
+            local indexPath = selectedIndexPath
             self.jobAbilities:remove(indexPath.row - 1)
             self:getDataSource():removeItem(indexPath)
             self.trustSettings:saveSettings(true)

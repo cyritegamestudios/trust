@@ -2,6 +2,7 @@ local Trust = require('cylibs/trust/trust')
 local BlackMageTrust = setmetatable({}, {__index = Trust })
 BlackMageTrust.__index = BlackMageTrust
 
+local BlackMageTrustCommands = require('cylibs/trust/commands/BLM') -- keep this for dependency script
 local Buffer = require('cylibs/trust/roles/buffer')
 local Debuffer = require('cylibs/trust/roles/debuffer')
 local ManaRestorer = require('cylibs/trust/roles/mana_restorer')

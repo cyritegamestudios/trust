@@ -63,7 +63,7 @@ function Shooter:tic(_, _)
     if state.AutoShootMode.value == 'Auto' and os.clock() - self.last_shot > 1.5 then
         if windower.ffxi.get_player().vitals.tp < 1000 then
             local target = windower.ffxi.get_mob_by_index(self.target_index)
-            if party_util.party_claimed(target.id) then
+            if target and party_util.party_claimed(target.id) then
                 self:ranged_attack(target)
             end
         end

@@ -1,5 +1,6 @@
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
+local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Padding = require('cylibs/ui/style/padding')
@@ -19,7 +20,11 @@ function HelpView.new(main_job_name_short)
         return cell
     end)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0))), HelpView)
+    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
+
+    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0)), nil, cursorImageItem), HelpView)
+
+    self:setScrollDelta(20)
 
     local itemsToAdd = L{}
 
@@ -50,6 +55,8 @@ function HelpView.new(main_job_name_short)
             end
         end
     end), self:getDelegate():didSelectItemAtIndexPath())
+
+    self:getDelegate():setCursorIndexPath(IndexPath.new(1, 2))
 
     return self
 end

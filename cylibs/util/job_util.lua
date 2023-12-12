@@ -104,6 +104,9 @@ function job_util.can_use_job_ability(job_ability_name)
             return false
         end
     end
+    if job_ability.type == 'Scholar' then
+        return player_util.get_current_strategem_count() > 0
+    end
     local recast_id = job_ability.recast_id
     local recast = windower.ffxi.get_ability_recasts()[recast_id]
     if not recast or recast > 0 then

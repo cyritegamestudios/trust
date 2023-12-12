@@ -9,6 +9,7 @@ local Condition = require('cylibs/conditions/condition')
 local InBattleCondition = setmetatable({}, { __index = Condition })
 InBattleCondition.__index = InBattleCondition
 InBattleCondition.__type = "InBattleCondition"
+InBattleCondition.__class = "InBattleCondition"
 
 function InBattleCondition.new()
     local self = setmetatable(Condition.new(), InBattleCondition)
@@ -29,6 +30,10 @@ end
 
 function InBattleCondition:serialize()
     return "InBattleCondition.new(" .. serializer_util.serialize_args() .. ")"
+end
+
+function InBattleCondition:__eq(otherItem)
+    return otherItem.__class == InBattleCondition.__class
 end
 
 return InBattleCondition

@@ -14,6 +14,7 @@ function CollectionViewCell.new(item)
     self.item = item
     self.itemSize = 40
     self.highlighted = false
+    self.selectable = true
     return self
 end
 
@@ -98,6 +99,22 @@ function CollectionViewCell:setSelected(selected)
     end
     self:setNeedsLayout()
     self:layoutIfNeeded()
+end
+
+---
+-- Checks if the CollectionViewCell can be selected.
+-- @treturn boolean True if the cell can be selected selected, false otherwise.
+--
+function CollectionViewCell:isSelectable()
+    return self.selectable
+end
+
+---
+-- Sets whether the cell is selectable.
+-- @tparam boolean selectable True if the cell can be selected selected
+--
+function CollectionViewCell:setIsSelectable(selectable)
+    self.selectable = selectable
 end
 
 ---

@@ -87,4 +87,8 @@ function VerticalFlowLayout:setNeedsLayout(collectionView, addedIndexPaths, remo
     end
 end
 
+function VerticalFlowLayout:getItemSpacing()
+    return self.itemSpacing
+end
+
 return VerticalFlowLayout

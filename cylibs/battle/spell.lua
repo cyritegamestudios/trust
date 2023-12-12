@@ -35,7 +35,7 @@ function Spell.new(spell_name, job_abilities, job_names, target, conditions, con
         conditions = conditions or L{};
     }, Spell)
 
-    self.conditions:append(SpellRecastReadyCondition.new(res.spells:with('name', spell_name).id))
+    self:add_condition(SpellRecastReadyCondition.new(res.spells:with('name', spell_name).id))
 
     local strategem_count = self.job_abilities:filter(function(job_ability_name)
         local job_ability = res.job_abilities:with('en', job_ability_name)
@@ -44,7 +44,7 @@ function Spell.new(spell_name, job_abilities, job_names, target, conditions, con
     if strategem_count > 0 then
         local strategem_condition = (conditions or L{}):filter(function(condition) return condition.__type == StrategemCountCondition.__type end)
         if strategem_condition:length() == 0 then
-            self.conditions:append(StrategemCountCondition.new(strategem_count))
+            self:add_condition(StrategemCountCondition.new(strategem_count))
         end
     end
 
@@ -139,6 +139,15 @@ end
 -- @treturn string Name of the consumable (e.g. Shihei), or nil if none is required
 function Spell:get_consumable()
     return self.consumable
+end
+
+-------
+-- Adds a condition to the list of conditions.
+-- @tparam Condition condition Condition to add
+function Spell:add_condition(condition)
+    if not self:get_conditions():contains(condition) then
+        self.conditions:append(condition)
+    end
 end
 
 -------
