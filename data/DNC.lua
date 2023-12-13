@@ -2,6 +2,7 @@
 return {
     Version = 1,
     Default = {
+        AutoFood="Grape Daifuku",
         Skillchains = {
             spamws = L{
                 "Rudra's Storm",
@@ -11,21 +12,19 @@ return {
                 "Shark Bite"
             },
             defaultws = L{
+                "Evisceration",
+                "Asuran Fists"
+            },
+            cleavews = L{
+                "Aeolian Edge",
+            },
+            preferws = L{
                 "Rudra's Storm",
                 "Pyrrhic Kleos",
                 "Asuran Fists"
             },
-            cleavews = L{
-
-            },
-            preferws = L{
-                "Rudra's Storm",
-                "Asuran Fists"
-            },
             amws = "Pyrrhic Kleos",
             tpws = L{
-                "Rudra's Storm",
-                "Asuran Fists"
             }
         },
         CureSettings = {
@@ -45,6 +44,12 @@ return {
 
                 }
             }
+        },
+        SelfBuffs = L{
+
+        },
+        PartyBuffs = L{
+
         },
         JobAbilities = L{
             JobAbility.new('Haste Samba', L{InBattleCondition.new()}),

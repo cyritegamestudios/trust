@@ -2,6 +2,7 @@
 return {
     Version = 1,
     Default = {
+        AutoFood="Grape Daifuku",
         Skillchains = {
             spamws = L{
                 "Victory Smite"
@@ -18,12 +19,18 @@ return {
                 "Victory Smite"
             },
             cleavews = L{
-
+                "Spinning Attack",
+                "Cataclysm"
             },
             amws = "Ascetic's Fury",
             tpws = L{
-                "Howling Fist"
             }
+        },
+        SelfBuffs = L{
+
+        },
+        PartyBuffs = L{
+
         },
         JobAbilities = L{
             JobAbility.new('Impetus', L{InBattleCondition.new()}),

@@ -2,6 +2,7 @@
 return {
     Version = 1,
     Default = {
+        AutoFoodMode="Grape Daifuku",
         Skillchains = {
             spamws = L{
                 "Blade: Ku",
@@ -20,7 +21,7 @@ return {
                 "Asuran Fists"
             },
             cleavews = L{
-
+                "Aeolian Edge"
             },
             preferws = L{
                 "Blade: Ku",
@@ -31,12 +32,13 @@ return {
             },
             amws = "Blade: Kamu",
             tpws = L{
-                "Blade: Shun",
-                "Evisceration"
             }
         },
         SelfBuffs = L{
             Spell.new("Utsusemi: Ni", L{}, L{}, nil, L{})
+        },
+        PartyBuffs = L{
+
         },
         JobAbilities = L{
             JobAbility.new('Yonin', L{InBattleCondition.new()}),

@@ -6,7 +6,7 @@ return {
         ["autobuffmode"]="Auto",
         ["autofollowmode"]="Always",
         ["autopullmode"]="Off",
-        ["maneuvermode"]="Ranged",
+        ["maneuvermode"]="HybridRanged",
         ["subtrustsettingsmode"]="Default",
         ["automagicburstmode"]="Off",
         ["skillchainpartnermode"]="Off",

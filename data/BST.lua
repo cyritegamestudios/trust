@@ -2,6 +2,7 @@
 return {
     Version = 1,
     Default = {
+        AutoFood="Grape Daifuku",
         Skillchains = {
             spamws = L{
                 "Cloudsplitter"
@@ -22,12 +23,10 @@ return {
                 "Cloudsplitter"
             },
             cleavews = L{
-
+                "Aeolian Edge"
             },
             amws = "Primal Rend",
             tpws = L{
-                "Decimation",
-                "Cloudsplitter"
             }
         },
         SelfBuffs = L{
@@ -36,6 +35,9 @@ return {
                 ReadyMove = "Zealous Snort",
                 Buff = "Counter Boost"
             }
+        },
+        PartyBuffs = L{
+
         },
         JobAbilities = L{
             JobAbility.new('Killer Instinct', L{InBattleCondition.new()}),

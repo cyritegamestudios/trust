@@ -24,6 +24,7 @@ return {
         ["skillchaindelaymode"]="Off",
         ["autotrustsmode"]="Off",
         ["autoenmityreductionmode"]="Off",
+        ["autotankmode"]="Auto",
         ["ipcmode"]="All",
     }
 }

@@ -2,7 +2,14 @@
 return {
     Version = 1,
     Default = {
+        AutoFood = "Grape Daifuku",
         JobAbilities = L{},
+        SelfBuffs = L{
+
+        },
+        PartyBuffs = L{
+
+        },
         Skillchains = {
             spamws = L{
                 "Howling Fist"
@@ -19,11 +26,11 @@ return {
                 "Stringing Pummel"
             },
             cleavews = L{
-                "Spinning Attack"
+                "Spinning Attack",
+                "Aeolian Edge"
             },
             amws = "Stringing Pummel",
             tpws = L{
-                "Shijin Spiral"
             }
         },
         DefaultManeuvers = {

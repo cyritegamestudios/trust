@@ -2,6 +2,7 @@
 return {
     Version = 1,
     Default = {
+        AutoFood="Tropical Crepe",
         SelfBuffs = L{
 
         },
@@ -17,7 +18,7 @@ return {
                 "Black Halo"
             },
             starterws = L{
-
+                "Shell Crusher"
             },
             defaultws = L{
                 "Black Halo"
@@ -26,16 +27,15 @@ return {
                 "Black Halo"
             },
             cleavews = L{
-
+                "Aeolian Edge"
             },
             amws = "Exudation",
             tpws = L{
-                "Black Halo"
             }
         },
         Geomancy = {
-            Indi = Spell.new("Indi-Acumen", L{}, L{}, nil, L{}),
-            Geo = Spell.new("Geo-Malaise", L{}, L{}, "bt", L{})
+            Indi = Spell.new("Indi-Fury", L{}, L{}, nil, L{}),
+            Geo = Spell.new("Geo-Frailty", L{}, L{}, "bt", L{})
         }
     }
 }

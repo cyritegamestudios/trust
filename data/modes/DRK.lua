@@ -4,6 +4,7 @@ return {
         ["skillchainpartnermode"]="Off",
         ["subtrustsettingsmode"]="Default",
         ["automagicburstmode"]="Off",
+        ["autodispelmode"]="Auto",
         ["autofollowmode"]="Always",
         ["autoskillchainmode"]="Auto",
         ["autopullmode"]="Off",

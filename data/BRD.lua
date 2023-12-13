@@ -2,10 +2,8 @@
 return {
     Version = 1,
     Default = {
+        AutoFood="Grape Daifuku",
         NumSongs = 4,
-        SelfBuffs = L{
-
-        },
         SongDuration = 240,
         SongDelay = 6,
         Skillchains = {
@@ -34,6 +32,9 @@ return {
             tpws = L{
                 "Mordant Rime"
             }
+        },
+        SelfBuffs = L{
+
         },
         PartyBuffs = L{
             Spell.new("Mage's Ballad III", L{"Pianissimo"}, L{"BLM", "WHM", "GEO", "SCH"}, nil, L{}),

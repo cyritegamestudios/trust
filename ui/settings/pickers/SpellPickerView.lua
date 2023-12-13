@@ -10,15 +10,18 @@ local spell_util = require('cylibs/util/spell_util')
 local SpellPickerView = setmetatable({}, {__index = PickerView })
 SpellPickerView.__index = SpellPickerView
 
-function SpellPickerView.new(trustSettings, spells, allSpells)
+function SpellPickerView.new(trustSettings, spells, allSpells, defaultJobNames)
     local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
 
     local self = setmetatable(PickerView.withItems(allSpells, L{}, true, cursorImageItem), SpellPickerView)
 
     self.trustSettings = trustSettings
     self.spells = spells
+    self.defaultJobNames = defaultJobNames
 
-    self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
+    if self:getDataSource():numberOfItemsInSection(1) > 0 then
+        self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
+    end
 
     return self
 end
@@ -36,7 +39,7 @@ function SpellPickerView:onSelectMenuItemAtIndexPath(textItem, _)
                             if spell.targets:contains('Enemy') then
                                 self.spells:append(Debuff.new(spell_util.base_spell_name(item:getText())))
                             else
-                                self.spells:append(Buff.new(spell_util.base_spell_name(item:getText())))
+                                self.spells:append(Buff.new(spell_util.base_spell_name(item:getText()), L{}, self.defaultJobNames))
                             end
                         else
                             self.spells:append(Spell.new(item:getText(), L{}, L{}))

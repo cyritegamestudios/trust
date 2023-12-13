@@ -25,7 +25,12 @@ function JobAbilityPickerView:onSelectMenuItemAtIndexPath(textItem, _)
             for selectedIndexPath in selectedIndexPaths:it() do
                 local item = self:getDataSource():itemAtIndexPath(selectedIndexPath)
                 if item then
-                    self.jobAbilities:append(JobAbility.new(item:getText(), L{}, L{}, nil))
+                    local jobAbility = JobAbility.new(item:getText(), L{}, L{}, nil)
+                    if self.jobAbilities:contains(jobAbility) then
+                        addon_message(260, '('..windower.ffxi.get_player().name..') '.."I'm already using "..jobAbility:get_job_ability_name()..".")
+                    else
+                        self.jobAbilities:append(jobAbility)
+                    end
                 end
             end
             self:getDelegate():deselectAllItems()

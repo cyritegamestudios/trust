@@ -2,6 +2,7 @@
 return {
     Version = 1,
     Default = {
+        AutoFood="Tropical Crepe",
         Skillchains = {
             spamws = L{
                 "Vidohunir"
@@ -16,18 +17,20 @@ return {
                 "Vidohunir"
             },
             cleavews = L{
-
+                "Cataclysm",
             },
             amws = "Vidohunir",
             tpws = L{
-                "Full Swing"
             }
         },
         SelfBuffs = L{
 
         },
-        Debuffs = L{
+        PartyBuffs = L{
 
+        },
+        Debuffs = L{
+            Spell.new("Burn", L{}, nil, nil, L{})
         },
         JobAbilities = L{
             JobAbility.new('Mana Wall', L{}, L{}, nil),

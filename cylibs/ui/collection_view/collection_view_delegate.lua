@@ -137,6 +137,9 @@ end
 --
 function CollectionViewDelegate:selectItemAtIndexPath(indexPath)
     if not self:shouldSelectItemAtIndexPath(indexPath) then
+        if self.collectionView:getAllowsMultipleSelection() then
+            self:deselectItemAtIndexPath(indexPath)
+        end
         return
     end
 

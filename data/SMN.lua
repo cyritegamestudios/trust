@@ -2,6 +2,13 @@
 return {
     Version = 1,
     Default = {
+        AutoFood = "Grape Daifuku",
+        JobAbilities = L{
+
+        },
+        SelfBuffs = L{
+
+        },
         PartyBuffs = L{
             {
                 BloodPact = "Hastega II",
@@ -41,7 +48,7 @@ return {
                 "Garland of Bliss"
             },
             cleavews = L{
-
+                "Cataclysm"
             },
             amws = "Garland of Bliss",
             tpws = L{

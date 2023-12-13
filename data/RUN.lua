@@ -2,6 +2,7 @@
 return {
     Version = 1,
     Default = {
+        AutoFood = "Miso Ramen",
         PartyBuffs = L{
 
         },
@@ -30,7 +31,7 @@ return {
                 "Savage Blade"
             },
             cleavews = L{
-
+                "Shockwave"
             },
             amws = "Dimidiation",
             tpws = L{

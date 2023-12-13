@@ -85,7 +85,10 @@ function BuffSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
         self.menuArgs['spells'] = self.buffs
         self.menuArgs['targets'] = self.targets
     elseif textItem:getText() == 'Edit' then
-        self.menuArgs['spell'] = self.buffs[indexPath.row]
+        local cursorIndexPath = self:getDelegate():getCursorIndexPath()
+        if cursorIndexPath then
+            self.menuArgs['spell'] = self.buffs[cursorIndexPath.row]
+        end
     elseif textItem:getText() == 'Remove' then
         self:onRemoveSpellClick()
     end
@@ -118,8 +121,6 @@ function BuffSettingsEditor:reloadSettings()
     if self:getDataSource():numberOfItemsInSection(1) > 0 then
         self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
     end
-
-
 end
 
 return BuffSettingsEditor

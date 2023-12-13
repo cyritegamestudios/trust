@@ -2,6 +2,7 @@
 return {
     Version = 1,
     Default = {
+        AutoFood="Miso Ramen",
         SelfBuffs = L{
             Spell.new("Phalanx", L{}, nil, nil, L{}),
             Spell.new("Protect V", L{}, nil, nil, L{})

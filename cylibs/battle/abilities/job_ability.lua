@@ -106,4 +106,11 @@ function JobAbility:serialize()
     return "JobAbility.new(" .. serializer_util.serialize_args(self.job_ability_name, self.conditions, self.job_names, self.target) .. ")"
 end
 
+function JobAbility:__eq(otherItem)
+    if otherItem.__type == self.__type and otherItem:get_job_ability_id() == self:get_job_ability_id() then
+        return true
+    end
+    return false
+end
+
 return JobAbility

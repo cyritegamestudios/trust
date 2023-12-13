@@ -20,7 +20,6 @@ state.AutoGeoMode = M{['description'] = 'Auto Geo Mode', 'Off', 'Auto'}
 function GeomancerTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = Geomancer.new()
 	local roles = S{
-		Buffer.new(action_queue, S{}, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
 		Nuker.new(action_queue, 2, 20, 0.8, L{ 'Theurgic Focus' }),
 		ManaRestorer.new(action_queue, L{"Spirit Taker", "Moonlight"}, 40)
 	}
@@ -55,12 +54,6 @@ function GeomancerTrust:on_init()
 			end)
 
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
-		local buffer = self:role_with_type("buffer")
-
-		buffer:set_job_abilities(new_trust_settings.JobAbilities)
-		buffer:set_self_spells(new_trust_settings.SelfBuffs)
-		buffer:set_party_spells(new_trust_settings.PartyBuffs)
-
 		self.indi_spell = new_trust_settings.Geomancy.Indi
 		self.geo_spell = new_trust_settings.Geomancy.Geo
 	end)

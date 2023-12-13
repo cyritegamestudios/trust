@@ -289,13 +289,17 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
             function(args)
                 local spellSettings = args['spells']
                 local targets = args['targets']
+                local defaultJobNames = L{}
+                if targets:contains('Party') then
+                    defaultJobNames = job_util.all_jobs()
+                end
 
                 local jobId = res.jobs:with('ens', jobNameShort).id
                 local allBuffs = spell_util.get_spells(function(spell)
                     return spell.levels[jobId] ~= nil and spell.status ~= nil and targets:intersection(S(spell.targets)):length() > 0
                 end):map(function(spell) return spell.name end)
 
-                local chooseSpellsView = setupView(SpellPickerView.new(trustSettings, spellSettings, allBuffs), viewSize)
+                local chooseSpellsView = setupView(SpellPickerView.new(trustSettings, spellSettings, allBuffs, defaultJobNames), viewSize)
                 chooseSpellsView:setTitle("Choose buffs to add.")
                 return chooseSpellsView
             end)
@@ -351,7 +355,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
                 local buffs = T(trustSettings:getSettings())[trustSettingsMode.value].PartyBuffs
 
                 local backgroundImageView = createBackgroundView(viewSize.width, viewSize.height)
-                local buffSettingsView = BuffSettingsEditor.new(trustSettings, buffs, S{'Self', 'Party'})
+                local buffSettingsView = BuffSettingsEditor.new(trustSettings, buffs, S{'Party'})
                 buffSettingsView:setBackgroundImageView(backgroundImageView)
                 buffSettingsView:setNavigationBar(createTitleView(viewSize))
                 buffSettingsView:setSize(viewSize.width, viewSize.height)
@@ -504,7 +508,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
 
                 local chooseSongsView = setupView(SongPickerView.new(trustSettings, songs, allSongs, args['validator']), viewSize)
                 chooseSongsView:setTitle(args['help_text'])
-                chooseSongsView:setShouldRequestFocus(false)
+                chooseSongsView:setShouldRequestFocus(true)
                 return chooseSongsView
             end)
 

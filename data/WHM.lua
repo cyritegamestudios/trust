@@ -2,6 +2,7 @@
 return {
     Version = 1,
     Default = {
+        AutoFood = "Tropical Crepe",
         SelfBuffs = L{
             Buff.new("Haste", L{}, L{}, nil, L{}),
             Buff.new("Protectra", L{}, L{}, nil, L{}),

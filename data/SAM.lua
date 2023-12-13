@@ -2,6 +2,7 @@
 return {
     Version = 1,
     Default = {
+        AutoFood = "Grape Daifuku",
         Skillchains = {
             spamws = L{
                 "Tachi: Fudo"
@@ -18,12 +19,17 @@ return {
                 "Tachi: Fudo"
             },
             cleavews = L{
-
+                "Sonic Thrust",
             },
             amws = "Tachi: Rana",
             tpws = L{
-                "Tachi: Fudo"
             }
+        },
+        SelfBuffs = L{
+
+        },
+        PartyBuffs = L{
+
         },
         JobAbilities = L{
             JobAbility.new('Hasso', L{}, L{}, nil)

@@ -2,6 +2,7 @@
 return {
     Version = 1,
     Default = {
+        AutoFood = "Grape Daifuku",
         Skillchains = {
             spamws = L{
                 "Impulse Drive",
@@ -35,6 +36,12 @@ return {
             tpws = L{
 
             }
+        },
+        SelfBuffs = L{
+
+        },
+        PartyBuffs = L{
+
         },
         JobAbilities = L{
             JobAbility.new('Berserk', L{InBattleCondition.new()}, L{}, nil),

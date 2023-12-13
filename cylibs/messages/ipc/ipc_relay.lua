@@ -10,7 +10,7 @@ local IpcRelay = {}
 IpcRelay.__index = IpcRelay
 IpcRelay.__class = "IpcRelay"
 
-state.IpcMode = M{['description'] = 'Ipc Mode', 'Off', 'All', 'Send', 'Receive'}
+state.IpcMode = M{['description'] = 'Ipc Mode', 'All', 'Off', 'Send', 'Receive'}
 state.IpcMode:set_description('All', "Okay, I'll send and receive IPC messages.")
 state.IpcMode:set_description('Send', "Okay, I'll only send IPC messages.")
 state.IpcMode:set_description('Receive', "Okay, I'll only receive IPC messages.")

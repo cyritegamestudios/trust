@@ -31,9 +31,7 @@ function JobAbilitiesSettingsEditor.new(trustSettings, settingsMode, width)
         local cell = TextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
         cell:setItemSize(20)
-        if indexPath.row ~= 1 then
-            cell:setUserInteractionEnabled(true)
-        end
+        cell:setUserInteractionEnabled(true)
         return cell
     end)
 
@@ -41,6 +39,7 @@ function JobAbilitiesSettingsEditor.new(trustSettings, settingsMode, width)
 
     local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0)), nil, cursorImageItem), JobAbilitiesSettingsEditor)
 
+    self:setAllowsCursorSelection(true)
     self:setScrollDelta(20)
 
     self.trustSettings = trustSettings
@@ -55,8 +54,6 @@ function JobAbilitiesSettingsEditor.new(trustSettings, settingsMode, width)
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
-
-    self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
 
     return self
 end
@@ -111,8 +108,6 @@ function JobAbilitiesSettingsEditor:reloadSettings()
     self.jobAbilities = T(self.trustSettings:getSettings())[self.settingsMode.value].JobAbilities
     local rowIndex = 1
 
-    items:append(IndexedItem.new(TextItem.new("Buffs on self", TextStyle.Default.HeaderSmall), IndexPath.new(1, 1)))
-    rowIndex = rowIndex + 1
     for jobAbility in self.jobAbilities:it() do
         items:append(IndexedItem.new(TextItem.new(jobAbility:get_job_ability_name(), TextStyle.Default.TextSmall), IndexPath.new(1, rowIndex)))
         rowIndex = rowIndex + 1
@@ -121,7 +116,7 @@ function JobAbilitiesSettingsEditor:reloadSettings()
     self:getDataSource():addItems(items)
 
     if self.jobAbilities:length() > 0 then
-        self:getDelegate():selectItemAtIndexPath(IndexPath.new(1, 2))
+        self:getDelegate():selectItemAtIndexPath(IndexPath.new(1, 1))
     end
 end
 

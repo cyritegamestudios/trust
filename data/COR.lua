@@ -2,6 +2,7 @@
 return {
     Version = 1,
     Default = {
+        AutoFood="Grape Daifuku",
         Skillchains = {
             spamws = L{
                 "Savage Blade"
@@ -15,16 +16,21 @@ return {
             },
             preferws = L{
                 "Leaden Salute",
+                "Last Stand",
                 "Savage Blade"
             },
             cleavews = L{
-
+                "Aeolian Edge"
             },
             amws = "Leaden Salute",
             tpws = L{
-                "Leaden Salute",
-                "Savage Blade"
             }
+        },
+        SelfBuffs = L{
+
+        },
+        PartyBuffs = L{
+
         },
         Roll1 = Roll.new("Chaos Roll", true),
         Roll2 = Roll.new("Samurai Roll", false)

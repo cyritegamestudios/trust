@@ -2,6 +2,7 @@
 return {
     Version = 1,
     Default = {
+        AutoFood="Grape Daifuku",
         Skillchains = {
             spamws = L{
                 "Catastrophe",
@@ -30,7 +31,8 @@ return {
                 "Torcleaver"
             },
             cleavews = L{
-                "Fell Cleave"
+                "Fell Cleave",
+                "Spinning Scythe"
             },
             amws = "Entropy",
             tpws = L{
@@ -41,6 +43,9 @@ return {
             Spell.new("Absorb-DEX", L{}, L{}, "bt", L{}),
             Spell.new("Absorb-STR", L{}, L{}, "bt", L{}),
             Spell.new("Dread Spikes", L{}, L{}, nil, L{HasBuffCondition.new("Max HP Boost"), IdleCondition.new()})
+        },
+        PartyBuffs = L{
+
         },
         JobAbilities = L{
             JobAbility.new('Last Resort', L{InBattleCondition.new()}),

@@ -1,4 +1,5 @@
 local Buff = require('cylibs/battle/spells/buff')
+local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local PickerView = require('cylibs/ui/picker/picker_view')
 local Spell = require('cylibs/battle/spell')
 local spell_util = require('cylibs/util/spell_util')
@@ -8,7 +9,9 @@ local SongPickerView = setmetatable({}, {__index = PickerView })
 SongPickerView.__index = SongPickerView
 
 function SongPickerView.new(trustSettings, songSettings, allSongs, validateSongs)
-    local self = setmetatable(PickerView.withItems(allSongs, songSettings:map(function(song) return song:get_spell().name end), true), SongPickerView)
+    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
+
+    local self = setmetatable(PickerView.withItems(allSongs, songSettings:map(function(song) return song:get_spell().name end), true, cursorImageItem), SongPickerView)
 
     self.trustSettings = trustSettings
     self.songSettings = songSettings

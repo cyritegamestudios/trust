@@ -2,6 +2,7 @@
 return {
     Version = 1,
     Default = {
+        AutoFood = "Grape Daifuku",
         Skillchains = {
             spamws = L{
                 "Rudra's Storm",
@@ -14,7 +15,7 @@ return {
                 "Evisceration"
             },
             cleavews = L{
-
+                "Aeolian Edge"
             },
             preferws = L{
                 "Evisceration"
@@ -29,6 +30,9 @@ return {
         },
         SelfBuffs = L{
 
-        }
+        },
+        PartyBuffs = L{
+
+        },
     }
 }
