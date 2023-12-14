@@ -3,6 +3,7 @@ return {
     ["Default"]={
         ["autodispelmode"]="Auto",
         ["automagicburstmode"]="Off",
+        ["autonukemode"]="Off",
         ["autosilencemode"]="Auto",
         ["autoraisemode"]="Off",
         ["autoaftermathmode"]="Off",

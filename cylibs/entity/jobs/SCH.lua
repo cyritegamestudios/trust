@@ -21,6 +21,7 @@ local Grimoire = {
 function Scholar.new(trust_settings)
     local self = setmetatable(Job.new(), Scholar)
     self:set_trust_settings(trust_settings)
+    self.allow_sub_job = trust_settings.AllowSubJob or false
     self.ignore_debuff_ids = self.cure_settings.StatusRemovals.Blacklist:map(function(debuff_name) return res.buffs:with('name', debuff_name).id end)
     return self
 end
@@ -154,7 +155,7 @@ end
 -- Returns the list of buffs to cast on the player while in Light Arts.
 -- @treturn list List of party buffs
 function Scholar:get_light_arts_self_buffs()
-    if player_util.get_player_main_job_name_short() == 'SCH' then
+    if player_util.get_player_main_job_name_short() == 'SCH' or self.allow_sub_job then
         return self.trust_settings.LightArts.SelfBuffs
     else
         return S{}
@@ -179,7 +180,7 @@ end
 -- Returns the list of buffs to cast on the player while in Dark Arts.
 -- @treturn list List of party buffs
 function Scholar:get_dark_arts_self_buffs()
-    if player_util.get_player_main_job_name_short() == 'SCH' then
+    if player_util.get_player_main_job_name_short() == 'SCH' or self.allow_sub_job then
         return self.trust_settings.DarkArts.SelfBuffs
     else
         return S{}

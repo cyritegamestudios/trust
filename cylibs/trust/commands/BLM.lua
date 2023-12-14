@@ -37,7 +37,7 @@ function BlackMageTrustCommands:get_valid_elements()
     return S{ 'earth', 'lightning', 'water', 'fire', 'ice', 'wind', 'light', 'dark' }
 end
 
--- // trust nuke
+-- // trust blm nuke
 function BlackMageTrustCommands:handle_show_blacklist()
     local success
     local message
@@ -50,7 +50,7 @@ function BlackMageTrustCommands:handle_show_blacklist()
     return success, message
 end
 
--- // trust nuke toggle [earth|lightning|water|fire|ice|wind|light|dark]
+-- // trust blm nuke toggle [earth|lightning|water|fire|ice|wind|light|dark]
 function BlackMageTrustCommands:handle_toggle_element(_, element_name)
     local success
     local message
@@ -72,7 +72,7 @@ function BlackMageTrustCommands:handle_toggle_element(_, element_name)
     return success, message
 end
 
--- // trust nuke reset
+-- // trust blm nuke reset
 function BlackMageTrustCommands:handle_reset_blacklist()
     local success
     local message
