@@ -52,6 +52,21 @@ function ScholarTrust:on_init()
             self:switch_arts(state.AutoArtsMode.value)
         end
     end)
+
+    if self:get_job():is_light_arts_active() then
+        self:switch_arts('LightArts')
+    elseif self:get_job():is_dark_arts_active() then
+        self:switch_arts('DarkArts')
+    end
+
+    self.dispose_bag:add(self:get_party():get_player():on_gain_buff():addAction(function(_, buff_id)
+        local buff_name = buff_util.buff_name(buff_id)
+        if L{'Light Arts', 'Addendum: White'}:contains(buff_name) then
+            self:switch_arts('LightArts')
+        elseif L{'Dark Arts', 'Addendum: Black'}:contains(buff_name) then
+            self:switch_arts('Darkarts')
+        end
+    end, self:get_party():get_player():on_gain_buff()))
 end
 
 function ScholarTrust:job_target_change(target_index)
@@ -70,12 +85,6 @@ end
 function ScholarTrust:check_arts()
     if state.AutoArtsMode.value ~= 'Off' then
         self:switch_arts(state.AutoArtsMode.value)
-    else
-        if self:get_job():is_light_arts_active() then
-            self:switch_arts('LightArts')
-        elseif self:get_job():is_dark_arts_active() then
-            self:switch_arts('DarkArts')
-        end
     end
 end
 
