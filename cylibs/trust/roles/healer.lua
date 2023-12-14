@@ -2,6 +2,7 @@ local cure_util = require('cylibs/util/cure_util')
 local DamageMemory = require('cylibs/battle/damage_memory')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local CureAction = require('cylibs/actions/cure')
+local HealerTracker = require('cylibs/analytics/trackers/healer_tracker')
 local WaitAction = require('cylibs/actions/wait')
 local SequenceAction = require('cylibs/actions/sequence')
 local SpellAction = require('cylibs/actions/spell')
@@ -59,6 +60,11 @@ function Healer:on_add()
     for party_member in self:get_party():get_party_members(true):it() do
         on_party_member_added(party_member)
     end
+
+    self.healer_tracker = HealerTracker.new(self)
+    self.healer_tracker:monitor()
+
+    self.dispose_bag:addAny(L{ self.healer_tracker })
 end
 
 function Healer:target_change(target_index)
@@ -195,6 +201,14 @@ end
 
 function Healer:get_type()
     return "healer"
+end
+
+function Healer:get_job()
+    return self.main_job
+end
+
+function Healer:get_tracker()
+    return self.healer_tracker
 end
 
 return Healer
