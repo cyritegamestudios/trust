@@ -11,6 +11,7 @@ local Dancer = require('cylibs/entity/jobs/DNC')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local FlourishAction = require('cylibs/actions/flourish')
 local Healer = require('cylibs/trust/roles/healer')
+local Stepper = require('cylibs/trust/roles/stepper')
 
 function DancerTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = Dancer.new(trust_settings.CureSettings)
@@ -68,7 +69,7 @@ function DancerTrust:tic(old_time, new_time)
 end
 
 function DancerTrust:check_steps()
-	if os.time() - self.last_step_time < 10 or self.target_index == nil or player.status ~= 'Engaged' or self.step_target_index == self.target_index then
+	if state.AutoStepMode.value == 'Off' or os.time() - self.last_step_time < 10 or self.target_index == nil or player.status ~= 'Engaged' or self.step_target_index == self.target_index then
 		return
 	end
 	local target = windower.ffxi.get_mob_by_index(self.target_index)

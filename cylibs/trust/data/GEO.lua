@@ -20,6 +20,7 @@ state.AutoGeoMode = M{['description'] = 'Auto Geo Mode', 'Off', 'Auto'}
 function GeomancerTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = Geomancer.new()
 	local roles = S{
+		Buffer.new(action_queue, trust_settings.JobAbilities, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
 		Nuker.new(action_queue, 2, 20, 0.8, L{ 'Theurgic Focus' }),
 		ManaRestorer.new(action_queue, L{"Spirit Taker", "Moonlight"}, 40)
 	}

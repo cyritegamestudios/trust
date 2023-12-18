@@ -127,6 +127,8 @@ function SkillchainMaker.new(skillchain_settings, state_var, priority_mode_var, 
     info.range_bag = equip.range_bag
     buffs[info.player] = {}
 
+    self.mode_vars = L{ state_var, priority_mode_var, partner_mode_var, aftermath_mode_var }
+
     self.perform_next_weapon_skill = Event.newEvent()
     self.skillchain = Event.newEvent()
 
@@ -276,6 +278,11 @@ function SkillchainMaker:start_monitoring()
 
     self.action_events.zone_change = windower.register_event('zone change', function()
         self:varclean()
+
+        handle_state_var_changed(self.state_var.current)
+        handle_priority_mode_var_changed(self.priority_mode_var.current)
+        handle_partner_mode_var_changed(self.partner_mode_var.current)
+        handle_aftermath_mode_var_changed(self.aftermath_mode_var.current)
     end)
 
     ActionPacket.open_listener(function(act)

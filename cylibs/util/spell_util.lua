@@ -223,6 +223,8 @@ function spell_util.spell_targets(spell_id)
         local targets = L(spell.targets)
         if spell.type == 'BardSong' and buff_util.is_buff_active(buff_util.buff_id('Pianissimo')) then
             targets:append('Party')
+        elseif spell.type == 'Geomancy' then
+            targets:append('Party')
         end
         return targets
     end
