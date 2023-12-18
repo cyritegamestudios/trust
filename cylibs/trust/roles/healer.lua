@@ -47,11 +47,11 @@ function Healer:on_add()
             if hpp > 0 then
                 if hpp < 25 then
                     if p:get_mob().distance:sqrt() < 21 then
-                        logger.error(self.__class, 'on_hp_change', p:get_name(), hpp)
+                        logger.notice(self.__class, 'on_hp_change', p:get_name(), hpp)
                         self:check_party_hp(25)
                     end
                 else
-                    logger.error(self.__class, 'on_hp_change', 'check_party_hp', hpp)
+                    logger.notice(self.__class, 'on_hp_change', 'check_party_hp', hpp)
                     self:check_party_hp()
                 end
             end
