@@ -207,6 +207,10 @@ function Spell:description()
     return result
 end
 
+function Spell:get_name()
+    return self.spell_name
+end
+
 function Spell:serialize()
     return "Spell.new(" .. serializer_util.serialize_args(self.spell_name, self.job_abilities, self.job_names, self.target, self.conditions, self.consumable) .. ")"
 end

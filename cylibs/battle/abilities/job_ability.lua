@@ -102,6 +102,10 @@ function JobAbility:to_action(target_index)
     return SequenceAction.new(actions, 'job_ability_'..self:get_job_ability_name())
 end
 
+function JobAbility:get_name()
+    return self.job_ability_name
+end
+
 function JobAbility:serialize()
     return "JobAbility.new(" .. serializer_util.serialize_args(self.job_ability_name, self.conditions, self.job_names, self.target) .. ")"
 end
