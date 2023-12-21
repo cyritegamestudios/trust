@@ -47,12 +47,12 @@ function CorsairTrust:on_init()
 	local roller = self:role_with_type("roller")
 
 	self.dispose_bag:add(roller:on_rolls_begin():addAction(function(_)
-		self:get_party():add_to_chat(self.party:get_player(), "Doing rolls, hold tight.", "on_rolls_begin", 5)
+		self:get_party():add_to_chat(self.party:get_player(), "Doing rolls, hold tight.", "on_rolls_begin")
 		self.roll_modes_delta:apply()
 	end), roller:on_rolls_begin())
 
 	self.dispose_bag:add(roller:on_rolls_end():addAction(function(_)
-		self:get_party():add_to_chat(self.party:get_player(), "Alright, you're good to go for now!", "on_rolls_end", 5)
+		self:get_party():add_to_chat(self.party:get_player(), "Alright, you're good to go for now!", "on_rolls_end")
 		self.roll_modes_delta:remove()
 	end), roller:on_rolls_end())
 end

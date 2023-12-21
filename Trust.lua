@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '8.2.0'
+_addon.version = '8.2.1'
 
 require('Trust-Include')
 
@@ -54,6 +54,9 @@ local shortcuts = T{}
 
 state.AutoEnableMode = M{['description'] = 'Auto Enable Mode', 'Auto', 'Off'}
 state.AutoEnableMode:set_description('Auto', "Okay, I'll automatically get to work after the addon loads.")
+
+state.AutoDisableMode = M{['description'] = 'Auto Disable Mode', 'Auto', 'Off'}
+state.AutoDisableMode:set_description('Auto', "Okay, I'll automatically disable Trust after zoning or gettig knocked out.")
 
 state.AutoBuffMode = M{['description'] = 'Auto Buff Mode', 'Off', 'Auto'}
 state.AutoBuffMode:set_description('Auto', "Okay, I'll automatically buff myself and the party.")
@@ -408,7 +411,9 @@ end
 function handle_zone_change(new_zone_id, old_zone_id)
 	action_queue:clear()
 	player.party:set_assist_target(player.party:get_player())
-	handle_stop()
+	if state.AutoDisableMode.value ~= 'Off' then
+		handle_stop()
+	end
 end
 
 function handle_save_trust(mode_name)

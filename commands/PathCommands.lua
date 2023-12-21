@@ -81,7 +81,7 @@ function PathTrustCommands:handle_save_path(_, path_name)
 end
 
 -- // trust path start path_name
-function PathTrustCommands:handle_start_path(_, path_name)
+function PathTrustCommands:handle_start_path(_, path_name, reverse)
     local success
     local message
 
@@ -98,6 +98,10 @@ function PathTrustCommands:handle_start_path(_, path_name)
             else
                 success = true
                 message = "Starting path "..path_name
+
+                if reverse then
+                    path = path:reverse()
+                end
 
                 self:get_pather():set_path(path)
                 self:get_pather():start()

@@ -38,6 +38,11 @@ function TrustScenarios:add_scenario(name)
             local scenario = DomainInvasion.new(self.action_queue)
             scenario:start()
             self.scenarios:add(scenario)
+        elseif name == 'einherjar' then
+            local Einherjar = require('cylibs/scenarios/einherjar/einherjar')
+            local scenario = Einherjar.new(self.action_queue)
+            scenario:start()
+            self.scenarios:add(scenario)
         end
     end
 end
