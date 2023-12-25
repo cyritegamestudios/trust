@@ -111,6 +111,10 @@ function Action:get_position()
     return v
 end
 
+function Action:get_target_index()
+    return self.target_index
+end
+
 function Action:gettype()
     return "action"
 end
@@ -172,6 +176,14 @@ end
 
 function Action:get_start_time()
     return self.start_time
+end
+
+function Action:on_incoming_chunk(id, data, modified, injected, blocked)
+    return false
+end
+
+function Action:on_outgoing_chunk(id, data, modified, injected, blocked)
+    return false
 end
 
 function Action:debug_log_create(action_type)

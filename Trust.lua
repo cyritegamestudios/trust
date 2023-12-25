@@ -159,7 +159,7 @@ function load_user_files(main_job_id, sub_job_id)
 
 	load_trust_modes(player.main_job_name_short)
 	load_trust_reactions(player.main_job_name_short)
-	load_trust_commands(player.main_job_name_short, player.trust.main_job, action_queue)
+	load_trust_commands(player.main_job_name_short, player.trust.main_job, action_queue, player.party)
 	load_ui()
 
 	main_trust_settings:copySettings()
@@ -207,7 +207,7 @@ function load_trust_reactions(job_name_short)
 	--trust_reactions:loadReactions()
 end
 
-function load_trust_commands(job_name_short, trust, action_queue)
+function load_trust_commands(job_name_short, trust, action_queue, party)
 	local common_commands = L{
 		AssistCommands.new(trust, action_queue),
 		AttackCommands.new(trust, action_queue),
@@ -215,7 +215,7 @@ function load_trust_commands(job_name_short, trust, action_queue)
 		LoggingCommands.new(trust, action_queue),
 		PathCommands.new(trust, action_queue),
 		PullCommands.new(trust, action_queue),
-		ScenarioCommands.new(trust, action_queue),
+		ScenarioCommands.new(trust, action_queue, party),
 		SendAllCommands.new(trust, action_queue),
 		SendCommands.new(trust, action_queue),
 		SkillchainCommands.new(trust, action_queue),

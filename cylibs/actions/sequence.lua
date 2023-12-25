@@ -12,6 +12,7 @@ function SequenceAction.new(actions, identifier, allows_partial_failure)
 	self.allows_partial_failure = allows_partial_failure
   	self.queue = Q{}
 	self.max_duration = 0
+	self.num_failed_actions = 0
 	self.display_name = ""
 	for action in actions:it() do
 		self.display_name = self.display_name..action:tostring()..' '
@@ -52,11 +53,13 @@ function SequenceAction:perform()
 		self:complete(false)
 		return
 	end
-
 	if self.queue:length() > 0 then
 		local next_action = self.queue:pop()
 		if next_action:can_perform() then
 			next_action:on_action_complete():addAction(function(a, success)
+				if not success then
+					self.num_failed_actions = self.num_failed_actions + 1
+				end
 				a:destroy()
 				self:perform()
 			end)
@@ -66,7 +69,11 @@ function SequenceAction:perform()
 			self:complete(false)
 		end
 	else
-		self:complete(true)
+		if self.allows_partial_failure then
+			self:complete(true)
+		else
+			self:complete(self.num_failed_actions == 0)
+		end
 	end
 end
 

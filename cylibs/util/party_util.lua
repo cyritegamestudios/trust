@@ -33,6 +33,10 @@ function party_util.get_party_leader()
             return party1_leader
         end
     end
+    local party_members = party_util.get_party_members()
+    if party_members:length() == 1 --[[and not windower.ffxi.get_mob_by_id(windower.ffxi.get_player().id).in_party]] then
+        return windower.ffxi.get_player()
+    end
     return nil
 end
 

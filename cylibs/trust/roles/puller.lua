@@ -10,10 +10,11 @@ local Puller = setmetatable({}, {__index = Role })
 Puller.__index = Puller
 Puller.__class = "Puller"
 
-state.AutoPullMode = M{['description'] = 'Auto Pull Mode', 'Off', 'Auto','Multi','Target'}
+state.AutoPullMode = M{['description'] = 'Auto Pull Mode', 'Off', 'Auto','Multi','Target','All'}
 state.AutoPullMode:set_description('Auto', "Okay, I'll automatically pull monsters for the party.")
 state.AutoPullMode:set_description('Multi', "Okay, I'll pull my own monster even if we're already fighting.")
 state.AutoPullMode:set_description('Target', "Okay, I'll pull whatever monster I'm currently targeting.")
+state.AutoPullMode:set_description('All', "Okay, I'll pull any monster that's nearby.")
 
 function Puller.new(action_queue, target_names, spell_name, job_ability_name)
     return Puller.new(action_queue, target_names, spell_name, job_ability_name, false)
@@ -189,7 +190,11 @@ function Puller:get_pull_target()
             --print('already have target 2')
             return player_target
         else
-            return ffxi_util.find_closest_mob(self.target_names)
+            if state.AutoPullMode.value == 'All' then
+                return ffxi_util.find_closest_mob(L{})
+            else
+                return ffxi_util.find_closest_mob(self.target_names)
+            end
         end
     end
 end

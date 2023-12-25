@@ -22,7 +22,9 @@ function DisposeBag:destroy()
     self:dispose()
 
     for destroyable in self.destroyables:it() do
-        destroyable:destroy()
+        if destroyable.destroy then
+            destroyable:destroy()
+        end
     end
 end
 

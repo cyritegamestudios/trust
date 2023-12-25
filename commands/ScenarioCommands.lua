@@ -5,12 +5,12 @@ local ScenarioTrustCommands = setmetatable({}, {__index = TrustCommands })
 ScenarioTrustCommands.__index = ScenarioTrustCommands
 ScenarioTrustCommands.__class = "ScenarioTrustCommands"
 
-function ScenarioTrustCommands.new(trust, action_queue)
+function ScenarioTrustCommands.new(trust, action_queue, party)
     local self = setmetatable(TrustCommands.new(), ScenarioTrustCommands)
 
     self.trust = trust
     self.action_queue = action_queue
-    self.scenarios = TrustScenarios.new(action_queue)
+    self.scenarios = TrustScenarios.new(action_queue, party)
 
     self:add_command('start', self.handle_start_scenario, 'Start a scenario')
     self:add_command('stop', self.handle_stop_scenario, 'Stop an active scenario')

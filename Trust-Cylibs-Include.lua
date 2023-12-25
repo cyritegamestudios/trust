@@ -48,6 +48,7 @@ NotCondition = require('cylibs/conditions/not_condition')
 SpellRecastReadyCondition = require('cylibs/conditions/spell_recast_ready')
 StrategemCountCondition = require('cylibs/conditions/strategem_count')
 ValidTargetCondition = require('cylibs/conditions/valid_target')
+ZoneCondition = require('cylibs/conditions/zone')
 
 -- Battle
 MonsterBuffTracker = require('cylibs/battle/monster_buff_tracker')
