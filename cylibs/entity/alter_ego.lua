@@ -42,6 +42,24 @@ function AlterEgo:monitor()
     end
     self.is_monitoring = true
 
+    self.dispose_bag:add(WindowerEvents.CharacterUpdate:addAction(function(mob_id, name, hp, hpp, mp, mpp, tp, main_job_id, sub_job_id)
+        if self:get_id() == mob_id then
+            self.name = name
+            self.mp = mp
+            self.mpp = mpp
+            self.tp = tp
+
+            self:set_hp(hp)
+            self:set_hpp(hpp)
+        end
+    end), WindowerEvents.CharacterUpdate)
+
+    self.dispose_bag:add(WindowerEvents.PositionChanged:addAction(function(mob_id, x, y, z)
+        if self:get_id() == mob_id then
+            self:set_position(x, y, z)
+        end
+    end), WindowerEvents.PositionChanged)
+
     self.buff_tracker:on_gain_buff():addAction(function(target_id, buff_id)
         if target_id == self:get_id() then
             logger.notice(self:get_name(), "gained the effect of", res.buffs[buff_id].en)

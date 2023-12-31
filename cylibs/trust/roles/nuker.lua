@@ -2,19 +2,8 @@ local Nuker = setmetatable({}, {__index = Role })
 Nuker.__index = Nuker
 
 local DisposeBag = require('cylibs/events/dispose_bag')
-local MagicBurstMaker = require('cylibs/battle/skillchains/magic_burst_maker')
-local Nukes = require('cylibs/res/nukes')
-
-state.AutoMagicBurstMode = M{['description'] = 'Auto Magic Burst Mode', 'Off', 'Auto', 'Earth', 'Lightning', 'Water', 'Fire', 'Ice', 'Wind', 'Light', 'Dark'}
-state.AutoMagicBurstMode:set_description('Auto', "Okay, if you make skillchains I'll try to magic burst.")
-state.AutoMagicBurstMode:set_description('Earth', "Okay, I'll only magic burst with earth spells.")
-state.AutoMagicBurstMode:set_description('Lightning', "Okay, I'll only magic burst with lightning spells.")
-state.AutoMagicBurstMode:set_description('Water', "Okay, I'll only magic burst with water spells.")
-state.AutoMagicBurstMode:set_description('Fire', "Okay, I'll only magic burst with fire spells.")
-state.AutoMagicBurstMode:set_description('Ice', "Okay, I'll only magic burst with ice spells.")
-state.AutoMagicBurstMode:set_description('Wind', "Okay, I'll only magic burst with wind spells.")
-state.AutoMagicBurstMode:set_description('Light', "Okay, I'll only magic burst with light spells.")
-state.AutoMagicBurstMode:set_description('Dark', "Okay, I'll only magic burst with dark spells.")
+local skillchain_util = require('cylibs/util/skillchain_util')
+local spell_util = require('cylibs/util/spell_util')
 
 state.AutoNukeMode = M{['description'] = 'Auto Nuke Mode', 'Off', 'Earth', 'Lightning', 'Water', 'Fire', 'Ice', 'Wind', 'Light', 'Dark'}
 state.AutoNukeMode:set_description('Earth', "Okay, I'll free nuke with earth spells.")
@@ -25,24 +14,25 @@ state.AutoNukeMode:set_description('Ice', "Okay, I'll free nuke with ice spells.
 state.AutoNukeMode:set_description('Wind', "Okay, I'll free nuke with wind spells.")
 state.AutoNukeMode:set_description('Light', "Okay, I'll free nuke with light spells.")
 state.AutoNukeMode:set_description('Dark', "Okay, I'll free nuke with dark spells.")
+state.AutoNukeMode:set_description('Cleave', "Okay, I'll try to cleave monsters with spells of any element.")
 
 -------
 -- Default initializer for a nuker role.
 -- @tparam ActionQueue action_queue Action queue
--- @tparam number nuke_cooldown Minimum time between nukes in seconds
--- @tparam number nuke_mpp Minimum mana percentage points to nuke
+-- @tparam T nuke_settings Nuke settings (see data/JobNameShort.lua)
 -- @tparam fast_cast number Fast cast modifier (0.0 - 1.0)
 -- @tparam List job_ability_names List of job abilities to use with spells (e.g. Cascade, Ebullience)
 -- @treturn Nuker A nuker role
-function Nuker.new(action_queue, nuke_cooldown, nuke_mpp, fast_cast, job_ability_names)
+function Nuker.new(action_queue, nuke_settings, fast_cast, job_ability_names, job)
     local self = setmetatable(Role.new(action_queue), Nuker)
 
-    self.nuke_cooldown = nuke_cooldown or 2
-    self.nuke_mpp = nuke_mpp or 20
     self.fast_cast = fast_cast or 0.8
     self.job_ability_names = job_ability_names or L{}
+    self.job = job
     self.last_nuke_time = os.time()
     self.dispose_bag = DisposeBag.new()
+
+    self:set_nuke_settings(nuke_settings)
 
     return self
 end
@@ -55,20 +45,6 @@ end
 
 function Nuker:on_add()
     Role.on_add(self)
-
-    self.magic_burst_maker = MagicBurstMaker.new(state.AutoMagicBurstMode)
-    self.magic_burst_maker:start_monitoring()
-    self.magic_burst_maker:on_perform_next_nuke():addAction(function(_, spell_name)
-        if state.AutoMagicBurstMode.value ~= 'Off' then
-            local spell = res.spells:with('name', spell_name)
-            if spell then
-                self:cast_spell(spell.name, true)
-            end
-        end
-    end)
-    self.magic_burst_maker:set_auto_nuke(state.AutoMagicBurstMode.value == 'Auto')
-
-    self.dispose_bag:addAny(L{ self.magic_burst_maker })
 end
 
 function Nuker:target_change(target_index)
@@ -84,20 +60,22 @@ function Nuker:tic(_, _)
 end
 
 function Nuker:check_nukes()
-    local spell_name = Nukes.get_nuke(state.AutoNukeMode.value)
-    if spell_name then
-        self:cast_spell(spell_name, false)
+    local spell
+    if state.AutoNukeMode.value ~= 'Cleave' then
+        local element = Element.new(state.AutoNukeMode.value)
+        spell = self:get_spell(element)
+    else
+        spell = self:get_aoe_spell()
+    end
+    if spell then
+        self:cast_spell(spell:get_spell().name)
     end
 end
 
-function Nuker:cast_spell(spell_name, is_magic_burst)
+function Nuker:cast_spell(spell_name)
     local spell = Spell.new(spell_name, L{}, L{}, nil, L{ MinManaPointsPercentCondition.new(self.nuke_mpp) })
     if Condition.check_conditions(spell:get_conditions(), self.target_index) then
         self.last_nuke_time = os.time()
-
-        if is_magic_burst then
-            windower.send_command('gs c set MagicBurstMode Single')
-        end
 
         spell:set_job_abilities(self.job_ability_names)
 
@@ -114,6 +92,69 @@ end
 
 function Nuker:get_type()
     return "nuker"
+end
+
+-------
+-- Gets the highest tier spell of a given element.
+-- @tparam Element element Element (e.g. Lightning, Fire, Water)
+-- @treturn Spell Spell to nuke with with, or nil if there are none
+function Nuker:get_spell(element)
+    local spells = self.element_to_spells[element:get_name()]:filter(function(spell)
+        if state.AutoNukeMode.value ~= 'Cleave' then
+            return not self.job:get_aoe_spells():contains(spell:get_name())
+        end
+        return true
+    end)
+    for spell in spells:it() do
+        local conditions = spell:get_conditions():extend(L{ MinManaPointsCondition.new(spell:get_spell().mp_cost) })
+        if Condition.check_conditions(conditions, self.target_index) then
+            return spell
+        end
+    end
+    return nil
+end
+
+-------
+-- Gets the highest tier spell of a given element.
+-- @tparam Element element Element (e.g. Lightning, Fire, Water)
+-- @treturn Spell Spell to nuke with with, or nil if there are none
+function Nuker:get_aoe_spell()
+    local aoe_spells = self.spells:filter(function(spell) return self.job:get_aoe_spells():contains(spell:get_name()) end)
+    for spell in aoe_spells:it() do
+        local conditions = spell:get_conditions():extend(L{ MinManaPointsCondition.new(spell:get_spell().mp_cost) })
+        if Condition.check_conditions(conditions, self.target_index) then
+            return spell
+        end
+    end
+    return nil
+end
+
+function Nuker:set_spells(spells)
+    self.element_to_spells = {
+        Fire = L{},
+        Ice = L{},
+        Wind = L{},
+        Earth = L{},
+        Lightning = L{},
+        Water = L{},
+        Light = L{},
+        Dark = L{}
+    }
+    self.spells = (spells or L{}):filter(function(spell) return spell ~= nil and spell_util.knows_spell(spell:get_spell().id) end)
+    for spell in self.spells:it() do
+        local element_name = res.elements[spell:get_spell().element].name
+        self.element_to_spells[element_name]:append(spell)
+    end
+end
+
+-------
+-- Sets the nuke settings.
+-- @tparam T nuke_settings Nuke settings
+function Nuker:set_nuke_settings(nuke_settings)
+    self.nuke_settings = nuke_settings
+    self.nuke_cooldown = nuke_settings.Delay or 2
+    self.nuke_mpp = nuke_settings.MinManaPointsPercent or 20
+    self:set_spells(nuke_settings.Spells)
 end
 
 return Nuker

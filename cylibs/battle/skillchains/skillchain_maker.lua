@@ -1451,7 +1451,7 @@ function SkillchainMaker:action_handler(act)
         local reson = resonating[target.id]
         local delay = ability and ability.delay or 3
         local step = (reson and reson.step or 1) + 1
-
+        logger.notice('SkillchainMaker', skillchain, 'Lv.', level, 'Step', step, call_num)
         if level == 3 and reson and ability then
             level = self:check_props(reson.active, self:aeonic_prop(ability, actor))
         end

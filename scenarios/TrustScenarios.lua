@@ -3,10 +3,11 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local TrustScenarios = {}
 TrustScenarios.__index = TrustScenarios
 
-function TrustScenarios.new(action_queue, party)
+function TrustScenarios.new(action_queue, party, trust)
     local self = setmetatable({
         action_queue = action_queue;
         party = party;
+        trust = trust;
         scenarios = S{};
         dispose_bag = DisposeBag.new();
     }, TrustScenarios)
@@ -42,8 +43,8 @@ function TrustScenarios:add_scenario(name)
             self.scenarios:add(scenario)
             self:start_scenario(scenario)
         elseif name == 'einherjar' then
-            local Einherjar = require('cylibs/scenarios/einherjar/einherjar')
-            local scenario = Einherjar.new(self.action_queue, self.party)
+            local Einherjar = require('scenarios/einherjar/einherjar')
+            local scenario = Einherjar.new(self.action_queue, self.party, self.trust)
             self.scenarios:add(scenario)
             self:start_scenario(scenario)
         end

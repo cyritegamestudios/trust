@@ -1,3 +1,4 @@
+local JobAbilityAction = require('cylibs/actions/job_ability')
 local job_util = require('cylibs/util/job_util')
 local SequenceAction = require('cylibs/actions/sequence')
 local SpellAction = require('cylibs/actions/spell')
@@ -11,10 +12,9 @@ state.AutoTankMode = M{['description'] = 'Auto Tank Mode', 'Off', 'Auto'}
 state.AutoTankMode:set_description('Auto', "Okay, I'll tank for the party.")
 
 function Tank.new(action_queue, job_ability_names, spells)
-    local self = setmetatable(Role.new(settings, action_queue), Tank)
-
+    local self = setmetatable(Role.new(action_queue), Tank)
     self.action_queue = action_queue
-    self.job_ability_names = (job_ability_names or L{}):filter(function(job_ability_name) job_util.knows_job_ability(job_util.job_ability_id(job_ability_name))  end)
+    self.job_ability_names = (job_ability_names or L{}):filter(function(job_ability_name) return job_util.knows_job_ability(job_util.job_ability_id(job_ability_name))  end)
     self.spells = (spells or L{}):filter(function(spell) return spell_util.knows_spell(spell:get_spell().id) end)
     self.enmity_last_checked = os.time()
 
@@ -57,6 +57,13 @@ function Tank:check_enmity()
             spell_action.priority = ActionPriority.high
 
             self.action_queue:push_action(spell_action, true)
+            return
+        end
+    end
+
+    for enmity_job_ability in self.job_ability_names:it() do
+        if job_util.can_use_job_ability(enmity_job_ability) then
+            self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, enmity_job_ability, self.target_index), true)
             return
         end
     end

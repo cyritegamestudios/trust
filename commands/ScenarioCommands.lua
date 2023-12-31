@@ -10,7 +10,7 @@ function ScenarioTrustCommands.new(trust, action_queue, party)
 
     self.trust = trust
     self.action_queue = action_queue
-    self.scenarios = TrustScenarios.new(action_queue, party)
+    self.scenarios = TrustScenarios.new(action_queue, party, trust)
 
     self:add_command('start', self.handle_start_scenario, 'Start a scenario')
     self:add_command('stop', self.handle_stop_scenario, 'Stop an active scenario')

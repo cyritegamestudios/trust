@@ -1,6 +1,6 @@
 -- Settings file for BLM
 return {
-    Version = 1,
+    Version = 2,
     Default = {
         AutoFood="Tropical Crepe",
         Skillchains = {
@@ -34,6 +34,40 @@ return {
         },
         JobAbilities = L{
             JobAbility.new('Mana Wall', L{}, L{}, nil),
+        },
+        NukeSettings = {
+            Delay = 2,
+            MinManaPointsPercent = 20,
+            Spells = L{
+                Spell.new('Comet'),
+                Spell.new('Thunder VI'),
+                Spell.new('Thunder V'),
+                Spell.new('Thundaja'),
+                Spell.new('Thunder IV'),
+                Spell.new('Blizzard VI'),
+                Spell.new('Blizzard V'),
+                Spell.new('Blizzaja'),
+                Spell.new('Blizzard IV'),
+                Spell.new('Fire VI'),
+                Spell.new('Fire V'),
+                Spell.new('Firaja'),
+                Spell.new('Fire IV'),
+                Spell.new('Aero VI'),
+                Spell.new('Aero V'),
+                Spell.new('Aeroja'),
+                Spell.new('Aero IV'),
+                Spell.new('Water VI'),
+                Spell.new('Water V'),
+                Spell.new('Waterja'),
+                Spell.new('Water IV'),
+                Spell.new('Stone VI'),
+                Spell.new('Stone V'),
+                Spell.new('Stoneja'),
+                Spell.new('Stone IV'),
+            },
+            Blacklist = L{
+
+            },
         }
     }
 }

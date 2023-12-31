@@ -19,6 +19,7 @@ local Buffer = require('cylibs/trust/roles/buffer')
 local Debuffer = require('cylibs/trust/roles/debuffer')
 local Dispeler = require('cylibs/trust/roles/dispeler')
 local Healer = require('cylibs/trust/roles/healer')
+local MagicBurster = require('cylibs/trust/roles/magic_burster')
 local Nuker = require('cylibs/trust/roles/nuker')
 local Puller = require('cylibs/trust/roles/puller')
 local Raiser = require('cylibs/trust/roles/raiser')
@@ -40,7 +41,8 @@ function RedMageTrust.new(settings, action_queue, battle_settings, trust_setting
 		Dispeler.new(action_queue, L{ Spell.new('Dispel') }, L{}, true),
 		Healer.new(action_queue, job),
 		Raiser.new(action_queue, job),
-		Nuker.new(action_queue, 4, 50, 0.8, L{}),
+		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
+		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		Puller.new(action_queue, battle_settings.targets, Debuff.new('Dia') and Debuff.new('Dia'):get_spell().name, nil),
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), RedMageTrust)

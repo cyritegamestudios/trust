@@ -1,5 +1,3 @@
-
-
 require('sets')
 local element_util = require('cylibs/util/element_util')
 
@@ -14,8 +12,9 @@ _libs.skillchain_util = skillchain_util
 local Skillchain = {}
 Skillchain.__index = Skillchain
 
-function Skillchain.new(elements, level)
+function Skillchain.new(name, elements, level)
     local self = setmetatable({
+        name = name,
         elements = elements,
         level = level,
     }, Skillchain)
@@ -23,35 +22,51 @@ function Skillchain.new(elements, level)
     return self
 end
 
+function Skillchain:get_elements()
+    return self.elements
+end
+
+function Skillchain:get_name()
+    return self.name
+end
+
+function Skillchain:get_level()
+    return self.level
+end
+
 function Skillchain.equals(obj1, obj2)
     return obj1.elements == obj2.elements and obj1.level == obj2.level
+end
+
+function Skillchain:__tostring()
+    return self:get_name().." (Lv."..self:get_level()..")"
 end
 
 Skillchain.__eq = Skillchain.equals
 
 
-skillchain_util.Transfixion = Skillchain.new(S{element_util.Light}, 1)
-skillchain_util.Liquefaction = Skillchain.new(S{element_util.Fire}, 1)
-skillchain_util.Impaction = Skillchain.new(S{element_util.Thunder}, 1)
-skillchain_util.Detonation = Skillchain.new(S{element_util.Wind}, 1)
-skillchain_util.Compression = Skillchain.new(S{element_util.Dark}, 1)
-skillchain_util.Reverberation = Skillchain.new(S{element_util.Water}, 1)
-skillchain_util.Scission = Skillchain.new(S{element_util.Earth}, 1)
-skillchain_util.Induration = Skillchain.new(S{element_util.Ice}, 1)
+skillchain_util.Transfixion = Skillchain.new("Transfixion", S{element_util.Light}, 1)
+skillchain_util.Liquefaction = Skillchain.new("Liquefaction", S{element_util.Fire}, 1)
+skillchain_util.Impaction = Skillchain.new("Impaction", S{element_util.Lightning}, 1)
+skillchain_util.Detonation = Skillchain.new("Detonation", S{element_util.Wind}, 1)
+skillchain_util.Compression = Skillchain.new("Compression", S{element_util.Dark}, 1)
+skillchain_util.Reverberation = Skillchain.new("Reverberation", S{element_util.Water}, 1)
+skillchain_util.Scission = Skillchain.new("Scission", S{element_util.Earth}, 1)
+skillchain_util.Induration = Skillchain.new("Induration", S{element_util.Ice}, 1)
 
-skillchain_util.Fusion = Skillchain.new(S{element_util.Light,element_util.Fire}, 2)
-skillchain_util.Fragmentation = Skillchain.new(S{element_util.Thunder,element_util.Wind}, 2)
-skillchain_util.Gravitation = Skillchain.new(S{element_util.Dark,element_util.Earth}, 2)
-skillchain_util.Distortion = Skillchain.new(S{element_util.Water,element_util.Ice}, 2)
+skillchain_util.Fusion = Skillchain.new("Fusion", S{element_util.Light,element_util.Fire}, 2)
+skillchain_util.Fragmentation = Skillchain.new("Fragmentation", S{element_util.Lightning,element_util.Wind}, 2)
+skillchain_util.Gravitation = Skillchain.new("Gravitation", S{element_util.Dark,element_util.Earth}, 2)
+skillchain_util.Distortion = Skillchain.new("Distortion", S{element_util.Water,element_util.Ice}, 2)
 
-skillchain_util.Light = Skillchain.new(S{element_util.Light,element_util.Fire,element_util.Thunder,element_util.Wind}, 3)
-skillchain_util.Darkness = Skillchain.new(S{element_util.Dark,element_util.Water,element_util.Earth,element_util.Ice}, 3)
+skillchain_util.Light = Skillchain.new("Light", S{element_util.Light,element_util.Fire,element_util.Lightning,element_util.Wind}, 3)
+skillchain_util.Darkness = Skillchain.new("Darkness", S{element_util.Dark,element_util.Water,element_util.Earth,element_util.Ice}, 3)
 
-skillchain_util.LightLv4 = Skillchain.new(S{element_util.Light,element_util.Fire,element_util.Thunder,element_util.Wind}, 4)
-skillchain_util.DarknessLv4 = Skillchain.new(S{element_util.Dark,element_util.Water,element_util.Earth,element_util.Ice}, 4)
+skillchain_util.LightLv4 = Skillchain.new("Light Lv.4", S{element_util.Light,element_util.Fire,element_util.Lightning,element_util.Wind}, 4)
+skillchain_util.DarknessLv4 = Skillchain.new("Darkness Lv.4", S{element_util.Dark,element_util.Water,element_util.Earth,element_util.Ice}, 4)
 
-skillchain_util.Radiance = Skillchain.new(S{element_util.Light,element_util.Fire,element_util.Thunder,element_util.Wind}, 4)
-skillchain_util.Umbra = Skillchain.new(S{element_util.Dark,element_util.Water,element_util.Earth,element_util.Ice}, 4)
+skillchain_util.Radiance = Skillchain.new("Radiance", S{element_util.Light,element_util.Fire,element_util.Lightning,element_util.Wind}, 4)
+skillchain_util.Umbra = Skillchain.new("Umbra", S{element_util.Dark,element_util.Water,element_util.Earth,element_util.Ice}, 4)
 
 skillchain_util.Transfixion.Compression = skillchain_util.Compression
 skillchain_util.Transfixion.Scission = skillchain_util.Distortion
@@ -99,7 +114,7 @@ skillchain_util.Light.Radiance = skillchain_util.Radiance
 skillchain_util.Darkness.Umbra = skillchain_util.Umbra
 
 -- Chainbound
-skillchain_util.Chainbound = Skillchain.new(nil, 0)
+skillchain_util.Chainbound = Skillchain.new("Chainbound", nil, 0)
 skillchain_util.Chainbound.Transfixion = skillchain_util.Transfixion
 skillchain_util.Chainbound.Liquefaction = skillchain_util.Liquefaction
 skillchain_util.Chainbound.Impaction = skillchain_util.Impaction
@@ -117,9 +132,12 @@ skillchain_util.Chainbound.Distortion = skillchain_util.Distortion
 skillchain_util.Chainbound.Light = skillchain_util.Light
 skillchain_util.Chainbound.Darkness = skillchain_util.Darkness
 
+-- Colors
 skillchain_util.colors = {}            -- Color codes by Sammeh
 skillchain_util.colors.Light =         '\\cs(255,255,255)'
+skillchain_util.colors['Light Lv.4'] =         '\\cs(255,255,255)'
 skillchain_util.colors.Dark =          '\\cs(0,0,204)'
+skillchain_util.colors['Darkness Lv.4'] =          '\\cs(0,0,204)'
 skillchain_util.colors.Ice =           '\\cs(0,255,255)'
 skillchain_util.colors.Water =         '\\cs(0,0,255)'
 skillchain_util.colors.Earth =         '\\cs(153,76,0)'
@@ -141,6 +159,7 @@ skillchain_util.colors.Scission =      skillchain_util.colors.Earth
 skillchain_util.colors.Detonation =    skillchain_util.colors.Wind
 skillchain_util.colors.Liquefaction =  skillchain_util.colors.Fire
 skillchain_util.colors.Impaction =     skillchain_util.colors.Lightning
+
 
 function skillchain_util.color_for_element(element_name)
     return skillchain_util.colors[element_name] or skillchain_util.colors[(element_name:gsub("^%l", string.upper))]

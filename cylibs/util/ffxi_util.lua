@@ -56,7 +56,7 @@ function ffxi_util.get_direction_to_point(p)
 	return direction
 end
 
-function ffxi_util.find_closest_mob(target_mobs, exclude_target_indices)
+function ffxi_util.find_closest_mob(target_mobs, exclude_target_indices, exclude_names)
 	local player = windower.ffxi.get_player()
 	local player_mob = windower.ffxi.get_mob_by_id(player.id)
 	local closest_mob = nil
@@ -64,7 +64,7 @@ function ffxi_util.find_closest_mob(target_mobs, exclude_target_indices)
 	local mob_array = windower.ffxi.get_mob_array()
     for i, mob in pairs(mob_array) do
     	local deltaZ = math.abs(player_mob.z - mob.z)
-    	
+
 		-- Check to see if mob is in target_mob list
 		local is_target_mob = false
 		for target_mob in target_mobs:it() do
@@ -79,8 +79,9 @@ function ffxi_util.find_closest_mob(target_mobs, exclude_target_indices)
 		if exclude_target_indices == nil then
 			exclude_target_indices = L{}
 		end
-		
-    	if mob.id ~= player.id and not exclude_target_indices:contains(mob.index) and deltaZ < 8 and is_target_mob and mob.hpp > 0 and (mob.claim_id == 0 or mob.claim_id == player.id or party_util.party_claimed(mob.id)) and mob.valid_target and mob.spawn_type == 16 and (closest_mob == nil or mob.distance < closest_mob.distance) then
+		exclude_names = exclude_names or L{}
+
+    	if mob.id ~= player.id and not exclude_target_indices:contains(mob.index) and not exclude_names:contains(mob.name) and deltaZ < 8 and is_target_mob and mob.hpp > 0 and (mob.claim_id == 0 or mob.claim_id == player.id or party_util.party_claimed(mob.id)) and mob.valid_target and mob.spawn_type == 16 and (closest_mob == nil or mob.distance < closest_mob.distance) then
 			closest_mob = mob
         end
     end

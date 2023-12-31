@@ -46,4 +46,18 @@ function Geomancer:get_status_removal_spell(debuff_id)
     return nil
 end
 
+-------
+-- Returns all AOE spells.
+-- @treturn list List of AOE spell names
+function Geomancer:get_aoe_spells()
+    return L{
+        'Stonera', 'Stonera II', 'Stonera III',
+        'Aerora', 'Aerora II', 'Aerora III',
+        'Blizzara', 'Blizzara II', 'Blizzara III',
+        'Fira', 'Fira II', 'Fira III',
+        'Watera', 'Watera II', 'Watera III',
+        'Thundara', 'Thundara II', 'Thundara III',
+    }
+end
+
 return Geomancer

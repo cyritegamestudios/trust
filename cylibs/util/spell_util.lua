@@ -21,6 +21,17 @@ local spells_whitelist = L{
     'Honor March'
 }
 
+local aoe_spells = L{
+    'Stonega', 'Stonega II', 'Stonega III', 'Stoneja', 'Stonera', 'Stonera II', 'Stonera III',
+    'Aeroga', 'Aeroga II', 'Aeroga III', 'Aeroja', 'Aerora', 'Aerora II', 'Aerora III',
+    'Blizzaga', 'Blizzaga II', 'Blizzaga III', 'Blizzaja', 'Blizzara', 'Blizzara II', 'Blizzara III',
+    'Firaga', 'Firaga II', 'Firaga III', 'Firaja', 'Fira', 'Fira II', 'Fira III',
+    'Waterga', 'Waterga II', 'Waterga III', 'Waterja', 'Watera', 'Watera II', 'Watera III',
+    'Thundaga', 'Thundaga II', 'Thundaga III', 'Thundaja', 'Thundara', 'Thundara II', 'Thundara III',
+    'Banishga', 'Banishga II',
+    'Meteor'
+}
+
 -------
 -- Returns the spell id for the given localized spell name.
 -- @tparam string spell_name Localized spell name
@@ -229,6 +240,14 @@ function spell_util.spell_targets(spell_id)
         return targets
     end
     return L{}
+end
+
+-------
+-- Returns whether the given offensive spell is AOE.
+-- @tparam string spell_name Spell id or spell name (see res/spells.lua)
+-- @treturn boolean True if the spell is AOE
+function spell_util.is_aoe_spell(spell_name)
+    return aoe_spells:contains(spell_name)
 end
 
 return spell_util

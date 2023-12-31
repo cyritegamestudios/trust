@@ -115,6 +115,13 @@ function WhiteMage:get_raise_spell()
 end
 
 -------
+-- Returns all AOE spells.
+-- @treturn list List of AOE spell names
+function WhiteMage:get_aoe_spells()
+    return L{ 'Banishga', 'Banishga II', 'Diaga' }
+end
+
+-------
 -- Returns the threshold below which players should be healed.
 -- @tparam Boolean is_backup_healer Whether the player is the backup healer
 -- @treturn number HP percentage

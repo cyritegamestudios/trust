@@ -58,6 +58,16 @@ function Monster:on_spell_finish()
     return self.spell_finish
 end
 
+-- Event called when a skillchain is made on the monster
+function Monster:on_skillchain()
+    return self.skillchain
+end
+
+-- Event called when a skillchain on the monster ends
+function Monster:on_skillchain_ended()
+    return self.skillchain_ended
+end
+
 -------
 -- Default initializer for a new monster.
 -- @tparam number mob_id Mob id
@@ -80,6 +90,8 @@ function Monster.new(mob_id)
     self.spell_resisted = Event.newEvent()
     self.spell_begin = Event.newEvent()
     self.spell_finish = Event.newEvent()
+    self.skillchain = Event.newEvent()
+    self.skillchain_ended = Event.newEvent()
 
     self.dispose_bag = DisposeBag.new()
 
@@ -116,6 +128,8 @@ function Monster:destroy()
     self.spell_resisted:removeAllActions()
     self.spell_begin:removeAllActions()
     self.spell_finish:removeAllActions()
+    self.skillchain:removeAllActions()
+    self.skillchain_ended:removeAllActions()
 
     self.dispose_bag:destroy()
 end
@@ -303,6 +317,26 @@ function Monster:get_status()
         return res.statuses[mob.status].name
     end
     return 'Idle'
+end
+
+-------
+-- Sets the current skillchain active on this monster.
+-- @tparam SkillchainStep skillchain Active skillchain
+function Monster:set_skillchain(skillchain_step)
+    logger.notice(self.__class, 'set_skillchain', skillchain_step and tostring(skillchain_step) or 'none')
+    self.skillchain_step = skillchain_step
+    if self.skillchain_step then
+        self:on_skillchain():trigger(self, skillchain_step)
+    else
+        self:on_skillchain_ended():trigger(self)
+    end
+end
+
+-------
+-- Returns the current skillchain active on this monster, if any.
+-- @treturn SkillchainStep Active skillchain, or nil if no skillchain is active
+function Monster:get_skillchain()
+    return self.skillchain_step
 end
 
 -------

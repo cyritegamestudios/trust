@@ -2,20 +2,24 @@ local Trust = require('cylibs/trust/trust')
 local BlackMageTrust = setmetatable({}, {__index = Trust })
 BlackMageTrust.__index = BlackMageTrust
 
+local BlackMage = require('cylibs/entity/jobs/BLM')
 local BlackMageTrustCommands = require('cylibs/trust/commands/BLM') -- keep this for dependency script
 local Buffer = require('cylibs/trust/roles/buffer')
 local Debuffer = require('cylibs/trust/roles/debuffer')
+local MagicBurster = require('cylibs/trust/roles/magic_burster')
 local ManaRestorer = require('cylibs/trust/roles/mana_restorer')
 local Nuker = require('cylibs/trust/roles/nuker')
 local Puller = require('cylibs/trust/roles/puller')
 local Sleeper = require('cylibs/trust/roles/sleeper')
 
 function BlackMageTrust.new(settings, action_queue, battle_settings, trust_settings)
+	local job = BlackMage.new()
 	local roles = S{
 		Buffer.new(action_queue, trust_settings.JobAbilities, trust_settings.SelfBuffs),
 		Debuffer.new(action_queue, trust_settings.Debuffs),
+		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{ 'Cascade', 'Manawell' }, job),
 		ManaRestorer.new(action_queue, L{'Myrkr', 'Spirit Taker', 'Moonlight'}, 40),
-		Nuker.new(action_queue, 2, 20, 0.8, L{ 'Cascade', 'Manawell' }),
+		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		Puller.new(action_queue, battle_settings.targets, 'Burn', nil),
 		Sleeper.new(action_queue, L{ Spell.new('Sleepga'), Spell.new('Sleepga II') }, 4)
 	}

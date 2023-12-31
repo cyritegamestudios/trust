@@ -76,7 +76,16 @@ function DancerTrust:check_steps()
 	if battle_util.is_valid_target(target.id) then
 		self.last_step_time = os.time()
 		self.step_target_index = self.target_index
-		self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, 'Box Step', target.index))
+
+		local actions = L{}
+		if job_util.knows_job_ability(job_util.job_ability_id('Presto')) then
+			actions:append(JobAbilityAction.new(0, 0, 0, 'Presto'))
+			actions:append(WaitAction.new(0, 0, 0, 1.5))
+		end
+		actions:append(JobAbilityAction.new(0, 0, 0, 'Box Step', target.index))
+
+		local step_action = SequenceAction.new(actions, 'box_step')
+		self.action_queue:push_action(step_action, true)
 	end
 end
 

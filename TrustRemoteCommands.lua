@@ -53,7 +53,7 @@ function TrustRemoteCommands:handle_command(sender, args)
         for _,v in ipairs(args) do
             params = params..' '..tostring(v)
         end
-        if self.commands:contains(cmd) or L{'cycle', 'set'}:contains(cmd) then
+        if self.commands:contains(cmd) or L{'cycle', 'set', 'assist', 'follow'}:contains(cmd) then
             windower.send_command('input // trust '..params)
 
             addon_message(209, 'Executing remote command from '..sender..': trust'..params)

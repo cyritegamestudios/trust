@@ -1,6 +1,6 @@
 -- Settings file for SCH
 return {
-    Version = 1,
+    Version = 2,
     Default = {
         LightArts = {
             JobAbilities = L{
@@ -34,6 +34,27 @@ return {
                 }
             }
         },
+        NukeSettings = {
+            Delay = 2,
+            MinManaPointsPercent = 20,
+            Spells = L{
+                Spell.new('Thunder V'),
+                Spell.new('Thunder IV'),
+                Spell.new('Blizzard V'),
+                Spell.new('Blizzard IV'),
+                Spell.new('Fire V'),
+                Spell.new('Fire IV'),
+                Spell.new('Aero V'),
+                Spell.new('Aero IV'),
+                Spell.new('Water V'),
+                Spell.new('Water IV'),
+                Spell.new('Stone V'),
+                Spell.new('Stone IV'),
+            },
+            Blacklist = L{
+
+            },
+        },
         Skillchains = {
             spamws = L{
                 "Black Halo"
@@ -66,7 +87,7 @@ return {
             },
             SelfBuffs = L{
                 Spell.new("Klimaform", L{}, nil, nil, L{})
-            }
+            },
         }
     }
 }

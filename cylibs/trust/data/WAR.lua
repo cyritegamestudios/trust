@@ -6,11 +6,13 @@ WarriorTrust.__index = WarriorTrust
 
 local Puller = require('cylibs/trust/roles/puller')
 local Buffer = require('cylibs/trust/roles/buffer')
+local Tank = require('cylibs/trust/roles/tank')
 
 function WarriorTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local roles = S{
 		Buffer.new(action_queue, trust_settings.JobAbilities, nil, nil),
 		Puller.new(action_queue, battle_settings.targets, nil, 'Provoke'),
+		Tank.new(action_queue, L{ 'Provoke' }, L{})
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, Warrior.new()), WarriorTrust)
 

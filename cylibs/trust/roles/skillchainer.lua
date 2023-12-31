@@ -4,6 +4,7 @@ Skillchainer.__index = Skillchainer
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Event = require('cylibs/events/Luvent')
 local SkillchainMaker = require('cylibs/battle/skillchains/skillchain_maker')
+local SkillchainTracker = require('cylibs/battle/skillchains/skillchain_tracker')
 
 state.AutoAftermathMode = M{['description'] = 'Auto Aftermath Mode', 'Off', 'Auto'}
 state.AutoAftermathMode:set_description('Auto', "Okay, I'll try to keep aftermath on.")
@@ -32,7 +33,12 @@ end
 
 -- Event called when a skillchain is made
 function Skillchainer:on_skillchain()
-    return self.skillchain_maker:on_skillchain()
+    return self.skillchain
+end
+
+-- Event called when a skillchain ends
+function Skillchainer:on_skillchain_ended()
+    return self.skillchain_ended
 end
 
 function Skillchainer.new(action_queue, skillchain_params, skillchain_settings, job_abilities)
@@ -42,6 +48,8 @@ function Skillchainer.new(action_queue, skillchain_params, skillchain_settings, 
     self.skillchain_params = skillchain_params
     self.skillchain_settings = skillchain_settings
     self.ready_weaponskill = Event.newEvent()
+    self.skillchain = Event.newEvent();
+    self.skillchain_ended = Event.newEvent();
     self.dispose_bag = DisposeBag.new()
 
     self:set_job_abilities(job_abilities)
@@ -52,7 +60,9 @@ end
 function Skillchainer:destroy()
     Role.destroy(self)
 
-    self.ready_weaponskill:removeAllActions()
+    self:on_ready_weaponskill():removeAllActions()
+    self:on_skillchain():removeAllActions()
+    self:on_skillchain_ended():removeAllActions()
 
     self.dispose_bag:destroy()
 end
@@ -72,7 +82,27 @@ function Skillchainer:on_add()
         self:job_weapon_skill(weapon_skill_name)
     end)
 
-    self.dispose_bag:addAny(L{ self.skillchain_maker })
+    self.skillchain_tracker = SkillchainTracker.new(self:get_party())
+    self.skillchain_tracker:on_skillchain():addAction(function(mob_id, step)
+        local target = self:get_party():get_target(mob_id)
+        if target then
+            target:set_skillchain(step)
+            if target:get_mob().index == self.target_index then
+                self:on_skillchain():trigger(mob_id, step)
+            end
+        end
+    end)
+    self.skillchain_tracker:on_skillchain_ended():addAction(function(mob_id)
+        local target = self:get_party():get_target(mob_id)
+        if target then
+            target:set_skillchain(nil)
+            if target:get_mob().index == self.target_index then
+                self:on_skillchain_ended():trigger(mob_id)
+            end
+        end
+    end)
+
+    self.dispose_bag:addAny(L{ self.skillchain_maker, self.skillchain_tracker })
 end
 
 function Skillchainer:job_weapon_skill(weapon_skill_name)
@@ -113,6 +143,9 @@ function Skillchainer:set_skillchain_settings(skillchain_settings)
     self.skillchain_maker:set_skillchain_settings(skillchain_settings)
 end
 
+function Skillchainer:get_skillchain_tracker()
+    return self.skillchain_tracker
+end
 
 function Skillchainer:allows_duplicates()
     return false

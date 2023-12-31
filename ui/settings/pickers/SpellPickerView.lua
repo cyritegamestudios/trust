@@ -10,14 +10,15 @@ local spell_util = require('cylibs/util/spell_util')
 local SpellPickerView = setmetatable({}, {__index = PickerView })
 SpellPickerView.__index = SpellPickerView
 
-function SpellPickerView.new(trustSettings, spells, allSpells, defaultJobNames)
+function SpellPickerView.new(trustSettings, spells, allSpells, defaultJobNames, override)
     local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
 
-    local self = setmetatable(PickerView.withItems(allSpells, L{}, true, cursorImageItem), SpellPickerView)
+    local self = setmetatable(PickerView.withItems(allSpells, spells:map(function(spell) return spell:get_name() end), true, cursorImageItem), SpellPickerView)
 
     self.trustSettings = trustSettings
     self.spells = spells
     self.defaultJobNames = defaultJobNames
+    self.override = override
 
     if self:getDataSource():numberOfItemsInSection(1) > 0 then
         self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
@@ -30,6 +31,9 @@ function SpellPickerView:onSelectMenuItemAtIndexPath(textItem, _)
     if textItem:getText() == 'Confirm' then
         local selectedIndexPaths = self:getDelegate():getSelectedIndexPaths()
         if selectedIndexPaths:length() > 0 then
+            if self.override then
+                self.spells:clear()
+            end
             for selectedIndexPath in selectedIndexPaths:it() do
                 local item = self:getDataSource():itemAtIndexPath(selectedIndexPath)
                 if item then
@@ -47,7 +51,12 @@ function SpellPickerView:onSelectMenuItemAtIndexPath(textItem, _)
                     end
                 end
             end
-            self:getDelegate():deselectAllItems()
+            if not self.override then
+                self:getDelegate():deselectAllItems()
+            end
+            self.spells:sort(function(spell1, spell2)
+                return spell1:get_name() < spell2:get_name()
+            end)
             self.trustSettings:saveSettings(true)
             addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my spells!")
         end

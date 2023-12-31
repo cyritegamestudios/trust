@@ -12,6 +12,7 @@ local Barspeller = require('cylibs/trust/roles/barspeller')
 local Healer = require('cylibs/trust/roles/healer')
 local Raiser = require('cylibs/trust/roles/raiser')
 local Debuffer = require('cylibs/trust/roles/debuffer')
+local MagicBurster = require('cylibs/trust/roles/magic_burster')
 local ManaRestorer = require('cylibs/trust/roles/mana_restorer')
 local Nuker = require('cylibs/trust/roles/nuker')
 local Buffer = require('cylibs/trust/roles/buffer')
@@ -24,8 +25,9 @@ function WhiteMageTrust.new(settings, action_queue, battle_settings, trust_setti
 		Barspeller.new(action_queue, job),
 		Buffer.new(action_queue, trust_settings.JobAbilities, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
 		Debuffer.new(action_queue, trust_settings.Debuffs),
+		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		ManaRestorer.new(action_queue, L{'Mystic Boon', 'Dagan', 'Spirit Taker', 'Moonlight'}, 40),
-		Nuker.new(action_queue, 10),
+		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		Healer.new(action_queue, job),
 		StatusRemover.new(action_queue, job),
 		Raiser.new(action_queue, job),
