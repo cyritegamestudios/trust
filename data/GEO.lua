@@ -16,6 +16,7 @@ return {
         NukeSettings = {
             Delay = 4,
             MinManaPointsPercent = 40,
+            MinNumMobsToCleave = 2,
             Spells = L{
                 Spell.new('Aspir III'),
                 Spell.new('Thunder V'),

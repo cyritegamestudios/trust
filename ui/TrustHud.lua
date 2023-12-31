@@ -224,6 +224,10 @@ function TrustHud:layoutIfNeeded()
     self.actionView:layoutIfNeeded()
 end
 
+function TrustHud:getViewStack()
+    return self.viewStack
+end
+
 function TrustHud:toggleMenu()
     self.trustMenu:closeAll()
 

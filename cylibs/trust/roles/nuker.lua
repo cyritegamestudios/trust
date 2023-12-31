@@ -5,7 +5,7 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local skillchain_util = require('cylibs/util/skillchain_util')
 local spell_util = require('cylibs/util/spell_util')
 
-state.AutoNukeMode = M{['description'] = 'Auto Nuke Mode', 'Off', 'Earth', 'Lightning', 'Water', 'Fire', 'Ice', 'Wind', 'Light', 'Dark'}
+state.AutoNukeMode = M{['description'] = 'Auto Nuke Mode', 'Off', 'Earth', 'Lightning', 'Water', 'Fire', 'Ice', 'Wind', 'Light', 'Dark', 'Cleave'}
 state.AutoNukeMode:set_description('Earth', "Okay, I'll free nuke with earth spells.")
 state.AutoNukeMode:set_description('Lightning', "Okay, I'll free nuke with lightning spells.")
 state.AutoNukeMode:set_description('Water', "Okay, I'll free nuke with water spells.")
@@ -56,17 +56,34 @@ function Nuker:tic(_, _)
             or (os.time() - self.last_nuke_time) < self.nuke_cooldown then
         return
     end
-    self:check_nukes()
+    if state.AutoNukeMode.value == 'Cleave' then
+        self:check_cleave()
+    else
+        local target = self:get_target()
+        if target and target:is_claimed() then
+            self:check_nukes()
+        end
+    end
+end
+
+function Nuker:check_cleave()
+    local targets = self:get_party():get_targets(function(t)
+        return t:get_mob().distance:sqrt() < 12 and t:get_status() == 'Engaged'
+    end)
+    if targets:length() >= self.min_num_mobs_to_cleave then
+        local spell = self:get_aoe_spell()
+        if spell then
+            self:cast_spell(spell:get_spell().name)
+        end
+    else
+        self:get_party():add_to_chat(self:get_party():get_player(), "I'll start cleaving after we find "..self.min_num_mobs_to_cleave - targets:length().." more mob(s).", "nuker_cleave", 10)
+    end
 end
 
 function Nuker:check_nukes()
-    local spell
-    if state.AutoNukeMode.value ~= 'Cleave' then
-        local element = Element.new(state.AutoNukeMode.value)
-        spell = self:get_spell(element)
-    else
-        spell = self:get_aoe_spell()
-    end
+    local element = Element.new(state.AutoNukeMode.value)
+
+    local spell = self:get_spell(element)
     if spell then
         self:cast_spell(spell:get_spell().name)
     end
@@ -154,6 +171,7 @@ function Nuker:set_nuke_settings(nuke_settings)
     self.nuke_settings = nuke_settings
     self.nuke_cooldown = nuke_settings.Delay or 2
     self.nuke_mpp = nuke_settings.MinManaPointsPercent or 20
+    self.min_num_mobs_to_cleave = nuke_settings.MinNumMobsToCleave or 2
     self:set_spells(nuke_settings.Spells)
 end
 

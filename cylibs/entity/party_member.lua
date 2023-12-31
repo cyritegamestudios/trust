@@ -115,7 +115,7 @@ function PartyMember.new(id)
     end
 
     self:set_buff_ids(party_util.get_buffs(self.id))
-    self:set_debuff_ids(party_util.get_buffs(self.id))
+    self:set_debuff_ids(L(buff_util.debuffs_for_buff_ids(party_util.get_buffs(self.id))))
 
     return self
 end

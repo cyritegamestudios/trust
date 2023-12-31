@@ -42,6 +42,7 @@ return {
         NukeSettings = {
             Delay = 10,
             MinManaPointsPercent = 60,
+            MinNumMobsToCleave = 2,
             Spells = L{
                 Spell.new('Holy II'),
                 Spell.new('Holy'),
