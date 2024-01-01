@@ -99,3 +99,6 @@ TrustFactory = require('cylibs/trust/trust_factory')
 -- Ipc
 IpcRelay = require('cylibs/messages/ipc/ipc_relay')
 CommandMessage = require('cylibs/messages/command_message')
+
+-- UI
+MessageView = require('cylibs/trust/ui/message_view')
