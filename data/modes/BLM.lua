@@ -25,5 +25,6 @@ return {
         ["autoenmityreductionmode"]="Off",
         ["autosleepmode"]="Off",
         ["ipcmode"]="All",
+        ["magicbursttargetmode"]="Single",
     }
 }

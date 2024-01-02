@@ -30,5 +30,6 @@ return {
         ["autobuffmode"]="Auto",
         ["autoenmityreductionmode"]="Off",
         ["ipcmode"]="All",
+        ["magicbursttargetmode"]="Single",
     }
 }

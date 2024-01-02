@@ -13,7 +13,11 @@ SpellPickerView.__index = SpellPickerView
 function SpellPickerView.new(trustSettings, spells, allSpells, defaultJobNames, override)
     local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
 
-    local self = setmetatable(PickerView.withItems(allSpells, spells:map(function(spell) return spell:get_name() end), true, cursorImageItem), SpellPickerView)
+    local selectedSpells = L{}
+    if override then
+        selectedSpells = spells:map(function(spell) return spell:get_name() end)
+    end
+    local self = setmetatable(PickerView.withItems(allSpells, selectedSpells, true, cursorImageItem), SpellPickerView)
 
     self.trustSettings = trustSettings
     self.spells = spells

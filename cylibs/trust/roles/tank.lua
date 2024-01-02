@@ -16,7 +16,8 @@ function Tank.new(action_queue, job_ability_names, spells)
     self.action_queue = action_queue
     self.job_ability_names = (job_ability_names or L{}):filter(function(job_ability_name) return job_util.knows_job_ability(job_util.job_ability_id(job_ability_name))  end)
     self.spells = (spells or L{}):filter(function(spell) return spell_util.knows_spell(spell:get_spell().id) end)
-    self.enmity_last_checked = os.time()
+    self.enmity_action_delay = 10
+    self.enmity_last_checked = os.time() - self.enmity_action_delay
 
     return self
 end
@@ -42,18 +43,24 @@ end
 function Tank:check_enmity()
     local target = windower.ffxi.get_mob_by_index(self.target_index)
 
-    if state.AutoTankMode.value == 'Off' or os.time() - self.enmity_last_checked < 5 or not party_util.party_claimed(target.id) then
+    if state.AutoTankMode.value == 'Off' or os.time() - self.enmity_last_checked < self.enmity_action_delay or not party_util.party_claimed(target.id) then
         return
     end
-    self.enmity_last_checked = os.time()
 
     for enmity_spell in self.spells:it() do
         if spell_util.can_cast_spell(enmity_spell:get_spell().id) then
-            local spell_action = SequenceAction.new(L{
+            self.enmity_last_checked = os.time()
+
+            local actions = L{
                 SpellAction.new(0, 0, 0, enmity_spell:get_spell().id, self.target_index, self:get_player()),
-                WaitAction.new(0, 0, 0, 2),
-                SpellAction.new(0, 0, 0, spell_util.spell_id('Foil'), nil, self:get_player()),
-            }, 'tank_enmity')
+            }
+
+            if spell_util.can_cast_spell(spell_util.spell_id('Foil')) then
+                actions:append(WaitAction.new(0, 0, 0, 2))
+                actions:append(SpellAction.new(0, 0, 0, spell_util.spell_id('Foil'), nil, self:get_player()))
+            end
+
+            local spell_action = SequenceAction.new(actions, 'tank_enmity')
             spell_action.priority = ActionPriority.high
 
             self.action_queue:push_action(spell_action, true)
@@ -63,6 +70,8 @@ function Tank:check_enmity()
 
     for enmity_job_ability in self.job_ability_names:it() do
         if job_util.can_use_job_ability(enmity_job_ability) then
+            self.enmity_last_checked = os.time()
+
             self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, enmity_job_ability, self.target_index), true)
             return
         end
