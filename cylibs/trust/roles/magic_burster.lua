@@ -89,7 +89,6 @@ function MagicBurster:target_change(target_index)
         self.target_dispose_bag:add(target:on_skillchain_ended():addAction(function(t)
         end), target:on_skillchain_ended())
     end
-
 end
 
 function MagicBurster:on_prerender()
