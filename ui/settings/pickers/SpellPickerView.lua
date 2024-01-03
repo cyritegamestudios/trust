@@ -10,7 +10,7 @@ local spell_util = require('cylibs/util/spell_util')
 local SpellPickerView = setmetatable({}, {__index = PickerView })
 SpellPickerView.__index = SpellPickerView
 
-function SpellPickerView.new(trustSettings, spells, allSpells, defaultJobNames, override)
+function SpellPickerView.new(trustSettings, spells, allSpells, defaultJobNames, override, sort)
     local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
 
     local selectedSpells = L{}
@@ -23,6 +23,7 @@ function SpellPickerView.new(trustSettings, spells, allSpells, defaultJobNames, 
     self.spells = spells
     self.defaultJobNames = defaultJobNames
     self.override = override
+    self.sort = sort
 
     if self:getDataSource():numberOfItemsInSection(1) > 0 then
         self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
@@ -58,9 +59,13 @@ function SpellPickerView:onSelectMenuItemAtIndexPath(textItem, _)
             if not self.override then
                 self:getDelegate():deselectAllItems()
             end
-            self.spells:sort(function(spell1, spell2)
-                return spell1:get_name() < spell2:get_name()
-            end)
+            if self.sort ~= nil then
+                self.sort(self.spells)
+            else
+                self.spells:sort(function(spell1, spell2)
+                    return spell1:get_name() < spell2:get_name()
+                end)
+            end
             self.trustSettings:saveSettings(true)
             addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my spells!")
         end

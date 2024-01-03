@@ -616,7 +616,11 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
                     return spell.levels[jobId] ~= nil and spell.type == 'BlackMagic' and S{ 'Enemy' }:intersection(S(spell.targets)):length() > 0
                 end):map(function(spell) return spell.name end):sort()
 
-                local chooseSpellsView = setupView(SpellPickerView.new(trustSettings, spellSettings, allSpells, L{}, true), viewSize)
+                local sortSpells = function(spells)
+                    spell_util.sort_by_element(spells, true)
+                end
+
+                local chooseSpellsView = setupView(SpellPickerView.new(trustSettings, spellSettings, allSpells, L{}, true, sortSpells), viewSize)
                 chooseSpellsView:setTitle("Choose spells to nuke with.")
                 return chooseSpellsView
             end)

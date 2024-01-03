@@ -250,4 +250,53 @@ function spell_util.is_aoe_spell(spell_name)
     return aoe_spells:contains(spell_name)
 end
 
+-------
+-- Sorts a list of spells by element first and alphabetically within each element. Modifies the list in place.
+-- @tparam list spells List of spells (see battle/spells.lua)
+function spell_util.sort_by_element(spells, descending)
+    local element_to_spells = {
+        Fire = L{},
+        Ice = L{},
+        Wind = L{},
+        Earth = L{},
+        Lightning = L{},
+        Water = L{},
+        Light = L{},
+        Dark = L{}
+    }
+    for spell in spells:it() do
+        local element_name = res.elements[spell:get_spell().element].name
+        element_to_spells[element_name]:append(spell)
+    end
+
+    local element_priority = L{
+        'Dark',
+        'Lightning',
+        'Ice',
+        'Fire',
+        'Wind',
+        'Water',
+        'Earth',
+        'Light'
+    }
+
+    local result = L{}
+    for element in element_priority:it() do
+        local spells = element_to_spells[element]
+        spells:sort(function(spell1, spell2)
+            if descending then
+                return spell1:get_name() > spell2:get_name()
+            else
+                return spell1:get_name() < spell2:get_name()
+            end
+        end)
+        result = result:extend(spells)
+    end
+
+    spells:clear()
+    spells = spells:extend(result)
+
+    return result
+end
+
 return spell_util
