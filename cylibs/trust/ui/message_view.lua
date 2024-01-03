@@ -22,7 +22,7 @@ function MessageView.new(title, header, message, footer, viewSize)
             cell:setItemSize(20)
             cell:setUserInteractionEnabled(true)
         else
-            cell:setItemSize(numLines * 20 - 10)
+            cell:setItemSize((numLines - 1) * 20 - 10)
         end
         return cell
     end)

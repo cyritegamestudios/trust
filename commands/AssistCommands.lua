@@ -31,7 +31,7 @@ function AssistTrustCommands:handle_assist_player(party_member_name)
 
         self.trust:get_party():set_assist_target(alliance_member)
 
-        if state.AutoPullMode.value ~= 'Off' then
+        if state.AutoPullMode and state.AutoPullMode.value ~= 'Off' then
             state.AutoPullMode:set('Off')
             self.trust:get_party():add_to_chat(self.trust:get_party():get_player(), "I can't pull when I'm assisting someone else, so I'm going to stop pulling.")
         end

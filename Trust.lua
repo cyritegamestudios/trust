@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '8.3.0'
+_addon.version = '8.3.1'
 _addon.release_notes = [[
 	• Enhancements to magic bursting for BLM, GEO, RDM, SCH and WHM
 	    • Customize spells used in Trust UI
@@ -11,6 +11,13 @@ _addon.release_notes = [[
 	• Enhancements to free nuking for BLM, GEO, RDM, SCH and WHM
 	    • Customize spells used in Trust UI
 	    • Cleave groups of monsters setting `AutoNukeMode` to `Cleave`
+
+	• Bug fixes
+	    • Fixed an issue where songs would not track properly when a
+	      party member is KO'ed
+	    • Fixed an issue where Alter Egos would not be buffed or healed
+	    • Fixed an issue where a Corsair Trust would not properly reset
+	      modes after rolling
 
 	• Press escape or enter to exit.
 	]]

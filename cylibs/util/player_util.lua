@@ -41,7 +41,7 @@ end
 
 function player_util.get_player_position()
 	local player = windower.ffxi.get_mob_by_id(windower.ffxi.get_player().id)
-	
+
 	local v = vector.zero(3)
 
 	v[1] = player.x

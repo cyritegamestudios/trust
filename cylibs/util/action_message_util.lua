@@ -141,7 +141,7 @@ end
 -- @tparam number message_id Action message id (see action_messages.lua)
 -- @treturn Bool True if a given message_id corresponds to a message indicating a weapon skill has been performed
 function action_message_util.is_weapon_skill_message(message_id)
-    return L{ 110, 185, 187, 317, 802 }:contains(message_id)
+    return L{ 2, 110, 185, 187, 317, 529, 802 }:contains(message_id)
 end
 
 -------
