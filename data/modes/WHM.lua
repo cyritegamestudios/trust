@@ -30,6 +30,6 @@ return {
         ["autofoodmode"]="Off",
         ["autoenmityreductionmode"]="Auto",
         ["ipcmode"]="All",
-
+        ["magicbursttargetmode"]="Single",
     }
 }

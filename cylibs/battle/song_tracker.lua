@@ -230,12 +230,17 @@ end
 -------
 -- Resets song records.
 function SongTracker:reset(target_id)
+    local reset_all = target_id == nil
     for t_id, target_songs in pairs(self.active_songs) do
-        if target_id == nil or target_id == t_id then
+        if reset_all or target_id == t_id then
             self:on_songs_changed():trigger(self, t_id, target_songs)
         end
     end
-    self.active_songs = {}
+    if reset_all then
+        self.active_songs = {}
+    else
+        self.active_songs[target_id] = S{}
+    end
 end
 
 -------

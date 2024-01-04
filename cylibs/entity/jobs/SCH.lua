@@ -110,6 +110,13 @@ function Scholar:get_raise_spell()
 end
 
 -------
+-- Returns all AOE spells.
+-- @treturn list List of AOE spell names
+function Scholar:get_aoe_spells()
+    return L{}
+end
+
+-------
 -- Returns whether light arts is active.
 -- @treturn Boolean True if light arts is active and false otherwise
 function Scholar:is_light_arts_active()

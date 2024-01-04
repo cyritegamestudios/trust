@@ -282,6 +282,15 @@ function Party:get_target_by_index(target_index)
 end
 
 -------
+-- Returns all party targets.
+-- @tparam function filter (optional) Function to filter targets
+-- @treturn list List of Monsters
+function Party:get_targets(filter)
+    filter = filter or function(t) return true  end
+    return self.target_tracker:get_targets():filter(function(t) return filter(t) end)
+end
+
+-------
 -- Sends a message to the party chat.
 -- @tparam PartyMember Message sender
 -- @tparam string Message

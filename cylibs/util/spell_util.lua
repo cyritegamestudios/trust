@@ -21,6 +21,17 @@ local spells_whitelist = L{
     'Honor March'
 }
 
+local aoe_spells = L{
+    'Stonega', 'Stonega II', 'Stonega III', 'Stoneja', 'Stonera', 'Stonera II', 'Stonera III',
+    'Aeroga', 'Aeroga II', 'Aeroga III', 'Aeroja', 'Aerora', 'Aerora II', 'Aerora III',
+    'Blizzaga', 'Blizzaga II', 'Blizzaga III', 'Blizzaja', 'Blizzara', 'Blizzara II', 'Blizzara III',
+    'Firaga', 'Firaga II', 'Firaga III', 'Firaja', 'Fira', 'Fira II', 'Fira III',
+    'Waterga', 'Waterga II', 'Waterga III', 'Waterja', 'Watera', 'Watera II', 'Watera III',
+    'Thundaga', 'Thundaga II', 'Thundaga III', 'Thundaja', 'Thundara', 'Thundara II', 'Thundara III',
+    'Banishga', 'Banishga II',
+    'Meteor'
+}
+
 -------
 -- Returns the spell id for the given localized spell name.
 -- @tparam string spell_name Localized spell name
@@ -223,10 +234,69 @@ function spell_util.spell_targets(spell_id)
         local targets = L(spell.targets)
         if spell.type == 'BardSong' and buff_util.is_buff_active(buff_util.buff_id('Pianissimo')) then
             targets:append('Party')
+        elseif spell.type == 'Geomancy' then
+            targets:append('Party')
         end
         return targets
     end
     return L{}
+end
+
+-------
+-- Returns whether the given offensive spell is AOE.
+-- @tparam string spell_name Spell id or spell name (see res/spells.lua)
+-- @treturn boolean True if the spell is AOE
+function spell_util.is_aoe_spell(spell_name)
+    return aoe_spells:contains(spell_name)
+end
+
+-------
+-- Sorts a list of spells by element first and alphabetically within each element. Modifies the list in place.
+-- @tparam list spells List of spells (see battle/spells.lua)
+function spell_util.sort_by_element(spells, descending)
+    local element_to_spells = {
+        Fire = L{},
+        Ice = L{},
+        Wind = L{},
+        Earth = L{},
+        Lightning = L{},
+        Water = L{},
+        Light = L{},
+        Dark = L{}
+    }
+    for spell in spells:it() do
+        local element_name = res.elements[spell:get_spell().element].name
+        element_to_spells[element_name]:append(spell)
+    end
+
+    local element_priority = L{
+        'Dark',
+        'Lightning',
+        'Ice',
+        'Fire',
+        'Wind',
+        'Water',
+        'Earth',
+        'Light'
+    }
+
+    local result = L{}
+    for element in element_priority:it() do
+        local spells = element_to_spells[element]
+        spells:sort(function(spell1, spell2)
+            if descending then
+                return spell1:get_name() > spell2:get_name()
+            else
+                return spell1:get_name() < spell2:get_name()
+            end
+        end)
+        result = result:extend(spells)
+    end
+
+    spells:clear()
+    spells = spells:extend(result)
+
+    return result
 end
 
 return spell_util

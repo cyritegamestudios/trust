@@ -12,6 +12,7 @@ local Geocolure = require('cylibs/entity/geocolure')
 
 local Nuker = require('cylibs/trust/roles/nuker')
 local Buffer = require('cylibs/trust/roles/buffer')
+local MagicBurster = require('cylibs/trust/roles/magic_burster')
 local ManaRestorer = require('cylibs/trust/roles/mana_restorer')
 local zone_util = require('cylibs/util/zone_util')
 
@@ -20,7 +21,9 @@ state.AutoGeoMode = M{['description'] = 'Auto Geo Mode', 'Off', 'Auto'}
 function GeomancerTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = Geomancer.new()
 	local roles = S{
-		Nuker.new(action_queue, 2, 20, 0.8, L{ 'Theurgic Focus' }),
+		Buffer.new(action_queue, trust_settings.JobAbilities, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
+		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{ 'Theurgic Focus' }, job),
+		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		ManaRestorer.new(action_queue, L{"Spirit Taker", "Moonlight"}, 40)
 	}
 

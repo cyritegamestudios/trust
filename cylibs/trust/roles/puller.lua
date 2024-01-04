@@ -10,10 +10,11 @@ local Puller = setmetatable({}, {__index = Role })
 Puller.__index = Puller
 Puller.__class = "Puller"
 
-state.AutoPullMode = M{['description'] = 'Auto Pull Mode', 'Off', 'Auto','Multi','Target'}
+state.AutoPullMode = M{['description'] = 'Auto Pull Mode', 'Off', 'Auto','Multi','Target','All'}
 state.AutoPullMode:set_description('Auto', "Okay, I'll automatically pull monsters for the party.")
 state.AutoPullMode:set_description('Multi', "Okay, I'll pull my own monster even if we're already fighting.")
 state.AutoPullMode:set_description('Target', "Okay, I'll pull whatever monster I'm currently targeting.")
+state.AutoPullMode:set_description('All', "Okay, I'll pull any monster that's nearby.")
 
 function Puller.new(action_queue, target_names, spell_name, job_ability_name)
     return Puller.new(action_queue, target_names, spell_name, job_ability_name, false)
@@ -25,6 +26,7 @@ function Puller.new(action_queue, target_names, spell_name, job_ability_name, ra
     self.action_queue = action_queue
     self.action_events = {}
     self.target_names = target_names
+    self.blacklist = L{}
     self.spell_name = spell_name
     self.job_ability_name = job_ability_name
     self.ranged_attack = ranged_attack
@@ -179,7 +181,10 @@ function Puller:get_pull_target()
         end
     else
         local player_target = ffxi_util.mob_for_index(windower.ffxi.get_player().target_index)
-        local current_targets = party_util.get_party_claimed_mobs()
+        local current_targets = party_util.get_party_claimed_mobs():filter(function(index)
+            local m = windower.ffxi.get_mob_by_index(index)
+            return m and not self.blacklist:contains(m.name)
+        end)
         if current_targets and #current_targets > 0 then
             --print('already have target 0')
             return windower.ffxi.get_mob_by_index(current_targets[1])
@@ -189,7 +194,11 @@ function Puller:get_pull_target()
             --print('already have target 2')
             return player_target
         else
-            return ffxi_util.find_closest_mob(self.target_names)
+            if state.AutoPullMode.value == 'All' then
+                return ffxi_util.find_closest_mob(L{}, L{}, self.blacklist)
+            else
+                return ffxi_util.find_closest_mob(self.target_names)
+            end
         end
     end
 end
@@ -271,6 +280,14 @@ function Puller:pull_target(target)
             addon_message(260, '('..windower.ffxi.get_player().name..') '.."Hmm...I still can't find anything. Should we pick different monsters to fight?")
         end
     end
+end
+
+function Puller:set_blacklist(blacklist)
+    self.blacklist = blacklist
+end
+
+function Puller:get_blacklist()
+    return self.blacklist
 end
 
 function Puller:get_type()

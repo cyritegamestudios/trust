@@ -10,6 +10,33 @@ local TrustSettings = {}
 TrustSettings.__index = TrustSettings
 TrustSettings.__type = "TrustSettings"
 
+------
+--- Minimum required settings version for each job
+TrustSettings.settingsVersion = {
+    WAR = 1,
+    WHM = 2,
+    RDM = 2,
+    PLD = 1,
+    BRD = 1,
+    SAM = 1,
+    DRG = 1,
+    BLU = 1,
+    PUP = 1,
+    SCH = 2,
+    RUN = 1,
+    MNK = 1,
+    BLM = 2,
+    THF = 1,
+    BST = 1,
+    RNG = 1,
+    NIN = 1,
+    SMN = 1,
+    COR = 1,
+    DNC = 1,
+    GEO = 2,
+    DRK = 1,
+}
+
 function TrustSettings:onSettingsChanged()
     return self.settingsChanged
 end
@@ -19,7 +46,7 @@ function TrustSettings.new(jobNameShort)
     self.jobNameShort = jobNameShort
     self.settingsFolder = 'data/'
     self.backupsFolder = 'backups/'
-    self.settingsVersion = 1
+    self.settingsVersion = TrustSettings.settingsVersion[jobNameShort] or 1
     self.settingsChanged = Event.newEvent()
     self.defaultSettings = {}
     self.settings = {}

@@ -51,7 +51,6 @@ local outgoing_event_ids = S{
 -- Jump table with a mapping of message_id to handler for that message_id
 local incoming_event_dispatcher = {
     [0x028] = function(data)
-        -- local packet = packets.parse('incoming', data)
         local act = windower.packets.parse_action(data)
         act.size = data:byte(5)
         WindowerEvents.Action:trigger(act)

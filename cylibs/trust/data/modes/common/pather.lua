@@ -1,4 +1,4 @@
--- Static modes file for BRD
+-- Static modes file for Pather role
 return {
     ["Running"]={
         ["autodispelmode"]="Off",

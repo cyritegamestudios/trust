@@ -99,8 +99,8 @@ function PartyMember.new(id)
 
     local party_member_info = party_util.get_party_member(id)
     if party_member_info then
-        self.hp = party_member_info.hp
-        self.hpp = party_member_info.hpp
+        self.hp = party_member_info.hp or 0
+        self.hpp = party_member_info.hpp or 100
         self.mp = party_member_info.mp
         self.mpp = party_member_info.mpp
         self.tp = party_member_info.tp
@@ -115,7 +115,7 @@ function PartyMember.new(id)
     end
 
     self:set_buff_ids(party_util.get_buffs(self.id))
-    self:set_debuff_ids(party_util.get_buffs(self.id))
+    self:set_debuff_ids(L(buff_util.debuffs_for_buff_ids(party_util.get_buffs(self.id))))
 
     return self
 end
@@ -315,6 +315,7 @@ end
 -- Sets the party member's current hit point percentage.
 -- @tparam number Hit point percentage
 function PartyMember:set_hpp(hpp)
+    hpp = hpp or 100
     if self.hpp == hpp then
         return
     end
@@ -337,6 +338,7 @@ end
 -- Sets the party member's current hit points.
 -- @tparam number Hit points
 function PartyMember:set_hp(hp)
+    hp = hp or 0
     if self.hp == hp then
         return
     end

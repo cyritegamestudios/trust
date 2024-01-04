@@ -29,8 +29,17 @@ function Path.from_file(file_path)
 	end
 end
 
+function Path:reverse()
+	local actions = self:get_actions():copy(true):reverse()
+	return Path.new(self:get_zone_id(), actions, self:should_reverse(), self:get_reverse_delay())
+end
+
 function Path:should_reverse()
 	return self.auto_reverse
+end
+
+function Path:get_reverse_delay()
+	return self.reverse_delay
 end
 
 function Path:set_zone_id(zone_id)

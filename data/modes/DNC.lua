@@ -17,6 +17,7 @@ return {
         ["skillchaindelaymode"]="Off",
         ["engagemode"]="None",
         ["autofoodmode"]="Off",
+        ["autostepmode"]="Auto",
         ["combatmode"]="Off",
         ["autoenmityreductionmode"]="Off",
         ["ipcmode"]="All",

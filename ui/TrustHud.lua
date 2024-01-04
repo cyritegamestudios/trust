@@ -9,6 +9,7 @@ local Color = require('cylibs/ui/views/color')
 local DebufferView = require('cylibs/trust/roles/ui/debuffer_view')
 local DebuffSettingsEditor = require('ui/settings/DebuffSettingsEditor')
 local DebugView = require('cylibs/actions/ui/debug_view')
+local ElementPickerView = require('ui/settings/pickers/ElementPickerView')
 local Frame = require('cylibs/ui/views/frame')
 local HelpView = require('cylibs/trust/ui/help_view')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
@@ -26,6 +27,7 @@ local JobAbilityPickerView = require('ui/settings/pickers/JobAbilityPickerView')
 local job_util = require('cylibs/util/job_util')
 local LoadSettingsView = require('ui/settings/LoadSettingsView')
 local Mouse = require('cylibs/ui/input/mouse')
+local NukeSettingsEditor = require('ui/settings/NukeSettingsEditor')
 local PartyMemberView = require('cylibs/entity/party/ui/party_member_view')
 local PartyTargetView = require('cylibs/entity/party/ui/party_target_view')
 local party_util = require('cylibs/util/party_util')
@@ -151,9 +153,11 @@ function TrustHud.new(player, action_queue, addon_enabled, menu_width, menu_heig
             newItemDataText = ''
         else
             local target = windower.ffxi.get_mob_by_index(target_index)
-            newItemDataText = target.name
-            if party_util.party_claimed(target.id) then
-                isClaimed = true
+            if target then
+                newItemDataText = target.name
+                if party_util.party_claimed(target.id) then
+                    isClaimed = true
+                end
             end
         end
         local cell = self.listView:getDataSource():cellForItemAtIndexPath(indexPath)
@@ -168,15 +172,23 @@ function TrustHud.new(player, action_queue, addon_enabled, menu_width, menu_heig
     end), player.party:on_party_target_change())
 
     local skillchainer = player.trust.main_job:role_with_type("skillchainer")
-    self:getDisposeBag():add(skillchainer:on_skillchain():addAction(function(target_id, element, step, closed)
+    self:getDisposeBag():add(skillchainer:on_skillchain():addAction(function(target_id, step)
+        self.targetActionQueue:clear()
         if skillchainer:get_target() and skillchainer:get_target():get_id() == target_id then
-            local text = "Lv.%d %s%s\\cr":format(step, skillchain_util.color_for_element(element), element)
+            local element = step:get_skillchain():get_name()
+            local text = "Step %d %s%s\\cr":format(step:get_step(), skillchain_util.color_for_element(element), element)
             local skillchain_step_action = BlockAction.new(function()
-                coroutine.sleep(2)
-            end, element..step, text)
+                coroutine.sleep(math.max(1, step:get_time_remaining()))
+            end, element..step:get_step(), text)
             self.targetActionQueue:push_action(skillchain_step_action, true)
         end
     end), skillchainer:on_skillchain())
+
+    self:getDisposeBag():add(skillchainer:on_skillchain_ended():addAction(function(target_id)
+        if skillchainer:get_target() and skillchainer:get_target():get_id() == target_id then
+            self.targetActionQueue:clear()
+        end
+    end), skillchainer:on_skillchain_ended())
 
     return self
 end
@@ -210,6 +222,10 @@ function TrustHud:layoutIfNeeded()
     self.actionView:setPosition(250 + 5, self.listView:getSize().height + 5)
     self.actionView:setNeedsLayout()
     self.actionView:layoutIfNeeded()
+end
+
+function TrustHud:getViewStack()
+    return self.viewStack
 end
 
 function TrustHud:toggleMenu()
@@ -299,7 +315,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
                     return spell.levels[jobId] ~= nil and spell.status ~= nil and targets:intersection(S(spell.targets)):length() > 0
                 end):map(function(spell) return spell.name end)
 
-                local chooseSpellsView = setupView(SpellPickerView.new(trustSettings, spellSettings, allBuffs, defaultJobNames), viewSize)
+                local chooseSpellsView = setupView(SpellPickerView.new(trustSettings, spellSettings, allBuffs, defaultJobNames, false), viewSize)
                 chooseSpellsView:setTitle("Choose buffs to add.")
                 return chooseSpellsView
             end)
@@ -382,7 +398,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
                     return spell.levels[jobId] ~= nil and spell.status ~= nil and L{32, 35, 36, 39, 40, 41, 42}:contains(spell.skill) and spell.targets:contains('Enemy')
                 end):map(function(spell) return spell.name end)
 
-                local chooseSpellsView = setupView(SpellPickerView.new(trustSettings, L(T(trustSettings:getSettings())[trustSettingsMode.value].Debuffs), allDebuffs), viewSize)
+                local chooseSpellsView = setupView(SpellPickerView.new(trustSettings, L(T(trustSettings:getSettings())[trustSettingsMode.value].Debuffs), allDebuffs, L{}, false), viewSize)
                 chooseSpellsView:setTitle("Choose debuffs to add.")
                 return chooseSpellsView
             end)
@@ -588,6 +604,56 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
         Cleave = createWeaponSkillsSettingsItem('cleavews', "Use these weapon skills when cleaving."),
     })
 
+    -- Nukes
+    local chooseNukesItem = MenuItem.new(L{
+        ButtonItem.default('Confirm', 18),
+    }, {},
+            function(args)
+                local spellSettings = args['spells']
+
+                local jobId = res.jobs:with('ens', jobNameShort).id
+                local allSpells = spell_util.get_spells(function(spell)
+                    return spell.levels[jobId] ~= nil and spell.type == 'BlackMagic' and S{ 'Enemy' }:intersection(S(spell.targets)):length() > 0
+                end):map(function(spell) return spell.name end):sort()
+
+                local sortSpells = function(spells)
+                    spell_util.sort_by_element(spells, true)
+                end
+
+                local chooseSpellsView = setupView(SpellPickerView.new(trustSettings, spellSettings, allSpells, L{}, true, sortSpells), viewSize)
+                chooseSpellsView:setTitle("Choose spells to nuke with.")
+                return chooseSpellsView
+            end)
+
+    local nukeElementBlacklistItem = MenuItem.new(L{
+        ButtonItem.default('Confirm', 18),
+        ButtonItem.default('Clear', 18),
+    }, {},
+            function()
+                local nukeSettings = T(trustSettings:getSettings())[trustSettingsMode.value].NukeSettings
+                if not nukeSettings.Blacklist then
+                    nukeSettings.Blacklist = L{}
+                end
+                local blacklistPickerView = setupView(ElementPickerView.new(trustSettings, nukeSettings.Blacklist), viewSize)
+                blacklistPickerView:setTitle('Choose elements to avoid when magic bursting or free nuking.')
+                blacklistPickerView:setShouldRequestFocus(true)
+                return blacklistPickerView
+            end)
+
+    local nukeSettingsItem = MenuItem.new(L{
+        ButtonItem.default('Edit', 18),
+        ButtonItem.default('Blacklist', 18),
+        ButtonItem.default('Help', 18),
+    }, {
+        Edit = chooseNukesItem,
+        Blacklist = nukeElementBlacklistItem,
+    },
+    function()
+        local nukeSettingsView = setupView(NukeSettingsEditor.new(trustSettings, trustSettingsMode), viewSize)
+        nukeSettingsView:setShouldRequestFocus(true)
+        return nukeSettingsView
+    end)
+
     -- Settings
     local menuItems = L{}
 
@@ -615,6 +681,10 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
         menuItems:append(ButtonItem.default('Songs', 18))
     end
 
+    if trust:role_with_type("nuker") then
+        menuItems:append(ButtonItem.default('Nukes', 18))
+    end
+
     menuItems:append(ButtonItem.default('Weaponskills', 18))
 
     local settingsMenuItem = MenuItem.new(menuItems, {
@@ -624,6 +694,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
         Healing = healerMenuItem,
         Pulling = pullerSettingsItem,
         Songs = songsSettingsItem,
+        Nukes = nukeSettingsItem,
         Weaponskills = weaponSkillsSettingsItem
     })
     return settingsMenuItem

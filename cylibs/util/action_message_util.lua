@@ -137,6 +137,33 @@ function action_message_util.is_resist_spell_message(message_id, param)
 end
 
 -------
+-- Determines if an action message indicates that a weapon skill has been performed.
+-- @tparam number message_id Action message id (see action_messages.lua)
+-- @treturn Bool True if a given message_id corresponds to a message indicating a weapon skill has been performed
+function action_message_util.is_weapon_skill_message(message_id)
+    return L{ 2, 110, 185, 187, 317, 529, 802 }:contains(message_id)
+end
+
+-------
+-- Determines if an action message indicates that a skillchain has been performed.
+-- @tparam number message_id Action message id (see action_messages.lua)
+-- @treturn Bool True if a given message_id corresponds to a message indicating a skillchain has been performed
+function action_message_util.is_skillchain_message(message_id)
+    return L{ 288, 289, 290, 291, 292, 293, 294, 295, 296, 297, 298, 299, 300, 301, 385, 386, 387, 388, 389, 390, 391, 392, 393, 394, 395, 396, 397, 767, 768, 769, 770 }:contains(message_id)
+end
+
+function action_message_util.is_skillchainable_action_category(category_string)
+    return L{
+        'weaponskill_finish',
+        'spell_finish',
+        'job_ability',
+        'mob_tp_finish',
+        'avatar_tp_finish',
+        'job_ability_unblinkable',
+    }:contains(category_string)
+end
+
+-------
 -- Determines if an action message indicates that an entity has finished an action (e.g. job ability or monster skill)
 -- @tparam number category Action category id (see actions.lua)
 -- @treturn Bool True if a given category corresponds to a completed job ability or monster skill and false otherwise

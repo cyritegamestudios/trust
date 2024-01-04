@@ -59,6 +59,24 @@ function Roller:on_add()
                 end
             end), self:get_player():on_job_ability_used())
 
+    self.dispose_bag:add(self:get_party():get_player():on_gain_buff():addAction(function(_, buff_id)
+        if buff_id == 309 then -- Busted
+            self:set_is_rolling(false)
+        end
+    end), self:get_party():get_player():on_gain_buff())
+
+    self.dispose_bag:add(WindowerEvents.Action:addAction(function(act)
+        if act.actor_id == self:get_player():get_id() then
+            for _, target in pairs(act.targets) do
+                for action in L(target.actions):it() do
+                    if action.message == 426 then -- Busted
+                        self:set_is_rolling(false)
+                    end
+                end
+            end
+        end
+    end), WindowerEvents.Action)
+
     self.dispose_bag:add(state.AutoRollMode:on_state_change():addAction(function(_, newValue)
         if L{'Off', 'Manual'}:contains(newValue) then
             self:set_is_rolling(false)
@@ -128,7 +146,7 @@ function Roller:check_rolls()
 
     self.last_roll_time = os.time()
 
-    if self.job:busted() then
+    if self.job:busted() and self.job:can_fold() then
         self.job:fold()
         self:set_is_rolling(false)
         return

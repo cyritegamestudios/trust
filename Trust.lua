@@ -1,7 +1,27 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '8.1.1'
+_addon.version = '8.3.1'
+_addon.release_notes = [[
+	• Enhancements to magic bursting for BLM, GEO, RDM, SCH and WHM
+	    • Customize spells used in Trust UI
+	    • Blacklist elements in Trust UI
+	    • Enable AOE spells setting `MagicBurstTargetMode` to `All`
+
+	• Enhancements to free nuking for BLM, GEO, RDM, SCH and WHM
+	    • Customize spells used in Trust UI
+	    • Cleave groups of monsters setting `AutoNukeMode` to `Cleave`
+
+	• Bug fixes
+	    • Fixed an issue where songs would not track properly when a
+	      party member is KO'ed
+	    • Fixed an issue where Alter Egos would not be buffed or healed
+	    • Fixed an issue where a Corsair Trust would not properly reset
+	      modes after rolling
+
+	• Press escape or enter to exit.
+	]]
+_addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 
 require('Trust-Include')
 
@@ -9,6 +29,7 @@ default = {
 	verbose=true
 }
 
+default.version = '1.0.0'
 default.menu_key = '%^numpad+'
 default.hud = {}
 default.hud.position = {}
@@ -54,6 +75,9 @@ local shortcuts = T{}
 
 state.AutoEnableMode = M{['description'] = 'Auto Enable Mode', 'Auto', 'Off'}
 state.AutoEnableMode:set_description('Auto', "Okay, I'll automatically get to work after the addon loads.")
+
+state.AutoDisableMode = M{['description'] = 'Auto Disable Mode', 'Auto', 'Off'}
+state.AutoDisableMode:set_description('Auto', "Okay, I'll automatically disable Trust after zoning or gettig knocked out.")
 
 state.AutoBuffMode = M{['description'] = 'Auto Buff Mode', 'Off', 'Auto'}
 state.AutoBuffMode:set_description('Auto', "Okay, I'll automatically buff myself and the party.")
@@ -156,7 +180,7 @@ function load_user_files(main_job_id, sub_job_id)
 
 	load_trust_modes(player.main_job_name_short)
 	load_trust_reactions(player.main_job_name_short)
-	load_trust_commands(player.main_job_name_short, player.trust.main_job, action_queue)
+	load_trust_commands(player.main_job_name_short, player.trust.main_job, action_queue, player.party)
 	load_ui()
 
 	main_trust_settings:copySettings()
@@ -167,6 +191,8 @@ function load_user_files(main_job_id, sub_job_id)
 	else
 		handle_stop()
 	end
+
+	check_version()
 end
 
 function load_trust_modes(job_name_short)
@@ -204,7 +230,7 @@ function load_trust_reactions(job_name_short)
 	--trust_reactions:loadReactions()
 end
 
-function load_trust_commands(job_name_short, trust, action_queue)
+function load_trust_commands(job_name_short, trust, action_queue, party)
 	local common_commands = L{
 		AssistCommands.new(trust, action_queue),
 		AttackCommands.new(trust, action_queue),
@@ -212,7 +238,7 @@ function load_trust_commands(job_name_short, trust, action_queue)
 		LoggingCommands.new(trust, action_queue),
 		PathCommands.new(trust, action_queue),
 		PullCommands.new(trust, action_queue),
-		ScenarioCommands.new(trust, action_queue),
+		ScenarioCommands.new(trust, action_queue, party),
 		SendAllCommands.new(trust, action_queue),
 		SendCommands.new(trust, action_queue),
 		SkillchainCommands.new(trust, action_queue),
@@ -246,7 +272,7 @@ function load_ui()
 	local Mouse = require('cylibs/ui/input/mouse')
 	Mouse.input():setMouseEventCooldown(settings.click_cooldown or 0.0)
 
-	hud = TrustHud.new(player, action_queue, addon_enabled, 500, 500, settings)
+	hud = TrustHud.new(player, action_queue, addon_enabled, 500, 500)
 
 	local info = windower.get_windower_settings()
 
@@ -350,6 +376,28 @@ function trust_for_job_short(job_name_short, settings, trust_settings, action_qu
 	return trust
 end
 
+function check_version()
+	local version = settings.version
+	if version ~= _addon.version then
+		settings.version = _addon.version
+		config.save(settings)
+
+		local Frame = require('cylibs/ui/views/frame')
+
+		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 500))
+
+		updateView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
+			updateView:getDelegate():deselectItemAtIndexPath(indexPath)
+			windower.open_url(_addon.release_url)
+		end)
+		updateView:setDismissCallback(function()
+			hud:getViewStack():dismiss()
+		end)
+
+		hud:getViewStack():present(updateView)
+	end
+end
+
 -- Helpers
 
 function addon_message(color,str)
@@ -408,7 +456,9 @@ end
 function handle_zone_change(new_zone_id, old_zone_id)
 	action_queue:clear()
 	player.party:set_assist_target(player.party:get_player())
-	handle_stop()
+	if state.AutoDisableMode.value ~= 'Off' then
+		handle_stop()
+	end
 end
 
 function handle_save_trust(mode_name)

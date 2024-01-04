@@ -48,6 +48,7 @@ NotCondition = require('cylibs/conditions/not_condition')
 SpellRecastReadyCondition = require('cylibs/conditions/spell_recast_ready')
 StrategemCountCondition = require('cylibs/conditions/strategem_count')
 ValidTargetCondition = require('cylibs/conditions/valid_target')
+ZoneCondition = require('cylibs/conditions/zone')
 
 -- Battle
 MonsterBuffTracker = require('cylibs/battle/monster_buff_tracker')
@@ -56,6 +57,7 @@ Buff = require('cylibs/battle/spells/buff')
 Debuff = require('cylibs/battle/spells/debuff')
 Roll = require('cylibs/battle/roll')
 JobAbility = require('cylibs/battle/abilities/job_ability')
+Element = require('cylibs/battle/skillchains/element')
 
 -- Roles
 Role = require('cylibs/trust/roles/role')
@@ -97,3 +99,6 @@ TrustFactory = require('cylibs/trust/trust_factory')
 -- Ipc
 IpcRelay = require('cylibs/messages/ipc/ipc_relay')
 CommandMessage = require('cylibs/messages/command_message')
+
+-- UI
+MessageView = require('cylibs/trust/ui/message_view')

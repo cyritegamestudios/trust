@@ -2,12 +2,14 @@ local cure_util = require('cylibs/util/cure_util')
 local DamageMemory = require('cylibs/battle/damage_memory')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local CureAction = require('cylibs/actions/cure')
+local HealerTracker = require('cylibs/analytics/trackers/healer_tracker')
 local WaitAction = require('cylibs/actions/wait')
 local SequenceAction = require('cylibs/actions/sequence')
 local SpellAction = require('cylibs/actions/spell')
 
 local Healer = setmetatable({}, {__index = Role })
 Healer.__index = Healer
+Healer.__class = "Healer"
 
 state.AutoHealMode = M{['description'] = 'Auto Heal Mode', 'Auto', 'Emergency', 'Off'}
 state.AutoHealMode:set_description('Auto', "You can count on me to heal the party.")
@@ -45,9 +47,11 @@ function Healer:on_add()
             if hpp > 0 then
                 if hpp < 25 then
                     if p:get_mob().distance:sqrt() < 21 then
+                        logger.notice(self.__class, 'on_hp_change', p:get_name(), hpp)
                         self:check_party_hp(25)
                     end
                 else
+                    logger.notice(self.__class, 'on_hp_change', 'check_party_hp', hpp)
                     self:check_party_hp()
                 end
             end
@@ -59,6 +63,11 @@ function Healer:on_add()
     for party_member in self:get_party():get_party_members(true):it() do
         on_party_member_added(party_member)
     end
+
+    self.healer_tracker = HealerTracker.new(self)
+    self.healer_tracker:monitor()
+
+    self.dispose_bag:addAny(L{ self.healer_tracker })
 end
 
 function Healer:target_change(target_index)
@@ -83,6 +92,8 @@ end
 -- @tparam number cure_threshold (optional) Cure threshold, defaults to self:get_cure_threshold()
 function Healer:check_party_hp(cure_threshold)
     cure_threshold = cure_threshold or self:get_cure_threshold()
+
+    logger.notice(self.__class, 'check_party_hp', cure_threshold)
 
     local party_members = self:get_party():get_party_members(true, 21):filter(function(party_member)
         return party_member:get_mob() and party_member:get_mob().distance:sqrt() < 21
@@ -119,10 +130,14 @@ function Healer:cure_party_member(party_member)
         return
     end
 
+    logger.notice(self.__class, 'cure_party_member', party_member:get_name())
+
     local missing_hp = party_member:get_max_hp() - party_member:get_hp()
 
     local cure_spell_or_job_ability = self.main_job:get_cure_spell(missing_hp)
     if cure_spell_or_job_ability then
+        logger.notice(self.__class, 'cure_party_member', party_member:get_name(), missing_hp, cure_spell_or_job_ability:get_name())
+
         self.last_cure_time = os.time()
 
         local cure_action = self:get_cure_action(cure_spell_or_job_ability, party_member)
@@ -142,6 +157,8 @@ function Healer:cure_party_members(party_members)
         return
     end
 
+    logger.notice(self.__class, 'cure_party_members', L(party_members:map(function(p) return p:get_name() end)):tostring())
+
     local max_missing_hp = 0
     local spell_target = nil
     local is_trust_only = true
@@ -159,6 +176,8 @@ function Healer:cure_party_members(party_members)
 
     local cure_spell_or_job_ability = self.main_job:get_aoe_cure_spell(max_missing_hp)
     if cure_spell_or_job_ability and spell_target then
+        logger.notice(self.__class, 'cure_party_members', spell_target:get_name(), max_missing_hp, cure_spell_or_job_ability:get_name())
+
         self.last_cure_time = os.time()
 
         local cure_action = self:get_cure_action(cure_spell_or_job_ability, spell_target)
@@ -178,6 +197,7 @@ function Healer:get_cure_action(spell_or_job_ability, party_member)
             return cure_action
         end
     end
+    logger.error(self.__class, 'get_cure_action', 'no cure action found')
     return nil
 end
 
@@ -195,6 +215,14 @@ end
 
 function Healer:get_type()
     return "healer"
+end
+
+function Healer:get_job()
+    return self.main_job
+end
+
+function Healer:get_tracker()
+    return self.healer_tracker
 end
 
 return Healer

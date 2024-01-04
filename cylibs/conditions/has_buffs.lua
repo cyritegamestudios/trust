@@ -18,21 +18,47 @@ function HasBuffsCondition.new(buff_names, require_all)
     return self
 end
 
+function HasBuffsCondition.from_party_member(buff_names, require_all, party_member)
+    local self = setmetatable(Condition.new(party_member:get_mob().index), HasBuffsCondition)
+    self.buff_names = buff_names -- save arg for serializer
+    self.buff_ids = buff_names:map(function(buff_name) return buff_util.buff_id(buff_name)  end)
+    self.require_all = require_all
+    self.party_member = party_member
+    return self
+end
+
 function HasBuffsCondition:is_satisfied(target_index)
     local target = windower.ffxi.get_mob_by_index(target_index)
-    if target and target.index == windower.ffxi.get_player().index then
-        local player_buff_ids = L(windower.ffxi.get_player().buffs)
-        for buff_id in self.buff_ids:it() do
-            local is_buff_active = buff_util.is_buff_active(buff_id, player_buff_ids)
-            if self.require_all then
-                if not is_buff_active then
-                    return false
-                end
-            else
-                if is_buff_active then
-                    return true
+    if target then
+        if target.index == windower.ffxi.get_player().index then
+            local player_buff_ids = L(windower.ffxi.get_player().buffs)
+            for buff_id in self.buff_ids:it() do
+                local is_buff_active = buff_util.is_buff_active(buff_id, player_buff_ids)
+                if self.require_all then
+                    if not is_buff_active then
+                        return false
+                    end
+                else
+                    if is_buff_active then
+                        return true
+                    end
                 end
             end
+        elseif self.party_member and target.index == self.party_member:get_mob().index then
+            for buff_id in self.buff_ids:it() do
+                local is_buff_active = self.party_member:has_buff(buff_id)
+                if self.require_all then
+                    if not is_buff_active then
+                        return false
+                    end
+                else
+                    if is_buff_active then
+                        return true
+                    end
+                end
+            end
+        else
+            -- FIXME: for some reason Locus Ghost Crab comes into here
         end
     end
     if self.require_all then

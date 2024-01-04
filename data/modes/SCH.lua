@@ -30,5 +30,6 @@ return {
         ["autohealmode"]="Auto",
         ["autoenmityreductionmode"]="Auto",
         ["ipcmode"]="All",
+        ["magicbursttargetmode"]="Single",
     }
 }

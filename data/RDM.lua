@@ -1,7 +1,8 @@
 -- Settings file for RDM
 return {
-    Version = 1,
+    Version = 2,
     Default = {
+        AutoFood = "Grape Daifuku",
         SelfBuffs = L{
             Buff.new("Refresh", L{}, L{}, nil, L{}),
             Buff.new("Haste", L{}, L{}, nil, L{}),
@@ -33,7 +34,34 @@ return {
             Buff.new("Flurry", L{}, L{"RNG", "COR"}, nil, L{IdleCondition.new()}),
             Spell.new("Phalanx II", L{}, L{"WAR", "PLD", "BRD", "SAM", "DRG", "BLU", "PUP", "RUN", "MNK", "THF", "BST", "NIN", "DNC", "DRK", "GEO"}, nil, L{InBattleCondition.new()})
         },
-        AutoFood = "Grape Daifuku",
+        NukeSettings = {
+            Delay = 4,
+            MinManaPointsPercent = 40,
+            MinNumMobsToCleave = 2,
+            Spells = L{
+                Spell.new('Thunder V'),
+                Spell.new('Thunder IV'),
+                Spell.new('Thunder III'),
+                Spell.new('Blizzard V'),
+                Spell.new('Blizzard IV'),
+                Spell.new('Blizzard III'),
+                Spell.new('Fire V'),
+                Spell.new('Fire IV'),
+                Spell.new('Fire III'),
+                Spell.new('Aero V'),
+                Spell.new('Aero IV'),
+                Spell.new('Aero III'),
+                Spell.new('Water V'),
+                Spell.new('Water IV'),
+                Spell.new('Water III'),
+                Spell.new('Stone V'),
+                Spell.new('Stone IV'),
+                Spell.new('Stone III'),
+            },
+            Blacklist = L{
+
+            },
+        },
         Skillchains = {
             spamws = L{
                 "Savage Blade",

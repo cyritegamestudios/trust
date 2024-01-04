@@ -1,13 +1,20 @@
+local DisposeBag = require('cylibs/events/dispose_bag')
+
 local TrustScenarios = {}
 TrustScenarios.__index = TrustScenarios
 
-function TrustScenarios.new(action_queue)
+function TrustScenarios.new(action_queue, party, trust)
     local self = setmetatable({
         action_queue = action_queue;
+        party = party;
+        trust = trust;
         scenarios = S{};
+        dispose_bag = DisposeBag.new();
     }, TrustScenarios)
 
     self:on_init()
+
+    self.dispose_bag:addAny(self.scenarios)
 
     return self
 end
@@ -16,10 +23,7 @@ function TrustScenarios:on_init()
 end
 
 function TrustScenarios:destroy()
-    for scenario in self.scenarios:it() do
-        scenario:destroy()
-    end
-    self.scenarios = nil
+    self.dispose_bag:destroy()
 end
 
 function TrustScenarios:has_scenario(name)
@@ -36,10 +40,28 @@ function TrustScenarios:add_scenario(name)
         if name == 'di' then
             local DomainInvasion = require('cylibs/scenarios/domain_invasion/domain_invasion')
             local scenario = DomainInvasion.new(self.action_queue)
-            scenario:start()
             self.scenarios:add(scenario)
+            self:start_scenario(scenario)
+        elseif name == 'einherjar' then
+            local Einherjar = require('scenarios/einherjar/einherjar')
+            local scenario = Einherjar.new(self.action_queue, self.party, self.trust)
+            self.scenarios:add(scenario)
+            self:start_scenario(scenario)
         end
     end
+end
+
+function TrustScenarios:start_scenario(scenario)
+    scenario:on_scenario_complete():addAction(function(s, success)
+        if s == scenario then
+            self:remove_scenario(s:get_name())
+            if success and s:should_repeat() then
+                windower.add_to_chat(122, "Restarting scenario: "..scenario:get_name())
+                self:add_scenario(s:get_name())
+            end
+        end
+    end)
+    scenario:start()
 end
 
 function TrustScenarios:remove_scenario(name)

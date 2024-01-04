@@ -17,7 +17,7 @@ function PathTrustCommands.new(trust, action_queue)
 
     self:add_command('record', self.handle_record_path, 'Start recording a path or discard the current path')
     self:add_command('save', self.handle_save_path, 'Save a recorded path, // trust path save path_name')
-    self:add_command('start', self.handle_start_path, 'Loads and starts a saved path, // trust path start path_name')
+    self:add_command('start', self.handle_start_path, 'Loads and starts a saved path, // trust path start path_name reverse')
     self:add_command('stop', self.handle_stop_path, 'Stops the current path')
 
     self.dispose_bag:addAny(L{ self.path_recorder })
@@ -80,8 +80,8 @@ function PathTrustCommands:handle_save_path(_, path_name)
     return success, message
 end
 
--- // trust path start path_name
-function PathTrustCommands:handle_start_path(_, path_name)
+-- // trust path start path_name reverse
+function PathTrustCommands:handle_start_path(_, path_name, reverse)
     local success
     local message
 
@@ -98,6 +98,10 @@ function PathTrustCommands:handle_start_path(_, path_name)
             else
                 success = true
                 message = "Starting path "..path_name
+
+                if reverse then
+                    path = path:reverse()
+                end
 
                 self:get_pather():set_path(path)
                 self:get_pather():start()
