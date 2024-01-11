@@ -75,7 +75,7 @@ end
 -- Returns a string representation of this record.
 -- @treturn string String representation of this record
 function SongRecord:tostring()
-    return res.spells:with('id', self:get_song_id()).name
+    return res.spells:with('id', self:get_song_id()).en
 end
 
 return SongRecord

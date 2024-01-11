@@ -139,7 +139,7 @@ function Skillchainer:job_weapon_skill(weapon_skill_name)
             end
         end
 
-        actions:append(WeaponSkillAction.new(ws.name))
+        actions:append(WeaponSkillAction.new(ws.en))
         actions:append(WaitAction.new(0, 0, 0, 2))
 
         local ws_action = SequenceAction.new(actions, 'sc_'..ws.en, true)

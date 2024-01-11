@@ -71,7 +71,7 @@ end
 -- @treturn list Localized names of current maneuvers
 function Puppetmaster:get_maneuvers()
     return L(windower.ffxi.get_player().buffs):map(function(buff_id)
-        return res.buffs:with('id', buff_id).name
+        return res.buffs:with('id', buff_id).en
     end):filter(function(buff_name)
         return buff_name:contains('Maneuver')
     end)
