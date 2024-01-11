@@ -87,7 +87,7 @@ function SpellAction:perform()
 	local target = windower.ffxi.get_mob_by_index(self.target_index)
 	local spell = res.spells[self.spell_id]
 
-	windower.send_command('@input /ma "'..spell.name..'" '..target.id)
+	windower.send_command('@input /ma "'..spell.en..'" '..target.id)
 end
 
 function SpellAction:getspellid()

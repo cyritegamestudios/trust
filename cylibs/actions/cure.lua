@@ -95,7 +95,7 @@ function CureAction:perform()
                 end
             end), self.player:on_spell_interrupted())
 
-    windower.send_command('@input /ma "'..cure_spell:get_spell().name..'" '..target.id)
+    windower.send_command('@input /ma "'..cure_spell:get_spell().en..'" '..target.id)
 end
 
 function CureAction:getspellid()

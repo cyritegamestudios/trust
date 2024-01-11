@@ -34,13 +34,12 @@ end
 function JobAbility:perform()
     logger.notice("trying to perform", self.job_ability_name)
 
-    local job_ability_name = res.job_abilities:with('en', self.job_ability_name).name
     if self.target_index == nil then
-        windower.chat.input('/%s':format(job_ability_name))
+        windower.chat.input('/%s':format(self.job_ability_name))
     else
         local target = windower.ffxi.get_mob_by_index(self.target_index)
         if target then
-            windower.chat.input('/'..job_ability_name..' '..target.id)
+            windower.chat.input('/'..self.job_ability_name..' '..target.id)
         end
     end
 
