@@ -251,7 +251,7 @@ end
 -- Returns whether the player is currently engaged.
 -- @treturn boolean True if the player is engaged, false otherwise.
 function Player:is_engaged()
-    return res.statuses[windower.ffxi.get_player().status].name == 'Engaged'
+    return res.statuses[windower.ffxi.get_player().status].en == 'Engaged'
 end
 
 return Player

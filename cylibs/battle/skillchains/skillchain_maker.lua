@@ -570,7 +570,7 @@ function SkillchainMaker:add_skills(t, abilities, active, resource, AM)
             local lv, prop, aeonic = self:check_props(active, self:aeonic_prop(skillchain, info.player))
             if prop then
                 prop = AM and aeonic or prop
-                tt[lv][#tt[lv]+1] = settings.color and '%-16s → Lv.%d %s%-14s\\cr':format(res[resource][ability_id].name, lv, colors[prop], prop) or '%-16s → Lv.%d %-14s':format(res[resource][ability_id].name, lv, prop)
+                tt[lv][#tt[lv]+1] = settings.color and '%-16s → Lv.%d %s%-14s\\cr':format(res[resource][ability_id].en, lv, colors[prop], prop) or '%-16s → Lv.%d %-14s':format(res[resource][ability_id].en, lv, prop)
             end
         end
     end
@@ -1304,7 +1304,7 @@ end)]]
 function SkillchainMaker:on_gain_buff(id)
     if buddy == 1 then
         if am == 1 then
-            local buff_name = res.buffs[id].name
+            local buff_name = res.buffs[id].en
             if buff_name == "Aftermath: Lv.3" then
                 windower.send_command('input /p Aftermath Up')
             end
@@ -1331,7 +1331,7 @@ function SkillchainMaker:on_lose_buff(id)
     if buddy == 1 then
 
         if am == 1 then
-            local buff_name = res.buffs[id].name
+            local buff_name = res.buffs[id].en
             if buff_name == "Aftermath: Lv.3" then
                 windower.send_command('input /p Aftermath Down')
             end

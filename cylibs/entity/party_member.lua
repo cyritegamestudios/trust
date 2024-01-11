@@ -422,7 +422,7 @@ end
 function PartyMember:get_status()
     local mob = self:get_mob()
     if mob then
-        return res.statuses[mob.status].name
+        return res.statuses[mob.status].en
     end
     return 'Idle'
 end

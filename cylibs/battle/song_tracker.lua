@@ -258,7 +258,7 @@ function SongTracker:on_gain_song(target_id, song_id, buff_id, song_duration)
 
     logger.notice("Current buffs for", party_member:get_name(), "are", tostring(L(party_util.get_buffs(target_id)):map(function(buff_id) return res.buffs[buff_id].name  end)))
 
-    local target_songs = (self.active_songs[target_id] or S{}):add(SongRecord.new(song_id, song_duration or self.job:get_song_duration(res.spells[song_id].name)))
+    local target_songs = (self.active_songs[target_id] or S{}):add(SongRecord.new(song_id, song_duration or self.job:get_song_duration(res.spells[song_id].en)))
     self.active_songs[target_id] = target_songs
 
     self:on_songs_changed():trigger(self, target_id, self.active_songs[target_id])

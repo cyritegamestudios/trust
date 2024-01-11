@@ -28,7 +28,7 @@ end
 
 function ValidSpellTargetCondition:get_target_type(target_index)
     local target = windower.ffxi.get_mob_by_index(target_index)
-    if res.statuses[target.status].name == 'Dead' then
+    if res.statuses[target.status].en == 'Dead' then
         return 'Corpse'
     elseif target_index == windower.ffxi.get_player().index then
         return 'Self'

@@ -123,7 +123,7 @@ end
 -- @treturn Boolean True if the job ability is a roll
 function Corsair:is_roll(job_ability_id)
     local roll = res.job_abilities:with('id', job_ability_id)
-    return roll ~= nil and rolls[roll.name] ~= nil
+    return roll ~= nil and rolls[roll.en] ~= nil
 end
 
 -------
@@ -133,8 +133,8 @@ end
 -- @treturn Boolean True if the roll is a lucky roll
 function Corsair:is_lucky_roll(roll_id, roll_num)
     local roll = res.job_abilities:with('id', roll_id)
-    if roll and rolls[roll.name] then
-        return roll_num == rolls[roll.name].Lucky
+    if roll and rolls[roll.en] then
+        return roll_num == rolls[roll.en].Lucky
     end
     return false
 end
@@ -146,8 +146,8 @@ end
 -- @treturn Boolean True if the roll is a lucky roll
 function Corsair:is_unlucky_roll(roll_id, roll_num)
     local roll = res.job_abilities:with('id', roll_id)
-    if roll and rolls[roll.name] then
-        return roll_num == rolls[roll.name].Unlucky
+    if roll and rolls[roll.en] then
+        return roll_num == rolls[roll.en].Unlucky
     end
     return false
 end
@@ -322,7 +322,7 @@ function Corsair:roll(roll_id, should_use_crooked_cards)
             actions:append(JobAbilityAction.new(0, 0, 0, 'Crooked Cards'))
             actions:append(WaitAction.new(0, 0, 0, 1.5))
         end
-        actions:append(JobAbilityAction.new(0, 0, 0, roll.name))
+        actions:append(JobAbilityAction.new(0, 0, 0, roll.en))
         actions:append(WaitAction.new(0, 0, 0, 1))
 
         local roll_action = SequenceAction.new(actions, 'roll')
