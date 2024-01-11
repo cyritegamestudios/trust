@@ -113,7 +113,7 @@ function SingerView:reloadActiveSongs()
         if song_records:length() > 0 then
             itemsToAdd:append(IndexedItem.new(TextItem.new(party_member:get_name(), TextStyle.Default.HeaderSmall), IndexPath.new(sectionNum, 1)))
             for song_record in song_records:it() do
-                local item = TextItem.new('• '..res.spells[song_record:get_song_id()].name..' → ('..song_record:get_time_remaining()..'s)', TextStyle.SingerView.Text)
+                local item = TextItem.new('• '..res.spells[song_record:get_song_id()].en..' → ('..song_record:get_time_remaining()..'s)', TextStyle.SingerView.Text)
                 local indexPath = IndexPath.new(sectionNum, currentRow)
                 itemsToAdd:append(IndexedItem.new(item, indexPath))
                 itemsToHighlight:append(IndexedItem.new(item, indexPath))

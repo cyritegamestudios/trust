@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '8.3.1'
+_addon.version = '8.3.2'
 _addon.release_notes = [[
 	• Enhancements to magic bursting for BLM, GEO, RDM, SCH and WHM
 	    • Customize spells used in Trust UI
@@ -18,6 +18,7 @@ _addon.release_notes = [[
 	    • Fixed an issue where Alter Egos would not be buffed or healed
 	    • Fixed an issue where a Corsair Trust would not properly reset
 	      modes after rolling
+	    • Fixed issue where Trust would not load on Japanese clients
 
 	• Press escape or enter to exit.
 	]]
@@ -125,7 +126,7 @@ function load_user_files(main_job_id, sub_job_id)
 
 	state.MainTrustSettingsMode = M{['description'] = 'Main Trust Settings Mode', 'Default'}
 
-	main_trust_settings = TrustSettingsLoader.new(player.main_job_name_short)
+	main_trust_settings = TrustSettingsLoader.new(player.main_job_name_short, true)
 	main_trust_settings:onSettingsChanged():addAction(function(newSettings)
 		player.trust.main_job_settings = newSettings
 		local mode_names = list.subtract(L(T(newSettings):keyset()), L{'Version'})
@@ -135,7 +136,7 @@ function load_user_files(main_job_id, sub_job_id)
 
 	state.SubTrustSettingsMode = M{['description'] = 'Sub Trust Settings Mode', 'Default'}
 
-	sub_trust_settings = TrustSettingsLoader.new(player.sub_job_name_short)
+	sub_trust_settings = TrustSettingsLoader.new(player.sub_job_name_short, false)
 	sub_trust_settings:onSettingsChanged():addAction(function(newSettings)
 		player.trust.sub_job_settings = newSettings
 		local mode_names = list.subtract(L(T(newSettings):keyset()), L{'Version'})
@@ -143,9 +144,20 @@ function load_user_files(main_job_id, sub_job_id)
 		state.SubTrustSettingsMode:set('Default')
 	end)
 
+	state.WeaponSkillSettingsMode = M{['description'] = 'Weapon Skill Settings Mode', 'Default'}
+
+	weapon_skill_settings = WeaponSkillSettings.new(player.main_job_name_short)
+	weapon_skill_settings:onSettingsChanged():addAction(function(newSettings)
+		player.trust.weapon_skill_settings = newSettings
+		local mode_names = list.subtract(L(T(newSettings):keyset()), L{'Version'})
+		state.WeaponSkillSettingsMode:options(T(mode_names):unpack())
+		state.WeaponSkillSettingsMode:set('Default')
+	end)
+
 	player.trust = {}
 	player.trust.main_job_settings = main_trust_settings:loadSettings()
 	player.trust.sub_job_settings = sub_trust_settings:loadSettings()
+	player.trust.weapon_skill_settings = weapon_skill_settings:loadSettings()
 
 	state.MainTrustSettingsMode:on_state_change():addAction(function(_, new_value)
 		player.trust.main_job:set_trust_settings(player.trust.main_job_settings[new_value])
@@ -155,22 +167,27 @@ function load_user_files(main_job_id, sub_job_id)
 		player.trust.sub_job:set_trust_settings(player.trust.sub_job_settings[new_value])
 	end)
 
+	state.WeaponSkillSettingsMode:on_state_change():addAction(function(_, new_value)
+		local skillchainer = player.trust.main_job:role_with_type("skillchainer")
+		if skillchainer then
+			skillchainer:set_weapon_skill_settings(player.trust.weapon_skill_settings[new_value])
+		end
+	end)
+
 	main_job_trust, sub_job_trust = TrustFactory.trusts(trust_for_job_short(player.main_job_name_short, settings, player.trust.main_job_settings.Default, action_queue, player.player, player.alliance, player.party), trust_for_job_short(player.sub_job_name_short, settings, player.trust.sub_job_settings.Default, action_queue, player.player, player.alliance, player.party))
 
 	main_job_trust:init()
 	sub_job_trust:init()
 
 	player.trust.main_job = main_job_trust
-	--player.trust.main_job_commands = load_job_commands(player.main_job_name_short, main_job_trust, action_queue, true)
 	player.trust.sub_job = sub_job_trust
-	--player.trust.sub_job_commands = load_job_commands(player.sub_job_name_short, sub_job_trust, action_queue)
 
 	player.trust.main_job:add_role(Attacker.new(action_queue))
 	player.trust.main_job:add_role(CombatMode.new(action_queue, settings.battle.melee_distance, settings.battle.range_distance))
 	player.trust.main_job:add_role(Eater.new(action_queue, main_job_trust:get_trust_settings().AutoFood))
 	player.trust.main_job:add_role(Follower.new(action_queue, settings.follow.distance))
 	player.trust.main_job:add_role(Pather.new(action_queue, 'data/paths/'))
-	player.trust.main_job:add_role(Skillchainer.new(action_queue, L{}, main_job_trust:get_trust_settings().Skillchains))
+	player.trust.main_job:add_role(Skillchainer.new(action_queue, L{}, main_job_trust:get_trust_settings().Skillchains, L{}, player.trust.weapon_skill_settings.Default))
 	player.trust.main_job:add_role(Targeter.new(action_queue))
 	player.trust.main_job:add_role(Truster.new(action_queue, settings.battle.trusts))
 

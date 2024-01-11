@@ -88,7 +88,7 @@ function ScholarTrustCommands:handle_skillchain(_, element)
                 if step == spells:length() then
                     actions:append(BlockAction.new(function()
                         self.trust:get_party():add_to_chat(self.trust:get_party():get_player(), "**[Closing]** Skillchain "..element)
-                    end, 'skillchain_'..spell:get_spell().name))
+                    end, 'skillchain_'..spell:get_spell().en))
                 end
                 actions:append(StrategemAction.new('Immanence'))
                 actions:append(WaitAction.new(0, 0, 0, 2))
@@ -124,7 +124,7 @@ function ScholarTrustCommands:handle_accession(_, spell_name)
         success = false
         message = "Unable to use Accession without Light Arts active"
     else
-        if res.spells:with('name', spell_name) == nil then
+        if res.spells:with('en', spell_name) == nil then
             success = false
             message = "Invalid spell "..(spell_name or 'nil')
         else

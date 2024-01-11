@@ -152,7 +152,7 @@ function Singer:get_next_song(party_member, dummy_songs, songs)
     local song_target_id = party_member:get_mob().id
     local buff_ids = L(party_member:get_buff_ids())
 
-    logger.notice("Target songs for", party_member:get_mob().name, songs:map(function(song) return song:get_spell().name end))
+    logger.notice("Target songs for", party_member:get_mob().name, songs:map(function(song) return song:get_spell().en end))
 
     local current_num_songs = self.song_tracker:get_num_songs(song_target_id, buff_ids)
     if current_num_songs < songs:length() then
@@ -174,7 +174,7 @@ function Singer:get_next_song(party_member, dummy_songs, songs)
             if not self.song_tracker:has_song(song_target_id, song:get_spell().id, buff_ids) then
                 return song
             elseif self.song_tracker:is_expiring_soon(song_target_id, L{ song }) then
-                logger.notice("Resinging", song:get_spell().name)
+                logger.notice("Resinging", song:get_spell().en)
                 return song
             end
         end

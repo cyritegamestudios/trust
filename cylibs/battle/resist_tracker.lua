@@ -13,7 +13,7 @@ function ResistTracker.new(monster)
 
     self.disposeBag:add(monster:on_spell_resisted():addAction(
             function(_, spell_name, is_complete_resist)
-                local spell = res.spells:with('name', spell_name)
+                local spell = res.spells:with('en', spell_name)
                 if spell then
                     if is_complete_resist then
                         self.blacklist:add(spell.id)

@@ -227,7 +227,7 @@ end
 -- @treturn list List of valid targets (e.g. Self, Party, Alliance, Enemy)
 function spell_util.spell_targets(spell_id)
     if type(spell_id) == 'string' then
-        spell_id = res.spells:with('name', spell_id).id
+        spell_id = res.spells:with('en', spell_id).id
     end
     local spell = res.spells[spell_id]
     if spell then

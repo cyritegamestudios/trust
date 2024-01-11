@@ -21,6 +21,12 @@ function SkillchainStep.new(step, ability, skillchain, delay, expiration_time)
     return self
 end
 
+-- Sets the skillchain.
+-- @tparam Skillchain skillchain Sets the skillchain for this step (see Skillchain in skillchain_util.lua)
+function SkillchainStep:set_skillchain(skillchain)
+    self.skillchain = skillchain
+end
+
 -- Returns the skillchain.
 -- @treturn Skillchain The skillchain for this step (see Skillchain in skillchain_util.lua)
 function SkillchainStep:get_skillchain()

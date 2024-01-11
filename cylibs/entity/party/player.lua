@@ -1,3 +1,4 @@
+local inventory_util = require('cylibs/util/inventory_util')
 local PartyMember = require('cylibs/entity/party_member')
 
 local Player = setmetatable({}, {__index = PartyMember })
@@ -11,6 +12,7 @@ Player.__class = "Player"
 function Player.new(id)
     local self = setmetatable(PartyMember.new(id), Player)
     self:set_zone_id(windower.ffxi.get_info().zone)
+    self:set_main_weapon_id(inventory_util.get_main_weapon_id())
     return self
 end
 
@@ -21,6 +23,12 @@ function Player:monitor()
     if not PartyMember.monitor(self) then
         return
     end
+
+    self.dispose_bag:add(WindowerEvents.Equipment.MainWeaponChanged:addAction(function(mob_id, main_weapon_id)
+        if mob_id == self:get_id() then
+            self:set_main_weapon_id(main_weapon_id)
+        end
+    end))
 end
 
 -------
@@ -37,6 +45,24 @@ end
 -- @tparam number zone_type (optional) Zone type
 function Player:set_zone_id(zone_id, zone_line, zone_type)
     PartyMember.set_zone_id(self, windower.ffxi.get_info().zone, zone_line, zone_type)
+end
+
+-------
+-- Returns the item id of the main weapon equipped.
+-- @tparam number Item id of main weapon equipped (see res/items.lua)
+function Player:get_main_weapon_id()
+    return self.main_weapon_id
+end
+
+-------
+-- Sets the main weapon item id.
+-- @tparam number main_weapon_id Item id (see res/items.lua)
+function Player:set_main_weapon_id(main_weapon_id)
+    if self.main_weapon_id == main_weapon_id then
+        return
+    end
+    self.main_weapon_id = main_weapon_id
+    self:on_equipment_change():trigger(self)
 end
 
 return Player

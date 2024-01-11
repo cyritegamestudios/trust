@@ -70,7 +70,7 @@ function AutomatonView:updateManeuvers()
     local allManeuverIds = L{}
     for maneuver in self.maneuverSet:it() do
         for i = 1, maneuver.Amount do
-            allManeuverIds:append(res.buffs:with('name', maneuver.Name).id)
+            allManeuverIds:append(res.buffs:with('en', maneuver.Name).id)
         end
     end
 

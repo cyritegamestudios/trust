@@ -22,7 +22,7 @@ JobAbility.__type = "JobAbility"
 function JobAbility.new(job_ability_name, conditions, job_names, target)
     local self = setmetatable({
         job_ability_name = job_ability_name;
-        job_ability_id = res.job_abilities:with('name', job_ability_name).id;
+        job_ability_id = res.job_abilities:with('en', job_ability_name).id;
         conditions = conditions or L{};
         job_names = job_names;
         target = target;

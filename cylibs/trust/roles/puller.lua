@@ -16,6 +16,10 @@ state.AutoPullMode:set_description('Multi', "Okay, I'll pull my own monster even
 state.AutoPullMode:set_description('Target', "Okay, I'll pull whatever monster I'm currently targeting.")
 state.AutoPullMode:set_description('All', "Okay, I'll pull any monster that's nearby.")
 
+
+state.ApproachPullMode = M{['description'] = 'Approach Pull Mode', 'Off', 'Auto'}
+state.ApproachPullMode:set_description('Auto', "Okay, I'll pull by approaching.")
+
 function Puller.new(action_queue, target_names, spell_name, job_ability_name)
     return Puller.new(action_queue, target_names, spell_name, job_ability_name, false)
 end
@@ -204,7 +208,9 @@ function Puller:get_pull_target()
 end
 
 function Puller:get_pull_distance()
-    if self.spell_name then
+    if state.ApproachPullMode == "Auto" then
+        return 15
+    elseif self.spell_name then
         return 18
     elseif self.ranged_attack then
         return 22
@@ -225,7 +231,7 @@ function Puller:get_pull_action(target_index)
         actions:append(KeyAction.new(0, 0, 0, 'escape'))
     end
 
-    if self.approach then
+    if self.approach or state.ApproachPullMode.value == "Auto" then
         actions:append(RunToAction.new(target_index, 3))
         actions:append(BlockAction.new(function() battle_util.target_mob(target_index) end))
     elseif self.spell_name then

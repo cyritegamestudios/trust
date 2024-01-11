@@ -313,7 +313,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
                 local jobId = res.jobs:with('ens', jobNameShort).id
                 local allBuffs = spell_util.get_spells(function(spell)
                     return spell.levels[jobId] ~= nil and spell.status ~= nil and targets:intersection(S(spell.targets)):length() > 0
-                end):map(function(spell) return spell.name end)
+                end):map(function(spell) return spell.en end)
 
                 local chooseSpellsView = setupView(SpellPickerView.new(trustSettings, spellSettings, allBuffs, defaultJobNames, false), viewSize)
                 chooseSpellsView:setTitle("Choose buffs to add.")
@@ -396,7 +396,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
                 local jobId = res.jobs:with('ens', jobNameShort).id
                 local allDebuffs = spell_util.get_spells(function(spell)
                     return spell.levels[jobId] ~= nil and spell.status ~= nil and L{32, 35, 36, 39, 40, 41, 42}:contains(spell.skill) and spell.targets:contains('Enemy')
-                end):map(function(spell) return spell.name end)
+                end):map(function(spell) return spell.en end)
 
                 local chooseSpellsView = setupView(SpellPickerView.new(trustSettings, L(T(trustSettings:getSettings())[trustSettingsMode.value].Debuffs), allDebuffs, L{}, false), viewSize)
                 chooseSpellsView:setTitle("Choose debuffs to add.")
@@ -427,7 +427,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
                 local jobId = res.jobs:with('ens', jobNameShort).id
                 local allJobAbilities = player_util.get_job_abilities():map(function(jobAbilityId) return res.job_abilities[jobAbilityId] end):filter(function(jobAbility)
                     return jobAbility.status ~= nil and S{'Self'}:intersection(S(jobAbility.targets)):length() > 0
-                end):map(function(jobAbility) return jobAbility.name end)
+                end):map(function(jobAbility) return jobAbility.en end)
 
                 local chooseJobAbilitiesView = setupView(JobAbilityPickerView.new(trustSettings, T(trustSettings:getSettings())[trustSettingsMode.value].JobAbilities, allJobAbilities), viewSize)
                 chooseJobAbilitiesView:setTitle("Choose job abilities to add.")
@@ -479,7 +479,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
         }, {},
         function(args)
             local weaponSkills = T(trustSettings:getSettings())[trustSettingsMode.value].Skillchains[weapon_skill_settings_key]
-            local allWeaponSkills = res.weapon_skills:filter(function(weaponSkill) return weaponSkill.skill == skill and not weaponSkills:contains(weaponSkill.name) end):map(function(weaponSkill) return weaponSkill.name end)
+            local allWeaponSkills = res.weapon_skills:filter(function(weaponSkill) return weaponSkill.skill == skill and not weaponSkills:contains(weaponSkill.en) end):map(function(weaponSkill) return weaponSkill.en end)
 
             local chooseWeaponSkillsView = setupView(WeaponSkillPickerView.new(trustSettings, weaponSkills, allWeaponSkills), viewSize)
             chooseWeaponSkillsView:setTitle("Choose weapon skills to add.")
@@ -520,7 +520,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
 
                 local allSongs = spell_util.get_spells(function(spell)
                     return spell.type == 'BardSong' and S{'Self'}:intersection(S(spell.targets)):length() > 0
-                end):map(function(spell) return spell.name  end)
+                end):map(function(spell) return spell.en  end)
 
                 local chooseSongsView = setupView(SongPickerView.new(trustSettings, songs, allSongs, args['validator']), viewSize)
                 chooseSongsView:setTitle(args['help_text'])
@@ -561,8 +561,8 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
 
         local combatSkills = L(job_util.get_skills_for_job(res.jobs:with('ens', jobNameShort).id))
         for combatSkillId in combatSkills:it() do
-            weaponItems:append(ButtonItem.default(res.skills[combatSkillId].name, 18))
-            childMenuItems[res.skills[combatSkillId].name] = createWeaponSkillsItem(combatSkillId, weapon_skill_settings_key)
+            weaponItems:append(ButtonItem.default(res.skills[combatSkillId].en, 18))
+            childMenuItems[res.skills[combatSkillId].en] = createWeaponSkillsItem(combatSkillId, weapon_skill_settings_key)
         end
         weaponItems:append(ButtonItem.default('Help', 18))
 
@@ -614,7 +614,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
                 local jobId = res.jobs:with('ens', jobNameShort).id
                 local allSpells = spell_util.get_spells(function(spell)
                     return spell.levels[jobId] ~= nil and spell.type == 'BlackMagic' and S{ 'Enemy' }:intersection(S(spell.targets)):length() > 0
-                end):map(function(spell) return spell.name end):sort()
+                end):map(function(spell) return spell.en end):sort()
 
                 local sortSpells = function(spells)
                     spell_util.sort_by_element(spells, true)

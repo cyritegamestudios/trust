@@ -18,7 +18,7 @@ AuraTracker.__index = AuraTracker
 function AuraTracker.new(aura_debuff_names, party)
     local self = setmetatable({
         action_events = {};
-        aura_debuff_ids = aura_debuff_names:map(function(debuff_name) return res.buffs:with('name', debuff_name).id  end);
+        aura_debuff_ids = aura_debuff_names:map(function(debuff_name) return res.buffs:with('en', debuff_name).id  end);
         party = party;
         status_effect_history = {};
         aura_probabilities = {};

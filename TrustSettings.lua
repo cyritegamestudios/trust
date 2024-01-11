@@ -1,6 +1,7 @@
 local Event = require('cylibs/events/Luvent')
 local JSON = require('cylibs/util/jsonencode')
 local FileIO = require('files')
+local WeaponSkillSettings = require('settings/skillchains/WeaponSkillSettings')
 
 local serializer_util = require('cylibs/util/serializer_util')
 
@@ -108,6 +109,7 @@ function TrustSettings:saveSettings(saveToFile)
 end
 
 function TrustSettings:copySettings(override)
+
     local filePath = self.settingsFolder..self.jobNameShort..'_'..windower.ffxi.get_player().name..'.lua'
     local playerSettings = FileIO.new(filePath)
     if not playerSettings:exists() or override then
@@ -145,57 +147,7 @@ function TrustSettings.migrateSettings(jobNameShort, legacySettings, isPlayer)
     file:write('-- Settings file for '..jobNameShort ..'\nreturn ' .. T(newSettings):tovstring())
 end
 
-function TrustSettings.decodeSettings(rawSettings)
-    if rawSettings["n"] then
-        rawSettings = L(rawSettings)
-        local decodedList = L{}
-        for itemSettings in rawSettings:it() do
-            if type(itemSettings) == 'table' then
-                decodedList:append(TrustSettings.decodeSettings(itemSettings))
-            else
-                decodedList:append(itemSettings)
-            end
-        end
-        return decodedList
-    else
-        for k, v in pairs(rawSettings) do
-            if k ~= "n" then
-                if type(v) == 'table' then
-                    rawSettings[k] = TrustSettings.decodeSettings(v)
-                end
-            end
-        end
-        if rawSettings["type"] then
-            local className = _G[rawSettings["type"]]
-            return className.decode(rawSettings)
-        else
-            return rawSettings
-        end
-    end
-end
-
-function TrustSettings.encodeSettings(settings)
-    if settings.__class == 'List' or settings.__class == 'Set' then
-        local encodedList = L{}
-        for itemSettings in settings:it() do
-            encodedList:append(TrustSettings.encodeSettings(itemSettings))
-        end
-        return encodedList
-    else
-        if type(settings.encode) == 'function' then
-            return settings:encode()
-        else
-            for k, v in pairs(settings) do
-                if type(v) == 'table' then
-                    settings[k] = TrustSettings.encodeSettings(v)
-                end
-            end
-            return settings
-        end
-    end
-end
-
-function TrustSettings:getSettings()
+function TrustSettings:getSettings(settingsName)
     return self.settings
 end
 

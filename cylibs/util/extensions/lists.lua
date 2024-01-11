@@ -67,3 +67,9 @@ function list.indexOf(l, el)
     end
     return -1
 end
+
+---
+--- Returns a list containing the non-nil elements of the list
+function list.compact_map(l)
+    return l:filter(function(el) return el ~= nil end)
+end

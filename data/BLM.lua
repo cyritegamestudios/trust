@@ -40,7 +40,6 @@ return {
             MinManaPointsPercent = 20,
             MinNumMobsToCleave = 2,
             Spells = L{
-                Spell.new('Comet'),
                 Spell.new('Thunder VI'),
                 Spell.new('Thunder V'),
                 Spell.new('Thundaja'),
@@ -65,6 +64,7 @@ return {
                 Spell.new('Stone V'),
                 Spell.new('Stoneja'),
                 Spell.new('Stone IV'),
+                Spell.new('Comet'),
             },
             Blacklist = L{
 

@@ -71,7 +71,7 @@ end
 -- @tparam string weapon_skill_name Weapon skill name (see weapon_skills.lua)
 -- @treturn Boolean True if the player knows the given weapon skill
 function job_util.knows_weapon_skill(weapon_skill_name)
-    local weapon_skill = res.weapon_skills:with('name', weapon_skill_name)
+    local weapon_skill = res.weapon_skills:with('en', weapon_skill_name)
     if weapon_skill then
         local all_weapon_skills = T(windower.ffxi.get_abilities().weapon_skills)
         if all_weapon_skills then

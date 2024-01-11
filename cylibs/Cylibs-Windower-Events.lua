@@ -29,6 +29,9 @@ WindowerEvents.BuffsChanged = Event.newEvent()
 WindowerEvents.DebuffsChanged = Event.newEvent()
 WindowerEvents.AllianceMemberListUpdate = Event.newEvent()
 WindowerEvents.PetUpdate = Event.newEvent()
+WindowerEvents.Equipment = {}
+WindowerEvents.Equipment.MainWeaponChanged = Event.newEvent()
+WindowerEvents.Equipment.RangedWeaponChanged = Event.newEvent()
 
 
 local incoming_event_ids = S{
@@ -40,6 +43,7 @@ local incoming_event_ids = S{
     0x076,
     0x0C8,
     0x037,
+    0x050,
     0x068
 }
 
@@ -183,6 +187,26 @@ local incoming_event_dispatcher = {
             if mob then
                 WindowerEvents.PetUpdate:trigger(windower.ffxi.get_player().id, mob.id, mob.index, mob.name, mob.hpp, mob.mpp, mob.tp)
             end
+        end
+    end,
+
+    [0x050] = function(data)
+        local packet = packets.parse('incoming', data)
+
+        -- Main weapon
+        if data:byte(6) == 0 then
+            local main_weapon_id = windower.ffxi.get_items(data:byte(7), data:byte(5)).id
+            if main_weapon_id == 65535 then
+                main_weapon_id = nil
+            end
+            WindowerEvents.Equipment.MainWeaponChanged:trigger(windower.ffxi.get_player().id, main_weapon_id)
+        -- Ranged weapon
+        elseif data:byte(6) == 2 then
+            local ranged_weapon_id = windower.ffxi.get_items(data:byte(7), data:byte(5)).id
+            if ranged_weapon_id == 65535 then
+                ranged_weapon_id = nil
+            end
+            WindowerEvents.Equipment.RangedWeaponChanged:trigger(windower.ffxi.get_player().id, ranged_weapon_id)
         end
     end,
 

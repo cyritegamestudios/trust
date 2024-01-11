@@ -168,7 +168,7 @@ end
 -- @treturn PartyMember Party member, or nil if none exists
 function Party:get_party_member(mob_id)
     for _, party_member in pairs(self.party_members) do
-        if party_member:get_id() == mob_id then
+        if party_member:get_id() == mob_id or party_member:get_pet() and party_member:get_pet().id == mob_id then
             return party_member
         end
     end

@@ -3,6 +3,9 @@ Skillchainer.__index = Skillchainer
 
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Event = require('cylibs/events/Luvent')
+local localization_util = require('cylibs/util/localization_util')
+local SkillchainAbility = require('cylibs/battle/skillchains/abilities/skillchain_ability')
+local SkillchainBuilder = require('cylibs/battle/skillchains/skillchain_builder')
 local SkillchainMaker = require('cylibs/battle/skillchains/skillchain_maker')
 local SkillchainTracker = require('cylibs/battle/skillchains/skillchain_tracker')
 
@@ -41,7 +44,7 @@ function Skillchainer:on_skillchain_ended()
     return self.skillchain_ended
 end
 
-function Skillchainer.new(action_queue, skillchain_params, skillchain_settings, job_abilities)
+function Skillchainer.new(action_queue, skillchain_params, skillchain_settings, job_abilities, weapon_skill_settings)
     local self = setmetatable(Role.new(action_queue), Skillchainer)
 
     self.action_queue = action_queue
@@ -53,6 +56,7 @@ function Skillchainer.new(action_queue, skillchain_params, skillchain_settings, 
     self.dispose_bag = DisposeBag.new()
 
     self:set_job_abilities(job_abilities)
+    self:set_weapon_skill_settings(weapon_skill_settings)
 
     return self
 end
@@ -76,6 +80,10 @@ function Skillchainer:on_add()
         end
     end), state.AutoSkillchainMode:on_state_change())
 
+    self.skillchain_builder = SkillchainBuilder.new(L{})
+
+    self:update_abilities()
+
     self.skillchain_maker = SkillchainMaker.new(self.skillchain_settings, state.AutoSkillchainMode, state.SkillchainPriorityMode, state.SkillchainPartnerMode, state.AutoAftermathMode)
     self.skillchain_maker:start_monitoring()
     self.skillchain_maker:on_perform_next_weapon_skill():addAction(function(_, weapon_skill_name)
@@ -88,6 +96,8 @@ function Skillchainer:on_add()
         if target then
             target:set_skillchain(step)
             if target:get_mob().index == self.target_index then
+                self.skillchain_builder:set_step(step)
+                self:show_next_skillchain_info()
                 self:on_skillchain():trigger(mob_id, step)
             end
         end
@@ -97,10 +107,16 @@ function Skillchainer:on_add()
         if target then
             target:set_skillchain(nil)
             if target:get_mob().index == self.target_index then
+                self.skillchain_builder:set_step(self.skillchain_tracker:get_current_step(mob_id))
+                self:show_next_skillchain_info()
                 self:on_skillchain_ended():trigger(mob_id)
             end
         end
     end)
+
+    self.dispose_bag:add(self:get_party():get_player():on_equipment_change():addAction(function(_)
+        self:update_abilities()
+    end), self:get_party():get_player():on_equipment_change())
 
     self.dispose_bag:addAny(L{ self.skillchain_maker, self.skillchain_tracker })
 end
@@ -143,6 +159,20 @@ function Skillchainer:set_skillchain_settings(skillchain_settings)
     self.skillchain_maker:set_skillchain_settings(skillchain_settings)
 end
 
+function Skillchainer:show_next_skillchain_info()
+    if not self:get_player():is_engaged() then
+        return
+    end
+    local steps = self.skillchain_builder:get_next_steps()
+    if steps:length() > 0 then
+        local message = "I can continue the skillchain with"
+        for step in steps:it() do
+            message = "%s %s (%s),":format(message, localization_util.translate(step:get_ability():get_name()), step:get_skillchain())
+        end
+        self:get_party():add_to_chat(self:get_party():get_player(), message)
+    end
+end
+
 function Skillchainer:get_skillchain_tracker()
     return self.skillchain_tracker
 end
@@ -157,6 +187,29 @@ end
 
 function Skillchainer:set_job_abilities(job_abilities)
     self.job_abilities = (job_abilities or L{}):filter(function(job_ability) return job_util.knows_job_ability(job_ability:get_job_ability_id()) end)
+end
+
+function Skillchainer:set_weapon_skill_settings(weapon_skill_settings)
+    self.weapon_skill_settings = weapon_skill_settings
+
+    if self:get_party() then
+        self:update_abilities()
+    end
+end
+
+function Skillchainer:update_abilities()
+    local abilities = L{}
+
+    local main_weapon_id = self:get_party():get_player():get_main_weapon_id()
+    if main_weapon_id then
+        local main_weapon = res.items[main_weapon_id]
+
+        local combat_skills = self.weapon_skill_settings.Skills:filter(function(combat_skill_settings) return combat_skill_settings:get_skill_id() == main_weapon.skill end)
+        for combat_skill in combat_skills:it() do
+            abilities = abilities:extend(combat_skill:get_weapon_skills()):map(function(weapon_skill) return SkillchainAbility.new('weapon_skills', weapon_skill:get_id()) end):compact_map()
+        end
+    end
+    self.skillchain_builder:set_abilities(abilities)
 end
 
 return Skillchainer

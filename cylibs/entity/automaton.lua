@@ -58,12 +58,12 @@ function Automaton:monitor()
         if action.actor_id == self:get_id() then
             if action.category == 11 then
                 local job_ability = res.monster_abilities:with('id', action.param)
-                if job_ability.name == 'Provoke' then
+                if job_ability.en == 'Provoke' then
                     self.ability_ready_times['Provoke'] = os.time() + 23
-                elseif job_ability.name == 'Flashbulb' then
+                elseif job_ability.en == 'Flashbulb' then
                     self.ability_ready_times['Flashbulb'] = os.time() + 38
                 end
-                self:on_job_ability_finish():trigger(self, job_ability.name)
+                self:on_job_ability_finish():trigger(self, job_ability.en)
             end
         end
     end), WindowerEvents.Action)

@@ -161,7 +161,6 @@ function Buffer:cast_spell(spell, target_index)
         if spell:get_consumable() and not player_util.has_item(spell:get_consumable()) then
             return false
         end
-
         local actions = L{ WaitAction.new(0, 0, 0, 1.5) }
 
         local can_cast_spell = true

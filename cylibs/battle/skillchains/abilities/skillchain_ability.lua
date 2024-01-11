@@ -14,6 +14,9 @@ SkillchainAbility.__class = "SkillchainAbility"
 -- @tparam PartyMember party_member Party member that used the ability
 -- @treturn SkillchainAbility A skillchain abilty
 function SkillchainAbility.new(resource, ability_id, party_member)
+    if not skills[resource][ability_id] then
+        return nil
+    end
     local self = setmetatable({
         resource = resource;
         ability_id = ability_id;
@@ -29,7 +32,7 @@ end
 -- Returns the name of the ability.
 -- @treturn string Name of ability (e.g. `Fire VI`, `Catastrophe`)
 function SkillchainAbility:get_name()
-    return res[self.resource][self.ability_id].name
+    return res[self.resource][self.ability_id].en
 end
 
 -- Returns the buffs required to skillchain with this ability (e.g. `Immanence`)

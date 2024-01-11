@@ -35,7 +35,7 @@ local aoe_buff_prefixes = L{
 -- @tparam list conditions List of conditions that must be satisfied to cast the spell (optional)
 -- @treturn Buff A buff
 function Buff.new(spell_name, job_abilities, job_names, spell_prefix, conditions)
-    local spell = res.spells:with('name', spell_name)
+    local spell = res.spells:with('en', spell_name)
     spell = spell_util.highest_spell_for_buff_id(spell_util.buff_id_for_spell(spell.id), spell_name)
     if spell then
         local self = setmetatable(Spell.new(spell.en, job_abilities or L{}, job_names or L{}, nil, conditions, nil), Buff)

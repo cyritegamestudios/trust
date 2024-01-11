@@ -188,7 +188,7 @@ function PartyMemberView:callAlterEgo(party, player, actionQueue)
             sanitizedName = trusts:with('enl', trust).en
         end
         if party:get_party_member_named(sanitizedName) == nil then
-            local spell = res.spells:with('name', trust)
+            local spell = res.spells:with('en', trust)
             if spell then
                 local callAction = SpellAction.new(0, 0, 0, spell.id, nil, player)
                 callAction.priority = ActionPriority.highest

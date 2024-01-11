@@ -62,6 +62,11 @@ function PartyMember:on_zone_change()
     return self.zone_change
 end
 
+-- Event called when the party member's equipment changes.
+function PartyMember:on_equipment_change()
+    return self.equipment_change
+end
+
 -------
 -- Default initializer for a PartyMember.
 -- @tparam number id Mob id
@@ -96,6 +101,7 @@ function PartyMember.new(id)
     self.ko = Event.newEvent()
     self.position_change = Event.newEvent()
     self.zone_change = Event.newEvent()
+    self.equipment_change = Event.newEvent()
 
     local party_member_info = party_util.get_party_member(id)
     if party_member_info then
@@ -140,6 +146,7 @@ function PartyMember:destroy()
     self.ko:removeAllActions()
     self.position_change:removeAllActions()
     self.zone_change:removeAllActions()
+    self.equipment_change:removeAllActions()
 end
 
 -------
@@ -418,6 +425,17 @@ function PartyMember:get_status()
         return res.statuses[mob.status].name
     end
     return 'Idle'
+end
+
+-------
+-- Returns the mob metadata for the party member's pet.
+-- @treturn MobMetadata Full metadata for the party member's pet, or nil if it doesn't have a pet
+function PartyMember:get_pet()
+    local mob = self:get_mob()
+    if mob and mob.pet_index then
+        return windower.ffxi.get_mob_by_index(mob.pet_index)
+    end
+    return nil
 end
 
 -------

@@ -123,7 +123,7 @@ function MagicBurster:check_magic_burst(skillchain)
     for element in elements:it() do
         local spell = self:get_spell(element)
         if spell then
-            self:cast_spell(spell:get_spell().name)
+            self:cast_spell(spell:get_spell().en)
             return
         end
     end
@@ -199,7 +199,7 @@ function MagicBurster:set_spells(spells)
     }
     self.spells = (spells or L{}):filter(function(spell) return spell ~= nil and spell_util.knows_spell(spell:get_spell().id) end)
     for spell in self.spells:it() do
-        local element_name = res.elements[spell:get_spell().element].name
+        local element_name = res.elements[spell:get_spell().element].en
         self.element_to_spells[element_name]:append(spell)
     end
 end

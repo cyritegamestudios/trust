@@ -35,7 +35,7 @@ function Spell.new(spell_name, job_abilities, job_names, target, conditions, con
         conditions = conditions or L{};
     }, Spell)
 
-    self:add_condition(SpellRecastReadyCondition.new(res.spells:with('name', spell_name).id))
+    self:add_condition(SpellRecastReadyCondition.new(res.spells:with('en', spell_name).id))
 
     local strategem_count = self.job_abilities:filter(function(job_ability_name)
         local job_ability = res.job_abilities:with('en', job_ability_name)
