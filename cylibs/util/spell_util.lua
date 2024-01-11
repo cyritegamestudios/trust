@@ -265,7 +265,7 @@ function spell_util.sort_by_element(spells, descending)
         Dark = L{}
     }
     for spell in spells:it() do
-        local element_name = res.elements[spell:get_spell().element].name
+        local element_name = res.elements[spell:get_spell().element].en
         element_to_spells[element_name]:append(spell)
     end
 

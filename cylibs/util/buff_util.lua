@@ -140,7 +140,7 @@ end
 -- @tparam string buff_id Buff id (see buffs.lua)
 -- @treturn string Buff name (see buffs.lua)
 function buff_util.buff_name(buff_id)
-	return res.buffs:with('id', buff_id).name
+	return res.buffs:with('id', buff_id).en
 end
 
 -------
