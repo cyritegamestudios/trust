@@ -124,7 +124,7 @@ function WeaponSkillAction:perform_weapon_skill(weapon_skill_name)
 	end), WindowerEvents.ActionMessage)
 	]]
 	
-	send_chat_input(weapon_skill_name)
+	send_chat_input(res.weapon_skills:with('en', weapon_skill_name).name)
 
 	--coroutine.sleep(3)
 

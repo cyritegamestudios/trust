@@ -126,7 +126,7 @@ function load_user_files(main_job_id, sub_job_id)
 
 	state.MainTrustSettingsMode = M{['description'] = 'Main Trust Settings Mode', 'Default'}
 
-	main_trust_settings = TrustSettingsLoader.new(player.main_job_name_short, true)
+	main_trust_settings = TrustSettingsLoader.new(player.main_job_name_short)
 	main_trust_settings:onSettingsChanged():addAction(function(newSettings)
 		player.trust.main_job_settings = newSettings
 		local mode_names = list.subtract(L(T(newSettings):keyset()), L{'Version'})
@@ -136,7 +136,7 @@ function load_user_files(main_job_id, sub_job_id)
 
 	state.SubTrustSettingsMode = M{['description'] = 'Sub Trust Settings Mode', 'Default'}
 
-	sub_trust_settings = TrustSettingsLoader.new(player.sub_job_name_short, false)
+	sub_trust_settings = TrustSettingsLoader.new(player.sub_job_name_short)
 	sub_trust_settings:onSettingsChanged():addAction(function(newSettings)
 		player.trust.sub_job_settings = newSettings
 		local mode_names = list.subtract(L(T(newSettings):keyset()), L{'Version'})
