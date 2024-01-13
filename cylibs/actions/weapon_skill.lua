@@ -50,9 +50,9 @@ end
 function WeaponSkillAction:perform_weapon_skill(weapon_skill_name)
 	local send_chat_input = function(weapon_skill_name)
 		if L{ 'Moonlight', 'Myrkr', 'Dagan' }:contains(weapon_skill_name) then
-			windower.chat.input("/ws \"%s\" <me>":format(weapon_skill_name))
+			windower.chat.input("/ws %s <me>":format(weapon_skill_name))
 		else 
-			windower.chat.input("/ws \"%s\" <t>":format(weapon_skill_name))
+			windower.chat.input("/ws %s <t>":format(weapon_skill_name))
 		end
 	end
 
