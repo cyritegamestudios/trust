@@ -294,8 +294,8 @@ end
 -- Sends a message to the party chat.
 -- @tparam PartyMember Message sender
 -- @tparam string Message
-function Party:add_to_chat(party_member, message, throttle_key, throttle_duration)
-    self.party_chat:add_to_chat(party_member:get_name(), message, throttle_key, throttle_duration)
+function Party:add_to_chat(party_member, message, throttle_key, throttle_duration, is_local_only)
+    self.party_chat:add_to_chat(party_member:get_name(), message, throttle_key, throttle_duration, is_local_only)
 end
 
 return Party

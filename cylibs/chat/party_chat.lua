@@ -44,7 +44,7 @@ function PartyChat:should_throttle(throttle_key, throttle_duration)
     return (os.time() - self.message_last_sent[throttle_key]) < throttle_duration
 end
 
-function PartyChat:add_to_chat(sender_name, message, throttle_key, throttle_duration)
+function PartyChat:add_to_chat(sender_name, message, throttle_key, throttle_duration, is_local_only)
     if self:should_throttle(throttle_key, throttle_duration) then
         return
     end
@@ -52,10 +52,10 @@ function PartyChat:add_to_chat(sender_name, message, throttle_key, throttle_dura
         self.message_last_sent[throttle_key] = os.time()
     end
 
-    if state.PartyChatMode.value == 'Private' then
+    if state.PartyChatMode.value == 'Private' or is_local_only then
         addon_message(260, "(%s) %s":format(sender_name, message))
 
-        if self.ipcEnabled then
+        if self.ipcEnabled and not is_local_only then
             windower.send_ipc_message("party_chat %s %s":format(sender_name, message))
         end
     elseif state.PartyChatMode.value == 'Party' then

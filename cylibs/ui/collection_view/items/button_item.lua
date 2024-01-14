@@ -29,6 +29,7 @@ function ButtonItem.new(textItem, leftImageItem, centerImageItem, rightImageItem
 
     self.size = Frame.new(0, 0, width, height)
     self.alpha = 255
+    self.enabled = true
 
     return self
 end
@@ -93,6 +94,24 @@ end
 --
 function ButtonItem:getAlpha()
     return self.alpha
+end
+
+---
+-- Sets whether the button is enabled.
+--
+-- @tparam boolean enabled Whether the button is enabled
+--
+function ButtonItem:setEnabled(enabled)
+    self.enabled = enabled
+end
+
+---
+-- Gets whether the button is enabled.
+--
+-- @treturn boolean True if the button is enabled
+--
+function ButtonItem:getEnabled()
+    return self.enabled
 end
 
 ---

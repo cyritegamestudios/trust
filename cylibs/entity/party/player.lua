@@ -13,6 +13,7 @@ function Player.new(id)
     local self = setmetatable(PartyMember.new(id), Player)
     self:set_zone_id(windower.ffxi.get_info().zone)
     self:set_main_weapon_id(inventory_util.get_main_weapon_id())
+    self:set_ranged_weapon_id(inventory_util.get_ranged_weapon_id())
     return self
 end
 
@@ -29,6 +30,16 @@ function Player:monitor()
             self:set_main_weapon_id(main_weapon_id)
         end
     end))
+    self.dispose_bag:add(WindowerEvents.Equipment.RangedWeaponChanged:addAction(function(mob_id, ranged_weapon_id)
+        if mob_id == self:get_id() then
+            self:set_ranged_weapon_id(ranged_weapon_id)
+        end
+    end))
+    self.dispose_bag:add(WindowerEvents.PetUpdate:addAction(function(owner_id, pet_id, pet_index, pet_name, pet_hpp, pet_mpp, pet_tp)
+        if owner_id == self:get_id() then
+            self:set_pet(pet_id, pet_name)
+        end
+    end), WindowerEvents.PetUpdate)
 end
 
 -------
@@ -62,6 +73,24 @@ function Player:set_main_weapon_id(main_weapon_id)
         return
     end
     self.main_weapon_id = main_weapon_id
+    self:on_equipment_change():trigger(self)
+end
+
+-------
+-- Returns the item id of the ranged weapon equipped.
+-- @tparam number Item id of ranged weapon equipped (see res/items.lua)
+function Player:get_ranged_weapon_id()
+    return self.ranged_weapon_id
+end
+
+-------
+-- Sets the ranged weapon item id.
+-- @tparam number ranged_weapon_id Item id (see res/items.lua)
+function Player:set_ranged_weapon_id(ranged_weapon_id)
+    if self.ranged_weapon_id == ranged_weapon_id then
+        return
+    end
+    self.ranged_weapon_id = ranged_weapon_id
     self:on_equipment_change():trigger(self)
 end
 

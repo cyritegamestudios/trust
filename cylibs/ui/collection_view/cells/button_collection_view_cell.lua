@@ -1,6 +1,7 @@
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewCell = require('cylibs/ui/collection_view/collection_view_cell')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
+local Color = require('cylibs/ui/views/color')
 local HorizontalFlowLayout = require('cylibs/ui/collection_view/layouts/horizontal_flow_layout')
 local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_collection_view_cell')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
@@ -62,6 +63,12 @@ function ButtonCollectionViewCell:layoutIfNeeded()
         return false
     end
 
+    local textColor = self:getItem():getTextItem():getStyle():getFontColor()
+    if self:getItem():getEnabled() then
+        self.textView:setTextColor(textColor)
+    else
+        self.textView:setTextColor(Color.new(textColor.alpha * 0.5, textColor.red, textColor.green, textColor.blue))
+    end
     self.textView:setPosition(10, self.textView:getPosition().y)
     self.textView:setSize(self:getSize().width, self:getSize().height)
     self.textView:layoutIfNeeded()

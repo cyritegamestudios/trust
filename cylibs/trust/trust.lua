@@ -216,11 +216,6 @@ function Trust:set_trust_settings(trust_settings)
 	local old_trust_settings = self.trust_settings
 	self.trust_settings = trust_settings
 
-	local skillchainer = self:role_with_type("skillchainer")
-	if skillchainer then
-		skillchainer:set_skillchain_settings(trust_settings.Skillchains)
-	end
-
 	self:on_trust_settings_changed():trigger(old_trust_settings, trust_settings)
 end
 

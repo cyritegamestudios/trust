@@ -199,14 +199,18 @@ local incoming_event_dispatcher = {
             if main_weapon_id == 65535 then
                 main_weapon_id = nil
             end
-            WindowerEvents.Equipment.MainWeaponChanged:trigger(windower.ffxi.get_player().id, main_weapon_id)
+            coroutine.schedule(function()
+                WindowerEvents.Equipment.MainWeaponChanged:trigger(windower.ffxi.get_player().id, main_weapon_id)
+            end, 1)
         -- Ranged weapon
         elseif data:byte(6) == 2 then
             local ranged_weapon_id = windower.ffxi.get_items(data:byte(7), data:byte(5)).id
             if ranged_weapon_id == 65535 then
                 ranged_weapon_id = nil
             end
-            WindowerEvents.Equipment.RangedWeaponChanged:trigger(windower.ffxi.get_player().id, ranged_weapon_id)
+            coroutine.schedule(function()
+                WindowerEvents.Equipment.RangedWeaponChanged:trigger(windower.ffxi.get_player().id, ranged_weapon_id)
+            end, 1)
         end
     end,
 

@@ -22,7 +22,7 @@ function SkillchainsView.new(skillchainer)
 
     local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0))), SkillchainsView)
 
-    local modeNames = L{'AutoSkillchainMode', 'SkillchainPartnerMode', 'SkillchainPriorityMode', 'SkillchainDelayMode', 'AutoAftermathMode'}
+    local modeNames = L{'AutoSkillchainMode', 'SkillchainDelayMode', 'AutoAftermathMode'}
     for modeName in modeNames:it() do
         local mode = state[modeName]
         if mode then

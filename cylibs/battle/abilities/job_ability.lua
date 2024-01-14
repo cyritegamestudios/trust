@@ -20,12 +20,18 @@ JobAbility.__type = "JobAbility"
 -- @tparam string target Job ability target (options: bt, p0...pn) (optional)
 -- @treturn JobAbility A job ability
 function JobAbility.new(job_ability_name, conditions, job_names, target)
+    local job_ability = res.job_abilities:with('en', job_ability_name)
+    if job_ability == nil then
+        return nil
+    end
+
     local self = setmetatable({
         job_ability_name = job_ability_name;
-        job_ability_id = res.job_abilities:with('en', job_ability_name).id;
+        job_ability_id = job_ability.id;
         conditions = conditions or L{};
         job_names = job_names;
         target = target;
+        resource = 'job_abilities';
     }, JobAbility)
 
     if self:get_job_ability().type ~= 'Scholar' then
@@ -47,6 +53,13 @@ end
 -- @treturn string Job ability id
 function JobAbility:get_job_ability_id()
     return self.job_ability_id
+end
+
+-------
+-- Returns the id for the job ability (see res/job_abilities.lua).
+-- @treturn string Job ability id
+function JobAbility:get_ability_id()
+    return self:get_job_ability_id()
 end
 
 -------
@@ -80,6 +93,13 @@ function JobAbility:get_target()
         return windower.ffxi.get_mob_by_target(self.target)
     end
     return nil
+end
+
+-------
+-- Returns whether or not the player knows this spell.
+-- @treturn Boolean True if the player knows this spell
+function JobAbility:is_valid()
+    return job_util.knows_job_ability(job_util.job_ability_id(self:get_job_ability_name()))
 end
 
 -------

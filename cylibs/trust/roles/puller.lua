@@ -121,7 +121,7 @@ function Puller:tic(_, _)
 end
 
 function Puller:check_pull()
-    if os.time() - self.last_pull_time < 7 or (state.AutoTrustsMode.value ~= 'Off' and self:get_party():num_party_members() < 6)
+    if os.time() - self.last_pull_time < 7 or (state.AutoTrustsMode.value ~= 'Off' and party_util.is_party_leader(windower.ffxi.get_player().id) and self:get_party():num_party_members() < 6)
             or state.AutoPullMode == 'Target' then
         return
     end

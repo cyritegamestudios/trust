@@ -40,6 +40,16 @@ function MenuItem:getChildMenuItem(text)
 end
 
 ---
+-- Sets the child MenuItem with the specified text.
+--
+-- @tparam string text The name of the child MenuItem.
+-- @tparam MenuItem|nil The child MenuItem with the specified text, or nil if removing.
+--
+function MenuItem:setChildMenuItem(text, childMenuItem)
+    self.childMenuItems[text] = childMenuItem
+end
+
+---
 -- Gets the ContentView associated with this MenuItem.
 --
 -- @tparam table args (optional) Args to pass to the contentViewConstructor

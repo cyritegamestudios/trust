@@ -262,6 +262,18 @@ function buff_util.buff_for_job_ability(job_ability_id)
 end
 
 -------
+-- Returns the full metadata for the job ability that gives a the specified buff.
+-- @tparam number buff_id Id Buff id
+-- @treturn JobAbilityMetadata Full metadata for the job ability (see job_abilities.lua)
+function buff_util.job_ability_for_buff(buff_id)
+	local job_ability = res.job_abilities:with('status', buff_id)
+	if job_ability == nil then
+		job_ability = job_abilities_ext:with('status', buff_id)
+	end
+	return job_ability
+end
+
+-------
 -- Cancels the buff with the given buff_id.
 -- @tparam number buff_id Buff id (see buffs.lua)
 function buff_util.cancel_buff(buff_id)

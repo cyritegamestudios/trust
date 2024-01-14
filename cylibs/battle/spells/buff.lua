@@ -54,7 +54,15 @@ function Buff:is_aoe()
 end
 
 function Buff:serialize()
-    return "Buff.new(" .. serializer_util.serialize_args(self.original_spell_name, self.job_abilities, self.job_names, self.spell_prefix, self.conditions) .. ")"
+    local conditions_classes_to_serialize = L{
+        InBattleCondition.__class,
+        IdleCondition.__class,
+        HasBuffCondition.__class,
+        HasBuffsCondition.__class,
+        NotCondition.__class
+    }
+    local conditions_to_serialize = self.conditions:filter(function(condition) return conditions_classes_to_serialize:contains(condition.__class)  end)
+    return "Buff.new(" .. serializer_util.serialize_args(self.original_spell_name, self.job_abilities, self.job_names, self.spell_prefix, conditions_to_serialize) .. ")"
 end
 
 return Buff

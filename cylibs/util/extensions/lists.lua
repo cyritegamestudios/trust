@@ -68,6 +68,40 @@ function list.indexOf(l, el)
     return -1
 end
 
+function list.merge(l1, l2)
+    local result = L{}
+    for el in l1:it() do
+        result:append(el)
+    end
+    for el in l2:it() do
+        result:append(el)
+    end
+    return result
+end
+
+function list.combo_helper(lists, currentIndex, currentCombination, combinations)
+    if currentIndex > lists:length() then
+        combinations:append(currentCombination)
+        return
+    end
+
+    local currentList = lists[currentIndex]
+    for element in currentList:it() do
+        local newCombination = L{}
+        for item in currentCombination:it() do
+            newCombination:append(item)
+        end
+        newCombination:append(element)
+        list.combo_helper(lists, currentIndex + 1, newCombination, combinations)
+    end
+end
+
+function list.combos(lists)
+    local combinations = L{}
+    list.combo_helper(lists, 1, L{}, combinations)
+    return combinations
+end
+
 ---
 --- Returns a list containing the non-nil elements of the list
 function list.compact_map(l)

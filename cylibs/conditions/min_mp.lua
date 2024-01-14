@@ -7,6 +7,7 @@ local serializer_util = require('cylibs/util/serializer_util')
 local Condition = require('cylibs/conditions/condition')
 local MinManaPointsCondition = setmetatable({}, { __index = Condition })
 MinManaPointsCondition.__index = MinManaPointsCondition
+MinManaPointsCondition.__class = "MinManaPointsCondition"
 
 function MinManaPointsCondition.new(min_mp)
     local self = setmetatable(Condition.new(windower.ffxi.get_player().index), MinManaPointsCondition)
@@ -28,6 +29,11 @@ end
 
 function MinManaPointsCondition:serialize()
     return "MinManaPointsCondition.new(" .. serializer_util.serialize_args(self.min_mp) .. ")"
+end
+
+function MinManaPointsCondition:__eq(otherItem)
+    return otherItem.__class == MinManaPointsCondition.__class
+            and self.min_mp == otherItem.min_mp
 end
 
 return MinManaPointsCondition

@@ -34,4 +34,17 @@ function inventory_util.get_main_weapon_id()
     return main_weapon_id
 end
 
+-------
+-- Returns the item id of the ranged weapon equipped.
+-- @treturn number Item id of the ranged weapon equipped (see res/items.lua)
+function inventory_util.get_ranged_weapon_id()
+    local equipment = windower.ffxi.get_items('equipment')
+
+    local ranged_weapon_id = windower.ffxi.get_items(equipment.range_bag, equipment.range).id
+    if ranged_weapon_id == 65535 then
+        return nil
+    end
+    return ranged_weapon_id
+end
+
 return inventory_util

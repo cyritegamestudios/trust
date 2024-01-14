@@ -76,6 +76,10 @@ function Menu:showMenu(menuItem)
 
             local childMenuItem = self.menuView:getItem():getChildMenuItem(textItem:getText())
             if childMenuItem then
+                if type(childMenuItem) == 'function' then
+                    childMenuItem()
+                    return
+                end
                 if childMenuItem:getButtonItems():length() > 0 then
                     self:showMenu(childMenuItem)
                 else

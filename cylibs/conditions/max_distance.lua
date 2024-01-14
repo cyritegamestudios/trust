@@ -7,9 +7,10 @@ local serializer_util = require('cylibs/util/serializer_util')
 local Condition = require('cylibs/conditions/condition')
 local MaxDistanceCondition = setmetatable({}, { __index = Condition })
 MaxDistanceCondition.__index = MaxDistanceCondition
+MaxDistanceCondition.__class = "MaxDistanceCondition"
 
-function MaxDistanceCondition.new(distance)
-    local self = setmetatable(Condition.new(), MaxDistanceCondition)
+function MaxDistanceCondition.new(distance, target_index)
+    local self = setmetatable(Condition.new(target_index), MaxDistanceCondition)
     self.distance = distance
     return self
 end

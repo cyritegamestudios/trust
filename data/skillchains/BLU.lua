@@ -3,6 +3,12 @@ return {
     Version = 1,
     Default = {
         Skillchain = L{
+            SkillchainAbility.auto(),
+            SkillchainAbility.auto(),
+            SkillchainAbility.auto(),
+            SkillchainAbility.auto(),
+            SkillchainAbility.auto(),
+            SkillchainAbility.auto(),
         },
         Blacklist = L{
         },

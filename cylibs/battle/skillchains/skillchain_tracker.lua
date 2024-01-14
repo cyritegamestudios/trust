@@ -96,7 +96,7 @@ end
 function SkillchainTracker:apply_properties(party_member, target_id, action)
     local _, resource, action_id, _, _ = action:get_spell()
 
-    local ability = SkillchainAbility.new(resource, action_id, party_member) -- e.g. Weapon Skill, Spell, Chain Bound, etc.
+    local ability = SkillchainAbility.new(resource, action_id, L{}, party_member) -- e.g. Weapon Skill, Spell, Chain Bound, etc.
     if ability then
         logger.notice(self.__class, 'apply_properties', 'checking action', ability:get_name(), target_id)
 
@@ -119,7 +119,7 @@ function SkillchainTracker:apply_properties(party_member, target_id, action)
             end
         end
 
-        local next_step = SkillchainStep.new(step_num, ability, skillchain, ability:get_delay(), os.clock() + ability:get_delay() + 8 - step_num)
+        local next_step = SkillchainStep.new(step_num, ability, skillchain, ability:get_delay(), os.clock() + ability:get_delay() + 8 - step_num, os.clock())
         self:add_step(target_id, next_step)
     end
 end
@@ -194,6 +194,14 @@ function SkillchainTracker:get_current_step(mob_id)
         return steps[steps:length()]
     end
     return nil
+end
+
+-- Returns whether the skillchain window is open on a target.
+-- @tparam number mob_id Mob id
+-- @treturn boolean True if skillchain window is open, false otherwise
+function SkillchainTracker:is_skillchain_window_open(mob_id)
+    local current_step = self:get_current_step(mob_id)
+    return current_step and os.clock() < current_step:get_expiration_time()
 end
 
 return SkillchainTracker

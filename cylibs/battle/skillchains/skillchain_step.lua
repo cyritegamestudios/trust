@@ -8,14 +8,16 @@ SkillchainStep.__class = "SkillchainStep"
 -- @tparam skillchain Skillchain Skillchain associated with the step (e.g. Scission, Fragmentation, Darkness)
 -- @tparam delay number Delay before the next step can be performed
 -- @tparam expiration_time number Timestamp for when the skillchain window for this step ends
+-- @tparam start_time number Timestamp for when the skillchain step was performed
 -- @treturn SkillchainStep instance
-function SkillchainStep.new(step, ability, skillchain, delay, expiration_time)
+function SkillchainStep.new(step, ability, skillchain, delay, expiration_time, start_time)
     local self = setmetatable({
         step = step,
         ability = ability,
         skillchain = skillchain,
         delay = delay,
-        expiration_time = expiration_time
+        expiration_time = expiration_time,
+        start_time = start_time or os.clock()
     }, SkillchainStep)
 
     return self
@@ -57,6 +59,12 @@ function SkillchainStep:get_expiration_time()
     return self.expiration_time
 end
 
+-- Returns whether the skillchain step has expired.
+-- @treturn boolean True if expired
+function SkillchainStep:is_expired()
+    return os.clock() >= self:get_expiration_time()
+end
+
 -- Returns the number of seconds left in the skillchain window.
 -- @treturn number Time remaining in seconds
 function SkillchainStep:get_time_remaining()
@@ -70,6 +78,12 @@ function SkillchainStep:is_closed()
         return self:get_skillchain():get_level() >= 4
     end
     return false
+end
+
+-- Returns whether enough time has elapsed since this step was performed to continue the skillchain.
+-- @treturn boolean True if enough time has elapsed
+function SkillchainStep:is_window_open()
+    return os.clock() - self.start_time > self:get_delay()
 end
 
 -- Returns a string representation of the skillchain.

@@ -74,7 +74,6 @@ function BuffSettingsEditor:onRemoveSpellClick()
             self:getDataSource():removeItem(indexPath)
             self.trustSettings:saveSettings(true)
         end
-
     end
 end
 

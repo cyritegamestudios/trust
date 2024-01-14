@@ -7,6 +7,8 @@ local serializer_util = require('cylibs/util/serializer_util')
 local Condition = require('cylibs/conditions/condition')
 local NotCondition = setmetatable({}, { __index = Condition })
 NotCondition.__index = NotCondition
+NotCondition.__type = "NotCondition"
+NotCondition.__class = "NotCondition"
 
 function NotCondition.new(conditions)
     local self = setmetatable(Condition.new(), NotCondition)

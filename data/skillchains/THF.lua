@@ -3,14 +3,14 @@ return {
     Version = 1,
     Default = {
         Skillchain = L{
-          WeaponSkill.new('Tornado Kick'),
-          WeaponSkill.new('Shijin Spiral'),
-          WeaponSkill.new('Shijin Spiral'),
-          WeaponSkill.new('Victory Smite'),
+            SkillchainAbility.auto(),
+            SkillchainAbility.auto(),
+            SkillchainAbility.auto(),
+            SkillchainAbility.auto(),
+            SkillchainAbility.auto(),
+            SkillchainAbility.auto(),
         },
         Blacklist = L{
-            'Water',
-            'Fire',
         },
         Skills = L{
             CombatSkillSettings.new('Hand-to-Hand', L{ 'Combo', 'Shoulder Tackle' }),

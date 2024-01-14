@@ -123,7 +123,7 @@ function MagicBurster:check_magic_burst(skillchain)
     for element in elements:it() do
         local spell = self:get_spell(element)
         if spell then
-            self:cast_spell(spell:get_spell().en)
+            self:cast_spell(spell:get_name())
             return
         end
     end
@@ -178,7 +178,7 @@ function MagicBurster:get_spell(element)
         return true
     end)
     for spell in spells:it() do
-        local conditions = spell:get_conditions():extend(L{ MinManaPointsCondition.new(spell:get_spell().mp_cost) })
+        local conditions = spell:get_conditions():extend(L{ MinManaPointsCondition.new(spell:get_mp_cost()) })
         if Condition.check_conditions(conditions, self.target_index) then
             return spell
         end
@@ -197,9 +197,11 @@ function MagicBurster:set_spells(spells)
         Light = L{},
         Dark = L{}
     }
-    self.spells = (spells or L{}):filter(function(spell) return spell ~= nil and spell_util.knows_spell(spell:get_spell().id) end)
+    self.spells = (spells or L{}):filter(function(spell)
+        return spell ~= nil and spell:is_valid()
+    end)
     for spell in self.spells:it() do
-        local element_name = res.elements[spell:get_spell().element].en
+        local element_name = res.elements[spell:get_element()].en
         self.element_to_spells[element_name]:append(spell)
     end
 end

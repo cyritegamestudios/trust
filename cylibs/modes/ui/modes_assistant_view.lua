@@ -101,10 +101,6 @@ local itemToAction = {
         handle_set('CombatMode', 'Ranged')
     end,
     -- Skillchains
-    ["I want to make skillchains with my party."] = function()
-        handle_set('AutoSkillchainMode', 'Auto')
-        handle_set('SkillchainPartnerMode', 'Auto')
-    end,
     ["I want to repeat the same weapon skill."] = function()
         handle_set('AutoSkillchainMode', 'Spam')
     end,

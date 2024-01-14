@@ -59,6 +59,13 @@ function Spell:get_spell()
 end
 
 -------
+-- Returns the full metadata for the spell.
+-- @treturn SpellMetadata metadata (see spells.lua)
+function Spell:get_ability_id()
+    return self:get_spell().id
+end
+
+-------
 -- Returns the names of the job abilities that should be used with this spell.
 -- @treturn list Localized job ability names
 function Spell:get_job_abilities()
@@ -83,10 +90,23 @@ end
 
 -------
 -- Set the job names associated with this Spell.
---
 -- @tparam list job_names A list of jobs this spell applies to (e.g. BLU, RDM, WAR)
 function Spell:set_job_names(job_names)
     self.job_names = job_names
+end
+
+-------
+-- Returns the element id of the spell.
+-- @treturn number Element id of the spell (see res/elements.lua)
+function Spell:get_element()
+    return self:get_spell().element
+end
+
+-------
+-- Returns whether or not the player knows this spell.
+-- @treturn Boolean True if the player knows this spell
+function Spell:is_valid()
+    return spell_util.knows_spell(self:get_spell().id)
 end
 
 -------
@@ -139,6 +159,13 @@ end
 -- @treturn string Name of the consumable (e.g. Shihei), or nil if none is required
 function Spell:get_consumable()
     return self.consumable
+end
+
+-------
+-- Return the mana points required to cast this spell.
+-- @treturn number Mana points
+function Spell:get_mp_cost()
+    return self:get_spell().mp_cost
 end
 
 -------
@@ -212,7 +239,15 @@ function Spell:get_name()
 end
 
 function Spell:serialize()
-    return "Spell.new(" .. serializer_util.serialize_args(self.spell_name, self.job_abilities, self.job_names, self.target, self.conditions, self.consumable) .. ")"
+    local conditions_classes_to_serialize = L{
+        InBattleCondition.__class,
+        IdleCondition.__class,
+        HasBuffCondition.__class,
+        HasBuffsCondition.__class,
+        NotCondition.__class
+    }
+    local conditions_to_serialize = self.conditions:filter(function(condition) return conditions_classes_to_serialize:contains(condition.__class)  end)
+    return "Spell.new(" .. serializer_util.serialize_args(self.spell_name, self.job_abilities, self.job_names, self.target, conditions_to_serialize, self.consumable) .. ")"
 end
 
 function Spell:__tostring()

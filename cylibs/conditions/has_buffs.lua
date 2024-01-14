@@ -9,6 +9,8 @@ local serializer_util = require('cylibs/util/serializer_util')
 local Condition = require('cylibs/conditions/condition')
 local HasBuffsCondition = setmetatable({}, { __index = Condition })
 HasBuffsCondition.__index = HasBuffsCondition
+HasBuffsCondition.__type = "HasBuffsCondition"
+HasBuffsCondition.__class = "HasBuffsCondition"
 
 function HasBuffsCondition.new(buff_names, require_all)
     local self = setmetatable(Condition.new(windower.ffxi.get_player().index), HasBuffsCondition)
