@@ -11,9 +11,6 @@ local SkillchainPropertyCondition = require('cylibs/conditions/skillchain_proper
 local SkillchainTracker = require('cylibs/battle/skillchains/skillchain_tracker')
 local skillchain_util = require('cylibs/util/skillchain_util')
 
-state.AutoAftermathMode = M{['description'] = 'Auto Aftermath Mode', 'Off', 'Auto'}
-state.AutoAftermathMode:set_description('Auto', "Okay, I'll try to keep aftermath on.")
-
 state.AutoSkillchainMode = M{['description'] = 'Auto Skillchain Mode', 'Off', 'Auto', 'Cleave', 'Spam'}
 state.AutoSkillchainMode:set_description('Auto', "Okay, I'll try to make skillchains.")
 state.AutoSkillchainMode:set_description('Cleave', "Okay, I'll try to cleave monsters.")
@@ -159,7 +156,7 @@ function Skillchainer:on_add()
 end
 
 function Skillchainer:check_skillchain()
-    if state.AutoSkillchainMode.value == 'Off' or self.is_performing_ability or not self:get_player():is_engaged()
+    if state.AutoSkillchainMode.value == 'Off' or self.is_performing_ability or not self.enabled or not self:get_player():is_engaged()
             or os.time() - self.last_check_skillchain_time < 1 then
         return
     end
@@ -351,6 +348,10 @@ function Skillchainer:set_weapon_skill_settings(weapon_skill_settings)
     self.ability_for_step = weapon_skill_settings.Skillchain
 
     self:update_abilities()
+end
+
+function Skillchainer:set_enabled(enabled)
+    self.enabled = enabled
 end
 
 return Skillchainer

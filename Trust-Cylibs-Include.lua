@@ -66,6 +66,7 @@ BloodPactMagic = require('cylibs/battle/abilities/blood_pact_magic')
 
 -- Roles
 Role = require('cylibs/trust/roles/role')
+Aftermather = require('cylibs/trust/roles/aftermather')
 Attacker = require('cylibs/trust/roles/attacker')
 CombatMode = require('cylibs/trust/roles/combat_mode')
 Eater = require('cylibs/trust/roles/eater')

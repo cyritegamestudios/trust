@@ -297,6 +297,14 @@ function buff_util.is_ionis_active()
 end
 
 -------
+-- Determines if aftermath is active.
+-- @tparam buff_ids (optional) Buff ids, defaults to player's buff ids if none specified
+-- @treturn Bool True if any aftermath is active
+function buff_util.is_aftermath_active(buff_ids)
+	return buff_util.is_any_buff_active(L{ 270, 271, 272, 273 }, buff_ids)
+end
+
+-------
 -- Determines if the player has artisenal knowledge active.
 -- @treturn Bool True if the player has artisenal knowledge active and false otherwise.
 function buff_util.is_artisenal_knowledge_active()

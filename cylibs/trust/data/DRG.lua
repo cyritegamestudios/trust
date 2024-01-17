@@ -41,13 +41,22 @@ end
 function DragoonTrust:tic(old_time, new_time)
 	Trust.tic(self, old_time, new_time)
 
+	self:check_wyvern()
 	self:jump()
+end
+
+function DragoonTrust:check_wyvern()
+	if not pet_util.has_pet() then
+		if job_util.can_use_job_ability('Call Wyvern') then
+			self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, 'Call Wyvern'), true)
+		end
+	end
 end
 
 function DragoonTrust:jump()
 	if self.target_index == nil then return end
 
-	if self:get_player():get_mob().hpp < 50 then
+	if state.AutoEnmityReductionMode.value ~= 'Off' and self:get_player():get_mob().hpp < 50 then
 		if job_util.can_use_job_ability('Super Jump') then
 			self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, 'Super Jump', self.target_index))
 		end

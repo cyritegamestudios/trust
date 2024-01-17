@@ -213,6 +213,7 @@ function load_user_files(main_job_id, sub_job_id)
 	player.trust.main_job:add_role(Skillchainer.new(action_queue, player.trust.weapon_skill_settings.Default))
 	player.trust.main_job:add_role(Targeter.new(action_queue))
 	player.trust.main_job:add_role(Truster.new(action_queue, settings.battle.trusts))
+	player.trust.main_job:add_role(Aftermather.new(action_queue, player.trust.main_job:role_with_type("skillchainer")))
 
 	target_change_time = os.time()
 
