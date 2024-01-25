@@ -81,10 +81,6 @@ function Aftermather:on_add()
     self:update_aftermath()
 end
 
-function Aftermather:target_change(target_index)
-    Role.target_change(self, target_index)
-end
-
 function Aftermather:tic(_, _)
     if state.AutoAftermathMode.value == 'Off' or self.aftermath_weapon_skill == nil
             or os.time() - self.last_aftermath_check_time < 1 then

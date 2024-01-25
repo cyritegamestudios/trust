@@ -31,10 +31,10 @@ function WeaponSkill:serialize()
 end
 
 function WeaponSkill:__eq(otherItem)
-    if otherItem.__class == WeaponSkill._class and otherItem:get_ability_id() == self:get_ability_id() then
-        return true
+    if not L{ SkillchainAbility.__class, WeaponSkill.__class }:contains(otherItem.__class) then
+        return false
     end
-    return false
+    return otherItem:get_name() == self:get_name()
 end
 
 return WeaponSkill

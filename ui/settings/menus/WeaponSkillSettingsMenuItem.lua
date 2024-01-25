@@ -79,6 +79,7 @@ function WeaponSkillSettingsMenuItem:getSkillchainsMenuItem(activeSkills)
         ButtonItem.default('Skip', 18),
         ButtonItem.default('Clear', 18),
         ButtonItem.default('Clear All', 18),
+        ButtonItem.default('Change Set', 18),
     }, {
         Edit = skillchainStepPickerView
     },

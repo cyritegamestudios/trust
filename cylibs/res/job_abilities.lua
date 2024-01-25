@@ -9,6 +9,7 @@ return T{
     [220] = {id=220,en="Alacrity",status=363},
     [221] = {id=221,en="Ebullience",status=365},
     [222] = {id=222,en="Manifestation",status=367},
+    [230] = {id=230,en="Sekkanoki",status=408},
     [316] = {id=316,en="Perpetuance",status=469},
     [317] = {id=317,en="Immanence",status=470},
 }, {"id", "en", "status"}

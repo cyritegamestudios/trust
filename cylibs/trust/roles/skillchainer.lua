@@ -18,8 +18,8 @@ state.AutoSkillchainMode:set_description('Spam', "Okay, I'll use the same weapon
 
 state.SkillchainPropertyMode = M{['description'] = 'Skillchain Property Mode', 'Off', 'Light', 'Darkness'}
 state.SkillchainPropertyMode:set_description('Off', "Okay, I'll try to make skillchains of all properties.")
-state.SkillchainPropertyMode:set_description('Light', "Okay, I'll only make Light skillchains.")
-state.SkillchainPropertyMode:set_description('Darkness', "Okay, I'll only make Darkness skillchains.")
+state.SkillchainPropertyMode:set_description('Light', "Okay, I'll only make Light skillchains unless I have instructions to use certain weapon skills.")
+state.SkillchainPropertyMode:set_description('Darkness', "Okay, I'll only make Darkness skillchains unless I have instructions to use certain weapon skills.")
 
 state.SkillchainDelayMode = M{['description'] = 'Skillchain Delay Mode', 'Off', 'Maximum'}
 state.SkillchainDelayMode:set_description('Maximum', "Okay, I'll wait until the end of the skillchain window to use my next weapon skill.")
@@ -49,19 +49,22 @@ function Skillchainer.new(action_queue, weapon_skill_settings)
     local self = setmetatable(Role.new(action_queue), Skillchainer)
 
     self.ability_for_step = L{}
-    self.action_queue = action_queue
+    self.weapon_skill_settings = weapon_skill_settings
+    self.num_skillchain_steps = 3
     self.action_identifier = self.__class..'_perform_skillchain'
     self.active_skills = L{}
     self.job_abilities = L{}
     self.skillchain_builder = SkillchainBuilder.new()
     self.last_check_skillchain_time = os.time() - 1
+
     self.ready_weaponskill = Event.newEvent()
     self.skillchain = Event.newEvent();
     self.skillchain_ended = Event.newEvent();
     self.skills_changed = Event.newEvent();
+
     self.dispose_bag = DisposeBag.new()
 
-    self:set_weapon_skill_settings(weapon_skill_settings)
+    self:set_current_settings(weapon_skill_settings:getSettings().Default)
 
     return self
 end
@@ -127,22 +130,16 @@ function Skillchainer:on_add()
 
     self.dispose_bag:add(self:get_party():get_player():on_equipment_change():addAction(function(_)
         self:update_abilities()
+        self:on_skillchain_mode_changed(state.AutoSkillchainMode.value, state.AutoSkillchainMode.value)
     end), self:get_party():get_player():on_equipment_change())
+
+    self.dispose_bag:add(state.AutoSkillchainMode:on_state_change():addAction(function(old_value, new_value)
+        self:on_skillchain_mode_changed(old_value, new_value)
+    end), state.AutoSkillchainMode:on_state_change())
 
     self.dispose_bag:add(renderer.shared():onPrerender():addAction(function()
         self:check_skillchain()
     end), renderer.shared():onPrerender())
-
-    self.dispose_bag:add(state.AutoSkillchainMode:on_state_change():addAction(function(_, new_value)
-        if L{ 'Cleave', 'Spam' }:contains(new_value) then
-            self.skillchain_builder:set_current_step(nil)
-        else
-            local target = self:get_target()
-            if target then
-                self.skillchain_builder:set_current_step(self.skillchain_tracker:get_current_step(target.id))
-            end
-        end
-    end), state.AutoSkillchainMode:on_state_change())
 
     self.dispose_bag:add(state.SkillchainPropertyMode:on_state_change():addAction(function(_, new_value)
         self.skillchain_builder:remove_all_conditions()
@@ -153,6 +150,36 @@ function Skillchainer:on_add()
             self.skillchain_builder:add_condition(SkillchainPropertyCondition.new(skillchain_util.DarknessSkillchains))
         end
     end), state.SkillchainPropertyMode:on_state_change())
+
+    self.dispose_bag:add(state.WeaponSkillSettingsMode:on_state_change():addAction(function(_, new_value)
+        self:set_current_settings(self.weapon_skill_settings:getSettings()[new_value])
+    end), state.WeaponSkillSettingsMode:on_state_change())
+end
+
+function Skillchainer:on_skillchain_mode_changed(_, new_value)
+    if L{ 'Cleave', 'Spam' }:contains(new_value) then
+        self.skillchain_builder:set_current_step(nil)
+        local starter_ability
+        if new_value == 'Cleave' then
+            local abilities = self.skillchain_builder.abilities:filter(function(ability) return ability:is_aoe() end)
+            if abilities:length() > 0 then
+                starter_ability = abilities[1]
+            end
+        else
+            starter_ability = self:get_starter_ability(2)
+        end
+        if starter_ability then
+            self.ability_for_step[1] = starter_ability
+        else
+            self.weapon_skill_settings:reloadSettings()
+        end
+    else
+        local target = self:get_target()
+        if target then
+            self.skillchain_builder:set_current_step(self.skillchain_tracker:get_current_step(target.id))
+        end
+        self.weapon_skill_settings:reloadSettings()
+    end
 end
 
 function Skillchainer:check_skillchain()
@@ -189,6 +216,8 @@ function Skillchainer:check_skillchain()
     if next_ability then
         logger.notice(self.__class, 'check_skillchain', 'get_next_steps', 'perform', next_ability:get_name(), step and step:get_skillchain() or 'starter')
         self:perform_ability(next_ability)
+    else
+        logger.notice(self.__class, 'check_skillchain', 'get_next_steps', 'no ability to perform')
     end
 end
 
@@ -208,7 +237,7 @@ function Skillchainer:get_next_ability(current_step)
     else
         if current_step == nil then
             if windower.ffxi.get_player().vitals.tp >= 1000 then
-                return self:get_starter_ability(self:get_num_steps())
+                return self:get_starter_ability(self.num_skillchain_steps)
             end
         else
             local next_steps = self.skillchain_builder:get_next_steps()
@@ -223,19 +252,9 @@ function Skillchainer:get_next_ability(current_step)
     return nil
 end
 
-function Skillchainer:get_num_steps()
-    if state.AutoSkillchainMode.value == 'Auto' then
-        return 3
-    elseif state.AutoSkillchainMode.value == 'Spam' then
-        return 2
-    else
-        return 1
-    end
-end
-
 function Skillchainer:get_starter_ability(num_steps)
-    if L{ 'Auto', 'Spam' }:contains(state.AutoSkillchainMode.value) then
-        local default_skillchains = self:get_default_skillschains()
+    if state.AutoSkillchainMode.value ~= 'Off' then
+        local default_skillchains = self:get_default_skillchains()
         for skillchain in default_skillchains:it() do
             local skillchains = self.skillchain_builder:build(skillchain:get_name(), num_steps)
             if skillchains and skillchains:length() > 0 then
@@ -243,16 +262,11 @@ function Skillchainer:get_starter_ability(num_steps)
             end
         end
         return self.active_skills:first():get_default_ability()
-    else
-        local abilities = self.skillchain_builder.abilities:filter(function(ability) return ability:is_aoe() end)
-        if abilities:length() > 0 then
-            return abilities[1]
-        end
     end
     return nil
 end
 
-function Skillchainer:get_default_skillschains()
+function Skillchainer:get_default_skillchains()
     local light_skillchains = L{
         skillchain_util.Radiance,
         skillchain_util.LightLv4,
@@ -312,7 +326,7 @@ function Skillchainer:update_abilities()
     self.active_skills:clear()
 
     local abilities = L{}
-    for skill in self.weapon_skill_settings.Skills:it() do
+    for skill in self.current_settings.Skills:it() do
         if skill:is_valid(player) then
             abilities = abilities:extend(skill:get_abilities()):compact_map()
             self.active_skills:append(skill)
@@ -343,9 +357,9 @@ function Skillchainer:set_job_abilities(job_abilities)
     self.job_abilities = (job_abilities or L{}):filter(function(job_ability) return job_util.knows_job_ability(job_ability:get_job_ability_id()) end)
 end
 
-function Skillchainer:set_weapon_skill_settings(weapon_skill_settings)
-    self.weapon_skill_settings = weapon_skill_settings
-    self.ability_for_step = weapon_skill_settings.Skillchain
+function Skillchainer:set_current_settings(current_settings)
+    self.current_settings = current_settings
+    self.ability_for_step = current_settings.Skillchain
 
     self:update_abilities()
 end

@@ -3,7 +3,6 @@ local SkillchainAbility = require('cylibs/battle/skillchains/abilities/skillchai
 local SkillchainBuilder = require('cylibs/battle/skillchains/skillchain_builder')
 local SkillchainStep = require('cylibs/battle/skillchains/skillchain_step')
 local skillchain_util = require('cylibs/util/skillchain_util')
-local localization_util = require('cylibs/util/localization_util')
 
 local TrustCommands = require('cylibs/trust/commands/trust_commands')
 local SkillchainTrustCommands = setmetatable({}, {__index = TrustCommands })
@@ -18,17 +17,20 @@ function SkillchainTrustCommands.new(trust, weapon_skill_settings, action_queue)
     self.action_queue = action_queue
 
     -- General
-    self:add_command('reset', self.handle_reset_skillchain, 'Resets skillchain overrides and automatically determines abilities to use')
+    self:add_command('clear', self.handle_clear, 'Clears the skillchain and sets all steps to auto')
+    self:add_command('reload', self.handle_reload, 'Reloads the skillchain settings from file')
+    self:add_command('save', self.handle_save, 'Saves settings changes to file')
 
     -- AutoSkillchainMode
-    self:add_command('auto', function(_) return self:handle_toggle_mode('AutoSkillchainMode', 'Auto', 'Off')  end, 'Automatically make skillchains')
-    self:add_command('cleave', function(_) return self:handle_toggle_mode('AutoSkillchainMode', 'Cleave', 'Off')  end, 'Cleave monsters')
-    self:add_command('spam', self.handle_toggle_spam, 'Spam the same weapon skill, // trust sc spam "ability_name" (optional)')
+    self:add_command('auto', self.handle_toggle_auto, 'Automatically make skillchains')
+    self:add_command('cleave', self.handle_toggle_cleave, 'Cleave monsters')
+    self:add_command('spam', self.handle_toggle_spam, 'Spam the same weapon skill, // trust sc spam ability_name (optional)')
 
     -- AutoAftermathMode
     self:add_command('am', function(_) return self:handle_toggle_mode('AutoAftermathMode', 'Auto', 'Off')  end, 'Prioritize maintaining aftermath on mythic weapons')
 
     -- Find a skillchain
+    self:add_command('set', self.handle_set_step, 'Sets a step of a skillchain, // trust sc set step_num weapon_skill_name')
     self:add_command('next', self.handle_next, 'Finds weapon skills that skillchain with the given weapon skill')
     self:add_command('build', self.handle_build, 'Builds a skillchain with the current equipped weapon')
 
@@ -39,59 +41,146 @@ function SkillchainTrustCommands:get_command_name()
     return 'sc'
 end
 
-function SkillchainTrustCommands:handle_reset_skillchain()
-    local success
-    local message
-
-    local current_settings = self.weapon_skill_settings:getSettings()[state.WeaponSkillSettingsMode.value]
-    if current_settings then
-        success = true
-        message = "Skillchains will be automatically determined"
-
-        for i = 1, current_settings.Skillchain:length() do
-            current_settings.Skillchain[i] = SkillchainAbility.auto()
-        end
-        self.weapon_skill_settings:saveSettings(true)
-    else
-        success = false
-        message = "Unable to find skillchain settings"
-    end
-    return success, message
+function SkillchainTrustCommands:get_settings()
+    return self.weapon_skill_settings:getSettings()[state.WeaponSkillSettingsMode.value]
 end
 
--- // trust sc [auto, spam, cleave, partner, open, close, prefer, strict, am]
-function SkillchainTrustCommands:handle_toggle_mode(mode_var_name, on_value, off_value)
+function SkillchainTrustCommands:get_ability(skills, ability_name)
+    for combat_skill in skills:it() do
+        local ability = combat_skill:get_ability(ability_name)
+        if ability then
+            return ability
+        end
+    end
+    return nil
+end
+
+function SkillchainTrustCommands:handle_toggle_mode(mode_var_name, on_value, off_value, force_on)
     local success = true
     local message
 
     local mode_var = get_state(mode_var_name)
-    if mode_var.value == on_value then
+    if not force_on and mode_var.value == on_value then
+        --state[mode_var_name]:set(off_value)
         handle_set(mode_var_name, off_value)
     else
+        --state[mode_var_name]:set(on_value)
         handle_set(mode_var_name, on_value)
     end
 
     return success, message
 end
 
-function SkillchainTrustCommands:handle_toggle_spam(_, ability_name)
-    if ability_name then
-        local success, message = self:handle_set_step(ability_name, 1)
-        if success then
-            message = localization_util.translate(ability_name).." will now be used when spamming"
-            handle_set('AutoSkillchainMode', 'Spam')
-        end
-        return success, message
-    else
-        return self:handle_toggle_mode('AutoSkillchainMode', 'Spam', 'Off')
+-- // trust sc clear
+function SkillchainTrustCommands:handle_clear()
+    local success = true
+    local message = "Skillchains will be automatically determined"
+
+    local current_settings = self:get_settings()
+    for i = 1, current_settings.Skillchain:length() do
+        current_settings.Skillchain[i] = SkillchainAbility.auto()
     end
+    self.weapon_skill_settings:saveSettings(true)
+
+    return success, message
 end
 
-function SkillchainTrustCommands:handle_set_step(ability_name, step_num)
+-- // trust sc reload
+function SkillchainTrustCommands:handle_reload()
+    local success = true
+    local message = "Reloaded skillchain settings from "..self.weapon_skill_settings:getSettingsFilePath()
+
+    self.weapon_skill_settings:loadSettings()
+
+    return success, message
+end
+
+-- // trust sc save
+function SkillchainTrustCommands:handle_save()
+    local success = true
+    local message = "Skillchain settings saved to "..self.weapon_skill_settings:getSettingsFilePath()
+
+    self.weapon_skill_settings:saveSettings(true)
+
+    return success, message
+end
+
+-- // trust sc auto
+function SkillchainTrustCommands:handle_toggle_auto(_)
+    local success = true
+    local message
+
+    self:handle_toggle_mode('AutoSkillchainMode', 'Auto', 'Off')
+
+    return success, message
+end
+
+-- // trust sc spam weapon_skill_name (optional)
+function SkillchainTrustCommands:handle_toggle_spam(_, ...)
+    local success
+    local message
+
+    local ability_name = table.concat({...}, " ") or ""
+
+    self:handle_toggle_mode('AutoSkillchainMode', 'Spam', 'Off', not ability_name:empty())
+
+    if state.AutoSkillchainMode.value == 'Off' or ability_name:empty() then
+        return true, message
+    end
+
+    local current_settings = self:get_settings()
+
+    local ability = self:get_ability(current_settings.Skills, ability_name)
+    if ability then
+        success = true
+        message = localization_util.translate(ability_name).." will now be used when spamming"
+
+        current_settings.Skillchain[1] = ability
+    else
+        message = localization_util.translate(ability_name).." is not a valid ability name"
+
+        self:handle_toggle_mode('AutoSkillchainMode', 'Spam', 'Off')
+    end
+
+    return success, message
+end
+
+-- // trust sc cleave
+function SkillchainTrustCommands:handle_toggle_cleave(_)
+    local success
+    local message
+
+    self:handle_toggle_mode('AutoSkillchainMode', 'Cleave', 'Off')
+
+    if state.AutoSkillchainMode.value == 'Off' then
+        return true, message
+    end
+
+    local current_settings = self:get_settings()
+
+    local ability = current_settings.Skillchain[1]
+    if ability and ability:is_aoe() then
+        success = true
+        message = localization_util.translate(ability:get_name()).." will now be used when cleaving"
+
+        current_settings.Skillchain[1] = ability
+    else
+        message = "No valid cleave ability found for equipped weapons"
+
+        self:handle_toggle_mode('AutoSkillchainMode', 'Cleave', 'Off')
+    end
+    return success, message
+end
+
+
+-- // trust sc step_num ability_name
+function SkillchainTrustCommands:handle_set_step(_, step_num, ...)
     local success = false
     local message
 
     step_num = math.min(step_num, 6)
+
+    local ability_name = table.concat({...}, " ")
 
     local current_settings = self.weapon_skill_settings:getSettings()[state.WeaponSkillSettingsMode.value]
     if current_settings then
@@ -100,7 +189,7 @@ function SkillchainTrustCommands:handle_set_step(ability_name, step_num)
             if ability then
                 current_settings.Skillchain[step_num] = ability
                 success = true
-                message = "Step "..step_num.." is now "..ability:get_name()
+                message = "Step "..step_num.." is now "..localization_util.translate(ability:get_name())
                 self.weapon_skill_settings:saveSettings(true)
                 break
             end

@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '8.4.0'
+_addon.version = '8.4.1'
 _addon.release_notes = [[
 Trusts now come fully equipped with a skillchain calculator and can
 make powerful skillchains of their own without any configuration!
@@ -190,13 +190,6 @@ function load_user_files(main_job_id, sub_job_id)
 		player.trust.sub_job:set_trust_settings(player.trust.sub_job_settings[new_value])
 	end)
 
-	state.WeaponSkillSettingsMode:on_state_change():addAction(function(_, new_value)
-		local skillchainer = player.trust.main_job:role_with_type("skillchainer")
-		if skillchainer then
-			skillchainer:set_weapon_skill_settings(player.trust.weapon_skill_settings[new_value])
-		end
-	end)
-
 	main_job_trust, sub_job_trust = TrustFactory.trusts(trust_for_job_short(player.main_job_name_short, settings, player.trust.main_job_settings.Default, action_queue, player.player, player.alliance, player.party), trust_for_job_short(player.sub_job_name_short, settings, player.trust.sub_job_settings.Default, action_queue, player.player, player.alliance, player.party))
 
 	main_job_trust:init()
@@ -210,7 +203,7 @@ function load_user_files(main_job_id, sub_job_id)
 	player.trust.main_job:add_role(Eater.new(action_queue, main_job_trust:get_trust_settings().AutoFood))
 	player.trust.main_job:add_role(Follower.new(action_queue, settings.follow.distance))
 	player.trust.main_job:add_role(Pather.new(action_queue, 'data/paths/'))
-	player.trust.main_job:add_role(Skillchainer.new(action_queue, player.trust.weapon_skill_settings.Default))
+	player.trust.main_job:add_role(Skillchainer.new(action_queue, weapon_skill_settings))
 	player.trust.main_job:add_role(Targeter.new(action_queue))
 	player.trust.main_job:add_role(Truster.new(action_queue, settings.battle.trusts))
 	player.trust.main_job:add_role(Aftermather.new(action_queue, player.trust.main_job:role_with_type("skillchainer")))
@@ -565,10 +558,12 @@ function handle_debug()
 	end
 end
 
-function handle_command_list()
+function handle_command_list(command_name)
 	addon_message(122, 'Addon Commands')
 
-	local command_descriptions = shortcuts:map(function(command)
+	local command_descriptions = shortcuts:filter(function(command)
+		return command_name == nil or command:get_command_name() == command_name
+	end):map(function(command)
 		return command:description()
 	end)
 

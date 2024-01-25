@@ -41,6 +41,11 @@ function SkillchainSettingsEditor.new(weaponSkillSettings, abilities)
     self:setNeedsLayout()
     self:layoutIfNeeded()
 
+    self:getDisposeBag():add(state.WeaponSkillSettingsMode:on_state_change():addAction(function(_, new_value)
+        self.abilities = self.weaponSkillSettings:getSettings()[new_value].Skillchain
+        self:reloadSettings()
+    end), state.WeaponSkillSettingsMode:on_state_change())
+
     return self
 end
 
@@ -134,6 +139,8 @@ function SkillchainSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPat
         addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, back to the drawing board!")
 
         self:reloadSettings()
+    elseif textItem:getText() == 'Change Set' then
+        handle_cycle('WeaponSkillSettingsMode')
     end
 end
 

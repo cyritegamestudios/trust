@@ -78,6 +78,10 @@ function WeaponSkillSettings:loadSettings()
     return nil
 end
 
+function WeaponSkillSettings:reloadSettings()
+    return self:loadSettings()
+end
+
 function WeaponSkillSettings:getSettingsFilePath(default_settings)
     local file_prefix = windower.addon_path..self.settingsFolder..self.jobNameShort
     if windower.file_exists(file_prefix..'_'..windower.ffxi.get_player().name..'.lua') and not default_settings then
