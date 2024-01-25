@@ -76,7 +76,7 @@ function Aftermather:on_add()
         if self.aftermath_buff_ids:contains(buff_id) then
             self:update_aftermath()
         end
-    end), self:get_party():get_player():on_gain_buff())
+    end), self:get_party():get_player():on_lose_buff())
 
     self:update_aftermath()
 end

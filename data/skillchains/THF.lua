@@ -13,7 +13,7 @@ return {
         Blacklist = L{
         },
         Skills = L{
-            CombatSkillSettings.new('Hand-to-Hand', L{ 'Combo', 'Shoulder Tackle' }),
+            CombatSkillSettings.new('Hand-to-Hand', L{}),
             CombatSkillSettings.new('Dagger', L{}),
             CombatSkillSettings.new('Club', L{}),
         },

@@ -365,7 +365,17 @@ function Skillchainer:set_current_settings(current_settings)
 end
 
 function Skillchainer:set_enabled(enabled)
+    if self.enabled == enabled then
+        return
+    end
     self.enabled = enabled
+    if self.enabled then
+        local target = self:get_target()
+        if target then
+            self.skillchain_tracker:reset(target:get_id())
+            logger.notice(self.__class, 'set_enabled', enabled, 'resetting skillchain tracker')
+        end
+    end
 end
 
 return Skillchainer
