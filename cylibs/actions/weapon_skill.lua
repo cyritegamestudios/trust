@@ -4,19 +4,20 @@ local Action = require('cylibs/actions/action')
 local WeaponSkillAction = setmetatable({}, {__index = Action })
 WeaponSkillAction.__index = WeaponSkillAction
 
-function WeaponSkillAction.new(weapon_skill_name)
+function WeaponSkillAction.new(weapon_skill_name, target_index)
 	local conditions = L{
 		HasWeaponSkillCondition.new(weapon_skill_name),
 		MinTacticalPointsCondition.new(1000),
 		NotCondition.new(L{ HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'amnesia'}, false) }),
+		ValidTargetCondition.new()
 	}
-	local self = setmetatable(Action.new(0, 0, 0, nil, conditions), WeaponSkillAction)
+
+	local self = setmetatable(Action.new(0, 0, 0, target_index, conditions), WeaponSkillAction)
 
 	self.weapon_skill_name = weapon_skill_name
 
-	local target = self:get_target()
-	if target and target.id ~= windower.ffxi.get_player().id then
-		self:add_condition(MaxDistanceCondition.new(battle_util.get_weapon_skill_distance(weapon_skill_name, target.index), target.index))
+	if target_index ~= windower.ffxi.get_player().index then
+		self:add_condition(MaxDistanceCondition.new(battle_util.get_weapon_skill_distance(weapon_skill_name, target_index), target_index))
 	end
 
  	return self
@@ -24,7 +25,7 @@ end
 
 function WeaponSkillAction:perform()
 	local send_chat_input = function(weapon_skill_name)
-		if L{ 'Moonlight', 'Myrkr', 'Dagan' }:contains(weapon_skill_name) then
+		if self.target_index == windower.ffxi.get_player().index then
 			windower.chat.input("/ws %s <me>":format(weapon_skill_name))
 		else
 			windower.chat.input("/ws %s <t>":format(weapon_skill_name))
@@ -41,11 +42,7 @@ function WeaponSkillAction:get_weapon_skill_name()
 end
 
 function WeaponSkillAction:get_target()
-	if L{ 'Moonlight', 'Myrkr', 'Dagan' }:contains(self:get_weapon_skill_name()) then
-		return windower.ffxi.get_player()
-	else
-		return windower.ffxi.get_mob_by_target('t')
-	end
+	return windower.ffxi.get_mob_by_index(self.target_index)
 end
 
 function WeaponSkillAction:gettype()
@@ -66,7 +63,12 @@ function WeaponSkillAction:is_equal(action)
 end
 
 function WeaponSkillAction:tostring()
-	return self:get_weapon_skill_name()..' → '..self:get_target().name
+	local target = self:get_target()
+	if target then
+		return self:get_weapon_skill_name()..' → '..self:get_target().name
+	else
+		return ""
+	end
 end
 
 function WeaponSkillAction:debug_string()

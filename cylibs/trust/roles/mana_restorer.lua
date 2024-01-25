@@ -13,6 +13,7 @@ function ManaRestorer.new(action_queue, weapon_skill_names, mpp_threshold)
     local weapon_skill_names = weapon_skill_names:filter(function(weapon_skill_name) return job_util.knows_weapon_skill(weapon_skill_name)  end)
     if weapon_skill_names:length() > 0 then
         self.weapon_skill_name = weapon_skill_names[1]
+        self.weapon_skill_targets = res.weapon_skills:with('en', self.weapon_skill_name).targets
     end
     self.mpp_threshold = mpp_threshold
     self.last_vitals_check_time = os.time()
@@ -45,7 +46,11 @@ function ManaRestorer:check_weapon_skill()
         return
     end
     if windower.ffxi.get_player().vitals.tp >= 1000 then
-        self.action_queue:push_action(WeaponSkillAction.new(self.weapon_skill_name), true)
+        local target_index = self.target_index
+        if self.weapon_skill_targets:contains('Self') then
+            target_index = windower.ffxi.get_player().index
+        end
+        self.action_queue:push_action(WeaponSkillAction.new(self.weapon_skill_name, target_index), true)
     end
 end
 

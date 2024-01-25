@@ -419,7 +419,7 @@ function check_version()
 
 		local Frame = require('cylibs/ui/views/frame')
 
-		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 500))
+		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 550))
 
 		updateView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
 			updateView:getDelegate():deselectItemAtIndexPath(indexPath)

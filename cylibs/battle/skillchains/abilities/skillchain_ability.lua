@@ -141,7 +141,7 @@ function SkillchainAbility:to_action(target_index, player)
     end
 
     if self.resource == 'weapon_skills' then
-        actions:append(WeaponSkillAction.new(self:get_name()))
+        actions:append(WeaponSkillAction.new(self:get_name(), target_index))
     elseif self.resource == 'job_abilities' then
         actions:append(JobAbilityAction.new(0, 0, 0, self:get_name(), target_index))
     elseif self.resource == 'spells' then
