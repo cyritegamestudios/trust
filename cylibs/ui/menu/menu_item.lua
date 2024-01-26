@@ -10,12 +10,13 @@ MenuItem.__type = "MenuItem"
 -- @param contentViewConstructor A function that returns a ContentView for this MenuItem.
 -- @treturn MenuItem The newly created MenuItem.
 --
-function MenuItem.new(buttonItems, childMenuItems, contentViewConstructor)
+function MenuItem.new(buttonItems, childMenuItems, contentViewConstructor, keepViews)
     local self = setmetatable({}, MenuItem)
 
     self.buttonItems = buttonItems
     self.childMenuItems = childMenuItems
     self.contentViewConstructor = contentViewConstructor
+    self.keepViews = keepViews
 
     return self
 end

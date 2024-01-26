@@ -61,7 +61,7 @@ function PartyChat:add_to_chat(sender_name, message, throttle_key, throttle_dura
     elseif state.PartyChatMode.value == 'Party' then
         local message_action = SequenceAction.new(L{
             PartyChatMessageAction.new(message),
-            WaitAction.new(0, 0, 0, 1.25)
+            --WaitAction.new(0, 0, 0, 1.25) -- this blocks the callstack that called this function
         }, 'party_chat_'..message)
         self.message_queue:push_action(message_action, true)
     end

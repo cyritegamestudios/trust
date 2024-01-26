@@ -68,3 +68,14 @@ function table.merge(table1, table2)
     end
     return merged_table
 end
+
+function table.clone(t)
+    if type(t) ~= "table" then
+        return t
+    end
+    local copy = {}
+    for key, value in pairs(t) do
+        copy[table.clone(key)] = table.clone(value)
+    end
+    return setmetatable(copy, getmetatable(t))
+end

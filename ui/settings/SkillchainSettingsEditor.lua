@@ -139,9 +139,40 @@ function SkillchainSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPat
         addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, back to the drawing board!")
 
         self:reloadSettings()
-    elseif textItem:getText() == 'Change Set' then
+    elseif textItem:getText() == 'Cycle' then
         handle_cycle('WeaponSkillSettingsMode')
+    elseif textItem:getText() == 'Create' then
+        local setName = 'Set'..#state.WeaponSkillSettingsMode + 1
+        self.weaponSkillSettings:getSettings()[setName] = T(self.weaponSkillSettings:getDefaultSettings().Default):clone()
+        self.weaponSkillSettings:saveSettings(true)
+
+        state.WeaponSkillSettingsMode:set(setName)
+
+        addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I copied the default settings to "..setName.." and switched to the new set.")
+    elseif textItem:getText() == 'Delete' then
+        local setName = state.WeaponSkillSettingsMode.value
+        if setName == 'Default' then
+            addon_message(260, '('..windower.ffxi.get_player().name..') '.."I can't delete the default set!")
+        else
+            self.weaponSkillSettings:getSettings()[setName] = nil
+            self.weaponSkillSettings:saveSettings(true)
+
+            state.WeaponSkillSettingsMode:set('Default')
+
+            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Poof! I've forgotten "..setName..". Things feel less cluttered already.")
+        end
     end
+end
+
+function SkillchainSettingsEditor:deepCopy(original)
+    if type(original) ~= "table" then
+        return original
+    end
+    local copy = {}
+    for key, value in pairs(original) do
+        copy[self:deepCopy(key)] = self:deepCopy(value)
+    end
+    return setmetatable(copy, getmetatable(original))
 end
 
 function SkillchainSettingsEditor:getMenuArgs()

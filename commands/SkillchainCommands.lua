@@ -232,14 +232,19 @@ function SkillchainTrustCommands:handle_next(_, weapon_skill_name)
     return success, message
 end
 
--- // trust sc build [liquefaction|scission|reverberation|detontation|induration|impaction|transfixion|compression|fragmentation|fusion|gravitation|distortion|light|darkness] num_steps
+-- // trust sc build property_name num_steps (optional)
 function SkillchainTrustCommands:handle_build(_, property_name, num_steps)
     local success
     local message
 
-    if property_name == nil or skillchain_util[property_name] == nil then
+    local valid_skillchains = skillchain_util.LightSkillchains:union(skillchain_util.DarknessSkillchains)
+            :filter(function(s) return not L{ 'Light Lv.4', 'Darkness Lv.4'}:contains(s:get_name()) end)
+            :map(function(s) return s:get_name() end)
+            :union(S{ 'LightLv4', 'DarknessLv4' })
+
+    if property_name == nil or skillchain_util[property_name] == nil or num_steps and type(num_steps) ~= 'number' then
         success = false
-        message = "Valid skillchain properties are [liquefaction|scission|reverberation|detontation|induration|impaction|transfixion|compression|fragmentation|fusion|gravitation|distortion|light|darkness]"
+        message = "Valid skillchain properties are: "..valid_skillchains:tostring()
     else
         num_steps = tonumber(num_steps or 2)
 

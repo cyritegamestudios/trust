@@ -139,6 +139,10 @@ function WeaponSkillSettings:allowsDuplicates()
     return false
 end
 
+function WeaponSkillSettings:getDefaultSettings()
+    return self.defaultSettings
+end
+
 function WeaponSkillSettings:getSettings()
     return self.settings
 end

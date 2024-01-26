@@ -61,7 +61,6 @@ end
 function WeaponSkillSettingsMenuItem:getSkillchainsMenuItem(activeSkills)
     local skillchainStepPickerView = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
-        ButtonItem.default('Clear', 18),
     }, {},
             function(args)
                 local settings = T(self.weaponSkillSettings:getSettings())[self.weaponSkillSettingsMode.value]
@@ -74,14 +73,21 @@ function WeaponSkillSettingsMenuItem:getSkillchainsMenuItem(activeSkills)
                 return createSkillchainView
             end)
 
+    local skillchainSetsMenuItem = MenuItem.new(L{
+        ButtonItem.default('Cycle', 18),
+        ButtonItem.default('Create', 18),
+        ButtonItem.default('Delete', 18),
+    }, L{}, nil, true)
+
     local skillchainSettingsItem = MenuItem.new(L{
         ButtonItem.default('Edit', 18),
         ButtonItem.default('Skip', 18),
         ButtonItem.default('Clear', 18),
         ButtonItem.default('Clear All', 18),
-        ButtonItem.default('Change Set', 18),
+        ButtonItem.default('Sets', 18),
     }, {
-        Edit = skillchainStepPickerView
+        Edit = skillchainStepPickerView,
+        Sets = skillchainSetsMenuItem
     },
             function(args)
                 local settings = T(self.weaponSkillSettings:getSettings())[self.weaponSkillSettingsMode.value]
