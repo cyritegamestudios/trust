@@ -152,6 +152,7 @@ skills.weapon_skills = {
     [168] = {en='Hexa Strike',skillchain={'Fusion'}},
     [169] = {en='Black Halo',skillchain={'Fragmentation','Compression'}},
     [170] = {en='Randgrith',skillchain={'Light','Fragmentation'}},
+    [171] = {en='Mystic Boon',skillchain={}},
     [172] = {en='Flash Nova',skillchain={'Induration','Reverberation'}},
     [174] = {en='Realmrazer',skillchain={'Fusion','Impaction'},aeonic='Light',weapon='Tishtrya'},
     [175] = {en='Exudation',skillchain={'Darkness','Fragmentation'}},

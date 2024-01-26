@@ -67,6 +67,11 @@ function PartyMember:on_equipment_change()
     return self.equipment_change
 end
 
+-- Event called when the party member's combat skills change.
+function PartyMember:on_combat_skills_change()
+    return self.combat_skills_change
+end
+
 -- Event called when the party member's pet changes.
 function PartyMember:on_pet_change()
     return self.pet_change
@@ -92,6 +97,7 @@ function PartyMember.new(id)
     self.action_events = {}
     self.debuff_ids = L{}
     self.buff_ids = L{}
+    self.combat_skill_ids = S{}
     self.is_monitoring = false
     self.last_zone_time = os.time()
     self.heartbeat_time = os.time()
@@ -107,6 +113,7 @@ function PartyMember.new(id)
     self.position_change = Event.newEvent()
     self.zone_change = Event.newEvent()
     self.equipment_change = Event.newEvent()
+    self.combat_skills_change = Event.newEvent()
     self.pet_change = Event.newEvent()
 
     local party_member_info = party_util.get_party_member(id)
@@ -153,6 +160,7 @@ function PartyMember:destroy()
     self.position_change:removeAllActions()
     self.zone_change:removeAllActions()
     self.equipment_change:removeAllActions()
+    self.combat_skills_change:removeAllActions()
     self.pet_change:removeAllActions()
 end
 

@@ -152,7 +152,7 @@ function SkillchainSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPat
     elseif textItem:getText() == 'Delete' then
         local setName = state.WeaponSkillSettingsMode.value
         if setName == 'Default' then
-            addon_message(260, '('..windower.ffxi.get_player().name..') '.."I can't delete the default set!")
+            addon_message(260, '('..windower.ffxi.get_player().name..') '.."I can't delete the Default set!")
         else
             self.weaponSkillSettings:getSettings()[setName] = nil
             self.weaponSkillSettings:saveSettings(true)

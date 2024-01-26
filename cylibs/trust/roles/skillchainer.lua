@@ -128,10 +128,10 @@ function Skillchainer:on_add()
     end)
     self.dispose_bag:addAny(L{ self.skillchain_tracker })
 
-    self.dispose_bag:add(self:get_party():get_player():on_equipment_change():addAction(function(_)
+    self.dispose_bag:add(self:get_party():get_player():on_combat_skills_change():addAction(function(_)
         self:update_abilities()
         self:on_skillchain_mode_changed(state.AutoSkillchainMode.value, state.AutoSkillchainMode.value)
-    end), self:get_party():get_player():on_equipment_change())
+    end), self:get_party():get_player():on_combat_skills_change())
 
     self.dispose_bag:add(state.AutoSkillchainMode:on_state_change():addAction(function(old_value, new_value)
         self:on_skillchain_mode_changed(old_value, new_value)

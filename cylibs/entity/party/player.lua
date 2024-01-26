@@ -1,5 +1,6 @@
 local inventory_util = require('cylibs/util/inventory_util')
 local PartyMember = require('cylibs/entity/party_member')
+local Weapon = require('cylibs/battle/weapons/weapon')
 
 local Player = setmetatable({}, {__index = PartyMember })
 Player.__index = Player
@@ -73,6 +74,8 @@ function Player:set_main_weapon_id(main_weapon_id)
         return
     end
     self.main_weapon_id = main_weapon_id
+    self:update_combat_skills()
+
     self:on_equipment_change():trigger(self)
 end
 
@@ -91,7 +94,32 @@ function Player:set_ranged_weapon_id(ranged_weapon_id)
         return
     end
     self.ranged_weapon_id = ranged_weapon_id
+    self:update_combat_skills()
+
     self:on_equipment_change():trigger(self)
+end
+
+-------
+-- Returns the item id of the ranged weapon equipped.
+-- @tparam number Item id of ranged weapon equipped (see res/items.lua)
+function Player:get_combat_skill_ids()
+    return self.combat_skill_ids
+end
+
+-------
+-- Sets the ranged weapon item id.
+-- @tparam number ranged_weapon_id Item id (see res/items.lua)
+function Player:update_combat_skills()
+    local combat_skill_ids = L{ self:get_main_weapon_id(), self:get_ranged_weapon_id() }:compact_map():map(function(weapon_id)
+        local weapon = Weapon.new(weapon_id)
+        return weapon:get_combat_skill()
+    end)
+    if self.combat_skill_ids:equals(combat_skill_ids) then
+        return
+    end
+    self.combat_skill_ids = combat_skill_ids
+
+    self:on_combat_skills_change():trigger(self, self.combat_skill_ids)
 end
 
 return Player
