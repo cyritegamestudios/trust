@@ -3,6 +3,7 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local SkillchainAbilityPickerView = require('ui/settings/pickers/SkillchainAbilityPickerView')
 local SkillchainSettingsEditor = require('ui/settings/SkillchainSettingsEditor')
+local SkillchainSettingsMenuItem = require('ui/settings/menus/SkillchainSettingsMenuItem')
 local SkillSettingsMenuItem = require('ui/settings/menus/SkillSettingsMenuItem')
 
 local WeaponSkillSettingsMenuItem = setmetatable({}, {__index = MenuItem })
@@ -12,6 +13,7 @@ function WeaponSkillSettingsMenuItem.new(weaponSkillSettings, weaponSkillSetting
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Skillchains', 18),
         ButtonItem.default('Abilities', 18),
+        ButtonItem.default('Modes', 18),
     }, {}), WeaponSkillSettingsMenuItem)
 
     self.settings = T(weaponSkillSettings:getSettings())[weaponSkillSettingsMode.value]
@@ -54,51 +56,9 @@ function WeaponSkillSettingsMenuItem:destroy()
 end
 
 function WeaponSkillSettingsMenuItem:reloadSettings(activeSkills)
-    self:setChildMenuItem("Skillchains", self:getSkillchainsMenuItem(activeSkills))
+    self:setChildMenuItem("Skillchains", SkillchainSettingsMenuItem.new(self.weaponSkillSettings, self.weaponSkillSettingsMode, self.viewFactory))
     self:setChildMenuItem("Abilities", self:getAbilitiesMenuItem(activeSkills))
-end
-
-function WeaponSkillSettingsMenuItem:getSkillchainsMenuItem(activeSkills)
-    local skillchainStepPickerView = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
-    }, {},
-            function(args)
-                local settings = T(self.weaponSkillSettings:getSettings())[self.weaponSkillSettingsMode.value]
-
-                local abilities = settings.Skillchain
-                local abilityIndex = args['selected_index'] or 1
-
-                local createSkillchainView = self.viewFactory(SkillchainAbilityPickerView.new(self.weaponSkillSettings, abilities, abilityIndex, self.skillchainer))
-                createSkillchainView:setShouldRequestFocus(true)
-                return createSkillchainView
-            end)
-
-    local skillchainSetsMenuItem = MenuItem.new(L{
-        ButtonItem.default('Cycle', 18),
-        ButtonItem.default('Create', 18),
-        ButtonItem.default('Delete', 18),
-    }, L{}, nil, true)
-
-    local skillchainSettingsItem = MenuItem.new(L{
-        ButtonItem.default('Edit', 18),
-        ButtonItem.default('Skip', 18),
-        ButtonItem.default('Clear', 18),
-        ButtonItem.default('Clear All', 18),
-        ButtonItem.default('Sets', 18),
-    }, {
-        Edit = skillchainStepPickerView,
-        Sets = skillchainSetsMenuItem
-    },
-            function(args)
-                local settings = T(self.weaponSkillSettings:getSettings())[self.weaponSkillSettingsMode.value]
-
-                local abilities = settings.Skillchain
-
-                local createSkillchainView = self.viewFactory(SkillchainSettingsEditor.new(self.weaponSkillSettings, abilities))
-                createSkillchainView:setShouldRequestFocus(true)
-                return createSkillchainView
-            end)
-    return skillchainSettingsItem
+    self:setChildMenuItem("Modes", self:getModesMenuItem(activeSkills))
 end
 
 function WeaponSkillSettingsMenuItem:getAbilitiesMenuItem(activeSkills)
@@ -115,6 +75,60 @@ function WeaponSkillSettingsMenuItem:getAbilitiesMenuItem(activeSkills)
                 return buttonItem
             end), childMenuItems)
     return abilitiesMenuItem
+end
+
+function WeaponSkillSettingsMenuItem:getModesMenuItem(activeSkills)
+    local skillchainDelayMenuItem = MenuItem.new(L{
+        ButtonItem.default('Off', 18),
+        ButtonItem.default('Maximum', 18),
+    }, L{
+        Off = function()
+            handle_set('SkillchainDelayMode', 'Off')
+        end,
+        Maximum = function()
+            handle_set('SkillchainDelayMode', 'Maximum')
+        end,
+    }, nil)
+
+    local skillchainPropertiesMenuItem = MenuItem.new(L{
+        ButtonItem.default('Auto', 18),
+        ButtonItem.default('Light', 18),
+        ButtonItem.default('Darkness', 18),
+        ButtonItem.default('Delay', 18),
+    }, L{
+        Auto = function()
+            state.AutoSkillchainMode:set('Auto')
+            handle_set('SkillchainPropertyMode', 'Off')
+        end,
+        Light = function()
+            state.AutoSkillchainMode:set('Auto')
+            handle_set('SkillchainPropertyMode', 'Light')
+        end,
+        Darkness = function()
+            state.AutoSkillchainMode:set('Auto')
+            handle_set('SkillchainPropertyMode', 'Darkness')
+        end,
+        Delay = skillchainDelayMenuItem,
+    }, nil)
+
+    local skillchainModesMenuItem = MenuItem.new(L{
+        ButtonItem.default('Skillchain', 18),
+        ButtonItem.default('Spam', 18),
+        ButtonItem.default('Cleave', 18),
+        ButtonItem.default('Off', 18),
+    }, L{
+        Skillchain = skillchainPropertiesMenuItem,
+        Spam = function()
+            handle_set('AutoSkillchainMode', 'Spam')
+        end,
+        Cleave = function()
+            handle_set('AutoSkillchainMode', 'Cleave')
+        end,
+        Off = function()
+            handle_set('AutoSkillchainMode', 'Off')
+        end
+    }, nil)
+    return skillchainModesMenuItem
 end
 
 return WeaponSkillSettingsMenuItem
