@@ -6,7 +6,7 @@ local SkillchainSettingsEditor = require('ui/settings/SkillchainSettingsEditor')
 local SkillchainSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 SkillchainSettingsMenuItem.__index = SkillchainSettingsMenuItem
 
-function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettingsMode, viewFactory)
+function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettingsMode, skillchainer, viewFactory)
 
     local skillchainStepPickerView = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
@@ -20,13 +20,13 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
                 local createSkillchainView = viewFactory(SkillchainAbilityPickerView.new(weaponSkillSettings, abilities, abilityIndex, skillchainer))
                 createSkillchainView:setShouldRequestFocus(true)
                 return createSkillchainView
-            end)
+            end, "Edit", "Edit which weapon skill to use for the selected step.")
 
     local skillchainSetsMenuItem = MenuItem.new(L{
         ButtonItem.default('Cycle', 18),
         ButtonItem.default('Create', 18),
         ButtonItem.default('Delete', 18),
-    }, L{}, nil, true)
+    }, L{}, nil, "Modes", "Create, delete or cycle through weapon skill settings.", true)
 
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Edit', 18),
@@ -46,7 +46,7 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
         local createSkillchainView = viewFactory(SkillchainSettingsEditor.new(weaponSkillSettings, abilities))
         createSkillchainView:setShouldRequestFocus(true)
         return createSkillchainView
-    end), SkillchainSettingsMenuItem)
+    end, "Skillchains", "Edit or create a new skillchain."), SkillchainSettingsMenuItem)
 
     return self
 end

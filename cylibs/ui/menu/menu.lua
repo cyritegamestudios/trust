@@ -9,15 +9,16 @@ local Menu =  {}
 Menu.__index = Menu
 
 
-function Menu.new(contentViewStack, viewStack)
+function Menu.new(contentViewStack, viewStack, infoView)
     local self = setmetatable({}, Menu)
 
     self.buttonHeight = 18
     self.disposeBag = DisposeBag.new()
     self.menuItemStack = L{}
 
-    self.viewStack = viewStack
     self.contentViewStack = contentViewStack
+    self.viewStack = viewStack
+    self.infoView = infoView
 
     self.disposeBag:addAny(L{ self.viewStack })
 
@@ -26,6 +27,8 @@ function Menu.new(contentViewStack, viewStack)
             for key in L{'up','down','left','right','enter'}:it() do
                 windower.send_command('bind %s block':format(key))
             end
+            self.infoView:setVisible(true)
+            self.infoView:layoutIfNeeded()
         end
     end), viewStack:onStackSizeChanged())
 
@@ -33,6 +36,8 @@ function Menu.new(contentViewStack, viewStack)
         for key in L{'up','down','left','right','enter'}:it() do
             windower.send_command('unbind %s':format(key))
         end
+        self.infoView:setVisible(false)
+        self.infoView:layoutIfNeeded()
     end
     ), viewStack:onEmpty())
 
@@ -99,15 +104,37 @@ function Menu:showMenu(menuItem)
                 end
             end
         end)
+        self.menuView:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
+            self:onMoveCursorToIndexPath(indexPath)
+        end)
     else
         self.menuView:setItem(menuItem)
     end
+
+    local cursorIndexPath = self.menuView:getDelegate():getCursorIndexPath()
+    self:onMoveCursorToIndexPath(cursorIndexPath)
 
     if self.viewStack:isEmpty() then
         self.viewStack:present(self.menuView)
     end
 
     self.viewStack:focus()
+end
+
+function Menu:updateInfoView(menuItem)
+    if menuItem and type(menuItem) ~= 'function' then
+        self.infoView:setTitle(menuItem:getTitleText())
+        self.infoView:setDescription(menuItem:getDescriptionText())
+    else
+        self.infoView:setTitle("")
+        self.infoView:setDescription("")
+    end
+end
+
+function Menu:onMoveCursorToIndexPath(cursorIndexPath)
+    local textItem = self.menuView:getDataSource():itemAtIndexPath(cursorIndexPath):getTextItem()
+    local childMenuItem = self.menuView:getItem():getChildMenuItem(textItem:getText())
+    self:updateInfoView(childMenuItem)
 end
 
 function Menu:onKeyboardEvent(key, pressed, flags, blocked)

@@ -52,14 +52,16 @@ function WeaponSkillSettings.new(jobNameShort)
     return self
 end
 
-function WeaponSkillSettings:loadSettings()
+function WeaponSkillSettings:loadSettings(verbose)
     local filePath = self:getSettingsFilePath()
     if filePath then
         local loadJobSettings, err = loadfile(filePath)
         if err then
             error(err)
         else
-            addon_message(207, 'Loaded weapon skill settings from '..filePath)
+            if verbose then
+                addon_message(207, 'Loaded weapon skill settings from '..filePath)
+            end
             local loadDefaultJobSettings, _ = loadfile(self:getSettingsFilePath(true))
             self.defaultSettings = loadDefaultJobSettings()
             self.settings = loadJobSettings()
@@ -79,7 +81,7 @@ function WeaponSkillSettings:loadSettings()
 end
 
 function WeaponSkillSettings:reloadSettings()
-    return self:loadSettings()
+    return self:loadSettings(false)
 end
 
 function WeaponSkillSettings:getSettingsFilePath(default_settings)

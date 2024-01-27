@@ -180,7 +180,7 @@ function load_user_files(main_job_id, sub_job_id)
 	player.trust = {}
 	player.trust.main_job_settings = main_trust_settings:loadSettings()
 	player.trust.sub_job_settings = sub_trust_settings:loadSettings()
-	player.trust.weapon_skill_settings = weapon_skill_settings:loadSettings()
+	player.trust.weapon_skill_settings = weapon_skill_settings:loadSettings(true)
 
 	state.MainTrustSettingsMode:on_state_change():addAction(function(_, new_value)
 		player.trust.main_job:set_trust_settings(player.trust.main_job_settings[new_value])

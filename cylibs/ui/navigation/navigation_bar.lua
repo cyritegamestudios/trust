@@ -11,7 +11,7 @@ NavigationBar.__index = NavigationBar
 function NavigationBar.new(frame)
     local self = setmetatable(TextCollectionViewCell.new(TextItem.new('', TextStyle.Default.NavigationTitle)), NavigationBar)
 
-    self:setItemSize(35)
+    self:setItemSize(frame.height)
     self:setEstimatedSize(24)
     self:setPosition(frame.x, frame.y)
     self:setSize(frame.width, frame.height)
@@ -38,7 +38,7 @@ function NavigationBar:destroy()
 end
 
 function NavigationBar:setTitle(title)
-    self:setItem(TextItem.new(title, TextStyle.Default.NavigationTitle))
+    self:setItem(TextItem.new(title, self:getItem():getStyle() or TextStyle.Default.NavigationTitle))
 
     self:setNeedsLayout()
     self:layoutIfNeeded()

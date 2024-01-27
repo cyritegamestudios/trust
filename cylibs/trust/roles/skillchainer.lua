@@ -22,6 +22,7 @@ state.SkillchainPropertyMode:set_description('Light', "Okay, I'll only make Ligh
 state.SkillchainPropertyMode:set_description('Darkness', "Okay, I'll only make Darkness skillchains unless I have instructions to use certain weapon skills.")
 
 state.SkillchainDelayMode = M{['description'] = 'Skillchain Delay Mode', 'Off', 'Maximum'}
+state.SkillchainDelayMode:set_description('Off', "Okay, I'll use the next weapon skill as soon as the skillchain window opens.")
 state.SkillchainDelayMode:set_description('Maximum', "Okay, I'll wait until the end of the skillchain window to use my next weapon skill.")
 
 

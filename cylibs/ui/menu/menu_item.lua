@@ -5,17 +5,22 @@ MenuItem.__type = "MenuItem"
 ---
 -- Creates a new MenuItem.
 --
--- @param buttonItems A list of ButtonItems associated with this MenuItem.
--- @param childMenuItems A table mapping text strings to child MenuItems.
--- @param contentViewConstructor A function that returns a ContentView for this MenuItem.
+-- @param list buttonItems A list of ButtonItems associated with this MenuItem.
+-- @param list childMenuItems A table mapping text strings to child MenuItems.
+-- @param function contentViewConstructor A function that returns a ContentView for this MenuItem.
+-- @param string titleText Title text for this MenuItem.
+-- @param string descriptionText Description text for this MenuItem.
+-- @param boolean keepViews Whether this MenuItem should keep views of the parent MenuItem.
 -- @treturn MenuItem The newly created MenuItem.
 --
-function MenuItem.new(buttonItems, childMenuItems, contentViewConstructor, keepViews)
+function MenuItem.new(buttonItems, childMenuItems, contentViewConstructor, titleText, descriptionText, keepViews)
     local self = setmetatable({}, MenuItem)
 
     self.buttonItems = buttonItems
     self.childMenuItems = childMenuItems
     self.contentViewConstructor = contentViewConstructor
+    self.descriptionText = descriptionText
+    self.titleText = titleText
     self.keepViews = keepViews
 
     return self
@@ -61,6 +66,24 @@ function MenuItem:getContentView(args)
         return self.contentViewConstructor(args)
     end
     return nil
+end
+
+---
+-- Gets the title text for this menu item.
+--
+-- @treturn string The title text for this MenuItem.
+--
+function MenuItem:getTitleText()
+    return self.titleText
+end
+
+---
+-- Gets the description text for this menu item.
+--
+-- @treturn string The description text for this MenuItem.
+--
+function MenuItem:getDescriptionText()
+    return self.descriptionText
 end
 
 ---

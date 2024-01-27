@@ -6,8 +6,10 @@ Aftermather.__index = Aftermather
 Aftermather.__class = "Aftermather"
 
 state.AutoAftermathMode = M{['description'] = 'Auto Aftermath Mode', 'Off', 'Auto', '2000', '1000'}
-state.AutoAftermathMode:set_description('Auto', "Okay, I'll won't try to keep aftermath up.")
-state.AutoAftermathMode:set_description('Auto', "Okay, I'll try to keep aftermath up.")
+state.AutoAftermathMode:set_description('Off', "Okay, I'll won't try to keep aftermath up.")
+state.AutoAftermathMode:set_description('Auto', "Okay, I'll try to keep Aftermath: Lv.3 up.")
+state.AutoAftermathMode:set_description('2000', "Okay, I'll try to keep Aftermath: Lv.2 up.")
+state.AutoAftermathMode:set_description('1000', "Okay, I'll try to keep Aftermath: Lv.1 up.")
 
 local aftermath_weapon_skills = {
     ["Aymur"] = 74,
@@ -103,7 +105,7 @@ function Aftermather:tic(_, _)
 end
 
 function Aftermather:update_aftermath()
-    self:set_is_aftermath_active(buff_util.is_aftermath_active(self:get_party():get_player():get_buff_ids()))
+    self:set_is_aftermath_active(buff_util.is_any_buff_active(self:get_target_aftermath_ids(), self:get_party():get_player():get_buff_ids()))
 end
 
 function Aftermather:update_weapons()
@@ -157,6 +159,17 @@ function Aftermather:get_aftermath_tp()
         return tonumber(mode_value)
     else
         return 0
+    end
+end
+
+function Aftermather:get_target_aftermath_ids()
+    local mode_value = state.AutoAftermathMode.value
+    if mode_value == 'Auto' then
+        return S{ 272 }
+    elseif mode_value == '2000' then
+        return S{ 271, 272 }
+    else
+        return S{ 271, 272, 273 }
     end
 end
 

@@ -21,8 +21,6 @@ ModesView.__type = "ModesView"
 
 
 function ModesView.new(modeNames)
-    local self = setmetatable(View.new(), ModesView)
-
     local dataSource = CollectionViewDataSource.new(function(item)
         local cell = TextCollectionViewCell.new(item)
         cell:setItemSize(20)
