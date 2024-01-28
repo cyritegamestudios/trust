@@ -6,33 +6,6 @@ return {
         NumSongs = 4,
         SongDuration = 240,
         SongDelay = 6,
-        Skillchains = {
-            spamws = L{
-                "Savage Blade",
-                "Mordant Rime"
-            },
-            starterws = L{
-                "Savage Blade",
-                "Mordant Rime"
-            },
-            defaultws = L{
-                "Savage Blade",
-                "Mordant Rime",
-                "Retribution"
-            },
-            cleavews = L{
-                "Aeolian Edge"
-            },
-            preferws = L{
-                "Savage Blade",
-                "Mordant Rime",
-                "Rudra's Storm"
-            },
-            amws = "Mordant Rime",
-            tpws = L{
-                "Mordant Rime"
-            }
-        },
         SelfBuffs = L{
 
         },

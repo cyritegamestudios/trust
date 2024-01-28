@@ -3,29 +3,6 @@ return {
     Version = 1,
     Default = {
         AutoFood="Grape Daifuku",
-        Skillchains = {
-            spamws = L{
-                "Savage Blade",
-                "Black Halo"
-            },
-            starterws = L{
-                "Savage Blade"
-            },
-            defaultws = L{
-                "Expiacion",
-                "Savage Blade"
-            },
-            preferws = L{
-                "Expiacion",
-                "Savage Blade"
-            },
-            cleavews = L{
-                "Circle Blade",
-            },
-            amws = "Expiacion",
-            tpws = L{
-            }
-        },
         JobAbilities = L{
 
         },

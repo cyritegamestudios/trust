@@ -8,24 +8,29 @@ local NavigationBar = setmetatable({}, { __index = TextCollectionViewCell })
 NavigationBar.__index = NavigationBar
 
 
-function NavigationBar.new(frame)
-    local self = setmetatable(TextCollectionViewCell.new(TextItem.new('', TextStyle.Default.NavigationTitle)), NavigationBar)
+function NavigationBar.new(frame, hideBackground, textStyle)
+    textStyle = textStyle or TextStyle.Default.NavigationTitle
+
+    local self = setmetatable(TextCollectionViewCell.new(TextItem.new('', textStyle)), NavigationBar)
 
     self:setItemSize(frame.height)
-    self:setEstimatedSize(24)
+    self:setEstimatedSize(textStyle:getFontSize() * 2)
     self:setPosition(frame.x, frame.y)
     self:setSize(frame.width, frame.height)
-    self:setUserInteractionEnabled(true)
+    self:setUserInteractionEnabled(false)
+    self:setIsSelectable(false)
 
-    local backgroundView = BackgroundView.new(Frame.new(0, 0, frame.width, frame.height),
-            windower.addon_path..'assets/backgrounds/menu_bg_top.png',
-            windower.addon_path..'assets/backgrounds/menu_bg_mid.png',
-            windower.addon_path..'assets/backgrounds/menu_bg_bottom.png')
+    if not hideBackground then
+        local backgroundView = BackgroundView.new(Frame.new(0, 0, frame.width, frame.height),
+                windower.addon_path..'assets/backgrounds/menu_bg_top.png',
+                windower.addon_path..'assets/backgrounds/menu_bg_mid.png',
+                windower.addon_path..'assets/backgrounds/menu_bg_bottom.png')
 
-    self:setBackgroundImageView(backgroundView)
+        self:setBackgroundImageView(backgroundView)
 
-    backgroundView:setNeedsLayout()
-    backgroundView:layoutIfNeeded()
+        backgroundView:setNeedsLayout()
+        backgroundView:layoutIfNeeded()
+    end
 
     self:setNeedsLayout()
     self:layoutIfNeeded()

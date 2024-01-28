@@ -12,6 +12,7 @@ local SkillchainTracker = require('cylibs/battle/skillchains/skillchain_tracker'
 local skillchain_util = require('cylibs/util/skillchain_util')
 
 state.AutoSkillchainMode = M{['description'] = 'Auto Skillchain Mode', 'Off', 'Auto', 'Cleave', 'Spam'}
+state.AutoSkillchainMode:set_description('Off', "Okay, I'll won't use weapon skills or make skillchains.")
 state.AutoSkillchainMode:set_description('Auto', "Okay, I'll try to make skillchains.")
 state.AutoSkillchainMode:set_description('Cleave', "Okay, I'll try to cleave monsters.")
 state.AutoSkillchainMode:set_description('Spam', "Okay, I'll use the same weapon skill as soon as I get TP.")

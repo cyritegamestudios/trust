@@ -85,6 +85,10 @@ function Menu:showMenu(menuItem)
                     childMenuItem()
                     return
                 end
+                if childMenuItem:getAction() ~= nil then
+                    childMenuItem:getAction()()
+                    return
+                end
                 if childMenuItem:getButtonItems():length() > 0 then
                     self:showMenu(childMenuItem)
                 else

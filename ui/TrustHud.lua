@@ -11,6 +11,7 @@ local DebuffSettingsEditor = require('ui/settings/DebuffSettingsEditor')
 local DebugView = require('cylibs/actions/ui/debug_view')
 local ElementPickerView = require('ui/settings/pickers/ElementPickerView')
 local Frame = require('cylibs/ui/views/frame')
+local GameInfo = require('cylibs/util/ffxi/game_info')
 local HelpView = require('cylibs/trust/ui/help_view')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local JobAbilitiesSettingsEditor = require('ui/settings/JobAbilitiesSettingsEditor')
@@ -89,11 +90,11 @@ function TrustHud.new(player, action_queue, addon_enabled, menu_width, menu_heig
     self.actionQueue = action_queue
     self.player = player
     self.party = player.party
+    self.gameInfo = GameInfo.new()
     self.menuViewStack = ViewStack.new(Frame.new(windower.get_windower_settings().ui_x_res - 128, 50, 0, 0))
     self.menuViewStack.name = "menu stack"
     self.mainMenuItem = self:getMainMenuItem()
 
-    -- TODO: use windower.ffxi.get_info().menu_open to show and hide this depending upon whether the native menu is open
     self.infoViewContainer = View.new(Frame.new(17, 17, windower.get_windower_settings().ui_x_res - 18, 30))
     self.infoBar = TrustInfoBar.new(Frame.new(0, 0, windower.get_windower_settings().ui_x_res - 18, 30))
     self.infoBar:setVisible(false)
@@ -189,7 +190,7 @@ function TrustHud.new(player, action_queue, addon_enabled, menu_width, menu_heig
         self.targetActionQueue:clear()
         if skillchainer:get_target() and skillchainer:get_target():get_id() == target_id then
             local element = step:get_skillchain():get_name()
-            local text = "Step %d %s%s\\cr":format(step:get_step(), skillchain_util.color_for_element(element), element)
+            local text = "Step %d: %s%s\\cr":format(step:get_step(), skillchain_util.color_for_element(element), element)
             local skillchain_step_action = BlockAction.new(function()
                 coroutine.sleep(math.max(1, step:get_time_remaining()))
             end, element..step:get_step(), text)
@@ -202,6 +203,12 @@ function TrustHud.new(player, action_queue, addon_enabled, menu_width, menu_heig
             self.targetActionQueue:clear()
         end
     end), skillchainer:on_skillchain_ended())
+
+    self:getDisposeBag():add(self.gameInfo:onMenuChange():addAction(function(_, isMenuOpen)
+        if isMenuOpen then
+            self.trustMenu:closeAll()
+        end
+    end), self.gameInfo:onMenuChange())
 
     return self
 end
@@ -846,9 +853,9 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
         Settings = settingsMenuItem,
         Load = loadSettingsItem,
         Help = helpMenuItem,
-        Donate = function()
+        Donate = MenuItem.action(function()
             windower.open_url(settings.donate.url)
-        end
+        end, "Donate", "Enjoying Trust? Show your support!")
     }, nil, jobName, "Settings for "..jobName..".")
 
     return mainMenuItem

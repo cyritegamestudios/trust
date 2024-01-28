@@ -35,6 +35,7 @@ function BackgroundView.new(frame, topImagePath, midImagePath, bottomImagePath)
     local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(0)), CollectionView)
 
     self:setSize(frame.width, frame.height)
+    self:setScrollEnabled(false)
 
     local topItem = ImageItem.new(topImagePath, frame.width, borderSize)
     topItem:setRepeat(1, 1)

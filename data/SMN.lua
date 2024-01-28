@@ -54,29 +54,5 @@ return {
 
             },
         },
-        Skillchains = {
-            spamws = L{
-                "Garland of Bliss"
-            },
-            starterws = L{
-                "Garland of Bliss"
-            },
-            defaultws = L{
-                "Garland of Bliss"
-            },
-            petws = L{
-                "Flaming Crush"
-            },
-            preferws = L{
-                "Garland of Bliss"
-            },
-            cleavews = L{
-                "Cataclysm"
-            },
-            amws = "Garland of Bliss",
-            tpws = L{
-
-            }
-        }
     }
 }

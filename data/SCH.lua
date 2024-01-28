@@ -56,29 +56,6 @@ return {
 
             },
         },
-        Skillchains = {
-            spamws = L{
-                "Black Halo"
-            },
-            starterws = L{
-                "Black Halo"
-            },
-            defaultws = L{
-                "Retribution",
-                "Black Halo"
-            },
-            preferws = L{
-                "Retribution",
-                "Black Halo"
-            },
-            cleavews = L{
-                "Cataclysm"
-            },
-            amws = "Omniscience",
-            tpws = L{
-
-            }
-        },
         DarkArts = {
             JobAbilities = L{
                 JobAbility.new('Dark Arts', L{}, L{}, nil),

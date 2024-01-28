@@ -42,26 +42,6 @@ return {
 
             },
         },
-        Skillchains = {
-            spamws = L{
-                "Black Halo"
-            },
-            starterws = L{
-                "Shell Crusher"
-            },
-            defaultws = L{
-                "Black Halo"
-            },
-            preferws = L{
-                "Black Halo"
-            },
-            cleavews = L{
-                "Aeolian Edge"
-            },
-            amws = "Exudation",
-            tpws = L{
-            }
-        },
         Geomancy = {
             Indi = Spell.new("Indi-Fury", L{}, L{}, nil, L{}),
             Geo = Spell.new("Geo-Frailty", L{}, L{}, "bt", L{})

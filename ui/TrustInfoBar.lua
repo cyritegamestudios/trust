@@ -31,6 +31,7 @@ function TrustInfoBar.new(frame)
     local self = setmetatable(CollectionView.new(dataSource, HorizontalFlowLayout.new(10, Padding.new(0, 0, 0, 0))), TrustInfoBar)
 
     self:setSize(0, frame.height)
+    self:setUserInteractionEnabled(false)
     self:setScrollEnabled(false)
 
     self:getDataSource():addItems(L{

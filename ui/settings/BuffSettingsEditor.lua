@@ -44,7 +44,7 @@ function BuffSettingsEditor.new(trustSettings, buffs, targets)
     self:setScrollDelta(20)
 
     self.trustSettings = trustSettings
-    self.buffs = buffs
+    self.buffs = buffs or L{}
     self.targets = targets
     self.menuArgs = {}
 

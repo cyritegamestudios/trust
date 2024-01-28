@@ -62,36 +62,6 @@ return {
 
             },
         },
-        Skillchains = {
-            spamws = L{
-                "Savage Blade",
-                "Black Halo"
-            },
-            starterws = L{
-                "Death Blossom",
-                "Savage Blade"
-            },
-            defaultws = L{
-                "Savage Blade",
-                "Seraph Blade",
-                "Death Blossom",
-                "Black Halo"
-            },
-            preferws = L{
-                "Flat Blade",
-                "Death Blossom",
-                "Savage Blade",
-                "Black Halo",
-                "Realmrazer"
-            },
-            cleavews = L{
-                "Aeolian Edge"
-            },
-            amws = "Death Blossom",
-            tpws = L{
-                "Savage Blade"
-            }
-        },
         Debuffs = L{
             Debuff.new("Distract", L{})
         }

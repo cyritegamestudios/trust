@@ -1,5 +1,8 @@
-local texts = require('texts')
 local Event = require('cylibs/events/Luvent')
+local Frame = require('cylibs/ui/views/frame')
+local Renderer = require('cylibs/ui/views/render')
+local texts = require('texts')
+local TextStyle = require('cylibs/ui/style/text_style')
 
 local settings = {}
 settings.pos = {}
@@ -13,71 +16,49 @@ settings.flags = {}
 settings.flags.bold = true
 settings.flags.right = false
 
-local View = require('cylibs/ui/views/view')
-
-local ActionHud = setmetatable({}, {__index = View })
+local NavigationBar = require('cylibs/ui/navigation/navigation_bar')
+local ActionHud = setmetatable({}, {__index = NavigationBar })
 ActionHud.__index = ActionHud
 
-function ActionHud.new(actionQueue)
-    local self = setmetatable(View.new(), ActionHud)
+function ActionHud.new(actionQueue, hideBackground)
+    local self = setmetatable(NavigationBar.new(Frame.new(0, 0, 175, 28), hideBackground, TextStyle.Default.ButtonSmall), ActionHud)
 
     self.actionQueue = actionQueue
-    self.text = ''
-
-    self.textView = texts.new('${text||%8s}', settings)
-    self.textView:bg_alpha(175)
 
     self:getDisposeBag():add(actionQueue:on_action_start():addAction(function(_, s)
-        self:setText(s or '')
+        self:setTitle(s or '')
     end), actionQueue:on_action_start())
     self:getDisposeBag():add(actionQueue:on_action_end():addAction(function(_, s)
-        self:setText('')
+        self:setTitle('')
     end), actionQueue:on_action_end())
+
+    self:setTitle('')
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
+
+    self:getDisposeBag():add(Renderer.shared():onPrerender():addAction(function()
+        if self:isVisible() then
+            local width, _ = self.textView:extents()
+            self:setSize(math.max(100, width + 10), self:getSize().height)
+            self:layoutIfNeeded()
+        end
+    end), Renderer.shared():onPrerender())
 
     return self
 end
 
-function ActionHud:destroy()
-    View.destroy(self)
+function ActionHud:setTitle(title)
+    self:setVisible(not title:empty())
 
-    self.textView:destroy()
-end
-
-function ActionHud:layoutIfNeeded()
-    if not View.layoutIfNeeded(self) then
-        return
-    end
-
-    self:setVisible(self:getText():length() > 0)
-
-    local position = self:getAbsolutePosition()
-
-    self.textView:visible(self:isVisible())
-    self.textView:pos(position.x, position.y)
-    self.textView.text = self:getText()
-end
-
--------
--- Sets the text to be displayed.
--- @tparam string text Text
-function ActionHud:setText(text)
-    if self.text == text then
-        return
-    end
-    self.text = text
-
-    self:setNeedsLayout()
-    self:layoutIfNeeded()
+    NavigationBar.setTitle(self, title)
 end
 
 -------
 -- Returns the text currently displayed.
 -- @treturn string Text
 function ActionHud:getText()
-    return self.text
+    return self:getItem():getText()
 end
 
 return ActionHud

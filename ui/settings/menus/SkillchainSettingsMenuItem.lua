@@ -20,13 +20,17 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
                 local createSkillchainView = viewFactory(SkillchainAbilityPickerView.new(weaponSkillSettings, abilities, abilityIndex, skillchainer))
                 createSkillchainView:setShouldRequestFocus(true)
                 return createSkillchainView
-            end, "Edit", "Edit which weapon skill to use for the selected step.")
+            end, "Skillchains", "Edit which weapon skill to use for the selected step.")
 
     local skillchainSetsMenuItem = MenuItem.new(L{
         ButtonItem.default('Cycle', 18),
         ButtonItem.default('Create', 18),
         ButtonItem.default('Delete', 18),
-    }, L{}, nil, "Modes", "Create, delete or cycle through weapon skill settings.", true)
+    }, L{
+        Cycle = MenuItem.action(nil, "Modes", "Cycle through saved weapon skill sets."),
+        Create = MenuItem.action(nil, "Modes", "Create a new weapon skill set from the Default set."),
+        Delete = MenuItem.action(nil, "Modes", "Delete the current weapon skill set and switch to the default set."),
+    }, nil, "Modes", "Create, delete or cycle through weapon skill settings.", true)
 
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Edit', 18),
@@ -36,6 +40,9 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
         ButtonItem.default('Sets', 18),
     }, {
         Edit = skillchainStepPickerView,
+        Skip = MenuItem.action(nil, "Skillchains", "Wait for party members to use a weapon skill for the selected step."),
+        Clear = MenuItem.action(nil, "Skillchains", "Automatically determine a weapon skill to use for the selected step."),
+        ["Clear All"] = MenuItem.action(nil, "Skillchains", "Automatically determine weapon skills to use for all steps."),
         Sets = skillchainSetsMenuItem,
     },
     function(args)

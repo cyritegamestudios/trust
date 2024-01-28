@@ -11,6 +11,7 @@ MenuItem.__type = "MenuItem"
 -- @param string titleText Title text for this MenuItem.
 -- @param string descriptionText Description text for this MenuItem.
 -- @param boolean keepViews Whether this MenuItem should keep views of the parent MenuItem.
+--
 -- @treturn MenuItem The newly created MenuItem.
 --
 function MenuItem.new(buttonItems, childMenuItems, contentViewConstructor, titleText, descriptionText, keepViews)
@@ -24,6 +25,28 @@ function MenuItem.new(buttonItems, childMenuItems, contentViewConstructor, title
     self.keepViews = keepViews
 
     return self
+end
+
+---
+-- Creates a new MenuItem that executes an action when selected.
+--
+-- @param function callback The menu item action.
+-- @param string titleText Title text for this MenuItem.
+-- @param string descriptionText Description text for this MenuItem.
+-- @param boolean keepViews Whether this MenuItem should keep views of the parent MenuItem.
+--
+-- @treturn MenuItem The newly created MenuItem.
+--
+function MenuItem.action(callback, titleText, descriptionText)
+    local self = MenuItem.new(L{}, L{}, nil, titleText, descriptionText, false)
+
+    self.callback = callback
+
+    return self
+end
+
+function MenuItem:destroy()
+    self.callback = nil
 end
 
 ---
@@ -84,6 +107,15 @@ end
 --
 function MenuItem:getDescriptionText()
     return self.descriptionText
+end
+
+---
+-- Gets the action callback for this menu item.
+--
+-- @treturn function The action callback for this MenuItem.
+--
+function MenuItem:getAction()
+    return self.callback
 end
 
 ---

@@ -242,7 +242,7 @@ function SkillchainTrustCommands:handle_build(_, property_name, num_steps)
             :map(function(s) return s:get_name() end)
             :union(S{ 'LightLv4', 'DarknessLv4' })
 
-    if property_name == nil or skillchain_util[property_name] == nil or num_steps and type(num_steps) ~= 'number' then
+    if property_name == nil or skillchain_util[property_name] == nil then
         success = false
         message = "Valid skillchain properties are: "..valid_skillchains:tostring()
     else

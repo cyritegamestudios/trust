@@ -29,7 +29,7 @@ function Spell.new(spell_name, job_abilities, job_names, target, conditions, con
     local self = setmetatable({
         spell_name = spell_name;
         job_abilities = job_abilities or L{};
-        job_names = job_names;
+        job_names = job_names or job_util.all_jobs();
         target = target;
         consumable = consumable;
         conditions = conditions or L{};

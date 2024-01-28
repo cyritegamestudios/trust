@@ -3,30 +3,6 @@ return {
     Version = 1,
     Default = {
         AutoFood="Grape Daifuku",
-        Skillchains = {
-            spamws = L{
-                "Rudra's Storm",
-                "Asuran Fists"
-            },
-            starterws = L{
-                "Shark Bite"
-            },
-            defaultws = L{
-                "Evisceration",
-                "Asuran Fists"
-            },
-            cleavews = L{
-                "Aeolian Edge",
-            },
-            preferws = L{
-                "Rudra's Storm",
-                "Pyrrhic Kleos",
-                "Asuran Fists"
-            },
-            amws = "Pyrrhic Kleos",
-            tpws = L{
-            }
-        },
         CureSettings = {
             Thresholds = {
                 Emergency = 40,
