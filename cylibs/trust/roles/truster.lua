@@ -11,7 +11,7 @@ function Truster.new(action_queue, trusts)
     local self = setmetatable(Role.new(action_queue), Truster)
 
     self.action_events = {}
-    self.trusts = (trusts or L{}):filter(function(trust_name) return spell_util.knows_spell(spell_util.spell_id(trust_name)) end)
+    self.trusts = trusts or L{}
     self.last_trust_time = os.time() - 10
 
     return self
@@ -29,6 +29,18 @@ end
 
 function Truster:on_add()
     Role.on_add(self)
+
+    local missing_trusts = L{}
+    for trust_name in self.trusts:it() do
+        if not spell_util.knows_spell(spell_util.spell_id(trust_name)) then
+            missing_trusts:append(trust_name)
+        end
+    end
+    if missing_trusts:length() > 0 then
+        self:get_party():add_to_chat(self:get_party():get_player(), "I can't summon the following Alter Egos, which may affect my ability to pull: "..missing_trusts:tostring(), nil, nil, true)
+    end
+
+    self.trusts = self.trusts:filter(function(trust_name) return spell_util.knows_spell(spell_util.spell_id(trust_name)) end)
 end
 
 function Truster:target_change(target_index)
@@ -73,7 +85,7 @@ function Truster:check_trusts()
 end
 
 function Truster:call_trust(trust_name)
-    local trust_spell = res.spells:with('name', trust_name)
+    local trust_spell = res.spells:with('en', trust_name)
     if trust_spell then
         local actions = L{}
 

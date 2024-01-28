@@ -3,26 +3,6 @@ return {
     Version = 2,
     Default = {
         AutoFood="Tropical Crepe",
-        Skillchains = {
-            spamws = L{
-                "Vidohunir"
-            },
-            starterws = L{
-                "Shattersoul"
-            },
-            defaultws = L{
-                "Vidohunir"
-            },
-            preferws = L{
-                "Vidohunir"
-            },
-            cleavews = L{
-                "Cataclysm",
-            },
-            amws = "Vidohunir",
-            tpws = L{
-            }
-        },
         SelfBuffs = L{
 
         },
@@ -40,7 +20,6 @@ return {
             MinManaPointsPercent = 20,
             MinNumMobsToCleave = 2,
             Spells = L{
-                Spell.new('Comet'),
                 Spell.new('Thunder VI'),
                 Spell.new('Thunder V'),
                 Spell.new('Thundaja'),
@@ -65,6 +44,7 @@ return {
                 Spell.new('Stone V'),
                 Spell.new('Stoneja'),
                 Spell.new('Stone IV'),
+                Spell.new('Comet'),
             },
             Blacklist = L{
 

@@ -63,7 +63,9 @@ skillchain_util.Light = Skillchain.new("Light", S{element_util.Light,element_uti
 skillchain_util.Darkness = Skillchain.new("Darkness", S{element_util.Dark,element_util.Water,element_util.Earth,element_util.Ice}, 3)
 
 skillchain_util.LightLv4 = Skillchain.new("Light Lv.4", S{element_util.Light,element_util.Fire,element_util.Lightning,element_util.Wind}, 4)
+skillchain_util[skillchain_util.LightLv4:get_name()] = skillchain_util.LightLv4
 skillchain_util.DarknessLv4 = Skillchain.new("Darkness Lv.4", S{element_util.Dark,element_util.Water,element_util.Earth,element_util.Ice}, 4)
+skillchain_util[skillchain_util.DarknessLv4:get_name()] = skillchain_util.DarknessLv4
 
 skillchain_util.Radiance = Skillchain.new("Radiance", S{element_util.Light,element_util.Fire,element_util.Lightning,element_util.Wind}, 4)
 skillchain_util.Umbra = Skillchain.new("Umbra", S{element_util.Dark,element_util.Water,element_util.Earth,element_util.Ice}, 4)
@@ -113,6 +115,73 @@ skillchain_util.Darkness.Darkness = skillchain_util.DarknessLv4
 skillchain_util.Light.Radiance = skillchain_util.Radiance
 skillchain_util.Darkness.Umbra = skillchain_util.Umbra
 
+skillchain_util.LightSkillchains = S{
+    skillchain_util.Radiance, skillchain_util.LightLv4, skillchain_util.Light, skillchain_util.Fragmentation,
+    skillchain_util.Fusion, skillchain_util.Impaction, skillchain_util.Liquefaction,
+    skillchain_util.Detonation, skillchain_util.Transfixion
+}
+
+skillchain_util.DarknessSkillchains = S{
+    skillchain_util.Umbra, skillchain_util.DarknessLv4, skillchain_util.Darkness, skillchain_util.Distortion,
+    skillchain_util.Gravitation, skillchain_util.Scission, skillchain_util.Compression,
+    skillchain_util.Reverberation, skillchain_util.Induration
+}
+
+skillchain_util.skillchain = {
+    Umbra = L{
+        L{skillchain_util.Darkness, skillchain_util.Darkness},
+    },
+    ["Darkness Lv.4"] = L{
+        L{skillchain_util.Darkness, skillchain_util.Darkness},
+    },
+    Darkness = L{
+        L{skillchain_util.Gravitation, skillchain_util.Distortion},
+        L{skillchain_util.Distortion, skillchain_util.Gravitation},
+    },
+    Radiance = L{
+        L{skillchain_util.Light, skillchain_util.Light},
+    },
+    ["Light Lv.4"] = L{
+        L{skillchain_util.Light, skillchain_util.Light},
+    },
+    Light = L{
+        L{skillchain_util.Fragmentation, skillchain_util.Fusion},
+        L{skillchain_util.Fusion, skillchain_util.Fragmentation},
+    },
+    Distortion = L{
+        L{skillchain_util.Transfixion, skillchain_util.Scission},
+        L{skillchain_util.Fragmentation, skillchain_util.Distortion}
+    },
+    Fragmentation = L{
+        L{skillchain_util.Induration, skillchain_util.Reverberation},
+        L{skillchain_util.Gravitation, skillchain_util.Fragmentation},
+    },
+    Gravitation = L{
+        L{skillchain_util.Fusion, skillchain_util.Gravitation},
+        L{skillchain_util.Detonation, skillchain_util.Compression},
+    },
+    Fusion = L{
+        L{skillchain_util.Liquefaction, skillchain_util.Impaction},
+        L{skillchain_util.Distortion, skillchain_util.Fusion},
+    },
+    Transfixion = L{
+    },
+    Scission = L{
+    },
+    Compression = L{
+    },
+    Reverberation = L{
+    },
+    Liquefaction = L{
+    },
+    Impaction = L{
+    },
+    Detonation = L{
+    },
+    Induration = L{
+    },
+}
+
 -- Chainbound
 skillchain_util.Chainbound = Skillchain.new("Chainbound", nil, 0)
 skillchain_util.Chainbound.Transfixion = skillchain_util.Transfixion
@@ -136,8 +205,8 @@ skillchain_util.Chainbound.Darkness = skillchain_util.Darkness
 skillchain_util.colors = {}            -- Color codes by Sammeh
 skillchain_util.colors.Light =         '\\cs(255,255,255)'
 skillchain_util.colors['Light Lv.4'] =         '\\cs(255,255,255)'
-skillchain_util.colors.Dark =          '\\cs(0,0,204)'
-skillchain_util.colors['Darkness Lv.4'] =          '\\cs(0,0,204)'
+skillchain_util.colors.Dark =          '\\cs(185,185,185)'
+skillchain_util.colors['Darkness Lv.4'] =          '\\cs(185,185,185)'
 skillchain_util.colors.Ice =           '\\cs(0,255,255)'
 skillchain_util.colors.Water =         '\\cs(0,0,255)'
 skillchain_util.colors.Earth =         '\\cs(153,76,0)'
@@ -160,10 +229,8 @@ skillchain_util.colors.Detonation =    skillchain_util.colors.Wind
 skillchain_util.colors.Liquefaction =  skillchain_util.colors.Fire
 skillchain_util.colors.Impaction =     skillchain_util.colors.Lightning
 
-
 function skillchain_util.color_for_element(element_name)
     return skillchain_util.colors[element_name] or skillchain_util.colors[(element_name:gsub("^%l", string.upper))]
 end
-
 
 return skillchain_util

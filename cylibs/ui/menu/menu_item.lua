@@ -5,19 +5,48 @@ MenuItem.__type = "MenuItem"
 ---
 -- Creates a new MenuItem.
 --
--- @param buttonItems A list of ButtonItems associated with this MenuItem.
--- @param childMenuItems A table mapping text strings to child MenuItems.
--- @param contentViewConstructor A function that returns a ContentView for this MenuItem.
+-- @param list buttonItems A list of ButtonItems associated with this MenuItem.
+-- @param list childMenuItems A table mapping text strings to child MenuItems.
+-- @param function contentViewConstructor A function that returns a ContentView for this MenuItem.
+-- @param string titleText Title text for this MenuItem.
+-- @param string descriptionText Description text for this MenuItem.
+-- @param boolean keepViews Whether this MenuItem should keep views of the parent MenuItem.
+--
 -- @treturn MenuItem The newly created MenuItem.
 --
-function MenuItem.new(buttonItems, childMenuItems, contentViewConstructor)
+function MenuItem.new(buttonItems, childMenuItems, contentViewConstructor, titleText, descriptionText, keepViews)
     local self = setmetatable({}, MenuItem)
 
     self.buttonItems = buttonItems
     self.childMenuItems = childMenuItems
     self.contentViewConstructor = contentViewConstructor
+    self.descriptionText = descriptionText
+    self.titleText = titleText
+    self.keepViews = keepViews
 
     return self
+end
+
+---
+-- Creates a new MenuItem that executes an action when selected.
+--
+-- @param function callback The menu item action.
+-- @param string titleText Title text for this MenuItem.
+-- @param string descriptionText Description text for this MenuItem.
+-- @param boolean keepViews Whether this MenuItem should keep views of the parent MenuItem.
+--
+-- @treturn MenuItem The newly created MenuItem.
+--
+function MenuItem.action(callback, titleText, descriptionText)
+    local self = MenuItem.new(L{}, L{}, nil, titleText, descriptionText, false)
+
+    self.callback = callback
+
+    return self
+end
+
+function MenuItem:destroy()
+    self.callback = nil
 end
 
 ---
@@ -40,6 +69,16 @@ function MenuItem:getChildMenuItem(text)
 end
 
 ---
+-- Sets the child MenuItem with the specified text.
+--
+-- @tparam string text The name of the child MenuItem.
+-- @tparam MenuItem|nil The child MenuItem with the specified text, or nil if removing.
+--
+function MenuItem:setChildMenuItem(text, childMenuItem)
+    self.childMenuItems[text] = childMenuItem
+end
+
+---
 -- Gets the ContentView associated with this MenuItem.
 --
 -- @tparam table args (optional) Args to pass to the contentViewConstructor
@@ -50,6 +89,33 @@ function MenuItem:getContentView(args)
         return self.contentViewConstructor(args)
     end
     return nil
+end
+
+---
+-- Gets the title text for this menu item.
+--
+-- @treturn string The title text for this MenuItem.
+--
+function MenuItem:getTitleText()
+    return self.titleText
+end
+
+---
+-- Gets the description text for this menu item.
+--
+-- @treturn string The description text for this MenuItem.
+--
+function MenuItem:getDescriptionText()
+    return self.descriptionText
+end
+
+---
+-- Gets the action callback for this menu item.
+--
+-- @treturn function The action callback for this MenuItem.
+--
+function MenuItem:getAction()
+    return self.callback
 end
 
 ---

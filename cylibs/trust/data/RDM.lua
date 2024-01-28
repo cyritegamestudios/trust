@@ -43,7 +43,7 @@ function RedMageTrust.new(settings, action_queue, battle_settings, trust_setting
 		Raiser.new(action_queue, job),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
-		Puller.new(action_queue, battle_settings.targets, Debuff.new('Dia') and Debuff.new('Dia'):get_spell().name, nil),
+		Puller.new(action_queue, battle_settings.targets, Debuff.new('Dia') and Debuff.new('Dia'):get_spell().en, nil),
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), RedMageTrust)
 
@@ -122,9 +122,9 @@ function RedMageTrust:check_accuracy()
 	if self.target_index == nil then return end
 
 	if self.battle_stat_tracker:get_accuracy() < 80 then
-		local debuff = buff_util.debuff_for_spell(res.spells:with('name', 'Distract III').id)
+		local debuff = buff_util.debuff_for_spell(res.spells:with('en', 'Distract III').id)
 		if debuff and not self.battle_target:has_debuff(debuff.id) then
-			self.action_queue:push_action(SpellAction.new(0, 0, 0, res.spells:with('name', 'Distract III').id, self.target_index, self:get_player()), true)
+			self.action_queue:push_action(SpellAction.new(0, 0, 0, res.spells:with('en', 'Distract III').id, self.target_index, self:get_player()), true)
 		end
 	end
 end

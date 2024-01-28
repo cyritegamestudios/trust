@@ -178,6 +178,12 @@ function Action:get_start_time()
     return self.start_time
 end
 
+function Action:add_condition(condition)
+    if not self.conditions:contains(condition) then
+        self.conditions:append(condition)
+    end
+end
+
 function Action:on_incoming_chunk(id, data, modified, injected, blocked)
     return false
 end

@@ -47,7 +47,7 @@ function SpellSettingsEditor.new(trustSettings, spell)
     self:setScrollDelta(20)
     self:setAllowsMultipleSelection(true)
 
-    local allJobAbilities = player_util.get_job_abilities():map(function(jobAbilityId) return res.job_abilities[jobAbilityId].name end)
+    local allJobAbilities = player_util.get_job_abilities():map(function(jobAbilityId) return res.job_abilities[jobAbilityId].en end)
 
     local items = L{}
     local itemsToSelect = L{}

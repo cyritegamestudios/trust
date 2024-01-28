@@ -31,6 +31,13 @@ function Summoner:get_cure_spell(hp_missing)
 end
 
 -------
+-- Returns all AOE spells.
+-- @treturn list List of AOE spell names
+function Summoner:get_aoe_spells()
+    return L{ 'Level ? Holy', 'Thunderspark' }
+end
+
+-------
 -- Returns the name of the spirit pact that aligns with the current day.
 -- @treturn string Localized name of the spirit pact (e.g. Earth Spirit)
 function Summoner:get_spirit_for_current_day()

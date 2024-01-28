@@ -33,7 +33,7 @@ function WhiteMageTrust.new(settings, action_queue, battle_settings, trust_setti
 		Healer.new(action_queue, job),
 		StatusRemover.new(action_queue, job),
 		Raiser.new(action_queue, job),
-		Puller.new(action_queue, battle_settings.targets, Debuff.new('Dia') and Debuff.new('Dia'):get_spell().name, nil),
+		Puller.new(action_queue, battle_settings.targets, Debuff.new('Dia') and Debuff.new('Dia'):get_spell().en, nil),
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), WhiteMageTrust)
 

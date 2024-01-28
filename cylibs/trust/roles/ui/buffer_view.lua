@@ -101,7 +101,10 @@ function BufferView.new(buffer)
         self:getDelegate():highlightItemAtIndexPath(indexedItem:getIndexPath())
     end
 
-    self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
+
+    if self:getDataSource():numberOfItemsInSection(1) > 0 then
+        self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
+    end
 
     return self
 end

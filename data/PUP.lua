@@ -10,29 +10,6 @@ return {
         PartyBuffs = L{
 
         },
-        Skillchains = {
-            spamws = L{
-                "Howling Fist"
-            },
-            starterws = L{
-                "Stringing Pummel"
-            },
-            defaultws = L{
-                "Shijin Spiral"
-            },
-            preferws = L{
-                "Victory Smite",
-                "Shijin Spiral",
-                "Stringing Pummel"
-            },
-            cleavews = L{
-                "Spinning Attack",
-                "Aeolian Edge"
-            },
-            amws = "Stringing Pummel",
-            tpws = L{
-            }
-        },
         DefaultManeuvers = {
             Ranged = L{
                 {

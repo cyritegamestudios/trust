@@ -52,27 +52,6 @@ return {
 
             },
         },
-        Skillchains = {
-            spamws = L{
-                "Black Halo"
-            },
-            starterws = L{
-                "Black Halo"
-            },
-            defaultws = L{
-                "Black Halo"
-            },
-            preferws = L{
-                "Black Halo"
-            },
-            cleavews = L{
-
-            },
-            amws = "Mystic Boon",
-            tpws = L{
-
-            }
-        },
         Debuffs = L{
             Spell.new("Dia II", L{}, nil, nil, L{})
         }

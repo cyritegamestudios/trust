@@ -14,30 +14,6 @@ return {
             Spell.new("Shell V", L{}, nil, nil, L{}),
             Spell.new("Phalanx", L{}, nil, nil, L{})
         },
-        Skillchains = {
-            spamws = L{
-                "Dimidiation",
-                "Savage Blade"
-            },
-            starterws = L{
-                "Dimidiation"
-            },
-            defaultws = L{
-                "Dimidiation",
-                "Steel Cyclone"
-            },
-            preferws = L{
-                "Dimidiation",
-                "Savage Blade"
-            },
-            cleavews = L{
-                "Shockwave"
-            },
-            amws = "Dimidiation",
-            tpws = L{
-
-            }
-        },
         JobAbilities = L{
             JobAbility.new('Swordplay', L{InBattleCondition.new()}),
         }

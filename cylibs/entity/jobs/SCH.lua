@@ -22,7 +22,7 @@ function Scholar.new(trust_settings)
     local self = setmetatable(Job.new(), Scholar)
     self:set_trust_settings(trust_settings)
     self.allow_sub_job = trust_settings.AllowSubJob or false
-    self.ignore_debuff_ids = self.cure_settings.StatusRemovals.Blacklist:map(function(debuff_name) return res.buffs:with('name', debuff_name).id end)
+    self.ignore_debuff_ids = self.cure_settings.StatusRemovals.Blacklist:map(function(debuff_name) return res.buffs:with('en', debuff_name).id end)
     return self
 end
 
@@ -87,9 +87,9 @@ function Scholar:get_status_removal_spell(debuff_id, num_targets)
             job_abilities:append('Addendum: White')
         end
         if num_targets > 1 then
-            return Spell.new(res.spells:with('id', spell_id).name, job_abilities:extend(L{'Accession'}))
+            return Spell.new(res.spells:with('id', spell_id).en, job_abilities:extend(L{'Accession'}))
         else
-            return Spell.new(res.spells:with('id', spell_id).name, job_abilities)
+            return Spell.new(res.spells:with('id', spell_id).en, job_abilities)
         end
     end
     return nil

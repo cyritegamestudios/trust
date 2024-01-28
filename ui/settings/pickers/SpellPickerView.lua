@@ -42,7 +42,7 @@ function SpellPickerView:onSelectMenuItemAtIndexPath(textItem, _)
             for selectedIndexPath in selectedIndexPaths:it() do
                 local item = self:getDataSource():itemAtIndexPath(selectedIndexPath)
                 if item then
-                    local spell = res.spells:with('name', item:getText())
+                    local spell = res.spells:with('en', item:getText())
                     if spell then
                         if spell.status and not L{ 40, 41, 42 }:contains(spell.skill) then
                             if spell.targets:contains('Enemy') then

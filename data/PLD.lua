@@ -28,29 +28,5 @@ return {
         PartyBuffs = L{
 
         },
-        Skillchains = {
-            spamws = L{
-                "Savage Blade",
-                "Torcleaver"
-            },
-            starterws = L{
-                "Red Lotus Blade"
-            },
-            defaultws = L{
-                "Savage Blade",
-                "Torcleaver"
-            },
-            preferws = L{
-                "Red Lotus Blade",
-                "Torcleaver"
-            },
-            cleavews = L{
-                "Circle Blade"
-            },
-            amws = "Torcleaver",
-            tpws = L{
-
-            }
-        }
     }
 }

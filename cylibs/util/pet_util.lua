@@ -54,4 +54,15 @@ function pet_util.pet_name()
 	return nil
 end
 
+function pet_util.has_avatar()
+	local pet_name = pet_util.pet_name()
+	return pet_name and L{
+		'Shiva','Ramuh','Ifrit','Carbuncle','Fenrir',
+		'Diabolos','Garuda','Leviathan','Titan','Siren',
+		'Cait Sith','Fire Spirit','Ice Spirit','Air Spirit',
+		'Earth Spirit','Thunder Spirit','Water Spirit',
+		'Light Spirit','Dark Spirit'
+	}:contains(pet_name)
+end
+
 return pet_util

@@ -11,6 +11,7 @@ local DebuffSettingsEditor = require('ui/settings/DebuffSettingsEditor')
 local DebugView = require('cylibs/actions/ui/debug_view')
 local ElementPickerView = require('ui/settings/pickers/ElementPickerView')
 local Frame = require('cylibs/ui/views/frame')
+local GameInfo = require('cylibs/util/ffxi/game_info')
 local HelpView = require('cylibs/trust/ui/help_view')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local JobAbilitiesSettingsEditor = require('ui/settings/JobAbilitiesSettingsEditor')
@@ -46,11 +47,13 @@ local TargetsPickerView = require('ui/settings/pickers/TargetsPickerView')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
+local TrustInfoBar = require('ui/TrustInfoBar')
 local Menu = require('cylibs/ui/menu/menu')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 local ViewStack = require('cylibs/ui/views/view_stack')
 local WeaponSkillPickerView = require('ui/settings/pickers/WeaponSkillPickerView')
 local WeaponSkillsSettingsEditor = require('ui/settings/WeaponSkillSettingsEditor')
+local WeaponSkillSettingsMenuItem = require('ui/settings/menus/WeaponSkillSettingsMenuItem')
 
 local TrustActionHud = require('cylibs/actions/ui/action_hud')
 local View = require('cylibs/ui/views/view')
@@ -87,10 +90,21 @@ function TrustHud.new(player, action_queue, addon_enabled, menu_width, menu_heig
     self.actionQueue = action_queue
     self.player = player
     self.party = player.party
+    self.gameInfo = GameInfo.new()
     self.menuViewStack = ViewStack.new(Frame.new(windower.get_windower_settings().ui_x_res - 128, 50, 0, 0))
     self.menuViewStack.name = "menu stack"
     self.mainMenuItem = self:getMainMenuItem()
-    self.trustMenu = Menu.new(self.viewStack, self.menuViewStack)
+
+    self.infoViewContainer = View.new(Frame.new(17, 17, windower.get_windower_settings().ui_x_res - 18, 30))
+    self.infoBar = TrustInfoBar.new(Frame.new(0, 0, windower.get_windower_settings().ui_x_res - 18, 30))
+    self.infoBar:setVisible(false)
+
+    self.infoViewContainer:addSubview(self.infoBar)
+
+    self.infoViewContainer:setNeedsLayout()
+    self.infoViewContainer:layoutIfNeeded()
+
+    self.trustMenu = Menu.new(self.viewStack, self.menuViewStack, self.infoBar)
 
     self:addSubview(self.actionView)
     self:addSubview(self.targetActionView)
@@ -176,7 +190,7 @@ function TrustHud.new(player, action_queue, addon_enabled, menu_width, menu_heig
         self.targetActionQueue:clear()
         if skillchainer:get_target() and skillchainer:get_target():get_id() == target_id then
             local element = step:get_skillchain():get_name()
-            local text = "Step %d %s%s\\cr":format(step:get_step(), skillchain_util.color_for_element(element), element)
+            local text = "Step %d: %s%s\\cr":format(step:get_step(), skillchain_util.color_for_element(element), element)
             local skillchain_step_action = BlockAction.new(function()
                 coroutine.sleep(math.max(1, step:get_time_remaining()))
             end, element..step:get_step(), text)
@@ -189,6 +203,12 @@ function TrustHud.new(player, action_queue, addon_enabled, menu_width, menu_heig
             self.targetActionQueue:clear()
         end
     end), skillchainer:on_skillchain_ended())
+
+    self:getDisposeBag():add(self.gameInfo:onMenuChange():addAction(function(_, isMenuOpen)
+        if isMenuOpen then
+            self.trustMenu:closeAll()
+        end
+    end), self.gameInfo:onMenuChange())
 
     return self
 end
@@ -222,6 +242,9 @@ function TrustHud:layoutIfNeeded()
     self.actionView:setPosition(250 + 5, self.listView:getSize().height + 5)
     self.actionView:setNeedsLayout()
     self.actionView:layoutIfNeeded()
+
+    self.infoBar:setNeedsLayout()
+    self.infoBar:layoutIfNeeded()
 end
 
 function TrustHud:getViewStack()
@@ -246,8 +269,8 @@ function TrustHud:getMainMenuItem()
         return self.mainMenuItem
     end
 
-    local mainJobItem = self:getMenuItems(player.trust.main_job, main_trust_settings, state.MainTrustSettingsMode, player.main_job_name_short)
-    local subJobItem = self:getMenuItems(player.trust.sub_job, sub_trust_settings, state.SubTrustSettingsMode, player.sub_job_name_short)
+    local mainJobItem = self:getMenuItems(player.trust.main_job, main_trust_settings, state.MainTrustSettingsMode, weapon_skill_settings, state.WeaponSkillSettingsMode, player.main_job_name_short, player.main_job_name)
+    local subJobItem = self:getMenuItems(player.trust.sub_job, sub_trust_settings, state.SubTrustSettingsMode, nil, nil, player.sub_job_name_short, player.sub_job_name)
 
     local mainMenuItem = MenuItem.new(L{
         ButtonItem.default(player.main_job_name, 18),
@@ -282,61 +305,42 @@ local function setupView(view, viewSize)
     return view
 end
 
-function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, jobNameShort)
+function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, weaponSkillSettings, weaponSkillSettingsMode, jobNameShort)
     local viewSize = Frame.new(0, 0, 500, 500)
 
     local editSpellItem = MenuItem.new(L{
         ButtonItem.default('Save', 18),
         ButtonItem.default('Clear All', 18),
-    }, {
-    },
-            function(args)
-                local spell = args['spell']
-                local editSpellView = setupView(SpellSettingsEditor.new(trustSettings, spell), viewSize)
-                editSpellView:setTitle("Edit buff.")
-                editSpellView:setShouldRequestFocus(true)
-                return editSpellView
-            end)
+    }, {},
+    function(args)
+        local spell = args['spell']
+        local editSpellView = setupView(SpellSettingsEditor.new(trustSettings, spell), viewSize)
+        editSpellView:setTitle("Edit buff.")
+        editSpellView:setShouldRequestFocus(true)
+        return editSpellView
+    end)
 
     local chooseSpellsItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
         ButtonItem.default('Clear', 18),
     }, {},
-            function(args)
-                local spellSettings = args['spells']
-                local targets = args['targets']
-                local defaultJobNames = L{}
-                if targets:contains('Party') then
-                    defaultJobNames = job_util.all_jobs()
-                end
+    function(args)
+        local spellSettings = args['spells']
+        local targets = args['targets']
+        local defaultJobNames = L{}
+        if targets:contains('Party') then
+            defaultJobNames = job_util.all_jobs()
+        end
 
-                local jobId = res.jobs:with('ens', jobNameShort).id
-                local allBuffs = spell_util.get_spells(function(spell)
-                    return spell.levels[jobId] ~= nil and spell.status ~= nil and targets:intersection(S(spell.targets)):length() > 0
-                end):map(function(spell) return spell.name end)
+        local jobId = res.jobs:with('ens', jobNameShort).id
+        local allBuffs = spell_util.get_spells(function(spell)
+            return spell.levels[jobId] ~= nil and spell.status ~= nil and targets:intersection(S(spell.targets)):length() > 0
+        end):map(function(spell) return spell.en end)
 
-                local chooseSpellsView = setupView(SpellPickerView.new(trustSettings, spellSettings, allBuffs, defaultJobNames, false), viewSize)
-                chooseSpellsView:setTitle("Choose buffs to add.")
-                return chooseSpellsView
-            end)
-
-    --[[local buffSettingsItem = MenuItem.new(L{
-        --ButtonItem.default('Save', 18),
-        ButtonItem.default('Add', 18),
-        ButtonItem.default('Remove', 18),
-        ButtonItem.default('Edit', 18),
-    }, {
-        Add = chooseSpellsItem,
-        Edit = editSpellItem
-    },
-            function()
-                local backgroundImageView = createBackgroundView(viewSize.width, viewSize.height)
-                local buffSettingsView = BuffSettingsEditor.new(trustSettings, trustSettingsMode, viewSize.width)
-                buffSettingsView:setBackgroundImageView(backgroundImageView)
-                buffSettingsView:setNavigationBar(createTitleView(viewSize))
-                buffSettingsView:setSize(viewSize.width, viewSize.height)
-                return buffSettingsView
-            end)]]
+        local chooseSpellsView = setupView(SpellPickerView.new(trustSettings, spellSettings, allBuffs, defaultJobNames, false), viewSize)
+        chooseSpellsView:setTitle("Choose buffs to add.")
+        return chooseSpellsView
+    end)
 
     local selfBuffSettingsItem = MenuItem.new(L{
         ButtonItem.default('Add', 18),
@@ -357,7 +361,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
         buffSettingsView:setShouldRequestFocus(true)
         buffSettingsView:setTitle("Edit buffs on the player.")
         return buffSettingsView
-    end)
+    end, "Buffs", "Edit buffs to use on the player.")
 
     local partyBuffSettingsItem = MenuItem.new(L{
         ButtonItem.default('Add', 18),
@@ -378,7 +382,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
                 buffSettingsView:setShouldRequestFocus(true)
                 buffSettingsView:setTitle("Edit buffs on the party.")
                 return buffSettingsView
-            end)
+            end, "Buffs", "Edit buffs to use on party members.")
 
     local buffSettingsItem = MenuItem.new(L{
         ButtonItem.default('Self', 18),
@@ -386,7 +390,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
     }, {
         Self = selfBuffSettingsItem,
         Party = partyBuffSettingsItem
-    })
+    }, nil, "Buffs", "Choose buffs to use.")
 
     local chooseDebuffsItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
@@ -396,7 +400,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
                 local jobId = res.jobs:with('ens', jobNameShort).id
                 local allDebuffs = spell_util.get_spells(function(spell)
                     return spell.levels[jobId] ~= nil and spell.status ~= nil and L{32, 35, 36, 39, 40, 41, 42}:contains(spell.skill) and spell.targets:contains('Enemy')
-                end):map(function(spell) return spell.name end)
+                end):map(function(spell) return spell.en end)
 
                 local chooseSpellsView = setupView(SpellPickerView.new(trustSettings, L(T(trustSettings:getSettings())[trustSettingsMode.value].Debuffs), allDebuffs, L{}, false), viewSize)
                 chooseSpellsView:setTitle("Choose debuffs to add.")
@@ -417,7 +421,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
         debuffSettingsView:setNavigationBar(createTitleView(viewSize))
         debuffSettingsView:setSize(viewSize.width, viewSize.height)
         return debuffSettingsView
-    end)
+    end, "Debuffs", "Choose debuffs to use on enemies.")
 
     local chooseJobAbilitiesItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
@@ -427,7 +431,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
                 local jobId = res.jobs:with('ens', jobNameShort).id
                 local allJobAbilities = player_util.get_job_abilities():map(function(jobAbilityId) return res.job_abilities[jobAbilityId] end):filter(function(jobAbility)
                     return jobAbility.status ~= nil and S{'Self'}:intersection(S(jobAbility.targets)):length() > 0
-                end):map(function(jobAbility) return jobAbility.name end)
+                end):map(function(jobAbility) return jobAbility.en end)
 
                 local chooseJobAbilitiesView = setupView(JobAbilityPickerView.new(trustSettings, T(trustSettings:getSettings())[trustSettingsMode.value].JobAbilities, allJobAbilities), viewSize)
                 chooseJobAbilitiesView:setTitle("Choose job abilities to add.")
@@ -447,7 +451,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
         jobAbilitiesSettingsView:setNavigationBar(createTitleView(viewSize))
         jobAbilitiesSettingsView:setSize(viewSize.width, viewSize.height)
         return jobAbilitiesSettingsView
-    end)
+    end, "Job Abilities", "Choose job abilities to use.")
 
     local chooseTargetsItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
@@ -470,7 +474,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
         local pullSettingsView = setupView(PullSettingsEditor.new(settings, trust), viewSize)
         pullSettingsView:setShouldRequestFocus(true)
         return pullSettingsView
-    end)
+    end, "Pulling", "Choose which enemies to pull.")
 
     local function createWeaponSkillsItem(skill, weapon_skill_settings_key)
         local chooseWeaponSkillsItem = MenuItem.new(L{
@@ -479,7 +483,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
         }, {},
         function(args)
             local weaponSkills = T(trustSettings:getSettings())[trustSettingsMode.value].Skillchains[weapon_skill_settings_key]
-            local allWeaponSkills = res.weapon_skills:filter(function(weaponSkill) return weaponSkill.skill == skill and not weaponSkills:contains(weaponSkill.name) end):map(function(weaponSkill) return weaponSkill.name end)
+            local allWeaponSkills = res.weapon_skills:filter(function(weaponSkill) return weaponSkill.skill == skill and not weaponSkills:contains(weaponSkill.en) end):map(function(weaponSkill) return weaponSkill.en end)
 
             local chooseWeaponSkillsView = setupView(WeaponSkillPickerView.new(trustSettings, weaponSkills, allWeaponSkills), viewSize)
             chooseWeaponSkillsView:setTitle("Choose weapon skills to add.")
@@ -520,7 +524,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
 
                 local allSongs = spell_util.get_spells(function(spell)
                     return spell.type == 'BardSong' and S{'Self'}:intersection(S(spell.targets)):length() > 0
-                end):map(function(spell) return spell.name  end)
+                end):map(function(spell) return spell.en  end)
 
                 local chooseSongsView = setupView(SongPickerView.new(trustSettings, songs, allSongs, args['validator']), viewSize)
                 chooseSongsView:setTitle(args['help_text'])
@@ -545,24 +549,14 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
         return songSettingsView
     end)
 
-    --[[local weaponSkillsSettingsItem = MenuItem.new(weaponItems, childMenuItems,
-    function()
-        local backgroundImageView = createBackgroundView(viewSize.width, viewSize.height)
-        local weaponSkillsSettingsView = WeaponSkillsSettingsEditor.new(trustSettings, trustSettingsMode, viewSize.width)
-        weaponSkillsSettingsView:setBackgroundImageView(backgroundImageView)
-        weaponSkillsSettingsView:setNavigationBar(createTitleView(viewSize))
-        weaponSkillsSettingsView:setSize(viewSize.width, viewSize.height)
-        return weaponSkillsSettingsView
-    end)]]
-
     local function createAddWeaponSkillsSettingsItem(weapon_skill_settings_key)
         local weaponItems = L{}
         local childMenuItems = {}
 
         local combatSkills = L(job_util.get_skills_for_job(res.jobs:with('ens', jobNameShort).id))
         for combatSkillId in combatSkills:it() do
-            weaponItems:append(ButtonItem.default(res.skills[combatSkillId].name, 18))
-            childMenuItems[res.skills[combatSkillId].name] = createWeaponSkillsItem(combatSkillId, weapon_skill_settings_key)
+            weaponItems:append(ButtonItem.default(res.skills[combatSkillId].en, 18))
+            childMenuItems[res.skills[combatSkillId].en] = createWeaponSkillsItem(combatSkillId, weapon_skill_settings_key)
         end
         weaponItems:append(ButtonItem.default('Help', 18))
 
@@ -592,18 +586,6 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
         return chooseWeaponSkillsItem
     end
 
-    local weaponSkillsSettingsItem = MenuItem.new(L{
-        ButtonItem.default('Default', 18),
-        ButtonItem.default('Priority', 18),
-        ButtonItem.default('Spam', 18),
-        ButtonItem.default('Cleave', 18),
-    }, {
-        Default = createWeaponSkillsSettingsItem('defaultws', "Use these weapon skills first."),
-        Priority = createWeaponSkillsSettingsItem('preferws', "Prioritize using these weapon skills."),
-        Spam = createWeaponSkillsSettingsItem('spamws', "Use these weapon skills when spamming."),
-        Cleave = createWeaponSkillsSettingsItem('cleavews', "Use these weapon skills when cleaving."),
-    })
-
     -- Nukes
     local chooseNukesItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
@@ -614,7 +596,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
                 local jobId = res.jobs:with('ens', jobNameShort).id
                 local allSpells = spell_util.get_spells(function(spell)
                     return spell.levels[jobId] ~= nil and spell.type == 'BlackMagic' and S{ 'Enemy' }:intersection(S(spell.targets)):length() > 0
-                end):map(function(spell) return spell.name end):sort()
+                end):map(function(spell) return spell.en end):sort()
 
                 local sortSpells = function(spells)
                     spell_util.sort_by_element(spells, true)
@@ -656,6 +638,15 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
 
     -- Settings
     local menuItems = L{}
+    local childMenuItems = {
+        Abilities = jobAbilitiesSettingsItem,
+        Buffs = buffSettingsItem,
+        Debuffs = debuffSettingsItem,
+        Healing = healerMenuItem,
+        Pulling = pullerSettingsItem,
+        Songs = songsSettingsItem,
+        Nukes = nukeSettingsItem,
+    }
 
     local buffer = trust:role_with_type("buffer")
     if buffer then
@@ -685,22 +676,33 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, j
         menuItems:append(ButtonItem.default('Nukes', 18))
     end
 
-    menuItems:append(ButtonItem.default('Weaponskills', 18))
+    if trust:role_with_type("skillchainer") then
+        menuItems:append(ButtonItem.default('Weaponskills', 18))
+        childMenuItems.Weaponskills = self:getMenuItemForRole(trust:role_with_type("skillchainer"), weaponSkillSettings, weaponSkillSettingsMode, trust, viewSize)
+    end
 
-    local settingsMenuItem = MenuItem.new(menuItems, {
-        Abilities = jobAbilitiesSettingsItem,
-        Buffs = buffSettingsItem,
-        Debuffs = debuffSettingsItem,
-        Healing = healerMenuItem,
-        Pulling = pullerSettingsItem,
-        Songs = songsSettingsItem,
-        Nukes = nukeSettingsItem,
-        Weaponskills = weaponSkillsSettingsItem
-    })
+    local settingsMenuItem = MenuItem.new(menuItems, childMenuItems, nil, "Settings", "Configure Trust settings for skillchains, buffs, debuffs and more.")
     return settingsMenuItem
 end
 
-function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, jobNameShort)
+function TrustHud:getMenuItemForRole(role, weaponSkillSettings, weaponSkillSettingsMode, trust, viewSize)
+    if role == nil then
+        return nil
+    end
+    if role:get_type() == "skillchainer" then
+        return self:getSkillchainerMenuItem(weaponSkillSettings, weaponSkillSettingsMode, trust, viewSize)
+    end
+    return nil
+end
+
+function TrustHud:getSkillchainerMenuItem(weaponSkillSettings, weaponSkillSettingsMode, trust, viewSize)
+    local weaponSkillsSettingsMenuItem = WeaponSkillSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettingsMode, trust, function(view)
+        return setupView(view, viewSize)
+    end)
+    return weaponSkillsSettingsMenuItem
+end
+
+function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSkillSettings, weaponSkillSettingsMode, jobNameShort, jobName)
     local viewSize = Frame.new(0, 0, 500, 500)
 
     -- Modes Assistant
@@ -721,9 +723,9 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, jobNameS
         local modesView = setupView(ModesView.new(L(T(state):keyset()):sort()), viewSize)
         modesView:setShouldRequestFocus(true)
         return modesView
-    end)
+    end, "Modes", "View and change Trust modes.")
 
-    local settingsMenuItem = self:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, jobNameShort)
+    local settingsMenuItem = self:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, weaponSkillSettings, weaponSkillSettingsMode, jobNameShort)
 
     -- Debug
     local debugMenuItem = MenuItem.new(L{
@@ -733,7 +735,7 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, jobNameS
         local debugView = setupView(DebugView.new(self.actionQueue), viewSize)
         debugView:setShouldRequestFocus(false)
         return debugView
-    end)
+    end, "Debug", "View debug info.")
 
     local partyMenuItem = MenuItem.new(L{}, {},
     function()
@@ -745,7 +747,7 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, jobNameS
         partyMemberView:setSize(viewSize.width, viewSize.height)
         partyMemberView:setShouldRequestFocus(false)
         return partyMemberView
-    end)
+    end, "Party", "View party status.")
 
     -- Buffs
     local buffsMenuItem = MenuItem.new(L{}, {},
@@ -755,7 +757,7 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, jobNameS
             return setupView(BufferView.new(buffer), viewSize)
         end
         return nil
-    end)
+    end,"Buffs", "View buffs on the player and party.")
 
     -- Debuffs
     local debuffsMenuItem = MenuItem.new(L{}, {},
@@ -765,14 +767,14 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, jobNameS
             return setupView(DebufferView.new(debuffer, debuffer:get_target()), viewSize)
         end
         return nil
-    end)
+    end, "Debuffs", "View debuffs on enemies.")
 
     local targetsMenuItem = MenuItem.new(L{}, {},
-        function(args)
-            local targetsView = setupView(PartyTargetView.new(self.party.target_tracker), viewSize)
-            targetsView:setShouldRequestFocus(false)
-            return targetsView
-        end)
+    function(args)
+        local targetsView = setupView(PartyTargetView.new(self.party.target_tracker), viewSize)
+        targetsView:setShouldRequestFocus(false)
+        return targetsView
+    end, "Targets", "View info for enemies the party is fighting.")
 
     -- Puppetmaster
     local automatonMenuItem = MenuItem.new(L{}, {},
@@ -818,7 +820,7 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, jobNameS
         Modes = modesMenuItem,
         Targets = targetsMenuItem,
         Songs = singerMenuItem,
-    })
+    }, nil, "Status", "View status of party members and enemies.")
 
     -- Help
     local helpMenuItem = MenuItem.new(L{
@@ -829,7 +831,7 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, jobNameS
     function()
         local helpView = setupView(HelpView.new(jobNameShort), viewSize)
         return helpView
-    end)
+    end, "Help", "Get help using Trust.")
 
     -- Load
     local loadSettingsItem = MenuItem.new(L{}, {},
@@ -837,7 +839,7 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, jobNameS
         local loadSettingsView = setupView(LoadSettingsView.new(trustSettingsMode), viewSize)
         loadSettingsView:setShouldRequestFocus(true)
         return loadSettingsView
-    end)
+    end, "Load Settings", "Load saved mode and job settings.")
 
     -- Main
     local mainMenuItem = MenuItem.new(L{
@@ -845,12 +847,16 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, jobNameS
         ButtonItem.default('Settings', 18),
         ButtonItem.default('Load', 18),
         ButtonItem.default('Help', 18),
+        ButtonItem.default('Donate', 18),
     }, {
         Status = statusMenuItem,
         Settings = settingsMenuItem,
         Load = loadSettingsItem,
-        Help = helpMenuItem
-    })
+        Help = helpMenuItem,
+        Donate = MenuItem.action(function()
+            windower.open_url(settings.donate.url)
+        end, "Donate", "Enjoying Trust? Show your support!")
+    }, nil, jobName, "Settings for "..jobName..".")
 
     return mainMenuItem
 end

@@ -98,7 +98,7 @@ function StatusRemovalAction:perform()
 
 	local target = windower.ffxi.get_mob_by_index(self.target_index)
 
-	windower.send_command('@input /ma "'..res.spells[self.spell_id].name..'" '..target.id)
+	windower.send_command('@input /ma "'..res.spells[self.spell_id].en..'" '..target.id)
 end
 
 function StatusRemovalAction:getspellid()

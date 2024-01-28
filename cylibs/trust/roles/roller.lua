@@ -90,7 +90,7 @@ function Roller:on_roll_used(roll_id, targets)
     local roll_num = targets[1].actions[1].param
 
     local roll = res.job_abilities:with('id', roll_id)
-    if roll.name == self.roll1:get_roll_name() or state.AutoRollMode.value == 'Manual' then
+    if roll.en == self.roll1:get_roll_name() or state.AutoRollMode.value == 'Manual' then
         self.roll1_current = roll_num
         if self.job:can_snake_eye() and self.job:should_snake_eye(roll.id, roll_num) then
             self.job:snake_eye()
@@ -100,7 +100,7 @@ function Roller:on_roll_used(roll_id, targets)
                 self:set_is_rolling(false)
             end
         end
-    elseif roll.name == self.roll2:get_roll_name() then
+    elseif roll.en == self.roll2:get_roll_name() then
         self.roll2_current = roll_num
         if self.job:can_snake_eye() and self.job:should_snake_eye(roll.id, roll_num) then
             self.job:snake_eye()
@@ -159,13 +159,13 @@ function Roller:check_rolls()
 
     if state.AutoRollMode.value == 'Auto' then
         if self.job:can_roll() then
-            local roll1 = res.job_abilities:with('name', self.roll1:get_roll_name())
+            local roll1 = res.job_abilities:with('en', self.roll1:get_roll_name())
             if not self.job:has_roll(roll1.id) then
                 self:set_is_rolling(true)
                 self.job:roll(roll1.id, self.roll1:should_use_crooked_cards())
                 return
             end
-            local roll2 = res.job_abilities:with('name', self.roll2:get_roll_name())
+            local roll2 = res.job_abilities:with('en', self.roll2:get_roll_name())
             if not self.job:has_roll(roll2.id) then
                 self:set_is_rolling(true)
                 self.job:roll(roll2.id, self.roll2:should_use_crooked_cards())

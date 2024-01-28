@@ -1,23 +1,31 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '8.3.1'
+_addon.version = '8.5.0'
 _addon.release_notes = [[
-	• Enhancements to magic bursting for BLM, GEO, RDM, SCH and WHM
-	    • Customize spells used in Trust UI
-	    • Blacklist elements in Trust UI
-	    • Enable AOE spells setting `MagicBurstTargetMode` to `All`
+Trusts now come fully equipped with a skillchain calculator and can
+make powerful skillchains of their own without any configuration!
 
-	• Enhancements to free nuking for BLM, GEO, RDM, SCH and WHM
-	    • Customize spells used in Trust UI
-	    • Cleave groups of monsters setting `AutoNukeMode` to `Cleave`
+	• Fewer settings, more skillchains
+	    • Automatically generate multi-step Light and Darkness skillchains
+	      with your party members using weapon skills, blood pacts
+	      and immanence
+	    • Control skillchain elements with `SkillchainPropertyMode`
+	      `Light` and `Darkness`
+	    • Automatically determine weapon skills to use when spamming
+	      or cleaving
+
+	• Streamlined UI for customizing skillchains
+	    • Build custom skillchains between one or more party members
+	      in Settings > Weaponskills > Skillchains
+	    • Blacklist specific weapon skills to avoid using when
+	      making skillcahins
 
 	• Bug fixes
-	    • Fixed an issue where songs would not track properly when a
-	      party member is KO'ed
-	    • Fixed an issue where Alter Egos would not be buffed or healed
-	    • Fixed an issue where a Corsair Trust would not properly reset
-	      modes after rolling
+	    • Fixed several issues where Trust would not function properly
+	      on Japanese clients
+	    • Fixed an issue where Trust would not pull if they did not know
+	      one or more of the Alter Ego spells in settings
 
 	• Press escape or enter to exit.
 	]]
@@ -25,35 +33,36 @@ _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 
 require('Trust-Include')
 
-default = {
+local default = {
 	verbose=true
 }
 
-default.version = '1.0.0'
-default.menu_key = '%^numpad+'
+default.battle = {}
+default.battle.melee_distance = 3
+default.battle.range_distance = 21
+default.battle.targets = L{'Locus Colibri','Locus Dire Bat','Locus Thousand Eyes','Locus Spartoi Warrior','Locus Spartoi Sorcerer','Locus Hati','Locus Ghost Crab'}
+default.battle.trusts = L{'Monberaux','Sylvie (UC)','Koru-Moru','Qultada','Brygid'}
+default.chat = {}
+default.chat.ipc_enabled = true
+default.click_cooldown = 0.0
+default.donate = {}
+default.donate.url = 'https://www.buymeacoffee.com/cyrite'
+default.follow = {}
+default.follow.distance = 1
+default.help = {}
+default.help.mode_text_enabled = true
+default.help.wiki_base_url = 'https://github.com/cyritegamestudios/trust/wiki'
 default.hud = {}
 default.hud.position = {}
 default.hud.position.x = 0
 default.hud.position.y = 0
-default.click_cooldown = 0.0
-default.help = {}
-default.help.mode_text_enabled = true
-default.help.wiki_base_url = 'https://github.com/cyritegamestudios/trust/wiki'
-default.battle = {}
-default.battle.melee_distance = 3
-default.battle.range_distance = 21
-default.battle.targets = L{}
-default.battle.trusts = L{'Monberaux','Sylvie (UC)','Koru-Moru','Qultada','Brygid'}
-default.battle.targets = L{'Locus Colibri','Locus Dire Bat','Locus Thousand Eyes','Locus Spartoi Warrior','Locus Spartoi Sorcerer','Locus Hati','Locus Ghost Crab'}
-default.chat = {}
-default.chat.ipc_enabled = true
-default.follow = {}
-default.follow.distance = 1
-default.remote_commands = {}
-default.remote_commands.whitelist = S{}
 default.logging = {}
 default.logging.enabled = false
 default.logging.logtofile = false
+default.menu_key = '%^numpad+'
+default.remote_commands = {}
+default.remote_commands.whitelist = S{}
+default.version = '1.0.0'
 
 settings = config.load(default)
 
@@ -127,25 +136,51 @@ function load_user_files(main_job_id, sub_job_id)
 
 	main_trust_settings = TrustSettingsLoader.new(player.main_job_name_short)
 	main_trust_settings:onSettingsChanged():addAction(function(newSettings)
+		local oldValue = state.MainTrustSettingsMode.value
 		player.trust.main_job_settings = newSettings
 		local mode_names = list.subtract(L(T(newSettings):keyset()), L{'Version'})
 		state.MainTrustSettingsMode:options(T(mode_names):unpack())
-		state.MainTrustSettingsMode:set('Default')
+		if mode_names:contains(oldValue) then
+			state.MainTrustSettingsMode:set(oldValue)
+		else
+			state.MainTrustSettingsMode:set('Default')
+		end
 	end)
 
 	state.SubTrustSettingsMode = M{['description'] = 'Sub Trust Settings Mode', 'Default'}
 
 	sub_trust_settings = TrustSettingsLoader.new(player.sub_job_name_short)
 	sub_trust_settings:onSettingsChanged():addAction(function(newSettings)
+		local oldValue = state.SubTrustSettingsMode.value
 		player.trust.sub_job_settings = newSettings
 		local mode_names = list.subtract(L(T(newSettings):keyset()), L{'Version'})
 		state.SubTrustSettingsMode:options(T(mode_names):unpack())
-		state.SubTrustSettingsMode:set('Default')
+		if mode_names:contains(oldValue) then
+			state.SubTrustSettingsMode:set(oldValue)
+		else
+			state.SubTrustSettingsMode:set('Default')
+		end
+	end)
+
+	state.WeaponSkillSettingsMode = M{['description'] = 'Weapon Skill Settings Mode', 'Default'}
+
+	weapon_skill_settings = WeaponSkillSettings.new(player.main_job_name_short)
+	weapon_skill_settings:onSettingsChanged():addAction(function(newSettings)
+		local oldValue = state.WeaponSkillSettingsMode.value
+		player.trust.weapon_skill_settings = newSettings
+		local mode_names = list.subtract(L(T(newSettings):keyset()), L{'Version'})
+		state.WeaponSkillSettingsMode:options(T(mode_names):unpack())
+		if mode_names:contains(oldValue) then
+			state.WeaponSkillSettingsMode:set(oldValue)
+		else
+			state.WeaponSkillSettingsMode:set('Default')
+		end
 	end)
 
 	player.trust = {}
 	player.trust.main_job_settings = main_trust_settings:loadSettings()
 	player.trust.sub_job_settings = sub_trust_settings:loadSettings()
+	player.trust.weapon_skill_settings = weapon_skill_settings:loadSettings(true)
 
 	state.MainTrustSettingsMode:on_state_change():addAction(function(_, new_value)
 		player.trust.main_job:set_trust_settings(player.trust.main_job_settings[new_value])
@@ -161,18 +196,17 @@ function load_user_files(main_job_id, sub_job_id)
 	sub_job_trust:init()
 
 	player.trust.main_job = main_job_trust
-	--player.trust.main_job_commands = load_job_commands(player.main_job_name_short, main_job_trust, action_queue, true)
 	player.trust.sub_job = sub_job_trust
-	--player.trust.sub_job_commands = load_job_commands(player.sub_job_name_short, sub_job_trust, action_queue)
 
 	player.trust.main_job:add_role(Attacker.new(action_queue))
 	player.trust.main_job:add_role(CombatMode.new(action_queue, settings.battle.melee_distance, settings.battle.range_distance))
 	player.trust.main_job:add_role(Eater.new(action_queue, main_job_trust:get_trust_settings().AutoFood))
 	player.trust.main_job:add_role(Follower.new(action_queue, settings.follow.distance))
 	player.trust.main_job:add_role(Pather.new(action_queue, 'data/paths/'))
-	player.trust.main_job:add_role(Skillchainer.new(action_queue, L{}, main_job_trust:get_trust_settings().Skillchains))
+	player.trust.main_job:add_role(Skillchainer.new(action_queue, weapon_skill_settings))
 	player.trust.main_job:add_role(Targeter.new(action_queue))
 	player.trust.main_job:add_role(Truster.new(action_queue, settings.battle.trusts))
+	player.trust.main_job:add_role(Aftermather.new(action_queue, player.trust.main_job:role_with_type("skillchainer")))
 
 	target_change_time = os.time()
 
@@ -185,6 +219,7 @@ function load_user_files(main_job_id, sub_job_id)
 
 	main_trust_settings:copySettings()
 	sub_trust_settings:copySettings()
+	weapon_skill_settings:copySettings()
 
 	if state.AutoEnableMode.value == 'Auto' then
 		handle_start()
@@ -241,7 +276,7 @@ function load_trust_commands(job_name_short, trust, action_queue, party)
 		ScenarioCommands.new(trust, action_queue, party),
 		SendAllCommands.new(trust, action_queue),
 		SendCommands.new(trust, action_queue),
-		SkillchainCommands.new(trust, action_queue),
+		SkillchainCommands.new(trust, weapon_skill_settings, action_queue),
 	}:extend(get_job_commands(job_name_short, trust, action_queue))
 
 	local add_command = function(command)
@@ -384,7 +419,7 @@ function check_version()
 
 		local Frame = require('cylibs/ui/views/frame')
 
-		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 500))
+		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 550))
 
 		updateView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
 			updateView:getDelegate():deselectItemAtIndexPath(indexPath)
@@ -523,10 +558,12 @@ function handle_debug()
 	end
 end
 
-function handle_command_list()
+function handle_command_list(command_name)
 	addon_message(122, 'Addon Commands')
 
-	local command_descriptions = shortcuts:map(function(command)
+	local command_descriptions = shortcuts:filter(function(command)
+		return command_name == nil or command:get_command_name() == command_name
+	end):map(function(command)
 		return command:description()
 	end)
 

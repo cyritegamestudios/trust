@@ -45,7 +45,6 @@ function Pather:on_add()
             self:perform_next_action()
         end
     end), self.action_queue:on_action_end())
-
 end
 
 function Pather:target_change(target_index)

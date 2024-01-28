@@ -110,7 +110,7 @@ function Raiser:raise_party_member(party_member)
         self.ko_party_member_ids:remove(party_member:get_id())
     else
         local raise_spell = self.job:get_raise_spell()
-        if raise_spell and party_member and not party_member:has_buff(buff_util.buff_id('Reraise')) then
+        if raise_spell and party_member and party_member:get_mob() and not party_member:has_buff(buff_util.buff_id('Reraise')) then
             self.last_raise_time = os.time()
             self.last_raise_spell_id = raise_spell:get_spell().id
 

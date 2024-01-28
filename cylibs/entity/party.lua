@@ -168,7 +168,7 @@ end
 -- @treturn PartyMember Party member, or nil if none exists
 function Party:get_party_member(mob_id)
     for _, party_member in pairs(self.party_members) do
-        if party_member:get_id() == mob_id then
+        if party_member:get_id() == mob_id or party_member:get_pet() and party_member:get_pet().id == mob_id then
             return party_member
         end
     end
@@ -294,8 +294,8 @@ end
 -- Sends a message to the party chat.
 -- @tparam PartyMember Message sender
 -- @tparam string Message
-function Party:add_to_chat(party_member, message, throttle_key, throttle_duration)
-    self.party_chat:add_to_chat(party_member:get_name(), message, throttle_key, throttle_duration)
+function Party:add_to_chat(party_member, message, throttle_key, throttle_duration, is_local_only)
+    self.party_chat:add_to_chat(party_member:get_name(), message, throttle_key, throttle_duration, is_local_only)
 end
 
 return Party

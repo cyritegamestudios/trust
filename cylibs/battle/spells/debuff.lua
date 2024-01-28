@@ -22,7 +22,7 @@ Debuff.__type = "Debuff"
 -- @tparam string spell_prefix string Prefix for spell name (optional) (see spells.lua)
 -- @treturn Spell A spell
 function Debuff.new(spell_name, job_abilities, job_names, spell_prefix)
-    local spell = res.spells:with('name', spell_name)
+    local spell = res.spells:with('en', spell_name)
     spell = spell_util.highest_spell_for_buff_id(spell_util.buff_id_for_spell(spell.id), spell_name)
     if spell then
         local self = setmetatable(Spell.new(spell.en, job_abilities or L{}, job_names), Debuff)

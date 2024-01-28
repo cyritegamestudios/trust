@@ -73,7 +73,7 @@ function Nuker:check_cleave()
     if targets:length() >= self.min_num_mobs_to_cleave then
         local spell = self:get_aoe_spell()
         if spell then
-            self:cast_spell(spell:get_spell().name)
+            self:cast_spell(spell:get_spell().en)
         end
     else
         self:get_party():add_to_chat(self:get_party():get_player(), "I'll start cleaving after we find "..self.min_num_mobs_to_cleave - targets:length().." more mob(s).", "nuker_cleave", 10)
@@ -85,7 +85,7 @@ function Nuker:check_nukes()
 
     local spell = self:get_spell(element)
     if spell then
-        self:cast_spell(spell:get_spell().name)
+        self:cast_spell(spell:get_spell().en)
     end
 end
 
@@ -159,7 +159,7 @@ function Nuker:set_spells(spells)
     }
     self.spells = (spells or L{}):filter(function(spell) return spell ~= nil and spell_util.knows_spell(spell:get_spell().id) end)
     for spell in self.spells:it() do
-        local element_name = res.elements[spell:get_spell().element].name
+        local element_name = res.elements[spell:get_spell().element].en
         self.element_to_spells[element_name]:append(spell)
     end
 end

@@ -55,6 +55,12 @@ function CollectionView.new(dataSource, layout, delegate, cursorImageItem)
         if removedIndexPaths:contains(self:getDelegate():getCursorIndexPath()) then
             if self:getDataSource():numberOfItemsInSection(1) > 0 then
                 self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
+            else
+                if self.selectionBackground then
+                    self.selectionBackground:setVisible(false)
+                    self.selectionBackground:setNeedsLayout()
+                    self.selectionBackground:layoutIfNeeded()
+                end
             end
         end
     end)
@@ -63,6 +69,7 @@ function CollectionView.new(dataSource, layout, delegate, cursorImageItem)
         if cell then
             self.selectionBackground:setPosition(cell:getPosition().x - self.cursorImageItem:getSize().width - 15, cell:getPosition().y)
             self.selectionBackground:setSize(self.cursorImageItem:getSize().width, self.cursorImageItem:getSize().height)
+            self.selectionBackground:setVisible(self:hasFocus())
             self.selectionBackground:setNeedsLayout()
             self.selectionBackground:layoutIfNeeded()
         end

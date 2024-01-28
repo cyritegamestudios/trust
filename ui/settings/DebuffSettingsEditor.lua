@@ -131,7 +131,7 @@ function DebuffSettingsEditor:reloadSettings()
 
     local rowIndex = 1
     for spell in self.selfSpells:it() do
-        items:append(IndexedItem.new(TextItem.new(spell:get_spell().name, TextStyle.Default.TextSmall), IndexPath.new(1, rowIndex)))
+        items:append(IndexedItem.new(TextItem.new(spell:get_spell().en, TextStyle.Default.TextSmall), IndexPath.new(1, rowIndex)))
         rowIndex = rowIndex + 1
     end
 

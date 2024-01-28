@@ -40,6 +40,17 @@ function table.with_all(t, attr, val)
     return result
 end
 
+-- Finds th first entry in a table with the given name. Checks for en first and then jp.
+function table.with_name_safe(t, val)
+    val = type(val) ~= 'function' and functions.equals(val) or val
+    for _, el in pairs(t) do
+        if type(el) == 'table' and (val(el['en']) or val(el['ja'])) then
+            return el
+        end
+    end
+    return nil
+end
+
 function table.diff(t, other_table)
     local table_diff = T{}
     for key, value in pairs(t) do
@@ -56,4 +67,15 @@ function table.merge(table1, table2)
         merged_table[key] = value
     end
     return merged_table
+end
+
+function table.clone(t)
+    if type(t) ~= "table" then
+        return t
+    end
+    local copy = {}
+    for key, value in pairs(t) do
+        copy[table.clone(key)] = table.clone(value)
+    end
+    return setmetatable(copy, getmetatable(t))
 end

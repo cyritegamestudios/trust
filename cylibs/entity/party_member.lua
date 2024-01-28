@@ -62,6 +62,21 @@ function PartyMember:on_zone_change()
     return self.zone_change
 end
 
+-- Event called when the party member's equipment changes.
+function PartyMember:on_equipment_change()
+    return self.equipment_change
+end
+
+-- Event called when the party member's combat skills change.
+function PartyMember:on_combat_skills_change()
+    return self.combat_skills_change
+end
+
+-- Event called when the party member's pet changes.
+function PartyMember:on_pet_change()
+    return self.pet_change
+end
+
 -------
 -- Default initializer for a PartyMember.
 -- @tparam number id Mob id
@@ -82,6 +97,7 @@ function PartyMember.new(id)
     self.action_events = {}
     self.debuff_ids = L{}
     self.buff_ids = L{}
+    self.combat_skill_ids = S{}
     self.is_monitoring = false
     self.last_zone_time = os.time()
     self.heartbeat_time = os.time()
@@ -96,6 +112,9 @@ function PartyMember.new(id)
     self.ko = Event.newEvent()
     self.position_change = Event.newEvent()
     self.zone_change = Event.newEvent()
+    self.equipment_change = Event.newEvent()
+    self.combat_skills_change = Event.newEvent()
+    self.pet_change = Event.newEvent()
 
     local party_member_info = party_util.get_party_member(id)
     if party_member_info then
@@ -140,6 +159,9 @@ function PartyMember:destroy()
     self.ko:removeAllActions()
     self.position_change:removeAllActions()
     self.zone_change:removeAllActions()
+    self.equipment_change:removeAllActions()
+    self.combat_skills_change:removeAllActions()
+    self.pet_change:removeAllActions()
 end
 
 -------
@@ -415,9 +437,37 @@ end
 function PartyMember:get_status()
     local mob = self:get_mob()
     if mob then
-        return res.statuses[mob.status].name
+        return res.statuses[mob.status].en
     end
     return 'Idle'
+end
+
+-------
+-- Sets the index for the party member's pet.
+-- @tparam number Id of pet
+-- @tparam string Name of pet
+function PartyMember:set_pet(pet_id, pet_name)
+    if self.pet_id == pet_id then
+        return
+    end
+    self.pet_id = pet_id
+    self.pet_name = pet_name
+
+    self:on_pet_change():trigger(self, self.pet_id, self.pet_name)
+end
+
+-------
+-- Returns the mob metadata for the party member's pet.
+-- @treturn MobMetadata Full metadata for the party member's pet, or nil if it doesn't have a pet
+function PartyMember:get_pet()
+    if self.pet_id then
+        return windower.ffxi.get_mob_by_id(self.pet_id)
+    end
+    local mob = self:get_mob()
+    if mob and mob.pet_index then
+        return windower.ffxi.get_mob_by_index(mob.pet_index)
+    end
+    return nil
 end
 
 -------

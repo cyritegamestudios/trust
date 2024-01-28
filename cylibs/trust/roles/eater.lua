@@ -10,7 +10,7 @@ function Eater.new(action_queue, food_name)
     self.action_queue = action_queue
     self.food_name = food_name
     -- Checking item causes a huge memory footprint increase
-    self.is_food_enabled = food_name ~= nil --and res.items:with('name', food_name) ~= nil
+    self.is_food_enabled = food_name ~= nil --and res.items:with('en', food_name) ~= nil
     self.last_check_food_time = os.time()
 
     return self

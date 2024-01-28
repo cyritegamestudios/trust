@@ -23,7 +23,7 @@ function SpellAction.new(x, y, z, spell_id, target_index, player, conditions)
 		NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'mute','Invisible'}, false)}),
 		MinManaPointsCondition.new(res.spells[spell_id].mp_cost or 0),
 		SpellRecastReadyCondition.new(spell_id),
-		ValidSpellTargetCondition.new(res.spells[spell_id].name, alter_ego_util.untargetable_alter_egos()),
+		ValidSpellTargetCondition.new(res.spells[spell_id].en, alter_ego_util.untargetable_alter_egos()),
 	})
 
 	local self = setmetatable(Action.new(x, y, z, target_index, conditions), SpellAction)
@@ -87,7 +87,7 @@ function SpellAction:perform()
 	local target = windower.ffxi.get_mob_by_index(self.target_index)
 	local spell = res.spells[self.spell_id]
 
-	windower.send_command('@input /ma "'..spell.name..'" '..target.id)
+	windower.chat.input("/ma %s ":format(spell.en)..target.id)
 end
 
 function SpellAction:getspellid()

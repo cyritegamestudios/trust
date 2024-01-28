@@ -29,13 +29,13 @@ function Spell.new(spell_name, job_abilities, job_names, target, conditions, con
     local self = setmetatable({
         spell_name = spell_name;
         job_abilities = job_abilities or L{};
-        job_names = job_names;
+        job_names = job_names or job_util.all_jobs();
         target = target;
         consumable = consumable;
         conditions = conditions or L{};
     }, Spell)
 
-    self:add_condition(SpellRecastReadyCondition.new(res.spells:with('name', spell_name).id))
+    self:add_condition(SpellRecastReadyCondition.new(res.spells:with('en', spell_name).id))
 
     local strategem_count = self.job_abilities:filter(function(job_ability_name)
         local job_ability = res.job_abilities:with('en', job_ability_name)
@@ -56,6 +56,13 @@ end
 -- @treturn SpellMetadata metadata (see spells.lua)
 function Spell:get_spell()
     return res.spells:with('en', self.spell_name)
+end
+
+-------
+-- Returns the full metadata for the spell.
+-- @treturn SpellMetadata metadata (see spells.lua)
+function Spell:get_ability_id()
+    return self:get_spell().id
 end
 
 -------
@@ -83,10 +90,23 @@ end
 
 -------
 -- Set the job names associated with this Spell.
---
 -- @tparam list job_names A list of jobs this spell applies to (e.g. BLU, RDM, WAR)
 function Spell:set_job_names(job_names)
     self.job_names = job_names
+end
+
+-------
+-- Returns the element id of the spell.
+-- @treturn number Element id of the spell (see res/elements.lua)
+function Spell:get_element()
+    return self:get_spell().element
+end
+
+-------
+-- Returns whether or not the player knows this spell.
+-- @treturn Boolean True if the player knows this spell
+function Spell:is_valid()
+    return spell_util.knows_spell(self:get_spell().id)
 end
 
 -------
@@ -142,6 +162,13 @@ function Spell:get_consumable()
 end
 
 -------
+-- Return the mana points required to cast this spell.
+-- @treturn number Mana points
+function Spell:get_mp_cost()
+    return self:get_spell().mp_cost
+end
+
+-------
 -- Adds a condition to the list of conditions.
 -- @tparam Condition condition Condition to add
 function Spell:add_condition(condition)
@@ -169,7 +196,7 @@ function Spell:to_action(target_index, player)
 
         local job_ability = res.job_abilities:with('en', job_ability_name)
         if job_ability.status then
-            conditions:append(NotCondition.new(L{ HasBuffCondition.new(res.buffs[job_ability.status].name, player:get_mob().index) }))
+            conditions:append(NotCondition.new(L{ HasBuffCondition.new(res.buffs[job_ability.status].en, player:get_mob().index) }))
         end
         return JobAbility.new(job_ability_name, conditions)
     end):filter(function(job_ability)
@@ -212,7 +239,15 @@ function Spell:get_name()
 end
 
 function Spell:serialize()
-    return "Spell.new(" .. serializer_util.serialize_args(self.spell_name, self.job_abilities, self.job_names, self.target, self.conditions, self.consumable) .. ")"
+    local conditions_classes_to_serialize = L{
+        InBattleCondition.__class,
+        IdleCondition.__class,
+        HasBuffCondition.__class,
+        HasBuffsCondition.__class,
+        NotCondition.__class
+    }
+    local conditions_to_serialize = self.conditions:filter(function(condition) return conditions_classes_to_serialize:contains(condition.__class)  end)
+    return "Spell.new(" .. serializer_util.serialize_args(self.spell_name, self.job_abilities, self.job_names, self.target, conditions_to_serialize, self.consumable) .. ")"
 end
 
 function Spell:__tostring()

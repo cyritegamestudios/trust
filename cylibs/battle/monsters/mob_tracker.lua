@@ -92,7 +92,7 @@ function MobTracker:monitor()
         if id == 0x00E then
             local p = packets.parse('incoming', data)
             local status = res.statuses[p['Status']]
-            if status and L{'Dead','Engaged', 'Engaged dead'}:contains(status.name) then
+            if status and L{'Dead','Engaged', 'Engaged dead'}:contains(status.en) then
                 local mob_id = monster_util.id_for_index(p['Index'])
                 if mob_id then
                     local mob = self:get_mob(mob_id)

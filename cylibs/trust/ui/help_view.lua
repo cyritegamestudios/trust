@@ -68,7 +68,7 @@ end
 function HelpView:getJobWikiPageSuffix(job_name_short)
     local job = res.jobs:with('ens', job_name_short)
     if job then
-        local url_suffix = job.name:gsub(" ", "-")
+        local url_suffix = job.en:gsub(" ", "-")
         return url_suffix
     end
     return 'Trusts'

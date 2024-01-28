@@ -9,17 +9,21 @@ SummonerTrust.__index = SummonerTrust
 
 local Avatar = require('cylibs/entity/avatar')
 
+local MagicBurster = require('cylibs/trust/roles/magic_burster')
 local ManaRestorer = require('cylibs/trust/roles/mana_restorer')
+local Summoner = require('cylibs/entity/jobs/SMN')
 
 state.AutoAssaultMode = M{['description'] = 'Auto Assault Mode', 'Off', 'Auto'}
 state.AutoAvatarMode = M{['description'] = 'Avatar Mode', 'Off', 'Ifrit', 'Ramuh', 'Shiva'}
 
 function SummonerTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local roles = S{
+		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, Summoner.new(), true),
 		ManaRestorer.new(action_queue, L{'Myrkr', 'Spirit Taker'}, 40),
 	}
 
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, Summoner.new()), SummonerTrust)
+
 	self.settings = settings
 	self.action_queue = action_queue
 	self.party_buffs = trust_settings.PartyBuffs or L{}
@@ -37,7 +41,7 @@ function SummonerTrust:on_init()
 		self:update_avatar(pet_util.get_pet().id, pet_util.get_pet().name)
 	end
 
-	self:get_player():on_pet_change():addAction(
+	self:get_party():get_player():on_pet_change():addAction(
 			function (_, pet_id, pet_name)
 				self:update_avatar(pet_id, pet_name)
 			end)
@@ -152,10 +156,24 @@ function SummonerTrust:update_avatar(pet_id, pet_name)
 		self.avatar:destroy()
 		self.avatar = nil
 	end
-
-	if pet_id and L{'Shiva','Ramuh','Ifrit','Carbuncle','Fenrir','Diablos','Garuda','Leviathan','Titan','Siren','Earth Spirit'}:contains(pet_name) then
+	if pet_id and L{
+		'Shiva','Ramuh','Ifrit','Carbuncle','Fenrir',
+		'Diabolos','Garuda','Leviathan','Titan','Siren',
+		'Cait Sith','Fire Spirit','Ice Spirit','Air Spirit',
+		'Earth Spirit','Thunder Spirit','Water Spirit',
+		'Light Spirit','Dark Spirit'
+	}:contains(pet_name) then
 		self.avatar = Avatar.new(pet_id, self.action_queue)
 		self.avatar:monitor()
+	end
+
+	local magic_burster = self:role_with_type("magicburster")
+	if magic_burster then
+		magic_burster:set_nuke_settings(self:get_trust_settings().NukeSettings)
+	end
+	local skillchainer = self:role_with_type("skillchainer")
+	if skillchainer then
+		skillchainer:update_abilities()
 	end
 end
 

@@ -236,6 +236,10 @@ function Player:get_name()
     return windower.ffxi.get_mob_by_id(self.id).name
 end
 
+function Player:get_main_weapon()
+    return self.main_weapon
+end
+
 -------
 -- Returns whether the player is currently moving.
 -- @treturn boolean True if the player is moving, false otherwise.
@@ -247,7 +251,7 @@ end
 -- Returns whether the player is currently engaged.
 -- @treturn boolean True if the player is engaged, false otherwise.
 function Player:is_engaged()
-    return res.statuses[windower.ffxi.get_player().status].name == 'Engaged'
+    return res.statuses[windower.ffxi.get_player().status].en == 'Engaged'
 end
 
 return Player

@@ -71,10 +71,12 @@ function MenuView:setItem(menuItem)
         menuArgs = currentView and type(currentView.getMenuArgs) == 'function' and currentView:getMenuArgs()
     end
 
-    while self.views:contains(self.viewStack:getCurrentView()) do
-        self.viewStack:dismiss()
+    if not menuItem.keepViews then
+        while self.views:contains(self.viewStack:getCurrentView()) do
+            self.viewStack:dismiss()
+        end
+        self.views = L{}
     end
-    self.views = L{}
 
     self.menuItem = menuItem
 

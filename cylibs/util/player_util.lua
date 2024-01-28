@@ -221,7 +221,7 @@ end
 -- bloats the addon size. Figure out another way to do this with packets.
 function player_util.has_item(item_name, quantity)
 	quantity = quantity or 1
-	local item = res.items:with('name', item_name)
+	local item = res.items:with('en', item_name)
 	if item then
 		local items = windower.ffxi.get_items(0)
 		for _, item_info in ipairs(items) do

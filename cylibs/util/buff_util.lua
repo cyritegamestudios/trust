@@ -140,7 +140,7 @@ end
 -- @tparam string buff_id Buff id (see buffs.lua)
 -- @treturn string Buff name (see buffs.lua)
 function buff_util.buff_name(buff_id)
-	return res.buffs:with('id', buff_id).name
+	return res.buffs:with('id', buff_id).en
 end
 
 -------
@@ -262,6 +262,18 @@ function buff_util.buff_for_job_ability(job_ability_id)
 end
 
 -------
+-- Returns the full metadata for the job ability that gives a the specified buff.
+-- @tparam number buff_id Id Buff id
+-- @treturn JobAbilityMetadata Full metadata for the job ability (see job_abilities.lua)
+function buff_util.job_ability_for_buff(buff_id)
+	local job_ability = res.job_abilities:with('status', buff_id)
+	if job_ability == nil then
+		job_ability = job_abilities_ext:with('status', buff_id)
+	end
+	return job_ability
+end
+
+-------
 -- Cancels the buff with the given buff_id.
 -- @tparam number buff_id Buff id (see buffs.lua)
 function buff_util.cancel_buff(buff_id)
@@ -282,6 +294,14 @@ end
 -- @treturn Bool True if the player has ionis active and false otherwise.
 function buff_util.is_ionis_active()
 	return buff_util.is_buff_active(512)
+end
+
+-------
+-- Determines if aftermath is active.
+-- @tparam buff_ids (optional) Buff ids, defaults to player's buff ids if none specified
+-- @treturn Bool True if any aftermath is active
+function buff_util.is_aftermath_active(buff_ids)
+	return buff_util.is_any_buff_active(L{ 270, 271, 272, 273 }, buff_ids)
 end
 
 -------

@@ -90,7 +90,7 @@ function Debuffer:cast_spell(spell, target_index)
             return
         end
 
-        logger.notice(self.__class, 'cast_spell', spell:get_spell().name, target_index)
+        logger.notice(self.__class, 'cast_spell', spell:get_spell().en, target_index)
 
         local actions = L{}
 

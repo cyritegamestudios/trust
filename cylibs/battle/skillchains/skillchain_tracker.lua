@@ -76,12 +76,12 @@ function SkillchainTracker:on_action(action)
     if not action_message_util.is_skillchainable_action_category(action_packet:get_category_string()) or action.param == 0 then
         return
     end
-    local party_member = self.party:get_party_member(action_packet:get_id())
-    if party_member then
+    local actor = self.party:get_party_member(action_packet:get_id())
+    if actor then
         for target in action_packet:get_targets() do
             for action in target:get_actions() do
                 if action_message_util.is_weapon_skill_message(action:get_message_id()) then
-                    self:apply_properties(party_member, target.id, action)
+                    self:apply_properties(actor, target.id, action)
                 end
             end
         end
@@ -90,15 +90,15 @@ end
 
 -------
 -- Creates the next skillchain step or resets the skillchain based on the action performed.
--- @tparam PartyMember party_member Party member performing the action
+-- @tparam PartyMember party_member Party member (or party member's pet) performing the action
 -- @tparam number target_id Target of the action
 -- @tparam T action Action being performed
 function SkillchainTracker:apply_properties(party_member, target_id, action)
     local _, resource, action_id, _, _ = action:get_spell()
 
-    local ability = SkillchainAbility.new(resource, action_id, party_member) -- e.g. Weapon Skill, Spell, Chain Bound, etc.
+    local ability = SkillchainAbility.new(resource, action_id, L{}, party_member) -- e.g. Weapon Skill, Spell, Chain Bound, etc.
     if ability then
-        logger.notice(self.__class, 'apply_properties', 'checking action', ability.en, target_id)
+        logger.notice(self.__class, 'apply_properties', 'checking action', ability:get_name(), target_id)
 
         local step_num = 1
 
@@ -119,7 +119,7 @@ function SkillchainTracker:apply_properties(party_member, target_id, action)
             end
         end
 
-        local next_step = SkillchainStep.new(step_num, ability, skillchain, ability:get_delay(), os.clock() + ability:get_delay() + 8 - step_num)
+        local next_step = SkillchainStep.new(step_num, ability, skillchain, ability:get_delay(), os.clock() + ability:get_delay() + 8 - step_num, os.clock())
         self:add_step(target_id, next_step)
     end
 end
@@ -148,6 +148,25 @@ end
 function SkillchainTracker:add_step(mob_id, step)
     logger.notice(self.__class, 'add_step', mob_id, tostring(step))
 
+    local old_step = self:get_current_step(mob_id)
+    if old_step then
+        local old_properties = L{}
+        if old_step:get_skillchain() then
+            old_properties:append(old_step:get_skillchain())
+        else
+            old_properties = old_properties:extend(old_step:get_ability():get_skillchain_properties())
+        end
+        for old_property in old_properties:it() do
+            for new_property in step:get_ability():get_skillchain_properties():it() do
+                local skillchain = skillchain_util[old_property:get_name()][new_property:get_name()]
+                if skillchain and skillchain:get_level() > 3 then
+                    logger.notice(self.__class, 'add_step', 'upgrading', step:get_skillchain():get_name(), 'to', skillchain:get_name())
+                    step:set_skillchain(skillchain)
+                end
+            end
+        end
+    end
+
     local steps = self.steps[mob_id] or L{}
     steps:append(step)
 
@@ -175,6 +194,14 @@ function SkillchainTracker:get_current_step(mob_id)
         return steps[steps:length()]
     end
     return nil
+end
+
+-- Returns whether the skillchain window is open on a target.
+-- @tparam number mob_id Mob id
+-- @treturn boolean True if skillchain window is open, false otherwise
+function SkillchainTracker:is_skillchain_window_open(mob_id)
+    local current_step = self:get_current_step(mob_id)
+    return current_step and os.clock() < current_step:get_expiration_time()
 end
 
 return SkillchainTracker

@@ -84,4 +84,38 @@ function battle_util.is_mob_target(mob_index, target_index)
     return false
 end
 
+local range_mult = {
+    [2] = 1.55,
+    [3] = 1.490909,
+    [4] = 1.44,
+    [5] = 1.377778,
+    [6] = 1.30,
+    [7] = 1.15,
+    [8] = 1.25,
+    [9] = 1.377778,
+    [10] = 1.45,
+    [11] = 1.454545454545455,
+    [12] = 1.666666666666667,
+}
+
+local weapon_skill_to_distance = {}
+
+function battle_util.get_weapon_skill_distance(weapon_skill_name, target_index)
+    local distance = 999
+    local target = windower.ffxi.get_mob_by_index(target_index)
+    if target then
+        if weapon_skill_to_distance[weapon_skill_name..target.model_size] then
+            return weapon_skill_to_distance[weapon_skill_name..target.model_size]
+        else
+            local weapon_skill = res.weapon_skills:with('en', weapon_skill_name)
+            if weapon_skill and not weapon_skill.targets:contains('Self') then
+                local player = windower.ffxi.get_mob_by_id(windower.ffxi.get_player().id)
+                distance = target.model_size + weapon_skill.range * range_mult[weapon_skill.range] + player.model_size
+                weapon_skill_to_distance[weapon_skill_name..target.model_size] = distance
+            end
+        end
+    end
+    return distance
+end
+
 return battle_util

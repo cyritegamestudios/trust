@@ -11,6 +11,7 @@ local Condition = require('cylibs/conditions/condition')
 local HasBuffCondition = setmetatable({}, { __index = Condition })
 HasBuffCondition.__index = HasBuffCondition
 HasBuffCondition.__type = "HasBuffCondition"
+HasBuffCondition.__class = "HasBuffCondition"
 
 function HasBuffCondition.new(buff_name, target_index)
     local self = setmetatable(Condition.new(target_index), HasBuffCondition)

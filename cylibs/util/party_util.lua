@@ -167,7 +167,9 @@ function party_util.not_party_claimed(target_id)
     local target = windower.ffxi.get_mob_by_id(target_id)
     if target ~= nil and target.claim_id ~= nil and target.claim_id ~= 0 then
         local claimed_by = windower.ffxi.get_mob_by_id(target.claim_id)
-        return not party_util.is_party_member(claimed_by.id)
+        if claimed_by then
+            return not party_util.is_party_member(claimed_by.id)
+        end
     end
     return false
 end

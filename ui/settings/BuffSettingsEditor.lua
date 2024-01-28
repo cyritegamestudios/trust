@@ -44,7 +44,7 @@ function BuffSettingsEditor.new(trustSettings, buffs, targets)
     self:setScrollDelta(20)
 
     self.trustSettings = trustSettings
-    self.buffs = buffs
+    self.buffs = buffs or L{}
     self.targets = targets
     self.menuArgs = {}
 
@@ -74,7 +74,6 @@ function BuffSettingsEditor:onRemoveSpellClick()
             self:getDataSource():removeItem(indexPath)
             self.trustSettings:saveSettings(true)
         end
-
     end
 end
 
@@ -112,7 +111,7 @@ function BuffSettingsEditor:reloadSettings()
 
     local rowIndex = 1
     for spell in self.buffs:it() do
-        items:append(IndexedItem.new(TextItem.new(spell:get_spell().name, TextStyle.Default.TextSmall), IndexPath.new(1, rowIndex)))
+        items:append(IndexedItem.new(TextItem.new(spell:get_spell().en, TextStyle.Default.TextSmall), IndexPath.new(1, rowIndex)))
         rowIndex = rowIndex + 1
     end
 
