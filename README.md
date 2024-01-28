@@ -8,12 +8,13 @@ Trust is a Windower 4 addon for FFXI that turns your character into a Trust. It 
 ![menu_2 2](https://github.com/cyritegamestudios/trust/assets/123847593/18c15caa-b88e-4534-80a6-64684916c065)
 
 
-
 --------------------------------------------------------------------------------
 
 ## Support
-
 Get help or request a feature in the [Cyrite Game Studios Discord](https://discord.gg/CfPxDy759J). Do NOT ask questions about Trust in game.
+
+## Donate :star:
+Trust is completely free and maintained as a hobby project. If you enjoy using Trust and would like to show your support, consider [**donating**](https://www.buymeacoffee.com/cyrite) to keep it going!
 
 ## Setup
 See the [Setup Guide](https://github.com/cyritegamestudios/trust/wiki/Getting-Started#setup) or read below:
@@ -43,12 +44,9 @@ Trust also requires the following addons, which can be installed through [Window
 
 6. Override [job settings](https://github.com/cyritegamestudios/trust/wiki/Job-Settings) to customize what your trust does.
 
-### Commands
-See [Windower Commands](https://github.com/cyritegamestudios/trust/wiki/Commands), [Shortcuts](https://github.com/cyritegamestudios/trust/wiki/Shortcuts)
-
 ## User Guide
 
-**NEW!** Trust documentation is now available at the [**Wiki**](https://github.com/cyritegamestudios/trust/wiki).
+Trust documentation is now available at the [**Wiki**](https://github.com/cyritegamestudios/trust/wiki).
 
 * [**Getting Started**](https://github.com/cyritegamestudios/trust/wiki/Getting-Started)
     * [**Menu**](https://github.com/cyritegamestudios/trust/wiki/Menu)
@@ -60,39 +58,40 @@ See [Windower Commands](https://github.com/cyritegamestudios/trust/wiki/Commands
     * [**Job Settings**](https://github.com/cyritegamestudios/trust/wiki/Job-Settings)
     * [**Conditions**](https://github.com/cyritegamestudios/trust/wiki/Conditions)
 * [**Modes**](https://github.com/cyritegamestudios/trust/wiki/Modes)
-  * [AutoEngageMode](https://github.com/cyritegamestudios/trust/wiki/AutoEngageMode)
-  * [AutoBuffMode](https://github.com/cyritegamestudios/trust/wiki/AutoBuffMode)
-  * [AutoFaceMobMode](https://github.com/cyritegamestudios/trust/wiki/AutoFaceMobMode)
-  * [AutoDebuffMode](https://github.com/cyritegamestudios/trust/wiki/AutoDebuffMode)
-  * [AutoSilenceMode](https://github.com/cyritegamestudios/trust/wiki/AutoSilenceMode)
-  * [AutoSleepMode](https://github.com/cyritegamestudios/trust/wiki/AutoSleepMode)
-  * [AutoDispelMode](https://github.com/cyritegamestudios/trust/wiki/AutoDispelMode)
-  * [AutoEnableMode](https://github.com/cyritegamestudios/trust/wiki/AutoEnableMode)
-  * [AutoFoodMode](https://github.com/cyritegamestudios/trust/wiki/AutoFoodMode)
-  * [AutoAvoidAggroMode](https://github.com/cyritegamestudios/trust/wiki/AutoAvoidAggroMode)
-  * [AutoFollowMode](https://github.com/cyritegamestudios/trust/wiki/AutoFollowMode)
-  * [AutoHealMode](https://github.com/cyritegamestudios/trust/wiki/AutoHealMode)
-  * [AutoDetectAuraMode](https://github.com/cyritegamestudios/trust/wiki/AutoDetectAuraMode)
-  * [AutoMagicBurstMode](https://github.com/cyritegamestudios/trust/wiki/AutoMagicBurstMode)
-  * [AutoNukeMode](https://github.com/cyritegamestudios/trust/wiki/AutoNukeMode)
-  * [AutoPianissimoMode](https://github.com/cyritegamestudios/trust/wiki/AutoPianissimoMode)
-  * [AutoPullMode](https://github.com/cyritegamestudios/trust/wiki/AutoPullMode)
-  * [AutoRaiseMode](https://github.com/cyritegamestudios/trust/wiki/AutoRaiseMode)
-  * [AutoRestoreManaMode](https://github.com/cyritegamestudios/trust/wiki/AutoRestoreManaMode)
-  * [AutoRollMode](https://github.com/cyritegamestudios/trust/wiki/AutoRollMode)
-  * [AutoShootMode](https://github.com/cyritegamestudios/trust/wiki/AutoShootMode)
-  * [AutoSongMode](https://github.com/cyritegamestudios/trust/wiki/AutoSongMode)
-  * [AutoSkillchainMode](https://github.com/cyritegamestudios/trust/wiki/AutoSkillchainMode)
-  * [AutoStatusRemovalMode](https://github.com/cyritegamestudios/trust/wiki/AutoStatusRemovalMode)
-  * [AutoAftermathMode](https://github.com/cyritegamestudios/trust/wiki/AutoAftermathMode)
-  * [AutoTankMode](https://github.com/cyritegamestudios/trust/wiki/AutoTankMode)
-  * [AutoTargetMode](https://github.com/cyritegamestudios/trust/wiki/AutoTargetMode)
-  * [AutoTrustsMode](https://github.com/cyritegamestudios/trust/wiki/AutoTrustsMode)
-  * [CombatMode](https://github.com/cyritegamestudios/trust/wiki/AutoCombatMode)
-  * [FlankMode](https://github.com/cyritegamestudios/trust/wiki/FlankMode)
-  * [IpcMode](https://github.com/cyritegamestudios/trust/wiki/IpcMode)
-  * [SkillchainPartnerMode](https://github.com/cyritegamestudios/trust/wiki/SkillchainPartnerMode)
-  * [SkillchainPriorityMode](https://github.com/cyritegamestudios/trust/wiki/SkillchainPriorityMode)
+  - [AutoAftermathMode](https://github.com/cyritegamestudios/trust/wiki/AutoAftermathMode)
+  - [AutoAvoidAggroMode](https://github.com/cyritegamestudios/trust/wiki/AutoAvoidAggroMode)
+  - [AutoBarspellMode](https://github.com/cyritegamestudios/trust/wiki/AutoBarspellMode)
+  - [AutoBuffMode](https://github.com/cyritegamestudios/trust/wiki/AutoBuffMode)
+  - [AutoClarionCallMode](https://github.com/cyritegamestudios/trust/wiki/AutoClarionCallMode)
+  - [AutoCombatMode](https://github.com/cyritegamestudios/trust/wiki/AutoCombatMode)
+  - [AutoDebuffMode](https://github.com/cyritegamestudios/trust/wiki/AutoDebuffMode)
+  - [AutoDetectAuraMode](https://github.com/cyritegamestudios/trust/wiki/AutoDetectAuraMode)
+  - [AutoDispelMode](https://github.com/cyritegamestudios/trust/wiki/AutoDispelMode)
+  - [AutoEnableMode](https://github.com/cyritegamestudios/trust/wiki/AutoEnableMode)
+  - [AutoFaceMobMode](https://github.com/cyritegamestudios/trust/wiki/AutoFaceMobMode)
+  - [AutoFollowMode](https://github.com/cyritegamestudios/trust/wiki/AutoFollowMode)
+  - [AutoFoodMode](https://github.com/cyritegamestudios/trust/wiki/AutoFoodMode)
+  - [AutoHealMode](https://github.com/cyritegamestudios/trust/wiki/AutoHealMode)
+  - [AutoMagicBurstMode](https://github.com/cyritegamestudios/trust/wiki/AutoMagicBurstMode)
+  - [AutoNitroMode](https://github.com/cyritegamestudios/trust/wiki/AutoNitroMode)
+  - [AutoNukeMode](https://github.com/cyritegamestudios/trust/wiki/AutoNukeMode)
+  - [AutoPianissimoMode](https://github.com/cyritegamestudios/trust/wiki/AutoPianissimoMode)
+  - [AutoPullMode](https://github.com/cyritegamestudios/trust/wiki/AutoPullMode)
+  - [AutoRaiseMode](https://github.com/cyritegamestudios/trust/wiki/AutoRaiseMode)
+  - [AutoRestoreManaMode](https://github.com/cyritegamestudios/trust/wiki/AutoRestoreManaMode)
+  - [AutoRollMode](https://github.com/cyritegamestudios/trust/wiki/AutoRollMode)
+  - [AutoShootMode](https://github.com/cyritegamestudios/trust/wiki/AutoShootMode)
+  - [AutoSilenceMode](https://github.com/cyritegamestudios/trust/wiki/AutoSilenceMode)
+  - [AutoSkillchainMode](https://github.com/cyritegamestudios/trust/wiki/AutoSkillchainMode)
+  - [AutoSongMode](https://github.com/cyritegamestudios/trust/wiki/AutoSongMode)
+  - [AutoStatusRemovalMode](https://github.com/cyritegamestudios/trust/wiki/AutoStatusRemovalMode)
+  - [AutoTankMode](https://github.com/cyritegamestudios/trust/wiki/AutoTankMode)
+  - [AutoTargetMode](https://github.com/cyritegamestudios/trust/wiki/AutoTargetMode)
+  - [AutoTrustsMode](https://github.com/cyritegamestudios/trust/wiki/AutoTrustsMode)
+  - [CombatMode](https://github.com/cyritegamestudios/trust/wiki/AutoCombatMode)
+  - [FlankMode](https://github.com/cyritegamestudios/trust/wiki/FlankMode)
+  - [IpcMode](https://github.com/cyritegamestudios/trust/wiki/IpcMode)
+  - [MagicBurstTargetMode](https://github.com/cyritegamestudios/trust/wiki/MagicBurstTargetMode)
 * [**Trusts**](https://github.com/cyritegamestudios/trust/wiki/Trusts)
     * [Bard](https://github.com/cyritegamestudios/trust/wiki/Bard)
     * [Beastmaster](https://github.com/cyritegamestudios/trust/wiki/Beastmaster)
@@ -117,7 +116,9 @@ See [Windower Commands](https://github.com/cyritegamestudios/trust/wiki/Commands
     * [Warrior](https://github.com/cyritegamestudios/trust/wiki/Warrior)
     * [White Mage](https://github.com/cyritegamestudios/trust/wiki/White-Mage)
 * [**Roles**](https://github.com/cyritegamestudios/trust/wiki/Roles)
+    * [Aftermather](https://github.com/cyritegamestudios/trust/wiki/Aftermather)
     * [Attacker](https://github.com/cyritegamestudios/trust/wiki/Attacker)
+    * [Barspeller](https://github.com/cyritegamestudios/trust/wiki/Barspeller)
     * [BloodPacter](https://github.com/cyritegamestudios/trust/wiki/BloodPacter)
     * [Buffer](https://github.com/cyritegamestudios/trust/wiki/Buffer)
     * [CombatMode](https://github.com/cyritegamestudios/trust/wiki/CombatMode)
@@ -127,6 +128,7 @@ See [Windower Commands](https://github.com/cyritegamestudios/trust/wiki/Commands
     * [Evader](https://github.com/cyritegamestudios/trust/wiki/Evader)
     * [Follower](https://github.com/cyritegamestudios/trust/wiki/Follower)
     * [Healer](https://github.com/cyritegamestudios/trust/wiki/Healer)
+    * [MagicBurster](https://github.com/cyritegamestudios/trust/wiki/MagicBurster)
     * [Nuker](https://github.com/cyritegamestudios/trust/wiki/Nuker)
     * [Puller](https://github.com/cyritegamestudios/trust/wiki/Puller)
     * [Raiser](https://github.com/cyritegamestudios/trust/wiki/Raiser)
