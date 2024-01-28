@@ -109,7 +109,6 @@ function TrustSettings:saveSettings(saveToFile)
 end
 
 function TrustSettings:copySettings(override)
-
     local filePath = self.settingsFolder..self.jobNameShort..'_'..windower.ffxi.get_player().name..'.lua'
     local playerSettings = FileIO.new(filePath)
     if not playerSettings:exists() or override then
@@ -147,7 +146,7 @@ function TrustSettings.migrateSettings(jobNameShort, legacySettings, isPlayer)
     file:write('-- Settings file for '..jobNameShort ..'\nreturn ' .. T(newSettings):tovstring())
 end
 
-function TrustSettings:getSettings(settingsName)
+function TrustSettings:getSettings()
     return self.settings
 end
 

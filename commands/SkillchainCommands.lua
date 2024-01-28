@@ -61,10 +61,8 @@ function SkillchainTrustCommands:handle_toggle_mode(mode_var_name, on_value, off
 
     local mode_var = get_state(mode_var_name)
     if not force_on and mode_var.value == on_value then
-        --state[mode_var_name]:set(off_value)
         handle_set(mode_var_name, off_value)
     else
-        --state[mode_var_name]:set(on_value)
         handle_set(mode_var_name, on_value)
     end
 

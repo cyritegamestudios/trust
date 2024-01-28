@@ -229,7 +229,6 @@ skillchain_util.colors.Detonation =    skillchain_util.colors.Wind
 skillchain_util.colors.Liquefaction =  skillchain_util.colors.Fire
 skillchain_util.colors.Impaction =     skillchain_util.colors.Lightning
 
-
 function skillchain_util.color_for_element(element_name)
     return skillchain_util.colors[element_name] or skillchain_util.colors[(element_name:gsub("^%l", string.upper))]
 end

@@ -133,8 +133,8 @@ function SkillchainAbility:to_action(target_index, player)
 
     for buff_id in self:get_buffs():it() do
         local job_ability = buff_util.job_ability_for_buff(buff_id)
-        if job_ability and job_util.can_use_job_ability(job_ability.name) then
-            actions:append(JobAbilityAction.new(0, 0, 0, job_ability.name))
+        if job_ability and job_util.can_use_job_ability(job_ability.en) then
+            actions:append(JobAbilityAction.new(0, 0, 0, job_ability.en))
             actions:append(WaitAction.new(0, 0, 0, 2))
             break
         end

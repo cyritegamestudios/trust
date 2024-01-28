@@ -28,7 +28,7 @@ function MinTacticalPointsCondition:tostring()
 end
 
 function MinTacticalPointsCondition:serialize()
-    return "MinTacticalPointsCondition.new(" .. serializer_util.serialize_args(self.min_mp) .. ")"
+    return "MinTacticalPointsCondition.new(" .. serializer_util.serialize_args(self.min_tp) .. ")"
 end
 
 function MinTacticalPointsCondition:__eq(otherItem)
