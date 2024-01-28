@@ -86,6 +86,18 @@ function job_util.knows_weapon_skill(weapon_skill_name)
 end
 
 -------
+-- Returns the id for a weapon skill.
+-- @tparam string weapon_skill_name Weapon skill name (see weapon_skills.lua)
+-- @treturn number Weapon skill id, or nil if the weapon skill doesn't exist
+function job_util.weapon_skill_id(weapon_skill_name)
+    local weapon_skill = res.weapon_skills:with('en', weapon_skill_name)
+    if weapon_skill then
+        return weapon_skill.id
+    end
+    return nil
+end
+
+-------
 -- Returns the job ability id for the given localized job ability name.
 -- @tparam string job_ability_name Localized job ability name
 -- @treturn number Job ability id (see job_abilities.lua)

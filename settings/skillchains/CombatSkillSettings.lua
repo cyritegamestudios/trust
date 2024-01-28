@@ -7,11 +7,12 @@ CombatSkillSettings.__index = CombatSkillSettings
 CombatSkillSettings.__type = "CombatSkillSettings"
 
 
-function CombatSkillSettings.new(combatSkillName, blacklist)
+function CombatSkillSettings.new(combatSkillName, blacklist, defaultWeaponSkillName)
     local self = setmetatable({}, CombatSkillSettings)
     self.combatSkillName = combatSkillName
     self.combatSkillId = res.skills:with('en', self.combatSkillName).id
     self.blacklist = blacklist
+    self.defaultWeaponSkillId = job_util.weapon_skill_id(defaultWeaponSkillName)
     return self
 end
 
@@ -47,7 +48,8 @@ function CombatSkillSettings:get_ability(ability_name)
 end
 
 function CombatSkillSettings:get_default_ability()
-    local highest_weapon_skill_id = L(windower.ffxi.get_abilities().weapon_skills):filter(
+    local all_weapon_skill_ids = L(windower.ffxi.get_abilities().weapon_skills):extend(L{ self.defaultWeaponSkillId }):compact_map()
+    local highest_weapon_skill_id = all_weapon_skill_ids:filter(
             function(weapon_skill_id)
                 local weapon_skill = res.weapon_skills[weapon_skill_id]
                 return not self.blacklist:contains(weapon_skill.en)
