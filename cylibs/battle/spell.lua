@@ -254,4 +254,8 @@ function Spell:__tostring()
     return self:description()
 end
 
+function Spell:__tostring()
+    return self:description()
+end
+
 return Spell

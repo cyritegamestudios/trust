@@ -251,6 +251,10 @@ function TrustHud:getViewStack()
     return self.viewStack
 end
 
+function TrustHud:getViewStack()
+    return self.viewStack
+end
+
 function TrustHud:toggleMenu()
     self.trustMenu:closeAll()
 
@@ -597,6 +601,56 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
                 local allSpells = spell_util.get_spells(function(spell)
                     return spell.levels[jobId] ~= nil and spell.type == 'BlackMagic' and S{ 'Enemy' }:intersection(S(spell.targets)):length() > 0
                 end):map(function(spell) return spell.en end):sort()
+
+                local sortSpells = function(spells)
+                    spell_util.sort_by_element(spells, true)
+                end
+
+                local chooseSpellsView = setupView(SpellPickerView.new(trustSettings, spellSettings, allSpells, L{}, true, sortSpells), viewSize)
+                chooseSpellsView:setTitle("Choose spells to nuke with.")
+                return chooseSpellsView
+            end)
+
+    local nukeElementBlacklistItem = MenuItem.new(L{
+        ButtonItem.default('Confirm', 18),
+        ButtonItem.default('Clear', 18),
+    }, {},
+            function()
+                local nukeSettings = T(trustSettings:getSettings())[trustSettingsMode.value].NukeSettings
+                if not nukeSettings.Blacklist then
+                    nukeSettings.Blacklist = L{}
+                end
+                local blacklistPickerView = setupView(ElementPickerView.new(trustSettings, nukeSettings.Blacklist), viewSize)
+                blacklistPickerView:setTitle('Choose elements to avoid when magic bursting or free nuking.')
+                blacklistPickerView:setShouldRequestFocus(true)
+                return blacklistPickerView
+            end)
+
+    local nukeSettingsItem = MenuItem.new(L{
+        ButtonItem.default('Edit', 18),
+        ButtonItem.default('Blacklist', 18),
+        ButtonItem.default('Help', 18),
+    }, {
+        Edit = chooseNukesItem,
+        Blacklist = nukeElementBlacklistItem,
+    },
+    function()
+        local nukeSettingsView = setupView(NukeSettingsEditor.new(trustSettings, trustSettingsMode), viewSize)
+        nukeSettingsView:setShouldRequestFocus(true)
+        return nukeSettingsView
+    end)
+
+    -- Nukes
+    local chooseNukesItem = MenuItem.new(L{
+        ButtonItem.default('Confirm', 18),
+    }, {},
+            function(args)
+                local spellSettings = args['spells']
+
+                local jobId = res.jobs:with('ens', jobNameShort).id
+                local allSpells = spell_util.get_spells(function(spell)
+                    return spell.levels[jobId] ~= nil and spell.type == 'BlackMagic' and S{ 'Enemy' }:intersection(S(spell.targets)):length() > 0
+                end):map(function(spell) return spell.name end):sort()
 
                 local sortSpells = function(spells)
                     spell_util.sort_by_element(spells, true)
