@@ -87,6 +87,12 @@ function Skillchainer:on_add()
 
     self:update_abilities()
 
+    self.dispose_bag:add(self.action_queue:on_action_start():addAction(function(_, a)
+        if a:getidentifier() == self.action_identifier then
+            self.is_performing_ability = true
+        end
+    end), self.action_queue:on_action_start())
+
     self.dispose_bag:add(self.action_queue:on_action_end():addAction(function(a, success)
         if a:getidentifier() == self.action_identifier then
             self.is_performing_ability = false
@@ -184,6 +190,12 @@ function Skillchainer:on_skillchain_mode_changed(_, new_value)
     end
 end
 
+function Skillchainer:target_change(target_index)
+    Role.target_change(self, target_index)
+
+    self.is_performing_ability = false
+end
+
 function Skillchainer:check_skillchain()
     if state.AutoSkillchainMode.value == 'Off' or self.is_performing_ability or not self.enabled or not self:get_player():is_engaged()
             or os.time() - self.last_check_skillchain_time < 1 then
@@ -193,6 +205,7 @@ function Skillchainer:check_skillchain()
 
     local target = self:get_target()
     if target == nil then
+        logger.notice(self.__class, 'check_skillchain', 'target is nil')
         return
     end
 
@@ -291,16 +304,17 @@ end
 function Skillchainer:perform_ability(ability)
     local target = self:get_target()
     if not self.action_queue.is_enabled or target == nil then
+        logger.notice(self.__class, 'perform_ability', ability:get_name(), not self.action_queue.is_enabled, target ~= nil)
         return false
     end
 
     local ability_action = ability:to_action(target:get_mob().index, self:get_player())
     if ability_action then
-        self.is_performing_ability = true
-
         ability_action.identifier = self.action_identifier
         ability_action.max_duration = 10
         ability_action.priority = ActionPriority.highest
+
+        logger.notice(self.__class, 'perform_ability', ability:get_name(), 'push_action')
 
         self.action_queue:push_action(ability_action, true)
     end

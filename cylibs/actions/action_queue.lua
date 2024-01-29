@@ -89,7 +89,7 @@ function ActionQueue:perform_next_action()
 		end
 		self.current_action = next_action
 		if self.verbose then
-			self:on_action_start():trigger(self, next_action:tostring())
+			self:on_action_start():trigger(self, next_action)
 		end
 		--print(tostring(self.identifier)..' '..next_action:gettype()..' '..(next_action:getidentifier() or 'nil')..' start')
 

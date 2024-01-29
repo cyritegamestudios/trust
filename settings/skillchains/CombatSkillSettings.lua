@@ -12,6 +12,7 @@ function CombatSkillSettings.new(combatSkillName, blacklist, defaultWeaponSkillN
     self.combatSkillName = combatSkillName
     self.combatSkillId = res.skills:with('en', self.combatSkillName).id
     self.blacklist = blacklist
+    self.defaultWeaponSkillName = defaultWeaponSkillName
     self.defaultWeaponSkillId = job_util.weapon_skill_id(defaultWeaponSkillName)
     return self
 end
@@ -65,7 +66,7 @@ function CombatSkillSettings:get_name()
 end
 
 function CombatSkillSettings:serialize()
-    return "CombatSkillSettings.new(" .. serializer_util.serialize_args(self.combatSkillName, self.blacklist) .. ")"
+    return "CombatSkillSettings.new(" .. serializer_util.serialize_args(self.combatSkillName, self.blacklist, self.defaultWeaponSkillName) .. ")"
 end
 
 return CombatSkillSettings

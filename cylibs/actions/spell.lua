@@ -87,7 +87,11 @@ function SpellAction:perform()
 	local target = windower.ffxi.get_mob_by_index(self.target_index)
 	local spell = res.spells[self.spell_id]
 
-	windower.chat.input("/ma %s ":format(spell.en)..target.id)
+	if windower.ffxi.get_info().language:lower() == 'japanese' then
+		windower.chat.input("/ma %s ":format(spell.en)..target.id)
+	else
+		windower.chat.input('/ma "%s"':format(spell.en)..target.id)
+	end
 end
 
 function SpellAction:getspellid()

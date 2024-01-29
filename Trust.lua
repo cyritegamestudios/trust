@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '8.5.1'
+_addon.version = '8.5.2'
 _addon.release_notes = [[
 Trusts now come fully equipped with a skillchain calculator and can
 make powerful skillchains of their own without any configuration!
@@ -56,6 +56,7 @@ default.hud = {}
 default.hud.position = {}
 default.hud.position.x = 0
 default.hud.position.y = 0
+default.hud.auto_hide = true
 default.logging = {}
 default.logging.enabled = false
 default.logging.logtofile = false
