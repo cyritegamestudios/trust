@@ -7,7 +7,8 @@ Trust is a Windower 4 addon for FFXI that turns your character into a Trust. It 
 ![menu_2 1](https://github.com/cyritegamestudios/trust/assets/123847593/6d9fc536-f025-4378-b1a1-fa99dd0b2184)
 ![menu_2 2](https://github.com/cyritegamestudios/trust/assets/123847593/18c15caa-b88e-4534-80a6-64684916c065)
 
-
+## Donate
+:star: Trust is a completely free addon maintained as a hobby project. If you're enjoying using Trust, consider [**donating**](https://www.buymeacoffee.com/cyrite) to show your support and keep it going! :star:
 
 --------------------------------------------------------------------------------
 
@@ -91,8 +92,7 @@ See [Windower Commands](https://github.com/cyritegamestudios/trust/wiki/Commands
   * [CombatMode](https://github.com/cyritegamestudios/trust/wiki/AutoCombatMode)
   * [FlankMode](https://github.com/cyritegamestudios/trust/wiki/FlankMode)
   * [IpcMode](https://github.com/cyritegamestudios/trust/wiki/IpcMode)
-  * [SkillchainPartnerMode](https://github.com/cyritegamestudios/trust/wiki/SkillchainPartnerMode)
-  * [SkillchainPriorityMode](https://github.com/cyritegamestudios/trust/wiki/SkillchainPriorityMode)
+  * [SkillchainPropertyMode](https://github.com/cyritegamestudios/trust/wiki/SkillchainPropertyMode)
 * [**Trusts**](https://github.com/cyritegamestudios/trust/wiki/Trusts)
     * [Bard](https://github.com/cyritegamestudios/trust/wiki/Bard)
     * [Beastmaster](https://github.com/cyritegamestudios/trust/wiki/Beastmaster)
