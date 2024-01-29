@@ -26,7 +26,7 @@ function ActionHud.new(actionQueue, hideBackground)
     self.actionQueue = actionQueue
 
     self:getDisposeBag():add(actionQueue:on_action_start():addAction(function(_, s)
-        self:setTitle(s or '')
+        self:setTitle(s:tostring() or '')
     end), actionQueue:on_action_start())
     self:getDisposeBag():add(actionQueue:on_action_end():addAction(function(_, s)
         self:setTitle('')

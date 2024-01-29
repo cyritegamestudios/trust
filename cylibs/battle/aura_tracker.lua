@@ -9,6 +9,7 @@ require('logger')
 
 local AuraTracker = {}
 AuraTracker.__index = AuraTracker
+AuraTracker.__class = "AuraTracker"
 
 -------
 -- Default initializer for a new damage memory tracker.
@@ -42,7 +43,7 @@ end
 function AuraTracker:tic(_, _)
     for target_id, target_record in pairs(self.status_effect_history) do
         for debuff_id, _ in pairs(target_record) do
-            print('checking '..debuff_id..' on '..target_id)
+            logger.notice(self.__class, 'tic', debuff_id, target_id)
             local party_member = self.party:get_party_member(target_id)
             if party_member and party_member:has_debuff(debuff_id) then
                 self:increment_aura_probability(debuff_id)
@@ -87,7 +88,7 @@ function AuraTracker:record_status_effect_removal(spell_id, target_id, debuff_id
 
         self.status_effect_history[target_id] = target_record
 
-        print('recording '..debuff_id..' on '..target_id)
+        logger.notice(self.__class, 'record_status_effect_removal', debuff_id, target_id)
     end
 end
 
@@ -99,7 +100,7 @@ function AuraTracker:increment_aura_probability(debuff_id)
 
     self.aura_probabilities[debuff_id] = math.min(current_probabilty + 25, 100)
 
-    print('current aura chance of '..debuff_id.. ' is '..self.aura_probabilities[debuff_id])
+    logger.notice(self.__class, 'increment_aura_probability', debuff_id, self.aura_probabilities[debuff_id])
 end
 
 -------
@@ -110,7 +111,7 @@ function AuraTracker:decrement_aura_probability(debuff_id)
 
     self.aura_probabilities[debuff_id] = math.max(current_probabilty - 25, 0)
 
-    print('current aura chance of '..debuff_id.. ' is '..self.aura_probabilities[debuff_id])
+    logger.notice(self.__class, 'decrement_aura_probability', debuff_id, self.aura_probabilities[debuff_id])
 end
 
 -------

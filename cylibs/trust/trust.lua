@@ -46,7 +46,7 @@ function Trust:init()
 				-- TODO: prune invalid actions instead of clear
 				--self.action_queue:clear()
 				self.target_index = new_target_index
-				self:job_target_change(new_target_index)
+				self:job_target_change(new_target_index, old_target_index)
 			end)
 end
 

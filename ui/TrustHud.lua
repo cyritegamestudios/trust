@@ -206,7 +206,9 @@ function TrustHud.new(player, action_queue, addon_enabled, menu_width, menu_heig
 
     self:getDisposeBag():add(self.gameInfo:onMenuChange():addAction(function(_, isMenuOpen)
         if isMenuOpen then
-            self.trustMenu:closeAll()
+            if settings.hud.auto_hide then
+                self.trustMenu:closeAll()
+            end
         end
     end), self.gameInfo:onMenuChange())
 
