@@ -20,7 +20,7 @@ local MenuView = require('cylibs/ui/menu/menu_view')
 local ModesAssistantView = require('cylibs/modes/ui/modes_assistant_view')
 local ModesView = require('cylibs/modes/ui/modes_view')
 local NavigationBar = require('cylibs/ui/navigation/navigation_bar')
-local PullSettingsEditor = require('ui/settings/PullSettingsEditor')
+local PullSettingsMenuItem = require('ui/settings/menus/pulling/PullSettingsMenuItem')
 local HorizontalFlowLayout = require('cylibs/ui/collection_view/layouts/horizontal_flow_layout')
 local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_collection_view_cell')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
@@ -455,45 +455,6 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         return jobAbilitiesSettingsView
     end, "Job Abilities", "Choose job abilities to use.")
 
-    local chooseTargetsItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
-        ButtonItem.default('Clear', 18),
-    }, {},
-    function()
-        local chooseTargetsView = setupView(TargetsPickerView.new(settings, trust), viewSize)
-        chooseTargetsView:setTitle("Choose mobs to pull from nearby targets.")
-        chooseTargetsView:setShouldRequestFocus(true)
-        return chooseTargetsView
-    end)
-
-    local pullerSettingsItem = MenuItem.new(L{
-        ButtonItem.default('Add', 18),
-        ButtonItem.default('Remove', 18),
-    }, {
-        Add = chooseTargetsItem
-    },
-    function()
-        local pullSettingsView = setupView(PullSettingsEditor.new(settings, trust), viewSize)
-        pullSettingsView:setShouldRequestFocus(true)
-        return pullSettingsView
-    end, "Pulling", "Choose which enemies to pull.")
-
-    local function createWeaponSkillsItem(skill, weapon_skill_settings_key)
-        local chooseWeaponSkillsItem = MenuItem.new(L{
-            ButtonItem.default('Confirm', 18),
-            ButtonItem.default('Clear', 18),
-        }, {},
-        function(args)
-            local weaponSkills = T(trustSettings:getSettings())[trustSettingsMode.value].Skillchains[weapon_skill_settings_key]
-            local allWeaponSkills = res.weapon_skills:filter(function(weaponSkill) return weaponSkill.skill == skill and not weaponSkills:contains(weaponSkill.en) end):map(function(weaponSkill) return weaponSkill.en end)
-
-            local chooseWeaponSkillsView = setupView(WeaponSkillPickerView.new(trustSettings, weaponSkills, allWeaponSkills), viewSize)
-            chooseWeaponSkillsView:setTitle("Choose weapon skills to add.")
-            return chooseWeaponSkillsView
-        end)
-        return chooseWeaponSkillsItem
-    end
-
     -- Status Removal
     local statusRemovalMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
@@ -550,43 +511,6 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
 
         return songSettingsView
     end)
-
-    local function createAddWeaponSkillsSettingsItem(weapon_skill_settings_key)
-        local weaponItems = L{}
-        local childMenuItems = {}
-
-        local combatSkills = L(job_util.get_skills_for_job(res.jobs:with('ens', jobNameShort).id))
-        for combatSkillId in combatSkills:it() do
-            weaponItems:append(ButtonItem.default(res.skills[combatSkillId].en, 18))
-            childMenuItems[res.skills[combatSkillId].en] = createWeaponSkillsItem(combatSkillId, weapon_skill_settings_key)
-        end
-        weaponItems:append(ButtonItem.default('Help', 18))
-
-        return MenuItem.new(weaponItems, childMenuItems)
-    end
-
-    local function createWeaponSkillsSettingsItem(weapon_skill_settings_key, help_text)
-        local chooseWeaponSkillsItem = MenuItem.new(L{
-            ButtonItem.default('Add', 18),
-            ButtonItem.default('Remove', 18),
-            ButtonItem.default('Move Up', 18),
-            ButtonItem.default('Move Down', 18),
-        }, {
-            Add = createAddWeaponSkillsSettingsItem(weapon_skill_settings_key)
-        },
-        function(args)
-            local backgroundImageView = createBackgroundView(viewSize.width, viewSize.height)
-            local weaponSkills = T(trustSettings:getSettings())[trustSettingsMode.value].Skillchains[weapon_skill_settings_key]
-
-            local weaponSkillsSettingsView = WeaponSkillsSettingsEditor.new(weaponSkills, trustSettings)
-            weaponSkillsSettingsView:setBackgroundImageView(backgroundImageView)
-            weaponSkillsSettingsView:setNavigationBar(createTitleView(viewSize))
-            weaponSkillsSettingsView:setSize(viewSize.width, viewSize.height)
-            weaponSkillsSettingsView:setTitle(help_text)
-            return weaponSkillsSettingsView
-        end)
-        return chooseWeaponSkillsItem
-    end
 
     -- Nukes
     local chooseNukesItem = MenuItem.new(L{
@@ -645,7 +569,6 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         Buffs = buffSettingsItem,
         Debuffs = debuffSettingsItem,
         Healing = healerMenuItem,
-        Pulling = pullerSettingsItem,
         Songs = songsSettingsItem,
         Nukes = nukeSettingsItem,
     }
@@ -668,6 +591,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
 
     if trust:role_with_type("puller") then
         menuItems:append(ButtonItem.default('Pulling', 18))
+        childMenuItems.Pulling = self:getMenuItemForRole(trust:role_with_type("puller"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize)
     end
 
     if trust:role_with_type("singer") then
@@ -680,19 +604,22 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
 
     if trust:role_with_type("skillchainer") then
         menuItems:append(ButtonItem.default('Weaponskills', 18))
-        childMenuItems.Weaponskills = self:getMenuItemForRole(trust:role_with_type("skillchainer"), weaponSkillSettings, weaponSkillSettingsMode, trust, viewSize)
+        childMenuItems.Weaponskills = self:getMenuItemForRole(trust:role_with_type("skillchainer"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize)
     end
 
     local settingsMenuItem = MenuItem.new(menuItems, childMenuItems, nil, "Settings", "Configure Trust settings for skillchains, buffs, debuffs and more.")
     return settingsMenuItem
 end
 
-function TrustHud:getMenuItemForRole(role, weaponSkillSettings, weaponSkillSettingsMode, trust, viewSize)
+function TrustHud:getMenuItemForRole(role, weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize)
     if role == nil then
         return nil
     end
     if role:get_type() == "skillchainer" then
         return self:getSkillchainerMenuItem(weaponSkillSettings, weaponSkillSettingsMode, trust, viewSize)
+    end
+    if role:get_type() == "puller" then
+        return self:getPullerMenuItem(trust, jobNameShort, viewSize)
     end
     return nil
 end
@@ -702,6 +629,13 @@ function TrustHud:getSkillchainerMenuItem(weaponSkillSettings, weaponSkillSettin
         return setupView(view, viewSize)
     end)
     return weaponSkillsSettingsMenuItem
+end
+
+function TrustHud:getPullerMenuItem(trust, jobNameShort, viewSize)
+    local pullerSettingsMenuItem = PullSettingsMenuItem.new(L{}, trust, jobNameShort, settings, settings.battle.targets,function(view)
+        return setupView(view, viewSize)
+    end)
+    return pullerSettingsMenuItem
 end
 
 function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSkillSettings, weaponSkillSettingsMode, jobNameShort, jobName)

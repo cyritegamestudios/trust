@@ -6,7 +6,7 @@ local PickerView = require('cylibs/ui/picker/picker_view')
 local TargetsPickerView = setmetatable({}, {__index = PickerView })
 TargetsPickerView.__index = TargetsPickerView
 
-function TargetsPickerView.new(settings, trust)
+function TargetsPickerView.new(settings, puller)
     local allMobs = S{}
     local nearbyMobs = windower.ffxi.get_mob_array()
     for _, mob in pairs(nearbyMobs) do
@@ -20,7 +20,7 @@ function TargetsPickerView.new(settings, trust)
     local self = setmetatable(PickerView.withItems(allMobs, L{}, true, cursorImageItem), TargetsPickerView)
 
     self.settings = settings
-    self.puller = trust:role_with_type("puller")
+    self.puller = puller
 
     if self:getDataSource():numberOfItemsInSection(1) > 0 then
         self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))

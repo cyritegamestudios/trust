@@ -147,6 +147,8 @@ skills.weapon_skills = {
     [160] = {en='Shining Strike',skillchain={'Impaction'}},
     [161] = {en='Seraph Strike',skillchain={'Impaction'}},
     [162] = {en='Brainshaker',skillchain={'Reverberation'}},
+    [163] = {en="Starlight",skillchain={}},
+    [164] = {en="Moonlight",skillchain={}},
     [165] = {en='Skullbreaker',skillchain={'Induration','Reverberation'}},
     [166] = {en='True Strike',skillchain={'Detonation','Impaction'}},
     [167] = {en='Judgment',skillchain={'Impaction'}},

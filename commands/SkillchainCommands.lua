@@ -33,6 +33,7 @@ function SkillchainTrustCommands.new(trust, weapon_skill_settings, action_queue)
     self:add_command('set', self.handle_set_step, 'Sets a step of a skillchain, // trust sc set step_num weapon_skill_name')
     self:add_command('next', self.handle_next, 'Finds weapon skills that skillchain with the given weapon skill')
     self:add_command('build', self.handle_build, 'Builds a skillchain with the current equipped weapon')
+    self:add_command('default', self.handle_set_default, 'Sets the default weapon skill to use when no skillchains can be made')
 
     return self
 end
@@ -267,6 +268,64 @@ function SkillchainTrustCommands:handle_build(_, property_name, num_steps)
             message = "No skillchain found"
         end
     end
+
+    return success, message
+end
+
+-- // trust sc default weapon_skill_name
+function SkillchainTrustCommands:handle_set_default(_, ...)
+    local success
+    local message
+
+    local ability_name = table.concat({...}, " ") or ""
+    if ability_name then
+        if ability_name == 'clear' then
+            return self:handle_clear_default()
+        else
+            local current_settings = self:get_settings()
+            for skill in current_settings.Skills:it() do
+                local matches = skill:get_abilities():filter(function(a) return a:get_name() == ability_name end)
+                if matches:length() > 0 then
+                    skill.defaultWeaponSkillName = ability_name
+                    skill.defaultWeaponSkillId = job_util.weapon_skill_id(ability_name)
+
+                    success = true
+                    message = localization_util.translate(ability_name).." will now be used for "..localization_util.translate(skill:get_name()).." if no skillchain can be made"
+
+                    self.weapon_skill_settings:saveSettings(true)
+                    break
+                end
+            end
+        end
+    end
+
+    if not success then
+        message = ability_name.." is not a valid weapon skill for the current equipped weapons"
+    end
+
+    return success, message
+end
+
+-- // trust sc default clear
+function SkillchainTrustCommands:handle_clear_default(_)
+    local success = true
+    local message
+
+    local current_settings = self:get_settings()
+
+    local combat_skill_ids = self.trust:get_party():get_player():get_combat_skill_ids()
+    for combat_skill_id in combat_skill_ids:it() do
+        for skill in current_settings.Skills:it() do
+            if skill:get_id() == combat_skill_id and skill.__type == CombatSkillSettings.__type then
+                skill.defaultWeaponSkillName = nil
+                skill.defaultWeaponSkillId = nil
+
+                self.weapon_skill_settings:saveSettings(true)
+            end
+        end
+    end
+
+    message = "Default abilities have been cleared for: "..tostring(current_settings.Skills:map(function(s) return s:get_name()  end))
 
     return success, message
 end

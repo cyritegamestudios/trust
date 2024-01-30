@@ -107,3 +107,14 @@ end
 function list.compact_map(l)
     return l:filter(function(el) return el ~= nil end)
 end
+
+---
+--- Returns the first element matching the given filter function.
+function list.firstWhere(l, filter)
+    for el in l:it() do
+        if filter(el) then
+            return el
+        end
+    end
+    return nil
+end

@@ -61,6 +61,10 @@ function CombatSkillSettings:get_default_ability()
     return nil
 end
 
+function CombatSkillSettings:get_id()
+    return self.combatSkillId
+end
+
 function CombatSkillSettings:get_name()
     return self.combatSkillName
 end

@@ -14,7 +14,7 @@ local PullSettingsEditor = setmetatable({}, {__index = CollectionView })
 PullSettingsEditor.__index = PullSettingsEditor
 
 
-function PullSettingsEditor.new(settings, trust)
+function PullSettingsEditor.new(addon_settings, puller)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = TextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
@@ -30,8 +30,8 @@ function PullSettingsEditor.new(settings, trust)
     self:setAllowsCursorSelection(true)
     self:setScrollDelta(20)
 
-    self.settings = settings
-    self.puller = trust:role_with_type("puller")
+    self.addon_settings = addon_settings
+    self.puller = puller
 
     self:reloadSettings()
 
@@ -63,7 +63,7 @@ end
 function PullSettingsEditor:reloadSettings()
     self:getDataSource():removeAllItems()
 
-    local allTargets = (self.settings.battle.targets or L{}):sort()
+    local allTargets = (self.addon_settings.battle.targets or L{}):sort()
 
     local items = L{}
     local rowIndex = 1
@@ -92,11 +92,11 @@ function PullSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
                     targetsToRemove:append(item:getText())
                 end
             end
-            local targets = S(self.settings.battle.targets):filter(function(targetName) return not targetsToRemove:contains(targetName) end)
+            local targets = S(self.addon_settings.battle.targets):filter(function(targetName) return not targetsToRemove:contains(targetName) end)
 
-            self.settings.battle.targets = L(targets)
+            self.addon_settings.battle.targets = L(targets)
 
-            config.save(self.settings)
+            config.save(self.addon_settings)
 
             if self.puller then
                 self.puller:set_target_names(targets)

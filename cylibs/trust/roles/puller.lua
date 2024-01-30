@@ -11,11 +11,11 @@ Puller.__index = Puller
 Puller.__class = "Puller"
 
 state.AutoPullMode = M{['description'] = 'Auto Pull Mode', 'Off', 'Auto','Multi','Target','All'}
+state.AutoPullMode:set_description('Off', "Okay, I won't pull monsters for the party.")
 state.AutoPullMode:set_description('Auto', "Okay, I'll automatically pull monsters for the party.")
 state.AutoPullMode:set_description('Multi', "Okay, I'll pull my own monster even if we're already fighting.")
 state.AutoPullMode:set_description('Target', "Okay, I'll pull whatever monster I'm currently targeting.")
 state.AutoPullMode:set_description('All', "Okay, I'll pull any monster that's nearby.")
-
 
 state.ApproachPullMode = M{['description'] = 'Approach Pull Mode', 'Off', 'Auto'}
 state.ApproachPullMode:set_description('Auto', "Okay, I'll pull by approaching.")
@@ -35,6 +35,15 @@ function Puller.new(action_queue, target_names, spell_name, job_ability_name, ra
     self.job_ability_name = job_ability_name
     self.ranged_attack = ranged_attack
     self.approach = spell_name == nil and job_ability_name == nil and ranged_attack == false
+    self.pull_settings = {}
+    self.pull_settings.Spells = L{}
+    if spell_name then
+        self.pull_settings.Spells = L{ Spell.new(spell_name) }
+    end
+    self.pull_settings.JobAbilities = L{}
+    if job_ability_name then
+        self.pull_settings.JobAbilities = L{ JobAbility.new(job_ability_name) }
+    end
     self.out_of_range_counter = 0
     self.last_pull_time = os.time()
     self.last_target_check_time = os.time()
@@ -53,8 +62,6 @@ function Puller:destroy()
     end
 
     self.dispose_bag:destroy()
-
-    self.action_events = nil
 end
 
 function Puller:on_add()
@@ -210,7 +217,7 @@ end
 function Puller:get_pull_distance()
     if state.ApproachPullMode == "Auto" then
         return 15
-    elseif self.spell_name then
+    elseif self.pull_settings.Spells:length() > 0 then
         return 18
     elseif self.ranged_attack then
         return 22
@@ -234,10 +241,24 @@ function Puller:get_pull_action(target_index)
     if self.approach or state.ApproachPullMode.value == "Auto" then
         actions:append(RunToAction.new(target_index, 3))
         actions:append(BlockAction.new(function() battle_util.target_mob(target_index) end))
-    elseif self.spell_name then
-        actions:append(SpellAction.new(0, 0, 0, res.spells:with('en', self.spell_name).id, target_index, self:get_player()))
-    elseif self.job_ability_name then
-        actions:append(JobAbilityAction.new(0, 0, 0, self.job_ability_name, target_index))
+    elseif self.pull_settings.Spells:length() > 0 then
+        local spell = self.pull_settings.Spells:firstWhere(function(spell)
+            return spell_util.can_cast_spell(spell:get_spell().id)
+        end)
+        if spell then
+            actions:append(SpellAction.new(0, 0, 0, spell:get_spell().id, target_index, self:get_player()))
+        else
+            return nil
+        end
+    elseif self.pull_settings.JobAbilities:length() then
+        local job_ability = self.pull_settings.JobAbilities:firstWhere(function(job_ability)
+            return job_util.can_use_job_ability(job_ability:get_name())
+        end)
+        if job_ability then
+            actions:append(JobAbilityAction.new(0, 0, 0, job_ability:get_name(), target_index))
+        else
+            return nil
+        end
     elseif self.ranged_attack then
         local target = windower.ffxi.get_mob_by_index(target_index)
         actions:append(CommandAction.new(0, 0, 0, '/ra '..target.id))
@@ -277,6 +298,8 @@ function Puller:pull_target(target)
             local sequence_action = SequenceAction.new(actions, 'puller_target_' .. target.index)
             sequence_action.priority = ActionPriority.high
             self.action_queue:push_action(sequence_action, true)
+        else
+            self:get_party():add_to_chat(self.party:get_player(), "I can't use any of my pull actions right now. Maybe we should try different ones?", "pull_action_cooldown", 10)
         end
     else
         self.no_pull_counter = self.no_pull_counter + 1
@@ -286,6 +309,14 @@ function Puller:pull_target(target)
             addon_message(260, '('..windower.ffxi.get_player().name..') '.."Hmm...I still can't find anything. Should we pick different monsters to fight?")
         end
     end
+end
+
+function Puller:get_pull_settings()
+    return self.pull_settings
+end
+
+function Puller:set_pull_settings(pull_settings)
+    self.pull_settings = pull_settings
 end
 
 function Puller:set_blacklist(blacklist)
