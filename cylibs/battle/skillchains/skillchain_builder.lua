@@ -263,4 +263,13 @@ function SkillchainBuilder:build(property_name, num_steps)
     return results
 end
 
+function SkillchainBuilder:has_ability(ability_name)
+    for ability in self.abilities:it() do
+        if ability:get_name() == ability_name then
+            return true
+        end
+    end
+    return false
+end
+
 return SkillchainBuilder

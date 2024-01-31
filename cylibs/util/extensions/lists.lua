@@ -118,3 +118,9 @@ function list.firstWhere(l, filter)
     end
     return nil
 end
+
+---
+--- Returns the last element matching the given filter function.
+function list.lastWhere(l, filter)
+    return list.firstWhere(l:reverse(), filter)
+end
