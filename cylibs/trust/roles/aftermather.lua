@@ -5,7 +5,7 @@ local Aftermather = setmetatable({}, {__index = Role })
 Aftermather.__index = Aftermather
 Aftermather.__class = "Aftermather"
 
-state.AutoAftermathMode = M{['description'] = 'Auto Aftermath Mode', 'Off', 'Auto', '2000', '1000'}
+state.AutoAftermathMode = M{['description'] = 'Aftermath Mode', 'Off', 'Auto', '2000', '1000'}
 state.AutoAftermathMode:set_description('Off', "Okay, I'll won't try to keep aftermath up.")
 state.AutoAftermathMode:set_description('Auto', "Okay, I'll try to keep Aftermath: Lv.3 up.")
 state.AutoAftermathMode:set_description('2000', "Okay, I'll try to keep Aftermath: Lv.2 up.")
@@ -58,7 +58,10 @@ function Aftermather:on_add()
 
     self.dispose_bag:add(state.AutoAftermathMode:on_state_change():addAction(function(_, new_value)
         if new_value == 'Off' then
-            self.skillchainer:set_enabled(true)
+            if self.old_state_value and state.AutoSkillchainMode.value ~= self.old_state_value then
+                state.AutoSkillchainMode:set(self.old_state_value)
+                self.old_state_value = nil
+            end
         end
     end), state.AutoAftermathMode:on_state_change())
 
@@ -92,14 +95,19 @@ function Aftermather:tic(_, _)
 
     logger.notice(self.__class, 'tic', 'checking_aftermath', self.is_aftermath_active)
 
-    if self.is_aftermath_active then
-        self.skillchainer:set_enabled(true)
-    else
-        self.skillchainer:set_enabled(false)
-
+    if not self.is_aftermath_active then
+        if state.AutoSkillchainMode.value ~= 'Off' then
+            self.old_state_value = state.AutoSkillchainMode.value
+            state.AutoSkillchainMode:set('Off')
+        end
         if windower.ffxi.get_player().vitals.tp >= self:get_aftermath_tp() then
             logger.notice(self.__class, 'tic', 'perform_ability', self.aftermath_weapon_skill:get_name())
             self.skillchainer:perform_ability(self.aftermath_weapon_skill)
+        end
+    else
+        if self.old_state_value and state.AutoSkillchainMode.value ~= self.old_state_value then
+            state.AutoSkillchainMode:set(self.old_state_value)
+            self.old_state_value = nil
         end
     end
 end
@@ -147,7 +155,10 @@ function Aftermather:set_aftermath_weapon_skill(aftermath_weapon_skill)
 
     self.aftermath_weapon_skill = aftermath_weapon_skill
     if self.aftermath_weapon_skill == nil then
-        self.skillchainer:set_enabled(true)
+        if self.old_state_value then
+            sate.AutoSkillchainMode:set(self.old_state_value)
+            self.old_state_value = nil
+        end
     end
 end
 

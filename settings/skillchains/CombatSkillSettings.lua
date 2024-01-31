@@ -32,33 +32,47 @@ function CombatSkillSettings:is_valid(player)
 end
 
 function CombatSkillSettings:get_abilities(include_blacklist)
-    local weapon_skills = L(windower.ffxi.get_abilities().weapon_skills):filter(function(weapon_skill_id)
-        local weapon_skill = res.weapon_skills[weapon_skill_id]
-        if weapon_skill.skill == self.combatSkillId then
-            return include_blacklist or not self.blacklist:contains(weapon_skill.en)
-        end
-        return false
-    end):map(function(weapon_skill_id)
-        return SkillchainAbility.new('weapon_skills', weapon_skill_id, L{ MinTacticalPointsCondition.new(1000) })
-    end)
+    local weapon_skills = L(windower.ffxi.get_abilities().weapon_skills):extend(L{ self.defaultWeaponSkillId }):compact_map()
+            :filter(function(weapon_skill_id)
+                local weapon_skill = res.weapon_skills[weapon_skill_id]
+                if weapon_skill.skill == self.combatSkillId then
+                    return include_blacklist or not self.blacklist:contains(weapon_skill.en)
+                end
+                return false
+            end):map(function(weapon_skill_id)
+                return SkillchainAbility.new('weapon_skills', weapon_skill_id, L{ MinTacticalPointsCondition.new(1000) })
+            end)
     return weapon_skills
 end
 
 function CombatSkillSettings:get_ability(ability_name)
-    return WeaponSkill.new(ability_name)
+    local matches = self:get_abilities(true):compact_map():filter(function(a) return a:get_name() == ability_name end)
+    if matches:length() > 0 then
+        return WeaponSkill.new(ability_name)
+    end
+    return nil
 end
 
 function CombatSkillSettings:get_default_ability()
-    local all_weapon_skill_ids = L(windower.ffxi.get_abilities().weapon_skills):extend(L{ self.defaultWeaponSkillId }):compact_map()
-    local highest_weapon_skill_id = all_weapon_skill_ids:filter(
-            function(weapon_skill_id)
-                local weapon_skill = res.weapon_skills[weapon_skill_id]
-                return not self.blacklist:contains(weapon_skill.en)
-            end):last()
-    if highest_weapon_skill_id then
-        return SkillchainAbility.new('weapon_skills', highest_weapon_skill_id, L{ MinTacticalPointsCondition.new(1000) })
+    if self.defaultWeaponSkillId then
+        local ability = SkillchainAbility.new('weapon_skills', self.defaultWeaponSkillId, L{ MinTacticalPointsCondition.new(1000) })
+        if ability then
+            return ability
+        end
     end
     return nil
+end
+
+function CombatSkillSettings:set_default_ability(ability_name)
+    local ability = self:get_ability(ability_name)
+    if ability then
+        self.defaultWeaponSkillId = ability:get_ability_id()
+        self.defaultWeaponSkillName = ability:get_name()
+    end
+end
+
+function CombatSkillSettings:get_id()
+    return self.combatSkillId
 end
 
 function CombatSkillSettings:get_name()
@@ -66,7 +80,7 @@ function CombatSkillSettings:get_name()
 end
 
 function CombatSkillSettings:serialize()
-    return "CombatSkillSettings.new(" .. serializer_util.serialize_args(self.combatSkillName, self.blacklist, self.defaultWeaponSkillName) .. ")"
+    return "CombatSkillSettings.new(" .. serializer_util.serialize_args(self.combatSkillName, self.blacklist, self.defaultWeaponSkillName or '') .. ")"
 end
 
 return CombatSkillSettings

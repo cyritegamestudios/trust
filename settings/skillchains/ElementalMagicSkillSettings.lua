@@ -49,6 +49,10 @@ function ElementalMagicSkillSettings:get_default_ability()
     return nil
 end
 
+function ElementalMagicSkillSettings:get_id()
+    return nil
+end
+
 function ElementalMagicSkillSettings:get_name()
     return 'Immanence'
 end

@@ -33,6 +33,7 @@ function SkillchainTrustCommands.new(trust, weapon_skill_settings, action_queue)
     self:add_command('set', self.handle_set_step, 'Sets a step of a skillchain, // trust sc set step_num weapon_skill_name')
     self:add_command('next', self.handle_next, 'Finds weapon skills that skillchain with the given weapon skill')
     self:add_command('build', self.handle_build, 'Builds a skillchain with the current equipped weapon')
+    self:add_command('default', self.handle_set_default, 'Sets the default weapon skill to use when no skillchains can be made')
 
     return self
 end
@@ -43,6 +44,14 @@ end
 
 function SkillchainTrustCommands:get_settings()
     return self.weapon_skill_settings:getSettings()[state.WeaponSkillSettingsMode.value]
+end
+
+function SkillchainTrustCommands:get_skillchainer()
+    return self.trust:role_with_type("skillchainer")
+end
+
+function SkillchainTrustCommands:get_spammer()
+    return self.trust:role_with_type("spammer")
 end
 
 function SkillchainTrustCommands:get_ability(skills, ability_name)
@@ -119,25 +128,28 @@ function SkillchainTrustCommands:handle_toggle_spam(_, ...)
     local message
 
     local ability_name = table.concat({...}, " ") or ""
-
-    self:handle_toggle_mode('AutoSkillchainMode', 'Spam', 'Off', not ability_name:empty())
-
-    if state.AutoSkillchainMode.value == 'Off' or ability_name:empty() then
+    if ability_name:empty() then
+        self:handle_toggle_mode('AutoSkillchainMode', 'Spam', 'Off')
         return true, message
     end
 
     local current_settings = self:get_settings()
+    for skill in current_settings.Skills:it() do
+        if skill:get_ability(ability_name) then
+            skill:set_default_ability(ability_name)
 
-    local ability = self:get_ability(current_settings.Skills, ability_name)
-    if ability then
-        success = true
-        message = localization_util.translate(ability_name).." will now be used when spamming"
+            success = true
+            message = localization_util.translate(ability_name).." will now be used when spamming"
 
-        current_settings.Skillchain[1] = ability
-    else
-        message = localization_util.translate(ability_name).." is not a valid ability name"
+            self.weapon_skill_settings:saveSettings(true)
 
-        self:handle_toggle_mode('AutoSkillchainMode', 'Spam', 'Off')
+            self:handle_toggle_mode('AutoSkillchainMode', 'Spam', 'Off', true)
+            break
+        end
+    end
+
+    if not success then
+        message = ability_name.." is not a valid ability name for the current equipped weapons"
     end
 
     return success, message
@@ -145,31 +157,13 @@ end
 
 -- // trust sc cleave
 function SkillchainTrustCommands:handle_toggle_cleave(_)
-    local success
+    local success = true
     local message
 
     self:handle_toggle_mode('AutoSkillchainMode', 'Cleave', 'Off')
 
-    if state.AutoSkillchainMode.value == 'Off' then
-        return true, message
-    end
-
-    local current_settings = self:get_settings()
-
-    local ability = current_settings.Skillchain[1]
-    if ability and ability:is_aoe() then
-        success = true
-        message = localization_util.translate(ability:get_name()).." will now be used when cleaving"
-
-        current_settings.Skillchain[1] = ability
-    else
-        message = "No valid cleave ability found for equipped weapons"
-
-        self:handle_toggle_mode('AutoSkillchainMode', 'Cleave', 'Off')
-    end
     return success, message
 end
-
 
 -- // trust sc step_num ability_name
 function SkillchainTrustCommands:handle_set_step(_, step_num, ...)
@@ -267,6 +261,64 @@ function SkillchainTrustCommands:handle_build(_, property_name, num_steps)
             message = "No skillchain found"
         end
     end
+
+    return success, message
+end
+
+-- // trust sc default weapon_skill_name
+function SkillchainTrustCommands:handle_set_default(_, ...)
+    local success
+    local message
+
+    local ability_name = table.concat({...}, " ") or ""
+    if ability_name then
+        if ability_name == 'clear' then
+            return self:handle_clear_default()
+        else
+            local current_settings = self:get_settings()
+            for skill in current_settings.Skills:it() do
+                local matches = skill:get_abilities():filter(function(a) return a:get_name() == ability_name end)
+                if matches:length() > 0 then
+                    skill.defaultWeaponSkillName = ability_name
+                    skill.defaultWeaponSkillId = job_util.weapon_skill_id(ability_name)
+
+                    success = true
+                    message = localization_util.translate(ability_name).." will now be used for "..localization_util.translate(skill:get_name()).." if no skillchain can be made"
+
+                    self.weapon_skill_settings:saveSettings(true)
+                    break
+                end
+            end
+        end
+    end
+
+    if not success then
+        message = ability_name.." is not a valid weapon skill for the current equipped weapons"
+    end
+
+    return success, message
+end
+
+-- // trust sc default clear
+function SkillchainTrustCommands:handle_clear_default(_)
+    local success = true
+    local message
+
+    local current_settings = self:get_settings()
+
+    local combat_skill_ids = self.trust:get_party():get_player():get_combat_skill_ids()
+    for combat_skill_id in combat_skill_ids:it() do
+        for skill in current_settings.Skills:it() do
+            if skill:get_id() == combat_skill_id and skill.__type == CombatSkillSettings.__type then
+                skill.defaultWeaponSkillName = nil
+                skill.defaultWeaponSkillId = nil
+
+                self.weapon_skill_settings:saveSettings(true)
+            end
+        end
+    end
+
+    message = "Default abilities have been cleared for the current equipped weapons."
 
     return success, message
 end

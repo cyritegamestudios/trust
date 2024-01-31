@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '8.5.2'
+_addon.version = '8.5.3'
 _addon.release_notes = [[
 Trusts now come fully equipped with a skillchain calculator and can
 make powerful skillchains of their own without any configuration!
@@ -33,39 +33,8 @@ _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 
 require('Trust-Include')
 
-local default = {
-	verbose=true
-}
-
-default.battle = {}
-default.battle.melee_distance = 3
-default.battle.range_distance = 21
-default.battle.targets = L{'Locus Colibri','Locus Dire Bat','Locus Thousand Eyes','Locus Spartoi Warrior','Locus Spartoi Sorcerer','Locus Hati','Locus Ghost Crab'}
-default.battle.trusts = L{'Monberaux','Sylvie (UC)','Koru-Moru','Qultada','Brygid'}
-default.chat = {}
-default.chat.ipc_enabled = true
-default.click_cooldown = 0.0
-default.donate = {}
-default.donate.url = 'https://www.buymeacoffee.com/cyrite'
-default.follow = {}
-default.follow.distance = 1
-default.help = {}
-default.help.mode_text_enabled = true
-default.help.wiki_base_url = 'https://github.com/cyritegamestudios/trust/wiki'
-default.hud = {}
-default.hud.position = {}
-default.hud.position.x = 0
-default.hud.position.y = 0
-default.hud.auto_hide = true
-default.logging = {}
-default.logging.enabled = false
-default.logging.logtofile = false
-default.menu_key = '%^numpad+'
-default.remote_commands = {}
-default.remote_commands.whitelist = S{}
-default.version = '1.0.0'
-
-settings = config.load(default)
+local addon_settings = TrustAddonSettings.new()
+settings = addon_settings:loadSettings()
 
 addon_enabled = ValueRelay.new(false)
 addon_enabled:onValueChanged():addAction(function(_, isEnabled)
@@ -205,6 +174,8 @@ function load_user_files(main_job_id, sub_job_id)
 	player.trust.main_job:add_role(Follower.new(action_queue, settings.follow.distance))
 	player.trust.main_job:add_role(Pather.new(action_queue, 'data/paths/'))
 	player.trust.main_job:add_role(Skillchainer.new(action_queue, weapon_skill_settings))
+	player.trust.main_job:add_role(Spammer.new(action_queue, weapon_skill_settings))
+	player.trust.main_job:add_role(Cleaver.new(action_queue, weapon_skill_settings))
 	player.trust.main_job:add_role(Targeter.new(action_queue))
 	player.trust.main_job:add_role(Truster.new(action_queue, settings.battle.trusts))
 	player.trust.main_job:add_role(Aftermather.new(action_queue, player.trust.main_job:role_with_type("skillchainer")))

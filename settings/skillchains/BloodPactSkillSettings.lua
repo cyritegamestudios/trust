@@ -45,6 +45,10 @@ function BloodPactSkillSettings:get_ability(ability_name)
     return BloodPactRage.new(ability_name)
 end
 
+function BloodPactSkillSettings:get_id()
+    return nil
+end
+
 function BloodPactSkillSettings:get_name()
     return 'Blood Pacts'
 end

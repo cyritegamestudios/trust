@@ -14,8 +14,6 @@ local skillchain_util = require('cylibs/util/skillchain_util')
 state.AutoSkillchainMode = M{['description'] = 'Auto Skillchain Mode', 'Off', 'Auto', 'Cleave', 'Spam'}
 state.AutoSkillchainMode:set_description('Off', "Okay, I'll won't use weapon skills or make skillchains.")
 state.AutoSkillchainMode:set_description('Auto', "Okay, I'll try to make skillchains.")
-state.AutoSkillchainMode:set_description('Cleave', "Okay, I'll try to cleave monsters.")
-state.AutoSkillchainMode:set_description('Spam', "Okay, I'll use the same weapon skill as soon as I get TP.")
 
 state.SkillchainPropertyMode = M{['description'] = 'Skillchain Property Mode', 'Off', 'Light', 'Darkness'}
 state.SkillchainPropertyMode:set_description('Off', "Okay, I'll try to make skillchains of all properties.")
@@ -105,11 +103,8 @@ function Skillchainer:on_add()
         if target then
             target:set_skillchain(step)
             if target:get_mob().index == self.target_index then
-                if L{ 'Cleave', 'Spam' }:contains(state.AutoSkillchainMode.value) then
-                    self.skillchain_builder:set_current_step(nil)
-                else
-                    self.skillchain_builder:set_current_step(step)
-                end
+                self.skillchain_builder:set_current_step(step)
+
                 self:show_next_skillchain_info()
                 self:on_skillchain():trigger(mob_id, step)
             end
@@ -124,11 +119,8 @@ function Skillchainer:on_add()
                 if step == nil then
                     self.is_performing_ability = false
                 end
-                if L{ 'Cleave', 'Spam' }:contains(state.AutoSkillchainMode.value) then
-                    self.skillchain_builder:set_current_step(nil)
-                else
-                    self.skillchain_builder:set_current_step(step)
-                end
+                self.skillchain_builder:set_current_step(step)
+
                 self:show_next_skillchain_info()
                 self:on_skillchain_ended():trigger(mob_id)
             end
@@ -137,6 +129,7 @@ function Skillchainer:on_add()
     self.dispose_bag:addAny(L{ self.skillchain_tracker })
 
     self.dispose_bag:add(self:get_party():get_player():on_combat_skills_change():addAction(function(_)
+        self.weapon_skill_settings:reloadSettings()
         self:update_abilities()
         self:on_skillchain_mode_changed(state.AutoSkillchainMode.value, state.AutoSkillchainMode.value)
     end), self:get_party():get_player():on_combat_skills_change())
@@ -165,28 +158,9 @@ function Skillchainer:on_add()
 end
 
 function Skillchainer:on_skillchain_mode_changed(_, new_value)
-    if L{ 'Cleave', 'Spam' }:contains(new_value) then
-        self.skillchain_builder:set_current_step(nil)
-        local starter_ability
-        if new_value == 'Cleave' then
-            local abilities = self.skillchain_builder.abilities:filter(function(ability) return ability:is_aoe() end)
-            if abilities:length() > 0 then
-                starter_ability = abilities[1]
-            end
-        else
-            starter_ability = self:get_starter_ability(2)
-        end
-        if starter_ability then
-            self.ability_for_step[1] = starter_ability
-        else
-            self.weapon_skill_settings:reloadSettings()
-        end
-    else
-        local target = self:get_target()
-        if target then
-            self.skillchain_builder:set_current_step(self.skillchain_tracker:get_current_step(target.id))
-        end
-        self.weapon_skill_settings:reloadSettings()
+    local target = self:get_target()
+    if target then
+        self.skillchain_builder:set_current_step(self.skillchain_tracker:get_current_step(target.id))
     end
 end
 
@@ -197,7 +171,7 @@ function Skillchainer:target_change(target_index)
 end
 
 function Skillchainer:check_skillchain()
-    if state.AutoSkillchainMode.value == 'Off' or self.is_performing_ability or not self.enabled or not self:get_player():is_engaged()
+    if state.AutoSkillchainMode.value ~= 'Auto' or self.is_performing_ability or not self:get_player():is_engaged()
             or os.time() - self.last_check_skillchain_time < 1 then
         return
     end
@@ -268,17 +242,17 @@ function Skillchainer:get_next_ability(current_step)
 end
 
 function Skillchainer:get_starter_ability(num_steps)
-    if state.AutoSkillchainMode.value ~= 'Off' then
-        local default_skillchains = self:get_default_skillchains()
-        for skillchain in default_skillchains:it() do
-            local skillchains = self.skillchain_builder:build(skillchain:get_name(), num_steps)
-            if skillchains and skillchains:length() > 0 then
-                return skillchains[1][1]
-            end
-        end
-        return self.active_skills:first():get_default_ability()
+    if self.skillchain_builder:has_ability(self.ability_for_step[1]:get_name()) then
+        return self.ability_for_step[1]
     end
-    return nil
+    local default_skillchains = self:get_default_skillchains()
+    for skillchain in default_skillchains:it() do
+        local skillchains = self.skillchain_builder:build(skillchain:get_name(), num_steps)
+        if skillchains and skillchains:length() > 0 then
+            return skillchains[1][1]
+        end
+    end
+    return self.active_skills:first():get_default_ability()
 end
 
 function Skillchainer:get_default_skillchains()
@@ -321,7 +295,7 @@ function Skillchainer:perform_ability(ability)
 end
 
 function Skillchainer:show_next_skillchain_info()
-    if not self:get_player():is_engaged() then
+    if state.AutoSkillchainMode.value ~= 'Auto' or not self:get_player():is_engaged() then
         return
     end
     local steps = self.skillchain_builder:get_next_steps()
@@ -378,20 +352,6 @@ function Skillchainer:set_current_settings(current_settings)
     self.ability_for_step = current_settings.Skillchain
 
     self:update_abilities()
-end
-
-function Skillchainer:set_enabled(enabled)
-    if self.enabled == enabled then
-        return
-    end
-    self.enabled = enabled
-    if self.enabled then
-        local target = self:get_target()
-        if target then
-            self.skillchain_tracker:reset(target:get_id())
-            logger.notice(self.__class, 'set_enabled', enabled, 'resetting skillchain tracker')
-        end
-    end
 end
 
 return Skillchainer
