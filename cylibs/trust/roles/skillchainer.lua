@@ -24,6 +24,10 @@ state.SkillchainDelayMode = M{['description'] = 'Skillchain Delay Mode', 'Off', 
 state.SkillchainDelayMode:set_description('Off', "Okay, I'll use the next weapon skill as soon as the skillchain window opens.")
 state.SkillchainDelayMode:set_description('Maximum', "Okay, I'll wait until the end of the skillchain window to use my next weapon skill.")
 
+state.SkillchainAssistantMode = M{['description'] = 'Skillchain Assistant Mode', 'Auto', 'Off'}
+state.SkillchainAssistantMode:set_description('Auto', "Okay, I'll suggest weapon skills you can use to continue the skillchain.")
+state.SkillchainAssistantMode:set_description('Off', "Okay, I'll keep my suggestions to myself!")
+
 
 -- Event called when the player readies a weaponskill. Triggers before the weaponskill command is sent.
 function Skillchainer:on_ready_weaponskill()
@@ -295,7 +299,8 @@ function Skillchainer:perform_ability(ability)
 end
 
 function Skillchainer:show_next_skillchain_info()
-    if state.AutoSkillchainMode.value ~= 'Auto' or not self:get_player():is_engaged() then
+    if state.SkillchainAssistantMode.value == 'Off' or state.AutoSkillchainMode.value ~= 'Auto'
+            or not self:get_player():is_engaged() then
         return
     end
     local steps = self.skillchain_builder:get_next_steps()
