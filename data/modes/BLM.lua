@@ -1,6 +1,7 @@
 -- Modes file for BLM
 return {
     ["Default"]={
+        ["autounloadondeathmode"]="Auto",
         ["autodispelmode"]="Off",
         ["subtrustsettingsmode"]="Default",
         ["autofollowmode"]="Always",

@@ -1,6 +1,7 @@
 -- Modes file for DRK
 return {
     ["Default"]={
+        ["autounloadondeathmode"]="Auto",
         ["actionbatchingmode"] = "Off",
         ["approachpullmode"] = "Off",
         ["autobuffmode"] = "Auto",

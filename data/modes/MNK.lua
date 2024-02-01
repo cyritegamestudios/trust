@@ -1,6 +1,7 @@
 -- Modes file for MNK
 return {
     ["Default"]={
+        ["autounloadondeathmode"]="Auto",
         ["skillchainpartnermode"]="Off",
         ["subtrustsettingsmode"]="Default",
         ["automagicburstmode"]="Off",

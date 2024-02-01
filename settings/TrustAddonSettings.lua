@@ -34,6 +34,8 @@ default.logging.logtofile = false
 default.menu_key = '%^numpad+'
 default.remote_commands = {}
 default.remote_commands.whitelist = S{}
+default.flags = {}
+default.flags.show_death_warning = true
 default.version = '1.0.0'
 
 function TrustAddonSettings:onSettingsChanged()

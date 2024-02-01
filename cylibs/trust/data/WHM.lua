@@ -57,8 +57,12 @@ function WhiteMageTrust:on_init()
 		end
 
 		local debuffer = self:role_with_type("debuffer")
-
 		debuffer:set_debuff_spells(new_trust_settings.Debuffs)
+
+		local nuker_roles = self:roles_with_types(L{ "nuker", "magicburster" })
+		for role in nuker_roles:it() do
+			role:set_nuke_settings(new_trust_settings.NukeSettings)
+		end
 	end)
 end
 

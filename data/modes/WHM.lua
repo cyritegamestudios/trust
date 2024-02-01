@@ -1,6 +1,7 @@
 -- Modes file for WHM
 return {
     ["Default"]={
+        ["autounloadondeathmode"]="Auto",
         ["autoraisemode"]="Off",
         ["autobuffmode"]="Auto",
         ["maintrustsettingsmode"]="Default",

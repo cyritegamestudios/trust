@@ -1,6 +1,7 @@
 -- Modes file for THF
 return {
     ["Default"]={
+        ["autounloadondeathmode"]="Auto",
         ["skillchainpartnermode"]="Off",
         ["subtrustsettingsmode"]="Default",
         ["autofollowmode"]="Always",

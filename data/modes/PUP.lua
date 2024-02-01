@@ -1,6 +1,7 @@
 -- Modes file for PUP
 return {
     ["Default"]={
+        ["autounloadondeathmode"]="Auto",
         ["autodispelmode"]="Auto",
         ["autoaftermathmode"]="Off",
         ["autobuffmode"]="Auto",
