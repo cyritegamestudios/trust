@@ -59,6 +59,11 @@ function GeomancerTrust:on_init()
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
 		self.indi_spell = new_trust_settings.Geomancy.Indi
 		self.geo_spell = new_trust_settings.Geomancy.Geo
+
+		local nuker_roles = self:roles_with_types(L{ "nuker", "magicburster" })
+		for role in nuker_roles:it() do
+			role:set_nuke_settings(new_trust_settings.NukeSettings)
+		end
 	end)
 end
 

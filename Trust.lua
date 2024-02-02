@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '8.5.4'
+_addon.version = '8.5.6'
 _addon.release_notes = [[
 Trusts now come fully equipped with a skillchain calculator and can
 make powerful skillchains of their own without any configuration!
@@ -56,7 +56,11 @@ state.AutoEnableMode = M{['description'] = 'Auto Enable Mode', 'Auto', 'Off'}
 state.AutoEnableMode:set_description('Auto', "Okay, I'll automatically get to work after the addon loads.")
 
 state.AutoDisableMode = M{['description'] = 'Auto Disable Mode', 'Auto', 'Off'}
-state.AutoDisableMode:set_description('Auto', "Okay, I'll automatically disable Trust after zoning or gettig knocked out.")
+state.AutoDisableMode:set_description('Auto', "Okay, I'll automatically disable Trust after zoning.")
+
+state.AutoUnloadOnDeathMode = M{['description'] = 'Auto Unload On Death Mode', 'Auto', 'Off'}
+state.AutoUnloadOnDeathMode:set_description('Off', "Okay, I'll pause Trust after getting knocked out but won't unload it. DO NOT USE WHILE AFK!")
+state.AutoUnloadOnDeathMode:set_description('Auto', "Okay, I'll automatically unload Trust after getting knocked out.")
 
 state.AutoBuffMode = M{['description'] = 'Auto Buff Mode', 'Off', 'Auto'}
 state.AutoBuffMode:set_description('Auto', "Okay, I'll automatically buff myself and the party.")
@@ -221,6 +225,16 @@ function load_trust_modes(job_name_short)
 		logger.notice("TrustMode is now", new_value)
 		local new_modes = trust_mode_settings:getSettings()[new_value]
 		update_for_new_modes(new_modes)
+	end)
+
+	state.AutoUnloadOnDeathMode:on_state_change():addAction(function(_, new_value)
+		if new_value == 'Off' then
+			if settings.flags.show_death_warning then
+				windower.add_to_chat(122, "---== WARNING ==---- Disabling unload on death may result in unexpected Trust behavior. It is not recommended that you use this setting while AFK.")
+				settings.flags.show_death_warning = false
+				addon_settings:saveSettings(true)
+			end
+		end
 	end)
 
 	trust_mode_settings:loadSettings()
@@ -428,7 +442,11 @@ function handle_status_change(new_status_id, old_status_id)
 	player.status = res.statuses[new_status_id].english
 
 	if player.status == 'Dead' then
-		handle_unload()
+		if state.AutoUnloadOnDeathMode.value == 'Off' then
+			handle_stop()
+		else
+			handle_unload()
+		end
 	end
 end
 

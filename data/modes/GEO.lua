@@ -1,6 +1,7 @@
 -- Modes file for GEO
 return {
     ["Default"]={
+        ["autounloadondeathmode"]="Auto",
         ["autodispelmode"]="Auto",
         ["maintrustsettingsmode"]="Default",
         ["autosilencemode"]="Off",

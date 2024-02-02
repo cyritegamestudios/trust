@@ -1,6 +1,7 @@
 -- Modes file for BST
 return {
     ["Default"]={
+        ["autounloadondeathmode"]="Auto",
         ["autopetmode"]="Off",
         ["subtrustsettingsmode"]="Default",
         ["skillchainpartnermode"]="Off",

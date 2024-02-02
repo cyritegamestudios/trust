@@ -46,6 +46,11 @@ function BlackMageTrust:on_init()
 		if debuffer then
 			debuffer:set_debuff_spells(new_trust_settings.Debuffs)
 		end
+
+		local nuker_roles = self:roles_with_types(L{ "nuker", "magicburster" })
+		for role in nuker_roles:it() do
+			role:set_nuke_settings(new_trust_settings.NukeSettings)
+		end
 	end)
 end
 

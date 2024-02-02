@@ -1,6 +1,7 @@
 -- Modes file for RUN
 return {
     ["Default"]={
+        ["autounloadondeathmode"]="Auto",
         ["autodispelmode"]="Off",
         ["subtrustsettingsmode"]="Default",
         ["automagicburstmode"]="Off",

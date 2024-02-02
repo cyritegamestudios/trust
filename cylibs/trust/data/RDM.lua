@@ -61,14 +61,17 @@ function RedMageTrust:on_init()
 		self:get_job():set_cure_settings(new_trust_settings.CureSettings)
 
 		local buffer = self:role_with_type("buffer")
-
 		buffer:set_job_abilities(new_trust_settings.JobAbilities)
 		buffer:set_self_spells(new_trust_settings.SelfBuffs)
 		buffer:set_party_spells(new_trust_settings.PartyBuffs)
 
 		local debuffer = self:role_with_type("debuffer")
-
 		debuffer:set_debuff_spells(new_trust_settings.Debuffs)
+
+		local nuker_roles = self:roles_with_types(L{ "nuker", "magicburster" })
+		for role in nuker_roles:it() do
+			role:set_nuke_settings(new_trust_settings.NukeSettings)
+		end
 	end)
 
 	self.battle_stat_tracker = BattleStatTracker.new(windower.ffxi.get_player().id)

@@ -1,6 +1,7 @@
 -- Modes file for RNG
 return {
     ["Default"]={
+        ["autounloadondeathmode"]="Auto",
         ["skillchainpartnermode"]="Off",
         ["subtrustsettingsmode"]="Default",
         ["autofollowmode"]="Always",

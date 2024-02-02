@@ -1,6 +1,7 @@
 -- Modes file for COR
 return {
     ["Default"]={
+        ["autounloadondeathmode"]="Auto",
         ["autodispelmode"]="Auto",
         ["autoaftermathmode"]="Off",
         ["autofollowmode"]="Always",

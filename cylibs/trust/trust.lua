@@ -131,6 +131,17 @@ function Trust:role_with_type(role_type)
 	return nil
 end
 
+function Trust:roles_with_types(role_types)
+	local roles = L{}
+	for role_type in role_types:it() do
+		local role = self:role_with_type(role_type)
+		if role then
+			roles:append(role)
+		end
+	end
+	return roles
+end
+
 function Trust:job_magic_burst(target_id, spell)
 	for role in self.roles:it() do
 		if role.job_magic_burst then

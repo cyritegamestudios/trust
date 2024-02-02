@@ -156,7 +156,7 @@ function Aftermather:set_aftermath_weapon_skill(aftermath_weapon_skill)
     self.aftermath_weapon_skill = aftermath_weapon_skill
     if self.aftermath_weapon_skill == nil then
         if self.old_state_value then
-            sate.AutoSkillchainMode:set(self.old_state_value)
+            state.AutoSkillchainMode:set(self.old_state_value)
             self.old_state_value = nil
         end
     end

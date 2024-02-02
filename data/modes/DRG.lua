@@ -1,6 +1,7 @@
 -- Modes file for DRG
 return {
     ["Default"]={
+        ["autounloadondeathmode"]="Auto",
         ["skillchainpartnermode"]="Off",
         ["subtrustsettingsmode"]="Default",
         ["autofollowmode"]="Always",

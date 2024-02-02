@@ -1,6 +1,7 @@
 -- Modes file for BRD
 return {
     ["Default"]={
+        ["autounloadondeathmode"]="Auto",
         ["actionbatchingmode"]="Off",
         ["autodispelmode"]="Auto",
         ["maintrustsettingsmode"]="Default",

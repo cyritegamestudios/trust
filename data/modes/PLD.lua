@@ -1,6 +1,7 @@
 -- Modes file for PLD
 return {
     ["Default"]={
+        ["autounloadondeathmode"]="Auto",
         ["skillchainpartnermode"]="Off",
         ["autopullmode"]="Off",
         ["automagicburstmode"]="Off",

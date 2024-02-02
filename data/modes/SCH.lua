@@ -1,6 +1,7 @@
 -- Modes file for SCH
 return {
     ["Default"]={
+        ["autounloadondeathmode"]="Auto",
         ["autodispelmode"]="Auto",
         ["autosilencemode"]="Off",
         ["autofacemobmode"]="Auto",

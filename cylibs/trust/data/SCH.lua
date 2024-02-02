@@ -49,6 +49,11 @@ function ScholarTrust:on_init()
     self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
         self:get_job():set_trust_settings(new_trust_settings)
 
+        local nuker_roles = self:roles_with_types(L{ "nuker", "magicburster" })
+        for role in nuker_roles:it() do
+            role:set_nuke_settings(new_trust_settings.NukeSettings)
+        end
+
         if state.AutoArtsMode.value ~= 'Off' then
             self:switch_arts(state.AutoArtsMode.value)
         end

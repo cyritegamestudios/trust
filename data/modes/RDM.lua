@@ -1,6 +1,7 @@
 -- Modes file for RDM
 return {
     ["Default"]={
+        ["autounloadondeathmode"]="Auto",
         ["autodispelmode"]="Auto",
         ["automagicburstmode"]="Off",
         ["autonukemode"]="Off",
