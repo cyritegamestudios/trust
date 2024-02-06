@@ -1,8 +1,7 @@
-local BackgroundView = require('cylibs/ui/views/background/background_view')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
 local Color = require('cylibs/ui/views/color')
-local Frame = require('cylibs/ui/views/frame')
+local Event = require('cylibs/events/Luvent')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Padding = require('cylibs/ui/style/padding')
@@ -30,6 +29,11 @@ TextStyle.PickerView = {
             Color.yellow
     ),
 }
+
+-- Event called when a list of items are picked.
+function PickerView:on_pick_items()
+    return self.pick_items
+end
 
 ---
 -- Creates a new PickerView.
@@ -75,7 +79,19 @@ function PickerView.new(pickerItems, allowsMultipleSelection, cursorImageItem)
     self:setNeedsLayout()
     self:layoutIfNeeded()
 
+    if self:getDataSource():numberOfItemsInSection(1) > 0 then
+        self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
+    end
+
+    self.pick_items = Event.newEvent()
+
     return self
+end
+
+function PickerView:destroy()
+    CollectionView.destroy(self)
+
+    self.pick_items:removeAllActions()
 end
 
 ---
@@ -92,6 +108,22 @@ function PickerView.withItems(texts, selectedTexts, allowsMultipleSelection, cur
         return PickerItem.new(TextItem.new(text, TextStyle.PickerView.Text), selectedTexts:contains(text))
     end)
     return PickerView.new(pickerItems, allowsMultipleSelection, cursorImageItem)
+end
+
+---
+-- Called when the confirm button is pressed.
+-- @tparam TextItem textItem Selected item.
+-- @tparam IndexPath indexPath Selected index path.
+--
+function PickerView:onSelectMenuItemAtIndexPath(textItem, _)
+    if textItem:getText() == 'Confirm' then
+        local selectedItems = L(self:getDelegate():getSelectedIndexPaths():map(function(indexPath)
+            return self:getDataSource():itemAtIndexPath(indexPath)
+        end)):compact_map()
+        if selectedItems:length() > 0 then
+            self:on_pick_items():trigger(self, selectedItems)
+        end
+    end
 end
 
 return PickerView

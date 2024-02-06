@@ -24,14 +24,14 @@ local WhiteMageTrustCommands = require('cylibs/trust/commands/WHM') -- keep this
 function WhiteMageTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = WhiteMage.new(trust_settings.CureSettings)
 	local roles = S{
+		Healer.new(action_queue, job),
+		StatusRemover.new(action_queue, job),
 		Barspeller.new(action_queue, job),
 		Buffer.new(action_queue, trust_settings.JobAbilities, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
 		Debuffer.new(action_queue, trust_settings.Debuffs),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		ManaRestorer.new(action_queue, L{'Mystic Boon', 'Dagan', 'Spirit Taker', 'Moonlight'}, 40),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
-		Healer.new(action_queue, job),
-		StatusRemover.new(action_queue, job),
 		Raiser.new(action_queue, job),
 		Puller.new(action_queue, battle_settings.targets, Debuff.new('Dia') and Debuff.new('Dia'):get_spell().en, nil),
 	}

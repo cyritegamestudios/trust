@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '8.5.6'
+_addon.version = '8.6.0'
 _addon.release_notes = [[
 Trusts now come fully equipped with a skillchain calculator and can
 make powerful skillchains of their own without any configuration!
@@ -204,6 +204,7 @@ function load_user_files(main_job_id, sub_job_id)
 	end
 
 	check_version()
+	check_files()
 end
 
 function load_trust_modes(job_name_short)
@@ -416,6 +417,14 @@ function check_version()
 		end)
 
 		hud:getViewStack():present(updateView)
+	end
+end
+
+function check_files()
+	if settings.flags.check_files then
+		if windower.file_exists(windower.windower_path..'/addons/libs/cylibs/Cylibs-Include.lua') then
+			error('Please remove the', windower.windower_path..'addons/libs/cylibs/', 'folder and reload Trust.')
+		end
 	end
 end
 

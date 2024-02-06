@@ -63,12 +63,6 @@ function ModesView.new(modeNames)
     return self
 end
 
-function ModesView:layoutIfNeeded()
-    CollectionView.layoutIfNeeded(self)
-
-    self:setTitle("Change trust behavior with modes.")
-end
-
 function ModesView:onSelectMenuItemAtIndexPath(textItem, indexPath)
     if textItem:getText() == 'Save' then
         windower.send_command('trust save '..state.TrustMode.value)

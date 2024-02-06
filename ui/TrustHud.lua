@@ -336,7 +336,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
 
         local jobId = res.jobs:with('ens', jobNameShort).id
         local allBuffs = spell_util.get_spells(function(spell)
-            return spell.levels[jobId] ~= nil and spell.status ~= nil and targets:intersection(S(spell.targets)):length() > 0
+            return spell.levels[jobId] ~= nil and spell.status ~= nil and spell.skill ~= 44 and targets:intersection(S(spell.targets)):length() > 0
         end):map(function(spell) return spell.en end)
 
         local chooseSpellsView = setupView(SpellPickerView.new(trustSettings, spellSettings, allBuffs, defaultJobNames, false), viewSize)
@@ -579,6 +579,14 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         menuItems:append(ButtonItem.default('Buffs', 18))
     end
 
+    if jobNameShort == 'GEO' then
+        local GeomancySettingsMenuItem = require('ui/settings/menus/buffs/GeomancySettingsMenuItem')
+        menuItems:append(ButtonItem.default('Geomancy', 18))
+        childMenuItems.Geomancy = GeomancySettingsMenuItem.new(trustSettings, trust, trustSettings:getSettings()[trustSettingsMode.value].Geomancy, trustSettings:getSettings()[trustSettingsMode.value].PartyBuffs, function(view)
+            return setupView(view, viewSize)
+        end)
+    end
+
     -- Add menu items only if the Trust has the appropriate role
     local debuffer = trust:role_with_type("debuffer")
     if debuffer then
@@ -658,6 +666,7 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
     function()
         local modesView = setupView(ModesView.new(L(T(state):keyset()):sort()), viewSize)
         modesView:setShouldRequestFocus(true)
+        modesView:setTitle("Change trust behavior with modes.")
         return modesView
     end, "Modes", "View and change Trust modes.")
 
