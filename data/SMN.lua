@@ -9,6 +9,7 @@ return {
 
         },
         PartyBuffs = L{
+            JobAbility.new("Reraise II", L{}),
             JobAbility.new("Crimson Howl", L{}),
             JobAbility.new("Hastega II", L{}),
             JobAbility.new("Crystal Blessing", L{}),

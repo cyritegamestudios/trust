@@ -48,7 +48,7 @@ function BloodPactSettingsMenuItem:getBuffsMenuItem()
         ButtonItem.default('Confirm', 18),
     }, L{}, function(_)
         local allBloodPacts = self.job:get_blood_pact_wards(function(bloodPact)
-            return buff_util.buff_for_job_ability(bloodPact.id) ~= nil and S{ 'Self' }:equals(bloodPact.targets)
+            return buff_util.buff_for_job_ability(bloodPact.id) ~= nil and not S(bloodPact.targets):contains('Enemy')
         end):map(function(bloodPact) return bloodPact:get_name()  end)
 
         local cursorImageItem = CursorItem.new()

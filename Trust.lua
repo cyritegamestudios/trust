@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '8.6.2'
+_addon.version = '8.6.4'
 _addon.release_notes = [[
 This update introduces new settings editors for the Geomancer and
 Summoner Trusts!
@@ -9,14 +9,13 @@ Summoner Trusts!
 	• Summoner
 	    • Customize Blood Pact: Wards in the Trust menu under
 	      Settings > Blood Pacts > Buffs
-	    • Automatically uses Avatar's Favor
+	    • Automatically use Avatar's Favor
+	    • Migrated buff settings to standard buff format
 
 	• Geomancer
 	    • Customize geocolures, indicolures and entrust indicolures in
 	      the Trust menu under Settings > Geomancy > Skillchains
-
-	• Bug fixes
-	    •
+	    • Automatically choose default targets for geocolures
 
 	• Press escape or enter to exit.
 	]]
