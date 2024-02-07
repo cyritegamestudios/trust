@@ -16,6 +16,7 @@ Summoner Trusts!
 	    • Customize geocolures, indicolures and entrust indicolures in
 	      the Trust menu under Settings > Geomancy > Skillchains
 	    • Automatically choose default targets for geocolures
+	    • Added `AutoIndiMode` and `AutoEntrustMode`
 
 	• Press escape or enter to exit.
 	]]

@@ -138,6 +138,7 @@ function JobAbility:serialize()
     local conditions_classes_to_serialize = L{
         InBattleCondition.__class,
         IdleCondition.__class,
+        MinTacticalPointsCondition.__class,
         NotCondition.__class
     }
     local conditions_to_serialize = self.conditions:filter(function(condition) return conditions_classes_to_serialize:contains(condition.__class)  end)
