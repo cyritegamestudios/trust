@@ -65,6 +65,9 @@ function SummonerTrust:tic(old_time, new_time)
 	self:check_mp()
 
 	if self.avatar then
+		if not buff_util.is_buff_active(buff_util.buff_id("Avatar's Favor")) then
+			self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, "Avatar's Favor"))
+		end
 		if state.AutoAssaultMode.value ~= 'Off' and pet_util.pet_idle() and self.target_index and windower.ffxi.get_mob_by_index(self.target_index) then
 			self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, 'Assault', self.target_index))
 		end
@@ -104,7 +107,7 @@ end
 
 function SummonerTrust:get_inactive_buffs()
 	return self.party_buffs:filter(function(buff)
-		return not buff_util.is_buff_active(buff_util.buff_id(buff.Buff))
+		return not buff_util.is_buff_active(buff_util.buff_for_job_ability(buff:get_job_ability_id()).id)
 	end)
 end
 
@@ -119,18 +122,21 @@ function SummonerTrust:check_buffs()
 		if windower.ffxi.get_ability_recasts()[recast_id] == 0 then
 			local actions = L{}
 
-			if pet_util.pet_name() ~= buff.Avatar then
+			local avatar = self:get_job():get_avatar_name(buff:get_name())
+			if pet_util.pet_name() ~= avatar then
 				if pet_util.pet_name() ~= nil then
 					actions:append(JobAbilityAction.new(0, 0, 0, 'Release'), true)
 					actions:append(WaitAction.new(0, 0, 0, 1))
 				end
-				actions:append(SpellAction.new(0, 0, 0, spell_util.spell_id(buff.Avatar), nil, self:get_player()), true)
+				actions:append(SpellAction.new(0, 0, 0, spell_util.spell_id(avatar), nil, self:get_player()), true)
 			end
-			actions:append(WaitAction.new(0, 0, 0, 1))
-			actions:append(BloodPactWardAction.new(0, 0, 0, buff.BloodPact))
+			actions:append(WaitAction.new(0, 0, 0, 2))
+			actions:append(BloodPactWardAction.new(0, 0, 0, buff:get_name()))
 			actions:append(WaitAction.new(0, 0, 0, 2))
 
-			self.action_queue:push_action(SequenceAction.new(actions, 'blood_pact_ward'), true)
+			local wardAction = SequenceAction.new(actions, 'blood_pact_ward')
+			wardAction.max_duration = 15
+			self.action_queue:push_action(wardAction, true)
 
 			self.last_buff_time = os.time()
 			self.is_auto_avatar_enabled = false

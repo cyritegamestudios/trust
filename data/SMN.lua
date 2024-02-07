@@ -1,35 +1,18 @@
 -- Settings file for SMN
 return {
-    Version = 1,
+    Version = 2,
     Default = {
         AutoFood = "Grape Daifuku",
         JobAbilities = L{
-
         },
         SelfBuffs = L{
 
         },
         PartyBuffs = L{
-            {
-                BloodPact = "Hastega II",
-                Buff = "Haste",
-                Avatar = "Garuda"
-            },
-            {
-                BloodPact = "Crystal Blessing",
-                Buff = "TP Bonus",
-                Avatar = "Shiva"
-            },
-            {
-                BloodPact = "Ecliptic Howl",
-                Buff = "Accuracy Boost",
-                Avatar = "Fenrir"
-            },
-            {
-                BloodPact = "Crimson Howl",
-                Buff = "Warcry",
-                Avatar = "Ifrit"
-            }
+            JobAbility.new("Crimson Howl", L{}),
+            JobAbility.new("Hastega II", L{}),
+            JobAbility.new("Crystal Blessing", L{}),
+            JobAbility.new("Ecliptic Howl", L{}),
         },
         NukeSettings = {
             Delay = 2,

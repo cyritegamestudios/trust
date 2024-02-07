@@ -1,31 +1,22 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '8.6.0'
+_addon.version = '8.6.2'
 _addon.release_notes = [[
-Trusts now come fully equipped with a skillchain calculator and can
-make powerful skillchains of their own without any configuration!
+This update introduces new settings editors for the Geomancer and
+Summoner Trusts!
 
-	• Fewer settings, more skillchains
-	    • Automatically generate multi-step Light and Darkness skillchains
-	      with your party members using weapon skills, blood pacts
-	      and immanence
-	    • Control skillchain elements with `SkillchainPropertyMode`
-	      `Light` and `Darkness`
-	    • Automatically determine weapon skills to use when spamming
-	      or cleaving
+	• Summoner
+	    • Customize Blood Pact: Wards in the Trust menu under
+	      Settings > Blood Pacts > Buffs
+	    • Automatically uses Avatar's Favor
 
-	• Streamlined UI for customizing skillchains
-	    • Build custom skillchains between one or more party members
-	      in Settings > Weaponskills > Skillchains
-	    • Blacklist specific weapon skills to avoid using when
-	      making skillcahins
+	• Geomancer
+	    • Customize geocolures, indicolures and entrust indicolures in
+	      the Trust menu under Settings > Geomancy > Skillchains
 
 	• Bug fixes
-	    • Fixed several issues where Trust would not function properly
-	      on Japanese clients
-	    • Fixed an issue where Trust would not pull if they did not know
-	      one or more of the Alter Ego spells in settings
+	    •
 
 	• Press escape or enter to exit.
 	]]
@@ -550,6 +541,8 @@ function handle_toggle_menu()
 end
 
 function handle_debug()
+	print(L(windower.ffxi.get_player().buffs))
+
 	local alliance = player.alliance
 	for i = 1, 3 do
 		local party = alliance:get_parties()[i]

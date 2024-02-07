@@ -7,6 +7,23 @@ local Job = require('cylibs/entity/jobs/job')
 local Summoner = setmetatable({}, {__index = Job })
 Summoner.__index = Summoner
 
+local avatar_to_blood_pacts = T{
+    Carbuncle = L{},
+    ["Cait Sith"] = L{ 'Reraise II' },
+    Ifrit = L{ 'Crimson Howl', 'Inferno Howl' },
+    Shiva = L{ 'Frost Armor', 'Crystal Blessing' },
+    Garuda = L{ 'Hastega', 'Hastega II', 'Aerial Armor', 'Fleet Wind' },
+    Titan = L{ 'Earthen Ward', 'Earthen Armor' },
+    Ramuh = L{ 'Rolling Thunder', 'Lightning Armor' },
+    Leviathan = L{ 'Soothing Current' },
+    Fenrir = L{ 'Ecliptic Growl', 'Ecliptic Howl', 'Heavanward Howl' },
+    Diabolos = L{ 'Noctoshield', 'Dream Shroud' },
+    Siren = L { 'Katabatic Blades', 'Chinook', "Wind's Blessing" },
+    Atomos = L{},
+    Alexander = L{},
+    Odin = L{},
+}
+
 -------
 -- Default initializer for a new Summoner.
 -- @treturn SMN A Summoner
@@ -42,6 +59,31 @@ end
 -- @treturn string Localized name of the spirit pact (e.g. Earth Spirit)
 function Summoner:get_spirit_for_current_day()
     return 'Earth Spirit'
+end
+
+-------
+-- Returns all Blood Pact: Ward matching the given filter.
+-- @tparam function filter Filter function for blood pacts (optional)
+-- @treturn list List of JobAbility
+function Summoner:get_blood_pact_wards(filter)
+    if filter == nil then
+        filter = function(_) return true  end
+    end
+    local all_blood_pacts = L(res.job_abilities:with_all('type', 'BloodPactWard')):filter(filter):compact_map():map(function(blood_pact) return JobAbility.new(blood_pact.en)  end)
+    return all_blood_pacts
+end
+
+-------
+-- Returns the named of the Avatar required to use the given blood pact.
+-- @tparam string blood_pact_name Name of the blood pact (see res/job_abilities.lua)
+-- @treturn string Name of the Avatar
+function Summoner:get_avatar_name(blood_pact_name)
+    for avatar_name, blood_pact_names in pairs(avatar_to_blood_pacts) do
+        if blood_pact_names:contains(blood_pact_name) then
+            return avatar_name
+        end
+    end
+    return nil
 end
 
 return Summoner

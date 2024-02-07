@@ -54,6 +54,8 @@ local ViewStack = require('cylibs/ui/views/view_stack')
 local WeaponSkillPickerView = require('ui/settings/pickers/WeaponSkillPickerView')
 local WeaponSkillsSettingsEditor = require('ui/settings/WeaponSkillSettingsEditor')
 local WeaponSkillSettingsMenuItem = require('ui/settings/menus/WeaponSkillSettingsMenuItem')
+local GeomancySettingsMenuItem = require('ui/settings/menus/buffs/GeomancySettingsMenuItem')
+local BloodPactSettingsMenuItem = require('ui/settings/menus/buffs/BloodPactSettingsMenuItem')
 
 local TrustActionHud = require('cylibs/actions/ui/action_hud')
 local View = require('cylibs/ui/views/view')
@@ -580,9 +582,15 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
     end
 
     if jobNameShort == 'GEO' then
-        local GeomancySettingsMenuItem = require('ui/settings/menus/buffs/GeomancySettingsMenuItem')
         menuItems:append(ButtonItem.default('Geomancy', 18))
         childMenuItems.Geomancy = GeomancySettingsMenuItem.new(trustSettings, trust, trustSettings:getSettings()[trustSettingsMode.value].Geomancy, trustSettings:getSettings()[trustSettingsMode.value].PartyBuffs, function(view)
+            return setupView(view, viewSize)
+        end)
+    end
+
+    if jobNameShort == 'SMN' then
+        menuItems:append(ButtonItem.default('Blood Pacts', 18))
+        childMenuItems['Blood Pacts'] = BloodPactSettingsMenuItem.new(trustSettings, trust, trustSettings:getSettings()[trustSettingsMode.value].PartyBuffs, function(view)
             return setupView(view, viewSize)
         end)
     end
