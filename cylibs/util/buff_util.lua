@@ -258,7 +258,10 @@ function buff_util.buff_for_job_ability(job_ability_id)
 	if job_ability.status == nil then
 		job_ability = job_abilities_ext:with('id', job_ability_id)
 	end
-	return res.buffs:with('id', job_ability.status)
+	if job_ability and job_ability.status then
+		return res.buffs:with('id', job_ability.status)
+	end
+	return nil
 end
 
 -------

@@ -10,6 +10,10 @@ return T{
     [221] = {id=221,en="Ebullience",status=365},
     [222] = {id=222,en="Manifestation",status=367},
     [230] = {id=230,en="Sekkanoki",status=408},
+    [250] = {id=250,en="Avatar's Favor",status=431},
     [316] = {id=316,en="Perpetuance",status=469},
     [317] = {id=317,en="Immanence",status=470},
+    [532] = {id=532,en="Ecliptic Growl",status=123},
+    [533] = {id=533,en="Ecliptic Howl",status=90},
+    [538] = {id=538,en="Heavenward Howl",status=487},
 }, {"id", "en", "status"}

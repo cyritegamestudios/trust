@@ -1,6 +1,10 @@
-require('tables')
-require('lists')
-require('logger')
+local DisposeBag = require('cylibs/events/dispose_bag')
+local Geocolure = require('cylibs/entity/geocolure')
+local Nuker = require('cylibs/trust/roles/nuker')
+local Buffer = require('cylibs/trust/roles/buffer')
+local MagicBurster = require('cylibs/trust/roles/magic_burster')
+local ManaRestorer = require('cylibs/trust/roles/mana_restorer')
+local zone_util = require('cylibs/util/zone_util')
 
 Geomancer = require('cylibs/entity/jobs/GEO')
 
@@ -8,20 +12,19 @@ local Trust = require('cylibs/trust/trust')
 local GeomancerTrust = setmetatable({}, {__index = Trust })
 GeomancerTrust.__index = GeomancerTrust
 
-local Geocolure = require('cylibs/entity/geocolure')
-
-local Nuker = require('cylibs/trust/roles/nuker')
-local Buffer = require('cylibs/trust/roles/buffer')
-local MagicBurster = require('cylibs/trust/roles/magic_burster')
-local ManaRestorer = require('cylibs/trust/roles/mana_restorer')
-local zone_util = require('cylibs/util/zone_util')
-
 state.AutoGeoMode = M{['description'] = 'Auto Geo Mode', 'Off', 'Auto'}
+state.AutoGeoMode:set_description('Auto', "Okay, I'll use Geocolure spells on party members and enemies.")
+
+state.AutoIndiMode = M{['description'] = 'Auto Indi Mode', 'Auto', 'Off'}
+state.AutoIndiMode:set_description('Auto', "Okay, I'll use Indicolure spells on myself and party members.")
+
+state.AutoEntrustMode = M{['description'] = 'Auto Entrust Mode', 'Auto', 'Off'}
+state.AutoEntrustMode:set_description('Auto', "Okay, I'll entrust Indicolure spells on party members.")
 
 function GeomancerTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = Geomancer.new()
 	local roles = S{
-		Buffer.new(action_queue, trust_settings.JobAbilities, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
+		Buffer.new(action_queue, trust_settings.JobAbilities, trust_settings.SelfBuffs, trust_settings.PartyBuffs, state.AutoEntrustMode),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{ 'Theurgic Focus' }, job),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		ManaRestorer.new(action_queue, L{"Spirit Taker", "Moonlight"}, 40)
@@ -34,6 +37,7 @@ function GeomancerTrust.new(settings, action_queue, battle_settings, trust_setti
 	self.indi_spell = trust_settings.Geomancy.Indi
 	self.geo_spell = trust_settings.Geomancy.Geo
 	self.target_change_time = os.time()
+	self.dispose_bag = DisposeBag.new()
 
 	if pet_util.has_pet() then
 		self:update_luopan(pet_util.get_pet().id)
@@ -49,16 +53,19 @@ function GeomancerTrust:on_init()
 		self:update_luopan(pet_util.get_pet().id)
 	end
 
-	self.pet_changed_action_id = self:get_player():on_pet_change():addAction(
+	self.dispose_bag:add(self:get_player():on_pet_change():addAction(
 			function (_, pet_id, pet_name)
 				if L{'Luopan','luopan'}:contains(pet_name) then
 					self:update_luopan(pet_id)
 				end
-			end)
+			end), self:get_player():on_pet_change())
 
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
 		self.indi_spell = new_trust_settings.Geomancy.Indi
 		self.geo_spell = new_trust_settings.Geomancy.Geo
+
+		local buffer = self:role_with_type("buffer")
+		buffer:set_party_spells(new_trust_settings.PartyBuffs)
 
 		local nuker_roles = self:roles_with_types(L{ "nuker", "magicburster" })
 		for role in nuker_roles:it() do
@@ -70,9 +77,10 @@ end
 function GeomancerTrust:destroy()
 	Trust.destroy(self)
 
-	if self.pet_changed_action_id and self:get_player() then
-		self:get_player():on_pet_change():removeAction(self.pet_changed_action_id)
+	if self.geocolure then
+		self.geocolure:destroy()
 	end
+	self.dispose_bag:destroy()
 end
 
 function GeomancerTrust:job_target_change(target_index)
@@ -90,13 +98,16 @@ function GeomancerTrust:tic(old_time, new_time)
 end
 
 function GeomancerTrust:check_indi()
+	if state.AutoIndiMode.value == 'Off' then
+		return
+	end
 	if not zone_util.is_city(windower.ffxi.get_info().zone) and not buff_util.is_buff_active(buff_util.buff_id('Colure Active')) then
 		self.action_queue:push_action(SpellAction.new(0, 0, 0, self.indi_spell:get_spell().id, nil, self:get_player()), true)
 	end
 end
 
 function GeomancerTrust:check_geo()
-	if state.AutoGeoMode.value == 'Off' then
+	if state.AutoGeoMode.value == 'Off' or zone_util.is_city(windower.ffxi.get_info().zone) then
 		return
 	end
 
@@ -107,10 +118,14 @@ function GeomancerTrust:check_geo()
 			self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, 'Full Circle'), true)
 		else
 			self.geocolure:ecliptic_attrition()
+
+			if self.geocolure:get_mob().hpp < 25 then
+				self.geocolure:life_cycle()
+			end
 		end
 	else
-		if self.geo_spell and delta_time > 8 and not zone_util.is_city(windower.ffxi.get_info().zone) then
-			local target = windower.ffxi.get_mob_by_target(self.geo_spell:get_target())
+		if self.geo_spell and delta_time > 8 then
+			local target = windower.ffxi.get_mob_by_target(self.geo_spell:get_target()) or windower.ffxi.get_mob_by_name(self.geo_spell:get_target())
 			if target then
 				local actions = L{}
 				if player_util.get_job_ability_recast('Blaze of Glory') == 0 then

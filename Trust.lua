@@ -1,31 +1,22 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '8.5.6'
+_addon.version = '8.6.4'
 _addon.release_notes = [[
-Trusts now come fully equipped with a skillchain calculator and can
-make powerful skillchains of their own without any configuration!
+This update introduces new settings editors for the Geomancer and
+Summoner Trusts!
 
-	• Fewer settings, more skillchains
-	    • Automatically generate multi-step Light and Darkness skillchains
-	      with your party members using weapon skills, blood pacts
-	      and immanence
-	    • Control skillchain elements with `SkillchainPropertyMode`
-	      `Light` and `Darkness`
-	    • Automatically determine weapon skills to use when spamming
-	      or cleaving
+	• Summoner
+	    • Customize Blood Pact: Wards in the Trust menu under
+	      Settings > Blood Pacts > Buffs
+	    • Automatically use Avatar's Favor
+	    • Migrated buff settings to standard buff format
 
-	• Streamlined UI for customizing skillchains
-	    • Build custom skillchains between one or more party members
-	      in Settings > Weaponskills > Skillchains
-	    • Blacklist specific weapon skills to avoid using when
-	      making skillcahins
-
-	• Bug fixes
-	    • Fixed several issues where Trust would not function properly
-	      on Japanese clients
-	    • Fixed an issue where Trust would not pull if they did not know
-	      one or more of the Alter Ego spells in settings
+	• Geomancer
+	    • Customize geocolures, indicolures and entrust indicolures in
+	      the Trust menu under Settings > Geomancy > Skillchains
+	    • Automatically choose default targets for geocolures
+	    • Added `AutoIndiMode` and `AutoEntrustMode`
 
 	• Press escape or enter to exit.
 	]]
@@ -204,6 +195,7 @@ function load_user_files(main_job_id, sub_job_id)
 	end
 
 	check_version()
+	check_files()
 end
 
 function load_trust_modes(job_name_short)
@@ -419,6 +411,14 @@ function check_version()
 	end
 end
 
+function check_files()
+	if settings.flags.check_files then
+		if windower.file_exists(windower.windower_path..'/addons/libs/cylibs/Cylibs-Include.lua') then
+			error('Please remove the', windower.windower_path..'addons/libs/cylibs/', 'folder and reload Trust.')
+		end
+	end
+end
+
 -- Helpers
 
 function addon_message(color,str)
@@ -541,6 +541,8 @@ function handle_toggle_menu()
 end
 
 function handle_debug()
+	print(L(windower.ffxi.get_player().buffs))
+
 	local alliance = player.alliance
 	for i = 1, 3 do
 		local party = alliance:get_parties()[i]

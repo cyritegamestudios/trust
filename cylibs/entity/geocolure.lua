@@ -106,4 +106,10 @@ function Geocolure:ecliptic_attrition()
     self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, 'Ecliptic Attrition'), true)
 end
 
+function Geocolure:life_cycle()
+    if job_util.can_use_job_ability('Life Cycle') then
+        self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, 'Life Cycle'), true)
+    end
+end
+
 return Geocolure

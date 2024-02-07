@@ -36,6 +36,7 @@ default.remote_commands = {}
 default.remote_commands.whitelist = S{}
 default.flags = {}
 default.flags.show_death_warning = true
+default.flags.check_files = true
 default.version = '1.0.0'
 
 function TrustAddonSettings:onSettingsChanged()

@@ -31,6 +31,7 @@ function JobAbility.new(job_ability_name, conditions, job_names, target)
         conditions = conditions or L{};
         job_names = job_names;
         target = target;
+        valid_targets = job_ability.targets;
         resource = 'job_abilities';
     }, JobAbility)
 
@@ -96,6 +97,13 @@ function JobAbility:get_target()
 end
 
 -------
+-- Returns a list of valid targets for this job ability.
+-- @treturn list List of valid targets (see res/job_abilities.lua)
+function JobAbility:get_valid_targets()
+    return S(self.valid_targets)
+end
+
+-------
 -- Returns whether or not the player knows this spell.
 -- @treturn Boolean True if the player knows this spell
 function JobAbility:is_valid()
@@ -127,7 +135,15 @@ function JobAbility:get_name()
 end
 
 function JobAbility:serialize()
-    return "JobAbility.new(" .. serializer_util.serialize_args(self.job_ability_name, self.conditions, self.job_names, self.target) .. ")"
+    local conditions_classes_to_serialize = L{
+        InBattleCondition.__class,
+        IdleCondition.__class,
+        MinTacticalPointsCondition.__class,
+        NotCondition.__class
+    }
+    local conditions_to_serialize = self.conditions:filter(function(condition) return conditions_classes_to_serialize:contains(condition.__class)  end)
+
+    return "JobAbility.new(" .. serializer_util.serialize_args(self.job_ability_name, conditions_to_serialize, self.job_names, self.target) .. ")"
 end
 
 function JobAbility:__eq(otherItem)
