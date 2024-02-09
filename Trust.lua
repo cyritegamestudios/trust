@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '8.6.4'
+_addon.version = '8.6.5'
 _addon.release_notes = [[
 This update introduces new settings editors for the Geomancer and
 Summoner Trusts!
@@ -17,6 +17,9 @@ Summoner Trusts!
 	      the Trust menu under Settings > Geomancy > Skillchains
 	    • Automatically choose default targets for geocolures
 	    • Added `AutoIndiMode` and `AutoEntrustMode`
+
+	• Bug Fixes
+	    • Fixed an issue where Summoner would not magic burst
 
 	• Press escape or enter to exit.
 	]]
