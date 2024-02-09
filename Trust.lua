@@ -662,5 +662,6 @@ function loaded()
 end
 
 windower.register_event('addon command', addon_command)
-windower.register_event('login','load', loaded)
-windower.register_event('logout', 'unload', unloaded)
+windower.register_event('load', loaded)
+windower.register_event('unload', unloaded)
+windower.register_event('logout', function() windower.send_command('lua unload trust')  end)
