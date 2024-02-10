@@ -51,7 +51,7 @@ end
 
 function DancerTrust:on_role_added(role)
 	if role:get_type() == "skillchainer" then
-		role:set_job_abilities(L{ JobAbility.new('Building Flourish'), JobAbility.new('Climactic Flourish') })
+		--role:set_job_abilities(L{ JobAbility.new('Building Flourish'), JobAbility.new('Climactic Flourish') })
 	end
 end
 

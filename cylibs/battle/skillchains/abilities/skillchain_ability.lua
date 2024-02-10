@@ -128,7 +128,7 @@ end
 -- @tparam number target_index Index of target of the ability
 -- @tparam Player player Player
 -- @treturn Action The action
-function SkillchainAbility:to_action(target_index, player)
+function SkillchainAbility:to_action(target_index, player, job_abilities)
     local actions = L{}
 
     for buff_id in self:get_buffs():it() do
@@ -137,6 +137,13 @@ function SkillchainAbility:to_action(target_index, player)
             actions:append(JobAbilityAction.new(0, 0, 0, job_ability.en))
             actions:append(WaitAction.new(0, 0, 0, 2))
             break
+        end
+    end
+
+    for job_ability in (job_abilities or L{}):it() do
+        if job_util.can_use_job_ability(job_ability:get_name()) then
+            actions:append(JobAbilityAction.new(0, 0, 0, job_ability:get_name()))
+            actions:append(WaitAction.new(0, 0, 0, 1))
         end
     end
 

@@ -123,7 +123,7 @@ function MagicBurster:check_magic_burst(skillchain)
     for element in elements:it() do
         local spell = self:get_spell(element)
         if spell then
-            self:cast_spell(spell:get_name())
+            self:cast_spell(spell)
             return
         end
     end
@@ -147,8 +147,10 @@ function MagicBurster:get_priority(element)
     return element_priority:indexOf(element:get_name())
 end
 
-function MagicBurster:cast_spell(spell_name)
-    local spell = Spell.new(spell_name, L{}, L{}, nil, L{ MinManaPointsPercentCondition.new(self.magic_burst_mpp) })
+function MagicBurster:cast_spell(spell)
+    if not Condition.check_conditions(L{ MinManaPointsPercentCondition.new(self.magic_burst_mpp) }, self.target_index) then
+        return
+    end
     if Condition.check_conditions(spell:get_conditions(), self.target_index) then
         self.last_magic_burst_time = os.time()
 

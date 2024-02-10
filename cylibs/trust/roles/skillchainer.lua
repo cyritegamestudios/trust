@@ -286,7 +286,7 @@ function Skillchainer:perform_ability(ability)
         return false
     end
 
-    local ability_action = ability:to_action(target:get_mob().index, self:get_player())
+    local ability_action = ability:to_action(target:get_mob().index, self:get_player(), self.job_abilities)
     if ability_action then
         ability_action.identifier = self.action_identifier
         ability_action.max_duration = 10
