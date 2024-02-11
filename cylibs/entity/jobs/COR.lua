@@ -17,9 +17,9 @@ local rolls = {}
 rolls["Corsair's Roll"] = {}
 rolls["Corsair's Roll"].Lucky = 5
 rolls["Corsair's Roll"].Unlucky = 9
-rolls["Ninja's Roll"] = {}
-rolls["Ninja's Roll"].Lucky = 4
-rolls["Ninja's Roll"].Unlucky = 8
+rolls["Ninja Roll"] = {}
+rolls["Ninja Roll"].Lucky = 4
+rolls["Ninja Roll"].Unlucky = 8
 rolls["Hunter's Roll"] = {}
 rolls["Hunter's Roll"].Lucky = 4
 rolls["Hunter's Roll"].Unlucky = 8
@@ -329,6 +329,13 @@ function Corsair:roll(roll_id, should_use_crooked_cards)
         roll_action.priority = ActionPriority.High
         self.action_queue:push_action(roll_action, true)
     end
+end
+
+-------
+-- Returns the name of all rolls the player can use.
+-- @treturn list List of roll names (see res/job_abilities.lua)
+function Corsair:get_all_rolls()
+    return T(rolls):keyset():filter(function(roll_name) return job_util.can_use_job_ability(roll_name)  end)
 end
 
 return Corsair

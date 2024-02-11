@@ -56,6 +56,7 @@ local WeaponSkillsSettingsEditor = require('ui/settings/WeaponSkillSettingsEdito
 local WeaponSkillSettingsMenuItem = require('ui/settings/menus/WeaponSkillSettingsMenuItem')
 local GeomancySettingsMenuItem = require('ui/settings/menus/buffs/GeomancySettingsMenuItem')
 local BloodPactSettingsMenuItem = require('ui/settings/menus/buffs/BloodPactSettingsMenuItem')
+local RollSettingsMenuItem = require('ui/settings/menus/rolls/RollSettingsMenuItem')
 
 local TrustActionHud = require('cylibs/actions/ui/action_hud')
 local View = require('cylibs/ui/views/view')
@@ -523,7 +524,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
 
                 local jobId = res.jobs:with('ens', jobNameShort).id
                 local allSpells = spell_util.get_spells(function(spell)
-                    return spell.levels[jobId] ~= nil and spell.type == 'BlackMagic' and S{ 'Enemy' }:intersection(S(spell.targets)):length() > 0
+                    return spell.levels[jobId] ~= nil and S{'BlackMagic','WhiteMagic'}:contains(spell.type) and S{ 'Enemy' }:intersection(S(spell.targets)):length() > 0
                 end):map(function(spell) return spell.en end):sort()
 
                 local sortSpells = function(spells)
@@ -591,6 +592,14 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
     if jobNameShort == 'SMN' then
         menuItems:append(ButtonItem.default('Blood Pacts', 18))
         childMenuItems['Blood Pacts'] = BloodPactSettingsMenuItem.new(trustSettings, trust, trustSettings:getSettings()[trustSettingsMode.value].PartyBuffs, function(view)
+            return setupView(view, viewSize)
+        end)
+    end
+
+    if jobNameShort == 'COR' then
+        menuItems:append(ButtonItem.default('Rolls', 18))
+        local settings = trustSettings:getSettings()[trustSettingsMode.value]
+        childMenuItems['Rolls'] = RollSettingsMenuItem.new(trustSettings, trust, L{ settings.Roll1, settings.Roll2 }, function(view)
             return setupView(view, viewSize)
         end)
     end

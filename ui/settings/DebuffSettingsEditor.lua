@@ -45,6 +45,8 @@ function DebuffSettingsEditor.new(trustSettings, settingsMode, width)
         return spell.skill == 'Enfeebling Magic'
     end)
 
+    self:setAllowsCursorSelection(true)
+
     self:reloadSettings()
 
     self:setNeedsLayout()

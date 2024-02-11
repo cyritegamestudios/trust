@@ -21,26 +21,18 @@ function Roll.new(roll_name, use_crooked_cards)
     return self
 end
 
-function Roll.decode(rawSettings)
-    local roll = Roll.new(rawSettings.roll_name, rawSettings.use_crooked_cards)
-    return roll
-end
-
-function Roll:encode()
-    local settings = {}
-    settings.type = Roll.__type
-
-    for encoding_key in L{'roll_name', 'use_crooked_cards'}:it() do
-        settings[encoding_key] = self[encoding_key]
-    end
-    return settings
-end
-
 -------
 -- Returns the name for the roll.
 -- @treturn string Roll name
 function Roll:get_roll_name()
     return self.roll_name
+end
+
+-------
+-- Sets the name for the roll.
+-- @tparam string roll_name Roll name
+function Roll:set_roll_name(roll_name)
+    self.roll_name = roll_name
 end
 
 -------
