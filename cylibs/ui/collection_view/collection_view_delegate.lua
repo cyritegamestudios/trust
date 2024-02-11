@@ -275,7 +275,7 @@ function CollectionViewDelegate:setCursorIndexPath(indexPath)
     if cell then
         self.cursorIndexPath = indexPath
 
-        if not self.collectionView:getAllowsMultipleSelection() then
+        if not self.collectionView:getAllowsMultipleSelection() and self.collectionView:getAllowsCursorSelection() then
             for selectedIndexPath in self:getSelectedIndexPaths():it() do
                 if selectedIndexPath ~= indexPath then
                     self:deselectItemAtIndexPath(selectedIndexPath)

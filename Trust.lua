@@ -1,10 +1,10 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '8.6.5'
+_addon.version = '8.7.0'
 _addon.release_notes = [[
-This update introduces new settings editors for the Geomancer and
-Summoner Trusts!
+This update introduces new settings editors for the Geomancer,
+Summoner and Corsair Trusts!
 
 	• Summoner
 	    • Customize Blood Pact: Wards in the Trust menu under
@@ -18,8 +18,13 @@ Summoner Trusts!
 	    • Automatically choose default targets for geocolures
 	    • Added `AutoIndiMode` and `AutoEntrustMode`
 
+	• Corsair
+	    • Choose Phantom Rolls to use in the Trust menu under
+	      Settings > Rolls
+
 	• Bug Fixes
 	    • Fixed an issue where Summoner would not magic burst
+	    • Fixed an issue where White Magic nukes did not appear
 
 	• Press escape or enter to exit.
 	]]

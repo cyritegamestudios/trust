@@ -10,10 +10,12 @@ BloodPactSkillSettings.__type = "BloodPactSkillSettings"
 -- Default initializer for a new skillchain settings representing a Blood Pact: Rage.
 -- @tparam list blacklist Blacklist of blood pact names
 -- @treturn BloodPactSkillSettings A blood pact skill settings
-function BloodPactSkillSettings.new(blacklist)
+function BloodPactSkillSettings.new(blacklist, defaultWeaponSkillName)
     local self = setmetatable({}, BloodPactSkillSettings)
     self.all_blood_pacts = L(res.job_abilities:with_all('type', 'BloodPactRage'))
     self.blacklist = blacklist
+    self.defaultWeaponSkillName = defaultWeaponSkillName
+    self.defaultWeaponSkillId = job_util.job_ability_id(defaultWeaponSkillName)
     return self
 end
 
@@ -45,6 +47,24 @@ function BloodPactSkillSettings:get_ability(ability_name)
     return BloodPactRage.new(ability_name)
 end
 
+function BloodPactSkillSettings:get_default_ability()
+    if self.defaultWeaponSkillId then
+        local ability = SkillchainAbility.new('weapon_skills', self.defaultWeaponSkillId, L{ MinTacticalPointsCondition.new(1000) })
+        if ability then
+            return ability
+        end
+    end
+    return nil
+end
+
+function BloodPactSkillSettings:set_default_ability(ability_name)
+    local ability = self:get_ability(ability_name)
+    if ability then
+        self.defaultWeaponSkillId = ability:get_ability_id()
+        self.defaultWeaponSkillName = ability:get_name()
+    end
+end
+
 function BloodPactSkillSettings:get_id()
     return nil
 end
@@ -53,15 +73,8 @@ function BloodPactSkillSettings:get_name()
     return 'Blood Pacts'
 end
 
--------
--- Returns the default ability that should be used when not skillchaining.
--- @treturn SkillchainAbility A SkillchainAbility
-function BloodPactSkillSettings:get_default_ability()
-    return nil
-end
-
 function BloodPactSkillSettings:serialize()
-    return "BloodPactSkillSettings.new(" .. serializer_util.serialize_args(self.blacklist) .. ")"
+    return "BloodPactSkillSettings.new(" .. serializer_util.serialize_args(self.blacklist, self.defaultWeaponSkillName or '') .. ")"
 end
 
 return BloodPactSkillSettings
