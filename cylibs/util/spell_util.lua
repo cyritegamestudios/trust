@@ -37,7 +37,11 @@ local aoe_spells = L{
 -- @tparam string spell_name Localized spell name
 -- @treturn number Spell id (see spells.lua)
 function spell_util.spell_id(spell_name)
-    return res.spells:with('en', spell_name).id
+    local spell = res.spells:with('en', spell_name)
+    if spell then
+        return spell.id
+    end
+    return nil
 end
 
 -------

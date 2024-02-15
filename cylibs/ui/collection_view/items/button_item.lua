@@ -14,7 +14,7 @@ ButtonItem.DefaultStyle = TextStyle.new(
         "Arial",
         10,
         Color.white,
-        Color.white,
+        Color.new(255, 255, 179, 25),
         0,
         1,
         Color.clear,

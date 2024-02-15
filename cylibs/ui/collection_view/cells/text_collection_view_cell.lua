@@ -90,6 +90,10 @@ function TextCollectionViewCell:setTextColor(color)
     self.textView:color(color.red, color.green, color.blue)
 end
 
+function TextCollectionViewCell:setAlpha(alpha)
+    self.textView:alpha(alpha)
+end
+
 ---
 -- Sets the item associated with the cell.
 --

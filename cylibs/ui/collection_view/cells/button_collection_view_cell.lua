@@ -85,11 +85,10 @@ function ButtonCollectionViewCell:layoutIfNeeded()
         return false
     end
 
-    local textColor = self:getItem():getTextItem():getStyle():getFontColor()
     if self:getItem():getEnabled() then
-        self.textView:setTextColor(textColor)
+        self.textView:setAlpha(255)
     else
-        self.textView:setTextColor(Color.new(textColor.alpha * 0.5, textColor.red, textColor.green, textColor.blue))
+        self.textView:setAlpha(150)
     end
     self.textView:setPosition(10, self.textView:getPosition().y)
     self.textView:setSize(self:getSize().width, self:getSize().height)

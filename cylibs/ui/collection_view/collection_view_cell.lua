@@ -134,6 +134,11 @@ function CollectionViewCell:setHighlighted(highlighted)
         return
     end
     self.highlighted = highlighted
+    for _, subview in pairs(self.subviews) do
+        if subview.setHighlighted then
+            subview:setHighlighted(highlighted)
+        end
+    end
     self:setNeedsLayout()
     self:layoutIfNeeded()
 end

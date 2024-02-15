@@ -80,7 +80,6 @@ function SkillchainAbilityPickerView:onSelectMenuItemAtIndexPath(textItem, _)
                     end
                 end
             end
-            self:getDataSource():removeAllItems()
             self:setNeedsLayout()
             self:layoutIfNeeded()
             self.weaponSkillSettings:saveSettings(true)
