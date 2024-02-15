@@ -67,7 +67,7 @@ function CollectionView.new(dataSource, layout, delegate, cursorImageItem)
     self.delegate:didMoveCursorToItemAtIndexPath():addAction(function(cursorIndexPath)
         local cell = self:getDataSource():cellForItemAtIndexPath(cursorIndexPath)
         if cell then
-            self.selectionBackground:setPosition(cell:getPosition().x - self.cursorImageItem:getSize().width - 15, cell:getPosition().y)
+            self.selectionBackground:setPosition(cell:getPosition().x - self.cursorImageItem:getSize().width - 7, cell:getPosition().y + (cell:getSize().height - self.cursorImageItem:getSize().height) / 2)
             self.selectionBackground:setSize(self.cursorImageItem:getSize().width, self.cursorImageItem:getSize().height)
             self.selectionBackground:setVisible(self:hasFocus())
             self.selectionBackground:setNeedsLayout()

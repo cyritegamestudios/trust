@@ -59,7 +59,10 @@ function TextItem:getSettings()
     settings.text.size = self.style:getFontSize()
     settings.text.stroke = {}
     settings.text.stroke.width = self.style:getStrokeWidth()
-    settings.text.stroke.alpha = self.style:getStrokeAlpha()
+    settings.text.stroke.alpha = self.style:getStrokeColor().alpha
+    settings.text.stroke.red = self.style:getStrokeColor().red
+    settings.text.stroke.green = self.style:getStrokeColor().green
+    settings.text.stroke.blue = self.style:getStrokeColor().blue
     settings.flags = {}
     settings.flags.bold = self.style:isBold()
     settings.flags.right = false

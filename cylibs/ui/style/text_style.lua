@@ -19,13 +19,13 @@ TextStyle.__type = "TextStyle"
 -- @tparam Color highlightColor The highlighted font color.
 -- @tparam number padding The padding on each side.
 -- @tparam number strokeWidth The stroke width.
--- @tparam number strokeAlpha The stroke alpha.
+-- @tparam Color strokeColor The stroke color.
 -- @tparam boolean bold Whether the text should be bolded.
 -- @tparam Color selectedColor The selected font color.
 -- @tparam Color cursorColor The color when the cursor is next to the text.
 -- @treturn TextStyle The newly created TextStyle instance.
 --
-function TextStyle.new(selectedBackgroundColor, defaultBackgroundColor, fontName, fontSize, fontColor, highlightColor, padding, strokeWidth, strokeAlpha, bold, selectedColor)
+function TextStyle.new(selectedBackgroundColor, defaultBackgroundColor, fontName, fontSize, fontColor, highlightColor, padding, strokeWidth, strokeColor, bold, selectedColor)
     local self = setmetatable({}, TextStyle)
 
     self.selectedBackgroundColor = selectedBackgroundColor
@@ -36,7 +36,7 @@ function TextStyle.new(selectedBackgroundColor, defaultBackgroundColor, fontName
     self.highlightColor = highlightColor
     self.padding = padding
     self.strokeWidth = strokeWidth
-    self.strokeAlpha = strokeAlpha
+    self.strokeColor = strokeColor or Color.clear
     self.bold = bold
     self.selectedColor = selectedColor or self.fontColor
 
@@ -130,7 +130,16 @@ end
 -- @treturn number The stroke alpha.
 --
 function TextStyle:getStrokeAlpha()
-    return self.strokeAlpha
+    return self.strokeColor.alpha
+end
+
+---
+-- Gets the stroke color.
+--
+-- @treturn Color The stroke color.
+--
+function TextStyle:getStrokeColor()
+    return self.strokeColor
 end
 
 ---
@@ -152,7 +161,7 @@ TextStyle.Default = {
             Color.lightGrey,
             2,
             0,
-            0,
+            Color.clear,
             false,
             Color.yellow
     ),
@@ -165,7 +174,7 @@ TextStyle.Default = {
             Color.lightGrey,
             2,
             0,
-            0,
+            Color.clear,
             false,
             Color.yellow
     ),
@@ -178,7 +187,7 @@ TextStyle.Default = {
             Color.lightGrey,
             2,
             1,
-            255,
+            Color.black,
             true
     ),
     ButtonSmall = TextStyle.new(
@@ -190,7 +199,7 @@ TextStyle.Default = {
             Color.lightGrey,
             0,
             0,
-            0,
+            Color.clear,
             true
     ),
     HeaderSmall = TextStyle.new(
@@ -202,7 +211,7 @@ TextStyle.Default = {
             Color.lightGrey,
             2,
             1,
-            255,
+            Color.black,
             true,
             Color.yellow
     ),
@@ -215,7 +224,7 @@ TextStyle.Default = {
             Color.lightGrey,
             2,
             1,
-            255,
+            Color.black,
             true
     ),
 }

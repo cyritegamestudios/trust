@@ -28,7 +28,7 @@ TabbedView.Style = {
             Color.lightGrey,
             8,
             1,
-            255,
+            Color.clear,
             true
     ),
     Text = TextStyle.new(
@@ -40,7 +40,7 @@ TabbedView.Style = {
             Color.lightGrey,
             2,
             0,
-            0,
+            Color.clear,
             false
     )
 }

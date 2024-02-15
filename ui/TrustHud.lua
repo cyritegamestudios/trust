@@ -77,7 +77,7 @@ TextStyle.TargetView = TextStyle.new(
         Color.red,
         2,
         1,
-        255,
+        Color.black,
         true
 )
 

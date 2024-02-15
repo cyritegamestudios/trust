@@ -64,6 +64,7 @@ SkillchainAbility = require('cylibs/battle/skillchains/abilities/skillchain_abil
 WeaponSkill = require('cylibs/battle/abilities/weapon_skill')
 BloodPactRage = require('cylibs/battle/abilities/blood_pact_rage')
 BloodPactMagic = require('cylibs/battle/abilities/blood_pact_magic')
+ElementalMagic = require('cylibs/battle/abilities/elemental_magic')
 
 -- Roles
 Role = require('cylibs/trust/roles/role')

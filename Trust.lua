@@ -1,30 +1,32 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '8.7.0'
+_addon.version = '8.8.0'
 _addon.release_notes = [[
-This update introduces new settings editors for the Geomancer,
-Summoner and Corsair Trusts!
+This update brings Scholar to the forefront with skillchaining
+using Immanence!
 
-	• Summoner
-	    • Customize Blood Pact: Wards in the Trust menu under
-	      Settings > Blood Pacts > Buffs
-	    • Automatically use Avatar's Favor
-	    • Migrated buff settings to standard buff format
+	• Scholar
+	    • Added ability to use Immanence spells to skillchain
+	    • Added ability to use Immanence spells to spam
+	    • Added ability to set a default Immanence spell
 
-	• Geomancer
-	    • Customize geocolures, indicolures and entrust indicolures in
-	      the Trust menu under Settings > Geomancy > Skillchains
-	    • Automatically choose default targets for geocolures
-	    • Added `AutoIndiMode` and `AutoEntrustMode`
+	• Dancer
+	    • Automatically use No Foot Rise
+	    • Automatically use Building Flourish and Climactic
+	      Flourish before weapon skills
 
-	• Corsair
-	    • Choose Phantom Rolls to use in the Trust menu under
-	      Settings > Rolls
+	• UI
+	    • Adjusted size of menu buttons
+	    • Added more visual feedback when highlighting
+	      a menu button
+	    • Performance and memory optimizations
 
 	• Bug Fixes
-	    • Fixed an issue where Summoner would not magic burst
-	    • Fixed an issue where White Magic nukes did not appear
+	    • Fixed an issue where Scholar would not skillchain
+	      with Immanence
+	    • Fixed an issue where the default skillchain ability
+	      could not be cleared
 
 	• Press escape or enter to exit.
 	]]
@@ -549,7 +551,7 @@ function handle_toggle_menu()
 end
 
 function handle_debug()
-	print(L(windower.ffxi.get_player().buffs))
+	print(num_created)
 
 	local alliance = player.alliance
 	for i = 1, 3 do

@@ -12,7 +12,7 @@ Menu.__index = Menu
 function Menu.new(contentViewStack, viewStack, infoView)
     local self = setmetatable({}, Menu)
 
-    self.buttonHeight = 18
+    self.buttonHeight = 16
     self.disposeBag = DisposeBag.new()
     self.menuItemStack = L{}
 

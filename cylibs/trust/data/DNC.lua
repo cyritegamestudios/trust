@@ -51,7 +51,7 @@ end
 
 function DancerTrust:on_role_added(role)
 	if role:get_type() == "skillchainer" then
-		--role:set_job_abilities(L{ JobAbility.new('Building Flourish'), JobAbility.new('Climactic Flourish') })
+		role:set_job_abilities(L{ JobAbility.new('Building Flourish'), JobAbility.new('Climactic Flourish') })
 	end
 end
 
@@ -66,6 +66,7 @@ function DancerTrust:tic(old_time, new_time)
 	Trust.tic(self, old_time, new_time)
 
 	self:check_steps()
+	self:check_finishing_moves()
 end
 
 function DancerTrust:check_steps()
@@ -86,6 +87,12 @@ function DancerTrust:check_steps()
 
 		local step_action = SequenceAction.new(actions, 'box_step')
 		self.action_queue:push_action(step_action, true)
+	end
+end
+
+function DancerTrust:check_finishing_moves()
+	if job_util.can_use_job_ability('No Foot Rise') and not self:get_job():has_finishing_moves() then
+		self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, 'No Foot Rise'))
 	end
 end
 

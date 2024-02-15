@@ -47,7 +47,9 @@ function SettingsPickerView:onSelectMenuItemAtIndexPath(textItem, _)
         addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my settings!")
     elseif textItem:getText() == 'Clear' then
         self:getDelegate():deselectAllItems()
-        self.settingsItemList:clear()
+
+        self.onPickItems(L{})
+
         self.settings:saveSettings(true)
         addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've removed all items!")
     end

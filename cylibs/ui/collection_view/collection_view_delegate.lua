@@ -283,8 +283,12 @@ function CollectionViewDelegate:setCursorIndexPath(indexPath)
             end
         end
 
+        self:deHighlightAllItems()
+
         if self.collectionView:getAllowsCursorSelection() then
             self:selectItemAtIndexPath(indexPath)
+        else
+            self:highlightItemAtIndexPath(indexPath)
         end
 
         self:didMoveCursorToItemAtIndexPath():trigger(self.cursorIndexPath)

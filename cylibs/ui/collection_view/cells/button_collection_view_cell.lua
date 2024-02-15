@@ -2,14 +2,12 @@ local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewCell = require('cylibs/ui/collection_view/collection_view_cell')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
 local Color = require('cylibs/ui/views/color')
+local DisposeBag = require('cylibs/events/dispose_bag')
 local HorizontalFlowLayout = require('cylibs/ui/collection_view/layouts/horizontal_flow_layout')
 local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_collection_view_cell')
-local ImageItem = require('cylibs/ui/collection_view/items/image_item')
-local ImageView = require('cylibs/ui/image_view')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
-local TextItem = require('cylibs/ui/collection_view/items/text_item')
 
 local ButtonCollectionViewCell = setmetatable({}, {__index = CollectionViewCell })
 ButtonCollectionViewCell.__index = ButtonCollectionViewCell
@@ -17,6 +15,8 @@ ButtonCollectionViewCell.__index = ButtonCollectionViewCell
 
 function ButtonCollectionViewCell.new(buttonItem)
     local self = setmetatable(CollectionViewCell.new(buttonItem), ButtonCollectionViewCell)
+
+    self.disposeBag = DisposeBag.new()
 
     self:setSize(buttonItem:getSize().width, buttonItem:getSize().height)
 
@@ -27,15 +27,13 @@ function ButtonCollectionViewCell.new(buttonItem)
     end)
 
     self.textView = TextCollectionViewCell.new(buttonItem:getTextItem())
-    self.textView:setEstimatedSize(18)
+    self.textView:setEstimatedSize(buttonItem:getSize().height + 2)
     self.textView:setSize(buttonItem:getSize().width, buttonItem:getSize().height)
 
     self:addSubview(self.textView)
 
     self.buttonView = CollectionView.new(dataSource, HorizontalFlowLayout.new())
     self.buttonView:setSize(buttonItem:getSize().width, buttonItem:getSize().height)
-
-    self:addSubview(self.buttonView)
 
     local items = L{
         IndexedItem.new(buttonItem:getImageItems().left, IndexPath.new(1, 1)),
@@ -44,14 +42,38 @@ function ButtonCollectionViewCell.new(buttonItem)
     }
     self.buttonView:getDataSource():addItems(items)
 
+    self:setBackgroundImageView(self.buttonView)
+
+    local dataSource = CollectionViewDataSource.new(function(item, indexPath)
+        local cell = ImageCollectionViewCell.new(item)
+        cell:setItemSize(item:getSize().width)
+        return cell
+    end)
+
+    self.highlightedButtonView = CollectionView.new(dataSource, HorizontalFlowLayout.new())
+    self.highlightedButtonView:setSize(buttonItem:getSize().width, buttonItem:getSize().height)
+
+    local items = L{
+        IndexedItem.new(buttonItem:getSelectedImageItems().left, IndexPath.new(1, 1)),
+        IndexedItem.new(buttonItem:getSelectedImageItems().center, IndexPath.new(1, 2)),
+        IndexedItem.new(buttonItem:getSelectedImageItems().right, IndexPath.new(1, 3)),
+    }
+    self.highlightedButtonView:getDataSource():addItems(items)
+
+    self.highlightedButtonView:setVisible(false)
+
     self:setNeedsLayout()
     self:layoutIfNeeded()
+
+    self.disposeBag:addAny(L{ self.textView, self.buttonView, self.highlightedButtonView })
 
     return self
 end
 
-function ButtonCollectionViewCell:setItem(item)
-    CollectionViewCell.setItem(self, item)
+function ButtonCollectionViewCell:destroy()
+    CollectionViewCell.destroy(self)
+
+    self.disposeBag:destroy()
 end
 
 ---
@@ -73,10 +95,29 @@ function ButtonCollectionViewCell:layoutIfNeeded()
     self.textView:setSize(self:getSize().width, self:getSize().height)
     self.textView:layoutIfNeeded()
 
-    self.buttonView:setSize(self:getSize().width, self:getSize().height)
-    self.buttonView:layoutIfNeeded()
-
     return true
+end
+
+---
+-- Sets the selection state of the CollectionViewCell.
+-- @tparam boolean selected The new selection state.
+--
+function ButtonCollectionViewCell:setHighlighted(highlighted)
+    if highlighted == self.highlighted then
+        return
+    end
+
+    self.textView:setHighlighted(highlighted)
+
+    self:setBackgroundImageView(nil)
+
+    if highlighted then
+        self:setBackgroundImageView(self.highlightedButtonView)
+    else
+        self:setBackgroundImageView(self.buttonView)
+    end
+
+    CollectionViewCell.setHighlighted(self, highlighted)
 end
 
 ---

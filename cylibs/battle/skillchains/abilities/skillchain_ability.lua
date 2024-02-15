@@ -142,8 +142,12 @@ function SkillchainAbility:to_action(target_index, player, job_abilities)
 
     for job_ability in (job_abilities or L{}):it() do
         if job_util.can_use_job_ability(job_ability:get_name()) then
-            actions:append(JobAbilityAction.new(0, 0, 0, job_ability:get_name()))
-            actions:append(WaitAction.new(0, 0, 0, 1))
+            local job_ability_action = job_ability:to_action()
+            if job_ability_action:can_perform() then
+                actions:append(job_ability:to_action())
+            else
+                job_ability_action:destroy()
+            end
         end
     end
 
@@ -152,7 +156,7 @@ function SkillchainAbility:to_action(target_index, player, job_abilities)
     elseif self.resource == 'job_abilities' then
         actions:append(JobAbilityAction.new(0, 0, 0, self:get_name(), target_index))
     elseif self.resource == 'spells' then
-        actions:append(SpellAction.new(0, 0, 0, self:get_id(), target_index, player))
+        actions:append(SpellAction.new(0, 0, 0, self:get_ability_id(), target_index, player))
     end
 
     actions:append(WaitAction.new(0, 0, 0, 2))

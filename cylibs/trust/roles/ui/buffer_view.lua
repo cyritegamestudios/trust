@@ -24,7 +24,7 @@ TextStyle.BufferView = {
             Color.yellow,
             2,
             0,
-            0,
+            Color.clear,
             false
     ),
 }

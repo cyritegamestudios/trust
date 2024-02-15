@@ -54,7 +54,14 @@ function SkillSettingsMenuItem.new(weaponSkillSettings, skillSettings, viewFacto
             end
         end
 
-        local abilityPickerView = viewFactory(SettingsItemPickerView.new(weaponSkillSettings, L{ skillSettings.defaultWeaponSkillName }:compact_map(), allAbilities, onPickItems))
+        local selectedAbilities = L{}
+
+        local defaultAbility = skillSettings:get_default_ability()
+        if defaultAbility then
+            selectedAbilities:append(defaultAbility:get_name())
+        end
+
+        local abilityPickerView = viewFactory(SettingsItemPickerView.new(weaponSkillSettings, selectedAbilities:compact_map(), allAbilities, onPickItems))
         abilityPickerView:setShouldRequestFocus(true)
         abilityPickerView:setAllowsMultipleSelection(false)
         abilityPickerView:setTitle("Choose an ability.")

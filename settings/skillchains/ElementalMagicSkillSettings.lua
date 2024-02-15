@@ -1,3 +1,4 @@
+local ElementalMagic = require('cylibs/battle/abilities/elemental_magic')
 local serializer_util = require('cylibs/util/serializer_util')
 local SkillchainAbility = require('cylibs/battle/skillchains/abilities/skillchain_ability')
 local skills = require('cylibs/res/skills')
@@ -11,7 +12,7 @@ ElementalMagicSkillSettings.__type = "ElementalMagicSkillSettings"
 -- Default initializer for a new skillchain settings representing elemental magic used with Immanence.
 -- @tparam list blacklist Blacklist of spell names
 -- @treturn ElementalMagicSkillSettings An elemental magic settings
-function ElementalMagicSkillSettings.new(blacklist)
+function ElementalMagicSkillSettings.new(blacklist, defaultSpellName)
     local self = setmetatable({}, ElementalMagicSkillSettings)
     self.blacklist = blacklist
     self.known_spells = spell_util.get_spells(function(spell)
@@ -19,6 +20,8 @@ function ElementalMagicSkillSettings.new(blacklist)
     end):map(function(spell)
         return Spell.new(spell.en)
     end)
+    self.defaultSpellName = defaultSpellName
+    self.defaultSpellId = defaultSpellName and spell_util.spell_id(defaultSpellName)
     return self
 end
 
@@ -46,7 +49,24 @@ function ElementalMagicSkillSettings:get_abilities()
 end
 
 function ElementalMagicSkillSettings:get_default_ability()
+    if self.defaultSpellId then
+        local ability = SkillchainAbility.new('spells', self.defaultSpellId, L{ JobAbilityRecastReadyCondition.new('Immanence') })
+        if ability then
+            return ability
+        end
+    end
     return nil
+end
+
+function ElementalMagicSkillSettings:set_default_ability(ability_name)
+    local ability = self:get_ability(ability_name)
+    if ability then
+        self.defaultSpellId = ability:get_ability_id()
+        self.defaultSpellName = ability:get_name()
+    else
+        self.defaultSpellId = nil
+        self.defaultSpellName = nil
+    end
 end
 
 function ElementalMagicSkillSettings:get_id()
@@ -58,11 +78,11 @@ function ElementalMagicSkillSettings:get_name()
 end
 
 function ElementalMagicSkillSettings:get_ability(ability_name)
-    return SkillchainAbility.new('spells', res.spells:with('en', ability_name).id)
+    return ElementalMagic.new(ability_name)
 end
 
 function ElementalMagicSkillSettings:serialize()
-    return "ElementalMagicSkillSettings.new(" .. serializer_util.serialize_args(self.blacklist) .. ")"
+    return "ElementalMagicSkillSettings.new(" .. serializer_util.serialize_args(self.blacklist, self.defaultSpellName or '') .. ")"
 end
 
 return ElementalMagicSkillSettings

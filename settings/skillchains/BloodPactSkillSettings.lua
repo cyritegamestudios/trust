@@ -62,6 +62,9 @@ function BloodPactSkillSettings:set_default_ability(ability_name)
     if ability then
         self.defaultWeaponSkillId = ability:get_ability_id()
         self.defaultWeaponSkillName = ability:get_name()
+    else
+        self.defaultWeaponSkillId = nil
+        self.defaultWeaponSkillName = nil
     end
 end
 
