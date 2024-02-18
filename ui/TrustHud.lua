@@ -22,6 +22,7 @@ local job_util = require('cylibs/util/job_util')
 local LoadSettingsView = require('ui/settings/LoadSettingsView')
 local NukeSettingsEditor = require('ui/settings/NukeSettingsEditor')
 local PartyMemberView = require('cylibs/entity/party/ui/party_member_view')
+local PartyStatusWidget = require('ui/widgets/PartyStatusWidget')
 local PartyTargetView = require('cylibs/entity/party/ui/party_target_view')
 local SingerView = require('cylibs/trust/roles/ui/singer_view')
 local SongPickerView = require('ui/settings/pickers/SongPickerView')
@@ -128,6 +129,9 @@ function TrustHud:layoutIfNeeded()
     self.targetWidget:setPosition(settings.hud.target.position.x, settings.hud.target.position.y)
     self.targetWidget:layoutIfNeeded()
 
+    self.partyStatusWidget:setPosition(settings.hud.party.position.x, settings.hud.party.position.y)
+    self.partyStatusWidget:layoutIfNeeded()
+
     self.infoBar:setNeedsLayout()
     self.infoBar:layoutIfNeeded()
 end
@@ -145,6 +149,10 @@ function TrustHud:createWidgets(addon_settings, addon_enabled, action_queue, par
     self.targetWidget = TargetWidget.new(Frame.new(0, 0, 125, 40), addon_settings, party)
     self.targetWidget:setSize(125, 40)
     self.targetWidget:layoutIfNeeded()
+
+    self.partyStatusWidget = PartyStatusWidget.new(Frame.new(0, 0, 125, 55), addon_settings, party)
+    self.partyStatusWidget:setSize(125, 55)
+    self.partyStatusWidget:layoutIfNeeded()
 end
 
 function TrustHud:toggleMenu()
