@@ -1,44 +1,42 @@
-local BackgroundView = require('cylibs/ui/views/background/background_view')
-local CollectionView = require('cylibs/ui/collection_view/collection_view')
-local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
+local FFXIBackgroundView = require('ui/themes/ffxi/FFXIBackgroundView')
 local Frame = require('cylibs/ui/views/frame')
-local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
-local IndexPath = require('cylibs/ui/collection_view/index_path')
-local Padding = require('cylibs/ui/style/padding')
-local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
-local TextItem = require('cylibs/ui/collection_view/items/text_item')
-local TextStyle = require('cylibs/ui/style/text_style')
-local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 
 local View = require('cylibs/ui/views/view')
 local FFXIWindow = setmetatable({}, {__index = View })
 FFXIWindow.__index = FFXIWindow
 
-function FFXIWindow.new(contentView, viewSize)
+function FFXIWindow.new(viewSize)
     local self = setmetatable(View.new(Frame.new(0, 0, viewSize.width, viewSize.height)), FFXIWindow)
 
-    self.contentView = contentView
+    self.contentView = View.new(self.frame)
+    self:addSubview(self.contentView)
 
-    local backgroundView = BackgroundView.new(Frame.new(0, 0, viewSize.width, viewSize.height),
-            windower.addon_path..'assets/backgrounds/menu_bg_top.png',
-            windower.addon_path..'assets/backgrounds/menu_bg_mid.png',
-            windower.addon_path..'assets/backgrounds/menu_bg_bottom.png')
-
+    local backgroundView = FFXIBackgroundView.new(Frame.new(0, 0, viewSize.width, viewSize.height))
     self:setBackgroundImageView(backgroundView)
-
-    self:addSubview(contentView)
 
     return self
 end
 
+function FFXIWindow:getContentView()
+    return self.contentView
+end
+
+function FFXIWindow:setTitle(title)
+    self.backgroundImageView:setTitle(title)
+end
+
 function FFXIWindow:layoutIfNeeded()
-    if not View.layoutIfNeeded(self) then
-        return false
+    local needsLayout = View.layoutIfNeeded(self)
+    if not needsLayout then
+        return
     end
 
-    self.contentView:setSize(self.frame.width, self.frame.height)
-    self.contentView:setVisible(self:isVisible())
+    self.contentView:setSize(self:getSize().width, self:getSize().height)
+
+    self.contentView:setNeedsLayout()
     self.contentView:layoutIfNeeded()
+
+    return needsLayout
 end
 
 return FFXIWindow

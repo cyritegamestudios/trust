@@ -73,7 +73,6 @@ function ImageItem:getAlpha()
     return self.alpha
 end
 
-
 ---
 -- Checks if this ImageItem is equal to another.
 -- @tparam ImageItem otherItem The other ImageItem to compare with.
@@ -81,6 +80,7 @@ end
 --
 function ImageItem:__eq(otherItem)
     return self.imagePath == otherItem:getImagePath() and self.frame == otherItem.frame
+        and self.repeatX == otherItem:getRepeat().x and self.repeatY == otherItem:getRepeat().y
 end
 
 return ImageItem

@@ -142,8 +142,8 @@ function CollectionViewDelegate:selectItemAtIndexPath(indexPath)
         end
         return
     end
-
     if not self.collectionView:getAllowsMultipleSelection() then
+        self:deHighlightAllItems()
         self:deselectAllItems()
     end
 

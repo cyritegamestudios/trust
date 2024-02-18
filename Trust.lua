@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '8.8.0'
+_addon.version = '8.8.1'
 _addon.release_notes = [[
 This update brings Scholar to the forefront with skillchaining
 using Immanence!
@@ -20,7 +20,7 @@ using Immanence!
 	    • Adjusted size of menu buttons
 	    • Added more visual feedback when highlighting
 	      a menu button
-	    • Performance and memory optimizations
+	    • Overhaul of Trust HUD
 
 	• Bug Fixes
 	    • Fixed an issue where Scholar would not skillchain
@@ -295,7 +295,7 @@ function load_ui()
 	local Mouse = require('cylibs/ui/input/mouse')
 	Mouse.input():setMouseEventCooldown(settings.click_cooldown or 0.0)
 
-	hud = TrustHud.new(player, action_queue, addon_enabled, 500, 500)
+	hud = TrustHud.new(player, action_queue, addon_settings, addon_enabled, 500, 500)
 
 	local info = windower.get_windower_settings()
 

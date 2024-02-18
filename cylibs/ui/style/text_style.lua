@@ -25,7 +25,7 @@ TextStyle.__type = "TextStyle"
 -- @tparam Color cursorColor The color when the cursor is next to the text.
 -- @treturn TextStyle The newly created TextStyle instance.
 --
-function TextStyle.new(selectedBackgroundColor, defaultBackgroundColor, fontName, fontSize, fontColor, highlightColor, padding, strokeWidth, strokeColor, bold, selectedColor)
+function TextStyle.new(selectedBackgroundColor, defaultBackgroundColor, fontName, fontSize, fontColor, highlightColor, padding, strokeWidth, strokeColor, bold, selectedColor, italic)
     local self = setmetatable({}, TextStyle)
 
     self.selectedBackgroundColor = selectedBackgroundColor
@@ -39,6 +39,7 @@ function TextStyle.new(selectedBackgroundColor, defaultBackgroundColor, fontName
     self.strokeColor = strokeColor or Color.clear
     self.bold = bold
     self.selectedColor = selectedColor or self.fontColor
+    self.italic = italic
 
     return self
 end
@@ -151,6 +152,30 @@ function TextStyle:isBold()
     return self.bold
 end
 
+---
+-- Gets the value of italic.
+--
+-- @treturn boolean Value of italic.
+--
+function TextStyle:isItalic()
+    return self.italic
+end
+
+---
+-- Estimated width of the given text.
+--
+-- @tparam string text Text
+--
+-- @treturn number Estimated width of the text.
+--
+function TextStyle:getEstimatedTextWidth(text)
+    local textWidth = self:getFontSize() * text:length()
+    if self:isBold() then
+        textWidth = textWidth * 1.05
+    end
+    return textWidth
+end
+
 TextStyle.Default = {
     Text = TextStyle.new(
             Color.clear,
@@ -178,6 +203,19 @@ TextStyle.Default = {
             false,
             Color.yellow
     ),
+    Subheadline = TextStyle.new(
+            Color.clear,
+            Color.clear,
+            "Arial",
+            8,
+            Color.white,
+            Color.lightGrey,
+            2,
+            0,
+            Color.clear,
+            false,
+            Color.yellow
+    ),
     Button = TextStyle.new(
             Color.lightGrey:withAlpha(50),
             Color.clear,
@@ -195,11 +233,11 @@ TextStyle.Default = {
             Color.clear,
             "Arial",
             10,
-            Color.white,
+            Color.white:withAlpha(225),
             Color.lightGrey,
             0,
-            0,
-            Color.clear,
+            0.5,
+            Color.new(175, 150, 150, 150),
             true
     ),
     HeaderSmall = TextStyle.new(

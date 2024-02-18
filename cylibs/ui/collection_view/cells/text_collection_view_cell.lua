@@ -1,3 +1,4 @@
+local Alignment = require('cylibs/ui/layout/alignment')
 local texts = require('texts')
 
 local CollectionViewCell = require('cylibs/ui/collection_view/collection_view_cell')
@@ -31,6 +32,21 @@ function TextCollectionViewCell:destroy()
     CollectionViewCell.destroy(self)
 end
 
+function TextCollectionViewCell:applyTextStyle()
+    local style = self:getItem():getStyle()
+    if self:isSelected() then
+        self:setTextColor(style:getSelectedColor())
+        self.textView:bold(true)
+    elseif self:isHighlighted() then
+        self:setTextColor(style:getHighlightColor())
+        self.textView:bold(style:isBold())
+    else
+        self:setTextColor(style:getFontColor())
+        self.textView:bold(style:isBold())
+    end
+    self.textView:italic(style:isItalic())
+end
+
 ---
 -- Checks if layout updates are needed and triggers layout if necessary.
 -- This function is typically called before rendering to ensure that the View's layout is up to date.
@@ -43,19 +59,36 @@ function TextCollectionViewCell:layoutIfNeeded()
     local position = self:getAbsolutePosition()
 
     self.textView.text = self:getItem():getText()
-    self.textView:pos(position.x, position.y + (self:getSize().height - self:getEstimatedSize()) / 2)
 
-    local style = self:getItem():getStyle()
-    if self:isSelected() then
-        self:setTextColor(style:getSelectedColor())
-        self.textView:bold(true)
-    elseif self:isHighlighted() then
-        self:setTextColor(style:getHighlightColor())
-        self.textView:bold(style:isBold())
-    else
-        self:setTextColor(style:getFontColor())
-        self.textView:bold(style:isBold())
+    local textWidth = string.len(self:getItem():getText()) * self:getItem():getStyle():getFontSize()
+
+    if self:getItem():shouldAutoResize() then
+        if textWidth > self:getSize().width + 10 then
+            self.textView:size(self:getItem():getStyle():getFontSize() - 1)
+        else
+            self.textView:size(self:getItem():getStyle():getFontSize())
+        end
     end
+    if self:getItem():shouldWordWrap() then
+        if textWidth > self:getSize().width + 12 then
+            local text = ""
+            local words = self:getItem():getText():split(" ")
+            for word in words:it() do
+                text = text..word.."\n "
+            end
+            self.textView.text = text
+        end
+    end
+
+    local textPosX = position.x --+ self:getItem():getOffset().x
+    if self:getItem():getHorizontalAlignment() == Alignment.center() then
+        textPosX = textPosX + (self:getSize().width - textWidth) / 4
+    end
+
+    local textPosY = position.y + (self:getSize().height - self:getEstimatedSize() * (self.textView:size() / self:getItem():getStyle():getFontSize())) / 2 + self:getItem():getOffset().y
+    self.textView:pos(textPosX, textPosY)
+
+    self:applyTextStyle()
 
     self.textView:visible(self:getAbsoluteVisibility() and self:isVisible())
 

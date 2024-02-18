@@ -30,7 +30,7 @@ function ModesView.new(modeNames)
 
     local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0)), nil, cursorImageItem), ModesView)
+    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 10, 0, 0)), nil, cursorImageItem), ModesView)
 
     self:setShouldRequestFocus(true)
     self:setScrollDelta(20)

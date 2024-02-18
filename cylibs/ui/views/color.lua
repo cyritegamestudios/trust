@@ -67,6 +67,6 @@ Color.red = Color.new(255, 255, 132, 132)
 Color.blue = Color.new(255, 132, 132, 255)
 
 -- @treturn Color Yellow color.
-Color.yellow = Color.new(255, 255, 255, 182)
+Color.yellow = Color.new(255, 255, 255, 180)
 
 return Color

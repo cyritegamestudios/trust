@@ -1,6 +1,7 @@
 local Color = require('cylibs/ui/views/color')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local Frame = require('cylibs/ui/views/frame')
+local ResizableImageItem = require('cylibs/ui/collection_view/items/resizable_image_item')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
 
@@ -21,6 +22,11 @@ ButtonItem.DefaultStyle = TextStyle.new(
         true
 )
 
+ButtonItem.State = {}
+ButtonItem.State.Default = "Default"
+ButtonItem.State.Highlighted = "Highlighted"
+ButtonItem.State.Selected = "Selected"
+
 ---
 -- Creates a new button item with specified text and images.
 --
@@ -30,25 +36,28 @@ ButtonItem.DefaultStyle = TextStyle.new(
 -- @tparam ImageItem rightImageItem The right image of the button.
 -- @treturn ButtonItem The newly created button item.
 --
-function ButtonItem.new(
-        textItem,
-        leftImageItem, centerImageItem, rightImageItem,
-        leftImageItemSelected, centerImageItemSelected, rightImageItemSelected
-)
+function ButtonItem.new(textItem, defaultImageItem, highlightedImageItem, selectedImageItem)
     local self = setmetatable({}, ButtonItem)
 
     self.textItem = textItem
-    self.leftImageItem = leftImageItem
-    self.centerImageItem = centerImageItem
-    self.rightImageItem = rightImageItem
-    self.leftImageItemSelected = leftImageItemSelected
-    self.centerImageItemSelected = centerImageItemSelected
-    self.rightImageItemSelected = rightImageItemSelected
+    self.textItem:setShouldAutoResize(true)
 
-    local width = leftImageItem:getSize().width + centerImageItem:getSize().width + rightImageItem:getSize().width
-    local height = math.max(leftImageItem:getSize().height, centerImageItem:getSize().height, rightImageItem:getSize().height)
+    self.imageItems = {}
 
-    self.size = Frame.new(0, 0, width, height)
+    self:setImageItem(defaultImageItem, ButtonItem.State.Default)
+    self:setImageItem(highlightedImageItem, ButtonItem.State.Highlighted)
+    self:setImageItem(selectedImageItem, ButtonItem.State.Selected)
+
+    local buttonWidth = 0
+    local buttonHeight = 0
+
+    local imageItems = defaultImageItem:getAllImageItems(L{ ResizableImageItem.Left, ResizableImageItem.Center, ResizableImageItem.Right })
+    for imageItem in imageItems:it() do
+        buttonWidth = buttonWidth + imageItem:getSize().width
+        buttonHeight = math.max(buttonHeight, imageItem:getSize().height)
+    end
+
+    self.size = Frame.new(0, 0, buttonWidth, buttonHeight)
     self.alpha = 255
     self.enabled = true
 
@@ -67,38 +76,48 @@ function ButtonItem.default(buttonText, buttonHeight)
     local centerImageItem = ImageItem.new(windower.addon_path..'assets/buttons/menu_button_bg_mid.png', 84, buttonHeight)
     centerImageItem:setRepeat(3, 1)
 
-    local centerImageItemSelected = ImageItem.new(windower.addon_path..'assets/buttons/menu_button_bg_mid_selected.png', 84, buttonHeight)
-    centerImageItemSelected:setRepeat(3, 1)
+    local centerImageItemHighlighted = ImageItem.new(windower.addon_path..'assets/buttons/menu_button_bg_mid_selected.png', 84, buttonHeight)
+    centerImageItemHighlighted:setRepeat(3, 1)
+
+    local defaultImageItem = ResizableImageItem.new(
+            nil,
+            ImageItem.new(windower.addon_path..'assets/buttons/menu_button_bg_left.png', 8, buttonHeight),
+            nil,
+            ImageItem.new(windower.addon_path..'assets/buttons/menu_button_bg_right.png', 8, buttonHeight),
+            centerImageItem
+    )
+    local highlightedImageItem = ResizableImageItem.new(
+            nil,
+            ImageItem.new(windower.addon_path..'assets/buttons/menu_button_bg_left_selected.png', 8, buttonHeight),
+            nil,
+            ImageItem.new(windower.addon_path..'assets/buttons/menu_button_bg_right_selected.png', 8, buttonHeight),
+            centerImageItemHighlighted
+    )
 
     local buttonItem = ButtonItem.new(
             TextItem.new(buttonText, ButtonItem.DefaultStyle),
-            ImageItem.new(windower.addon_path..'assets/buttons/menu_button_bg_left.png', 8, buttonHeight),
-            centerImageItem,
-            ImageItem.new(windower.addon_path..'assets/buttons/menu_button_bg_right.png', 8, buttonHeight),
-            ImageItem.new(windower.addon_path..'assets/buttons/menu_button_bg_left_selected.png', 8, buttonHeight),
-            centerImageItemSelected,
-            ImageItem.new(windower.addon_path..'assets/buttons/menu_button_bg_right_selected.png', 8, buttonHeight)
+            defaultImageItem,
+            highlightedImageItem,
+            defaultImageItem
     )
     return buttonItem
 end
 
 ---
--- Retrieves the images associated with this button item.
--- @treturn table A table containing left, center, and right image items.
+-- Sets the image item associated with the given button state.
+-- @tparam ResizableImageItem An image item
 --
-function ButtonItem:getImageItems()
-    return { left = self.leftImageItem, center = self.centerImageItem, right = self.rightImageItem }
+function ButtonItem:setImageItem(item, buttonState)
+    self.imageItems[buttonState] = item
 end
 
 ---
--- Retrieves the selected images associated with this button item.
--- @treturn table A table containing left, center, and right image items, or nil if none are specified.
+-- Retrieves the image item associated with the given button state.
+-- @tparam ButtonItem.State buttonState Button state
+-- @treturn ResizableImageItem An image item
 --
-function ButtonItem:getSelectedImageItems()
-    if self.leftImageItemSelected and self.centerImageItemSelected and self.rightImageItemSelected then
-        return { left = self.leftImageItemSelected, center = self.centerImageItemSelected, right = self.rightImageItemSelected }
-    end
-    return nil
+function ButtonItem:getImageItem(buttonState)
+    return self.imageItems[buttonState]
 end
 
 ---
@@ -163,8 +182,16 @@ function ButtonItem:__eq(otherItem)
     if not otherItem.__type == ButtonItem.__type then
         return false
     end
-    return self:getText() == otherItem:getText() and self:getImageItems().left == otherItem:getImageItems().left
-            and self:getImageItems().center == otherItem:getImageItems().center and self:getImageItems().right == otherItem:getImageItems().right
+    if self:getText() ~= otherItem:getText() then
+        return false
+    end
+    for key, imageItem in pairs(self.imageItems) do
+        local otherImageItem = otherItem:getImageItem(key)
+        if imageItem ~= otherImageItem then
+            return false
+        end
+    end
+    return true
 end
 
 return ButtonItem
