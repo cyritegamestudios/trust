@@ -133,12 +133,13 @@ function PartyStatusWidget:destroy()
 end
 
 function PartyStatusWidget:tic()
+    local player = self.party:get_player()
     for partyMember in self.party:get_party_members():it() do
         local indexPath = self:indexPathForPartyMember(partyMember)
         if indexPath then
             local cell = self:getDataSource():cellForItemAtIndexPath(indexPath)
             if cell then
-                local dist = ffxi_util.distance(ffxi_util.get_player_position(), partyMember:get_position())
+                local dist = ffxi_util.distance(player:get_position(), partyMember:get_position())
                 if dist > 21 then
                     cell:setAlpha(150)
                 else

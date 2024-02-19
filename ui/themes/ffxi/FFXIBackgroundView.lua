@@ -81,7 +81,7 @@ function FFXIBackgroundView.new(frame)
     self.bottomBorderView:setVisible(true)
 
     self:addSubview(self.bottomBorderView)
-    
+
     return self
 end
 
