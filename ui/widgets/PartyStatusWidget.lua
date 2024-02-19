@@ -43,7 +43,7 @@ function PartyStatusWidget.new(frame, addonSettings, party)
 
     self.addonSettings = addonSettings
     self.party = party
-    self.lostPartyMemberIds = S{}
+    self.events = {}
 
     self:setScrollEnabled(false)
     self:setUserInteractionEnabled(true)
@@ -107,33 +107,9 @@ function PartyStatusWidget.new(frame, addonSettings, party)
         end
     end), self:getDelegate():didSelectItemAtIndexPath())
 
-    local onPartyMemberAdded = function(partyMember)
-        partyMember:on_position_change():addAction(function(_, x, y, z)
-            local indexPath = self:indexPathForPartyMember(partyMember)
-            if not indexPath then
-                return
-            end
-            local cell = self:getDataSource():cellForItemAtIndexPath(indexPath)
-            if cell then
-                local outOfRange = ffxi_util.distance(ffxi_util.get_player_position(), partyMember:get_position()) > 21
-                if outOfRange then
-                    cell:setAlpha(150)
-                else
-                    cell:setAlpha(255)
-                end
-                cell:setUserInteractionEnabled(not outOfRange)
-            end
-        end)
-        self:setPartyMembers(party:get_party_members(true))
-    end
-
     self:getDisposeBag():add(party:on_party_member_added():addAction(function(partyMember)
-        onPartyMemberAdded(partyMember)
+        self:addPartyMember(partyMember)
     end), party:on_party_member_added())
-
-    for partyMember in self.party:get_party_members(true):it() do
-        onPartyMemberAdded(partyMember)
-    end
 
     self:getDisposeBag():add(party:on_party_member_removed():addAction(function(party_member)
         self:removePartyMember(party_member)
@@ -143,7 +119,35 @@ function PartyStatusWidget.new(frame, addonSettings, party)
         self:setAssistTarget(party_member)
     end), party:on_party_assist_target_change())
 
+    self.events.tic = windower.register_event('time change', function() self:tic()  end)
+
     return self
+end
+
+function PartyStatusWidget:destroy()
+    CollectionView.destroy(self)
+
+    for _,event in pairs(self.events) do
+        windower.unregister_event(event)
+    end
+end
+
+function PartyStatusWidget:tic()
+    for partyMember in self.party:get_party_members():it() do
+        local indexPath = self:indexPathForPartyMember(partyMember)
+        if indexPath then
+            local cell = self:getDataSource():cellForItemAtIndexPath(indexPath)
+            if cell then
+                local dist = ffxi_util.distance(ffxi_util.get_player_position(), partyMember:get_position())
+                if dist > 21 then
+                    cell:setAlpha(150)
+                else
+                    cell:setAlpha(255)
+                end
+                cell:setUserInteractionEnabled(dist <= 21)
+            end
+        end
+    end
 end
 
 function PartyStatusWidget:indexPathForPartyMember(party_member)
@@ -167,14 +171,14 @@ function PartyStatusWidget:setAssistTarget(party_member)
     end
 end
 
-function PartyStatusWidget:setPartyMembers(party_members)
+function PartyStatusWidget:setPartyMembers(partyMember)
     self:getDataSource():removeAllItems()
 
     local rowIndex = 0
 
-    local itemsToUpdate = party_members:map(function(party_member)
+    local itemsToUpdate = partyMember:map(function(p)
         local style = PartyStatusWidget.TextSmall
-        return TextItem.new(party_member:get_name(), style)
+        return TextItem.new(p:get_name(), style)
     end):map(function(item)
         rowIndex = rowIndex + 1
         return IndexedItem.new(item, IndexPath.new(1, rowIndex))
@@ -186,6 +190,10 @@ function PartyStatusWidget:setPartyMembers(party_members)
 
     self:setSize(self:getSize().width, self:getContentSize().height)
     self:layoutIfNeeded()
+end
+
+function PartyStatusWidget:addPartyMember(partyMember)
+    self:setPartyMembers(self.party:get_party_members(true))
 end
 
 function PartyStatusWidget:removePartyMember(party_member)
@@ -222,6 +230,5 @@ function PartyStatusWidget:setPosition(x, y)
     self.addonSettings:getSettings().hud.party.position.y = y
     self.addonSettings:saveSettings(true)
 end
-
 
 return PartyStatusWidget

@@ -64,6 +64,7 @@ function FFXIBackgroundView.new(frame)
 
     self:setVisible(false)
     self:setSize(frame.width, frame.height)
+    self:setScrollEnabled(false)
 
     local borderImageItem = ResizableImageItem.new()
 
@@ -80,7 +81,7 @@ function FFXIBackgroundView.new(frame)
     self.bottomBorderView:setVisible(true)
 
     self:addSubview(self.bottomBorderView)
-
+    
     return self
 end
 
