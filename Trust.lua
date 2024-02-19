@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '8.8.1'
+_addon.version = '8.8.2'
 _addon.release_notes = [[
 This update brings Scholar to the forefront with skillchaining
 using Immanence!
@@ -552,6 +552,10 @@ end
 
 function handle_debug()
 	print(num_created)
+
+	print(L(windower.ffxi.get_player().buffs):map(function(buff_id)
+		return res.buffs:with('id', buff_id).en
+	end))
 
 	local alliance = player.alliance
 	for i = 1, 3 do

@@ -8,7 +8,7 @@ function WeaponSkillAction.new(weapon_skill_name, target_index)
 	local conditions = L{
 		HasWeaponSkillCondition.new(weapon_skill_name),
 		MinTacticalPointsCondition.new(1000),
-		NotCondition.new(L{ HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'amnesia'}, false) }),
+		NotCondition.new(L{ HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'amnesia'}, 1) }, windower.ffxi.get_player().index),
 		ValidTargetCondition.new()
 	}
 

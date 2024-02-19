@@ -1,7 +1,3 @@
-require('tables')
-require('lists')
-require('logger')
-
 RuneFencer = require('cylibs/entity/jobs/RUN')
 
 local Trust = require('cylibs/trust/trust')
@@ -9,6 +5,7 @@ local RuneFencerTrust = setmetatable({}, {__index = Trust })
 RuneFencerTrust.__index = RuneFencerTrust
 
 local Buffer = require('cylibs/trust/roles/buffer')
+local DisposeBag = require('cylibs/events/dispose_bag')
 local Puller = require('cylibs/trust/roles/puller')
 local Tank = require('cylibs/trust/roles/tank')
 
@@ -24,7 +21,8 @@ function RuneFencerTrust.new(settings, action_queue, battle_settings, trust_sett
 
 	self.settings = settings
 	self.action_queue = action_queue
-	self.rune_last_used = os.time()
+	self.rune_last_used = os.time() - 5
+	self.dispose_bag = DisposeBag.new()
 
 	return self
 end
@@ -35,14 +33,28 @@ function RuneFencerTrust:on_init()
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
 		local buffer = self:role_with_type("buffer")
 
-		buffer:set_job_abilities(new_trust_settings.JobAbilities)
 		buffer:set_self_spells(new_trust_settings.SelfBuffs)
 		buffer:set_party_spells(new_trust_settings.PartyBuffs)
+
+		self:set_job_abilities(new_trust_settings.JobAbilities)
 	end)
+
+	self.dispose_bag:add(state.AutoRuneMode:on_state_change():addAction(function(_, _)
+		self:set_job_abilities(self:get_trust_settings().JobAbilities)
+	end), state.AutoRuneMode:on_state_change())
 end
 
 function RuneFencerTrust:destroy()
 	Trust.destroy(self)
+end
+
+function RuneFencerTrust:set_job_abilities(job_abilities)
+	local job_abilities = L{}:extend(job_abilities)
+	if state.AutoRuneMode.value ~= 'Off' then
+		job_abilities = job_abilities:extend(self:get_job():get_wards_for_rune(state.AutoRuneMode.value))
+	end
+	local buffer = self:role_with_type("buffer")
+	buffer:set_job_abilities(job_abilities)
 end
 
 function RuneFencerTrust:job_target_change(target_index)

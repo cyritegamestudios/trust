@@ -11,7 +11,7 @@ Waltz.__class = "Waltz"
 function Waltz.new(waltz_name, target_index)
     local self = setmetatable(JobAbility.new(0, 0, 0, waltz_name, target_index), Waltz)
 
-    self.conditions:append(NotCondition.new(L{ HasBuffCondition.new('Saber Dance', windower.ffxi.get_player().index) }))
+    self.conditions:append(NotCondition.new(L{ HasBuffCondition.new('Saber Dance', windower.ffxi.get_player().index) }, windower.ffxi.get_player().index))
 
     self:debug_log_create(self:gettype())
 

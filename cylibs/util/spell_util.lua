@@ -29,7 +29,10 @@ local aoe_spells = L{
     'Waterga', 'Waterga II', 'Waterga III', 'Waterja', 'Watera', 'Watera II', 'Watera III',
     'Thundaga', 'Thundaga II', 'Thundaga III', 'Thundaja', 'Thundara', 'Thundara II', 'Thundara III',
     'Banishga', 'Banishga II',
-    'Meteor'
+    'Meteor',
+    'Barfira', 'Barblizzara', 'Baraera', 'Barstonra', 'Barthundra', 'Barwatera',
+    'Baramnesra', 'Barvira', 'Barparalyzra', 'Barsilencera', 'Barpetra',
+    'Barpoisonra', 'Barblindra', 'Barsleepra'
 }
 
 -------

@@ -10,8 +10,8 @@ NotCondition.__index = NotCondition
 NotCondition.__type = "NotCondition"
 NotCondition.__class = "NotCondition"
 
-function NotCondition.new(conditions)
-    local self = setmetatable(Condition.new(), NotCondition)
+function NotCondition.new(conditions, target_index)
+    local self = setmetatable(Condition.new(target_index), NotCondition)
     self.conditions = conditions
     return self
 end

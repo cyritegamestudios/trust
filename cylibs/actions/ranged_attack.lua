@@ -14,8 +14,8 @@ local packets = require('packets')
 
 function RangedAttack.new(target_index, player)
     local conditions = L{
-        NotCondition.new(L{InMogHouseCondition.new()}, true),
-        NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror'}, false)}),
+        NotCondition.new(L{InMogHouseCondition.new()}),
+        NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror'}, 1)}, windower.ffxi.get_player().index),
     }
     local self = setmetatable(Action.new(0, 0, 0, target_index, conditions), RangedAttack)
 

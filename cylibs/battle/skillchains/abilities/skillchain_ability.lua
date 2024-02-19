@@ -87,7 +87,7 @@ function SkillchainAbility:get_conditions()
     if self.party_member then
         local buffs = self:get_buffs()
         if buffs:length() > 0 then
-            conditions:append(HasBuffsCondition.from_party_member(buffs:map(function(buff_id) return buff_util.buff_name(buff_id) end), false, self.party_member))
+            conditions:append(HasBuffsCondition.from_party_member(buffs:map(function(buff_id) return buff_util.buff_name(buff_id) end), 1, self.party_member))
         end
     end
     return conditions
