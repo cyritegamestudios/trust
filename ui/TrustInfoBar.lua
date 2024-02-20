@@ -18,9 +18,9 @@ function TrustInfoBar.new(frame)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local itemSize
         if indexPath.row == 1 then
-            itemSize = 150
+            itemSize = 111
         else
-            itemSize = frame.width - 150 - 10
+            itemSize = frame.width - 111 - 15 - 4
         end
         local cell = InfoBarCollectionViewCell.new(Frame.new(0, 0, itemSize, frame.height))
         cell:setTitle(item:getText())
@@ -28,7 +28,7 @@ function TrustInfoBar.new(frame)
         return cell
     end)
 
-    local self = setmetatable(CollectionView.new(dataSource, HorizontalFlowLayout.new(10, Padding.new(0, 0, 0, 0))), TrustInfoBar)
+    local self = setmetatable(CollectionView.new(dataSource, HorizontalFlowLayout.new(4, Padding.new(0, 0, 0, 0))), TrustInfoBar)
 
     self:setSize(0, frame.height)
     self:setUserInteractionEnabled(false)

@@ -76,8 +76,8 @@ function TrustHud.new(player, action_queue, addon_settings, addon_enabled, menu_
     self.menuViewStack.name = "menu stack"
     self.mainMenuItem = self:getMainMenuItem()
 
-    self.infoViewContainer = View.new(Frame.new(17, 17, windower.get_windower_settings().ui_x_res - 18, 30))
-    self.infoBar = TrustInfoBar.new(Frame.new(0, 0, windower.get_windower_settings().ui_x_res - 18, 30))
+    self.infoViewContainer = View.new(Frame.new(17, 17, windower.get_windower_settings().ui_x_res - 18, 27))
+    self.infoBar = TrustInfoBar.new(Frame.new(0, 0, windower.get_windower_settings().ui_x_res - 18, 27))
     self.infoBar:setVisible(false)
 
     self.infoViewContainer:addSubview(self.infoBar)
@@ -143,14 +143,19 @@ function TrustHud:createWidgets(addon_settings, addon_enabled, action_queue, par
     self.trustStatusWidget = TrustStatusWidget.new(Frame.new(0, 0, 125, 55), addon_settings, addon_enabled, action_queue, player.main_job_name, player.sub_job_name)
     self.trustStatusWidget:setTitle("Trust")
     self.trustStatusWidget:setSize(125, 55)
+    self.trustStatusWidget:setPosition(settings.hud.position.x, settings.hud.position.y)
+    self.trustStatusWidget:setVisible(true)
     self.trustStatusWidget:layoutIfNeeded()
 
     self.targetWidget = TargetWidget.new(Frame.new(0, 0, 125, 40), addon_settings, party)
     self.targetWidget:setSize(125, 40)
+    self.targetWidget:setPosition(settings.hud.target.position.x, settings.hud.target.position.y)
     self.targetWidget:layoutIfNeeded()
 
     self.partyStatusWidget = PartyStatusWidget.new(Frame.new(0, 0, 125, 55), addon_settings, party)
     self.partyStatusWidget:setSize(125, 55)
+    self.partyStatusWidget:setPosition(settings.hud.party.position.x, settings.hud.party.position.y)
+    self.partyStatusWidget:setVisible(true)
     self.partyStatusWidget:layoutIfNeeded()
 end
 

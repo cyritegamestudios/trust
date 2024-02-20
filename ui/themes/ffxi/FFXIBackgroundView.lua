@@ -44,7 +44,7 @@ FFXIBackgroundView.Border.RightImageItem = ImageItem.new(
 -- @param bottomImagePath The file path of the bottom image.
 -- @treturn BackgroundView The created background view.
 --
-function FFXIBackgroundView.new(frame)
+function FFXIBackgroundView.new(frame, hideTitle)
     local self = setmetatable(CollectionView.new(CollectionViewDataSource.new(), VerticalFlowLayout.new(0)), FFXIBackgroundView)
 
     self:getDataSource().cellForItem = function(item, _)
@@ -72,7 +72,11 @@ function FFXIBackgroundView.new(frame)
     borderImageItem:setImageItem(FFXIBackgroundView.Border.CenterImageItem, ResizableImageItem.Center)
     borderImageItem:setImageItem(FFXIBackgroundView.Border.RightImageItem, ResizableImageItem.Right)
 
-    self.topBorderView = TitleBorderView.new(Frame.new(0, 0, frame.width, 3), borderImageItem)
+    if not hideTitle then
+        self.topBorderView = TitleBorderView.new(Frame.new(0, 0, frame.width, 3), borderImageItem)
+    else
+        self.topBorderView = BorderView.new(Frame.new(0, 0, frame.width, 3), borderImageItem)
+    end
     self.topBorderView:setVisible(true)
 
     self:addSubview(self.topBorderView)

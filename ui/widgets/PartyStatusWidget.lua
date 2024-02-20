@@ -45,6 +45,7 @@ function PartyStatusWidget.new(frame, addonSettings, party)
     self.party = party
     self.events = {}
 
+    self:setVisible(false)
     self:setScrollEnabled(false)
     self:setUserInteractionEnabled(true)
 

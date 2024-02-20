@@ -1,4 +1,5 @@
 local BackgroundView = require('cylibs/ui/views/background/background_view')
+local FFXIBackgroundView = require('ui/themes/ffxi/FFXIBackgroundView')
 local Frame = require('cylibs/ui/views/frame')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
@@ -21,10 +22,7 @@ function NavigationBar.new(frame, hideBackground, textStyle)
     self:setIsSelectable(false)
 
     if not hideBackground then
-        local backgroundView = BackgroundView.new(Frame.new(0, 0, frame.width, frame.height),
-                windower.addon_path..'assets/backgrounds/menu_bg_top.png',
-                windower.addon_path..'assets/backgrounds/menu_bg_mid.png',
-                windower.addon_path..'assets/backgrounds/menu_bg_bottom.png')
+        local backgroundView = FFXIBackgroundView.new(frame, true)
 
         self:setBackgroundImageView(backgroundView)
 

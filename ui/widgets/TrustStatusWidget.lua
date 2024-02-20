@@ -103,6 +103,7 @@ function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, 
     self.mainJobName = mainJobName
     self.subJobName = subJobName
 
+    self:setVisible(false)
     self:setScrollEnabled(false)
     self:setUserInteractionEnabled(true)
 

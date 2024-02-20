@@ -76,6 +76,8 @@ function TargetWidget.new(frame, addonSettings, party)
     self.party = party
     self.targetDisposeBag = DisposeBag.new()
 
+    self:setVisible(false)
+
     local backgroundView = FFXIBackgroundView.new(frame)
     backgroundView:setTitle("Target")
 
