@@ -265,6 +265,7 @@ function load_trust_commands(job_name_short, trust, action_queue, party)
 		SendAllCommands.new(trust, action_queue),
 		SendCommands.new(trust, action_queue),
 		SkillchainCommands.new(trust, weapon_skill_settings, action_queue),
+		WidgetCommands.new(trust, action_queue),
 	}:extend(get_job_commands(job_name_short, trust, action_queue))
 
 	local add_command = function(command)

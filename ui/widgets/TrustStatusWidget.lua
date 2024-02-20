@@ -71,7 +71,7 @@ TrustStatusWidget.Subheadline = TextStyle.new(
         0,
         0.5,
         Color.black,
-        false,
+        true,
         Color.red
 )
 
@@ -170,12 +170,12 @@ function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, 
         if isEnabled then
             self:setAction('')
         else
-            self:setAction('Zzz...')
+            self:setAction('OFF')
         end
     end), addonEnabled:onValueChanged())
 
     if not addonEnabled:getValue() then
-        self:setAction('Zzz...')
+        self:setAction('OFF')
     end
 
     return self
@@ -201,13 +201,20 @@ function TrustStatusWidget:setJobs(mainJobName, subJobName)
 end
 
 function TrustStatusWidget:setAction(text)
-    text = text or ''
+    if text == nil or text:empty() then
+        text = 'Idle'
+    end
 
-    local actionItem = TextItem.new(text or '', TrustStatusWidget.Subheadline), IndexPath.new(2, 1)
+    local actionItem = TextItem.new(text, TrustStatusWidget.Subheadline), IndexPath.new(2, 1)
 
     self:getDataSource():updateItem(actionItem, IndexPath.new(2, 1))
 
     self:layoutIfNeeded()
+end
+
+function TrustStatusWidget:setVisible(visible)
+    visible = visible and settings.hud.visible
+    CollectionView.setVisible(self, visible)
 end
 
 ---

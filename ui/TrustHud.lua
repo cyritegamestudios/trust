@@ -123,16 +123,30 @@ function TrustHud:layoutIfNeeded()
     View.layoutIfNeeded(self)
 
     self.trustStatusWidget:setPosition(settings.hud.position.x, settings.hud.position.y)
+    --self.trustStatusWidget:setVisible(settings.hud.visible)
     self.trustStatusWidget:layoutIfNeeded()
 
     self.targetWidget:setPosition(settings.hud.target.position.x, settings.hud.target.position.y)
+    --self.targetWidget:setVisible(self.targetWidget:isVisible() and settings.hud.target.visible)
     self.targetWidget:layoutIfNeeded()
 
     self.partyStatusWidget:setPosition(settings.hud.party.position.x, settings.hud.party.position.y)
+    --self.partyStatusWidget:setVisible(settings.hud.party.visible)
     self.partyStatusWidget:layoutIfNeeded()
 
     self.infoBar:setNeedsLayout()
     self.infoBar:layoutIfNeeded()
+end
+
+function TrustHud:getWidget(widgetName)
+    if widgetName == 'trust' then
+        return self.trustStatusWidget
+    elseif widgetName == 'party' then
+        return self.partyStatusWidget
+    elseif widgetName == 'target' then
+        return self.targetWidget
+    end
+    return nil
 end
 
 function TrustHud:getViewStack()

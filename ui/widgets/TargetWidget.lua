@@ -48,7 +48,7 @@ TargetWidget.Subheadline = TextStyle.new(
     0,
     0.5,
     Color.black,
-    false,
+    true,
     Color.red
 )
 
@@ -179,6 +179,11 @@ function TargetWidget:setAction(text)
 
     self:getDataSource():updateItem(actionItem, IndexPath.new(1, 2))
     self:layoutIfNeeded()
+end
+
+function TargetWidget:setVisible(visible)
+    visible = visible and settings.hud.target.visible
+    CollectionView.setVisible(self, visible)
 end
 
 ---

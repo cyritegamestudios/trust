@@ -211,9 +211,13 @@ function PartyStatusWidget:layoutIfNeeded()
     if not CollectionView.layoutIfNeeded(self) then
         return
     end
-
     self.backgroundImageView:setSize(self.frame.width, self:getContentSize().height)
     self.backgroundImageView:layoutIfNeeded()
+end
+
+function PartyStatusWidget:setVisible(visible)
+    visible = visible and settings.hud.party.visible
+    CollectionView.setVisible(self, visible)
 end
 
 ---

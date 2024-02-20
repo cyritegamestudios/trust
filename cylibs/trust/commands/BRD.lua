@@ -57,7 +57,7 @@ function BardTrustCommands:handle_presing()
     return success, message
 end
 
-function BardTrustCommands:handle_sing(use_nitro)
+function BardTrustCommands:handle_sing(_, use_nitro)
     local success
     local message
 
@@ -107,7 +107,7 @@ function BardTrustCommands:handle_clear_songs()
     local success
     local message
 
-    local singer = self.trust:role_with_type("healer")
+    local singer = self.trust:role_with_type("singer")
     singer.song_tracker:reset()
 
     success = true

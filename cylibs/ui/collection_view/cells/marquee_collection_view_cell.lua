@@ -19,6 +19,7 @@ function MarqueeCollectionViewCell.new(item)
     self.currentIndex = -1
     self.numCharacters = 10
     self.currentText = self:getItem():getText()
+    self.coroutines = L{}
 
     return self
 end
@@ -33,30 +34,38 @@ function MarqueeCollectionViewCell:setSize(width, height)
     TextCollectionViewCell.setSize(self, width, height)
 
     self.currentIndex = -1
-    self.numCharacters = width / self:getItem():getStyle():getFontSize() + 6
+    self:updateNumCharacters()
 end
 
 function MarqueeCollectionViewCell:setVisible(visible)
     TextCollectionViewCell.setVisible(self, visible)
 
     self:updateText()
+end
 
-    --self:setAnimated(self:isVisible(), 0.1)
+function MarqueeCollectionViewCell:updateNumCharacters()
+    local multiplier = 1
+    if self:getItem():getStyle():isBold() then
+        multiplier = 1.2
+    end
+    self.numCharacters = math.floor(self:getSize().width / (self:getItem():getStyle():getFontSize() * multiplier) + 6)
 end
 
 function MarqueeCollectionViewCell:setItem(item)
     if item == self.item then
         return
     end
+    self:setAnimated(false)
+
     TextCollectionViewCell.setItem(self, item)
 
     self.currentIndex = -1
-    self.numCharacters = self:getSize().width / item:getStyle():getFontSize() + 6
 
+    self:updateNumCharacters()
     self:updateText()
 
     if item:getText():length() > 0 then
-        self:setAnimated(self:isVisible(), 0.5)
+        self:setAnimated(self:isVisible(), 1.0)
     else
         self:setAnimated(false)
     end
@@ -95,9 +104,14 @@ function MarqueeCollectionViewCell:setAnimated(animated, delay)
     self.animated = animated
 
     if self.animated then
-        coroutine.schedule(function()
+        self.coroutines:append(coroutine.schedule(function()
             self:nextFrame()
-        end, delay or 0.1)
+        end, delay or 0.1))
+    else
+        for id in self.coroutines:it() do
+            coroutine.close(id)
+        end
+        self.coroutines = L{}
     end
 end
 
@@ -105,7 +119,20 @@ function MarqueeCollectionViewCell:updateText()
     local text = self:getItem():getText()
     if text:length() > self.numCharacters then
         if text:length() >= self.currentIndex + self.numCharacters then
-            self.currentIndex = (self.currentIndex + 1) % text:length()
+            local next = text:slice(self.currentIndex, math.min(self.currentIndex + self.numCharacters + 3, text:length()))
+            --local start_index, end_index = text:slice(self.currentIndex):find('→')
+            if next:startswith('→') or next:endswith('→') then
+                self.currentIndex = (self.currentIndex + 3 + 1) % text:length()
+            else
+                self.currentIndex = (self.currentIndex + 1) % text:length()
+            end
+
+            --[[if self.currentText:startswith('→') then
+                local start_index, end_index = self.currentText:find('→')
+                self.currentIndex = (self.currentIndex + end_index - start_index + 1) % text:length()
+            else
+                self.currentIndex = (self.currentIndex + 1) % text:length()
+            end]]
             self.currentText = text:slice(self.currentIndex, math.min(self.currentIndex + self.numCharacters, text:length()))
 
             self:setNeedsLayout()
@@ -125,7 +152,7 @@ function MarqueeCollectionViewCell:nextFrame()
     end
 
     if self:updateText() then
-        coroutine.schedule(function() self:nextFrame()  end, 0.25)
+        self.coroutines:append(coroutine.schedule(function() self:nextFrame()  end, 0.25))
     end
 end
 
