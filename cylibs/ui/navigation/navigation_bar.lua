@@ -15,7 +15,7 @@ function NavigationBar.new(frame, hideBackground, textStyle)
     local self = setmetatable(TextCollectionViewCell.new(TextItem.new('', textStyle)), NavigationBar)
 
     self:setItemSize(frame.height)
-    self:setEstimatedSize(textStyle:getFontSize() * 2)
+    self:setEstimatedSize(textStyle:getFontSize() * 1.75)
     self:setPosition(frame.x, frame.y)
     self:setSize(frame.width, frame.height)
     self:setUserInteractionEnabled(false)
