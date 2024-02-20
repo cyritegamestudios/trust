@@ -132,7 +132,7 @@ end
 function Bard:get_song_delay()
     local song_delay = self.song_delay
     if self:is_nightingale_active() then
-        song_delay = math.max(song_delay * 0.5, 3)
+        song_delay = math.max(song_delay * 0.5, 2)
     end
     return song_delay
 end

@@ -107,6 +107,20 @@ function SingerView:reloadActiveSongs()
     itemsToAdd:append(IndexedItem.new(TextItem.new("", TextStyle.SingerView.Text), IndexPath.new(sectionNum, currentRow)))
     sectionNum = sectionNum + 1
 
+    local pianissimo_songs = self.singer:get_pianissimo_songs()
+    if pianissimo_songs:length() > 0 then
+        itemsToAdd:append(IndexedItem.new(TextItem.new("Pianissimo", TextStyle.Default.HeaderSmall), IndexPath.new(sectionNum, 1)))
+        currentRow = 2
+        for song in pianissimo_songs:it() do
+            local item = TextItem.new('• '..song:description(), TextStyle.SingerView.Text)
+            local indexPath = IndexPath.new(sectionNum, currentRow)
+            itemsToAdd:append(IndexedItem.new(item, indexPath))
+            currentRow = currentRow + 1
+        end
+    end
+    itemsToAdd:append(IndexedItem.new(TextItem.new("", TextStyle.SingerView.Text), IndexPath.new(sectionNum, currentRow)))
+    sectionNum = sectionNum + 1
+
     for party_member in self.singer:get_party():get_party_members(false):it() do
         currentRow = 2
         local song_records = self.singer.song_tracker:get_songs(party_member:get_id())

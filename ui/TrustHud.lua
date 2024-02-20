@@ -27,6 +27,7 @@ local PartyTargetView = require('cylibs/entity/party/ui/party_target_view')
 local SingerView = require('cylibs/trust/roles/ui/singer_view')
 local SongPickerView = require('ui/settings/pickers/SongPickerView')
 local SongSettingsEditor = require('ui/settings/SongSettingsEditor')
+local SongSettingsMenuItem = require('ui/settings/menus/songs/SongSettingsMenuItem')
 local SpellPickerView = require('ui/settings/pickers/SpellPickerView')
 local SpellSettingsEditor = require('ui/settings/SpellSettingsEditor')
 local spell_util = require('cylibs/util/spell_util')
@@ -380,40 +381,6 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         ['Blacklist'] = statusRemovalMenuItem
     })
 
-    -- Songs
-    local chooseSongsItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
-    }, {},
-            function(args)
-                local songs = args['songs']
-
-                local allSongs = spell_util.get_spells(function(spell)
-                    return spell.type == 'BardSong' and S{'Self'}:intersection(S(spell.targets)):length() > 0
-                end):map(function(spell) return spell.en  end)
-
-                local chooseSongsView = setupView(SongPickerView.new(trustSettings, songs, allSongs, args['validator']), viewSize)
-                chooseSongsView:setTitle(args['help_text'])
-                chooseSongsView:setShouldRequestFocus(true)
-                return chooseSongsView
-            end)
-
-    local songsSettingsItem = MenuItem.new(L{
-        ButtonItem.default('Edit', 18),
-        ButtonItem.default('Help', 18),
-    }, {
-        Edit = chooseSongsItem,
-    },
-    function()
-        local backgroundImageView = createBackgroundView(viewSize.width, viewSize.height)
-        local songSettingsView = SongSettingsEditor.new(trustSettings, trustSettingsMode, viewSize.width)
-        songSettingsView:setBackgroundImageView(backgroundImageView)
-        songSettingsView:setNavigationBar(createTitleView(viewSize))
-        songSettingsView:setSize(viewSize.width, viewSize.height)
-        songSettingsView:setShouldRequestFocus(true)
-
-        return songSettingsView
-    end)
-
     -- Nukes
     local chooseNukesItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
@@ -464,14 +431,27 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         return nukeSettingsView
     end)
 
+    -- Modes
+    local modesMenuItem = MenuItem.new(L{
+        ButtonItem.default('Save', 18),
+    }, {},
+            function()
+                local modesView = setupView(ModesView.new(L(T(state):keyset()):sort()), viewSize)
+                modesView:setShouldRequestFocus(true)
+                modesView:setTitle("Change trust behavior with modes.")
+                return modesView
+            end, "Modes", "View and change Trust modes.")
+
     -- Settings
-    local menuItems = L{}
+    local menuItems = L{
+        ButtonItem.default('Modes', 18)
+    }
     local childMenuItems = {
+        Modes = modesMenuItem,
         Abilities = jobAbilitiesSettingsItem,
         Buffs = buffSettingsItem,
         Debuffs = debuffSettingsItem,
         Healing = healerMenuItem,
-        Songs = songsSettingsItem,
         Nukes = nukeSettingsItem,
     }
 
@@ -509,6 +489,11 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         menuItems:append(ButtonItem.default('Debuffs', 18))
     end
 
+    if trust:role_with_type("singer") then
+        menuItems:append(ButtonItem.default('Songs', 18))
+        childMenuItems.Songs = self:getMenuItemForRole(trust:role_with_type("singer"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode)
+    end
+
     if trust:role_with_type("healer") and trust:role_with_type("statusremover") then
         menuItems:append(ButtonItem.default('Healing', 18))
     end
@@ -535,7 +520,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
     return settingsMenuItem
 end
 
-function TrustHud:getMenuItemForRole(role, weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize)
+function TrustHud:getMenuItemForRole(role, weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode)
     if role == nil then
         return nil
     end
@@ -544,6 +529,9 @@ function TrustHud:getMenuItemForRole(role, weaponSkillSettings, weaponSkillSetti
     end
     if role:get_type() == "puller" then
         return self:getPullerMenuItem(trust, jobNameShort, viewSize)
+    end
+    if role:get_type() == "singer" then
+        return self:getSingerMenuItem(trust, trustSettings, trustSettingsMode, viewSize)
     end
     return nil
 end
@@ -556,35 +544,21 @@ function TrustHud:getSkillchainerMenuItem(weaponSkillSettings, weaponSkillSettin
 end
 
 function TrustHud:getPullerMenuItem(trust, jobNameShort, viewSize)
-    local pullerSettingsMenuItem = PullSettingsMenuItem.new(L{}, trust, jobNameShort, settings, settings.battle.targets,function(view)
+    local pullerSettingsMenuItem = PullSettingsMenuItem.new(L{}, trust, jobNameShort, settings, settings.battle.targets, function(view)
         return setupView(view, viewSize)
     end)
     return pullerSettingsMenuItem
 end
 
+function TrustHud:getSingerMenuItem(trust, trustSettings, trustSettingsMode, viewSize)
+    local singerSettingsMenuItem = SongSettingsMenuItem.new(trustSettings, trustSettingsMode, function(view)
+        return setupView(view, viewSize)
+    end)
+    return singerSettingsMenuItem
+end
+
 function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSkillSettings, weaponSkillSettingsMode, jobNameShort, jobName)
     local viewSize = Frame.new(0, 0, 500, 500)
-
-    -- Modes Assistant
-    local modesAssistantMenuItem = MenuItem.new(L{}, {},
-    function()
-        local modesAssistantView = setupView(ModesAssistantView.new(trust), viewSize)
-        return modesAssistantView
-    end)
-
-    -- Modes
-    local modesMenuItem = MenuItem.new(L{
-        ButtonItem.default('Save', 18),
-        ButtonItem.default('Assistant', 18),
-    }, {
-        Assistant = modesAssistantMenuItem
-    },
-    function()
-        local modesView = setupView(ModesView.new(L(T(state):keyset()):sort()), viewSize)
-        modesView:setShouldRequestFocus(true)
-        modesView:setTitle("Change trust behavior with modes.")
-        return modesView
-    end, "Modes", "View and change Trust modes.")
 
     local settingsMenuItem = self:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, weaponSkillSettings, weaponSkillSettingsMode, jobNameShort)
 
@@ -657,14 +631,13 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
             local singerView = setupView(SingerView.new(singer), viewSize)
             singerView:setShouldRequestFocus(false)
             return singerView
-        end)
+        end, "Songs", "View current songs on the player and party.")
 
     -- Status
     local statusMenuButtons = L{
         ButtonItem.default('Party', 18),
         ButtonItem.default('Buffs', 18),
         ButtonItem.default('Debuffs', 18),
-        ButtonItem.default('Modes', 18),
         ButtonItem.default('Targets', 18)
     }
     if jobNameShort == 'PUP' then

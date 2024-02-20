@@ -245,6 +245,10 @@ function Spell:description()
         local job_names = "Some Jobs"
         if self.job_names:equals(job_util.all_jobs()) then
             job_names = "All Jobs"
+        else
+            if self.job_names:length() <= 5 then
+                job_names = self.job_names:tostring()
+            end
         end
         result = result..' → '..job_names
     end

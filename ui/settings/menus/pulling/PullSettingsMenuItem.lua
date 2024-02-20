@@ -1,6 +1,7 @@
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local MenuItem = require('cylibs/ui/menu/menu_item')
+local ModesView = require('cylibs/modes/ui/modes_view')
 local PullActionMenuItem = require('ui/settings/menus/pulling/PullActionMenuItem')
 local PullSettingsEditor = require('ui/settings/PullSettingsEditor')
 local TargetsPickerView = require('ui/settings/pickers/TargetsPickerView')
@@ -95,29 +96,12 @@ function PullSettingsMenuItem:getTargetsMenuItem()
 end
 
 function PullSettingsMenuItem:getModesMenuItem()
-    local pullModesMenuItem = MenuItem.new(L{
-        ButtonItem.default('Auto', 18),
-        ButtonItem.default('Multi', 18),
-        ButtonItem.default('Target', 18),
-        ButtonItem.default('All', 18),
-        ButtonItem.default('Off', 18),
-    }, L{
-        Auto = MenuItem.action(function()
-            handle_set('AutoPullMode', 'Auto')
-        end, "Pulling", state.AutoPullMode:get_description('Auto')),
-        Multi = MenuItem.action(function()
-            handle_set('AutoPullMode', 'Multi')
-        end, "Pulling", state.AutoPullMode:get_description('Multi')),
-        Target = MenuItem.action(function()
-            handle_set('AutoPullMode', 'Target')
-        end, "Pulling", state.AutoPullMode:get_description('Target')),
-        All = MenuItem.action(function()
-            handle_set('AutoPullMode', 'All')
-        end, "Pulling", state.AutoPullMode:get_description('All')),
-        Off = MenuItem.action(function()
-            handle_set('AutoPullMode', 'Off')
-        end, "Pulling", state.AutoPullMode:get_description('Off')),
-    }, nil, "Modes", "Change pulling modes.")
+    local pullModesMenuItem = MenuItem.new(L{}, L{}, function(_)
+        local modesView = self.viewFactory(ModesView.new(L{'AutoPullMode'}))
+        modesView:setShouldRequestFocus(true)
+        modesView:setTitle("Set modes for pulling.")
+        return modesView
+    end, "Modes", "Change pulling behavior.")
     return pullModesMenuItem
 end
 
