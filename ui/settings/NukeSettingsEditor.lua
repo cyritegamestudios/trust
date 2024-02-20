@@ -14,7 +14,7 @@ local NukeSettingsEditor = setmetatable({}, {__index = CollectionView })
 NukeSettingsEditor.__index = NukeSettingsEditor
 
 
-function NukeSettingsEditor.new(trustSettings, settingsMode)
+function NukeSettingsEditor.new(trustSettings, settingsMode, helpUrl)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = TextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
@@ -32,6 +32,7 @@ function NukeSettingsEditor.new(trustSettings, settingsMode)
 
     self.trustSettings = trustSettings
     self.settingsMode = settingsMode
+    self.helpUrl = helpUrl
     self.menuArgs = {}
 
     self.allSpells = spell_util.get_spells(function(spell)
@@ -62,7 +63,7 @@ function NukeSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
     if textItem:getText() == 'Edit' then
         self.menuArgs['spells'] = self.spells or L{}
     elseif textItem:getText() == 'Help' then
-        windower.open_url(settings.help.wiki_base_url..'/Nuker')
+        windower.open_url(self.helpUrl)
     end
 end
 

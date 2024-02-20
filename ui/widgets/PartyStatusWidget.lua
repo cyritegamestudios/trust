@@ -120,6 +120,11 @@ function PartyStatusWidget.new(frame, addonSettings, party)
         self:setAssistTarget(party_member)
     end), party:on_party_assist_target_change())
 
+    self:getDisposeBag():add(addonSettings:onSettingsChanged():addAction(function(settings)
+        self:setVisible(settings.hud.party.visible)
+        self:layoutIfNeeded()
+    end), addonSettings:onSettingsChanged())
+
     self.events.tic = windower.register_event('time change', function() self:tic()  end)
 
     return self
@@ -216,7 +221,7 @@ function PartyStatusWidget:layoutIfNeeded()
 end
 
 function PartyStatusWidget:setVisible(visible)
-    visible = visible and settings.hud.party.visible
+    visible = visible and self.addonSettings:getSettings().hud.party.visible
     CollectionView.setVisible(self, visible)
 end
 
@@ -232,9 +237,16 @@ function PartyStatusWidget:setPosition(x, y)
     end
     CollectionView.setPosition(self, x, y)
 
-    self.addonSettings:getSettings().hud.party.position.x = x
-    self.addonSettings:getSettings().hud.party.position.y = y
-    self.addonSettings:saveSettings(true)
+    local xPos, yPos = self.addonSettings:getSettings().hud.party.position.x, self.addonSettings:getSettings().hud.party.position.y
+    if xPos ~= x or yPos ~= y then
+        self.addonSettings:reloadSettings()
+
+        self.addonSettings:getSettings().hud.party.position.x = x
+        self.addonSettings:getSettings().hud.party.position.y = y
+        self.addonSettings:getSettings().hud.party.visible = self:isVisible()
+
+        self.addonSettings:saveSettings()
+    end
 end
 
 return PartyStatusWidget

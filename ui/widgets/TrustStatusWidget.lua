@@ -178,6 +178,11 @@ function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, 
         self:setAction('OFF')
     end
 
+    self:getDisposeBag():add(addonSettings:onSettingsChanged():addAction(function(settings)
+        self:setVisible(settings.hud.trust.visible)
+        self:layoutIfNeeded()
+    end), addonSettings:onSettingsChanged())
+
     return self
 end
 
@@ -213,7 +218,7 @@ function TrustStatusWidget:setAction(text)
 end
 
 function TrustStatusWidget:setVisible(visible)
-    visible = visible and settings.hud.visible
+    visible = visible and self.addonSettings:getSettings().hud.trust.visible
     CollectionView.setVisible(self, visible)
 end
 
@@ -229,9 +234,16 @@ function TrustStatusWidget:setPosition(x, y)
     end
     CollectionView.setPosition(self, x, y)
 
-    self.addonSettings:getSettings().hud.position.x = x
-    self.addonSettings:getSettings().hud.position.y = y
-    self.addonSettings:saveSettings(true)
+    local xPos, yPos = self.addonSettings:getSettings().hud.trust.position.x, self.addonSettings:getSettings().hud.trust.position.y
+    if xPos ~= x or yPos ~= y then
+        self.addonSettings:reloadSettings()
+
+        self.addonSettings:getSettings().hud.trust.position.x = x
+        self.addonSettings:getSettings().hud.trust.position.y = y
+        self.addonSettings:getSettings().hud.trust.visible = self:isVisible()
+
+        self.addonSettings:saveSettings()
+    end
 end
 
 

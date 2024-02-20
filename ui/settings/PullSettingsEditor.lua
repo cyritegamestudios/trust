@@ -63,7 +63,7 @@ end
 function PullSettingsEditor:reloadSettings()
     self:getDataSource():removeAllItems()
 
-    local allTargets = (self.addon_settings.battle.targets or L{}):sort()
+    local allTargets = (self.addon_settings:getSettings().battle.targets or L{}):sort()
 
     local items = L{}
     local rowIndex = 1
@@ -92,11 +92,10 @@ function PullSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
                     targetsToRemove:append(item:getText())
                 end
             end
-            local targets = S(self.addon_settings.battle.targets):filter(function(targetName) return not targetsToRemove:contains(targetName) end)
+            local targets = S(self.addon_settings:getSettings().battle.targets):filter(function(targetName) return not targetsToRemove:contains(targetName) end)
 
-            self.addon_settings.battle.targets = L(targets)
-
-            config.save(self.addon_settings)
+            self.addon_settings:getSettings().battle.targets = L(targets)
+            self.addon_settings:saveSettings()
 
             if self.puller then
                 self.puller:set_target_names(targets)

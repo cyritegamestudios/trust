@@ -34,8 +34,8 @@ _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 
 require('Trust-Include')
 
-local addon_settings = TrustAddonSettings.new()
-settings = addon_settings:loadSettings()
+addon_settings = TrustAddonSettings.new()
+addon_settings:loadSettings()
 
 addon_enabled = ValueRelay.new(false)
 addon_enabled:onValueChanged():addAction(function(_, isEnabled)
@@ -98,7 +98,7 @@ function load_user_files(main_job_id, sub_job_id)
 
 	player.player = Player.new(windower.ffxi.get_player().id)
 
-	local party_chat = PartyChat.new(settings.chat.ipc_enabled)
+	local party_chat = PartyChat.new(addon_settings:getSettings().chat.ipc_enabled)
 	player.alliance = Alliance.new(party_chat)
 	player.alliance:monitor()
 	player.party = player.alliance:get_parties()[1]
@@ -165,7 +165,7 @@ function load_user_files(main_job_id, sub_job_id)
 		player.trust.sub_job:set_trust_settings(player.trust.sub_job_settings[new_value])
 	end)
 
-	main_job_trust, sub_job_trust = TrustFactory.trusts(trust_for_job_short(player.main_job_name_short, settings, player.trust.main_job_settings.Default, action_queue, player.player, player.alliance, player.party), trust_for_job_short(player.sub_job_name_short, settings, player.trust.sub_job_settings.Default, action_queue, player.player, player.alliance, player.party))
+	main_job_trust, sub_job_trust = TrustFactory.trusts(trust_for_job_short(player.main_job_name_short, addon_settings:getSettings(), player.trust.main_job_settings.Default, action_queue, player.player, player.alliance, player.party), trust_for_job_short(player.sub_job_name_short, addon_settings:getSettings(), player.trust.sub_job_settings.Default, action_queue, player.player, player.alliance, player.party))
 
 	main_job_trust:init()
 	sub_job_trust:init()
@@ -174,15 +174,15 @@ function load_user_files(main_job_id, sub_job_id)
 	player.trust.sub_job = sub_job_trust
 
 	player.trust.main_job:add_role(Attacker.new(action_queue))
-	player.trust.main_job:add_role(CombatMode.new(action_queue, settings.battle.melee_distance, settings.battle.range_distance))
+	player.trust.main_job:add_role(CombatMode.new(action_queue, addon_settings:getSettings().battle.melee_distance, addon_settings:getSettings().battle.range_distance))
 	player.trust.main_job:add_role(Eater.new(action_queue, main_job_trust:get_trust_settings().AutoFood))
-	player.trust.main_job:add_role(Follower.new(action_queue, settings.follow.distance))
+	player.trust.main_job:add_role(Follower.new(action_queue, addon_settings:getSettings().follow.distance))
 	player.trust.main_job:add_role(Pather.new(action_queue, 'data/paths/'))
 	player.trust.main_job:add_role(Skillchainer.new(action_queue, weapon_skill_settings))
 	player.trust.main_job:add_role(Spammer.new(action_queue, weapon_skill_settings))
 	player.trust.main_job:add_role(Cleaver.new(action_queue, weapon_skill_settings))
 	player.trust.main_job:add_role(Targeter.new(action_queue))
-	player.trust.main_job:add_role(Truster.new(action_queue, settings.battle.trusts))
+	player.trust.main_job:add_role(Truster.new(action_queue, addon_settings:getSettings().battle.trusts))
 	player.trust.main_job:add_role(Aftermather.new(action_queue, player.trust.main_job:role_with_type("skillchainer")))
 
 	target_change_time = os.time()
@@ -231,9 +231,9 @@ function load_trust_modes(job_name_short)
 
 	state.AutoUnloadOnDeathMode:on_state_change():addAction(function(_, new_value)
 		if new_value == 'Off' then
-			if settings.flags.show_death_warning then
+			if addon_settings:getSettings().flags.show_death_warning then
 				windower.add_to_chat(122, "---== WARNING ==---- Disabling unload on death may result in unexpected Trust behavior. It is not recommended that you use this setting while AFK.")
-				settings.flags.show_death_warning = false
+				addon_settings:getSettings().flags.show_death_warning = false
 				addon_settings:saveSettings(true)
 			end
 		end
@@ -241,7 +241,7 @@ function load_trust_modes(job_name_short)
 
 	trust_mode_settings:loadSettings()
 
-	set_help_text_enabled(settings.help.mode_text_enabled)
+	set_help_text_enabled(addon_settings:getSettings().help.mode_text_enabled)
 
 	addon_message(207, 'Trust modes set to '..state.TrustMode.value)
 
@@ -265,7 +265,7 @@ function load_trust_commands(job_name_short, trust, action_queue, party)
 		SendAllCommands.new(trust, action_queue),
 		SendCommands.new(trust, action_queue),
 		SkillchainCommands.new(trust, weapon_skill_settings, action_queue),
-		WidgetCommands.new(trust, action_queue),
+		WidgetCommands.new(trust, action_queue, addon_settings),
 	}:extend(get_job_commands(job_name_short, trust, action_queue))
 
 	local add_command = function(command)
@@ -293,33 +293,16 @@ function get_job_commands(job_name_short, trust, action_queue)
 end
 
 function load_ui()
-	local Mouse = require('cylibs/ui/input/mouse')
-	Mouse.input():setMouseEventCooldown(settings.click_cooldown or 0.0)
-
 	hud = TrustHud.new(player, action_queue, addon_settings, addon_enabled, 500, 500)
-
-	local info = windower.get_windower_settings()
-
-	local xPos = info.ui_x_res - info.ui_x_res / 2
-	local yPos = 20
-
-	if settings.hud.position.x > 0 then
-		xPos = settings.hud.position.x
-	end
-	if settings.hud.position.y > 0 then
-		yPos = settings.hud.position.y
-	end
-
-	hud:setPosition(xPos, yPos)
 	hud:setNeedsLayout()
 	hud:layoutIfNeeded()
 end
 
 function load_logger_settings()
-	_libs.logger.settings.logtofile = settings.logging.logtofile
+	_libs.logger.settings.logtofile = addon_settings:getSettings().logging.logtofile
 	_libs.logger.settings.defaultfile = 'logs/'..windower.ffxi.get_player().name..'_'..string.format("%s.log", os.date("%m-%d-%y"))
 
-	logger.isEnabled = settings.logging.enabled
+	logger.isEnabled = addon_settings:getSettings().logging.enabled
 end
 
 function trust_for_job_short(job_name_short, settings, trust_settings, action_queue, player, alliance, party)
@@ -401,10 +384,10 @@ function trust_for_job_short(job_name_short, settings, trust_settings, action_qu
 end
 
 function check_version()
-	local version = settings.version
+	local version = addon_settings:getSettings().version
 	if version ~= _addon.version then
-		settings.version = _addon.version
-		config.save(settings)
+		addon_settings:getSettings().version = _addon.version
+		addon_settings:saveSettings()
 
 		local Frame = require('cylibs/ui/views/frame')
 
@@ -423,7 +406,7 @@ function check_version()
 end
 
 function check_files()
-	if settings.flags.check_files then
+	if addon_settings:getSettings().flags.check_files then
 		if windower.file_exists(windower.windower_path..'/addons/libs/cylibs/Cylibs-Include.lua') then
 			error('Please remove the', windower.windower_path..'addons/libs/cylibs/', 'folder and reload Trust.')
 		end
@@ -625,7 +608,7 @@ end
 function load_chunk_event()
 	load_user_files(windower.ffxi.get_player().main_job_id, windower.ffxi.get_player().sub_job_id)
 
-	trust_remote_commands = TrustRemoteCommands.new(settings.remote_commands.whitelist, commands:keyset())
+	trust_remote_commands = TrustRemoteCommands.new(addon_settings:getSettings().remote_commands.whitelist, commands:keyset())
 
 	IpcRelay.shared():on_message_received():addAction(function(ipc_message)
 		if ipc_message.__class == CommandMessage.__class then
@@ -638,7 +621,7 @@ function load_chunk_event()
 end
 
 function unload_chunk_event()
-	for key in L{'up','down','left','right','enter', settings.menu_key}:it() do
+	for key in L{'up','down','left','right','enter', addon_settings:getSettings().menu_key}:it() do
 		windower.send_command('unbind %s':format(key))
 	end
 	IpcRelay.shared():destroy()
@@ -673,7 +656,7 @@ function loaded()
 		user_events.zone_change = windower.register_event('zone change', handle_zone_change)
     end
 	
-	windower.send_command('bind %s trust menu':format(settings.menu_key))
+	windower.send_command('bind %s trust menu':format(addon_settings:getSettings().menu_key))
 end
 
 windower.register_event('addon command', addon_command)

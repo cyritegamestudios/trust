@@ -139,10 +139,19 @@ function TargetWidget.new(frame, addonSettings, party)
         return false
     end), Mouse.input():onMouseEvent())
 
+    self:getDisposeBag():add(addonSettings:onSettingsChanged():addAction(function(settings)
+        if self.target_index ~= nil then
+            self:setVisible(settings.hud.target.visible)
+            self:layoutIfNeeded()
+        end
+    end), addonSettings:onSettingsChanged())
+
     return self
 end
 
 function TargetWidget:setTarget(target_index)
+    self.target_index = target_index
+
     self.targetDisposeBag:dispose()
 
     local targetText = ""
@@ -162,7 +171,7 @@ function TargetWidget:setTarget(target_index)
                 self.actionQueue:clear()
             end), target:on_skillchain_ended())
         end
-        targetText = target.name or ""
+        targetText = target and target.name or ""
     end
 
     local targetItem = TextItem.new(targetText, TargetWidget.Text), IndexPath.new(1, 1)
@@ -182,7 +191,7 @@ function TargetWidget:setAction(text)
 end
 
 function TargetWidget:setVisible(visible)
-    visible = visible and settings.hud.target.visible
+    visible = visible and self.addonSettings:getSettings().hud.target.visible
     CollectionView.setVisible(self, visible)
 end
 
@@ -198,9 +207,16 @@ function TargetWidget:setPosition(x, y)
     end
     CollectionView.setPosition(self, x, y)
 
-    self.addonSettings:getSettings().hud.target.position.x = x
-    self.addonSettings:getSettings().hud.target.position.y = y
-    self.addonSettings:saveSettings(true)
+    local xPos, yPos = self.addonSettings:getSettings().hud.target.position.x, self.addonSettings:getSettings().hud.target.position.y
+    if xPos ~= x or yPos ~= y then
+        self.addonSettings:reloadSettings()
+
+        self.addonSettings:getSettings().hud.target.position.x = x
+        self.addonSettings:getSettings().hud.target.position.y = y
+        self.addonSettings:getSettings().hud.target.visible = self:isVisible()
+
+        self.addonSettings:saveSettings()
+    end
 end
 
 

@@ -15,7 +15,6 @@ default.battle.targets = L{'Locus Colibri','Locus Dire Bat','Locus Thousand Eyes
 default.battle.trusts = L{'Monberaux','Sylvie (UC)','Koru-Moru','Qultada','Brygid'}
 default.chat = {}
 default.chat.ipc_enabled = true
-default.click_cooldown = 0.0
 default.donate = {}
 default.donate.url = 'https://www.buymeacoffee.com/cyrite'
 default.follow = {}
@@ -24,10 +23,11 @@ default.help = {}
 default.help.mode_text_enabled = true
 default.help.wiki_base_url = 'https://github.com/cyritegamestudios/trust/wiki'
 default.hud = {}
-default.hud.position = {}
-default.hud.position.x = 8
-default.hud.position.y = 140
-default.hud.visible = true
+default.hud.trust = {}
+default.hud.trust.position = {}
+default.hud.trust.position.x = 8
+default.hud.trust.position.y = 140
+default.hud.trust.visible = true
 default.hud.auto_hide = false
 default.hud.party = {}
 default.hud.party.position = {}
@@ -56,10 +56,6 @@ end
 
 function TrustAddonSettings.new()
     local self = setmetatable({}, TrustAddonSettings)
-    self.jobNameShort = jobNameShort
-    self.settingsFolder = 'data/skillchains/'
-    self.backupsFolder = 'backups/skillchains/'
-    self.settingsVersion = WeaponSkillSettings.settingsVersion[jobNameShort] or 1
     self.settingsChanged = Event.newEvent()
     self.settings = {}
     return self

@@ -26,7 +26,7 @@ local WeaponSkillSettingsEditor = setmetatable({}, {__index = CollectionView })
 WeaponSkillSettingsEditor.__index = WeaponSkillSettingsEditor
 
 
-function WeaponSkillSettingsEditor.new(weaponSkills, trustSettings)
+function WeaponSkillSettingsEditor.new(weaponSkills, trustSettings, helpUrl)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = TextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
@@ -43,6 +43,7 @@ function WeaponSkillSettingsEditor.new(weaponSkills, trustSettings)
 
     self.weaponSkills = weaponSkills
     self.trustSettings = trustSettings
+    self.helpUrl = helpUrl
 
     self.menuArgs = {}
 
@@ -131,7 +132,7 @@ function WeaponSkillSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPa
     elseif textItem:getText() == 'Move Down' then
         self:onMoveWeaponSkillDown()
     elseif textItem:getText() == 'Help' then
-        windower.open_url(settings.help.wiki_base_url..'/Skillchainer')
+        windower.open_url(self.helpUrl)
     end
 end
 

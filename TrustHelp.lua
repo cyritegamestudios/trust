@@ -37,9 +37,9 @@ function handle_help()
         local job = res.jobs:with('ens', player.main_job_name_short)
         if job then
             local url_suffix = job.en:gsub(" ", "-")
-            windower.open_url(settings.help.wiki_base_url..'/'..url_suffix)
+            windower.open_url(addon_settings:getSettings().help.wiki_base_url..'/'..url_suffix)
             return
         end
     end
-    windower.open_url(settings.help.wiki_base_url)
+    windower.open_url(addon_settings:getSettings().help.wiki_base_url)
 end

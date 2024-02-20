@@ -12,7 +12,7 @@ local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_f
 local HelpView = setmetatable({}, {__index = CollectionView })
 HelpView.__index = HelpView
 
-function HelpView.new(main_job_name_short)
+function HelpView.new(main_job_name_short, helpUrl)
     local dataSource = CollectionViewDataSource.new(function(item)
         local cell = TextCollectionViewCell.new(item)
         cell:setItemSize(20)
@@ -24,6 +24,7 @@ function HelpView.new(main_job_name_short)
 
     local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0)), nil, cursorImageItem), HelpView)
 
+    self.helpUrl = helpUrl
     self:setScrollDelta(20)
 
     local itemsToAdd = L{}
@@ -62,7 +63,7 @@ function HelpView.new(main_job_name_short)
 end
 
 function HelpView:openUrl(url_suffix)
-    windower.open_url(settings.help.wiki_base_url..'/'..url_suffix)
+    windower.open_url(self.helpUrl..'/'..url_suffix)
 end
 
 function HelpView:getJobWikiPageSuffix(job_name_short)

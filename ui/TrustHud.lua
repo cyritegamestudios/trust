@@ -69,6 +69,7 @@ function TrustHud.new(player, action_queue, addon_settings, addon_enabled, menu_
     self.menuSize = Frame.new(0, 0, menu_width, menu_height)
     self.viewStack = ViewStack.new()
     self.actionQueue = action_queue
+    self.addon_settings = addon_settings
     self.player = player
     self.party = player.party
     self.gameInfo = GameInfo.new()
@@ -94,9 +95,9 @@ function TrustHud.new(player, action_queue, addon_settings, addon_enabled, menu_
 
     self:getDisposeBag():add(self.gameInfo:onMenuChange():addAction(function(_, isMenuOpen)
         if isMenuOpen then
-            if settings.hud.auto_hide then
-                self.trustMenu:closeAll()
-            end
+            --if self.addon_settings:getSettings().hud.auto_hide then
+            --    self.trustMenu:closeAll()
+            --end
         end
     end), self.gameInfo:onMenuChange())
 
@@ -122,15 +123,15 @@ end
 function TrustHud:layoutIfNeeded()
     View.layoutIfNeeded(self)
 
-    self.trustStatusWidget:setPosition(settings.hud.position.x, settings.hud.position.y)
+    self.trustStatusWidget:setPosition(self.addon_settings:getSettings().hud.trust.position.x, self.addon_settings:getSettings().hud.trust.position.y)
     --self.trustStatusWidget:setVisible(settings.hud.visible)
     self.trustStatusWidget:layoutIfNeeded()
 
-    self.targetWidget:setPosition(settings.hud.target.position.x, settings.hud.target.position.y)
+    self.targetWidget:setPosition(self.addon_settings:getSettings().hud.target.position.x, self.addon_settings:getSettings().hud.target.position.y)
     --self.targetWidget:setVisible(self.targetWidget:isVisible() and settings.hud.target.visible)
     self.targetWidget:layoutIfNeeded()
 
-    self.partyStatusWidget:setPosition(settings.hud.party.position.x, settings.hud.party.position.y)
+    self.partyStatusWidget:setPosition(self.addon_settings:getSettings().hud.party.position.x, self.addon_settings:getSettings().hud.party.position.y)
     --self.partyStatusWidget:setVisible(settings.hud.party.visible)
     self.partyStatusWidget:layoutIfNeeded()
 
@@ -157,18 +158,18 @@ function TrustHud:createWidgets(addon_settings, addon_enabled, action_queue, par
     self.trustStatusWidget = TrustStatusWidget.new(Frame.new(0, 0, 125, 55), addon_settings, addon_enabled, action_queue, player.main_job_name, player.sub_job_name)
     self.trustStatusWidget:setTitle("Trust")
     self.trustStatusWidget:setSize(125, 55)
-    self.trustStatusWidget:setPosition(settings.hud.position.x, settings.hud.position.y)
+    self.trustStatusWidget:setPosition(self.addon_settings:getSettings().hud.trust.position.x, self.addon_settings:getSettings().hud.trust.position.y)
     self.trustStatusWidget:setVisible(true)
     self.trustStatusWidget:layoutIfNeeded()
 
     self.targetWidget = TargetWidget.new(Frame.new(0, 0, 125, 40), addon_settings, party)
     self.targetWidget:setSize(125, 40)
-    self.targetWidget:setPosition(settings.hud.target.position.x, settings.hud.target.position.y)
+    self.targetWidget:setPosition(self.addon_settings:getSettings().hud.target.position.x, self.addon_settings:getSettings().hud.target.position.y)
     self.targetWidget:layoutIfNeeded()
 
     self.partyStatusWidget = PartyStatusWidget.new(Frame.new(0, 0, 125, 55), addon_settings, party)
     self.partyStatusWidget:setSize(125, 55)
-    self.partyStatusWidget:setPosition(settings.hud.party.position.x, settings.hud.party.position.y)
+    self.partyStatusWidget:setPosition(self.addon_settings:getSettings().hud.party.position.x, self.addon_settings:getSettings().hud.party.position.y)
     self.partyStatusWidget:setVisible(true)
     self.partyStatusWidget:layoutIfNeeded()
 end
@@ -338,7 +339,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
     },
     function()
         local backgroundImageView = createBackgroundView(viewSize.width, viewSize.height)
-        local debuffSettingsView = DebuffSettingsEditor.new(trustSettings, trustSettingsMode, viewSize.width)
+        local debuffSettingsView = DebuffSettingsEditor.new(trustSettings, trustSettingsMode, self.addon_settings:getSettings().help.wiki_base_url..'/Debuffer')
         debuffSettingsView:setBackgroundImageView(backgroundImageView)
         debuffSettingsView:setNavigationBar(createTitleView(viewSize))
         debuffSettingsView:setSize(viewSize.width, viewSize.height)
@@ -443,7 +444,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         Blacklist = nukeElementBlacklistItem,
     },
     function()
-        local nukeSettingsView = setupView(NukeSettingsEditor.new(trustSettings, trustSettingsMode), viewSize)
+        local nukeSettingsView = setupView(NukeSettingsEditor.new(trustSettings, trustSettingsMode, self.addon_settings:getSettings().help.wiki_base_url..'/Nuker'), viewSize)
         nukeSettingsView:setShouldRequestFocus(true)
         return nukeSettingsView
     end)
@@ -557,14 +558,14 @@ function TrustHud:getSkillchainerMenuItem(weaponSkillSettings, weaponSkillSettin
 end
 
 function TrustHud:getPullerMenuItem(trust, jobNameShort, viewSize)
-    local pullerSettingsMenuItem = PullSettingsMenuItem.new(L{}, trust, jobNameShort, settings, settings.battle.targets, function(view)
+    local pullerSettingsMenuItem = PullSettingsMenuItem.new(L{}, trust, jobNameShort, self.addon_settings, self.addon_settings:getSettings().battle.targets, function(view)
         return setupView(view, viewSize)
     end)
     return pullerSettingsMenuItem
 end
 
 function TrustHud:getSingerMenuItem(trust, trustSettings, trustSettingsMode, viewSize)
-    local singerSettingsMenuItem = SongSettingsMenuItem.new(trustSettings, trustSettingsMode, function(view)
+    local singerSettingsMenuItem = SongSettingsMenuItem.new(self.addon_settings, trustSettings, trustSettingsMode, function(view)
         return setupView(view, viewSize)
     end)
     return singerSettingsMenuItem
@@ -666,7 +667,6 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
         Automaton = automatonMenuItem,
         Buffs = buffsMenuItem,
         Debuffs = debuffsMenuItem,
-        Modes = modesMenuItem,
         Targets = targetsMenuItem,
         Songs = singerMenuItem,
     }, nil, "Status", "View status of party members and enemies.")
@@ -678,7 +678,7 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
         Debug = debugMenuItem,
     },
     function()
-        local helpView = setupView(HelpView.new(jobNameShort), viewSize)
+        local helpView = setupView(HelpView.new(jobNameShort, self.addon_settings:getSettings().help.wiki_base_url), viewSize)
         return helpView
     end, "Help", "Get help using Trust.")
 
@@ -703,7 +703,7 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
         Load = loadSettingsItem,
         Help = helpMenuItem,
         Donate = MenuItem.action(function()
-            windower.open_url(settings.donate.url)
+            windower.open_url(self.addon_settings:getSettings().donate.url)
         end, "Donate", "Enjoying Trust? Show your support!")
     }, nil, jobName, "Settings for "..jobName..".")
 

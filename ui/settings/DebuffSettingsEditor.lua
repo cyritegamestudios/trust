@@ -25,7 +25,7 @@ local DebuffSettingsEditor = setmetatable({}, {__index = CollectionView })
 DebuffSettingsEditor.__index = DebuffSettingsEditor
 
 
-function DebuffSettingsEditor.new(trustSettings, settingsMode, width)
+function DebuffSettingsEditor.new(trustSettings, settingsMode, helpUrl)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = TextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
@@ -40,6 +40,7 @@ function DebuffSettingsEditor.new(trustSettings, settingsMode, width)
 
     self.trustSettings = trustSettings
     self.settingsMode = settingsMode
+    self.helpUrl = helpUrl
 
     self.allDebuffs = spell_util.get_spells(function(spell)
         return spell.skill == 'Enfeebling Magic'
@@ -113,7 +114,7 @@ function DebuffSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
     elseif textItem:getText() == 'Remove' then
         self:onRemoveSpellClick()
     elseif textItem:getText() == 'Help' then
-        windower.open_url(settings.help.wiki_base_url..'/Debuffer')
+        windower.open_url(self.helpUrl)
     end
 end
 

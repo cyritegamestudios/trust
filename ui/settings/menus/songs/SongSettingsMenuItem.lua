@@ -11,18 +11,19 @@ local SongSettingsEditor = require('ui/settings/SongSettingsEditor')
 local SongSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 SongSettingsMenuItem.__index = SongSettingsMenuItem
 
-function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, viewFactory)
+function SongSettingsMenuItem.new(addonSettings, trustSettings, trustSettingsMode, viewFactory)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Edit', 18),
         ButtonItem.default('Modes', 18),
         ButtonItem.default('Help', 18),
     }, {},
     function()
-        local songSettingsView = viewFactory(SongSettingsEditor.new(trustSettings, trustSettingsMode))
+        local songSettingsView = viewFactory(SongSettingsEditor.new(trustSettings, trustSettingsMode, addonSettings:getSettings().help.wiki_base_url..'/Singer'))
         songSettingsView:setShouldRequestFocus(false)
         return songSettingsView
     end, "Songs", "Choose songs to sing."), SongSettingsMenuItem)
 
+    self.addonSettings = addonSettings
     self.trustSettings = trustSettings
     self.songSettings = T(trustSettings:getSettings())[trustSettingsMode.value]
     self.viewFactory = viewFactory
@@ -45,7 +46,7 @@ function SongSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Edit", self:getEditMenuItem())
     self:setChildMenuItem("Modes", self:getModesMenuItem())
     self:setChildMenuItem("Help", MenuItem.action(function()
-        windower.open_url(settings.help.wiki_base_url..'/Singer')
+        windower.open_url(self.addonSettings:getSettings().help.wiki_base_url..'/Singer')
     end))
 end
 
