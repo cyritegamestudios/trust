@@ -15,6 +15,7 @@ local MarqueeCollectionViewCell = require('cylibs/ui/collection_view/cells/marqu
 local Mouse = require('cylibs/ui/input/mouse')
 local Padding = require('cylibs/ui/style/padding')
 local ResizableImageItem = require('cylibs/ui/collection_view/items/resizable_image_item')
+local skillchain_util = require('cylibs/util/skillchain_util')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
@@ -52,7 +53,7 @@ TargetWidget.Subheadline = TextStyle.new(
     Color.red
 )
 
-function TargetWidget.new(frame, addonSettings, party)
+function TargetWidget.new(frame, addonSettings, party, trust)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         if item.__type == TextItem.__type then
             if indexPath.row == 1 then
@@ -146,6 +147,26 @@ function TargetWidget.new(frame, addonSettings, party)
         end
     end), addonSettings:onSettingsChanged())
 
+    local skillchainer = trust:role_with_type("skillchainer")
+
+    self:getDisposeBag():add(skillchainer:on_skillchain():addAction(function(target_id, step)
+        self.actionQueue:clear()
+        if skillchainer:get_target() and skillchainer:get_target():get_id() == target_id then
+            local element = step:get_skillchain():get_name()
+            local text = "Step %d: %s":format(step:get_step(), element)
+            local skillchain_step_action = BlockAction.new(function()
+                coroutine.sleep(math.max(1, step:get_time_remaining()))
+            end, element..step:get_step(), text)
+            self.actionQueue:push_action(skillchain_step_action, true)
+        end
+    end), skillchainer:on_skillchain())
+
+    self:getDisposeBag():add(skillchainer:on_skillchain_ended():addAction(function(target_id)
+        if skillchainer:get_target() and skillchainer:get_target():get_id() == target_id then
+            self.actionQueue:clear()
+        end
+    end), skillchainer:on_skillchain_ended())
+
     return self
 end
 
@@ -157,8 +178,9 @@ function TargetWidget:setTarget(target_index)
     local targetText = ""
     if target_index ~= nil then
         local target = self.party:get_target_by_index(target_index)
-        if target then
+        --[[if target then
             self.targetDisposeBag:add(target:on_skillchain():addAction(function(_, step)
+                self.actionQueue:clear()
                 local element = step:get_skillchain():get_name()
                 local text = "Step %s: %s":format(step:get_step(), element)
                 local skillchain_step_action = BlockAction.new(function()
@@ -170,7 +192,7 @@ function TargetWidget:setTarget(target_index)
             self.targetDisposeBag:add(target:on_skillchain_ended():addAction(function(_, step)
                 self.actionQueue:clear()
             end), target:on_skillchain_ended())
-        end
+        end]]
         targetText = target and target.name or ""
     end
 

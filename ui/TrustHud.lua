@@ -86,7 +86,7 @@ function TrustHud.new(player, action_queue, addon_settings, addon_enabled, menu_
     self.infoViewContainer:setNeedsLayout()
     self.infoViewContainer:layoutIfNeeded()
 
-    self:createWidgets(addon_settings, addon_enabled, action_queue, player.party)
+    self:createWidgets(addon_settings, addon_enabled, action_queue, player.party, player.trust.main_job)
 
     self.trustMenu = Menu.new(self.viewStack, self.menuViewStack, self.infoBar)
 
@@ -154,7 +154,7 @@ function TrustHud:getViewStack()
     return self.viewStack
 end
 
-function TrustHud:createWidgets(addon_settings, addon_enabled, action_queue, party)
+function TrustHud:createWidgets(addon_settings, addon_enabled, action_queue, party, trust)
     self.trustStatusWidget = TrustStatusWidget.new(Frame.new(0, 0, 125, 55), addon_settings, addon_enabled, action_queue, player.main_job_name, player.sub_job_name)
     self.trustStatusWidget:setTitle("Trust")
     self.trustStatusWidget:setSize(125, 55)
@@ -162,7 +162,7 @@ function TrustHud:createWidgets(addon_settings, addon_enabled, action_queue, par
     self.trustStatusWidget:setVisible(true)
     self.trustStatusWidget:layoutIfNeeded()
 
-    self.targetWidget = TargetWidget.new(Frame.new(0, 0, 125, 40), addon_settings, party)
+    self.targetWidget = TargetWidget.new(Frame.new(0, 0, 125, 40), addon_settings, party, trust)
     self.targetWidget:setSize(125, 40)
     self.targetWidget:setPosition(self.addon_settings:getSettings().hud.target.position.x, self.addon_settings:getSettings().hud.target.position.y)
     self.targetWidget:layoutIfNeeded()
