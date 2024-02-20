@@ -1,6 +1,7 @@
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local MenuItem = require('cylibs/ui/menu/menu_item')
+local ModesView = require('cylibs/modes/ui/modes_view')
 local SkillchainAbilityPickerView = require('ui/settings/pickers/SkillchainAbilityPickerView')
 local SkillchainSettingsEditor = require('ui/settings/SkillchainSettingsEditor')
 local SkillchainSettingsMenuItem = require('ui/settings/menus/SkillchainSettingsMenuItem')
@@ -78,7 +79,7 @@ function WeaponSkillSettingsMenuItem:getAbilitiesMenuItem(activeSkills)
 end
 
 function WeaponSkillSettingsMenuItem:getModesMenuItem(activeSkills)
-    local skillchainDelayMenuItem = MenuItem.new(L{
+    --[[local skillchainDelayMenuItem = MenuItem.new(L{
         ButtonItem.default('Off', 18),
         ButtonItem.default('Maximum', 18),
     }, L{
@@ -134,6 +135,14 @@ function WeaponSkillSettingsMenuItem:getModesMenuItem(activeSkills)
             handle_set('AutoSkillchainMode', 'Off')
         end, "Skillchains", state.AutoSkillchainMode:get_description('Off')),
     }, nil, "Modes", "Change skillchain modes.")
+    return skillchainModesMenuItem]]
+
+    local skillchainModesMenuItem = MenuItem.new(L{}, L{}, function(_)
+        local modesView = self.viewFactory(ModesView.new(L{'AutoSkillchainMode', 'SkillchainDelayMode', 'SkillchainPropertyMode'}))
+        modesView:setShouldRequestFocus(true)
+        modesView:setTitle("Set modes for weapon skills and skillchains.")
+        return modesView
+    end, "Modes", "Change weapon skill and skillchain behavior.")
     return skillchainModesMenuItem
 end
 

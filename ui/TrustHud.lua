@@ -25,8 +25,6 @@ local PartyMemberView = require('cylibs/entity/party/ui/party_member_view')
 local PartyStatusWidget = require('ui/widgets/PartyStatusWidget')
 local PartyTargetView = require('cylibs/entity/party/ui/party_target_view')
 local SingerView = require('cylibs/trust/roles/ui/singer_view')
-local SongPickerView = require('ui/settings/pickers/SongPickerView')
-local SongSettingsEditor = require('ui/settings/SongSettingsEditor')
 local SongSettingsMenuItem = require('ui/settings/menus/songs/SongSettingsMenuItem')
 local SpellPickerView = require('ui/settings/pickers/SpellPickerView')
 local SpellSettingsEditor = require('ui/settings/SpellSettingsEditor')
@@ -503,10 +501,6 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         childMenuItems.Pulling = self:getMenuItemForRole(trust:role_with_type("puller"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize)
     end
 
-    if trust:role_with_type("singer") then
-        menuItems:append(ButtonItem.default('Songs', 18))
-    end
-
     if trust:role_with_type("nuker") then
         menuItems:append(ButtonItem.default('Nukes', 18))
     end
@@ -599,7 +593,9 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
     function()
         local debuffer = trust:role_with_type("debuffer")
         if debuffer then
-            return setupView(DebufferView.new(debuffer, debuffer:get_target()), viewSize)
+            local debufferView = setupView(DebufferView.new(debuffer, debuffer:get_target()), viewSize)
+            debufferView:setShouldRequestFocus(false)
+            return debufferView
         end
         return nil
     end, "Debuffs", "View debuffs on enemies.")
