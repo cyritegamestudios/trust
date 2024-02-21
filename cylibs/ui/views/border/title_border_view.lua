@@ -64,19 +64,22 @@ function TitleBorderView.new(frame, resizableImageItem)
     return self
 end
 
-function TitleBorderView:setTitle(title)
+function TitleBorderView:setTitle(title, size)
     if self.title == title then
         return
     end
     self.title = title
 
     local centerTextItem = TextItem.new(self.title, TitleBorderView.HeaderSmall)
+
     centerTextItem:setOffset(0, -4)
     centerTextItem:setHorizontalAlignment(Alignment.center())
 
-    self:getDataSource():updateItem(centerTextItem, IndexPath.new(1, 3))
+    if size then
+        centerTextItem:setSize(size.width, size.height)
+    end
 
-    self:layoutIfNeeded()
+    self:getDataSource():updateItem(centerTextItem, IndexPath.new(1, 3))
 end
 
 function TitleBorderView:setSize(width, height)

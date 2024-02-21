@@ -152,27 +152,6 @@ function CollectionView:setScrollDelta(delta)
 end
 
 ---
--- Sets whether the view is in edit mode.
---
--- @tparam boolean editing The new value for `editing`.
---
-function CollectionView:setEditing(editing)
-    if self.editing == editing then
-        return
-    end
-    self.editing = editing
-end
-
----
--- Returns whether the view is in edit mode.
---
--- @treturn boolean True if the view is in edit mode, false otherwise.
---
-function CollectionView:isEditing()
-    return self.editing
-end
-
----
 -- Set a new scroll delta value.
 --
 -- @tparam number delta The new scroll delta value.

@@ -166,6 +166,25 @@ function TextItem:getOffset()
 end
 
 ---
+-- Sets the text size override.
+--
+-- @tparam number width Width
+-- @tparam number height Height
+--
+function TextItem:setSize(width, height)
+    self.size = { width = width, height = height}
+end
+
+---
+-- Returns the text size override.
+--
+-- @treturn table The {width, height} size
+--
+function TextItem:getSize()
+    return self.size
+end
+
+---
 -- Gets the identifier of the item (same as the text content).
 --
 -- @treturn string The identifier.

@@ -89,8 +89,8 @@ function FFXIBackgroundView.new(frame, hideTitle)
     return self
 end
 
-function FFXIBackgroundView:setTitle(title)
-    self.topBorderView:setTitle(title)
+function FFXIBackgroundView:setTitle(title, size)
+    self.topBorderView:setTitle(title, size)
 end
 
 function FFXIBackgroundView:setSize(width, height)
@@ -116,18 +116,26 @@ function FFXIBackgroundView:getImageItem(frame)
     return imageItem
 end
 
+function FFXIBackgroundView:setEditing(editing)
+    CollectionView.setEditing(self, editing)
+
+    for border in L{ self.topBorderView, self.bottomBorderView }:it() do
+        border:setVisible(not self:isEditing())
+        border:layoutIfNeeded()
+    end
+end
+
 function FFXIBackgroundView:layoutIfNeeded()
-    if not CollectionView.layoutIfNeeded(self) then
+    if not CollectionView.layoutIfNeeded(self)
+            or not self.topBorderView or not self.bottomBorderView then
         return
     end
 
-    if self.topBorderView and self.bottomBorderView then
-        self.topBorderView:setPosition(0, -self.topBorderView:getSize().height / 2 + 1)
-        self.bottomBorderView:setPosition(0, self:getSize().height - 1)
+    self.topBorderView:setPosition(0, -self.topBorderView:getSize().height / 2 + 1)
+    self.topBorderView:layoutIfNeeded()
 
-        self.topBorderView:setNeedsLayout()
-        self.topBorderView:layoutIfNeeded()
-    end
+    self.bottomBorderView:setPosition(0, self:getSize().height - 1)
+    self.bottomBorderView:layoutIfNeeded()
 end
 
 function FFXIBackgroundView:hitTest(x, y)

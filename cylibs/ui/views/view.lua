@@ -33,6 +33,7 @@ function View.new(frame)
     self.needsLayout = true
     self.subviews = {}
     self.superview = nil
+    self.editing = false
     self.requestFocus = true
     self.focus = false
     self.uuid = os.time()..'-'..math.random(100000)
@@ -312,6 +313,34 @@ end
 --
 function View:setHasFocus(hasFocus)
     self.focused = hasFocus
+end
+
+---
+-- Sets whether the view is in edit mode.
+--
+-- @tparam boolean editing The new value for `editing`.
+--
+function View:setEditing(editing)
+    if self.editing == editing then
+        return
+    end
+    self.editing = editing
+
+    if self.backgroundImageView then
+        self.backgroundImageView:setEditing(editing)
+    end
+
+    self:setNeedsLayout()
+    self:layoutIfNeeded()
+end
+
+---
+-- Returns whether the view is in edit mode.
+--
+-- @treturn boolean True if the view is in edit mode, false otherwise.
+--
+function View:isEditing()
+    return self.editing
 end
 
 ---

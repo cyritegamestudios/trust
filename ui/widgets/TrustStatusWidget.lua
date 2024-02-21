@@ -79,17 +79,10 @@ TrustStatusWidget.Subheadline = TextStyle.new(
 function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, mainJobName, subJobName)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         if indexPath.section == 1 then
-            if item.__type == TextItem.__type then
-                local cell = TextCollectionViewCell.new(item)
-                cell:setItemSize(14)
-                cell:setUserInteractionEnabled(false)
-                return cell
-            else
-                local cell = ButtonCollectionViewCell.new(item)
-                cell:setItemSize(14)
-                cell:setUserInteractionEnabled(true)
-                return cell
-            end
+            local cell = TextCollectionViewCell.new(item)
+            cell:setItemSize(14)
+            cell:setUserInteractionEnabled(false)
+            return cell
         else
             local cell = MarqueeCollectionViewCell.new(item)
             cell:setItemSize(14)
@@ -98,7 +91,7 @@ function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, 
         end
     end)
 
-    local self = setmetatable(Widget.new(frame, "Trust", addonSettings, dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 4)), TrustStatusWidget)
+    local self = setmetatable(Widget.new(frame, "Trust", addonSettings, dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 4), 20), TrustStatusWidget)
 
     self.addonSettings = addonSettings
     self.mainJobName = mainJobName

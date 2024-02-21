@@ -71,7 +71,7 @@ function TargetWidget.new(frame, addonSettings, party, trust)
         end
     end)
 
-    local self = setmetatable(Widget.new(frame, "Target", addonSettings, dataSource, VerticalFlowLayout.new(0, Padding.new(8, 4, 0, 0), 4)), TargetWidget)
+    local self = setmetatable(Widget.new(frame, "Target", addonSettings, dataSource, VerticalFlowLayout.new(0, Padding.new(8, 4, 0, 0), 4), 30), TargetWidget)
 
     self.addonSettings = addonSettings
     self.actionQueue = ActionQueue.new(nil, false, 5, false, true)

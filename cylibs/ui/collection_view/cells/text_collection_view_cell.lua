@@ -60,7 +60,12 @@ function TextCollectionViewCell:layoutIfNeeded()
 
     self.textView.text = self:getItem():getText()
 
-    local textWidth = string.len(self:getItem():getText()) * self:getItem():getStyle():getFontSize()
+    local textWidth
+    if self:getItem():getSize() then
+        textWidth = self:getItem():getSize().width
+    else
+        textWidth = string.len(self:getItem():getText()) * self:getItem():getStyle():getFontSize()
+    end
 
     if self:getItem():shouldAutoResize() then
         if textWidth > self:getSize().width + 10 then
@@ -80,7 +85,7 @@ function TextCollectionViewCell:layoutIfNeeded()
         end
     end
 
-    local textPosX = position.x --+ self:getItem():getOffset().x
+    local textPosX = position.x + self:getItem():getOffset().x
     if self:getItem():getHorizontalAlignment() == Alignment.center() then
         textPosX = textPosX + (self:getSize().width - textWidth) / 4
     end
@@ -134,6 +139,9 @@ end
 --
 function TextCollectionViewCell:setItem(item)
     CollectionViewCell.setItem(self, item)
+
+    self:setNeedsLayout()
+    self:layoutIfNeeded()
 end
 
 ---

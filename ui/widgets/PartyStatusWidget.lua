@@ -37,7 +37,7 @@ function PartyStatusWidget.new(frame, addonSettings, party)
         return cell
     end)
 
-    local self = setmetatable(Widget.new(frame, "Party", addonSettings, dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 4)), PartyStatusWidget)
+    local self = setmetatable(Widget.new(frame, "Party", addonSettings, dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 4), 20), PartyStatusWidget)
 
     self.party = party
 

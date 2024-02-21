@@ -11,7 +11,7 @@ function Widget:onSettingsChanged()
     return self.settingsChanged
 end
 
-function Widget.new(frame, title, addonSettings, dataSource, layout)
+function Widget.new(frame, title, addonSettings, dataSource, layout, titleWidth)
     local self = setmetatable(CollectionView.new(dataSource, layout), Widget)
 
     self.addonSettings = addonSettings
@@ -28,7 +28,11 @@ function Widget.new(frame, title, addonSettings, dataSource, layout)
     local backgroundView = FFXIBackgroundView.new(frame)
     self:setBackgroundImageView(backgroundView)
 
-    backgroundView:setTitle(title)
+    local titleSize
+    if titleWidth then
+        titleSize = { width = titleWidth, height = 14 }
+    end
+    backgroundView:setTitle(title, titleSize)
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
