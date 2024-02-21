@@ -20,8 +20,9 @@ local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_col
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
+local Widget = require('ui/widgets/Widget')
 
-local TargetWidget = setmetatable({}, {__index = CollectionView })
+local TargetWidget = setmetatable({}, {__index = Widget })
 TargetWidget.__index = TargetWidget
 
 TargetWidget.Text = TextStyle.new(
@@ -70,22 +71,12 @@ function TargetWidget.new(frame, addonSettings, party, trust)
         end
     end)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(0, Padding.new(8, 4, 0, 0), 4)), TargetWidget)
+    local self = setmetatable(Widget.new(frame, "Target", addonSettings, dataSource, VerticalFlowLayout.new(0, Padding.new(8, 4, 0, 0), 4)), TargetWidget)
 
     self.addonSettings = addonSettings
     self.actionQueue = ActionQueue.new(nil, false, 5, false, true)
     self.party = party
     self.targetDisposeBag = DisposeBag.new()
-
-    self:setVisible(false)
-
-    local backgroundView = FFXIBackgroundView.new(frame)
-    backgroundView:setTitle("Target")
-
-    self:setBackgroundImageView(backgroundView)
-
-    self:setScrollEnabled(false)
-    self:setUserInteractionEnabled(false)
 
     self:getDataSource():addItem(TextItem.new("", TargetWidget.Text), IndexPath.new(1, 1))
 
@@ -107,53 +98,13 @@ function TargetWidget.new(frame, addonSettings, party, trust)
     self:setTarget(nil)
     self:setAction(nil)
 
-    self:getDisposeBag():add(Mouse.input():onMouseEvent():addAction(function(type, x, y, delta, blocked)
-        if type == Mouse.Event.Click then
-            if self:hitTest(x, y) then
-                local startPosition = self:getAbsolutePosition()
-                self.dragging = { x = startPosition.x, y = startPosition.y, dragX = x, dragY = y }
-                Mouse.input().blockEvent = true
-            end
-        elseif type == Mouse.Event.Move then
-            if self.dragging then
-                Mouse.input().blockEvent = true
-
-                local newX = self.dragging.x + (x - self.dragging.dragX)
-                local newY = self.dragging.y + (y - self.dragging.dragY)
-
-                self:setPosition(newX, newY)
-                self:layoutIfNeeded()
-            end
-            return true
-        elseif type == Mouse.Event.ClickRelease then
-            if self.dragging then
-                self.dragging = nil
-                Mouse.input().blockEvent = true
-                coroutine.schedule(function()
-                    Mouse.input().blockEvent = false
-                end, 0.1)
-            end
-        else
-            self.dragging = nil
-            Mouse.input().blockEvent = false
-        end
-        return false
-    end), Mouse.input():onMouseEvent())
-
-    self:getDisposeBag():add(addonSettings:onSettingsChanged():addAction(function(settings)
-        if self.target_index ~= nil then
-            self:setVisible(settings.hud.target.visible)
-            self:layoutIfNeeded()
-        end
-    end), addonSettings:onSettingsChanged())
-
     local skillchainer = trust:role_with_type("skillchainer")
 
     self:getDisposeBag():add(skillchainer:on_skillchain():addAction(function(target_id, step)
         self.actionQueue:clear()
         if skillchainer:get_target() and skillchainer:get_target():get_id() == target_id then
             local element = step:get_skillchain():get_name()
-            local text = "Step %d: %s":format(step:get_step(), element)
+            local text = "Step "..step:get_step()..": "..element-- "Step %d: %s":format(step:get_step(), element)
             local skillchain_step_action = BlockAction.new(function()
                 coroutine.sleep(math.max(1, step:get_time_remaining()))
             end, element..step:get_step(), text)
@@ -168,6 +119,10 @@ function TargetWidget.new(frame, addonSettings, party, trust)
     end), skillchainer:on_skillchain_ended())
 
     return self
+end
+
+function TargetWidget:getSettings(addonSettings)
+    return addonSettings:getSettings().target_widget
 end
 
 function TargetWidget:setTarget(target_index)
@@ -213,33 +168,10 @@ function TargetWidget:setAction(text)
 end
 
 function TargetWidget:setVisible(visible)
-    visible = visible and self.addonSettings:getSettings().hud.target.visible
-    CollectionView.setVisible(self, visible)
-end
-
----
--- Sets the position of the view.
---
--- @tparam number x The x-coordinate to set.
--- @tparam number y The y-coordinate to set.
---
-function TargetWidget:setPosition(x, y)
-    if self.frame.x == x and self.frame.y == y then
-        return
+    if self.target_index == nil then
+        visible = false
     end
-    CollectionView.setPosition(self, x, y)
-
-    local xPos, yPos = self.addonSettings:getSettings().hud.target.position.x, self.addonSettings:getSettings().hud.target.position.y
-    if xPos ~= x or yPos ~= y then
-        self.addonSettings:reloadSettings()
-
-        self.addonSettings:getSettings().hud.target.position.x = x
-        self.addonSettings:getSettings().hud.target.position.y = y
-        self.addonSettings:getSettings().hud.target.visible = self:isVisible()
-
-        self.addonSettings:saveSettings()
-    end
+    Widget.setVisible(self, visible)
 end
-
 
 return TargetWidget

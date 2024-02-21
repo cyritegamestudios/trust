@@ -17,8 +17,9 @@ local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_col
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
+local Widget = require('ui/widgets/Widget')
 
-local TrustStatusWidget = setmetatable({}, {__index = CollectionView })
+local TrustStatusWidget = setmetatable({}, {__index = Widget })
 TrustStatusWidget.__index = TrustStatusWidget
 
 TrustStatusWidget.Buttons = {}
@@ -97,22 +98,17 @@ function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, 
         end
     end)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 4)), TrustStatusWidget)
+    local self = setmetatable(Widget.new(frame, "Trust", addonSettings, dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 4)), TrustStatusWidget)
 
     self.addonSettings = addonSettings
     self.mainJobName = mainJobName
     self.subJobName = subJobName
 
-    self:setVisible(false)
-    self:setScrollEnabled(false)
-    self:setUserInteractionEnabled(true)
-
-    local backgroundView = FFXIBackgroundView.new(frame)
-    self:setBackgroundImageView(backgroundView)
-
     self:setJobs(mainJobName, subJobName)
 
     self:getDataSource():addItem(TextItem.new('', TrustStatusWidget.Subheadline), IndexPath.new(2, 1))
+
+    self:setVisible(true)
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
@@ -124,47 +120,6 @@ function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, 
     self:getDisposeBag():add(actionQueue:on_action_end():addAction(function(_, s)
         self:setAction('')
     end), actionQueue:on_action_end())
-
-    self:getDisposeBag():add(Mouse.input():onMouseEvent():addAction(function(type, x, y, delta, blocked)
-        if type == Mouse.Event.Click then
-            if self:hitTest(x, y) then
-                local startPosition = self:getAbsolutePosition()
-                self.dragging = { x = startPosition.x, y = startPosition.y, dragX = x, dragY = y }
-                Mouse.input().blockEvent = true
-            end
-        elseif type == Mouse.Event.Move then
-            if self.dragging then
-                Mouse.input().blockEvent = true
-
-                local newX = self.dragging.x + (x - self.dragging.dragX)
-                local newY = self.dragging.y + (y - self.dragging.dragY)
-
-                self:setPosition(newX, newY)
-                self:layoutIfNeeded()
-            end
-            return true
-        elseif type == Mouse.Event.ClickRelease then
-            if self.dragging then
-                self.dragging = nil
-                Mouse.input().blockEvent = true
-                coroutine.schedule(function()
-                    Mouse.input().blockEvent = false
-                end, 0.1)
-            end
-        else
-            self.dragging = nil
-            Mouse.input().blockEvent = false
-        end
-        return false
-    end), Mouse.input():onMouseEvent())
-
-    --[[self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
-        addonEnabled:setValue(true)
-    end), self:getDelegate():didSelectItemAtIndexPath())
-
-    self:getDisposeBag():add(self:getDelegate():didDeselectItemAtIndexPath():addAction(function(indexPath)
-        addonEnabled:setValue(false)
-    end), self:getDelegate():didDeselectItemAtIndexPath())]]
 
     self:getDisposeBag():add(addonEnabled:onValueChanged():addAction(function(_, isEnabled)
         if isEnabled then
@@ -178,17 +133,11 @@ function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, 
         self:setAction('OFF')
     end
 
-    self:getDisposeBag():add(addonSettings:onSettingsChanged():addAction(function(settings)
-        self:setVisible(settings.hud.trust.visible)
-        self:layoutIfNeeded()
-    end), addonSettings:onSettingsChanged())
-
     return self
 end
 
-function TrustStatusWidget:setTitle(title)
-    self.backgroundImageView:setTitle(title)
-    self.backgroundImageView:layoutIfNeeded()
+function TrustStatusWidget:getSettings(addonSettings)
+    return addonSettings:getSettings().trust_widget
 end
 
 function TrustStatusWidget:setJobs(mainJobName, subJobName)
@@ -216,35 +165,5 @@ function TrustStatusWidget:setAction(text)
 
     self:layoutIfNeeded()
 end
-
-function TrustStatusWidget:setVisible(visible)
-    visible = visible and self.addonSettings:getSettings().hud.trust.visible
-    CollectionView.setVisible(self, visible)
-end
-
----
--- Sets the position of the view.
---
--- @tparam number x The x-coordinate to set.
--- @tparam number y The y-coordinate to set.
---
-function TrustStatusWidget:setPosition(x, y)
-    if self.frame.x == x and self.frame.y == y then
-        return
-    end
-    CollectionView.setPosition(self, x, y)
-
-    local xPos, yPos = self.addonSettings:getSettings().hud.trust.position.x, self.addonSettings:getSettings().hud.trust.position.y
-    if xPos ~= x or yPos ~= y then
-        self.addonSettings:reloadSettings()
-
-        self.addonSettings:getSettings().hud.trust.position.x = x
-        self.addonSettings:getSettings().hud.trust.position.y = y
-        self.addonSettings:getSettings().hud.trust.visible = self:isVisible()
-
-        self.addonSettings:saveSettings()
-    end
-end
-
 
 return TrustStatusWidget

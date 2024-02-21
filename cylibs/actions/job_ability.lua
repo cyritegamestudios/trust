@@ -84,6 +84,9 @@ end
 
 function JobAbility:tostring()
     local target = windower.ffxi.get_mob_by_index(self.target_index or windower.ffxi.get_player().index)
+    if target.name == windower.ffxi.get_player().name then
+       return self:get_job_ability_name()
+    end
     return self:get_job_ability_name()..' → '..target.name
 end
 

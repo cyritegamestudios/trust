@@ -229,8 +229,7 @@ function Puller:get_pull_distance()
 end
 
 function Puller:get_pull_action(target_index)
-    local actions = L{
-    }
+    local actions = L{}
 
     local current_target = player_util.get_current_target()
     if current_target and current_target.index ~= target_index then
@@ -297,6 +296,7 @@ function Puller:pull_target(target)
             end
             local sequence_action = SequenceAction.new(actions, 'puller_target_' .. target.index)
             sequence_action.priority = ActionPriority.high
+            sequence_action.display_name = "Pulling → "..target.name
             self.action_queue:push_action(sequence_action, true)
         else
             self:get_party():add_to_chat(self.party:get_player(), "I can't use any of my pull actions right now. Maybe we should try different ones?", "pull_action_cooldown", 10)

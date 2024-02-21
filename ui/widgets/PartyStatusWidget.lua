@@ -1,19 +1,17 @@
-local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
 local Color = require('cylibs/ui/views/color')
-local FFXIBackgroundView = require('ui/themes/ffxi/FFXIBackgroundView')
 local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_collection_view_cell')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
-local Mouse = require('cylibs/ui/input/mouse')
 local Padding = require('cylibs/ui/style/padding')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
+local Widget = require('ui/widgets/Widget')
 
-local PartyStatusWidget = setmetatable({}, {__index = CollectionView })
+local PartyStatusWidget = setmetatable({}, {__index = Widget })
 PartyStatusWidget.__index = PartyStatusWidget
 
 PartyStatusWidget.TextSmall = TextStyle.new(
@@ -39,20 +37,9 @@ function PartyStatusWidget.new(frame, addonSettings, party)
         return cell
     end)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 4)), PartyStatusWidget)
+    local self = setmetatable(Widget.new(frame, "Party", addonSettings, dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 4)), PartyStatusWidget)
 
-    self.addonSettings = addonSettings
     self.party = party
-    self.events = {}
-
-    self:setVisible(false)
-    self:setScrollEnabled(false)
-    self:setUserInteractionEnabled(true)
-
-    local backgroundView = FFXIBackgroundView.new(frame)
-    self:setBackgroundImageView(backgroundView)
-
-    backgroundView:setTitle("Party")
 
     local assistTargetItem = ImageItem.new(windower.addon_path..'assets/icons/icon_assist_target.png', 6, 6)
     self.assistTargetIcon = ImageCollectionViewCell.new(assistTargetItem)
@@ -60,42 +47,6 @@ function PartyStatusWidget.new(frame, addonSettings, party)
     self:getContentView():addSubview(self.assistTargetIcon)
 
     self:setPartyMembers(party:get_party_members(true))
-
-    self:setNeedsLayout()
-    self:layoutIfNeeded()
-
-    self:getDisposeBag():add(Mouse.input():onMouseEvent():addAction(function(type, x, y, delta, blocked)
-        if type == Mouse.Event.Click then
-            if self:hitTest(x, y) then
-                local startPosition = self:getAbsolutePosition()
-                self.dragging = { x = startPosition.x, y = startPosition.y, dragX = x, dragY = y }
-                Mouse.input().blockEvent = true
-            end
-        elseif type == Mouse.Event.Move then
-            if self.dragging then
-                Mouse.input().blockEvent = true
-
-                local newX = self.dragging.x + (x - self.dragging.dragX)
-                local newY = self.dragging.y + (y - self.dragging.dragY)
-
-                self:setPosition(newX, newY)
-                self:layoutIfNeeded()
-            end
-            return true
-        elseif type == Mouse.Event.ClickRelease then
-            if self.dragging then
-                self.dragging = nil
-                Mouse.input().blockEvent = true
-                coroutine.schedule(function()
-                    Mouse.input().blockEvent = false
-                end, 0.1)
-            end
-        else
-            self.dragging = nil
-            Mouse.input().blockEvent = false
-        end
-        return false
-    end), Mouse.input():onMouseEvent())
 
     self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
         self:getDelegate():deselectAllItems()
@@ -120,25 +71,13 @@ function PartyStatusWidget.new(frame, addonSettings, party)
         self:setAssistTarget(party_member)
     end), party:on_party_assist_target_change())
 
-    self:getDisposeBag():add(addonSettings:onSettingsChanged():addAction(function(settings)
-        self:setVisible(settings.hud.party.visible)
-        self:layoutIfNeeded()
-    end), addonSettings:onSettingsChanged())
-
-    self.events.tic = windower.register_event('time change', function() self:tic()  end)
-
     return self
 end
 
-function PartyStatusWidget:destroy()
-    CollectionView.destroy(self)
+-- FIXME: re-add this
+function PartyStatusWidget:tic(old_time, new_time)
+    Widget.tic(self, old_time, new_time)
 
-    for _,event in pairs(self.events) do
-        windower.unregister_event(event)
-    end
-end
-
-function PartyStatusWidget:tic()
     local player = self.party:get_player()
     for partyMember in self.party:get_party_members():it() do
         local indexPath = self:indexPathForPartyMember(partyMember)
@@ -155,6 +94,10 @@ function PartyStatusWidget:tic()
             end
         end
     end
+end
+
+function PartyStatusWidget:getSettings(addonSettings)
+    return addonSettings:getSettings().party_widget
 end
 
 function PartyStatusWidget:indexPathForPartyMember(party_member)
@@ -209,43 +152,6 @@ function PartyStatusWidget:removePartyMember(party_member)
         self:getDataSource():removeItem(indexPath)
         self:setSize(self:getSize().width, self:getContentSize().height)
         self:layoutIfNeeded()
-    end
-end
-
-function PartyStatusWidget:layoutIfNeeded()
-    if not CollectionView.layoutIfNeeded(self) then
-        return
-    end
-    self.backgroundImageView:setSize(self.frame.width, self:getContentSize().height)
-    self.backgroundImageView:layoutIfNeeded()
-end
-
-function PartyStatusWidget:setVisible(visible)
-    visible = visible and self.addonSettings:getSettings().hud.party.visible
-    CollectionView.setVisible(self, visible)
-end
-
----
--- Sets the position of the view.
---
--- @tparam number x The x-coordinate to set.
--- @tparam number y The y-coordinate to set.
---
-function PartyStatusWidget:setPosition(x, y)
-    if self.frame.x == x and self.frame.y == y then
-        return
-    end
-    CollectionView.setPosition(self, x, y)
-
-    local xPos, yPos = self.addonSettings:getSettings().hud.party.position.x, self.addonSettings:getSettings().hud.party.position.y
-    if xPos ~= x or yPos ~= y then
-        self.addonSettings:reloadSettings()
-
-        self.addonSettings:getSettings().hud.party.position.x = x
-        self.addonSettings:getSettings().hud.party.position.y = y
-        self.addonSettings:getSettings().hud.party.visible = self:isVisible()
-
-        self.addonSettings:saveSettings()
     end
 end
 

@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '8.8.2'
+_addon.version = '8.8.3'
 _addon.release_notes = [[
 This update brings Scholar to the forefront with skillchaining
 using Immanence!
@@ -191,8 +191,8 @@ function load_user_files(main_job_id, sub_job_id)
 
 	load_trust_modes(player.main_job_name_short)
 	load_trust_reactions(player.main_job_name_short)
-	load_trust_commands(player.main_job_name_short, player.trust.main_job, action_queue, player.party)
 	load_ui()
+	load_trust_commands(player.main_job_name_short, player.trust.main_job, action_queue, player.party)
 
 	main_trust_settings:copySettings()
 	sub_trust_settings:copySettings()
@@ -265,7 +265,7 @@ function load_trust_commands(job_name_short, trust, action_queue, party)
 		SendAllCommands.new(trust, action_queue),
 		SendCommands.new(trust, action_queue),
 		SkillchainCommands.new(trust, weapon_skill_settings, action_queue),
-		WidgetCommands.new(trust, action_queue, addon_settings),
+		WidgetCommands.new(trust, action_queue, addon_settings, hud.widgetManager),
 	}:extend(get_job_commands(job_name_short, trust, action_queue))
 
 	local add_command = function(command)

@@ -1,5 +1,7 @@
 local Alignment = require('cylibs/ui/layout/alignment')
+local DisposeBag = require('cylibs/events/dispose_bag')
 local texts = require('texts')
+local Timer = require('cylibs/util/timers/timer')
 
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 
@@ -19,9 +21,22 @@ function MarqueeCollectionViewCell.new(item)
     self.currentIndex = -1
     self.numCharacters = 10
     self.currentText = self:getItem():getText()
-    self.coroutines = L{}
+    self.timer = Timer.scheduledTimer(0.125, 0.5)
+    self.disposeBag = DisposeBag.new()
+
+    self.disposeBag:add(self.timer:onTimeChange():addAction(function(_)
+        self:nextFrame()
+    end), self.timer:onTimeChange())
+
+    self.disposeBag:addAny(L{ self.timer })
 
     return self
+end
+
+function MarqueeCollectionViewCell:destroy()
+    TextCollectionViewCell.destroy(self)
+
+    self.disposeBag:destroy()
 end
 
 ---
@@ -64,8 +79,8 @@ function MarqueeCollectionViewCell:setItem(item)
     self:updateNumCharacters()
     self:updateText()
 
-    if item:getText():length() > 0 then
-        self:setAnimated(self:isVisible(), 1.0)
+    if item:getText():length() > self.numCharacters then
+        self:setAnimated(self:isVisible())
     else
         self:setAnimated(false)
     end
@@ -97,21 +112,14 @@ function MarqueeCollectionViewCell:layoutIfNeeded()
     return true
 end
 
-function MarqueeCollectionViewCell:setAnimated(animated, delay)
-    if self.animated == animated then
+function MarqueeCollectionViewCell:setAnimated(animated)
+    if self.timer:isRunning() == animated then
         return
     end
-    self.animated = animated
-
-    if self.animated then
-        self.coroutines:append(coroutine.schedule(function()
-            self:nextFrame()
-        end, delay or 0.1))
+    if animated then
+        self.timer:start()
     else
-        for id in self.coroutines:it() do
-            coroutine.close(id)
-        end
-        self.coroutines = L{}
+        self.timer:cancel()
     end
 end
 
@@ -147,13 +155,10 @@ function MarqueeCollectionViewCell:updateText()
 end
 
 function MarqueeCollectionViewCell:nextFrame()
-    if not self.animated or not self:isVisible() then
+    if not self.timer:isRunning() or not self:isVisible() then
         return
     end
-
-    if self:updateText() then
-        self.coroutines:append(coroutine.schedule(function() self:nextFrame()  end, 0.25))
-    end
+    self:updateText()
 end
 
 return MarqueeCollectionViewCell

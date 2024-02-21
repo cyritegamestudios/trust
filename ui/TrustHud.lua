@@ -41,6 +41,7 @@ local GeomancySettingsMenuItem = require('ui/settings/menus/buffs/GeomancySettin
 local BloodPactSettingsMenuItem = require('ui/settings/menus/buffs/BloodPactSettingsMenuItem')
 local RollSettingsMenuItem = require('ui/settings/menus/rolls/RollSettingsMenuItem')
 local View = require('cylibs/ui/views/view')
+local WidgetManager = require('ui/widgets/WidgetManager')
 
 local TrustHud = setmetatable({}, {__index = View })
 TrustHud.__index = TrustHud
@@ -76,6 +77,7 @@ function TrustHud.new(player, action_queue, addon_settings, addon_enabled, menu_
     self.menuViewStack = ViewStack.new(Frame.new(windower.get_windower_settings().ui_x_res - 128, 52, 0, 0))
     self.menuViewStack.name = "menu stack"
     self.mainMenuItem = self:getMainMenuItem()
+    self.widgetManager = WidgetManager.new(addon_settings)
 
     self.infoViewContainer = View.new(Frame.new(17, 17, windower.get_windower_settings().ui_x_res - 18, 27))
     self.infoBar = TrustInfoBar.new(Frame.new(0, 0, windower.get_windower_settings().ui_x_res - 18, 27))
@@ -110,6 +112,7 @@ function TrustHud:destroy()
             windower.unregister_event(event)
         end
     end
+    self.widgetManager:destroy()
     self.viewStack:dismissAll()
     self.viewStack:destroy()
     self.click:removeAllEvents()
@@ -123,31 +126,8 @@ end
 function TrustHud:layoutIfNeeded()
     View.layoutIfNeeded(self)
 
-    self.trustStatusWidget:setPosition(self.addon_settings:getSettings().hud.trust.position.x, self.addon_settings:getSettings().hud.trust.position.y)
-    --self.trustStatusWidget:setVisible(settings.hud.visible)
-    self.trustStatusWidget:layoutIfNeeded()
-
-    self.targetWidget:setPosition(self.addon_settings:getSettings().hud.target.position.x, self.addon_settings:getSettings().hud.target.position.y)
-    --self.targetWidget:setVisible(self.targetWidget:isVisible() and settings.hud.target.visible)
-    self.targetWidget:layoutIfNeeded()
-
-    self.partyStatusWidget:setPosition(self.addon_settings:getSettings().hud.party.position.x, self.addon_settings:getSettings().hud.party.position.y)
-    --self.partyStatusWidget:setVisible(settings.hud.party.visible)
-    self.partyStatusWidget:layoutIfNeeded()
-
     self.infoBar:setNeedsLayout()
     self.infoBar:layoutIfNeeded()
-end
-
-function TrustHud:getWidget(widgetName)
-    if widgetName == 'trust' then
-        return self.trustStatusWidget
-    elseif widgetName == 'party' then
-        return self.partyStatusWidget
-    elseif widgetName == 'target' then
-        return self.targetWidget
-    end
-    return nil
 end
 
 function TrustHud:getViewStack()
@@ -155,23 +135,14 @@ function TrustHud:getViewStack()
 end
 
 function TrustHud:createWidgets(addon_settings, addon_enabled, action_queue, party, trust)
-    self.trustStatusWidget = TrustStatusWidget.new(Frame.new(0, 0, 125, 55), addon_settings, addon_enabled, action_queue, player.main_job_name, player.sub_job_name)
-    self.trustStatusWidget:setTitle("Trust")
-    self.trustStatusWidget:setSize(125, 55)
-    self.trustStatusWidget:setPosition(self.addon_settings:getSettings().hud.trust.position.x, self.addon_settings:getSettings().hud.trust.position.y)
-    self.trustStatusWidget:setVisible(true)
-    self.trustStatusWidget:layoutIfNeeded()
+    local trustStatusWidget = TrustStatusWidget.new(Frame.new(0, 0, 125, 55), addon_settings, addon_enabled, action_queue, player.main_job_name, player.sub_job_name)
+    self.widgetManager:addWidget(trustStatusWidget, "trust")
 
-    self.targetWidget = TargetWidget.new(Frame.new(0, 0, 125, 40), addon_settings, party, trust)
-    self.targetWidget:setSize(125, 40)
-    self.targetWidget:setPosition(self.addon_settings:getSettings().hud.target.position.x, self.addon_settings:getSettings().hud.target.position.y)
-    self.targetWidget:layoutIfNeeded()
+    local targetWidget = TargetWidget.new(Frame.new(0, 0, 125, 40), addon_settings, party, trust)
+    self.widgetManager:addWidget(targetWidget, "target")
 
-    self.partyStatusWidget = PartyStatusWidget.new(Frame.new(0, 0, 125, 55), addon_settings, party)
-    self.partyStatusWidget:setSize(125, 55)
-    self.partyStatusWidget:setPosition(self.addon_settings:getSettings().hud.party.position.x, self.addon_settings:getSettings().hud.party.position.y)
-    self.partyStatusWidget:setVisible(true)
-    self.partyStatusWidget:layoutIfNeeded()
+    local partyStatusWidget = PartyStatusWidget.new(Frame.new(0, 0, 125, 55), addon_settings, party)
+    self.widgetManager:addWidget(partyStatusWidget, "party")
 end
 
 function TrustHud:toggleMenu()

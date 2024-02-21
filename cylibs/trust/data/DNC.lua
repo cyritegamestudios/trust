@@ -92,7 +92,7 @@ end
 
 function DancerTrust:check_finishing_moves()
 	if job_util.can_use_job_ability('No Foot Rise') and not self:get_job():has_finishing_moves() then
-		self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, 'No Foot Rise'))
+		self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, 'No Foot Rise'), true)
 	end
 end
 

@@ -152,6 +152,36 @@ function CollectionView:setScrollDelta(delta)
 end
 
 ---
+-- Sets whether the view is in edit mode.
+--
+-- @tparam boolean editing The new value for `editing`.
+--
+function CollectionView:setEditing(editing)
+    if self.editing == editing then
+        return
+    end
+    self.editing = editing
+end
+
+---
+-- Returns whether the view is in edit mode.
+--
+-- @treturn boolean True if the view is in edit mode, false otherwise.
+--
+function CollectionView:isEditing()
+    return self.editing
+end
+
+---
+-- Set a new scroll delta value.
+--
+-- @tparam number delta The new scroll delta value.
+--
+function CollectionView:setScrollDelta(delta)
+    ScrollView.setScrollDelta(self, delta + self.layout:getItemSpacing())
+end
+
+---
 -- Checks if layout updates are needed and triggers layout if necessary.
 -- This function is typically called before rendering to ensure that the View's layout is up to date.
 --
