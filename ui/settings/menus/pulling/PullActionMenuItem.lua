@@ -1,8 +1,9 @@
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
+local CursorItem = require('ui/themes/FFXI/CursorItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
-local JobAbilityPickerView = require('ui/settings/pickers/JobAbilityPickerView')
+local JobAbility = require('cylibs/actions/job_ability')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local SpellPickerView = require('ui/settings/pickers/SpellPickerView')
+local PickerView = require('cylibs/ui/picker/picker_view')
 
 local PullActionMenuItem = setmetatable({}, {__index = MenuItem })
 PullActionMenuItem.__index = PullActionMenuItem
@@ -11,7 +12,6 @@ function PullActionMenuItem.new(puller, puller_settings, job_name_short, viewFac
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Job Abilities', 18),
         ButtonItem.default('Spells', 18),
-        ButtonItem.default('Other', 18),
     }, {}, nil, "Pulling", "Configure which actions to use to pull enemies."), PullActionMenuItem)
 
     self.puller = puller
@@ -41,63 +41,67 @@ end
 function PullActionMenuItem:getSpellsMenuItem()
     local chooseSpellsMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
-        ButtonItem.default('Clear', 18),
     }, {},
-    function()
-        local jobId = res.jobs:with('ens', self.job_name_short).id
-        local allSpells = spell_util.get_spells(function(spell)
-            return spell.levels[jobId] ~= nil and spell.targets:contains('Enemy')
-        end):map(function(spell) return spell.en end)
+            function()
+                local jobId = res.jobs:with('ens', self.job_name_short).id
+                local allSpells = spell_util.get_spells(function(spell)
+                    return spell.levels[jobId] ~= nil and spell.targets:contains('Enemy')
+                end):map(function(spell) return spell.en end)
 
-        local chooseSpellsView = self.viewFactory(SpellPickerView.new(self.puller_settings, self.puller_settings:getSettings().Spells, allSpells, L{}, true))
-        chooseSpellsView:setTitle("Choose spells to pull with.")
-        return chooseSpellsView
-    end, "Spells", "Pull enemies with spells.")
+                local cursorImageItem = CursorItem.new()
+
+                local chooseSpellsView = self.viewFactory(PickerView.withItems(allSpells, self.puller_settings.Spells:map(function(spell) return spell:get_name()  end), true, cursorImageItem))
+                chooseSpellsView:setTitle("Choose spells to pull enemies with.")
+                chooseSpellsView:setShouldRequestFocus(true)
+                chooseSpellsView:on_pick_items():addAction(function(_, selectedItems)
+                    local spells = selectedItems:map(function(item)
+                        return Spell.new(item:getText())
+                    end)
+
+                    local currentSpells = self.puller_settings.Spells
+                    currentSpells:clear()
+
+                    for spell in spells:it() do
+                        currentSpells:append(spell)
+                    end
+                    addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll use "..localization_util.commas(spells:map(function(spell) return spell:get_name()  end)).." to pull for the rest of this session!")
+                end)
+                return chooseSpellsView
+            end, "Pulling", "Choose spells to pull enemies with.")
     return chooseSpellsMenuItem
+
 end
 
 function PullActionMenuItem:getJobAbilitiesMenuItem()
-    local chooseJobAbilitiesItem = MenuItem.new(L{
+    local chooseJobAbilitiesMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
-        ButtonItem.default('Clear', 18),
     }, {},
     function()
         local allJobAbilities = player_util.get_job_abilities():map(function(jobAbilityId) return res.job_abilities[jobAbilityId] end):filter(function(jobAbility)
             return S{'Enemy'}:intersection(S(jobAbility.targets)):length() > 0
         end):map(function(jobAbility) return jobAbility.en end)
 
-        local chooseJobAbilitiesView = self.viewFactory(JobAbilityPickerView.new(self.puller_settings, self.puller_settings:getSettings().JobAbilities, allJobAbilities))
-        chooseJobAbilitiesView:setTitle("Choose job abilities to pull with.")
-        return chooseJobAbilitiesView
-    end, "Job Abilities", "Pull enemies with job abilities.")
-    return chooseJobAbilitiesItem
-end
+        local cursorImageItem = CursorItem.new()
 
-function PullActionMenuItem:getModesMenuItem()
-    local pullModesMenuItem = MenuItem.new(L{
-        ButtonItem.default('Auto', 18),
-        ButtonItem.default('Multi', 18),
-        ButtonItem.default('Target', 18),
-        ButtonItem.default('All', 18),
-        ButtonItem.default('Off', 18),
-    }, L{
-        Auto = MenuItem.action(function()
-            handle_set('AutoPullMode', 'Auto')
-        end, "Pulling", state.AutoPullMode:get_description('Auto')),
-        Multi = MenuItem.action(function()
-            handle_set('AutoPullMode', 'Multi')
-        end, "Pulling", state.AutoPullMode:get_description('Multi')),
-        Target = MenuItem.action(function()
-            handle_set('AutoPullMode', 'Target')
-        end, "Pulling", state.AutoPullMode:get_description('Target')),
-        All = MenuItem.action(function()
-            handle_set('AutoPullMode', 'All')
-        end, "Pulling", state.AutoPullMode:get_description('All')),
-        Off = MenuItem.action(function()
-            handle_set('AutoPullMode', 'Off')
-        end, "Pulling", state.AutoPullMode:get_description('Off')),
-    }, nil, "Modes", "Change pulling modes.")
-    return pullModesMenuItem
+        local chooseJobAbilitiesView = self.viewFactory(PickerView.withItems(allJobAbilities, self.puller_settings.JobAbilities, true, cursorImageItem))
+        chooseJobAbilitiesView:setTitle("Choose job abilities to pull enemies with.")
+        chooseJobAbilitiesView:setShouldRequestFocus(true)
+        chooseJobAbilitiesView:on_pick_items():addAction(function(_, selectedItems)
+            local jobAbilities = selectedItems:map(function(item)
+                return JobAbility.new(item:getText())
+            end)
+
+            local currentJobAbilities = self.puller_settings.JobAbilities
+            currentJobAbilities:clear()
+
+            for jobAbility in jobAbilities:it() do
+                currentJobAbilities:append(jobAbility)
+            end
+            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll use "..localization_util.commas(jobAbilities).." to pull for the rest of this session!")
+        end)
+        return chooseJobAbilitiesView
+    end, "Job Abilities", "Choose job abilities to pull enemies with.")
+    return chooseJobAbilitiesMenuItem
 end
 
 return PullActionMenuItem

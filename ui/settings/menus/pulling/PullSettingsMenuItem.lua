@@ -30,7 +30,7 @@ PullSettingsMenuItem.__index = PullSettingsMenuItem
 function PullSettingsMenuItem.new(abilities, trust, job_name_short, addon_settings, targets, viewFactory)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Targets', 18),
-        --ButtonItem.default('Actions', 18),
+        ButtonItem.default('Actions', 18),
         ButtonItem.default('Modes', 18),
     }, {
 
@@ -38,7 +38,7 @@ function PullSettingsMenuItem.new(abilities, trust, job_name_short, addon_settin
 
     self.abilities = abilities
     self.puller = trust:role_with_type("puller")
-    self.puller_settings = PullerSettings.new(self.puller)
+    self.puller_settings = self.puller:get_pull_settings()
     self.job_name_short = job_name_short
     self.viewFactory = viewFactory
     self.addon_settings = addon_settings
@@ -60,7 +60,7 @@ end
 
 function PullSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Targets", self:getTargetsMenuItem())
-    --self:setChildMenuItem("Actions", PullActionMenuItem.new(self.puller, self.puller_settings, self.job_name_short, self.viewFactory))
+    self:setChildMenuItem("Actions", PullActionMenuItem.new(self.puller, self.puller:get_pull_settings(), self.job_name_short, self.viewFactory))
     self:setChildMenuItem("Modes", self:getModesMenuItem())
 end
 
@@ -97,7 +97,7 @@ end
 
 function PullSettingsMenuItem:getModesMenuItem()
     local pullModesMenuItem = MenuItem.new(L{}, L{}, function(_)
-        local modesView = self.viewFactory(ModesView.new(L{'AutoPullMode'}))
+        local modesView = self.viewFactory(ModesView.new(L{ 'AutoPullMode', 'AutoApproachMode' }))
         modesView:setShouldRequestFocus(true)
         modesView:setTitle("Set modes for pulling.")
         return modesView

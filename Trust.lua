@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '8.8.3'
+_addon.version = '8.8.4'
 _addon.release_notes = [[
 This update brings Scholar to the forefront with skillchaining
 using Immanence!
