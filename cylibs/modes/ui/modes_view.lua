@@ -39,8 +39,10 @@ function ModesView.new(modeNames)
 
     local currentRow = 1
     for modeName in modeNames:it() do
-        itemsToAdd:append(IndexedItem.new(TextItem.new(modeName..': '..state[modeName].value, TextStyle.Default.TextSmall), IndexPath.new(1, currentRow)))
-        currentRow = currentRow + 1
+        if state[modeName] then
+            itemsToAdd:append(IndexedItem.new(TextItem.new(modeName..': '..state[modeName].value, TextStyle.Default.TextSmall), IndexPath.new(1, currentRow)))
+            currentRow = currentRow + 1
+        end
     end
 
     dataSource:addItems(itemsToAdd)

@@ -78,67 +78,9 @@ function WeaponSkillSettingsMenuItem:getAbilitiesMenuItem(activeSkills)
     return abilitiesMenuItem
 end
 
-function WeaponSkillSettingsMenuItem:getModesMenuItem(activeSkills)
-    --[[local skillchainDelayMenuItem = MenuItem.new(L{
-        ButtonItem.default('Off', 18),
-        ButtonItem.default('Maximum', 18),
-    }, L{
-        Off = MenuItem.action(function()
-            handle_set('SkillchainDelayMode', 'Off')
-        end, "Delay", state.SkillchainDelayMode:get_description('Off')),
-        Maximum = MenuItem.action(function()
-            handle_set('SkillchainDelayMode', 'Maximum')
-        end, "Delay", state.SkillchainDelayMode:get_description("Maximum")),
-    }, nil, "Delay", "Choose the delay between weapon skills when making skillchains.")
-
-    local skillchainPropertiesMenuItem = MenuItem.new(L{
-        ButtonItem.default('Auto', 18),
-        ButtonItem.default('Light', 18),
-        ButtonItem.default('Darkness', 18),
-    }, L{
-        Auto = MenuItem.action(function()
-            state.AutoSkillchainMode:set('Auto')
-            handle_set('SkillchainPropertyMode', 'Off')
-        end, "Properties", state.SkillchainPropertyMode:get_description('Off')),
-        Light = MenuItem.action(function()
-            state.AutoSkillchainMode:set('Auto')
-            handle_set('SkillchainPropertyMode', 'Light')
-        end, "Properties", state.SkillchainPropertyMode:get_description('Light')),
-        Darkness = MenuItem.action(function()
-            state.AutoSkillchainMode:set('Auto')
-            handle_set('SkillchainPropertyMode', 'Darkness')
-        end, "Properties", state.SkillchainPropertyMode:get_description('Darkness')),
-    }, nil, "Properties", "Choose properties to prioritize when making skillchains.")
-
-    local skillchainSettingsMenuItem = MenuItem.new(L{
-        ButtonItem.default('Properties', 18),
-        ButtonItem.default('Delay', 18),
-    }, L{
-        Properties = skillchainPropertiesMenuItem,
-        Delay = skillchainDelayMenuItem,
-    }, nil, "Skillchains", "Customize skillchain settings.")
-
-    local skillchainModesMenuItem = MenuItem.new(L{
-        ButtonItem.default('Skillchain', 18),
-        ButtonItem.default('Spam', 18),
-        ButtonItem.default('Cleave', 18),
-        ButtonItem.default('Off', 18),
-    }, L{
-        Skillchain = skillchainSettingsMenuItem,
-        Spam = MenuItem.action(function()
-            handle_set('AutoSkillchainMode', 'Spam')
-        end, "Skillchains", state.AutoSkillchainMode:get_description('Spam')),
-        Cleave = MenuItem.action(function()
-            handle_set('AutoSkillchainMode', 'Cleave')
-        end, "Skillchains", state.AutoSkillchainMode:get_description('Cleave')),
-        Off = MenuItem.action(function()
-            handle_set('AutoSkillchainMode', 'Off')
-        end, "Skillchains", state.AutoSkillchainMode:get_description('Off')),
-    }, nil, "Modes", "Change skillchain modes.")
-    return skillchainModesMenuItem]]
-
+function WeaponSkillSettingsMenuItem:getModesMenuItem()
     local skillchainModesMenuItem = MenuItem.new(L{}, L{}, function(_)
-        local modesView = self.viewFactory(ModesView.new(L{'AutoSkillchainMode', 'SkillchainDelayMode', 'SkillchainPropertyMode'}))
+        local modesView = self.viewFactory(ModesView.new(L{'AutoSkillchainMode', 'SkillchainAssistantMode', 'SkillchainDelayMode', 'SkillchainPropertyMode', 'WeaponSkillSettingsMode'}))
         modesView:setShouldRequestFocus(true)
         modesView:setTitle("Set modes for weapon skills and skillchains.")
         return modesView

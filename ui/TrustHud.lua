@@ -278,12 +278,21 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
                 return buffSettingsView
             end, "Buffs", "Edit buffs to use on party members.")
 
+    local buffModesMenuItem = MenuItem.new(L{}, L{}, function(_)
+        local modesView = setupView(ModesView.new(L{'AutoBarSpellMode', 'AutoBuffMode'}), viewSize)
+        modesView:setShouldRequestFocus(true)
+        modesView:setTitle("Set modes for buffing the player and party.")
+        return modesView
+    end, "Modes", "Change buffing behavior.")
+
     local buffSettingsItem = MenuItem.new(L{
         ButtonItem.default('Self', 18),
         ButtonItem.default('Party', 18),
+        ButtonItem.default('Modes', 18),
     }, {
         Self = selfBuffSettingsItem,
-        Party = partyBuffSettingsItem
+        Party = partyBuffSettingsItem,
+        Modes = buffModesMenuItem,
     }, nil, "Buffs", "Choose buffs to use.")
 
     local chooseDebuffsItem = MenuItem.new(L{
@@ -301,12 +310,21 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
                 return chooseSpellsView
             end)
 
+    local debuffModesMenuItem = MenuItem.new(L{}, L{}, function(_)
+        local modesView = setupView(ModesView.new(L{'AutoDebuffMode', 'AutoDispelMode', 'AutoSilenceMode'}), viewSize)
+        modesView:setShouldRequestFocus(true)
+        modesView:setTitle("Set modes for debuffing enemies.")
+        return modesView
+    end, "Modes", "Change debuffing behavior.")
+
     local debuffSettingsItem = MenuItem.new(L{
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
+        ButtonItem.default('Modes', 18),
         ButtonItem.default('Help', 18)
     }, {
-        Add = chooseDebuffsItem
+        Add = chooseDebuffsItem,
+        Modes = debuffModesMenuItem,
     },
     function()
         local backgroundImageView = createBackgroundView(viewSize.width, viewSize.height)
@@ -364,10 +382,19 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
                 return blacklistPickerView
             end)
 
+    local healerModesMenuItem = MenuItem.new(L{}, L{}, function(_)
+        local modesView = setupView(ModesView.new(L{'AutoHealMode', 'AutoStatusRemovalMode', 'AutoDetectAuraMode'}), viewSize)
+        modesView:setShouldRequestFocus(true)
+        modesView:setTitle("Set modes for healing the player and party member.")
+        return modesView
+    end, "Modes", "Change healing behavior.")
+
     local healerMenuItem = MenuItem.new(L{
         ButtonItem.default('Blacklist', 18),
+        ButtonItem.default('Modes', 18),
     }, {
-        ['Blacklist'] = statusRemovalMenuItem
+        ['Blacklist'] = statusRemovalMenuItem,
+        Modes = healerModesMenuItem,
     })
 
     -- Nukes
@@ -406,13 +433,22 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
                 return blacklistPickerView
             end)
 
+    local nukeModesMenuItem = MenuItem.new(L{}, L{}, function(_)
+        local modesView = setupView(ModesView.new(L{'AutoMagicBurstMode', 'AutoNukeMode', 'MagicBurstTargetMode'}), viewSize)
+        modesView:setShouldRequestFocus(true)
+        modesView:setTitle("Set modes for nuking and magic bursting.")
+        return modesView
+    end, "Modes", "Change nuking and magic bursting behavior.")
+
     local nukeSettingsItem = MenuItem.new(L{
         ButtonItem.default('Edit', 18),
         ButtonItem.default('Blacklist', 18),
+        ButtonItem.default('Modes', 18),
         ButtonItem.default('Help', 18),
     }, {
         Edit = chooseNukesItem,
         Blacklist = nukeElementBlacklistItem,
+        Modes = nukeModesMenuItem,
     },
     function()
         local nukeSettingsView = setupView(NukeSettingsEditor.new(trustSettings, trustSettingsMode, self.addon_settings:getSettings().help.wiki_base_url..'/Nuker'), viewSize)
