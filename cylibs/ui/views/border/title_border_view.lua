@@ -27,7 +27,7 @@ TitleBorderView.HeaderSmall = TextStyle.new(
         0.5,
         Color.new(125, 180, 180, 200),
         true,
-        Color.yellow,
+        Color.white:withAlpha(175),
         true
 )
 
@@ -54,12 +54,14 @@ function TitleBorderView.new(frame, resizableImageItem)
         else
             local cell = TextCollectionViewCell.new(item)
             cell:setItemSize(self.centerBorderWidth)
+            cell:setUserInteractionEnabled(true)
             return cell
         end
     end
 
     self:setVisible(false)
     self:setSize(frame.width, frame.height)
+    self:setScrollEnabled(false)
 
     return self
 end
@@ -136,6 +138,20 @@ function TitleBorderView:getImageItems(frame)
         return imageItem
     end)
     return imageItems
+end
+
+function TitleBorderView:setEditing(editing)
+    CollectionView.setEditing(self, editing)
+
+    local cell = self:getDataSource():cellForItemAtIndexPath(IndexPath.new(1, 3))
+    if cell then
+        if editing then
+            cell:setVisible(false)
+        else
+            cell:setVisible(true)
+        end
+        cell:layoutIfNeeded()
+    end
 end
 
 function TitleBorderView:hitTest(x, y)

@@ -322,7 +322,7 @@ end
 --
 function View:setEditing(editing)
     if self.editing == editing then
-        return
+        return false
     end
     self.editing = editing
 
@@ -332,6 +332,8 @@ function View:setEditing(editing)
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
+
+    return true
 end
 
 ---

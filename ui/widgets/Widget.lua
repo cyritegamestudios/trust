@@ -1,6 +1,12 @@
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
+local Color = require('cylibs/ui/views/color')
+local ColorView = require('cylibs/ui/views/color_view')
 local Event = require('cylibs/events/Luvent')
+local Frame = require('cylibs/ui/views/frame')
 local FFXIBackgroundView = require('ui/themes/ffxi/FFXIBackgroundView')
+local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
+local TextItem = require('cylibs/ui/collection_view/items/text_item')
+local TextStyle = require('cylibs/ui/style/text_style')
 local Mouse = require('cylibs/ui/input/mouse')
 
 local Widget = setmetatable({}, {__index = CollectionView })
@@ -15,6 +21,7 @@ function Widget.new(frame, title, addonSettings, dataSource, layout, titleWidth)
     local self = setmetatable(CollectionView.new(dataSource, layout), Widget)
 
     self.addonSettings = addonSettings
+    self.expanded = true
     self.events = {}
     self.settingsChanged = Event.newEvent()
     self.title = title
@@ -34,19 +41,24 @@ function Widget.new(frame, title, addonSettings, dataSource, layout, titleWidth)
     end
     backgroundView:setTitle(title, titleSize)
 
+    self:getDisposeBag():add(backgroundView:onSelectTitle():addAction(function(_)
+        self:setExpanded(not self.expanded)
+    end), backgroundView:onSelectTitle())
+
     self:setNeedsLayout()
     self:layoutIfNeeded()
 
     self:getDisposeBag():add(Mouse.input():onMouseEvent():addAction(function(type, x, y, delta, blocked)
         if type == Mouse.Event.Click then
-            if self:hitTest(x, y) then
+            if self:isExpanded() and self:hitTest(x, y) then
                 local startPosition = self:getAbsolutePosition()
                 self.dragging = { x = startPosition.x, y = startPosition.y, dragX = x, dragY = y }
-                self:setEditing(true)
+
                 Mouse.input().blockEvent = true
             end
         elseif type == Mouse.Event.Move then
             if self.dragging then
+                self:setEditing(true)
                 Mouse.input().blockEvent = true
 
                 local newX = self.dragging.x + (x - self.dragging.dragX)
@@ -130,6 +142,36 @@ function Widget:setPosition(x, y)
             self.settingsChanged:trigger(self, settings)
         end
     end
+end
+
+function Widget:isExpanded()
+    return self.expanded
+end
+
+function Widget:setExpanded(expanded)
+    if self.expanded == expanded then
+        return false
+    end
+    self.expanded = expanded
+    return true
+end
+
+function Widget:setEditing(editing)
+    if not CollectionView.setEditing(self, editing) then
+        return false
+    end
+
+    if self:isEditing() then
+        self.editingOverlay = ColorView.new(Frame.new(0, 0, self:getContentView():getSize().width, self:getContentView():getSize().height), Color.white:withAlpha(25))
+        self:getContentView():addSubview(self.editingOverlay)
+        self.editingOverlay:layoutIfNeeded()
+    else
+        if self.editingOverlay then
+            self.editingOverlay:destroy()
+            self.editingOverlay = false
+        end
+    end
+    return true
 end
 
 function Widget:__eq(otherItem)
