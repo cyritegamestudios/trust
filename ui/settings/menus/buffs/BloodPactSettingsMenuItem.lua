@@ -51,9 +51,7 @@ function BloodPactSettingsMenuItem:getBuffsMenuItem()
             return buff_util.buff_for_job_ability(bloodPact.id) ~= nil and not S(bloodPact.targets):contains('Enemy')
         end):map(function(bloodPact) return bloodPact:get_name()  end)
 
-        local cursorImageItem = CursorItem.new()
-
-        local chooseBloodPactView = self.viewFactory(PickerView.withItems(allBloodPacts, self.bloodPacts:map(function(bloodPact) return bloodPact:get_name()  end), true, cursorImageItem))
+        local chooseBloodPactView = self.viewFactory(PickerView.withItems(allBloodPacts, self.bloodPacts:map(function(bloodPact) return bloodPact:get_name()  end), true))
         chooseBloodPactView:setTitle("Choose Blood Pact: Wards.")
         chooseBloodPactView:on_pick_items():addAction(function(_, selectedItems)
             self.bloodPacts:clear()

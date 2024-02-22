@@ -56,6 +56,7 @@ function PickerView.new(pickerItems, allowsMultipleSelection, cursorImageItem)
 
     self:setAllowsMultipleSelection(allowsMultipleSelection)
     self:setScrollDelta(20)
+    self:setScrollEnabled(true)
 
     local indexedItems = L{}
     local selectedIndexedItems = L{}

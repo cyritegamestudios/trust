@@ -4,10 +4,13 @@ local BufferView = require('cylibs/trust/roles/ui/buffer_view')
 local BuffSettingsEditor = require('ui/settings/BuffSettingsEditor')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local Color = require('cylibs/ui/views/color')
+local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local DebufferView = require('cylibs/trust/roles/ui/debuffer_view')
 local DebuffSettingsEditor = require('ui/settings/DebuffSettingsEditor')
 local DebugView = require('cylibs/actions/ui/debug_view')
 local ElementPickerView = require('ui/settings/pickers/ElementPickerView')
+local FFXIBackgroundView = require('ui/themes/ffxi/FFXIBackgroundView')
+local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local Frame = require('cylibs/ui/views/frame')
 local GameInfo = require('cylibs/util/ffxi/game_info')
 local HelpView = require('cylibs/trust/ui/help_view')
@@ -65,6 +68,8 @@ TextStyle.TargetView = TextStyle.new(
 
 function TrustHud.new(player, action_queue, addon_settings, addon_enabled, menu_width, menu_height)
     local self = setmetatable(View.new(), TrustHud)
+
+    CollectionView.setDefaultStyle(FFXIClassicStyle.default())
 
     self.lastMenuToggle = os.time()
     self.menuSize = Frame.new(0, 0, menu_width, menu_height)
@@ -180,10 +185,11 @@ function TrustHud:getMainMenuItem()
 end
 
 local function createBackgroundView(width, height)
-    local backgroundView = BackgroundView.new(Frame.new(0, 0, width, height),
+    local backgroundView = FFXIBackgroundView.new(Frame.new(0, 0, width, height), true)
+    --[[local backgroundView = BackgroundView.new(Frame.new(0, 0, width, height),
             windower.addon_path..'assets/backgrounds/menu_bg_top.png',
             windower.addon_path..'assets/backgrounds/menu_bg_mid.png',
-            windower.addon_path..'assets/backgrounds/menu_bg_bottom.png')
+            windower.addon_path..'assets/backgrounds/menu_bg_bottom.png')]]
     return backgroundView
 end
 
@@ -233,6 +239,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
 
         local chooseSpellsView = setupView(SpellPickerView.new(trustSettings, spellSettings, allBuffs, defaultJobNames, false), viewSize)
         chooseSpellsView:setTitle("Choose buffs to add.")
+        chooseSpellsView:setScrollEnabled(true)
         return chooseSpellsView
     end)
 

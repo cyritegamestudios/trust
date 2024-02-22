@@ -36,12 +36,11 @@ function BuffSettingsEditor.new(trustSettings, buffs, targets)
         return cell
     end)
 
-    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
-
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0)), nil, cursorImageItem), BuffSettingsEditor)
+    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), BuffSettingsEditor)
 
     self:setAllowsCursorSelection(true)
     self:setScrollDelta(20)
+    self:setScrollEnabled(true)
 
     self.trustSettings = trustSettings
     self.buffs = buffs or L{}

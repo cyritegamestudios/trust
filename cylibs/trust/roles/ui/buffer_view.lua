@@ -37,12 +37,11 @@ function BufferView.new(buffer)
         return cell
     end)
 
-    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
-
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0)), nil, cursorImageItem), BufferView)
+    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0))), BufferView)
 
     self:setScrollDelta(20)
-    self:setShouldRequestFocus(true)
+    self:setShouldRequestFocus(false)
+    self:setScrollEnabled(false)
 
     local itemsToAdd = L{}
     local itemsToHighlight = L{}
@@ -101,10 +100,7 @@ function BufferView.new(buffer)
         self:getDelegate():highlightItemAtIndexPath(indexedItem:getIndexPath())
     end
 
-
-    if self:getDataSource():numberOfItemsInSection(1) > 0 then
-        self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
-    end
+    self:layoutIfNeeded()
 
     return self
 end

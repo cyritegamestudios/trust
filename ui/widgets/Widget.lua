@@ -2,6 +2,7 @@ local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local Color = require('cylibs/ui/views/color')
 local ColorView = require('cylibs/ui/views/color_view')
 local Event = require('cylibs/events/Luvent')
+local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local Frame = require('cylibs/ui/views/frame')
 local FFXIBackgroundView = require('ui/themes/ffxi/FFXIBackgroundView')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
@@ -18,7 +19,7 @@ function Widget:onSettingsChanged()
 end
 
 function Widget.new(frame, title, addonSettings, dataSource, layout, titleWidth)
-    local self = setmetatable(CollectionView.new(dataSource, layout), Widget)
+    local self = setmetatable(CollectionView.new(dataSource, layout, nil, FFXIClassicStyle.default()), Widget)
 
     self.addonSettings = addonSettings
     self.expanded = true

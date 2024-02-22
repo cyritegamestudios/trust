@@ -9,8 +9,6 @@ local SkillchainAbilityPickerView = setmetatable({}, {__index = PickerView })
 SkillchainAbilityPickerView.__index = SkillchainAbilityPickerView
 
 function SkillchainAbilityPickerView.new(weaponSkillSettings, abilities, abilityIndex, skillchainer)
-    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
-
     local skillchainBuilder = SkillchainBuilder.new(skillchainer.skillchain_builder.abilities)
 
     local currentAbilities = abilities:slice(1, math.max(abilityIndex - 1, 1)):map(
@@ -42,7 +40,7 @@ function SkillchainAbilityPickerView.new(weaponSkillSettings, abilities, ability
         abilityNames = L(skillchainer.skillchain_builder.abilities):map(function(ability) return ability:get_name() end)
     end
 
-    local self = setmetatable(PickerView.withItems(abilityNames, L{}, false, cursorImageItem), SkillchainAbilityPickerView)
+    local self = setmetatable(PickerView.withItems(abilityNames, L{}, false), SkillchainAbilityPickerView)
 
     self.abilities = abilities
     self.abilityIndex = abilityIndex

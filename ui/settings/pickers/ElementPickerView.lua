@@ -11,8 +11,6 @@ local ElementPickerView = setmetatable({}, {__index = PickerView })
 ElementPickerView.__index = ElementPickerView
 
 function ElementPickerView.new(trustSettings, elementBlacklist)
-    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
-
     local allElements = L{
         element_util.Light,
         element_util.Fire,
@@ -24,7 +22,7 @@ function ElementPickerView.new(trustSettings, elementBlacklist)
         element_util.Ice,
     }
 
-    local self = setmetatable(PickerView.withItems(allElements:map(function(element) return element:get_name() end):sort(), elementBlacklist:map(function(element) return element:get_name() end), true, cursorImageItem), ElementPickerView)
+    local self = setmetatable(PickerView.withItems(allElements:map(function(element) return element:get_name() end):sort(), elementBlacklist:map(function(element) return element:get_name() end), true), ElementPickerView)
 
     self.trustSettings = trustSettings
     self.elementBlacklist = elementBlacklist

@@ -21,6 +21,9 @@ function PartyTargetView.new(target_tracker)
 
     local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0))), PartyTargetView)
 
+    self:setScrollDelta(20)
+    self:setScrollEnabled(true)
+
     local itemsToAdd = L{}
 
     local sectionNum = 1

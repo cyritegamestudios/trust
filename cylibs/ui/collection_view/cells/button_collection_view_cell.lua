@@ -2,6 +2,7 @@ local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewCell = require('cylibs/ui/collection_view/collection_view_cell')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
+local CollectionViewStyle = require('cylibs/ui/collection_view/collection_view_style')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local HorizontalFlowLayout = require('cylibs/ui/collection_view/layouts/horizontal_flow_layout')
 local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_collection_view_cell')
@@ -55,7 +56,7 @@ function ButtonCollectionViewCell:createButton(buttonItem, buttonState)
         return cell
     end)
 
-    local buttonView = CollectionView.new(dataSource, HorizontalFlowLayout.new())
+    local buttonView = CollectionView.new(dataSource, HorizontalFlowLayout.new(), nil, CollectionViewStyle.empty())
     buttonView:setSize(buttonItem:getSize().width, buttonItem:getSize().height)
 
     local rowIndex = 0

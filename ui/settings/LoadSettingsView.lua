@@ -38,11 +38,11 @@ function LoadSettingsView.new(jobSettingsMode)
         return cell
     end)
 
-    local selectionImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
-
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0)), nil, selectionImageItem), LoadSettingsView)
+    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), LoadSettingsView)
 
     self:setAllowsMultipleSelection(true)
+    self:setScrollDelta(20)
+    self:setScrollEnabled(true)
 
     local itemsToAdd = L{}
     local itemsToSelect = L{}

@@ -20,9 +20,7 @@ function HelpView.new(main_job_name_short, helpUrl)
         return cell
     end)
 
-    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
-
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0)), nil, cursorImageItem), HelpView)
+    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0))), HelpView)
 
     self.helpUrl = helpUrl
     self:setScrollDelta(20)

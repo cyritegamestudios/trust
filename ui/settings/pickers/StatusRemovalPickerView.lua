@@ -11,12 +11,13 @@ local StatusRemovalBlacklistPickerView = setmetatable({}, {__index = PickerView 
 StatusRemovalBlacklistPickerView.__index = StatusRemovalBlacklistPickerView
 
 function StatusRemovalBlacklistPickerView.new(trustSettings, statusEffectsBlacklist)
-    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
-
-    local self = setmetatable(PickerView.withItems(buff_util.get_all_debuffs():sort(), statusEffectsBlacklist, true, cursorImageItem), StatusRemovalBlacklistPickerView)
+    local self = setmetatable(PickerView.withItems(buff_util.get_all_debuffs():sort(), statusEffectsBlacklist, true), StatusRemovalBlacklistPickerView)
 
     self.trustSettings = trustSettings
     self.statusEffectsBlacklist = statusEffectsBlacklist
+
+    self:setScrollDelta(20)
+    self:setScrollEnabled(true)
 
     self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
 

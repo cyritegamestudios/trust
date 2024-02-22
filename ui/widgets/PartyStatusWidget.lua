@@ -161,10 +161,12 @@ function PartyStatusWidget:setExpanded(expanded)
     end
 
     if expanded then
+        self.assistTargetIcon:setVisible(true)
         self:getContentView():addSubview(self.assistTargetIcon)
         self:setPartyMembers(self.party:get_party_members(true))
     else
         self.assistTargetIcon:removeFromSuperview()
+        self.assistTargetIcon:setVisible(false)
         self:getDataSource():removeAllItems()
         self:layoutIfNeeded()
     end

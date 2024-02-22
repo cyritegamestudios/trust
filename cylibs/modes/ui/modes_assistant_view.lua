@@ -135,9 +135,7 @@ function ModesAssistantView.new(trust)
         return cell
     end)
 
-    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
-
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0)), nil, cursorImageItem), ModesAssistantView)
+    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0))), ModesAssistantView)
 
     self:setScrollDelta(20)
 

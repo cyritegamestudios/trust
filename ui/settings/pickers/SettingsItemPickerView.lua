@@ -11,9 +11,7 @@ local SettingsPickerView = setmetatable({}, {__index = PickerView })
 SettingsPickerView.__index = SettingsPickerView
 
 function SettingsPickerView.new(settings, selectedTextItems, allTextItems, onPickItems)
-    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
-
-    local self = setmetatable(PickerView.withItems(allTextItems:sort(), selectedTextItems, true, cursorImageItem), SettingsPickerView)
+    local self = setmetatable(PickerView.withItems(allTextItems:sort(), selectedTextItems, true), SettingsPickerView)
 
     self.settings = settings
     self.onPickItems = onPickItems

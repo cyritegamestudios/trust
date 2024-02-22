@@ -6,9 +6,7 @@ local WeaponSkillPickerView = setmetatable({}, {__index = PickerView })
 WeaponSkillPickerView.__index = WeaponSkillPickerView
 
 function WeaponSkillPickerView.new(trustSettings, weaponSkills, allWeaponSkills)
-    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
-
-    local self = setmetatable(PickerView.withItems(allWeaponSkills, L{}, true, cursorImageItem), WeaponSkillPickerView)
+    local self = setmetatable(PickerView.withItems(allWeaponSkills, L{}, true), WeaponSkillPickerView)
 
     self.trustSettings = trustSettings
     self.weaponSkills = weaponSkills

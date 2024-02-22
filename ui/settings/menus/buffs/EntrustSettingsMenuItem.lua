@@ -54,9 +54,7 @@ function EntrustSettingsMenuItem:getAddMenuItem()
             return spell.skill == 44 and S{ 'Self' }:equals(S(spell.targets))
         end):map(function(spell) return spell.en end)
 
-        local cursorImageItem = CursorItem.new()
-
-        local chooseSpellsView = self.viewFactory(PickerView.withItems(allSpells, self.entrustSpells:map(function(spell) return spell.en  end), false, cursorImageItem))
+        local chooseSpellsView = self.viewFactory(PickerView.withItems(allSpells, self.entrustSpells:map(function(spell) return spell.en  end), false))
         chooseSpellsView:setTitle("Choose an indi spell to entrust.")
         chooseSpellsView:setShouldRequestFocus(true)
         chooseSpellsView:on_pick_items():addAction(function(_, selectedItems)
@@ -77,9 +75,7 @@ function EntrustSettingsMenuItem:getTargetsMenuItem()
     }, L{}, function(menuArgs)
         local spell = menuArgs['spell']
 
-        local cursorImageItem = CursorItem.new()
-
-        local chooseSpellsView = self.viewFactory(PickerView.withItems(job_util.all_jobs(), spell:get_job_names() or L{}, true, cursorImageItem))
+        local chooseSpellsView = self.viewFactory(PickerView.withItems(job_util.all_jobs(), spell:get_job_names() or L{}, true))
         chooseSpellsView:setTitle("Choose jobs to target for "..spell:get_name()..".")
         chooseSpellsView:setShouldRequestFocus(true)
         chooseSpellsView:on_pick_items():addAction(function(_, selectedItems)

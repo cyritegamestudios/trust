@@ -45,9 +45,7 @@ function RollSettingsMenuItem:getRollMenuItem(roll, descriptionText)
     local rollMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
     }, L{}, function(menuArgs)
-        local cursorImageItem = CursorItem.new()
-
-        local chooseRollView = self.viewFactory(PickerView.withItems(self.all_rolls, L{ roll:get_roll_name() }, false, cursorImageItem))
+        local chooseRollView = self.viewFactory(PickerView.withItems(self.all_rolls, L{ roll:get_roll_name() }, false))
         chooseRollView:setTitle(descriptionText)
         chooseRollView:setAllowsCursorSelection(false)
         chooseRollView:on_pick_items():addAction(function(_, selectedItems)

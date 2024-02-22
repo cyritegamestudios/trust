@@ -9,7 +9,7 @@ local Menu =  {}
 Menu.__index = Menu
 
 
-function Menu.new(contentViewStack, viewStack, infoView)
+function Menu.new(contentViewStack, viewStack, infoView, backgroundViewFactory)
     local self = setmetatable({}, Menu)
 
     self.buttonHeight = 16

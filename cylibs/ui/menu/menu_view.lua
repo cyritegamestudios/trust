@@ -33,9 +33,7 @@ function MenuView.new(menuItem, viewStack)
         return cell
     end)
 
-    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
-
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(0, Padding.new(6, 6, 0, 0)), nil, cursorImageItem), MenuView)
+    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(0, Padding.new(6, 6, 0, 0))), MenuView)
 
     self:setScrollDelta(buttonHeight)
     self:setAllowsMultipleSelection(false)

@@ -164,6 +164,8 @@ function View:setVisible(visible)
     end
     self.visible = visible
     for _, subview in pairs(self.subviews) do
+        -- FIXME: should probably just call setVisible instead
+        --subview:setVisible(visible)
         subview:setNeedsLayout()
         subview:layoutIfNeeded()
     end

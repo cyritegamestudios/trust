@@ -15,9 +15,7 @@ function TargetsPickerView.new(addonSettings, puller)
         end
     end
 
-    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
-
-    local self = setmetatable(PickerView.withItems(allMobs, L{}, true, cursorImageItem), TargetsPickerView)
+    local self = setmetatable(PickerView.withItems(allMobs, L{}, true), TargetsPickerView)
 
     self.addonSettings = addonSettings
     self.puller = puller

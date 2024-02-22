@@ -1,6 +1,10 @@
 local Frame = require('cylibs/ui/views/frame')
+local HorizontalScrollBar = require('cylibs/ui/scroll_view/horizontal_scroll_bar')
+local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_collection_view_cell')
 local Mouse = require('cylibs/ui/input/mouse')
+local ResizableImageItem = require('cylibs/ui/collection_view/items/resizable_image_item')
 local ScrollBar = require('cylibs/ui/scroll_view/scroll_bar')
+local VerticalScrollBar = require('cylibs/ui/scroll_view/vertical_scroll_bar')
 local View = require('cylibs/ui/views/view')
 
 require('queues')
@@ -9,18 +13,31 @@ local ScrollView = setmetatable({}, {__index = View })
 ScrollView.__index = ScrollView
 
 
-function ScrollView.new(frame)
+function ScrollView.new(frame, style)
     local self = setmetatable(View.new(frame), ScrollView)
 
+    self.style = style
     self.contentView = View.new(frame)
     self.contentSize = Frame.new(0, 0, frame.width, frame.height)
-    self.contentOffset = Frame.new(0, 0, 0, 0)
-    self.scrollEnabled = true
-    self.horizontalScrollBar = ScrollBar.new()
-    self.verticalScrollBar = ScrollBar.new()
-    self.scrollBars = L{ self.horizontalScrollBar, self.verticalScrollBar }
-    self.scrollBarSize = 10
+    self.contentOffset = Frame.zero()
+    self.scrollEnabled = false
+    self.scrollBarSize = 8
     self.scrollDelta = 10
+    self.scrollBars = L{}
+
+    self:addSubview(self.contentView)
+
+    return self
+end
+
+function ScrollView:createScrollBars()
+    if not self.scrollBars:empty() then
+        return
+    end
+
+    self.horizontalScrollBar = HorizontalScrollBar.new(Frame.zero(), self.style:getScrollTrackItem(), self.style:getScrollForwardItem(), self.style:getScrollBackItem())
+    self.verticalScrollBar = VerticalScrollBar.new(Frame.zero(), self.style:getScrollTrackItem(), self.style:getScrollForwardItem(), self.style:getScrollBackItem())
+    self.scrollBars = L{ self.horizontalScrollBar, self.verticalScrollBar }
 
     for scrollBar in self.scrollBars:it() do
         self:getDisposeBag():add(scrollBar:onScrollBackClick():addAction(function(s)
@@ -56,13 +73,15 @@ function ScrollView.new(frame)
                 end
             end
         end), Mouse.input():onMouseWheel())
+
+        self:addSubview(scrollBar)
+
+        scrollBar:setVisible(false)
+        scrollBar:layoutIfNeeded()
     end
 
-    self:addSubview(self.contentView)
-    self:addSubview(self.horizontalScrollBar)
-    self:addSubview(self.verticalScrollBar)
-
-    return self
+    self:setNeedsLayout()
+    self:layoutIfNeeded()
 end
 
 ---
@@ -138,6 +157,10 @@ end
 --
 function ScrollView:setScrollEnabled(scrollEnabled)
     self.scrollEnabled = scrollEnabled
+
+    if self.scrollEnabled then
+        self:createScrollBars()
+    end
 end
 
 ---
@@ -180,13 +203,18 @@ function ScrollView:layoutIfNeeded()
     self.contentView:setNeedsLayout()
     self.contentView:layoutIfNeeded()
 
-    self.horizontalScrollBar:setVisible(self:isScrollEnabled() and self.contentSize.width > self.frame.width)
-    self.horizontalScrollBar:setPosition(0, self.frame.height - self.scrollBarSize)
-    self.horizontalScrollBar:setSize(self.frame.width, self.scrollBarSize)
+    if self.horizontalScrollBar then
+        self.horizontalScrollBar:setVisible(self:isScrollEnabled() and self.contentSize.width > self.frame.width)
+        self.horizontalScrollBar:setPosition(0, self.frame.height - self.scrollBarSize)
+        self.horizontalScrollBar:setSize(self.frame.width, self.scrollBarSize)
+        self.horizontalScrollBar:layoutIfNeeded()
+    end
 
-    self.verticalScrollBar:setVisible(self:isScrollEnabled() and self.contentSize.height > self.frame.height)
-    self.verticalScrollBar:setPosition(self.frame.width - self.scrollBarSize, 0)
-    self.verticalScrollBar:setSize(self.scrollBarSize, self.frame.height)
+    if self.verticalScrollBar then
+        self.verticalScrollBar:setVisible(self:isScrollEnabled() and self.contentSize.height > self.frame.height)
+        self.verticalScrollBar:setPosition(self.frame.width --[[- self.scrollBarSize]], 4)
+        self.verticalScrollBar:setSize(self.scrollBarSize, self.frame.height - 8)
+    end
 
     for scrollBar in self.scrollBars:it() do
         scrollBar:layoutIfNeeded()
