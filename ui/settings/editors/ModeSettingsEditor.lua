@@ -10,8 +10,8 @@ local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 
-
-local ModesView = setmetatable({}, {__index = CollectionView })
+local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
+local ModesView = setmetatable({}, {__index = FFXIWindow })
 ModesView.__index = ModesView
 ModesView.__type = "ModesView"
 
@@ -24,7 +24,7 @@ function ModesView.new(modeNames)
         return cell
     end)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 10, 0, 0))), ModesView)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 10, 0, 0))), ModesView)
 
     self:setShouldRequestFocus(true)
     self:setScrollDelta(20)
@@ -58,13 +58,6 @@ function ModesView.new(modeNames)
     self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
 
     return self
-end
-
-function ModesView:onSelectMenuItemAtIndexPath(textItem, indexPath)
-    if textItem:getText() == 'Save' then
-        windower.send_command('trust save '..state.TrustMode.value)
-        addon_message(260, '('..windower.ffxi.get_player().name..') '.."You got it! I'll remember what to do.")
-    end
 end
 
 return ModesView

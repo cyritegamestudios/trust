@@ -2,11 +2,12 @@ local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local PickerView = require('cylibs/ui/picker/picker_view')
 
-local WeaponSkillPickerView = setmetatable({}, {__index = PickerView })
+local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+local WeaponSkillPickerView = setmetatable({}, {__index = FFXIPickerView })
 WeaponSkillPickerView.__index = WeaponSkillPickerView
 
 function WeaponSkillPickerView.new(trustSettings, weaponSkills, allWeaponSkills)
-    local self = setmetatable(PickerView.withItems(allWeaponSkills, L{}, true), WeaponSkillPickerView)
+    local self = setmetatable(FFXIPickerView.withItems(allWeaponSkills, L{}, true), WeaponSkillPickerView)
 
     self.trustSettings = trustSettings
     self.weaponSkills = weaponSkills

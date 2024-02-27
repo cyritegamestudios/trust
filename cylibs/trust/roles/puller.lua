@@ -249,7 +249,7 @@ function Puller:get_pull_action(target_index)
         else
             return nil
         end
-    elseif self.pull_settings.JobAbilities:length() then
+    elseif self.pull_settings.JobAbilities:length() > 0 then
         local job_ability = self.pull_settings.JobAbilities:firstWhere(function(job_ability)
             return job_util.can_use_job_ability(job_ability:get_name())
         end)

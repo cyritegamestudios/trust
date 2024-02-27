@@ -96,16 +96,12 @@ function MenuView:setItem(menuItem)
         local menuHeight = buttonHeight * (buttonItems:length()) + 10
         local menuWidth = 112
 
-        if self.backgroundImageView then
-            self.backgroundImageView:destroy()
+        if not self:getBackgroundImageView() then
+            local backgroundView = FFXIBackgroundView.new(Frame.new(0, 0, menuWidth, menuHeight))
+            self:setBackgroundImageView(backgroundView)
         end
 
-        self:setBackgroundImageView(nil)
-
-        local backgroundView = FFXIBackgroundView.new(Frame.new(0, 0, menuWidth, menuHeight))
-        backgroundView:setTitle(menuItem:getTitleText() or "")
-
-        self:setBackgroundImageView(backgroundView)
+        self:getBackgroundImageView():setTitle(menuItem:getTitleText() or "")
 
         self:getBackgroundImageView():setNeedsLayout()
         self:getBackgroundImageView():layoutIfNeeded()

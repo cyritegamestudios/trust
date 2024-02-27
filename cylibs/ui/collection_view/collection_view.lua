@@ -35,6 +35,7 @@ function CollectionView.new(dataSource, layout, delegate, style)
     self.layout = layout
     self.dataSource = dataSource
     self.delegate = delegate or CollectionViewDelegate.new(self)
+    self.style = style
     self.allowsMultipleSelection = false
     self.allowsCursorSelection = false
     self.cursorImageItem = style:getCursorItem()
@@ -195,6 +196,7 @@ function CollectionView:setHasFocus(hasFocus)
 end
 
 function CollectionView:onKeyboardEvent(key, pressed, flags, blocked)
+    local blocked = blocked or ScrollView.onKeyboardEvent(self, key, pressed, flags, blocked)
     if not self:isVisible() or blocked then
         return blocked
     end

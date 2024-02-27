@@ -6,12 +6,12 @@ local PickerView = require('cylibs/ui/picker/picker_view')
 local Spell = require('cylibs/battle/spell')
 local spell_util = require('cylibs/util/spell_util')
 
-
-local SettingsPickerView = setmetatable({}, {__index = PickerView })
+local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+local SettingsPickerView = setmetatable({}, {__index = FFXIPickerView })
 SettingsPickerView.__index = SettingsPickerView
 
 function SettingsPickerView.new(settings, selectedTextItems, allTextItems, onPickItems)
-    local self = setmetatable(PickerView.withItems(allTextItems:sort(), selectedTextItems, true), SettingsPickerView)
+    local self = setmetatable(FFXIPickerView.withItems(allTextItems:sort(), selectedTextItems, true), SettingsPickerView)
 
     self.settings = settings
     self.onPickItems = onPickItems

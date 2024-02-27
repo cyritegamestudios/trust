@@ -21,7 +21,8 @@ local TrustSettingsLoader = require('TrustSettings')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 local View = require('cylibs/ui/views/view')
 
-local BuffSettingsEditor = setmetatable({}, {__index = CollectionView })
+local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
+local BuffSettingsEditor = setmetatable({}, {__index = FFXIWindow })
 BuffSettingsEditor.__index = BuffSettingsEditor
 
 
@@ -36,7 +37,7 @@ function BuffSettingsEditor.new(trustSettings, buffs, targets)
         return cell
     end)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), BuffSettingsEditor)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), BuffSettingsEditor)
 
     self:setAllowsCursorSelection(true)
     self:setScrollDelta(20)

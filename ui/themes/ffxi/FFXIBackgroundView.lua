@@ -49,8 +49,10 @@ end
 -- @param bottomImagePath The file path of the bottom image.
 -- @treturn BackgroundView The created background view.
 --
-function FFXIBackgroundView.new(frame, hideTitle)
-    local self = setmetatable(CollectionView.new(CollectionViewDataSource.new(), VerticalFlowLayout.new(0)), FFXIBackgroundView)
+function FFXIBackgroundView.new(frame, hideTitle, style)
+    style = style or CollectionView.defaultStyle()
+
+    local self = setmetatable(CollectionView.new(CollectionViewDataSource.new(), VerticalFlowLayout.new(0), nil, style), FFXIBackgroundView)
 
     self.selectTitle = Event.newEvent()
 
@@ -76,9 +78,9 @@ function FFXIBackgroundView.new(frame, hideTitle)
 
     local borderImageItem = ResizableImageItem.new()
 
-    borderImageItem:setImageItem(FFXIBackgroundView.Border.LeftImageItem, ResizableImageItem.Left)
-    borderImageItem:setImageItem(FFXIBackgroundView.Border.CenterImageItem, ResizableImageItem.Center)
-    borderImageItem:setImageItem(FFXIBackgroundView.Border.RightImageItem, ResizableImageItem.Right)
+    borderImageItem:setImageItem(style:getBorderLeftItem(), ResizableImageItem.Left)
+    borderImageItem:setImageItem(style:getBorderCenterItem(), ResizableImageItem.Center)
+    borderImageItem:setImageItem(style:getBorderRightItem(), ResizableImageItem.Right)
 
     if not hideTitle then
         self.topBorderView = TitleBorderView.new(Frame.new(0, 0, frame.width, 3), borderImageItem)
@@ -125,9 +127,9 @@ end
 
 function FFXIBackgroundView:getImageItem(frame)
     local imageItem = ImageItem.new(
-            FFXIBackgroundView.CenterImageItem:getImagePath(),
-            FFXIBackgroundView.CenterImageItem:getSize().width,
-            FFXIBackgroundView.CenterImageItem:getSize().height
+            self.style:getBackgroundItem():getImagePath(),
+            self.style:getBackgroundItem():getSize().width,
+            self.style:getBackgroundItem():getSize().height
     )
     imageItem:setRepeat(frame.width / imageItem:getSize().width, frame.height / imageItem:getSize().height)
     imageItem:setAlpha(225)

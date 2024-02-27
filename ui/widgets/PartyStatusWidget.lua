@@ -152,6 +152,8 @@ function PartyStatusWidget:removePartyMember(party_member)
         self:getDataSource():removeItem(indexPath)
         self:setSize(self:getSize().width, self:getContentSize().height)
         self:layoutIfNeeded()
+
+        self:setAssistTarget(self.party:get_assist_target())
     end
 end
 

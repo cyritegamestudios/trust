@@ -6,12 +6,12 @@ local PickerView = require('cylibs/ui/picker/picker_view')
 local Spell = require('cylibs/battle/spell')
 local spell_util = require('cylibs/util/spell_util')
 
-
-local StatusRemovalBlacklistPickerView = setmetatable({}, {__index = PickerView })
+local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+local StatusRemovalBlacklistPickerView = setmetatable({}, {__index = FFXIPickerView })
 StatusRemovalBlacklistPickerView.__index = StatusRemovalBlacklistPickerView
 
 function StatusRemovalBlacklistPickerView.new(trustSettings, statusEffectsBlacklist)
-    local self = setmetatable(PickerView.withItems(buff_util.get_all_debuffs():sort(), statusEffectsBlacklist, true), StatusRemovalBlacklistPickerView)
+    local self = setmetatable(FFXIPickerView.withItems(buff_util.get_all_debuffs():sort(), statusEffectsBlacklist, true), StatusRemovalBlacklistPickerView)
 
     self.trustSettings = trustSettings
     self.statusEffectsBlacklist = statusEffectsBlacklist

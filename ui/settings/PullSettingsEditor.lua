@@ -10,7 +10,8 @@ local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 
-local PullSettingsEditor = setmetatable({}, {__index = CollectionView })
+local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
+local PullSettingsEditor = setmetatable({}, {__index = FFXIWindow })
 PullSettingsEditor.__index = PullSettingsEditor
 
 
@@ -23,7 +24,7 @@ function PullSettingsEditor.new(addon_settings, puller)
         return cell
     end)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), PullSettingsEditor)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), PullSettingsEditor)
 
     self:setAllowsCursorSelection(true)
     self:setScrollDelta(20)

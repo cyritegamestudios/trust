@@ -22,7 +22,8 @@ local TrustSettingsLoader = require('TrustSettings')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 local View = require('cylibs/ui/views/view')
 
-local WeaponSkillSettingsEditor = setmetatable({}, {__index = CollectionView })
+local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
+local WeaponSkillSettingsEditor = setmetatable({}, {__index = FFXIWindow })
 WeaponSkillSettingsEditor.__index = WeaponSkillSettingsEditor
 
 
@@ -34,7 +35,7 @@ function WeaponSkillSettingsEditor.new(weaponSkills, trustSettings, helpUrl)
         return cell
     end)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), WeaponSkillSettingsEditor)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), WeaponSkillSettingsEditor)
 
     self:setAllowsCursorSelection(true)
     self:setScrollDelta(20)

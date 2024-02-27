@@ -10,7 +10,8 @@ local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 
-local BufferView = setmetatable({}, {__index = CollectionView })
+local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
+local BufferView = setmetatable({}, {__index = FFXIWindow })
 BufferView.__index = BufferView
 BufferView.__type = 'BufferView'
 
@@ -37,7 +38,7 @@ function BufferView.new(buffer)
         return cell
     end)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0))), BufferView)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0))), BufferView)
 
     self:setScrollDelta(20)
     self:setShouldRequestFocus(false)

@@ -157,7 +157,7 @@ end
 --
 function ButtonCollectionViewCell:setSelected(selected)
     if selected == self.selected then
-        return
+        return false
     end
 
     self.textView:setSelected(selected)
@@ -169,6 +169,8 @@ function ButtonCollectionViewCell:setSelected(selected)
     end
 
     CollectionViewCell.setSelected(self, selected)
+
+    return true
 end
 
 return ButtonCollectionViewCell

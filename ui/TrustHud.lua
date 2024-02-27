@@ -1,11 +1,11 @@
 local AutomatonView = require('cylibs/entity/automaton/ui/automaton_view')
 local BackgroundView = require('cylibs/ui/views/background/background_view')
-local BufferView = require('cylibs/trust/roles/ui/buffer_view')
+local BufferView = require('ui/views/BufferView')
 local BuffSettingsEditor = require('ui/settings/BuffSettingsEditor')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local Color = require('cylibs/ui/views/color')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
-local DebufferView = require('cylibs/trust/roles/ui/debuffer_view')
+local DebufferView = require('ui/views/DebufferView')
 local DebuffSettingsEditor = require('ui/settings/DebuffSettingsEditor')
 local DebugView = require('cylibs/actions/ui/debug_view')
 local ElementPickerView = require('ui/settings/pickers/ElementPickerView')
@@ -17,17 +17,20 @@ local HelpView = require('cylibs/trust/ui/help_view')
 local JobAbilitiesSettingsEditor = require('ui/settings/JobAbilitiesSettingsEditor')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesAssistantView = require('cylibs/modes/ui/modes_assistant_view')
-local ModesView = require('cylibs/modes/ui/modes_view')
+local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
+local ModeSettingsEditor = require('ui/settings/editors/ModeSettingsEditor')
+local ModesView = require('ui/settings/editors/ModeSettingsEditor')
 local NavigationBar = require('cylibs/ui/navigation/navigation_bar')
 local PullSettingsMenuItem = require('ui/settings/menus/pulling/PullSettingsMenuItem')
 local JobAbilityPickerView = require('ui/settings/pickers/JobAbilityPickerView')
 local job_util = require('cylibs/util/job_util')
 local LoadSettingsView = require('ui/settings/LoadSettingsView')
+local LoadSettingsMenuItem = require('ui/settings/menus/loading/LoadSettingsMenuItem')
 local NukeSettingsEditor = require('ui/settings/NukeSettingsEditor')
 local PartyMemberView = require('cylibs/entity/party/ui/party_member_view')
 local PartyStatusWidget = require('ui/widgets/PartyStatusWidget')
-local PartyTargetView = require('cylibs/entity/party/ui/party_target_view')
-local SingerView = require('cylibs/trust/roles/ui/singer_view')
+local PartyTargetView = require('ui/views/PartyTargetView')
+local SingerView = require('ui/views/SingerView')
 local SongSettingsMenuItem = require('ui/settings/menus/songs/SongSettingsMenuItem')
 local SpellPickerView = require('ui/settings/pickers/SpellPickerView')
 local SpellSettingsEditor = require('ui/settings/SpellSettingsEditor')
@@ -66,7 +69,7 @@ TextStyle.TargetView = TextStyle.new(
         true
 )
 
-function TrustHud.new(player, action_queue, addon_settings, addon_enabled, menu_width, menu_height)
+function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, addon_enabled, menu_width, menu_height)
     local self = setmetatable(View.new(), TrustHud)
 
     CollectionView.setDefaultStyle(FFXIClassicStyle.default())
@@ -76,6 +79,7 @@ function TrustHud.new(player, action_queue, addon_settings, addon_enabled, menu_
     self.viewStack = ViewStack.new()
     self.actionQueue = action_queue
     self.addon_settings = addon_settings
+    self.trustModeSettings = trustModeSettings
     self.player = player
     self.party = player.party
     self.gameInfo = GameInfo.new()
@@ -198,8 +202,10 @@ local function createTitleView(viewSize)
     return titleView
 end
 
-local function setupView(view, viewSize)
-    view:setBackgroundImageView(createBackgroundView(viewSize.width, viewSize.height))
+local function setupView(view, viewSize, hideBackground)
+    if not hideBackground then
+        --view:setBackgroundImageView(createBackgroundView(viewSize.width, viewSize.height))
+    end
     view:setNavigationBar(createTitleView(viewSize))
     view:setSize(viewSize.width, viewSize.height)
     return view
@@ -464,15 +470,9 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
     end)
 
     -- Modes
-    local modesMenuItem = MenuItem.new(L{
-        ButtonItem.default('Save', 18),
-    }, {},
-            function()
-                local modesView = setupView(ModesView.new(L(T(state):keyset()):sort()), viewSize)
-                modesView:setShouldRequestFocus(true)
-                modesView:setTitle("Change trust behavior with modes.")
-                return modesView
-            end, "Modes", "View and change Trust modes.")
+    local modesMenuItem = ModesMenuItem.new(trustSettings, function(view)
+        return setupView(view, viewSize)
+    end)
 
     -- Settings
     local menuItems = L{
@@ -509,8 +509,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
 
     if jobNameShort == 'COR' then
         menuItems:append(ButtonItem.default('Rolls', 18))
-        local settings = trustSettings:getSettings()[trustSettingsMode.value]
-        childMenuItems['Rolls'] = RollSettingsMenuItem.new(trustSettings, trust, L{ settings.Roll1, settings.Roll2 }, function(view)
+        childMenuItems['Rolls'] = RollSettingsMenuItem.new(trustSettings, trustSettingsMode, trust, function(view)
             return setupView(view, viewSize)
         end)
     end
@@ -659,7 +658,7 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
         function()
             local singer = trust:role_with_type("singer")
             local singerView = setupView(SingerView.new(singer), viewSize)
-            singerView:setShouldRequestFocus(false)
+            singerView:setShouldRequestFocus(true)
             return singerView
         end, "Songs", "View current songs on the player and party.")
 
@@ -696,13 +695,12 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
         return helpView
     end, "Help", "Get help using Trust.")
 
+    -- Mode settings
+
     -- Load
-    local loadSettingsItem = MenuItem.new(L{}, {},
-    function()
-        local loadSettingsView = setupView(LoadSettingsView.new(trustSettingsMode), viewSize)
-        loadSettingsView:setShouldRequestFocus(true)
-        return loadSettingsView
-    end, "Load Settings", "Load saved mode and job settings.")
+    local loadSettingsItem = LoadSettingsMenuItem.new(self.addon_settings, self.trustModeSettings, trustSettings, function(view)
+        return setupView(view, viewSize)
+    end)
 
     -- Main
     local mainMenuItem = MenuItem.new(L{

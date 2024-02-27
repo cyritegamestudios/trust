@@ -80,6 +80,10 @@ function TrustSettings:loadSettings()
     return nil
 end
 
+function TrustSettings:reloadSettings()
+    self:loadSettings()
+end
+
 function TrustSettings:getSettingsFilePath(default_settings)
     local file_prefix = windower.addon_path..self.settingsFolder..self.jobNameShort
     if windower.file_exists(file_prefix..'_'..windower.ffxi.get_player().name..'.lua') and not default_settings then
@@ -119,6 +123,22 @@ function TrustSettings:copySettings(override)
         playerSettings:write(defaultSettings:read())
 
         addon_message(207, 'Copied default settings to '..filePath)
+    end
+end
+
+function TrustSettings:createSettings(setName)
+    if setName ~= 'Default' and not self.settings[setName] then
+        self.settings[setName] = self.settings['Default']
+
+        self:saveSettings(true)
+        self:reloadSettings()
+    end
+end
+
+function TrustSettings:deleteSettings(setName)
+    if setName ~= 'Default' and self.settings[setName] then
+        self.settings[setName] = nil
+        self:saveSettings(true)
     end
 end
 

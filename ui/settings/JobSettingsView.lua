@@ -9,11 +9,11 @@ local TextStyle = require('cylibs/ui/style/text_style')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 
 local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
-local LoadSettingsView = setmetatable({}, {__index = FFXIWindow })
-LoadSettingsView.__index = LoadSettingsView
+local JobSettingsView = setmetatable({}, {__index = FFXIWindow })
+JobSettingsView.__index = JobSettingsView
 
 
-function LoadSettingsView.new(jobSettingsMode, addonSettings, trustModeSettings)
+function JobSettingsView.new(jobSettingsMode, jobSettings)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = TextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
@@ -22,10 +22,9 @@ function LoadSettingsView.new(jobSettingsMode, addonSettings, trustModeSettings)
         return cell
     end)
 
-    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), LoadSettingsView)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), JobSettingsView)
 
-    self.addonSettings = addonSettings
-    self.trustModeSettings = trustModeSettings
+    self.jobSettings = jobSettings
 
     self:setAllowsMultipleSelection(false)
     self:setScrollDelta(20)
@@ -34,31 +33,16 @@ function LoadSettingsView.new(jobSettingsMode, addonSettings, trustModeSettings)
     local itemsToAdd = L{}
     local itemsToSelect = L{}
 
-    local trustMode = state['TrustMode']
-
     local rowIndex = 1
-    for _, v in ipairs(trustMode) do
-        local item = TextItem.new(tostring(v), TextStyle.Default.TextSmall)
-        local indexPath = IndexPath.new(1, rowIndex)
-        itemsToAdd:append(IndexedItem.new(item, indexPath))
-        if item:getText() == trustMode.value then
-            itemsToSelect:append(indexPath)
-        end
-        rowIndex = rowIndex + 1
-    end
-
-    --[[itemsToAdd:append(IndexedItem.new(TextItem.new("Load job settings", TextStyle.Default.HeaderSmall), IndexPath.new(2, 1)))
-
-    rowIndex = 2
     for _, v in ipairs(jobSettingsMode) do
         local item = TextItem.new(tostring(v), TextStyle.Default.TextSmall)
-        local indexPath = IndexPath.new(2, rowIndex)
+        local indexPath = IndexPath.new(1, rowIndex)
         itemsToAdd:append(IndexedItem.new(item, indexPath))
         if item:getText() == jobSettingsMode.value then
             itemsToSelect:append(indexPath)
         end
         rowIndex = rowIndex + 1
-    end]]
+    end
 
     self:getDataSource():addItems(itemsToAdd)
 
@@ -79,13 +63,8 @@ function LoadSettingsView.new(jobSettingsMode, addonSettings, trustModeSettings)
     self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
         local item = self:getDataSource():itemAtIndexPath(indexPath)
         if item then
-            --if indexPath.section == 1 and indexPath.row ~= 1 then
-                updateSelectedItems(1, item)
-                handle_set('TrustMode', item:getText())
-            --elseif indexPath.section == 2 and indexPath.row ~= 1 then
-            --    updateSelectedItems(2, item)
-            --    handle_set('MainTrustSettingsMode', item:getText())
-            --end
+            updateSelectedItems(1, item)
+            handle_set('MainTrustSettingsMode', item:getText())
         end
     end), self:getDelegate():didSelectItemAtIndexPath())
 
@@ -97,34 +76,27 @@ function LoadSettingsView.new(jobSettingsMode, addonSettings, trustModeSettings)
     return self
 end
 
-function LoadSettingsView:destroy()
+function JobSettingsView:destroy()
     CollectionView.destroy(self)
 end
 
-function LoadSettingsView:layoutIfNeeded()
+function JobSettingsView:layoutIfNeeded()
     if not CollectionView.layoutIfNeeded(self) then
         return false
     end
 
-    self:setTitle("Load saved mode sets.")
+    self:setTitle("Load job settings.")
 end
 
-function LoadSettingsView:deleteModeSet(modeSetName)
-    if self.trustModeSettings:getSettings()[modeSetName] then
-        self.trustModeSettings:deleteSettings(modeSetName)
-        addon_message(260, '('..windower.ffxi.get_player().name..') '..modeSetName.."? What "..modeSetName.."?")
-    end
-end
-
-function LoadSettingsView:onSelectMenuItemAtIndexPath(textItem, indexPath)
+function JobSettingsView:onSelectMenuItemAtIndexPath(textItem, indexPath)
     if textItem:getText() == 'Delete' then
         local selectedIndexPath = L(self:getDelegate():getSelectedIndexPaths())[1]
         if selectedIndexPath then
             local item = self:getDataSource():itemAtIndexPath(selectedIndexPath)
             if item:getText() ~= 'Default' then
-                self:deleteModeSet(item:getText())
+                self.jobSettings:deleteSettings(item:getText())
                 self:getDataSource():removeItem(selectedIndexPath)
-                self:getDelegate():selectItemAtIndexPath(IndexPath.new(1, 1))
+                addon_message(260, '('..windower.ffxi.get_player().name..') '..item:getText().."? What "..item:getText().."?")
             else
                 addon_message(260, '('..windower.ffxi.get_player().name..") I can't forget Default!")
             end
@@ -132,4 +104,4 @@ function LoadSettingsView:onSelectMenuItemAtIndexPath(textItem, indexPath)
     end
 end
 
-return LoadSettingsView
+return JobSettingsView

@@ -3,7 +3,7 @@ local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local CursorItem = require('ui/themes/FFXI/CursorItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModesView = require('cylibs/modes/ui/modes_view')
+local ModesView = require('ui/settings/editors/ModeSettingsEditor')
 local PickerView = require('cylibs/ui/picker/picker_view')
 local SongPickerView = require('ui/settings/pickers/SongPickerView')
 local SongSettingsEditor = require('ui/settings/SongSettingsEditor')
@@ -14,12 +14,14 @@ SongSettingsMenuItem.__index = SongSettingsMenuItem
 function SongSettingsMenuItem.new(addonSettings, trustSettings, trustSettingsMode, viewFactory)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Edit', 18),
+        ButtonItem.default('Move Up', 18),
+        ButtonItem.default('Move Down', 18),
         ButtonItem.default('Modes', 18),
         ButtonItem.default('Help', 18),
     }, {},
     function()
         local songSettingsView = viewFactory(SongSettingsEditor.new(trustSettings, trustSettingsMode, addonSettings:getSettings().help.wiki_base_url..'/Singer'))
-        songSettingsView:setShouldRequestFocus(false)
+        songSettingsView:setShouldRequestFocus(true)
         return songSettingsView
     end, "Songs", "Choose songs to sing."), SongSettingsMenuItem)
 
@@ -44,6 +46,7 @@ end
 
 function SongSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Edit", self:getEditMenuItem())
+    --self:setChildMenuItem("Move Up", MenuItem.new(L{}, {}, nil))
     self:setChildMenuItem("Modes", self:getModesMenuItem())
     self:setChildMenuItem("Help", MenuItem.action(function()
         windower.open_url(self.addonSettings:getSettings().help.wiki_base_url..'/Singer')

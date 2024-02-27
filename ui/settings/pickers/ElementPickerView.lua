@@ -7,7 +7,8 @@ local PickerView = require('cylibs/ui/picker/picker_view')
 local Spell = require('cylibs/battle/spell')
 local spell_util = require('cylibs/util/spell_util')
 
-local ElementPickerView = setmetatable({}, {__index = PickerView })
+local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+local ElementPickerView = setmetatable({}, {__index = FFXIPickerView })
 ElementPickerView.__index = ElementPickerView
 
 function ElementPickerView.new(trustSettings, elementBlacklist)
@@ -22,7 +23,7 @@ function ElementPickerView.new(trustSettings, elementBlacklist)
         element_util.Ice,
     }
 
-    local self = setmetatable(PickerView.withItems(allElements:map(function(element) return element:get_name() end):sort(), elementBlacklist:map(function(element) return element:get_name() end), true), ElementPickerView)
+    local self = setmetatable(FFXIPickerView.withItems(allElements:map(function(element) return element:get_name() end):sort(), elementBlacklist:map(function(element) return element:get_name() end), true), ElementPickerView)
 
     self.trustSettings = trustSettings
     self.elementBlacklist = elementBlacklist

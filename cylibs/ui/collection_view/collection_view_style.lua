@@ -40,6 +40,33 @@ function CollectionViewStyle:getBackgroundItem()
 end
 
 ---
+-- Gets the ImageItem for the background.
+--
+-- @treturn ImageItem ImageItem for the background.
+--
+function CollectionViewStyle:getBorderLeftItem()
+    return self.borderLeftItem
+end
+
+---
+-- Gets the ImageItem for the background.
+--
+-- @treturn ImageItem ImageItem for the background.
+--
+function CollectionViewStyle:getBorderCenterItem()
+    return self.borderCenterItem
+end
+
+---
+-- Gets the ImageItem for the background.
+--
+-- @treturn ImageItem ImageItem for the background.
+--
+function CollectionViewStyle:getBorderRightItem()
+    return self.borderRightItem
+end
+
+---
 -- Gets the ImageItem for the cursor.
 --
 -- @treturn ImageItem ImageItem for the cursor.
@@ -73,6 +100,10 @@ end
 --
 function CollectionViewStyle:getScrollBackItem()
     return self.scrollItem:getImageItem(ResizableImageItem.Bottom)
+end
+
+function CollectionViewStyle:getDefaultSize()
+    return { width = 500, height = 500}
 end
 
 return CollectionViewStyle

@@ -5,7 +5,8 @@ local SkillchainAbility = require('cylibs/battle/skillchains/abilities/skillchai
 local SkillchainBuilder = require('cylibs/battle/skillchains/skillchain_builder')
 local SkillchainStep = require('cylibs/battle/skillchains/skillchain_step')
 
-local SkillchainAbilityPickerView = setmetatable({}, {__index = PickerView })
+local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+local SkillchainAbilityPickerView = setmetatable({}, {__index = FFXIPickerView })
 SkillchainAbilityPickerView.__index = SkillchainAbilityPickerView
 
 function SkillchainAbilityPickerView.new(weaponSkillSettings, abilities, abilityIndex, skillchainer)
@@ -40,7 +41,7 @@ function SkillchainAbilityPickerView.new(weaponSkillSettings, abilities, ability
         abilityNames = L(skillchainer.skillchain_builder.abilities):map(function(ability) return ability:get_name() end)
     end
 
-    local self = setmetatable(PickerView.withItems(abilityNames, L{}, false), SkillchainAbilityPickerView)
+    local self = setmetatable(FFXIPickerView.withItems(abilityNames, L{}, false), SkillchainAbilityPickerView)
 
     self.abilities = abilities
     self.abilityIndex = abilityIndex

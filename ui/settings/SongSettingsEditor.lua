@@ -21,7 +21,8 @@ local TrustSettingsLoader = require('TrustSettings')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 local View = require('cylibs/ui/views/view')
 
-local SongSettingsEditor = setmetatable({}, {__index = CollectionView })
+local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
+local SongSettingsEditor = setmetatable({}, {__index = FFXIWindow })
 SongSettingsEditor.__index = SongSettingsEditor
 
 
@@ -38,7 +39,7 @@ function SongSettingsEditor.new(trustSettings, settingsMode, helpUrl)
         return cell
     end)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), SongSettingsEditor)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), SongSettingsEditor)
 
     self:setAllowsCursorSelection(false)
     self:setScrollDelta(20)
@@ -56,6 +57,10 @@ function SongSettingsEditor.new(trustSettings, settingsMode, helpUrl)
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
+
+    if self:getDataSource():numberOfItemsInSection(1) > 1 then
+        self:getDelegate():setCursorIndexPath(IndexPath.new(1, 2))
+    end
 
     return self
 end
@@ -104,6 +109,58 @@ function SongSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
                         return "You must choose 5 songs."
                     end
                     return nil
+                end
+            end
+        end
+    elseif textItem:getText() == 'Move Down' then
+        local selectedIndexPath = self:getDelegate():getCursorIndexPath()
+        if selectedIndexPath then
+            local indexPath = selectedIndexPath
+            local songList
+            if indexPath.section == 1 then
+                songList = self.dummySongs
+            else
+                songList = self.songs
+            end
+            if indexPath and indexPath.row < #songList + 1 --[[#self.weaponSkills > 1 and indexPath.row <= #self.weaponSkills]] then
+                local newIndexPath = self:getDataSource():getNextIndexPath(indexPath)-- IndexPath.new(indexPath.section, indexPath.row + 1)
+                local item1 = self:getDataSource():itemAtIndexPath(indexPath)
+                local item2 = self:getDataSource():itemAtIndexPath(newIndexPath)
+                if item1 and item2 then
+                    self:getDataSource():swapItems(IndexedItem.new(item1, indexPath), IndexedItem.new(item2, newIndexPath))
+                    self:getDelegate():selectItemAtIndexPath(newIndexPath)
+
+                    local startIndex = 1
+                    local temp = songList[indexPath.row - startIndex]
+                    songList[indexPath.row - startIndex] = songList[indexPath.row - startIndex + 1]
+                    songList[indexPath.row - startIndex + 1] = temp
+                    self.trustSettings:saveSettings(true)
+                end
+            end
+        end
+    elseif textItem:getText() == 'Move Up' then
+        local selectedIndexPath = self:getDelegate():getCursorIndexPath()
+        if selectedIndexPath then
+            local indexPath = selectedIndexPath
+            local songList
+            if indexPath.section == 1 then
+                songList = self.dummySongs
+            else
+                songList = self.songs
+            end
+            if indexPath and indexPath.row > 2 --[[#self.weaponSkills > 1 and indexPath.row <= #self.weaponSkills]] then
+                local newIndexPath = self:getDataSource():getPreviousIndexPath(indexPath)-- IndexPath.new(indexPath.section, indexPath.row + 1)
+                local item1 = self:getDataSource():itemAtIndexPath(indexPath)
+                local item2 = self:getDataSource():itemAtIndexPath(newIndexPath)
+                if item1 and item2 then
+                    self:getDataSource():swapItems(IndexedItem.new(item1, indexPath), IndexedItem.new(item2, newIndexPath))
+                    self:getDelegate():selectItemAtIndexPath(newIndexPath)
+
+                    local startIndex = 1
+                    local temp = songList[indexPath.row - startIndex]
+                    songList[indexPath.row - startIndex] = songList[indexPath.row - startIndex - 1]
+                    songList[indexPath.row - startIndex - 1] = temp
+                    self.trustSettings:saveSettings(true)
                 end
             end
         end

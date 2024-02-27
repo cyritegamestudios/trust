@@ -8,7 +8,8 @@ local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 
-local PartyTargetView = setmetatable({}, {__index = CollectionView })
+local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
+local PartyTargetView = setmetatable({}, {__index = FFXIWindow })
 PartyTargetView.__index = PartyTargetView
 PartyTargetView.__type = 'PartyTargetView'
 
@@ -19,7 +20,7 @@ function PartyTargetView.new(target_tracker)
         return cell
     end)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0))), PartyTargetView)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0))), PartyTargetView)
 
     self:setScrollDelta(20)
     self:setScrollEnabled(true)

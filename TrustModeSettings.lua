@@ -119,6 +119,32 @@ function TrustModeSettings:saveSettings(setName)
     self:onSettingsChanged():trigger(self:getSettings())
 end
 
+function TrustModeSettings:deleteSettings(setName)
+    local newSettings = T(self.settings):copy()
+    newSettings[setName] = nil
+
+    local file_paths = L{
+        'data/modes/'..player.main_job_name_short ..'_'..windower.ffxi.get_player().name..'.lua',
+    }
+    for file_path in file_paths:it() do
+        local trust_modes_file = files.new(file_path)
+        if not trust_modes_file:exists() then
+            addon_message(207, 'Created trust modes override '..file_path)
+        else
+            addon_message(207, 'Deleted trust modes for '..setName..' '..file_path)
+        end
+        self.settings[setName] = nil
+
+        trust_modes_file:write('-- Modes file for '..self.jobNameShort ..'\nreturn ' .. newSettings:tovstring())
+    end
+
+    self:reloadSettings()
+
+    state.TrustMode:set('Default')
+
+    self:onSettingsChanged():trigger(self:getSettings())
+end
+
 function TrustModeSettings:copySettings()
     local filePath = 'data/modes/'..self.jobNameShort..'_'..windower.ffxi.get_player().name..'.lua'
     local playerSettings = FileIO.new(filePath)

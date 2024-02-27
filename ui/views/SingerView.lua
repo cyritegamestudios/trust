@@ -9,7 +9,8 @@ local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 
-local SingerView = setmetatable({}, {__index = CollectionView })
+local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
+local SingerView = setmetatable({}, {__index = FFXIWindow })
 SingerView.__index = SingerView
 SingerView.__type = 'SingerView'
 
@@ -20,22 +21,30 @@ TextStyle.SingerView = {
             "Arial",
             11,
             Color.white,
-            Color.yellow,
+            Color.lightGrey,
             2,
             0,
             Color.clear,
-            false
+            false,
+            Color.yellow
     ),
 }
 
 function SingerView.new(singer)
-    local dataSource = CollectionViewDataSource.new(function(item)
+    local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = TextCollectionViewCell.new(item)
         cell:setItemSize(20)
+        cell:setIsSelectable(indexPath.row ~= 1)
+        cell:setUserInteractionEnabled(false)
         return cell
     end)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0))), SingerView)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 10, 0, 0))), SingerView)
+
+    self:setAllowsMultipleSelection(true)
+    self:setAllowsCursorSelection(false)
+    self:setScrollEnabled(true)
+    self:setScrollDelta(20)
 
     self.singer = singer
 
@@ -48,6 +57,10 @@ function SingerView.new(singer)
     end), partyMember:on_gain_buff())
 
     self:reloadActiveSongs()
+
+    if self:getDataSource():numberOfItemsInSection(1) > 0 then
+        self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
+    end
 
     return self
 end
@@ -141,7 +154,7 @@ function SingerView:reloadActiveSongs()
     self:getDataSource():addItems(itemsToAdd)
 
     for indexedItem in itemsToHighlight:it() do
-        self:getDelegate():highlightItemAtIndexPath(indexedItem:getIndexPath())
+        self:getDelegate():selectItemAtIndexPath(indexedItem:getIndexPath())
     end
 
     self:setNeedsLayout()

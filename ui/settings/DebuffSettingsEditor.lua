@@ -21,7 +21,8 @@ local TrustSettingsLoader = require('TrustSettings')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 local View = require('cylibs/ui/views/view')
 
-local DebuffSettingsEditor = setmetatable({}, {__index = CollectionView })
+local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
+local DebuffSettingsEditor = setmetatable({}, {__index = FFXIWindow })
 DebuffSettingsEditor.__index = DebuffSettingsEditor
 
 
@@ -34,7 +35,7 @@ function DebuffSettingsEditor.new(trustSettings, settingsMode, helpUrl)
         return cell
     end)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), DebuffSettingsEditor)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), DebuffSettingsEditor)
 
     self.trustSettings = trustSettings
     self.settingsMode = settingsMode

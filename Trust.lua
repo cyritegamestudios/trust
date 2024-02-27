@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '8.8.4'
+_addon.version = '8.8.5'
 _addon.release_notes = [[
 This update brings Scholar to the forefront with skillchaining
 using Immanence!
@@ -293,7 +293,7 @@ function get_job_commands(job_name_short, trust, action_queue)
 end
 
 function load_ui()
-	hud = TrustHud.new(player, action_queue, addon_settings, addon_enabled, 500, 500)
+	hud = TrustHud.new(player, action_queue, addon_settings, trust_mode_settings, addon_enabled, 500, 500)
 	hud:setNeedsLayout()
 	hud:layoutIfNeeded()
 end
@@ -621,7 +621,7 @@ function load_chunk_event()
 end
 
 function unload_chunk_event()
-	for key in L{'up','down','left','right','enter', addon_settings:getSettings().menu_key}:it() do
+	for key in L{'up','down','left','right','enter', addon_settings:getSettings().menu_key}:extend(L{'a','w','s','d','f','h'}):it() do
 		windower.send_command('unbind %s':format(key))
 	end
 	IpcRelay.shared():destroy()

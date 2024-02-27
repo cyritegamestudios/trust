@@ -3,7 +3,7 @@ local CursorItem = require('ui/themes/FFXI/CursorItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local JobAbility = require('cylibs/actions/job_ability')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local PickerView = require('cylibs/ui/picker/picker_view')
+local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 
 local PullActionMenuItem = setmetatable({}, {__index = MenuItem })
 PullActionMenuItem.__index = PullActionMenuItem
@@ -48,7 +48,7 @@ function PullActionMenuItem:getSpellsMenuItem()
                     return spell.levels[jobId] ~= nil and spell.targets:contains('Enemy')
                 end):map(function(spell) return spell.en end)
 
-                local chooseSpellsView = self.viewFactory(PickerView.withItems(allSpells, self.puller_settings.Spells:map(function(spell) return spell:get_name()  end), true))
+                local chooseSpellsView = self.viewFactory(FFXIPickerView.withItems(allSpells, self.puller_settings.Spells:map(function(spell) return spell:get_name()  end), true))
                 chooseSpellsView:setTitle("Choose spells to pull enemies with.")
                 chooseSpellsView:setShouldRequestFocus(true)
                 chooseSpellsView:on_pick_items():addAction(function(_, selectedItems)
@@ -79,7 +79,7 @@ function PullActionMenuItem:getJobAbilitiesMenuItem()
             return S{'Enemy'}:intersection(S(jobAbility.targets)):length() > 0
         end):map(function(jobAbility) return jobAbility.en end)
 
-        local chooseJobAbilitiesView = self.viewFactory(PickerView.withItems(allJobAbilities, self.puller_settings.JobAbilities, true))
+        local chooseJobAbilitiesView = self.viewFactory(FFXIPickerView.withItems(allJobAbilities, self.puller_settings.JobAbilities, true))
         chooseJobAbilitiesView:setTitle("Choose job abilities to pull enemies with.")
         chooseJobAbilitiesView:setShouldRequestFocus(true)
         chooseJobAbilitiesView:on_pick_items():addAction(function(_, selectedItems)

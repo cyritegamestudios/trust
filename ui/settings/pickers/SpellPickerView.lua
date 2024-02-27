@@ -6,8 +6,8 @@ local PickerView = require('cylibs/ui/picker/picker_view')
 local Spell = require('cylibs/battle/spell')
 local spell_util = require('cylibs/util/spell_util')
 
-
-local SpellPickerView = setmetatable({}, {__index = PickerView })
+local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+local SpellPickerView = setmetatable({}, {__index = FFXIPickerView })
 SpellPickerView.__index = SpellPickerView
 
 function SpellPickerView.new(trustSettings, spells, allSpells, defaultJobNames, override, sort)
@@ -15,7 +15,7 @@ function SpellPickerView.new(trustSettings, spells, allSpells, defaultJobNames, 
     if override then
         selectedSpells = spells:map(function(spell) return spell:get_name() end)
     end
-    local self = setmetatable(PickerView.withItems(allSpells, selectedSpells, true), SpellPickerView)
+    local self = setmetatable(FFXIPickerView.withItems(allSpells, selectedSpells, true), SpellPickerView)
 
     self.trustSettings = trustSettings
     self.spells = spells

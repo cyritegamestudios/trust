@@ -9,7 +9,8 @@ local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 
-local GeomancySettingsEditor = setmetatable({}, {__index = CollectionView })
+local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
+local GeomancySettingsEditor = setmetatable({}, {__index = FFXIWindow })
 GeomancySettingsEditor.__index = GeomancySettingsEditor
 
 
@@ -21,7 +22,7 @@ function GeomancySettingsEditor.new(trustSettings, spells, targets)
         return cell
     end)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), GeomancySettingsEditor)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), GeomancySettingsEditor)
 
     self:setAllowsCursorSelection(true)
     self:setScrollDelta(20)
