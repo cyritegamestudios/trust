@@ -1,6 +1,5 @@
 local BloodPactSettingsEditor = require('ui/settings/editors/BloodPactSettingsEditor')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
-local CursorItem = require('ui/themes/FFXI/CursorItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesView = require('ui/settings/editors/ModeSettingsEditor')

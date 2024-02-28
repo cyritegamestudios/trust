@@ -46,7 +46,7 @@ function Targeter:on_add()
         -- Monster is defeated
         if action_message_util.is_monster_defeated(message_id) then
             if state.AutoTargetMode.value == 'Party' then
-                return
+                --return
             end
             local target_mobs = L{}
             if state.AutoTargetMode.value == 'Same' then
@@ -99,7 +99,7 @@ function Targeter:tic(new_time, old_time)
 end
 
 function Targeter:check_targets()
-    if state.AutoTargetMode.value ~= 'Party' or os.time() - self.last_checked_targets < 6 then
+    if state.AutoTargetMode.value ~= 'Party' or os.time() - self.last_checked_targets < 3 then
         return
     end
     self.last_checked_targets = os.time()
