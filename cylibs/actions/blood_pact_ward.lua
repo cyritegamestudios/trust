@@ -31,7 +31,7 @@ function BloodPactWard:perform()
         return
     end
 
-    windower.chat.input('/%s':format(self.blood_pact_name))
+    windower.chat.input('/%s <me>':format(self.blood_pact_name))
 
     coroutine.sleep(5)
 
@@ -73,7 +73,7 @@ function BloodPactWard:is_equal(action)
 end
 
 function BloodPactWard:tostring()
-    return "BloodPactWard command: %s":format(self.blood_pact_name)
+    return self.blood_pact_name
 end
 
 return BloodPactWard

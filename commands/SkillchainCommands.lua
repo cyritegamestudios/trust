@@ -128,6 +128,7 @@ function SkillchainTrustCommands:handle_toggle_spam(_, ...)
     local message
 
     local ability_name = table.concat({...}, " ") or ""
+    ability_name = windower.convert_auto_trans(ability_name)
     if ability_name:empty() then
         self:handle_toggle_mode('AutoSkillchainMode', 'Spam', 'Off')
         return true, message
@@ -173,7 +174,7 @@ function SkillchainTrustCommands:handle_set_step(_, step_num, ...)
     step_num = math.min(step_num, 6)
 
     local ability_name = table.concat({...}, " ")
-
+    ability_name = windower.convert_auto_trans(ability_name)
     local current_settings = self.weapon_skill_settings:getSettings()[state.WeaponSkillSettingsMode.value]
     if current_settings then
         for combat_skill in current_settings.Skills:it() do
@@ -271,6 +272,7 @@ function SkillchainTrustCommands:handle_set_default(_, ...)
     local message
 
     local ability_name = table.concat({...}, " ") or ""
+    ability_name = windower.convert_auto_trans(ability_name)
     if ability_name then
         if ability_name == 'clear' then
             return self:handle_clear_default()
