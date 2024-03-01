@@ -188,7 +188,6 @@ function Skillchainer:check_skillchain()
     end
 
     local next_ability
-
     local step = self.skillchain_builder:get_current_step()
     if step and not step:is_expired() then
         if step:is_window_open() then
@@ -224,12 +223,13 @@ function Skillchainer:get_next_ability(current_step)
         if ability:get_name() == SkillchainAbility.Skip then
             return nil
         end
-        if windower.ffxi.get_player().vitals.tp >= 1000 then
+        if Condition.check_conditions(ability:get_conditions(), self:get_party():get_player():get_mob().index) then
             return ability
         end
     else
         if current_step == nil then
-            if windower.ffxi.get_player().vitals.tp >= 1000 then
+            local ability = self:get_starter_ability(self.num_skillchain_steps)
+            if ability and Condition.check_conditions(ability:get_conditions(), self:get_party():get_player():get_mob().index) then
                 return self:get_starter_ability(self.num_skillchain_steps)
             end
         else

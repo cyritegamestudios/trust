@@ -20,7 +20,7 @@ function CorsairTrust.new(settings, action_queue, battle_settings, trust_setting
 	local job = Corsair.new(action_queue)
 	local roles = S{
 		Dispeler.new(action_queue, L{}, L{ JobAbility.new('Dark Shot') }, false),
-		Shooter.new(action_queue),
+		Shooter.new(action_queue, trust_settings.Shooter.Delay or 1.5),
 		Roller.new(action_queue, job, trust_settings.Roll1, trust_settings.Roll2),
 		Puller.new(action_queue, battle_settings.targets, nil, nil, true)
 	}
@@ -40,8 +40,10 @@ function CorsairTrust:on_init()
 
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
 		local roller = self:role_with_type("roller")
-
 		roller:set_rolls(new_trust_settings.Roll1, new_trust_settings.Roll2)
+
+		local shooter = self:role_with_type("shooter")
+		shooter:set_shoot_delay(new_trust_settings.Shooter.Delay)
 	end)
 
 	local roller = self:role_with_type("roller")

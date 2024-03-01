@@ -18,9 +18,14 @@ WeaponSkill.__class = "WeaponSkill"
 -- @tparam list conditions (optional) List of conditions that must be met to use this ability
 -- @treturn WeaponSkill A weapon skill
 function WeaponSkill.new(weapon_skill_name, conditions)
+    conditions = conditions or L{}
     local weapon_skill = res.weapon_skills:with('en', weapon_skill_name)
     if weapon_skill == nil then
         return nil
+    end
+    local min_tp = MinTacticalPointsCondition.new(1000)
+    if not conditions:contains(min_tp) then
+        conditions:append(min_tp)
     end
     local self = setmetatable(SkillchainAbility.new('weapon_skills', weapon_skill.id, conditions), WeaponSkill)
     return self

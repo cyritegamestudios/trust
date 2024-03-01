@@ -28,6 +28,7 @@ function NukeSettingsEditor.new(trustSettings, settingsMode, helpUrl)
 
     self:setAllowsCursorSelection(true)
     self:setScrollDelta(20)
+    self:setScrollEnabled(true)
 
     self.trustSettings = trustSettings
     self.settingsMode = settingsMode

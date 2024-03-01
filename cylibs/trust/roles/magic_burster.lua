@@ -115,6 +115,9 @@ function MagicBurster:check_magic_burst(skillchain)
     end
 
     local elements = L(skillchain:get_elements():filter(function(element)
+        if state.AutoMagicBurstMode.value ~= 'Auto' then
+            return element:get_name() == state.AutoMagicBurstMode.value
+        end
         return not self.element_blacklist:contains(element)
     end)):sort(function(element1, element2)
         return self:get_priority(element1) > self:get_priority(element2)
@@ -156,7 +159,8 @@ function MagicBurster:cast_spell(spell)
 
         windower.send_command('gs c set MagicBurstMode Single')
 
-        spell:set_job_abilities(self.job_ability_names)
+        local job_ability_names = L{}:extend(self.job_ability_names):filter(function(job_ability_name) return job_util.can_use_job_ability(job_ability_name)  end)
+        spell:set_job_abilities(job_ability_names)
 
         local spell_action = spell:to_action(self.target_index, self:get_player())
         spell_action.priority = ActionPriority.high

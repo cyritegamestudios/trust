@@ -18,9 +18,14 @@ ElementalMagic.__class = "ElementalMagic"
 -- @tparam list conditions (optional) List of conditions that must be met to use this ability
 -- @treturn ElementalMagic An elemental magic spell
 function ElementalMagic.new(spell_name, conditions)
+    conditions = conditions or L{}
     local spell = res.spells:with('en', spell_name)
     if spell == nil then
         return nil
+    end
+    local immanence_ready = JobAbilityRecastReadyCondition.new('Immanence')
+    if not conditions:contains(immanence_ready) then
+        conditions:append(immanence_ready)
     end
     local self = setmetatable(SkillchainAbility.new('spells', spell.id, conditions), ElementalMagic)
     return self
