@@ -213,7 +213,26 @@ function Skillchainer:check_skillchain()
     end
 end
 
+function Skillchainer:validate_step(current_step)
+    if current_step == nil then
+        return true
+    end
+    local previous_ability = current_step:get_ability()
+    if previous_ability and not L{ SkillchainAbility.Auto, SkillchainAbility.Skip }:contains(previous_ability:get_name()) then
+        local ability = self.ability_for_step[current_step:get_step()]
+        if ability and ability:get_name() ~= previous_ability:get_name() then
+            self:get_party():add_to_chat(self:get_party():get_player(), "I wasn't expecting "..localization_util.translate(previous_ability:get_name())..". I'm going to start the skillchain over.", self.__class..'_previous_ability', 6)
+            return false
+        end
+    end
+    return true
+end
+
 function Skillchainer:get_next_ability(current_step)
+    if not self:validate_step(current_step) then
+        return nil
+    end
+
     local step_num = 1
     if current_step then
         step_num = current_step:get_step() + 1
