@@ -238,7 +238,7 @@ function Puller:get_pull_action(target_index)
     end
 
     if self.approach or state.ApproachPullMode.value == "Auto" then
-        actions:append(RunToAction.new(target_index, 3))
+        actions:append(RunToAction.new(target_index, 3, true))
         actions:append(BlockAction.new(function() battle_util.target_mob(target_index) end))
     elseif self.pull_settings.Spells:length() > 0 then
         local spell = self.pull_settings.Spells:firstWhere(function(spell)
