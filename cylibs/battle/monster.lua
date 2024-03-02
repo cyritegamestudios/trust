@@ -3,6 +3,7 @@
 -- @class module
 -- @name Monster
 
+local DebuffTracker = require('cylibs/battle/trackers/debuff_tracker')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Entity = require('cylibs/entity/entity')
 local Event = require('cylibs/events/Luvent')
@@ -143,9 +144,12 @@ function Monster:monitor()
     end
     self.is_monitoring = true
 
+    --self.debuff_tracker = DebuffTracker.new(self:get_id())
+    --self.debuff_tracker:monitor()
+
     self.resist_tracker = ResistTracker.new(self)
 
-    self.dispose_bag:addAny(L{ self.resist_tracker })
+    self.dispose_bag:addAny(L{ --[[self.debuff_tracker, ]]self.resist_tracker })
     self.dispose_bag:add(WindowerEvents.Action:addAction(function(act)
         if act.actor_id == self.mob_id then
             self:handle_action_by_monster(act)
