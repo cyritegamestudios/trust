@@ -1,10 +1,10 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '8.8.5'
+_addon.version = '8.8.6'
 _addon.release_notes = [[
 This update brings Scholar to the forefront with skillchaining
-using Immanence!
+using Immanence, as well as changes to Dancer and Rune Fencer!
 
 	• Scholar
 	    • Added ability to use Immanence spells to skillchain
@@ -12,21 +12,22 @@ using Immanence!
 	    • Added ability to set a default Immanence spell
 
 	• Dancer
-	    • Automatically use No Foot Rise
-	    • Automatically use Building Flourish and Climactic
-	      Flourish before weapon skills
+	    • Automatically use No Foot Rise, Building Flourish and
+	      Climactic Flourish
+
+	• Rune Fencer
+	    • Automatically use Vallation and Valiance
+
+	• Corsair / Ranger
+	    • Faster ranged attacks when `AutoShootMode` is set to Auto
 
 	• UI
-	    • Adjusted size of menu buttons
-	    • Added more visual feedback when highlighting
-	      a menu button
-	    • Overhaul of Trust HUD
+	    • Updated menu graphics and user experience
+	    • Added movable Trust, Party and Target widgets
 
 	• Bug Fixes
-	    • Fixed an issue where Scholar would not skillchain
-	      with Immanence
-	    • Fixed an issue where the default skillchain ability
-	      could not be cleared
+	    • Fixed an issue where skillchain would not restart when
+	      the wrong weapon skill was used
 
 	• Press escape or enter to exit.
 	]]
@@ -391,7 +392,7 @@ function check_version()
 
 		local Frame = require('cylibs/ui/views/frame')
 
-		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 550))
+		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 525))
 
 		updateView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
 			updateView:getDelegate():deselectItemAtIndexPath(indexPath)
