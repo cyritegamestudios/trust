@@ -1,15 +1,15 @@
+local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewCell = require('cylibs/ui/collection_view/collection_view_cell')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
-local Color = require('cylibs/ui/views/color')
+local CollectionViewStyle = require('cylibs/ui/collection_view/collection_view_style')
+local DisposeBag = require('cylibs/events/dispose_bag')
 local HorizontalFlowLayout = require('cylibs/ui/collection_view/layouts/horizontal_flow_layout')
 local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_collection_view_cell')
-local ImageItem = require('cylibs/ui/collection_view/items/image_item')
-local ImageView = require('cylibs/ui/image_view')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
+local ResizableImageItem = require('cylibs/ui/collection_view/items/resizable_image_item')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
-local TextItem = require('cylibs/ui/collection_view/items/text_item')
 
 local ButtonCollectionViewCell = setmetatable({}, {__index = CollectionViewCell })
 ButtonCollectionViewCell.__index = ButtonCollectionViewCell
@@ -18,31 +18,25 @@ ButtonCollectionViewCell.__index = ButtonCollectionViewCell
 function ButtonCollectionViewCell.new(buttonItem)
     local self = setmetatable(CollectionViewCell.new(buttonItem), ButtonCollectionViewCell)
 
+    self.buttonState = nil
+    self.backgroundViews = {}
+    self.disposeBag = DisposeBag.new()
+
     self:setSize(buttonItem:getSize().width, buttonItem:getSize().height)
 
-    local dataSource = CollectionViewDataSource.new(function(item, indexPath)
-        local cell = ImageCollectionViewCell.new(item)
-        cell:setItemSize(item:getSize().width)
-        return cell
-    end)
-
     self.textView = TextCollectionViewCell.new(buttonItem:getTextItem())
-    self.textView:setEstimatedSize(18)
+    self.textView:setEstimatedSize(buttonItem:getSize().height + 2)
     self.textView:setSize(buttonItem:getSize().width, buttonItem:getSize().height)
 
     self:addSubview(self.textView)
 
-    self.buttonView = CollectionView.new(dataSource, HorizontalFlowLayout.new())
-    self.buttonView:setSize(buttonItem:getSize().width, buttonItem:getSize().height)
+    for state in L{ ButtonItem.State.Default, ButtonItem.State.Highlighted, ButtonItem.State.Selected }:it() do
+        self:createButton(buttonItem, state)
+    end
 
-    self:addSubview(self.buttonView)
+    self:setButtonState(ButtonItem.State.Default)
 
-    local items = L{
-        IndexedItem.new(buttonItem:getImageItems().left, IndexPath.new(1, 1)),
-        IndexedItem.new(buttonItem:getImageItems().center, IndexPath.new(1, 2)),
-        IndexedItem.new(buttonItem:getImageItems().right, IndexPath.new(1, 3)),
-    }
-    self.buttonView:getDataSource():addItems(items)
+    self.disposeBag:addAny(L{ self.textView })
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
@@ -50,8 +44,53 @@ function ButtonCollectionViewCell.new(buttonItem)
     return self
 end
 
-function ButtonCollectionViewCell:setItem(item)
-    CollectionViewCell.setItem(self, item)
+function ButtonCollectionViewCell:createButton(buttonItem, buttonState)
+    local items = buttonItem:getImageItem(buttonState):getAllImageItems(L{ ResizableImageItem.Left, ResizableImageItem.Center, ResizableImageItem.Right })
+    if items:empty() then
+        return nil
+    end
+
+    local dataSource = CollectionViewDataSource.new(function(item, indexPath)
+        local cell = ImageCollectionViewCell.new(item)
+        cell:setItemSize(item:getSize().width)
+        return cell
+    end)
+
+    local buttonView = CollectionView.new(dataSource, HorizontalFlowLayout.new(), nil, CollectionViewStyle.empty())
+    buttonView:setSize(buttonItem:getSize().width, buttonItem:getSize().height)
+
+    local rowIndex = 0
+    local items = items:map(function(item)
+        rowIndex = rowIndex + 1
+        return IndexedItem.new(item, IndexPath.new(1, rowIndex))
+    end)
+
+    buttonView:getDataSource():addItems(items)
+
+    buttonView:setScrollEnabled(false)
+    buttonView:setSize(buttonItem:getSize().width, buttonItem:getSize().height)
+    buttonView:setVisible(false)
+
+    self.backgroundViews[buttonState] = buttonView
+
+    self.disposeBag:addAny(L{ buttonView })
+
+    return buttonView
+end
+
+function ButtonCollectionViewCell:destroy()
+    CollectionViewCell.destroy(self)
+
+    self.disposeBag:destroy()
+end
+
+---
+-- Returns the background view for a given button state.
+-- @tparam ButtonItem.State buttonState Button state
+-- @treturn View Background view for the button state.
+--
+function ButtonCollectionViewCell:backgroundViewForState(buttonState)
+    return self.backgroundViews[buttonState]
 end
 
 ---
@@ -63,31 +102,75 @@ function ButtonCollectionViewCell:layoutIfNeeded()
         return false
     end
 
-    local textColor = self:getItem():getTextItem():getStyle():getFontColor()
     if self:getItem():getEnabled() then
-        self.textView:setTextColor(textColor)
+        self.textView:setAlpha(255)
     else
-        self.textView:setTextColor(Color.new(textColor.alpha * 0.5, textColor.red, textColor.green, textColor.blue))
+        self.textView:setAlpha(150)
     end
     self.textView:setPosition(10, self.textView:getPosition().y)
     self.textView:setSize(self:getSize().width, self:getSize().height)
     self.textView:layoutIfNeeded()
 
-    self.buttonView:setSize(self:getSize().width, self:getSize().height)
-    self.buttonView:layoutIfNeeded()
-
     return true
 end
 
 ---
--- Checks if the specified coordinates are within the bounds of the view.
+-- Sets the button state of the cell.
+-- @tparam ButtonItem.State buttonState The new button state.
 --
--- @tparam number x The x-coordinate to test.
--- @tparam number y The y-coordinate to test.
--- @treturn bool True if the coordinates are within the view's bounds, otherwise false.
+function ButtonCollectionViewCell:setButtonState(buttonState)
+    if self.buttonState == buttonState then
+        return
+    end
+    self.buttonState = buttonState
+
+    local buttonView = self:backgroundViewForState(buttonState)
+    if buttonView then
+        self:setBackgroundImageView(nil)
+        self:setBackgroundImageView(buttonView)
+    end
+end
+
+---
+-- Sets the highlighted state of the cell.
+-- @tparam boolean selected The new highlighted state.
 --
-function ButtonCollectionViewCell:hitTest(x, y)
-    return self.buttonView:hitTest(x, y)
+function ButtonCollectionViewCell:setHighlighted(highlighted)
+    if highlighted == self.highlighted or self:isSelected() then
+        return
+    end
+
+    self.textView:setHighlighted(highlighted)
+
+    if highlighted then
+        self:setButtonState(ButtonItem.State.Highlighted)
+    else
+        self:setButtonState(ButtonItem.State.Default)
+    end
+
+    CollectionViewCell.setHighlighted(self, highlighted)
+end
+
+---
+-- Sets the selection state of the cell.
+-- @tparam boolean selected The new selection state.
+--
+function ButtonCollectionViewCell:setSelected(selected)
+    if selected == self.selected then
+        return false
+    end
+
+    self.textView:setSelected(selected)
+
+    if selected then
+        self:setButtonState(ButtonItem.State.Selected)
+    else
+        self:setButtonState(ButtonItem.State.Default)
+    end
+
+    CollectionViewCell.setSelected(self, selected)
+
+    return true
 end
 
 return ButtonCollectionViewCell

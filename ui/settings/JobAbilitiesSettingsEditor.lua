@@ -22,7 +22,8 @@ local TrustSettingsLoader = require('TrustSettings')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 local View = require('cylibs/ui/views/view')
 
-local JobAbilitiesSettingsEditor = setmetatable({}, {__index = CollectionView })
+local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
+local JobAbilitiesSettingsEditor = setmetatable({}, {__index = FFXIWindow })
 JobAbilitiesSettingsEditor.__index = JobAbilitiesSettingsEditor
 
 
@@ -35,12 +36,11 @@ function JobAbilitiesSettingsEditor.new(trustSettings, settingsMode, width)
         return cell
     end)
 
-    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
-
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0)), nil, cursorImageItem), JobAbilitiesSettingsEditor)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), JobAbilitiesSettingsEditor)
 
     self:setAllowsCursorSelection(true)
     self:setScrollDelta(20)
+    self:setScrollEnabled(true)
 
     self.trustSettings = trustSettings
     self.settingsMode = settingsMode

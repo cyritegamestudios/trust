@@ -11,7 +11,8 @@ local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 
-local DebufferView = setmetatable({}, {__index = CollectionView })
+local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
+local DebufferView = setmetatable({}, {__index = FFXIWindow })
 DebufferView.__index = DebufferView
 
 TextStyle.DebufferView = {
@@ -24,7 +25,7 @@ TextStyle.DebufferView = {
             Color.yellow,
             2,
             0,
-            0,
+            Color.clear,
             false
     ),
 }
@@ -37,11 +38,10 @@ function DebufferView.new(debuffer, battle_target)
         return cell
     end)
 
-    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
-
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0)), nil, cursorImageItem), DebufferView)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0))), DebufferView)
 
     self:setScrollDelta(20)
+    self:setScrollEnabled(false)
 
     local debuffSpells = debuffer:get_debuff_spells()
     if debuffSpells:length() > 0 then
@@ -65,10 +65,6 @@ function DebufferView.new(debuffer, battle_target)
         for indexedItem in itemsToHighlight:it() do
             self:getDelegate():highlightItemAtIndexPath(indexedItem:getIndexPath())
         end
-    end
-
-    if self:getDataSource():numberOfItemsInSection(1) > 0 then
-        self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
     end
 
     return self

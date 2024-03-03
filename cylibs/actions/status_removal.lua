@@ -22,9 +22,9 @@ end
 
 function StatusRemovalAction.new(x, y, z, spell_id, target_index, debuff_id, player)
 	local conditions = L{
-		NotCondition.new(L{InMogHouseCondition.new()}, true),
+		NotCondition.new(L{InMogHouseCondition.new()}),
 		MaxDistanceCondition.new(20),
-		NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'mute'}, false)}),
+		NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'mute'}, 1)}, windower.ffxi.get_player().index),
 		HasBuffCondition.new(buff_util.buff_name(debuff_id)),
 		MinManaPointsCondition.new(res.spells[spell_id].mp_cost or 0),
 		SpellRecastReadyCondition.new(spell_id),

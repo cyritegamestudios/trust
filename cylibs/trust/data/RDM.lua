@@ -87,15 +87,7 @@ function RedMageTrust:job_target_change(target_index)
 
 	self.target_index = target_index
 
-	if self.battle_target then
-		self.battle_target:destroy()
-		self.battle_target = nil
-	end
-
-	if target_index then
-		self.battle_target = Monster.new(windower.ffxi.get_mob_by_index(target_index).id)
-		self.battle_target:monitor()
-	end
+	self.battle_stat_tracker:reset()
 end
 
 function RedMageTrust:tic(old_time, new_time)
@@ -122,12 +114,17 @@ end
 -------
 -- Checks the player's accuracy. If it is less than 80%, casts Distract on the current battle target.
 function RedMageTrust:check_accuracy()
-	if self.target_index == nil then return end
-
 	if self.battle_stat_tracker:get_accuracy() < 80 then
-		local debuff = buff_util.debuff_for_spell(res.spells:with('en', 'Distract III').id)
-		if debuff and not self.battle_target:has_debuff(debuff.id) then
-			self.action_queue:push_action(SpellAction.new(0, 0, 0, res.spells:with('en', 'Distract III').id, self.target_index, self:get_player()), true)
+		local target = self:get_target()
+		if not target then
+			return
+		end
+		local distract = Debuff.new('Distract')
+		if distract then
+			local debuff = buff_util.debuff_for_spell(distract:get_spell().id)
+			if debuff and not target:has_debuff(debuff.id) then
+				self.action_queue:push_action(SpellAction.new(0, 0, 0, distract:get_spell().id, self.target_index, self:get_player()), true)
+			end
 		end
 	end
 end

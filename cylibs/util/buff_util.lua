@@ -64,6 +64,7 @@ local debuffs = T{
 	[217] = S{454,455,456,457,458,459,460,461,871,872,873,874,875,876,877,878}, --threnodies
 	[404] = S{843,844,883}, --Magic Evasion Down
 	[597] = S{879}, --inundation
+
 }
 
 local aura_debuff_names = L{'Defense Down','Magic Atk. Down','Magic Def. Down','Accuracy Down','Evasion Down','Magic Acc. Down','Magic Evasion Down','disease'}
@@ -83,6 +84,8 @@ local buff_conflicts = T{
 	[33] = S{13, 565, 265, 581}, -- Haste
 	[358] = S{401}, -- Light Arts/Addendum: White
 	[359] = S{402}, -- Dark Arts/Addendum: Black
+	[531] = S{535}, -- Vallation
+	[535] = S{531}, -- Valiance
 }
 
 

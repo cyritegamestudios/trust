@@ -120,4 +120,11 @@ function Dancer:set_cure_settings(cure_settings)
     self.ignore_debuff_ids = self.cure_settings.StatusRemovals.Blacklist:map(function(debuff_name) return buff_util.buff_id(debuff_name) end)
 end
 
+-------
+-- Returns true if the Dancer has at least one finishing move.
+-- @treturn boolean True if the Dancer has at least one finishing move
+function Dancer:has_finishing_moves()
+    return buff_util.is_any_buff_active(L{ 381, 382, 383, 384, 385, 588 })
+end
+
 return Dancer

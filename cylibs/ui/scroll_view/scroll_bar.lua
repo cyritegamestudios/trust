@@ -1,5 +1,6 @@
 local Color = require('cylibs/ui/views/color')
 local Event = require('cylibs/events/Luvent')
+local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_collection_view_cell')
 local Mouse = require('cylibs/ui/input/mouse')
 local View = require('cylibs/ui/views/view')
 
@@ -31,24 +32,47 @@ end
 -- @tparam Frame frame The frame of the ScrollBar.
 -- @treturn ScrollBar The created ScrollBar.
 --
-function ScrollBar.new(frame)
+function ScrollBar.new(frame, backgroundImageItem)
     local self = setmetatable(View.new(frame), ScrollBar)
 
     self.scrollBackClick = Event.newEvent()
     self.scrollForwardClick = Event.newEvent()
     self.clickEvents = L{ self.scrollBackClick, self.scrollForwardClick }
 
-    self:setBackgroundColor(Color.white:withAlpha(75))
+    if backgroundImageItem then
+        self:setBackgroundImageView(ImageCollectionViewCell.new(backgroundImageItem))
+    else
+        self:setBackgroundColor(Color.white:withAlpha(75))
+    end
 
-    self:getDisposeBag():add(Mouse.input():onClick():addAction(function(type, x, y, delta, blocked)
-        if blocked or not self:isVisible() then
-            return
-        end
-        if self:hitTest(x, y) then
-            self:scrollBarClick(x, y)
+    self:setNeedsLayout()
+    self:layoutIfNeeded()
+
+    self:getDisposeBag():add(Mouse.input():onMouseEvent():addAction(function(type, x, y, delta, blocked)
+        if type == Mouse.Event.Click then
+            if self:hitTest(x, y) then
+                self.isClicking = true
+                self:scrollBarClick(x, y)
+                Mouse.input().blockEvent = true
+            end
+        elseif type == Mouse.Event.Move then
+            if self.isClicking then
+                Mouse.input().blockEvent = true
+            end
+        elseif type == Mouse.Event.ClickRelease then
+            if self.isClicking then
+                self.isClicking = false
+                Mouse.input().blockEvent = true
+                coroutine.schedule(function()
+                    Mouse.input().blockEvent = false
+                end, 0.1)
+            end
+        else
+            self.isClicking = false
+            Mouse.input().blockEvent = false
         end
         return false
-    end), Mouse.input():onClick())
+    end), Mouse.input():onMouseEvent())
 
     return self
 end

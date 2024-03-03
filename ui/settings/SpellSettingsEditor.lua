@@ -22,7 +22,8 @@ local TrustSettingsLoader = require('TrustSettings')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 local View = require('cylibs/ui/views/view')
 
-local SpellSettingsEditor = setmetatable({}, {__index = CollectionView })
+local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
+local SpellSettingsEditor = setmetatable({}, {__index = FFXIWindow })
 SpellSettingsEditor.__index = SpellSettingsEditor
 
 
@@ -37,14 +38,13 @@ function SpellSettingsEditor.new(trustSettings, spell)
         return cell
     end)
 
-    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
-
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0)), nil, cursorImageItem), SpellSettingsEditor)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), SpellSettingsEditor)
 
     self.trustSettings = trustSettings
     self.spell = spell
 
     self:setScrollDelta(20)
+    self:setScrollEnabled(true)
     self:setAllowsMultipleSelection(true)
 
     local allJobAbilities = player_util.get_job_abilities():map(function(jobAbilityId) return res.job_abilities[jobAbilityId].en end)

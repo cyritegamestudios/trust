@@ -3,10 +3,11 @@ local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local PickerView = require('cylibs/ui/picker/picker_view')
 
-local TargetsPickerView = setmetatable({}, {__index = PickerView })
+local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+local TargetsPickerView = setmetatable({}, {__index = FFXIPickerView })
 TargetsPickerView.__index = TargetsPickerView
 
-function TargetsPickerView.new(settings, puller)
+function TargetsPickerView.new(addonSettings, puller)
     local allMobs = S{}
     local nearbyMobs = windower.ffxi.get_mob_array()
     for _, mob in pairs(nearbyMobs) do
@@ -15,11 +16,9 @@ function TargetsPickerView.new(settings, puller)
         end
     end
 
-    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
+    local self = setmetatable(FFXIPickerView.withItems(allMobs, L{}, true), TargetsPickerView)
 
-    local self = setmetatable(PickerView.withItems(allMobs, L{}, true, cursorImageItem), TargetsPickerView)
-
-    self.settings = settings
+    self.addonSettings = addonSettings
     self.puller = puller
 
     if self:getDataSource():numberOfItemsInSection(1) > 0 then
@@ -30,7 +29,7 @@ function TargetsPickerView.new(settings, puller)
 end
 
 function TargetsPickerView:onSelectMenuItemAtIndexPath(textItem, _)
-    local targets = S(settings.battle.targets)
+    local targets = S(self.addonSettings:getSettings().battle.targets)
     if textItem:getText() == 'Confirm' then
         local selectedIndexPaths = self:getDelegate():getSelectedIndexPaths()
         if selectedIndexPaths:length() > 0 then
@@ -42,9 +41,8 @@ function TargetsPickerView:onSelectMenuItemAtIndexPath(textItem, _)
             end
             self:getDelegate():deselectAllItems()
 
-            settings.battle.targets = L(targets)
-
-            config.save(settings)
+            self.addonSettings:getSettings().battle.targets = L(targets)
+            self.addonSettings:saveSettings()
 
             if self.puller then
                 self.puller:set_target_names(targets)

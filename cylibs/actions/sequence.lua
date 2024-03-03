@@ -27,6 +27,13 @@ function SequenceAction.new(actions, identifier, allows_partial_failure)
   	return self
 end
 
+function SequenceAction.with_wait(actions, identifier, allows_partial_failure, post_delay)
+	if post_delay > 0 then
+		actions:append(WaitAction.new(0, 0, 0, post_delay))
+	end
+	return SequenceAction.new(actions, identifier, allows_partial_failure)
+end
+
 function SequenceAction:destroy()
 	for action in self.queue:it() do
 		action:destroy()

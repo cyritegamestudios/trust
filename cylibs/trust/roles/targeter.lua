@@ -1,16 +1,19 @@
 local Targeter = setmetatable({}, {__index = Role })
 Targeter.__index = Targeter
+Targeter.__class = "Targeter"
 
 local DisposeBag = require('cylibs/events/dispose_bag')
 
-state.AutoTargetMode = M{['description'] = 'Auto Target Mode', 'Off', 'Auto', 'Same'}
+state.AutoTargetMode = M{['description'] = 'Auto Target Mode', 'Off', 'Auto', 'Same', 'Party'}
 state.AutoTargetMode:set_description('Auto', "Okay, I'll automatically target a new monster after we defeat one.")
 state.AutoTargetMode:set_description('Same', "Okay, I'll automatically target a new monster with the same name as the last one we defeated.")
+state.AutoTargetMode:set_description('Party', "Okay, I'll automatically target monsters on the party's hate list.")
 
 function Targeter.new(action_queue)
     local self = setmetatable(Role.new(action_queue), Targeter)
     self.action_queue = action_queue
     self.action_events = {}
+    self.last_checked_targets = os.time()
     self.auto_target_index = nil
     self.dispose_bag = DisposeBag.new()
     return self
@@ -42,6 +45,9 @@ function Targeter:on_add()
 
         -- Monster is defeated
         if action_message_util.is_monster_defeated(message_id) then
+            if state.AutoTargetMode.value == 'Party' then
+                --return
+            end
             local target_mobs = L{}
             if state.AutoTargetMode.value == 'Same' then
                 local target = windower.ffxi.get_mob_by_id(target_id)
@@ -88,6 +94,32 @@ end
 
 function Targeter:tic(new_time, old_time)
     Role.tic(self, new_time, old_time)
+
+    self:check_targets()
+end
+
+function Targeter:check_targets()
+    if state.AutoTargetMode.value ~= 'Party' or os.time() - self.last_checked_targets < 3 then
+        return
+    end
+    self.last_checked_targets = os.time()
+
+    local current_target = self:get_target()
+    if current_target then
+        return
+    end
+
+    logger.notice(self.__class, 'check_targets')
+
+    local targets = self:get_party():get_targets(function(target)
+        return target:get_distance():sqrt() < 12 and target:get_mob().status == 1
+    end)
+    if targets:length() > 0 then
+        local next_target = targets[1]
+        self:target_mob(next_target:get_mob())
+
+        logger.notice(self.__class, 'check_targets', 'found', next_target:get_name(), next_target:get_distance())
+    end
 end
 
 function Targeter:allows_duplicates()

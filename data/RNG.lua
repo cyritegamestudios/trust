@@ -1,8 +1,11 @@
 -- Settings file for RNG
 return {
-    Version = 1,
+    Version = 2,
     Default = {
         AutoFood = "Grape Daifuku",
+        Shooter = {
+            Delay = 1.5
+        },
         SelfBuffs = L{
 
         },

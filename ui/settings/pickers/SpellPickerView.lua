@@ -6,24 +6,24 @@ local PickerView = require('cylibs/ui/picker/picker_view')
 local Spell = require('cylibs/battle/spell')
 local spell_util = require('cylibs/util/spell_util')
 
-
-local SpellPickerView = setmetatable({}, {__index = PickerView })
+local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+local SpellPickerView = setmetatable({}, {__index = FFXIPickerView })
 SpellPickerView.__index = SpellPickerView
 
 function SpellPickerView.new(trustSettings, spells, allSpells, defaultJobNames, override, sort)
-    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
-
     local selectedSpells = L{}
     if override then
         selectedSpells = spells:map(function(spell) return spell:get_name() end)
     end
-    local self = setmetatable(PickerView.withItems(allSpells, selectedSpells, true, cursorImageItem), SpellPickerView)
+    local self = setmetatable(FFXIPickerView.withItems(allSpells, selectedSpells, true), SpellPickerView)
 
     self.trustSettings = trustSettings
     self.spells = spells
     self.defaultJobNames = defaultJobNames
     self.override = override
     self.sort = sort
+
+    self:setScrollEnabled(true)
 
     if self:getDataSource():numberOfItemsInSection(1) > 0 then
         self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))

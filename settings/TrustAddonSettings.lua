@@ -4,9 +4,7 @@ local TrustAddonSettings = {}
 TrustAddonSettings.__index = TrustAddonSettings
 TrustAddonSettings.__class = "TrustAddonSettings"
 
-local default = {
-    verbose=true
-}
+local default = {}
 
 default.battle = {}
 default.battle.melee_distance = 3
@@ -15,28 +13,35 @@ default.battle.targets = L{'Locus Colibri','Locus Dire Bat','Locus Thousand Eyes
 default.battle.trusts = L{'Monberaux','Sylvie (UC)','Koru-Moru','Qultada','Brygid'}
 default.chat = {}
 default.chat.ipc_enabled = true
-default.click_cooldown = 0.0
 default.donate = {}
 default.donate.url = 'https://www.buymeacoffee.com/cyrite'
 default.follow = {}
 default.follow.distance = 1
+default.flags = {}
+default.flags.show_death_warning = true
+default.flags.check_files = true
 default.help = {}
 default.help.mode_text_enabled = true
 default.help.wiki_base_url = 'https://github.com/cyritegamestudios/trust/wiki'
-default.hud = {}
-default.hud.position = {}
-default.hud.position.x = 0
-default.hud.position.y = 0
-default.hud.auto_hide = false
 default.logging = {}
 default.logging.enabled = false
 default.logging.logtofile = false
 default.menu_key = '%^numpad+'
+default.party_widget = {}
+default.party_widget.x = 8
+default.party_widget.y = 200
+default.party_widget.visible = true
 default.remote_commands = {}
 default.remote_commands.whitelist = S{}
-default.flags = {}
-default.flags.show_death_warning = true
-default.flags.check_files = true
+default.target_widget = {}
+default.target_widget.x = 8
+default.target_widget.y = 260
+default.target_widget.visible = true
+default.trust_widget = {}
+default.trust_widget.x = 8
+default.trust_widget.y = 140
+default.trust_widget.visible = true
+default.verbose = true
 default.version = '1.0.0'
 
 function TrustAddonSettings:onSettingsChanged()
@@ -45,10 +50,6 @@ end
 
 function TrustAddonSettings.new()
     local self = setmetatable({}, TrustAddonSettings)
-    self.jobNameShort = jobNameShort
-    self.settingsFolder = 'data/skillchains/'
-    self.backupsFolder = 'backups/skillchains/'
-    self.settingsVersion = WeaponSkillSettings.settingsVersion[jobNameShort] or 1
     self.settingsChanged = Event.newEvent()
     self.settings = {}
     return self

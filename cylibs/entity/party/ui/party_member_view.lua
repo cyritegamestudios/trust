@@ -1,6 +1,7 @@
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
 local ContainerCollectionViewCell = require('cylibs/ui/collection_view/cells/container_collection_view_cell')
+local CollectionViewStyle = require('cylibs/ui/collection_view/collection_view_style')
 local HorizontalFlowLayout = require('cylibs/ui/collection_view/layouts/horizontal_flow_layout')
 local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_collection_view_cell')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
@@ -40,7 +41,7 @@ function PartyMemberView.new(party, player, actionQueue, trusts)
         end
     end)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0), 10)), PartyMemberView)
+    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0), 10), nil, CollectionViewStyle.empty()), PartyMemberView)
 
     self.trusts = trusts
     self.buffViews = {}
@@ -130,7 +131,7 @@ function PartyMemberView:createBuffsView()
         cell:setItemSize(20)
         return cell
     end)
-    local collectionView = CollectionView.new(dataSource, HorizontalFlowLayout.new(2, Padding.equal(0)))
+    local collectionView = CollectionView.new(dataSource, HorizontalFlowLayout.new(2, Padding.equal(0)), nil, CollectionViewStyle.empty())
     collectionView:setScrollEnabled(false)
 
     local buffItems = L{}
@@ -203,7 +204,7 @@ end
 function PartyMemberView:layoutIfNeeded()
     CollectionView.layoutIfNeeded(self)
 
-    self:setTitle("Choose a party member to assist.")
+    self:setTitle("View buffs and debuffs on the party.")
 end
 
 return PartyMemberView

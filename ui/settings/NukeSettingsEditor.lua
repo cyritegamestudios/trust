@@ -10,11 +10,12 @@ local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 
-local NukeSettingsEditor = setmetatable({}, {__index = CollectionView })
+local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
+local NukeSettingsEditor = setmetatable({}, {__index = FFXIWindow })
 NukeSettingsEditor.__index = NukeSettingsEditor
 
 
-function NukeSettingsEditor.new(trustSettings, settingsMode)
+function NukeSettingsEditor.new(trustSettings, settingsMode, helpUrl)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = TextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
@@ -23,15 +24,15 @@ function NukeSettingsEditor.new(trustSettings, settingsMode)
         return cell
     end)
 
-    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
-
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0)), nil, cursorImageItem), NukeSettingsEditor)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), NukeSettingsEditor)
 
     self:setAllowsCursorSelection(true)
     self:setScrollDelta(20)
+    self:setScrollEnabled(true)
 
     self.trustSettings = trustSettings
     self.settingsMode = settingsMode
+    self.helpUrl = helpUrl
     self.menuArgs = {}
 
     self.allSpells = spell_util.get_spells(function(spell)
@@ -62,7 +63,7 @@ function NukeSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
     if textItem:getText() == 'Edit' then
         self.menuArgs['spells'] = self.spells or L{}
     elseif textItem:getText() == 'Help' then
-        windower.open_url(settings.help.wiki_base_url..'/Nuker')
+        windower.open_url(self.helpUrl)
     end
 end
 

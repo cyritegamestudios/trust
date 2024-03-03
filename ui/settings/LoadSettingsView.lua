@@ -1,57 +1,42 @@
-local BackgroundView = require('cylibs/ui/views/background/background_view')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
-local Color = require('cylibs/ui/views/color')
-local Frame = require('cylibs/ui/views/frame')
-local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
-local ListView = require('cylibs/ui/list_view/list_view')
-local NavigationBar = require('cylibs/ui/navigation/navigation_bar')
 local Padding = require('cylibs/ui/style/padding')
-local PickerItem = require('cylibs/ui/picker/picker_item')
-local PickerView = require('cylibs/ui/picker/picker_view')
-local SpellSettingsEditor = require('ui/settings/SpellSettingsEditor')
-local spell_util = require('cylibs/util/spell_util')
-local TabbedView = require('cylibs/ui/tabs/tabbed_view')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
-local TrustSettingsLoader = require('TrustSettings')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
-local View = require('cylibs/ui/views/view')
 
-local LoadSettingsView = setmetatable({}, {__index = CollectionView })
+local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
+local LoadSettingsView = setmetatable({}, {__index = FFXIWindow })
 LoadSettingsView.__index = LoadSettingsView
 
 
-function LoadSettingsView.new(jobSettingsMode)
+function LoadSettingsView.new(jobSettingsMode, addonSettings, trustModeSettings)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = TextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
         cell:setItemSize(20)
-        if indexPath.row ~= 1 then
-            cell:setUserInteractionEnabled(true)
-        else
-            cell:setIsSelectable(false)
-        end
+        cell:setUserInteractionEnabled(true)
         return cell
     end)
 
-    local selectionImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), LoadSettingsView)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0)), nil, selectionImageItem), LoadSettingsView)
+    self.addonSettings = addonSettings
+    self.trustModeSettings = trustModeSettings
 
-    self:setAllowsMultipleSelection(true)
+    self:setAllowsMultipleSelection(false)
+    self:setScrollDelta(20)
+    self:setScrollEnabled(true)
 
     local itemsToAdd = L{}
     local itemsToSelect = L{}
 
-    itemsToAdd:append(IndexedItem.new(TextItem.new("Load mode set", TextStyle.Default.HeaderSmall), IndexPath.new(1, 1)))
-
     local trustMode = state['TrustMode']
 
-    local rowIndex = 2
+    local rowIndex = 1
     for _, v in ipairs(trustMode) do
         local item = TextItem.new(tostring(v), TextStyle.Default.TextSmall)
         local indexPath = IndexPath.new(1, rowIndex)
@@ -62,7 +47,7 @@ function LoadSettingsView.new(jobSettingsMode)
         rowIndex = rowIndex + 1
     end
 
-    itemsToAdd:append(IndexedItem.new(TextItem.new("Load job settings", TextStyle.Default.HeaderSmall), IndexPath.new(2, 1)))
+    --[[itemsToAdd:append(IndexedItem.new(TextItem.new("Load job settings", TextStyle.Default.HeaderSmall), IndexPath.new(2, 1)))
 
     rowIndex = 2
     for _, v in ipairs(jobSettingsMode) do
@@ -73,7 +58,7 @@ function LoadSettingsView.new(jobSettingsMode)
             itemsToSelect:append(indexPath)
         end
         rowIndex = rowIndex + 1
-    end
+    end]]
 
     self:getDataSource():addItems(itemsToAdd)
 
@@ -86,7 +71,7 @@ function LoadSettingsView.new(jobSettingsMode)
             local indexPath = IndexPath.new(1, row)
             local item = self:getDataSource():itemAtIndexPath(indexPath)
             if item and item:getText() ~= selectedItem:getText() then
-                self:getDelegate():deselectItemAtIndexPath(indexPath)
+                --self:getDelegate():deselectItemAtIndexPath(indexPath)
             end
         end
     end
@@ -94,20 +79,20 @@ function LoadSettingsView.new(jobSettingsMode)
     self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
         local item = self:getDataSource():itemAtIndexPath(indexPath)
         if item then
-            if indexPath.section == 1 and indexPath.row ~= 1 then
+            --if indexPath.section == 1 and indexPath.row ~= 1 then
                 updateSelectedItems(1, item)
                 handle_set('TrustMode', item:getText())
-            elseif indexPath.section == 2 and indexPath.row ~= 1 then
-                updateSelectedItems(2, item)
-                handle_set('MainTrustSettingsMode', item:getText())
-            end
+            --elseif indexPath.section == 2 and indexPath.row ~= 1 then
+            --    updateSelectedItems(2, item)
+            --    handle_set('MainTrustSettingsMode', item:getText())
+            --end
         end
     end), self:getDelegate():didSelectItemAtIndexPath())
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
 
-    self:getDelegate():setCursorIndexPath(IndexPath.new(1, 2))
+    self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
 
     return self
 end
@@ -121,7 +106,30 @@ function LoadSettingsView:layoutIfNeeded()
         return false
     end
 
-    self:setTitle("Load trust modes and job settings.")
+    self:setTitle("Load saved mode sets.")
+end
+
+function LoadSettingsView:deleteModeSet(modeSetName)
+    if self.trustModeSettings:getSettings()[modeSetName] then
+        self.trustModeSettings:deleteSettings(modeSetName)
+        addon_message(260, '('..windower.ffxi.get_player().name..') '..modeSetName.."? What "..modeSetName.."?")
+    end
+end
+
+function LoadSettingsView:onSelectMenuItemAtIndexPath(textItem, indexPath)
+    if textItem:getText() == 'Delete' then
+        local selectedIndexPath = L(self:getDelegate():getSelectedIndexPaths())[1]
+        if selectedIndexPath then
+            local item = self:getDataSource():itemAtIndexPath(selectedIndexPath)
+            if item:getText() ~= 'Default' then
+                self:deleteModeSet(item:getText())
+                self:getDataSource():removeItem(selectedIndexPath)
+                self:getDelegate():selectItemAtIndexPath(IndexPath.new(1, 1))
+            else
+                addon_message(260, '('..windower.ffxi.get_player().name..") I can't forget Default!")
+            end
+        end
+    end
 end
 
 return LoadSettingsView

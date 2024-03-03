@@ -4,14 +4,12 @@ local PickerView = require('cylibs/ui/picker/picker_view')
 local Spell = require('cylibs/battle/spell')
 local spell_util = require('cylibs/util/spell_util')
 
-
-local SongPickerView = setmetatable({}, {__index = PickerView })
+local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+local SongPickerView = setmetatable({}, {__index = FFXIPickerView })
 SongPickerView.__index = SongPickerView
 
 function SongPickerView.new(trustSettings, songSettings, allSongs, validateSongs)
-    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
-
-    local self = setmetatable(PickerView.withItems(allSongs, songSettings:map(function(song) return song:get_spell().en end), true, cursorImageItem), SongPickerView)
+    local self = setmetatable(FFXIPickerView.withItems(allSongs, songSettings:map(function(song) return song:get_spell().en end), true), SongPickerView)
 
     self.trustSettings = trustSettings
     self.songSettings = songSettings

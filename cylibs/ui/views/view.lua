@@ -7,6 +7,7 @@
 
 local Color = require('cylibs/ui/views/color')
 local DisposeBag = require('cylibs/events/dispose_bag')
+local FocusManager = require('cylibs/ui/focus/focus_manager')
 local Frame = require('cylibs/ui/views/frame')
 local Image = require('images')
 
@@ -33,8 +34,9 @@ function View.new(frame)
     self.needsLayout = true
     self.subviews = {}
     self.superview = nil
-    self.requestFocus = true
-    self.focus = false
+    self.editing = false
+    self.focusable = true
+    self.focusLocked = false
     self.uuid = os.time()..'-'..math.random(100000)
     self.destroyed = false
     self.disposeBag = DisposeBag.new()
@@ -163,6 +165,8 @@ function View:setVisible(visible)
     end
     self.visible = visible
     for _, subview in pairs(self.subviews) do
+        -- FIXME: should probably just call setVisible instead
+        --subview:setVisible(visible)
         subview:setNeedsLayout()
         subview:layoutIfNeeded()
     end
@@ -281,20 +285,52 @@ function View:setTitle(title)
 end
 
 ---
+-- Resigns focus from the view.
+--
+function View:resignFocus()
+    FocusManager.shared():resignFocus(self)
+end
+
+---
+-- Request focus for the view.
+--
+-- @treturn boolean True if the view is focused.
+function View:requestFocus()
+    return FocusManager.shared():requestFocus(self)
+end
+
+---
 -- Returns whether the view should request focus when being presented.
 --
 -- @treturn boolean If the view should request focus.
 function View:shouldRequestFocus()
-    return self.requestFocus
+    return self.focusable
 end
 
 ---
 -- Sets whether the view should request focus when being presented.
 --
--- @tparam boolean requestFocus Whether the view should request focus.
+-- @tparam boolean focusable Whether the view should request focus.
 --
-function View:setShouldRequestFocus(requestFocus)
-    self.requestFocus = requestFocus
+function View:setShouldRequestFocus(focusable)
+    self.focusable = focusable
+end
+
+---
+-- Returns whether the view should resign focus if it currently has focus.
+--
+-- @treturn boolean If the view should resign focus.
+function View:shouldResignFocus()
+    return self:hasFocus() and not self.focusLocked
+end
+
+---
+-- Sets whether the view should resign focus if it currently has focus.
+--
+-- @tparam boolean resignFocus Whether the view should resign focus.
+--
+function View:setShouldResignFocus(resignFocus)
+    self.focusLocked = not resignFocus
 end
 
 ---
@@ -312,6 +348,47 @@ end
 --
 function View:setHasFocus(hasFocus)
     self.focused = hasFocus
+end
+
+---
+-- Called when this View has focus and a keyboard event fires.
+--
+function View:onKeyboardEvent(key, pressed, flags, blocked)
+    if pressed then
+        if L{ 1, 205 }:contains(key) then
+            self:resignFocus()
+        end
+    end
+end
+
+---
+-- Sets whether the view is in edit mode.
+--
+-- @tparam boolean editing The new value for `editing`.
+--
+function View:setEditing(editing)
+    if self.editing == editing then
+        return false
+    end
+    self.editing = editing
+
+    if self.backgroundImageView then
+        self.backgroundImageView:setEditing(editing)
+    end
+
+    self:setNeedsLayout()
+    self:layoutIfNeeded()
+
+    return true
+end
+
+---
+-- Returns whether the view is in edit mode.
+--
+-- @treturn boolean True if the view is in edit mode, false otherwise.
+--
+function View:isEditing()
+    return self.editing
 end
 
 ---

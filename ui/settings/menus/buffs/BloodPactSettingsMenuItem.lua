@@ -1,10 +1,9 @@
 local BloodPactSettingsEditor = require('ui/settings/editors/BloodPactSettingsEditor')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
-local CursorItem = require('ui/themes/FFXI/CursorItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModesView = require('cylibs/modes/ui/modes_view')
-local PickerView = require('cylibs/ui/picker/picker_view')
+local ModesView = require('ui/settings/editors/ModeSettingsEditor')
+local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 
 local BloodPactSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 BloodPactSettingsMenuItem.__index = BloodPactSettingsMenuItem
@@ -51,9 +50,7 @@ function BloodPactSettingsMenuItem:getBuffsMenuItem()
             return buff_util.buff_for_job_ability(bloodPact.id) ~= nil and not S(bloodPact.targets):contains('Enemy')
         end):map(function(bloodPact) return bloodPact:get_name()  end)
 
-        local cursorImageItem = CursorItem.new()
-
-        local chooseBloodPactView = self.viewFactory(PickerView.withItems(allBloodPacts, self.bloodPacts:map(function(bloodPact) return bloodPact:get_name()  end), true, cursorImageItem))
+        local chooseBloodPactView = self.viewFactory(FFXIPickerView.withItems(allBloodPacts, self.bloodPacts:map(function(bloodPact) return bloodPact:get_name()  end), true))
         chooseBloodPactView:setTitle("Choose Blood Pact: Wards.")
         chooseBloodPactView:on_pick_items():addAction(function(_, selectedItems)
             self.bloodPacts:clear()

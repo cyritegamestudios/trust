@@ -1,15 +1,10 @@
 ---------------------------
 -- Tracks the buffs on party members.
 -- @class module
--- @name SongTracker
-
-require('tables')
-require('lists')
-require('logger')
+-- @name BuffTracker
 
 local buff_util = require('cylibs/util/buff_util')
 local DisposeBag = require('cylibs/events/dispose_bag')
-local logger = require('cylibs/logger/logger')
 local party_util = require('cylibs/util/party_util')
 
 local BuffTracker = {}

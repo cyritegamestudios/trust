@@ -19,9 +19,9 @@ TrustMessageView.__index = TrustMessageView
 function TrustMessageView.new(title, header, message, footer, viewSize)
     local self = setmetatable(MessageView.new(title, header, message, footer, viewSize, true), TrustMessageView)
 
-    self:setBackgroundImageView(self:createBackgroundView(viewSize.width, viewSize.height))
     self:setNavigationBar(self:createTitleView(viewSize))
     self:setSize(viewSize.width, viewSize.height)
+    self:layoutIfNeeded()
 
     return self
 end
@@ -36,14 +36,6 @@ function TrustMessageView:destroy()
             windower.unregister_event(event)
         end
     end
-end
-
-function TrustMessageView:createBackgroundView(width, height)
-    local backgroundView = BackgroundView.new(Frame.new(0, 0, width, height),
-            windower.addon_path..'assets/backgrounds/menu_bg_top.png',
-            windower.addon_path..'assets/backgrounds/menu_bg_mid.png',
-            windower.addon_path..'assets/backgrounds/menu_bg_bottom.png')
-    return backgroundView
 end
 
 function TrustMessageView:createTitleView(viewSize)

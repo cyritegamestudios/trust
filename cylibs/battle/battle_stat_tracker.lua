@@ -54,13 +54,15 @@ function BattleStatTracker:monitor()
 
         for _,target in pairs(action.targets) do
             for _,action in pairs(target.actions) do
-                if action_message_util.is_miss_attack_message(action.message) then
-                    self.num_hits = self.num_hits + 1
-                end
+                if type(action) ~= 'number' then
+                    if action_message_util.is_miss_attack_message(action.message) then
+                        self.num_hits = self.num_hits + 1
+                    end
 
-                if action_message_util.is_hit_attack_message(action.message) then
-                    self.hit_sum = self.hit_sum + 1
-                    self.num_hits = self.num_hits + 1
+                    if action_message_util.is_hit_attack_message(action.message) then
+                        self.hit_sum = self.hit_sum + 1
+                        self.num_hits = self.num_hits + 1
+                    end
                 end
             end
         end

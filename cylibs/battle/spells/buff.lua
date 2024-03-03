@@ -20,7 +20,6 @@ Buff.__type = "Buff"
 -- List of AOE buffs prefixes
 local aoe_buff_prefixes = L{
     'Auspice',
-    'Bar',
     'Boost',
     'Protectra',
     'Shellra',
@@ -50,7 +49,8 @@ end
 -- Returns whether or not this spell is AOE (e.g. Protectra).
 -- @treturn Boolean True if the spell is AOE and false otherwise.
 function Buff:is_aoe()
-    return #aoe_buff_prefixes:filter(function(buff_prefix) return self:get_spell().en:contains(buff_prefix)  end) > 0
+    local spell_name = self:get_spell().en
+    return spell_util.is_aoe_spell(spell_name) or #aoe_buff_prefixes:filter(function(buff_prefix) return spell_name:contains(buff_prefix) end) > 0
 end
 
 function Buff:serialize()

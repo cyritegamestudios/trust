@@ -1,6 +1,7 @@
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local MenuItem = require('cylibs/ui/menu/menu_item')
+local ModesView = require('ui/settings/editors/ModeSettingsEditor')
 local PullActionMenuItem = require('ui/settings/menus/pulling/PullActionMenuItem')
 local PullSettingsEditor = require('ui/settings/PullSettingsEditor')
 local TargetsPickerView = require('ui/settings/pickers/TargetsPickerView')
@@ -29,7 +30,7 @@ PullSettingsMenuItem.__index = PullSettingsMenuItem
 function PullSettingsMenuItem.new(abilities, trust, job_name_short, addon_settings, targets, viewFactory)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Targets', 18),
-        --ButtonItem.default('Actions', 18),
+        ButtonItem.default('Actions', 18),
         ButtonItem.default('Modes', 18),
     }, {
 
@@ -37,7 +38,7 @@ function PullSettingsMenuItem.new(abilities, trust, job_name_short, addon_settin
 
     self.abilities = abilities
     self.puller = trust:role_with_type("puller")
-    self.puller_settings = PullerSettings.new(self.puller)
+    self.puller_settings = self.puller:get_pull_settings()
     self.job_name_short = job_name_short
     self.viewFactory = viewFactory
     self.addon_settings = addon_settings
@@ -59,7 +60,7 @@ end
 
 function PullSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Targets", self:getTargetsMenuItem())
-    --self:setChildMenuItem("Actions", PullActionMenuItem.new(self.puller, self.puller_settings, self.job_name_short, self.viewFactory))
+    self:setChildMenuItem("Actions", PullActionMenuItem.new(self.puller, self.puller:get_pull_settings(), self.job_name_short, self.viewFactory))
     self:setChildMenuItem("Modes", self:getModesMenuItem())
 end
 
@@ -95,29 +96,12 @@ function PullSettingsMenuItem:getTargetsMenuItem()
 end
 
 function PullSettingsMenuItem:getModesMenuItem()
-    local pullModesMenuItem = MenuItem.new(L{
-        ButtonItem.default('Auto', 18),
-        ButtonItem.default('Multi', 18),
-        ButtonItem.default('Target', 18),
-        ButtonItem.default('All', 18),
-        ButtonItem.default('Off', 18),
-    }, L{
-        Auto = MenuItem.action(function()
-            handle_set('AutoPullMode', 'Auto')
-        end, "Pulling", state.AutoPullMode:get_description('Auto')),
-        Multi = MenuItem.action(function()
-            handle_set('AutoPullMode', 'Multi')
-        end, "Pulling", state.AutoPullMode:get_description('Multi')),
-        Target = MenuItem.action(function()
-            handle_set('AutoPullMode', 'Target')
-        end, "Pulling", state.AutoPullMode:get_description('Target')),
-        All = MenuItem.action(function()
-            handle_set('AutoPullMode', 'All')
-        end, "Pulling", state.AutoPullMode:get_description('All')),
-        Off = MenuItem.action(function()
-            handle_set('AutoPullMode', 'Off')
-        end, "Pulling", state.AutoPullMode:get_description('Off')),
-    }, nil, "Modes", "Change pulling modes.")
+    local pullModesMenuItem = MenuItem.new(L{}, L{}, function(_)
+        local modesView = self.viewFactory(ModesView.new(L{ 'AutoPullMode', 'AutoApproachMode' }))
+        modesView:setShouldRequestFocus(true)
+        modesView:setTitle("Set modes for pulling.")
+        return modesView
+    end, "Modes", "Change pulling behavior.")
     return pullModesMenuItem
 end
 

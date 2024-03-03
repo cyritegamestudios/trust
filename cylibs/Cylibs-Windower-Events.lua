@@ -27,6 +27,7 @@ WindowerEvents.ZoneUpdate = Event.newEvent()
 WindowerEvents.ZoneRequest = Event.newEvent()
 WindowerEvents.BuffsChanged = Event.newEvent()
 WindowerEvents.DebuffsChanged = Event.newEvent()
+WindowerEvents.GainDebuff = Event.newEvent()
 WindowerEvents.AllianceMemberListUpdate = Event.newEvent()
 WindowerEvents.PetUpdate = Event.newEvent()
 WindowerEvents.Equipment = {}
@@ -58,6 +59,18 @@ local incoming_event_dispatcher = {
         local act = windower.packets.parse_action(data)
         act.size = data:byte(5)
         WindowerEvents.Action:trigger(act)
+
+        for _, target in pairs(act.targets) do
+            local action = target.actions[1]
+            if action then
+                if action_message_util.is_gain_debuff_message(action.message) then
+                    local debuff = buff_util.debuff_for_spell(act.param)
+                    if debuff then
+                        WindowerEvents.GainDebuff:trigger(target.id, debuff.id)
+                    end
+                end
+            end
+        end
     end,
 
     [0x029] = function(data)

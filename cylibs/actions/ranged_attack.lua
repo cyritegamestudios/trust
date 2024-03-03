@@ -12,13 +12,14 @@ RangedAttack.__class = "RangedAttack"
 local DisposeBag = require('cylibs/events/dispose_bag')
 local packets = require('packets')
 
-function RangedAttack.new(target_index, player)
+function RangedAttack.new(target_index, player, ranged_attack_duration)
     local conditions = L{
-        NotCondition.new(L{InMogHouseCondition.new()}, true),
-        NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror'}, false)}),
+        NotCondition.new(L{InMogHouseCondition.new()}),
+        NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror'}, 1)}, windower.ffxi.get_player().index),
     }
     local self = setmetatable(Action.new(0, 0, 0, target_index, conditions), RangedAttack)
 
+    self.ranged_attack_duration = ranged_attack_duration
     self.player = player
     self.dispose_bag = DisposeBag.new()
 
@@ -61,6 +62,10 @@ end
 
 function RangedAttack:gettype()
     return "rangedattackaction"
+end
+
+function RangedAttack:get_max_duration()
+    return self.ranged_attack_duration or 5
 end
 
 function RangedAttack:is_equal(action)

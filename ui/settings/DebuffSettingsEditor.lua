@@ -21,11 +21,12 @@ local TrustSettingsLoader = require('TrustSettings')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 local View = require('cylibs/ui/views/view')
 
-local DebuffSettingsEditor = setmetatable({}, {__index = CollectionView })
+local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
+local DebuffSettingsEditor = setmetatable({}, {__index = FFXIWindow })
 DebuffSettingsEditor.__index = DebuffSettingsEditor
 
 
-function DebuffSettingsEditor.new(trustSettings, settingsMode, width)
+function DebuffSettingsEditor.new(trustSettings, settingsMode, helpUrl)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = TextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
@@ -34,18 +35,19 @@ function DebuffSettingsEditor.new(trustSettings, settingsMode, width)
         return cell
     end)
 
-    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
-
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0)), nil, cursorImageItem, nil, selectionImageItem), DebuffSettingsEditor)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), DebuffSettingsEditor)
 
     self.trustSettings = trustSettings
     self.settingsMode = settingsMode
+    self.helpUrl = helpUrl
 
     self.allDebuffs = spell_util.get_spells(function(spell)
         return spell.skill == 'Enfeebling Magic'
     end)
 
     self:setAllowsCursorSelection(true)
+    self:setScrollDelta(20)
+    self:setScrollEnabled(true)
 
     self:reloadSettings()
 
@@ -113,7 +115,7 @@ function DebuffSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
     elseif textItem:getText() == 'Remove' then
         self:onRemoveSpellClick()
     elseif textItem:getText() == 'Help' then
-        windower.open_url(settings.help.wiki_base_url..'/Debuffer')
+        windower.open_url(self.helpUrl)
     end
 end
 

@@ -1,21 +1,17 @@
-local Button = require('cylibs/ui/button')
-local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
-local Color = require('cylibs/ui/views/color')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
-local Menu = require('cylibs/ui/menu/menu')
 local Padding = require('cylibs/ui/style/padding')
+local ScrollItem = require('ui/themes/ffxi/ScrollItem')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
-local View = require('cylibs/ui/views/view')
-local ViewStack = require('cylibs/ui/views/view_stack')
 
-local ModesView = setmetatable({}, {__index = CollectionView })
+local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
+local ModesView = setmetatable({}, {__index = FFXIWindow })
 ModesView.__index = ModesView
 ModesView.__type = "ModesView"
 
@@ -28,19 +24,20 @@ function ModesView.new(modeNames)
         return cell
     end)
 
-    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
-
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0)), nil, cursorImageItem), ModesView)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 10, 0, 0))), ModesView)
 
     self:setShouldRequestFocus(true)
     self:setScrollDelta(20)
+    self:setScrollEnabled(true)
 
     local itemsToAdd = L{}
 
     local currentRow = 1
     for modeName in modeNames:it() do
-        itemsToAdd:append(IndexedItem.new(TextItem.new(modeName..': '..state[modeName].value, TextStyle.Default.TextSmall), IndexPath.new(1, currentRow)))
-        currentRow = currentRow + 1
+        if state[modeName] then
+            itemsToAdd:append(IndexedItem.new(TextItem.new(modeName..': '..state[modeName].value, TextStyle.Default.TextSmall), IndexPath.new(1, currentRow)))
+            currentRow = currentRow + 1
+        end
     end
 
     dataSource:addItems(itemsToAdd)
@@ -61,13 +58,6 @@ function ModesView.new(modeNames)
     self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
 
     return self
-end
-
-function ModesView:onSelectMenuItemAtIndexPath(textItem, indexPath)
-    if textItem:getText() == 'Save' then
-        windower.send_command('trust save '..state.TrustMode.value)
-        addon_message(260, '('..windower.ffxi.get_player().name..') '.."You got it! I'll remember what to do.")
-    end
 end
 
 return ModesView

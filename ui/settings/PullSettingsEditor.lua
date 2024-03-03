@@ -10,7 +10,8 @@ local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 
-local PullSettingsEditor = setmetatable({}, {__index = CollectionView })
+local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
+local PullSettingsEditor = setmetatable({}, {__index = FFXIWindow })
 PullSettingsEditor.__index = PullSettingsEditor
 
 
@@ -23,12 +24,11 @@ function PullSettingsEditor.new(addon_settings, puller)
         return cell
     end)
 
-    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
-
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0)), nil, cursorImageItem), PullSettingsEditor)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), PullSettingsEditor)
 
     self:setAllowsCursorSelection(true)
     self:setScrollDelta(20)
+    self:setScrollEnabled(true)
 
     self.addon_settings = addon_settings
     self.puller = puller
@@ -63,7 +63,7 @@ end
 function PullSettingsEditor:reloadSettings()
     self:getDataSource():removeAllItems()
 
-    local allTargets = (self.addon_settings.battle.targets or L{}):sort()
+    local allTargets = (self.addon_settings:getSettings().battle.targets or L{}):sort()
 
     local items = L{}
     local rowIndex = 1
@@ -92,11 +92,10 @@ function PullSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
                     targetsToRemove:append(item:getText())
                 end
             end
-            local targets = S(self.addon_settings.battle.targets):filter(function(targetName) return not targetsToRemove:contains(targetName) end)
+            local targets = S(self.addon_settings:getSettings().battle.targets):filter(function(targetName) return not targetsToRemove:contains(targetName) end)
 
-            self.addon_settings.battle.targets = L(targets)
-
-            config.save(self.addon_settings)
+            self.addon_settings:getSettings().battle.targets = L(targets)
+            self.addon_settings:saveSettings()
 
             if self.puller then
                 self.puller:set_target_names(targets)

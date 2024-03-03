@@ -32,6 +32,7 @@ function Mouse.new()
     self.clickRelease = Event.newEvent()
     self.mouseWheel = Event.newEvent()
     self.mouseEvent = Event.newEvent()
+    self.blockEvent = false
     self.mouseEventCooldown = 0.0
     self.lastMouseEvent = {}
 
@@ -53,7 +54,7 @@ function Mouse.new()
             return true
         end
         self:onMouseEvent():trigger(type, x, y, delta, blocked)
-        return false
+        return self.blockEvent
     end)
 
     return self

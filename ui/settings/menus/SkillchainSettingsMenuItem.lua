@@ -7,8 +7,7 @@ local SkillchainSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 SkillchainSettingsMenuItem.__index = SkillchainSettingsMenuItem
 
 function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettingsMode, skillchainer, viewFactory)
-
-    local skillchainStepPickerView = MenuItem.new(L{
+    local skillchainStepPickerItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
     }, {},
             function(args)
@@ -39,7 +38,7 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
         ButtonItem.default('Clear All', 18),
         ButtonItem.default('Sets', 18),
     }, {
-        Edit = skillchainStepPickerView,
+        Edit = skillchainStepPickerItem,
         Skip = MenuItem.action(nil, "Skillchains", "Wait for party members to use a weapon skill for the selected step."),
         Clear = MenuItem.action(nil, "Skillchains", "Automatically determine a weapon skill to use for the selected step."),
         ["Clear All"] = MenuItem.action(nil, "Skillchains", "Automatically determine weapon skills to use for all steps."),

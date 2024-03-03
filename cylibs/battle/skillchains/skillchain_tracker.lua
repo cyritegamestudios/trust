@@ -181,6 +181,7 @@ end
 -- Resets the skillchain on a target.
 -- @tparam number mob_id Id of target to reset
 function SkillchainTracker:reset(mob_id)
+    logger.notice(self.__class, 'reset steps')
     self.steps[mob_id] = L{}
     self:on_skillchain_ended():trigger(mob_id)
 end

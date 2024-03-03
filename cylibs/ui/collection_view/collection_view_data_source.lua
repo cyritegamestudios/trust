@@ -185,10 +185,23 @@ end
 function CollectionViewDataSource:updateItems(indexedItems)
     local snapshot = self:createSnapshot()  -- Create a snapshot before making changes
 
+    local itemsToAdd = L{}
+
     for indexedItem in indexedItems:it() do
-        local currentItem = self.sections[indexedItem:getIndexPath().section].items[indexedItem:getIndexPath().row]
-        if not (currentItem and currentItem == indexedItem:getItem()) then
-            self.sections[indexedItem:getIndexPath().section].items[indexedItem:getIndexPath().row] = indexedItem:getItem()
+        local currentSection = self.sections[indexedItem:getIndexPath().section]
+        if currentSection then
+            local currentItem = self.sections[indexedItem:getIndexPath().section].items[indexedItem:getIndexPath().row]
+            if not (currentItem and currentItem == indexedItem:getItem()) then
+                self.sections[indexedItem:getIndexPath().section].items[indexedItem:getIndexPath().row] = indexedItem:getItem()
+            end
+        else
+            itemsToAdd:append(indexedItem)
+        end
+        local cachedCell = self.cellCache[indexedItem:getIndexPath().section] and self.cellCache[indexedItem:getIndexPath().section][indexedItem:getIndexPath().row]
+        if cachedCell then
+            if self.sizeForItem ~= nil then
+                cachedCell:setItemSize(self.sizeForItem(indexedItem:getItem(), indexedItem:getIndexPath()))
+            end
         end
     end
 
@@ -197,6 +210,10 @@ function CollectionViewDataSource:updateItems(indexedItems)
 
     -- Trigger the itemsChanged event
     self.itemsChanged:trigger(diff.added, diff.removed, diff.updated)
+
+    if itemsToAdd:length() > 0 then
+        self:addItems(itemsToAdd)
+    end
 end
 
 -- Get the number of sections in the collection
@@ -217,23 +234,31 @@ function CollectionViewDataSource:itemAtIndexPath(indexPath)
     return self.sections[indexPath.section].items[indexPath.row]
 end
 
-function CollectionViewDataSource:getNextIndexPath(indexPath)
+function CollectionViewDataSource:getNextIndexPath(indexPath, wrap)
     if self:numberOfItemsInSection(indexPath.section) >= indexPath.row + 1 then
         return IndexPath.new(indexPath.section, indexPath.row + 1)
     elseif self:numberOfSections() >= indexPath.section + 1 and self:numberOfItemsInSection(indexPath.section) >= 1 then
         return IndexPath.new(indexPath.section + 1, 1)
     else
-        return indexPath
+        if wrap then
+            return IndexPath.new(1, 1)
+        else
+            return indexPath
+        end
     end
 end
 
-function CollectionViewDataSource:getPreviousIndexPath(indexPath)
+function CollectionViewDataSource:getPreviousIndexPath(indexPath, wrap)
     if indexPath.row > 1 then
         return IndexPath.new(indexPath.section, indexPath.row - 1)
     elseif indexPath.section > 1 then
         return IndexPath.new(indexPath.section - 1, self:numberOfItemsInSection(indexPath.section - 1))
     else
-        return indexPath
+        if wrap then
+            return IndexPath.new(self:numberOfSections(), self:numberOfItemsInSection(self:numberOfSections()))
+        else
+            return indexPath
+        end
     end
 end
 

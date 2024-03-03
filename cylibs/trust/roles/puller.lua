@@ -229,8 +229,7 @@ function Puller:get_pull_distance()
 end
 
 function Puller:get_pull_action(target_index)
-    local actions = L{
-    }
+    local actions = L{}
 
     local current_target = player_util.get_current_target()
     if current_target and current_target.index ~= target_index then
@@ -239,7 +238,7 @@ function Puller:get_pull_action(target_index)
     end
 
     if self.approach or state.ApproachPullMode.value == "Auto" then
-        actions:append(RunToAction.new(target_index, 3))
+        actions:append(RunToAction.new(target_index, 3, true))
         actions:append(BlockAction.new(function() battle_util.target_mob(target_index) end))
     elseif self.pull_settings.Spells:length() > 0 then
         local spell = self.pull_settings.Spells:firstWhere(function(spell)
@@ -250,7 +249,7 @@ function Puller:get_pull_action(target_index)
         else
             return nil
         end
-    elseif self.pull_settings.JobAbilities:length() then
+    elseif self.pull_settings.JobAbilities:length() > 0 then
         local job_ability = self.pull_settings.JobAbilities:firstWhere(function(job_ability)
             return job_util.can_use_job_ability(job_ability:get_name())
         end)
@@ -297,6 +296,7 @@ function Puller:pull_target(target)
             end
             local sequence_action = SequenceAction.new(actions, 'puller_target_' .. target.index)
             sequence_action.priority = ActionPriority.high
+            sequence_action.display_name = "Pulling → "..target.name
             self.action_queue:push_action(sequence_action, true)
         else
             self:get_party():add_to_chat(self.party:get_player(), "I can't use any of my pull actions right now. Maybe we should try different ones?", "pull_action_cooldown", 10)

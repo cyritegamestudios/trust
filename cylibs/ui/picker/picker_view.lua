@@ -24,7 +24,7 @@ TextStyle.PickerView = {
             Color.lightGrey,
             2,
             0,
-            0,
+            Color.clear,
             false,
             Color.yellow
     ),
@@ -56,6 +56,7 @@ function PickerView.new(pickerItems, allowsMultipleSelection, cursorImageItem)
 
     self:setAllowsMultipleSelection(allowsMultipleSelection)
     self:setScrollDelta(20)
+    self:setScrollEnabled(true)
 
     local indexedItems = L{}
     local selectedIndexedItems = L{}

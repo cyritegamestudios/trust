@@ -188,7 +188,6 @@ function Skillchainer:check_skillchain()
     end
 
     local next_ability
-
     local step = self.skillchain_builder:get_current_step()
     if step and not step:is_expired() then
         if step:is_window_open() then
@@ -214,7 +213,25 @@ function Skillchainer:check_skillchain()
     end
 end
 
+function Skillchainer:validate_step(current_step)
+    if current_step == nil then
+        return true
+    end
+    local ability = self.ability_for_step[current_step:get_step()]
+    if ability and not L{ SkillchainAbility.Auto, SkillchainAbility.Skip }:contains(ability:get_name()) then
+        local previous_ability = current_step:get_ability()
+        if previous_ability and previous_ability:get_name() ~= ability:get_name() then
+            self:get_party():add_to_chat(self:get_party():get_player(), "I wasn't expecting "..localization_util.translate(previous_ability:get_name())..". I'm going to start the skillchain over.", self.__class..'_previous_ability', 8)
+            return false
+        end
+    end
+    return true
+end
+
 function Skillchainer:get_next_ability(current_step)
+    if not self:validate_step(current_step) then
+        return nil
+    end
     local step_num = 1
     if current_step then
         step_num = current_step:get_step() + 1
@@ -224,12 +241,13 @@ function Skillchainer:get_next_ability(current_step)
         if ability:get_name() == SkillchainAbility.Skip then
             return nil
         end
-        if windower.ffxi.get_player().vitals.tp >= 1000 then
+        if Condition.check_conditions(ability:get_conditions(), self:get_party():get_player():get_mob().index) then
             return ability
         end
     else
         if current_step == nil then
-            if windower.ffxi.get_player().vitals.tp >= 1000 then
+            local ability = self:get_starter_ability(self.num_skillchain_steps)
+            if ability and Condition.check_conditions(ability:get_conditions(), self:get_party():get_player():get_mob().index) then
                 return self:get_starter_ability(self.num_skillchain_steps)
             end
         else

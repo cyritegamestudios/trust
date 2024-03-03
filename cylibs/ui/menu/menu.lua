@@ -1,5 +1,6 @@
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local DisposeBag = require('cylibs/events/dispose_bag')
+local FocusManager = require('cylibs/ui/focus/focus_manager')
 local Frame = require('cylibs/ui/views/frame')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local MenuView = require('cylibs/ui/menu/menu_view')
@@ -9,10 +10,10 @@ local Menu =  {}
 Menu.__index = Menu
 
 
-function Menu.new(contentViewStack, viewStack, infoView)
+function Menu.new(contentViewStack, viewStack, infoView, backgroundViewFactory)
     local self = setmetatable({}, Menu)
 
-    self.buttonHeight = 18
+    self.buttonHeight = 16
     self.disposeBag = DisposeBag.new()
     self.menuItemStack = L{}
 
@@ -39,11 +40,12 @@ function Menu.new(contentViewStack, viewStack, infoView)
         self.infoView:setVisible(false)
         self.infoView:layoutIfNeeded()
     end
-    ), viewStack:onEmpty())
+    ),
+            viewStack:onEmpty())
 
     self.disposeBag:add(viewStack:onKeyboardEvent():addAction(function(_, key, pressed, flags, blocked)
         -- escape
-        if key == 1 then
+        --[[if key == 1 then
             if not self.viewStack:hasFocus() then
                 self.viewStack:focus()
             end
@@ -56,7 +58,7 @@ function Menu.new(contentViewStack, viewStack, infoView)
         elseif key == 205 then
             self.viewStack:focus()
         end
-        self:onKeyboardEvent(key, pressed, flags, blocked)
+        self:onKeyboardEvent(key, pressed, flags, blocked)]]
     end), viewStack:onKeyboardEvent())
 
     return self
@@ -122,7 +124,7 @@ function Menu:showMenu(menuItem)
         self.viewStack:present(self.menuView)
     end
 
-    self.viewStack:focus()
+    self:requestFocus()
 end
 
 function Menu:updateInfoView(menuItem)
@@ -146,7 +148,19 @@ function Menu:onKeyboardEvent(key, pressed, flags, blocked)
         return blocked
     end
     if pressed then
-        if key == 1 then
+        -- left
+        if key == 203 then
+            local currentView = self.contentViewStack:getCurrentView()
+            if currentView and currentView:shouldRequestFocus() then
+                currentView:requestFocus()
+            end
+        -- right
+        elseif key == 205 then
+            local currentView = self.contentViewStack:getCurrentView()
+            if currentView and currentView:hasFocus() then
+                currentView:resignFocus()
+            end
+        elseif key == 1 then
             if self.menuItemStack:length() > 1 then
                 self.menuItemStack:remove(self.menuItemStack:length())
                 self.menuView:setItem(self.menuItemStack[self.menuItemStack:length()])
@@ -154,6 +168,12 @@ function Menu:onKeyboardEvent(key, pressed, flags, blocked)
                 self.viewStack:dismiss()
                 self.menuItemStack = L{}
                 self.menuView = nil
+                self:resignFocus()
+            end
+        else
+            local currentView = self.viewStack:getCurrentView()
+            if currentView then
+                currentView:onKeyboardEvent(key, pressed, flags, blocked)
             end
         end
     end
@@ -167,6 +187,51 @@ function Menu:closeAll()
     end
     self.menuItemStack = L{}
     self.viewStack:dismissAll()
+end
+
+---
+-- Returns whether the view should resign focus if it currently has focus.
+--
+-- @treturn boolean If the view should resign focus.
+function Menu:shouldResignFocus()
+    return self.resignFocus
+end
+
+---
+-- Resigns focus from the view.
+--
+function Menu:resignFocus()
+    FocusManager.shared():resignFocus(self)
+end
+
+---
+-- Request focus for the view.
+--
+-- @treturn boolean True if the view is focused.
+function Menu:requestFocus()
+    return FocusManager.shared():requestFocus(self)
+end
+
+---
+-- Returns whether the view has focus.
+--
+-- @treturn boolean If the view has focus.
+function Menu:hasFocus()
+    return self.focused
+end
+
+---
+-- Sets whether the view has focus.
+--
+-- @tparam boolean hasFocus Whether the view has focus.
+--
+function Menu:setHasFocus(hasFocus)
+    self.focused = hasFocus
+
+    local currentView = self.viewStack:getCurrentView()
+    if currentView then
+        currentView:setHasFocus(hasFocus)
+    end
 end
 
 return Menu

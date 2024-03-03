@@ -22,11 +22,12 @@ local TrustSettingsLoader = require('TrustSettings')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 local View = require('cylibs/ui/views/view')
 
-local WeaponSkillSettingsEditor = setmetatable({}, {__index = CollectionView })
+local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
+local WeaponSkillSettingsEditor = setmetatable({}, {__index = FFXIWindow })
 WeaponSkillSettingsEditor.__index = WeaponSkillSettingsEditor
 
 
-function WeaponSkillSettingsEditor.new(weaponSkills, trustSettings)
+function WeaponSkillSettingsEditor.new(weaponSkills, trustSettings, helpUrl)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = TextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
@@ -34,15 +35,14 @@ function WeaponSkillSettingsEditor.new(weaponSkills, trustSettings)
         return cell
     end)
 
-    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
-
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0)), nil, cursorImageItem), WeaponSkillSettingsEditor)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), WeaponSkillSettingsEditor)
 
     self:setAllowsCursorSelection(true)
     self:setScrollDelta(20)
 
     self.weaponSkills = weaponSkills
     self.trustSettings = trustSettings
+    self.helpUrl = helpUrl
 
     self.menuArgs = {}
 
@@ -131,7 +131,7 @@ function WeaponSkillSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPa
     elseif textItem:getText() == 'Move Down' then
         self:onMoveWeaponSkillDown()
     elseif textItem:getText() == 'Help' then
-        windower.open_url(settings.help.wiki_base_url..'/Skillchainer')
+        windower.open_url(self.helpUrl)
     end
 end
 

@@ -28,6 +28,10 @@ end
 function ImageCollectionViewCell:setItem(item)
     CollectionViewCell.setItem(self, item)
 
+    self.imageView.repeatX = item:getRepeat().x
+    self.imageView.repeatY = item:getRepeat().y
+    self.imageView.alpha = item:getAlpha()
+
     self.imageView:loadImage(item:getImagePath())
 end
 
@@ -39,7 +43,6 @@ function ImageCollectionViewCell:layoutIfNeeded()
     if not CollectionViewCell.layoutIfNeeded(self) then
         return false
     end
-
     self.imageView:setSize(self:getSize().width, self:getSize().height)
 
     self.imageView:setNeedsLayout()

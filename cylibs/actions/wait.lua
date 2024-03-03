@@ -1,7 +1,3 @@
-require('coroutine')
-require('vectors')
-require('math')
-
 local Action = require('cylibs/actions/action')
 local WaitAction = setmetatable({}, { __index = Action })
 WaitAction.__index = WaitAction

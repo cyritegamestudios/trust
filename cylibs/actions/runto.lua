@@ -13,11 +13,12 @@ local Action = require('cylibs/actions/action')
 local RunToAction = setmetatable({}, {__index = Action })
 RunToAction.__index = RunToAction
 
-function RunToAction.new(target_index, distance)
+function RunToAction.new(target_index, distance, force_perform)
 	local self = setmetatable(Action.new(0, 0, 0), RunToAction)
 	self.user_events = {}
 	self.target_index = target_index
 	self.distance = distance
+	self.force_perform = force_perform
 	self.was_locked_on = false
 	return self
 end
@@ -32,9 +33,11 @@ function RunToAction:can_perform()
 		return false
 	end
 
-	local dist = self:target_distance()
-	if dist < self.distance then
-		return false
+	if not self.force_perform then
+		local dist = self:target_distance()
+		if dist < self.distance then
+			return false
+		end
 	end
 
 	return true

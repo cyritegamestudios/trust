@@ -23,7 +23,7 @@ TextStyle.DebugView = {
             Color.green,
             2,
             0,
-            0,
+            Color.clear,
             false
     ),
 }

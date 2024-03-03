@@ -2,16 +2,18 @@ local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local PickerView = require('cylibs/ui/picker/picker_view')
 
-local JobAbilityPickerView = setmetatable({}, {__index = PickerView })
+local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+local JobAbilityPickerView = setmetatable({}, {__index = FFXIPickerView })
 JobAbilityPickerView.__index = JobAbilityPickerView
 
 function JobAbilityPickerView.new(trustSettings, jobAbilities, allJobAbilities)
-    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
-
-    local self = setmetatable(PickerView.withItems(allJobAbilities, L{}, true, cursorImageItem), JobAbilityPickerView)
+    local self = setmetatable(FFXIPickerView.withItems(allJobAbilities, L{}, true), JobAbilityPickerView)
 
     self.trustSettings = trustSettings
     self.jobAbilities = jobAbilities
+
+    self:setScrollEnabled(true)
+    self:setScrollDelta(20)
 
     self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
 

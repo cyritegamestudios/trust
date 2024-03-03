@@ -1,5 +1,7 @@
 local Event = require('cylibs/events/Luvent')
+local FocusManager = require('cylibs/ui/focus/focus_manager')
 local Frame = require('cylibs/ui/views/frame')
+local Keyboard = require('cylibs/ui/input/keyboard')
 
 local ViewStack = {}
 ViewStack.__index = ViewStack
@@ -33,7 +35,9 @@ function ViewStack.new(startPosition)
     self.empty = Event.newEvent()
     self.name = os.time()
 
-    self.events.keyboard = windower.register_event('keyboard', function(key, pressed, flags, blocked)
+    Keyboard.input()
+
+    --[[self.events.keyboard = windower.register_event('keyboard', function(key, pressed, flags, blocked)
         if blocked or self.currentView == nil or not self:hasFocus() then
             self:onKeyboardEvent():trigger(self, key, pressed, flags, true)
             return false
@@ -49,7 +53,7 @@ function ViewStack.new(startPosition)
             end
         end
         return false
-    end)
+    end)]]
 
     self:focus()
 
@@ -87,7 +91,8 @@ function ViewStack:present(view)
 
     if self.currentView:shouldRequestFocus() then
         self:focus()
-        self.currentView:setHasFocus(true)
+        --FocusManager.shared():requestFocus(self.currentView)
+        --self.currentView:setHasFocus(true)
     end
     self.currentView:setVisible(true)
     self.currentView:layoutIfNeeded()
@@ -125,21 +130,15 @@ end
 function ViewStack:focus()
     if activeStack and activeStack ~= self then
         if activeStack:getCurrentView() then
-            activeStack:getCurrentView():setHasFocus(false)
+            --FocusManager.shared():resignFocus(activeStack:getCurrentView())
+            --activeStack:getCurrentView():setHasFocus(false)
         end
     end
     activeStack = self
     if self.currentView then
-        self.currentView:setHasFocus(true)
+        --FocusManager.shared():requestFocus(self.currentView)
+        --self.currentView:setHasFocus(true)
     end
-end
-
-function ViewStack:blockInput()
-
-end
-
-function ViewStack:enableInput()
-
 end
 
 function ViewStack:getCurrentView()

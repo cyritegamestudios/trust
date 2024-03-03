@@ -3,6 +3,7 @@ local ButtonCollectionViewCell = require('cylibs/ui/collection_view/cells/button
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
+local FFXIBackgroundView = require('ui/themes/ffxi/FFXIBackgroundView')
 local Frame = require('cylibs/ui/views/frame')
 local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_collection_view_cell')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
@@ -22,36 +23,45 @@ function MenuView:onSelectMenuItemAtIndexPath()
 end
 
 function MenuView.new(menuItem, viewStack)
-    local buttonHeight = 18
+    local buttonHeight = 16
 
     local dataSource = CollectionViewDataSource.new(function(item, _)
         local cell = ButtonCollectionViewCell.new(item)
         cell:setItemSize(buttonHeight)
         cell:setUserInteractionEnabled(true)
+        cell:setIsSelectable(item:getEnabled())
         return cell
     end)
 
-    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
-
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(0, Padding.new(10, 5, 0, 0)), nil, cursorImageItem), MenuView)
+    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(0, Padding.new(6, 6, 0, 0))), MenuView)
 
     self:setScrollDelta(buttonHeight)
     self:setAllowsMultipleSelection(false)
+    self:setAllowsScrollWrap(true)
 
     self.menuItem = menuItem
     self.selectMenuItem = Event.newEvent()
     self.views = L{}
+
     self.viewStack = viewStack
 
     self:setScrollEnabled(false)
     self:setItem(menuItem)
     self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
 
+    self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
+        self:getDelegate():deselectItemAtIndexPath(indexPath)
+    end), self:getDelegate():didSelectItemAtIndexPath())
+
     return self
 end
 
 function MenuView:destroy()
     CollectionView.destroy(self)
+
+    if self.backgroundImageView then
+        self.backgroundImageView:destroy()
+    end
 
     self.viewStack:dismissAll()
     self.selectMenuItem:removeAllActions()
@@ -82,18 +92,16 @@ function MenuView:setItem(menuItem)
 
     local buttonItems = menuItem:getButtonItems()
     if buttonItems:length() > 0 then
-        local buttonHeight = 18
-        local menuHeight = buttonHeight * (buttonItems:length() + 1)
-        local menuWidth = 115
+        local buttonHeight = 16
+        local menuHeight = buttonHeight * (buttonItems:length()) + 10
+        local menuWidth = 112
 
-        self:setBackgroundImageView(nil)
+        if not self:getBackgroundImageView() then
+            local backgroundView = FFXIBackgroundView.new(Frame.new(0, 0, menuWidth, menuHeight))
+            self:setBackgroundImageView(backgroundView)
+        end
 
-        local backgroundView = BackgroundView.new(Frame.new(0, 0, menuWidth, menuHeight),
-                windower.addon_path..'assets/backgrounds/menu_bg_top.png',
-                windower.addon_path..'assets/backgrounds/menu_bg_mid.png',
-                windower.addon_path..'assets/backgrounds/menu_bg_bottom.png')
-
-        self:setBackgroundImageView(backgroundView)
+        self:getBackgroundImageView():setTitle(menuItem:getTitleText() or "")
 
         self:getBackgroundImageView():setNeedsLayout()
         self:getBackgroundImageView():layoutIfNeeded()

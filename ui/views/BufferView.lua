@@ -10,7 +10,8 @@ local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 
-local BufferView = setmetatable({}, {__index = CollectionView })
+local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
+local BufferView = setmetatable({}, {__index = FFXIWindow })
 BufferView.__index = BufferView
 BufferView.__type = 'BufferView'
 
@@ -24,7 +25,7 @@ TextStyle.BufferView = {
             Color.yellow,
             2,
             0,
-            0,
+            Color.clear,
             false
     ),
 }
@@ -37,12 +38,11 @@ function BufferView.new(buffer)
         return cell
     end)
 
-    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
-
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0)), nil, cursorImageItem), BufferView)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0))), BufferView)
 
     self:setScrollDelta(20)
-    self:setShouldRequestFocus(true)
+    self:setShouldRequestFocus(false)
+    self:setScrollEnabled(false)
 
     local itemsToAdd = L{}
     local itemsToHighlight = L{}
@@ -101,10 +101,7 @@ function BufferView.new(buffer)
         self:getDelegate():highlightItemAtIndexPath(indexedItem:getIndexPath())
     end
 
-
-    if self:getDataSource():numberOfItemsInSection(1) > 0 then
-        self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
-    end
+    self:layoutIfNeeded()
 
     return self
 end

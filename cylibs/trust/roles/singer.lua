@@ -2,6 +2,7 @@ local BlockAction = require('cylibs/actions/block')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Event = require('cylibs/events/Luvent')
 local logger = require('cylibs/logger/logger')
+local Renderer = require('cylibs/ui/views/render')
 local res = require('resources')
 
 local Singer = setmetatable({}, {__index = Role })
@@ -62,6 +63,8 @@ end
 function Singer:on_add()
     Role.on_add(self)
 
+    self.song_target = self:get_party():get_player()
+
     self.song_tracker = SongTracker.new(self:get_player(), self:get_party(), self.dummy_songs, self.songs, self.pianissimo_songs, self.brd_job)
     self.song_tracker:monitor()
 
@@ -70,6 +73,9 @@ function Singer:on_add()
             self.is_singing = false
         end
     end), self.state_var:on_state_change())
+
+    --self.dispose_bag:add(Renderer.shared():onPrerender():addAction(function()
+    --end), Renderer.shared():onPrerender())
 
     self.dispose_bag:addAny(L{ self.song_tracker })
 end
@@ -135,7 +141,8 @@ function Singer:check_songs()
         return
     end
 
-    for party_member in list.extend(L{player}, self:get_party():get_party_members(false)):it() do
+    local party_members = self:get_party():get_party_members(true):filter(function(p) return p:get_id() ~= self.song_target:get_id()  end)
+    for party_member in list.extend(L{self.song_target}, party_members):it() do
         if party_member:is_alive() then
             local next_song = self:get_next_song(party_member, self.dummy_songs, self:get_merged_songs(party_member))
             if next_song then
@@ -192,7 +199,7 @@ function Singer:sing_song(song, target_index)
         self.last_sing_time = self:get_last_tic_time()
 
         local job_abilities = S(song:get_job_abilities():copy())
-        if target_index == windower.ffxi.get_player().index then
+        if target_index == windower.ffxi.get_player().index and self.song_target:get_mob().index == windower.ffxi.get_player().index then
             if buff_util.is_buff_active(buff_util.buff_id('Pianissimo')) then
                 logger.error("Attempting to sing a song on self but Pianissimo is active")
                 actions:append(BlockAction.new(function()
@@ -200,11 +207,13 @@ function Singer:sing_song(song, target_index)
                 end), 'cancel_pianissimo', 'Cancelling Pianissimo')
             end
         else
-            if not job_util.can_use_job_ability('Pianissimo') then
-                return false
+            if self.song_target:get_mob().index ~= target_index then
+                if not job_util.can_use_job_ability('Pianissimo') then
+                    return false
+                end
+                job_abilities:add('Pianissimo')
+                conditions:append(HasBuffCondition.new('Pianissimo', windower.ffxi.get_player().index))
             end
-            job_abilities:add('Pianissimo')
-            conditions:append(HasBuffCondition.new('Pianissimo', windower.ffxi.get_player().index))
         end
         for job_ability_name in job_abilities:it() do
             local job_ability = res.job_abilities:with('en', job_ability_name)
@@ -216,7 +225,12 @@ function Singer:sing_song(song, target_index)
             end
         end
 
-        local spell_action = SpellAction.new(0, 0, 0, song:get_spell().id, target_index, self:get_player(), conditions)
+        local song_target_index = target_index
+        if target_index == self.song_target:get_mob().index then
+            song_target_index = windower.ffxi.get_player().index
+        end
+
+        local spell_action = SpellAction.new(0, 0, 0, song:get_spell().id, song_target_index, self:get_player(), conditions)
         actions:append(spell_action)
         actions:append(WaitAction.new(0, 0, 0, 2))
 
@@ -291,7 +305,7 @@ function Singer:get_merged_songs(party_member)
 
     logger.notice("Maximum number of songs for", party_member:get_name(), "is", max_num_songs)
 
-    if party_member:get_mob().id == windower.ffxi.get_player().id then
+    if party_member:get_id() == self.song_target:get_id() then
         return self.songs:slice(1, max_num_songs):reverse()
     end
 
@@ -331,6 +345,14 @@ end
 
 function Singer:set_pianissimo_songs(pianissimo_songs)
     self.pianissimo_songs = (pianissimo_songs or L{}):filter(function(spell) return spell ~= nil and spell_util.knows_spell(spell:get_spell().id)  end)
+end
+
+function Singer:get_pianissimo_songs()
+    return self.pianissimo_songs
+end
+
+function Singer:set_song_target(party_member)
+    self.song_target = party_member or self:get_party():get_player()
 end
 
 function Singer:allows_duplicates()

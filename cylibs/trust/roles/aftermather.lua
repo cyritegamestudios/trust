@@ -129,7 +129,7 @@ function Aftermather:update_weapons()
     for weapon_name in weapon_names:it() do
         local aftermath_weapon_skill_id = aftermath_weapon_skills[weapon_name]
         if aftermath_weapon_skill_id then
-            self:set_aftermath_weapon_skill(WeaponSkill.new(res.weapon_skills[aftermath_weapon_skill_id].en, MinTacticalPointsCondition.new(3000)))
+            self:set_aftermath_weapon_skill(WeaponSkill.new(res.weapon_skills[aftermath_weapon_skill_id].en, L{ MinTacticalPointsCondition.new(3000) }))
         end
     end
     weapons = nil

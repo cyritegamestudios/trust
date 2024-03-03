@@ -6,14 +6,12 @@ local PickerView = require('cylibs/ui/picker/picker_view')
 local Spell = require('cylibs/battle/spell')
 local spell_util = require('cylibs/util/spell_util')
 
-
-local SettingsPickerView = setmetatable({}, {__index = PickerView })
+local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+local SettingsPickerView = setmetatable({}, {__index = FFXIPickerView })
 SettingsPickerView.__index = SettingsPickerView
 
 function SettingsPickerView.new(settings, selectedTextItems, allTextItems, onPickItems)
-    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
-
-    local self = setmetatable(PickerView.withItems(allTextItems:sort(), selectedTextItems, true, cursorImageItem), SettingsPickerView)
+    local self = setmetatable(FFXIPickerView.withItems(allTextItems:sort(), selectedTextItems, true), SettingsPickerView)
 
     self.settings = settings
     self.onPickItems = onPickItems
@@ -47,7 +45,9 @@ function SettingsPickerView:onSelectMenuItemAtIndexPath(textItem, _)
         addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my settings!")
     elseif textItem:getText() == 'Clear' then
         self:getDelegate():deselectAllItems()
-        self.settingsItemList:clear()
+
+        self.onPickItems(L{})
+
         self.settings:saveSettings(true)
         addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've removed all items!")
     end

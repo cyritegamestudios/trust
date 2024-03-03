@@ -12,7 +12,8 @@ local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 
-local SkillchainSettingsEditor = setmetatable({}, {__index = CollectionView })
+local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
+local SkillchainSettingsEditor = setmetatable({}, {__index = FFXIWindow })
 SkillchainSettingsEditor.__index = SkillchainSettingsEditor
 
 
@@ -25,9 +26,7 @@ function SkillchainSettingsEditor.new(weaponSkillSettings, abilities)
         return cell
     end)
 
-    local cursorImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/menu_selection_bg.png', 37, 24)
-
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0)), nil, cursorImageItem), SkillchainSettingsEditor)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), SkillchainSettingsEditor)
 
     self:setAllowsCursorSelection(true)
     self:setScrollDelta(20)

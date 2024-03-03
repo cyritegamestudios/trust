@@ -213,7 +213,7 @@ function Spell:to_action(target_index, player)
 
         local job_ability = res.job_abilities:with('en', job_ability_name)
         if job_ability.status then
-            conditions:append(NotCondition.new(L{ HasBuffCondition.new(res.buffs[job_ability.status].en, player:get_mob().index) }))
+            conditions:append(NotCondition.new(L{ HasBuffCondition.new(res.buffs[job_ability.status].en, player:get_mob().index) }, windower.ffxi.get_player().index))
         end
         return JobAbility.new(job_ability_name, conditions)
     end):filter(function(job_ability)
@@ -245,6 +245,10 @@ function Spell:description()
         local job_names = "Some Jobs"
         if self.job_names:equals(job_util.all_jobs()) then
             job_names = "All Jobs"
+        else
+            if self.job_names:length() <= 5 then
+                job_names = self.job_names:tostring()
+            end
         end
         result = result..' → '..job_names
     end

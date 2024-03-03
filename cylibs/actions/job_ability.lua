@@ -11,8 +11,8 @@ JobAbility.__class = "JobAbility"
 
 function JobAbility.new(x, y, z, job_ability_name, target_index)
     local conditions = L{
-        NotCondition.new(L{InMogHouseCondition.new()}, true),
-        NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'amnesia','Invisible'}, false)}),
+        NotCondition.new(L{InMogHouseCondition.new()}),
+        NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'amnesia','Invisible'}, 1)}, windower.ffxi.get_player().index),
         JobAbilityRecastReadyCondition.new(job_ability_name)
     }
 
@@ -84,6 +84,9 @@ end
 
 function JobAbility:tostring()
     local target = windower.ffxi.get_mob_by_index(self.target_index or windower.ffxi.get_player().index)
+    if target.name == windower.ffxi.get_player().name then
+       return self:get_job_ability_name()
+    end
     return self:get_job_ability_name()..' → '..target.name
 end
 
