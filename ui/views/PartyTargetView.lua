@@ -20,17 +20,21 @@ function PartyTargetView.new(target_tracker)
         return cell
     end)
 
-    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0))), PartyTargetView)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 10, 0, 0))), PartyTargetView)
+
+    self.menuArgs = {}
+    self.targets = target_tracker:get_targets()
 
     self:setScrollDelta(20)
     self:setScrollEnabled(true)
+    self:setAllowsCursorSelection(true)
 
     local itemsToAdd = L{}
 
     local sectionNum = 1
     local currentRow = 1
 
-    for target in target_tracker:get_targets():it() do
+    for target in self.targets:it() do
         local item = TextItem.new(target:description(), TextStyle.Default.Text)
         local indexPath = IndexPath.new(sectionNum, currentRow)
         itemsToAdd:append(IndexedItem.new(item, indexPath))
@@ -42,6 +46,15 @@ function PartyTargetView.new(target_tracker)
     self:setNeedsLayout()
     self:layoutIfNeeded()
 
+    if self:getDataSource():numberOfItemsInSection(1) > 0 then
+        self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
+        self.menuArgs['selected_target'] = self.targets[1]
+    end
+
+    self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
+        self.menuArgs['selected_target'] = self.targets[indexPath.row]
+    end), self:getDelegate():didSelectItemAtIndexPath())
+
     return self
 end
 
@@ -49,6 +62,10 @@ function PartyTargetView:layoutIfNeeded()
     CollectionView.layoutIfNeeded(self)
 
     self:setTitle("View current party targets.")
+end
+
+function PartyTargetView:getMenuArgs()
+    return self.menuArgs
 end
 
 return PartyTargetView

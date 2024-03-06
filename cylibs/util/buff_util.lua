@@ -203,8 +203,13 @@ end
 -- @treturn BuffMetadata Full metadata for the debuff (see buffs.lua)
 function buff_util.debuff_for_spell(spell_id)
 	local spell = res.spells:with('id', spell_id)
-	if spell.status then
-		return res.buffs:with('id', spell.status)
+	if spell then
+		if spell.status == nil then
+			spell = spells_ext:with('id', spell_id)
+		end
+		if spell and spell.status then
+			return res.buffs:with('id', spell.status)
+		end
 	end
 	return nil
 end
@@ -332,6 +337,10 @@ function buff_util.active_synth_support()
 		end
 	end
 	return nil
+end
+
+function buff_util.is_debuff(debuff_id)
+	return debuffs[debuff_id] ~= nil
 end
 
 function buff_util.get_all_debuffs()

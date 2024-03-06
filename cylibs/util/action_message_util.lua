@@ -103,7 +103,7 @@ end
 -- @tparam number message_id Action message id (see action_messages.lua)
 -- @treturn Bool True if a given message_id corresponds to a message indicating the target has gained a debuff and false otherwise
 function action_message_util.is_gain_debuff_message(message_id)
-    return L{2,27,75,236,237,268,269,270,272}:contains(message_id)
+    return L{2,27,75,236,237,268,269,270,271,272,754,755}:contains(message_id)
 end
 
 -------
@@ -111,7 +111,7 @@ end
 -- @tparam number message_id Action message id (see action_messages.lua)
 -- @treturn Bool True if a given message_id corresponds to a message indicating the target has lost a debuff and false otherwise
 function action_message_util.is_lose_debuff_message(message_id)
-    return L{204,206}:contains(message_id)
+    return L{64,204,206,350,531}:contains(message_id)
 end
 
 -------

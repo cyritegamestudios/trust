@@ -176,6 +176,11 @@ function Healer:cure_party_members(party_members)
 
     local cure_spell_or_job_ability = self.main_job:get_aoe_cure_spell(max_missing_hp)
     if cure_spell_or_job_ability and spell_target then
+        local target_override = cure_spell_or_job_ability:get_target(true)
+        if target_override then
+            spell_target = self:get_party():get_party_member(target_override.id)
+        end
+
         logger.notice(self.__class, 'cure_party_members', spell_target:get_name(), max_missing_hp, cure_spell_or_job_ability:get_name())
 
         self.last_cure_time = os.time()

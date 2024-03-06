@@ -10,11 +10,12 @@ local Puller = setmetatable({}, {__index = Role })
 Puller.__index = Puller
 Puller.__class = "Puller"
 
-state.AutoPullMode = M{['description'] = 'Auto Pull Mode', 'Off', 'Auto','Multi','Target','All'}
+state.AutoPullMode = M{['description'] = 'Auto Pull Mode', 'Off', 'Auto','Multi','Target','Party','All'}
 state.AutoPullMode:set_description('Off', "Okay, I won't pull monsters for the party.")
 state.AutoPullMode:set_description('Auto', "Okay, I'll automatically pull monsters for the party.")
 state.AutoPullMode:set_description('Multi', "Okay, I'll pull my own monster even if we're already fighting.")
 state.AutoPullMode:set_description('Target', "Okay, I'll pull whatever monster I'm currently targeting.")
+state.AutoPullMode:set_description('Party', "Okay, I'll pull monsters the party is fighting.")
 state.AutoPullMode:set_description('All', "Okay, I'll pull any monster that's nearby.")
 
 state.ApproachPullMode = M{['description'] = 'Approach Pull Mode', 'Off', 'Auto'}
@@ -190,9 +191,16 @@ function Puller:get_pull_target()
                return nil
             end
         end
+    elseif state.AutoPullMode.value == 'Party' then
+        local party_targets = self:get_party():get_targets(function(target)
+            return target:get_distance():sqrt() < 15 and target:get_mob().status == 1
+        end)
+        if party_targets:length() > 0 then
+            return party_targets[1]:get_mob()
+        end
     else
         local player_target = ffxi_util.mob_for_index(windower.ffxi.get_player().target_index)
-        local current_targets = party_util.get_party_claimed_mobs():filter(function(index)
+        local current_targets = --[[party_util.get_party_claimed_mobs()]]self:get_party().target_tracker:get_targets():map(function(t) return t:get_mob().index  end):filter(function(index)
             local m = windower.ffxi.get_mob_by_index(index)
             return m and not self.blacklist:contains(m.name)
         end)

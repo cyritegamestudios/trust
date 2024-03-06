@@ -46,7 +46,6 @@ function VerticalFlowLayout:layoutSubviews(collectionView, indexPathFilter)
             local item = collectionView:getDataSource():itemAtIndexPath(indexPath)
             local cell = collectionView:getDataSource():cellForItemAtIndexPath(indexPath)
             local cellSize = self:sizeForItemAtIndexPath(collectionView, cell)
-
             if indexPathFilter(indexPath) then
                 cell:setItem(item)
 

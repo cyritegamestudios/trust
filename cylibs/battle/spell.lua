@@ -138,7 +138,10 @@ end
 -------
 -- Returns the spell target.
 -- @treturn string Spell target (e.g. bt, p1, p2)
-function Spell:get_target()
+function Spell:get_target(return_mob)
+    if return_mob and self.target then
+        return windower.ffxi.get_mob_by_target(self.target)
+    end
     return self.target
 end
 

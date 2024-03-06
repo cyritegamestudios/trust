@@ -1,8 +1,10 @@
 local CommandMessage = require('cylibs/messages/command_message')
 local Event = require('cylibs/events/Luvent')
+local GainBuffMessage = require('cylibs/messages/gain_buff_message')
 local IpcConnection = require('cylibs/messages/ipc/ipc_connection')
 local IpcMessage = require('cylibs/messages/ipc_message')
 local logger = require('cylibs/logger/logger')
+local LoseBuffMessage = require('cylibs/messages/lose_buff_message')
 local MobUpdateMessage = require('cylibs/messages/mob_update_message')
 local ZoneMessage = require('cylibs/messages/zone_message')
 
@@ -31,11 +33,15 @@ function IpcRelay.new()
             local sender_name, message = message:match("(%S+)%s(.+)$")
             local ipc_message = IpcMessage.new(message)
             if ipc_message:is_valid() then
-                logger.notice(self.__class, "ipc message received", ipc_message:get_message())
+                --logger.notice(self.__class, "ipc message received", ipc_message:get_message())
                 self:update_connection(sender_name)
                 local message_type = ipc_message:get_type()
                 if message_type == 'mob_update' then
                     self:on_message_received():trigger(MobUpdateMessage.deserialize(message))
+                elseif message_type == 'gain_buff' then
+                    self:on_message_received():trigger(GainBuffMessage.deserialize(message))
+                elseif message_type == 'lose_buff' then
+                    self:on_message_received():trigger(LoseBuffMessage.deserialize(message))
                 elseif message_type == 'zone' then
                     self:on_message_received():trigger(ZoneMessage.deserialize(message))
                 elseif message_type == 'command' then

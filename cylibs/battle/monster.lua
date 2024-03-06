@@ -42,7 +42,7 @@ end
 
 -- Event called when the monster gains a debuff.
 function Monster:on_gain_debuff()
-    return self.gain_debuff
+    return self.debuff_tracker:on_gain_debuff()
 end
 
 function Monster:on_spell_resisted()
@@ -79,7 +79,6 @@ function Monster.new(mob_id)
     self.action_events = {}
     self.mob_id = mob_id
     self.current_target = nil
-    self.debuff_ids = S{}
     self.buff_ids = S{}
 
     self.target_change = Event.newEvent()
@@ -144,12 +143,12 @@ function Monster:monitor()
     end
     self.is_monitoring = true
 
-    --self.debuff_tracker = DebuffTracker.new(self:get_id())
-    --self.debuff_tracker:monitor()
+    self.debuff_tracker = DebuffTracker.new(self:get_id())
+    self.debuff_tracker:monitor()
 
     self.resist_tracker = ResistTracker.new(self)
 
-    self.dispose_bag:addAny(L{ --[[self.debuff_tracker, ]]self.resist_tracker })
+    self.dispose_bag:addAny(L{ self.debuff_tracker, self.resist_tracker })
     self.dispose_bag:add(WindowerEvents.Action:addAction(function(act)
         if act.actor_id == self.mob_id then
             self:handle_action_by_monster(act)
@@ -203,14 +202,7 @@ function Monster:handle_action_on_monster(act)
         if target.id == self.mob_id then
             local action = target.actions[1]
             if action then
-                if action_message_util.is_gain_debuff_message(action.message) and not L{260, 360}:contains(act.param) then
-                    local debuff = buff_util.debuff_for_spell(act.param)
-                    if debuff then
-                        self.debuff_ids:add(debuff.id)
-                        logger.notice(self.__class, 'handle_action_on_monster', 'gain_debuff', self:get_name(), debuff.name)
-                        self:on_gain_debuff():trigger(self, debuff.en)
-                    end
-                elseif action_message_util.is_spikes_message(action.message) then
+                if action_message_util.is_spikes_message(action.message) then
                     -- Note: since we don't know the source of the spikes, we are just using the id for Ice Spikes
                     self:handle_gain_buff(35)
                 -- resist: 85, 284 (AOE)
@@ -288,7 +280,7 @@ end
 -- @tparam number debuff_id Debuff id (see buffs.lua)
 -- @treturn boolean True if the monster has the given debuff, false otherwise
 function Monster:has_debuff(debuff_id)
-    return self.debuff_ids:contains(debuff_id)
+    return self.debuff_tracker:has_debuff(debuff_id)
 end
 
 -------

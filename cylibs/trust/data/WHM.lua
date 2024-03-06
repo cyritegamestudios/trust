@@ -1,7 +1,3 @@
-require('tables')
-require('lists')
-require('logger')
-
 WhiteMage = require('cylibs/entity/jobs/WHM')
 
 local Trust = require('cylibs/trust/trust')
@@ -13,6 +9,7 @@ local Debuff = require('cylibs/battle/spells/debuff')
 local Healer = require('cylibs/trust/roles/healer')
 local Raiser = require('cylibs/trust/roles/raiser')
 local Debuffer = require('cylibs/trust/roles/debuffer')
+local DisposeBag = require('cylibs/events/dispose_bag')
 local MagicBurster = require('cylibs/trust/roles/magic_burster')
 local ManaRestorer = require('cylibs/trust/roles/mana_restorer')
 local Nuker = require('cylibs/trust/roles/nuker')
@@ -39,6 +36,7 @@ function WhiteMageTrust.new(settings, action_queue, battle_settings, trust_setti
 
 	self.settings = settings
 	self.action_queue = action_queue
+	self.dispose_bag = DisposeBag.new()
 
 	return self
 end
@@ -46,7 +44,7 @@ end
 function WhiteMageTrust:on_init()
 	Trust.on_init(self)
 
-	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
+	self.dispose_bag:add(self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
 		self:get_job():set_cure_settings(new_trust_settings.CureSettings)
 
 		local buffer = self:role_with_type("buffer")
@@ -63,11 +61,22 @@ function WhiteMageTrust:on_init()
 		for role in nuker_roles:it() do
 			role:set_nuke_settings(new_trust_settings.NukeSettings)
 		end
-	end)
+	end), self:on_trust_settings_changed())
+
+	self.dispose_bag:add(self:get_party():get_player():on_gain_buff():addAction(function(_, buff_id)
+		local buff_name = buff_util.buff_name(buff_id)
+		if buff_name == 'Afflatus Solace' then
+			self:get_job():set_afflatus_mode(WhiteMage.Afflatus.Solace)
+		elseif buff_name == 'Afflatus Misery' then
+			self:get_job():set_afflatus_mode(WhiteMage.Afflatus.Misery)
+		end
+	end, self:get_party():get_player():on_gain_buff()))
 end
 
 function WhiteMageTrust:destroy()
 	Trust.destroy(self)
+
+	self.dispose_bag:destroy()
 end
 
 function WhiteMageTrust:job_target_change(target_index)

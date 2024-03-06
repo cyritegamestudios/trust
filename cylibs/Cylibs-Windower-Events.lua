@@ -1,7 +1,9 @@
 local Event = require('cylibs/events/Luvent')
 local DisposeBag = require('cylibs/events/dispose_bag')
+local GainDebuffMessage = require('cylibs/messages/gain_buff_message')
 local IpcRelay = require('cylibs/messages/ipc/ipc_relay')
 local logger = require('cylibs/logger/logger')
+local LoseDebuffMessage = require('cylibs/messages/lose_buff_message')
 local MobUpdateMessage = require('cylibs/messages/mob_update_message')
 local packets = require('packets')
 local ZoneMessage = require('cylibs/messages/zone_message')
@@ -28,6 +30,7 @@ WindowerEvents.ZoneRequest = Event.newEvent()
 WindowerEvents.BuffsChanged = Event.newEvent()
 WindowerEvents.DebuffsChanged = Event.newEvent()
 WindowerEvents.GainDebuff = Event.newEvent()
+WindowerEvents.LoseDebuff = Event.newEvent()
 WindowerEvents.AllianceMemberListUpdate = Event.newEvent()
 WindowerEvents.PetUpdate = Event.newEvent()
 WindowerEvents.Equipment = {}
@@ -63,7 +66,7 @@ local incoming_event_dispatcher = {
         for _, target in pairs(act.targets) do
             local action = target.actions[1]
             if action then
-                if action_message_util.is_gain_debuff_message(action.message) then
+                if action_message_util.is_gain_debuff_message(action.message) and act.param and not L{260, 360}:contains(act.param) then
                     local debuff = buff_util.debuff_for_spell(act.param)
                     if debuff then
                         WindowerEvents.GainDebuff:trigger(target.id, debuff.id)
@@ -86,6 +89,13 @@ local incoming_event_dispatcher = {
         local param_3 = packet['_unknown1']
         WindowerEvents.ActionMessage:trigger(actor_id, target_id, actor_index,
             target_index, message_id, param_1, param_2, param_3)
+
+        if action_message_util.is_lose_debuff_message(message_id) and param_1 then
+            if buff_util.is_debuff(param_1) then
+                WindowerEvents.LoseDebuff:trigger(target_id, param_1)
+                IpcRelay.shared():send_message(LoseDebuffMessage.new(target_id, param_1))
+            end
+        end
     end,
 
     -- Party member update, only sent on join/leave and maybe some other rare circumstances?

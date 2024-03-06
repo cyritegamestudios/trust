@@ -123,7 +123,12 @@ function StatusRemover:remove_status_effect(party_members, debuff_id)
 
         local actions = L{}
 
-        local spell_action = StatusRemovalAction.new(0, 0, 0, status_removal_spell:get_spell().id, party_members[1]:get_mob().index, debuff_id, self:get_player())
+        local spell_target = party_members[1]
+        if not status_removal_spell:get_spell().targets:contains('Party') then
+            spell_target = self:get_party():get_player()
+        end
+
+        local spell_action = StatusRemovalAction.new(0, 0, 0, status_removal_spell:get_spell().id, spell_target:get_mob().index, debuff_id, self:get_player())
         spell_action:on_status_removal_no_effect():addAction(function(_, spell_id, target_id, debuff_id)
             self.aura_tracker:record_status_effect_removal(spell_id, target_id, debuff_id)
         end)
@@ -131,12 +136,12 @@ function StatusRemover:remove_status_effect(party_members, debuff_id)
         actions:append(spell_action)
         actions:append(WaitAction.new(0, 0, 0, 1))
 
-        local status_removal_action = SequenceAction.new(actions, 'healer_status_removal_'..party_members[1]:get_mob().id..'_'..debuff_id)
-        status_removal_action.priority = cure_util.get_status_removal_priority(debuff_id, party_members[1]:is_trust())
+        local status_removal_action = SequenceAction.new(actions, 'healer_status_removal_'..spell_target:get_id()..'_'..debuff_id)
+        status_removal_action.priority = cure_util.get_status_removal_priority(debuff_id, spell_target:is_trust())
 
         self.action_queue:push_action(status_removal_action, true)
 
-        logger.notice("Removing", res.buffs[debuff_id].en, "from", party_members[1]:get_name())
+        logger.notice("Removing", res.buffs[debuff_id].en, "from", spell_target:get_name())
     else
         logger.error("No status removal spell found for", res.buffs[debuff_id].en, "effect on", party_members[1]:get_name())
     end

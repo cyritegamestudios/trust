@@ -46,25 +46,29 @@ function Targeter:on_add()
         -- Monster is defeated
         if action_message_util.is_monster_defeated(message_id) then
             if state.AutoTargetMode.value == 'Party' then
-                --return
-            end
-            local target_mobs = L{}
-            if state.AutoTargetMode.value == 'Same' then
-                local target = windower.ffxi.get_mob_by_id(target_id)
-                if target then
-                    target_mobs = L{ target.name }
+                local targets = self:get_all_targets()
+                if targets:length() > 0 then
+                    self:target_mob(targets[1]:get_mob())
                 end
-            end
-
-            local auto_target_mob = ffxi_util.find_closest_mob(target_mobs, L{self.auto_target_index}:extend(party_util.party_targets()))
-            if auto_target_mob and auto_target_mob.distance:sqrt() < 25 then
-                self:target_mob(auto_target_mob)
             else
-                local party_claimed_mob = ffxi_util.find_closest_mob(L{}, L{player.target_index})
-                if party_claimed_mob and party_claimed_mob.distance:sqrt() < 25 then
-                    self:target_mob(party_claimed_mob)
+                local target_mobs = L{}
+                if state.AutoTargetMode.value == 'Same' then
+                    local target = windower.ffxi.get_mob_by_id(target_id)
+                    if target then
+                        target_mobs = L{ target.name }
+                    end
+                end
+
+                local auto_target_mob = ffxi_util.find_closest_mob(target_mobs, L{self.auto_target_index}:extend(party_util.party_targets()))
+                if auto_target_mob and auto_target_mob.distance:sqrt() < 25 then
+                    self:target_mob(auto_target_mob)
                 else
-                    windower.send_command('input /echo No mobs to auto target.')
+                    local party_claimed_mob = ffxi_util.find_closest_mob(L{}, L{player.target_index})
+                    if party_claimed_mob and party_claimed_mob.distance:sqrt() < 25 then
+                        self:target_mob(party_claimed_mob)
+                    else
+                        windower.send_command('input /echo No mobs to auto target.')
+                    end
                 end
             end
         end
@@ -120,6 +124,16 @@ function Targeter:check_targets()
 
         logger.notice(self.__class, 'check_targets', 'found', next_target:get_name(), next_target:get_distance())
     end
+end
+
+function Targeter:get_all_targets()
+    if state.AutoTargetMode.value == 'Party' then
+        local targets = self:get_party():get_targets(function(target)
+            return target:get_distance():sqrt() < 15 and target:get_mob().status == 1
+        end)
+        return targets
+    end
+    return L{}
 end
 
 function Targeter:allows_duplicates()

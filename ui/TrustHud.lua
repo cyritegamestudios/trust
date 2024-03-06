@@ -29,7 +29,7 @@ local LoadSettingsMenuItem = require('ui/settings/menus/loading/LoadSettingsMenu
 local NukeSettingsEditor = require('ui/settings/NukeSettingsEditor')
 local PartyMemberView = require('cylibs/entity/party/ui/party_member_view')
 local PartyStatusWidget = require('ui/widgets/PartyStatusWidget')
-local PartyTargetView = require('ui/views/PartyTargetView')
+local PartyTargetsMenuItem = require('ui/settings/menus/PartyTargetsMenuItem')
 local SingerView = require('ui/views/SingerView')
 local SongSettingsMenuItem = require('ui/settings/menus/songs/SongSettingsMenuItem')
 local SpellPickerView = require('ui/settings/pickers/SpellPickerView')
@@ -103,6 +103,24 @@ function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, a
 
     self.tabbed_view = nil
     self.backgroundImageView = self:getBackgroundImageView()
+
+    for mode in L{ state.MainTrustSettingsMode, state.SubTrustSettingsMode }:it() do
+        self:getDisposeBag():add(mode:on_state_change():addAction(function(m, new_value, old_value)
+            if old_value == new_value then
+                return
+            end
+            local showMenu = self.trustMenu:isVisible()
+
+            self.trustMenu:closeAll()
+            self.mainMenuItem:destroy()
+
+            self:getMainMenuItem()
+
+            if showMenu then
+                self.trustMenu:showMenu(self.mainMenuItem)
+            end
+        end), mode:on_state_change())
+    end
 
     self:getDisposeBag():add(self.gameInfo:onMenuChange():addAction(function(_, isMenuOpen)
         if isMenuOpen then
@@ -633,12 +651,9 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
         return nil
     end, "Debuffs", "View debuffs on enemies.")
 
-    local targetsMenuItem = MenuItem.new(L{}, {},
-    function(args)
-        local targetsView = setupView(PartyTargetView.new(self.party.target_tracker), viewSize)
-        targetsView:setShouldRequestFocus(false)
-        return targetsView
-    end, "Targets", "View info for enemies the party is fighting.")
+    local targetsMenuItem = PartyTargetsMenuItem.new(self.party, function(view)
+        return setupView(view, viewSize)
+    end)
 
     -- Puppetmaster
     local automatonMenuItem = MenuItem.new(L{}, {},

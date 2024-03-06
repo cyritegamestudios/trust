@@ -3,11 +3,15 @@ local ButtonCollectionViewCell = require('cylibs/ui/collection_view/cells/button
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
+local CollectionViewStyle = require('cylibs/ui/collection_view/collection_view_style')
 local Color = require('cylibs/ui/views/color')
+local ContainerCollectionViewCell = require('cylibs/ui/collection_view/cells/container_collection_view_cell')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIBackgroundView = require('ui/themes/ffxi/FFXIBackgroundView')
 local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
 local Frame = require('cylibs/ui/views/frame')
+local HorizontalFlowLayout = require('cylibs/ui/collection_view/layouts/horizontal_flow_layout')
+local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_collection_view_cell')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
@@ -20,6 +24,7 @@ local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_col
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
+local ViewItem = require('cylibs/ui/collection_view/items/view_item')
 local Widget = require('ui/widgets/Widget')
 
 local TargetWidget = setmetatable({}, {__index = Widget })
@@ -56,18 +61,21 @@ TargetWidget.Subheadline = TextStyle.new(
 
 function TargetWidget.new(frame, addonSettings, party, trust)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
-        if item.__type == TextItem.__type then
-            if indexPath.row == 1 then
-                local cell = TextCollectionViewCell.new(item)
-                cell:setItemSize(14)
-                cell:setUserInteractionEnabled(false)
-                return cell
-            else
-                local cell = MarqueeCollectionViewCell.new(item)
-                cell:setItemSize(14)
-                cell:setUserInteractionEnabled(false)
-                return cell
-            end
+        if indexPath.row == 1 then
+            local cell = TextCollectionViewCell.new(item)
+            cell:setItemSize(14)
+            cell:setUserInteractionEnabled(true)
+            return cell
+        elseif indexPath.row == 2 then
+            local cell = MarqueeCollectionViewCell.new(item)
+            cell:setItemSize(14)
+            cell:setUserInteractionEnabled(false)
+            return cell
+        else
+            local cell = ContainerCollectionViewCell.new(item)
+            cell:setItemSize(item.viewSize or 14)
+            cell:setUserInteractionEnabled(false)
+            return cell
         end
     end)
 
@@ -76,9 +84,16 @@ function TargetWidget.new(frame, addonSettings, party, trust)
     self.addonSettings = addonSettings
     self.actionQueue = ActionQueue.new(nil, false, 5, false, true)
     self.party = party
+    self.debuffsView = self:createDebuffsView()
+    self.maxNumDebuffs = 7
     self.targetDisposeBag = DisposeBag.new()
 
-    self:getDataSource():addItem(TextItem.new("", TargetWidget.Text), IndexPath.new(1, 1))
+    local itemsToAdd = L{
+        IndexedItem.new(TextItem.new("", TargetWidget.Text), IndexPath.new(1, 1)),
+        IndexedItem.new(TextItem.new("", TargetWidget.Subheadline), IndexPath.new(1, 2)),
+        IndexedItem.new(ViewItem.new(self.debuffsView, true, 14), IndexPath.new(1, 3))
+    }
+    self:getDataSource():addItems(itemsToAdd)
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
@@ -133,6 +148,17 @@ function TargetWidget:setTarget(target_index)
     local targetText = ""
     if target_index ~= nil then
         local target = self.party:get_target_by_index(target_index)
+        if target then
+            self.targetDisposeBag:add(target.debuff_tracker:on_gain_debuff():addAction(function(_, debuff_id)
+                self:updateDebuffs()
+            end, target.debuff_tracker:on_gain_debuff()))
+
+            self.targetDisposeBag:add(target.debuff_tracker:on_lose_debuff():addAction(function(_, debuff_id)
+                self:updateDebuffs()
+            end, target.debuff_tracker:on_lose_debuff()))
+
+            self:updateDebuffs()
+        end
         --[[if target then
             self.targetDisposeBag:add(target:on_skillchain():addAction(function(_, step)
                 self.actionQueue:clear()
@@ -172,6 +198,72 @@ function TargetWidget:setVisible(visible)
         visible = false
     end
     Widget.setVisible(self, visible)
+end
+
+function TargetWidget:setExpanded(expanded)
+    local target = self.party:get_target_by_index(self.target_index)
+    if not target then
+        expanded = false
+    end
+    if not Widget.setExpanded(self, expanded) then
+        return false
+    end
+
+    local indexPath = IndexPath.new(1, 3)
+
+    local itemSize = 14
+    if expanded then
+        itemSize = 14
+    else
+        itemSize = 0
+    end
+    self:getDataSource():updateItem(ViewItem.new(self.debuffsView, true, itemSize), indexPath)
+
+    self:setSize(self:getSize().width, self:getContentSize().height)
+
+    self:setNeedsLayout()
+    self:layoutIfNeeded()
+end
+
+function TargetWidget:createDebuffsView(target)
+    local dataSource = CollectionViewDataSource.new(function(item)
+        local cell = ImageCollectionViewCell.new(item)
+        cell:setItemSize(14)
+        return cell
+    end)
+    local collectionView = CollectionView.new(dataSource, HorizontalFlowLayout.new(2, Padding.equal(0)), nil, CollectionViewStyle.empty())
+    collectionView:setScrollEnabled(false)
+
+    local itemsToAdd = L{}
+    for i = 1, self.maxNumDebuffs or 7 do
+        itemsToAdd:append(IndexedItem.new(ImageItem.new('', 20, 20), IndexPath.new(1, i)))
+    end
+    dataSource:addItems(itemsToAdd)
+
+    return collectionView
+end
+
+function TargetWidget:updateDebuffs()
+    local target = self.party:get_target_by_index(self.target_index)
+    if not target then
+        return
+    end
+
+    local itemsToUpdate = L{}
+
+    local allDebuffIds = L(target.debuff_tracker:get_debuff_ids())
+    for i = 1, self.maxNumDebuffs do
+        local debuffId = allDebuffIds[i]
+        if debuffId then
+            itemsToUpdate:append(IndexedItem.new(ImageItem.new(windower.addon_path..'assets/buffs/'..debuffId..'.png', 14, 14), IndexPath.new(1, i)))
+        else
+            itemsToUpdate:append(IndexedItem.new(ImageItem.new('', 14, 14), IndexPath.new(1, i)))
+        end
+    end
+
+    self.debuffsView:getDataSource():updateItems(itemsToUpdate)
+
+    self:setExpanded(allDebuffIds:length() > 0)
 end
 
 return TargetWidget
