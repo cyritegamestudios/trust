@@ -159,22 +159,7 @@ function TargetWidget:setTarget(target_index)
 
             self:updateDebuffs()
         end
-        --[[if target then
-            self.targetDisposeBag:add(target:on_skillchain():addAction(function(_, step)
-                self.actionQueue:clear()
-                local element = step:get_skillchain():get_name()
-                local text = "Step %s: %s":format(step:get_step(), element)
-                local skillchain_step_action = BlockAction.new(function()
-                    coroutine.sleep(math.max(1, step:get_time_remaining()))
-                end, element..step:get_step(), text)
-                self.actionQueue:push_action(skillchain_step_action, true)
-            end), target:on_skillchain())
-
-            self.targetDisposeBag:add(target:on_skillchain_ended():addAction(function(_, step)
-                self.actionQueue:clear()
-            end), target:on_skillchain_ended())
-        end]]
-        targetText = target and target.name or ""
+        targetText = localization_util.truncate(target and target.name or "", 18)
     end
 
     local targetItem = TextItem.new(targetText, TargetWidget.Text), IndexPath.new(1, 1)

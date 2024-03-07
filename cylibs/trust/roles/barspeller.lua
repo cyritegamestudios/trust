@@ -60,7 +60,7 @@ function Barspeller:target_change(target_index)
     Role.target_change(self, target_index)
 
     self.damage_memory:reset()
-    self.damage_memory:target_change(target_index)
+    self.damage_memory:target_change(self:get_target())
 end
 
 function Barspeller:tic(old_time, new_time)

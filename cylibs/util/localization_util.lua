@@ -44,4 +44,16 @@ function localization_util.commas(list)
     return result
 end
 
+-------
+-- Truncates the given text.
+-- @tparam string text Text to truncate
+-- @tparam number max_num_chars Maximum number of characters
+-- @treturn string Truncated text
+function localization_util.truncate(text, max_num_chars)
+    if text:length() <= max_num_chars then
+        return text
+    end
+    return text:slice(1, max_num_chars - 3).."…"
+end
+
 return localization_util

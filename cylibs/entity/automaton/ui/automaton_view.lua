@@ -51,7 +51,7 @@ function AutomatonView.new(trustSettings, settingsMode)
     local itemsToAdd = L{}
 
     itemsToAdd:append(IndexedItem.new(TextItem.new("Maneuvers", TextStyle.Default.HeaderSmall), IndexPath.new(1, 1)))
-    itemsToAdd:append(IndexedItem.new(ViewItem.new(self.buffsView), IndexPath.new(1, 2)))
+    itemsToAdd:append(IndexedItem.new(ViewItem.new(self.buffsView, false, 20), IndexPath.new(1, 2)))
 
     self:getDisposeBag():addAny(L{ self.buffsView })
 

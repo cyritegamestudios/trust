@@ -48,7 +48,7 @@ function Healer:on_add()
                 if hpp < 25 then
                     if p:get_mob().distance:sqrt() < 21 then
                         logger.notice(self.__class, 'on_hp_change', p:get_name(), hpp)
-                        self:check_party_hp(25)
+                        self:check_party_hp(self:get_job():get_cure_threshold(true))
                     end
                 else
                     logger.notice(self.__class, 'on_hp_change', 'check_party_hp', hpp)
@@ -74,7 +74,7 @@ function Healer:target_change(target_index)
     Role.target_change(self, target_index)
 
     self.damage_memory:reset()
-    self.damage_memory:target_change(target_index)
+    self.damage_memory:target_change(self:get_target())
 end
 
 function Healer:tic(old_time, new_time)

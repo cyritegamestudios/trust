@@ -7,6 +7,7 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local Event = require('cylibs/events/Luvent')
 local GainDebuffMessage = require('cylibs/messages/gain_buff_message')
 local LoseDebuffMessage = require('cylibs/messages/lose_buff_message')
+local monster_util = require('cylibs/util/monster_util')
 
 local DebuffTracker = {}
 DebuffTracker.__index = DebuffTracker
@@ -83,7 +84,7 @@ function DebuffTracker:monitor()
                 for _,action in pairs(target.actions) do
                     if type(action) ~= 'number' then
                         if action.message == 644 then
-                            logger.notice(self.__class, 'lose_all_debuffs', windower.ffxi.get_mob_by_id(mob_id).name)
+                            logger.notice(self.__class, 'lose_all_debuffs', monster_util.monster_name(self.mob_id))
                             local debuff_ids = self:get_debuff_ids():copy()
                             self.debuff_ids:clear()
                             for debuff_id in debuff_ids:it() do
@@ -130,7 +131,7 @@ end
 
 function DebuffTracker:add_debuff(debuff_id)
     if not self:has_debuff(debuff_id) and buff_util.is_debuff(debuff_id) then
-        logger.notice(self.__class, 'gain_debuff', windower.ffxi.get_mob_by_id(self.mob_id).name, res.buffs[debuff_id].en)
+        logger.notice(self.__class, 'gain_debuff', monster_util.monster_name(self.mob_id), res.buffs[debuff_id].en)
 
         self.debuff_ids:add(debuff_id)
         self:on_gain_debuff():trigger(self.mob_id, debuff_id)
@@ -139,7 +140,7 @@ end
 
 function DebuffTracker:remove_debuff(debuff_id)
     if self:has_debuff(debuff_id) then
-        logger.notice(self.__class, 'lose_debuff', windower.ffxi.get_mob_by_id(self.mob_id).name, res.buffs[debuff_id].en)
+        logger.notice(self.__class, 'lose_debuff', monster_util.monster_name(self.mob_id), res.buffs[debuff_id].en)
 
         self.debuff_ids:remove(debuff_id)
         self:on_lose_debuff():trigger(self.mob_id, debuff_id)

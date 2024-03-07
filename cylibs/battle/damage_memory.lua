@@ -3,9 +3,7 @@
 -- @class module
 -- @name DamageMemory
 
-require('tables')
-require('lists')
-require('logger')
+local DisposeBag = require('cylibs/events/dispose_bag')
 
 local DamageMemory = {}
 DamageMemory.__index = DamageMemory
@@ -16,9 +14,9 @@ DamageMemory.__index = DamageMemory
 -- @treturn DamageMemory A damage memory tracker
 function DamageMemory.new(damage_threshold)
     local self = setmetatable({
-        action_events = {};
         damage_threshold = damage_threshold;
         damage_taken_history = {};
+        dispose_bag = DisposeBag.new()
     }, DamageMemory)
 
     return self
@@ -27,15 +25,7 @@ end
 -------
 -- Stops tracking the player's actions and disposes of all registered event handlers.
 function DamageMemory:destroy()
-    if self.action_events then
-        for _,event in pairs(self.action_events) do
-            windower.unregister_event(event)
-        end
-    end
-
-    if self.battle_target then
-        self.battle_target:destroy()
-    end
+    self.dispose_bag:destroy()
 end
 
 -------
@@ -51,23 +41,13 @@ end
 -------
 -- Call when the target changes. Will begin tracking damage taken from tp moves initiated by the new target.
 -- @tparam number target_index New target index
-function DamageMemory:target_change(target_index)
-    if self.battle_target then
-        self.battle_target:destroy()
-        self.battle_target = nil
-    end
+function DamageMemory:target_change(target)
+    self.dispose_bag:dispose()
 
-    if target_index then
-        self.battle_target = Monster.new(windower.ffxi.get_mob_by_index(target_index).id)
-        self.battle_target:monitor()
-
-        self.monster_tp_move_finish_id = self.battle_target:on_tp_move_finish():addAction(
-                function (m, monster_ability_name, target_name, damage)
-                    --print(monster_ability_name..' on '..target_name..' for '..damage)
-                    if self.battle_target and m:get_mob().index == self.battle_target:get_mob().index then
-
-                    end
-                end)
+    if target then
+        self.dispose_bag:add(target:on_tp_move_finish():addAction(function(_, monster_ability_name, target_name, damage)
+            -- TODO
+        end), target:on_tp_move_finish())
     end
 end
 
@@ -100,7 +80,7 @@ end
 
 -------
 -- Returns the damage taken for the last tp move to hit the given target.
--- @tparam number target_id Target id
+-- @tparam number target_id  Target id
 -- @treturn Pair The pair monster_ability_name, damage
 function DamageMemory:get_last_damage_taken(target_id)
     local damage_record = self.damage_taken_history[target_id]

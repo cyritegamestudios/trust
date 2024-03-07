@@ -62,6 +62,20 @@ TrustStatusWidget.TextSmall2 = TextStyle.new(
         Color.yellow,
         true
 )
+TrustStatusWidget.TextSmall3 = TextStyle.new(
+        Color.clear,
+        Color.clear,
+        "Arial",
+        8,
+        Color.white,
+        Color.lightGrey,
+        0,
+        0,
+        Color.clear,
+        false,
+        Color.yellow,
+        false
+)
 TrustStatusWidget.Subheadline = TextStyle.new(
         Color.clear,
         Color.clear,
@@ -81,7 +95,7 @@ function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, 
         if indexPath.section == 1 then
             local cell = TextCollectionViewCell.new(item)
             cell:setItemSize(14)
-            cell:setUserInteractionEnabled(false)
+            cell:setUserInteractionEnabled(indexPath.row > 2)
             return cell
         else
             local cell = MarqueeCollectionViewCell.new(item)
@@ -91,7 +105,7 @@ function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, 
         end
     end)
 
-    local self = setmetatable(Widget.new(frame, "Trust", addonSettings, dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 4), 20), TrustStatusWidget)
+    local self = setmetatable(Widget.new(frame, "Trust", addonSettings, dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 3), 20), TrustStatusWidget)
 
     self.addonSettings = addonSettings
     self.mainJobName = mainJobName
@@ -99,12 +113,29 @@ function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, 
 
     self:setJobs(mainJobName, subJobName)
 
+    self:getDataSource():addItem(TextItem.new(state.TrustMode.value, TrustStatusWidget.TextSmall3), IndexPath.new(1, 3))
     self:getDataSource():addItem(TextItem.new('', TrustStatusWidget.Subheadline), IndexPath.new(2, 1))
 
     self:setVisible(true)
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
+
+    for mode in L{ state.TrustMode }:it() do
+        self:getDisposeBag():add(mode:on_state_change():addAction(function(_, new_value, old_value)
+            if new_value ~= old_value then
+                self:getDataSource():updateItem(TextItem.new(state.TrustMode.value, TrustStatusWidget.TextSmall3), IndexPath.new(1, 3))
+            end
+        end), mode:on_state_change())
+    end
+
+    self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
+        self:getDelegate():deselectItemAtIndexPath(indexPath)
+        local item = self:getDataSource():itemAtIndexPath(indexPath)
+        if item then
+            handle_cycle('TrustMode')
+        end
+    end), self:getDelegate():didSelectItemAtIndexPath())
 
     self:getDisposeBag():add(actionQueue:on_action_start():addAction(function(_, s)
         self:setAction(s:tostring() or '')

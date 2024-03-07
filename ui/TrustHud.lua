@@ -30,6 +30,7 @@ local NukeSettingsEditor = require('ui/settings/NukeSettingsEditor')
 local PartyMemberView = require('cylibs/entity/party/ui/party_member_view')
 local PartyStatusWidget = require('ui/widgets/PartyStatusWidget')
 local PartyTargetsMenuItem = require('ui/settings/menus/PartyTargetsMenuItem')
+local SettingsWidget = require('ui/widgets/SettingsWidget')
 local SingerView = require('ui/views/SingerView')
 local SongSettingsMenuItem = require('ui/settings/menus/songs/SongSettingsMenuItem')
 local SpellPickerView = require('ui/settings/pickers/SpellPickerView')
@@ -162,7 +163,7 @@ function TrustHud:getViewStack()
 end
 
 function TrustHud:createWidgets(addon_settings, addon_enabled, action_queue, party, trust)
-    local trustStatusWidget = TrustStatusWidget.new(Frame.new(0, 0, 125, 55), addon_settings, addon_enabled, action_queue, player.main_job_name, player.sub_job_name)
+    local trustStatusWidget = TrustStatusWidget.new(Frame.new(0, 0, 125, 69), addon_settings, addon_enabled, action_queue, player.main_job_name, player.sub_job_name)
     self.widgetManager:addWidget(trustStatusWidget, "trust")
 
     local targetWidget = TargetWidget.new(Frame.new(0, 0, 125, 40), addon_settings, party, trust)
@@ -170,6 +171,9 @@ function TrustHud:createWidgets(addon_settings, addon_enabled, action_queue, par
 
     local partyStatusWidget = PartyStatusWidget.new(Frame.new(0, 0, 125, 55), addon_settings, party)
     self.widgetManager:addWidget(partyStatusWidget, "party")
+
+    --local settingsWidget = SettingsWidget.new(Frame.new(0, 0, 125, 40), addon_settings, state.TrustMode, state.MainTrustSettingsMode)
+    --self.widgetManager:addWidget(settingsWidget, "settings")
 end
 
 function TrustHud:toggleMenu()
@@ -619,12 +623,8 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
 
     local partyMenuItem = MenuItem.new(L{}, {},
     function()
-        local backgroundImageView = createBackgroundView(viewSize.width, viewSize.height)
         local truster =  trust:role_with_type("truster")
-        local partyMemberView = PartyMemberView.new(self.party, self.player.player, self.actionQueue, truster and truster.trusts or L{})
-        partyMemberView:setBackgroundImageView(backgroundImageView)
-        partyMemberView:setNavigationBar(createTitleView(viewSize))
-        partyMemberView:setSize(viewSize.width, viewSize.height)
+        local partyMemberView = setupView(PartyMemberView.new(self.party, self.player.player, self.actionQueue, truster and truster.trusts or L{}), viewSize)
         partyMemberView:setShouldRequestFocus(false)
         return partyMemberView
     end, "Party", "View party status.")
