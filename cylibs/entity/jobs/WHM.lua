@@ -92,6 +92,13 @@ function WhiteMage:get_cure_threshold(is_backup_healer)
 end
 
 -------
+-- Returns the threshold above which AOE cures should be used.
+-- @treturn number Minimum number of party members under cure threshold
+function WhiteMage:get_aoe_threshold()
+    return self.cure_settings.MinNumAOETargets or 3
+end
+
+-------
 -- Returns the delay between cures.
 -- @treturn number Delay between cures in seconds
 function WhiteMage:get_cure_delay()

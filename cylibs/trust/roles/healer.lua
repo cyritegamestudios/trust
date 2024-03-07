@@ -102,7 +102,7 @@ function Healer:check_party_hp(cure_threshold)
         return p1:get_hpp() < p2:get_hpp()
     end)
 
-    if #party_members > 2 then
+    if #party_members >= self:get_job():get_aoe_threshold() then
         local spell_target = party_members[1]
         party_members = party_members:filter(function(party_member)
             local distance = geometry_util.distance(spell_target:get_mob(), party_member:get_mob())
@@ -110,7 +110,7 @@ function Healer:check_party_hp(cure_threshold)
         end)
     end
 
-    if #party_members > 2 then
+    if #party_members >= self:get_job():get_aoe_threshold() then
         self:cure_party_members(party_members)
     else
         for party_member in party_members:it() do
@@ -141,6 +141,7 @@ function Healer:cure_party_member(party_member)
         self.last_cure_time = os.time()
 
         local cure_action = self:get_cure_action(cure_spell_or_job_ability, party_member)
+        cure_action.identifier = self.__class..'cure_party_member'
         cure_action.priority = cure_util.get_cure_priority(party_member:get_hpp(), party_member:is_trust(), false)
 
         self.action_queue:push_action(cure_action, true)
@@ -186,6 +187,7 @@ function Healer:cure_party_members(party_members)
         self.last_cure_time = os.time()
 
         local cure_action = self:get_cure_action(cure_spell_or_job_ability, spell_target)
+        cure_action.identifier = self.__class..'cure_party_members'
         cure_action.priority = cure_util.get_cure_priority(spell_target:get_hpp(), is_trust_only, true)
 
         self.action_queue:push_action(cure_action, true)
