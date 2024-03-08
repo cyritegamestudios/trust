@@ -110,7 +110,6 @@ function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, a
             if old_value == new_value then
                 return
             end
-            print(new_value, old_value)
             local showMenu = self.trustMenu:isVisible()
 
             self.trustMenu:closeAll()
