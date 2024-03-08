@@ -96,6 +96,20 @@ function AfflatusMisery:get_status_removal_delay()
 end
 
 -------
+-- Returns a cluster of party members within 10' of the first party member in the list
+-- or 20' of the player.
+-- @tparam list List of party members
+-- @treturn list List of party members
+function AfflatusMisery:get_cure_cluster(party_members)
+    local player = windower.ffxi.get_mob_by_id(windower.ffxi.get_player().id)
+    party_members = party_members:filter(function(party_member)
+        local distance = geometry_util.distance(player, party_member:get_mob())
+        return distance <= 20
+    end)
+    return party_members
+end
+
+-------
 -- Sets the cure settings.
 -- @tparam T cure_settings Cure settings
 function AfflatusMisery:set_cure_settings(cure_settings)

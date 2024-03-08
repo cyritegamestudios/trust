@@ -42,6 +42,13 @@ function RedMage:get_aoe_cure_spell(hp_missing)
 end
 
 -------
+-- Returns the threshold above which AOE cures should be used.
+-- @treturn number Minimum number of party members under cure threshold
+function RedMage:get_aoe_threshold()
+    return self.cure_settings.MinNumAOETargets or 3
+end
+
+-------
 -- Returns the spell that can raise a party member.
 -- @treturn Spell Raise spell
 function RedMage:get_raise_spell()

@@ -22,7 +22,8 @@ return {
                 ["Cure II"] = 0,
                 ["Cure III"] = 600
             },
-            Delay = 2
+            Delay = 2,
+            MinNumAOETargets = 3
         },
         JobAbilities = L{
             JobAbility.new('Composure', L{}, L{}, nil),

@@ -16,6 +16,7 @@ local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local MarqueeCollectionViewCell = require('cylibs/ui/collection_view/cells/marquee_collection_view_cell')
+local monster_util = require('cylibs/util/monster_util')
 local Mouse = require('cylibs/ui/input/mouse')
 local Padding = require('cylibs/ui/style/padding')
 local ResizableImageItem = require('cylibs/ui/collection_view/items/resizable_image_item')
@@ -23,6 +24,7 @@ local skillchain_util = require('cylibs/util/skillchain_util')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
+local Timer = require('cylibs/util/timers/timer')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 local ViewItem = require('cylibs/ui/collection_view/items/view_item')
 local Widget = require('ui/widgets/Widget')
@@ -83,6 +85,7 @@ function TargetWidget.new(frame, addonSettings, party, trust)
 
     self.addonSettings = addonSettings
     self.actionQueue = ActionQueue.new(nil, false, 5, false, true)
+    self.actionDisposeBag = DisposeBag.new()
     self.party = party
     self.debuffsView = self:createDebuffsView()
     self.maxNumDebuffs = 7
@@ -107,6 +110,7 @@ function TargetWidget.new(frame, addonSettings, party, trust)
     end), self.actionQueue:on_action_end())
 
     self:getDisposeBag():add(party:on_party_target_change():addAction(function(_, target_index, _)
+        self:setAction('')
         self:setTarget(target_index)
     end, party:on_party_target_change()))
 
@@ -116,20 +120,41 @@ function TargetWidget.new(frame, addonSettings, party, trust)
     local skillchainer = trust:role_with_type("skillchainer")
 
     self:getDisposeBag():add(skillchainer:on_skillchain():addAction(function(target_id, step)
-        self.actionQueue:clear()
-        if skillchainer:get_target() and skillchainer:get_target():get_id() == target_id then
+        --self.actionQueue:clear()
+        if --[[skillchainer:get_target() and skillchainer:get_target():get_id()]] self.target_index and monster_util.id_for_index(self.target_index) == target_id then
+            self.actionDisposeBag:dispose()
             local element = step:get_skillchain():get_name()
-            local text = "Step "..step:get_step()..": "..element-- "Step %d: %s":format(step:get_step(), element)
-            local skillchain_step_action = BlockAction.new(function()
-                coroutine.sleep(math.max(1, step:get_time_remaining()))
-            end, element..step:get_step(), text)
-            self.actionQueue:push_action(skillchain_step_action, true)
+            --local text = "St. "..step:get_step()..": "..element-- "Step %d: %s":format(step:get_step(), element)
+            local text = element-- "Step %d: %s":format(step:get_step(), element)
+            self:setAction(text)
+
+            self.actionTimer = Timer.scheduledTimer(0.5, 3)
+
+            self.actionDisposeBag:add(self.actionTimer:onTimeChange():addAction(function(_)
+                local timeRemaining = math.floor(step:get_time_remaining() + 0.5)
+                if timeRemaining > 0 then
+                    self:setAction(text..' ('..timeRemaining..'s)')
+                else
+                    self:setAction(text)
+                end
+            end), self.actionTimer:onTimeChange())
+
+            self.actionTimer:start()
+
+            self.actionDisposeBag:addAny(L{ self.actionTimer })
+
+            --local skillchain_step_action = BlockAction.new(function()
+            --    coroutine.sleep(math.max(1, step:get_time_remaining()))
+            --end, element..step:get_step(), text)
+            --self.actionQueue:push_action(skillchain_step_action, true)
         end
     end), skillchainer:on_skillchain())
 
     self:getDisposeBag():add(skillchainer:on_skillchain_ended():addAction(function(target_id)
-        if skillchainer:get_target() and skillchainer:get_target():get_id() == target_id then
-            self.actionQueue:clear()
+        if self.target_index and monster_util.id_for_index(self.target_index) == target_id then
+            self.actionDisposeBag:dispose()
+            self:setAction('')
+            --self.actionQueue:clear()
         end
     end), skillchainer:on_skillchain_ended())
 
@@ -143,6 +168,7 @@ end
 function TargetWidget:setTarget(target_index)
     self.target_index = target_index
 
+    self.actionDisposeBag:dispose()
     self.targetDisposeBag:dispose()
 
     local targetText = ""
@@ -156,6 +182,16 @@ function TargetWidget:setTarget(target_index)
             self.targetDisposeBag:add(target.debuff_tracker:on_lose_debuff():addAction(function(_, debuff_id)
                 self:updateDebuffs()
             end, target.debuff_tracker:on_lose_debuff()))
+
+            self.targetDisposeBag:add(target:on_tp_move_finish():addAction(function(m, monster_ability_name, target_name, _)
+                if self.actionQueue:is_empty() then
+                    local actionText = monster_ability_name
+                    if target_name ~= m:get_name() then
+                        actionText = actionText..' → '..target_name
+                    end
+                    --self:setAction(actionText)
+                end
+            end), target:on_tp_move_finish())
 
             self:updateDebuffs()
         end

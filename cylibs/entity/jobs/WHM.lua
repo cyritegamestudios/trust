@@ -80,6 +80,14 @@ function WhiteMage:get_aoe_spells()
 end
 
 -------
+-- Returns a cluster of party members within 10' of the first party member in the list.
+-- @tparam list List of party members
+-- @treturn list List of party members
+function WhiteMage:get_cure_cluster(party_members)
+    return self.current_afflatus:get_cure_cluster(party_members)
+end
+
+-------
 -- Returns the threshold below which players should be healed.
 -- @tparam Boolean is_backup_healer Whether the player is the backup healer
 -- @treturn number HP percentage

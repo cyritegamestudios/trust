@@ -19,7 +19,8 @@ return {
                 Blacklist = L{
 
                 }
-            }
+            },
+            MinNumAOETargets = 3
         },
         SelfBuffs = L{
 

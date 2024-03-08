@@ -20,7 +20,8 @@ return {
                 Blacklist = L{
 
                 }
-            }
+            },
+            MinNumAOETargets = 3
         },
         JobAbilities = L{
             JobAbility.new('Majesty', L{InBattleCondition.new()}),

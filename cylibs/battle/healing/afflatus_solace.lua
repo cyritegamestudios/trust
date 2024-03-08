@@ -95,6 +95,19 @@ function AfflatusSolace:get_status_removal_delay()
 end
 
 -------
+-- Returns a cluster of party members within 10' of the first party member in the list.
+-- @tparam list List of party members
+-- @treturn list List of party members
+function AfflatusSolace:get_cure_cluster(party_members)
+    local spell_target = party_members[1]
+    party_members = party_members:filter(function(party_member)
+        local distance = geometry_util.distance(spell_target:get_mob(), party_member:get_mob())
+        return distance < 10
+    end)
+    return party_members
+end
+
+-------
 -- Returns if Afflatus Solace is active
 -- @treturn Boolean True if Afflatus Solace is active
 function AfflatusSolace:is_afflatus_solace_active()

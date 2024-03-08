@@ -95,20 +95,12 @@ function Healer:check_party_hp(cure_threshold)
 
     logger.notice(self.__class, 'check_party_hp', cure_threshold)
 
-    local party_members = self:get_party():get_party_members(true, 21):filter(function(party_member)
-        return party_member:get_mob() and party_member:get_mob().distance:sqrt() < 21
-                and party_member:get_hpp() <= cure_threshold and party_member:is_alive()
+    local party_members = self:get_valid_cure_targets(function(p)
+        return p:get_hpp() <= cure_threshold -- for Afflatus Misery I think this should be 1 under cure threshold and others under 1.2x
     end):sort(function(p1, p2)
         return p1:get_hpp() < p2:get_hpp()
     end)
-
-    if #party_members >= self:get_job():get_aoe_threshold() then
-        local spell_target = party_members[1]
-        party_members = party_members:filter(function(party_member)
-            local distance = geometry_util.distance(spell_target:get_mob(), party_member:get_mob())
-            return distance < 10
-        end)
-    end
+    party_members = self:get_cure_cluster(party_members)
 
     if #party_members >= self:get_job():get_aoe_threshold() then
         self:cure_party_members(party_members)
@@ -117,6 +109,36 @@ function Healer:check_party_hp(cure_threshold)
             self:cure_party_member(party_member)
         end
     end
+end
+
+-------
+-- Returns a cluster of party members within 10' of the first party member in the list.
+-- @tparam list List of party members
+-- @treturn list List of party members
+function Healer:get_cure_cluster(party_members)
+    if #party_members >= self:get_job():get_aoe_threshold() then
+        if self:get_job().get_cure_cluster then
+            return self:get_job():get_cure_cluster(party_members)
+        else
+            local spell_target = party_members[1]
+            party_members = party_members:filter(function(party_member)
+                local distance = geometry_util.distance(spell_target:get_mob(), party_member:get_mob())
+                return distance < 10
+            end)
+        end
+    end
+    return party_members
+end
+
+-------
+-- Returns all party members that are alive and in range.
+-- @tparam function Filter to use on party members (optional)
+-- @treturn list List of party members
+function Healer:get_valid_cure_targets(filter)
+    local party_members = self:get_party():get_party_members(true, 21):filter(function(party_member)
+        return party_member:is_valid() and filter(party_member)
+    end)
+    return party_members
 end
 
 -------

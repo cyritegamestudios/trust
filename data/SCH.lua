@@ -32,7 +32,8 @@ return {
                 Blacklist = L{
 
                 }
-            }
+            },
+            MinNumAOETargets = 3
         },
         NukeSettings = {
             Delay = 2,

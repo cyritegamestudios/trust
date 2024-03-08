@@ -12,6 +12,7 @@ function WeaponSkiller.new(action_queue, weapon_skill_settings, mode_value)
 
     self.action_identifier = self.__class..'_perform_skillchain'
     self.active_skills = L{}
+    self.job_abilities = L{}
     self.last_check_time = os.time()
     self.mode_value = mode_value
     self.weapon_skill_settings = weapon_skill_settings
@@ -90,7 +91,7 @@ function WeaponSkiller:perform_ability(ability)
         return
     end
 
-    local ability_action = ability:to_action(target:get_mob().index, self:get_player())
+    local ability_action = ability:to_action(target:get_mob().index, self:get_player(), self.job_abilities)
     if ability_action then
         ability_action.identifier = self.action_identifier
         ability_action.max_duration = 10
@@ -130,6 +131,10 @@ end
 
 function WeaponSkiller:get_active_skills()
     return self.active_skills
+end
+
+function WeaponSkiller:set_job_abilities(job_abilities)
+    self.job_abilities = (job_abilities or L{}):filter(function(job_ability) return job_util.knows_job_ability(job_ability:get_job_ability_id()) end)
 end
 
 return WeaponSkiller
