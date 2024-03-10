@@ -96,8 +96,7 @@ function AfflatusMisery:get_status_removal_delay()
 end
 
 -------
--- Returns a cluster of party members within 10' of the first party member in the list
--- or 20' of the player.
+-- Returns a cluster of party members 20' of the player.
 -- @tparam list List of party members
 -- @treturn list List of party members
 function AfflatusMisery:get_cure_cluster(party_members)

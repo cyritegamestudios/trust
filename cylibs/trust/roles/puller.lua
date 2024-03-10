@@ -120,6 +120,7 @@ function Puller:tic(_, _)
     if self.target_index then
         local target = windower.ffxi.get_mob_by_index(self.target_index)
         if target and party_util.party_claimed(target.id) then
+            logger.notice(self.__class, 'tic', 'target_index', self.target_index, 'already claimed')
             return
         end
     end
@@ -130,7 +131,7 @@ end
 
 function Puller:check_pull()
     if os.time() - self.last_pull_time < 7 or (state.AutoTrustsMode.value ~= 'Off' and party_util.is_party_leader(windower.ffxi.get_player().id) and self:get_party():num_party_members() < 6)
-            or state.AutoPullMode == 'Target' then
+            or L{'Target', 'Party'}:contains(state.AutoPullMode.value) then
         return
     end
     self.last_pull_time = os.time()
@@ -145,16 +146,30 @@ function Puller:check_pull()
 end
 
 function Puller:check_target()
-    if os.time() - self.last_target_check_time < 2 or state.AutoPullMode.value ~= 'Target' then
+    if os.time() - self.last_target_check_time < 2 or not L{'Target', 'Party'}:contains(state.AutoPullMode.value) then
         return
     end
 
-    if player.status == 'Engaged' then
-        local target = windower.ffxi.get_mob_by_target('t')
-        if target and not party_util.party_claimed(target.id) then
+    logger.notice(self.__class, 'check_target', state.AutoPullMode.value)
+
+    local target = windower.ffxi.get_mob_by_target('t')
+    if target then
+        self.last_target_check_time = os.time()
+        if state.AutoPullMode.value == 'Party' then
+            local is_party_target = self:get_party():get_targets(function(t)
+                return t:get_distance():sqrt() < 15 and t:get_mob().status == 1
+            end):firstWhere(function(t)
+                return t and t:get_mob().index == target.index
+            end) ~= nil
+
+            if not is_party_target then
+                logger.notice(self.__class, 'check_target', target.name, res.statuses[target.status].en, target.distance:sqrt(), 'is not a party targeted mob')
+                return
+            end
+        end
+        if not party_util.party_claimed(target.id) or target.distance:sqrt() > 3 then
             self:pull_target(target)
         end
-        self.last_target_check_time = os.time()
     end
 end
 
@@ -190,13 +205,6 @@ function Puller:get_pull_target()
             else
                return nil
             end
-        end
-    elseif state.AutoPullMode.value == 'Party' then
-        local party_targets = self:get_party():get_targets(function(target)
-            return target:get_distance():sqrt() < 15 and target:get_mob().status == 1
-        end)
-        if party_targets:length() > 0 then
-            return party_targets[1]:get_mob()
         end
     else
         local player_target = ffxi_util.mob_for_index(windower.ffxi.get_player().target_index)

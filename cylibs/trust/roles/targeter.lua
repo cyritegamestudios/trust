@@ -46,10 +46,7 @@ function Targeter:on_add()
         -- Monster is defeated
         if action_message_util.is_monster_defeated(message_id) then
             if state.AutoTargetMode.value == 'Party' then
-                local targets = self:get_all_targets()
-                if targets:length() > 0 then
-                    self:target_mob(targets[1]:get_mob())
-                end
+                self:check_targets(true)
             else
                 local target_mobs = L{}
                 if state.AutoTargetMode.value == 'Same' then
@@ -102,8 +99,8 @@ function Targeter:tic(new_time, old_time)
     self:check_targets()
 end
 
-function Targeter:check_targets()
-    if state.AutoTargetMode.value ~= 'Party' or os.time() - self.last_checked_targets < 3 then
+function Targeter:check_targets(ignore_cooldown)
+    if state.AutoTargetMode.value ~= 'Party' or (not ignore_cooldown and os.time() - self.last_checked_targets < 3) then
         return
     end
     self.last_checked_targets = os.time()
@@ -119,10 +116,13 @@ function Targeter:check_targets()
         return target:get_distance():sqrt() < 12 and target:get_mob().status == 1
     end)
     if targets:length() > 0 then
-        local next_target = targets[1]
-        self:target_mob(next_target:get_mob())
+        local next_target = targets:firstWhere(function(target)
+            return target and not party_util.party_targeted(target:get_id())
+        end) or targets[1]
 
         logger.notice(self.__class, 'check_targets', 'found', next_target:get_name(), next_target:get_distance())
+
+        self:target_mob(next_target:get_mob())
     end
 end
 
