@@ -45,11 +45,7 @@ function TextFieldCollectionViewCell:onKeyboardEvent(key, pressed, flags, blocke
                 if key == "Backspace" then
                     newText = currentText:slice(1, currentText:length()-1)
                 else
-<<<<<<< HEAD
                     newText = (currentText..key:lower()):ucfirst()
-=======
-                    newText = currentText..key:lower()
->>>>>>> main
                 end
                 if self:getItem():isValid(newText) then
                     textItem:setText(newText..'|')
@@ -86,11 +82,7 @@ function TextFieldCollectionViewCell:setHasFocus(hasFocus)
 
     self:layoutIfNeeded()
 
-<<<<<<< HEAD
     local keys = L{'a','w','s','d','f','e','h','i','k','l'}
-=======
-    local keys = L{'a','w','s','d','f','h'}
->>>>>>> main
     for key in keys:it() do
         if self:hasFocus() then
             windower.send_command('bind %s block':format(key))

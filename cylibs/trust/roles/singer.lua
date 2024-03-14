@@ -74,9 +74,6 @@ function Singer:on_add()
         end
     end), self.state_var:on_state_change())
 
-    --self.dispose_bag:add(Renderer.shared():onPrerender():addAction(function()
-    --end), Renderer.shared():onPrerender())
-
     self.dispose_bag:addAny(L{ self.song_tracker })
 end
 

@@ -189,10 +189,6 @@ function CollectionViewDataSource:updateItems(indexedItems)
     local snapshot = self:createSnapshot()  -- Create a snapshot before making changes
 
     local itemsToAdd = L{}
-<<<<<<< HEAD
-=======
-
->>>>>>> main
     for indexedItem in indexedItems:it() do
         local currentSection = self.sections[indexedItem:getIndexPath().section]
         if currentSection then

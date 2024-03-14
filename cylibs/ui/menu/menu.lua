@@ -189,13 +189,10 @@ function Menu:closeAll()
     self.viewStack:dismissAll()
 end
 
-<<<<<<< HEAD
 function Menu:isVisible()
     return not self.menuItemStack:empty()
 end
 
-=======
->>>>>>> main
 ---
 -- Returns whether the view should resign focus if it currently has focus.
 --

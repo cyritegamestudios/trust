@@ -21,11 +21,8 @@ function VerticalScrollBar.new(frame, scrollTrackItem, scrollUpItem, scrollDownI
     self:setNeedsLayout()
     self:layoutIfNeeded()
 
-<<<<<<< HEAD
     self:getDisposeBag():addAny(L{ self.scrollUpButton, self.scrollDownButton })
 
-=======
->>>>>>> main
     return self
 end
 

@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-=======
-local CollectionView = require('cylibs/ui/collection_view/collection_view')
->>>>>>> main
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
@@ -50,22 +46,6 @@ function LoadSettingsView.new(jobSettingsMode, addonSettings, trustModeSettings)
         rowIndex = rowIndex + 1
     end
 
-<<<<<<< HEAD
-=======
-    --[[itemsToAdd:append(IndexedItem.new(TextItem.new("Load job settings", TextStyle.Default.HeaderSmall), IndexPath.new(2, 1)))
-
-    rowIndex = 2
-    for _, v in ipairs(jobSettingsMode) do
-        local item = TextItem.new(tostring(v), TextStyle.Default.TextSmall)
-        local indexPath = IndexPath.new(2, rowIndex)
-        itemsToAdd:append(IndexedItem.new(item, indexPath))
-        if item:getText() == jobSettingsMode.value then
-            itemsToSelect:append(indexPath)
-        end
-        rowIndex = rowIndex + 1
-    end]]
-
->>>>>>> main
     self:getDataSource():addItems(itemsToAdd)
 
     for indexPath in itemsToSelect:it() do
@@ -85,18 +65,8 @@ function LoadSettingsView.new(jobSettingsMode, addonSettings, trustModeSettings)
     self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
         local item = self:getDataSource():itemAtIndexPath(indexPath)
         if item then
-<<<<<<< HEAD
             updateSelectedItems(1, item)
             handle_set('TrustMode', item:getText())
-=======
-            --if indexPath.section == 1 and indexPath.row ~= 1 then
-                updateSelectedItems(1, item)
-                handle_set('TrustMode', item:getText())
-            --elseif indexPath.section == 2 and indexPath.row ~= 1 then
-            --    updateSelectedItems(2, item)
-            --    handle_set('MainTrustSettingsMode', item:getText())
-            --end
->>>>>>> main
         end
     end), self:getDelegate():didSelectItemAtIndexPath())
 
@@ -119,12 +89,6 @@ function LoadSettingsView:layoutIfNeeded()
     self:setTitle("Load saved mode sets.")
 end
 
-<<<<<<< HEAD
-=======
-    self:setTitle("Load saved mode sets.")
-end
-
->>>>>>> main
 function LoadSettingsView:deleteModeSet(modeSetName)
     if self.trustModeSettings:getSettings()[modeSetName] then
         self.trustModeSettings:deleteSettings(modeSetName)

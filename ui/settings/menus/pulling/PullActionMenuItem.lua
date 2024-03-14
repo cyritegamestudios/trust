@@ -1,18 +1,11 @@
 local Approach = require('cylibs/battle/approach')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
-local CursorItem = require('ui/themes/FFXI/CursorItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
-<<<<<<< HEAD
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local JobAbility = require('cylibs/battle/abilities/job_ability')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local RangedAttack = require('cylibs/battle/ranged_attack')
 local Spell = require('cylibs/battle/spell')
-=======
-local JobAbility = require('cylibs/actions/job_ability')
-local MenuItem = require('cylibs/ui/menu/menu_item')
-local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
->>>>>>> main
 
 local PullActionMenuItem = setmetatable({}, {__index = MenuItem })
 PullActionMenuItem.__index = PullActionMenuItem
@@ -21,6 +14,7 @@ function PullActionMenuItem.new(puller, puller_settings, job_name_short, viewFac
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Job Abilities', 18),
         ButtonItem.default('Spells', 18),
+        ButtonItem.default('Other', 18),
     }, {}, nil, "Pulling", "Configure which actions to use to pull enemies."), PullActionMenuItem)
 
     self.puller = puller
@@ -58,7 +52,6 @@ function PullActionMenuItem:getSpellsMenuItem()
                     return spell.levels[jobId] ~= nil and spell.targets:contains('Enemy')
                 end):map(function(spell) return spell.en end)
 
-<<<<<<< HEAD
                 local selectedSpells = self.puller_settings.Abilities:filter(function(ability)
                     return ability.__class == Spell.__class
                 end):map(function(spell)
@@ -66,9 +59,6 @@ function PullActionMenuItem:getSpellsMenuItem()
                 end)
 
                 local chooseSpellsView = self.viewFactory(FFXIPickerView.withItems(allSpells, selectedSpells, true))
-=======
-                local chooseSpellsView = self.viewFactory(FFXIPickerView.withItems(allSpells, self.puller_settings.Spells:map(function(spell) return spell:get_name()  end), true))
->>>>>>> main
                 chooseSpellsView:setTitle("Choose spells to pull enemies with.")
                 chooseSpellsView:setShouldRequestFocus(true)
                 chooseSpellsView:on_pick_items():addAction(function(_, selectedItems)
@@ -76,17 +66,8 @@ function PullActionMenuItem:getSpellsMenuItem()
                         return Spell.new(item:getText())
                     end)
 
-<<<<<<< HEAD
                     self:replaceAbilities(L{ Spell.__class }, spells)
 
-=======
-                    local currentSpells = self.puller_settings.Spells
-                    currentSpells:clear()
-
-                    for spell in spells:it() do
-                        currentSpells:append(spell)
-                    end
->>>>>>> main
                     addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll use "..localization_util.commas(spells:map(function(spell) return spell:get_name()  end)).." to pull for the rest of this session!")
                 end)
                 return chooseSpellsView
@@ -104,22 +85,17 @@ function PullActionMenuItem:getJobAbilitiesMenuItem()
             return S{'Enemy'}:intersection(S(jobAbility.targets)):length() > 0
         end):map(function(jobAbility) return jobAbility.en end)
 
-<<<<<<< HEAD
         local selectedAbilities = self.puller_settings.Abilities:filter(function(ability)
             return ability.__class == JobAbility.__class
         end):map(function(jobAbility) return jobAbility:get_name() end)
 
         local chooseJobAbilitiesView = self.viewFactory(FFXIPickerView.withItems(allJobAbilities, selectedAbilities, true))
-=======
-        local chooseJobAbilitiesView = self.viewFactory(FFXIPickerView.withItems(allJobAbilities, self.puller_settings.JobAbilities, true))
->>>>>>> main
         chooseJobAbilitiesView:setTitle("Choose job abilities to pull enemies with.")
         chooseJobAbilitiesView:setShouldRequestFocus(true)
         chooseJobAbilitiesView:on_pick_items():addAction(function(_, selectedItems)
             local jobAbilities = selectedItems:map(function(item)
                 return JobAbility.new(item:getText())
             end)
-<<<<<<< HEAD
 
             self:replaceAbilities(L{ JobAbility.__class }, jobAbilities)
 
@@ -176,20 +152,6 @@ function PullActionMenuItem:replaceAbilities(abilityClasses, abilities)
 
     currentAbilities:clear()
     currentAbilities:extend(newAbilities)
-=======
-
-            local currentJobAbilities = self.puller_settings.JobAbilities
-            currentJobAbilities:clear()
-
-            for jobAbility in jobAbilities:it() do
-                currentJobAbilities:append(jobAbility)
-            end
-            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll use "..localization_util.commas(jobAbilities).." to pull for the rest of this session!")
-        end)
-        return chooseJobAbilitiesView
-    end, "Job Abilities", "Choose job abilities to pull enemies with.")
-    return chooseJobAbilitiesMenuItem
->>>>>>> main
 end
 
 return PullActionMenuItem

@@ -29,11 +29,7 @@ PartyStatusWidget.TextSmall = TextStyle.new(
         true
 )
 
-<<<<<<< HEAD
 function PartyStatusWidget.new(frame, addonSettings, party, actionQueue)
-=======
-function PartyStatusWidget.new(frame, addonSettings, party)
->>>>>>> main
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = TextCollectionViewCell.new(item)
         cell:setItemSize(14)
@@ -75,7 +71,6 @@ function PartyStatusWidget.new(frame, addonSettings, party)
         self:setAssistTarget(party_member)
     end), party:on_party_assist_target_change())
 
-<<<<<<< HEAD
     --[[self:getDisposeBag():add(actionQueue:on_action_start():addAction(function(_, a)
         if a.target_index then
             local party_member = windower.ffxi.get_mob_by_index(a.target_index)
@@ -89,8 +84,6 @@ function PartyStatusWidget.new(frame, addonSettings, party)
         self:setAction('')
     end), self.actionQueue:on_action_end())]]
 
-=======
->>>>>>> main
     return self
 end
 

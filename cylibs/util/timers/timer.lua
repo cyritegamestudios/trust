@@ -53,11 +53,7 @@ function Timer:start()
     self.lastTime = os.clock() + self.delay
 
     self.disposeBag:add(Renderer.shared():onPrerender():addAction(function()
-<<<<<<< HEAD
         if self.running and os.clock() - self.lastTime >= self.timeInterval then
-=======
-        if os.clock() - self.lastTime >= self.timeInterval then
->>>>>>> main
             self.lastTime = os.clock()
             self:onTimeChange():trigger(self)
         end

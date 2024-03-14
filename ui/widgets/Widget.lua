@@ -19,14 +19,10 @@ function Widget:onSettingsChanged()
 end
 
 function Widget.new(frame, title, addonSettings, dataSource, layout, titleWidth)
-<<<<<<< HEAD
     local widgetStyle = FFXIClassicStyle.default()
     widgetStyle.cursorItem = nil
 
     local self = setmetatable(CollectionView.new(dataSource, layout, nil, widgetStyle), Widget)
-=======
-    local self = setmetatable(CollectionView.new(dataSource, layout, nil, FFXIClassicStyle.default()), Widget)
->>>>>>> main
 
     self.addonSettings = addonSettings
     self.expanded = true
