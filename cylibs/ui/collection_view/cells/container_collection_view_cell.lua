@@ -23,6 +23,8 @@ function ContainerCollectionViewCell:destroy()
     if not self:getItem():shouldDestroyView() then
         self.view:removeFromSuperview()
     end
+    self:getItem().view = nil
+
     CollectionViewCell.destroy(self)
 end
 

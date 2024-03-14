@@ -26,6 +26,7 @@ function DisposeBag:destroy()
             destroyable:destroy()
         end
     end
+    self.destroyables = L{}
 end
 
 ---

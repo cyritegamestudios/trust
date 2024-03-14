@@ -1,5 +1,4 @@
 local cure_util = require('cylibs/util/cure_util')
-local DamageMemory = require('cylibs/battle/damage_memory')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local CureAction = require('cylibs/actions/cure')
 local HealerTracker = require('cylibs/analytics/trackers/healer_tracker')
@@ -26,11 +25,8 @@ function Healer.new(action_queue, main_job)
     self.main_job = main_job
     self.last_cure_time = os.time()
     self.cure_delay = main_job:get_cure_delay()
-    self.damage_memory = DamageMemory.new(0)
-    self.damage_memory:monitor()
 
     self.dispose_bag = DisposeBag.new()
-    self.dispose_bag:addAny(L{ self.damage_memory })
 
     return self
 end
@@ -75,9 +71,6 @@ end
 
 function Healer:target_change(target_index)
     Role.target_change(self, target_index)
-
-    self.damage_memory:reset()
-    self.damage_memory:target_change(self:get_target())
 end
 
 function Healer:tic(old_time, new_time)

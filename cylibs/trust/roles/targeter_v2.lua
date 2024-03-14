@@ -14,10 +14,7 @@ function Targeter.new(action_queue)
 
     self.action_queue = action_queue
     self.last_checked_targets = os.time()
-    self.target_dispose_bag = DisposeBag.new()
-
     self.dispose_bag = DisposeBag.new()
-    self.dispose_bag:addAny(L{ self.target_dispose_bag })
 
     return self
 end
@@ -34,6 +31,12 @@ function Targeter:on_add()
             windower.send_command('input /autotarget off')
         end
     end)
+
+    self.dispose_bag:add(WindowerEvents.MobKO:addAction(function(mob_id, mob_name)
+        if self:get_target() and self:get_target():get_id() == mob_id then
+            self:check_target(true)
+        end
+    end), WindowerEvents.MobKO)
 end
 
 function Targeter:target_mob(target)
@@ -49,15 +52,6 @@ end
 
 function Targeter:target_change(target_index)
     Role.target_change(self, target_index)
-
-    self.target_dispose_bag:dispose()
-
-    local target = self:get_target()
-    if target then
-        self.target_dispose_bag:add(target:on_ko():addAction(function(_)
-            self:check_target(true)
-        end), target:on_ko())
-    end
 end
 
 function Targeter:tic(new_time, old_time)

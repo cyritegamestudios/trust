@@ -20,12 +20,13 @@ local WindowerEvents = {}
 WindowerEvents.DisposeBag = DisposeBag.new()
 
 -- Global list of handlers for all Windower events. Listen to events here.
-WindowerEvents.Action = Event.newEvent()
-WindowerEvents.ActionMessage = Event.newEvent()
+WindowerEvents.Action = Event.newEvent("Action")
+WindowerEvents.ActionMessage = Event.newEvent("ActionMessage")
 WindowerEvents.CharacterUpdate = Event.newEvent()
 WindowerEvents.MobUpdate = Event.newEvent()
+WindowerEvents.MobKO = Event.newEvent()
 WindowerEvents.PositionChanged = Event.newEvent()
-WindowerEvents.TargetIndexChanged = Event.newEvent()
+WindowerEvents.TargetIndexChanged = Event.newEvent("TargetIndexChanged")
 WindowerEvents.ZoneUpdate = Event.newEvent()
 WindowerEvents.ZoneRequest = Event.newEvent()
 WindowerEvents.BuffsChanged = Event.newEvent()
@@ -191,7 +192,7 @@ local incoming_event_dispatcher = {
         end
 
         if L{ 2, 3 }:contains(status) then
-            WindowerEvents.MobUpdate:trigger(mob_id, name, 0)
+            WindowerEvents.MobKO:trigger(mob_id, name)
         end
     end,
 

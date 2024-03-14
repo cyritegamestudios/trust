@@ -45,11 +45,6 @@ function Monster:on_gain_debuff()
     return self.debuff_tracker:on_gain_debuff()
 end
 
--- Event called when a monster is knocked out.
-function Monster:on_ko()
-    return self.ko
-end
-
 function Monster:on_spell_resisted()
     return self.spell_resisted
 end
@@ -98,7 +93,6 @@ function Monster.new(mob_id)
     self.spell_finish = Event.newEvent()
     self.skillchain = Event.newEvent()
     self.skillchain_ended = Event.newEvent()
-    self.ko = Event.newEvent()
 
     self.dispose_bag = DisposeBag.new()
 
@@ -138,7 +132,6 @@ function Monster:destroy()
     self.spell_finish:removeAllActions()
     self.skillchain:removeAllActions()
     self.skillchain_ended:removeAllActions()
-    self.ko:removeAllActions()
 
     self.dispose_bag:destroy()
 
@@ -157,7 +150,7 @@ function Monster:monitor()
     self.debuff_tracker = DebuffTracker.new(self:get_id())
     self.debuff_tracker:monitor()
 
-    self.resist_tracker = ResistTracker.new(self)
+    self.resist_tracker = ResistTracker.new(self:get_id(), self:on_spell_resisted())
 
     self.dispose_bag:addAny(L{ self.debuff_tracker, self.resist_tracker })
 
@@ -168,14 +161,6 @@ function Monster:monitor()
             self:handle_action_on_monster(act)
         end
     end), WindowerEvents.Action)
-
-    self.dispose_bag:add(WindowerEvents.MobUpdate:addAction(function(mob_id, name, hpp)
-        if mob_id == self.mob_id then
-            if hpp == 0 then
-                self:on_ko():trigger(self)
-            end
-        end
-    end, WindowerEvents.MobUpdate))
 end
 
 function Monster:handle_action_by_monster(act)
@@ -371,6 +356,9 @@ function Monster:description()
 end
 
 function Monster:__eq(otherItem)
+    if otherItem == nil then
+        return false
+    end
     return self:get_id() == otherItem:get_id()
 end
 

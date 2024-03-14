@@ -1,6 +1,7 @@
 local buff_util = require('cylibs/util/buff_util')
 local cure_util = require('cylibs/util/cure_util')
 local spell_util = require('cylibs/util/spell_util')
+local Spell = require('cylibs/battle/spell')
 
 local AfflatusMisery = {}
 AfflatusMisery.__index = AfflatusMisery

@@ -29,11 +29,11 @@ function SwitchTargetAction.new(target_index, num_retries)
 end
 
 function SwitchTargetAction:destroy()
-    Action.destroy(self)
-
     self.dispose_bag:destroy()
 
     self:debug_log_destroy(self:gettype())
+
+    Action.destroy(self)
 end
 
 function SwitchTargetAction:perform()
