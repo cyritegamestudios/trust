@@ -29,8 +29,12 @@ local LoadSettingsMenuItem = require('ui/settings/menus/loading/LoadSettingsMenu
 local NukeSettingsEditor = require('ui/settings/NukeSettingsEditor')
 local PartyMemberView = require('cylibs/entity/party/ui/party_member_view')
 local PartyStatusWidget = require('ui/widgets/PartyStatusWidget')
+<<<<<<< HEAD
 local PartyTargetsMenuItem = require('ui/settings/menus/PartyTargetsMenuItem')
 local SettingsWidget = require('ui/widgets/SettingsWidget')
+=======
+local PartyTargetView = require('ui/views/PartyTargetView')
+>>>>>>> main
 local SingerView = require('ui/views/SingerView')
 local SongSettingsMenuItem = require('ui/settings/menus/songs/SongSettingsMenuItem')
 local SpellPickerView = require('ui/settings/pickers/SpellPickerView')
@@ -105,6 +109,7 @@ function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, a
     self.tabbed_view = nil
     self.backgroundImageView = self:getBackgroundImageView()
 
+<<<<<<< HEAD
     for mode in L{ state.MainTrustSettingsMode, state.SubTrustSettingsMode }:it() do
         self:getDisposeBag():add(mode:on_state_change():addAction(function(m, new_value, old_value)
             if old_value == new_value then
@@ -123,6 +128,8 @@ function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, a
         end), mode:on_state_change())
     end
 
+=======
+>>>>>>> main
     self:getDisposeBag():add(self.gameInfo:onMenuChange():addAction(function(_, isMenuOpen)
         if isMenuOpen then
             --if self.addon_settings:getSettings().hud.auto_hide then
@@ -163,7 +170,11 @@ function TrustHud:getViewStack()
 end
 
 function TrustHud:createWidgets(addon_settings, addon_enabled, action_queue, party, trust)
+<<<<<<< HEAD
     local trustStatusWidget = TrustStatusWidget.new(Frame.new(0, 0, 125, 69), addon_settings, addon_enabled, action_queue, player.main_job_name, player.sub_job_name)
+=======
+    local trustStatusWidget = TrustStatusWidget.new(Frame.new(0, 0, 125, 55), addon_settings, addon_enabled, action_queue, player.main_job_name, player.sub_job_name)
+>>>>>>> main
     self.widgetManager:addWidget(trustStatusWidget, "trust")
 
     local targetWidget = TargetWidget.new(Frame.new(0, 0, 125, 40), addon_settings, party, trust)
@@ -171,9 +182,12 @@ function TrustHud:createWidgets(addon_settings, addon_enabled, action_queue, par
 
     local partyStatusWidget = PartyStatusWidget.new(Frame.new(0, 0, 125, 55), addon_settings, party)
     self.widgetManager:addWidget(partyStatusWidget, "party")
+<<<<<<< HEAD
 
     --local settingsWidget = SettingsWidget.new(Frame.new(0, 0, 125, 40), addon_settings, state.TrustMode, state.MainTrustSettingsMode)
     --self.widgetManager:addWidget(settingsWidget, "settings")
+=======
+>>>>>>> main
 end
 
 function TrustHud:toggleMenu()
@@ -319,6 +333,59 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         modesView:setTitle("Set modes for buffing the player and party.")
         return modesView
     end, "Modes", "Change buffing behavior.")
+<<<<<<< HEAD
+=======
+
+    local buffSettingsItem = MenuItem.new(L{
+        ButtonItem.default('Self', 18),
+        ButtonItem.default('Party', 18),
+        ButtonItem.default('Modes', 18),
+    }, {
+        Self = selfBuffSettingsItem,
+        Party = partyBuffSettingsItem,
+        Modes = buffModesMenuItem,
+    }, nil, "Buffs", "Choose buffs to use.")
+
+    local chooseDebuffsItem = MenuItem.new(L{
+        ButtonItem.default('Confirm', 18),
+        ButtonItem.default('Clear', 18),
+    }, {},
+            function()
+                local jobId = res.jobs:with('ens', jobNameShort).id
+                local allDebuffs = spell_util.get_spells(function(spell)
+                    return spell.levels[jobId] ~= nil and spell.status ~= nil and L{32, 35, 36, 39, 40, 41, 42}:contains(spell.skill) and spell.targets:contains('Enemy')
+                end):map(function(spell) return spell.en end)
+
+                local chooseSpellsView = setupView(SpellPickerView.new(trustSettings, L(T(trustSettings:getSettings())[trustSettingsMode.value].Debuffs), allDebuffs, L{}, false), viewSize)
+                chooseSpellsView:setTitle("Choose debuffs to add.")
+                return chooseSpellsView
+            end)
+
+    local debuffModesMenuItem = MenuItem.new(L{}, L{}, function(_)
+        local modesView = setupView(ModesView.new(L{'AutoDebuffMode', 'AutoDispelMode', 'AutoSilenceMode'}), viewSize)
+        modesView:setShouldRequestFocus(true)
+        modesView:setTitle("Set modes for debuffing enemies.")
+        return modesView
+    end, "Modes", "Change debuffing behavior.")
+
+    local debuffSettingsItem = MenuItem.new(L{
+        ButtonItem.default('Add', 18),
+        ButtonItem.default('Remove', 18),
+        ButtonItem.default('Modes', 18),
+        ButtonItem.default('Help', 18)
+    }, {
+        Add = chooseDebuffsItem,
+        Modes = debuffModesMenuItem,
+    },
+    function()
+        local backgroundImageView = createBackgroundView(viewSize.width, viewSize.height)
+        local debuffSettingsView = DebuffSettingsEditor.new(trustSettings, trustSettingsMode, self.addon_settings:getSettings().help.wiki_base_url..'/Debuffer')
+        debuffSettingsView:setBackgroundImageView(backgroundImageView)
+        debuffSettingsView:setNavigationBar(createTitleView(viewSize))
+        debuffSettingsView:setSize(viewSize.width, viewSize.height)
+        return debuffSettingsView
+    end, "Debuffs", "Choose debuffs to use on enemies.")
+>>>>>>> main
 
     local chooseJobAbilitiesItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
@@ -432,7 +499,11 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
     }, {
         ['Blacklist'] = statusRemovalMenuItem,
         Modes = healerModesMenuItem,
+<<<<<<< HEAD
     }, nil, "Healing", "Change healing behavior")
+=======
+    })
+>>>>>>> main
 
     -- Nukes
     local chooseNukesItem = MenuItem.new(L{
@@ -504,6 +575,10 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
     }
     local childMenuItems = {
         Modes = modesMenuItem,
+<<<<<<< HEAD
+=======
+        Abilities = jobAbilitiesSettingsItem,
+>>>>>>> main
         Buffs = buffSettingsItem,
         Debuffs = debuffSettingsItem,
         Healing = healerMenuItem,

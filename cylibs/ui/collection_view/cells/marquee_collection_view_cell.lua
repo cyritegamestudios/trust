@@ -128,12 +128,25 @@ function MarqueeCollectionViewCell:updateText()
     if text:length() > self.numCharacters then
         if text:length() >= self.currentIndex + self.numCharacters then
             local next = text:slice(self.currentIndex, math.min(self.currentIndex + self.numCharacters + 3, text:length()))
+<<<<<<< HEAD
+=======
+            --local start_index, end_index = text:slice(self.currentIndex):find('→')
+>>>>>>> main
             if next:startswith('→') or next:endswith('→') then
                 self.currentIndex = (self.currentIndex + 3 + 1) % text:length()
             else
                 self.currentIndex = (self.currentIndex + 1) % text:length()
             end
 
+<<<<<<< HEAD
+=======
+            --[[if self.currentText:startswith('→') then
+                local start_index, end_index = self.currentText:find('→')
+                self.currentIndex = (self.currentIndex + end_index - start_index + 1) % text:length()
+            else
+                self.currentIndex = (self.currentIndex + 1) % text:length()
+            end]]
+>>>>>>> main
             self.currentText = text:slice(self.currentIndex, math.min(self.currentIndex + self.numCharacters, text:length()))
 
             self:setNeedsLayout()

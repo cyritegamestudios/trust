@@ -62,6 +62,7 @@ TrustStatusWidget.TextSmall2 = TextStyle.new(
         Color.yellow,
         true
 )
+<<<<<<< HEAD
 TrustStatusWidget.TextSmall3 = TextStyle.new(
         Color.clear,
         Color.clear,
@@ -76,6 +77,8 @@ TrustStatusWidget.TextSmall3 = TextStyle.new(
         Color.yellow,
         false
 )
+=======
+>>>>>>> main
 TrustStatusWidget.Subheadline = TextStyle.new(
         Color.clear,
         Color.clear,
@@ -95,7 +98,11 @@ function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, 
         if indexPath.section == 1 then
             local cell = TextCollectionViewCell.new(item)
             cell:setItemSize(14)
+<<<<<<< HEAD
             cell:setUserInteractionEnabled(indexPath.row > 2)
+=======
+            cell:setUserInteractionEnabled(false)
+>>>>>>> main
             return cell
         else
             local cell = MarqueeCollectionViewCell.new(item)
@@ -105,7 +112,11 @@ function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, 
         end
     end)
 
+<<<<<<< HEAD
     local self = setmetatable(Widget.new(frame, "Trust", addonSettings, dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 3), 20), TrustStatusWidget)
+=======
+    local self = setmetatable(Widget.new(frame, "Trust", addonSettings, dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 4), 20), TrustStatusWidget)
+>>>>>>> main
 
     self.addonSettings = addonSettings
     self.mainJobName = mainJobName
@@ -113,7 +124,10 @@ function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, 
 
     self:setJobs(mainJobName, subJobName)
 
+<<<<<<< HEAD
     self:getDataSource():addItem(TextItem.new(state.TrustMode.value, TrustStatusWidget.TextSmall3), IndexPath.new(1, 3))
+=======
+>>>>>>> main
     self:getDataSource():addItem(TextItem.new('', TrustStatusWidget.Subheadline), IndexPath.new(2, 1))
 
     self:setVisible(true)
@@ -121,6 +135,7 @@ function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, 
     self:setNeedsLayout()
     self:layoutIfNeeded()
 
+<<<<<<< HEAD
     for mode in L{ state.TrustMode }:it() do
         self:getDisposeBag():add(mode:on_state_change():addAction(function(_, new_value, old_value)
             if new_value ~= old_value then
@@ -137,6 +152,8 @@ function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, 
         end
     end), self:getDelegate():didSelectItemAtIndexPath())
 
+=======
+>>>>>>> main
     self:getDisposeBag():add(actionQueue:on_action_start():addAction(function(_, s)
         self:setAction(s:tostring() or '')
     end), actionQueue:on_action_start())

@@ -21,7 +21,11 @@ function HelpView.new(main_job_name_short, helpUrl)
         return cell
     end)
 
+<<<<<<< HEAD
     local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0))), HelpView)
+=======
+    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0))), HelpView)
+>>>>>>> main
 
     self.helpUrl = helpUrl
     self:setScrollDelta(20)

@@ -20,6 +20,7 @@ function PartyTargetView.new(target_tracker)
         return cell
     end)
 
+<<<<<<< HEAD
     local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 10, 0, 0))), PartyTargetView)
 
     self.menuArgs = {}
@@ -28,6 +29,12 @@ function PartyTargetView.new(target_tracker)
     self:setScrollDelta(20)
     self:setScrollEnabled(true)
     self:setAllowsCursorSelection(true)
+=======
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0))), PartyTargetView)
+
+    self:setScrollDelta(20)
+    self:setScrollEnabled(true)
+>>>>>>> main
 
     local itemsToAdd = L{}
 
