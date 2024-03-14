@@ -538,6 +538,7 @@ end
 
 function handle_debug()
 	print(num_created)
+	print('images', num_images_created)
 
 	print(L(windower.ffxi.get_player().buffs):map(function(buff_id)
 		return res.buffs:with('id', buff_id).en

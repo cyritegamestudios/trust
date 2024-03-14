@@ -178,6 +178,7 @@ end
 -- @tparam list buff_ids List of buff ids (see buffs.lua)
 -- @treturn Boolean True if the given buff conflicts with a player's existing buffs and false otherwise
 function buff_util.conflicts_with_buffs(buff_id, buff_ids)
+	buff_ids = buff_ids or L{}
 	local conflicting_buff_ids = buff_conflicts[buff_id]
 	if conflicting_buff_ids then
 		return L(set.intersection(conflicting_buff_ids, S(buff_ids))):length() > 0
@@ -191,6 +192,7 @@ end
 -- @tparam list buff_ids List of buff ids (see buffs.lua)
 -- @treturn list List of buff ids that are overwritten
 function buff_util.buffs_overwritten(buff_id, buff_ids)
+	buff_ids = buff_ids or L{}
 	local spells = L(res.spells:with_all('status', buff_id)):map(function(spell) return L(spell.overwrites or {}) end):flatten()
 
 	local statuses = S(spells:map(function(spell_id) return res.spells:with('id', spell_id).status end)):filter(function(status_id) return status_id ~= buff_id and buff_ids:contains(status_id)  end)
