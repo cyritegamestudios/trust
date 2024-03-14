@@ -47,7 +47,7 @@ function AfflatusMisery:get_aoe_cure_spell(hp_missing)
         if not spell_util.is_spell_on_cooldown(res.spells:with('en', 'Cura III').id) then
             return Spell.new('Cura III', L{}, L{}, 'me')
         else
-            return Spell.new('Cura II', L{}, L{}, 'me')
+            return Spell.new('Curaga III', L{}, L{})
         end
     elseif hp_missing > self.cure_settings.Thresholds['Curaga II'] then
         if not spell_util.is_spell_on_cooldown(res.spells:with('en', 'Cura II').id) then

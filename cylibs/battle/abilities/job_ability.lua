@@ -104,6 +104,13 @@ function JobAbility:get_valid_targets()
 end
 
 -------
+-- Returns the range of the job ability in yalms.
+-- @treturn number Range of the spell (e.g. 18, 21, etc.)
+function JobAbility:get_range()
+    return 17
+end
+
+-------
 -- Returns whether or not the player knows this spell.
 -- @treturn Boolean True if the player knows this spell
 function JobAbility:is_valid()

@@ -30,7 +30,7 @@ function WhiteMageTrust.new(settings, action_queue, battle_settings, trust_setti
 		ManaRestorer.new(action_queue, L{'Mystic Boon', 'Dagan', 'Spirit Taker', 'Moonlight'}, 40),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		Raiser.new(action_queue, job),
-		Puller.new(action_queue, battle_settings.targets, Debuff.new('Dia') and Debuff.new('Dia'):get_spell().en, nil),
+		Puller.new(action_queue, battle_settings.targets, L{ Debuff.new('Dia') }:compact_map()),
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), WhiteMageTrust)
 

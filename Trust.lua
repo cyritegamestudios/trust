@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '8.8.6'
+_addon.version = '9.0.0'
 _addon.release_notes = [[
 This update brings Scholar to the forefront with skillchaining
 using Immanence, as well as changes to Dancer and Rune Fencer!
@@ -185,6 +185,7 @@ function load_user_files(main_job_id, sub_job_id)
 	player.trust.main_job:add_role(Targeter.new(action_queue))
 	player.trust.main_job:add_role(Truster.new(action_queue, addon_settings:getSettings().battle.trusts))
 	player.trust.main_job:add_role(Aftermather.new(action_queue, player.trust.main_job:role_with_type("skillchainer")))
+	player.trust.main_job:add_role(Assistant.new(action_queue))
 
 	target_change_time = os.time()
 

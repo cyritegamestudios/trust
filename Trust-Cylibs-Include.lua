@@ -68,6 +68,7 @@ ElementalMagic = require('cylibs/battle/abilities/elemental_magic')
 
 -- Roles
 Role = require('cylibs/trust/roles/role')
+Assistant = require('cylibs/trust/roles/assistant')
 Aftermather = require('cylibs/trust/roles/aftermather')
 Attacker = require('cylibs/trust/roles/attacker')
 CombatMode = require('cylibs/trust/roles/combat_mode')
@@ -77,7 +78,7 @@ Pather = require('cylibs/trust/roles/pather')
 Skillchainer = require('cylibs/trust/roles/skillchainer')
 Spammer = require('cylibs/trust/roles/spammer')
 Cleaver = require('cylibs/trust/roles/cleaver')
-Targeter = require('cylibs/trust/roles/targeter')
+Targeter = require('cylibs/trust/roles/targeter_v2')
 Truster = require('cylibs/trust/roles/truster')
 
 -- Util

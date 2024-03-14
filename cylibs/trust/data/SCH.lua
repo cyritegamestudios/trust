@@ -141,7 +141,7 @@ function ScholarTrust:update_for_arts(new_arts_mode)
             MagicBurster.new(self.action_queue, self:get_trust_settings().NukeSettings, 0.8, L{ 'Ebullience' }, self:get_job()),
             ManaRestorer.new(self.action_queue, L{'Myrkr', 'Spirit Taker'}, 40),
             Nuker.new(self.action_queue, self:get_trust_settings().NukeSettings, 0.8, L{}, self:get_job()),
-            Puller.new(self.action_queue, self.battle_settings.targets, 'Stone', nil),
+            Puller.new(self.action_queue, self.battle_settings.targets, L{ Spell.new('Stone') }:compact_map()),
         }
     end
 

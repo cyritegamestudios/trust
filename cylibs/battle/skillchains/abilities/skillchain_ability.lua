@@ -144,7 +144,7 @@ function SkillchainAbility:to_action(target_index, player, job_abilities)
         if job_util.can_use_job_ability(job_ability:get_name()) then
             local job_ability_action = job_ability:to_action()
             if job_ability_action:can_perform() then
-                actions:append(job_ability:to_action())
+                actions:append(job_ability_action)
             else
                 job_ability_action:destroy()
             end

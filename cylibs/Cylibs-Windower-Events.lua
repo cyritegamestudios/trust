@@ -23,6 +23,7 @@ WindowerEvents.DisposeBag = DisposeBag.new()
 WindowerEvents.Action = Event.newEvent()
 WindowerEvents.ActionMessage = Event.newEvent()
 WindowerEvents.CharacterUpdate = Event.newEvent()
+WindowerEvents.MobUpdate = Event.newEvent()
 WindowerEvents.PositionChanged = Event.newEvent()
 WindowerEvents.TargetIndexChanged = Event.newEvent()
 WindowerEvents.ZoneUpdate = Event.newEvent()
@@ -44,6 +45,7 @@ local incoming_event_ids = S{
     0x0DD, -- data.incoming[0x0DD] = {name='Party member update', description='Packet sent on party member join, leave, zone, etc.'}
     0x0DF,
     0x00D,
+    0x00E,
     0x076,
     0x0C8,
     0x037,
@@ -165,6 +167,31 @@ local incoming_event_dispatcher = {
                 WindowerEvents.PositionChanged:trigger(target_id, packet['X'], packet['Y'], packet['Z'])
             end
             WindowerEvents.TargetIndexChanged:trigger(target_id, packet['Target Index'])
+        end
+    end,
+
+    -- 0x00E
+    -- NPC Update
+    [0x00E] = function(data)
+        local packet = packets.parse('incoming', data)
+
+        local mob_id = packet['NPC']
+        local mob = windower.ffxi.get_mob_by_id(mob_id)
+        if not mob then
+            return
+        end
+
+        local name = mob.name
+        local status = packet['Status']
+        local type = packet['Mask']
+
+        if type == 7 then
+            local hpp = packet['HP %']
+            WindowerEvents.MobUpdate:trigger(mob_id, name, hpp)
+        end
+
+        if L{ 2, 3 }:contains(status) then
+            WindowerEvents.MobUpdate:trigger(mob_id, name, 0)
         end
     end,
 

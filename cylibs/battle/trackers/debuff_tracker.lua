@@ -30,7 +30,6 @@ end
 function DebuffTracker.new(mob_id)
     local self = setmetatable({
         mob_id = mob_id;
-        action_events = {};
         debuff_ids = S{};
         dispose_bag = DisposeBag.new();
     }, DebuffTracker)
@@ -44,12 +43,6 @@ end
 -------
 -- Stops tracking the player's actions and disposes of all registered event handlers.
 function DebuffTracker:destroy()
-    if self.action_events then
-        for _,event in pairs(self.action_events) do
-            windower.unregister_event(event)
-        end
-    end
-
     self.dispose_bag:destroy()
 
     self.lose_debuff:removeAllActions()

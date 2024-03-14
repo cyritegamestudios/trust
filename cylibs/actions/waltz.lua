@@ -13,15 +13,11 @@ function Waltz.new(waltz_name, target_index)
 
     self.conditions:append(NotCondition.new(L{ HasBuffCondition.new('Saber Dance', windower.ffxi.get_player().index) }, windower.ffxi.get_player().index))
 
-    self:debug_log_create(self:gettype())
-
     return self
 end
 
 function Waltz:destroy()
     JobAbility.destroy(self)
-
-    self:debug_log_destroy(self:gettype())
 end
 
 function Waltz:gettype()

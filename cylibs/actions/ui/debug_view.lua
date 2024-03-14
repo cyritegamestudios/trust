@@ -78,6 +78,8 @@ function DebugView:updateActions()
         itemsToAdd:append(IndexedItem.new(TextItem.new(action_type..': '..count, TextStyle.Default.TextSmall), IndexPath.new(1, rowIndex)))
         rowIndex = rowIndex + 1
     end
+    itemsToAdd:append(IndexedItem.new(TextItem.new('Views created: '..num_created, TextStyle.Default.TextSmall), IndexPath.new(1, rowIndex)))
+    itemsToAdd:append(IndexedItem.new(TextItem.new('Monsters created: '..num_monsters, TextStyle.Default.TextSmall), IndexPath.new(1, rowIndex + 1)))
 
     -- Actions
     itemsToAdd:append(IndexedItem.new(TextItem.new("Actions", TextStyle.Default.HeaderSmall), IndexPath.new(2, 1)))

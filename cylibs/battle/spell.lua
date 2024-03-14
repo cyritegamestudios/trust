@@ -15,6 +15,7 @@ local StrategemCountCondition = require('cylibs/conditions/strategem_count')
 local Spell = {}
 Spell.__index = Spell
 Spell.__type = "Spell"
+Spell.__class = "Spell"
 
 -------
 -- Default initializer for a new spell.

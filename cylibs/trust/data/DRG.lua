@@ -1,7 +1,3 @@
-require('tables')
-require('lists')
-require('logger')
-
 Dragoon = require('cylibs/entity/jobs/DRG')
 
 local Trust = require('cylibs/trust/trust')

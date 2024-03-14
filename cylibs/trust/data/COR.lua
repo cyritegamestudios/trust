@@ -1,7 +1,3 @@
-require('tables')
-require('lists')
-require('logger')
-
 Corsair = require('cylibs/entity/jobs/COR')
 
 local Trust = require('cylibs/trust/trust')
@@ -13,6 +9,7 @@ local Dispeler = require('cylibs/trust/roles/dispeler')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local ModeDelta = require('cylibs/modes/mode_delta')
 local Puller = require('cylibs/trust/roles/puller')
+local RangedAttack = require('cylibs/battle/ranged_attack')
 local Roller = require('cylibs/trust/roles/roller')
 local Shooter = require('cylibs/trust/roles/shooter')
 
@@ -22,7 +19,7 @@ function CorsairTrust.new(settings, action_queue, battle_settings, trust_setting
 		Dispeler.new(action_queue, L{}, L{ JobAbility.new('Dark Shot') }, false),
 		Shooter.new(action_queue, trust_settings.Shooter.Delay or 1.5),
 		Roller.new(action_queue, job, trust_settings.Roll1, trust_settings.Roll2),
-		Puller.new(action_queue, battle_settings.targets, nil, nil, true)
+		Puller.new(action_queue, battle_settings.targets, L{ RangedAttack.new() })
 	}
 
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), CorsairTrust)

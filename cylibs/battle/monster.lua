@@ -45,6 +45,11 @@ function Monster:on_gain_debuff()
     return self.debuff_tracker:on_gain_debuff()
 end
 
+-- Event called when a monster is knocked out.
+function Monster:on_ko()
+    return self.ko
+end
+
 function Monster:on_spell_resisted()
     return self.spell_resisted
 end
@@ -69,6 +74,8 @@ function Monster:on_skillchain_ended()
     return self.skillchain_ended
 end
 
+num_monsters = 0
+
 -------
 -- Default initializer for a new monster.
 -- @tparam number mob_id Mob id
@@ -76,7 +83,6 @@ end
 function Monster.new(mob_id)
     local self = setmetatable(Entity.new(mob_id), Monster)
 
-    self.action_events = {}
     self.mob_id = mob_id
     self.current_target = nil
     self.buff_ids = S{}
@@ -92,8 +98,11 @@ function Monster.new(mob_id)
     self.spell_finish = Event.newEvent()
     self.skillchain = Event.newEvent()
     self.skillchain_ended = Event.newEvent()
+    self.ko = Event.newEvent()
 
     self.dispose_bag = DisposeBag.new()
+
+    num_monsters = num_monsters + 1
 
     return self
 end
@@ -113,11 +122,10 @@ end
 -------
 -- Stops tracking the player's actions and disposes of all registered event handlers.
 function Monster:destroy()
-    if self.action_events then
-        for _,event in pairs(self.action_events) do
-            windower.unregister_event(event)
-        end
+    if self.is_destroyed then
+        return
     end
+    self.is_destroyed = true
 
     self.target_change:removeAllActions()
     self.tp_move_finish:removeAllActions()
@@ -130,8 +138,11 @@ function Monster:destroy()
     self.spell_finish:removeAllActions()
     self.skillchain:removeAllActions()
     self.skillchain_ended:removeAllActions()
+    self.ko:removeAllActions()
 
     self.dispose_bag:destroy()
+
+    num_monsters = num_monsters - 1
 end
 
 -------
@@ -149,6 +160,7 @@ function Monster:monitor()
     self.resist_tracker = ResistTracker.new(self)
 
     self.dispose_bag:addAny(L{ self.debuff_tracker, self.resist_tracker })
+
     self.dispose_bag:add(WindowerEvents.Action:addAction(function(act)
         if act.actor_id == self.mob_id then
             self:handle_action_by_monster(act)
@@ -156,6 +168,14 @@ function Monster:monitor()
             self:handle_action_on_monster(act)
         end
     end), WindowerEvents.Action)
+
+    self.dispose_bag:add(WindowerEvents.MobUpdate:addAction(function(mob_id, name, hpp)
+        if mob_id == self.mob_id then
+            if hpp == 0 then
+                self:on_ko():trigger(self)
+            end
+        end
+    end, WindowerEvents.MobUpdate))
 end
 
 function Monster:handle_action_by_monster(act)
@@ -165,7 +185,7 @@ function Monster:handle_action_by_monster(act)
             local action = target.actions[1]
             if action then
                 -- ${actor} uses ${weapon_skill}.${lb}${target} takes ${number} points of damage.
-                if action.message == 185 then
+                if L{ 185, 186, 187, 188 }:contains(action.message) then
                     local monster_ability_name = res.monster_abilities:with('id', act.param).en
                     self:on_tp_move_finish():trigger(self, monster_ability_name, windower.ffxi.get_mob_by_id(target.id).name, action.param)
                 end
@@ -315,6 +335,10 @@ function Monster:get_status()
     return 'Idle'
 end
 
+function Monster:get_hpp()
+    return self:get_mob().hpp
+end
+
 -------
 -- Sets the current skillchain active on this monster.
 -- @tparam SkillchainStep skillchain Active skillchain
@@ -344,6 +368,10 @@ function Monster:description()
         result = result..' ('..windower.ffxi.get_mob_by_id(self:get_mob().claim_id).name..')'
     end
     return result
+end
+
+function Monster:__eq(otherItem)
+    return self:get_id() == otherItem:get_id()
 end
 
 return Monster

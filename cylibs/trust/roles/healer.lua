@@ -44,6 +44,9 @@ end
 function Healer:on_add()
     local on_party_member_added = function(p)
         self.dispose_bag:add(p:on_hp_change():addAction(function(p, hpp, max_hp)
+            if state.AutoHealMode.value == 'Off' then
+                return
+            end
             if hpp > 0 then
                 if hpp < 25 then
                     if p:get_mob().distance:sqrt() < 21 then

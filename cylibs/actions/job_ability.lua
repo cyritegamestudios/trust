@@ -19,20 +19,21 @@ function JobAbility.new(x, y, z, job_ability_name, target_index)
     local self = setmetatable(Action.new(x, y, z, target_index, conditions), JobAbility)
 
     self.job_ability_name = job_ability_name
+    self.debug_log_type = self:gettype()
 
-    self:debug_log_create(self:gettype())
+    self:debug_log_create(self.debug_log_type)
 
     return self
 end
 
 function JobAbility:destroy()
-    Action.destroy(self)
+    self:debug_log_destroy(self.debug_log_type)
 
-    self:debug_log_destroy(self:gettype())
+    Action.destroy(self)
 end
 
 function JobAbility:perform()
-    logger.notice("trying to perform", self.job_ability_name)
+    logger.notice(self.__class, 'perform', self.job_ability_name)
 
     if self.target_index == nil then
         windower.chat.input('/%s':format(self.job_ability_name))

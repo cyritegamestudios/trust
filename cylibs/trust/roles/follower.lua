@@ -102,7 +102,7 @@ end
 -- @treturn boolean True if the target can be followed
 function Follower:is_valid_target(target_name)
     local target = self:get_alliance():get_alliance_member_named(target_name)
-    if target == nil or target:get_name() == windower.ffxi.get_player().name or target:get_zone_id() ~= windower.ffxi.get_info().zone or target:get_mob() == nil then
+    if target == nil or target:get_name() == windower.ffxi.get_player().name or target:get_zone_id() ~= windower.ffxi.get_info().zone then
         return false
     end
     for condition in self.conditions:it() do

@@ -122,7 +122,7 @@ function TargetWidget.new(frame, addonSettings, party, trust)
     self:getDisposeBag():add(skillchainer:on_skillchain():addAction(function(target_id, step)
         --self.actionQueue:clear()
         if --[[skillchainer:get_target() and skillchainer:get_target():get_id()]] self.target_index and monster_util.id_for_index(self.target_index) == target_id then
-            self.actionDisposeBag:dispose()
+            self.actionDisposeBag:destroy()
             local element = step:get_skillchain():get_name()
             --local text = "St. "..step:get_step()..": "..element-- "Step %d: %s":format(step:get_step(), element)
             local text = element-- "Step %d: %s":format(step:get_step(), element)
@@ -152,7 +152,7 @@ function TargetWidget.new(frame, addonSettings, party, trust)
 
     self:getDisposeBag():add(skillchainer:on_skillchain_ended():addAction(function(target_id)
         if self.target_index and monster_util.id_for_index(self.target_index) == target_id then
-            self.actionDisposeBag:dispose()
+            self.actionDisposeBag:destroy()
             self:setAction('')
             --self.actionQueue:clear()
         end

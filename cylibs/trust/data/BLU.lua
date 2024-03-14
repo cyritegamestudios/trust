@@ -1,7 +1,3 @@
-require('tables')
-require('lists')
-require('logger')
-
 BlueMage = require('cylibs/entity/jobs/BLU')
 
 local Trust = require('cylibs/trust/trust')
@@ -16,7 +12,7 @@ function BlueMageTrust.new(settings, action_queue, battle_settings, trust_settin
 	local roles = S{
 		Buffer.new(action_queue, S{}, trust_settings.SelfBuffs),
 		Dispeler.new(action_queue, L{ Spell.new('Geist Wall'), Spell.new('Blank Gaze') }, L{}, true),
-		Puller.new(action_queue, battle_settings.targets, 'Glutinous Dart', nil)
+		Puller.new(action_queue, battle_settings.targets, L{ Spell.new('Glutinous Dart') }:compact_map())
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, BlueMage.new()), BlueMageTrust)
 
