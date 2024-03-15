@@ -78,7 +78,7 @@ Pather = require('cylibs/trust/roles/pather')
 Skillchainer = require('cylibs/trust/roles/skillchainer')
 Spammer = require('cylibs/trust/roles/spammer')
 Cleaver = require('cylibs/trust/roles/cleaver')
-Targeter = require('cylibs/trust/roles/targeter_v2')
+Targeter = require('cylibs/trust/roles/targeter')
 Truster = require('cylibs/trust/roles/truster')
 
 -- Util

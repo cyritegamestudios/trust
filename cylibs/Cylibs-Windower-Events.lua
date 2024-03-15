@@ -96,7 +96,7 @@ local incoming_event_dispatcher = {
         if action_message_util.is_lose_debuff_message(message_id) and param_1 then
             if buff_util.is_debuff(param_1) then
                 WindowerEvents.LoseDebuff:trigger(target_id, param_1)
-                IpcRelay.shared():send_message(LoseDebuffMessage.new(target_id, param_1))
+                --IpcRelay.shared():send_message(LoseDebuffMessage.new(target_id, param_1))
             end
         end
     end,

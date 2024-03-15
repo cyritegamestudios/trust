@@ -137,8 +137,11 @@ function Puller:get_next_target()
             return t1:get_distance() < t2:get_distance()
         end)
         if party_targets:length() > 0 then
+            local party_target_indices = self:get_party():get_party_members(false):map(function(p)
+                return p:get_target_index()
+            end):compact_map()
             local next_target = party_targets:firstWhere(function(target)
-                return target and not party_util.party_targeted(target:get_id())
+                return target and not party_target_indices:contains(target:get_mob().index)
             end) or party_targets[1]
             local monster = Monster.new(next_target:get_id())
             return monster
