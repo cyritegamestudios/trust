@@ -106,7 +106,7 @@ function Skillchainer:on_add()
         local target = self:get_party():get_target(mob_id)
         if target then
             target:set_skillchain(step)
-            if target:get_mob().index == self.target_index then
+            if target:get_mob() and target:get_mob().index == self.target_index then
                 self.skillchain_builder:set_current_step(step)
 
                 self:show_next_skillchain_info()
@@ -118,7 +118,7 @@ function Skillchainer:on_add()
         local target = self:get_party():get_target(mob_id)
         if target then
             target:set_skillchain(nil)
-            if target:get_mob().index == self.target_index then
+            if target:get_mob() and target:get_mob().index == self.target_index then
                 local step = self.skillchain_tracker:get_current_step(mob_id)
                 if step == nil then
                     self.is_performing_ability = false

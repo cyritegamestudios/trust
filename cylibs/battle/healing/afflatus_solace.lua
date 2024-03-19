@@ -75,7 +75,7 @@ end
 -- @tparam number num_targets Number of targets afflicted with the status effect
 -- @treturn Spell Status removal spell
 function AfflatusSolace:get_status_removal_spell(debuff_id, num_targets)
-    if self.ignore_debuff_ids:contains(debuff_id) then return nil end
+    if self.ignore_debuff_ids:contains(debuff_id) or self.ignore_debuff_names:contains(buff_util.buff_name(debuff_id)) then return nil end
 
     local spell_id = cure_util.spell_id_for_debuff_id(debuff_id)
     if spell_id then
@@ -128,6 +128,7 @@ end
 function AfflatusSolace:set_cure_settings(cure_settings)
     self.cure_settings = cure_settings or cure_util.default_cure_settings.Magic
     self.ignore_debuff_ids = self.cure_settings.StatusRemovals.Blacklist:map(function(debuff_name) return buff_util.buff_id(debuff_name) end)
+    self.ignore_debuff_names = self.cure_settings.StatusRemovals.Blacklist
 end
 
 return AfflatusSolace

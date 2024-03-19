@@ -150,7 +150,7 @@ function Puller:get_next_target()
         local exclude_targets = self:get_party():get_targets(function(target)
             return target:is_claimed() and target ~= self:get_target()
         end):map(function(target) return target:get_mob().index  end)
-        local target = ffxi_util.find_closest_mob(self:get_target_names(), exclude_targets, self.blacklist)
+        local target = ffxi_util.find_closest_mob(self:get_target_names(), L{}:extend(party_util.party_targets())--[[exclude_targets]], self.blacklist)
         if target and target.distance:sqrt() < 25 then
             local monster = Monster.new(target.id)
             return monster

@@ -139,7 +139,7 @@ function StatusRemover:remove_status_effect(party_members, debuff_id)
 
         logger.notice(self.__class, 'remove_status_effect', res.buffs[debuff_id].en, spell_target:get_name(), #party_members, status_removal_spell:get_spell().en)
     else
-        logger.notice(self.__class, 'remove_status_effect', res.buffs[debuff_id].en, spell_target:get_name(), 'no spell found')
+        logger.notice(self.__class, 'remove_status_effect', res.buffs[debuff_id].en, 'no spell found')
     end
 end
 
