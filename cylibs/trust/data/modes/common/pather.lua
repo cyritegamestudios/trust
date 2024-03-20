@@ -10,7 +10,6 @@ return {
         ["autodebuffmode"]="Off",
         ["autofacemobmode"]="Off",
         ["autosilencemode"]="Off",
-        ["autobuffmode"]="Off",
         ["autohealmode"]="Emergency",
         ["autoskillchainmode"]="Off",
         ["combatmode"]="Off",

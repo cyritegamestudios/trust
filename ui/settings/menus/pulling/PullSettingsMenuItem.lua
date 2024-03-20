@@ -60,7 +60,7 @@ end
 
 function PullSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Targets", self:getTargetsMenuItem())
-    self:setChildMenuItem("Actions", PullActionMenuItem.new(self.puller, self.puller:get_pull_settings(), self.job_name_short, self.viewFactory))
+    self:setChildMenuItem("Actions", PullActionMenuItem.new(self.puller, self.puller:get_pull_settings(), self.viewFactory))
     self:setChildMenuItem("Modes", self:getModesMenuItem())
 end
 

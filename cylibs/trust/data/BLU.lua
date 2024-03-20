@@ -6,15 +6,20 @@ BlueMageTrust.__index = BlueMageTrust
 
 local Buffer = require('cylibs/trust/roles/buffer')
 local Dispeler = require('cylibs/trust/roles/dispeler')
+local Healer = require('cylibs/trust/roles/healer')
+local ManaRestorer = require('cylibs/trust/roles/mana_restorer')
 local Puller = require('cylibs/trust/roles/puller')
 
 function BlueMageTrust.new(settings, action_queue, battle_settings, trust_settings)
+	local job = BlueMage.new()
 	local roles = S{
 		Buffer.new(action_queue, S{}, trust_settings.SelfBuffs),
-		Dispeler.new(action_queue, L{ Spell.new('Geist Wall'), Spell.new('Blank Gaze') }, L{}, true),
+		Dispeler.new(action_queue, L{ Spell.new('Blank Gaze') }, L{}, true),
+		Healer.new(action_queue, job),
+		ManaRestorer.new(action_queue, L{}, L{ Spell.new('Magic Hammer'), Spell.new('MP Drainkiss') }, 40),
 		Puller.new(action_queue, battle_settings.targets, L{ Spell.new('Glutinous Dart') }:compact_map())
 	}
-	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, BlueMage.new()), BlueMageTrust)
+	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), BlueMageTrust)
 
 	self.settings = settings
 	self.action_queue = action_queue
@@ -26,6 +31,8 @@ function BlueMageTrust:on_init()
 	Trust.on_init(self)
 
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
+		self:get_job():set_cure_settings(new_trust_settings.CureSettings)
+
 		local buffer = self:role_with_type("buffer")
 		if buffer then
 			buffer:set_job_abilities(new_trust_settings.JobAbilities)

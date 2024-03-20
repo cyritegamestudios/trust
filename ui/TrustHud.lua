@@ -77,7 +77,7 @@ function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, a
 
     self.lastMenuToggle = os.time()
     self.menuSize = Frame.new(0, 0, menu_width, menu_height)
-    self.viewStack = ViewStack.new()
+    self.viewStack = ViewStack.new(Frame.new(16, 48, 0, 0))
     self.actionQueue = action_queue
     self.addon_settings = addon_settings
     self.trustModeSettings = trustModeSettings
@@ -228,7 +228,7 @@ local function setupView(view, viewSize, hideBackground)
     if not hideBackground then
         --view:setBackgroundImageView(createBackgroundView(viewSize.width, viewSize.height))
     end
-    view:setNavigationBar(createTitleView(viewSize))
+    --view:setNavigationBar(createTitleView(viewSize))
     view:setSize(viewSize.width, viewSize.height)
     return view
 end
@@ -246,7 +246,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         editSpellView:setTitle("Edit buff.")
         editSpellView:setShouldRequestFocus(true)
         return editSpellView
-    end)
+    end, "Buffs", "Edit buff settings.")
 
     local chooseSpellsItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
@@ -269,7 +269,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         chooseSpellsView:setTitle("Choose buffs to add.")
         chooseSpellsView:setScrollEnabled(true)
         return chooseSpellsView
-    end)
+    end, "Buffs", "Add a new buff.")
 
     local selfBuffSettingsItem = MenuItem.new(L{
         ButtonItem.default('Add', 18),
@@ -285,7 +285,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         local backgroundImageView = createBackgroundView(viewSize.width, viewSize.height)
         local buffSettingsView = BuffSettingsEditor.new(trustSettings, buffs, S{'Self'})
         buffSettingsView:setBackgroundImageView(backgroundImageView)
-        buffSettingsView:setNavigationBar(createTitleView(viewSize))
+        --buffSettingsView:setNavigationBar(createTitleView(viewSize))
         buffSettingsView:setSize(viewSize.width, viewSize.height)
         buffSettingsView:setShouldRequestFocus(true)
         buffSettingsView:setTitle("Edit buffs on the player.")
@@ -306,7 +306,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
                 local backgroundImageView = createBackgroundView(viewSize.width, viewSize.height)
                 local buffSettingsView = BuffSettingsEditor.new(trustSettings, buffs, S{'Party'})
                 buffSettingsView:setBackgroundImageView(backgroundImageView)
-                buffSettingsView:setNavigationBar(createTitleView(viewSize))
+                --buffSettingsView:setNavigationBar(createTitleView(viewSize))
                 buffSettingsView:setSize(viewSize.width, viewSize.height)
                 buffSettingsView:setShouldRequestFocus(true)
                 buffSettingsView:setTitle("Edit buffs on the party.")
@@ -333,7 +333,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
                 local chooseJobAbilitiesView = setupView(JobAbilityPickerView.new(trustSettings, T(trustSettings:getSettings())[trustSettingsMode.value].JobAbilities, allJobAbilities), viewSize)
                 chooseJobAbilitiesView:setTitle("Choose job abilities to add.")
                 return chooseJobAbilitiesView
-            end)
+            end, "Job Abilities", "Add a new job ability buff.")
 
     local jobAbilitiesSettingsItem = MenuItem.new(L{
         ButtonItem.default('Add', 18),
@@ -345,10 +345,10 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
                 local backgroundImageView = createBackgroundView(viewSize.width, viewSize.height)
                 local jobAbilitiesSettingsView = JobAbilitiesSettingsEditor.new(trustSettings, trustSettingsMode, viewSize.width)
                 jobAbilitiesSettingsView:setBackgroundImageView(backgroundImageView)
-                jobAbilitiesSettingsView:setNavigationBar(createTitleView(viewSize))
+                --jobAbilitiesSettingsView:setNavigationBar(createTitleView(viewSize))
                 jobAbilitiesSettingsView:setSize(viewSize.width, viewSize.height)
                 return jobAbilitiesSettingsView
-            end, "Job Abilities", "Choose job abilities to use.")
+            end, "Job Abilities", "Choose job ability buffs.")
 
     local buffSettingsItem = MenuItem.new(L{
         ButtonItem.default('Self', 18),
@@ -375,7 +375,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
                 local chooseSpellsView = setupView(SpellPickerView.new(trustSettings, L(T(trustSettings:getSettings())[trustSettingsMode.value].Debuffs), allDebuffs, L{}, false), viewSize)
                 chooseSpellsView:setTitle("Choose debuffs to add.")
                 return chooseSpellsView
-            end)
+            end, "Debuffs", "Add a new debuff.")
 
     local debuffModesMenuItem = MenuItem.new(L{}, L{}, function(_)
         local modesView = setupView(ModesView.new(L{'AutoDebuffMode', 'AutoDispelMode', 'AutoSilenceMode'}), viewSize)
@@ -397,7 +397,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         local backgroundImageView = createBackgroundView(viewSize.width, viewSize.height)
         local debuffSettingsView = DebuffSettingsEditor.new(trustSettings, trustSettingsMode, self.addon_settings:getSettings().help.wiki_base_url..'/Debuffer')
         debuffSettingsView:setBackgroundImageView(backgroundImageView)
-        debuffSettingsView:setNavigationBar(createTitleView(viewSize))
+        --debuffSettingsView:setNavigationBar(createTitleView(viewSize))
         debuffSettingsView:setSize(viewSize.width, viewSize.height)
         return debuffSettingsView
     end, "Debuffs", "Choose debuffs to use on enemies.")
@@ -661,7 +661,7 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
         local backgroundImageView = createBackgroundView(viewSize.width, viewSize.height)
         local automatonView = AutomatonView.new(trustSettings, trustSettingsMode)
         automatonView:setBackgroundImageView(backgroundImageView)
-        automatonView:setNavigationBar(createTitleView(viewSize))
+        --automatonView:setNavigationBar(createTitleView(viewSize))
         automatonView:setSize(viewSize.width, viewSize.height)
         return automatonView
     end)

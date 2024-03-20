@@ -7,6 +7,7 @@ return {
         ["automagicburstmode"]="Off",
         ["autofollowmode"]="Always",
         ["autobuffmode"]="Auto",
+        ["autohealmode"]="Off",
         ["autoskillchainmode"]="Auto",
         ["autopullmode"]="Off",
         ["autoaftermathmode"]="Auto",

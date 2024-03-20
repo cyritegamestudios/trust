@@ -7,6 +7,7 @@ local serializer_util = require('cylibs/util/serializer_util')
 local Condition = require('cylibs/conditions/condition')
 local ValidTargetCondition = setmetatable({}, { __index = Condition })
 ValidTargetCondition.__index = ValidTargetCondition
+ValidTargetCondition.__class = "ValidTargetCondition"
 
 function ValidTargetCondition.new(blacklist_names)
     local self = setmetatable(Condition.new(), ValidTargetCondition)

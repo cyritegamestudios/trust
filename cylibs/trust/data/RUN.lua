@@ -77,7 +77,7 @@ function RuneFencerTrust:check_runes()
 	if state.AutoRuneMode.value ~= 'Off' and windower.ffxi.get_ability_recasts()[10] == 0 then -- or 92
 		local current_runes = self:get_job():get_current_runes()
 
-		local rune_set = L{{Name=state.AutoRuneMode.value, Amount=3}}
+		local rune_set = L{{Name=state.AutoRuneMode.value, Amount=self:get_job():get_max_num_runes()}}
 
 		for rune in rune_set:it() do
 			local runesActive = current_runes:filter(function(rune_name) return rune_name == rune.Name end)

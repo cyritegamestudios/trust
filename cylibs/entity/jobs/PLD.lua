@@ -36,7 +36,7 @@ end
 -- @tparam number hp_missing Amount of hp missing
 -- @treturn Spell Aoe cure spell
 function Paladin:get_aoe_cure_spell(hp_missing)
-    return nil
+    return self:get_cure_spell(hp_missing)
 end
 
 -------

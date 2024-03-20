@@ -97,7 +97,7 @@ function SkillchainTracker:apply_properties(party_member, target_id, action)
     local _, resource, action_id, _, _ = action:get_spell()
 
     local ability = SkillchainAbility.new(resource, action_id, L{}, party_member) -- e.g. Weapon Skill, Spell, Chain Bound, etc.
-    if ability then
+    if ability and ability:get_skillchain_properties():length() > 0 then
         logger.notice(self.__class, 'apply_properties', 'checking action', ability:get_name(), target_id)
 
         local step_num = 1

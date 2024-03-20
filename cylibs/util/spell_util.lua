@@ -83,20 +83,29 @@ function spell_util.knows_spell(spell_id)
     local spell_known = windower.ffxi.get_spells()[spell_id] or spells_whitelist:contains(spell_util.spell_name(spell_id))
     -- If both are true, check if player can cast
     if spell and spell_known then
-        local player = windower.ffxi.get_player()
-        -- Main job can cast spell
-        local main_job_level = player.main_job_level
-        -- Job point spell
-        if (spell.levels[player.main_job_id] or 0) > 99 then
-            main_job_level = job_util.get_job_points(res.jobs[player.main_job_id]['ens'])
-        end
-        -- Main job can cast (including JP)
-        if spell.levels[player.main_job_id] and main_job_level >= spell.levels[player.main_job_id] then
-            return true
-        end
-        -- Sub job can cast
-        if spell.levels[player.sub_job_id] and player.sub_job_level >= spell.levels[player.sub_job_id] then
-            return true
+        if spell.type == 'BlueMagic' then
+            local equipped_spells = windower.ffxi.get_mjob_data().spells
+            for _, equipped_spell_id in pairs(equipped_spells) do
+                if equipped_spell_id == spell_id then
+                    return true
+                end
+            end
+        else
+            local player = windower.ffxi.get_player()
+            -- Main job can cast spell
+            local main_job_level = player.main_job_level
+            -- Job point spell
+            if (spell.levels[player.main_job_id] or 0) > 99 then
+                main_job_level = job_util.get_job_points(res.jobs[player.main_job_id]['ens'])
+            end
+            -- Main job can cast (including JP)
+            if spell.levels[player.main_job_id] and main_job_level >= spell.levels[player.main_job_id] then
+                return true
+            end
+            -- Sub job can cast
+            if spell.levels[player.sub_job_id] and player.sub_job_level >= spell.levels[player.sub_job_id] then
+                return true
+            end
         end
     end
     return false

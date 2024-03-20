@@ -10,7 +10,7 @@ local Spell = require('cylibs/battle/spell')
 local PullActionMenuItem = setmetatable({}, {__index = MenuItem })
 PullActionMenuItem.__index = PullActionMenuItem
 
-function PullActionMenuItem.new(puller, puller_settings, job_name_short, viewFactory)
+function PullActionMenuItem.new(puller, puller_settings, viewFactory)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Job Abilities', 18),
         ButtonItem.default('Spells', 18),
@@ -19,10 +19,13 @@ function PullActionMenuItem.new(puller, puller_settings, job_name_short, viewFac
 
     self.puller = puller
     self.puller_settings = puller_settings
-    self.job_name_short = job_name_short
     self.viewFactory = viewFactory
     self.dispose_bag = DisposeBag.new()
 
+    self.jobIds = L{
+        windower.ffxi.get_player().main_job_id,
+        windower.ffxi.get_player().sub_job_id
+    }
     self:reloadSettings()
 
     return self
@@ -47,9 +50,13 @@ function PullActionMenuItem:getSpellsMenuItem()
         ButtonItem.default('Confirm', 18),
     }, {},
             function()
-                local jobId = res.jobs:with('ens', self.job_name_short).id
                 local allSpells = spell_util.get_spells(function(spell)
-                    return spell.levels[jobId] ~= nil and spell.targets:contains('Enemy')
+                    for jobId in self.jobIds:it() do
+                        if spell.levels[jobId] ~= nil and spell.targets:contains('Enemy') then
+                            return true
+                        end
+                    end
+                    return false
                 end):map(function(spell) return spell.en end)
 
                 local selectedSpells = self.puller_settings.Abilities:filter(function(ability)

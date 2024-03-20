@@ -20,6 +20,7 @@ _libs.pup_util = pup_util
 -- @treturn list Localized names for the player's attachments (e.g. Strobe, Attuner, etc.)
 function pup_util.get_attachments()
     local current = L{}
+    -- FIXME: this causes all of res.items to load into memory
     local atts = res.items:category('Automaton')
     local mjob_data = windower.ffxi.get_mjob_data()
     if not mjob_data then return current end
