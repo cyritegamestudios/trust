@@ -16,7 +16,7 @@ function ManaRestorer.new(action_queue, weapon_skill_names, spells, mpp_threshol
         self.weapon_skill_name = weapon_skill_names[1]
         self.weapon_skill_targets = res.weapon_skills:with('en', self.weapon_skill_name).targets
     end
-    self.spells = spells
+    self.spells = spells or L{}
     self.mpp_threshold = mpp_threshold
     self.last_vitals_check_time = os.time()
 
