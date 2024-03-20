@@ -14,9 +14,9 @@ Luvent.__index = Luvent
 -- support the Luvent methods.
 --
 -- @return A new event.
-function Luvent.newEvent()
+function Luvent.newEvent(debugKey)
     local event = {}
-
+    event.debugKey = debugKey
     --- An event object.
     --
     -- @table Event
@@ -241,6 +241,7 @@ function Luvent:addAction(actionToAdd)
 
     local new = newAction(actionToAdd)
     table.insert(self.actions, new)
+
     return new.id
 end
 

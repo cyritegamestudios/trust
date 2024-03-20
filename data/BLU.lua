@@ -1,6 +1,6 @@
 -- Settings file for BLU
 return {
-    Version = 1,
+    Version = 2,
     Default = {
         AutoFood="Grape Daifuku",
         JobAbilities = L{
@@ -16,6 +16,26 @@ return {
         },
         PartyBuffs = L{
 
+        },
+        CureSettings = {
+            Thresholds = {
+                ["Cure IV"] = 600,
+                Emergency = 40,
+                Default = 65,
+                ["Cure III"] = 400,
+                ["Curaga III"] = 800,
+                ["Cure II"] = 0,
+                ["Curaga II"] = 400,
+                Curaga = 0
+            },
+            MinNumAOETargets = 3,
+            Delay = 2,
+            StatusRemovals = {
+                Delay = 3,
+                Blacklist = L{
+
+                }
+            }
         },
     }
 }

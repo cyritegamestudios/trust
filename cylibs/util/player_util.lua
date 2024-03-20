@@ -174,6 +174,9 @@ end
 
 function player_util.face(target)
 	local player = windower.ffxi.get_mob_by_id(windower.ffxi.get_player().id)
+	if player == nil then
+		return
+	end
 
 	local angle = (math.atan2((target.y - player.y), (target.x - player.x))*180/math.pi)*-1
 	windower.ffxi.turn((angle):radian())

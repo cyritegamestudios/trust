@@ -118,4 +118,16 @@ function monster_util.immune_to_debuff(target_name, debuff_name)
     return false
 end
 
+-------
+-- Safely returns the name of a mob.
+-- @param target_id Mob id
+-- @treturn string Name of the mob, or Unknown if the mob is nil.
+function monster_util.monster_name(target_id)
+    local mob = windower.ffxi.get_mob_by_id(target_id)
+    if mob then
+        return mob.name
+    end
+    return "Unknown"
+end
+
 return monster_util

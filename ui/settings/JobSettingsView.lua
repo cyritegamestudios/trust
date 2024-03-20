@@ -85,7 +85,7 @@ function JobSettingsView:layoutIfNeeded()
         return false
     end
 
-    self:setTitle("Load job settings.")
+    self:setTitle("Load saved job settings.")
 end
 
 function JobSettingsView:onSelectMenuItemAtIndexPath(textItem, indexPath)

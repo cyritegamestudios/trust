@@ -36,7 +36,7 @@ end
 -- @tparam number hp_missing Amount of hp missing
 -- @treturn Spell Aoe cure spell
 function Paladin:get_aoe_cure_spell(hp_missing)
-    return nil
+    return self:get_cure_spell(hp_missing)
 end
 
 -------
@@ -49,6 +49,13 @@ function Paladin:get_cure_threshold(is_backup_healer)
     else
         return self.cure_settings.Thresholds['Default'] or 78
     end
+end
+
+-------
+-- Returns the threshold above which AOE cures should be used.
+-- @treturn number Minimum number of party members under cure threshold
+function Paladin:get_aoe_threshold()
+    return self.cure_settings.MinNumAOETargets or 3
 end
 
 -------

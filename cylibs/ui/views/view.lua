@@ -14,6 +14,7 @@ local Image = require('images')
 local View = {}
 View.__index = View
 View.__type = "View"
+
 num_created = 0
 ---
 -- Creates a new View instance.

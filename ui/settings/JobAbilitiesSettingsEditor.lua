@@ -76,7 +76,7 @@ function JobAbilitiesSettingsEditor:onRemoveJobAbilityClick()
         local item = self:getDataSource():itemAtIndexPath(selectedIndexPath)
         if item then
             local indexPath = selectedIndexPath
-            self.jobAbilities:remove(indexPath.row - 1)
+            self.jobAbilities:remove(indexPath.row)
             self:getDataSource():removeItem(indexPath)
             self.trustSettings:saveSettings(true)
         end

@@ -7,6 +7,7 @@ _libs = _libs or {}
 
 require('lists')
 
+local monster_util = require('cylibs/util/monster_util')
 local packets = require('packets')
 
 local battle_util = {}
@@ -64,9 +65,7 @@ function battle_util.target_mob(target_index, engage)
         packets.inject(p)
     else
         local p = packets.new('outgoing', 0x016)
-
         p['Target Index'] = mob.index
-
         packets.inject(p)
     end
 end

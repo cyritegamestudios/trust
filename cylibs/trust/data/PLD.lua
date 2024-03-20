@@ -1,7 +1,3 @@
-require('tables')
-require('lists')
-require('logger')
-
 Paladin = require('cylibs/entity/jobs/PLD')
 
 local Trust = require('cylibs/trust/trust')
@@ -20,8 +16,8 @@ function PaladinTrust.new(settings, action_queue, battle_settings, trust_setting
 		Buffer.new(action_queue, trust_settings.JobAbilities, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
 		Healer.new(action_queue, job),
 		Raiser.new(action_queue, job),
-		Puller.new(action_queue, battle_settings.targets, 'Flash'),
-		Tank.new(action_queue, L{}, L{ Spell.new('Flash') })
+		Puller.new(action_queue, battle_settings.targets, L{ Spell.new('Flash'), Spell.new('Banish') }:compact_map()),
+		Tank.new(action_queue, L{ 'Sentinel' }, L{ Spell.new('Flash') })
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), PaladinTrust)
 

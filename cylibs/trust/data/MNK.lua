@@ -1,7 +1,3 @@
-require('tables')
-require('lists')
-require('logger')
-
 local Trust = require('cylibs/trust/trust')
 local MonkTrust = setmetatable({}, {__index = Trust })
 MonkTrust.__index = MonkTrust

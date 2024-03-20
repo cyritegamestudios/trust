@@ -17,8 +17,4 @@ function FFXIWindow.new(dataSource, layout, delegate, showTitle, viewSize, style
     return self
 end
 
---function FFXIWindow:setTitle(title)
---    self.backgroundImageView:setTitle(title)
---end
-
 return FFXIWindow

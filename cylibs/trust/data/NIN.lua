@@ -1,7 +1,3 @@
-require('tables')
-require('lists')
-require('logger')
-
 Ninja = require('cylibs/entity/jobs/NIN')
 
 local Trust = require('cylibs/trust/trust')

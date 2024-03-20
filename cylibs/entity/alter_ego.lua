@@ -68,6 +68,10 @@ function AlterEgo:monitor()
             new_buff_ids:append(buff_id)
 
             self:update_buffs(new_buff_ids)
+
+            -- We do not want this growing infinitely and don't rely on the
+            -- actual state
+            self.buff_tracker:reset()
         end
     end)
 
@@ -78,6 +82,10 @@ function AlterEgo:monitor()
             local new_buff_ids = self:get_buff_ids():copy(true):filter(function(existing_buff_id) return existing_buff_id ~= buff_id  end)
 
             self:update_buffs(new_buff_ids)
+
+            -- We do not want this growing infinitely and don't rely on the
+            -- actual state
+            self.buff_tracker:reset()
         end
     end)
 

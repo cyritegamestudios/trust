@@ -1,11 +1,13 @@
 ---------------------------
--- Tracks the debuffs on monsters.
+-- Tracks the debuffs on a target.
 -- @class module
 -- @name DebuffTracker
 
-local buff_util = require('cylibs/util/buff_util')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Event = require('cylibs/events/Luvent')
+local GainDebuffMessage = require('cylibs/messages/gain_buff_message')
+local LoseDebuffMessage = require('cylibs/messages/lose_buff_message')
+local monster_util = require('cylibs/util/monster_util')
 
 local DebuffTracker = {}
 DebuffTracker.__index = DebuffTracker
@@ -23,13 +25,12 @@ function DebuffTracker:on_lose_debuff()
 end
 
 -------
--- Default initializer for a new buff tracker.
+-- Default initializer for a new debuff tracker.
 -- @treturn BuffTracker A buff tracker
 function DebuffTracker.new(mob_id)
     local self = setmetatable({
         mob_id = mob_id;
-        action_events = {};
-        debuff_ids = {};
+        debuff_ids = S{};
         dispose_bag = DisposeBag.new();
     }, DebuffTracker)
 
@@ -42,12 +43,6 @@ end
 -------
 -- Stops tracking the player's actions and disposes of all registered event handlers.
 function DebuffTracker:destroy()
-    if self.action_events then
-        for _,event in pairs(self.action_events) do
-            windower.unregister_event(event)
-        end
-    end
-
     self.dispose_bag:destroy()
 
     self.lose_debuff:removeAllActions()
@@ -64,14 +59,60 @@ function DebuffTracker:monitor()
 
     self.dispose_bag:add(WindowerEvents.GainDebuff:addAction(function(mob_id, debuff_id)
         if mob_id == self.mob_id then
-            logger.notice(self.__class, 'gain_debuff', windower.ffxi.get_mob_by_id(mob_id).name, res.buffs[debuff_id].en)
-            self.debuff_ids:add(debuff_id)
+            self:add_debuff(debuff_id)
+        end
+    end), WindowerEvents.GainDebuff)
+
+    self.dispose_bag:add(WindowerEvents.LoseDebuff:addAction(function(mob_id, debuff_id)
+        if mob_id == self.mob_id then
+            self:remove_debuff(debuff_id)
+        end
+    end), WindowerEvents.LoseDebuff)
+
+    self.dispose_bag:add(WindowerEvents.Action:addAction(function(action)
+        if action.targets == nil then return end
+
+        for _,target in pairs(action.targets) do
+            if target.id == self.mob_id then
+                for _,action in pairs(target.actions) do
+                    if type(action) ~= 'number' then
+                        if action.message == 644 then
+                            logger.notice(self.__class, 'lose_all_debuffs', monster_util.monster_name(self.mob_id))
+                            local debuff_ids = self:get_debuff_ids():copy()
+                            self.debuff_ids:clear()
+                            for debuff_id in debuff_ids:it() do
+                                self:on_lose_debuff():trigger(self.mob_id, debuff_id)
+                            end
+                        end
+                    end
+                end
+            end
         end
     end), WindowerEvents.Action)
+
+    self.dispose_bag:add(IpcRelay.shared():on_message_received():addAction(function(ipc_message)
+        if ipc_message.__class == LoseDebuffMessage.__class then
+            local mob_id = ipc_message:get_mob_id()
+            if mob_id == self.mob_id then
+                local debuff_id = ipc_message:get_buff_id()
+                if debuff_id then
+                    logger.notice(self.__class, 'on_message_received', 'remove_debuff', res.buffs[debuff_id].en)
+                    self:remove_debuff(debuff_id)
+                end
+            end
+        elseif ipc_message.__class == GainDebuffMessage.__class then
+            local mob_id = ipc_message:get_mob_id()
+            if mob_id == self.mob_id then
+                local debuff_id = ipc_message:get_buff_id()
+                if debuff_id then
+                    logger.notice(self.__class, 'on_message_received', 'add_debuff', res.buffs[debuff_id].en)
+                    self:add_debuff(debuff_id)
+                end
+            end
+        end
+    end), IpcRelay.shared():on_message_received())
 end
 
--------
--- Call on every tic.
 function DebuffTracker:tic(_, _)
 end
 
@@ -79,6 +120,24 @@ end
 -- Resets the debuff tracker.
 function DebuffTracker:reset()
     self.debuff_ids = S{}
+end
+
+function DebuffTracker:add_debuff(debuff_id)
+    if not self:has_debuff(debuff_id) and buff_util.is_debuff(debuff_id) then
+        logger.notice(self.__class, 'gain_debuff', monster_util.monster_name(self.mob_id), res.buffs[debuff_id].en)
+
+        self.debuff_ids:add(debuff_id)
+        self:on_gain_debuff():trigger(self.mob_id, debuff_id)
+    end
+end
+
+function DebuffTracker:remove_debuff(debuff_id)
+    if self:has_debuff(debuff_id) then
+        logger.notice(self.__class, 'lose_debuff', monster_util.monster_name(self.mob_id), res.buffs[debuff_id].en)
+
+        self.debuff_ids:remove(debuff_id)
+        self:on_lose_debuff():trigger(self.mob_id, debuff_id)
+    end
 end
 
 -------

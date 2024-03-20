@@ -68,6 +68,7 @@ ElementalMagic = require('cylibs/battle/abilities/elemental_magic')
 
 -- Roles
 Role = require('cylibs/trust/roles/role')
+Assistant = require('cylibs/trust/roles/assistant')
 Aftermather = require('cylibs/trust/roles/aftermather')
 Attacker = require('cylibs/trust/roles/attacker')
 CombatMode = require('cylibs/trust/roles/combat_mode')

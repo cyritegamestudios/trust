@@ -24,6 +24,8 @@ function HorizontalScrollBar.new(frame, scrollTrackItem, scrollUpItem, scrollDow
     self:setNeedsLayout()
     self:layoutIfNeeded()
 
+    self:getDisposeBag():addAny(L{ scrollTrack, self.scrollUpButton, self.scrollDownButton })
+
     return self
 end
 

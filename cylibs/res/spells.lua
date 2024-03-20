@@ -19,6 +19,7 @@ return T{
     [109] = {id=109,en="Refresh",status=43,overwrites={}},
     [110] = {id=110,en="Regen II",status=42,overwrites={108}},
     [111] = {id=111,en="Regen III",status=42,overwrites={108,110}},
+    [112] = {id=112,en="Flash",status=156,overwrites={}},
     [135] = {id=135,en="Reraise",status=113,overwrites={}},
     [141] = {id=141,en="Reraise II",status=113,overwrites={135}},
     [142] = {id=142,en="Reraise III",status=113,overwrites={135,141}},

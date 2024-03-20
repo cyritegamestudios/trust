@@ -80,6 +80,8 @@ function ScrollView:createScrollBars()
         scrollBar:layoutIfNeeded()
     end
 
+    self:getDisposeBag():addAny(self.scrollBars)
+
     self:setNeedsLayout()
     self:layoutIfNeeded()
 end

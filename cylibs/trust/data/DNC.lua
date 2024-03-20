@@ -50,7 +50,7 @@ function DancerTrust:on_init()
 end
 
 function DancerTrust:on_role_added(role)
-	if role:get_type() == "skillchainer" then
+	if L{"skillchainer", "spammer"}:contains(role:get_type()) then
 		role:set_job_abilities(L{ JobAbility.new('Building Flourish'), JobAbility.new('Climactic Flourish') })
 	end
 end

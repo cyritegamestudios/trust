@@ -1,19 +1,16 @@
-require('tables')
-require('lists')
-require('logger')
-
 local Trust = require('cylibs/trust/trust')
 local RangerTrust = setmetatable({}, {__index = Trust })
 RangerTrust.__index = RangerTrust
 
 local Buffer = require('cylibs/trust/roles/buffer')
 local Puller = require('cylibs/trust/roles/puller')
+local RangedAttack = require('cylibs/battle/ranged_attack')
 local Shooter = require('cylibs/trust/roles/shooter')
 
 function RangerTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local roles = S{
 		Buffer.new(action_queue, trust_settings.JobAbilities, nil, nil),
-		Puller.new(action_queue, battle_settings.targets, nil, nil, true),
+		Puller.new(action_queue, battle_settings.targets, L{ RangedAttack.new() }),
 		Shooter.new(action_queue, trust_settings.Shooter.Delay or 1.5),
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings), RangerTrust)

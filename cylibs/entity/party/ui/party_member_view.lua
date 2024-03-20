@@ -17,7 +17,8 @@ local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_f
 local ViewItem = require('cylibs/ui/collection_view/items/view_item')
 local zone_util = require('cylibs/util/zone_util')
 
-local PartyMemberView = setmetatable({}, {__index = CollectionView })
+local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
+local PartyMemberView = setmetatable({}, {__index = FFXIWindow })
 PartyMemberView.__index = PartyMemberView
 
 ---
@@ -41,7 +42,7 @@ function PartyMemberView.new(party, player, actionQueue, trusts)
         end
     end)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0), 10), nil, CollectionViewStyle.empty()), PartyMemberView)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0), 10)), PartyMemberView)
 
     self.trusts = trusts
     self.buffViews = {}
@@ -65,7 +66,7 @@ function PartyMemberView.new(party, player, actionQueue, trusts)
         local buffsView = self:createBuffsView()
         table.insert(self.buffViews, partyMemberIndex, buffsView)
 
-        itemsToAdd:append(IndexedItem.new(ViewItem.new(buffsView), IndexPath.new(partyMemberIndex, 2)))
+        itemsToAdd:append(IndexedItem.new(ViewItem.new(buffsView, false, 20), IndexPath.new(partyMemberIndex, 2)))
 
         self:getDisposeBag():addAny(L{ buffsView })
 

@@ -55,6 +55,7 @@ function Action.new(x, y, z, target_index, conditions)
     self.action_complete = Event.newEvent()
 
     actions_created = actions_created + 1
+
     return self
 end
 
@@ -193,6 +194,10 @@ function Action:on_outgoing_chunk(id, data, modified, injected, blocked)
 end
 
 function Action:debug_log_create(action_type)
+    if self.logged_create then
+        return
+    end
+    self.logged_create = true
     if actions_counter[action_type] == nil then
         actions_counter[action_type] = 0
     end
@@ -200,6 +205,10 @@ function Action:debug_log_create(action_type)
 end
 
 function Action:debug_log_destroy(action_type)
+    if self.logged_destroy then
+        return
+    end
+    self.logged_destroy = true
     if actions_counter[action_type] then
         actions_counter[action_type] = actions_counter[action_type] - 1
     end

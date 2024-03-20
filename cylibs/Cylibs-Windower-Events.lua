@@ -1,7 +1,9 @@
 local Event = require('cylibs/events/Luvent')
 local DisposeBag = require('cylibs/events/dispose_bag')
+local GainDebuffMessage = require('cylibs/messages/gain_buff_message')
 local IpcRelay = require('cylibs/messages/ipc/ipc_relay')
 local logger = require('cylibs/logger/logger')
+local LoseDebuffMessage = require('cylibs/messages/lose_buff_message')
 local MobUpdateMessage = require('cylibs/messages/mob_update_message')
 local packets = require('packets')
 local ZoneMessage = require('cylibs/messages/zone_message')
@@ -18,16 +20,19 @@ local WindowerEvents = {}
 WindowerEvents.DisposeBag = DisposeBag.new()
 
 -- Global list of handlers for all Windower events. Listen to events here.
-WindowerEvents.Action = Event.newEvent()
-WindowerEvents.ActionMessage = Event.newEvent()
+WindowerEvents.Action = Event.newEvent("Action")
+WindowerEvents.ActionMessage = Event.newEvent("ActionMessage")
 WindowerEvents.CharacterUpdate = Event.newEvent()
+WindowerEvents.MobUpdate = Event.newEvent()
+WindowerEvents.MobKO = Event.newEvent()
 WindowerEvents.PositionChanged = Event.newEvent()
-WindowerEvents.TargetIndexChanged = Event.newEvent()
+WindowerEvents.TargetIndexChanged = Event.newEvent("TargetIndexChanged")
 WindowerEvents.ZoneUpdate = Event.newEvent()
 WindowerEvents.ZoneRequest = Event.newEvent()
 WindowerEvents.BuffsChanged = Event.newEvent()
 WindowerEvents.DebuffsChanged = Event.newEvent()
 WindowerEvents.GainDebuff = Event.newEvent()
+WindowerEvents.LoseDebuff = Event.newEvent()
 WindowerEvents.AllianceMemberListUpdate = Event.newEvent()
 WindowerEvents.PetUpdate = Event.newEvent()
 WindowerEvents.Equipment = {}
@@ -41,6 +46,7 @@ local incoming_event_ids = S{
     0x0DD, -- data.incoming[0x0DD] = {name='Party member update', description='Packet sent on party member join, leave, zone, etc.'}
     0x0DF,
     0x00D,
+    0x00E,
     0x076,
     0x0C8,
     0x037,
@@ -63,7 +69,7 @@ local incoming_event_dispatcher = {
         for _, target in pairs(act.targets) do
             local action = target.actions[1]
             if action then
-                if action_message_util.is_gain_debuff_message(action.message) then
+                if action_message_util.is_gain_debuff_message(action.message) and act.param and not L{260, 360}:contains(act.param) then
                     local debuff = buff_util.debuff_for_spell(act.param)
                     if debuff then
                         WindowerEvents.GainDebuff:trigger(target.id, debuff.id)
@@ -86,6 +92,14 @@ local incoming_event_dispatcher = {
         local param_3 = packet['_unknown1']
         WindowerEvents.ActionMessage:trigger(actor_id, target_id, actor_index,
             target_index, message_id, param_1, param_2, param_3)
+
+        if action_message_util.is_lose_debuff_message(message_id) and param_1 then
+            if buff_util.is_debuff(param_1) then
+                WindowerEvents.LoseDebuff:trigger(target_id, param_1)
+                -- NOTE: this causes a memory leak
+                --IpcRelay.shared():send_message(LoseDebuffMessage.new(target_id, param_1))
+            end
+        end
     end,
 
     -- Party member update, only sent on join/leave and maybe some other rare circumstances?
@@ -155,6 +169,31 @@ local incoming_event_dispatcher = {
                 WindowerEvents.PositionChanged:trigger(target_id, packet['X'], packet['Y'], packet['Z'])
             end
             WindowerEvents.TargetIndexChanged:trigger(target_id, packet['Target Index'])
+        end
+    end,
+
+    -- 0x00E
+    -- NPC Update
+    [0x00E] = function(data)
+        local packet = packets.parse('incoming', data)
+
+        local mob_id = packet['NPC']
+        local mob = windower.ffxi.get_mob_by_id(mob_id)
+        if not mob then
+            return
+        end
+
+        local name = mob.name
+        local status = packet['Status']
+        local type = packet['Mask']
+
+        if type == 7 then
+            local hpp = packet['HP %']
+            WindowerEvents.MobUpdate:trigger(mob_id, name, hpp)
+        end
+
+        if L{ 2, 3 }:contains(status) then
+            WindowerEvents.MobKO:trigger(mob_id, name)
         end
     end,
 
@@ -373,6 +412,12 @@ end)
 WindowerEvents.DisposeBag:add(IpcRelay.shared():on_message_received():addAction(function(ipc_message)
     if ipc_message.__class == MobUpdateMessage.__class then
         local mob = windower.ffxi.get_mob_by_name(ipc_message:get_mob_name())
+        --[[if mob == nil then
+            local follower = player.trust.main_job:role_with_type("follower")
+            if follower and follower:get_follow_target() and follower:get_follow_target():get_name() == ipc_message:get_mob_name() then
+                mob = follower:get_follow_target()
+            end
+        end]]
         if mob then
             WindowerEvents.PositionChanged:trigger(mob.id, ipc_message:get_position()[1], ipc_message:get_position()[2], ipc_message:get_position()[3])
         end

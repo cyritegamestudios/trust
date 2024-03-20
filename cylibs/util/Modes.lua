@@ -193,7 +193,12 @@ _meta.M.__methods['options'] = function(m, ...)
     local options = {...}
     -- Always include a default option if nothing else is given.
     if #options == 0 then
-        options = {'Normal'}
+        --options = {'Normal'}
+        local result = L{}
+        for key = 1, m._track._count do
+            result:append(m[key])
+        end
+        return result
     end
 
     -- Zero-out existing values and clear the tracked inverted list
@@ -227,19 +232,21 @@ _meta.M.__methods['contains'] = function(m, str)
 end
 
 _meta.M.__methods['cycle'] = function(m)
+    local old_value = m.Current
     if m._track._type == 'list' then
         m._track._current = (m._track._current % m._track._count) + 1
     elseif m._track._type == 'boolean' then
         m:toggle()
     end
 
-    m:on_state_change():trigger(m, m.Current)
+    m:on_state_change():trigger(m, m.Current, old_value)
 
     return m.Current
 end
 
 -- Cycle backwards through the list
 _meta.M.__methods['cycleback'] = function(m)
+    local old_value = m.Current
     if m._track._type == 'list' then
         m._track._current = m._track._current - 1
         if  m._track._current < 1 then
@@ -249,7 +256,7 @@ _meta.M.__methods['cycleback'] = function(m)
         m:toggle()
     end
 
-    m:on_state_change():trigger(m, m.Current)
+    m:on_state_change():trigger(m, m.Current, old_value)
 
     return m.Current
 end
@@ -268,6 +275,7 @@ end
 
 -- Set the current value
 _meta.M.__methods['set'] = function(m, val)
+    local old_value = m.Current
     if m._track._type == 'boolean' then
         if val == nil then
             m._track._current = true
@@ -314,7 +322,7 @@ _meta.M.__methods['set'] = function(m, val)
         end
     end
 
-    m:on_state_change():trigger(m, m.Current)
+    m:on_state_change():trigger(m, m.Current, old_value)
 
     return m.Current
 end
@@ -337,9 +345,10 @@ end
 
 -- Reset to the default value
 _meta.M.__methods['reset'] = function(m)
+    local old_value = m.Current
     m._track._current = m._track._default
 
-    m:on_state_change():trigger(m, m.Current)
+    m:on_state_change():trigger(m, m.Current, old_value)
 
     return m.Current
 end

@@ -14,15 +14,11 @@ function Flourish.new(flourish_name, target_index)
     self.conditions:append(HasBuffsCondition.new(L{ "Finishing Move 1", "Finishing Move 2", "Finishing Move 3", "Finishing Move 4", "Finishing Move 5", "Finishing Move (6+)" }, 1))
     self.conditions:append(ValidTargetCondition.new())
 
-    self:debug_log_create(self:gettype())
-
     return self
 end
 
 function Flourish:destroy()
     JobAbility.destroy(self)
-
-    self:debug_log_destroy(self:gettype())
 end
 
 function Flourish:perform()

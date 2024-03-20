@@ -60,6 +60,10 @@ function Follower:on_add()
         end
     end), self:get_party():on_party_assist_target_change())
 
+    self.dispose_bag:add(self:get_party():get_player():on_zone_change():addAction(function(p, zone_id, x, y, z, zone_line, zone_type)
+        self:start_following()
+    end), self:get_party():get_player():on_zone_change())
+
     self.action_events.status = windower.register_event('status change', function(new_status_id, old_status_id)
         self:on_player_status_change(new_status_id, old_status_id)
     end)
@@ -102,12 +106,14 @@ end
 -- @treturn boolean True if the target can be followed
 function Follower:is_valid_target(target_name)
     local target = self:get_alliance():get_alliance_member_named(target_name)
-    if target == nil or target:get_name() == windower.ffxi.get_player().name or target:get_zone_id() ~= windower.ffxi.get_info().zone or target:get_mob() == nil then
+    if target == nil or target:get_name() == windower.ffxi.get_player().name or target:get_zone_id() ~= windower.ffxi.get_info().zone then
         return false
     end
-    for condition in self.conditions:it() do
-        if not condition:is_satisfied(target:get_mob().index) then
-            return false
+    if not IpcRelay.shared():is_connected(target_name) then
+        for condition in self.conditions:it() do
+            if not condition:is_satisfied(target:get_mob().index) then
+                return false
+            end
         end
     end
     return true

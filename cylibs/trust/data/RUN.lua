@@ -14,7 +14,7 @@ state.AutoRuneMode = M{['description'] = 'Auto Rune Mode', 'Off', 'Tenebrae', 'L
 function RuneFencerTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local roles = S{
 		Buffer.new(action_queue, trust_settings.JobAbilities, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
-		Puller.new(action_queue, battle_settings.targets, 'Flash'),
+		Puller.new(action_queue, battle_settings.targets, L{ Spell.new('Flash') }:compact_map()),
 		Tank.new(action_queue, L{}, L{ Spell.new('Sheep Song'), Spell.new('Geist Wall'), Spell.new('Flash') })
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, RuneFencer.new()), RuneFencerTrust)
@@ -77,7 +77,7 @@ function RuneFencerTrust:check_runes()
 	if state.AutoRuneMode.value ~= 'Off' and windower.ffxi.get_ability_recasts()[10] == 0 then -- or 92
 		local current_runes = self:get_job():get_current_runes()
 
-		local rune_set = L{{Name=state.AutoRuneMode.value, Amount=3}}
+		local rune_set = L{{Name=state.AutoRuneMode.value, Amount=self:get_job():get_max_num_runes()}}
 
 		for rune in rune_set:it() do
 			local runesActive = current_runes:filter(function(rune_name) return rune_name == rune.Name end)

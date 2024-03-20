@@ -90,6 +90,9 @@ end
 
 -- Remove an item at a specific IndexPath
 function CollectionViewDataSource:removeItem(indexPath)
+    if not self:itemAtIndexPath(indexPath) then
+        return
+    end
     local snapshot = self:createSnapshot()  -- Create a snapshot before making changes
 
     table.remove(self.sections[indexPath.section].items, indexPath.row)
@@ -186,7 +189,6 @@ function CollectionViewDataSource:updateItems(indexedItems)
     local snapshot = self:createSnapshot()  -- Create a snapshot before making changes
 
     local itemsToAdd = L{}
-
     for indexedItem in indexedItems:it() do
         local currentSection = self.sections[indexedItem:getIndexPath().section]
         if currentSection then

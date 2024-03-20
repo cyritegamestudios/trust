@@ -1,33 +1,32 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '8.8.6'
+_addon.version = '9.0.0'
 _addon.release_notes = [[
-This update brings Scholar to the forefront with skillchaining
-using Immanence, as well as changes to Dancer and Rune Fencer!
+This update features improvements to pulling and targeting as well as
+changes to White Mage when fighting on the front lines!
 
-	• Scholar
-	    • Added ability to use Immanence spells to skillchain
-	    • Added ability to use Immanence spells to spam
-	    • Added ability to set a default Immanence spell
+	• Targeting
+	    • Improved speed of targeting with `AutoTargetMode`
+	    • Added `Party` mode which only targets monsters attacking or being
+	      attacked by party members
 
-	• Dancer
-	    • Automatically use No Foot Rise, Building Flourish and
-	      Climactic Flourish
-
-	• Rune Fencer
-	    • Automatically use Vallation and Valiance
-
-	• Corsair / Ranger
-	    • Faster ranged attacks when `AutoShootMode` is set to Auto
+	• Pulling
+	    • Improved speed of pulling with `AutoPullMode`
+	    • Added `Party` mode which only pulls monsters attacking or being
+	      attacked by party members
+	    • Fixed issues where puller would sometimes lose its target and
+	      not engage
+	    • Added ability to customize pull actions in the UI with spells,
+	      job abilities, ranged attack and approach
 
 	• UI
-	    • Updated menu graphics and user experience
-	    • Added movable Trust, Party and Target widgets
+	    • Debuffs on the current target are now shown in the target widget
+	    • Added ability to change `TrustMode` from the trust widget
 
 	• Bug Fixes
-	    • Fixed an issue where skillchain would not restart when
-	      the wrong weapon skill was used
+	    • Fixed various issues with UI would not render properly
+	    • Fixed issue where target would persist after zoning
 
 	• Press escape or enter to exit.
 	]]
@@ -115,7 +114,9 @@ function load_user_files(main_job_id, sub_job_id)
 		local oldValue = state.MainTrustSettingsMode.value
 		player.trust.main_job_settings = newSettings
 		local mode_names = list.subtract(L(T(newSettings):keyset()), L{'Version'})
-		state.MainTrustSettingsMode:options(T(mode_names):unpack())
+		if not mode_names:equals(state.MainTrustSettingsMode:options()) then
+			state.MainTrustSettingsMode:options(T(mode_names):unpack())
+		end
 		if mode_names:contains(oldValue) then
 			state.MainTrustSettingsMode:set(oldValue)
 		else
@@ -130,7 +131,9 @@ function load_user_files(main_job_id, sub_job_id)
 		local oldValue = state.SubTrustSettingsMode.value
 		player.trust.sub_job_settings = newSettings
 		local mode_names = list.subtract(L(T(newSettings):keyset()), L{'Version'})
-		state.SubTrustSettingsMode:options(T(mode_names):unpack())
+		if not mode_names:equals(state.SubTrustSettingsMode:options()) then
+			state.SubTrustSettingsMode:options(T(mode_names):unpack())
+		end
 		if mode_names:contains(oldValue) then
 			state.SubTrustSettingsMode:set(oldValue)
 		else
@@ -185,6 +188,7 @@ function load_user_files(main_job_id, sub_job_id)
 	player.trust.main_job:add_role(Targeter.new(action_queue))
 	player.trust.main_job:add_role(Truster.new(action_queue, addon_settings:getSettings().battle.trusts))
 	player.trust.main_job:add_role(Aftermather.new(action_queue, player.trust.main_job:role_with_type("skillchainer")))
+	player.trust.main_job:add_role(Assistant.new(action_queue))
 
 	target_change_time = os.time()
 
@@ -537,6 +541,7 @@ end
 
 function handle_debug()
 	print(num_created)
+	print('images', num_images_created)
 
 	print(L(windower.ffxi.get_player().buffs):map(function(buff_id)
 		return res.buffs:with('id', buff_id).en
@@ -622,7 +627,7 @@ function load_chunk_event()
 end
 
 function unload_chunk_event()
-	for key in L{'up','down','left','right','enter', addon_settings:getSettings().menu_key}:extend(L{'a','w','s','d','f','h'}):it() do
+	for key in L{'up','down','left','right','enter', addon_settings:getSettings().menu_key}:extend(L{'a','w','s','d','f','e','h','i','k','l'}):it() do
 		windower.send_command('unbind %s':format(key))
 	end
 	IpcRelay.shared():destroy()

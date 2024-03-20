@@ -20,7 +20,7 @@ function BlackMageTrust.new(settings, action_queue, battle_settings, trust_setti
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{ 'Cascade', 'Manawell' }, job),
 		ManaRestorer.new(action_queue, L{'Myrkr', 'Spirit Taker', 'Moonlight'}, 40),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
-		Puller.new(action_queue, battle_settings.targets, 'Burn', nil),
+		Puller.new(action_queue, battle_settings.targets, L{ Spell.new('Burn') }),
 		Sleeper.new(action_queue, L{ Spell.new('Sleepga'), Spell.new('Sleepga II') }, 4)
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings), BlackMageTrust)

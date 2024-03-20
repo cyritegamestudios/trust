@@ -34,7 +34,7 @@ function SkillSettingsMenuItem.new(weaponSkillSettings, skillSettings, viewFacto
                 blacklistPickerView:setShouldRequestFocus(true)
                 blacklistPickerView:setTitle("Choose abilities to avoid when making skillchains.")
                 return blacklistPickerView
-            end)
+            end, skillSettings:get_name())
 
     local defaultAbilityPickerView = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
@@ -66,7 +66,7 @@ function SkillSettingsMenuItem.new(weaponSkillSettings, skillSettings, viewFacto
         abilityPickerView:setAllowsMultipleSelection(false)
         abilityPickerView:setTitle("Choose an ability.")
         return abilityPickerView
-    end)
+    end, skillSettings:get_name())
 
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Blacklist', 18),
@@ -74,7 +74,7 @@ function SkillSettingsMenuItem.new(weaponSkillSettings, skillSettings, viewFacto
     }, L{
         Blacklist = abilityBlacklistPickerView,
         Default = defaultAbilityPickerView
-    }), SkillSettingsMenuItem)
+    }, nil, skillSettings:get_name()), SkillSettingsMenuItem)
 
     return self
 end

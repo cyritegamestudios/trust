@@ -106,7 +106,7 @@ function Skillchainer:on_add()
         local target = self:get_party():get_target(mob_id)
         if target then
             target:set_skillchain(step)
-            if target:get_mob().index == self.target_index then
+            if target:get_mob() and target:get_mob().index == self.target_index then
                 self.skillchain_builder:set_current_step(step)
 
                 self:show_next_skillchain_info()
@@ -118,7 +118,7 @@ function Skillchainer:on_add()
         local target = self:get_party():get_target(mob_id)
         if target then
             target:set_skillchain(nil)
-            if target:get_mob().index == self.target_index then
+            if target:get_mob() and target:get_mob().index == self.target_index then
                 local step = self.skillchain_tracker:get_current_step(mob_id)
                 if step == nil then
                     self.is_performing_ability = false
@@ -220,7 +220,7 @@ function Skillchainer:validate_step(current_step)
     local ability = self.ability_for_step[current_step:get_step()]
     if ability and not L{ SkillchainAbility.Auto, SkillchainAbility.Skip }:contains(ability:get_name()) then
         local previous_ability = current_step:get_ability()
-        if previous_ability and previous_ability:get_name() ~= ability:get_name() then
+        if previous_ability and previous_ability:get_skillchain_properties():length() > 0 and previous_ability:get_name() ~= ability:get_name() then
             self:get_party():add_to_chat(self:get_party():get_player(), "I wasn't expecting "..localization_util.translate(previous_ability:get_name())..". I'm going to start the skillchain over.", self.__class..'_previous_ability', 8)
             return false
         end

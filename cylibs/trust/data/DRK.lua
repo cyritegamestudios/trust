@@ -1,7 +1,3 @@
-require('tables')
-require('lists')
-require('logger')
-
 local DarkKnight = require('cylibs/entity/jobs/DRK')
 
 local Trust = require('cylibs/trust/trust')
@@ -25,7 +21,7 @@ function DarkKnightTrust.new(settings, action_queue, battle_settings, trust_sett
 		Debuffer.new(action_queue,trust_settings.Debuffs or L{}),
 		Dispeler.new(action_queue, L{ Spell.new('Absorb-Attri') }, L{}, false),
 		ManaRestorer.new(action_queue, L{'Entropy'}, 40),
-		Puller.new(action_queue, battle_settings.targets, 'Stone', nil),
+		Puller.new(action_queue, battle_settings.targets, L{ Spell.new('Absorb-STR'), Spell.new('Absorb-ACC'), Spell.new('Stone') }:compact_map()),
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, DarkKnight.new()), DarkKnightTrust)
 

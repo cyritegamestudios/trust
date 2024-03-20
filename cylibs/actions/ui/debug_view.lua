@@ -10,7 +10,8 @@ local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 
-local DebugView = setmetatable({}, {__index = CollectionView })
+local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
+local DebugView = setmetatable({}, {__index = FFXIWindow })
 DebugView.__index = DebugView
 
 TextStyle.DebugView = {
@@ -35,7 +36,7 @@ function DebugView.new(actionQueue)
         return cell
     end)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0))), DebugView)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0))), DebugView)
 
     self.actionQueue = actionQueue
 
@@ -77,6 +78,8 @@ function DebugView:updateActions()
         itemsToAdd:append(IndexedItem.new(TextItem.new(action_type..': '..count, TextStyle.Default.TextSmall), IndexPath.new(1, rowIndex)))
         rowIndex = rowIndex + 1
     end
+    itemsToAdd:append(IndexedItem.new(TextItem.new('Views created: '..num_created, TextStyle.Default.TextSmall), IndexPath.new(1, rowIndex)))
+    itemsToAdd:append(IndexedItem.new(TextItem.new('Monsters created: '..num_monsters, TextStyle.Default.TextSmall), IndexPath.new(1, rowIndex + 1)))
 
     -- Actions
     itemsToAdd:append(IndexedItem.new(TextItem.new("Actions", TextStyle.Default.HeaderSmall), IndexPath.new(2, 1)))

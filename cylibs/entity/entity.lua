@@ -83,4 +83,9 @@ function Entity:set_position(x, y, z)
     self.position[3] = z
 end
 
+function Entity:__eq(otherItem)
+    return self:get_id() == otherItem:get_id()
+end
+
+
 return Entity

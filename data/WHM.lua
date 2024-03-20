@@ -29,6 +29,7 @@ return {
 
                 }
             },
+            MinNumAOETargets = 3,
             Overcure = false
         },
         JobAbilities = L{

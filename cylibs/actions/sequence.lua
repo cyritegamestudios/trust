@@ -38,6 +38,10 @@ function SequenceAction:destroy()
 	for action in self.queue:it() do
 		action:destroy()
 	end
+	if self.current_action then
+		self.current_action:destroy()
+	end
+	self.current_action = nil
 
 	self:debug_log_destroy(self:gettype())
 
@@ -62,11 +66,13 @@ function SequenceAction:perform()
 	end
 	if self.queue:length() > 0 then
 		local next_action = self.queue:pop()
+		self.current_action = next_action
 		if next_action:can_perform() then
 			next_action:on_action_complete():addAction(function(a, success)
 				if not success then
 					self.num_failed_actions = self.num_failed_actions + 1
 				end
+				self.current_action = nil
 				a:destroy()
 				self:perform()
 			end)

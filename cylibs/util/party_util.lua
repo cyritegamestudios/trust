@@ -131,6 +131,7 @@ function party_util.party_claimed(target_id, party_member_ids)
     local target = windower.ffxi.get_mob_by_id(target_id)
     if target ~= nil and target.claim_id ~= nil and target.claim_id ~= 0 then
         local claimed_by = windower.ffxi.get_mob_by_id(target.claim_id)
+        -- FIXME: checking claim by name will fail if another party has an alter ego with the same name
         if claimed_by ~= nil and player_util.player_in_party(claimed_by.name) and (party_member_ids == nil or party_member_ids:contains(claimed_by.id)) then
             return true
         end

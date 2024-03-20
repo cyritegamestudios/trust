@@ -49,6 +49,7 @@ function Party.new(party_chat)
     self.party_members = T{}
     self.dispose_bag = DisposeBag.new()
     self.assist_target_dispose_bag = DisposeBag.new()
+    self.action_events = {}
 
     self.party_member_added = Event.newEvent()
     self.party_member_removed = Event.newEvent()
@@ -69,6 +70,10 @@ function Party:destroy()
         party_member:destroy()
     end
 
+    for _, event in pairs(self.action_events) do
+        windower.unregister_event(event)
+    end
+
     self:on_party_member_added():removeAllActions()
     self:on_party_member_removed():removeAllActions()
     self:on_party_target_change():removeAllActions()
@@ -87,6 +92,10 @@ function Party:monitor()
     self.is_monitoring = true
 
     self.target_tracker:monitor()
+
+    self.action_events.zone_change = windower.register_event('zone change', function(_, _)
+        self:on_party_target_change():trigger(self, nil, nil)
+    end)
 end
 
 -------

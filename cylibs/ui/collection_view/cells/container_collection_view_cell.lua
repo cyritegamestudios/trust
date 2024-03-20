@@ -19,6 +19,15 @@ function ContainerCollectionViewCell.new(item)
     return self
 end
 
+function ContainerCollectionViewCell:destroy()
+    if not self:getItem():shouldDestroyView() then
+        self.view:removeFromSuperview()
+    end
+    self:getItem().view = nil
+
+    CollectionViewCell.destroy(self)
+end
+
 ---
 -- Checks if layout updates are needed and triggers layout if necessary.
 -- This function is typically called before rendering to ensure that the View's layout is up to date.
@@ -31,6 +40,13 @@ function ContainerCollectionViewCell:layoutIfNeeded()
     self.view:setSize(self.frame.width, self.frame.height)
 
     return true
+end
+
+function ContainerCollectionViewCell:setItem(item)
+    if self:getItemSize() ~= item.viewSize then
+        self:setItemSize(item.viewSize)
+    end
+    CollectionViewCell.setItem(self, item)
 end
 
 return ContainerCollectionViewCell
