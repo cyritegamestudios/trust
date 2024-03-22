@@ -52,8 +52,13 @@ function RunToLocationAction:perform()
 	self:run_to(self.distance, 0)
 end
 
+function RunToLocationAction:complete(success)
+	Action.complete(self, success)
+end
+
 function RunToLocationAction:run_to(distance, retry_count)
 	if self:is_cancelled() then
+		windower.ffxi.run(false)
 		return
 	end
 	windower.ffxi.follow()

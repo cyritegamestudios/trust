@@ -27,7 +27,7 @@ function WhiteMageTrust.new(settings, action_queue, battle_settings, trust_setti
 		Buffer.new(action_queue, trust_settings.JobAbilities, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
 		Debuffer.new(action_queue, trust_settings.Debuffs),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
-		ManaRestorer.new(action_queue, L{'Mystic Boon', 'Dagan', 'Spirit Taker', 'Moonlight'}, 40),
+		ManaRestorer.new(action_queue, L{'Mystic Boon', 'Dagan', 'Spirit Taker', 'Moonlight'}, L{}, 40),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		Raiser.new(action_queue, job),
 		Puller.new(action_queue, battle_settings.targets, L{ Debuff.new('Dia') }:compact_map()),

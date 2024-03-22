@@ -18,7 +18,7 @@ function BlackMageTrust.new(settings, action_queue, battle_settings, trust_setti
 		Buffer.new(action_queue, trust_settings.JobAbilities, trust_settings.SelfBuffs),
 		Debuffer.new(action_queue, trust_settings.Debuffs),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{ 'Cascade', 'Manawell' }, job),
-		ManaRestorer.new(action_queue, L{'Myrkr', 'Spirit Taker', 'Moonlight'}, 40),
+		ManaRestorer.new(action_queue, L{'Myrkr', 'Spirit Taker', 'Moonlight'}, L{}, 40),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		Puller.new(action_queue, battle_settings.targets, L{ Spell.new('Burn') }),
 		Sleeper.new(action_queue, L{ Spell.new('Sleepga'), Spell.new('Sleepga II') }, 4)

@@ -96,7 +96,7 @@ function BlueMage:get_status_removal_spell(debuff_id, num_targets)
     local spell_id = cure_util.spell_id_for_debuff_id(debuff_id)
     if spell_id then
         if spell_util.spell_name(spell_id) == 'Erase' then
-            return Spell.new('Winds of Promyvion')
+            return Spell.new('Winds of Promy.')
         end
     end
     return nil
