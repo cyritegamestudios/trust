@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '9.0.0'
+_addon.version = '9.0.1'
 _addon.release_notes = [[
 This update features improvements to pulling and targeting as well as
 changes to White Mage when fighting on the front lines!

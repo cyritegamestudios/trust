@@ -53,6 +53,15 @@ function Puller:on_add()
         end
     end), state.AutoPullMode:on_state_change())
 
+    if state.AutoTargetMode then
+        self.dispose_bag:add(state.AutoTargetMode:on_state_change():addAction(function(_, new_value)
+            if new_value ~= 'Off' and state.AutoPullMode.value ~= 'Off' then
+                state.AutoPullMode:set('Off')
+                self:get_party():add_to_chat(self:get_party():get_player(), "I can't pull while auto targeting, so I'm going to stop pulling.")
+            end
+        end), state.AutoTargetMode:on_state_change())
+    end
+
     self.dispose_bag:add(WindowerEvents.MobKO:addAction(function(mob_id, mob_name)
         if self:get_pull_target() and self:get_pull_target():get_id() == mob_id then
             self:set_pull_target(nil)

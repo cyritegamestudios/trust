@@ -32,6 +32,15 @@ function Targeter:on_add()
         end
     end)
 
+    if state.AutoPullMode then
+        self.dispose_bag:add(state.AutoPullMode:on_state_change():addAction(function(_, new_value)
+            if new_value ~= 'Off' and state.AutoTargetMode.value ~= 'Off' then
+                state.AutoTargetMode:set('Off')
+                self:get_party():add_to_chat(self:get_party():get_player(), "I can't auto target while pulling, so I'm going to stop auto targeting.")
+            end
+        end), state.AutoPullMode:on_state_change())
+    end
+
     self.dispose_bag:add(WindowerEvents.MobKO:addAction(function(mob_id, mob_name)
         if self:get_target() and self:get_target():get_id() == mob_id then
             self:check_target(true)
