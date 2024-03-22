@@ -9,6 +9,7 @@ local Dispeler = require('cylibs/trust/roles/dispeler')
 local Healer = require('cylibs/trust/roles/healer')
 local ManaRestorer = require('cylibs/trust/roles/mana_restorer')
 local Puller = require('cylibs/trust/roles/puller')
+local StatusRemover = require('cylibs/trust/roles/status_remover')
 
 function BlueMageTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = BlueMage.new()

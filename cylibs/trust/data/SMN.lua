@@ -19,7 +19,7 @@ state.AutoAvatarMode = M{['description'] = 'Avatar Mode', 'Off', 'Ifrit', 'Ramuh
 function SummonerTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local roles = S{
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, Summoner.new(), true),
-		ManaRestorer.new(action_queue, L{'Myrkr', 'Spirit Taker'}, 40),
+		ManaRestorer.new(action_queue, L{'Myrkr', 'Spirit Taker'}, L{}, 40),
 	}
 
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, Summoner.new()), SummonerTrust)

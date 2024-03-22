@@ -20,6 +20,10 @@ changes to White Mage when fighting on the front lines!
 	    • Added ability to customize pull actions in the UI with spells,
 	      job abilities, ranged attack and approach
 
+	• Blue Mage
+	    • Automatically heal party members when `AutoHealMode` is set to `Auto`
+	    • Restore mana with spells when `AutoRestoreManaMode` is set to `Auto`
+
 	• UI
 	    • Debuffs on the current target are now shown in the target widget
 	    • Added ability to change `TrustMode` from the trust widget

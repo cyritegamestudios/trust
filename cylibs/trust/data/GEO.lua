@@ -27,7 +27,7 @@ function GeomancerTrust.new(settings, action_queue, battle_settings, trust_setti
 		Buffer.new(action_queue, trust_settings.JobAbilities, trust_settings.SelfBuffs, trust_settings.PartyBuffs, state.AutoEntrustMode),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{ 'Theurgic Focus' }, job),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
-		ManaRestorer.new(action_queue, L{"Spirit Taker", "Moonlight"}, 40)
+		ManaRestorer.new(action_queue, L{"Spirit Taker", "Moonlight"}, L{}, 40)
 	}
 
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), GeomancerTrust)
