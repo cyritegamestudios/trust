@@ -10,6 +10,7 @@ function AssistTrustCommands.new(trust, action_queue)
     self.action_queue = action_queue
 
     self:add_command('default', self.handle_assist_player, 'Assist a party or alliance member, // trust assist player_name')
+    self:add_command('me', self.handle_assist_me, 'Make all players assist me')
     self:add_command('clear', self.handle_clear_assist, 'Clear assist target')
 
     return self
@@ -42,6 +43,23 @@ function AssistTrustCommands:handle_assist_player(party_member_name)
 
     return success, message
 end
+
+    -- // trust assist me
+    function AssistTrustCommands:handle_assist_me()
+        local success
+        local message
+    
+        if L{'All', 'Send'}:contains(state.IpcMode.value) then
+            IpcRelay.shared():send_message(CommandMessage.new('trust assist '..windower.ffxi.get_player().name))
+            success = true
+            message = 'Assist set to me on everyone else'
+        else
+            success = false
+            message = 'IpcMode must be set to All or Send to use this command'
+        end
+    
+        return success, message
+    end
 
 -- // trust assist clear
 function AssistTrustCommands:handle_clear_assist()
