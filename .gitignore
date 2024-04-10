@@ -1,0 +1,6 @@
+logs/*
+data/???_*.lua
+data/backups/*
+data/modes/???_*.lua
+data/skillchains/???_*.lua
+data/settings.xml
