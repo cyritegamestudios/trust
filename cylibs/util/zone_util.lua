@@ -61,7 +61,7 @@ function zone_util.is_city(zone_id)
 end
 
 function zone_util.zone(zone_id, zone_line, zone_type)
-    if zone_id ~= windower.ffxi.get_info().zone then
+    if zone_id ~= windower.ffxi.get_info().zone or windower.ffxi.get_info().zone == 0 then
         return
     end
     local packet = packets.new('outgoing', 0x05E, {

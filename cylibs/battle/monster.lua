@@ -171,7 +171,8 @@ function Monster:handle_action_by_monster(act)
             if action then
                 -- ${actor} uses ${weapon_skill}.${lb}${target} takes ${number} points of damage.
                 if L{ 185, 186, 187, 188 }:contains(action.message) then
-                    local monster_ability_name = res.monster_abilities:with('id', act.param).en
+                    local monster_ability = res.monster_abilities:with('id', act.param) or {id=-999,en="Unknown",ja="Unknown"}
+                    local monster_ability_name = monster_ability.en
                     self:on_tp_move_finish():trigger(self, monster_ability_name, windower.ffxi.get_mob_by_id(target.id).name, action.param)
                 end
             end

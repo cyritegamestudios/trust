@@ -142,7 +142,7 @@ function Party:remove_party_member(party_member_id)
         self:on_party_member_removed():trigger(party_member)
     end
 
-    if self:get_assist_target():get_id() == party_member_id then
+    if self:get_assist_target() and self:get_assist_target():get_id() == party_member_id then
         self:set_assist_target(self:get_player())
     end
 
