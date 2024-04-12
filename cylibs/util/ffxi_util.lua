@@ -91,12 +91,12 @@ function ffxi_util.find_closest_mobs(target_mobs, exclude_target_indices, exclud
 	return closest_mobs
 end
 
--- -- Get all unclaimed engaged mobs from a list
--- function ffxi_util.get_engaged_mobs(mob_list)
--- 	return mob_list:filter(function(t)
--- 		return t and t.status == 1 and t.claim_id == 0
--- 	end)
--- end
+-- Get all unclaimed engaged mobs from a list
+function ffxi_util.get_engaged_unclaimed_mobs(mob_list)
+	return mob_list:filter(function(t)
+		return t and t.status == 1 and t.claim_id == 0
+	end)
+end
 
 function ffxi_util.find_closest_mob(target_mobs, exclude_target_indices, exclude_names)
 	return ffxi_util.find_closest_mobs(target_mobs, exclude_target_indices, exclude_names)[1]

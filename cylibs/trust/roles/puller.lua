@@ -168,20 +168,18 @@ function Puller:get_next_target()
         end):map(function(target) return target:get_mob().index  end)
         -- get list of all close targets
         local targets = ffxi_util.find_closest_mobs(self:get_target_names(), L{}:extend(party_util.party_targets()), self.blacklist)
-        -- local aggroed_targets = ffxi_util.get_engaged_mobs(targets)
-        -- local target
-        -- -- Prefer engaging aggroed targets
-        -- if aggroed_targets:length() > 0 then
-        --     target = aggroed_targets[math.random(1, math.min(aggroed_targets:length(), 6))]
-        -- else
-        --     -- Pick a target randomly out of at most the first 6 targets
+        local aggroed_targets = ffxi_util.get_engaged_unclaimed_mobs(targets)
         local target
-        if targets:length() > 0 then
-            target = targets[math.random(1, math.min(targets:length(), 6))]
+        -- Prefer engaging aggroed targets
+        if aggroed_targets:length() > 0 then
+            target = aggroed_targets[math.random(1, math.min(aggroed_targets:length(), 6))]
+        else
+        -- Pick a target randomly out of at most the first 6 targets
+            if targets:length() > 0 then
+                target = targets[math.random(1, math.min(targets:length(), 6))]
+            end
         end
-        -- end
         if target and target.id then
-            -- print("Found target to pull")
             return Monster.new(target.id)
         end
     end
