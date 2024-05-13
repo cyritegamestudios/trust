@@ -1,18 +1,22 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '9.0.2'
+_addon.version = '9.0.3'
 _addon.release_notes = [[
-This update features important bug fixes and additional commands to
-make multi-boxing easier.
+This update features additional settings menus in the Trust UI, important bug
+fixes and more commands that make multi-boxing easier.
 
-	• Skillchains
-	    • Fixed an issue where active skillchain would not reset on
-	      monster death.
+	• Food
+	    • Added menu under Settings > Buffs > Food to choose which food
+	      to eat when `AutoFoodMode` is set to `Auto`.
 
 	• Commands
 	    • Added command `// trust assist me` to make all other players
 	      assist the current player (courtesy of another Truster!)
+
+	• Bug Fixes
+	    • Fixed an issue where active skillchain would not reset on
+	      monster death.
 
 	• Press escape or enter to exit.
 
@@ -384,7 +388,7 @@ function check_version()
 
 		local Frame = require('cylibs/ui/views/frame')
 
-		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 265))
+		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 350))
 
 		updateView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
 			updateView:getDelegate():deselectItemAtIndexPath(indexPath)
