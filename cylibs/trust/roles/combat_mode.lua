@@ -11,8 +11,9 @@ local flanking_util = require("cylibs/util/flanking_util")
 local CombatMode = setmetatable({}, {__index = Role })
 CombatMode.__index = CombatMode
 
-state.AutoFaceMobMode = M{['description'] = 'Auto Face Mob Mode', 'Auto', 'Off'}
+state.AutoFaceMobMode = M{['description'] = 'Auto Face Mob Mode', 'Auto', 'Away', 'Off'}
 state.AutoFaceMobMode:set_description('Auto', "Okay, I'll make sure to look the monster straight in the eyes.")
+state.AutoFaceMobMode:set_description('Away', "Okay, I'll avoid looking at the monster.")
 
 state.CombatMode = M{['description'] = 'Combat Mode', 'Off', 'Melee', 'Ranged', 'Mirror'}
 state.CombatMode:set_description('Melee', "Okay, I'll fight on the front lines.")
@@ -66,6 +67,7 @@ end
 
 function CombatMode:check_distance()
     local target = windower.ffxi.get_mob_by_index(self.target_index)
+    local self_mob = windower.ffxi.get_mob_by_target('me')
     if target == nil or not battle_util.is_valid_target(target.id) then return end
 
     if party_util.party_claimed(target.id) then
@@ -96,9 +98,11 @@ function CombatMode:check_distance()
                     end
                 end
             else
-                if target.distance:sqrt() > self.melee_distance then
+                if target.distance:sqrt() > self.melee_distance - self_mob.model_size + target.model_size then
                     self.action_queue:push_action(BlockAction.new(function() player_util.face(target) end))
-                    self.action_queue:push_action(RunToAction.new(target.index, self.melee_distance), true)
+                    self.action_queue:push_action(
+                        RunToAction.new(target.index, self.melee_distance - self_mob.model_size + target.model_size),
+                        true)
                 else
                     self.action_queue:push_action(BlockAction.new(function() player_util.face(target) end))
                 end
@@ -122,8 +126,10 @@ function CombatMode:check_distance()
 end
 
 function CombatMode:face_target(target)
-    if state.AutoFaceMobMode.value ~= 'Off' then
+    if state.AutoFaceMobMode.value == 'Auto' then
         self.action_queue:push_action(BlockAction.new(function() player_util.face(target)  end, "face target"))
+    elseif state.AutoFaceMobMode.value == 'Away' then
+        self.action_queue:push_action(BlockAction.new(function() player_util.face_away(target) end, "face away from target"))
     end
 end
 

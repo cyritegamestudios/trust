@@ -26,9 +26,9 @@ function Follower.new(action_queue, follow_distance)
     self.maxfollowdistance = 35
     self.maxfollowpoints = 100
     self.max_zone_distance = 1
-    self.zone_cooldown = 3
+    self.zone_cooldown = 5
     self.last_position = vector.zero(3)
-    self.last_zone_time = os.time() - self.zone_cooldown
+    -- self.last_zone_time = os.time() - self.zone_cooldown
     self.follow_target_dispose_bag = DisposeBag.new()
     self.dispose_bag = DisposeBag.new()
 
@@ -194,7 +194,7 @@ end
 function Follower:can_zone(zone_id)
     local player = self:get_party():get_player()
     if not player or (os.time() - player:get_last_zone_time()) < self.zone_cooldown
-            or zone_id ~= windower.ffxi.get_info().zone then
+            or zone_id ~= windower.ffxi.get_info().zone or windower.ffxi.get_info().zone == 0 then
         return false
     end
     return true
@@ -215,11 +215,16 @@ function Follower:zone(zone_id, x, y, z, zone_line, zone_type, num_attempts)
 
     local pos = V{x, y, z}
     local distance_to_zone = player_util.distance(player_util.get_player_position(), pos)
-    if distance_to_zone < self.max_zone_distance then
-        actions:append(WaitAction.new(x, y, z, math.random() * 2))
-
+    if distance_to_zone < self.max_zone_distance and self:can_zone(zone_id) then
+        logger.notice("Current distance to zone line: ", distance_to_zone)
+        
+        actions:append(WaitAction.new(x, y, z, 1 + math.random()))
+        
+        logger.notice("Attemping to zone from", res.zones[zone_id].en, zone_line, zone_type)
         local zone_action = BlockAction.new(function()
-            zone_util.zone(zone_id, zone_line, zone_type)
+            if self:can_zone(zone_id) then
+                zone_util.zone(zone_id, zone_line, zone_type)
+            end
         end, 'follower_zone_request', 'Zoning')
 
         actions:append(zone_action)

@@ -11,6 +11,7 @@ local DebugView = require('cylibs/actions/ui/debug_view')
 local ElementPickerView = require('ui/settings/pickers/ElementPickerView')
 local FFXIBackgroundView = require('ui/themes/ffxi/FFXIBackgroundView')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
+local FoodSettingsMenuItem = require('ui/settings/menus/buffs/FoodSettingsMenuItem')
 local Frame = require('cylibs/ui/views/frame')
 local GameInfo = require('cylibs/util/ffxi/game_info')
 local HelpView = require('cylibs/trust/ui/help_view')
@@ -350,15 +351,21 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
                 return jobAbilitiesSettingsView
             end, "Job Abilities", "Choose job ability buffs.")
 
+    local foodSettingsMenuItem = FoodSettingsMenuItem.new(trustSettings, trustSettingsMode, function(view)
+        return setupView(view, viewSize)
+    end)
+
     local buffSettingsItem = MenuItem.new(L{
         ButtonItem.default('Self', 18),
         ButtonItem.default('Party', 18),
         ButtonItem.default('Abilities', 18),
+        ButtonItem.default('Food', 18),
         ButtonItem.default('Modes', 18),
     }, {
         Self = selfBuffSettingsItem,
         Party = partyBuffSettingsItem,
         Abilities = jobAbilitiesSettingsItem,
+        Food = foodSettingsMenuItem,
         Modes = buffModesMenuItem,
     }, nil, "Buffs", "Choose buffs to use.")
 
