@@ -98,7 +98,6 @@ function Puller:check_target()
     local next_target = self:get_pull_target()
     if not self:is_valid_target(next_target) then
         self:set_pull_target(nil)
-        coroutine.sleep(math.random() * 2)
 
         next_target = self:get_next_target()
         if next_target then
@@ -150,15 +149,9 @@ function Puller:get_next_target()
             local party_target_indices = self:get_party():get_party_members(false):map(function(p)
                 return p:get_target_index()
             end):compact_map()
-            local unclaimed_targets = party_targets:filter(function(target)
+            local next_target = party_targets:firstWhere(function(target)
                 return target and not party_target_indices:contains(target:get_mob().index)
-            end)
-            local next_target
-            if unclaimed_targets:length() > 0 then
-                next_target = unclaimed_targets[math.random(1, unclaimed_targets:length())]
-            else
-                next_target = party_targets[math.random(1, party_targets:length())]
-            end
+            end) or party_targets[1]
             local monster = Monster.new(next_target:get_id())
             return monster
         end
@@ -166,21 +159,10 @@ function Puller:get_next_target()
         local exclude_targets = self:get_party():get_targets(function(target)
             return target:is_claimed() and target ~= self:get_target()
         end):map(function(target) return target:get_mob().index  end)
-        -- get list of all close targets
-        local targets = ffxi_util.find_closest_mobs(self:get_target_names(), L{}:extend(party_util.party_targets()), self.blacklist)
-        local aggroed_targets = ffxi_util.get_engaged_unclaimed_mobs(targets)
-        local target
-        -- Prefer engaging aggroed targets
-        if aggroed_targets:length() > 0 then
-            target = aggroed_targets[math.random(1, math.min(aggroed_targets:length(), 6))]
-        else
-        -- Pick a target randomly out of at most the first 6 targets
-            if targets:length() > 0 then
-                target = targets[math.random(1, math.min(targets:length(), 6))]
-            end
-        end
-        if target and target.id then
-            return Monster.new(target.id)
+        local target = ffxi_util.find_closest_mob(self:get_target_names(), L{}:extend(party_util.party_targets())--[[exclude_targets]], self.blacklist)
+        if target and target.distance:sqrt() < 25 then
+            local monster = Monster.new(target.id)
+            return monster
         end
     end
     return nil

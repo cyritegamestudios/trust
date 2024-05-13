@@ -54,6 +54,10 @@ function SkillchainTracker:on_add()
     self.action_listener_id = ActionPacket.open_listener(function(action)
         self:on_action(action)
     end)
+    
+    self.dispose_bag:add(WindowerEvents.MobKO:addAction(function(mob_id, _)
+        self:reset(mob_id)
+    end), WindowerEvents.MobKO)
 
     self.dispose_bag:add(renderer.shared():onPrerender():addAction(function()
         self:on_prerender()
