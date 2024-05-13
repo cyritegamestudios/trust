@@ -1,38 +1,22 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '9.0.1'
+_addon.version = '9.0.2'
 _addon.release_notes = [[
-This update features improvements to pulling and targeting as well as
-changes to White Mage when fighting on the front lines!
+This update features important bug fixes and additional commands to
+make multi-boxing easier.
 
-	• Targeting
-	    • Improved speed of targeting with `AutoTargetMode`
-	    • Added `Party` mode which only targets monsters attacking or being
-	      attacked by party members
+	• Skillchains
+	    • Fixed an issue where active skillchain would not reset on
+	      monster death.
 
-	• Pulling
-	    • Improved speed of pulling with `AutoPullMode`
-	    • Added `Party` mode which only pulls monsters attacking or being
-	      attacked by party members
-	    • Fixed issues where puller would sometimes lose its target and
-	      not engage
-	    • Added ability to customize pull actions in the UI with spells,
-	      job abilities, ranged attack and approach
-
-	• Blue Mage
-	    • Automatically heal party members when `AutoHealMode` is set to `Auto`
-	    • Restore mana with spells when `AutoRestoreManaMode` is set to `Auto`
-
-	• UI
-	    • Debuffs on the current target are now shown in the target widget
-	    • Added ability to change `TrustMode` from the trust widget
-
-	• Bug Fixes
-	    • Fixed various issues with UI would not render properly
-	    • Fixed issue where target would persist after zoning
+	• Commands
+	    • Added command `// trust assist me` to make all other players
+	      assist the current player (courtesy of another Truster!)
 
 	• Press escape or enter to exit.
+
+
 	]]
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 
@@ -400,7 +384,7 @@ function check_version()
 
 		local Frame = require('cylibs/ui/views/frame')
 
-		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 525))
+		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 265))
 
 		updateView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
 			updateView:getDelegate():deselectItemAtIndexPath(indexPath)
