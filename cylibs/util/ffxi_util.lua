@@ -72,6 +72,7 @@ function ffxi_util.find_closest_mobs(target_mobs, exclude_target_indices, exclud
 
 	local closest_mobs = mob_list:filter(function(t)
 		return t.valid_target -- Valid target
+		    and t.hpp > 0
 			and t.spawn_type == 16 -- mob
 			and t.distance:sqrt() + player_mob.model_size + t.model_size < 20 -- Distance
 			and (t.claim_id == 0 or t.claim_id == player_mob.id or party_util.party_claimed(t.id)) -- Unclaimed or party claimed
