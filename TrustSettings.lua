@@ -71,6 +71,7 @@ function TrustSettings:loadSettings()
                 self:copySettings(true)
                 return self:loadSettings()
             end
+            self:runMigrations(self.settings)
             self:onSettingsChanged():trigger(self.settings)
             return self.settings
         end
@@ -168,6 +169,25 @@ end
 
 function TrustSettings:getSettings()
     return self.settings
+end
+
+function TrustSettings:runMigrations(settings)
+    local needsMigration = false
+
+    local modeNames = list.subtract(L(T(settings):keyset()), L{'Version'})
+
+    -- 1. Add PullSettings
+    for modeName in modeNames:it() do
+        local settingsForMode = settings[modeName]
+        if not settingsForMode.PullSettings then
+            settingsForMode.PullSettings = self.defaultSettings.Default.PullSettings
+            needsMigration = true
+        end
+    end
+
+    if needsMigration then
+        self:saveSettings(true)
+    end
 end
 
 return TrustSettings

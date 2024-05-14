@@ -11,6 +11,11 @@ return {
         },
         JobAbilities = L{
 
-        }
+        },
+        PullSettings = {
+            Abilities = L{
+                JobAbility.new("Jump", L{}, L{})
+            }
+        },
     }
 }

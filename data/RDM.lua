@@ -65,6 +65,11 @@ return {
         },
         Debuffs = L{
             Debuff.new("Distract", L{})
-        }
+        },
+        PullSettings = {
+            Abilities = L{
+                Debuff.new("Dia", L{}, L{})
+            }
+        },
     }
 }

@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '9.0.3'
+_addon.version = '9.1.0'
 _addon.release_notes = [[
 This update features additional settings menus in the Trust UI, important bug
 fixes and more commands that make multi-boxing easier.
@@ -9,6 +9,10 @@ fixes and more commands that make multi-boxing easier.
 	• Food
 	    • Added menu under Settings > Buffs > Food to choose which food
 	      to eat when `AutoFoodMode` is set to `Auto`.
+
+	• Pulling
+	    • Pull actions can now be saved using the menu under
+	      Settings > Pulling > Actions
 
 	• Commands
 	    • Added command `// trust assist me` to make all other players
@@ -388,7 +392,7 @@ function check_version()
 
 		local Frame = require('cylibs/ui/views/frame')
 
-		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 350))
+		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 425))
 
 		updateView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
 			updateView:getDelegate():deselectItemAtIndexPath(indexPath)

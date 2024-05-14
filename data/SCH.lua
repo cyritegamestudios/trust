@@ -57,6 +57,11 @@ return {
 
             },
         },
+        PullSettings = {
+            Abilities = L{
+                Spell.new('Stone', L{}, L{})
+            }
+        },
         DarkArts = {
             JobAbilities = L{
                 JobAbility.new('Dark Arts', L{}, L{}, nil),

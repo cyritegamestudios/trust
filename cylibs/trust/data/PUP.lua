@@ -62,6 +62,11 @@ function PuppetmasterTrust:on_init()
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
 		self.defaultManeuvers = new_trust_settings.DefaultManeuvers
 		self.overdriveManeuvers = new_trust_settings.OverdriveManeuvers
+
+		local puller = self:role_with_type("puller")
+		if puller then
+			puller:set_pull_settings(new_trust_settings.PullSettings)
+		end
 	end)
 
 	state.ManeuverMode:on_state_change():addAction(function(_, new_value)

@@ -11,6 +11,11 @@ return {
         },
         JobAbilities = L{
             JobAbility.new('Yonin', L{InBattleCondition.new()}),
-        }
+        },
+        PullSettings = {
+            Abilities = L{
+                Spell.new("Jubaku: Ni", L{}, L{})
+            }
+        },
     }
 }

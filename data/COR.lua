@@ -13,6 +13,11 @@ return {
 
         },
         Roll1 = Roll.new("Chaos Roll", true),
-        Roll2 = Roll.new("Samurai Roll", false)
+        Roll2 = Roll.new("Samurai Roll", false),
+        PullSettings = {
+            Abilities = L{
+                RangedAttack.new()
+            }
+        },
     }
 }

@@ -424,7 +424,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
                 blacklistPickerView:setTitle('Choose status effects to ignore.')
                 blacklistPickerView:setShouldRequestFocus(true)
                 return blacklistPickerView
-            end)
+            end, "Blacklist", "Choose status ailments to ignore.")
 
     local healerModesMenuItem = MenuItem.new(L{}, L{}, function(_)
         local modesView = setupView(ModesView.new(L{'AutoHealMode', 'AutoStatusRemovalMode', 'AutoDetectAuraMode'}), viewSize)
@@ -560,7 +560,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
 
     if trust:role_with_type("puller") then
         menuItems:append(ButtonItem.default('Pulling', 18))
-        childMenuItems.Pulling = self:getMenuItemForRole(trust:role_with_type("puller"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize)
+        childMenuItems.Pulling = self:getMenuItemForRole(trust:role_with_type("puller"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode)
     end
 
     if trust:role_with_type("nuker") then
@@ -584,7 +584,7 @@ function TrustHud:getMenuItemForRole(role, weaponSkillSettings, weaponSkillSetti
         return self:getSkillchainerMenuItem(weaponSkillSettings, weaponSkillSettingsMode, trust, viewSize)
     end
     if role:get_type() == "puller" then
-        return self:getPullerMenuItem(trust, jobNameShort, viewSize)
+        return self:getPullerMenuItem(trust, jobNameShort, trustSettings, trustSettingsMode, viewSize)
     end
     if role:get_type() == "singer" then
         return self:getSingerMenuItem(trust, trustSettings, trustSettingsMode, viewSize)
@@ -599,8 +599,8 @@ function TrustHud:getSkillchainerMenuItem(weaponSkillSettings, weaponSkillSettin
     return weaponSkillsSettingsMenuItem
 end
 
-function TrustHud:getPullerMenuItem(trust, jobNameShort, viewSize)
-    local pullerSettingsMenuItem = PullSettingsMenuItem.new(L{}, trust, jobNameShort, self.addon_settings, self.addon_settings:getSettings().battle.targets, function(view)
+function TrustHud:getPullerMenuItem(trust, jobNameShort, trustSettings, trustSettingsMode, viewSize)
+    local pullerSettingsMenuItem = PullSettingsMenuItem.new(L{}, trust, jobNameShort, self.addon_settings, self.addon_settings:getSettings().battle.targets, trustSettings, trustSettingsMode, function(view)
         return setupView(view, viewSize)
     end)
     return pullerSettingsMenuItem

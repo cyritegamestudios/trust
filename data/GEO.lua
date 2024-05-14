@@ -45,6 +45,11 @@ return {
         Geomancy = {
             Indi = Spell.new("Indi-Fury", L{}, L{}, nil, L{}),
             Geo = Spell.new("Geo-Frailty", L{}, L{}, "bt", L{})
-        }
+        },
+        PullSettings = {
+            Abilities = L{
+                Spell.new("Stone", L{}, L{})
+            }
+        },
     }
 }

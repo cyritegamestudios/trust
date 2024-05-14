@@ -16,6 +16,10 @@ return {
         JobAbilities = L{
             JobAbility.new('Killer Instinct', L{InBattleCondition.new()}),
             JobAbility.new('Spur', L{InBattleCondition.new()}),
-        }
+        },
+        PullSettings = {
+            Abilities = L{
+            }
+        },
     }
 }

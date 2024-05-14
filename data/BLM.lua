@@ -49,6 +49,11 @@ return {
             Blacklist = L{
 
             },
+        },
+        PullSettings = {
+            Abilities = L{
+                Spell.new('Burn', L{}, L{})
+            }
         }
     }
 }

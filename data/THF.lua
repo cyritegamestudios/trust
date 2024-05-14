@@ -12,5 +12,10 @@ return {
         PartyBuffs = L{
 
         },
+        PullSettings = {
+            Abilities = L{
+                Approach.new()
+            }
+        },
     }
 }

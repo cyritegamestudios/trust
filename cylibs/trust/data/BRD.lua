@@ -75,8 +75,12 @@ function BardTrust:on_init()
 		singer:set_pianissimo_songs(new_trust_settings.PartyBuffs)
 
 		local debuffer = self:role_with_type("debuffer")
-
 		debuffer:set_debuff_spells(new_trust_settings.Debuffs)
+
+		local puller = self:role_with_type("puller")
+		if puller then
+			puller:set_pull_settings(new_trust_settings.PullSettings)
+		end
 	end)
 end
 

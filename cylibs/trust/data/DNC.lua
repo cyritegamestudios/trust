@@ -46,6 +46,11 @@ function DancerTrust:on_init()
 		if buffer then
 			buffer:set_job_abilities(new_trust_settings.JobAbilities)
 		end
+
+		local puller = self:role_with_type("puller")
+		if puller then
+			puller:set_pull_settings(new_trust_settings.PullSettings)
+		end
 	end)
 end
 

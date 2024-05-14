@@ -60,6 +60,7 @@ function LoadSettingsMenuItem:getCreateSetMenuItem()
         local createSetView = self.viewFactory(FFXITextInputView.new('Set'))
         createSetView:setTitle("Choose a name for the mode set.")
         createSetView:setShouldRequestFocus(true)
+        createSetView:setSize(createSetView:getSize().width, 75)
         createSetView:onTextChanged():addAction(function(_, newSetName)
             if newSetName:length() > 1 then
                 self.trustModeSettings:saveSettings(newSetName)

@@ -10,6 +10,10 @@ return {
         PartyBuffs = L{
 
         },
+        PullSettings = {
+            Abilities = L{
+            }
+        },
         DefaultManeuvers = {
             Ranged = L{
                 {

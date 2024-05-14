@@ -16,6 +16,11 @@ return {
         },
         JobAbilities = L{
             JobAbility.new('Swordplay', L{InBattleCondition.new()}),
-        }
+        },
+        PullSettings = {
+            Abilities = L{
+                Spell.new('Flash', L{}, L{})
+            }
+        },
     }
 }

@@ -43,7 +43,7 @@ function RedMageTrust.new(settings, action_queue, battle_settings, trust_setting
 		Raiser.new(action_queue, job),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
-		Puller.new(action_queue, battle_settings.targets, L{ Debuff.new('Dia') }:compact_map()),
+		Puller.new(action_queue, battle_settings.targets, trust_settings.PullSettings.Abilities or L{ Debuff.new('Dia') }:compact_map()),
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), RedMageTrust)
 
@@ -67,6 +67,11 @@ function RedMageTrust:on_init()
 
 		local debuffer = self:role_with_type("debuffer")
 		debuffer:set_debuff_spells(new_trust_settings.Debuffs)
+
+		local puller = self:role_with_type("puller")
+		if puller then
+			puller:set_pull_settings(new_trust_settings.PullSettings)
+		end
 
 		local nuker_roles = self:roles_with_types(L{ "nuker", "magicburster" })
 		for role in nuker_roles:it() do

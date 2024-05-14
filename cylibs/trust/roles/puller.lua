@@ -218,6 +218,7 @@ end
 
 function Puller:set_pull_settings(pull_settings)
     self.pull_settings = pull_settings
+    self.pull_abilities = self.pull_settings.Abilities or L{}
 end
 
 function Puller:get_pull_abilities()
