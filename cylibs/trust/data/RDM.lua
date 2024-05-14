@@ -127,7 +127,8 @@ function RedMageTrust:check_accuracy()
 		local distract = Debuff.new('Distract')
 		if distract then
 			local debuff = buff_util.debuff_for_spell(distract:get_spell().id)
-			if debuff and not target:has_debuff(debuff.id) then
+			if debuff and not target:has_debuff(debuff.id)
+					and target:get_resist_tracker():numResists(distract:get_spell().id) < 2 then
 				self.action_queue:push_action(SpellAction.new(0, 0, 0, distract:get_spell().id, self.target_index, self:get_player()), true)
 			end
 		end
