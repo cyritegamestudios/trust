@@ -99,6 +99,7 @@ function CollectionViewCell:setSelected(selected)
     end
     self:setNeedsLayout()
     self:layoutIfNeeded()
+    return true
 end
 
 ---

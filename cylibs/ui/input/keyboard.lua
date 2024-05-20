@@ -18,6 +18,8 @@ function Keyboard.new()
         [0x06] = "5",     [0x07] = "6",     [0x08] = "7",     [0x09] = "8",
         [0x0A] = "9",     [0x0B] = "0",
         [0x0E] = "Backspace", [0x039] = " ",
+        [0xCB] = "Left", [0xCD] = "Right",
+        [0x01] = "Escape",
     }
 
     self.events = {}

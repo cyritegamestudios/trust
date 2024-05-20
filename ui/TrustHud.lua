@@ -5,6 +5,7 @@ local BuffSettingsEditor = require('ui/settings/BuffSettingsEditor')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local Color = require('cylibs/ui/views/color')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
+local HealerSettingsMenuItem = require('ui/settings/menus/healing/HealerSettingsMenuItem')
 local DebufferView = require('ui/views/DebufferView')
 local DebuffSettingsEditor = require('ui/settings/DebuffSettingsEditor')
 local DebugView = require('cylibs/actions/ui/debug_view')
@@ -37,7 +38,6 @@ local SongSettingsMenuItem = require('ui/settings/menus/songs/SongSettingsMenuIt
 local SpellPickerView = require('ui/settings/pickers/SpellPickerView')
 local SpellSettingsEditor = require('ui/settings/SpellSettingsEditor')
 local spell_util = require('cylibs/util/spell_util')
-local StatusRemovalPickerView = require('ui/settings/pickers/StatusRemovalPickerView')
 local TargetWidget = require('ui/widgets/TargetWidget')
 local TextStyle = require('cylibs/ui/style/text_style')
 local TrustInfoBar = require('ui/TrustInfoBar')
@@ -409,38 +409,6 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         return debuffSettingsView
     end, "Debuffs", "Choose debuffs to use on enemies.")
 
-    -- Status Removal
-    local statusRemovalMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
-        ButtonItem.default('Clear', 18),
-    }, {},
-            function()
-                local statusRemovalSettings = T(trustSettings:getSettings())[trustSettingsMode.value].CureSettings
-                if not statusRemovalSettings.StatusRemovals or not statusRemovalSettings.StatusRemovals.Blacklist then
-                    statusRemovalSettings.StatusRemovals = {}
-                    statusRemovalSettings.StatusRemovals.Blacklist = L{}
-                end
-                local blacklistPickerView = setupView(StatusRemovalPickerView.new(trustSettings, statusRemovalSettings.StatusRemovals.Blacklist), viewSize)
-                blacklistPickerView:setTitle('Choose status effects to ignore.')
-                blacklistPickerView:setShouldRequestFocus(true)
-                return blacklistPickerView
-            end, "Blacklist", "Choose status ailments to ignore.")
-
-    local healerModesMenuItem = MenuItem.new(L{}, L{}, function(_)
-        local modesView = setupView(ModesView.new(L{'AutoHealMode', 'AutoStatusRemovalMode', 'AutoDetectAuraMode'}), viewSize)
-        modesView:setShouldRequestFocus(true)
-        modesView:setTitle("Set modes for healing the player and party member.")
-        return modesView
-    end, "Modes", "Change healing behavior.")
-
-    local healerMenuItem = MenuItem.new(L{
-        ButtonItem.default('Blacklist', 18),
-        ButtonItem.default('Modes', 18),
-    }, {
-        ['Blacklist'] = statusRemovalMenuItem,
-        Modes = healerModesMenuItem,
-    }, nil, "Healing", "Change healing behavior")
-
     -- Nukes
     local chooseNukesItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
@@ -460,7 +428,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
                 local chooseSpellsView = setupView(SpellPickerView.new(trustSettings, spellSettings, allSpells, L{}, true, sortSpells), viewSize)
                 chooseSpellsView:setTitle("Choose spells to nuke with.")
                 return chooseSpellsView
-            end)
+            end, "Nukes", "Choose which nukes to use when magic bursting or free nuking.")
 
     local nukeElementBlacklistItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
@@ -475,7 +443,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
                 blacklistPickerView:setTitle('Choose elements to avoid when magic bursting or free nuking.')
                 blacklistPickerView:setShouldRequestFocus(true)
                 return blacklistPickerView
-            end)
+            end, "Blacklist", "Choose elements to avoid when magic bursting or free nuking.")
 
     local nukeModesMenuItem = MenuItem.new(L{}, L{}, function(_)
         local modesView = setupView(ModesView.new(L{'AutoMagicBurstMode', 'AutoNukeMode', 'MagicBurstTargetMode'}), viewSize)
@@ -498,7 +466,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         local nukeSettingsView = setupView(NukeSettingsEditor.new(trustSettings, trustSettingsMode, self.addon_settings:getSettings().help.wiki_base_url..'/Nuker'), viewSize)
         nukeSettingsView:setShouldRequestFocus(true)
         return nukeSettingsView
-    end)
+    end, "Nukes", "Choose which nukes to use when magic bursting or free nuking.")
 
     -- Modes
     local modesMenuItem = ModesMenuItem.new(trustSettings, function(view)
@@ -554,8 +522,9 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         childMenuItems.Songs = self:getMenuItemForRole(trust:role_with_type("singer"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode)
     end
 
-    if trust:role_with_type("healer") and trust:role_with_type("statusremover") then
+    if trust:role_with_type("healer") then
         menuItems:append(ButtonItem.default('Healing', 18))
+        childMenuItems.Healing = self:getMenuItemForRole(trust:role_with_type("healer"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode)
     end
 
     if trust:role_with_type("puller") then
@@ -580,6 +549,9 @@ function TrustHud:getMenuItemForRole(role, weaponSkillSettings, weaponSkillSetti
     if role == nil then
         return nil
     end
+    if role:get_type() == "healer" then
+        return self:getHealerMenuItem(trust, trustSettings, trustSettingsMode, viewSize)
+    end
     if role:get_type() == "skillchainer" then
         return self:getSkillchainerMenuItem(weaponSkillSettings, weaponSkillSettingsMode, trust, viewSize)
     end
@@ -590,6 +562,13 @@ function TrustHud:getMenuItemForRole(role, weaponSkillSettings, weaponSkillSetti
         return self:getSingerMenuItem(trust, trustSettings, trustSettingsMode, viewSize)
     end
     return nil
+end
+
+function TrustHud:getHealerMenuItem(trust, trustSettings, trustSettingsMode, viewSize)
+    local healerSettingsMenuItem = HealerSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, function(view)
+        return setupView(view, viewSize)
+    end)
+    return healerSettingsMenuItem
 end
 
 function TrustHud:getSkillchainerMenuItem(weaponSkillSettings, weaponSkillSettingsMode, trust, viewSize)

@@ -55,7 +55,7 @@ end
 --
 function FocusManager:resignFocus(focusable)
     local currentFocusable = self.focusStack:last()
-    if currentFocusable == focusable then
+    if currentFocusable == focusable and currentFocusable:shouldResignFocus() then
         self.focusStack:remove(self.focusStack:length())
         currentFocusable:setHasFocus(false)
 

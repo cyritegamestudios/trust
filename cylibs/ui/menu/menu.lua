@@ -40,8 +40,7 @@ function Menu.new(contentViewStack, viewStack, infoView, backgroundViewFactory)
         self.infoView:setVisible(false)
         self.infoView:layoutIfNeeded()
     end
-    ),
-            viewStack:onEmpty())
+    ), viewStack:onEmpty())
 
     self.disposeBag:add(viewStack:onKeyboardEvent():addAction(function(_, key, pressed, flags, blocked)
         -- escape
