@@ -12,11 +12,11 @@ local TextStyle = require('cylibs/ui/style/text_style')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 
 local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
-local HealingSettingsEditor = setmetatable({}, {__index = FFXIWindow })
-HealingSettingsEditor.__index = HealingSettingsEditor
+local ConfigEditor = setmetatable({}, {__index = FFXIWindow })
+ConfigEditor.__index = ConfigEditor
 
 
-function HealingSettingsEditor.new(trustSettings, cureSettings)
+function ConfigEditor.new(trustSettings, configSettings, configItems)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         if item.__type == SliderItem.__type then
             local cell = SliderCollectionViewCell.new(item)
@@ -33,13 +33,16 @@ function HealingSettingsEditor.new(trustSettings, cureSettings)
         return nil
     end)
 
-    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(10, Padding.new(15, 10, 0, 0))), HealingSettingsEditor)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(10, Padding.new(15, 10, 0, 0))), ConfigEditor)
 
     self:setAllowsCursorSelection(false)
     self:setScrollDelta(16)
 
     self.trustSettings = trustSettings
-    self.cureSettings = cureSettings
+    self.configSettings = configSettings
+    self.configItems = configItems:filter(function(configItem)
+        return configSettings[configItem:getKey()] ~= nil
+    end)
 
     self:reloadSettings()
 
@@ -49,40 +52,28 @@ function HealingSettingsEditor.new(trustSettings, cureSettings)
     return self
 end
 
-function HealingSettingsEditor:destroy()
+function ConfigEditor:destroy()
     CollectionView.destroy(self)
 end
 
-function HealingSettingsEditor:reloadSettings()
+function ConfigEditor:reloadSettings()
     self:getDataSource():removeAllItems()
 
     local items = L{}
 
     local rowIndex = 1
 
-    local entries = L(T(self.cureSettings.Thresholds):keyset())
-
-    local configForEntry = function(entry)
-        if L{'Default', 'Emergency'}:contains(entry) then
-            return { minValue = 0, maxValue = 100, interval = 1, textFormat = function(value) return value.." %" end }
-        else
-            return { minValue = 0, maxValue = 2000, interval = 100, textFormat = function(value) return tostring(value) end }
-        end
-    end
-
-    for entry in entries:it() do
-        items:append(IndexedItem.new(TextItem.new(entry, TextStyle.Default.TextSmall), IndexPath.new(1, rowIndex)))
-
-        local config = configForEntry(entry)
+    for configItem in self.configItems:it() do
+        items:append(IndexedItem.new(TextItem.new(configItem:getKey(), TextStyle.Default.TextSmall), IndexPath.new(1, rowIndex)))
 
         local defaultItem = SliderItem.new(
-                config.minValue,
-                config.maxValue,
-                self.cureSettings.Thresholds[entry],
-                config.interval,
+                configItem:getMinValue(),
+                configItem:getMaxValue(),
+                self.configSettings[configItem:getKey()],
+                configItem:getInterval(),
                 ImageItem.new(windower.addon_path..'assets/backgrounds/slider_track.png', 166, 16),
                 ImageItem.new(windower.addon_path..'assets/backgrounds/slider_fill.png', 166, 16),
-                config.textFormat
+                configItem:getTextFormat()
         )
         items:append(IndexedItem.new(defaultItem, IndexPath.new(1, rowIndex + 1)))
 
@@ -96,26 +87,26 @@ function HealingSettingsEditor:reloadSettings()
     end
 end
 
-function HealingSettingsEditor:onConfirmClick()
+function ConfigEditor:onConfirmClick()
     for rowIndex = 1, self:getDataSource():numberOfItemsInSection(1), 2 do
         local entryItem = self:getDataSource():itemAtIndexPath(IndexPath.new(1, rowIndex))
         local sliderItem = self:getDataSource():itemAtIndexPath(IndexPath.new(1, rowIndex + 1))
 
-        self.cureSettings.Thresholds[entryItem:getText()] = sliderItem:getCurrentValue()
+        self.configSettings[entryItem:getText()] = sliderItem:getCurrentValue()
     end
 
     self.trustSettings:saveSettings(true)
-    addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my cure thresholds!")
+    addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my settings!")
 end
 
-function HealingSettingsEditor:onResetClick()
+function ConfigEditor:onResetClick()
     self:reloadSettings()
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
 end
 
-function HealingSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
+function ConfigEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
     if textItem:getText() == 'Confirm' then
         self:onConfirmClick()
     elseif textItem:getText() == 'Reset' then
@@ -123,7 +114,7 @@ function HealingSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
     end
 end
 
-function HealingSettingsEditor:setHasFocus(focus)
+function ConfigEditor:setHasFocus(focus)
     FFXIWindow.setHasFocus(self, focus)
 
     if focus then
@@ -131,4 +122,4 @@ function HealingSettingsEditor:setHasFocus(focus)
     end
 end
 
-return HealingSettingsEditor
+return ConfigEditor

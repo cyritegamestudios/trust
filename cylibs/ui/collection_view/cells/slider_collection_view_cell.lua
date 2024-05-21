@@ -70,9 +70,9 @@ function SliderCollectionViewCell:layoutIfNeeded()
         return false
     end
 
-    local percentage = self:getItem():getCurrentValue() / (self:getItem():getMaxValue() - self:getItem():getMinValue())
+    local percentage = (self:getItem():getCurrentValue() - self:getItem():getMinValue()) / (self:getItem():getMaxValue() - self:getItem():getMinValue())
 
-    local width = percentage * self:getItem():getTrackItem():getSize().width
+    local width = percentage * (self:getItem():getTrackItem():getSize().width - 16)
     self.fillView:setSize(width, self.fillView:getSize().height)
     self.fillView:setPosition(8, 0)
 

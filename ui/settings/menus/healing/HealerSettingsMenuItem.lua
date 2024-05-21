@@ -1,6 +1,7 @@
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
+local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
+local ConfigItem = require('ui/settings/editors/config/ConfigItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
-local HealingSettingsEditor = require('ui/settings/editors/HealingSettingsEditor')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesView = require('ui/settings/editors/ModeSettingsEditor')
 local StatusRemovalPickerView = require('ui/settings/pickers/StatusRemovalPickerView')
@@ -10,7 +11,7 @@ HealerSettingsMenuItem.__index = HealerSettingsMenuItem
 
 function HealerSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, viewFactory)
     local menuItems = L{
-        ButtonItem.default('Cures', 18),
+        ButtonItem.default('Config', 18),
     }
     if trust:role_with_type("statusremover") then
         menuItems:append(ButtonItem.default('Blacklist', 18))
@@ -39,19 +40,30 @@ function HealerSettingsMenuItem:destroy()
 end
 
 function HealerSettingsMenuItem:reloadSettings()
-    self:setChildMenuItem("Cures", self:getCuresMenuItem())
+    self:setChildMenuItem("Config", self:getConfigMenuItem())
     self:setChildMenuItem("Blacklist", self:getBlacklistMenuItem())
     self:setChildMenuItem("Modes", self:getModesMenuItem())
 end
 
-function HealerSettingsMenuItem:getCuresMenuItem()
+function HealerSettingsMenuItem:getConfigMenuItem()
     local curesMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
         ButtonItem.default('Reset', 18),
     }, L{}, function(menuArgs)
         local cureSettings = self.trustSettings:getSettings()[self.trustSettingsMode.value].CureSettings
-        local cureSettingsView = self.viewFactory(HealingSettingsEditor.new(self.trustSettings, cureSettings))
-        return cureSettingsView
+
+        local configItems = L{
+            ConfigItem.new('Default', 0, 100, 1, function(value) return value.." %" end),
+            ConfigItem.new('Emergency', 0, 100, 1, function(value) return value.." %" end),
+        }
+
+        local settingsKeys = list.subtract(L(T(cureSettings.Thresholds):keyset()), L{'Default', 'Emergency'})
+        for settingsKey in settingsKeys:it() do
+            configItems:append(ConfigItem.new(settingsKey, 0, 2000, 100, function(value) return value.."" end))
+        end
+
+        local cureConfigEditor = self.viewFactory(ConfigEditor.new(self.trustSettings, cureSettings.Thresholds, configItems))
+        return cureConfigEditor
     end, "Cures", "Customize thresholds for cures.")
     return curesMenuItem
 end

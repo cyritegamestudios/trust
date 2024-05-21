@@ -28,7 +28,7 @@ local JobAbilityPickerView = require('ui/settings/pickers/JobAbilityPickerView')
 local job_util = require('cylibs/util/job_util')
 local LoadSettingsView = require('ui/settings/LoadSettingsView')
 local LoadSettingsMenuItem = require('ui/settings/menus/loading/LoadSettingsMenuItem')
-local NukeSettingsEditor = require('ui/settings/NukeSettingsEditor')
+local NukeSettingsMenuItem = require('ui/settings/menus/nukes/NukeSettingsMenuItem')
 local PartyMemberView = require('cylibs/entity/party/ui/party_member_view')
 local PartyStatusWidget = require('ui/widgets/PartyStatusWidget')
 local PartyTargetsMenuItem = require('ui/settings/menus/PartyTargetsMenuItem')
@@ -409,65 +409,6 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         return debuffSettingsView
     end, "Debuffs", "Choose debuffs to use on enemies.")
 
-    -- Nukes
-    local chooseNukesItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
-    }, {},
-            function(args)
-                local spellSettings = args['spells']
-
-                local jobId = res.jobs:with('ens', jobNameShort).id
-                local allSpells = spell_util.get_spells(function(spell)
-                    return spell.levels[jobId] ~= nil and S{'BlackMagic','WhiteMagic'}:contains(spell.type) and S{ 'Enemy' }:intersection(S(spell.targets)):length() > 0
-                end):map(function(spell) return spell.en end):sort()
-
-                local sortSpells = function(spells)
-                    spell_util.sort_by_element(spells, true)
-                end
-
-                local chooseSpellsView = setupView(SpellPickerView.new(trustSettings, spellSettings, allSpells, L{}, true, sortSpells), viewSize)
-                chooseSpellsView:setTitle("Choose spells to nuke with.")
-                return chooseSpellsView
-            end, "Nukes", "Choose which nukes to use when magic bursting or free nuking.")
-
-    local nukeElementBlacklistItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
-        ButtonItem.default('Clear', 18),
-    }, {},
-            function()
-                local nukeSettings = T(trustSettings:getSettings())[trustSettingsMode.value].NukeSettings
-                if not nukeSettings.Blacklist then
-                    nukeSettings.Blacklist = L{}
-                end
-                local blacklistPickerView = setupView(ElementPickerView.new(trustSettings, nukeSettings.Blacklist), viewSize)
-                blacklistPickerView:setTitle('Choose elements to avoid when magic bursting or free nuking.')
-                blacklistPickerView:setShouldRequestFocus(true)
-                return blacklistPickerView
-            end, "Blacklist", "Choose elements to avoid when magic bursting or free nuking.")
-
-    local nukeModesMenuItem = MenuItem.new(L{}, L{}, function(_)
-        local modesView = setupView(ModesView.new(L{'AutoMagicBurstMode', 'AutoNukeMode', 'MagicBurstTargetMode'}), viewSize)
-        modesView:setShouldRequestFocus(true)
-        modesView:setTitle("Set modes for nuking and magic bursting.")
-        return modesView
-    end, "Modes", "Change nuking and magic bursting behavior.")
-
-    local nukeSettingsItem = MenuItem.new(L{
-        ButtonItem.default('Edit', 18),
-        ButtonItem.default('Blacklist', 18),
-        ButtonItem.default('Modes', 18),
-        ButtonItem.default('Help', 18),
-    }, {
-        Edit = chooseNukesItem,
-        Blacklist = nukeElementBlacklistItem,
-        Modes = nukeModesMenuItem,
-    },
-    function()
-        local nukeSettingsView = setupView(NukeSettingsEditor.new(trustSettings, trustSettingsMode, self.addon_settings:getSettings().help.wiki_base_url..'/Nuker'), viewSize)
-        nukeSettingsView:setShouldRequestFocus(true)
-        return nukeSettingsView
-    end, "Nukes", "Choose which nukes to use when magic bursting or free nuking.")
-
     -- Modes
     local modesMenuItem = ModesMenuItem.new(trustSettings, function(view)
         return setupView(view, viewSize)
@@ -481,8 +422,6 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         Modes = modesMenuItem,
         Buffs = buffSettingsItem,
         Debuffs = debuffSettingsItem,
-        Healing = healerMenuItem,
-        Nukes = nukeSettingsItem,
     }
 
     local buffer = trust:role_with_type("buffer")
@@ -533,6 +472,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
     end
 
     if trust:role_with_type("nuker") then
+        childMenuItems.Nukes = self:getMenuItemForRole(trust:role_with_type("nuker"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode)
         menuItems:append(ButtonItem.default('Nukes', 18))
     end
 
@@ -560,6 +500,9 @@ function TrustHud:getMenuItemForRole(role, weaponSkillSettings, weaponSkillSetti
     end
     if role:get_type() == "singer" then
         return self:getSingerMenuItem(trust, trustSettings, trustSettingsMode, viewSize)
+    end
+    if role:get_type() == "nuker" then
+        return self:getNukerMenuItem(trust, trustSettings, trustSettingsMode, jobNameShort, viewSize)
     end
     return nil
 end
@@ -590,6 +533,13 @@ function TrustHud:getSingerMenuItem(trust, trustSettings, trustSettingsMode, vie
         return setupView(view, viewSize)
     end)
     return singerSettingsMenuItem
+end
+
+function TrustHud:getNukerMenuItem(trust, trustSettings, trustSettingsMode, jobNameShort, viewSize)
+    local nukerSettingsMenuItem = NukeSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, self.addon_settings, jobNameShort, function(view)
+        return setupView(view, viewSize)
+    end)
+    return nukerSettingsMenuItem
 end
 
 function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSkillSettings, weaponSkillSettingsMode, jobNameShort, jobName)
