@@ -40,7 +40,9 @@ function CollectionViewDataSource.new(cellForItem)
         return nil
     end
     self.sections = {}
+    self.sectionHeaderItems = {}
     self.cellCache = {}
+    self.sectionCellCache = {}
     self.itemsWillChange = Event.newEvent()
     self.itemsChanged = Event.newEvent()
 
@@ -86,6 +88,16 @@ function CollectionViewDataSource:addItems(indexedItems)
 
     -- Trigger the itemsChanged event
     self.itemsChanged:trigger(diff.added, diff.removed, diff.updated)
+end
+
+function CollectionViewDataSource:setItemForSectionHeader(section, sectionHeaderItem)
+    self.sectionHeaderItems[section] = sectionHeaderItem
+
+    -- TODO: reload all
+end
+
+function CollectionViewDataSource:headerItemForSection(section)
+    return self.sectionHeaderItems[section]
 end
 
 -- Remove an item at a specific IndexPath
@@ -283,6 +295,15 @@ function CollectionViewDataSource:cellForItemAtIndexPath(indexPath)
 
         return newCell
     end
+end
+
+function CollectionViewDataSource:headerViewForSection(section)
+    local sectionHeaderItem = self:headerItemForSection(section)
+    if sectionHeaderItem then
+        local newCell = SectionHeaderCollectionViewCell.new(sectionHeaderItem)
+        return newCell
+    end
+    return nil
 end
 
 -- Helper function to create a snapshot of the dataSource

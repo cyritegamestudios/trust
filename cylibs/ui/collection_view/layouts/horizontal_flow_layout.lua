@@ -16,7 +16,11 @@ function HorizontalFlowLayout:destroy()
 end
 
 function HorizontalFlowLayout:sizeForItemAtIndexPath(collectionView, cell)
-    return { width = cell:getItemSize(), height = collectionView:getSize().height }
+    if cell:shouldScaleToFitParent() then
+        return { width = cell:getItemSize(), height = collectionView:getSize().height }
+    else
+        return { width = cell:getItemSize(), height = cell:getItemSize() }
+    end
 end
 
 function HorizontalFlowLayout:layoutSubviews(collectionView, indexPathFilter)
@@ -43,8 +47,13 @@ function HorizontalFlowLayout:layoutSubviews(collectionView, indexPathFilter)
 
                 cellSize = self:sizeForItemAtIndexPath(collectionView, cell)
 
-                cell:setPosition(xOffset, self.padding.top)
                 cell:setSize(cellSize.width, cellSize.height - self.padding.top - self.padding.bottom)
+                if cellSize.height < collectionView:getSize().height then
+                    cell:setPosition(xOffset, self.padding.top + (collectionView:getSize().height - cellSize.height) / 2)
+                else
+                    cell:setPosition(xOffset, self.padding.top)
+                end
+
                 cell:setVisible(collectionView:getContentView():isVisible())
                 cell:layoutIfNeeded()
             end

@@ -1,9 +1,11 @@
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
+local Color = require('cylibs/ui/views/color')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Padding = require('cylibs/ui/style/padding')
+local SectionHeaderItem = require('cylibs/ui/collection_view/items/section_header_item')
 local SliderCollectionViewCell = require('cylibs/ui/collection_view/cells/slider_collection_view_cell')
 local SliderItem = require('cylibs/ui/collection_view/items/slider_item')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
@@ -61,10 +63,30 @@ function ConfigEditor:reloadSettings()
 
     local items = L{}
 
-    local rowIndex = 1
+    local sectionIndex = 1
+
+    local textStyle = TextStyle.new(
+            Color.clear,
+            Color.clear,
+            "Arial",
+            10,
+            Color.white,
+            Color.lightGrey,
+            0,
+            0,
+            Color.clear,
+            true,
+            Color.white,
+            true
+    )
 
     for configItem in self.configItems:it() do
-        items:append(IndexedItem.new(TextItem.new(configItem:getKey(), TextStyle.Default.TextSmall), IndexPath.new(1, rowIndex)))
+        local sectionHeaderItem = SectionHeaderItem.new(
+                TextItem.new(configItem:getKey(), textStyle),
+                ImageItem.new(windower.addon_path..'assets/icons/icon_bullet.png', 8, 8),
+                16
+        )
+        self:getDataSource():setItemForSectionHeader(sectionIndex, sectionHeaderItem)
 
         local defaultItem = SliderItem.new(
                 configItem:getMinValue(),
@@ -75,9 +97,9 @@ function ConfigEditor:reloadSettings()
                 ImageItem.new(windower.addon_path..'assets/backgrounds/slider_fill.png', 166, 16),
                 configItem:getTextFormat()
         )
-        items:append(IndexedItem.new(defaultItem, IndexPath.new(1, rowIndex + 1)))
+        items:append(IndexedItem.new(defaultItem, IndexPath.new(sectionIndex, 1)))
 
-        rowIndex = rowIndex + 2
+        sectionIndex = sectionIndex + 1
     end
 
     self:getDataSource():addItems(items)

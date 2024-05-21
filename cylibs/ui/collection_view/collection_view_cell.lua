@@ -15,6 +15,7 @@ function CollectionViewCell.new(item)
     self.itemSize = 40
     self.highlighted = false
     self.selectable = true
+    self.scaleToFitParent = true
     return self
 end
 
@@ -142,6 +143,23 @@ function CollectionViewCell:setHighlighted(highlighted)
     end
     self:setNeedsLayout()
     self:layoutIfNeeded()
+end
+
+---
+-- Checks whether the cell should scale to fit the parent view.
+-- @treturn boolean True if the cell should scale to fit the parent view.
+--
+function CollectionViewCell:shouldScaleToFitParent()
+    return self.scaleToFitParent
+end
+
+---
+-- Sets whether the cell should scale to fit the parent. If `false`, the
+-- cell will use the `itemSize` as width and height.
+-- @tparam boolean scaleToFitParent Whether the cell should scale to fit the parent view.
+--
+function CollectionViewCell:setScaleToFitParent(scaleToFitParent)
+    self.scaleToFitParent = scaleToFitParent
 end
 
 ---
