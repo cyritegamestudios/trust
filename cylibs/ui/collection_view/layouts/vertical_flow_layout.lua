@@ -12,7 +12,6 @@ function VerticalFlowLayout.new(itemSpacing, padding, sectionSpacing)
     self.disposeBag = DisposeBag.new()
     self.itemSpacing = itemSpacing or 0
     self.sectionSpacing = sectionSpacing or 0
-    self.sectionCellCache = {}
     self.padding = padding or Padding.equal(0)
 
     return self
@@ -45,24 +44,21 @@ function VerticalFlowLayout:layoutSubviews(collectionView, indexPathFilter)
 
         local sectionHeaderItem = collectionView:getDataSource():headerItemForSection(section)
         if sectionHeaderItem then
-            local sectionHeaderCell = self.sectionCellCache[section]
-            if sectionHeaderCell == nil then
-                sectionHeaderCell = SectionHeaderCollectionViewCell.new(sectionHeaderItem)
-                self.sectionCellCache[section] = sectionHeaderCell
+            local sectionHeaderCell = collectionView:getDataSource():headerViewForSection(section)
+            if sectionHeaderCell then
+                sectionHeaderCell:setItem(sectionHeaderItem)
+
+                collectionView:getContentView():addSubview(sectionHeaderCell)
+
+                local cellSize = { width = collectionView:getSize().width, height = sectionHeaderItem:getSectionSize() }
+
+                sectionHeaderCell:setPosition(self.padding.left, yOffset)
+                sectionHeaderCell:setSize(cellSize.width - self.padding.left - self.padding.right, cellSize.height)
+                sectionHeaderCell:setVisible(collectionView:getContentView():isVisible() and sectionHeaderCell:isVisible())
+                sectionHeaderCell:layoutIfNeeded()
+
+                yOffset = yOffset + cellSize.height + 2
             end
-
-            local cellSize = { width = collectionView:getSize().width, height = sectionHeaderItem:getSectionSize() }
-
-            sectionHeaderCell:setItem(sectionHeaderItem)
-
-            collectionView:getContentView():addSubview(sectionHeaderCell)
-
-            sectionHeaderCell:setPosition(self.padding.left, yOffset)
-            sectionHeaderCell:setSize(cellSize.width - self.padding.left - self.padding.right, cellSize.height)
-            sectionHeaderCell:setVisible(collectionView:getContentView():isVisible() and sectionHeaderCell:isVisible())
-            sectionHeaderCell:layoutIfNeeded()
-
-            yOffset = yOffset + cellSize.height + 2
         end
 
         for row = 1, numberOfItems do

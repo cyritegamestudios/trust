@@ -65,24 +65,9 @@ function ConfigEditor:reloadSettings()
 
     local sectionIndex = 1
 
-    local textStyle = TextStyle.new(
-            Color.clear,
-            Color.clear,
-            "Arial",
-            10,
-            Color.white,
-            Color.lightGrey,
-            0,
-            0,
-            Color.clear,
-            true,
-            Color.white,
-            true
-    )
-
     for configItem in self.configItems:it() do
         local sectionHeaderItem = SectionHeaderItem.new(
-                TextItem.new(configItem:getKey(), textStyle),
+                TextItem.new(configItem:getKey(), TextStyle.Default.SectionHeader),
                 ImageItem.new(windower.addon_path..'assets/icons/icon_bullet.png', 8, 8),
                 16
         )

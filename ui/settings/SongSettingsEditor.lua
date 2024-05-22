@@ -12,6 +12,7 @@ local Padding = require('cylibs/ui/style/padding')
 local PickerItem = require('cylibs/ui/picker/picker_item')
 local PickerView = require('cylibs/ui/picker/picker_view')
 local SpellSettingsEditor = require('ui/settings/SpellSettingsEditor')
+local SectionHeaderItem = require('cylibs/ui/collection_view/items/section_header_item')
 local spell_util = require('cylibs/util/spell_util')
 local TabbedView = require('cylibs/ui/tabs/tabbed_view')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
@@ -39,7 +40,7 @@ function SongSettingsEditor.new(trustSettings, settingsMode, helpUrl)
         return cell
     end)
 
-    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), SongSettingsEditor)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0), 6)), SongSettingsEditor)
 
     self:setAllowsCursorSelection(false)
     self:setScrollDelta(20)
@@ -188,19 +189,27 @@ function SongSettingsEditor:reloadSettings()
     self.dummySongs = L(T(self.trustSettings:getSettings())[self.settingsMode.value].DummySongs)
     self.songs = L(T(self.trustSettings:getSettings())[self.settingsMode.value].Songs)
 
-    local rowIndex = 1
+    local dummySongsSectionHeaderItem = SectionHeaderItem.new(
+        TextItem.new("Dummy Songs", TextStyle.Default.SectionHeader),
+        ImageItem.new(windower.addon_path..'assets/icons/icon_bullet.png', 8, 8),
+        16
+    )
+    self:getDataSource():setItemForSectionHeader(1, dummySongsSectionHeaderItem)
 
-    items:append(IndexedItem.new(TextItem.new("Dummy Songs", TextStyle.Default.HeaderSmall), IndexPath.new(1, 1)))
-    rowIndex = rowIndex + 1
+    local rowIndex = 1
     for song in self.dummySongs:it() do
         items:append(IndexedItem.new(TextItem.new(song:get_spell().en, TextStyle.Default.TextSmall), IndexPath.new(1, rowIndex)))
         rowIndex = rowIndex + 1
     end
 
-    rowIndex = 1
+    local songsSectionHeaderItem = SectionHeaderItem.new(
+        TextItem.new("Songs", TextStyle.Default.SectionHeader),
+        ImageItem.new(windower.addon_path..'assets/icons/icon_bullet.png', 8, 8),
+        16
+    )
+    self:getDataSource():setItemForSectionHeader(2, songsSectionHeaderItem)
 
-    items:append(IndexedItem.new(TextItem.new("Songs", TextStyle.Default.HeaderSmall), IndexPath.new(2, 1)))
-    rowIndex = rowIndex + 1
+    rowIndex = 1
     for song in self.songs:it() do
         items:append(IndexedItem.new(TextItem.new(song:get_spell().en, TextStyle.Default.TextSmall), IndexPath.new(2, rowIndex)))
         rowIndex = rowIndex + 1
@@ -209,7 +218,7 @@ function SongSettingsEditor:reloadSettings()
     self:getDataSource():addItems(items)
 
     if self:getDataSource():numberOfItemsInSection(1) > 0 then
-        self:getDelegate():setCursorIndexPath(IndexPath.new(1, 2))
+        self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
     end
 end
 

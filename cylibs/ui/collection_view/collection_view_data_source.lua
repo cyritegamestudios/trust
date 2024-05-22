@@ -4,6 +4,7 @@ local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_c
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
+local SectionHeaderCollectionViewCell = require('cylibs/ui/collection_view/cells/section_header_collection_view_cell')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local ViewItem = require('cylibs/ui/collection_view/items/view_item')
@@ -57,6 +58,10 @@ function CollectionViewDataSource:destroy()
         for _, cachedCell in ipairs(section) do
             cachedCell:destroy()
         end
+    end
+
+    for _, cachedCell in ipairs(self.sectionCellCache) do
+        cachedCell:destroy()
     end
 end
 
@@ -297,11 +302,21 @@ function CollectionViewDataSource:cellForItemAtIndexPath(indexPath)
     end
 end
 
+-- Get the header view cell for a specific section, if it exists
 function CollectionViewDataSource:headerViewForSection(section)
     local sectionHeaderItem = self:headerItemForSection(section)
     if sectionHeaderItem then
-        local newCell = SectionHeaderCollectionViewCell.new(sectionHeaderItem)
-        return newCell
+        local cachedCell = self.sectionCellCache[section]
+        if cachedCell then
+            return cachedCell
+        else
+            local newCell = SectionHeaderCollectionViewCell.new(sectionHeaderItem)
+            newCell:setClipsToBounds(true)
+
+            self.sectionCellCache[section] = newCell
+
+            return newCell
+        end
     end
     return nil
 end

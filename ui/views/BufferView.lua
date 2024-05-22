@@ -5,6 +5,7 @@ local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Padding = require('cylibs/ui/style/padding')
+local SectionHeaderItem = require('cylibs/ui/collection_view/items/section_header_item')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
@@ -20,7 +21,7 @@ TextStyle.BufferView = {
             Color.clear,
             Color.clear,
             "Arial",
-            11,
+            10,
             Color.white,
             Color.yellow,
             2,
@@ -38,7 +39,7 @@ function BufferView.new(buffer)
         return cell
     end)
 
-    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0))), BufferView)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0), 6)), BufferView)
 
     self:setScrollDelta(20)
     self:setShouldRequestFocus(false)
@@ -51,10 +52,15 @@ function BufferView.new(buffer)
 
     local jobAbilityNames = buffer:get_job_abilities():map(function(job_ability) return job_ability:get_job_ability_name() end)
     if jobAbilityNames:length() > 0 then
-        itemsToAdd:append(IndexedItem.new(TextItem.new("Job Abilities", TextStyle.Default.HeaderSmall), IndexPath.new(sectionNum, 1)))
-        local currentRow = 2
+        local jobAbilitySectionHeaderItem = SectionHeaderItem.new(
+            TextItem.new("Job abilities", TextStyle.Default.SectionHeader),
+            ImageItem.new(windower.addon_path..'assets/icons/icon_bullet.png', 8, 8),
+            16
+        )
+        self:getDataSource():setItemForSectionHeader(sectionNum, jobAbilitySectionHeaderItem)
+        local currentRow = 1
         for job_ability_name in jobAbilityNames:it() do
-            local item = TextItem.new('• '..job_ability_name, TextStyle.BufferView.Text)
+            local item = TextItem.new('• '..job_ability_name, TextStyle.Default.TextSmall)
             local indexPath = IndexPath.new(sectionNum, currentRow)
             itemsToAdd:append(IndexedItem.new(item, indexPath))
             if buffer:is_job_ability_buff_active(job_ability_name) then
@@ -62,14 +68,18 @@ function BufferView.new(buffer)
             end
             currentRow = currentRow + 1
         end
-        itemsToAdd:append(IndexedItem.new(TextItem.new("", TextStyle.BufferView.Text), IndexPath.new(sectionNum, currentRow)))
         sectionNum = sectionNum + 1
     end
 
     local selfSpells = buffer:get_self_spells()
     if selfSpells:length() > 0 then
-        itemsToAdd:append(IndexedItem.new(TextItem.new("Self Spells", TextStyle.Default.HeaderSmall), IndexPath.new(sectionNum, 1)))
-        local currentRow = 2
+        local selfSpellsSectionHeaderItem = SectionHeaderItem.new(
+            TextItem.new("Buffs on self", TextStyle.Default.SectionHeader),
+            ImageItem.new(windower.addon_path..'assets/icons/icon_bullet.png', 8, 8),
+            16
+        )
+        self:getDataSource():setItemForSectionHeader(sectionNum, selfSpellsSectionHeaderItem)
+        local currentRow = 1
         for spell in selfSpells:it() do
             local item = TextItem.new('• '..spell:description(), TextStyle.BufferView.Text)
             local indexPath = IndexPath.new(sectionNum, currentRow)
@@ -79,14 +89,18 @@ function BufferView.new(buffer)
             end
             currentRow = currentRow + 1
         end
-        itemsToAdd:append(IndexedItem.new(TextItem.new("", TextStyle.BufferView.Text), IndexPath.new(sectionNum, currentRow)))
         sectionNum = sectionNum + 1
     end
 
     local partySpells = buffer:get_party_spells()
     if partySpells:length() > 0 then
-        itemsToAdd:append(IndexedItem.new(TextItem.new("Party Spells", TextStyle.Default.HeaderSmall), IndexPath.new(sectionNum, 1)))
-        local currentRow = 2
+        local partySpellsSectionHeaderItem = SectionHeaderItem.new(
+            TextItem.new("Buffs on party", TextStyle.Default.SectionHeader),
+            ImageItem.new(windower.addon_path..'assets/icons/icon_bullet.png', 8, 8),
+            16
+        )
+        self:getDataSource():setItemForSectionHeader(sectionNum, partySpellsSectionHeaderItem)
+        local currentRow = 1
         for spell in partySpells:it() do
             local item = TextItem.new('• '..spell:description(), TextStyle.BufferView.Text)
             local indexPath = IndexPath.new(sectionNum, currentRow)
