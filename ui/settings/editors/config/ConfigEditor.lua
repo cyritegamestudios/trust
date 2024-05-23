@@ -95,11 +95,11 @@ function ConfigEditor:reloadSettings()
 end
 
 function ConfigEditor:onConfirmClick()
-    for rowIndex = 1, self:getDataSource():numberOfItemsInSection(1), 2 do
-        local entryItem = self:getDataSource():itemAtIndexPath(IndexPath.new(1, rowIndex))
-        local sliderItem = self:getDataSource():itemAtIndexPath(IndexPath.new(1, rowIndex + 1))
+    for sectionIndex = 1, self:getDataSource():numberOfSections(), 1 do
+        local sectionHeaderItem = self:getDataSource():headerItemForSection(sectionIndex)
+        local sliderItem = self:getDataSource():itemAtIndexPath(IndexPath.new(sectionIndex, 1))
 
-        self.configSettings[entryItem:getText()] = sliderItem:getCurrentValue()
+        self.configSettings[sectionHeaderItem:getTitleItem():getText()] = sliderItem:getCurrentValue()
     end
 
     self.trustSettings:saveSettings(true)
