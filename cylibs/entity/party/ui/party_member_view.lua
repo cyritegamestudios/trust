@@ -33,7 +33,7 @@ function PartyMemberView.new(party, player, actionQueue, trusts)
         if item.__type == TextItem.__type then
             local cell = TextCollectionViewCell.new(item)
             cell:setItemSize(20)
-            cell:setUserInteractionEnabled(true)
+            cell:setUserInteractionEnabled(false)
             return cell
         elseif item.__type == ViewItem.__type then
             local cell = ContainerCollectionViewCell.new(item)

@@ -1,28 +1,30 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '9.1.1'
+_addon.version = '9.2.0'
 _addon.release_notes = [[
-This update features additional settings menus in the Trust UI, important bug
-fixes and more commands that make multi-boxing easier.
+This update features additional settings menus in the Trust UI and the
+ability to record and replay saved paths.
 
-	• Food
-	    • Added menu under Settings > Buffs > Food to choose which food
-	      to eat when `AutoFoodMode` is set to `Auto`.
+	• Pathing
+	    • You can now record and replay saved paths using the menu
+	      under Settings > Paths
 
-	• Settings
-	    • Pull actions can now be saved using the menu under
-	      Settings > Pulling > Actions
-	    • Healing thresholds can now be edited using the menu under
-	      Settings > Healing
+	• Healing
+	    • You can now edit cure thresholds using the menu under
+	      Settings > Healing > Config.
 
-	• Commands
-	    • Added command `// trust assist me` to make all other players
-	      assist the current player (courtesy of another Truster!)
+	• Nuking
+	    • You can now edit nuke delay and minimum mana points percentage
+	      using the menu under Settings > Healing > Config.
 
-	• Bug Fixes
-	    • Fixed an issue where active skillchain would not reset on
-	      monster death.
+	• Singing
+	    • You can now edit number of songs, song duration and song delay
+	      using the menu under Settings > Singing > Config.
+
+	• UI
+	    • The UI for several menus has been improved to match the
+	      in-game iconography.
 
 	• Press escape or enter to exit.
 
@@ -394,7 +396,7 @@ function check_version()
 
 		local Frame = require('cylibs/ui/views/frame')
 
-		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 475))
+		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 510))
 
 		updateView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
 			updateView:getDelegate():deselectItemAtIndexPath(indexPath)

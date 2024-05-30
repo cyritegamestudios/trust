@@ -43,6 +43,7 @@ function SpellSettingsEditor.new(trustSettings, spell)
 
     self.trustSettings = trustSettings
     self.spell = spell
+    self.menuArgs = {}
 
     self:setScrollDelta(20)
     self:setScrollEnabled(true)
@@ -128,6 +129,8 @@ end
 function SpellSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
     if textItem:getText() == 'Save' then
         self:updateSpell()
+    elseif textItem:getText() == 'Conditions' then
+        self.menuArgs['conditions'] = self.spell:get_conditions()
     elseif textItem:getText() == 'Clear All' then
         self:getDelegate():deselectAllItems()
     end
@@ -158,5 +161,8 @@ function SpellSettingsEditor:updateSpell()
     addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll follow these rules for "..self.spell:get_spell().en..'.')
 end
 
+function SpellSettingsEditor:getMenuArgs()
+    return self.menuArgs
+end
 
 return SpellSettingsEditor

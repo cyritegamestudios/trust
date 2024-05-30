@@ -43,11 +43,20 @@ function PathRecorder:start_recording()
     logger.notice(self.__class, 'start_recording')
 end
 
-function PathRecorder:stop_recording(path_name)
+function PathRecorder:stop_recording(path_name, discard)
     if not self:is_recording() then
-        return
+        return nil
     end
     self.recording = false
+
+    if discard then
+        self:clear()
+        return
+    end
+
+    if path_name == nil then
+        path_name = res.zones[windower.ffxi.get_info().zone].en
+    end
 
     if path_name then
         local path = Path.new(windower.ffxi.get_info().zone, self.actions, false, 0)
@@ -58,8 +67,11 @@ function PathRecorder:stop_recording(path_name)
             file:write('\nreturn ' .. serializer_util.serialize(path))
 
             logger.notice(self.__class, 'stop_recording', 'saved path to', windower.addon_path..file_path)
+
+            return file_path
         end
     end
+    return nil
 end
 
 function PathRecorder:add_point(x, y, z)

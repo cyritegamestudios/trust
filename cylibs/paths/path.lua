@@ -16,7 +16,10 @@ function Path.new(zone_id, actions, auto_reverse, reverse_delay)
 end
 
 function Path.from_file(file_path)
-	local file_path = windower.addon_path..file_path..'.lua'
+	local file_path = windower.addon_path..file_path
+	if not file_path:sub(-#".lua") == ".lua" then
+		file_path = file_path..".lua"
+	end
 	if windower.file_exists(file_path) then
 		local load_path, err = loadfile(file_path)
 		if err then

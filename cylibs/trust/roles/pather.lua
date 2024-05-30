@@ -6,6 +6,7 @@ require('queues')
 
 local DisposeBag = require('cylibs/events/dispose_bag')
 local ModeDelta = require('cylibs/modes/mode_delta')
+local Path = require('cylibs/paths/path')
 local PatherModes = require('cylibs/trust/data/modes/common/pather')
 local player_util = require('cylibs/util/player_util')
 
@@ -125,6 +126,13 @@ end
 -- Sets the current path.
 -- @tparam Path Current path
 function Pather:set_path(path)
+    self:stop()
+
+    if path:get_zone_id() ~= windower.ffxi.get_info().zone then
+        self:get_party():add_to_chat(self:get_party():get_player(), "I need to be in "..res.zones[path:get_zone_id()].en.." to do that!")
+        return
+    end
+
     self.path = path
     self.actions = self.path:get_actions():copy(true)
 
@@ -145,6 +153,13 @@ end
 
 function Pather:get_path_dir()
     return self.path_dir
+end
+
+function Pather:set_path_with_name(path_name)
+    local path = Path.from_file(self:get_path_dir()..path_name)
+    if path then
+        self:set_path(path)
+    end
 end
 
 -------
