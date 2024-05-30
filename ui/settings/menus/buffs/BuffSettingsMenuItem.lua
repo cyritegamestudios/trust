@@ -15,7 +15,7 @@ function BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsKey,
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
         ButtonItem.default('Edit', 18),
-        ButtonItem.default('Conditions', 18),
+        --ButtonItem.default('Conditions', 18),
     }, {}, function(menuArgs)
         local buffs = T(trustSettings:getSettings())[trustSettingsMode.value][settingsKey]
 
@@ -48,7 +48,7 @@ end
 function BuffSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Add", self:getAddBuffMenuItem())
     self:setChildMenuItem("Edit", self:getEditBuffMenuItem())
-    self:setChildMenuItem("Conditions", self:getConditionsMenuItem())
+    --self:setChildMenuItem("Conditions", self:getConditionsMenuItem())
 end
 
 function BuffSettingsMenuItem:getAddBuffMenuItem()

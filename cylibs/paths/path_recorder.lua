@@ -51,7 +51,7 @@ function PathRecorder:stop_recording(path_name, discard)
 
     if discard then
         self:clear()
-        return
+        return nil
     end
 
     if path_name == nil then
