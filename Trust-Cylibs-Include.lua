@@ -28,6 +28,8 @@ StrategemAction = require('cylibs/actions/strategem')
 WeaponSkillAction = require('cylibs/actions/weapon_skill')
 SequenceAction = require('cylibs/actions/sequence')
 BlockAction = require('cylibs/actions/block')
+Approach = require('cylibs/battle/approach')
+RangedAttack = require('cylibs/battle/ranged_attack')
 
 -- Conditions
 Condition = require('cylibs/conditions/condition')

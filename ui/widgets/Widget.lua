@@ -92,6 +92,7 @@ function Widget.new(frame, title, addonSettings, dataSource, layout, titleWidth)
         local settings = self:getSettings(self.addonSettings)
 
         self:setVisible(settings.visible)
+        self:setPosition(settings.x, settings.y)
         self:layoutIfNeeded()
     end), addonSettings:onSettingsChanged())
 

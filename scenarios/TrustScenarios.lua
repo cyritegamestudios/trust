@@ -47,6 +47,11 @@ function TrustScenarios:add_scenario(name)
             local scenario = Einherjar.new(self.action_queue, self.party, self.trust)
             self.scenarios:add(scenario)
             self:start_scenario(scenario)
+        elseif name == 'upinarms' then
+            local UpInArms = require('scenarios/up_in_arms/up_in_arms')
+            local scenario = UpInArms.new(self.action_queue, self.party, self.trust)
+            self.scenarios:add(scenario)
+            self:start_scenario(scenario)
         end
     end
 end

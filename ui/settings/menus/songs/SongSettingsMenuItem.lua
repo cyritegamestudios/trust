@@ -1,10 +1,9 @@
-local BloodPactSettingsEditor = require('ui/settings/editors/BloodPactSettingsEditor')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
-local CursorItem = require('ui/themes/FFXI/CursorItem')
+local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
+local ConfigItem = require('ui/settings/editors/config/ConfigItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesView = require('ui/settings/editors/ModeSettingsEditor')
-local PickerView = require('cylibs/ui/picker/picker_view')
 local SongPickerView = require('ui/settings/pickers/SongPickerView')
 local SongSettingsEditor = require('ui/settings/SongSettingsEditor')
 
@@ -16,6 +15,7 @@ function SongSettingsMenuItem.new(addonSettings, trustSettings, trustSettingsMod
         ButtonItem.default('Edit', 18),
         ButtonItem.default('Move Up', 18),
         ButtonItem.default('Move Down', 18),
+        ButtonItem.default('Config', 18),
         ButtonItem.default('Modes', 18),
         ButtonItem.default('Help', 18),
     }, {},
@@ -27,6 +27,7 @@ function SongSettingsMenuItem.new(addonSettings, trustSettings, trustSettingsMod
 
     self.addonSettings = addonSettings
     self.trustSettings = trustSettings
+    self.trustSettingsMode = trustSettingsMode
     self.songSettings = T(trustSettings:getSettings())[trustSettingsMode.value]
     self.viewFactory = viewFactory
     self.dispose_bag = DisposeBag.new()
@@ -47,6 +48,7 @@ end
 function SongSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Edit", self:getEditMenuItem())
     --self:setChildMenuItem("Move Up", MenuItem.new(L{}, {}, nil))
+    self:setChildMenuItem("Config", self:getConfigMenuItem())
     self:setChildMenuItem("Modes", self:getModesMenuItem())
     self:setChildMenuItem("Help", MenuItem.action(function()
         windower.open_url(self.addonSettings:getSettings().help.wiki_base_url..'/Singer')
@@ -99,6 +101,27 @@ function SongSettingsMenuItem:getEditMenuItem()
     }, nil, "Songs", "Choose dummy songs and songs to sing.")
 
     return songTypeMenuItem
+end
+
+function SongSettingsMenuItem:getConfigMenuItem()
+    local songConfigMenuItem = MenuItem.new(L{
+        ButtonItem.default('Confirm', 18),
+    }, {},
+            function()
+                local songSettings = T(self.trustSettings:getSettings())[self.trustSettingsMode.value]
+
+                local configItems = L{
+                    ConfigItem.new('NumSongs', 2, 4, 1, function(value) return value.."" end),
+                    ConfigItem.new('SongDuration', 120, 400, 10, function(value) return value.."s" end),
+                    ConfigItem.new('SongDelay', 4, 8, 1, function(value) return value.."s" end)
+                }
+
+                local songConfigEditor = self.viewFactory(ConfigEditor.new(self.trustSettings, songSettings, configItems))
+                songConfigEditor:setTitle('Configure general song settings.')
+                songConfigEditor:setShouldRequestFocus(true)
+                return songConfigEditor
+            end, "Config", "Configure general song settings.")
+    return songConfigMenuItem
 end
 
 function SongSettingsMenuItem:getModesMenuItem()

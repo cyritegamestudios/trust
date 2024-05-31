@@ -10,7 +10,7 @@ local Spell = require('cylibs/battle/spell')
 local PullActionMenuItem = setmetatable({}, {__index = MenuItem })
 PullActionMenuItem.__index = PullActionMenuItem
 
-function PullActionMenuItem.new(puller, puller_settings, viewFactory)
+function PullActionMenuItem.new(puller, trust_settings, trust_settings_mode, viewFactory)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Job Abilities', 18),
         ButtonItem.default('Spells', 18),
@@ -18,7 +18,9 @@ function PullActionMenuItem.new(puller, puller_settings, viewFactory)
     }, {}, nil, "Pulling", "Configure which actions to use to pull enemies."), PullActionMenuItem)
 
     self.puller = puller
-    self.puller_settings = puller_settings
+    self.trust_settings = trust_settings
+    self.trust_settings_mode = trust_settings_mode
+
     self.viewFactory = viewFactory
     self.dispose_bag = DisposeBag.new()
 
@@ -59,7 +61,7 @@ function PullActionMenuItem:getSpellsMenuItem()
                     return false
                 end):map(function(spell) return spell.en end)
 
-                local selectedSpells = self.puller_settings.Abilities:filter(function(ability)
+                local selectedSpells = self.puller:get_pull_settings().Abilities:filter(function(ability)
                     return ability.__class == Spell.__class
                 end):map(function(spell)
                     return spell:get_name()
@@ -70,12 +72,12 @@ function PullActionMenuItem:getSpellsMenuItem()
                 chooseSpellsView:setShouldRequestFocus(true)
                 chooseSpellsView:on_pick_items():addAction(function(_, selectedItems)
                     local spells = selectedItems:map(function(item)
-                        return Spell.new(item:getText())
+                        return Spell.new(item:getText(), L{}, L{})
                     end)
 
                     self:replaceAbilities(L{ Spell.__class }, spells)
 
-                    addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll use "..localization_util.commas(spells:map(function(spell) return spell:get_name()  end)).." to pull for the rest of this session!")
+                    addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll use "..localization_util.commas(spells:map(function(spell) return spell:get_name()  end)).." to pull!")
                 end)
                 return chooseSpellsView
             end, "Pulling", "Choose spells to pull enemies with.")
@@ -92,7 +94,7 @@ function PullActionMenuItem:getJobAbilitiesMenuItem()
             return S{'Enemy'}:intersection(S(jobAbility.targets)):length() > 0
         end):map(function(jobAbility) return jobAbility.en end)
 
-        local selectedAbilities = self.puller_settings.Abilities:filter(function(ability)
+        local selectedAbilities = self.puller:get_pull_settings().Abilities:filter(function(ability)
             return ability.__class == JobAbility.__class
         end):map(function(jobAbility) return jobAbility:get_name() end)
 
@@ -101,12 +103,12 @@ function PullActionMenuItem:getJobAbilitiesMenuItem()
         chooseJobAbilitiesView:setShouldRequestFocus(true)
         chooseJobAbilitiesView:on_pick_items():addAction(function(_, selectedItems)
             local jobAbilities = selectedItems:map(function(item)
-                return JobAbility.new(item:getText())
+                return JobAbility.new(item:getText(), L{}, L{})
             end)
 
             self:replaceAbilities(L{ JobAbility.__class }, jobAbilities)
 
-            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll use "..localization_util.commas(jobAbilities:map(function(jobAbility) return jobAbility:get_name() end)).." to pull for the rest of this session!")
+            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll use "..localization_util.commas(jobAbilities:map(function(jobAbility) return jobAbility:get_name() end)).." to pull!")
         end)
         return chooseJobAbilitiesView
     end, "Job Abilities", "Choose job abilities to pull enemies with.")
@@ -123,7 +125,7 @@ function PullActionMenuItem:getOtherAbilitiesMenuItem()
                     'Ranged Attack'
                 }
 
-                local selectedAbilities = self.puller_settings.Abilities:filter(function(ability)
+                local selectedAbilities = self.puller:get_pull_settings().Abilities:filter(function(ability)
                     return L{ Approach.__class, RangedAttack.__class }:contains(ability.__class)
                 end):map(function(ability) return ability:get_name() end)
 
@@ -150,7 +152,7 @@ function PullActionMenuItem:getOtherAbilitiesMenuItem()
 end
 
 function PullActionMenuItem:replaceAbilities(abilityClasses, abilities)
-    local currentAbilities = self.puller_settings.Abilities
+    local currentAbilities = self.puller:get_pull_settings().Abilities
 
     local newAbilities = currentAbilities:filter(function(ability)
         return not abilityClasses:contains(ability.__class)
@@ -159,6 +161,13 @@ function PullActionMenuItem:replaceAbilities(abilityClasses, abilities)
 
     currentAbilities:clear()
     currentAbilities:extend(newAbilities)
+
+    local pull_settings = self.trust_settings:getSettings()[self.trust_settings_mode.value].PullSettings
+    if pull_settings == nil then
+        self.trust_settings:getSettings()[self.trust_settings_mode.value].PullSettings = {}
+    end
+    self.trust_settings:getSettings()[self.trust_settings_mode.value].PullSettings.Abilities = currentAbilities
+    self.trust_settings:saveSettings(true)
 end
 
 return PullActionMenuItem

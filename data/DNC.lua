@@ -30,6 +30,11 @@ return {
         },
         JobAbilities = L{
             JobAbility.new('Haste Samba', L{InBattleCondition.new()}),
-        }
+        },
+        PullSettings = {
+            Abilities = L{
+                JobAbility.new("Animated Flourish", L{}, L{})
+            }
+        },
     }
 }

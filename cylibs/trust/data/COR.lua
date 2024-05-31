@@ -41,6 +41,11 @@ function CorsairTrust:on_init()
 
 		local shooter = self:role_with_type("shooter")
 		shooter:set_shoot_delay(new_trust_settings.Shooter.Delay)
+
+		local puller = self:role_with_type("puller")
+		if puller then
+			puller:set_pull_settings(new_trust_settings.PullSettings)
+		end
 	end)
 
 	local roller = self:role_with_type("roller")

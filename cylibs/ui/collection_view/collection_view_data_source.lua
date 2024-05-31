@@ -4,6 +4,7 @@ local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_c
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
+local SectionHeaderCollectionViewCell = require('cylibs/ui/collection_view/cells/section_header_collection_view_cell')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local ViewItem = require('cylibs/ui/collection_view/items/view_item')
@@ -40,7 +41,9 @@ function CollectionViewDataSource.new(cellForItem)
         return nil
     end
     self.sections = {}
+    self.sectionHeaderItems = {}
     self.cellCache = {}
+    self.sectionCellCache = {}
     self.itemsWillChange = Event.newEvent()
     self.itemsChanged = Event.newEvent()
 
@@ -55,6 +58,10 @@ function CollectionViewDataSource:destroy()
         for _, cachedCell in ipairs(section) do
             cachedCell:destroy()
         end
+    end
+
+    for _, cachedCell in ipairs(self.sectionCellCache) do
+        cachedCell:destroy()
     end
 end
 
@@ -86,6 +93,16 @@ function CollectionViewDataSource:addItems(indexedItems)
 
     -- Trigger the itemsChanged event
     self.itemsChanged:trigger(diff.added, diff.removed, diff.updated)
+end
+
+function CollectionViewDataSource:setItemForSectionHeader(section, sectionHeaderItem)
+    self.sectionHeaderItems[section] = sectionHeaderItem
+
+    -- TODO: reload all
+end
+
+function CollectionViewDataSource:headerItemForSection(section)
+    return self.sectionHeaderItems[section]
 end
 
 -- Remove an item at a specific IndexPath
@@ -283,6 +300,25 @@ function CollectionViewDataSource:cellForItemAtIndexPath(indexPath)
 
         return newCell
     end
+end
+
+-- Get the header view cell for a specific section, if it exists
+function CollectionViewDataSource:headerViewForSection(section)
+    local sectionHeaderItem = self:headerItemForSection(section)
+    if sectionHeaderItem then
+        local cachedCell = self.sectionCellCache[section]
+        if cachedCell then
+            return cachedCell
+        else
+            local newCell = SectionHeaderCollectionViewCell.new(sectionHeaderItem)
+            newCell:setClipsToBounds(true)
+
+            self.sectionCellCache[section] = newCell
+
+            return newCell
+        end
+    end
+    return nil
 end
 
 -- Helper function to create a snapshot of the dataSource

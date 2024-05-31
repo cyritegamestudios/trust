@@ -55,6 +55,11 @@ return {
         },
         Debuffs = L{
             Spell.new("Dia II", L{}, nil, nil, L{})
-        }
+        },
+        PullSettings = {
+            Abilities = L{
+                Debuff.new('Dia', L{}, L{})
+            }
+        },
     }
 }

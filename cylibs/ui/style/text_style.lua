@@ -265,6 +265,20 @@ TextStyle.Default = {
             Color.black,
             true
     ),
+    SectionHeader = TextStyle.new(
+            Color.clear,
+            Color.clear,
+            "Arial",
+            10,
+            Color.white,
+            Color.lightGrey,
+            0,
+            0,
+            Color.clear,
+            true,
+            Color.white,
+            true
+    )
 }
 
 return TextStyle

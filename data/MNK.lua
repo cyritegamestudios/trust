@@ -13,6 +13,11 @@ return {
             JobAbility.new('Impetus', L{InBattleCondition.new()}),
             JobAbility.new('Footwork', L{InBattleCondition.new()}),
             JobAbility.new('Mantra', L{InBattleCondition.new()}),
-        }
+        },
+        PullSettings = {
+            Abilities = L{
+                JobAbility.new("Chi Blast", L{}, L{})
+            }
+        },
     }
 }

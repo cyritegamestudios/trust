@@ -40,26 +40,7 @@ function Menu.new(contentViewStack, viewStack, infoView, backgroundViewFactory)
         self.infoView:setVisible(false)
         self.infoView:layoutIfNeeded()
     end
-    ),
-            viewStack:onEmpty())
-
-    self.disposeBag:add(viewStack:onKeyboardEvent():addAction(function(_, key, pressed, flags, blocked)
-        -- escape
-        --[[if key == 1 then
-            if not self.viewStack:hasFocus() then
-                self.viewStack:focus()
-            end
-        -- left
-        elseif key == 203 then
-            if self.contentViewStack:getCurrentView() and self.contentViewStack:getCurrentView():shouldRequestFocus() then
-                self.contentViewStack:focus()
-            end
-        -- right
-        elseif key == 205 then
-            self.viewStack:focus()
-        end
-        self:onKeyboardEvent(key, pressed, flags, blocked)]]
-    end), viewStack:onKeyboardEvent())
+    ), viewStack:onEmpty())
 
     return self
 end
@@ -75,7 +56,9 @@ function Menu:showMenu(menuItem)
         self.menuView = MenuView.new(menuItem, self.contentViewStack)
         self.menuView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
             self.menuView:getDelegate():deselectAllItems()
+
             local textItem = self.menuView:getDataSource():itemAtIndexPath(indexPath):getTextItem()
+
             local currentView = self.contentViewStack:getCurrentView()
             if currentView and type(currentView.onSelectMenuItemAtIndexPath) == 'function' then
                 currentView:onSelectMenuItemAtIndexPath(textItem, indexPath)

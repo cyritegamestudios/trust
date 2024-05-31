@@ -14,6 +14,7 @@ local PickerItem = require('cylibs/ui/picker/picker_item')
 local PickerView = require('cylibs/ui/picker/picker_view')
 local player_util = require('cylibs/util/player_util')
 local spell_util = require('cylibs/util/spell_util')
+local SectionHeaderItem = require('cylibs/ui/collection_view/items/section_header_item')
 local TabbedView = require('cylibs/ui/tabs/tabbed_view')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
@@ -38,10 +39,11 @@ function SpellSettingsEditor.new(trustSettings, spell)
         return cell
     end)
 
-    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), SpellSettingsEditor)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0), 6)), SpellSettingsEditor)
 
     self.trustSettings = trustSettings
     self.spell = spell
+    self.menuArgs = {}
 
     self:setScrollDelta(20)
     self:setScrollEnabled(true)
@@ -53,8 +55,13 @@ function SpellSettingsEditor.new(trustSettings, spell)
     local itemsToSelect = L{}
     local rowIndex = 1
 
-    items:append(IndexedItem.new(TextItem.new("Use with job abilities", TextStyle.Default.HeaderSmall), IndexPath.new(1, 1)))
-    rowIndex = rowIndex + 1
+    local jobAbilitiesSectionHeaderItem = SectionHeaderItem.new(
+        TextItem.new("Use with job abilities", TextStyle.Default.SectionHeader),
+        ImageItem.new(windower.addon_path..'assets/icons/icon_bullet.png', 8, 8),
+        16
+    )
+    self:getDataSource():setItemForSectionHeader(1, jobAbilitiesSectionHeaderItem)
+
     for jobAbilityName in allJobAbilities:it() do
         local indexPath = IndexPath.new(1, rowIndex)
         items:append(IndexedItem.new(TextItem.new(jobAbilityName, TextStyle.PickerView.Text), indexPath))
@@ -66,8 +73,12 @@ function SpellSettingsEditor.new(trustSettings, spell)
 
     rowIndex = 1
 
-    items:append(IndexedItem.new(TextItem.new("Use on specific jobs", TextStyle.Default.HeaderSmall), IndexPath.new(2, 1)))
-    rowIndex = rowIndex + 1
+    local jobsSectionHeaderItem = SectionHeaderItem.new(
+        TextItem.new("Use on specific jobs", TextStyle.Default.SectionHeader),
+        ImageItem.new(windower.addon_path..'assets/icons/icon_bullet.png', 8, 8),
+        16
+    )
+    self:getDataSource():setItemForSectionHeader(2, jobsSectionHeaderItem)
     for jobName in job_util.all_jobs():it() do
         local indexPath = IndexPath.new(2, rowIndex)
         items:append(IndexedItem.new(TextItem.new(jobName, TextStyle.PickerView.Text), indexPath))
@@ -118,6 +129,8 @@ end
 function SpellSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
     if textItem:getText() == 'Save' then
         self:updateSpell()
+    elseif textItem:getText() == 'Conditions' then
+        self.menuArgs['conditions'] = self.spell:get_conditions()
     elseif textItem:getText() == 'Clear All' then
         self:getDelegate():deselectAllItems()
     end
@@ -148,5 +161,8 @@ function SpellSettingsEditor:updateSpell()
     addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll follow these rules for "..self.spell:get_spell().en..'.')
 end
 
+function SpellSettingsEditor:getMenuArgs()
+    return self.menuArgs
+end
 
 return SpellSettingsEditor

@@ -18,6 +18,13 @@ return {
         },
         Debuffs = L {
 
-        }
+        },
+        PullSettings = {
+            Abilities = L{
+                Spell.new('Absorb-STR', L{}, L{}),
+                Spell.new('Absorb-ACC', L{}, L{}),
+                Spell.new('Stone', L{}, L{})
+            }
+        },
     }
 }

@@ -37,6 +37,11 @@ function RuneFencerTrust:on_init()
 		buffer:set_party_spells(new_trust_settings.PartyBuffs)
 
 		self:set_job_abilities(new_trust_settings.JobAbilities)
+
+		local puller = self:role_with_type("puller")
+		if puller then
+			puller:set_pull_settings(new_trust_settings.PullSettings)
+		end
 	end)
 
 	self.dispose_bag:add(state.AutoRuneMode:on_state_change():addAction(function(_, _)

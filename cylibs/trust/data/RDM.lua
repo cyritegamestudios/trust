@@ -43,7 +43,7 @@ function RedMageTrust.new(settings, action_queue, battle_settings, trust_setting
 		Raiser.new(action_queue, job),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
-		Puller.new(action_queue, battle_settings.targets, L{ Debuff.new('Dia') }:compact_map()),
+		Puller.new(action_queue, battle_settings.targets, trust_settings.PullSettings.Abilities or L{ Debuff.new('Dia') }:compact_map()),
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), RedMageTrust)
 
@@ -67,6 +67,11 @@ function RedMageTrust:on_init()
 
 		local debuffer = self:role_with_type("debuffer")
 		debuffer:set_debuff_spells(new_trust_settings.Debuffs)
+
+		local puller = self:role_with_type("puller")
+		if puller then
+			puller:set_pull_settings(new_trust_settings.PullSettings)
+		end
 
 		local nuker_roles = self:roles_with_types(L{ "nuker", "magicburster" })
 		for role in nuker_roles:it() do
@@ -122,7 +127,8 @@ function RedMageTrust:check_accuracy()
 		local distract = Debuff.new('Distract')
 		if distract then
 			local debuff = buff_util.debuff_for_spell(distract:get_spell().id)
-			if debuff and not target:has_debuff(debuff.id) then
+			if debuff and not target:has_debuff(debuff.id)
+					and target:get_resist_tracker():numResists(distract:get_spell().id) < 2 then
 				self.action_queue:push_action(SpellAction.new(0, 0, 0, distract:get_spell().id, self.target_index, self:get_player()), true)
 			end
 		end

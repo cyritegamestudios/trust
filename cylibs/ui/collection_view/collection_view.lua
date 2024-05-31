@@ -216,6 +216,11 @@ function CollectionView:onKeyboardEvent(key, pressed, flags, blocked)
                 local cell = self:getDataSource():cellForItemAtIndexPath(nextIndexPath)
                 if not cell:isVisible() then
                     self:scrollUp()
+                else
+                    local sectionHeader = self:getDataSource():headerViewForSection(nextIndexPath.section)
+                    if sectionHeader and not sectionHeader:isVisible() then
+                        self:scrollUp()
+                    end
                 end
                 self:getDelegate():setCursorIndexPath(nextIndexPath)
                 return true

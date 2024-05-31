@@ -67,6 +67,11 @@ function GeomancerTrust:on_init()
 		local buffer = self:role_with_type("buffer")
 		buffer:set_party_spells(new_trust_settings.PartyBuffs)
 
+		local puller = self:role_with_type("puller")
+		if puller then
+			puller:set_pull_settings(new_trust_settings.PullSettings)
+		end
+
 		local nuker_roles = self:roles_with_types(L{ "nuker", "magicburster" })
 		for role in nuker_roles:it() do
 			role:set_nuke_settings(new_trust_settings.NukeSettings)

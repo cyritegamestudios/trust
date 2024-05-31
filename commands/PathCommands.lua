@@ -90,7 +90,7 @@ function PathTrustCommands:handle_start_path(_, path_name, reverse)
         message = "Invalid path name "..(path_name or 'nil')
     else
         path_name = path_name..'_'..windower.ffxi.get_player().name
-        local path = Path.from_file(self.path_recorder:get_output_folder()..path_name)
+        local path = Path.from_file(self.path_recorder:get_output_folder()..path_name..'.lua')
         if path then
             if path:get_zone_id() ~= windower.ffxi.get_info().zone then
                 success = false

@@ -27,7 +27,7 @@ end
 local PullSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 PullSettingsMenuItem.__index = PullSettingsMenuItem
 
-function PullSettingsMenuItem.new(abilities, trust, job_name_short, addon_settings, targets, viewFactory)
+function PullSettingsMenuItem.new(abilities, trust, job_name_short, addon_settings, targets, trust_settings, trust_settings_mode, viewFactory)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Targets', 18),
         ButtonItem.default('Actions', 18),
@@ -43,6 +43,8 @@ function PullSettingsMenuItem.new(abilities, trust, job_name_short, addon_settin
     self.viewFactory = viewFactory
     self.addon_settings = addon_settings
     self.targets = targets
+    self.trust_settings = trust_settings
+    self.trust_settings_mode = trust_settings_mode
     self.dispose_bag = DisposeBag.new()
 
     self:reloadSettings()
@@ -60,7 +62,7 @@ end
 
 function PullSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Targets", self:getTargetsMenuItem())
-    self:setChildMenuItem("Actions", PullActionMenuItem.new(self.puller, self.puller:get_pull_settings(), self.viewFactory))
+    self:setChildMenuItem("Actions", PullActionMenuItem.new(self.puller, self.trust_settings, self.trust_settings_mode, self.viewFactory))
     self:setChildMenuItem("Modes", self:getModesMenuItem())
 end
 

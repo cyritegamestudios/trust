@@ -20,7 +20,7 @@ function BlackMageTrust.new(settings, action_queue, battle_settings, trust_setti
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{ 'Cascade', 'Manawell' }, job),
 		ManaRestorer.new(action_queue, L{'Myrkr', 'Spirit Taker', 'Moonlight'}, L{}, 40),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
-		Puller.new(action_queue, battle_settings.targets, L{ Spell.new('Burn') }),
+		Puller.new(action_queue, battle_settings.targets, trust_settings.PullSettings.Abilities or L{ Spell.new('Burn') }),
 		Sleeper.new(action_queue, L{ Spell.new('Sleepga'), Spell.new('Sleepga II') }, 4)
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings), BlackMageTrust)
@@ -45,6 +45,11 @@ function BlackMageTrust:on_init()
 		local debuffer = self:role_with_type("debuffer")
 		if debuffer then
 			debuffer:set_debuff_spells(new_trust_settings.Debuffs)
+		end
+
+		local puller = self:role_with_type("puller")
+		if puller then
+			puller:set_pull_settings(new_trust_settings.PullSettings)
 		end
 
 		local nuker_roles = self:roles_with_types(L{ "nuker", "magicburster" })

@@ -1,6 +1,7 @@
 local DisposeBag = require('cylibs/events/dispose_bag')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Padding = require('cylibs/ui/style/padding')
+local SectionHeaderCollectionViewCell = require('cylibs/ui/collection_view/cells/section_header_collection_view_cell')
 
 local VerticalFlowLayout = {}
 VerticalFlowLayout.__index = VerticalFlowLayout
@@ -40,6 +41,25 @@ function VerticalFlowLayout:layoutSubviews(collectionView, indexPathFilter)
     local yOffset = self.padding.top
     for section = 1, collectionView:getDataSource():numberOfSections() do
         local numberOfItems = collectionView:getDataSource():numberOfItemsInSection(section)
+
+        local sectionHeaderItem = collectionView:getDataSource():headerItemForSection(section)
+        if sectionHeaderItem then
+            local sectionHeaderCell = collectionView:getDataSource():headerViewForSection(section)
+            if sectionHeaderCell then
+                sectionHeaderCell:setItem(sectionHeaderItem)
+
+                collectionView:getContentView():addSubview(sectionHeaderCell)
+
+                local cellSize = { width = collectionView:getSize().width, height = sectionHeaderItem:getSectionSize() }
+
+                sectionHeaderCell:setPosition(self.padding.left, yOffset)
+                sectionHeaderCell:setSize(cellSize.width - self.padding.left - self.padding.right, cellSize.height)
+                sectionHeaderCell:setVisible(collectionView:getContentView():isVisible() and sectionHeaderCell:isVisible())
+                sectionHeaderCell:layoutIfNeeded()
+
+                yOffset = yOffset + cellSize.height + 2
+            end
+        end
 
         for row = 1, numberOfItems do
             local indexPath = IndexPath.new(section, row)

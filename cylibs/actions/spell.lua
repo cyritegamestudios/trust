@@ -90,7 +90,7 @@ function SpellAction:perform()
 	if windower.ffxi.get_info().language:lower() == 'japanese' then
 		windower.chat.input("/ma %s ":format(spell.en)..target.id)
 	else
-		windower.chat.input('/ma "%s"':format(spell.en)..target.id)
+		windower.chat.input('/ma "%s" ':format(spell.en)..target.id)
 	end
 end
 

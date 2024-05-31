@@ -16,6 +16,11 @@ return {
             JobAbility.new('Restraint', L{InBattleCondition.new()}, L{}, nil),
             JobAbility.new('Blood Rage', L{InBattleCondition.new()}, L{}, nil),
             JobAbility.new('Retaliation', L{}, L{}, nil),
-        }
+        },
+        PullSettings = {
+            Abilities = L{
+                JobAbility.new('Provoke', L{}, L{})
+            }
+        },
     }
 }

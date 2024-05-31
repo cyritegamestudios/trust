@@ -38,5 +38,9 @@ return {
 
             },
         },
+        PullSettings = {
+            Abilities = L{
+            }
+        },
     }
 }

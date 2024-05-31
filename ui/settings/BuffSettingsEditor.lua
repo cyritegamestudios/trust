@@ -71,10 +71,11 @@ function BuffSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
     elseif textItem:getText() == 'Add' then
         self.menuArgs['spells'] = self.buffs
         self.menuArgs['targets'] = self.targets
-    elseif textItem:getText() == 'Edit' then
+    elseif L{ 'Edit', 'Conditions' }:contains(textItem:getText()) then
         local cursorIndexPath = self:getDelegate():getCursorIndexPath()
         if cursorIndexPath then
             self.menuArgs['spell'] = self.buffs[cursorIndexPath.row]
+            self.menuArgs['conditions'] = self.buffs[cursorIndexPath.row]:get_conditions()
         end
     elseif textItem:getText() == 'Remove' then
         self:onRemoveSpellClick()
