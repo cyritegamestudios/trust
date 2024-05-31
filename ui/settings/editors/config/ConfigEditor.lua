@@ -1,6 +1,9 @@
+local BooleanConfigItem = require('ui/settings/editors/config/BooleanConfigItem')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
 local Color = require('cylibs/ui/views/color')
+local ConfigItem = require('ui/settings/editors/config/ConfigItem')
+local FFXIToggleButtonItem = require('ui/themes/ffxi/FFXIToggleButtonItem')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
@@ -11,6 +14,8 @@ local SliderItem = require('cylibs/ui/collection_view/items/slider_item')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
+local ToggleButtonCollectionViewCell = require('cylibs/ui/collection_view/cells/toggle_button_collection_view_cell')
+local ToggleButtonItem = require('cylibs/ui/collection_view/items/toggle_button_item')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 
 local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
@@ -31,6 +36,12 @@ function ConfigEditor.new(trustSettings, configSettings, configItems)
             cell:setIsSelectable(false)
             cell:setItemSize(16)
             return cell
+        elseif item.__type == FFXIToggleButtonItem.__type then
+            local cell = ToggleButtonCollectionViewCell.new(item)
+            cell:setUserInteractionEnabled(true)
+            cell:setIsSelectable(true)
+            cell:setItemSize(16)
+            return cell
         end
         return nil
     end)
@@ -38,6 +49,7 @@ function ConfigEditor.new(trustSettings, configSettings, configItems)
     local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(10, Padding.new(15, 10, 0, 0))), ConfigEditor)
 
     self:setAllowsCursorSelection(false)
+    self:setAllowsMultipleSelection(true)
     self:setScrollDelta(16)
 
     self.trustSettings = trustSettings
@@ -73,7 +85,9 @@ function ConfigEditor:reloadSettings()
         )
         self:getDataSource():setItemForSectionHeader(sectionIndex, sectionHeaderItem)
 
-        local defaultItem = SliderItem.new(
+        local defaultItem
+        if configItem.__type == ConfigItem.__type then
+            defaultItem = SliderItem.new(
                 configItem:getMinValue(),
                 configItem:getMaxValue(),
                 self.configSettings[configItem:getKey()],
@@ -81,10 +95,16 @@ function ConfigEditor:reloadSettings()
                 ImageItem.new(windower.addon_path..'assets/backgrounds/slider_track.png', 166, 16),
                 ImageItem.new(windower.addon_path..'assets/backgrounds/slider_fill.png', 166, 16),
                 configItem:getTextFormat()
-        )
-        items:append(IndexedItem.new(defaultItem, IndexPath.new(sectionIndex, 1)))
+            )
+        elseif configItem.__type == BooleanConfigItem.__type then
+            defaultItem = FFXIToggleButtonItem.new()
+            defaultItem:setEnabled(self.configSettings[configItem:getKey()])
+        end
 
-        sectionIndex = sectionIndex + 1
+        if defaultItem then
+            items:append(IndexedItem.new(defaultItem, IndexPath.new(sectionIndex, 1)))
+            sectionIndex = sectionIndex + 1
+        end
     end
 
     self:getDataSource():addItems(items)
@@ -97,9 +117,13 @@ end
 function ConfigEditor:onConfirmClick()
     for sectionIndex = 1, self:getDataSource():numberOfSections(), 1 do
         local sectionHeaderItem = self:getDataSource():headerItemForSection(sectionIndex)
-        local sliderItem = self:getDataSource():itemAtIndexPath(IndexPath.new(sectionIndex, 1))
 
-        self.configSettings[sectionHeaderItem:getTitleItem():getText()] = sliderItem:getCurrentValue()
+        local configItem = self:getDataSource():itemAtIndexPath(IndexPath.new(sectionIndex, 1))
+        if configItem.__type == SliderItem.__type then
+            self.configSettings[sectionHeaderItem:getTitleItem():getText()] = configItem:getCurrentValue()
+        elseif configItem.__type == FFXIToggleButtonItem.__type then
+            self.configSettings[sectionHeaderItem:getTitleItem():getText()] = configItem:getEnabled()
+        end
     end
 
     self.trustSettings:saveSettings(true)
@@ -114,7 +138,7 @@ function ConfigEditor:onResetClick()
 end
 
 function ConfigEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
-    if textItem:getText() == 'Confirm' then
+    if L{ 'Confirm', 'Save' }:contains(textItem:getText()) then
         self:onConfirmClick()
     elseif textItem:getText() == 'Reset' then
         self:onResetClick()

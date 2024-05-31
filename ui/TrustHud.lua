@@ -6,6 +6,7 @@ local BuffSettingsMenuItem = require('ui/settings/menus/buffs/BuffSettingsMenuIt
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local Color = require('cylibs/ui/views/color')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
+local ConfigSettingsMenuItem = require('ui/settings/menus/ConfigSettingsMenuItem')
 local HealerSettingsMenuItem = require('ui/settings/menus/healing/HealerSettingsMenuItem')
 local DebufferView = require('ui/views/DebufferView')
 local DebuffSettingsEditor = require('ui/settings/DebuffSettingsEditor')
@@ -600,17 +601,24 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
         return setupView(view, viewSize)
     end)
 
+    -- Config
+    local configSettingsItem = ConfigSettingsMenuItem.new(self.addon_settings, function(view)
+        return setupView(view, viewSize)
+    end)
+
     -- Main
     local mainMenuItem = MenuItem.new(L{
         ButtonItem.default('Status', 18),
         ButtonItem.default('Settings', 18),
         ButtonItem.default('Load', 18),
+        ButtonItem.default('Config', 18),
         ButtonItem.default('Help', 18),
         ButtonItem.default('Donate', 18),
     }, {
         Status = statusMenuItem,
         Settings = settingsMenuItem,
         Load = loadSettingsItem,
+        Config = configSettingsItem,
         Help = helpMenuItem,
         Donate = MenuItem.action(function()
             windower.open_url(self.addon_settings:getSettings().donate.url)
