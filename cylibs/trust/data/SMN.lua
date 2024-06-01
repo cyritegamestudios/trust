@@ -14,7 +14,7 @@ local ManaRestorer = require('cylibs/trust/roles/mana_restorer')
 local Summoner = require('cylibs/entity/jobs/SMN')
 
 state.AutoAssaultMode = M{['description'] = 'Auto Assault Mode', 'Off', 'Auto'}
-state.AutoAvatarMode = M{['description'] = 'Avatar Mode', 'Off', 'Ifrit', 'Ramuh', 'Shiva'}
+state.AutoAvatarMode = M{['description'] = 'Avatar Mode', 'Off', 'Ifrit', 'Ramuh', 'Shiva', 'Garuda', 'Leviathan', 'Titan', 'Carbuncle', 'Diabolos', 'Fenrir', 'Siren', 'Cait Sith'}
 
 function SummonerTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local roles = S{

@@ -1,3 +1,4 @@
+local Event = require('cylibs/events/Luvent')
 local inventory_util = require('cylibs/util/inventory_util')
 local PartyMember = require('cylibs/entity/party_member')
 local Weapon = require('cylibs/battle/weapons/weapon')
@@ -6,16 +7,36 @@ local Player = setmetatable({}, {__index = PartyMember })
 Player.__index = Player
 Player.__class = "Player"
 
+-- Event called when a player's level changes.
+function PartyMember:on_level_change()
+    return self.level_change
+end
+
 -------
 -- Default initializer for a Player.
 -- @tparam number id Mob id
 -- @treturn Player A player
 function Player.new(id)
     local self = setmetatable(PartyMember.new(id), Player)
+
     self:set_zone_id(windower.ffxi.get_info().zone)
     self:set_main_weapon_id(inventory_util.get_main_weapon_id())
     self:set_ranged_weapon_id(inventory_util.get_ranged_weapon_id())
+
+    self.events = {}
+    self.level_change = Event.newEvent()
+
     return self
+end
+
+function Player:destroy()
+    PartyMember.destroy(self)
+
+    for _,event in pairs(self.events) do
+        windower.unregister_event(event)
+    end
+
+    self.level_change:removeAllActions()
 end
 
 -------
@@ -41,6 +62,14 @@ function Player:monitor()
             self:set_pet(pet_id, pet_name)
         end
     end), WindowerEvents.PetUpdate)
+
+    self.events.level_up = windower.register_event('level up', function(new_level)
+        self:on_level_change():trigger(self, new_level)
+    end)
+
+    self.events.level_down = windower.register_event('level down', function(new_level)
+        self:on_level_change():trigger(self, new_level)
+    end)
 end
 
 -------
