@@ -55,4 +55,8 @@ function RangedAttack:to_action(target_index, player)
     }, self.__class..'_ranged_attack')
 end
 
+function RangedAttack:serialize()
+    return "RangedAttack.new()"
+end
+
 return RangedAttack

@@ -54,4 +54,8 @@ function Approach:to_action(target_index)
     }, self.__class..'_approach')
 end
 
+function Approach:serialize()
+    return "Approach.new()"
+end
+
 return Approach
