@@ -38,17 +38,17 @@ end
 function TrustScenarios:add_scenario(name)
     if not self:has_scenario(name) then
         if name == 'di' then
-            local DomainInvasion = require('cylibs/scenarios/domain_invasion/domain_invasion')
+            local DomainInvasion = require('cylibs/scenarios/data/domain_invasion/domain_invasion')
             local scenario = DomainInvasion.new(self.action_queue)
             self.scenarios:add(scenario)
             self:start_scenario(scenario)
         elseif name == 'einherjar' then
-            local Einherjar = require('scenarios/einherjar/einherjar')
+            local Einherjar = require('scenarios/data/einherjar/einherjar')
             local scenario = Einherjar.new(self.action_queue, self.party, self.trust)
             self.scenarios:add(scenario)
             self:start_scenario(scenario)
         elseif name == 'upinarms' then
-            local UpInArms = require('scenarios/up_in_arms/up_in_arms')
+            local UpInArms = require('scenarios/data/up_in_arms/up_in_arms')
             local scenario = UpInArms.new(self.action_queue, self.party, self.trust)
             self.scenarios:add(scenario)
             self:start_scenario(scenario)
