@@ -50,7 +50,7 @@ function ToggleButtonCollectionViewCell:layoutIfNeeded()
     if not CollectionViewCell.layoutIfNeeded(self) then
         return false
     end
-    
+
     return true
 end
 

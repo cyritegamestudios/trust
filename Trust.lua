@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '9.2.0'
+_addon.version = '9.2.1'
 _addon.release_notes = [[
 This update features additional settings menus in the Trust UI and the
 ability to record and replay saved paths.

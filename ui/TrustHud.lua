@@ -167,7 +167,7 @@ function TrustHud:getViewStack()
 end
 
 function TrustHud:createWidgets(addon_settings, addon_enabled, action_queue, party, trust)
-    local trustStatusWidget = TrustStatusWidget.new(Frame.new(0, 0, 125, 69), addon_settings, addon_enabled, action_queue, player.main_job_name, player.sub_job_name)
+    local trustStatusWidget = TrustStatusWidget.new(Frame.new(0, 0, 125, 69), addon_settings, addon_enabled, action_queue, player.main_job_name, player.sub_job_name, party:get_player())
     self.widgetManager:addWidget(trustStatusWidget, "trust")
 
     local targetWidget = TargetWidget.new(Frame.new(0, 0, 125, 40), addon_settings, party, trust)

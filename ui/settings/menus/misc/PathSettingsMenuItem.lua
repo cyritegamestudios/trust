@@ -68,7 +68,7 @@ function PathSettingsMenuItem:getStopPathMenuItem()
         if self.pather:is_enabled() then
             self.pather:stop()
         else
-            self.pather:get_party():add_to_chat(self:get_party():get_player(), "I'm already standing still!")
+            self.pather:get_party():add_to_chat(self.pather:get_party():get_player(), "I'm already standing still!")
         end
     end, "Paths", "Cancel any active path.")
 end

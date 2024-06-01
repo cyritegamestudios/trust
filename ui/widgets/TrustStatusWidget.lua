@@ -90,7 +90,7 @@ TrustStatusWidget.Subheadline = TextStyle.new(
         Color.red
 )
 
-function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, mainJobName, subJobName)
+function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, mainJobName, subJobName, player)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         if indexPath.section == 1 then
             local cell = TextCollectionViewCell.new(item)
@@ -152,6 +152,10 @@ function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, 
             self:setAction('OFF')
         end
     end), addonEnabled:onValueChanged())
+
+    self:getDisposeBag():add(player:on_level_change():addAction(function(_, _)
+        self:setJobs(mainJobName, subJobName)
+    end), player:on_level_change())
 
     if not addonEnabled:getValue() then
         self:setAction('OFF')

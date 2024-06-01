@@ -11,8 +11,8 @@ function PullTrustCommands.new(trust, action_queue)
 
     -- AutoPullMode
     self:add_command('auto', function(_) return self:handle_toggle_mode('AutoPullMode', 'Auto', 'Off')  end, 'Automatically pull mobs for the party')
-    self:add_command('multi', function(_) return self:handle_toggle_mode('AutoPullMode', 'Multi', 'Off')  end, 'Automatically pull a monster even if the party is already fighting')
-    self:add_command('target', function(_) return self:handle_toggle_mode('AutoPullMode', 'Target', 'Off')  end, 'Automatically pull whatever monster is currently targeted')
+    self:add_command('party', function(_) return self:handle_toggle_mode('AutoPullMode', 'Party', 'Off')  end, 'Automatically pull whatever monster the party is fighting')
+    self:add_command('all', function(_) return self:handle_toggle_mode('AutoPullMode', 'All', 'Off')  end, 'Automatically pull whatever monsters are nearby')
 
     return self
 end
@@ -21,7 +21,7 @@ function PullTrustCommands:get_command_name()
     return 'pull'
 end
 
--- // trust pull [auto, multi, target]
+-- // trust pull [auto, party, all]
 function PullTrustCommands:handle_toggle_mode(mode_var_name, on_value, off_value)
     local success = true
     local message
