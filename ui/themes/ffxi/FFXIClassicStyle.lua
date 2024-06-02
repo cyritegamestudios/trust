@@ -57,4 +57,8 @@ function FFXIClassicStyle:getDefaultPickerSize()
     return { width = 180, height = 192 }
 end
 
+function FFXIClassicStyle:getDefaultTextInputSize()
+    return { width = 250, height = 100 }
+end
+
 return FFXIClassicStyle

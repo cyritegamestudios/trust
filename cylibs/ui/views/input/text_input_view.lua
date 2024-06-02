@@ -26,7 +26,7 @@ function TextInputView.new(placeholderText)
         return cell
     end)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(4, Padding.new(10, 8, 0, 0), 0)), TextInputView)
+    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(6, Padding.new(15, 16, 0, 0), 0)), TextInputView)
 
     self:setAllowsCursorSelection(false)
     self:setScrollDelta(32)
@@ -34,12 +34,10 @@ function TextInputView.new(placeholderText)
     self.placeholderText = placeholderText
     self.textChanged = Event.newEvent()
 
-    local backgroundView = FFXIBackgroundView.new(Frame.new(0, 0, 500, 500), true)
-    self:setBackgroundImageView(backgroundView)
-
     self:reloadSettings()
 
     self:setVisible(false)
+    self:setAllowsCursorSelection(false)
 
     self:getDelegate():deselectAllItems()
 
@@ -96,9 +94,7 @@ function TextInputView:reloadSettings()
 
     self:getDataSource():addItems(items)
 
-    if textFields:length() > 0 then
-        self:getDelegate():selectItemAtIndexPath(IndexPath.new(1, 1))
-    end
+    self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
 end
 
 function TextInputView:setHasFocus(hasFocus)

@@ -249,9 +249,8 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
     end)
 
     local buffModesMenuItem = MenuItem.new(L{}, L{}, function(_)
-        local modesView = setupView(ModesView.new(L{'AutoBarSpellMode', 'AutoBuffMode'}), viewSize)
+        local modesView = ModesView.new(L{'AutoBarSpellMode', 'AutoBuffMode'})
         modesView:setShouldRequestFocus(true)
-        modesView:setTitle("Set modes for buffing the player and party.")
         return modesView
     end, "Modes", "Change buffing behavior.")
 

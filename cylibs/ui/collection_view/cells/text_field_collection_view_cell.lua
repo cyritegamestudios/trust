@@ -39,11 +39,13 @@ function TextFieldCollectionViewCell:onKeyboardEvent(key, pressed, flags, blocke
         local key = Keyboard.input():getKey(key)
         if key then
             local textItem = self:getItem():getTextItem()
-            if textItem then
+            if textItem and key ~= "Escape" then
                 local currentText = textItem:getText():gsub('|', '')
                 local newText
                 if key == "Backspace" then
                     newText = currentText:slice(1, currentText:length()-1)
+                elseif key == "Escape" then
+                    newText = currentText
                 else
                     newText = (currentText..key:lower()):ucfirst()
                 end

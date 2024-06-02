@@ -110,4 +110,8 @@ function CollectionViewStyle:getDefaultPickerSize()
     return { width = 500, height = 500 }
 end
 
+function CollectionViewStyle:getDefaultTextInputSize()
+    return { width = 500, height = 150 }
+end
+
 return CollectionViewStyle
