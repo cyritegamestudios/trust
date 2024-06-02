@@ -21,4 +21,14 @@ function FFXIWindow.new(dataSource, layout, delegate, showTitle, viewSize, style
     return self
 end
 
+function FFXIWindow.getLayoutParams(numItemsPerPage, itemSize, itemSpacing, defaultSize, defaultPadding)
+    local viewHeight = numItemsPerPage * itemSize + (numItemsPerPage - 1) * itemSpacing
+    local viewSize = defaultSize
+    viewSize.height = viewHeight
+    local padding = defaultPadding
+    padding.top = itemSize / 2
+    padding.bottom = itemSize / 2
+    return { viewSize = viewSize, padding = padding }
+end
+
 return FFXIWindow

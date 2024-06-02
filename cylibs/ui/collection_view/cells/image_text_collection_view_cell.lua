@@ -54,4 +54,11 @@ function ImageTextCollectionViewCell:setSelected(selected)
     return true
 end
 
+function ImageTextCollectionViewCell:setItem(item)
+    CollectionViewCell.setItem(self, item)
+
+    self.imageView:setItem(item:getImageItem())
+    self.textView:setItem(item:getTextItem())
+end
+
 return ImageTextCollectionViewCell

@@ -62,6 +62,7 @@ function BuffSettingsEditor:onRemoveSpellClick()
         if item then
             local indexPath = selectedIndexPath
             self.buffs:remove(indexPath.row)
+            local item = self:getDataSource():itemAtIndexPath(indexPath)
             self:getDataSource():removeItem(indexPath)
             self.trustSettings:saveSettings(true)
         end

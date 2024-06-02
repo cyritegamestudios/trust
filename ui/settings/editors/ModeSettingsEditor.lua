@@ -14,17 +14,25 @@ ModesView.__type = "ModesView"
 
 
 function ModesView.new(modeNames)
+    local layoutParams = FFXIWindow.getLayoutParams(
+            15,
+            16,
+            2,
+            FFXIClassicStyle.WindowSize.Editor.ConfigEditor,
+            FFXIClassicStyle.Padding.ConfigEditor
+    )
+
     local dataSource = CollectionViewDataSource.new(function(item)
         local cell = TextCollectionViewCell.new(item)
-        cell:setItemSize(20)
+        cell:setItemSize(16)
         cell:setUserInteractionEnabled(true)
         return cell
     end)
 
-    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(0, FFXIClassicStyle.Padding.ConfigEditor), nil, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditor), ModesView)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, layoutParams.padding), nil, false, layoutParams.viewSize), ModesView)
 
     self:setShouldRequestFocus(true)
-    self:setScrollDelta(20)
+    self:setScrollDelta(16)
     self:setScrollEnabled(true)
 
     local itemsToAdd = L{}

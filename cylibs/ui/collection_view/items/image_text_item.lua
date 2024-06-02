@@ -53,8 +53,9 @@ end
 --
 function ImageTextItem:__eq(otherItem)
     return otherItem.__type == ImageTextItem.__type
-            and self:getTextItem() == otherItem:getTextItem()
-            and self:getImageItem() == otherItem:getImageItem()
+            and self:getText() == otherItem:getText()
+            --and self:getTextItem() == otherItem:getTextItem()
+            --and self:getImageItem() == otherItem:getImageItem()
 end
 
 return ImageTextItem

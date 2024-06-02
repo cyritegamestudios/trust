@@ -86,7 +86,7 @@ function VerticalFlowLayout:layoutSubviews(collectionView, indexPathFilter)
 
     -- Set the width and height of the layout
     self.width = collectionView:getSize().width
-    self.height = yOffset
+    self.height = yOffset + self.padding.bottom
 
     collectionView:setContentSize(self.width, self.height)
 end
