@@ -67,7 +67,6 @@ function NukeSettingsMenuItem:getNukesMenuItem()
             end
 
             local chooseSpellsView = SpellPickerView.new(self.trustSettings, spellSettings, allSpells, L{}, true, sortSpells)
-            chooseSpellsView:setTitle("Choose spells to nuke with.")
             return chooseSpellsView
         end, "Nukes", "Choose which nukes to use when magic bursting or free nuking.")
     return chooseNukesMenuItem
@@ -84,7 +83,6 @@ function NukeSettingsMenuItem:getBlacklistMenuItem()
                 nukeSettings.Blacklist = L{}
             end
             local blacklistPickerView = ElementPickerView.new(self.trustSettings, nukeSettings.Blacklist)
-            blacklistPickerView:setTitle('Choose elements to avoid when magic bursting or free nuking.')
             blacklistPickerView:setShouldRequestFocus(true)
             return blacklistPickerView
         end, "Blacklist", "Choose elements to avoid when magic bursting or free nuking.")
@@ -105,7 +103,6 @@ function NukeSettingsMenuItem:getConfigMenuItem()
             }
 
             local nukeConfigEditor = ConfigEditor.new(self.trustSettings, nukeSettings, configItems)
-            nukeConfigEditor:setTitle('Configure general nuke settings.')
             nukeConfigEditor:setShouldRequestFocus(true)
             return nukeConfigEditor
         end, "Config", "Configure general nuke settings.")
@@ -116,7 +113,6 @@ function NukeSettingsMenuItem:getModesMenuItem()
     local nukeModesMenuItem = MenuItem.new(L{}, L{}, function(_)
         local modesView = ModesView.new(L{'AutoMagicBurstMode', 'AutoNukeMode', 'MagicBurstTargetMode'})
         modesView:setShouldRequestFocus(true)
-        modesView:setTitle("Set modes for nuking and magic bursting.")
         return modesView
     end, "Modes", "Change nuking and magic bursting behavior.")
     return nukeModesMenuItem

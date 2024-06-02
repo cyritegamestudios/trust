@@ -234,7 +234,7 @@ function ScrollView:layoutIfNeeded()
 
     if self.verticalScrollBar then
         self.verticalScrollBar:setVisible(self:isScrollEnabled() and self.contentSize.height > self.frame.height)
-        self.verticalScrollBar:setPosition(self.frame.width --[[- self.scrollBarSize]], 4)
+        self.verticalScrollBar:setPosition(self.frame.width - self.scrollBarSize, 4)
         self.verticalScrollBar:setSize(self.scrollBarSize, self.frame.height - 8)
     end
 
