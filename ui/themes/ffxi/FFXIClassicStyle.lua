@@ -38,7 +38,7 @@ FFXIClassicStyle.Padding.ConfigEditor = Padding.new(15, 16, 0, 0)
 
 FFXIClassicStyle.WindowSize = {}
 FFXIClassicStyle.WindowSize.Editor = {}
-FFXIClassicStyle.WindowSize.Editor.Default = Frame.new(0, 0, 175, 192)
+FFXIClassicStyle.WindowSize.Editor.Default = Frame.new(0, 0, 180, 192)
 FFXIClassicStyle.WindowSize.Editor.ConfigEditor = Frame.new(0, 0, 350, 300)
 
 function FFXIClassicStyle.default()
@@ -54,7 +54,7 @@ function FFXIClassicStyle.default()
 end
 
 function FFXIClassicStyle:getDefaultPickerSize()
-    return { width = 175, height = 192 }
+    return { width = 180, height = 192 }
 end
 
 return FFXIClassicStyle

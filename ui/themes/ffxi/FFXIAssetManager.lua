@@ -13,9 +13,9 @@ function FFXIAssetManager.imageItemForSpell(spellName)
         if not windower.file_exists(windower.addon_path..'assets/icons/'..imageName) then
             imageName = string.gsub('icon_'..element..'.png', " ", "_"):lower()
         end
-        return ImageItem.new(windower.addon_path..'assets/icons/'..imageName, 16, 16)
+        return ImageItem.new(windower.addon_path..'assets/icons/'..imageName, 15, 15)
     end
-    return ImageItem.new(windower.addon_path..'assets/icons/icon_elemental_magic_ice.png', 16, 16)
+    return ImageItem.new(windower.addon_path..'assets/icons/icon_elemental_magic_ice.png', 15, 15)
 end
 
 return FFXIAssetManager

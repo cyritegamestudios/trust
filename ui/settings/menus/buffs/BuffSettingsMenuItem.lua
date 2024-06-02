@@ -83,7 +83,7 @@ function BuffSettingsMenuItem:getEditBuffMenuItem()
     }, {},
     function(args)
         local spell = args['spell']
-        local editSpellView = self.viewFactory(SpellSettingsEditor.new(self.trustSettings, spell))
+        local editSpellView = SpellSettingsEditor.new(self.trustSettings, spell)
         editSpellView:setTitle("Edit buff.")
         editSpellView:setShouldRequestFocus(true)
         return editSpellView

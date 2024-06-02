@@ -1,27 +1,16 @@
-local BackgroundView = require('cylibs/ui/views/background/background_view')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
-local Color = require('cylibs/ui/views/color')
-local Frame = require('cylibs/ui/views/frame')
+local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local job_util = require('cylibs/util/job_util')
-local ListView = require('cylibs/ui/list_view/list_view')
-local NavigationBar = require('cylibs/ui/navigation/navigation_bar')
-local Padding = require('cylibs/ui/style/padding')
-local PickerItem = require('cylibs/ui/picker/picker_item')
-local PickerView = require('cylibs/ui/picker/picker_view')
 local player_util = require('cylibs/util/player_util')
-local spell_util = require('cylibs/util/spell_util')
 local SectionHeaderItem = require('cylibs/ui/collection_view/items/section_header_item')
-local TabbedView = require('cylibs/ui/tabs/tabbed_view')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
-local TrustSettingsLoader = require('TrustSettings')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
-local View = require('cylibs/ui/views/view')
 
 local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
 local SpellSettingsEditor = setmetatable({}, {__index = FFXIWindow })
@@ -32,20 +21,18 @@ function SpellSettingsEditor.new(trustSettings, spell)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = TextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
-        cell:setItemSize(20)
-        --if indexPath.row ~= 1 then
-            cell:setUserInteractionEnabled(true)
-        --end
+        cell:setItemSize(16)
+        cell:setUserInteractionEnabled(true)
         return cell
     end)
 
-    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0), 6)), SpellSettingsEditor)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, FFXIClassicStyle.Padding.ConfigEditor, 6), nil, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditor), SpellSettingsEditor)
 
     self.trustSettings = trustSettings
     self.spell = spell
     self.menuArgs = {}
 
-    self:setScrollDelta(20)
+    self:setScrollDelta(16)
     self:setScrollEnabled(true)
     self:setAllowsMultipleSelection(true)
 
@@ -64,7 +51,7 @@ function SpellSettingsEditor.new(trustSettings, spell)
 
     for jobAbilityName in allJobAbilities:it() do
         local indexPath = IndexPath.new(1, rowIndex)
-        items:append(IndexedItem.new(TextItem.new(jobAbilityName, TextStyle.PickerView.Text), indexPath))
+        items:append(IndexedItem.new(TextItem.new(jobAbilityName, TextStyle.Default.TextSmall), indexPath))
         if spell:get_job_abilities():contains(jobAbilityName) then
             itemsToSelect:append(indexPath)
         end
@@ -81,7 +68,7 @@ function SpellSettingsEditor.new(trustSettings, spell)
     self:getDataSource():setItemForSectionHeader(2, jobsSectionHeaderItem)
     for jobName in job_util.all_jobs():it() do
         local indexPath = IndexPath.new(2, rowIndex)
-        items:append(IndexedItem.new(TextItem.new(jobName, TextStyle.PickerView.Text), indexPath))
+        items:append(IndexedItem.new(TextItem.new(jobName, TextStyle.Default.TextSmall), indexPath))
         if spell:get_job_names():contains(jobName) then
             itemsToSelect:append(indexPath)
         end
@@ -96,8 +83,8 @@ function SpellSettingsEditor.new(trustSettings, spell)
 
     self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
         if indexPath.row == 1 then
-            self:getDelegate():selectItemsInSection(indexPath.section)
-            self:getDelegate():deselectItemAtIndexPath(indexPath)
+            --self:getDelegate():selectItemsInSection(indexPath.section)
+            --self:getDelegate():deselectItemAtIndexPath(indexPath)
         end
         if indexPath.section == 1 then
 
