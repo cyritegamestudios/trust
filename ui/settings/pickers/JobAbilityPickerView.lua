@@ -1,3 +1,4 @@
+local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local PickerView = require('cylibs/ui/picker/picker_view')
@@ -7,7 +8,11 @@ local JobAbilityPickerView = setmetatable({}, {__index = FFXIPickerView })
 JobAbilityPickerView.__index = JobAbilityPickerView
 
 function JobAbilityPickerView.new(trustSettings, jobAbilities, allJobAbilities)
-    local self = setmetatable(FFXIPickerView.withItems(allJobAbilities, L{}, true), JobAbilityPickerView)
+    local imageItemForText = function(text)
+        return AssetManager.imageItemForJobAbility(text)
+    end
+
+    local self = setmetatable(FFXIPickerView.withItems(allJobAbilities, L{}, true, nil, imageItemForText), JobAbilityPickerView)
 
     self.trustSettings = trustSettings
     self.jobAbilities = jobAbilities

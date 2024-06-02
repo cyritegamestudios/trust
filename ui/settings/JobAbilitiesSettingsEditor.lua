@@ -1,9 +1,12 @@
+local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local BackgroundView = require('cylibs/ui/views/background/background_view')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
 local Color = require('cylibs/ui/views/color')
+local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local Frame = require('cylibs/ui/views/frame')
-local ImageItem = require('cylibs/ui/collection_view/items/image_item')
+local ImageTextCollectionViewCell = require('cylibs/ui/collection_view/cells/image_text_collection_view_cell')
+local ImageTextItem = require('cylibs/ui/collection_view/items/image_text_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local ListView = require('cylibs/ui/list_view/list_view')
@@ -29,17 +32,17 @@ JobAbilitiesSettingsEditor.__index = JobAbilitiesSettingsEditor
 
 function JobAbilitiesSettingsEditor.new(trustSettings, settingsMode, width)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
-        local cell = TextCollectionViewCell.new(item)
+        local cell = ImageTextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
-        cell:setItemSize(20)
+        cell:setItemSize(16)
         cell:setUserInteractionEnabled(true)
         return cell
     end)
 
-    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), JobAbilitiesSettingsEditor)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(0, FFXIClassicStyle.Padding.CollectionView.Default), nil, false, FFXIClassicStyle.WindowSize.Editor.Default), JobAbilitiesSettingsEditor)
 
     self:setAllowsCursorSelection(true)
-    self:setScrollDelta(20)
+    self:setScrollDelta(16)
     self:setScrollEnabled(true)
 
     self.trustSettings = trustSettings
@@ -109,7 +112,8 @@ function JobAbilitiesSettingsEditor:reloadSettings()
     local rowIndex = 1
 
     for jobAbility in self.jobAbilities:it() do
-        items:append(IndexedItem.new(TextItem.new(jobAbility:get_job_ability_name(), TextStyle.Default.TextSmall), IndexPath.new(1, rowIndex)))
+        local imageItem = AssetManager.imageItemForJobAbility(jobAbility:get_job_ability_name())
+        items:append(IndexedItem.new(ImageTextItem.new(imageItem, TextItem.new(jobAbility:get_job_ability_name(), TextStyle.Default.PickerItem)), IndexPath.new(1, rowIndex)))
         rowIndex = rowIndex + 1
     end
 

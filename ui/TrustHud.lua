@@ -265,7 +265,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
                     return jobAbility.status ~= nil and S{'Self'}:intersection(S(jobAbility.targets)):length() > 0
                 end):map(function(jobAbility) return jobAbility.en end)
 
-                local chooseJobAbilitiesView = setupView(JobAbilityPickerView.new(trustSettings, T(trustSettings:getSettings())[trustSettingsMode.value].JobAbilities, allJobAbilities), viewSize)
+                local chooseJobAbilitiesView = JobAbilityPickerView.new(trustSettings, T(trustSettings:getSettings())[trustSettingsMode.value].JobAbilities, allJobAbilities)
                 chooseJobAbilitiesView:setTitle("Choose job abilities to add.")
                 return chooseJobAbilitiesView
             end, "Job Abilities", "Add a new job ability buff.")
@@ -279,9 +279,6 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
             function()
                 local backgroundImageView = createBackgroundView(viewSize.width, viewSize.height)
                 local jobAbilitiesSettingsView = JobAbilitiesSettingsEditor.new(trustSettings, trustSettingsMode, viewSize.width)
-                jobAbilitiesSettingsView:setBackgroundImageView(backgroundImageView)
-                --jobAbilitiesSettingsView:setNavigationBar(createTitleView(viewSize))
-                jobAbilitiesSettingsView:setSize(viewSize.width, viewSize.height)
                 return jobAbilitiesSettingsView
             end, "Job Abilities", "Choose job ability buffs.")
 

@@ -71,7 +71,7 @@ function FoodSettingsMenuItem:getFoodMenuItem()
             currentFood = 'Grape Daifuku'
         end
 
-        local chooseFoodView = self.viewFactory(FFXIPickerView.withItems(allFood, currentFood, false))
+        local chooseFoodView = FFXIPickerView.withItems(allFood, currentFood, false)
         chooseFoodView:setTitle("Choose a food to eat.")
         chooseFoodView:setShouldRequestFocus(true)
         chooseFoodView:on_pick_items():addAction(function(_, selectedItems)
@@ -89,7 +89,7 @@ end
 
 function FoodSettingsMenuItem:getModesMenuItem()
     local foodModesMenuItem = MenuItem.new(L{}, L{}, function(_)
-        local modesView = self.viewFactory(ModesView.new(L{ 'AutoFoodMode' }))
+        local modesView = ModesView.new(L{ 'AutoFoodMode' })
         modesView:setShouldRequestFocus(true)
         modesView:setTitle("Set modes for eating.")
         return modesView

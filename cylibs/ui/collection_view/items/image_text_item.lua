@@ -28,6 +28,15 @@ function ImageTextItem:getTextItem()
 end
 
 ---
+-- Gets the text.
+--
+-- @treturn string The text.
+--
+function ImageTextItem:getText()
+    return self.textItem:getText()
+end
+
+---
 -- Gets the image item.
 --
 -- @treturn ImageItem The image item.

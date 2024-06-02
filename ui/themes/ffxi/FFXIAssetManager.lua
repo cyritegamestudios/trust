@@ -18,4 +18,8 @@ function FFXIAssetManager.imageItemForSpell(spellName)
     return ImageItem.new(windower.addon_path..'assets/icons/icon_elemental_magic_ice.png', 15, 15)
 end
 
+function FFXIAssetManager.imageItemForJobAbility(jobAbilityName)
+    return ImageItem.new(windower.addon_path..'assets/icons/icon_job_ability_light.png', 15, 15)
+end
+
 return FFXIAssetManager
