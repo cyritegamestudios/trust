@@ -19,9 +19,8 @@ function BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsKey,
     }, {}, function(menuArgs)
         local buffs = T(trustSettings:getSettings())[trustSettingsMode.value][settingsKey]
 
-        local buffSettingsView = viewFactory(BuffSettingsEditor.new(trustSettings, buffs, targets))
+        local buffSettingsView = BuffSettingsEditor.new(trustSettings, buffs, targets)
         buffSettingsView:setShouldRequestFocus(true)
-        buffSettingsView:setTitle(descriptionText)
         return buffSettingsView
     end, "Buffs", descriptionText), BuffSettingsMenuItem)
 
@@ -69,7 +68,7 @@ function BuffSettingsMenuItem:getAddBuffMenuItem()
                 return spell.levels[jobId] ~= nil and spell.status ~= nil and spell.skill ~= 44 and targets:intersection(S(spell.targets)):length() > 0
             end):map(function(spell) return spell.en end)
 
-            local chooseSpellsView = self.viewFactory(SpellPickerView.new(self.trustSettings, spellSettings, allBuffs, defaultJobNames, false))
+            local chooseSpellsView = SpellPickerView.new(self.trustSettings, spellSettings, allBuffs, defaultJobNames, false)
             chooseSpellsView:setTitle("Choose buffs to add.")
             chooseSpellsView:setScrollEnabled(true)
         return chooseSpellsView

@@ -14,6 +14,8 @@ function FFXIWindow.new(dataSource, layout, delegate, showTitle, viewSize, style
     local backgroundView = FFXIBackgroundView.new(Frame.new(0, 0, viewSize.width, viewSize.height), not showTitle, style)
     self:setBackgroundImageView(backgroundView)
 
+    self:setSize(viewSize.width, viewSize.height)
+
     return self
 end
 

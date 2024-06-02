@@ -1,5 +1,7 @@
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
+local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
+local Frame = require('cylibs/ui/views/frame')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Padding = require('cylibs/ui/style/padding')
@@ -19,13 +21,11 @@ function BuffSettingsEditor.new(trustSettings, buffs, targets)
         local cell = TextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
         cell:setItemSize(20)
-        if indexPath.row ~= 1 then
-            cell:setUserInteractionEnabled(true)
-        end
+        cell:setUserInteractionEnabled(true)
         return cell
     end)
 
-    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), BuffSettingsEditor)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, FFXIClassicStyle.Padding.CollectionView.Default), nil, false, FFXIClassicStyle.WindowSize.Editor.Default), BuffSettingsEditor)
 
     self:setAllowsCursorSelection(true)
     self:setScrollDelta(20)

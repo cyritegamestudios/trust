@@ -19,7 +19,7 @@ function NukeSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, addon
         ButtonItem.default('Modes', 18),
         ButtonItem.default('Help', 18),
     }, {}, function()
-        local nukeSettingsView = viewFactory(NukeSettingsEditor.new(trustSettings, trustSettingsMode, addonSettings:getSettings().help.wiki_base_url..'/Nuker'))
+        local nukeSettingsView = NukeSettingsEditor.new(trustSettings, trustSettingsMode, addonSettings:getSettings().help.wiki_base_url..'/Nuker')
         nukeSettingsView:setShouldRequestFocus(true)
         return nukeSettingsView
     end, "Nukes", "Choose which nukes to use when magic bursting or free nuking."), NukeSettingsMenuItem)
@@ -66,7 +66,7 @@ function NukeSettingsMenuItem:getNukesMenuItem()
                 spell_util.sort_by_element(spells, true)
             end
 
-            local chooseSpellsView = self.viewFactory(SpellPickerView.new(self.trustSettings, spellSettings, allSpells, L{}, true, sortSpells))
+            local chooseSpellsView = SpellPickerView.new(self.trustSettings, spellSettings, allSpells, L{}, true, sortSpells)
             chooseSpellsView:setTitle("Choose spells to nuke with.")
             return chooseSpellsView
         end, "Nukes", "Choose which nukes to use when magic bursting or free nuking.")
@@ -83,7 +83,7 @@ function NukeSettingsMenuItem:getBlacklistMenuItem()
             if not nukeSettings.Blacklist then
                 nukeSettings.Blacklist = L{}
             end
-            local blacklistPickerView = self.viewFactory(ElementPickerView.new(self.trustSettings, nukeSettings.Blacklist))
+            local blacklistPickerView = ElementPickerView.new(self.trustSettings, nukeSettings.Blacklist)
             blacklistPickerView:setTitle('Choose elements to avoid when magic bursting or free nuking.')
             blacklistPickerView:setShouldRequestFocus(true)
             return blacklistPickerView

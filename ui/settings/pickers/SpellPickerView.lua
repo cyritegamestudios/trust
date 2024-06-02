@@ -1,5 +1,6 @@
 local Buff = require('cylibs/battle/spells/buff')
 local Debuff = require('cylibs/battle/spells/debuff')
+local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local PickerView = require('cylibs/ui/picker/picker_view')
@@ -15,7 +16,12 @@ function SpellPickerView.new(trustSettings, spells, allSpells, defaultJobNames, 
     if override then
         selectedSpells = spells:map(function(spell) return spell:get_name() end)
     end
-    local self = setmetatable(FFXIPickerView.withItems(allSpells, selectedSpells, true), SpellPickerView)
+
+    local imageItemForText = function(text)
+        return AssetManager.imageItemForSpell(text)
+    end
+
+    local self = setmetatable(FFXIPickerView.withItems(allSpells, selectedSpells, true, nil, imageItemForText), SpellPickerView)
 
     self.trustSettings = trustSettings
     self.spells = spells

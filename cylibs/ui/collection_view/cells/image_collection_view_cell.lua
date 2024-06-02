@@ -43,10 +43,13 @@ function ImageCollectionViewCell:layoutIfNeeded()
     if not CollectionViewCell.layoutIfNeeded(self) then
         return false
     end
-    self.imageView:setSize(self:getSize().width, self:getSize().height)
 
-    self.imageView:setNeedsLayout()
-    self.imageView:layoutIfNeeded()
+    if self.imageView:getSize().width ~= self:getSize().width or self.imageView:getSize().height ~= self:getSize().height then
+        self.imageView:setSize(self:getSize().width, self:getSize().height)
+
+        self.imageView:setNeedsLayout()
+        self.imageView:layoutIfNeeded()
+    end
 
     return true
 end

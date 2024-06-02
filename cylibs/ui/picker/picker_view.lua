@@ -2,6 +2,8 @@ local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
 local Color = require('cylibs/ui/views/color')
 local Event = require('cylibs/events/Luvent')
+local ImageTextCollectionViewCell = require('cylibs/ui/collection_view/cells/image_text_collection_view_cell')
+local ImageTextItem = require('cylibs/ui/collection_view/items/image_text_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Padding = require('cylibs/ui/style/padding')
@@ -19,13 +21,13 @@ TextStyle.PickerView = {
             Color.clear,
             Color.clear,
             "Arial",
-            10,
+            11,
             Color.white,
             Color.lightGrey,
-            2,
+            0,
             0,
             Color.clear,
-            false,
+            true,
             Color.yellow
     ),
 }
@@ -45,17 +47,22 @@ end
 --
 function PickerView.new(pickerItems, allowsMultipleSelection, cursorImageItem)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
-        local cell = TextCollectionViewCell.new(item)
+        local cell
+        if item.__type == TextItem.__type then
+            cell = TextCollectionViewCell.new(item)
+        elseif item.__type == ImageTextItem.__type then
+            cell = ImageTextCollectionViewCell.new(item)
+        end
         cell:setClipsToBounds(true)
-        cell:setItemSize(20)
+        cell:setItemSize(16)
         cell:setUserInteractionEnabled(true)
         return cell
     end)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(0, Padding.new(15, 10, 0, 0)), nil, cursorImageItem), PickerView)
+    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(0, Padding.new(0, 10, 0, 0)), nil, cursorImageItem), PickerView)
 
     self:setAllowsMultipleSelection(allowsMultipleSelection)
-    self:setScrollDelta(20)
+    self:setScrollDelta(16)
     self:setScrollEnabled(true)
 
     local indexedItems = L{}

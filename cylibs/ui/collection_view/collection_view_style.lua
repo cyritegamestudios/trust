@@ -106,4 +106,8 @@ function CollectionViewStyle:getDefaultSize()
     return { width = 500, height = 500}
 end
 
+function CollectionViewStyle:getDefaultPickerSize()
+    return { width = 500, height = 500 }
+end
+
 return CollectionViewStyle
