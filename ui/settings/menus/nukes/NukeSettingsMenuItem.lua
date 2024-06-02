@@ -104,7 +104,7 @@ function NukeSettingsMenuItem:getConfigMenuItem()
                 ConfigItem.new('MinNumMobsToCleave', 0, 30, 1, function(value) return value.."" end)
             }
 
-            local nukeConfigEditor = self.viewFactory(ConfigEditor.new(self.trustSettings, nukeSettings, configItems))
+            local nukeConfigEditor = ConfigEditor.new(self.trustSettings, nukeSettings, configItems)
             nukeConfigEditor:setTitle('Configure general nuke settings.')
             nukeConfigEditor:setShouldRequestFocus(true)
             return nukeConfigEditor
@@ -114,7 +114,7 @@ end
 
 function NukeSettingsMenuItem:getModesMenuItem()
     local nukeModesMenuItem = MenuItem.new(L{}, L{}, function(_)
-        local modesView = self.viewFactory(ModesView.new(L{'AutoMagicBurstMode', 'AutoNukeMode', 'MagicBurstTargetMode'}))
+        local modesView = ModesView.new(L{'AutoMagicBurstMode', 'AutoNukeMode', 'MagicBurstTargetMode'})
         modesView:setShouldRequestFocus(true)
         modesView:setTitle("Set modes for nuking and magic bursting.")
         return modesView

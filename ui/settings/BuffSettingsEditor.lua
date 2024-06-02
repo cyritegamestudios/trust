@@ -25,7 +25,7 @@ function BuffSettingsEditor.new(trustSettings, buffs, targets)
         return cell
     end)
 
-    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, FFXIClassicStyle.Padding.CollectionView.Default), nil, false, FFXIClassicStyle.WindowSize.Editor.Default), BuffSettingsEditor)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, FFXIClassicStyle.Padding.ConfigEditor), nil, false, FFXIClassicStyle.WindowSize.Editor.Default), BuffSettingsEditor)
 
     self:setAllowsCursorSelection(true)
     self:setScrollDelta(20)

@@ -6,6 +6,7 @@ local ImageTextCollectionViewCell = require('cylibs/ui/collection_view/cells/ima
 local ImageTextItem = require('cylibs/ui/collection_view/items/image_text_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
+local Padding = require('cylibs/ui/style/padding')
 local spell_util = require('cylibs/util/spell_util')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
@@ -27,6 +28,7 @@ function NukeSettingsEditor.new(trustSettings, settingsMode, helpUrl)
 
     local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(0, FFXIClassicStyle.Padding.CollectionView.Default), nil, false, FFXIClassicStyle.WindowSize.Editor.Default), NukeSettingsEditor)
 
+    self:setPadding(Padding.new(8, 0, 8, 0))
     self:setAllowsCursorSelection(true)
     self:setScrollDelta(16)
     self:setScrollEnabled(true)

@@ -2,6 +2,7 @@ local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local FFXIBackgroundView = require('ui/themes/ffxi/FFXIBackgroundView')
 local Frame = require('cylibs/ui/views/frame')
 local ImageTextItem = require('cylibs/ui/collection_view/items/image_text_item')
+local Padding = require('cylibs/ui/style/padding')
 local PickerItem = require('cylibs/ui/picker/picker_item')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
@@ -19,6 +20,7 @@ function FFXIPickerView.new(pickerItems, allowsMultipleSelection, cursorImageIte
     local self = setmetatable(PickerView.new(pickerItems, allowsMultipleSelection, cursorImageItem), FFXIPickerView)
     self:setBackgroundImageView(backgroundView)
     self:setSize(viewSize.width, viewSize.height)
+    self:setPadding(Padding.new(8, 0, 8, 0))
 
     return self
 end

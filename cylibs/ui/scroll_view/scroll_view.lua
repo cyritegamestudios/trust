@@ -2,6 +2,7 @@ local Frame = require('cylibs/ui/views/frame')
 local HorizontalScrollBar = require('cylibs/ui/scroll_view/horizontal_scroll_bar')
 local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_collection_view_cell')
 local Mouse = require('cylibs/ui/input/mouse')
+local Padding = require('cylibs/ui/style/padding')
 local ResizableImageItem = require('cylibs/ui/collection_view/items/resizable_image_item')
 local ScrollBar = require('cylibs/ui/scroll_view/scroll_bar')
 local VerticalScrollBar = require('cylibs/ui/scroll_view/vertical_scroll_bar')
@@ -17,6 +18,7 @@ function ScrollView.new(frame, style)
     local self = setmetatable(View.new(frame), ScrollView)
 
     self.style = style
+    self.padding = Padding.equal(0)
     self.contentView = View.new(frame)
     self.contentSize = Frame.new(0, 0, frame.width, frame.height)
     self.contentOffset = Frame.zero()
@@ -45,7 +47,7 @@ function ScrollView:createScrollBars()
             if s == self.horizontalScrollBar then
                 newContentOffset.x = math.min(self:getContentOffset().x + self:getScrollDelta(), 0)
             else
-                newContentOffset.y = math.min(self:getContentOffset().y + self:getScrollDelta(), 0)
+                newContentOffset.y = math.min(self:getContentOffset().y + self:getScrollDelta(), 8)
             end
             self:setContentOffset(newContentOffset.x, newContentOffset.y)
         end), scrollBar:onScrollBackClick())
@@ -55,7 +57,7 @@ function ScrollView:createScrollBars()
             if s == self.horizontalScrollBar then
                 newContentOffset.x = math.max(self:getContentOffset().x - self:getScrollDelta(), -self:getContentSize().width / 2)
             else
-                local minY = -(self:getContentSize().height - self:getSize().height)
+                local minY = -(self:getContentSize().height + self:getPadding().bottom - self:getSize().height)
                 newContentOffset.y = math.max(self:getContentOffset().y - self:getScrollDelta(), minY)
             end
             self:setContentOffset(newContentOffset.x, newContentOffset.y)
@@ -143,6 +145,24 @@ function ScrollView:setContentSize(contentWidth, contentHeight)
     self.contentSize.height = contentHeight
 
     self:updateContentView()
+end
+
+---
+-- Get the padding of the ScrollView.
+--
+-- @treturn Padding The padding of the ScrollView.
+--
+function ScrollView:getPadding()
+    return self.padding
+end
+
+---
+-- Set a new padding for the ScrollView.
+--
+-- @tparam Padding padding The padding of the ScrollView.
+--
+function ScrollView:setPadding(padding)
+    self.padding = padding
 end
 
 ---

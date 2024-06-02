@@ -33,11 +33,13 @@ FFXIClassicStyle.Border.RightImageItem = ImageItem.new(
 
 FFXIClassicStyle.Padding = {}
 FFXIClassicStyle.Padding.CollectionView = {}
-FFXIClassicStyle.Padding.CollectionView.Default = Padding.new(0, 16, 0, 0)
+FFXIClassicStyle.Padding.CollectionView.Default = Padding.new(8, 16, 8, 0)
+FFXIClassicStyle.Padding.ConfigEditor = Padding.new(15, 16, 0, 0)
 
 FFXIClassicStyle.WindowSize = {}
 FFXIClassicStyle.WindowSize.Editor = {}
 FFXIClassicStyle.WindowSize.Editor.Default = Frame.new(0, 0, 175, 192)
+FFXIClassicStyle.WindowSize.Editor.ConfigEditor = Frame.new(0, 0, 350, 300)
 
 function FFXIClassicStyle.default()
     local self = setmetatable(CollectionViewStyle.new(

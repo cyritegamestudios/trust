@@ -3,6 +3,7 @@ local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
 local Color = require('cylibs/ui/views/color')
 local ConfigItem = require('ui/settings/editors/config/ConfigItem')
+local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FFXIToggleButtonItem = require('ui/themes/ffxi/FFXIToggleButtonItem')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
@@ -46,7 +47,7 @@ function ConfigEditor.new(trustSettings, configSettings, configItems)
         return nil
     end)
 
-    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(10, Padding.new(15, 10, 0, 0))), ConfigEditor)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(10, FFXIClassicStyle.Padding.ConfigEditor), nil, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditor), ConfigEditor)
 
     self:setAllowsCursorSelection(false)
     self:setAllowsMultipleSelection(true)
