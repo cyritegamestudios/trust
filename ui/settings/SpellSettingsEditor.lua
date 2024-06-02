@@ -17,7 +17,7 @@ local SpellSettingsEditor = setmetatable({}, {__index = FFXIWindow })
 SpellSettingsEditor.__index = SpellSettingsEditor
 
 
-function SpellSettingsEditor.new(trustSettings, spell)
+function SpellSettingsEditor.new(trustSettings, spell, hideJobs)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = TextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
@@ -30,6 +30,7 @@ function SpellSettingsEditor.new(trustSettings, spell)
 
     self.trustSettings = trustSettings
     self.spell = spell
+    self.hideJobs = hideJobs
     self.menuArgs = {}
 
     self:setScrollDelta(16)
@@ -60,19 +61,21 @@ function SpellSettingsEditor.new(trustSettings, spell)
 
     rowIndex = 1
 
-    local jobsSectionHeaderItem = SectionHeaderItem.new(
-        TextItem.new("Use on specific jobs", TextStyle.Default.SectionHeader),
-        ImageItem.new(windower.addon_path..'assets/icons/icon_bullet.png', 8, 8),
-        16
-    )
-    self:getDataSource():setItemForSectionHeader(2, jobsSectionHeaderItem)
-    for jobName in job_util.all_jobs():it() do
-        local indexPath = IndexPath.new(2, rowIndex)
-        items:append(IndexedItem.new(TextItem.new(jobName, TextStyle.Default.TextSmall), indexPath))
-        if spell:get_job_names():contains(jobName) then
-            itemsToSelect:append(indexPath)
+    if not self.hideJobs then
+        local jobsSectionHeaderItem = SectionHeaderItem.new(
+                TextItem.new("Use on specific jobs", TextStyle.Default.SectionHeader),
+                ImageItem.new(windower.addon_path..'assets/icons/icon_bullet.png', 8, 8),
+                16
+        )
+        self:getDataSource():setItemForSectionHeader(2, jobsSectionHeaderItem)
+        for jobName in job_util.all_jobs():it() do
+            local indexPath = IndexPath.new(2, rowIndex)
+            items:append(IndexedItem.new(TextItem.new(jobName, TextStyle.Default.TextSmall), indexPath))
+            if spell:get_job_names():contains(jobName) then
+                itemsToSelect:append(indexPath)
+            end
+            rowIndex = rowIndex + 1
         end
-        rowIndex = rowIndex + 1
     end
 
     self:getDataSource():addItems(items)

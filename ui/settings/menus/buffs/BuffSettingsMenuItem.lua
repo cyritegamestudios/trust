@@ -10,7 +10,7 @@ local SpellSettingsEditor = require('ui/settings/SpellSettingsEditor')
 local BuffSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 BuffSettingsMenuItem.__index = BuffSettingsMenuItem
 
-function BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsKey, targets, jobNameShort, descriptionText, viewFactory)
+function BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsKey, targets, jobNameShort, descriptionText, showJobs)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
@@ -28,7 +28,7 @@ function BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsKey,
     self.trustSettingsMode = trustSettingsMode
     self.settingsKey = settingsKey
     self.jobNameShort = jobNameShort
-    self.viewFactory = viewFactory
+    self.showJobs = showJobs
     self.dispose_bag = DisposeBag.new()
 
     self:reloadSettings()
@@ -40,8 +40,6 @@ function BuffSettingsMenuItem:destroy()
     MenuItem.destroy(self)
 
     self.dispose_bag:destroy()
-
-    self.viewFactory = nil
 end
 
 function BuffSettingsMenuItem:reloadSettings()
@@ -83,7 +81,7 @@ function BuffSettingsMenuItem:getEditBuffMenuItem()
     }, {},
     function(args)
         local spell = args['spell']
-        local editSpellView = SpellSettingsEditor.new(self.trustSettings, spell)
+        local editSpellView = SpellSettingsEditor.new(self.trustSettings, spell, not self.showJobs)
         editSpellView:setTitle("Edit buff.")
         editSpellView:setShouldRequestFocus(true)
         return editSpellView
@@ -92,7 +90,7 @@ function BuffSettingsMenuItem:getEditBuffMenuItem()
 end
 
 function BuffSettingsMenuItem:getConditionsMenuItem()
-    return ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, L{}, self.viewFactory)
+    --return ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, L{}, self.viewFactory)
     --[[local editConditionsMenuItem = MenuItem.new(L{
         ButtonItem.default('Save', 18),
         ButtonItem.default('Clear All', 18),
