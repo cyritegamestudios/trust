@@ -20,7 +20,7 @@ function SongSettingsMenuItem.new(addonSettings, trustSettings, trustSettingsMod
         ButtonItem.default('Help', 18),
     }, {},
     function()
-        local songSettingsView = viewFactory(SongSettingsEditor.new(trustSettings, trustSettingsMode, addonSettings:getSettings().help.wiki_base_url..'/Singer'))
+        local songSettingsView = SongSettingsEditor.new(trustSettings, trustSettingsMode, addonSettings:getSettings().help.wiki_base_url..'/Singer')
         songSettingsView:setShouldRequestFocus(true)
         return songSettingsView
     end, "Songs", "Choose songs to sing."), SongSettingsMenuItem)
@@ -66,9 +66,9 @@ function SongSettingsMenuItem:getEditMenuItem()
             return spell.type == 'BardSong' and S{'Self'}:intersection(S(spell.targets)):length() > 0
         end):map(function(spell) return spell.en  end)
 
-        local chooseSongsView = self.viewFactory(SongPickerView.new(self.trustSettings, songs, allSongs, function(songNames)
+        local chooseSongsView = SongPickerView.new(self.trustSettings, songs, allSongs, function(songNames)
             return self:validateSongs(songNames)
-        end))
+        end)
         chooseSongsView:setTitle("Choose 5 songs to sing.")
         chooseSongsView:setShouldRequestFocus(true)
         return chooseSongsView
@@ -84,9 +84,9 @@ function SongSettingsMenuItem:getEditMenuItem()
             return spell.type == 'BardSong' and S{'Self'}:intersection(S(spell.targets)):length() > 0
         end):map(function(spell) return spell.en  end)
 
-        local chooseSongsView = self.viewFactory(SongPickerView.new(self.trustSettings, songs, allSongs, function(songNames)
+        local chooseSongsView = SongPickerView.new(self.trustSettings, songs, allSongs, function(songNames)
             return self:validateDummySongs(songNames)
-        end))
+        end)
         chooseSongsView:setTitle("Choose 3 dummy songs to sing.")
         chooseSongsView:setShouldRequestFocus(true)
         return chooseSongsView
@@ -116,7 +116,7 @@ function SongSettingsMenuItem:getConfigMenuItem()
                     ConfigItem.new('SongDelay', 4, 8, 1, function(value) return value.."s" end)
                 }
 
-                local songConfigEditor = self.viewFactory(ConfigEditor.new(self.trustSettings, songSettings, configItems))
+                local songConfigEditor = ConfigEditor.new(self.trustSettings, songSettings, configItems)
                 songConfigEditor:setTitle('Configure general song settings.')
                 songConfigEditor:setShouldRequestFocus(true)
                 return songConfigEditor
@@ -126,7 +126,7 @@ end
 
 function SongSettingsMenuItem:getModesMenuItem()
     local geomancyModesMenuItem = MenuItem.new(L{}, L{}, function(_)
-        local modesView = self.viewFactory(ModesView.new(L{'AutoSongMode', 'AutoClarionCallMode', 'AutoNitroMode', 'AutoPianissimoMode'}))
+        local modesView = ModesView.new(L{'AutoSongMode', 'AutoClarionCallMode', 'AutoNitroMode', 'AutoPianissimoMode'})
         modesView:setShouldRequestFocus(true)
         modesView:setTitle("Set modes for singing.")
         return modesView
