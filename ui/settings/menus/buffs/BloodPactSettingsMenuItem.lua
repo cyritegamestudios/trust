@@ -13,7 +13,7 @@ function BloodPactSettingsMenuItem.new(trustSettings, trust, bloodPacts, viewFac
         ButtonItem.default('Buffs', 18),
         ButtonItem.default('Modes', 18),
     }, {}, function(_)
-        local bloodPactsView = viewFactory(BloodPactSettingsEditor.new(trustSettings, bloodPacts))
+        local bloodPactsView = BloodPactSettingsEditor.new(trustSettings, bloodPacts)
         bloodPactsView:setShouldRequestFocus(true)
         return bloodPactsView
     end, "Summoner", "Configure Summoner settings."), BloodPactSettingsMenuItem)
@@ -50,7 +50,7 @@ function BloodPactSettingsMenuItem:getBuffsMenuItem()
             return buff_util.buff_for_job_ability(bloodPact.id) ~= nil and not S(bloodPact.targets):contains('Enemy')
         end):map(function(bloodPact) return bloodPact:get_name()  end)
 
-        local chooseBloodPactView = self.viewFactory(FFXIPickerView.withItems(allBloodPacts, self.bloodPacts:map(function(bloodPact) return bloodPact:get_name()  end), true))
+        local chooseBloodPactView = FFXIPickerView.withItems(allBloodPacts, self.bloodPacts:map(function(bloodPact) return bloodPact:get_name()  end), true)
         chooseBloodPactView:setTitle("Choose Blood Pact: Wards.")
         chooseBloodPactView:on_pick_items():addAction(function(_, selectedItems)
             self.bloodPacts:clear()
@@ -70,7 +70,7 @@ end
 
 function BloodPactSettingsMenuItem:getModesMenuItem()
     local geomancyModesMenuItem = MenuItem.new(L{}, L{}, function(_)
-        local modesView = self.viewFactory(ModesView.new(L{'AutoAssaultMode', 'AutoAvatarMode', 'AutoBuffMode'}))
+        local modesView = ModesView.new(L{'AutoAssaultMode', 'AutoAvatarMode', 'AutoBuffMode'})
         modesView:setShouldRequestFocus(true)
         modesView:setTitle("Set modes for Summoner.")
         return modesView

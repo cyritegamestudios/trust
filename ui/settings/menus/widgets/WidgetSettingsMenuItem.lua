@@ -50,7 +50,7 @@ function WidgetSettingsMenuItem:getWidgetMenuItem(widgetName)
             ConfigItem.new('y', 0, windower.get_windower_settings().ui_y_res, 1, function(value) return value.."" end),
             BooleanConfigItem.new('visible'),
         }
-        return self.viewFactory(ConfigEditor.new(self.addonSettings, self.addonSettings:getSettings()[(widgetName.."_widget"):lower()], configItems))
+        return ConfigEditor.new(self.addonSettings, self.addonSettings:getSettings()[(widgetName.."_widget"):lower()], configItems)
     end, "Widgets", "Configure the "..widgetName.." widget. UI does not update until saved.")
 end
 

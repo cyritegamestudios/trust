@@ -27,7 +27,7 @@ function SkillchainSettingsEditor.new(weaponSkillSettings, abilities)
         return cell
     end)
 
-    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(10, FFXIClassicStyle.Padding.ConfigEditor), nil, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditor), SkillchainSettingsEditor)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(4, FFXIClassicStyle.Padding.ConfigEditor), nil, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditor), SkillchainSettingsEditor)
 
     self:setAllowsCursorSelection(true)
     self:setScrollDelta(16)
