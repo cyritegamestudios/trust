@@ -1,4 +1,4 @@
-local ImageItem = require('cylibs/ui/collection_view/items/image_item')
+local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local PickerView = require('cylibs/ui/picker/picker_view')
 local SkillchainAbility = require('cylibs/battle/skillchains/abilities/skillchain_ability')
@@ -41,7 +41,11 @@ function SkillchainAbilityPickerView.new(weaponSkillSettings, abilities, ability
         abilityNames = L(skillchainer.skillchain_builder.abilities):map(function(ability) return ability:get_name() end)
     end
 
-    local self = setmetatable(FFXIPickerView.withItems(abilityNames, L{}, false), SkillchainAbilityPickerView)
+    local imageItemForText = function(text)
+        return AssetManager.imageItemForWeaponSkill(text)
+    end
+
+    local self = setmetatable(FFXIPickerView.withItems(abilityNames, L{}, false, nil, imageItemForText), SkillchainAbilityPickerView)
 
     self.abilities = abilities
     self.abilityIndex = abilityIndex

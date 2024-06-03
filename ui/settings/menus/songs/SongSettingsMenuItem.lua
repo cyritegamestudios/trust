@@ -125,13 +125,13 @@ function SongSettingsMenuItem:getConfigMenuItem()
 end
 
 function SongSettingsMenuItem:getModesMenuItem()
-    local geomancyModesMenuItem = MenuItem.new(L{}, L{}, function(_)
+    local songModesMenuItem = MenuItem.new(L{}, L{}, function(_)
         local modesView = ModesView.new(L{'AutoSongMode', 'AutoClarionCallMode', 'AutoNitroMode', 'AutoPianissimoMode'})
         modesView:setShouldRequestFocus(true)
         modesView:setTitle("Set modes for singing.")
         return modesView
     end, "Modes", "Change singing behavior.")
-    return geomancyModesMenuItem
+    return songModesMenuItem
 end
 
 function SongSettingsMenuItem:validateDummySongs(songNames)

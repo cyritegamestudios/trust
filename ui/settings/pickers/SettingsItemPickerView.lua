@@ -10,8 +10,8 @@ local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local SettingsPickerView = setmetatable({}, {__index = FFXIPickerView })
 SettingsPickerView.__index = SettingsPickerView
 
-function SettingsPickerView.new(settings, selectedTextItems, allTextItems, onPickItems)
-    local self = setmetatable(FFXIPickerView.withItems(allTextItems:sort(), selectedTextItems, true), SettingsPickerView)
+function SettingsPickerView.new(settings, selectedTextItems, allTextItems, onPickItems, imageItemForText)
+    local self = setmetatable(FFXIPickerView.withItems(allTextItems:sort(), selectedTextItems, true, nil, imageItemForText), SettingsPickerView)
 
     self.settings = settings
     self.onPickItems = onPickItems

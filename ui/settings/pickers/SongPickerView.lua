@@ -1,3 +1,4 @@
+local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local Buff = require('cylibs/battle/spells/buff')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local PickerView = require('cylibs/ui/picker/picker_view')
@@ -9,7 +10,11 @@ local SongPickerView = setmetatable({}, {__index = FFXIPickerView })
 SongPickerView.__index = SongPickerView
 
 function SongPickerView.new(trustSettings, songSettings, allSongs, validateSongs)
-    local self = setmetatable(FFXIPickerView.withItems(allSongs, songSettings:map(function(song) return song:get_spell().en end), true), SongPickerView)
+    local imageItemForText = function(text)
+        return AssetManager.imageItemForSpell(text)
+    end
+
+    local self = setmetatable(FFXIPickerView.withItems(allSongs, songSettings:map(function(song) return song:get_spell().en end), true, nil, imageItemForText), SongPickerView)
 
     self.trustSettings = trustSettings
     self.songSettings = songSettings
