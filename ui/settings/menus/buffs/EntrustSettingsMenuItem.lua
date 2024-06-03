@@ -1,3 +1,4 @@
+local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local CursorItem = require('ui/themes/FFXI/CursorItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
@@ -53,7 +54,11 @@ function EntrustSettingsMenuItem:getAddMenuItem()
             return spell.skill == 44 and S{ 'Self' }:equals(S(spell.targets))
         end):map(function(spell) return spell.en end)
 
-        local chooseSpellsView = FFXIPickerView.withItems(allSpells, self.entrustSpells:map(function(spell) return spell.en  end), false)
+        local imageItemForText = function(text)
+            return AssetManager.imageItemForSpell(text)
+        end
+
+        local chooseSpellsView = FFXIPickerView.withItems(allSpells, self.entrustSpells:map(function(spell) return spell.en  end), false, nil, imageItemForText)
         chooseSpellsView:setTitle("Choose an indi spell to entrust.")
         chooseSpellsView:setShouldRequestFocus(true)
         chooseSpellsView:on_pick_items():addAction(function(_, selectedItems)

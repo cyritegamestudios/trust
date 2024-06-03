@@ -1,5 +1,5 @@
+local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
-local CursorItem = require('ui/themes/FFXI/CursorItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local EntrustSettingsMenuItem = require('ui/settings/menus/buffs/EntrustSettingsMenuItem')
 local GeomancySettingsEditor = require('ui/settings/editors/GeomancySettingsEditor')
@@ -52,7 +52,11 @@ function GeomancySettingsMenuItem:getGeoMenuItem()
             return spell.skill == 44 and S{ 'Party', 'Enemy'}:intersection(S(spell.targets)):length() > 0
         end):map(function(spell) return spell.en end)
 
-        local chooseSpellsView = FFXIPickerView.withItems(allSpells, L{ self.geomancySettings.Geo:get_spell().en }, false)
+        local imageItemForText = function(text)
+            return AssetManager.imageItemForSpell(text)
+        end
+
+        local chooseSpellsView = FFXIPickerView.withItems(allSpells, L{ self.geomancySettings.Geo:get_spell().en }, false, nil, imageItemForText)
         chooseSpellsView:setTitle("Choose a geo spell.")
         chooseSpellsView:setShouldRequestFocus(true)
         chooseSpellsView:on_pick_items():addAction(function(_, selectedItems)
@@ -116,7 +120,11 @@ function GeomancySettingsMenuItem:getIndiMenuItem()
             return spell.skill == 44 and S{ 'Self' }:equals(S(spell.targets))
         end):map(function(spell) return spell.en end)
 
-        local chooseSpellsView = FFXIPickerView.withItems(allSpells, L{ self.geomancySettings.Indi:get_spell().en }, false)
+        local imageItemForText = function(text)
+            return AssetManager.imageItemForSpell(text)
+        end
+
+        local chooseSpellsView = FFXIPickerView.withItems(allSpells, L{ self.geomancySettings.Indi:get_spell().en }, false, nil, imageItemForText)
         chooseSpellsView:setTitle("Choose an indi spell.")
         chooseSpellsView:setAllowsMultipleSelection(false)
         chooseSpellsView:on_pick_items():addAction(function(_, selectedItems)

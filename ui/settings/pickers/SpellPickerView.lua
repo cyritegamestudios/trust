@@ -1,6 +1,6 @@
+local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local Buff = require('cylibs/battle/spells/buff')
 local Debuff = require('cylibs/battle/spells/debuff')
-local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local PickerView = require('cylibs/ui/picker/picker_view')
