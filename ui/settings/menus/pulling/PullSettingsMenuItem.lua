@@ -6,24 +6,6 @@ local PullActionMenuItem = require('ui/settings/menus/pulling/PullActionMenuItem
 local PullSettingsEditor = require('ui/settings/PullSettingsEditor')
 local TargetsPickerView = require('ui/settings/pickers/TargetsPickerView')
 
-local PullerSettings = {}
-PullerSettings.__index = PullerSettings
-PullerSettings.__class = "PullerSettings"
-
-function PullerSettings.new(puller)
-    local self = setmetatable({}, PullerSettings)
-    self.puller = puller
-    return self
-end
-
-function PullerSettings:getSettings()
-    return self.puller:get_pull_settings()
-end
-
-function PullerSettings:saveSettings()
-    --self.puller:set_pull_settings(self.puller:get_pull_settings())
-end
-
 local PullSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 PullSettingsMenuItem.__index = PullSettingsMenuItem
 
@@ -75,8 +57,7 @@ function PullSettingsMenuItem:getTargetsMenuItem()
         Clear = MenuItem.action(nil, "Targets", "Clear selected targets."),
     },
     function()
-        local chooseTargetsView = self.viewFactory(TargetsPickerView.new(self.addon_settings, self.puller))
-        chooseTargetsView:setTitle("Choose mobs to pull from nearby targets.")
+        local chooseTargetsView = TargetsPickerView.new(self.addon_settings, self.puller)
         chooseTargetsView:setShouldRequestFocus(true)
         return chooseTargetsView
     end, "Targets", "Add targets to pull.")
@@ -89,7 +70,7 @@ function PullSettingsMenuItem:getTargetsMenuItem()
         Remove = MenuItem.action(nil, "Targets", "Remove selected target from list of enemies to pull."),
     },
     function()
-        local pullSettingsView = self.viewFactory(PullSettingsEditor.new(self.addon_settings, self.puller))
+        local pullSettingsView = PullSettingsEditor.new(self.addon_settings, self.puller)
         pullSettingsView:setShouldRequestFocus(true)
         return pullSettingsView
     end, "Targets", "Choose which enemies to pull.")
@@ -99,7 +80,7 @@ end
 
 function PullSettingsMenuItem:getModesMenuItem()
     local pullModesMenuItem = MenuItem.new(L{}, L{}, function(_)
-        local modesView = self.viewFactory(ModesView.new(L{ 'AutoPullMode', 'AutoApproachMode' }))
+        local modesView = ModesView.new(L{ 'AutoPullMode', 'AutoApproachMode' })
         modesView:setShouldRequestFocus(true)
         modesView:setTitle("Set modes for pulling.")
         return modesView

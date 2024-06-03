@@ -305,15 +305,13 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
                     return spell.levels[jobId] ~= nil and spell.status ~= nil and L{32, 35, 36, 39, 40, 41, 42}:contains(spell.skill) and spell.targets:contains('Enemy')
                 end):map(function(spell) return spell.en end)
 
-                local chooseSpellsView = setupView(SpellPickerView.new(trustSettings, L(T(trustSettings:getSettings())[trustSettingsMode.value].Debuffs), allDebuffs, L{}, false), viewSize)
-                chooseSpellsView:setTitle("Choose debuffs to add.")
+                local chooseSpellsView = SpellPickerView.new(trustSettings, L(T(trustSettings:getSettings())[trustSettingsMode.value].Debuffs), allDebuffs, L{}, false)
                 return chooseSpellsView
             end, "Debuffs", "Add a new debuff.")
 
     local debuffModesMenuItem = MenuItem.new(L{}, L{}, function(_)
-        local modesView = setupView(ModesView.new(L{'AutoDebuffMode', 'AutoDispelMode', 'AutoSilenceMode'}), viewSize)
+        local modesView = ModesView.new(L{'AutoDebuffMode', 'AutoDispelMode', 'AutoSilenceMode'})
         modesView:setShouldRequestFocus(true)
-        modesView:setTitle("Set modes for debuffing enemies.")
         return modesView
     end, "Modes", "Change debuffing behavior.")
 
@@ -327,11 +325,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         Modes = debuffModesMenuItem,
     },
     function()
-        local backgroundImageView = createBackgroundView(viewSize.width, viewSize.height)
         local debuffSettingsView = DebuffSettingsEditor.new(trustSettings, trustSettingsMode, self.addon_settings:getSettings().help.wiki_base_url..'/Debuffer')
-        debuffSettingsView:setBackgroundImageView(backgroundImageView)
-        --debuffSettingsView:setNavigationBar(createTitleView(viewSize))
-        debuffSettingsView:setSize(viewSize.width, viewSize.height)
         return debuffSettingsView
     end, "Debuffs", "Choose debuffs to use on enemies.")
 
@@ -442,9 +436,7 @@ function TrustHud:getMenuItemForRole(role, weaponSkillSettings, weaponSkillSetti
 end
 
 function TrustHud:getHealerMenuItem(trust, trustSettings, trustSettingsMode, viewSize)
-    local healerSettingsMenuItem = HealerSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, function(view)
-        return setupView(view, viewSize)
-    end)
+    local healerSettingsMenuItem = HealerSettingsMenuItem.new(trust, trustSettings, trustSettingsMode)
     return healerSettingsMenuItem
 end
 

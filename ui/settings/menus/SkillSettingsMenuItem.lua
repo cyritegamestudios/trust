@@ -30,7 +30,7 @@ function SkillSettingsMenuItem.new(weaponSkillSettings, skillSettings, viewFacto
                     end
                 end
 
-                local blacklistPickerView = viewFactory(SettingsItemPickerView.new(weaponSkillSettings, skillSettings.blacklist, allAbilities, onPickItems))
+                local blacklistPickerView = SettingsItemPickerView.new(weaponSkillSettings, skillSettings.blacklist, allAbilities, onPickItems)
                 blacklistPickerView:setShouldRequestFocus(true)
                 blacklistPickerView:setTitle("Choose abilities to avoid when making skillchains.")
                 return blacklistPickerView
@@ -61,7 +61,7 @@ function SkillSettingsMenuItem.new(weaponSkillSettings, skillSettings, viewFacto
             selectedAbilities:append(defaultAbility:get_name())
         end
 
-        local abilityPickerView = viewFactory(SettingsItemPickerView.new(weaponSkillSettings, selectedAbilities:compact_map(), allAbilities, onPickItems))
+        local abilityPickerView = SettingsItemPickerView.new(weaponSkillSettings, selectedAbilities:compact_map(), allAbilities, onPickItems)
         abilityPickerView:setShouldRequestFocus(true)
         abilityPickerView:setAllowsMultipleSelection(false)
         abilityPickerView:setTitle("Choose an ability.")

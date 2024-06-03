@@ -68,14 +68,20 @@ function PickerView.new(pickerItems, allowsMultipleSelection, cursorImageItem)
     local indexedItems = L{}
     local selectedIndexedItems = L{}
 
-    local rowIndex = 1
-    for pickerItem in pickerItems:it() do
-        local indexedItem = IndexedItem.new(pickerItem:getItem(), IndexPath.new(1, rowIndex))
-        indexedItems:append(indexedItem)
-        if pickerItem:isSelected() then
-            selectedIndexedItems:append(indexedItem)
+    local sections = pickerItems
+
+    local sectionIndex = 1
+    for section in sections:it() do
+        local rowIndex = 1
+        for pickerItem in section:it() do
+            local indexedItem = IndexedItem.new(pickerItem:getItem(), IndexPath.new(sectionIndex, rowIndex))
+            indexedItems:append(indexedItem)
+            if pickerItem:isSelected() then
+                selectedIndexedItems:append(indexedItem)
+            end
+            rowIndex = rowIndex + 1
         end
-        rowIndex = rowIndex + 1
+        sectionIndex = sectionIndex + 1
     end
 
     dataSource:addItems(indexedItems)
@@ -115,7 +121,27 @@ function PickerView.withItems(texts, selectedTexts, allowsMultipleSelection, cur
     local pickerItems = texts:map(function(text)
         return PickerItem.new(TextItem.new(text, TextStyle.PickerView.Text), selectedTexts:contains(text))
     end)
-    return PickerView.new(pickerItems, allowsMultipleSelection, cursorImageItem)
+    return PickerView.new(L{ pickerItems }, allowsMultipleSelection, cursorImageItem)
+end
+
+---
+-- Creates a new PickerView with multiple sections of text items.
+--
+-- @tparam list sections A list of list of text strings.
+-- @tparam list selectedTexts A list of selected text strings.
+-- @tparam boolean allowsMultipleSelection Indicates if multiple selection is allowed.
+-- @tparam ImageItem cursorImageItem (optional) The cursor image item
+-- @treturn PickerView The created PickerView.
+--
+function PickerView.withSections(sections, selectedTexts, allowsMultipleSelection, cursorImageItem)
+    local itemsBySection = L{}
+    for sectionTexts in sections:it() do
+        local pickerItems = sectionTexts:map(function(text)
+            return PickerItem.new(TextItem.new(text, TextStyle.PickerView.Text), selectedTexts:contains(text))
+        end)
+        itemsBySection:append(pickerItems)
+    end
+    return PickerView.new(itemsBySection, allowsMultipleSelection, cursorImageItem)
 end
 
 ---

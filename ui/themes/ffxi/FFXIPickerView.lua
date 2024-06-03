@@ -36,7 +36,33 @@ function FFXIPickerView.withItems(texts, selectedTexts, allowsMultipleSelection,
         end
         return PickerItem.new(TextItem.new(text, TextStyle.PickerView.Text), selectedTexts:contains(text))
     end)
-    return FFXIPickerView.new(pickerItems, allowsMultipleSelection, cursorImageItem)
+    return FFXIPickerView.new(L{ pickerItems }, allowsMultipleSelection, cursorImageItem)
+end
+
+function FFXIPickerView.withSections(sections, selectedTexts, allowsMultipleSelection, cursorImageItem, imageForText)
+    imageForText = imageForText or function(_)
+        return nil
+    end
+
+    local itemsBySection = L{}
+
+    local sectionIndex = 1
+    for sectionTexts in sections:it() do
+        local pickerItems = sectionTexts:map(function(text)
+            local imageItem = imageForText(text, sectionIndex)
+            if imageItem then
+                return PickerItem.new(ImageTextItem.new(imageItem, TextItem.new(text, TextStyle.PickerView.Text)), selectedTexts:contains(text))
+            end
+            return PickerItem.new(TextItem.new(text, TextStyle.PickerView.Text), selectedTexts:contains(text))
+        end)
+        itemsBySection:append(pickerItems)
+        sectionIndex = sectionIndex + 1
+    end
+    return FFXIPickerView.new(itemsBySection, allowsMultipleSelection, cursorImageItem)
+end
+
+function FFXIPickerView:shouldRequestFocus()
+    return PickerView.shouldRequestFocus(self) and self:getDataSource():numberOfItemsInSection(1) > 0
 end
 
 return FFXIPickerView

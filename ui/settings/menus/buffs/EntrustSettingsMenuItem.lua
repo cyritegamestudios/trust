@@ -10,13 +10,13 @@ local SpellPickerView = require('ui/settings/pickers/SpellPickerView')
 local EntrustSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 EntrustSettingsMenuItem.__index = EntrustSettingsMenuItem
 
-function EntrustSettingsMenuItem.new(trustSettings, entrustSpells, viewFactory)
+function EntrustSettingsMenuItem.new(trustSettings, entrustSpells)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
         ButtonItem.default('Targets', 18),
     }, {}, function(_)
-        local geomancyView = viewFactory(GeomancySettingsEditor.new(trustSettings, entrustSpells, L{}))
+        local geomancyView = GeomancySettingsEditor.new(trustSettings, entrustSpells, L{})
         geomancyView:setTitle("Indicolure spells to entrust on party members.")
         geomancyView:setShouldRequestFocus(true)
         return geomancyView
@@ -24,7 +24,6 @@ function EntrustSettingsMenuItem.new(trustSettings, entrustSpells, viewFactory)
 
     self.trustSettings = trustSettings
     self.entrustSpells = entrustSpells
-    self.viewFactory = viewFactory
     self.dispose_bag = DisposeBag.new()
 
     self:reloadSettings()
@@ -54,7 +53,7 @@ function EntrustSettingsMenuItem:getAddMenuItem()
             return spell.skill == 44 and S{ 'Self' }:equals(S(spell.targets))
         end):map(function(spell) return spell.en end)
 
-        local chooseSpellsView = self.viewFactory(FFXIPickerView.withItems(allSpells, self.entrustSpells:map(function(spell) return spell.en  end), false))
+        local chooseSpellsView = FFXIPickerView.withItems(allSpells, self.entrustSpells:map(function(spell) return spell.en  end), false)
         chooseSpellsView:setTitle("Choose an indi spell to entrust.")
         chooseSpellsView:setShouldRequestFocus(true)
         chooseSpellsView:on_pick_items():addAction(function(_, selectedItems)
@@ -75,7 +74,7 @@ function EntrustSettingsMenuItem:getTargetsMenuItem()
     }, L{}, function(menuArgs)
         local spell = menuArgs['spell']
 
-        local chooseSpellsView = self.viewFactory(FFXIPickerView.withItems(job_util.all_jobs(), spell:get_job_names() or L{}, true))
+        local chooseSpellsView = FFXIPickerView.withItems(job_util.all_jobs(), spell:get_job_names() or L{}, true)
         chooseSpellsView:setTitle("Choose jobs to target for "..spell:get_name()..".")
         chooseSpellsView:setShouldRequestFocus(true)
         chooseSpellsView:on_pick_items():addAction(function(_, selectedItems)

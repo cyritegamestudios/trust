@@ -1,9 +1,12 @@
+local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local BackgroundView = require('cylibs/ui/views/background/background_view')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
 local Color = require('cylibs/ui/views/color')
+local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local Frame = require('cylibs/ui/views/frame')
-local ImageItem = require('cylibs/ui/collection_view/items/image_item')
+local ImageTextCollectionViewCell = require('cylibs/ui/collection_view/cells/image_text_collection_view_cell')
+local ImageTextItem = require('cylibs/ui/collection_view/items/image_text_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local ListView = require('cylibs/ui/list_view/list_view')
@@ -28,14 +31,14 @@ DebuffSettingsEditor.__index = DebuffSettingsEditor
 
 function DebuffSettingsEditor.new(trustSettings, settingsMode, helpUrl)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
-        local cell = TextCollectionViewCell.new(item)
+        local cell = ImageTextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
-        cell:setItemSize(20)
+        cell:setItemSize(16)
         cell:setUserInteractionEnabled(true)
         return cell
     end)
 
-    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), DebuffSettingsEditor)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(0, FFXIClassicStyle.Padding.CollectionView.Default), nil, false, FFXIClassicStyle.WindowSize.Editor.Default), DebuffSettingsEditor)
 
     self.trustSettings = trustSettings
     self.settingsMode = settingsMode
@@ -135,7 +138,8 @@ function DebuffSettingsEditor:reloadSettings()
 
     local rowIndex = 1
     for spell in self.selfSpells:it() do
-        items:append(IndexedItem.new(TextItem.new(spell:get_spell().en, TextStyle.Default.TextSmall), IndexPath.new(1, rowIndex)))
+        local imageItem = AssetManager.imageItemForSpell(spell:get_name())
+        items:append(IndexedItem.new(ImageTextItem.new(imageItem, TextItem.new(spell:get_spell().en, TextStyle.Default.PickerItem)), IndexPath.new(1, rowIndex)))
         rowIndex = rowIndex + 1
     end
 

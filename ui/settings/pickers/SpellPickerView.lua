@@ -52,7 +52,7 @@ function SpellPickerView:onSelectMenuItemAtIndexPath(textItem, _)
                     if spell then
                         if spell.status and not L{ 40, 41, 42 }:contains(spell.skill) then
                             if spell.targets:contains('Enemy') then
-                                self.spells:append(Debuff.new(spell_util.base_spell_name(item:getText())))
+                                self.spells:append(Debuff.new(spell_util.base_spell_name(item:getText()), L{}, L{}))
                             else
                                 self.spells:append(Buff.new(spell_util.base_spell_name(item:getText()), L{}, self.defaultJobNames))
                             end
@@ -72,6 +72,7 @@ function SpellPickerView:onSelectMenuItemAtIndexPath(textItem, _)
                     return spell1:get_name() < spell2:get_name()
                 end)
             end
+
             self.trustSettings:saveSettings(true)
             addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my spells!")
         end
