@@ -7,7 +7,7 @@ TrustAddonSettings.__class = "TrustAddonSettings"
 local default = {}
 
 default.battle = {}
-default.battle.melee_distance = 3
+default.battle.melee_distance = 2
 default.battle.range_distance = 21
 default.battle.targets = L{'Locus Colibri','Locus Dire Bat','Locus Thousand Eyes','Locus Spartoi Warrior','Locus Spartoi Sorcerer','Locus Hati','Locus Ghost Crab'}
 default.battle.trusts = L{'Monberaux','Sylvie (UC)','Koru-Moru','Qultada','Brygid'}
