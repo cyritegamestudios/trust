@@ -11,9 +11,9 @@ local PickerView = require('cylibs/ui/picker/picker_view')
 local FFXIPickerView = setmetatable({}, {__index = PickerView })
 FFXIPickerView.__index = FFXIPickerView
 
-function FFXIPickerView.new(pickerItems, allowsMultipleSelection, cursorImageItem)
+function FFXIPickerView.new(pickerItems, allowsMultipleSelection, cursorImageItem, viewSize)
     local style = CollectionView.defaultStyle()
-    local viewSize = style:getDefaultPickerSize()
+    local viewSize = viewSize or style:getDefaultPickerSize()
 
     local backgroundView = FFXIBackgroundView.new(Frame.new(0, 0, viewSize.width, viewSize.height), true, style)
 
@@ -25,7 +25,7 @@ function FFXIPickerView.new(pickerItems, allowsMultipleSelection, cursorImageIte
     return self
 end
 
-function FFXIPickerView.withItems(texts, selectedTexts, allowsMultipleSelection, cursorImageItem, imageForText)
+function FFXIPickerView.withItems(texts, selectedTexts, allowsMultipleSelection, cursorImageItem, imageForText, viewSize)
     imageForText = imageForText or function(_)
         return nil
     end
@@ -36,7 +36,7 @@ function FFXIPickerView.withItems(texts, selectedTexts, allowsMultipleSelection,
         end
         return PickerItem.new(TextItem.new(text, TextStyle.Picker.Text), selectedTexts:contains(text))
     end)
-    return FFXIPickerView.new(L{ pickerItems }, allowsMultipleSelection, cursorImageItem)
+    return FFXIPickerView.new(L{ pickerItems }, allowsMultipleSelection, cursorImageItem, viewSize)
 end
 
 function FFXIPickerView.withSections(sections, selectedTexts, allowsMultipleSelection, cursorImageItem, imageForText)

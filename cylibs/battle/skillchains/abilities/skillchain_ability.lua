@@ -104,13 +104,18 @@ function SkillchainAbility:get_delay()
 end
 
 -- Returns the skillchain properties of this ability (e.g. `Light`, `Fire`, `Water`).
+-- @tparam boolean include_aeonic If true, include aeonic properties
 -- @treturn list List of skillchain properties (see util/skillchain_util.lua)
-function SkillchainAbility:get_skillchain_properties()
+function SkillchainAbility:get_skillchain_properties(include_aeonic)
     if L{ SkillchainAbility.Auto, SkillchainAbility.Skip }:contains(self:get_name()) then
         return L{}
     end
     local skill = skills[self.resource][self.ability_id]
-    return L(skill.skillchain):map(function(property_name) return skillchain_util[property_name] end)
+    local properties = L(skill.skillchain)
+    if include_aeonic and skill.aeonic then
+        properties:append(skill.aeonic)
+    end
+    return properties:map(function(property_name) return skillchain_util[property_name] end)
 end
 
 -- Returns whether this ability is AOE.

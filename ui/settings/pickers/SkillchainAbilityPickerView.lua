@@ -45,7 +45,7 @@ function SkillchainAbilityPickerView.new(weaponSkillSettings, abilities, ability
         return AssetManager.imageItemForWeaponSkill(text)
     end
 
-    local self = setmetatable(FFXIPickerView.withItems(abilityNames, L{}, false, nil, imageItemForText), SkillchainAbilityPickerView)
+    local self = setmetatable(FFXIPickerView.withItems(abilityNames, L{}, false, nil, imageItemForText, { width = 220, height = 192 }), SkillchainAbilityPickerView)
 
     self.abilities = abilities
     self.abilityIndex = abilityIndex
