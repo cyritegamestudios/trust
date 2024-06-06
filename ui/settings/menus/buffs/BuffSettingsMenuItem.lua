@@ -81,10 +81,13 @@ function BuffSettingsMenuItem:getEditBuffMenuItem()
     }, {},
     function(args)
         local spell = args['spell']
-        local editSpellView = SpellSettingsEditor.new(self.trustSettings, spell, not self.showJobs)
-        editSpellView:setTitle("Edit buff.")
-        editSpellView:setShouldRequestFocus(true)
-        return editSpellView
+        if spell then
+            local editSpellView = SpellSettingsEditor.new(self.trustSettings, spell, not self.showJobs)
+            editSpellView:setTitle("Edit buff.")
+            editSpellView:setShouldRequestFocus(true)
+            return editSpellView
+        end
+        return nil
     end, "Buffs", "Edit buff settings.")
     return editBuffMenuItem
 end
