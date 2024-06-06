@@ -32,9 +32,9 @@ function FFXIPickerView.withItems(texts, selectedTexts, allowsMultipleSelection,
     local pickerItems = texts:map(function(text)
         local imageItem = imageForText(text)
         if imageItem then
-            return PickerItem.new(ImageTextItem.new(imageItem, TextItem.new(text, TextStyle.PickerView.Text)), selectedTexts:contains(text))
+            return PickerItem.new(ImageTextItem.new(imageItem, TextItem.new(text, TextStyle.Picker.Text)), selectedTexts:contains(text))
         end
-        return PickerItem.new(TextItem.new(text, TextStyle.PickerView.Text), selectedTexts:contains(text))
+        return PickerItem.new(TextItem.new(text, TextStyle.Picker.Text), selectedTexts:contains(text))
     end)
     return FFXIPickerView.new(L{ pickerItems }, allowsMultipleSelection, cursorImageItem)
 end
@@ -45,18 +45,19 @@ function FFXIPickerView.withSections(sections, selectedTexts, allowsMultipleSele
     end
 
     local itemsBySection = L{}
-
     local sectionIndex = 1
     for sectionTexts in sections:it() do
         local pickerItems = sectionTexts:map(function(text)
             local imageItem = imageForText(text, sectionIndex)
             if imageItem then
-                return PickerItem.new(ImageTextItem.new(imageItem, TextItem.new(text, TextStyle.PickerView.Text)), selectedTexts:contains(text))
+                return PickerItem.new(ImageTextItem.new(imageItem, TextItem.new(text, TextStyle.Picker.Text)), selectedTexts:contains(text))
             end
-            return PickerItem.new(TextItem.new(text, TextStyle.PickerView.Text), selectedTexts:contains(text))
+            return PickerItem.new(TextItem.new(text, TextStyle.Picker.Text), selectedTexts:contains(text))
         end)
-        itemsBySection:append(pickerItems)
-        sectionIndex = sectionIndex + 1
+        if sectionTexts:length() > 0 then
+            itemsBySection:append(pickerItems)
+            sectionIndex = sectionIndex + 1
+        end
     end
     return FFXIPickerView.new(itemsBySection, allowsMultipleSelection, cursorImageItem)
 end

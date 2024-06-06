@@ -285,7 +285,23 @@ TextStyle.Default = {
             "Arial",
             11,
             Color.white,
-            Color.lightGrey,
+            Color.pink,
+            0,
+            0,
+            Color.clear,
+            true,
+            Color.yellow
+    ),
+}
+
+TextStyle.Picker = {
+    Text = TextStyle.new(
+            Color.clear,
+            Color.clear,
+            "Arial",
+            11,
+            Color.white,
+            Color.pink,
             0,
             0,
             Color.clear,

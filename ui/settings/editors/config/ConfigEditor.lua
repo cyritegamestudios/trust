@@ -52,6 +52,7 @@ function ConfigEditor.new(trustSettings, configSettings, configItems)
     self:setAllowsCursorSelection(false)
     self:setAllowsMultipleSelection(true)
     self:setScrollDelta(16)
+    self:setScrollEnabled(true)
 
     self.trustSettings = trustSettings
     self.configSettings = configSettings
