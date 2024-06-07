@@ -14,6 +14,7 @@ local DebugView = require('cylibs/actions/ui/debug_view')
 local ElementPickerView = require('ui/settings/pickers/ElementPickerView')
 local FFXIBackgroundView = require('ui/themes/ffxi/FFXIBackgroundView')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
+local FollowSettingsMenuItem = require('ui/settings/menus/FollowSettingsMenuItem')
 local FoodSettingsMenuItem = require('ui/settings/menus/buffs/FoodSettingsMenuItem')
 local Frame = require('cylibs/ui/views/frame')
 local GameInfo = require('cylibs/util/ffxi/game_info')
@@ -401,6 +402,11 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         childMenuItems.Weaponskills = self:getMenuItemForRole(trust:role_with_type("skillchainer"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize)
     end
 
+    if trust:role_with_type("follower") then
+        menuItems:append(ButtonItem.default('Following', 18))
+        childMenuItems.Following = self:getMenuItemForRole(trust:role_with_type("follower"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize)
+    end
+
     if trust:role_with_type("pather") then
         menuItems:append(ButtonItem.default('Paths', 18))
         childMenuItems.Paths = self:getMenuItemForRole(trust:role_with_type("pather"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize)
@@ -428,6 +434,9 @@ function TrustHud:getMenuItemForRole(role, weaponSkillSettings, weaponSkillSetti
     end
     if role:get_type() == "nuker" then
         return self:getNukerMenuItem(trust, trustSettings, trustSettingsMode, jobNameShort, viewSize)
+    end
+    if role:get_type() == "follower" then
+        return self:getFollowerMenuItem(role)
     end
     if role:get_type() == "pather" then
         return self:getPatherMenuItem(role, viewSize)
@@ -466,6 +475,10 @@ function TrustHud:getNukerMenuItem(trust, trustSettings, trustSettingsMode, jobN
         return setupView(view, viewSize)
     end)
     return nukerSettingsMenuItem
+end
+
+function TrustHud:getFollowerMenuItem(role)
+    return FollowSettingsMenuItem.new(role, self.addon_settings)
 end
 
 function TrustHud:getPatherMenuItem(role, viewSize)
