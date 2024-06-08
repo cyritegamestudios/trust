@@ -16,7 +16,7 @@ function LoadSettingsMenuItem.new(addonSettings, trustModeSettings, jobSettings,
     }, {
 
     }, function(args)
-        local loadSettingsView = viewFactory(LoadSettingsView.new(state.TrustMode, addonSettings, trustModeSettings))
+        local loadSettingsView = LoadSettingsView.new(state.TrustMode, addonSettings, trustModeSettings)
         loadSettingsView:setShouldRequestFocus(true)
         return loadSettingsView
     end, "Settings", "Load saved modes and job settings"), LoadSettingsMenuItem)
@@ -57,10 +57,9 @@ function LoadSettingsMenuItem:getCreateSetMenuItem()
     local createSetMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
     }, L{}, function(_)
-        local createSetView = self.viewFactory(FFXITextInputView.new('Set'))
+        local createSetView = FFXITextInputView.new('Set')
         createSetView:setTitle("Choose a name for the mode set.")
         createSetView:setShouldRequestFocus(true)
-        createSetView:setSize(createSetView:getSize().width, 75)
         createSetView:onTextChanged():addAction(function(_, newSetName)
             if newSetName:length() > 1 then
                 self.trustModeSettings:saveSettings(newSetName)
