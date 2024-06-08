@@ -23,6 +23,15 @@ function FFXIAssetManager.imageItemForSpell(spellName)
 end
 
 function FFXIAssetManager.imageItemForJobAbility(jobAbilityName)
+    local job_ability = res.job_abilities:with('en', jobAbilityName)
+    if job_ability then
+        local element = res.elements[job_ability.element].en
+        local type = job_ability.type
+        if L{ 'BloodPactWard', 'BloodPactRage' }:contains(type) then
+            local imageName = string.gsub('icon_blood_pact_'..element..'.png', " ", "_"):lower()
+            return ImageItem.new(windower.addon_path..'assets/icons/'..imageName, 15, 15)
+        end
+    end
     return ImageItem.new(windower.addon_path..'assets/icons/icon_job_ability_light.png', 15, 15)
 end
 

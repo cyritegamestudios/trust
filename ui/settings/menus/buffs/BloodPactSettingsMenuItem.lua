@@ -1,3 +1,4 @@
+local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local BloodPactSettingsEditor = require('ui/settings/editors/BloodPactSettingsEditor')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local DisposeBag = require('cylibs/events/dispose_bag')
@@ -50,7 +51,11 @@ function BloodPactSettingsMenuItem:getBuffsMenuItem()
             return buff_util.buff_for_job_ability(bloodPact.id) ~= nil and not S(bloodPact.targets):contains('Enemy')
         end):map(function(bloodPact) return bloodPact:get_name()  end)
 
-        local chooseBloodPactView = FFXIPickerView.withItems(allBloodPacts, self.bloodPacts:map(function(bloodPact) return bloodPact:get_name()  end), true)
+        local imageItemForText = function(text)
+            return AssetManager.imageItemForJobAbility(text)
+        end
+
+        local chooseBloodPactView = FFXIPickerView.withItems(allBloodPacts, self.bloodPacts:map(function(bloodPact) return bloodPact:get_name()  end), true, nil, imageItemForText)
         chooseBloodPactView:setTitle("Choose Blood Pact: Wards.")
         chooseBloodPactView:on_pick_items():addAction(function(_, selectedItems)
             self.bloodPacts:clear()
