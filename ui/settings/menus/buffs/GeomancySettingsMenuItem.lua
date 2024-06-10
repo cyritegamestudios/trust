@@ -1,5 +1,5 @@
+local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
-local CursorItem = require('ui/themes/FFXI/CursorItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local EntrustSettingsMenuItem = require('ui/settings/menus/buffs/EntrustSettingsMenuItem')
 local GeomancySettingsEditor = require('ui/settings/editors/GeomancySettingsEditor')
@@ -52,7 +52,11 @@ function GeomancySettingsMenuItem:getGeoMenuItem()
             return spell.skill == 44 and S{ 'Party', 'Enemy'}:intersection(S(spell.targets)):length() > 0
         end):map(function(spell) return spell.en end)
 
-        local chooseSpellsView = self.viewFactory(FFXIPickerView.withItems(allSpells, L{ self.geomancySettings.Geo:get_spell().en }, false))
+        local imageItemForText = function(text)
+            return AssetManager.imageItemForSpell(text)
+        end
+
+        local chooseSpellsView = FFXIPickerView.withItems(allSpells, L{ self.geomancySettings.Geo:get_spell().en }, false, nil, imageItemForText)
         chooseSpellsView:setTitle("Choose a geo spell.")
         chooseSpellsView:setShouldRequestFocus(true)
         chooseSpellsView:on_pick_items():addAction(function(_, selectedItems)
@@ -77,7 +81,7 @@ function GeomancySettingsMenuItem:getGeoMenuItem()
     }, L{}, function(menuArgs)
         local spell = self.geomancySettings.Geo
 
-        local chooseSpellsView = self.viewFactory(FFXIPickerView.withItems(spell:get_valid_targets(), L{ self.geomancySettings.Geo.target or "me" }, false))
+        local chooseSpellsView = FFXIPickerView.withItems(spell:get_valid_targets(), L{ self.geomancySettings.Geo.target or "me" }, false)
         chooseSpellsView:setTitle("Choose a target for "..self.geomancySettings.Geo:get_name()..".")
         chooseSpellsView:setShouldRequestFocus(true)
         chooseSpellsView:on_pick_items():addAction(function(_, selectedItems)
@@ -99,7 +103,7 @@ function GeomancySettingsMenuItem:getGeoMenuItem()
         Edit = editSpellMenuItem,
         Targets = spellTargetsMenuItem,
     }, function(_)
-        local geomancyView = self.viewFactory(GeomancySettingsEditor.new(self.trustSettings, L{ self.geomancySettings.Geo }, L{}))
+        local geomancyView = GeomancySettingsEditor.new(self.trustSettings, L{ self.geomancySettings.Geo }, L{})
         geomancyView:setTitle("Geocolures spells to use.")
         geomancyView:setShouldRequestFocus(true)
         return geomancyView
@@ -116,7 +120,11 @@ function GeomancySettingsMenuItem:getIndiMenuItem()
             return spell.skill == 44 and S{ 'Self' }:equals(S(spell.targets))
         end):map(function(spell) return spell.en end)
 
-        local chooseSpellsView = self.viewFactory(FFXIPickerView.withItems(allSpells, L{ self.geomancySettings.Indi:get_spell().en }, false))
+        local imageItemForText = function(text)
+            return AssetManager.imageItemForSpell(text)
+        end
+
+        local chooseSpellsView = FFXIPickerView.withItems(allSpells, L{ self.geomancySettings.Indi:get_spell().en }, false, nil, imageItemForText)
         chooseSpellsView:setTitle("Choose an indi spell.")
         chooseSpellsView:setAllowsMultipleSelection(false)
         chooseSpellsView:on_pick_items():addAction(function(_, selectedItems)
@@ -137,7 +145,7 @@ function GeomancySettingsMenuItem:getModesMenuItem()
     local geomancyModesMenuItem = MenuItem.new(L{
         --ButtonItem.default('Save', 18),
     }, L{}, function(_)
-        local modesView = self.viewFactory(ModesView.new(L{'AutoGeoMode', 'AutoIndiMode', 'AutoEntrustMode'}))
+        local modesView = ModesView.new(L{'AutoGeoMode', 'AutoIndiMode', 'AutoEntrustMode'})
         modesView:setShouldRequestFocus(true)
         modesView:setTitle("Set modes for geocolures and indicolures.")
         return modesView

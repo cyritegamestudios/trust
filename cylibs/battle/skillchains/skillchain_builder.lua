@@ -18,6 +18,7 @@ function SkillchainBuilder.new(abilities)
         abilities = (abilities or L{}):filter(function(ability) return skills[ability.resource][ability.ability_id] ~= nil end);
         conditions = L{};
         cached_steps = L{};
+        include_aeonic = false;
     }, SkillchainBuilder)
     return self
 end
@@ -53,7 +54,7 @@ function SkillchainBuilder:get_next_steps()
         if self.step:get_skillchain() then
             properties:append(self.step:get_skillchain())
         else
-            properties = self.step:get_ability():get_skillchain_properties()
+            properties = self.step:get_ability():get_skillchain_properties(self.include_aeonic)
         end
         for ability in self.abilities:it() do
             if not ability_name_to_step[ability:get_name()] then
@@ -112,7 +113,7 @@ end
 -- @tparam string skillchain_property Skillchain property (e.g. Fragmentation, Scission)
 -- @treturn list List of SkillchainAbility with a given skillchain property
 function SkillchainBuilder:get_abilities(skillchain_property)
-    return self.abilities:filter(function(ability) return ability:get_skillchain_properties():contains(skillchain_property) end):compact_map()
+    return self.abilities:filter(function(ability) return ability:get_skillchain_properties(self.include_aeonic):contains(skillchain_property) end):compact_map()
 end
 
 -------
@@ -136,8 +137,8 @@ end
 -- @tparam SkillchainAbility ability2 Second ability
 -- @treturn Skillchain The skillchain formed, or nil if none
 function SkillchainBuilder:get_skillchain(ability1, ability2)
-    for property1 in ability1:get_skillchain_properties():it() do
-        for property2 in ability2:get_skillchain_properties():it() do
+    for property1 in ability1:get_skillchain_properties(self.include_aeonic):it() do
+        for property2 in ability2:get_skillchain_properties(self.include_aeonic):it() do
             if skillchain_util[property1:get_name()][property2:get_name()] then
                 return skillchain_util[property1:get_name()][property2:get_name()]
             end
@@ -153,7 +154,7 @@ end
 -- @treturn Skillchain The skillchain formed, or nil if none
 function SkillchainBuilder:get_skillchain_by_properties(properties, ability2)
     for property1 in properties:it() do
-        for property2 in ability2:get_skillchain_properties():it() do
+        for property2 in ability2:get_skillchain_properties(self.include_aeonic):it() do
             if skillchain_util[property1:get_name()][property2:get_name()] then
                 return skillchain_util[property1:get_name()][property2:get_name()]
             end

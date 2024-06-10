@@ -60,7 +60,10 @@ function Role:get_party()
 end
 
 function Role:get_target()
-    return self:get_party():get_target_by_index(self.target_index)
+    if self.target_index then
+        return self:get_party():get_target_by_index(self.target_index)
+    end
+    return nil
 end
 
 function Role:set_last_tic_time(last_tic_time)

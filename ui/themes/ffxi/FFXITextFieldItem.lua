@@ -10,7 +10,7 @@ FFXITextFieldItem.__index = FFXITextFieldItem
 function FFXITextFieldItem.new(placeholderText, validator)
     local buttonHeight = 32
 
-    local centerImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/text_field_background_middle.png', 150, buttonHeight)
+    local centerImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/text_field_background_middle.png', 175, buttonHeight)
     centerImageItem:setRepeat(150 / 10, 1)
 
     local defaultImageItem = ResizableImageItem.new(

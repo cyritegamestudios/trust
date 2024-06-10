@@ -80,7 +80,7 @@ end
 
 function WeaponSkillSettingsMenuItem:getModesMenuItem()
     local skillchainModesMenuItem = MenuItem.new(L{}, L{}, function(_)
-        local modesView = self.viewFactory(ModesView.new(L{'AutoSkillchainMode', 'SkillchainAssistantMode', 'SkillchainDelayMode', 'SkillchainPropertyMode', 'WeaponSkillSettingsMode'}))
+        local modesView = ModesView.new(L{'AutoSkillchainMode', 'SkillchainAssistantMode', 'SkillchainDelayMode', 'SkillchainPropertyMode', 'WeaponSkillSettingsMode'})
         modesView:setShouldRequestFocus(true)
         modesView:setTitle("Set modes for weapon skills and skillchains.")
         return modesView

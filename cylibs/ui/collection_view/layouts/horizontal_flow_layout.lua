@@ -126,4 +126,8 @@ function HorizontalFlowLayout:getItemSpacing()
     return self.itemSpacing
 end
 
+function HorizontalFlowLayout:getPadding()
+    return self.padding
+end
+
 return HorizontalFlowLayout

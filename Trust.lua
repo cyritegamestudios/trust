@@ -1,30 +1,27 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '9.2.2'
+_addon.version = '9.3.0'
 _addon.release_notes = [[
-This update features additional settings menus in the Trust UI and the
-ability to record and replay saved paths.
-
-	• Pathing
-	    • You can now record and replay saved paths using the menu
-	      under Settings > Paths
-
-	• Healing
-	    • You can now edit cure thresholds using the menu under
-	      Settings > Healing > Config.
-
-	• Nuking
-	    • You can now edit nuke delay and minimum mana points percentage
-	      using the menu under Settings > Healing > Config.
-
-	• Singing
-	    • You can now edit number of songs, song duration and song delay
-	      using the menu under Settings > Singing > Config.
+This update features a significant overhaul to the Trust UI as well as the
+ability to edit more settings from the menu.
 
 	• UI
-	    • The UI for several menus has been improved to match the
-	      in-game iconography.
+	    • Resized menu views to resemble in-game views.
+	    • Added icons for spells, job abilities and weapon skills.
+
+	• Config
+	    • You can now edit widget coordinates and visibility using the
+	      menu under Config > Widgets.
+	    • You can now enable and disable debug logging using the
+	      menu under Config > Logging.
+
+	• Following
+	    • Follow distance can now be edited using the menu under
+	      Settings > Following.
+
+	• Bug Fixes
+	    • Fixed various errors.
 
 	• Press escape or enter to exit.
 
@@ -396,7 +393,7 @@ function check_version()
 
 		local Frame = require('cylibs/ui/views/frame')
 
-		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 510))
+		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 450))
 
 		updateView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
 			updateView:getDelegate():deselectItemAtIndexPath(indexPath)

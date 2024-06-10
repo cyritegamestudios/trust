@@ -278,7 +278,36 @@ TextStyle.Default = {
             true,
             Color.white,
             true
-    )
+    ),
+    PickerItem = TextStyle.new(
+            Color.clear,
+            Color.clear,
+            "Arial",
+            11,
+            Color.white,
+            Color.pink,
+            0,
+            0,
+            Color.clear,
+            true,
+            Color.yellow
+    ),
+}
+
+TextStyle.Picker = {
+    Text = TextStyle.new(
+            Color.clear,
+            Color.clear,
+            "Arial",
+            11,
+            Color.white,
+            Color.pink,
+            0,
+            0,
+            Color.clear,
+            true,
+            Color.yellow
+    ),
 }
 
 return TextStyle

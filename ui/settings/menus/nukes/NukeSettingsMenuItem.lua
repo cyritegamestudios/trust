@@ -19,7 +19,7 @@ function NukeSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, addon
         ButtonItem.default('Modes', 18),
         ButtonItem.default('Help', 18),
     }, {}, function()
-        local nukeSettingsView = viewFactory(NukeSettingsEditor.new(trustSettings, trustSettingsMode, addonSettings:getSettings().help.wiki_base_url..'/Nuker'))
+        local nukeSettingsView = NukeSettingsEditor.new(trustSettings, trustSettingsMode, addonSettings:getSettings().help.wiki_base_url..'/Nuker')
         nukeSettingsView:setShouldRequestFocus(true)
         return nukeSettingsView
     end, "Nukes", "Choose which nukes to use when magic bursting or free nuking."), NukeSettingsMenuItem)
@@ -66,8 +66,7 @@ function NukeSettingsMenuItem:getNukesMenuItem()
                 spell_util.sort_by_element(spells, true)
             end
 
-            local chooseSpellsView = self.viewFactory(SpellPickerView.new(self.trustSettings, spellSettings, allSpells, L{}, true, sortSpells))
-            chooseSpellsView:setTitle("Choose spells to nuke with.")
+            local chooseSpellsView = SpellPickerView.new(self.trustSettings, spellSettings, allSpells, L{}, true, sortSpells)
             return chooseSpellsView
         end, "Nukes", "Choose which nukes to use when magic bursting or free nuking.")
     return chooseNukesMenuItem
@@ -83,8 +82,7 @@ function NukeSettingsMenuItem:getBlacklistMenuItem()
             if not nukeSettings.Blacklist then
                 nukeSettings.Blacklist = L{}
             end
-            local blacklistPickerView = self.viewFactory(ElementPickerView.new(self.trustSettings, nukeSettings.Blacklist))
-            blacklistPickerView:setTitle('Choose elements to avoid when magic bursting or free nuking.')
+            local blacklistPickerView = ElementPickerView.new(self.trustSettings, nukeSettings.Blacklist)
             blacklistPickerView:setShouldRequestFocus(true)
             return blacklistPickerView
         end, "Blacklist", "Choose elements to avoid when magic bursting or free nuking.")
@@ -104,8 +102,7 @@ function NukeSettingsMenuItem:getConfigMenuItem()
                 ConfigItem.new('MinNumMobsToCleave', 0, 30, 1, function(value) return value.."" end)
             }
 
-            local nukeConfigEditor = self.viewFactory(ConfigEditor.new(self.trustSettings, nukeSettings, configItems))
-            nukeConfigEditor:setTitle('Configure general nuke settings.')
+            local nukeConfigEditor = ConfigEditor.new(self.trustSettings, nukeSettings, configItems)
             nukeConfigEditor:setShouldRequestFocus(true)
             return nukeConfigEditor
         end, "Config", "Configure general nuke settings.")
@@ -114,9 +111,8 @@ end
 
 function NukeSettingsMenuItem:getModesMenuItem()
     local nukeModesMenuItem = MenuItem.new(L{}, L{}, function(_)
-        local modesView = self.viewFactory(ModesView.new(L{'AutoMagicBurstMode', 'AutoNukeMode', 'MagicBurstTargetMode'}))
+        local modesView = ModesView.new(L{'AutoMagicBurstMode', 'AutoNukeMode', 'MagicBurstTargetMode'})
         modesView:setShouldRequestFocus(true)
-        modesView:setTitle("Set modes for nuking and magic bursting.")
         return modesView
     end, "Modes", "Change nuking and magic bursting behavior.")
     return nukeModesMenuItem

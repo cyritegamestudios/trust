@@ -1,3 +1,4 @@
+local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local Buff = require('cylibs/battle/spells/buff')
 local Debuff = require('cylibs/battle/spells/debuff')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
@@ -15,7 +16,12 @@ function SpellPickerView.new(trustSettings, spells, allSpells, defaultJobNames, 
     if override then
         selectedSpells = spells:map(function(spell) return spell:get_name() end)
     end
-    local self = setmetatable(FFXIPickerView.withItems(allSpells, selectedSpells, true), SpellPickerView)
+
+    local imageItemForText = function(text)
+        return AssetManager.imageItemForSpell(text)
+    end
+
+    local self = setmetatable(FFXIPickerView.withItems(allSpells, selectedSpells, true, nil, imageItemForText), SpellPickerView)
 
     self.trustSettings = trustSettings
     self.spells = spells
@@ -46,7 +52,7 @@ function SpellPickerView:onSelectMenuItemAtIndexPath(textItem, _)
                     if spell then
                         if spell.status and not L{ 40, 41, 42 }:contains(spell.skill) then
                             if spell.targets:contains('Enemy') then
-                                self.spells:append(Debuff.new(spell_util.base_spell_name(item:getText())))
+                                self.spells:append(Debuff.new(spell_util.base_spell_name(item:getText()), L{}, L{}))
                             else
                                 self.spells:append(Buff.new(spell_util.base_spell_name(item:getText()), L{}, self.defaultJobNames))
                             end
@@ -66,6 +72,7 @@ function SpellPickerView:onSelectMenuItemAtIndexPath(textItem, _)
                     return spell1:get_name() < spell2:get_name()
                 end)
             end
+
             self.trustSettings:saveSettings(true)
             addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my spells!")
         end

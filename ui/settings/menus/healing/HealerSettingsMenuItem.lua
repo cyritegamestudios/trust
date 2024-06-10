@@ -9,7 +9,7 @@ local StatusRemovalPickerView = require('ui/settings/pickers/StatusRemovalPicker
 local HealerSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 HealerSettingsMenuItem.__index = HealerSettingsMenuItem
 
-function HealerSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, viewFactory)
+function HealerSettingsMenuItem.new(trust, trustSettings, trustSettingsMode)
     local menuItems = L{
         ButtonItem.default('Config', 18),
     }
@@ -23,7 +23,6 @@ function HealerSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, vie
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
     self.showStatusRemovals = trust:role_with_type("statusremover") ~= nil
-    self.viewFactory = viewFactory
     self.dispose_bag = DisposeBag.new()
 
     self:reloadSettings()
@@ -62,7 +61,7 @@ function HealerSettingsMenuItem:getConfigMenuItem()
             configItems:append(ConfigItem.new(settingsKey, 0, 2000, 100, function(value) return value.."" end))
         end
 
-        local cureConfigEditor = self.viewFactory(ConfigEditor.new(self.trustSettings, cureSettings.Thresholds, configItems))
+        local cureConfigEditor = ConfigEditor.new(self.trustSettings, cureSettings.Thresholds, configItems)
         return cureConfigEditor
     end, "Cures", "Customize thresholds for cures.")
     return curesMenuItem
@@ -76,7 +75,7 @@ function HealerSettingsMenuItem:getBlacklistMenuItem()
     function()
         local cureSettings = self.trustSettings:getSettings()[self.trustSettingsMode.value].CureSettings
 
-        local blacklistPickerView = self.viewFactory(StatusRemovalPickerView.new(self.trustSettings, cureSettings.StatusRemovals.Blacklist))
+        local blacklistPickerView = StatusRemovalPickerView.new(self.trustSettings, cureSettings.StatusRemovals.Blacklist)
         blacklistPickerView:setTitle('Choose status effects to ignore.')
         blacklistPickerView:setShouldRequestFocus(true)
         return blacklistPickerView
@@ -86,7 +85,7 @@ end
 
 function HealerSettingsMenuItem:getModesMenuItem()
     local curesModesMenuItem = MenuItem.new(L{}, L{}, function(_)
-        local modesView = self.viewFactory(ModesView.new(L{'AutoHealMode', 'AutoStatusRemovalMode', 'AutoDetectAuraMode'}))
+        local modesView = ModesView.new(L{'AutoHealMode', 'AutoStatusRemovalMode', 'AutoDetectAuraMode'})
         modesView:setShouldRequestFocus(true)
         modesView:setTitle("Set modes for healing and status removals.")
         return modesView

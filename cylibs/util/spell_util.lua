@@ -205,10 +205,30 @@ end
 -- Returns the spell metadata for all spells matching the given filter.
 -- @treturn list List of SpellMetadata (see res/spells.lua).
 function spell_util.get_spells(filter)
+    filter = filter or function(_) return true  end
     local all_spell_ids = L(T(windower.ffxi.get_spells()):keyset())
             :filter(function(spellId) return res.spells[spellId] ~= nil and spell_util.knows_spell(spellId) end)
     local all_spells = all_spell_ids:map(function(spell_id) return res.spells[spell_id] end)
             :filter(function(spell) return filter(spell)  end)
+    return all_spells
+end
+
+-------
+-- Returns the spell metadata for all spells matching the given targets.
+-- @treturn set Set of targets (e.g. Enemy, Party, Self).
+function spell_util.get_spells_with_targets(targets)
+    local job_ids = L{
+        windower.ffxi.get_player().main_job_id,
+        windower.ffxi.get_player().sub_job_id
+    }
+    local all_spells = spell_util.get_spells(function(spell)
+        for jobId in job_ids:it() do
+            if spell.levels[jobId] ~= nil and targets:intersection(S(spell.targets)):length() > 0 then
+                return true
+            end
+        end
+        return false
+    end)
     return all_spells
 end
 

@@ -16,7 +16,7 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
                 local abilities = settings.Skillchain
                 local abilityIndex = args['selected_index'] or 1
 
-                local createSkillchainView = viewFactory(SkillchainAbilityPickerView.new(weaponSkillSettings, abilities, abilityIndex, skillchainer))
+                local createSkillchainView = SkillchainAbilityPickerView.new(weaponSkillSettings, abilities, abilityIndex, skillchainer)
                 createSkillchainView:setShouldRequestFocus(true)
                 return createSkillchainView
             end, "Skillchains", "Edit which weapon skill to use for the selected step.")
@@ -49,7 +49,7 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
 
         local abilities = settings.Skillchain
 
-        local createSkillchainView = viewFactory(SkillchainSettingsEditor.new(weaponSkillSettings, abilities))
+        local createSkillchainView = SkillchainSettingsEditor.new(weaponSkillSettings, abilities)
         createSkillchainView:setShouldRequestFocus(true)
         return createSkillchainView
     end, "Skillchains", "Edit or create a new skillchain."), SkillchainSettingsMenuItem)

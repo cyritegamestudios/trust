@@ -1,3 +1,4 @@
+local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local CursorItem = require('ui/themes/FFXI/CursorItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
@@ -52,7 +53,11 @@ function RollSettingsMenuItem:getRollMenuItem(roll, descriptionText)
     local rollMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
     }, L{}, function(menuArgs)
-        local chooseRollView = self.viewFactory(FFXIPickerView.withItems(self.all_rolls, L{ roll:get_roll_name() }, false))
+        local imageItemForText = function(text)
+            return AssetManager.imageItemForJobAbility(text)
+        end
+
+        local chooseRollView = FFXIPickerView.withItems(self.all_rolls, L{ roll:get_roll_name() }, false, nil, imageItemForText)
         chooseRollView:setTitle(descriptionText)
         chooseRollView:setAllowsCursorSelection(false)
         chooseRollView:on_pick_items():addAction(function(_, selectedItems)

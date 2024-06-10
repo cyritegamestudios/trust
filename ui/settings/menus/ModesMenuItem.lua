@@ -15,9 +15,8 @@ function ModesMenuItem.new(trustSettings, viewFactory)
         ButtonItem.default('Save As', 18),
     }, {},
             function()
-                local modesView = viewFactory(ModesView.new(L(T(state):keyset()):sort()))
+                local modesView = ModesView.new(L(T(state):keyset()):sort())
                 modesView:setShouldRequestFocus(true)
-                modesView:setTitle("Change trust behavior with modes.")
                 return modesView
             end, "Modes", "View and change Trust modes."), ModesMenuItem)
 
@@ -53,9 +52,8 @@ function ModesMenuItem:getSaveAsMenuItem()
         ButtonItem.default('Confirm', 18),
     }, {},
     function()
-        local modesView = self.viewFactory(FFXITextInputView.new('Default'))
+        local modesView = FFXITextInputView.new('Default', "Mode set name")
         modesView:setShouldRequestFocus(true)
-        modesView:setTitle("Save current modes to new set.")
         self.disposeBag:add(modesView:onTextChanged():addAction(function(_, modeSetName)
             onRenameSet(modeSetName)
         end), modesView:onTextChanged())

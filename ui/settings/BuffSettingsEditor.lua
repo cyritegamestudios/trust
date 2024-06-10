@@ -1,5 +1,10 @@
+local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
+local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
+local Frame = require('cylibs/ui/views/frame')
+local ImageTextCollectionViewCell = require('cylibs/ui/collection_view/cells/image_text_collection_view_cell')
+local ImageTextItem = require('cylibs/ui/collection_view/items/image_text_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Padding = require('cylibs/ui/style/padding')
@@ -16,19 +21,17 @@ BuffSettingsEditor.__index = BuffSettingsEditor
 
 function BuffSettingsEditor.new(trustSettings, buffs, targets)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
-        local cell = TextCollectionViewCell.new(item)
+        local cell = ImageTextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
-        cell:setItemSize(20)
-        if indexPath.row ~= 1 then
-            cell:setUserInteractionEnabled(true)
-        end
+        cell:setItemSize(16)
+        cell:setUserInteractionEnabled(true)
         return cell
     end)
 
-    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), BuffSettingsEditor)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(0, FFXIClassicStyle.Padding.CollectionView.Default), nil, false, FFXIClassicStyle.WindowSize.Editor.Default), BuffSettingsEditor)
 
     self:setAllowsCursorSelection(true)
-    self:setScrollDelta(20)
+    self:setScrollDelta(16)
     self:setScrollEnabled(true)
 
     self.trustSettings = trustSettings
@@ -59,6 +62,7 @@ function BuffSettingsEditor:onRemoveSpellClick()
         if item then
             local indexPath = selectedIndexPath
             self.buffs:remove(indexPath.row)
+            local item = self:getDataSource():itemAtIndexPath(indexPath)
             self:getDataSource():removeItem(indexPath)
             self.trustSettings:saveSettings(true)
         end
@@ -100,7 +104,8 @@ function BuffSettingsEditor:reloadSettings()
 
     local rowIndex = 1
     for spell in self.buffs:it() do
-        items:append(IndexedItem.new(TextItem.new(spell:get_spell().en, TextStyle.Default.TextSmall), IndexPath.new(1, rowIndex)))
+        local imageItem = AssetManager.imageItemForSpell(spell:get_name())
+        items:append(IndexedItem.new(ImageTextItem.new(imageItem, TextItem.new(spell:get_spell().en, TextStyle.Default.PickerItem)), IndexPath.new(1, rowIndex)))
         rowIndex = rowIndex + 1
     end
 

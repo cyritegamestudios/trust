@@ -14,6 +14,7 @@ local DebugView = require('cylibs/actions/ui/debug_view')
 local ElementPickerView = require('ui/settings/pickers/ElementPickerView')
 local FFXIBackgroundView = require('ui/themes/ffxi/FFXIBackgroundView')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
+local FollowSettingsMenuItem = require('ui/settings/menus/FollowSettingsMenuItem')
 local FoodSettingsMenuItem = require('ui/settings/menus/buffs/FoodSettingsMenuItem')
 local Frame = require('cylibs/ui/views/frame')
 local GameInfo = require('cylibs/util/ffxi/game_info')
@@ -240,18 +241,13 @@ end
 function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, weaponSkillSettings, weaponSkillSettingsMode, jobNameShort)
     local viewSize = Frame.new(0, 0, 500, 500)
 
-    local selfBuffSettingsItem = BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, 'SelfBuffs', S{'Self'}, jobNameShort, "Edit buffs to use on the player.", function(view)
-        return setupView(view, viewSize)
-    end)
+    local selfBuffSettingsItem = BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, 'SelfBuffs', S{'Self'}, jobNameShort, "Edit buffs to use on the player.", false)
 
-    local partyBuffSettingsItem = BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, 'PartyBuffs', S{'Party'}, jobNameShort, "Edit buffs to use on party members.", function(view)
-        return setupView(view, viewSize)
-    end)
+    local partyBuffSettingsItem = BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, 'PartyBuffs', S{'Party'}, jobNameShort, "Edit buffs to use on party members.", true)
 
     local buffModesMenuItem = MenuItem.new(L{}, L{}, function(_)
-        local modesView = setupView(ModesView.new(L{'AutoBarSpellMode', 'AutoBuffMode'}), viewSize)
+        local modesView = ModesView.new(L{'AutoBarSpellMode', 'AutoBuffMode'})
         modesView:setShouldRequestFocus(true)
-        modesView:setTitle("Set modes for buffing the player and party.")
         return modesView
     end, "Modes", "Change buffing behavior.")
 
@@ -265,7 +261,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
                     return jobAbility.status ~= nil and S{'Self'}:intersection(S(jobAbility.targets)):length() > 0
                 end):map(function(jobAbility) return jobAbility.en end)
 
-                local chooseJobAbilitiesView = setupView(JobAbilityPickerView.new(trustSettings, T(trustSettings:getSettings())[trustSettingsMode.value].JobAbilities, allJobAbilities), viewSize)
+                local chooseJobAbilitiesView = JobAbilityPickerView.new(trustSettings, T(trustSettings:getSettings())[trustSettingsMode.value].JobAbilities, allJobAbilities)
                 chooseJobAbilitiesView:setTitle("Choose job abilities to add.")
                 return chooseJobAbilitiesView
             end, "Job Abilities", "Add a new job ability buff.")
@@ -279,9 +275,6 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
             function()
                 local backgroundImageView = createBackgroundView(viewSize.width, viewSize.height)
                 local jobAbilitiesSettingsView = JobAbilitiesSettingsEditor.new(trustSettings, trustSettingsMode, viewSize.width)
-                jobAbilitiesSettingsView:setBackgroundImageView(backgroundImageView)
-                --jobAbilitiesSettingsView:setNavigationBar(createTitleView(viewSize))
-                jobAbilitiesSettingsView:setSize(viewSize.width, viewSize.height)
                 return jobAbilitiesSettingsView
             end, "Job Abilities", "Choose job ability buffs.")
 
@@ -313,15 +306,13 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
                     return spell.levels[jobId] ~= nil and spell.status ~= nil and L{32, 35, 36, 39, 40, 41, 42}:contains(spell.skill) and spell.targets:contains('Enemy')
                 end):map(function(spell) return spell.en end)
 
-                local chooseSpellsView = setupView(SpellPickerView.new(trustSettings, L(T(trustSettings:getSettings())[trustSettingsMode.value].Debuffs), allDebuffs, L{}, false), viewSize)
-                chooseSpellsView:setTitle("Choose debuffs to add.")
+                local chooseSpellsView = SpellPickerView.new(trustSettings, L(T(trustSettings:getSettings())[trustSettingsMode.value].Debuffs), allDebuffs, L{}, false)
                 return chooseSpellsView
             end, "Debuffs", "Add a new debuff.")
 
     local debuffModesMenuItem = MenuItem.new(L{}, L{}, function(_)
-        local modesView = setupView(ModesView.new(L{'AutoDebuffMode', 'AutoDispelMode', 'AutoSilenceMode'}), viewSize)
+        local modesView = ModesView.new(L{'AutoDebuffMode', 'AutoDispelMode', 'AutoSilenceMode'})
         modesView:setShouldRequestFocus(true)
-        modesView:setTitle("Set modes for debuffing enemies.")
         return modesView
     end, "Modes", "Change debuffing behavior.")
 
@@ -335,11 +326,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         Modes = debuffModesMenuItem,
     },
     function()
-        local backgroundImageView = createBackgroundView(viewSize.width, viewSize.height)
         local debuffSettingsView = DebuffSettingsEditor.new(trustSettings, trustSettingsMode, self.addon_settings:getSettings().help.wiki_base_url..'/Debuffer')
-        debuffSettingsView:setBackgroundImageView(backgroundImageView)
-        --debuffSettingsView:setNavigationBar(createTitleView(viewSize))
-        debuffSettingsView:setSize(viewSize.width, viewSize.height)
         return debuffSettingsView
     end, "Debuffs", "Choose debuffs to use on enemies.")
 
@@ -415,6 +402,11 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         childMenuItems.Weaponskills = self:getMenuItemForRole(trust:role_with_type("skillchainer"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize)
     end
 
+    if trust:role_with_type("follower") then
+        menuItems:append(ButtonItem.default('Following', 18))
+        childMenuItems.Following = self:getMenuItemForRole(trust:role_with_type("follower"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize)
+    end
+
     if trust:role_with_type("pather") then
         menuItems:append(ButtonItem.default('Paths', 18))
         childMenuItems.Paths = self:getMenuItemForRole(trust:role_with_type("pather"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize)
@@ -443,6 +435,9 @@ function TrustHud:getMenuItemForRole(role, weaponSkillSettings, weaponSkillSetti
     if role:get_type() == "nuker" then
         return self:getNukerMenuItem(trust, trustSettings, trustSettingsMode, jobNameShort, viewSize)
     end
+    if role:get_type() == "follower" then
+        return self:getFollowerMenuItem(role)
+    end
     if role:get_type() == "pather" then
         return self:getPatherMenuItem(role, viewSize)
     end
@@ -450,9 +445,7 @@ function TrustHud:getMenuItemForRole(role, weaponSkillSettings, weaponSkillSetti
 end
 
 function TrustHud:getHealerMenuItem(trust, trustSettings, trustSettingsMode, viewSize)
-    local healerSettingsMenuItem = HealerSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, function(view)
-        return setupView(view, viewSize)
-    end)
+    local healerSettingsMenuItem = HealerSettingsMenuItem.new(trust, trustSettings, trustSettingsMode)
     return healerSettingsMenuItem
 end
 
@@ -482,6 +475,10 @@ function TrustHud:getNukerMenuItem(trust, trustSettings, trustSettingsMode, jobN
         return setupView(view, viewSize)
     end)
     return nukerSettingsMenuItem
+end
+
+function TrustHud:getFollowerMenuItem(role)
+    return FollowSettingsMenuItem.new(role, self.addon_settings)
 end
 
 function TrustHud:getPatherMenuItem(role, viewSize)

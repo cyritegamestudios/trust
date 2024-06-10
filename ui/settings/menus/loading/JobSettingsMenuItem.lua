@@ -12,7 +12,7 @@ function JobSettingsMenuItem.new(jobSettingsMode, jobSettings, viewFactory)
         ButtonItem.default('Save As', 18),
         ButtonItem.default('Edit', 18),
     }, {}, function(args)
-        local loadSettingsView = viewFactory(JobSettingsView.new(jobSettingsMode, jobSettings))
+        local loadSettingsView = JobSettingsView.new(jobSettingsMode, jobSettings)
         loadSettingsView:setShouldRequestFocus(true)
         return loadSettingsView
     end, "Settings", "Load saved modes and job settings"), JobSettingsMenuItem)
@@ -51,7 +51,7 @@ function JobSettingsMenuItem:getCreateSetMenuItem()
     local createSetMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
     }, L{}, function(_)
-        local createSetView = self.viewFactory(FFXITextInputView.new('Set'))
+        local createSetView = FFXITextInputView.new('Set')
         createSetView:setTitle("Choose a name for the job settings set.")
         createSetView:setShouldRequestFocus(true)
         createSetView:onTextChanged():addAction(function(_, newSetName)

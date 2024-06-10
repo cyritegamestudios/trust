@@ -42,11 +42,14 @@ function PartyTargetsMenuItem:getTargetDebuffsMenuItem()
     }, {},
             function(args)
                 local target = args['selected_target']
-                local activeDebuffs = target.debuff_tracker:get_debuff_ids():map(function(debuff_id) return buff_util.buff_name(debuff_id) end)
-                local targetDebuffsView = self.viewFactory(FFXIPickerView.withItems(activeDebuffs, L{}))
-                targetDebuffsView:setShouldRequestFocus(false)
-                targetDebuffsView:setTitle("View debuffs on the "..target:get_name()..".")
-                return targetDebuffsView
+                if target then
+                    local activeDebuffs = target.debuff_tracker:get_debuff_ids():map(function(debuff_id) return buff_util.buff_name(debuff_id) end)
+                    local targetDebuffsView = self.viewFactory(FFXIPickerView.withItems(activeDebuffs, L{}))
+                    targetDebuffsView:setShouldRequestFocus(false)
+                    targetDebuffsView:setTitle("View debuffs on the "..target:get_name()..".")
+                    return targetDebuffsView
+                end
+                return nil
             end, "Targets", "View debuffs on the target.")
     return targetDebuffsMenuItem
 end

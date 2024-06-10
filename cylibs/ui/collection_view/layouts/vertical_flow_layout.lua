@@ -23,9 +23,7 @@ end
 
 -- Add a function to determine the size of a cell
 function VerticalFlowLayout:sizeForItemAtIndexPath(collectionView, cell)
-    -- You can implement your logic here to calculate the size of the cell
-    -- For simplicity, we'll assume a fixed cell width and use cell:getHeight() for height.
-    return { width = collectionView:getSize().width, height = cell:getItemSize() }  -- Adjust as needed
+    return { width = collectionView:getSize().width, height = cell:getItemSize() }
 end
 
 local num_layout_called = 0
@@ -88,7 +86,7 @@ function VerticalFlowLayout:layoutSubviews(collectionView, indexPathFilter)
 
     -- Set the width and height of the layout
     self.width = collectionView:getSize().width
-    self.height = yOffset
+    self.height = yOffset + self.padding.bottom
 
     collectionView:setContentSize(self.width, self.height)
 end
@@ -108,6 +106,10 @@ end
 
 function VerticalFlowLayout:getItemSpacing()
     return self.itemSpacing
+end
+
+function VerticalFlowLayout:getPadding()
+    return self.padding
 end
 
 return VerticalFlowLayout

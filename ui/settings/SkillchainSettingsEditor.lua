@@ -1,6 +1,7 @@
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
 local config = require('config')
+local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
@@ -21,15 +22,15 @@ function SkillchainSettingsEditor.new(weaponSkillSettings, abilities)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = TextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
-        cell:setItemSize(20)
+        cell:setItemSize(16)
         cell:setUserInteractionEnabled(true)
         return cell
     end)
 
-    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), SkillchainSettingsEditor)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(4, FFXIClassicStyle.Padding.ConfigEditor), nil, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditor), SkillchainSettingsEditor)
 
     self:setAllowsCursorSelection(true)
-    self:setScrollDelta(20)
+    self:setScrollDelta(16)
 
     self.weaponSkillSettings = weaponSkillSettings
     self.abilities = abilities

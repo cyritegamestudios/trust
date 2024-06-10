@@ -3,6 +3,7 @@ local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
 local Color = require('cylibs/ui/views/color')
 local Frame = require('cylibs/ui/views/frame')
+local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
@@ -31,19 +32,15 @@ function SongSettingsEditor.new(trustSettings, settingsMode, helpUrl)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = TextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
-        cell:setItemSize(20)
-        if indexPath.row ~= 1 then
-            cell:setUserInteractionEnabled(false)
-        else
-            cell:setIsSelectable(false)
-        end
+        cell:setItemSize(16)
+        cell:setUserInteractionEnabled(false)
         return cell
     end)
 
-    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0), 6)), SongSettingsEditor)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, FFXIClassicStyle.Padding.ConfigEditor, 6), nil, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditor), SongSettingsEditor)
 
     self:setAllowsCursorSelection(false)
-    self:setScrollDelta(20)
+    self:setScrollDelta(16)
 
     self.helpUrl = helpUrl
     self.trustSettings = trustSettings
@@ -123,7 +120,7 @@ function SongSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
             else
                 songList = self.songs
             end
-            if indexPath and indexPath.row < #songList + 1 --[[#self.weaponSkills > 1 and indexPath.row <= #self.weaponSkills]] then
+            if indexPath and indexPath.row < #songList --[[#self.weaponSkills > 1 and indexPath.row <= #self.weaponSkills]] then
                 local newIndexPath = self:getDataSource():getNextIndexPath(indexPath)-- IndexPath.new(indexPath.section, indexPath.row + 1)
                 local item1 = self:getDataSource():itemAtIndexPath(indexPath)
                 local item2 = self:getDataSource():itemAtIndexPath(newIndexPath)
@@ -131,7 +128,7 @@ function SongSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
                     self:getDataSource():swapItems(IndexedItem.new(item1, indexPath), IndexedItem.new(item2, newIndexPath))
                     self:getDelegate():selectItemAtIndexPath(newIndexPath)
 
-                    local startIndex = 1
+                    local startIndex = 0
                     local temp = songList[indexPath.row - startIndex]
                     songList[indexPath.row - startIndex] = songList[indexPath.row - startIndex + 1]
                     songList[indexPath.row - startIndex + 1] = temp
@@ -149,7 +146,7 @@ function SongSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
             else
                 songList = self.songs
             end
-            if indexPath and indexPath.row > 2 --[[#self.weaponSkills > 1 and indexPath.row <= #self.weaponSkills]] then
+            if indexPath and indexPath.row > 1 --[[#self.weaponSkills > 1 and indexPath.row <= #self.weaponSkills]] then
                 local newIndexPath = self:getDataSource():getPreviousIndexPath(indexPath)-- IndexPath.new(indexPath.section, indexPath.row + 1)
                 local item1 = self:getDataSource():itemAtIndexPath(indexPath)
                 local item2 = self:getDataSource():itemAtIndexPath(newIndexPath)
@@ -157,7 +154,7 @@ function SongSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
                     self:getDataSource():swapItems(IndexedItem.new(item1, indexPath), IndexedItem.new(item2, newIndexPath))
                     self:getDelegate():selectItemAtIndexPath(newIndexPath)
 
-                    local startIndex = 1
+                    local startIndex = 0
                     local temp = songList[indexPath.row - startIndex]
                     songList[indexPath.row - startIndex] = songList[indexPath.row - startIndex - 1]
                     songList[indexPath.row - startIndex - 1] = temp

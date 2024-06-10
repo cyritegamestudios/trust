@@ -55,6 +55,7 @@ function FFXIBackgroundView.new(frame, hideTitle, style)
     local self = setmetatable(CollectionView.new(CollectionViewDataSource.new(), VerticalFlowLayout.new(0), nil, style), FFXIBackgroundView)
 
     self.selectTitle = Event.newEvent()
+    self.borderViews = L{}
 
     self:getDataSource().cellForItem = function(item, _)
         local cell = ImageCollectionViewCell.new(item)
@@ -96,12 +97,18 @@ function FFXIBackgroundView.new(frame, hideTitle, style)
 
     self:addSubview(self.bottomBorderView)
 
+    self.borderViews = L{ self.topBorderView, self.bottomBorderView }
+
     self:getDisposeBag():add(self.topBorderView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
         self.topBorderView:getDelegate():deselectAllItems()
         self:onSelectTitle():trigger(self)
     end), self.topBorderView:getDelegate():didSelectItemAtIndexPath())
 
     return self
+end
+
+function FFXIBackgroundView:updateBorder()
+
 end
 
 function FFXIBackgroundView:destroy()
@@ -119,6 +126,10 @@ function FFXIBackgroundView:setSize(width, height)
         return
     end
     CollectionView.setSize(self, width, height)
+
+    for borderView in self.borderViews:it() do
+        borderView:setSize(width, 3)
+    end
 
     self:getDataSource():updateItem(self:getImageItem(self.frame), IndexPath.new(1, 1))
 

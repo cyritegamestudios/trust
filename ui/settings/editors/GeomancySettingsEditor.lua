@@ -1,5 +1,6 @@
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
+local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
@@ -18,14 +19,14 @@ function GeomancySettingsEditor.new(trustSettings, spells, targets)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = TextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
-        cell:setItemSize(20)
+        cell:setItemSize(16)
         return cell
     end)
 
-    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(15, 10, 0, 0))), GeomancySettingsEditor)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(0, FFXIClassicStyle.Padding.ConfigEditor), nil, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditor), GeomancySettingsEditor)
 
     self:setAllowsCursorSelection(true)
-    self:setScrollDelta(20)
+    self:setScrollDelta(16)
 
     self.trustSettings = trustSettings
     self.spells = spells or L{}

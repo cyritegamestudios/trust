@@ -1,10 +1,7 @@
-local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
-local ImageItem = require('cylibs/ui/collection_view/items/image_item')
+local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
-local Padding = require('cylibs/ui/style/padding')
-local ScrollItem = require('ui/themes/ffxi/ScrollItem')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
@@ -17,17 +14,25 @@ ModesView.__type = "ModesView"
 
 
 function ModesView.new(modeNames)
+    local layoutParams = FFXIWindow.getLayoutParams(
+            15,
+            16,
+            2,
+            FFXIClassicStyle.WindowSize.Editor.ConfigEditor,
+            FFXIClassicStyle.Padding.ConfigEditor
+    )
+
     local dataSource = CollectionViewDataSource.new(function(item)
         local cell = TextCollectionViewCell.new(item)
-        cell:setItemSize(20)
+        cell:setItemSize(16)
         cell:setUserInteractionEnabled(true)
         return cell
     end)
 
-    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 10, 0, 0))), ModesView)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, layoutParams.padding), nil, false, layoutParams.viewSize), ModesView)
 
     self:setShouldRequestFocus(true)
-    self:setScrollDelta(20)
+    self:setScrollDelta(16)
     self:setScrollEnabled(true)
 
     local itemsToAdd = L{}

@@ -10,7 +10,7 @@ local SpellSettingsEditor = require('ui/settings/SpellSettingsEditor')
 local BuffSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 BuffSettingsMenuItem.__index = BuffSettingsMenuItem
 
-function BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsKey, targets, jobNameShort, descriptionText, viewFactory)
+function BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsKey, targets, jobNameShort, descriptionText, showJobs)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
@@ -19,9 +19,8 @@ function BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsKey,
     }, {}, function(menuArgs)
         local buffs = T(trustSettings:getSettings())[trustSettingsMode.value][settingsKey]
 
-        local buffSettingsView = viewFactory(BuffSettingsEditor.new(trustSettings, buffs, targets))
+        local buffSettingsView = BuffSettingsEditor.new(trustSettings, buffs, targets)
         buffSettingsView:setShouldRequestFocus(true)
-        buffSettingsView:setTitle(descriptionText)
         return buffSettingsView
     end, "Buffs", descriptionText), BuffSettingsMenuItem)
 
@@ -29,7 +28,7 @@ function BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsKey,
     self.trustSettingsMode = trustSettingsMode
     self.settingsKey = settingsKey
     self.jobNameShort = jobNameShort
-    self.viewFactory = viewFactory
+    self.showJobs = showJobs
     self.dispose_bag = DisposeBag.new()
 
     self:reloadSettings()
@@ -41,8 +40,6 @@ function BuffSettingsMenuItem:destroy()
     MenuItem.destroy(self)
 
     self.dispose_bag:destroy()
-
-    self.viewFactory = nil
 end
 
 function BuffSettingsMenuItem:reloadSettings()
@@ -69,7 +66,7 @@ function BuffSettingsMenuItem:getAddBuffMenuItem()
                 return spell.levels[jobId] ~= nil and spell.status ~= nil and spell.skill ~= 44 and targets:intersection(S(spell.targets)):length() > 0
             end):map(function(spell) return spell.en end)
 
-            local chooseSpellsView = self.viewFactory(SpellPickerView.new(self.trustSettings, spellSettings, allBuffs, defaultJobNames, false))
+            local chooseSpellsView = SpellPickerView.new(self.trustSettings, spellSettings, allBuffs, defaultJobNames, false)
             chooseSpellsView:setTitle("Choose buffs to add.")
             chooseSpellsView:setScrollEnabled(true)
         return chooseSpellsView
@@ -84,10 +81,13 @@ function BuffSettingsMenuItem:getEditBuffMenuItem()
     }, {},
     function(args)
         local spell = args['spell']
-        local editSpellView = self.viewFactory(SpellSettingsEditor.new(self.trustSettings, spell))
-        editSpellView:setTitle("Edit buff.")
-        editSpellView:setShouldRequestFocus(true)
-        return editSpellView
+        if spell then
+            local editSpellView = SpellSettingsEditor.new(self.trustSettings, spell, not self.showJobs)
+            editSpellView:setTitle("Edit buff.")
+            editSpellView:setShouldRequestFocus(true)
+            return editSpellView
+        end
+        return nil
     end, "Buffs", "Edit buff settings.")
     return editBuffMenuItem
 end

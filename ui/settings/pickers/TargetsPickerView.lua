@@ -56,7 +56,7 @@ function TargetsPickerView:onSelectMenuItemAtIndexPath(textItem, _)
 end
 
 function TargetsPickerView:shouldRequestFocus()
-    return PickerView.shouldRequestFocus(self) and self:getDataSource():numberOfItemsInSection(1) > 0
+    return FFXIPickerView.shouldRequestFocus(self) and self:getDataSource():numberOfItemsInSection(1) > 0
 end
 
 return TargetsPickerView

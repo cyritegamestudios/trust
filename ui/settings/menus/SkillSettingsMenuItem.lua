@@ -1,8 +1,7 @@
+local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local SettingsItemPickerView = require('ui/settings/pickers/SettingsItemPickerView')
-local SkillchainAbilityPickerView = require('ui/settings/pickers/SkillchainAbilityPickerView')
-local SkillchainSettingsEditor = require('ui/settings/SkillchainSettingsEditor')
 
 local SkillSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 SkillSettingsMenuItem.__index = SkillSettingsMenuItem
@@ -30,7 +29,11 @@ function SkillSettingsMenuItem.new(weaponSkillSettings, skillSettings, viewFacto
                     end
                 end
 
-                local blacklistPickerView = viewFactory(SettingsItemPickerView.new(weaponSkillSettings, skillSettings.blacklist, allAbilities, onPickItems))
+                local imageItemForText = function(text)
+                    return AssetManager.imageItemForWeaponSkill(text)
+                end
+
+                local blacklistPickerView = SettingsItemPickerView.new(weaponSkillSettings, skillSettings.blacklist, allAbilities, onPickItems, imageItemForText)
                 blacklistPickerView:setShouldRequestFocus(true)
                 blacklistPickerView:setTitle("Choose abilities to avoid when making skillchains.")
                 return blacklistPickerView
@@ -61,7 +64,11 @@ function SkillSettingsMenuItem.new(weaponSkillSettings, skillSettings, viewFacto
             selectedAbilities:append(defaultAbility:get_name())
         end
 
-        local abilityPickerView = viewFactory(SettingsItemPickerView.new(weaponSkillSettings, selectedAbilities:compact_map(), allAbilities, onPickItems))
+        local imageItemForText = function(text)
+            return AssetManager.imageItemForWeaponSkill(text)
+        end
+
+        local abilityPickerView = SettingsItemPickerView.new(weaponSkillSettings, selectedAbilities:compact_map(), allAbilities, onPickItems, imageItemForText)
         abilityPickerView:setShouldRequestFocus(true)
         abilityPickerView:setAllowsMultipleSelection(false)
         abilityPickerView:setTitle("Choose an ability.")
