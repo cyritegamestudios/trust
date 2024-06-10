@@ -93,7 +93,7 @@ function BuffSettingsMenuItem:getEditBuffMenuItem()
 end
 
 function BuffSettingsMenuItem:getConditionsMenuItem()
-    --return ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, L{}, self.viewFactory)
+    return ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, L{}, self.viewFactory)
     --[[local editConditionsMenuItem = MenuItem.new(L{
         ButtonItem.default('Save', 18),
         ButtonItem.default('Clear All', 18),

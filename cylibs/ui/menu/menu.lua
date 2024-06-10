@@ -1,16 +1,12 @@
-local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local FocusManager = require('cylibs/ui/focus/focus_manager')
-local Frame = require('cylibs/ui/views/frame')
-local MenuItem = require('cylibs/ui/menu/menu_item')
 local MenuView = require('cylibs/ui/menu/menu_view')
-local ViewStack = require('cylibs/ui/views/view_stack')
 
 local Menu =  {}
 Menu.__index = Menu
 
 
-function Menu.new(contentViewStack, viewStack, infoView, backgroundViewFactory)
+function Menu.new(contentViewStack, viewStack, infoView)
     local self = setmetatable({}, Menu)
 
     self.buttonHeight = 16

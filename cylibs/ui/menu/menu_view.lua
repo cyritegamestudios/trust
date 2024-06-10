@@ -1,6 +1,4 @@
-local BackgroundView = require('cylibs/ui/views/background/background_view')
 local ButtonCollectionViewCell = require('cylibs/ui/collection_view/cells/button_collection_view_cell')
-local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
 local FFXIBackgroundView = require('ui/themes/ffxi/FFXIBackgroundView')
@@ -8,10 +6,8 @@ local Frame = require('cylibs/ui/views/frame')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Event = require('cylibs/events/Luvent')
-local MenuItem = require('cylibs/ui/menu/menu_item')
 local Padding = require('cylibs/ui/style/padding')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
-local ViewStack = require('cylibs/ui/views/view_stack')
 
 local MenuView = setmetatable({}, {__index = CollectionView })
 MenuView.__index = MenuView

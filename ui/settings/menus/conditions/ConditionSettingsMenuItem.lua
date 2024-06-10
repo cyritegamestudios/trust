@@ -8,14 +8,14 @@ local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local ConditionSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 ConditionSettingsMenuItem.__index = ConditionSettingsMenuItem
 
-function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, conditions, viewFactory)
+function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, conditions)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
         ButtonItem.default('Edit', 18),
     }, {}, function(args)
         local conditions = args['conditions']
-        local editConditionsView = viewFactory(ConditionsSettingsEditor.new(trustSettings, conditions))
+        local editConditionsView = ConditionsSettingsEditor.new(trustSettings, conditions)
         editConditionsView:setTitle("Edit conditions.")
         editConditionsView:setShouldRequestFocus(true)
         return editConditionsView
@@ -24,7 +24,6 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, conditi
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
     self.conditions = conditions
-    self.viewFactory = viewFactory
     self.dispose_bag = DisposeBag.new()
 
     self:reloadSettings()
@@ -58,7 +57,7 @@ function ConditionSettingsMenuItem:getAddConditionMenuItem()
             MinHitPointsPercentCondition.__type
         }
 
-        local chooseConditionView = self.viewFactory(FFXIPickerView.withItems(allConditionClasses, L{}, false))
+        local chooseConditionView = FFXIPickerView.withItems(allConditionClasses, L{}, false)
         chooseConditionView:setTitle("Choose a condition.")
         chooseConditionView:setShouldRequestFocus(true)
         chooseConditionView:on_pick_items():addAction(function(_, selectedItems)
