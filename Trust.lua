@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '9.3.0'
+_addon.version = '9.3.1'
 _addon.release_notes = [[
 This update features a significant overhaul to the Trust UI as well as the
 ability to edit more settings from the menu.
@@ -21,7 +21,7 @@ ability to edit more settings from the menu.
 	      Settings > Following.
 
 	• Bug Fixes
-	    • Fixed various errors.
+	    • Fixed issue where Dark Knight pull settings would not save.
 
 	• Press escape or enter to exit.
 
