@@ -21,7 +21,7 @@ function DarkKnightTrust.new(settings, action_queue, battle_settings, trust_sett
 		Debuffer.new(action_queue,trust_settings.Debuffs or L{}),
 		Dispeler.new(action_queue, L{ Spell.new('Absorb-Attri') }, L{}, false),
 		ManaRestorer.new(action_queue, L{'Entropy'}, L{}, 40),
-		Puller.new(action_queue, battle_settings.targets, L{ Spell.new('Absorb-STR'), Spell.new('Absorb-ACC'), Spell.new('Stone') }:compact_map()),
+		Puller.new(action_queue, battle_settings.targets, trust_settings.PullSettings.Abilities or L{ Spell.new('Absorb-STR'), Spell.new('Absorb-ACC'), Spell.new('Stone') }:compact_map()),
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, DarkKnight.new()), DarkKnightTrust)
 
