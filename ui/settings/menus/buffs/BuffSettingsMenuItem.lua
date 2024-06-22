@@ -63,7 +63,8 @@ function BuffSettingsMenuItem:getAddBuffMenuItem()
 
             local jobId = res.jobs:with('ens', self.jobNameShort).id
             local allBuffs = spell_util.get_spells(function(spell)
-                return spell.levels[jobId] ~= nil and spell.status ~= nil and spell.skill ~= 44 and targets:intersection(S(spell.targets)):length() > 0
+                local status = buff_util.buff_for_spell(spell.id)
+                return spell.levels[jobId] ~= nil and status ~= nil and not buff_util.is_debuff(status.id) and spell.skill ~= 44 and targets:intersection(S(spell.targets)):length() > 0
             end):map(function(spell) return spell.en end)
 
             local chooseSpellsView = SpellPickerView.new(self.trustSettings, spellSettings, allBuffs, defaultJobNames, false)

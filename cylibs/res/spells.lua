@@ -24,6 +24,7 @@ return T{
     [141] = {id=141,en="Reraise II",status=113,overwrites={135}},
     [142] = {id=142,en="Reraise III",status=113,overwrites={135,141}},
     [242] = {id=242,en="Absorb-ACC",status=90},
+    [246] = {id=246,en="Drain II",status=88},
     [266] = {id=266,en="Absorb-STR",status=119},
     [267] = {id=267,en="Absorb-DEX",status=120},
     [268] = {id=268,en="Absorb-VIT",status=121},
@@ -41,7 +42,7 @@ return T{
     [848] = {id=848,en="Reraise IV",status=113,overwrites={135,141,142}},
     [855] = {id=855,en="Enlight II",status=274,overwrites={310}},
     [856] = {id=856,en="Endark II",status=288,overwrites={311}},
-    [880] = {id=880,en="Drain III",status=88},
+    [880] = {id=880,en="Drain III",status=88,overwrites={246}},
     [894] = {id=894,en="Refresh III",status=43,overwrites={109,473}},
     [895] = {id=895,en="Temper II",status=432,overwrites={493}},
 }, {"id", "en", "status", "overwrites"}

@@ -241,7 +241,7 @@ end
 function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, weaponSkillSettings, weaponSkillSettingsMode, jobNameShort)
     local viewSize = Frame.new(0, 0, 500, 500)
 
-    local selfBuffSettingsItem = BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, 'SelfBuffs', S{'Self'}, jobNameShort, "Edit buffs to use on the player.", false)
+    local selfBuffSettingsItem = BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, 'SelfBuffs', S{'Self','Enemy'}, jobNameShort, "Edit buffs to use on the player.", false)
 
     local partyBuffSettingsItem = BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, 'PartyBuffs', S{'Party'}, jobNameShort, "Edit buffs to use on party members.", true)
 

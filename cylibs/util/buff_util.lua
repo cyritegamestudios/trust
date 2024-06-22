@@ -243,7 +243,10 @@ function buff_util.buff_for_spell(spell_id)
 		if spell.status == nil then
 			spell = spells_ext:with('id', spell_id)
 		end
-		return res.buffs:with('id', spell.status)
+		if spell ~= nil then
+			return res.buffs:with('id', spell.status)
+		end
+		return nil
 	end
 end
 
