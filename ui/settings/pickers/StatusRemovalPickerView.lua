@@ -1,10 +1,5 @@
-local Buff = require('cylibs/battle/spells/buff')
 local buff_util = require('cylibs/util/buff_util')
-local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
-local PickerView = require('cylibs/ui/picker/picker_view')
-local Spell = require('cylibs/battle/spell')
-local spell_util = require('cylibs/util/spell_util')
 
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local StatusRemovalBlacklistPickerView = setmetatable({}, {__index = FFXIPickerView })
@@ -16,7 +11,6 @@ function StatusRemovalBlacklistPickerView.new(trustSettings, statusEffectsBlackl
     self.trustSettings = trustSettings
     self.statusEffectsBlacklist = statusEffectsBlacklist
 
-    self:setScrollDelta(20)
     self:setScrollEnabled(true)
 
     self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
