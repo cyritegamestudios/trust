@@ -9,7 +9,7 @@ local TargetsPickerView = require('ui/settings/pickers/TargetsPickerView')
 local PullSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 PullSettingsMenuItem.__index = PullSettingsMenuItem
 
-function PullSettingsMenuItem.new(abilities, trust, job_name_short, addon_settings, targets, trust_settings, trust_settings_mode, viewFactory)
+function PullSettingsMenuItem.new(abilities, trust, job_name_short, addon_settings, targets, trust_settings, trust_settings_mode)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Targets', 18),
         ButtonItem.default('Actions', 18),
@@ -22,7 +22,6 @@ function PullSettingsMenuItem.new(abilities, trust, job_name_short, addon_settin
     self.puller = trust:role_with_type("puller")
     self.puller_settings = self.puller:get_pull_settings()
     self.job_name_short = job_name_short
-    self.viewFactory = viewFactory
     self.addon_settings = addon_settings
     self.targets = targets
     self.trust_settings = trust_settings
@@ -38,13 +37,11 @@ function PullSettingsMenuItem:destroy()
     MenuItem.destroy(self)
 
     self.dispose_bag:destroy()
-
-    self.viewFactory = nil
 end
 
 function PullSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Targets", self:getTargetsMenuItem())
-    self:setChildMenuItem("Actions", PullActionMenuItem.new(self.puller, self.trust_settings, self.trust_settings_mode, self.viewFactory))
+    self:setChildMenuItem("Actions", PullActionMenuItem.new(self.puller, self.trust_settings, self.trust_settings_mode))
     self:setChildMenuItem("Modes", self:getModesMenuItem())
 end
 
