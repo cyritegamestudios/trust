@@ -10,14 +10,19 @@ local SpellSettingsEditor = require('ui/settings/SpellSettingsEditor')
 local BuffSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 BuffSettingsMenuItem.__index = BuffSettingsMenuItem
 
-function BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsKey, targets, jobNameShort, descriptionText, showJobs)
+function BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsPrefix, settingsKey, targets, jobNameShort, descriptionText, showJobs)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
         ButtonItem.default('Edit', 18),
         --ButtonItem.default('Conditions', 18),
     }, {}, function(menuArgs)
-        local buffs = T(trustSettings:getSettings())[trustSettingsMode.value][settingsKey]
+        local buffs
+        if settingsPrefix then
+            buffs = T(trustSettings:getSettings())[trustSettingsMode.value][settingsPrefix][settingsKey]
+        else
+            buffs = T(trustSettings:getSettings())[trustSettingsMode.value][settingsKey]
+        end
 
         local buffSettingsView = BuffSettingsEditor.new(trustSettings, buffs, targets)
         buffSettingsView:setShouldRequestFocus(true)
