@@ -83,7 +83,6 @@ local buff_conflicts = T{
 	[359] = S{402}, -- Dark Arts/Addendum: Black
 	[531] = S{535}, -- Vallation
 	[535] = S{531}, -- Valiance
-	[445] = S{446}, -- Copy Image (3) = Copy Image (4+)
 
 	-- Shadows
 	[66] = S{66,444,445,446},
