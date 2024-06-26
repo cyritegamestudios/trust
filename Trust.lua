@@ -1,27 +1,25 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '9.3.3'
+_addon.version = '9.3.4'
 _addon.release_notes = [[
 This update features a significant overhaul to the Trust UI as well as the
 ability to edit more settings from the menu.
 
-	• UI
-	    • Resized menu views to resemble in-game views.
-	    • Added icons for spells, job abilities and weapon skills.
+	• Ninja
+	    • You can now use Utsusemi: Ichi, Ni and San by adding them
+	      in Settings > Buffs > Self.
+	    • Shadows will automatically be canceled when recasting Utsusemi.
 
-	• Config
-	    • You can now edit widget coordinates and visibility using the
-	      menu under Config > Widgets.
-	    • You can now enable and disable debug logging using the
-	      menu under Config > Logging.
+	• Dark Knight
+	    • You can now use Absorb and Drain spells in Settings > Buffs > Self.
 
-	• Following
-	    • Follow distance can now be edited using the menu under
-	      Settings > Following.
+	• Scholar
+	    • Buffs and abilities can now be edited using the UI under
+	      Settings > Buffs.
 
 	• Bug Fixes
-	    • Fixed issue where Dark Knight pull settings would not save.
+	    • Fixed issue where Ninja would repeatedly cast Utsusemi.
 
 	• Press escape or enter to exit.
 

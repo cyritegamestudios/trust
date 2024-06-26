@@ -14,6 +14,7 @@ function NinjaTrust.new(settings, action_queue, battle_settings, trust_settings)
 
 	self.settings = settings
 	self.action_queue = action_queue
+	self.last_utsusemi_spell_id = nil
 
 	return self
 end
@@ -42,10 +43,21 @@ function NinjaTrust:on_init()
 			end
 		end
 	end)
+
+	self:get_player():on_spell_finish():addAction(function(p, spell_id, _)
+		self.last_utsusemi_spell_id = spell_id
+	end)
 end
 
 function NinjaTrust:destroy()
 	Trust.destroy(self)
+end
+
+function NinjaTrust:get_last_utsusemi_spell_id()
+	if not self:get_job():has_shadows() then
+		self.last_utsusemi_spell_id = nil
+	end
+	return self.last_utsusemi_spell_id
 end
 
 return NinjaTrust
