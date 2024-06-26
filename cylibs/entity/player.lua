@@ -45,6 +45,11 @@ function Player:on_weapon_skill_finish()
     return self.weapon_skill_finish
 end
 
+-- Event called when a player's spell begins casting.
+function Player:on_spell_begin()
+    return self.spell_begin
+end
+
 -- Event called when a player's spell finishes casting.
 function Player:on_spell_finish()
     return self.spell_finish
@@ -88,6 +93,7 @@ function Player.new(id)
     self.ranged_attack_interrupted = Event.newEvent()
     self.ranged_attack_end = Event.newEvent()
     self.weapon_skill_finish = Event.newEvent()
+    self.spell_begin = Event.newEvent()
     self.spell_finish = Event.newEvent()
     self.spell_finish_no_effect = Event.newEvent()
     self.spell_interrupted = Event.newEvent()
@@ -127,6 +133,7 @@ function Player:destroy()
     self.ranged_attack_interrupted:removeAllActions()
     self.ranged_attack_end:removeAllActions()
     self.weapon_skill_finish:removeAllActions()
+    self.spell_begin:removeAllActions()
     self.spell_finish:removeAllActions()
     self.spell_finish_no_effect:removeAllActions()
     self.spell_interrupted:removeAllActions()
@@ -223,8 +230,12 @@ function Player:monitor()
             self:on_spell_finish():trigger(self, action.param, action.targets)
         elseif action.category == 6 then
             self:on_job_ability_used():trigger(self, action.param, action.targets)
-        elseif action.category == 8 and action.param == 28787 then
-            self:on_spell_interrupted():trigger(self, action.targets[1].actions[1].param)
+        elseif action.category == 8 then
+            if action.param == 28787 then
+                self:on_spell_interrupted():trigger(self, action.targets[1].actions[1].param)
+            else
+                self:on_spell_begin():trigger(self, action.targets[1].actions[1].param)
+            end
         end
     end), WindowerEvents.Action)
 end

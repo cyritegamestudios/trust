@@ -31,6 +31,17 @@ function NinjaTrust:on_init()
 			puller:set_pull_settings(new_trust_settings.PullSettings)
 		end
 	end)
+
+	self:get_player():on_spell_begin():addAction(function(p, spell_id)
+		if S{ 338, 339, 340 }:contains(spell_id) then
+			for copy_image_buff_id in L{ 66, 444, 445, 446 }:it() do
+				if buff_util.is_buff_active(copy_image_buff_id) then
+					windower.ffxi.cancel_buff(copy_image_buff_id)
+					break
+				end
+			end
+		end
+	end)
 end
 
 function NinjaTrust:destroy()
