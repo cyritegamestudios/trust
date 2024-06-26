@@ -29,6 +29,8 @@ function ModesView.new(modeNames)
         return cell
     end)
 
+    modeNames = modeNames:filter(function(modeName) return state[modeName] ~= nil end)
+
     local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, layoutParams.padding), nil, false, layoutParams.viewSize), ModesView)
 
     self:setShouldRequestFocus(true)

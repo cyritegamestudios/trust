@@ -14,6 +14,7 @@ function NinjaTrust.new(settings, action_queue, battle_settings, trust_settings)
 
 	self.settings = settings
 	self.action_queue = action_queue
+	self.last_utsusemi_spell_id = nil
 
 	return self
 end
@@ -31,10 +32,32 @@ function NinjaTrust:on_init()
 			puller:set_pull_settings(new_trust_settings.PullSettings)
 		end
 	end)
+
+	self:get_player():on_spell_begin():addAction(function(p, spell_id)
+		if S{ 338, 339, 340 }:contains(spell_id) then
+			for copy_image_buff_id in L{ 66, 444, 445, 446 }:it() do
+				if buff_util.is_buff_active(copy_image_buff_id) then
+					windower.ffxi.cancel_buff(copy_image_buff_id)
+					break
+				end
+			end
+		end
+	end)
+
+	self:get_player():on_spell_finish():addAction(function(p, spell_id, _)
+		self.last_utsusemi_spell_id = spell_id
+	end)
 end
 
 function NinjaTrust:destroy()
 	Trust.destroy(self)
+end
+
+function NinjaTrust:get_last_utsusemi_spell_id()
+	if not self:get_job():has_shadows() then
+		self.last_utsusemi_spell_id = nil
+	end
+	return self.last_utsusemi_spell_id
 end
 
 return NinjaTrust

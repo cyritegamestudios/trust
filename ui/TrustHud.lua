@@ -1,8 +1,7 @@
 local AutomatonView = require('cylibs/entity/automaton/ui/automaton_view')
 local BackgroundView = require('cylibs/ui/views/background/background_view')
 local BufferView = require('ui/views/BufferView')
-local BuffSettingsEditor = require('ui/settings/BuffSettingsEditor')
-local BuffSettingsMenuItem = require('ui/settings/menus/buffs/BuffSettingsMenuItem')
+local BufferSettingsMenuItem = require('ui/settings/menus/buffs/BufferSettingsMenuItem')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local Color = require('cylibs/ui/views/color')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
@@ -11,36 +10,26 @@ local HealerSettingsMenuItem = require('ui/settings/menus/healing/HealerSettings
 local DebufferView = require('ui/views/DebufferView')
 local DebuffSettingsEditor = require('ui/settings/DebuffSettingsEditor')
 local DebugView = require('cylibs/actions/ui/debug_view')
-local ElementPickerView = require('ui/settings/pickers/ElementPickerView')
 local FFXIBackgroundView = require('ui/themes/ffxi/FFXIBackgroundView')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FollowSettingsMenuItem = require('ui/settings/menus/FollowSettingsMenuItem')
-local FoodSettingsMenuItem = require('ui/settings/menus/buffs/FoodSettingsMenuItem')
 local Frame = require('cylibs/ui/views/frame')
 local GameInfo = require('cylibs/util/ffxi/game_info')
 local HelpView = require('cylibs/trust/ui/help_view')
-local JobAbilitiesSettingsEditor = require('ui/settings/JobAbilitiesSettingsEditor')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModesAssistantView = require('cylibs/modes/ui/modes_assistant_view')
 local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
-local ModeSettingsEditor = require('ui/settings/editors/ModeSettingsEditor')
 local ModesView = require('ui/settings/editors/ModeSettingsEditor')
 local NavigationBar = require('cylibs/ui/navigation/navigation_bar')
 local PullSettingsMenuItem = require('ui/settings/menus/pulling/PullSettingsMenuItem')
-local JobAbilityPickerView = require('ui/settings/pickers/JobAbilityPickerView')
-local job_util = require('cylibs/util/job_util')
-local LoadSettingsView = require('ui/settings/LoadSettingsView')
 local LoadSettingsMenuItem = require('ui/settings/menus/loading/LoadSettingsMenuItem')
 local NukeSettingsMenuItem = require('ui/settings/menus/nukes/NukeSettingsMenuItem')
 local PartyMemberView = require('cylibs/entity/party/ui/party_member_view')
 local PartyStatusWidget = require('ui/widgets/PartyStatusWidget')
 local PartyTargetsMenuItem = require('ui/settings/menus/PartyTargetsMenuItem')
 local PathSettingsMenuItem = require('ui/settings/menus/misc/PathSettingsMenuItem')
-local SettingsWidget = require('ui/widgets/SettingsWidget')
 local SingerView = require('ui/views/SingerView')
 local SongSettingsMenuItem = require('ui/settings/menus/songs/SongSettingsMenuItem')
 local SpellPickerView = require('ui/settings/pickers/SpellPickerView')
-local SpellSettingsEditor = require('ui/settings/SpellSettingsEditor')
 local spell_util = require('cylibs/util/spell_util')
 local TargetWidget = require('ui/widgets/TargetWidget')
 local TextStyle = require('cylibs/ui/style/text_style')
@@ -241,61 +230,6 @@ end
 function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, weaponSkillSettings, weaponSkillSettingsMode, jobNameShort)
     local viewSize = Frame.new(0, 0, 500, 500)
 
-    local selfBuffSettingsItem = BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, 'SelfBuffs', S{'Self'}, jobNameShort, "Edit buffs to use on the player.", false)
-
-    local partyBuffSettingsItem = BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, 'PartyBuffs', S{'Party'}, jobNameShort, "Edit buffs to use on party members.", true)
-
-    local buffModesMenuItem = MenuItem.new(L{}, L{}, function(_)
-        local modesView = ModesView.new(L{'AutoBarSpellMode', 'AutoBuffMode'})
-        modesView:setShouldRequestFocus(true)
-        return modesView
-    end, "Modes", "Change buffing behavior.")
-
-    local chooseJobAbilitiesItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
-        ButtonItem.default('Clear', 18),
-    }, {},
-            function()
-                local jobId = res.jobs:with('ens', jobNameShort).id
-                local allJobAbilities = player_util.get_job_abilities():map(function(jobAbilityId) return res.job_abilities[jobAbilityId] end):filter(function(jobAbility)
-                    return jobAbility.status ~= nil and S{'Self'}:intersection(S(jobAbility.targets)):length() > 0
-                end):map(function(jobAbility) return jobAbility.en end)
-
-                local chooseJobAbilitiesView = JobAbilityPickerView.new(trustSettings, T(trustSettings:getSettings())[trustSettingsMode.value].JobAbilities, allJobAbilities)
-                chooseJobAbilitiesView:setTitle("Choose job abilities to add.")
-                return chooseJobAbilitiesView
-            end, "Job Abilities", "Add a new job ability buff.")
-
-    local jobAbilitiesSettingsItem = MenuItem.new(L{
-        ButtonItem.default('Add', 18),
-        ButtonItem.default('Remove', 18),
-    }, {
-        Add = chooseJobAbilitiesItem,
-    },
-            function()
-                local backgroundImageView = createBackgroundView(viewSize.width, viewSize.height)
-                local jobAbilitiesSettingsView = JobAbilitiesSettingsEditor.new(trustSettings, trustSettingsMode, viewSize.width)
-                return jobAbilitiesSettingsView
-            end, "Job Abilities", "Choose job ability buffs.")
-
-    local foodSettingsMenuItem = FoodSettingsMenuItem.new(trustSettings, trustSettingsMode, function(view)
-        return setupView(view, viewSize)
-    end)
-
-    local buffSettingsItem = MenuItem.new(L{
-        ButtonItem.default('Self', 18),
-        ButtonItem.default('Party', 18),
-        ButtonItem.default('Abilities', 18),
-        ButtonItem.default('Food', 18),
-        ButtonItem.default('Modes', 18),
-    }, {
-        Self = selfBuffSettingsItem,
-        Party = partyBuffSettingsItem,
-        Abilities = jobAbilitiesSettingsItem,
-        Food = foodSettingsMenuItem,
-        Modes = buffModesMenuItem,
-    }, nil, "Buffs", "Choose buffs to use.")
-
     local chooseDebuffsItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
         ButtonItem.default('Clear', 18),
@@ -341,14 +275,8 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
     }
     local childMenuItems = {
         Modes = modesMenuItem,
-        Buffs = buffSettingsItem,
         Debuffs = debuffSettingsItem,
     }
-
-    local buffer = trust:role_with_type("buffer")
-    if buffer then
-        menuItems:append(ButtonItem.default('Buffs', 18))
-    end
 
     if jobNameShort == 'GEO' then
         menuItems:append(ButtonItem.default('Geomancy', 18))
@@ -372,6 +300,11 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
     end
 
     -- Add menu items only if the Trust has the appropriate role
+    if trust:role_with_type("buffer") then
+        menuItems:append(ButtonItem.default('Buffs', 18))
+        childMenuItems.Buffs = self:getMenuItemForRole(trust:role_with_type("buffer"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode)
+    end
+
     local debuffer = trust:role_with_type("debuffer")
     if debuffer then
         menuItems:append(ButtonItem.default('Debuffs', 18))
@@ -420,6 +353,9 @@ function TrustHud:getMenuItemForRole(role, weaponSkillSettings, weaponSkillSetti
     if role == nil then
         return nil
     end
+    if role:get_type() == "buffer" then
+        return self:getBufferMenuItem(trust, jobNameShort, trustSettings, trustSettingsMode)
+    end
     if role:get_type() == "healer" then
         return self:getHealerMenuItem(trust, trustSettings, trustSettingsMode, viewSize)
     end
@@ -442,6 +378,25 @@ function TrustHud:getMenuItemForRole(role, weaponSkillSettings, weaponSkillSetti
         return self:getPatherMenuItem(role, viewSize)
     end
     return nil
+end
+
+function TrustHud:getBufferMenuItem(trust, jobNameShort, trustSettings, trustSettingsMode)
+    if jobNameShort ~= 'SCH' then
+        local bufferSettingsMenuItem = BufferSettingsMenuItem.new(trustSettings, trustSettingsMode, jobNameShort)
+        return bufferSettingsMenuItem
+    else
+        local childMenuItems = {}
+
+        childMenuItems["Light Arts"] = BufferSettingsMenuItem.new(trustSettings, trustSettingsMode, jobNameShort, 'LightArts')
+        childMenuItems["Dark Arts"] = BufferSettingsMenuItem.new(trustSettings, trustSettingsMode, jobNameShort, 'DarkArts')
+
+        local artsSettingsMenuItem = MenuItem.new(L{
+            ButtonItem.default('Light Arts', 18),
+            ButtonItem.default('Dark Arts', 18),
+        }, childMenuItems, nil, "Buffs", "Choose buffs to use.")
+
+        return artsSettingsMenuItem
+    end
 end
 
 function TrustHud:getHealerMenuItem(trust, trustSettings, trustSettingsMode, viewSize)

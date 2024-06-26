@@ -40,7 +40,8 @@ function BuffSettingsEditor.new(trustSettings, buffs, targets)
     self.menuArgs = {}
 
     self.allBuffs = spell_util.get_spells(function(spell)
-        return spell.status ~= nil and S{'Self', 'Party'}:intersection(S(spell.targets)):length() > 0
+        local status = spell.status or buff_util.buff_for_spell(spell.id)
+        return status ~= nil and S(targets):intersection(S(spell.targets)):length() > 0
     end)
 
     self:reloadSettings()

@@ -57,7 +57,7 @@ function LoadSettingsMenuItem:getCreateSetMenuItem()
     local createSetMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
     }, L{}, function(_)
-        local createSetView = FFXITextInputView.new('Set')
+        local createSetView = FFXITextInputView.new('Set', "Mode set name")
         createSetView:setTitle("Choose a name for the mode set.")
         createSetView:setShouldRequestFocus(true)
         createSetView:onTextChanged():addAction(function(_, newSetName)

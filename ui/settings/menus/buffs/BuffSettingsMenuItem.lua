@@ -10,15 +10,19 @@ local SpellSettingsEditor = require('ui/settings/SpellSettingsEditor')
 local BuffSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 BuffSettingsMenuItem.__index = BuffSettingsMenuItem
 
-function BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsKey, targets, jobNameShort, descriptionText, showJobs)
+function BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsPrefix, settingsKey, targets, jobNameShort, descriptionText, showJobs)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
         ButtonItem.default('Edit', 18),
         --ButtonItem.default('Conditions', 18),
     }, {}, function(menuArgs)
-        local buffs = T(trustSettings:getSettings())[trustSettingsMode.value][settingsKey]
-
+        local buffs
+        if settingsPrefix then
+            buffs = T(trustSettings:getSettings())[trustSettingsMode.value][settingsPrefix][settingsKey]
+        else
+            buffs = T(trustSettings:getSettings())[trustSettingsMode.value][settingsKey]
+        end
         local buffSettingsView = BuffSettingsEditor.new(trustSettings, buffs, targets)
         buffSettingsView:setShouldRequestFocus(true)
         return buffSettingsView
@@ -63,7 +67,8 @@ function BuffSettingsMenuItem:getAddBuffMenuItem()
 
             local jobId = res.jobs:with('ens', self.jobNameShort).id
             local allBuffs = spell_util.get_spells(function(spell)
-                return spell.levels[jobId] ~= nil and spell.status ~= nil and spell.skill ~= 44 and targets:intersection(S(spell.targets)):length() > 0
+                local status = buff_util.buff_for_spell(spell.id)
+                return spell.levels[jobId] ~= nil and status ~= nil and not buff_util.is_debuff(status.id) and spell.skill ~= 44 and targets:intersection(S(spell.targets)):length() > 0
             end):map(function(spell) return spell.en end)
 
             local chooseSpellsView = SpellPickerView.new(self.trustSettings, spellSettings, allBuffs, defaultJobNames, false)

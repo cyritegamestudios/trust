@@ -28,6 +28,12 @@ function SpellPickerView.new(trustSettings, spells, allSpells, defaultJobNames, 
     self.defaultJobNames = defaultJobNames
     self.override = override
     self.sort = sort
+    self.selfBuffsWhitelist = S{
+        'Absorb-ACC', 'Absorb-STR', 'Absorb-DEX',
+        'Absorb-STR', 'Absorb-INT', 'Absorb-CHR',
+        'Absorb-AGI', 'Absorb-MND', 'Absorb-VIT',
+        'Drain II', 'Drain III'
+    }
 
     self:setScrollEnabled(true)
 
@@ -50,9 +56,14 @@ function SpellPickerView:onSelectMenuItemAtIndexPath(textItem, _)
                 if item then
                     local spell = res.spells:with('en', item:getText())
                     if spell then
-                        if spell.status and not L{ 40, 41, 42 }:contains(spell.skill) then
-                            if spell.targets:contains('Enemy') then
-                                self.spells:append(Debuff.new(spell_util.base_spell_name(item:getText()), L{}, L{}))
+                        local status = buff_util.buff_for_spell(spell.id)
+                        if status and not L{ 40, 41, 42 }:contains(spell.skill) and not L{ 338, 339, 340 }:contains(spell.id) then
+                            if S(spell.targets):contains('Enemy') then
+                                if not self.selfBuffsWhitelist:contains(spell.en) then
+                                    self.spells:append(Debuff.new(spell_util.base_spell_name(item:getText()), L{}, L{}))
+                                else
+                                    self.spells:append(Spell.new(item:getText(), L{}, L{}, 'bt'))
+                                end
                             else
                                 self.spells:append(Buff.new(spell_util.base_spell_name(item:getText()), L{}, self.defaultJobNames))
                             end

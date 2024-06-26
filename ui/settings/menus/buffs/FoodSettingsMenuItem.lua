@@ -7,7 +7,7 @@ local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local FoodSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 FoodSettingsMenuItem.__index = FoodSettingsMenuItem
 
-function FoodSettingsMenuItem.new(trustSettings, trustSettingsMode, viewFactory)
+function FoodSettingsMenuItem.new(trustSettings, trustSettingsMode)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Edit', 18),
         ButtonItem.default('Modes', 18),
@@ -15,7 +15,6 @@ function FoodSettingsMenuItem.new(trustSettings, trustSettingsMode, viewFactory)
 
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
-    self.viewFactory = viewFactory
     self.dispose_bag = DisposeBag.new()
 
     self:reloadSettings()
@@ -27,8 +26,6 @@ function FoodSettingsMenuItem:destroy()
     MenuItem.destroy(self)
 
     self.dispose_bag:destroy()
-
-    self.viewFactory = nil
 end
 
 function FoodSettingsMenuItem:reloadSettings()

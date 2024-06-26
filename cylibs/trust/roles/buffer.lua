@@ -116,6 +116,8 @@ function Buffer:check_buffs()
 
     -- Spells (self buffs)
     if self.self_spells_enabled then
+        logger.notice(self.__class, 'check_buffs', 'self_buffs')
+
         for spell in self.self_spells:it() do
             local buff = buff_util.buff_for_spell(spell:get_spell().id)
             if buff and not buff_util.is_buff_active(buff.id, player_buff_ids) and not buff_util.conflicts_with_buffs(buff.id, player_buff_ids)

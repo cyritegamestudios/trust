@@ -4,7 +4,9 @@ return {
     Default = {
         AutoFoodMode="Grape Daifuku",
         SelfBuffs = L{
-            Spell.new("Utsusemi: Ni", L{}, L{}, nil, L{})
+            Spell.new("Utsusemi: San", L{}, L{}, nil, L{}),
+            Spell.new("Utsusemi: Ni", L{}, L{}, nil, L{}),
+            Spell.new("Utsusemi: Ichi", L{}, L{}, nil, L{}),
         },
         PartyBuffs = L{
 

@@ -30,7 +30,7 @@ local JobAbilitiesSettingsEditor = setmetatable({}, {__index = FFXIWindow })
 JobAbilitiesSettingsEditor.__index = JobAbilitiesSettingsEditor
 
 
-function JobAbilitiesSettingsEditor.new(trustSettings, settingsMode, width)
+function JobAbilitiesSettingsEditor.new(trustSettings, settingsMode, settingsPrefix)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = ImageTextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
@@ -47,6 +47,7 @@ function JobAbilitiesSettingsEditor.new(trustSettings, settingsMode, width)
 
     self.trustSettings = trustSettings
     self.settingsMode = settingsMode
+    self.settingsPrefix = settingsPrefix
     self.menuArgs = {}
 
     self.allBuffs = player_util.get_job_abilities():map(function(jobAbilityId) return res.job_abilities[jobAbilityId] end):filter(function(jobAbility)
@@ -108,7 +109,12 @@ function JobAbilitiesSettingsEditor:reloadSettings()
 
     local items = L{}
 
-    self.jobAbilities = T(self.trustSettings:getSettings())[self.settingsMode.value].JobAbilities
+    if self.settingsPrefix then
+        self.jobAbilities = T(self.trustSettings:getSettings())[self.settingsMode.value][self.settingsPrefix].JobAbilities
+    else
+        self.jobAbilities = T(self.trustSettings:getSettings())[self.settingsMode.value].JobAbilities
+    end
+
     local rowIndex = 1
 
     for jobAbility in self.jobAbilities:it() do

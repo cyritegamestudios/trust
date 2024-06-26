@@ -71,9 +71,6 @@ local aura_debuff_names = L{'Defense Down','Magic Atk. Down','Magic Def. Down','
 
 -- Buffs that are exceptions and not linked to their spell
 local spell_id_to_buff = T{
-	[338] = 444, -- Utsusemi: Ichi
-	[339] = 445, -- Utsusemi: Ni
-	[340] = 446, -- Utsusemi: San
 }
 
 -- Set of buffs that conflict with a given buff and cannot be overridden
@@ -86,6 +83,12 @@ local buff_conflicts = T{
 	[359] = S{402}, -- Dark Arts/Addendum: Black
 	[531] = S{535}, -- Vallation
 	[535] = S{531}, -- Valiance
+
+	-- Shadows
+	[66] = S{66,444,445,446},
+	[444] = S{66,444,445,446},
+	[445] = S{66,444,445,446},
+	[446] = S{66,444,445,446},
 }
 
 
@@ -243,7 +246,10 @@ function buff_util.buff_for_spell(spell_id)
 		if spell.status == nil then
 			spell = spells_ext:with('id', spell_id)
 		end
-		return res.buffs:with('id', spell.status)
+		if spell ~= nil then
+			return res.buffs:with('id', spell.status)
+		end
+		return nil
 	end
 end
 

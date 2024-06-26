@@ -73,7 +73,7 @@ function SkillSettingsMenuItem.new(weaponSkillSettings, skillSettings, viewFacto
         abilityPickerView:setAllowsMultipleSelection(false)
         abilityPickerView:setTitle("Choose an ability.")
         return abilityPickerView
-    end)
+    end, "Default", "Choose an ability to use when spamming or when no skillchain can be made.")
 
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Blacklist', 18),
