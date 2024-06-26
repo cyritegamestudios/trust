@@ -71,9 +71,9 @@ local aura_debuff_names = L{'Defense Down','Magic Atk. Down','Magic Def. Down','
 
 -- Buffs that are exceptions and not linked to their spell
 local spell_id_to_buff = T{
-	[338] = 444, -- Utsusemi: Ichi
+	--[[[338] = 444, -- Utsusemi: Ichi
 	[339] = 445, -- Utsusemi: Ni
-	[340] = 446, -- Utsusemi: San
+	[340] = 446, -- Utsusemi: San]]
 }
 
 -- Set of buffs that conflict with a given buff and cannot be overridden
@@ -86,6 +86,7 @@ local buff_conflicts = T{
 	[359] = S{402}, -- Dark Arts/Addendum: Black
 	[531] = S{535}, -- Vallation
 	[535] = S{531}, -- Valiance
+	[445] = S{446}, -- Copy Image (3) = Copy Image (4+)
 }
 
 

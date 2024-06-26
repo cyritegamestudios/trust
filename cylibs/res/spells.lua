@@ -34,7 +34,7 @@ return T{
     [272] = {id=272,en="Absorb-CHR",status=125},
     [338] = {id=338,en="Utsusemi: Ichi",status=445,overwrites={36}},
     [339] = {id=339,en="Utsusemi: Ni",status=445,overwrites={36}},
-    [340] = {id=340,en="Utsusemi: San",status=445,overwrites={36}},
+    [340] = {id=340,en="Utsusemi: San",status=446,overwrites={36}},
     [473] = {id=473,en="Refresh II",status=43,overwrites={109}},
     [477] = {id=477,en="Regen IV",status=42,overwrites={108,110,111}},
     [493] = {id=493,en="Temper",status=432,overwrites={}},
