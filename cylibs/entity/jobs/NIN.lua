@@ -7,12 +7,6 @@ local Job = require('cylibs/entity/jobs/job')
 local Ninja = setmetatable({}, {__index = Job })
 Ninja.__index = Ninja
 
-local default_num_shadows = T{
-    ["Utsusemi: Ichi"] = 3,
-    ["Utsusemi: Ni"] = 3,
-    ["Utsusemi: San"] = 4,
-}
-
 -------
 -- Default initializer for a new Ninja.
 -- @treturn NIN A Ninja

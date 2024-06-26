@@ -23,7 +23,6 @@ function BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsPref
         else
             buffs = T(trustSettings:getSettings())[trustSettingsMode.value][settingsKey]
         end
-
         local buffSettingsView = BuffSettingsEditor.new(trustSettings, buffs, targets)
         buffSettingsView:setShouldRequestFocus(true)
         return buffSettingsView

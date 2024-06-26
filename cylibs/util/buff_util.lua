@@ -71,9 +71,6 @@ local aura_debuff_names = L{'Defense Down','Magic Atk. Down','Magic Def. Down','
 
 -- Buffs that are exceptions and not linked to their spell
 local spell_id_to_buff = T{
-	--[[[338] = 444, -- Utsusemi: Ichi
-	[339] = 445, -- Utsusemi: Ni
-	[340] = 446, -- Utsusemi: San]]
 }
 
 -- Set of buffs that conflict with a given buff and cannot be overridden
