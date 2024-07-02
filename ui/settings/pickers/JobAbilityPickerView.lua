@@ -18,7 +18,6 @@ function JobAbilityPickerView.new(trustSettings, jobAbilities, allJobAbilities)
     self.jobAbilities = jobAbilities
 
     self:setScrollEnabled(true)
-    self:setScrollDelta(20)
 
     self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
 
