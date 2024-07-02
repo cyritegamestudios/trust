@@ -44,6 +44,21 @@ function localization_util.commas(list)
     return result
 end
 
+function localization_util.join(list, separator)
+    if list:length() == 0 then
+        return ""
+    end
+    if list:length() == 1 then
+        return list[1]
+    end
+    local result = list[1]
+    for i = 2, list:length() do
+        result = result..' '..separator..' '..list[i]
+    end
+    result = result:sub(1, -1)
+    return result
+end
+
 -------
 -- Truncates the given text.
 -- @tparam string text Text to truncate
