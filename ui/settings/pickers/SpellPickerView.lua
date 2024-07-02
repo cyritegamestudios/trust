@@ -30,8 +30,8 @@ function SpellPickerView.new(trustSettings, spells, allSpells, defaultJobNames, 
     self.sort = sort
     self.selfBuffsWhitelist = S{
         'Absorb-ACC', 'Absorb-STR', 'Absorb-DEX',
-        'Absorb-STR', 'Absorb-INT', 'Absorb-CHR',
-        'Absorb-AGI', 'Absorb-MND', 'Absorb-VIT',
+        'Absorb-INT', 'Absorb-CHR', 'Absorb-AGI',
+        'Absorb-MND', 'Absorb-VIT',
         'Drain II', 'Drain III'
     }
 

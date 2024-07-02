@@ -294,9 +294,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
 
     if jobNameShort == 'COR' then
         menuItems:append(ButtonItem.default('Rolls', 18))
-        childMenuItems['Rolls'] = RollSettingsMenuItem.new(trustSettings, trustSettingsMode, trust, function(view)
-            return setupView(view, viewSize)
-        end)
+        childMenuItems['Rolls'] = RollSettingsMenuItem.new(trustSettings, trustSettingsMode, trust)
     end
 
     -- Add menu items only if the Trust has the appropriate role
