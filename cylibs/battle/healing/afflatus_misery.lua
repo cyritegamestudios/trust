@@ -76,15 +76,15 @@ function AfflatusMisery:get_status_removal_spell(debuff_id, num_targets)
     local spell_id = cure_util.spell_id_for_debuff_id(debuff_id)
     if spell_id then
         local spell = res.spells[spell_id]
-        if L{ 'Erase', 'Viruna', 'Cursna', 'Blindna', 'Poisona', 'Paralyna' }:contains(spell.name)
+        if L{ 'Erase', 'Viruna', 'Cursna', 'Blindna', 'Poisona', 'Paralyna' }:contains(spell.en)
                 and buff_util.is_buff_active(debuff_id) then
             spell = res.spells[spell_util.spell_id('Esuna')]
         end
         local job_ability_names = L{}
-        if not L{ 'Erase', 'Esuna' }:contains(spell.name) and job_util.can_use_job_ability('Divine Caress') then
+        if not L{ 'Erase', 'Esuna' }:contains(spell.en) and job_util.can_use_job_ability('Divine Caress') then
             job_ability_names:append('Divine Caress')
         end
-        return Spell.new(spell.name, job_ability_names)
+        return Spell.new(spell.en, job_ability_names)
     end
     return nil
 end

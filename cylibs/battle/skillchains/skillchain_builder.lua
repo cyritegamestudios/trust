@@ -197,6 +197,7 @@ function SkillchainBuilder:get_skillchain_properties(skillchain, num_steps)
     local result = L{}
 
     local stack = L{}:merge(skillchain_util.skillchain[skillchain:get_name()])
+
     while not stack:empty() do
         local skillchain = stack:remove(1)
         result:append(skillchain)
