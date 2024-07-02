@@ -1,11 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-<<<<<<< HEAD
 _addon.version = '9.4.0'
-=======
-_addon.version = '9.3.4'
->>>>>>> main
 _addon.release_notes = [[
 This update features a significant overhaul to the Trust UI as well as the
 ability to edit more settings from the menu.
