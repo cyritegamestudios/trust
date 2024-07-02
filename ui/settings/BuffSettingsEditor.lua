@@ -35,7 +35,7 @@ function BuffSettingsEditor.new(trustSettings, buffs, targets)
     self:setScrollEnabled(true)
 
     self.trustSettings = trustSettings
-    self.buffs = (buffs or L{}):compact_map()
+    self.buffs = buffs or L{}
     self.targets = targets
     self.menuArgs = {}
 
