@@ -25,22 +25,27 @@ function PickerItem.new(currentValue, allValues, textFormat)
 end
 
 ---
--- Gets the minimum value in the range.
+-- Gets the current value.
 --
--- @treturn number The minimum value in the range.
+-- @treturn number The current value.
 --
 function PickerItem:getCurrentValue()
     return self.currentValue
 end
 
+---
+-- Sets the current value.
+--
+-- @tparam number newValue The new value
+--
 function PickerItem:setCurrentValue(newValue)
     self.currentValue = newValue
 end
 
 ---
--- Gets the maximum value in the range.
+-- Gets all possible values.
 --
--- @treturn number The maximum value in the range.
+-- @treturn list All possible values.
 --
 function PickerItem:getAllValues()
     return self.allValues
@@ -53,15 +58,6 @@ end
 --
 function PickerItem:getTextFormat()
     return self.textFormat
-end
-
----
--- Gets the formatted text.
---
--- @treturn string The formatted text.
---
-function PickerItem:tostring()
-    return self:getText()
 end
 
 return PickerItem

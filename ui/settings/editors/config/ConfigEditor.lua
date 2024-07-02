@@ -99,13 +99,13 @@ function ConfigEditor:reloadSettings()
         local defaultItem
         if configItem.__type == ConfigItem.__type then
             defaultItem = SliderItem.new(
-                    configItem:getMinValue(),
-                    configItem:getMaxValue(),
-                    self.configSettings[configItem:getKey()],
-                    configItem:getInterval(),
-                    ImageItem.new(windower.addon_path..'assets/backgrounds/slider_track.png', 166, 16),
-                    ImageItem.new(windower.addon_path..'assets/backgrounds/slider_fill.png', 166, 16),
-                    configItem:getTextFormat()
+                configItem:getMinValue(),
+                configItem:getMaxValue(),
+                self.configSettings[configItem:getKey()],
+                configItem:getInterval(),
+                ImageItem.new(windower.addon_path..'assets/backgrounds/slider_track.png', 166, 16),
+                ImageItem.new(windower.addon_path..'assets/backgrounds/slider_fill.png', 166, 16),
+                configItem:getTextFormat()
             )
         elseif configItem.__type == BooleanConfigItem.__type then
             defaultItem = FFXIToggleButtonItem.new()

@@ -35,18 +35,18 @@ function PickerConfigItem:getKey()
 end
 
 ---
--- Gets the minimum value in the range.
+-- Gets the initial value.
 --
--- @treturn number The minimum value in the range.
+-- @treturn number The initial value.
 --
 function PickerConfigItem:getInitialValue()
     return self.initialValue
 end
 
 ---
--- Gets the maximum value in the range.
+-- Gets all possible values.
 --
--- @treturn number The maximum value in the range.
+-- @treturn list All possible values.
 --
 function PickerConfigItem:getAllValues()
     return self.allValues
@@ -59,15 +59,6 @@ end
 --
 function PickerConfigItem:getTextFormat()
     return self.textFormat
-end
-
----
--- Gets the formatted text.
---
--- @treturn string The formatted text.
---
-function PickerConfigItem:tostring()
-    return self:getText()
 end
 
 return PickerConfigItem
