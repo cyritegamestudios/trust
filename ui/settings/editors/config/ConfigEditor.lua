@@ -9,6 +9,9 @@ local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Padding = require('cylibs/ui/style/padding')
+local PickerCollectionViewCell = require('cylibs/ui/collection_view/cells/picker_collection_view_cell')
+local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
+local PickerItem = require('cylibs/ui/collection_view/items/picker_item')
 local SectionHeaderItem = require('cylibs/ui/collection_view/items/section_header_item')
 local SliderCollectionViewCell = require('cylibs/ui/collection_view/cells/slider_collection_view_cell')
 local SliderItem = require('cylibs/ui/collection_view/items/slider_item')
@@ -39,6 +42,12 @@ function ConfigEditor.new(trustSettings, configSettings, configItems)
             return cell
         elseif item.__type == FFXIToggleButtonItem.__type then
             local cell = ToggleButtonCollectionViewCell.new(item)
+            cell:setUserInteractionEnabled(true)
+            cell:setIsSelectable(true)
+            cell:setItemSize(16)
+            return cell
+        elseif item.__type == PickerItem.__type then
+            local cell = PickerCollectionViewCell.new(item)
             cell:setUserInteractionEnabled(true)
             cell:setIsSelectable(true)
             cell:setItemSize(16)
@@ -90,17 +99,19 @@ function ConfigEditor:reloadSettings()
         local defaultItem
         if configItem.__type == ConfigItem.__type then
             defaultItem = SliderItem.new(
-                configItem:getMinValue(),
-                configItem:getMaxValue(),
-                self.configSettings[configItem:getKey()],
-                configItem:getInterval(),
-                ImageItem.new(windower.addon_path..'assets/backgrounds/slider_track.png', 166, 16),
-                ImageItem.new(windower.addon_path..'assets/backgrounds/slider_fill.png', 166, 16),
-                configItem:getTextFormat()
+                    configItem:getMinValue(),
+                    configItem:getMaxValue(),
+                    self.configSettings[configItem:getKey()],
+                    configItem:getInterval(),
+                    ImageItem.new(windower.addon_path..'assets/backgrounds/slider_track.png', 166, 16),
+                    ImageItem.new(windower.addon_path..'assets/backgrounds/slider_fill.png', 166, 16),
+                    configItem:getTextFormat()
             )
         elseif configItem.__type == BooleanConfigItem.__type then
             defaultItem = FFXIToggleButtonItem.new()
             defaultItem:setEnabled(self.configSettings[configItem:getKey()])
+        elseif configItem.__type == PickerConfigItem.__type then
+            defaultItem = PickerItem.new(configItem:getInitialValue(), configItem:getAllValues())
         end
 
         if defaultItem then
@@ -119,17 +130,20 @@ end
 function ConfigEditor:onConfirmClick()
     for sectionIndex = 1, self:getDataSource():numberOfSections(), 1 do
         local sectionHeaderItem = self:getDataSource():headerItemForSection(sectionIndex)
-
         local configItem = self:getDataSource():itemAtIndexPath(IndexPath.new(sectionIndex, 1))
         if configItem.__type == SliderItem.__type then
             self.configSettings[sectionHeaderItem:getTitleItem():getText()] = configItem:getCurrentValue()
         elseif configItem.__type == FFXIToggleButtonItem.__type then
             self.configSettings[sectionHeaderItem:getTitleItem():getText()] = configItem:getEnabled()
+        elseif configItem.__type == PickerItem.__type then
+            self.configSettings[sectionHeaderItem:getTitleItem():getText()] = configItem:getCurrentValue()
         end
     end
 
-    self.trustSettings:saveSettings(true)
-    addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my settings!")
+    if self.trustSettings then
+        self.trustSettings:saveSettings(true)
+        addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my settings!")
+    end
 end
 
 function ConfigEditor:onResetClick()
