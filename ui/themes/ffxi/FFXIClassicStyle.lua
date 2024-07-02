@@ -40,6 +40,7 @@ FFXIClassicStyle.WindowSize = {}
 FFXIClassicStyle.WindowSize.Editor = {}
 FFXIClassicStyle.WindowSize.Editor.Default = Frame.new(0, 0, 180, 192)
 FFXIClassicStyle.WindowSize.Editor.ConfigEditor = Frame.new(0, 0, 350, 300)
+FFXIClassicStyle.WindowSize.Editor.ConfigEditorLarge = Frame.new(0, 0, 500, 300)
 
 function FFXIClassicStyle.default()
     local self = setmetatable(CollectionViewStyle.new(

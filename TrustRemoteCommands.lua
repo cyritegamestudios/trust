@@ -5,6 +5,9 @@ local native_commands_whitelist = S{
     'refa all',
     'warp',
     'pcmd leave',
+    'pcmd add',
+    'pcmd kick',
+    'pcmd leader',
 }
 
 function TrustRemoteCommands.new(whitelist, commands)
@@ -64,6 +67,9 @@ function TrustRemoteCommands:handle_command(sender, args)
 end
 
 function TrustRemoteCommands:handle_native_command(sender, command)
+    if L{ 'pcmd add', 'pcmd kick', 'pcmd leader'}:contains(command) then 
+        command = command .. " " .. sender    
+    end
     windower.chat.input('/'..command)
 
     addon_message(209, 'Executing remote command from '..sender..': '..command)

@@ -8,7 +8,7 @@ local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local RollSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 RollSettingsMenuItem.__index = RollSettingsMenuItem
 
-function RollSettingsMenuItem.new(trustSettings, trustSettingsMode, trust, viewFactory)
+function RollSettingsMenuItem.new(trustSettings, trustSettingsMode, trust)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Roll 1', 18),
         ButtonItem.default('Roll 2', 18),
@@ -20,7 +20,6 @@ function RollSettingsMenuItem.new(trustSettings, trustSettingsMode, trust, viewF
     self.all_rolls = trust:get_job():get_all_rolls():sort()
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
-    self.viewFactory = viewFactory
     self.dispose_bag = DisposeBag.new()
 
     self:reloadSettings()
@@ -36,8 +35,6 @@ function RollSettingsMenuItem:destroy()
     MenuItem.destroy(self)
 
     self.dispose_bag:destroy()
-
-    self.viewFactory = nil
 end
 
 function RollSettingsMenuItem:reloadSettings()
@@ -63,6 +60,10 @@ function RollSettingsMenuItem:getRollMenuItem(roll, descriptionText)
         chooseRollView:on_pick_items():addAction(function(_, selectedItems)
             local roll_name = selectedItems[1]:getText()
             if roll_name then
+                if roll_name == self.rolls[1]:get_roll_name() or roll_name == self.rolls[2]:get_roll_name() then
+                    addon_message(260, '('..windower.ffxi.get_player().name..') '.."I'm already using "..roll_name.."!")
+                    return
+                end
                 roll:set_roll_name(roll_name)
 
                 self.trustSettings:saveSettings(true)

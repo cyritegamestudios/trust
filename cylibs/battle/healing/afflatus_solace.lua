@@ -83,7 +83,7 @@ function AfflatusSolace:get_status_removal_spell(debuff_id, num_targets)
         if not spell_util.spell_name(spell_id) == 'Erase' and job_util.can_use_job_ability('Divine Caress') then
             job_ability_names:append('Divine Caress')
         end
-        return Spell.new(res.spells:with('id', spell_id).name, job_ability_names)
+        return Spell.new(res.spells:with('id', spell_id).en, job_ability_names)
     end
     return nil
 end

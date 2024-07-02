@@ -1,3 +1,4 @@
+local BuildSkillchainSettingsMenuItem = require('ui/settings/menus/skillchains/BuildSkillchainSettingsMenuItem')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local SkillchainAbilityPickerView = require('ui/settings/pickers/SkillchainAbilityPickerView')
@@ -36,12 +37,14 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
         ButtonItem.default('Skip', 18),
         ButtonItem.default('Clear', 18),
         ButtonItem.default('Clear All', 18),
+        ButtonItem.default('Find', 18),
         ButtonItem.default('Sets', 18),
     }, {
         Edit = skillchainStepPickerItem,
         Skip = MenuItem.action(nil, "Skillchains", "Wait for party members to use a weapon skill for the selected step."),
         Clear = MenuItem.action(nil, "Skillchains", "Automatically determine a weapon skill to use for the selected step."),
         ["Clear All"] = MenuItem.action(nil, "Skillchains", "Automatically determine weapon skills to use for all steps."),
+        Find = BuildSkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettingsMode, skillchainer),
         Sets = skillchainSetsMenuItem,
     },
     function(args)
