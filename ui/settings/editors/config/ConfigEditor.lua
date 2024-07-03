@@ -68,6 +68,7 @@ function ConfigEditor.new(trustSettings, configSettings, configItems)
     self.configItems = configItems:filter(function(configItem)
         return configSettings[configItem:getKey()] ~= nil
     end)
+    self.numSections = self.configItems:length()
 
     self:reloadSettings()
 

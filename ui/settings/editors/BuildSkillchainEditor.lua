@@ -71,7 +71,7 @@ function BuildSkillchainEditor:reloadSettings()
         return
     end
 
-    local combatSkillIds = L{1,2,3,4,5,6,7,8,9,10,11,12}
+    local combatSkillIds = L{1,2,3,4,5,6,7,8,9,10,11,12,25,26}
     local combatSkillItems = IndexedItem.fromItems(combatSkillIds:map(function(combatSkillId)
         return TextItem.new(res.skills[combatSkillId].en, TextStyle.Default.TextSmall)
     end), 3)
