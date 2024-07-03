@@ -16,6 +16,7 @@ function BuildSkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSet
 
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
+        --ButtonItem.default('Reset', 18),
     }, {}, function(menuArgs)
         local skillchainBuilderEditor = BuildSkillchainEditor.new(builderSettings, skillchainer)
 
@@ -37,6 +38,9 @@ end
 
 function BuildSkillchainSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Confirm", self:getConfirmMenuItem())
+    self:setChildMenuItem("Reset", MenuItem.action(function()
+        self:resetSettings()
+    end), "Skillchains", "Reset to default settings.")
 end
 
 function BuildSkillchainSettingsMenuItem:getConfirmMenuItem(delegate)
@@ -86,6 +90,12 @@ function BuildSkillchainSettingsMenuItem:getConfirmMenuItem(delegate)
         return chooseSkillchainView
     end, "Skillchains", "Find a skillchain.")
     return confirmMenuItem
+end
+
+function BuildSkillchainSettingsMenuItem:resetSettings()
+    self.builderSettings.NumSteps = 2
+    self.Property = 'LightLv4'
+    self.CombatSkills = S{}
 end
 
 return BuildSkillchainSettingsMenuItem
