@@ -1,5 +1,6 @@
 local Event = require('cylibs/events/Luvent')
 local DisposeBag = require('cylibs/events/dispose_bag')
+local EquipmentChangedMessage = require('cylibs/messages/equipment_changed_message')
 local GainDebuffMessage = require('cylibs/messages/gain_buff_message')
 local IpcRelay = require('cylibs/messages/ipc/ipc_relay')
 local logger = require('cylibs/logger/logger')
@@ -39,6 +40,8 @@ WindowerEvents.Equipment = {}
 WindowerEvents.Equipment.MainWeaponChanged = Event.newEvent()
 WindowerEvents.Equipment.RangedWeaponChanged = Event.newEvent()
 
+local main_weapon_id
+local ranged_weapon_id
 
 local incoming_event_ids = S{
     0x028, -- data.incoming[0x028] = {name='Action',              description='Packet sent when an NPC is attacking.'}
@@ -247,21 +250,23 @@ local incoming_event_dispatcher = {
 
         -- Main weapon
         if data:byte(6) == 0 then
-            local main_weapon_id = windower.ffxi.get_items(data:byte(7), data:byte(5)).id
+            main_weapon_id = windower.ffxi.get_items(data:byte(7), data:byte(5)).id
             if main_weapon_id == 65535 then
                 main_weapon_id = nil
             end
             coroutine.schedule(function()
                 WindowerEvents.Equipment.MainWeaponChanged:trigger(windower.ffxi.get_player().id, main_weapon_id)
+                IpcRelay.shared():send_message(EquipmentChangedMessage.new(windower.ffxi.get_player().id, main_weapon_id, ranged_weapon_id))
             end, 1)
         -- Ranged weapon
         elseif data:byte(6) == 2 then
-            local ranged_weapon_id = windower.ffxi.get_items(data:byte(7), data:byte(5)).id
+            ranged_weapon_id = windower.ffxi.get_items(data:byte(7), data:byte(5)).id
             if ranged_weapon_id == 65535 then
                 ranged_weapon_id = nil
             end
             coroutine.schedule(function()
                 WindowerEvents.Equipment.RangedWeaponChanged:trigger(windower.ffxi.get_player().id, ranged_weapon_id)
+                IpcRelay.shared():send_message(EquipmentChangedMessage.new(windower.ffxi.get_player().id, main_weapon_id, ranged_weapon_id))
             end, 1)
         end
     end,
@@ -423,6 +428,9 @@ WindowerEvents.DisposeBag:add(IpcRelay.shared():on_message_received():addAction(
         end
     elseif ipc_message.__class == ZoneMessage.__class then
         WindowerEvents.ZoneRequest:trigger(ipc_message:get_mob_id(), ipc_message:get_zone_id(), ipc_message:get_zone_line(), ipc_message:get_zone_type())
+    elseif ipc_message.__class == EquipmentChangedMessage.__class then
+        WindowerEvents.Equipment.MainWeaponChanged:trigger(ipc_message:get_mob_id(), ipc_message:get_main_weapon_id())
+        WindowerEvents.Equipment.RangedWeaponChanged:trigger(ipc_message:get_mob_id(), ipc_message:get_ranged_weapon_id())
     end
 end), IpcRelay.shared():on_message_received())
 

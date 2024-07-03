@@ -1,4 +1,5 @@
 local CommandMessage = require('cylibs/messages/command_message')
+local EquipmentChangedMessage = require('cylibs/messages/equipment_changed_message')
 local Event = require('cylibs/events/Luvent')
 local GainBuffMessage = require('cylibs/messages/gain_buff_message')
 local IpcConnection = require('cylibs/messages/ipc/ipc_connection')
@@ -46,6 +47,8 @@ function IpcRelay.new()
                     self:on_message_received():trigger(ZoneMessage.deserialize(message))
                 elseif message_type == 'command' then
                     self:on_message_received():trigger(CommandMessage.deserialize(message))
+                elseif message_type == 'equipment_changed' then
+                    self:on_message_received():trigger(EquipmentChangedMessage.deserialize(message))
                 end
             end
         end
