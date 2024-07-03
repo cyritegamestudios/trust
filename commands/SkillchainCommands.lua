@@ -252,7 +252,6 @@ function SkillchainTrustCommands:handle_build(_, property_name, num_steps)
         local skillchains = skillchainer.skillchain_builder:build(property_name, num_steps)
         if not skillchains or skillchains:length() > 0 then
             success = true
-
             message = property_name..": "
             for abilities in skillchains:it() do
                 message = message..L(abilities:map(function(ability) return localization_util.translate(ability:get_name()) end)):tostring()..' ** '

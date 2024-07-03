@@ -9,7 +9,6 @@ local SkillchainBuilder = {}
 SkillchainBuilder.__index = SkillchainBuilder
 SkillchainBuilder.__class = "SkillchainBuilder"
 
-
 -------
 -- Default initializer for a new skillchain builder.
 -- @tparam list abilities List of all possible SkillchainAbility that can be used to build skillchains
@@ -21,6 +20,19 @@ function SkillchainBuilder.new(abilities)
         include_aeonic = false;
     }, SkillchainBuilder)
     return self
+end
+
+-------
+-- Convenience initializer for creating a skillchain builder with a list of combat skills.
+-- @tparam list skillIds List of skill ids
+function SkillchainBuilder.with_skills(skillIds)
+    local allCombatSkillSettings = skillIds:map(function(skillId)
+        return CombatSkillSettings.new(res.skills[skillId].en, L{})
+    end)
+    local abilities = allCombatSkillSettings:map(function(combatSkillSettings)
+        return combatSkillSettings:get_abilities(true, true)
+    end):combine():compact_map()
+    return SkillchainBuilder.new(abilities)
 end
 
 function SkillchainBuilder:destroy()

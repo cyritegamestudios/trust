@@ -250,4 +250,13 @@ function skillchain_util.color_for_element(element_name)
     return skillchain_util.colors[element_name] or skillchain_util.colors[(element_name:gsub("^%l", string.upper))]
 end
 
+function skillchain_util.all_skillchain_properties()
+    return L{
+        'Light Lv.4', 'Darkness Lv.4', 'Light', 'Darkness',
+        'Distortion', 'Gravitation', 'Fusion', 'Fragmentation',
+        'Induration', 'Scission', 'Reverberation', 'Compression',
+        'Detonation', 'Impaction', 'Liquefaction', 'Transfixion',
+    }
+end
+
 return skillchain_util

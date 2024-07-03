@@ -1,10 +1,9 @@
+local BuildSkillchainEditor = require('ui/settings/editors/BuildSkillchainEditor')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
-local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
-local ConfigItem = require('ui/settings/editors/config/ConfigItem')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
+local SkillchainBuilder = require('cylibs/battle/skillchains/skillchain_builder')
 
 local BuildSkillchainSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 BuildSkillchainSettingsMenuItem.__index = BuildSkillchainSettingsMenuItem
@@ -13,21 +12,16 @@ function BuildSkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSet
     local builderSettings = T{}
     builderSettings.NumSteps = 2
     builderSettings.Property = 'LightLv4'
+    builderSettings.CombatSkills = S{}
 
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
     }, {}, function(menuArgs)
-        local configItems = L{
-            ConfigItem.new('NumSteps', 2, 6, 1, function(value) return value.."" end),
-            PickerConfigItem.new('Property', 'LightLv4', L{
-                'Light Lv.4', 'Darkness Lv.4', 'Light', 'Darkness',
-                'Distortion', 'Gravitation', 'Fusion', 'Fragmentation',
-                'Induration', 'Scission', 'Reverberation', 'Compression',
-                'Detonation', 'Impaction', 'Liquefaction', 'Transfixion',
-            }),
-        }
-        local skillchainBuilderEditor = ConfigEditor.new(nil, builderSettings, configItems)
-        skillchainBuilderEditor:setShouldRequestFocus(true)
+        local skillchainBuilderEditor = BuildSkillchainEditor.new(builderSettings, skillchainer)
+
+        skillchainBuilderEditor:setNeedsLayout()
+        skillchainBuilderEditor:layoutIfNeeded()
+
         return skillchainBuilderEditor
     end, "Skillchains", "Find a skillchain."), BuildSkillchainSettingsMenuItem)
 
@@ -45,11 +39,13 @@ function BuildSkillchainSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Confirm", self:getConfirmMenuItem())
 end
 
-function BuildSkillchainSettingsMenuItem:getConfirmMenuItem()
+function BuildSkillchainSettingsMenuItem:getConfirmMenuItem(delegate)
     local confirmMenuItem = MenuItem.new(L{
         ButtonItem.default('Save', 18),
-    }, T{}, function()
-        local skillchains = self.skillchainer.skillchain_builder:build(self.builderSettings.Property, self.builderSettings.NumSteps)
+    }, T{}, function(menuArgs)
+        local skillchain_builder = SkillchainBuilder.with_skills(L(self.builderSettings.CombatSkills))
+        local skillchains = skillchain_builder:build(self.builderSettings.Property, self.builderSettings.NumSteps)
+        skillchains = skillchains:slice(1, math.min(skillchains:length(), 75))
         local pickerItems = L(skillchains:map(function(abilities)
             local abilities = L(abilities:map(function(ability) return ability:get_name() end))
             return localization_util.join(abilities, '→')
@@ -67,11 +63,16 @@ function BuildSkillchainSettingsMenuItem:getConfirmMenuItem()
                 if currentSettings then
                     for i = 1, 6 do
                         if i <= selectedSkillchain:length() then
+                            local found = false
                             for combat_skill in currentSettings.Skills:it() do
                                 local ability = combat_skill:get_ability(selectedSkillchain[i]:get_name())
                                 if ability then
                                     currentSettings.Skillchain[i] = ability
+                                    found = true
                                 end
+                            end
+                            if not found then
+                                currentSettings.Skillchain[i] = SkillchainAbility.skip()
                             end
                         else
                             currentSettings.Skillchain[i] = SkillchainAbility.auto()

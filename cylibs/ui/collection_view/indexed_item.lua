@@ -19,6 +19,23 @@ function IndexedItem.new(item, indexPath)
 end
 
 ---
+-- Returns a list of indexed items from the set of items.
+--
+-- @tparam list items The list of items.
+-- @tparam number section The section the items are in.
+-- @treturn list List of indexed items
+--
+function IndexedItem.fromItems(items, section)
+    local indexedItems = L{}
+    local rowIndex = 1
+    for item in items:it() do
+        indexedItems:append(IndexedItem.new(item, IndexPath.new(section, rowIndex)))
+        rowIndex = rowIndex + 1
+    end
+    return indexedItems
+end
+
+---
 -- Returns the associated item of this IndexedItem.
 --
 -- @treturn any The associated item.
