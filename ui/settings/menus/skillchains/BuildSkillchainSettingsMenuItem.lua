@@ -11,7 +11,7 @@ BuildSkillchainSettingsMenuItem.__index = BuildSkillchainSettingsMenuItem
 function BuildSkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettingsMode, skillchainer)
     local builderSettings = T{}
     builderSettings.NumSteps = 2
-    builderSettings.Property = 'LightLv4'
+    builderSettings.Property = 'Light Lv.4'
     builderSettings.CombatSkills = S{}
 
     local self = setmetatable(MenuItem.new(L{
@@ -36,6 +36,12 @@ function BuildSkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSet
     return self
 end
 
+function BuildSkillchainSettingsMenuItem:destroy()
+    MenuItem.destroy(self)
+
+    self.chooseSkillchainView = nil
+end
+
 function BuildSkillchainSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Confirm", self:getConfirmMenuItem())
     self:setChildMenuItem("Reset", MenuItem.action(function()
@@ -43,13 +49,47 @@ function BuildSkillchainSettingsMenuItem:reloadSettings()
     end), "Skillchains", "Reset to default settings.")
 end
 
-function BuildSkillchainSettingsMenuItem:getConfirmMenuItem(delegate)
+function BuildSkillchainSettingsMenuItem:getConfirmMenuItem()
+    local setPage = function(newPage)
+        if newPage > 0 and newPage ~= self.currentPage then
+            local itemsPerPage = 18
+            local startIndex = (newPage - 1) * itemsPerPage + 1
+            if startIndex > self.skillchains:length() then
+                return
+            end
+            self.currentPage = newPage
+
+            local newSkillchains = self.skillchains:slice(startIndex, math.min(self.skillchains:length(), startIndex + itemsPerPage))
+            self.currentSkillchains = newSkillchains
+
+            local pickerItems = L(newSkillchains:map(function(abilities)
+                local abilities = L(abilities:map(function(ability) return ability:get_name() end))
+                return localization_util.join(abilities, '→')
+            end))
+            self.chooseSkillchainView:setItems(pickerItems)
+        end
+    end
+
     local confirmMenuItem = MenuItem.new(L{
         ButtonItem.default('Save', 18),
-    }, T{}, function(menuArgs)
+        ButtonItem.default('Previous', 18),
+        ButtonItem.default('Next', 18),
+    }, {
+        Previous = MenuItem.action(function()
+            setPage(self.currentPage - 1)
+        end, "Skillchains", "See previous page."),
+        Next = MenuItem.action(function()
+            setPage(self.currentPage + 1)
+        end, "Skillchains", "See next page."),
+    }, function(menuArgs)
+        self.currentPage = 1
+
         local skillchain_builder = SkillchainBuilder.with_skills(L(self.builderSettings.CombatSkills))
+
         local skillchains = skillchain_builder:build(self.builderSettings.Property, self.builderSettings.NumSteps)
-        skillchains = skillchains:slice(1, math.min(skillchains:length(), 75))
+        self.skillchains = skillchains
+
+        skillchains = skillchains:slice(1, math.min(skillchains:length(), 18))
         local pickerItems = L(skillchains:map(function(abilities)
             local abilities = L(abilities:map(function(ability) return ability:get_name() end))
             return localization_util.join(abilities, '→')
@@ -61,7 +101,7 @@ function BuildSkillchainSettingsMenuItem:getConfirmMenuItem(delegate)
         chooseSkillchainView:on_pick_items():addAction(function(p, selectedItems)
             local selectedIndexPaths = L(p:getDelegate():getSelectedIndexPaths())
             if selectedIndexPaths:length() > 0 then
-                local selectedSkillchain = skillchains[selectedIndexPaths[1].row]
+                local selectedSkillchain = self.currentSkillchains[selectedIndexPaths[1].row]
 
                 local currentSettings = self.weaponSkillSettings:getSettings()[self.weaponSkillSettingsMode.value]
                 if currentSettings then
@@ -87,6 +127,7 @@ function BuildSkillchainSettingsMenuItem:getConfirmMenuItem(delegate)
             self.weaponSkillSettings:saveSettings(true)
             addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my skillchain!")
         end)
+        self.chooseSkillchainView = chooseSkillchainView
         return chooseSkillchainView
     end, "Skillchains", "Find a skillchain.")
     return confirmMenuItem

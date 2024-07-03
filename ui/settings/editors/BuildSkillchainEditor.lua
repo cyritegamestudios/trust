@@ -17,7 +17,7 @@ BuildSkillchainEditor.__index = BuildSkillchainEditor
 function BuildSkillchainEditor.new(builderSettings, skillchainer)
     local configItems = L{
         ConfigItem.new('NumSteps', 2, 6, 1, function(value) return value.."" end),
-        PickerConfigItem.new('Property', 'LightLv4', skillchain_util.all_skillchain_properties()),
+        PickerConfigItem.new('Property', 'Light Lv.4', skillchain_util.all_skillchain_properties()),
     }
 
     local self = setmetatable(ConfigEditor.new(nil, builderSettings, configItems), BuildSkillchainEditor)

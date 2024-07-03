@@ -61,14 +61,32 @@ function PickerView.new(pickerItems, allowsMultipleSelection, cursorImageItem)
 
     local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(0, Padding.new(8, 16, 8, 0)), nil, cursorImageItem), PickerView)
 
+    self.pickerItems = pickerItems
+
     self:setAllowsMultipleSelection(allowsMultipleSelection)
     self:setScrollDelta(16)
     self:setScrollEnabled(true)
 
+    self:reload()
+
+    self.pick_items = Event.newEvent()
+
+    return self
+end
+
+function PickerView:destroy()
+    CollectionView.destroy(self)
+
+    self.pick_items:removeAllActions()
+end
+
+function PickerView:reload()
+    self:getDataSource():removeAllItems()
+
     local indexedItems = L{}
     local selectedIndexedItems = L{}
 
-    local sections = pickerItems
+    local sections = self.pickerItems
 
     local sectionIndex = 1
     for section in sections:it() do
@@ -84,7 +102,7 @@ function PickerView.new(pickerItems, allowsMultipleSelection, cursorImageItem)
         sectionIndex = sectionIndex + 1
     end
 
-    dataSource:addItems(indexedItems)
+    self:getDataSource():addItems(indexedItems)
 
     for indexedItem in selectedIndexedItems:it() do
         self:getDelegate():selectItemAtIndexPath(indexedItem:getIndexPath())
@@ -96,16 +114,14 @@ function PickerView.new(pickerItems, allowsMultipleSelection, cursorImageItem)
     if self:getDataSource():numberOfItemsInSection(1) > 0 then
         self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
     end
-
-    self.pick_items = Event.newEvent()
-
-    return self
 end
 
-function PickerView:destroy()
-    CollectionView.destroy(self)
-
-    self.pick_items:removeAllActions()
+function PickerView:setItems(texts, selectedTexts)
+    selectedTexts = selectedTexts or L{}
+    self.pickerItems = L{ texts:map(function(text)
+        return PickerItem.new(TextItem.new(text, TextStyle.PickerView.Text), selectedTexts:contains(text))
+    end) }
+    self:reload()
 end
 
 ---
