@@ -1,3 +1,4 @@
+local EquipmentChangedMessage = require('cylibs/messages/equipment_changed_message')
 local Event = require('cylibs/events/Luvent')
 local inventory_util = require('cylibs/util/inventory_util')
 local PartyMember = require('cylibs/entity/party_member')
@@ -62,6 +63,10 @@ function Player:monitor()
             self:set_pet(pet_id, pet_name)
         end
     end), WindowerEvents.PetUpdate)
+
+    self.dispose_bag:add(IpcRelay.shared():on_connected():addAction(function(_)
+        IpcRelay.shared():send_message(EquipmentChangedMessage.new(self:get_id(), self:get_main_weapon_id(), self:get_ranged_weapon_id()))
+    end))
 
     self.events.level_up = windower.register_event('level up', function(new_level)
         self:on_level_change():trigger(self, new_level)

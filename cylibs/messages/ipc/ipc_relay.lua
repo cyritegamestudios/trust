@@ -23,6 +23,11 @@ function IpcRelay:on_message_received()
     return self.message_received
 end
 
+-- Event called when a new connection is established with another character
+function IpcRelay:on_connected()
+    return self.connected
+end
+
 function IpcRelay.new()
     local self = setmetatable({
     }, IpcRelay)
@@ -58,6 +63,7 @@ function IpcRelay.new()
     end)
 
     self.message_received = Event.newEvent()
+    self.connected = Event.newEvent()
 
     return self
 end
@@ -69,6 +75,7 @@ function IpcRelay:destroy()
         end
     end
     self.message_received:removeAllActions()
+    self.connected:removeAllActions()
 end
 
 function IpcRelay:send_message(ipcMessage)
@@ -82,8 +89,12 @@ function IpcRelay:update_connection(sender_name)
     if self.connections[sender_name] == nil then
         logger.notice("Now connected to", sender_name, "via IPC")
     end
+
     local connection = self.connections[sender_name] or IpcConnection.new(sender_name)
     connection:set_last_message_sent_time(os.time())
+    if self.connections[sender_name] == nil then
+        self:on_connected():trigger(sender_name)
+    end
     self.connections[sender_name] = connection
 end
 
