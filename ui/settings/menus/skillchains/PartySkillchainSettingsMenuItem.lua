@@ -41,7 +41,7 @@ function PartySkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSet
 
         local partySkillchainEditor = ConfigEditor.new(nil, skillchainSettings, configItems)
         return partySkillchainEditor
-    end, "Skillchains", "Choose party members for each step."), PartySkillchainSettingsMenuItem)
+    end, "Skillchains", "Choose party members for each step. Press Enter and use the Left and Right arrow keys."), PartySkillchainSettingsMenuItem)
 
     self.weaponSkillSettings = weaponSkillSettings
     self.weaponSkillSettingsMode = weaponSkillSettingsMode
