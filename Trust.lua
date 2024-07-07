@@ -100,6 +100,7 @@ function load_user_files(main_job_id, sub_job_id)
 	end
 
 	player.player = Player.new(windower.ffxi.get_player().id)
+	player.player:monitor()
 
 	local party_chat = PartyChat.new(addon_settings:getSettings().chat.ipc_enabled)
 	player.alliance = Alliance.new(party_chat)

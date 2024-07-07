@@ -25,4 +25,23 @@ function Ninja:has_shadows(player_buff_ids)
     return buff_util.is_any_buff_active(L{ 66, 444, 445, 446 }, player_buff_ids)
 end
 
+-------
+-- Returns whether an Utsusemi spell overrides another Utsusemi spell.
+-- @tparam number current_spell_id Spell id of current shadows
+-- @tparam number new_spell_id Spell id of new shadows
+-- @treturn boolean True if the new spell overrides the current spell
+function Ninja:should_cancel_shadows(current_spell_id, new_spell_id)
+    if current_spell_id == nil then
+        return true
+    elseif current_spell_id == 338 then
+        return false--L{ 339, 340 }:contains(new_spell_id)
+    elseif current_spell_id == 339 then
+        return L{ 338 }:contains(new_spell_id)
+    elseif current_spell_id == 340 then
+        return L{ 338, 339 }:contains(new_spell_id)
+    else
+        return false
+    end
+end
+
 return Ninja

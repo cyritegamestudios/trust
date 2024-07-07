@@ -15,6 +15,7 @@ function NinjaTrust.new(settings, action_queue, battle_settings, trust_settings)
 	self.settings = settings
 	self.action_queue = action_queue
 	self.last_utsusemi_spell_id = nil
+	self.last_utsusemi_cancel_time = os.time()
 
 	return self
 end
@@ -35,9 +36,17 @@ function NinjaTrust:on_init()
 
 	self:get_player():on_spell_begin():addAction(function(p, spell_id)
 		if S{ 338, 339, 340 }:contains(spell_id) then
+			if not self:get_job():should_cancel_shadows(self.last_utsusemi_spell_id, spell_id) then
+				return
+			end
 			for copy_image_buff_id in L{ 66, 444, 445, 446 }:it() do
 				if buff_util.is_buff_active(copy_image_buff_id) then
+					if os.time() - self.last_utsusemi_cancel_time < 1 then
+						return
+					end
+					self.last_utsusemi_cancel_time = os.time()
 					windower.ffxi.cancel_buff(copy_image_buff_id)
+					self.last_utsusemi_spell_id = nil
 					break
 				end
 			end
