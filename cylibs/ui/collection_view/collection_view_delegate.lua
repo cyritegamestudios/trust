@@ -198,6 +198,19 @@ function CollectionViewDelegate:deselectAllItems()
 end
 
 ---
+-- Deselects all items in given sections.
+
+-- @tparam set sections Sections to deselect
+--
+function CollectionViewDelegate:deselectItemsInSections(sections)
+    for indexPath in self.selectedIndexPaths:it() do
+        if sections:contains(indexPath.section) then
+            self:deselectItemAtIndexPath(indexPath)
+        end
+    end
+end
+
+---
 -- Gets the selected IndexPaths.
 --
 -- @treturn S Returns the set of selected IndexPaths

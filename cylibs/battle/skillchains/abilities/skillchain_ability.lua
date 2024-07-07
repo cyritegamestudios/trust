@@ -30,6 +30,7 @@ function SkillchainAbility.new(resource, ability_id, conditions, party_member)
         conditions = conditions or L{};
         party_member = party_member;
         name = res[resource][ability_id].en;
+        skill_id = res[resource][ability_id].skill;
     }, SkillchainAbility)
     return self
 end
@@ -65,6 +66,13 @@ end
 -- @treturn number Id of ability
 function SkillchainAbility:get_ability_id()
     return self.ability_id
+end
+
+-------
+-- Returns the skill id of the ability.
+-- @treturn number Skill id of ability
+function SkillchainAbility:get_skill_id()
+    return self.skill_id
 end
 
 -- Returns the buffs required to skillchain with this ability (e.g. `Immanence`)

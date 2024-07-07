@@ -31,8 +31,12 @@ function CombatSkillSettings:is_valid(player)
     return false
 end
 
-function CombatSkillSettings:get_abilities(include_blacklist)
-    local weapon_skills = L(windower.ffxi.get_abilities().weapon_skills):extend(L{ self.defaultWeaponSkillId }):compact_map()
+function CombatSkillSettings:get_abilities(include_blacklist, include_unknown)
+    local all_weapon_skills = L(windower.ffxi.get_abilities().weapon_skills)
+    if include_unknown then
+        all_weapon_skills = L(res.weapon_skills:with_all('skill', self.combatSkillId)):map(function(weapon_skill) return weapon_skill.id end)
+    end
+    local weapon_skills = all_weapon_skills:extend(L{ self.defaultWeaponSkillId }):compact_map()
             :filter(function(weapon_skill_id)
                 local weapon_skill = res.weapon_skills[weapon_skill_id]
                 if weapon_skill.skill == self.combatSkillId then

@@ -102,6 +102,14 @@ function list.combos(lists)
     return combinations
 end
 
+function list.combine(lists)
+    local result = L{}
+    for list in lists:it() do
+        result = result:extend(list)
+    end
+    return result
+end
+
 ---
 --- Returns a list containing the non-nil elements of the list
 function list.compact_map(l)

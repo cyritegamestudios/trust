@@ -12,6 +12,7 @@ local ffxi_util = require('cylibs/util/ffxi_util')
 local packets = require('packets')
 local party_util = require('cylibs/util/party_util')
 local res = require('resources')
+local Weapon = require('cylibs/battle/weapons/weapon')
 
 local PartyMember = setmetatable({}, {__index = Entity })
 PartyMember.__index = PartyMember
@@ -198,6 +199,18 @@ function PartyMember:monitor()
             self:set_target_index(target_index)
         end
     end), WindowerEvents.TargetIndexChanged)
+
+    self.dispose_bag:add(WindowerEvents.Equipment.MainWeaponChanged:addAction(function(mob_id, main_weapon_id)
+        if self:get_id() == mob_id then
+            self:set_main_weapon_id(main_weapon_id)
+        end
+    end), WindowerEvents.Equipment.MainWeaponChanged)
+
+    self.dispose_bag:add(WindowerEvents.Equipment.RangedWeaponChanged:addAction(function(mob_id, ranged_weapon_id)
+        if self:get_id() == mob_id then
+            self:set_ranged_weapon_id(ranged_weapon_id)
+        end
+    end), WindowerEvents.Equipment.RangedWeaponChanged)
 
     self.dispose_bag:add(WindowerEvents.BuffsChanged:addAction(function(mob_id, buff_ids)
         if self:get_id() == mob_id then
@@ -515,6 +528,70 @@ end
 -- @treturn number Timestamp in seconds
 function PartyMember:get_last_zone_time()
     return self.last_zone_time
+end
+
+-------
+-- Returns the item id of the main weapon equipped.
+-- @tparam number Item id of main weapon equipped (see res/items.lua)
+function PartyMember:get_main_weapon_id()
+    return self.main_weapon_id
+end
+
+-------
+-- Sets the main weapon item id.
+-- @tparam number main_weapon_id Item id (see res/items.lua)
+function PartyMember:set_main_weapon_id(main_weapon_id)
+    if self.main_weapon_id == main_weapon_id then
+        return
+    end
+
+    self.main_weapon_id = main_weapon_id
+    self:update_combat_skills()
+
+    self:on_equipment_change():trigger(self)
+end
+
+-------
+-- Returns the item id of the ranged weapon equipped.
+-- @tparam number Item id of ranged weapon equipped (see res/items.lua)
+function PartyMember:get_ranged_weapon_id()
+    return self.ranged_weapon_id
+end
+
+-------
+-- Sets the ranged weapon item id.
+-- @tparam number ranged_weapon_id Item id (see res/items.lua)
+function PartyMember:set_ranged_weapon_id(ranged_weapon_id)
+    if self.ranged_weapon_id == ranged_weapon_id then
+        return
+    end
+    self.ranged_weapon_id = ranged_weapon_id
+    self:update_combat_skills()
+
+    self:on_equipment_change():trigger(self)
+end
+
+-------
+-- Returns the item id of the ranged weapon equipped.
+-- @tparam number Item id of ranged weapon equipped (see res/items.lua)
+function PartyMember:get_combat_skill_ids()
+    return self.combat_skill_ids
+end
+
+-------
+-- Sets the ranged weapon item id.
+-- @tparam number ranged_weapon_id Item id (see res/items.lua)
+function PartyMember:update_combat_skills()
+    local combat_skill_ids = L{ self:get_main_weapon_id(), self:get_ranged_weapon_id() }:filter(function(weapon_id) return weapon_id ~= 0 end):compact_map():map(function(weapon_id)
+        local weapon = Weapon.new(weapon_id)
+        return weapon:get_combat_skill()
+    end)
+    if self.combat_skill_ids:equals(combat_skill_ids) then
+        return
+    end
+    self.combat_skill_ids = combat_skill_ids
+
+    self:on_combat_skills_change():trigger(self, self.combat_skill_ids)
 end
 
 -------

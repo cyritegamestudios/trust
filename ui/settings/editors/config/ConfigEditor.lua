@@ -36,8 +36,8 @@ function ConfigEditor.new(trustSettings, configSettings, configItems)
             return cell
         elseif item.__type == TextItem.__type then
             local cell = TextCollectionViewCell.new(item)
-            cell:setUserInteractionEnabled(false)
-            cell:setIsSelectable(false)
+            cell:setUserInteractionEnabled(true)
+            cell:setIsSelectable(true)
             cell:setItemSize(16)
             return cell
         elseif item.__type == FFXIToggleButtonItem.__type then
@@ -56,7 +56,7 @@ function ConfigEditor.new(trustSettings, configSettings, configItems)
         return nil
     end)
 
-    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(10, FFXIClassicStyle.Padding.ConfigEditor), nil, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditor), ConfigEditor)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(0, FFXIClassicStyle.Padding.ConfigEditor, 10), nil, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditor), ConfigEditor)
 
     self:setAllowsCursorSelection(false)
     self:setAllowsMultipleSelection(true)
@@ -68,6 +68,7 @@ function ConfigEditor.new(trustSettings, configSettings, configItems)
     self.configItems = configItems:filter(function(configItem)
         return configSettings[configItem:getKey()] ~= nil
     end)
+    self.numSections = self.configItems:length()
 
     self:reloadSettings()
 
@@ -120,6 +121,8 @@ function ConfigEditor:reloadSettings()
         end
     end
 
+    self.numSections = sectionIndex - 1
+
     self:getDataSource():addItems(items)
 
     if self:getDataSource():numberOfItemsInSection(1) > 0 then
@@ -165,7 +168,11 @@ function ConfigEditor:setHasFocus(focus)
     FFXIWindow.setHasFocus(self, focus)
 
     if focus then
-        self:getDelegate():deselectAllItems()
+        local sections = S{}
+        for i = 1, self.numSections do
+            sections:add(i)
+        end
+        self:getDelegate():deselectItemsInSections(sections)
     end
 end
 

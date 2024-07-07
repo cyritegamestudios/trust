@@ -177,14 +177,24 @@ function SkillchainTrustCommands:handle_set_step(_, step_num, ...)
     ability_name = windower.convert_auto_trans(ability_name)
     local current_settings = self.weapon_skill_settings:getSettings()[state.WeaponSkillSettingsMode.value]
     if current_settings then
-        for combat_skill in current_settings.Skills:it() do
-            local ability = combat_skill:get_ability(ability_name)
-            if ability then
-                current_settings.Skillchain[step_num] = ability
-                success = true
-                message = "Step "..step_num.." is now "..localization_util.translate(ability:get_name())
-                self.weapon_skill_settings:saveSettings(true)
-                break
+        if ability_name == SkillchainAbility.skip():get_name() then
+            current_settings.Skillchain[step_num] = SkillchainAbility.skip()
+            success = true
+            message = "Step "..step_num.." is now "..SkillchainAbility.skip():get_name()
+        elseif ability_name == SkillchainAbility.auto():get_name() then
+            current_settings.Skillchain[step_num] = SkillchainAbility.auto()
+            success = true
+            message = "Step "..step_num.." is now "..SkillchainAbility.auto():get_name()
+        else
+            for combat_skill in current_settings.Skills:it() do
+                local ability = combat_skill:get_ability(ability_name)
+                if ability then
+                    current_settings.Skillchain[step_num] = ability
+                    success = true
+                    message = "Step "..step_num.." is now "..localization_util.translate(ability:get_name())
+                    self.weapon_skill_settings:saveSettings(true)
+                    break
+                end
             end
         end
     end
@@ -252,7 +262,6 @@ function SkillchainTrustCommands:handle_build(_, property_name, num_steps)
         local skillchains = skillchainer.skillchain_builder:build(property_name, num_steps)
         if not skillchains or skillchains:length() > 0 then
             success = true
-
             message = property_name..": "
             for abilities in skillchains:it() do
                 message = message..L(abilities:map(function(ability) return localization_util.translate(ability:get_name()) end)):tostring()..' ** '
