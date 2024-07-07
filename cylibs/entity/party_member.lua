@@ -544,6 +544,7 @@ function PartyMember:set_main_weapon_id(main_weapon_id)
     if self.main_weapon_id == main_weapon_id then
         return
     end
+
     self.main_weapon_id = main_weapon_id
     self:update_combat_skills()
 

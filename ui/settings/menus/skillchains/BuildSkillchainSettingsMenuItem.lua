@@ -3,6 +3,7 @@ local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
+local PartySkillchainSettingsMenuItem = require('ui/settings/menus/skillchains/PartySkillchainSettingsMenuItem')
 local SkillchainBuilder = require('cylibs/battle/skillchains/skillchain_builder')
 
 local BuildSkillchainSettingsMenuItem = setmetatable({}, {__index = MenuItem })
@@ -72,9 +73,11 @@ function BuildSkillchainSettingsMenuItem:getConfirmMenuItem()
 
     local confirmMenuItem = MenuItem.new(L{
         ButtonItem.default('Save', 18),
+        ButtonItem.default('Party', 18),
         ButtonItem.default('Previous', 18),
         ButtonItem.default('Next', 18),
     }, {
+        Party = PartySkillchainSettingsMenuItem.new(self.weaponSkillSettings, self.weaponSkillSettingsMode, self.skillchainer),
         Previous = MenuItem.action(function()
             setPage(self.currentPage - 1)
         end, "Skillchains", "See previous page."),
@@ -89,13 +92,14 @@ function BuildSkillchainSettingsMenuItem:getConfirmMenuItem()
         local skillchains = skillchain_builder:build(self.builderSettings.Property, self.builderSettings.NumSteps)
         self.skillchains = skillchains
 
-        skillchains = skillchains:slice(1, math.min(skillchains:length(), 18))
-        local pickerItems = L(skillchains:map(function(abilities)
+        self.currentSkillchains = skillchains:slice(1, math.min(skillchains:length(), 18))
+        local pickerItems = L(self.currentSkillchains:map(function(abilities)
             local abilities = L(abilities:map(function(ability) return ability:get_name() end))
             return localization_util.join(abilities, '→')
         end))
 
         local chooseSkillchainView = FFXIPickerView.withItems(pickerItems, L{}, false, nil, nil, FFXIClassicStyle.WindowSize.Editor.ConfigEditorLarge)
+        chooseSkillchainView.menuArgs.Skillchain = self.currentSkillchains[1]
         chooseSkillchainView:setTitle("Choose a skillchain.")
         chooseSkillchainView:setAllowsCursorSelection(true)
         chooseSkillchainView:on_pick_items():addAction(function(p, selectedItems)
@@ -115,9 +119,6 @@ function BuildSkillchainSettingsMenuItem:getConfirmMenuItem()
                                     found = true
                                 end
                             end
-                            if not found then
-                                currentSettings.Skillchain[i] = SkillchainAbility.skip()
-                            end
                         else
                             currentSettings.Skillchain[i] = SkillchainAbility.auto()
                         end
@@ -127,10 +128,25 @@ function BuildSkillchainSettingsMenuItem:getConfirmMenuItem()
             self.weaponSkillSettings:saveSettings(true)
             addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my skillchain!")
         end)
+        chooseSkillchainView:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
+            chooseSkillchainView.menuArgs.Skillchain = self.currentSkillchains[indexPath.row]
+        end)
         self.chooseSkillchainView = chooseSkillchainView
         return chooseSkillchainView
     end, "Skillchains", "Find a skillchain.")
     return confirmMenuItem
+end
+
+function BuildSkillchainSettingsMenuItem:getPartyMenuItem()
+    local partyMenuItem = MenuItem.new(L{
+       ButtonItem.default('Save', 18)
+    }, {
+
+    }, function(menuArgs)
+
+    end, "Skillchains", "Assign steps to party members.")
+
+    return partyMenuItem
 end
 
 function BuildSkillchainSettingsMenuItem:resetSettings()

@@ -62,6 +62,7 @@ function PickerView.new(pickerItems, allowsMultipleSelection, cursorImageItem)
     local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(0, Padding.new(8, 16, 8, 0)), nil, cursorImageItem), PickerView)
 
     self.pickerItems = pickerItems
+    self.menuArgs = {}
 
     self:setAllowsMultipleSelection(allowsMultipleSelection)
     self:setScrollDelta(16)
@@ -122,6 +123,10 @@ function PickerView:setItems(texts, selectedTexts)
         return PickerItem.new(TextItem.new(text, TextStyle.PickerView.Text), selectedTexts:contains(text))
     end) }
     self:reload()
+end
+
+function PickerView:getMenuArgs()
+    return self.menuArgs
 end
 
 ---
