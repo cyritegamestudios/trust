@@ -3,23 +3,31 @@ _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
 _addon.version = '9.4.0'
 _addon.release_notes = [[
-This update features a significant overhaul to the Trust UI as well as the
-ability to edit more settings from the menu.
+This update features powerful improvements to the skillchain builder, allowing
+you to easily find and create multi-step skillchains with different weapons
+all from within Trust.
 
-	• Ninja
-	    • You can now use Utsusemi: Ichi, Ni and San by adding them
-	      in Settings > Buffs > Self.
-	    • Shadows will automatically be canceled when recasting Utsusemi.
+	• Skillchain Finder
+	    • Browse possible skillchains using the Trust UI under
+	      Settings > Weaponskills > Skillchains > Find.
+	    • Ability to specify number of steps.
+	    • Ability to specify skillchain property (e.g. Light, Darkness).
+	    • Ability to specify one or more combat skills (e.g. Sword).
 
-	• Dark Knight
-	    • You can now use Absorb and Drain spells in Settings > Buffs > Self.
+	• Solo Skillchains
+	    • Choose and save a skillchain override using the Trust UI under
+	      Settings > Weaponskills > Skillchains > Find > Solo.
 
-	• Scholar
-	    • Buffs and abilities can now be edited using the UI under
-	      Settings > Buffs.
+	• Party Skillchains
+	    • Choose and save a skillchain override using the Trust UI under
+	      Settings > Weaponskills > Skillchains > Find > Party.
+	    • Choose an IPC connected party member to perform each step.
+	    • Automatically update skillchain settings for all IPC connected
+	      party members.
 
 	• Bug Fixes
-	    • Fixed issue where Ninja would repeatedly cast Utsusemi.
+	    • Fixed issue where Japanese clients would not cast spells.
+	    • Fixed issue where the same roll could be used for Roll1 and Roll2.
 
 	• Press escape or enter to exit.
 
@@ -391,7 +399,7 @@ function check_version()
 
 		local Frame = require('cylibs/ui/views/frame')
 
-		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 450))
+		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 575))
 
 		updateView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
 			updateView:getDelegate():deselectItemAtIndexPath(indexPath)
