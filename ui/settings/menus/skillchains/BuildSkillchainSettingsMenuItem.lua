@@ -9,7 +9,7 @@ local SkillchainBuilder = require('cylibs/battle/skillchains/skillchain_builder'
 local BuildSkillchainSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 BuildSkillchainSettingsMenuItem.__index = BuildSkillchainSettingsMenuItem
 
-function BuildSkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettingsMode, skillchainer)
+function BuildSkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettingsMode, skillchainer, selectPartyCombatSkillIds)
     local builderSettings = T{}
     builderSettings.NumSteps = 2
     builderSettings.Property = 'Light Lv.4'
@@ -17,9 +17,15 @@ function BuildSkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSet
 
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
-        --ButtonItem.default('Reset', 18),
     }, {}, function(menuArgs)
-        local skillchainBuilderEditor = BuildSkillchainEditor.new(builderSettings, skillchainer)
+        local activeCombatSkillIds = S(skillchainer:get_party():get_player():get_combat_skill_ids())
+        if selectPartyCombatSkillIds then
+            for partyMember in skillchainer:get_party():get_party_members(false):it() do
+                activeCombatSkillIds = activeCombatSkillIds:union(partyMember:get_combat_skill_ids())
+            end
+        end
+
+        local skillchainBuilderEditor = BuildSkillchainEditor.new(builderSettings, skillchainer, activeCombatSkillIds)
 
         skillchainBuilderEditor:setNeedsLayout()
         skillchainBuilderEditor:layoutIfNeeded()
@@ -72,12 +78,12 @@ function BuildSkillchainSettingsMenuItem:getConfirmMenuItem()
     end
 
     local confirmMenuItem = MenuItem.new(L{
-        ButtonItem.default('Save', 18),
-        ButtonItem.default('Party', 18),
+        --ButtonItem.default('Save', 18),
+        ButtonItem.default('Select', 18),
         ButtonItem.default('Previous', 18),
         ButtonItem.default('Next', 18),
     }, {
-        Party = PartySkillchainSettingsMenuItem.new(self.weaponSkillSettings, self.weaponSkillSettingsMode, self.skillchainer),
+        Select = PartySkillchainSettingsMenuItem.new(self.weaponSkillSettings, self.weaponSkillSettingsMode, self.skillchainer),
         Previous = MenuItem.action(function()
             setPage(self.currentPage - 1)
         end, "Skillchains", "See previous page."),
@@ -102,7 +108,7 @@ function BuildSkillchainSettingsMenuItem:getConfirmMenuItem()
         chooseSkillchainView.menuArgs.Skillchain = self.currentSkillchains[1]
         chooseSkillchainView:setTitle("Choose a skillchain.")
         chooseSkillchainView:setAllowsCursorSelection(true)
-        chooseSkillchainView:on_pick_items():addAction(function(p, selectedItems)
+        --[[chooseSkillchainView:on_pick_items():addAction(function(p, selectedItems)
             local selectedIndexPaths = L(p:getDelegate():getSelectedIndexPaths())
             if selectedIndexPaths:length() > 0 then
                 local selectedSkillchain = self.currentSkillchains[selectedIndexPaths[1].row]
@@ -127,7 +133,7 @@ function BuildSkillchainSettingsMenuItem:getConfirmMenuItem()
             end
             self.weaponSkillSettings:saveSettings(true)
             addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my skillchain!")
-        end)
+        end)]]
         chooseSkillchainView:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
             chooseSkillchainView.menuArgs.Skillchain = self.currentSkillchains[indexPath.row]
         end)

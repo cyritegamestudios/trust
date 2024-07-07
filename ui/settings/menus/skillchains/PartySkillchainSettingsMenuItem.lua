@@ -59,7 +59,14 @@ end
 
 function PartySkillchainSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Save", MenuItem.action(function()
-        local partyMembers = self.skillchainer:get_party():get_party_members(false)
+        local participatingPartyMemberNames = S{}
+        for i = 1, self.skillchainSettings.Skillchain:length() do
+            local partyMemberName = self.skillchainSettings['Step '..i..': '..self.skillchainSettings.Skillchain[i]:get_name()]
+            participatingPartyMemberNames:add(partyMemberName)
+        end
+        local partyMembers = self.skillchainer:get_party():get_party_members(false):filter(function(p)
+            return participatingPartyMemberNames:contains(p:get_name())
+        end)
         local currentSettings = self.weaponSkillSettings:getSettings()[self.weaponSkillSettingsMode.value]
         local abilityForCombatSkillSettings = function(abilityName)
             for combat_skill in currentSettings.Skills:it() do
@@ -70,17 +77,24 @@ function PartySkillchainSettingsMenuItem:reloadSettings()
             end
             return nil
         end
-        for i = 1, self.skillchainSettings.Skillchain:length() do
-            local partyMemberName = self.skillchainSettings['Step '..i..': '..self.skillchainSettings.Skillchain[i]:get_name()]
-            if partyMemberName == windower.ffxi.get_player().name then
-                local ability = abilityForCombatSkillSettings(self.skillchainSettings.Skillchain[i]:get_name()) or SkillchainAbility.auto()
-                currentSettings.Skillchain[i] = ability
-                for partyMember in partyMembers:it() do
-                    windower.send_command('trust send '..partyMember:get_name()..' trust sc set '..i..' '..'Skip')
+        for i = 1, 6 do
+            if i <= self.skillchainSettings.Skillchain:length() then
+                local partyMemberName = self.skillchainSettings['Step '..i..': '..self.skillchainSettings.Skillchain[i]:get_name()]
+                if partyMemberName == windower.ffxi.get_player().name then
+                    local ability = abilityForCombatSkillSettings(self.skillchainSettings.Skillchain[i]:get_name()) or SkillchainAbility.auto()
+                    currentSettings.Skillchain[i] = ability
+                    for partyMember in partyMembers:it() do
+                        windower.send_command('trust send '..partyMember:get_name()..' trust sc set '..i..' '..'Skip')
+                    end
+                else
+                    currentSettings.Skillchain[i] = SkillchainAbility.skip()
+                    windower.send_command('trust send '..partyMemberName..' trust sc set '..i..' '..self.skillchainSettings.Skillchain[i]:get_name())
                 end
             else
                 currentSettings.Skillchain[i] = SkillchainAbility.skip()
-                windower.send_command('trust send '..partyMemberName..' trust sc set '..i..' '..self.skillchainSettings.Skillchain[i]:get_name())
+                for partyMember in partyMembers:it() do
+                    windower.send_command('trust send '..partyMember:get_name()..' trust sc set '..i..' '..'Skip')
+                end
             end
 
             --[[if i <= self.skillchain:length() then
@@ -108,6 +122,7 @@ function PartySkillchainSettingsMenuItem:reloadSettings()
         end]]
         end
         self.weaponSkillSettings:saveSettings(true)
+        addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my skillchain!")
     end), "Skillchains", "Choose party members for each step.")
 end
 

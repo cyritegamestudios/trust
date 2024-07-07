@@ -16,11 +16,11 @@ all from within Trust.
 
 	• Solo Skillchains
 	    • Choose and save a skillchain override using the Trust UI under
-	      Settings > Weaponskills > Skillchains > Find > Solo.
+	      Settings > Weaponskills > Skillchains > Find.
 
 	• Party Skillchains
 	    • Choose and save a skillchain override using the Trust UI under
-	      Settings > Weaponskills > Skillchains > Find > Party.
+	      Settings > Weaponskills > Skillchains > Find.
 	    • Choose an IPC connected party member to perform each step.
 	    • Automatically update skillchain settings for all IPC connected
 	      party members.
