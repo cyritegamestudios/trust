@@ -157,7 +157,7 @@ function ConfigEditor:onResetClick()
 end
 
 function ConfigEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
-    if L{ 'Confirm', 'Save' }:contains(textItem:getText()) then
+    if L{ 'Confirm', 'Save', 'Search' }:contains(textItem:getText()) then
         self:onConfirmClick()
     elseif textItem:getText() == 'Reset' then
         self:onResetClick()

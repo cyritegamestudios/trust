@@ -16,7 +16,7 @@ function BuildSkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSet
     builderSettings.CombatSkills = S{}
 
     local self = setmetatable(MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
+        ButtonItem.default('Search', 18),
     }, {}, function(menuArgs)
         local activeCombatSkillIds = S(skillchainer:get_party():get_player():get_combat_skill_ids())
         if selectPartyCombatSkillIds then
@@ -50,7 +50,7 @@ function BuildSkillchainSettingsMenuItem:destroy()
 end
 
 function BuildSkillchainSettingsMenuItem:reloadSettings()
-    self:setChildMenuItem("Confirm", self:getConfirmMenuItem())
+    self:setChildMenuItem("Search", self:getConfirmMenuItem())
     self:setChildMenuItem("Reset", MenuItem.action(function()
         self:resetSettings()
     end), "Skillchains", "Reset to default settings.")

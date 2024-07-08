@@ -32,7 +32,7 @@ function FFXIPickerView.withItems(texts, selectedTexts, allowsMultipleSelection,
     local pickerItems = texts:map(function(text)
         local imageItem = imageForText(text)
         if imageItem then
-            return PickerItem.new(ImageTextItem.new(imageItem, TextItem.new(text, TextStyle.Picker.Text)), selectedTexts:contains(text))
+            return PickerItem.new(ImageTextItem.new(imageItem, TextItem.new(text, TextStyle.Picker.Text)), selectedTexts:conNtains(text))
         end
         return PickerItem.new(TextItem.new(text, TextStyle.Picker.Text), selectedTexts:contains(text))
     end)

@@ -171,7 +171,7 @@ end
 -- @tparam IndexPath indexPath Selected index path.
 --
 function PickerView:onSelectMenuItemAtIndexPath(textItem, _)
-    if L{ 'Confirm', 'Save' }:contains(textItem:getText()) then
+    if L{ 'Confirm', 'Save', 'Search' }:contains(textItem:getText()) then
         local selectedItems = L(self:getDelegate():getSelectedIndexPaths():map(function(indexPath)
             return self:getDataSource():itemAtIndexPath(indexPath)
         end)):compact_map()
