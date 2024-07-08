@@ -89,6 +89,11 @@ function PartySkillchainSettingsMenuItem:reloadSettings()
                 else
                     currentSettings.Skillchain[i] = SkillchainAbility.skip()
                     windower.send_command('trust send '..partyMemberName..' trust sc set '..i..' '..self.skillchainSettings.Skillchain[i]:get_name())
+                    for partyMember in partyMembers:it() do
+                        if partyMember:get_name() ~= partyMemberName then
+                            windower.send_command('trust send '..partyMember:get_name()..' trust sc set '..i..' '..'Skip')
+                        end
+                    end
                 end
             else
                 currentSettings.Skillchain[i] = SkillchainAbility.skip()
