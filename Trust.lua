@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '9.4.1'
+_addon.version = '9.4.2'
 _addon.release_notes = [[
 This update features powerful improvements to the skillchain builder, allowing
 you to easily find and create multi-step skillchains with different weapons
