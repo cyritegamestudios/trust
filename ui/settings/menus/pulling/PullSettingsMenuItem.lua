@@ -1,4 +1,6 @@
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
+local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
+local ConfigItem = require('ui/settings/editors/config/ConfigItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesView = require('ui/settings/editors/ModeSettingsEditor')
@@ -14,6 +16,7 @@ function PullSettingsMenuItem.new(abilities, trust, job_name_short, addon_settin
         ButtonItem.default('Targets', 18),
         ButtonItem.default('Actions', 18),
         ButtonItem.default('Modes', 18),
+        ButtonItem.default('Config', 18),
     }, {
 
     }, nil, "Pulling", "Configure settings to pull monsters."), PullSettingsMenuItem)
@@ -43,6 +46,7 @@ function PullSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Targets", self:getTargetsMenuItem())
     self:setChildMenuItem("Actions", PullActionMenuItem.new(self.puller, self.trust_settings, self.trust_settings_mode))
     self:setChildMenuItem("Modes", self:getModesMenuItem())
+    self:setChildMenuItem("Config", self:getConfigMenuItem())
 end
 
 function PullSettingsMenuItem:getTargetsMenuItem()
@@ -83,6 +87,17 @@ function PullSettingsMenuItem:getModesMenuItem()
         return modesView
     end, "Modes", "Change pulling behavior.")
     return pullModesMenuItem
+end
+
+function PullSettingsMenuItem:getConfigMenuItem()
+    return MenuItem.new(L{
+        ButtonItem.default('Save')
+    }, L{}, function(menuArgs)
+        local configItems = L{
+            ConfigItem.new('Distance', 0, 30, 1, function(value) return value.." yalms" end),
+        }
+        return ConfigEditor.new(self.trust_settings, self.trust_settings:getSettings()[self.trust_settings_mode.value].PullSettings, configItems)
+    end, "Config", "Configure pull settings.")
 end
 
 return PullSettingsMenuItem

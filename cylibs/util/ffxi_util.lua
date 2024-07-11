@@ -61,7 +61,8 @@ end
 -- @param exclude_target_indices (optional) A list of indexes to exclude, commonly used to exclude party targets
 -- @param exclude_names (optional) A list of mob names to exclude
 -- @return A sorted list of mobs by distance
-function ffxi_util.find_closest_mobs(target_mobs, exclude_target_indices, exclude_names)
+function ffxi_util.find_closest_mobs(target_mobs, exclude_target_indices, exclude_names, distance)
+	distance = distance or 20
 	local player_mob = windower.ffxi.get_mob_by_target('me')
 	local mob_array = windower.ffxi.get_mob_array()
 	local mob_list = L{}
@@ -74,7 +75,7 @@ function ffxi_util.find_closest_mobs(target_mobs, exclude_target_indices, exclud
 		return t.valid_target -- Valid target
 		    and t.hpp > 0
 			and t.spawn_type == 16 -- mob
-			and t.distance:sqrt() + player_mob.model_size + t.model_size < 20 -- Distance
+			and t.distance:sqrt() + player_mob.model_size + t.model_size < distance -- Distance
 			and (t.claim_id == 0 or t.claim_id == player_mob.id or party_util.party_claimed(t.id)) -- Unclaimed or party claimed
 			and not (exclude_target_indices and exclude_target_indices:contains(t.index)) -- not in exclude indicies
 			and not (exclude_names and exclude_names:contains(t.name)) -- not in exclude names
@@ -99,8 +100,8 @@ function ffxi_util.get_engaged_unclaimed_mobs(mob_list)
 	end)
 end
 
-function ffxi_util.find_closest_mob(target_mobs, exclude_target_indices, exclude_names)
-	return ffxi_util.find_closest_mobs(target_mobs, exclude_target_indices, exclude_names)[1]
+function ffxi_util.find_closest_mob(target_mobs, exclude_target_indices, exclude_names, distance)
+	return ffxi_util.find_closest_mobs(target_mobs, exclude_target_indices, exclude_names, distance)[1]
 end
 
 function ffxi_util.mob_id_for_index(index)
