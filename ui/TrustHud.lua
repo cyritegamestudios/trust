@@ -528,13 +528,16 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
     local statusMenuButtons = L{
         ButtonItem.default('Party', 18),
         ButtonItem.default('Buffs', 18),
-        ButtonItem.default('Debuffs', 18),
         ButtonItem.default('Targets', 18)
     }
     if jobNameShort == 'PUP' then
         statusMenuButtons:insert(2, ButtonItem.default('Automaton', 18))
     elseif jobNameShort == 'BRD' then
         statusMenuButtons:insert(2, ButtonItem.default('Songs', 18))
+    end
+
+    if trust:role_with_type("debuffer") then
+        statusMenuButtons:insert(3, ButtonItem.default('Debuffs', 18))
     end
 
     local statusMenuItem = MenuItem.new(statusMenuButtons, {
