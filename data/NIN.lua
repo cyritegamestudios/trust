@@ -38,6 +38,7 @@ return {
         },
         JobAbilities = L{
             JobAbility.new('Yonin', L{InBattleCondition.new()}),
+            JobAbility.new('Issekigan', L{InBattleCondition.new()}, L{}, nil),
         },
         PullSettings = {
             Abilities = L{
