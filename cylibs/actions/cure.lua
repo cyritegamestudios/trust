@@ -1,4 +1,4 @@
-\---------------------------
+---------------------------
 -- Action representing a cure.
 -- @class module
 -- @name CureAction
