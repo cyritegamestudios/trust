@@ -1,6 +1,4 @@
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
-local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
-local ConfigItem = require('ui/settings/editors/config/ConfigItem')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesView = require('ui/settings/editors/ModeSettingsEditor')
