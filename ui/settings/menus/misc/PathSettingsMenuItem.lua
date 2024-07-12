@@ -1,9 +1,10 @@
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+local FFXITextInputView = require('ui/themes/ffxi/FFXITextInputView')
+local FileIO = require('files')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local PathRecorder = require('cylibs/paths/path_recorder')
-local PathSettingsEditor = require('ui/settings/editors/PathSettingsEditor')
 
 local PathSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 PathSettingsMenuItem.__index = PathSettingsMenuItem
@@ -12,8 +13,8 @@ function PathSettingsMenuItem.new(pather)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Replay', 18),
         ButtonItem.default('Stop', 18),
-        ButtonItem.default('Delete', 18),
         ButtonItem.default('Record', 18),
+        ButtonItem.default('Edit', 18),
     }, {}, nil, "Paths", "Start, stop or record a new path."), PathSettingsMenuItem)
 
     self.pather = pather
@@ -21,7 +22,7 @@ function PathSettingsMenuItem.new(pather)
     self.dispose_bag = DisposeBag.new()
 
     self.contentViewConstructor = function(_)
-        local pathSettingsEditor = FFXIPickerView.withItems(self:listFiles(), L{}, false)
+        local pathSettingsEditor = FFXIPickerView.withItems(self:listFiles(), L{}, false, nil, nil, nil, true)
 
         pathSettingsEditor:setTitle("Choose a path to replay.")
         pathSettingsEditor:setShouldRequestFocus(true)
@@ -31,16 +32,6 @@ function PathSettingsMenuItem.new(pather)
             local pathName = pathSettingsEditor:getDataSource():itemAtIndexPath(indexPath):getText()
             self.selectedPath = pathName
         end, pathSettingsEditor:getDelegate():didSelectItemAtIndexPath()))
-
-
-        --[[local pathSettingsEditor = PathSettingsEditor.new(pather:get_path_dir())
-        pathSettingsEditor:setTitle("Start, stop or record a new path.")
-        pathSettingsEditor:setShouldRequestFocus(true)
-
-        self.dispose_bag:add(pathSettingsEditor:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
-            local pathName = pathSettingsEditor:getDataSource():itemAtIndexPath(indexPath):getText()
-            self.selectedPath = pathName
-        end, pathSettingsEditor:getDelegate():didSelectItemAtIndexPath()))]]
 
         return pathSettingsEditor
     end
@@ -63,8 +54,8 @@ end
 function PathSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Replay", self:getReplayPathMenuItem())
     self:setChildMenuItem("Stop", self:getStopPathMenuItem())
-    self:setChildMenuItem("Delete", self:getDeletePathMenuItem())
     self:setChildMenuItem("Record", self:getRecordPathMenuItem())
+    self:setChildMenuItem("Edit", self:getEditPathMenuItem())
 end
 
 function PathSettingsMenuItem:getReplayPathMenuItem()
@@ -105,6 +96,37 @@ function PathSettingsMenuItem:getStopPathMenuItem()
             self.pather:get_party():add_to_chat(self.pather:get_party():get_player(), "I'm already standing still!")
         end
     end, "Paths", "Cancel any active path.")
+end
+
+function PathSettingsMenuItem:getEditPathMenuItem()
+    return MenuItem.new(L{
+        ButtonItem.default("Rename", 18),
+        ButtonItem.default("Delete", 18),
+    }, L{
+        Rename = self:getRenamePathMenuItem(),
+        Delete = self:getDeletePathMenuItem()
+    }, nil,"Record", "Record a new path.", true)
+end
+
+function PathSettingsMenuItem:getRenamePathMenuItem()
+    local renamePathMenuItem = MenuItem.new(L{
+        ButtonItem.default('Confirm', 18),
+    }, L{}, function(_)
+        local createSetView = FFXITextInputView.new("New path name", 'Path name')
+        createSetView:setTitle("Choose a name for the path.")
+        createSetView:setShouldRequestFocus(true)
+        createSetView:onTextChanged():addAction(function(_, newPathName)
+            if newPathName:length() > 3 then
+                self:renamePath(self.selectedPath, newPathName)
+
+                addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I renamed the path to "..newPathName.."!")
+            else
+                addon_message(260, '('..windower.ffxi.get_player().name..') '.."That name is too short, pick something else?")
+            end
+        end)
+        return createSetView
+    end, "Paths", "Rename the path.")
+    return renamePathMenuItem
 end
 
 function PathSettingsMenuItem:getDeletePathMenuItem()
@@ -168,6 +190,15 @@ function PathSettingsMenuItem:listFiles()
         logger.error("Unable to load paths.")
     end
     return L{}
+end
+
+function PathSettingsMenuItem:renamePath(oldPathName, newPathName)
+    local filePath = self.pather:get_path_dir()..oldPathName
+    local oldPath = FileIO.new(filePath)
+    if oldPath:exists() then
+        local newPath = FileIO.new(self.pather:get_path_dir()..newPathName..'.lua')
+        newPath:write(oldPath:read())
+    end
 end
 
 return PathSettingsMenuItem
