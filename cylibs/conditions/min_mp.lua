@@ -8,10 +8,11 @@ local Condition = require('cylibs/conditions/condition')
 local MinManaPointsCondition = setmetatable({}, { __index = Condition })
 MinManaPointsCondition.__index = MinManaPointsCondition
 MinManaPointsCondition.__class = "MinManaPointsCondition"
+MinManaPointsCondition.__type = "MinManaPointsCondition"
 
 function MinManaPointsCondition.new(min_mp)
     local self = setmetatable(Condition.new(windower.ffxi.get_player().index), MinManaPointsCondition)
-    self.min_mp = min_mp
+    self.min_mp = min_mp or 0
     return self
 end
 
@@ -23,8 +24,12 @@ function MinManaPointsCondition:is_satisfied(target_index)
     return false
 end
 
+function MinManaPointsCondition:get_config_items()
+    return L{ ConfigItem.new('min_mp', 0, 3000, 50, function(value) return value.."" end) }
+end
+
 function MinManaPointsCondition:tostring()
-    return "MinManaPointsCondition"
+    return "MP >= "..self.min_mp
 end
 
 function MinManaPointsCondition:serialize()

@@ -24,7 +24,7 @@ function IdleCondition:is_satisfied(target_index)
 end
 
 function IdleCondition:tostring()
-    return "IdleCondition"
+    return "Player is idle"
 end
 
 function IdleCondition:serialize()

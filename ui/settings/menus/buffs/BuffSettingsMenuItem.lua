@@ -15,7 +15,7 @@ function BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsPref
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
         ButtonItem.default('Edit', 18),
-        --ButtonItem.default('Conditions', 18),
+        ButtonItem.default('Conditions', 18),
     }, {}, function(menuArgs)
         local buffs
         if settingsPrefix then

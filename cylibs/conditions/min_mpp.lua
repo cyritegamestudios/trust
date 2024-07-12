@@ -8,10 +8,11 @@ local Condition = require('cylibs/conditions/condition')
 local MinManaPointsPercentCondition = setmetatable({}, { __index = Condition })
 MinManaPointsPercentCondition.__index = MinManaPointsPercentCondition
 MinManaPointsPercentCondition.__class = "MinManaPointsPercentCondition"
+MinManaPointsPercentCondition.__type = "MinManaPointsPercentCondition"
 
 function MinManaPointsPercentCondition.new(min_mpp)
     local self = setmetatable(Condition.new(windower.ffxi.get_player().index), MinManaPointsPercentCondition)
-    self.min_mpp = min_mpp
+    self.min_mpp = min_mpp or 0
     return self
 end
 
@@ -23,8 +24,12 @@ function MinManaPointsPercentCondition:is_satisfied(target_index)
     return false
 end
 
+function MinManaPointsPercentCondition:get_config_items()
+    return L{ ConfigItem.new('min_mpp', 0, 100, 1, function(value) return value.." %" end) }
+end
+
 function MinManaPointsPercentCondition:tostring()
-    return "MinManaPointsPercentCondition"
+    return "MP >= "..self.min_mpp.. "%"
 end
 
 function MinManaPointsPercentCondition:serialize()

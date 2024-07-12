@@ -14,7 +14,7 @@ local ConditionsSettingsEditor = setmetatable({}, {__index = FFXIWindow })
 ConditionsSettingsEditor.__index = ConditionsSettingsEditor
 
 
-function ConditionsSettingsEditor.new(trustSettings, conditions)
+function ConditionsSettingsEditor.new(trustSettings, conditions, editableConditionClasses)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = TextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
@@ -22,13 +22,14 @@ function ConditionsSettingsEditor.new(trustSettings, conditions)
         return cell
     end)
 
-    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(0, FFXIClassicStyle.Padding.CollectionView.Default), nil, false, FFXIClassicStyle.WindowSize.Editor.Default), ConditionsSettingsEditor)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(0, FFXIClassicStyle.Padding.CollectionView.Default), nil, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditor), ConditionsSettingsEditor)
 
     self:setAllowsCursorSelection(true)
     self:setScrollDelta(16)
 
     self.trustSettings = trustSettings
     self.conditions = conditions or L{}
+    self.editableConditionClasses = editableConditionClasses
 
     self:reloadSettings()
 
@@ -82,11 +83,16 @@ function ConditionsSettingsEditor:onRemoveConditionClick()
     if selectedIndexPath then
         local item = self:getDataSource():itemAtIndexPath(selectedIndexPath)
         if item then
-            self.conditions:remove(selectedIndexPath.row)
-            self:getDataSource():removeItem(selectedIndexPath)
+            local condition = self.conditions[selectedIndexPath.row]
+            if condition and self.editableConditionClasses:contains(condition.__class) then
+                self.conditions:remove(selectedIndexPath.row)
+                self:getDataSource():removeItem(selectedIndexPath)
 
-            self.trustSettings:saveSettings(true)
-            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've removed this condition!")
+                self.trustSettings:saveSettings(true)
+                addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've removed this condition!")
+            else
+                addon_message(260, '('..windower.ffxi.get_player().name..') '.."I can't remove this condition!")
+            end
         end
     end
 end

@@ -25,7 +25,7 @@ function InBattleCondition:is_satisfied(target_index)
 end
 
 function InBattleCondition:tostring()
-    return "InBattleCondition"
+    return "Player is in battle"
 end
 
 function InBattleCondition:serialize()

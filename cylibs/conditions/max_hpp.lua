@@ -7,10 +7,12 @@ local serializer_util = require('cylibs/util/serializer_util')
 local Condition = require('cylibs/conditions/condition')
 local MaxHitPointsPercentCondition = setmetatable({}, { __index = Condition })
 MaxHitPointsPercentCondition.__index = MaxHitPointsPercentCondition
+MaxHitPointsPercentCondition.__type = "MaxHitPointsPercentCondition"
+MaxHitPointsPercentCondition.__class = "MaxHitPointsPercentCondition"
 
 function MaxHitPointsPercentCondition.new(max_hpp)
     local self = setmetatable(Condition.new(), MaxHitPointsPercentCondition)
-    self.max_hpp = max_hpp
+    self.max_hpp = max_hpp or 100
     return self
 end
 
@@ -22,8 +24,12 @@ function MaxHitPointsPercentCondition:is_satisfied(target_index)
     return false
 end
 
+function MaxHitPointsPercentCondition:get_config_items()
+    return L{ ConfigItem.new('max_hpp', 0, 100, 1, function(value) return value.." yalms" end) }
+end
+
 function MaxHitPointsPercentCondition:tostring()
-    return "MaxHitPointsPercentCondition"
+    return "HP <= "..self.max_hpp.. "%"
 end
 
 function MaxHitPointsPercentCondition:serialize()
