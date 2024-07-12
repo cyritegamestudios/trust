@@ -81,9 +81,6 @@ function DebuffSettingsEditor:onEditSpellClick(indexPath)
     if selectedIndexPaths:length() > 0 then
         local spellSettings = self.selfSpells[selectedIndexPaths[1].row]
         if spellSettings then
-            for k, v in pairs(spellSettings) do
-                print(k, v)
-            end
             local spellSettingsEditor = SpellSettingsEditor.new(spellSettings, self.actionsMenu, 300)
 
             spellSettingsEditor:setSize(300, 300)
