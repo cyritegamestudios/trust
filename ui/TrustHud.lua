@@ -239,7 +239,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
                 local jobId = res.jobs:with('ens', jobNameShort).id
                 local allDebuffs = spell_util.get_spells(function(spell)
                     return spell.levels[jobId] ~= nil and spell.status ~= nil and L{32, 35, 36, 39, 40, 41, 42}:contains(spell.skill) and spell.targets:contains('Enemy')
-                end):map(function(spell) return spell.en end)
+                end):map(function(spell) return spell.en end):sort()
 
                 local chooseSpellsView = SpellPickerView.new(trustSettings, L(T(trustSettings:getSettings())[trustSettingsMode.value].Debuffs), allDebuffs, L{}, false)
                 return chooseSpellsView

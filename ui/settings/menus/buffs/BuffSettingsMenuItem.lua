@@ -69,7 +69,7 @@ function BuffSettingsMenuItem:getAddBuffMenuItem()
             local allBuffs = spell_util.get_spells(function(spell)
                 local status = buff_util.buff_for_spell(spell.id)
                 return spell.levels[jobId] ~= nil and status ~= nil and not buff_util.is_debuff(status.id) and spell.skill ~= 44 and targets:intersection(S(spell.targets)):length() > 0
-            end):map(function(spell) return spell.en end)
+            end):map(function(spell) return spell.en end):sort()
 
             local chooseSpellsView = SpellPickerView.new(self.trustSettings, spellSettings, allBuffs, defaultJobNames, false)
             chooseSpellsView:setTitle("Choose buffs to add.")
