@@ -50,6 +50,14 @@ end
 
 function Pather:target_change(target_index)
     Role.target_change(self, target_index)
+
+    local target = self:get_target()
+    if target then
+        self:stop()
+        self.pather_delta:remove()
+    else
+        self:start()
+    end
 end
 
 function Pather:tic(_, _)
@@ -155,9 +163,10 @@ function Pather:get_path_dir()
     return self.path_dir
 end
 
-function Pather:set_path_with_name(path_name)
+function Pather:set_path_with_name(path_name, auto_reverse)
     local path = Path.from_file(self:get_path_dir()..path_name)
     if path then
+        path:set_should_auto_reverse(auto_reverse)
         self:set_path(path)
     end
 end

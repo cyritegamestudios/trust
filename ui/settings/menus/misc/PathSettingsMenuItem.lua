@@ -1,5 +1,6 @@
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local DisposeBag = require('cylibs/events/dispose_bag')
+local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local PathRecorder = require('cylibs/paths/path_recorder')
 local PathSettingsEditor = require('ui/settings/editors/PathSettingsEditor')
@@ -7,7 +8,7 @@ local PathSettingsEditor = require('ui/settings/editors/PathSettingsEditor')
 local PathSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 PathSettingsMenuItem.__index = PathSettingsMenuItem
 
-function PathSettingsMenuItem.new(pather, viewFactory)
+function PathSettingsMenuItem.new(pather)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Replay', 18),
         ButtonItem.default('Stop', 18),
@@ -20,14 +21,26 @@ function PathSettingsMenuItem.new(pather, viewFactory)
     self.dispose_bag = DisposeBag.new()
 
     self.contentViewConstructor = function(_)
-        local pathSettingsEditor = viewFactory(PathSettingsEditor.new(pather:get_path_dir()))
+        local pathSettingsEditor = FFXIPickerView.withItems(self:listFiles(), L{}, false)
+
+        pathSettingsEditor:setTitle("Choose a path to replay.")
+        pathSettingsEditor:setShouldRequestFocus(true)
+        pathSettingsEditor:setAllowsCursorSelection(true)
+
+        self.dispose_bag:add(pathSettingsEditor:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
+            local pathName = pathSettingsEditor:getDataSource():itemAtIndexPath(indexPath):getText()
+            self.selectedPath = pathName
+        end, pathSettingsEditor:getDelegate():didSelectItemAtIndexPath()))
+
+
+        --[[local pathSettingsEditor = PathSettingsEditor.new(pather:get_path_dir())
         pathSettingsEditor:setTitle("Start, stop or record a new path.")
         pathSettingsEditor:setShouldRequestFocus(true)
 
         self.dispose_bag:add(pathSettingsEditor:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
             local pathName = pathSettingsEditor:getDataSource():itemAtIndexPath(indexPath):getText()
             self.selectedPath = pathName
-        end, pathSettingsEditor:getDelegate():didSelectItemAtIndexPath()))
+        end, pathSettingsEditor:getDelegate():didSelectItemAtIndexPath()))]]
 
         return pathSettingsEditor
     end
@@ -48,10 +61,31 @@ function PathSettingsMenuItem:destroy()
 end
 
 function PathSettingsMenuItem:reloadSettings()
-    self:setChildMenuItem("Replay", self:getStartPathMenuItem())
+    self:setChildMenuItem("Replay", self:getReplayPathMenuItem())
     self:setChildMenuItem("Stop", self:getStopPathMenuItem())
     self:setChildMenuItem("Delete", self:getDeletePathMenuItem())
     self:setChildMenuItem("Record", self:getRecordPathMenuItem())
+end
+
+function PathSettingsMenuItem:getReplayPathMenuItem()
+    return MenuItem.new(L{
+        ButtonItem.default('Once', 18),
+        ButtonItem.default('Repeat', 18),
+    }, {
+        Once = MenuItem.action(function()
+            if self.selectedPath then
+                self.pather:set_path_with_name(self.selectedPath, false)
+                self.pather:start()
+            end
+        end, "Paths", "Replay the selected path once."),
+        Repeat = MenuItem.action(function()
+            if self.selectedPath then
+                self.pather:set_path_with_name(self.selectedPath, true)
+                self.pather:start()
+            end
+        end, "Paths", "Replay the selected path on repeat.")
+    }, function(_, _)
+    end, "Paths", "Replay the selected path.", true)
 end
 
 function PathSettingsMenuItem:getStartPathMenuItem()
@@ -113,6 +147,27 @@ function PathSettingsMenuItem:getRecordPathMenuItem()
             end
         end, "Save", "Save the path being recorded to file.")
     }, nil,"Record", "Record a new path.")
+end
+
+function PathSettingsMenuItem:listFiles()
+    local directoryPath = windower.addon_path..self.pather:get_path_dir()
+
+    local command = "dir \"" .. directoryPath .. "\" /b"
+
+    local handle = io.popen(command)
+    if handle then
+        local result = handle:read("*a")
+        handle:close()
+
+        local fileNames = L{}
+        for fileName in result:gmatch("[^\r\n]+") do
+            fileNames:append(fileName)
+        end
+        return fileNames
+    else
+        logger.error("Unable to load paths.")
+    end
+    return L{}
 end
 
 return PathSettingsMenuItem

@@ -41,6 +41,10 @@ function Path:should_reverse()
 	return self.auto_reverse
 end
 
+function Path:set_should_auto_reverse(auto_reverse)
+	self.auto_reverse = auto_reverse
+end
+
 function Path:get_reverse_delay()
 	return self.reverse_delay
 end

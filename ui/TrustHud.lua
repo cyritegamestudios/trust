@@ -444,9 +444,7 @@ function TrustHud:getFollowerMenuItem(role)
 end
 
 function TrustHud:getPatherMenuItem(role, viewSize)
-    return PathSettingsMenuItem.new(role, function(view)
-        return setupView(view, viewSize)
-    end)
+    return PathSettingsMenuItem.new(role)
 end
 
 function TrustHud:getTrusterMenuItem(role)
