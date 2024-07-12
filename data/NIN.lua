@@ -1,6 +1,6 @@
 -- Settings file for NIN
 return {
-    Version = 1,
+    Version = 2,
     Default = {
         AutoFoodMode="Grape Daifuku",
         SelfBuffs = L{
@@ -10,6 +10,31 @@ return {
         },
         PartyBuffs = L{
 
+        },
+        Debuffs = L{
+
+        },
+        NukeSettings = {
+            Delay = 2,
+            MinManaPointsPercent = 0,
+            MinNumMobsToCleave = 2,
+            Spells = L{
+                Spell.new('Raiton: San'),
+                Spell.new('Raiton: Ni'),
+                Spell.new('Hyoton: San'),
+                Spell.new('Hyoton: Ni'),
+                Spell.new('Katon: San'),
+                Spell.new('Katon: Ni'),
+                Spell.new('Huton: San'),
+                Spell.new('Huton: Ni'),
+                Spell.new('Suiton: San'),
+                Spell.new('Suiton: Ni'),
+                Spell.new('Doton: San'),
+                Spell.new('Doton: Ni'),
+            },
+            Blacklist = L{
+
+            },
         },
         JobAbilities = L{
             JobAbility.new('Yonin', L{InBattleCondition.new()}),

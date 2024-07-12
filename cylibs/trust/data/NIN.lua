@@ -5,12 +5,20 @@ local NinjaTrust = setmetatable({}, {__index = Trust })
 NinjaTrust.__index = NinjaTrust
 
 local Buffer = require('cylibs/trust/roles/buffer')
+local Debuffer = require('cylibs/trust/roles/debuffer')
+local MagicBurster = require('cylibs/trust/roles/magic_burster')
+local Nuker = require('cylibs/trust/roles/nuker')
+
 
 function NinjaTrust.new(settings, action_queue, battle_settings, trust_settings)
+	local job = Ninja.new()
 	local roles = S{
 		Buffer.new(action_queue, trust_settings.JobAbilities, trust_settings.SelfBuffs),
+		Debuffer.new(action_queue, trust_settings.Debuffs or L{}),
+		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{ 'Futae' }, job),
+		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 	}
-	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, Ninja.new()), NinjaTrust)
+	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), NinjaTrust)
 
 	self.settings = settings
 	self.action_queue = action_queue
