@@ -14,6 +14,7 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, conditi
         ButtonItem.default('Remove', 18),
         ButtonItem.default('Edit', 18),
     }, {}, function(args)
+        print("creating")
         local conditions = args['conditions']
         local editConditionsView = ConditionsSettingsEditor.new(trustSettings, conditions)
         editConditionsView:setTitle("Edit conditions.")

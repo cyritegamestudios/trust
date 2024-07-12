@@ -1,27 +1,25 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '9.5.0'
+_addon.version = '9.5.1'
 _addon.release_notes = [[
-This update features improvements to the Ninja trust.
+This update features improvements to the Ninja trust, additional
+settings for pulling and the ability to choose Alter Egos to summon
+using the Trust UI.
 
 	• Ninja
-	    • Nuke and magic burst with Ninjutsu elemental spells
-	    • Enfeeble enemies with Ninjutsu debuffs
-	    • Pull enemies for the party to fight
-	    • Use Utsusemi: Ichi, Ni and San
+	    • Nuke and magic burst with Ninjutsu elemental spells.
+	    • Enfeeble enemies with Ninjutsu debuffs.
+	    • Pull enemies for the party to fight.
+	    • Use Utsusemi: Ichi, Ni and San.
 
 	• Pulling
 	    • Configure the maximum target distance when pulling mobs under
 	      Settings > Pulling > Config.
 	    • Increased max approach pull distance to 35 yalms.
 
-	• Party Skillchains
-	    • Choose and save a skillchain override using the Trust UI under
-	      Settings > Weaponskills > Skillchains > Find.
-	    • Choose an IPC connected party member to perform each step.
-	    • Automatically update skillchain settings for all IPC connected
-	      party members.
+	• Alter Egos
+	    • Choose Alter Egos to summon in battle under Settings > Alter Egos.
 
 	• Bug Fixes
 	    • Fixed issue where job abilities would not work without Shortcuts.
@@ -397,7 +395,7 @@ function check_version()
 
 		local Frame = require('cylibs/ui/views/frame')
 
-		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 575))
+		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 480))
 
 		updateView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
 			updateView:getDelegate():deselectItemAtIndexPath(indexPath)

@@ -1,3 +1,4 @@
+local AlterEgoSettingsMenuItem = require('ui/settings/menus/AlterEgoSettingsMenuItem')
 local AutomatonView = require('cylibs/entity/automaton/ui/automaton_view')
 local BackgroundView = require('cylibs/ui/views/background/background_view')
 local BufferView = require('ui/views/BufferView')
@@ -343,6 +344,11 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         childMenuItems.Paths = self:getMenuItemForRole(trust:role_with_type("pather"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize)
     end
 
+    if trust:role_with_type("truster") then
+        menuItems:append(ButtonItem.default('Alter Egos', 18))
+        childMenuItems['Alter Egos'] = self:getMenuItemForRole(trust:role_with_type("truster"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize)
+    end
+
     local settingsMenuItem = MenuItem.new(menuItems, childMenuItems, nil, "Settings", "Configure Trust settings for skillchains, buffs, debuffs and more.")
     return settingsMenuItem
 end
@@ -374,6 +380,9 @@ function TrustHud:getMenuItemForRole(role, weaponSkillSettings, weaponSkillSetti
     end
     if role:get_type() == "pather" then
         return self:getPatherMenuItem(role, viewSize)
+    end
+    if role:get_type() == "truster" then
+        return self:getTrusterMenuItem(role)
     end
     return nil
 end
@@ -438,6 +447,10 @@ function TrustHud:getPatherMenuItem(role, viewSize)
     return PathSettingsMenuItem.new(role, function(view)
         return setupView(view, viewSize)
     end)
+end
+
+function TrustHud:getTrusterMenuItem(role)
+    return AlterEgoSettingsMenuItem.new(role, self.addon_settings)
 end
 
 function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSkillSettings, weaponSkillSettingsMode, jobNameShort, jobName)

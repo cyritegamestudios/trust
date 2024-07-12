@@ -4,10 +4,6 @@
 -- @name CureAction
 
 local DisposeBag = require('cylibs/events/dispose_bag')
-require('vectors')
-require('math')
-require('logger')
-require('lists')
 
 local spell_util = require('cylibs/util/spell_util')
 
