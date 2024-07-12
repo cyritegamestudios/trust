@@ -59,7 +59,8 @@ return {
         PullSettings = {
             Abilities = L{
                 Debuff.new('Dia', L{}, L{})
-            }
+            },
+            Distance = 20
         },
     }
 }

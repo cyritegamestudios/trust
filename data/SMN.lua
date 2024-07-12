@@ -40,7 +40,8 @@ return {
         },
         PullSettings = {
             Abilities = L{
-            }
+            },
+            Distance = 20
         },
     }
 }

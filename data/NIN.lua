@@ -17,7 +17,8 @@ return {
         PullSettings = {
             Abilities = L{
                 Spell.new("Jubaku: Ni", L{}, L{})
-            }
+            },
+            Distance = 20
         },
     }
 }

@@ -53,7 +53,8 @@ return {
         PullSettings = {
             Abilities = L{
                 Spell.new('Burn', L{}, L{})
-            }
+            },
+            Distance = 20
         }
     }
 }

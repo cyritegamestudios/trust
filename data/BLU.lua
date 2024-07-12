@@ -40,7 +40,8 @@ return {
         PullSettings = {
             Abilities = L{
                 Spell.new('Glutinous Dart', L{}, L{})
-            }
+            },
+            Distance = 20
         },
     }
 }

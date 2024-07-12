@@ -49,7 +49,8 @@ return {
         PullSettings = {
             Abilities = L{
                 Spell.new("Stone", L{}, L{})
-            }
+            },
+            Distance = 20
         },
     }
 }

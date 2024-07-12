@@ -20,7 +20,8 @@ return {
         PullSettings = {
             Abilities = L{
                 JobAbility.new('Provoke', L{}, L{})
-            }
+            },
+            Distance = 20
         },
     }
 }

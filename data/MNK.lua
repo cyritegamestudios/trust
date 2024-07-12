@@ -17,7 +17,8 @@ return {
         PullSettings = {
             Abilities = L{
                 JobAbility.new("Chi Blast", L{}, L{})
-            }
+            },
+            Distance = 20
         },
     }
 }

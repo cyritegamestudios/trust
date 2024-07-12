@@ -32,7 +32,8 @@ return {
         PullSettings = {
             Abilities = L{
                 Spell.new('Carnage Elegy', L{}, L{})
-            }
+            },
+            Distance = 20
         },
     }
 }
