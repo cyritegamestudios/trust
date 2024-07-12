@@ -12,7 +12,7 @@ local SkillchainTracker = require('cylibs/battle/skillchains/skillchain_tracker'
 local skillchain_util = require('cylibs/util/skillchain_util')
 
 state.AutoSkillchainMode = M{['description'] = 'Auto Skillchain Mode', 'Off', 'Auto', 'Cleave', 'Spam'}
-state.AutoSkillchainMode:set_description('Off', "Okay, I'll won't use weapon skills or make skillchains.")
+state.AutoSkillchainMode:set_description('Off', "Okay, I won't use weapon skills or make skillchains.")
 state.AutoSkillchainMode:set_description('Auto', "Okay, I'll try to make skillchains.")
 
 state.SkillchainPropertyMode = M{['description'] = 'Skillchain Property Mode', 'Off', 'Light', 'Darkness'}

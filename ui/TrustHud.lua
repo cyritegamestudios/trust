@@ -245,8 +245,8 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
                 return chooseSpellsView
             end, "Debuffs", "Add a new debuff.")
 
-    local debuffModesMenuItem = MenuItem.new(L{}, L{}, function(_)
-        local modesView = ModesView.new(L{'AutoDebuffMode', 'AutoDispelMode', 'AutoSilenceMode'})
+    local debuffModesMenuItem = MenuItem.new(L{}, L{}, function(_, infoView)
+        local modesView = ModesView.new(L{'AutoDebuffMode', 'AutoDispelMode', 'AutoSilenceMode'}, infoView)
         modesView:setShouldRequestFocus(true)
         return modesView
     end, "Modes", "Change debuffing behavior.")

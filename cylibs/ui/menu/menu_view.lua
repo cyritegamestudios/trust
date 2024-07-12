@@ -16,7 +16,7 @@ function MenuView:onSelectMenuItemAtIndexPath()
     return self.selectMenuItem
 end
 
-function MenuView.new(menuItem, viewStack)
+function MenuView.new(menuItem, viewStack, infoView)
     local buttonHeight = 16
 
     local dataSource = CollectionViewDataSource.new(function(item, _)
@@ -36,8 +36,8 @@ function MenuView.new(menuItem, viewStack)
     self.menuItem = menuItem
     self.selectMenuItem = Event.newEvent()
     self.views = L{}
-
     self.viewStack = viewStack
+    self.infoView = infoView
 
     self:setScrollEnabled(false)
     self:setItem(menuItem)
@@ -121,7 +121,7 @@ function MenuView:setItem(menuItem)
         self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
     end
 
-    local contentView = menuItem:getContentView(menuArgs)
+    local contentView = menuItem:getContentView(menuArgs, self.infoView)
     if contentView then
         self.views:append(contentView)
         self.viewStack:present(contentView)

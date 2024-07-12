@@ -97,8 +97,8 @@ function BufferSettingsMenuItem:getFoodMenuItem()
 end
 
 function BufferSettingsMenuItem:getModesMenuItem()
-    local buffModesMenuItem = MenuItem.new(L{}, L{}, function(_)
-        local modesView = ModesView.new(L{'AutoBarSpellMode', 'AutoBuffMode'})
+    local buffModesMenuItem = MenuItem.new(L{}, L{}, function(_, infoView)
+        local modesView = ModesView.new(L{'AutoBarSpellMode', 'AutoBuffMode'}, infoView)
         modesView:setShouldRequestFocus(true)
         return modesView
     end, "Modes", "Change buffing behavior.")

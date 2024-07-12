@@ -1,7 +1,5 @@
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local DisposeBag = require('cylibs/events/dispose_bag')
-local FFXIBackgroundView = require('ui/themes/ffxi/FFXIBackgroundView')
-local Frame = require('cylibs/ui/views/frame')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesView = require('ui/settings/editors/ModeSettingsEditor')
 local FFXITextInputView = require('ui/themes/ffxi/FFXITextInputView')
@@ -9,18 +7,17 @@ local FFXITextInputView = require('ui/themes/ffxi/FFXITextInputView')
 local ModesMenuItem = setmetatable({}, {__index = MenuItem })
 ModesMenuItem.__index = ModesMenuItem
 
-function ModesMenuItem.new(trustSettings, viewFactory)
+function ModesMenuItem.new(trustSettings)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Save', 18),
         ButtonItem.default('Save As', 18),
     }, {},
-            function()
-                local modesView = ModesView.new(L(T(state):keyset()):sort())
-                modesView:setShouldRequestFocus(true)
-                return modesView
-            end, "Modes", "View and change Trust modes."), ModesMenuItem)
+        function(_, infoView)
+            local modesView = ModesView.new(L(T(state):keyset()):sort(), infoView)
+            modesView:setShouldRequestFocus(true)
+            return modesView
+        end, "Modes", "View and change Trust modes."), ModesMenuItem)
 
-    self.viewFactory = viewFactory
     self.disposeBag = DisposeBag.new()
 
     self:reloadSettings()

@@ -40,8 +40,8 @@ function FollowSettingsMenuItem:getConfigMenuItem()
 end
 
 function FollowSettingsMenuItem:getModesMenuItem()
-    local curesModesMenuItem = MenuItem.new(L{}, L{}, function(_)
-        local modesView = ModesView.new(L{'AutoFollowMode', 'IpcMode'})
+    local curesModesMenuItem = MenuItem.new(L{}, L{}, function(_, infoView)
+        local modesView = ModesView.new(L{'AutoFollowMode', 'IpcMode'}, infoView)
         modesView:setShouldRequestFocus(true)
         modesView:setTitle("Set modes for following.")
         return modesView

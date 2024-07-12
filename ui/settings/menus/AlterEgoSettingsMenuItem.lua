@@ -49,8 +49,8 @@ function AlterEgoSettingsMenuItem:getEditMenuItem()
 end
 
 function AlterEgoSettingsMenuItem:getModesMenuItem()
-    local curesModesMenuItem = MenuItem.new(L{}, L{}, function(_)
-        local modesView = ModesView.new(L{'AutoTrustsMode'})
+    local curesModesMenuItem = MenuItem.new(L{}, L{}, function(_, infoView)
+        local modesView = ModesView.new(L{'AutoTrustsMode'}, infoView)
         modesView:setShouldRequestFocus(true)
         modesView:setTitle("Set modes for summoning alter egos.")
         return modesView
