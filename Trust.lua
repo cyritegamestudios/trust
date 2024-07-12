@@ -1,33 +1,28 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '9.4.2'
+_addon.version = '9.5.0'
 _addon.release_notes = [[
-This update features powerful improvements to the skillchain builder, allowing
-you to easily find and create multi-step skillchains with different weapons
-all from within Trust.
+This update features improvements to the Ninja trust, additional
+settings for pulling and the ability to choose Alter Egos to summon
+using the Trust UI.
 
-	• Skillchain Finder
-	    • Browse possible skillchains using the Trust UI under
-	      Settings > Weaponskills > Skillchains > Find.
-	    • Ability to specify number of steps.
-	    • Ability to specify skillchain property (e.g. Light, Darkness).
-	    • Ability to specify one or more combat skills (e.g. Sword).
+	• Ninja
+	    • Nuke and magic burst with Ninjutsu elemental spells.
+	    • Enfeeble enemies with Ninjutsu debuffs.
+	    • Pull enemies for the party to fight.
+	    • Use Utsusemi: Ichi, Ni and San.
 
-	• Solo Skillchains
-	    • Choose and save a skillchain override using the Trust UI under
-	      Settings > Weaponskills > Skillchains > Find.
+	• Pulling
+	    • Configure the maximum target distance when pulling mobs under
+	      Settings > Pulling > Config.
+	    • Increased max approach pull distance to 35 yalms.
 
-	• Party Skillchains
-	    • Choose and save a skillchain override using the Trust UI under
-	      Settings > Weaponskills > Skillchains > Find.
-	    • Choose an IPC connected party member to perform each step.
-	    • Automatically update skillchain settings for all IPC connected
-	      party members.
+	• Alter Egos
+	    • Choose Alter Egos to summon in battle under Settings > Alter Egos.
 
 	• Bug Fixes
-	    • Fixed issue where Japanese clients would not cast spells.
-	    • Fixed issue where the same roll could be used for Roll1 and Roll2.
+	    • Fixed issue where job abilities would not work without Shortcuts.
 
 	• Press escape or enter to exit.
 
@@ -400,7 +395,7 @@ function check_version()
 
 		local Frame = require('cylibs/ui/views/frame')
 
-		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 575))
+		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 480))
 
 		updateView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
 			updateView:getDelegate():deselectItemAtIndexPath(indexPath)

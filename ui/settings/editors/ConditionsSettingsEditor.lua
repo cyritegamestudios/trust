@@ -18,14 +18,14 @@ function ConditionsSettingsEditor.new(trustSettings, conditions)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = TextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
-        cell:setItemSize(20)
+        cell:setItemSize(16)
         return cell
     end)
 
     local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(0, FFXIClassicStyle.Padding.CollectionView.Default), nil, false, FFXIClassicStyle.WindowSize.Editor.Default), ConditionsSettingsEditor)
 
     self:setAllowsCursorSelection(true)
-    self:setScrollDelta(20)
+    self:setScrollDelta(16)
 
     self.trustSettings = trustSettings
     self.conditions = conditions or L{}

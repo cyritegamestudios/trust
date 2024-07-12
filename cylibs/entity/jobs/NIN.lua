@@ -17,6 +17,13 @@ function Ninja.new()
 end
 
 -------
+-- Returns all AOE spells.
+-- @treturn list List of AOE spell names
+function Ninja:get_aoe_spells()
+    return L{}
+end
+
+-------
 -- Returns whether the player has any copy images.
 -- @tparam list player_buff_ids List of active player buffs
 -- @treturn boolean True if the player has at least one copy image remaining

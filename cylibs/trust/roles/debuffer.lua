@@ -65,6 +65,18 @@ function Debuffer:tic(_, _)
     self:check_debuffs()
 end
 
+function Debuffer:conditions_check(spell, target)
+    if target == nil then
+        return false
+    end
+    for condition in spell:get_conditions():it() do
+        if not condition:is_satisfied(target.index) then
+            return false
+        end
+    end
+    return true
+end
+
 function Debuffer:check_debuffs()
     if state.AutoDebuffMode.value == 'Off' or (os.time() - self.last_debuff_time) < 8 then
         return
@@ -76,7 +88,7 @@ function Debuffer:check_debuffs()
         for spell in self.debuff_spells:it() do
             local debuff = buff_util.debuff_for_spell(spell:get_spell().id)
             if debuff and not battle_target:has_debuff(debuff.id) and not battle_target:get_resist_tracker():isImmune(spell:get_spell().id)
-                    and battle_target:get_resist_tracker():numResists(spell:get_spell().id) < 4 then
+                    and battle_target:get_resist_tracker():numResists(spell:get_spell().id) < 4 and self:conditions_check(spell, battle_target) then
                 self:cast_spell(spell, battle_target:get_mob().index)
                 return
             end

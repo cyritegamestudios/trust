@@ -183,6 +183,14 @@ function TrustSettings:runMigrations(settings)
             settingsForMode.PullSettings = self.defaultSettings.Default.PullSettings
             needsMigration = true
         end
+        if not settingsForMode.PullSettings.Distance then
+            settingsForMode.PullSettings.Distance = 20
+            needsMigration = true
+        end
+        if not settingsForMode.Debuffs then
+            settingsForMode.Debuffs = L{}
+            needsMigration = true
+        end
     end
 
     if needsMigration then

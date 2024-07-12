@@ -24,7 +24,8 @@ return {
                 Spell.new('Absorb-STR', L{}, L{}),
                 Spell.new('Absorb-ACC', L{}, L{}),
                 Spell.new('Stone', L{}, L{})
-            }
+            },
+            Distance = 20
         },
     }
 }

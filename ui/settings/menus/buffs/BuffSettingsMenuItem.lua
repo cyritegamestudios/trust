@@ -49,7 +49,7 @@ end
 function BuffSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Add", self:getAddBuffMenuItem())
     self:setChildMenuItem("Edit", self:getEditBuffMenuItem())
-    --self:setChildMenuItem("Conditions", self:getConditionsMenuItem())
+    self:setChildMenuItem("Conditions", self:getConditionsMenuItem())
 end
 
 function BuffSettingsMenuItem:getAddBuffMenuItem()
@@ -98,16 +98,15 @@ function BuffSettingsMenuItem:getEditBuffMenuItem()
 end
 
 function BuffSettingsMenuItem:getConditionsMenuItem()
-    return ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, L{}, self.viewFactory)
+    return ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, L{})
     --[[local editConditionsMenuItem = MenuItem.new(L{
         ButtonItem.default('Save', 18),
         ButtonItem.default('Clear All', 18),
     }, {},
     function(args)
         local spell = args['spell']
-        local editSpellView = self.viewFactory(ConditionsSettingsEditor.new(self.trustSettings, spell:get_conditions()))
+        local editSpellView = ConditionsSettingsEditor.new(self.trustSettings, spell:get_conditions())
         editSpellView:setTitle("Edit buff conditions.")
-        editSpellView:setShouldRequestFocus(true)
         return editSpellView
     end, "Conditions", "Choose when to use this buff.")
     return editConditionsMenuItem]]

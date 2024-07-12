@@ -159,8 +159,8 @@ function Puller:get_next_target()
         local exclude_targets = self:get_party():get_targets(function(target)
             return target:is_claimed() and target ~= self:get_target()
         end):map(function(target) return target:get_mob().index  end)
-        local target = ffxi_util.find_closest_mob(self:get_target_names(), L{}:extend(party_util.party_targets())--[[exclude_targets]], self.blacklist)
-        if target and target.distance:sqrt() < 25 then
+        local target = ffxi_util.find_closest_mob(self:get_target_names(), L{}:extend(party_util.party_targets())--[[exclude_targets]], self.blacklist, self.pull_settings.Distance or 20)
+        if target and target.distance:sqrt() < (self.pull_settings.Distance or 20) then
             local monster = Monster.new(target.id)
             return monster
         end
@@ -194,7 +194,7 @@ function Puller:is_valid_target(target)
         return false
     end
     local conditions = L{
-        MaxDistanceCondition.new(20),
+        MaxDistanceCondition.new(self.pull_settings.Distance or 20),
         MinHitPointsPercentCondition.new(1),
         ClaimedCondition.new(L{ 0 }:extend(self:get_party():get_party_members(true):map(function(p) return p:get_id() end)))
     }

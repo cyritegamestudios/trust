@@ -125,7 +125,8 @@ end
 -- @treturn boolean True if they are equal, false otherwise.
 --
 function MenuItem:__eq(otherItem)
-    return otherItem.__type == MenuItem.__type
+    return otherItem.__type == MenuItem.__type and otherItem:getTitleText() == self:getTitleText()
+            and otherItem:getDescriptionText() == self:getDescriptionText()
 end
 
 return MenuItem

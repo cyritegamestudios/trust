@@ -34,7 +34,8 @@ return {
         PullSettings = {
             Abilities = L{
                 JobAbility.new("Animated Flourish", L{}, L{})
-            }
+            },
+            Distance = 20
         },
     }
 }

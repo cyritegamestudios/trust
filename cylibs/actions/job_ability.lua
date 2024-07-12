@@ -32,15 +32,38 @@ function JobAbility:destroy()
     Action.destroy(self)
 end
 
+function JobAbility:use_job_ability()
+    if self.target_index == nil then
+        if windower.ffxi.get_info().language:lower() == 'japanese' then
+            windower.chat.input("/ma %s <me>":format(self.job_ability_name))
+        else
+            windower.chat.input('/ma "%s" <me>':format(self.job_ability_name))
+        end
+    else
+        local target = windower.ffxi.get_mob_by_index(self.target_index)
+        if windower.ffxi.get_info().language:lower() == 'japanese' then
+            windower.chat.input("/ma %s ":format(self.job_ability_name)..target.id)
+        else
+            windower.chat.input('/ma "%s" ':format(self.job_ability_name)..target.id)
+        end
+    end
+end
+
 function JobAbility:perform()
     logger.notice(self.__class, 'perform', self.job_ability_name)
 
     if self.target_index == nil then
-        windower.chat.input('/%s':format(self.job_ability_name))
+        if windower.ffxi.get_info().language:lower() == 'japanese' then
+            windower.chat.input("/ja %s <me>":format(self.job_ability_name))
+        else
+            windower.chat.input('/ja "%s" <me>':format(self.job_ability_name))
+        end
     else
         local target = windower.ffxi.get_mob_by_index(self.target_index)
-        if target then
-            windower.chat.input('/'..self.job_ability_name..' '..target.id)
+        if windower.ffxi.get_info().language:lower() == 'japanese' then
+            windower.chat.input("/ja %s ":format(self.job_ability_name)..target.id)
+        else
+            windower.chat.input('/ja "%s" ':format(self.job_ability_name)..target.id)
         end
     end
 

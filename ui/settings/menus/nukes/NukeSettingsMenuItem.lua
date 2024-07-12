@@ -59,7 +59,7 @@ function NukeSettingsMenuItem:getNukesMenuItem()
 
             local jobId = res.jobs:with('ens', self.jobNameShort).id
             local allSpells = spell_util.get_spells(function(spell)
-                return spell.levels[jobId] ~= nil and S{'BlackMagic','WhiteMagic'}:contains(spell.type) and S{ 'Enemy' }:intersection(S(spell.targets)):length() > 0
+                return spell.levels[jobId] ~= nil and S{'BlackMagic','WhiteMagic','Ninjutsu'}:contains(spell.type) and S{ 'Enemy' }:intersection(S(spell.targets)):length() > 0
             end):map(function(spell) return spell.en end):sort()
 
             local sortSpells = function(spells)
