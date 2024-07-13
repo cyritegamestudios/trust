@@ -54,7 +54,7 @@ TrustStatusWidget.TextSmall2 = TextStyle.new(
         "Arial",
         9,
         Color.new(255, 77, 186, 255),
-        Color.lightGrey,
+        Color.new(255, 65, 155, 200),
         0,
         0,
         Color.clear,
@@ -95,7 +95,7 @@ function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, 
         if indexPath.section == 1 then
             local cell = TextCollectionViewCell.new(item)
             cell:setItemSize(14)
-            cell:setUserInteractionEnabled(indexPath.row > 2)
+            cell:setUserInteractionEnabled(true)
             return cell
         elseif indexPath.section == 2 then
             local cell = MarqueeCollectionViewCell.new(item)
@@ -137,9 +137,13 @@ function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, 
     self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
         self:getDelegate():deselectItemAtIndexPath(indexPath)
         if indexPath.section == 1 then
-            local item = self:getDataSource():itemAtIndexPath(indexPath)
-            if item then
-                handle_cycle('TrustMode')
+            if L{ 1, 2 }:contains(indexPath.row) then
+                windower.send_command('trust menu')
+            elseif indexPath.row == 3 then
+                local item = self:getDataSource():itemAtIndexPath(indexPath)
+                if item then
+                    handle_cycle('TrustMode')
+                end
             end
         elseif indexPath.section == 2 then
             windower.send_command('trust toggle')
