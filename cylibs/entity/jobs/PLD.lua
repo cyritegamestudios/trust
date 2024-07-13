@@ -65,4 +65,11 @@ function Paladin:get_cure_delay()
     return self.cure_settings.Delay or 2
 end
 
+-------
+-- Returns all AOE spells.
+-- @treturn list List of AOE spell names
+function Paladin:get_aoe_spells()
+    return L{ 'Banishga' }
+end
+
 return Paladin
