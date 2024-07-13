@@ -30,10 +30,14 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode)
         [MinManaPointsPercentCondition.__type] = "min_mpp",
         [MinTacticalPointsCondition.__type] = "min_tp",
         [MaxDistanceCondition.__type] = "max_distance",
+        [HasBuffCondition.__type] = "has_buff_condition",
     }
 
     self.contentViewConstructor = function(menuArgs, _)
-        local conditions = menuArgs['conditions'] or self.conditions
+        local conditions = menuArgs and menuArgs['conditions']
+        if not conditions then
+            conditions = self.conditions
+        end
         self.conditions = conditions
 
         local editConditionsView = ConditionsSettingsEditor.new(trustSettings, conditions, L(self.editableConditionClasses:keyset()))

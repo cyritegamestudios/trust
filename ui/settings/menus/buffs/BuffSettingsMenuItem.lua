@@ -16,7 +16,7 @@ function BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsPref
         ButtonItem.default('Remove', 18),
         ButtonItem.default('Edit', 18),
         ButtonItem.default('Conditions', 18),
-    }, {}, function(menuArgs)
+    }, {}, function(menuArgs, infoView)
         local buffs
         if settingsPrefix then
             buffs = T(trustSettings:getSettings())[trustSettingsMode.value][settingsPrefix][settingsKey]
@@ -25,6 +25,17 @@ function BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsPref
         end
         local buffSettingsView = BuffSettingsEditor.new(trustSettings, buffs, targets)
         buffSettingsView:setShouldRequestFocus(true)
+
+        buffSettingsView:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
+            local buff = buffs[indexPath.row]
+            if buff then
+                local description = buff:get_conditions():map(function(condition)
+                    return condition:tostring()
+                end)
+                infoView:setDescription("Use when: "..localization_util.commas(description))
+            end
+        end)
+
         return buffSettingsView
     end, "Buffs", descriptionText), BuffSettingsMenuItem)
 
@@ -99,17 +110,6 @@ end
 
 function BuffSettingsMenuItem:getConditionsMenuItem()
     return ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, L{})
-    --[[local editConditionsMenuItem = MenuItem.new(L{
-        ButtonItem.default('Save', 18),
-        ButtonItem.default('Clear All', 18),
-    }, {},
-    function(args)
-        local spell = args['spell']
-        local editSpellView = ConditionsSettingsEditor.new(self.trustSettings, spell:get_conditions())
-        editSpellView:setTitle("Edit buff conditions.")
-        return editSpellView
-    end, "Conditions", "Choose when to use this buff.")
-    return editConditionsMenuItem]]
 end
 
 return BuffSettingsMenuItem
