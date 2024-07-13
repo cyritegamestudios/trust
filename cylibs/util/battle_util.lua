@@ -38,7 +38,7 @@ function battle_util.is_valid_monster_target(target_id)
     if target_id == nil then return false end
 
     local target = windower.ffxi.get_mob_by_id(target_id)
-    if target and target.hpp > 0 and target.valid_target and target.spawn_type == 16 then
+    if target and target.id ~= windower.ffxi.get_player().id and target.hpp > 0 and target.valid_target and target.spawn_type == 16 then
         return true
     end
     return false
