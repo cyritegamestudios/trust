@@ -29,6 +29,8 @@ function Targeter:on_add()
     state.AutoTargetMode:on_state_change():addAction(function(_, new_value)
         if new_value ~= 'Off' then
             windower.send_command('input /autotarget off')
+            windower.send_command('trust assist clear')
+            self:get_party():add_to_chat(self:get_party():get_player(), "I can't assist while auto targeting, so I've cleared my assist target.")
         end
     end)
 
