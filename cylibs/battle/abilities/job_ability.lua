@@ -145,6 +145,13 @@ function JobAbility:serialize()
     local conditions_classes_to_serialize = L{
         InBattleCondition.__class,
         IdleCondition.__class,
+        HasBuffCondition.__class,
+        HasBuffsCondition.__class,
+        MaxDistanceCondition.__class,
+        MaxHitPointsPercentCondition.__class,
+        MinHitPointsPercentCondition.__class,
+        MinManaPointsPercentCondition.__class,
+        MinManaPointsCondition.__class,
         MinTacticalPointsCondition.__class,
         NotCondition.__class
     }

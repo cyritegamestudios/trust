@@ -1,6 +1,5 @@
 local BuffSettingsEditor = require('ui/settings/BuffSettingsEditor')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
-local ConditionsSettingsEditor = require('ui/settings/editors/ConditionsSettingsEditor')
 local ConditionSettingsMenuItem = require('ui/settings/menus/conditions/ConditionSettingsMenuItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local MenuItem = require('cylibs/ui/menu/menu_item')
@@ -16,7 +15,16 @@ function BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsPref
         ButtonItem.default('Remove', 18),
         ButtonItem.default('Edit', 18),
         ButtonItem.default('Conditions', 18),
-    }, {}, function(menuArgs, infoView)
+    }, {}, nil, "Buffs", descriptionText), BuffSettingsMenuItem)
+
+    self.trustSettings = trustSettings
+    self.trustSettingsMode = trustSettingsMode
+    self.settingsKey = settingsKey
+    self.jobNameShort = jobNameShort
+    self.showJobs = showJobs
+    self.dispose_bag = DisposeBag.new()
+
+    self.contentViewConstructor = function(menuArgs, infoView)
         local buffs
         if settingsPrefix then
             buffs = T(trustSettings:getSettings())[trustSettingsMode.value][settingsPrefix][settingsKey]
@@ -26,7 +34,7 @@ function BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsPref
         local buffSettingsView = BuffSettingsEditor.new(trustSettings, buffs, targets)
         buffSettingsView:setShouldRequestFocus(true)
 
-        buffSettingsView:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
+        self.dispose_bag:add(buffSettingsView:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
             local buff = buffs[indexPath.row]
             if buff then
                 local description = buff:get_conditions():map(function(condition)
@@ -34,17 +42,10 @@ function BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsPref
                 end)
                 infoView:setDescription("Use when: "..localization_util.commas(description))
             end
-        end)
+        end, buffSettingsView:getDelegate():didMoveCursorToItemAtIndexPath()))
 
         return buffSettingsView
-    end, "Buffs", descriptionText), BuffSettingsMenuItem)
-
-    self.trustSettings = trustSettings
-    self.trustSettingsMode = trustSettingsMode
-    self.settingsKey = settingsKey
-    self.jobNameShort = jobNameShort
-    self.showJobs = showJobs
-    self.dispose_bag = DisposeBag.new()
+    end
 
     self:reloadSettings()
 

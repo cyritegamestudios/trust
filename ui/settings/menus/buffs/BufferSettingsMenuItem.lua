@@ -1,5 +1,6 @@
 local BuffSettingsMenuItem = require('ui/settings/menus/buffs/BuffSettingsMenuItem')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
+local ConditionSettingsMenuItem = require('ui/settings/menus/conditions/ConditionSettingsMenuItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local FoodSettingsMenuItem = require('ui/settings/menus/buffs/FoodSettingsMenuItem')
 local JobAbilityPickerView = require('ui/settings/pickers/JobAbilityPickerView')
@@ -81,11 +82,22 @@ function BufferSettingsMenuItem:getJobAbilitiesMenuItem()
     local jobAbilitiesSettingsItem = MenuItem.new(L{
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
+        ButtonItem.default('Conditions', 18),
     }, {
         Add = chooseJobAbilitiesItem,
+        Conditions = ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, L{}),
     },
-        function()
+        function(_, infoView)
             local jobAbilitiesSettingsView = JobAbilitiesSettingsEditor.new(self.trustSettings, self.trustSettingsMode, self.settingsPrefix)
+            self.dispose_bag:add(jobAbilitiesSettingsView:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
+                local jobAbility = jobAbilitiesSettingsView.jobAbilities[indexPath.row]
+                if jobAbility then
+                    local description = jobAbility:get_conditions():map(function(condition)
+                        return condition:tostring()
+                    end)
+                    infoView:setDescription("Use when: "..localization_util.commas(description))
+                end
+            end, jobAbilitiesSettingsView:getDelegate():didMoveCursorToItemAtIndexPath()))
             return jobAbilitiesSettingsView
         end, "Job Abilities", "Choose job ability buffs.")
     return jobAbilitiesSettingsItem
