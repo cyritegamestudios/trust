@@ -7,6 +7,8 @@ PaladinTrust.__index = PaladinTrust
 local Healer = require('cylibs/trust/roles/healer')
 local Puller = require('cylibs/trust/roles/puller')
 local Buffer = require('cylibs/trust/roles/buffer')
+local MagicBurster = require('cylibs/trust/roles/magic_burster')
+local Nuker = require('cylibs/trust/roles/nuker')
 local Raiser = require('cylibs/trust/roles/raiser')
 local Tank = require('cylibs/trust/roles/tank')
 
@@ -16,6 +18,8 @@ function PaladinTrust.new(settings, action_queue, battle_settings, trust_setting
 		Buffer.new(action_queue, trust_settings.JobAbilities, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
 		Healer.new(action_queue, job),
 		Raiser.new(action_queue, job),
+		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
+		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		Puller.new(action_queue, battle_settings.targets, L{ Spell.new('Flash'), Spell.new('Banish') }:compact_map()),
 		Tank.new(action_queue, L{ 'Sentinel' }, L{ Spell.new('Flash') })
 	}
