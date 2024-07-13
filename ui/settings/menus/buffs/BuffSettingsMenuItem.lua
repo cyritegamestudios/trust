@@ -1,6 +1,5 @@
 local BuffSettingsEditor = require('ui/settings/BuffSettingsEditor')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
-local ConditionsSettingsEditor = require('ui/settings/editors/ConditionsSettingsEditor')
 local ConditionSettingsMenuItem = require('ui/settings/menus/conditions/ConditionSettingsMenuItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local MenuItem = require('cylibs/ui/menu/menu_item')
@@ -15,8 +14,17 @@ function BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsPref
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
         ButtonItem.default('Edit', 18),
-        --ButtonItem.default('Conditions', 18),
-    }, {}, function(menuArgs)
+        ButtonItem.default('Conditions', 18),
+    }, {}, nil, "Buffs", descriptionText), BuffSettingsMenuItem)
+
+    self.trustSettings = trustSettings
+    self.trustSettingsMode = trustSettingsMode
+    self.settingsKey = settingsKey
+    self.jobNameShort = jobNameShort
+    self.showJobs = showJobs
+    self.dispose_bag = DisposeBag.new()
+
+    self.contentViewConstructor = function(menuArgs, infoView)
         local buffs
         if settingsPrefix then
             buffs = T(trustSettings:getSettings())[trustSettingsMode.value][settingsPrefix][settingsKey]
@@ -25,15 +33,19 @@ function BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsPref
         end
         local buffSettingsView = BuffSettingsEditor.new(trustSettings, buffs, targets)
         buffSettingsView:setShouldRequestFocus(true)
-        return buffSettingsView
-    end, "Buffs", descriptionText), BuffSettingsMenuItem)
 
-    self.trustSettings = trustSettings
-    self.trustSettingsMode = trustSettingsMode
-    self.settingsKey = settingsKey
-    self.jobNameShort = jobNameShort
-    self.showJobs = showJobs
-    self.dispose_bag = DisposeBag.new()
+        self.dispose_bag:add(buffSettingsView:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
+            local buff = buffs[indexPath.row]
+            if buff then
+                local description = buff:get_conditions():map(function(condition)
+                    return condition:tostring()
+                end)
+                infoView:setDescription("Use when: "..localization_util.commas(description))
+            end
+        end, buffSettingsView:getDelegate():didMoveCursorToItemAtIndexPath()))
+
+        return buffSettingsView
+    end
 
     self:reloadSettings()
 
@@ -69,7 +81,7 @@ function BuffSettingsMenuItem:getAddBuffMenuItem()
             local allBuffs = spell_util.get_spells(function(spell)
                 local status = buff_util.buff_for_spell(spell.id)
                 return spell.levels[jobId] ~= nil and status ~= nil and not buff_util.is_debuff(status.id) and spell.skill ~= 44 and targets:intersection(S(spell.targets)):length() > 0
-            end):map(function(spell) return spell.en end)
+            end):map(function(spell) return spell.en end):sort()
 
             local chooseSpellsView = SpellPickerView.new(self.trustSettings, spellSettings, allBuffs, defaultJobNames, false)
             chooseSpellsView:setTitle("Choose buffs to add.")
@@ -99,17 +111,6 @@ end
 
 function BuffSettingsMenuItem:getConditionsMenuItem()
     return ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, L{})
-    --[[local editConditionsMenuItem = MenuItem.new(L{
-        ButtonItem.default('Save', 18),
-        ButtonItem.default('Clear All', 18),
-    }, {},
-    function(args)
-        local spell = args['spell']
-        local editSpellView = ConditionsSettingsEditor.new(self.trustSettings, spell:get_conditions())
-        editSpellView:setTitle("Edit buff conditions.")
-        return editSpellView
-    end, "Conditions", "Choose when to use this buff.")
-    return editConditionsMenuItem]]
 end
 
 return BuffSettingsMenuItem

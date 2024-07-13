@@ -8,10 +8,11 @@ local Condition = require('cylibs/conditions/condition')
 local MinTacticalPointsCondition = setmetatable({}, { __index = Condition })
 MinTacticalPointsCondition.__index = MinTacticalPointsCondition
 MinTacticalPointsCondition.__class = "MinTacticalPointsCondition"
+MinTacticalPointsCondition.__type = "MinTacticalPointsCondition"
 
 function MinTacticalPointsCondition.new(min_tp)
     local self = setmetatable(Condition.new(windower.ffxi.get_player().index), MinTacticalPointsCondition)
-    self.min_tp = min_tp
+    self.min_tp = min_tp or 1000
     return self
 end
 
@@ -23,8 +24,12 @@ function MinTacticalPointsCondition:is_satisfied(target_index)
     return false
 end
 
+function MinTacticalPointsCondition:get_config_items()
+    return L{ ConfigItem.new('min_tp', 0, 3000, 100, function(value) return value.."" end) }
+end
+
 function MinTacticalPointsCondition:tostring()
-    return "MinTacticalPointsCondition"
+    return "TP >= "..self.min_tp
 end
 
 function MinTacticalPointsCondition:serialize()

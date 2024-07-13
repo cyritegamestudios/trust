@@ -144,8 +144,8 @@ end
 function GeomancySettingsMenuItem:getModesMenuItem()
     local geomancyModesMenuItem = MenuItem.new(L{
         --ButtonItem.default('Save', 18),
-    }, L{}, function(_)
-        local modesView = ModesView.new(L{'AutoGeoMode', 'AutoIndiMode', 'AutoEntrustMode'})
+    }, L{}, function(_, infoView)
+        local modesView = ModesView.new(L{'AutoGeoMode', 'AutoIndiMode', 'AutoEntrustMode'}, infoView)
         modesView:setShouldRequestFocus(true)
         modesView:setTitle("Set modes for geocolures and indicolures.")
         return modesView

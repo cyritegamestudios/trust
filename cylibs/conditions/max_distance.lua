@@ -8,10 +8,11 @@ local Condition = require('cylibs/conditions/condition')
 local MaxDistanceCondition = setmetatable({}, { __index = Condition })
 MaxDistanceCondition.__index = MaxDistanceCondition
 MaxDistanceCondition.__class = "MaxDistanceCondition"
+MaxDistanceCondition.__type = "MaxDistanceCondition"
 
 function MaxDistanceCondition.new(distance, target_index)
     local self = setmetatable(Condition.new(target_index), MaxDistanceCondition)
-    self.distance = distance
+    self.distance = distance or 20
     return self
 end
 
@@ -23,8 +24,14 @@ function MaxDistanceCondition:is_satisfied(target_index)
     return false
 end
 
+function MaxDistanceCondition:get_config_items()
+    return L{
+        ConfigItem.new('distance', 0, 50, 1, function(value) return value.." yalms" end),
+    }
+end
+
 function MaxDistanceCondition:tostring()
-    return "MaxDistanceCondition"
+    return "Target distance <= "..self.distance.. " yalms"
 end
 
 function MaxDistanceCondition:serialize()

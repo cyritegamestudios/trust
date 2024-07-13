@@ -74,8 +74,8 @@ function BloodPactSettingsMenuItem:getBuffsMenuItem()
 end
 
 function BloodPactSettingsMenuItem:getModesMenuItem()
-    local geomancyModesMenuItem = MenuItem.new(L{}, L{}, function(_)
-        local modesView = ModesView.new(L{'AutoAssaultMode', 'AutoAvatarMode', 'AutoBuffMode'})
+    local geomancyModesMenuItem = MenuItem.new(L{}, L{}, function(_, infoView)
+        local modesView = ModesView.new(L{'AutoAssaultMode', 'AutoAvatarMode', 'AutoBuffMode'}, infoView)
         modesView:setShouldRequestFocus(true)
         modesView:setTitle("Set modes for Summoner.")
         return modesView

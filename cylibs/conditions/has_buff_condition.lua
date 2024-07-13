@@ -6,6 +6,7 @@
 local buff_util = require('cylibs/util/buff_util')
 local party_util = require('cylibs/util/party_util')
 local serializer_util = require('cylibs/util/serializer_util')
+local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 
 local Condition = require('cylibs/conditions/condition')
 local HasBuffCondition = setmetatable({}, { __index = Condition })
@@ -15,8 +16,8 @@ HasBuffCondition.__class = "HasBuffCondition"
 
 function HasBuffCondition.new(buff_name, target_index)
     local self = setmetatable(Condition.new(target_index), HasBuffCondition)
-    self.buff_name = buff_name
-    self.buff_id = buff_util.buff_id(buff_name)
+    self.buff_name = buff_name or "Refresh"
+    self.buff_id = buff_util.buff_id(self.buff_name)
     return self
 end
 
@@ -28,8 +29,28 @@ function HasBuffCondition:is_satisfied(target_index)
     return false
 end
 
+function HasBuffCondition:get_config_items()
+    local all_buffs = S{
+        'Max HP Boost',
+        "KO", "weakness", "sleep", "poison",
+        "paralysis", "blindness", "silence", "petrification",
+        "disease", "curse", "stun", "bind",
+        "weight", "slow", "charm", "doom",
+        "amnesia", "charm", "gradual petrification", "sleep",
+        "curse", "addle",
+        "Finishing Move 1", "Finishing Move 2", "Finishing Move 3", "Finishing Move 4", "Finishing Move 5", "Finishing Move (6+)"
+    }
+    all_buffs:add(self.buff_name)
+
+    all_buffs = L(all_buffs)
+    all_buffs:sort()
+    return L{
+        PickerConfigItem.new('buff_name', self.buff_name, all_buffs)
+    }
+end
+
 function HasBuffCondition:tostring()
-    return "HasBuffCondition"
+    return "Player is "..res.buffs:with('en', self.buff_name).enl
 end
 
 function HasBuffCondition:serialize()

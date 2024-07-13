@@ -1,4 +1,5 @@
 local Alignment = require('cylibs/ui/layout/alignment')
+local localization_util = require('cylibs/util/localization_util')
 local texts = require('texts')
 
 local CollectionViewCell = require('cylibs/ui/collection_view/collection_view_cell')
@@ -58,7 +59,11 @@ function TextCollectionViewCell:layoutIfNeeded()
 
     local position = self:getAbsolutePosition()
 
-    self.textView.text = self:getItem():getText()
+    local text = self:getItem():getText()
+    if self:getItem():shouldTruncateText() then
+        text = localization_util.truncate(text, math.floor(self:getSize().width / (self:getItem():getStyle():getFontSize() * 0.75)))
+    end
+    self.textView.text = text
 
     local textWidth
     if self:getItem():getSize() then

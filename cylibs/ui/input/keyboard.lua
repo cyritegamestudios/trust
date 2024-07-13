@@ -19,7 +19,7 @@ function Keyboard.new()
         [0x0A] = "9",     [0x0B] = "0",
         [0x0E] = "Backspace", [0x039] = " ",
         [0xCB] = "Left", [0xCD] = "Right",
-        [0x01] = "Escape",
+        [0x01] = "Escape", [0x2A] = "LShift",
     }
 
     self.events = {}

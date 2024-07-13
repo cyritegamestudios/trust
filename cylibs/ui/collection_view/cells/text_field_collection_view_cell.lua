@@ -46,8 +46,10 @@ function TextFieldCollectionViewCell:onKeyboardEvent(key, pressed, flags, blocke
                     newText = currentText:slice(1, currentText:length()-1)
                 elseif key == "Escape" then
                     newText = currentText
-                else
+                elseif not S{ 'lshift', 'rshift' }:contains(key:lower()) then
                     newText = (currentText..key:lower()):ucfirst()
+                else
+                    newText = currentText
                 end
                 if self:getItem():isValid(newText) then
                     textItem:setText(newText..'|')
@@ -84,7 +86,7 @@ function TextFieldCollectionViewCell:setHasFocus(hasFocus)
 
     self:layoutIfNeeded()
 
-    local keys = L{'a','w','s','d','f','e','h','i','k','l'}
+    local keys = L{'a','w','s','d','f','e','h','i','k','l','lshift'}
     for key in keys:it() do
         if self:hasFocus() then
             windower.send_command('bind %s block':format(key))

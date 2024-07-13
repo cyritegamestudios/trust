@@ -85,8 +85,8 @@ function FoodSettingsMenuItem:getFoodMenuItem()
 end
 
 function FoodSettingsMenuItem:getModesMenuItem()
-    local foodModesMenuItem = MenuItem.new(L{}, L{}, function(_)
-        local modesView = ModesView.new(L{ 'AutoFoodMode' })
+    local foodModesMenuItem = MenuItem.new(L{}, L{}, function(_, infoView)
+        local modesView = ModesView.new(L{ 'AutoFoodMode' }, infoView)
         modesView:setShouldRequestFocus(true)
         modesView:setTitle("Set modes for eating.")
         return modesView

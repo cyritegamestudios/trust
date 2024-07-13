@@ -17,7 +17,7 @@ function LoadSettingsView.new(jobSettingsMode, addonSettings, trustModeSettings)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = TextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
-        cell:setItemSize(20)
+        cell:setItemSize(16)
         cell:setUserInteractionEnabled(true)
         return cell
     end)
@@ -28,7 +28,7 @@ function LoadSettingsView.new(jobSettingsMode, addonSettings, trustModeSettings)
     self.trustModeSettings = trustModeSettings
 
     self:setAllowsMultipleSelection(false)
-    self:setScrollDelta(20)
+    self:setScrollDelta(16)
     self:setScrollEnabled(true)
 
     local itemsToAdd = L{}

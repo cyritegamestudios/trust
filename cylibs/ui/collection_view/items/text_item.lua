@@ -97,6 +97,24 @@ function TextItem:setShouldWordWrap(wordWrap)
 end
 
 ---
+-- Gets the text truncation policy for this TextItem.
+--
+-- @treturn boolean The text truncation policy.
+--
+function TextItem:shouldTruncateText()
+    return self.truncate_text
+end
+
+---
+-- Sets the text truncation policy for this TextItem.
+--
+-- @tparam boolean truncate_text The new text truncation policy to set.
+--
+function TextItem:setShouldTruncateText(truncate_text)
+    self.truncate_text = truncate_text
+end
+
+---
 -- Gets the settings for rendering the text item.
 --
 -- @treturn table The settings for rendering.

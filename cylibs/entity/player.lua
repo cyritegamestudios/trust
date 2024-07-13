@@ -225,7 +225,7 @@ function Player:monitor()
         elseif action.category == 2 then
             self:on_ranged_attack_end():trigger(self, action.targets[1])
         elseif action.category == 3 then
-            self:on_weapon_skill_finish():trigger(self, action.targets[1])
+            self:on_weapon_skill_finish():trigger(self, action.targets[1], action.param)
         elseif action.category == 4 then
             self:on_spell_finish():trigger(self, action.param, action.targets)
         elseif action.category == 6 then

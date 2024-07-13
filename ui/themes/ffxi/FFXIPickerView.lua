@@ -25,7 +25,7 @@ function FFXIPickerView.new(pickerItems, allowsMultipleSelection, cursorImageIte
     return self
 end
 
-function FFXIPickerView.withItems(texts, selectedTexts, allowsMultipleSelection, cursorImageItem, imageForText, viewSize)
+function FFXIPickerView.withItems(texts, selectedTexts, allowsMultipleSelection, cursorImageItem, imageForText, viewSize, shouldTruncateText)
     imageForText = imageForText or function(_)
         return nil
     end
@@ -34,7 +34,9 @@ function FFXIPickerView.withItems(texts, selectedTexts, allowsMultipleSelection,
         if imageItem then
             return PickerItem.new(ImageTextItem.new(imageItem, TextItem.new(text, TextStyle.Picker.Text)), selectedTexts:contains(text))
         end
-        return PickerItem.new(TextItem.new(text, TextStyle.Picker.Text), selectedTexts:contains(text))
+        local textItem = TextItem.new(text, TextStyle.Picker.Text)
+        textItem:setShouldTruncateText(shouldTruncateText)
+        return PickerItem.new(textItem, selectedTexts:contains(text))
     end)
     return FFXIPickerView.new(L{ pickerItems }, allowsMultipleSelection, cursorImageItem, viewSize)
 end

@@ -1,17 +1,12 @@
 local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
-local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
-local Frame = require('cylibs/ui/views/frame')
 local ImageTextCollectionViewCell = require('cylibs/ui/collection_view/cells/image_text_collection_view_cell')
 local ImageTextItem = require('cylibs/ui/collection_view/items/image_text_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local JobAbility = require('cylibs/battle/abilities/job_ability')
-local Padding = require('cylibs/ui/style/padding')
 local Spell = require('cylibs/battle/spell')
-local spell_util = require('cylibs/util/spell_util')
-local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
@@ -38,6 +33,7 @@ function PullActionSettingsEditor.new(trustSettings, abilities)
 
     self.trustSettings = trustSettings
     self.abilities = abilities
+    self.menuArgs = {}
 
     self:reloadSettings()
 
@@ -72,8 +68,7 @@ function PullActionSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPat
     elseif L{ 'Edit', 'Conditions' }:contains(textItem:getText()) then
         local cursorIndexPath = self:getDelegate():getCursorIndexPath()
         if cursorIndexPath then
-            --self.menuArgs['spell'] = self.buffs[cursorIndexPath.row]
-            --self.menuArgs['conditions'] = self.buffs[cursorIndexPath.row]:get_conditions()
+            self.menuArgs['conditions'] = self.abilities[cursorIndexPath.row]:get_conditions()
         end
     elseif textItem:getText() == 'Remove' then
         self:onRemoveAbilityClick()
@@ -107,6 +102,10 @@ function PullActionSettingsEditor:reloadSettings()
     if self:getDataSource():numberOfItemsInSection(1) > 0 then
         self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
     end
+end
+
+function PullActionSettingsEditor:getMenuArgs()
+    return self.menuArgs
 end
 
 return PullActionSettingsEditor

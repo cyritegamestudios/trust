@@ -13,16 +13,22 @@ using the Trust UI.
 	    • Pull enemies for the party to fight.
 	    • Use Utsusemi: Ichi, Ni and San.
 
-	• Pulling
-	    • Configure the maximum target distance when pulling mobs under
-	      Settings > Pulling > Config.
-	    • Increased max approach pull distance to 35 yalms.
+	• Conditions
+	    • Customize when to use spells using conditions under
+	      Settings > Buffs > Self/Party > Conditions.
+	    • Customize when to use job abilities using conditions under
+	      Settings > Buffs > Abilities > Conditions.
+	    • Choose from min HP, HP range, min MP, target distance and more.
 
-	• Alter Egos
-	    • Choose Alter Egos to summon in battle under Settings > Alter Egos.
+	• UI
+	    • Additional help text added to menus for modes, spells
+	      job abilites and more.
+	    • Added ability to customize Alter Egos under Settinsg > Alter Egos.
 
 	• Bug Fixes
 	    • Fixed issue where job abilities would not work without Shortcuts.
+	    • Fixed issue where a debuff on cooldown would stop other debuffs
+	      from being applied.
 
 	• Press escape or enter to exit.
 
@@ -395,7 +401,7 @@ function check_version()
 
 		local Frame = require('cylibs/ui/views/frame')
 
-		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 480))
+		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 580))
 
 		updateView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
 			updateView:getDelegate():deselectItemAtIndexPath(indexPath)

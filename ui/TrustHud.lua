@@ -239,14 +239,14 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
                 local jobId = res.jobs:with('ens', jobNameShort).id
                 local allDebuffs = spell_util.get_spells(function(spell)
                     return spell.levels[jobId] ~= nil and spell.status ~= nil and L{32, 35, 36, 39, 40, 41, 42}:contains(spell.skill) and spell.targets:contains('Enemy')
-                end):map(function(spell) return spell.en end)
+                end):map(function(spell) return spell.en end):sort()
 
                 local chooseSpellsView = SpellPickerView.new(trustSettings, L(T(trustSettings:getSettings())[trustSettingsMode.value].Debuffs), allDebuffs, L{}, false)
                 return chooseSpellsView
             end, "Debuffs", "Add a new debuff.")
 
-    local debuffModesMenuItem = MenuItem.new(L{}, L{}, function(_)
-        local modesView = ModesView.new(L{'AutoDebuffMode', 'AutoDispelMode', 'AutoSilenceMode'})
+    local debuffModesMenuItem = MenuItem.new(L{}, L{}, function(_, infoView)
+        local modesView = ModesView.new(L{'AutoDebuffMode', 'AutoDispelMode', 'AutoSilenceMode'}, infoView)
         modesView:setShouldRequestFocus(true)
         return modesView
     end, "Modes", "Change debuffing behavior.")
@@ -444,9 +444,11 @@ function TrustHud:getFollowerMenuItem(role)
 end
 
 function TrustHud:getPatherMenuItem(role, viewSize)
-    return PathSettingsMenuItem.new(role, function(view)
-        return setupView(view, viewSize)
-    end)
+    return PathSettingsMenuItem.new(role)
+end
+
+function TrustHud:getTrusterMenuItem(role)
+    return AlterEgoSettingsMenuItem.new(role, self.addon_settings)
 end
 
 function TrustHud:getTrusterMenuItem(role)
@@ -528,13 +530,16 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
     local statusMenuButtons = L{
         ButtonItem.default('Party', 18),
         ButtonItem.default('Buffs', 18),
-        ButtonItem.default('Debuffs', 18),
         ButtonItem.default('Targets', 18)
     }
     if jobNameShort == 'PUP' then
         statusMenuButtons:insert(2, ButtonItem.default('Automaton', 18))
     elseif jobNameShort == 'BRD' then
         statusMenuButtons:insert(2, ButtonItem.default('Songs', 18))
+    end
+
+    if trust:role_with_type("debuffer") then
+        statusMenuButtons:insert(3, ButtonItem.default('Debuffs', 18))
     end
 
     local statusMenuItem = MenuItem.new(statusMenuButtons, {

@@ -84,8 +84,8 @@ function HealerSettingsMenuItem:getBlacklistMenuItem()
 end
 
 function HealerSettingsMenuItem:getModesMenuItem()
-    local curesModesMenuItem = MenuItem.new(L{}, L{}, function(_)
-        local modesView = ModesView.new(L{'AutoHealMode', 'AutoStatusRemovalMode', 'AutoDetectAuraMode'})
+    local curesModesMenuItem = MenuItem.new(L{}, L{}, function(_, infoView)
+        local modesView = ModesView.new(L{'AutoHealMode', 'AutoStatusRemovalMode', 'AutoDetectAuraMode'}, infoView)
         modesView:setShouldRequestFocus(true)
         modesView:setTitle("Set modes for healing and status removals.")
         return modesView

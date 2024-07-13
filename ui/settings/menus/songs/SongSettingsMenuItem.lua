@@ -125,8 +125,8 @@ function SongSettingsMenuItem:getConfigMenuItem()
 end
 
 function SongSettingsMenuItem:getModesMenuItem()
-    local songModesMenuItem = MenuItem.new(L{}, L{}, function(_)
-        local modesView = ModesView.new(L{'AutoSongMode', 'AutoClarionCallMode', 'AutoNitroMode', 'AutoPianissimoMode'})
+    local songModesMenuItem = MenuItem.new(L{}, L{}, function(_, infoView)
+        local modesView = ModesView.new(L{'AutoSongMode', 'AutoClarionCallMode', 'AutoNitroMode', 'AutoPianissimoMode'}, infoView)
         modesView:setShouldRequestFocus(true)
         modesView:setTitle("Set modes for singing.")
         return modesView

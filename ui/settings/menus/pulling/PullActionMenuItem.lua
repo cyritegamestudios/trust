@@ -1,6 +1,8 @@
 local Approach = require('cylibs/battle/approach')
 local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
+local ConditionSettingsMenuItem = require('ui/settings/menus/conditions/ConditionSettingsMenuItem')
+local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local JobAbility = require('cylibs/battle/abilities/job_ability')
 local MenuItem = require('cylibs/ui/menu/menu_item')
@@ -11,18 +13,31 @@ local Spell = require('cylibs/battle/spell')
 local PullActionMenuItem = setmetatable({}, {__index = MenuItem })
 PullActionMenuItem.__index = PullActionMenuItem
 
-function PullActionMenuItem.new(puller, trust_settings, trust_settings_mode)
+function PullActionMenuItem.new(puller, trustSettings, trustSettingsMode)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
-    }, {}, function(_)
-        local abilities = trust_settings:getSettings()[trust_settings_mode.value].PullSettings.Abilities
-        local pullActionsView = PullActionSettingsEditor.new(trust_settings, abilities)
-        return pullActionsView
-    end, "Pulling", "Configure which actions to use to pull enemies."), PullActionMenuItem)
+        ButtonItem.default('Conditions', 18),
+    }, {}, nil, "Pulling", "Configure which actions to use to pull enemies."), PullActionMenuItem)
 
-    self.trust_settings = trust_settings
-    self.trust_settings_mode = trust_settings_mode
+    self.trustSettings = trustSettings
+    self.trustSettingsMode = trustSettingsMode
+    self.dispose_bag = DisposeBag.new()
+
+    self.contentViewConstructor = function(_, infoView)
+        local abilities = trustSettings:getSettings()[trustSettingsMode.value].PullSettings.Abilities
+        local pullActionsView = PullActionSettingsEditor.new(trustSettings, abilities)
+        self.dispose_bag:add(pullActionsView:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
+            local ability = abilities[indexPath.row]
+            if ability then
+                local description = ability:get_conditions():map(function(condition)
+                    return condition:tostring()
+                end)
+                infoView:setDescription("Use when: "..localization_util.commas(description))
+            end
+        end, pullActionsView:getDelegate():didMoveCursorToItemAtIndexPath()))
+        return pullActionsView
+    end
 
     self:reloadSettings()
 
@@ -31,6 +46,7 @@ end
 
 function PullActionMenuItem:reloadSettings()
     self:setChildMenuItem("Add", self:getAddAbilityMenuItem())
+    self:setChildMenuItem("Conditions", self:getConditionsMenuItem())
 end
 
 function PullActionMenuItem:getPullAbilities()
@@ -63,7 +79,7 @@ function PullActionMenuItem:getAddAbilityMenuItem()
         ButtonItem.default('Confirm', 18),
         ButtonItem.default('Clear', 18),
     }, {},
-            function(args)
+            function(_, _)
                 local imageItemForAbility = function(abilityName, sectionIndex)
                     if sectionIndex == 1 then
                         return AssetManager.imageItemForSpell(abilityName)
@@ -78,14 +94,14 @@ function PullActionMenuItem:getAddAbilityMenuItem()
                 chooseSpellsView:on_pick_items():addAction(function(pickerView, selectedItems)
                     pickerView:getDelegate():deselectAllItems()
 
-                    local selectedAbilities = self.trust_settings:getSettings()[self.trust_settings_mode.value].PullSettings.Abilities
+                    local selectedAbilities = self.trustSettings:getSettings()[self.trustSettingsMode.value].PullSettings.Abilities
 
                     selectedItems = selectedItems:map(function(item) return item:getText() end)
                     for selectedItem in selectedItems:it() do
                         selectedAbilities:append(self:getAbility(selectedItem))
                     end
 
-                    self.trust_settings:saveSettings(true)
+                    self.trustSettings:saveSettings(true)
 
                     addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll use "..localization_util.commas(selectedItems).." to pull!")
                 end)
@@ -93,6 +109,10 @@ function PullActionMenuItem:getAddAbilityMenuItem()
                 return chooseSpellsView
             end, "Pulling", "Configure which actions to use to pull enemies.")
     return addAbilityMenuItem
+end
+
+function PullActionMenuItem:getConditionsMenuItem()
+    return ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode)
 end
 
 return PullActionMenuItem

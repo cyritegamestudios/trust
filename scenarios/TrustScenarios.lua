@@ -52,6 +52,10 @@ function TrustScenarios:add_scenario(name)
             local scenario = UpInArms.new(self.action_queue, self.party, self.trust)
             self.scenarios:add(scenario)
             self:start_scenario(scenario)
+        elseif name == 'starter_weaponskill' then
+            local StarterWeaponSkill = require('scenarios/data/misc/starter_weaponskill')
+            local scenario = StarterWeaponSkill.new(self.action_queue, self.party, self.trust, 'Armor Break', 'KajaChopper', 'Apocalypse')
+            self:start_scenario(scenario)
         end
     end
 end

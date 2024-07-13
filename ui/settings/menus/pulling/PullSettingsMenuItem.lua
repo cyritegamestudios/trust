@@ -80,8 +80,8 @@ function PullSettingsMenuItem:getTargetsMenuItem()
 end
 
 function PullSettingsMenuItem:getModesMenuItem()
-    local pullModesMenuItem = MenuItem.new(L{}, L{}, function(_)
-        local modesView = ModesView.new(L{ 'AutoPullMode', 'AutoApproachMode' })
+    local pullModesMenuItem = MenuItem.new(L{}, L{}, function(_, infoView)
+        local modesView = ModesView.new(L{ 'AutoPullMode', 'AutoApproachMode' }, infoView)
         modesView:setShouldRequestFocus(true)
         modesView:setTitle("Set modes for pulling.")
         return modesView

@@ -23,7 +23,7 @@ function JobAbilityRecastReadyCondition:is_satisfied(target_index)
 end
 
 function JobAbilityRecastReadyCondition:tostring()
-    return "JobAbilityRecastReadyCondition"
+    return self.job_ability_name..' is ready'
 end
 
 function JobAbilityRecastReadyCondition:serialize()

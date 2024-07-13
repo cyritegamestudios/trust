@@ -90,6 +90,11 @@ end
 function JobAbilitiesSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
     if textItem:getText() == 'Remove' then
         self:onRemoveJobAbilityClick()
+    elseif textItem:getText() == 'Conditions' then
+        local cursorIndexPath = self:getDelegate():getCursorIndexPath()
+        if cursorIndexPath then
+            self.menuArgs['conditions'] = self.jobAbilities[cursorIndexPath.row]:get_conditions()
+        end
     end
 end
 

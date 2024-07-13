@@ -9,11 +9,12 @@ local spell_util = require('cylibs/util/spell_util')
 local Condition = require('cylibs/conditions/condition')
 local SpellRecastReadyCondition = setmetatable({}, { __index = Condition })
 SpellRecastReadyCondition.__index = SpellRecastReadyCondition
+SpellRecastReadyCondition.__type = "SpellRecastReadyCondition"
 SpellRecastReadyCondition.__class = "SpellRecastReadyCondition"
 
 function SpellRecastReadyCondition.new(spell_id)
     local self = setmetatable(Condition.new(windower.ffxi.get_player().index), SpellRecastReadyCondition)
-    self.spell_id = spell_id
+    self.spell_id = spell_id or 23
     return self
 end
 
@@ -22,7 +23,7 @@ function SpellRecastReadyCondition:is_satisfied(target_index)
 end
 
 function SpellRecastReadyCondition:tostring()
-    return "SpellRecastReadyCondition"
+    return res.spells[self.spell_id].en.." recast is ready"
 end
 
 function SpellRecastReadyCondition:serialize()

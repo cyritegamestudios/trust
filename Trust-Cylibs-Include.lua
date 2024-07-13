@@ -117,3 +117,4 @@ CommandMessage = require('cylibs/messages/command_message')
 
 -- UI
 MessageView = require('cylibs/trust/ui/message_view')
+ConfigItem = require('ui/settings/editors/config/ConfigItem')

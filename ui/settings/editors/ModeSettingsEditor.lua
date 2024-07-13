@@ -13,7 +13,7 @@ ModesView.__index = ModesView
 ModesView.__type = "ModesView"
 
 
-function ModesView.new(modeNames)
+function ModesView.new(modeNames, infoView)
     local layoutParams = FFXIWindow.getLayoutParams(
             15,
             16,
@@ -57,14 +57,32 @@ function ModesView.new(modeNames)
             local oldItem = self:getDataSource():itemAtIndexPath(indexPath)
             if oldItem then
                 local newItem = TextItem.new(selectedModeName..': '..state[selectedModeName].value, oldItem:getStyle())
+                self:setDescription(selectedModeName, infoView)
                 self:getDataSource():updateItem(newItem, indexPath)
             end
         end
     end), self:getDelegate():didSelectItemAtIndexPath())
 
+    self:getDisposeBag():add(self:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
+        local selectedModeName = modeNames[indexPath.row]
+        if selectedModeName then
+            self:setDescription(selectedModeName, infoView)
+        end
+    end), self:getDelegate():didMoveCursorToItemAtIndexPath())
+
     self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
 
     return self
+end
+
+function ModesView:setDescription(modeName, infoView)
+    if not infoView then
+        return
+    end
+    local description = state[modeName]:get_description(state[modeName].value) or "View and change Trust modes."
+    description = string.gsub(description, "^Okay, ", "")
+    description = description:gsub("^%l", string.upper)
+    infoView:setDescription(description)
 end
 
 return ModesView

@@ -7,10 +7,12 @@ local serializer_util = require('cylibs/util/serializer_util')
 local Condition = require('cylibs/conditions/condition')
 local MinHitPointsPercentCondition = setmetatable({}, { __index = Condition })
 MinHitPointsPercentCondition.__index = MinHitPointsPercentCondition
+MinHitPointsPercentCondition.__class = "MinHitPointsPercentCondition"
+MinHitPointsPercentCondition.__type = "MinHitPointsPercentCondition"
 
 function MinHitPointsPercentCondition.new(min_hpp)
     local self = setmetatable(Condition.new(), MinHitPointsPercentCondition)
-    self.min_hpp = min_hpp
+    self.min_hpp = min_hpp or 0
     return self
 end
 
@@ -22,8 +24,12 @@ function MinHitPointsPercentCondition:is_satisfied(target_index)
     return false
 end
 
+function MinHitPointsPercentCondition:get_config_items()
+    return L{ ConfigItem.new('min_hpp', 0, 100, 1, function(value) return value.." yalms" end) }
+end
+
 function MinHitPointsPercentCondition:tostring()
-    return "MinHitPointsPercentCondition"
+    return "HP >= "..self.min_hpp.. "%"
 end
 
 function MinHitPointsPercentCondition:serialize()

@@ -49,7 +49,7 @@ function Menu:showMenu(menuItem)
     self.menuItemStack:append(menuItem)
 
     if not self.menuView then
-        self.menuView = MenuView.new(menuItem, self.contentViewStack)
+        self.menuView = MenuView.new(menuItem, self.contentViewStack, self.infoView)
         self.menuView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
             self.menuView:getDelegate():deselectAllItems()
 
@@ -78,7 +78,7 @@ function Menu:showMenu(menuItem)
                     if currentView then
                         menuArgs = currentView and type(currentView.getMenuArgs) == 'function' and currentView:getMenuArgs()
                     end
-                    local contentView = childMenuItem:getContentView(menuArgs)
+                    local contentView = childMenuItem:getContentView(menuArgs, self.infoView)
                     if contentView then
                         self.menuView.views:append(contentView)
                         self.contentViewStack:present(contentView)

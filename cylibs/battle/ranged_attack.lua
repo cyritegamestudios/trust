@@ -3,6 +3,7 @@
 -- @class module
 -- @name RangedAttack
 
+local serializer_util = require('cylibs/util/serializer_util')
 local RangedAttackAction = require('cylibs/actions/ranged_attack')
 
 local RangedAttack = {}
@@ -12,15 +13,25 @@ RangedAttack.__class = "RangedAttack"
 -------
 -- Default initializer for a new ranged attack.
 -- @treturn RangedAttack A ranged attack.
-function RangedAttack.new()
+function RangedAttack.new(conditions)
     local self = setmetatable({}, RangedAttack)
-    self.conditions = L{
-        MaxDistanceCondition.new(20)
-    }
+    self.conditions = conditions or L{}
+
+    self:add_condition(MaxDistanceCondition.new(20))
+
     return self
 end
 
 function RangedAttack:destroy()
+end
+
+-------
+-- Adds a condition to the list of conditions.
+-- @tparam Condition condition Condition to add
+function RangedAttack:add_condition(condition)
+    if not self:get_conditions():contains(condition) then
+        self.conditions:append(condition)
+    end
 end
 
 -------
@@ -56,7 +67,20 @@ function RangedAttack:to_action(target_index, player)
 end
 
 function RangedAttack:serialize()
-    return "RangedAttack.new()"
+    local conditions_classes_to_serialize = L{
+        InBattleCondition.__class,
+        IdleCondition.__class,
+        HasBuffCondition.__class,
+        HasBuffsCondition.__class,
+        MaxHitPointsPercentCondition.__class,
+        MinHitPointsPercentCondition.__class,
+        MinManaPointsPercentCondition.__class,
+        MinManaPointsCondition.__class,
+        MinTacticalPointsCondition.__class,
+        NotCondition.__class
+    }
+    local conditions_to_serialize = self.conditions:filter(function(condition) return conditions_classes_to_serialize:contains(condition.__class)  end)
+    return "RangedAttack.new(" .. serializer_util.serialize_args(conditions_to_serialize) .. ")"
 end
 
 return RangedAttack

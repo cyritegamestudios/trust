@@ -110,8 +110,8 @@ function NukeSettingsMenuItem:getConfigMenuItem()
 end
 
 function NukeSettingsMenuItem:getModesMenuItem()
-    local nukeModesMenuItem = MenuItem.new(L{}, L{}, function(_)
-        local modesView = ModesView.new(L{'AutoMagicBurstMode', 'AutoNukeMode', 'MagicBurstTargetMode'})
+    local nukeModesMenuItem = MenuItem.new(L{}, L{}, function(_, infoView)
+        local modesView = ModesView.new(L{'AutoMagicBurstMode', 'AutoNukeMode', 'MagicBurstTargetMode'}, infoView)
         modesView:setShouldRequestFocus(true)
         return modesView
     end, "Modes", "Change nuking and magic bursting behavior.")

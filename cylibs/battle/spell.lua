@@ -269,6 +269,12 @@ function Spell:serialize()
         IdleCondition.__class,
         HasBuffCondition.__class,
         HasBuffsCondition.__class,
+        MaxDistanceCondition.__class,
+        MaxHitPointsPercentCondition.__class,
+        MinHitPointsPercentCondition.__class,
+        MinManaPointsPercentCondition.__class,
+        MinManaPointsCondition.__class,
+        MinTacticalPointsCondition.__class,
         NotCondition.__class
     }
     local conditions_to_serialize = self.conditions:filter(function(condition) return conditions_classes_to_serialize:contains(condition.__class)  end)
