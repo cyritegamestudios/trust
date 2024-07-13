@@ -451,6 +451,10 @@ function TrustHud:getTrusterMenuItem(role)
     return AlterEgoSettingsMenuItem.new(role, self.addon_settings)
 end
 
+function TrustHud:getTrusterMenuItem(role)
+    return AlterEgoSettingsMenuItem.new(role, self.addon_settings)
+end
+
 function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSkillSettings, weaponSkillSettingsMode, jobNameShort, jobName)
     local viewSize = Frame.new(0, 0, 500, 500)
 
