@@ -16,8 +16,8 @@ HasBuffCondition.__class = "HasBuffCondition"
 
 function HasBuffCondition.new(buff_name, target_index)
     local self = setmetatable(Condition.new(target_index), HasBuffCondition)
-    self.buff_name = buff_name
-    self.buff_id = buff_util.buff_id(buff_name)
+    self.buff_name = buff_name or "Refresh"
+    self.buff_id = buff_util.buff_id(self.buff_name)
     return self
 end
 
@@ -40,7 +40,6 @@ function HasBuffCondition:get_config_items()
         "curse", "addle",
         "Finishing Move 1", "Finishing Move 2", "Finishing Move 3", "Finishing Move 4", "Finishing Move 5", "Finishing Move (6+)"
     }
-
     all_buffs:add(self.buff_name)
 
     all_buffs = L(all_buffs)

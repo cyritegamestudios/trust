@@ -3,6 +3,7 @@
 -- @class module
 -- @name Approach
 
+local serializer_util = require('cylibs/util/serializer_util')
 local SwitchTargetAction = require('cylibs/actions/switch_target')
 
 local Approach = {}
@@ -12,15 +13,25 @@ Approach.__class = "Approach"
 -------
 -- Default initializer for a new approach.
 -- @treturn Approach An approach
-function Approach.new()
+function Approach.new(conditions)
     local self = setmetatable({}, Approach)
-    self.conditions = L{
-        MaxDistanceCondition.new(35)
-    }
+    self.conditions = conditions or L{}
+
+    self:add_condition(MaxDistanceCondition.new(35))
+
     return self
 end
 
 function Approach:destroy()
+end
+
+-------
+-- Adds a condition to the list of conditions.
+-- @tparam Condition condition Condition to add
+function Approach:add_condition(condition)
+    if not self:get_conditions():contains(condition) then
+        self.conditions:append(condition)
+    end
 end
 
 -------
@@ -55,7 +66,20 @@ function Approach:to_action(target_index)
 end
 
 function Approach:serialize()
-    return "Approach.new()"
+    local conditions_classes_to_serialize = L{
+        InBattleCondition.__class,
+        IdleCondition.__class,
+        HasBuffCondition.__class,
+        HasBuffsCondition.__class,
+        MaxHitPointsPercentCondition.__class,
+        MinHitPointsPercentCondition.__class,
+        MinManaPointsPercentCondition.__class,
+        MinManaPointsCondition.__class,
+        MinTacticalPointsCondition.__class,
+        NotCondition.__class
+    }
+    local conditions_to_serialize = self.conditions:filter(function(condition) return conditions_classes_to_serialize:contains(condition.__class)  end)
+    return "Approach.new(" .. serializer_util.serialize_args(conditions_to_serialize) .. ")"
 end
 
 return Approach
