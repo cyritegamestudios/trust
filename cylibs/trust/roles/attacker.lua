@@ -2,6 +2,7 @@ local battle_util = require('cylibs/util/battle_util')
 local party_util = require('cylibs/util/party_util')
 local BlockAction = require('cylibs/actions/block')
 local CommandAction = require('cylibs/actions/command')
+local DisengageAction = require('cylibs/actions/disengage')
 
 local Attacker = setmetatable({}, {__index = Role })
 Attacker.__index = Attacker
@@ -86,10 +87,27 @@ function Attacker:check_engage()
 end
 
 function Attacker:attack_mob(target)
-    local attack_action = BlockAction.new(function() battle_util.target_mob(target.index) end, "attacker_engage")
-    attack_action.priority = ActionPriority.high
+    if player.status == 'Engaged' and self:is_targeting_self() then
+        local disengage_action = DisengageAction.new()
+        disengage_action.priority = ActionPriority.high
 
-    self.action_queue:push_action(attack_action, true)
+        self.action_queue:push_action(disengage_action, true)
+    else
+        local attack_action = BlockAction.new(function() battle_util.target_mob(target.index) end, "attacker_engage")
+        attack_action.priority = ActionPriority.high
+
+        self.action_queue:push_action(attack_action, true)
+    end
+end
+
+function Attacker:is_targeting_self()
+    local current_target_index = windower.ffxi.get_player().target_index
+    if current_target_index then
+        if current_target_index == windower.ffxi.get_player().index then
+            return true
+        end
+    end
+    return false
 end
 
 function Attacker:allows_duplicates()
