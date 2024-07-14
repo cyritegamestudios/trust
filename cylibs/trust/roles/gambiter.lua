@@ -1,8 +1,12 @@
+local logger = require('cylibs/logger/logger')
+
 local GambitTarget = require('cylibs/gambits/gambit_target')
 local Gambiter = setmetatable({}, {__index = Role })
 Gambiter.__index = Gambiter
+Gambiter.__class = "Gambiter"
 
-state.AutoGambitMode = M{['description'] = 'Auto Gambit Mode', 'Auto', 'Off'}
+state.AutoGambitMode = M{['description'] = 'Auto Gambit Mode', 'Off', 'Auto'}
+state.AutoGambitMode:set_description('Off', "Okay, I'll ignore any gambits you've set.")
 state.AutoGambitMode:set_description('Auto', "Okay, I'll customize my battle plan with gambits.")
 
 function Gambiter.new(action_queue, gambit_settings)
@@ -35,6 +39,8 @@ function Gambiter:tic(new_time, old_time)
 end
 
 function Gambiter:check_gambits()
+    logger.notice(self.__class, 'check_gambits')
+
     for gambit in self.gambits:it() do
         local target_group = self:get_gambit_target(gambit.target)
         if target_group then
@@ -64,6 +70,12 @@ function Gambiter:get_gambit_target(gambit_target)
 end
 
 function Gambiter:perform_gambit(gambit, target)
+    if target == nil or target:get_mob() == nil then
+        return
+    end
+
+    logger.notice(self.__class, 'perform_gambit', gambit:tostring(), target:get_mob().name)
+
     local action = gambit:getAbility():to_action(target:get_mob().index, self:get_player())
     if action then
         self.action_queue:push_action(action, true)

@@ -3,11 +3,12 @@ local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConditionSettingsMenuItem = require('ui/settings/menus/conditions/ConditionSettingsMenuItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
+local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local Gambit = require('cylibs/gambits/gambit')
 local GambitTarget = require('cylibs/gambits/gambit_target')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+local ModesView = require('ui/settings/editors/ModeSettingsEditor')
 
 local GambitSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 GambitSettingsMenuItem.__index = GambitSettingsMenuItem
@@ -17,6 +18,7 @@ function GambitSettingsMenuItem.new(trustSettings, trustSettingsMode)
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
         ButtonItem.default('Conditions', 18),
+        ButtonItem.default('Modes', 18),
     }, {}, nil, "Gambits", "Add custom behaviors.", true), GambitSettingsMenuItem)
 
     self.trustSettings = trustSettings
@@ -60,6 +62,7 @@ function GambitSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Add", self:getAddAbilityMenuItem())
     self:setChildMenuItem("Remove", self:getRemoveAbilityMenuItem())
     self:setChildMenuItem("Conditions", self:getEditConditionsMenuItem())
+    self:setChildMenuItem("Modes", self:getModesMenuItem())
 end
 
 function GambitSettingsMenuItem:getAbilities(gambitTarget)
@@ -183,11 +186,19 @@ function GambitSettingsMenuItem:getRemoveAbilityMenuItem()
             end
         end
     end, "Gambits", "Remove the selected Gambit")
-
 end
 
 function GambitSettingsMenuItem:getEditConditionsMenuItem()
     return ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, self)
+end
+
+function GambitSettingsMenuItem:getModesMenuItem()
+    local gambitModesMenuItem = MenuItem.new(L{}, L{}, function(_, infoView)
+        local modesView = ModesView.new(L{'AutoGambitMode'}, infoView)
+        modesView:setShouldRequestFocus(true)
+        return modesView
+    end, "Modes", "Change gambit behavior.")
+    return gambitModesMenuItem
 end
 
 return GambitSettingsMenuItem
