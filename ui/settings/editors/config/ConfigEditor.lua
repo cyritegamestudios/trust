@@ -142,7 +142,7 @@ function ConfigEditor:getCellItemForConfigItem(configItem)
         defaultItem:setEnabled(self.configSettings[configItem:getKey()])
         return defaultItem
     elseif configItem.__type == PickerConfigItem.__type then
-        return PickerItem.new(configItem:getInitialValue(), configItem:getAllValues())
+        return PickerItem.new(configItem:getInitialValue(), configItem:getAllValues(), configItem:getTextFormat())
     end
     return nil
 end

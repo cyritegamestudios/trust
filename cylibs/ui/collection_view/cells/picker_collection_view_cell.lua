@@ -20,7 +20,7 @@ PickerCollectionViewCell.__index = PickerCollectionViewCell
 function PickerCollectionViewCell.new(item)
     local self = setmetatable(CollectionViewCell.new(item), PickerCollectionViewCell)
 
-    self.textView = TextCollectionViewCell.new(TextItem.new(tostring(item:getCurrentValue()), TextStyle.Default.TextSmall))
+    self.textView = TextCollectionViewCell.new(TextItem.new(item:getTextFormat()(item:getCurrentValue()), TextStyle.Default.TextSmall))
     self:addSubview(self.textView)
 
     self:setNeedsLayout()
@@ -48,7 +48,7 @@ end
 function PickerCollectionViewCell:setItem(item)
     CollectionViewCell.setItem(self, item)
 
-    self.textView:setItem(TextItem.new(tostring(item:getCurrentValue()), TextStyle.Default.TextSmall))
+    self.textView:setItem(TextItem.new(item:getTextFormat()(item:getCurrentValue()), TextStyle.Default.TextSmall))
 
     self:setNeedsLayout()
     self:layoutIfNeeded()

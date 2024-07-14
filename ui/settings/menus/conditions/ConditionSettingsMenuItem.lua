@@ -31,6 +31,7 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode)
         [MinTacticalPointsCondition.__type] = "min_tp",
         [MaxDistanceCondition.__type] = "max_distance",
         [HasBuffCondition.__type] = "has_buff_condition",
+        [ZoneCondition.__type] = "zone",
     }
 
     self.contentViewConstructor = function(menuArgs, _)

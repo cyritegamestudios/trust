@@ -76,7 +76,8 @@ function Approach:serialize()
         MinManaPointsPercentCondition.__class,
         MinManaPointsCondition.__class,
         MinTacticalPointsCondition.__class,
-        NotCondition.__class
+        NotCondition.__class,
+        ZoneCondition.__class,
     }
     local conditions_to_serialize = self.conditions:filter(function(condition) return conditions_classes_to_serialize:contains(condition.__class)  end)
     return "Approach.new(" .. serializer_util.serialize_args(conditions_to_serialize) .. ")"
