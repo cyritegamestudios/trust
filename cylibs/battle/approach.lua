@@ -71,6 +71,7 @@ function Approach:serialize()
         IdleCondition.__class,
         HasBuffCondition.__class,
         HasBuffsCondition.__class,
+        MainJobCondition.__class,
         MaxHitPointsPercentCondition.__class,
         MinHitPointsPercentCondition.__class,
         MinManaPointsPercentCondition.__class,

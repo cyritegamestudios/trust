@@ -147,6 +147,7 @@ function JobAbility:serialize()
         IdleCondition.__class,
         HasBuffCondition.__class,
         HasBuffsCondition.__class,
+        MainJobCondition.__class,
         MaxDistanceCondition.__class,
         MaxHitPointsPercentCondition.__class,
         MinHitPointsPercentCondition.__class,

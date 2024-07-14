@@ -44,6 +44,7 @@ JobAbilityRecastReadyCondition = require('cylibs/conditions/job_ability_recast_r
 MinHitPointsPercentCondition = require('cylibs/conditions/min_hpp')
 MaxHitPointsPercentCondition = require('cylibs/conditions/max_hpp')
 HitPointsPercentRangeCondition = require('cylibs/conditions/hpp_range')
+MainJobCondition = require('cylibs/conditions/main_job')
 MaxDistanceCondition = require('cylibs/conditions/max_distance')
 MinManaPointsCondition = require('cylibs/conditions/min_mp')
 MinManaPointsPercentCondition = require('cylibs/conditions/min_mpp')

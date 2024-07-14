@@ -32,6 +32,7 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode)
         [MaxDistanceCondition.__type] = "max_distance",
         [HasBuffCondition.__type] = "has_buff_condition",
         [ZoneCondition.__type] = "zone",
+        [MainJobCondition.__type] = "main_job",
     }
 
     self.contentViewConstructor = function(menuArgs, _)

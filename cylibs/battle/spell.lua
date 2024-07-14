@@ -269,6 +269,7 @@ function Spell:serialize()
         IdleCondition.__class,
         HasBuffCondition.__class,
         HasBuffsCondition.__class,
+        MainJobCondition.__class,
         MaxDistanceCondition.__class,
         MaxHitPointsPercentCondition.__class,
         MinHitPointsPercentCondition.__class,
@@ -278,7 +279,8 @@ function Spell:serialize()
         NotCondition.__class,
         ZoneCondition.__class,
     }
-    local conditions_to_serialize = self.conditions:filter(function(condition) return conditions_classes_to_serialize:contains(condition.__class)  end)
+    local conditions_to_serialize = self.conditions:filter(function(condition)
+        return conditions_classes_to_serialize:contains(condition.__class)  end)
     return "Spell.new(" .. serializer_util.serialize_args(self.spell_name, self.job_abilities, self.job_names, self.target, conditions_to_serialize, self.consumable) .. ")"
 end
 
