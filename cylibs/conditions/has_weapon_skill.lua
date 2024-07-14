@@ -29,7 +29,7 @@ end
 
 function HasWeaponSkillCondition:__eq(otherItem)
     return otherItem.__class == HasWeaponSkillCondition.__class
-            and self.min_tp == otherItem.min_tp
+            and self.weapon_skill_name == otherItem.weapon_skill_name
 end
 
 return HasWeaponSkillCondition

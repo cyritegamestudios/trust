@@ -5,6 +5,14 @@
 
 require('lists')
 
+function list.from_range(start_value, end_value)
+    local result = L{}
+    for i = start_value, end_value do
+        result:append(i)
+    end
+    return result
+end
+
 ---
 --- Returns items in l2 but not in l1
 function list.diff(l1, l2)

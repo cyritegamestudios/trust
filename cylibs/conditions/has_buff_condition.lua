@@ -30,22 +30,16 @@ function HasBuffCondition:is_satisfied(target_index)
 end
 
 function HasBuffCondition:get_config_items()
-    local all_buffs = S{
-        'Max HP Boost',
-        "KO", "weakness", "sleep", "poison",
-        "paralysis", "blindness", "silence", "petrification",
-        "disease", "curse", "stun", "bind",
-        "weight", "slow", "charm", "doom",
-        "amnesia", "charm", "gradual petrification", "sleep",
-        "curse", "addle",
-        "Finishing Move 1", "Finishing Move 2", "Finishing Move 3", "Finishing Move 4", "Finishing Move 5", "Finishing Move (6+)"
-    }
-    all_buffs:add(self.buff_name)
-
-    all_buffs = L(all_buffs)
+    local all_buffs = buff_util.get_all_buff_ids(true):map(function(buff_id)
+        return res.buffs[buff_id].en
+    end)
     all_buffs:sort()
+    print(all_buffs)
+
     return L{
-        PickerConfigItem.new('buff_name', self.buff_name, all_buffs, nil, "Buff Name")
+        PickerConfigItem.new('buff_name', self.buff_name, all_buffs, function(buff_name)
+            return buff_name:gsub("^%l", string.upper)
+        end, "Buff Name")
     }
 end
 

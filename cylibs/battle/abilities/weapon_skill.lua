@@ -31,6 +31,10 @@ function WeaponSkill.new(weapon_skill_name, conditions)
     return self
 end
 
+function WeaponSkill:to_action(target_index, _)
+    return WeaponSkillAction.new(self:get_name(), target_index)
+end
+
 function WeaponSkill:serialize()
     return "WeaponSkill.new(" .. serializer_util.serialize_args(self:get_name()) .. ")"
 end
