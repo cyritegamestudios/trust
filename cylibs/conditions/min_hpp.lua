@@ -25,7 +25,7 @@ function MinHitPointsPercentCondition:is_satisfied(target_index)
 end
 
 function MinHitPointsPercentCondition:get_config_items()
-    return L{ ConfigItem.new('min_hpp', 0, 100, 1, function(value) return value.." yalms" end, "Min HP %") }
+    return L{ ConfigItem.new('min_hpp', 0, 100, 1, function(value) return value.." %" end, "Min HP %") }
 end
 
 function MinHitPointsPercentCondition:tostring()
