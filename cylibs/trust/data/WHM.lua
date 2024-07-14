@@ -62,6 +62,9 @@ function WhiteMageTrust:on_init()
 			puller:set_pull_settings(new_trust_settings.PullSettings)
 		end
 
+		local gambiter = self:role_with_type("gambiter")
+		gambiter:set_gambit_settings(new_trust_settings.GambitSettings)
+
 		local nuker_roles = self:roles_with_types(L{ "nuker", "magicburster" })
 		for role in nuker_roles:it() do
 			role:set_nuke_settings(new_trust_settings.NukeSettings)

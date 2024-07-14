@@ -1,3 +1,4 @@
+local GambitTarget = require('cylibs/gambits/gambit_target')
 local serializer_util = require('cylibs/util/serializer_util')
 
 local GambitReaction = {}

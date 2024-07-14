@@ -28,9 +28,11 @@ function ZoneCondition:get_config_items()
     local all_zone_ids = L{}
     for i = 1, 299 do
         if res.zones[i] then
-            all_zone_ids:append(i)
+            all_zone_ids:append(res.zones[i].en)
         end
     end
+    all_zone_ids:sort()
+    all_zone_ids = all_zone_ids:map(function(zone_name) return res.zones:with('en', zone_name).id  end)
     return L{
         GroupConfigItem.new('zone_ids', L{
             PickerConfigItem.new('zone_id_1', self.zone_ids[1] or windower.ffxi.get_info().zone, all_zone_ids, function(zone_id)

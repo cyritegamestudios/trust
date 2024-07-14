@@ -191,6 +191,11 @@ function TrustSettings:runMigrations(settings)
             settingsForMode.Debuffs = L{}
             needsMigration = true
         end
+        if not settingsForMode.GambitSettings then
+            settingsForMode.GambitSettings = {}
+            settingsForMode.GambitSettings.Gambits = L{}
+            needsMigration = true
+        end
     end
 
     if needsMigration then

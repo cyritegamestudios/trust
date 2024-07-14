@@ -31,6 +31,9 @@ BlockAction = require('cylibs/actions/block')
 Approach = require('cylibs/battle/approach')
 RangedAttack = require('cylibs/battle/ranged_attack')
 
+-- Gambits
+Gambit = require('cylibs/gambits/gambit')
+
 -- Conditions
 Condition = require('cylibs/conditions/condition')
 InBattleCondition = require('cylibs/conditions/in_battle')
@@ -83,6 +86,7 @@ Spammer = require('cylibs/trust/roles/spammer')
 Cleaver = require('cylibs/trust/roles/cleaver')
 Targeter = require('cylibs/trust/roles/targeter')
 Truster = require('cylibs/trust/roles/truster')
+Gambiter = require('cylibs/trust/roles/gambiter')
 
 -- Util
 action_message_util = require('cylibs/util/action_message_util')

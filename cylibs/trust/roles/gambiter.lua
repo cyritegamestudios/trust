@@ -1,3 +1,4 @@
+local GambitTarget = require('cylibs/gambits/gambit_target')
 local Gambiter = setmetatable({}, {__index = Role })
 Gambiter.__index = Gambiter
 
@@ -35,7 +36,7 @@ end
 
 function Gambiter:check_gambits()
     for gambit in self.gambits:it() do
-        local target_group = self:get_target(gambit.target)
+        local target_group = self:get_gambit_target(gambit.target)
         if target_group then
             local targets = L{ target_group }
             if target_group.__class == Party.__class then
@@ -51,25 +52,19 @@ function Gambiter:check_gambits()
     end
 end
 
-function Gambiter:get_target(gambit_target)
-    local target_type = gambit_target:getTargetType()
-
-    local target_type_to_class = {
-        [GambitTarget.TargetType.Self] = Player.__class,
-        [GambitTarget.TargetType.Ally] = Party.__class,
-        [GambitTarget.TargetType.Enemy] = Monster.__class,
-
-    }
-    local target_class = target_type_to_class[target_type]
-    if target_class then
-        local target = self:get_dependency_container():resolve(target_class)
-        return target
+function Gambiter:get_gambit_target(gambit_target)
+    if gambit_target == GambitTarget.TargetType.Self then
+        return self:get_player()
+    elseif gambit_target == GambitTarget.TargetType.Ally then
+        return self:get_party()
+    elseif gambit_target == GambitTarget.TargetType.Enemy then
+        return self:get_target()
     end
     return nil
 end
 
 function Gambiter:perform_gambit(gambit, target)
-    local action = gambit:getAction(target, self:get_dependency_container())
+    local action = gambit:getAbility():to_action(target:get_mob().index, self:get_player())
     if action then
         self.action_queue:push_action(action, true)
     end

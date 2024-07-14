@@ -15,6 +15,7 @@ local FFXIBackgroundView = require('ui/themes/ffxi/FFXIBackgroundView')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FollowSettingsMenuItem = require('ui/settings/menus/FollowSettingsMenuItem')
 local Frame = require('cylibs/ui/views/frame')
+local GambitSettingsMenuItem = require('ui/settings/menus/gambits/GambitSettingsMenuItem')
 local GameInfo = require('cylibs/util/ffxi/game_info')
 local HelpView = require('cylibs/trust/ui/help_view')
 local MenuItem = require('cylibs/ui/menu/menu_item')
@@ -348,6 +349,9 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         menuItems:append(ButtonItem.default('Alter Egos', 18))
         childMenuItems['Alter Egos'] = self:getMenuItemForRole(trust:role_with_type("truster"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize)
     end
+
+    menuItems:append(ButtonItem.default('Gambits', 18))
+    childMenuItems.Gambits = GambitSettingsMenuItem.new(trustSettings, trustSettingsMode)
 
     local settingsMenuItem = MenuItem.new(menuItems, childMenuItems, nil, "Settings", "Configure Trust settings for skillchains, buffs, debuffs and more.")
     return settingsMenuItem
