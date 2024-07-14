@@ -90,7 +90,9 @@ function GambitSettingsMenuItem:getAbilities(gambitTarget)
         end):map(function(weaponSkillId)
             return res.weapon_skills[weaponSkillId].en
         end),
-        L{ 'Approach', 'Ranged Attack' }
+        L{ 'Approach', 'Ranged Attack' }:filter(function(_)
+            return targets:contains('Enemy')
+        end)
     }
     return sections
 end
@@ -167,7 +169,7 @@ function GambitSettingsMenuItem:getAddAbilityMenuItem()
         Self = createAddAbilityMenuItem(GambitTarget.TargetType.Self),
         Ally = createAddAbilityMenuItem(GambitTarget.TargetType.Ally),
         Enemy = createAddAbilityMenuItem(GambitTarget.TargetType.Enemy),
-    }, nil, "Gambits", "Add a new empty Gambit")
+    }, nil, "Gambits", "Add a new empty Gambit.")
 
     return targetMenuItem
 end
@@ -185,7 +187,7 @@ function GambitSettingsMenuItem:getRemoveAbilityMenuItem()
                 self.trustSettings:saveSettings(true)
             end
         end
-    end, "Gambits", "Remove the selected Gambit")
+    end, "Gambits", "Remove the selected Gambit.")
 end
 
 function GambitSettingsMenuItem:getEditConditionsMenuItem()
