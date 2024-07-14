@@ -22,7 +22,7 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode)
     self.editableConditionClasses = T{
         [IdleCondition.__type] = "idle",
         [InBattleCondition.__type] = "in_battle",
-        --[HasBuffsCondition.__type] = "has_buffs",
+        [HasBuffsCondition.__type] = "has_buffs",
         [MaxHitPointsPercentCondition.__type] = "max_hpp",
         [MinHitPointsPercentCondition.__type] = "min_hpp",
         [HitPointsPercentRangeCondition.__type] = "hpp_range",

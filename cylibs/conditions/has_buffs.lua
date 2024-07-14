@@ -7,6 +7,10 @@ local buff_util = require('cylibs/util/buff_util')
 local serializer_util = require('cylibs/util/serializer_util')
 
 local Condition = require('cylibs/conditions/condition')
+local ConfigItem = require('ui/settings/editors/config/ConfigItem')
+local GroupConfigItem = require('ui/settings/editors/config/GroupConfigItem')
+local localization_util = require('cylibs/util/localization_util')
+local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local HasBuffsCondition = setmetatable({}, { __index = Condition })
 HasBuffsCondition.__index = HasBuffsCondition
 HasBuffsCondition.__type = "HasBuffsCondition"
@@ -14,9 +18,9 @@ HasBuffsCondition.__class = "HasBuffsCondition"
 
 function HasBuffsCondition.new(buff_names, num_required)
     local self = setmetatable(Condition.new(windower.ffxi.get_player().index), HasBuffsCondition)
-    self.buff_names = buff_names -- save arg for serializer
-    self.buff_ids = buff_names:map(function(buff_name) return buff_util.buff_id(buff_name)  end)
-    self.num_required = num_required or buff_names:length()
+    self.buff_names = buff_names or L{ "sleep" } -- save arg for serializer
+    self.buff_ids = self.buff_names:map(function(buff_name) return buff_util.buff_id(buff_name)  end)
+    self.num_required = num_required or self.buff_names:length()
     return self
 end
 
@@ -52,8 +56,34 @@ function HasBuffsCondition:is_satisfied(target_index)
     end
 end
 
+function HasBuffsCondition:get_config_items()
+    local all_buffs = S{
+        'None',
+        'Max HP Boost',
+        "KO", "weakness", "sleep", "poison",
+        "paralysis", "blindness", "silence", "petrification",
+        "disease", "curse", "stun", "bind",
+        "weight", "slow", "charm", "doom",
+        "amnesia", "charm", "gradual petrification", "sleep",
+        "curse", "addle",
+        "Finishing Move 1", "Finishing Move 2", "Finishing Move 3", "Finishing Move 4", "Finishing Move 5", "Finishing Move (6+)"
+    }
+
+    all_buffs = L(all_buffs)
+    all_buffs = all_buffs:extend(self.buff_names)
+    all_buffs:sort()
+    return L{
+        GroupConfigItem.new('buff_names', L{
+            PickerConfigItem.new('buff_name_1', self.buff_names[1] or 'None', all_buffs, nil, "Buff 1"),
+            PickerConfigItem.new('buff_name_2', self.buff_names[2] or 'None', all_buffs, nil, "Buff 2"),
+            PickerConfigItem.new('buff_name_3', self.buff_names[3] or 'None', all_buffs, nil, "Buff 3")
+        }, nil, "Buff Names"),
+        ConfigItem.new('num_required', 1, 3, 1, nil, "Number Required")
+    }
+end
+
 function HasBuffsCondition:tostring()
-    return "HasBuffsCondition"
+    return "Player has "..self.num_required.."+ of "..localization_util.commas(self.buff_names)
 end
 
 function HasBuffsCondition:serialize()
