@@ -64,7 +64,7 @@ end
 
 function GambitSettingsMenuItem:getAbilities()
     local sections = L{
-        spell_util.get_spells():map(function(spell) return spell.en  end),
+        spell_util.get_spells(function(spell) return spell.type ~= 'Trust' end):map(function(spell) return spell.en  end),
         player_util.get_job_abilities():map(function(jobAbilityId) return res.job_abilities[jobAbilityId].en end),
         L(windower.ffxi.get_abilities().weapon_skills):map(function(weapon_skill_id) return res.weapon_skills[weapon_skill_id].en end),
         L{ 'Approach', 'Ranged Attack' }
