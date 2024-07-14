@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '9.5.2'
+_addon.version = '9.5.3'
 _addon.release_notes = [[
 This update features improvements to the Ninja trust, additional
 settings for pulling and the ability to choose Alter Egos to summon

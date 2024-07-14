@@ -1,0 +1,94 @@
+local Gambiter = setmetatable({}, {__index = Role })
+Gambiter.__index = Gambiter
+
+state.AutoGambitMode = M{['description'] = 'Auto Gambit Mode', 'Auto', 'Off'}
+state.AutoGambitMode:set_description('Auto', "Okay, I'll customize my battle plan with gambits.")
+
+function Gambiter.new(action_queue, gambit_settings)
+    local self = setmetatable(Role.new(action_queue), Gambiter)
+
+    self.action_queue = action_queue
+
+    self:set_gambit_settings(gambit_settings)
+
+    return self
+end
+
+function Gambiter:destroy()
+    Role.destroy(self)
+end
+
+function Gambiter:on_add()
+    Role.on_add(self)
+end
+
+function Gambiter:target_change(target_index)
+    Role.target_change(self, target_index)
+end
+
+function Gambiter:tic(new_time, old_time)
+    if state.AutoGambitMode.value == 'Off' then
+        return
+    end
+    self:check_gambits()
+end
+
+function Gambiter:check_gambits()
+    for gambit in self.gambits:it() do
+        local target_group = self:get_target(gambit.target)
+        if target_group then
+            local targets = L{ target_group }
+            if target_group.__class == Party.__class then
+                targets = target_group:get_party_members(false, 21)
+            end
+            for target in targets:it() do
+                if gambit:isSatisfied(target) then
+                    self:perform_gambit(gambit, target)
+                    break
+                end
+            end
+        end
+    end
+end
+
+function Gambiter:get_target(gambit_target)
+    local target_type = gambit_target:getTargetType()
+
+    local target_type_to_class = {
+        [GambitTarget.TargetType.Self] = Player.__class,
+        [GambitTarget.TargetType.Ally] = Party.__class,
+        [GambitTarget.TargetType.Enemy] = Monster.__class,
+
+    }
+    local target_class = target_type_to_class[target_type]
+    if target_class then
+        local target = self:get_dependency_container():resolve(target_class)
+        return target
+    end
+    return nil
+end
+
+function Gambiter:perform_gambit(gambit, target)
+    local action = gambit:getAction(target, self:get_dependency_container())
+    if action then
+        self.action_queue:push_action(action, true)
+    end
+end
+
+function Gambiter:allows_duplicates()
+    return true
+end
+
+function Gambiter:get_type()
+    return "gambiter"
+end
+
+function Gambiter:set_gambit_settings(gambit_settings)
+    self.gambits = gambit_settings.Gambits
+end
+
+function Gambiter:tostring()
+    return tostring(self.gambits)
+end
+
+return Gambiter
