@@ -62,11 +62,31 @@ function GambitSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Conditions", self:getEditConditionsMenuItem())
 end
 
-function GambitSettingsMenuItem:getAbilities()
+function GambitSettingsMenuItem:getAbilities(gambitTarget)
+    local gambitTargetMap = T{
+        [GambitTarget.TargetType.Self] = S{'Self'},
+        [GambitTarget.TargetType.Ally] = S{'Party'},
+        [GambitTarget.TargetType.Enemy] = S{'Enemy'}
+    }
+    local targets = gambitTargetMap[gambitTarget]
     local sections = L{
-        spell_util.get_spells(function(spell) return spell.type ~= 'Trust' end):map(function(spell) return spell.en  end),
-        player_util.get_job_abilities():map(function(jobAbilityId) return res.job_abilities[jobAbilityId].en end),
-        L(windower.ffxi.get_abilities().weapon_skills):map(function(weapon_skill_id) return res.weapon_skills[weapon_skill_id].en end),
+        spell_util.get_spells(function(spell)
+            return spell.type ~= 'Trust' and S(spell.targets):intersection(targets):length() > 0
+        end):map(function(spell)
+            return spell.en
+        end),
+        player_util.get_job_abilities():filter(function(jobAbilityId)
+            local jobAbility = res.job_abilities[jobAbilityId]
+            return S(jobAbility.targets):intersection(targets):length() > 0
+        end):map(function(jobAbilityId)
+            return res.job_abilities[jobAbilityId].en
+        end),
+        L(windower.ffxi.get_abilities().weapon_skills):filter(function(weaponSkillId)
+            local weaponSkill = res.weapon_skills[weaponSkillId]
+            return S(weaponSkill.targets):intersection(targets):length() > 0
+        end):map(function(weaponSkillId)
+            return res.weapon_skills[weaponSkillId].en
+        end),
         L{ 'Approach', 'Ranged Attack' }
     }
     return sections
@@ -110,7 +130,7 @@ function GambitSettingsMenuItem:getAddAbilityMenuItem()
                     return nil
                 end
 
-                local chooseAbilitiesView = FFXIPickerView.withSections(self:getAbilities(), L{}, false, nil, imageItemForAbility)
+                local chooseAbilitiesView = FFXIPickerView.withSections(self:getAbilities(target), L{}, false, nil, imageItemForAbility)
                 chooseAbilitiesView:on_pick_items():addAction(function(pickerView, selectedItems)
                     pickerView:getDelegate():deselectAllItems()
 

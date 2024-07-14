@@ -351,7 +351,6 @@ end
 function buff_util.get_all_buff_ids(include_debuffs)
 	local result = L{}
 	result = result:extend(buff_ids)
-	print(result)
 	if include_debuffs then
 		result = result:extend(L(T(debuffs):keyset()))
 	end

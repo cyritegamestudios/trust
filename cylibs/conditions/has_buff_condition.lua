@@ -34,7 +34,6 @@ function HasBuffCondition:get_config_items()
         return res.buffs[buff_id].en
     end)
     all_buffs:sort()
-    print(all_buffs)
 
     return L{
         PickerConfigItem.new('buff_name', self.buff_name, all_buffs, function(buff_name)
@@ -44,7 +43,7 @@ function HasBuffCondition:get_config_items()
 end
 
 function HasBuffCondition:tostring()
-    return "Player is "..res.buffs:with('en', self.buff_name).enl
+    return "Is "..res.buffs:with('en', self.buff_name).enl
 end
 
 function HasBuffCondition:serialize()

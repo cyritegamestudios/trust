@@ -57,33 +57,28 @@ function HasBuffsCondition:is_satisfied(target_index)
 end
 
 function HasBuffsCondition:get_config_items()
-    local all_buffs = S{
-        'None',
-        'Max HP Boost',
-        "KO", "weakness", "sleep", "poison",
-        "paralysis", "blindness", "silence", "petrification",
-        "disease", "curse", "stun", "bind",
-        "weight", "slow", "charm", "doom",
-        "amnesia", "charm", "gradual petrification", "sleep",
-        "curse", "addle",
-        "Finishing Move 1", "Finishing Move 2", "Finishing Move 3", "Finishing Move 4", "Finishing Move 5", "Finishing Move (6+)"
-    }
-
-    all_buffs = L(all_buffs)
-    all_buffs = all_buffs:extend(self.buff_names)
+    local all_buffs = buff_util.get_all_buff_ids(true):map(function(buff_id)
+        return res.buffs[buff_id].en
+    end)
     all_buffs:sort()
     return L{
         GroupConfigItem.new('buff_names', L{
-            PickerConfigItem.new('buff_name_1', self.buff_names[1] or 'None', all_buffs, nil, "Buff 1"),
-            PickerConfigItem.new('buff_name_2', self.buff_names[2] or 'None', all_buffs, nil, "Buff 2"),
-            PickerConfigItem.new('buff_name_3', self.buff_names[3] or 'None', all_buffs, nil, "Buff 3")
+            PickerConfigItem.new('buff_name_1', self.buff_names[1] or 'None', all_buffs, function(buff_name)
+                return buff_name:gsub("^%l", string.upper)
+            end, "Buff 1"),
+            PickerConfigItem.new('buff_name_2', self.buff_names[2] or 'None', all_buffs, function(buff_name)
+                return buff_name:gsub("^%l", string.upper)
+            end, "Buff 2"),
+            PickerConfigItem.new('buff_name_3', self.buff_names[3] or 'None', all_buffs, function(buff_name)
+                return buff_name:gsub("^%l", string.upper)
+            end, "Buff 3")
         }, nil, "Buff Names"),
         ConfigItem.new('num_required', 1, 3, 1, nil, "Number Required")
     }
 end
 
 function HasBuffsCondition:tostring()
-    return "Player has "..self.num_required.."+ of "..localization_util.commas(self.buff_names)
+    return "Has "..self.num_required.."+ of "..localization_util.commas(self.buff_names)
 end
 
 function HasBuffsCondition:serialize()
