@@ -25,7 +25,7 @@ function MaxHitPointsPercentCondition:is_satisfied(target_index)
 end
 
 function MaxHitPointsPercentCondition:get_config_items()
-    return L{ ConfigItem.new('max_hpp', 0, 100, 1, function(value) return value.." yalms" end) }
+    return L{ ConfigItem.new('max_hpp', 0, 100, 1, function(value) return value.." yalms" end, "Max HP %") }
 end
 
 function MaxHitPointsPercentCondition:tostring()

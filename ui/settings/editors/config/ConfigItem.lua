@@ -12,7 +12,7 @@ ConfigItem.__type = "ConfigItem"
 -- @tparam function Formatter for current value.
 -- @treturn ConfigItem The newly created ConfigItem instance.
 --
-function ConfigItem.new(key, minValue, maxValue, interval, textFormat)
+function ConfigItem.new(key, minValue, maxValue, interval, textFormat, description)
     local self = setmetatable({}, ConfigItem)
 
     self.key = key
@@ -22,6 +22,7 @@ function ConfigItem.new(key, minValue, maxValue, interval, textFormat)
     self.textFormat = textFormat or function(value)
         return tostring(value)
     end
+    self.description = description or key
 
     return self
 end
@@ -69,6 +70,15 @@ end
 --
 function ConfigItem:getTextFormat()
     return self.textFormat
+end
+
+---
+-- Gets the description.
+--
+-- @treturn string The description.
+--
+function ConfigItem:getDescription()
+    return self.description
 end
 
 ---

@@ -12,7 +12,7 @@ PickerConfigItem.__type = "PickerConfigItem"
 -- @tparam function Formatter for current value.
 -- @treturn ConfigItem The newly created ConfigItem instance.
 --
-function PickerConfigItem.new(key, initialValue, allValues, textFormat)
+function PickerConfigItem.new(key, initialValue, allValues, textFormat, description)
     local self = setmetatable({}, PickerConfigItem)
 
     self.key = key
@@ -21,6 +21,7 @@ function PickerConfigItem.new(key, initialValue, allValues, textFormat)
     self.textFormat = textFormat or function(value)
         return tostring(value)
     end
+    self.description = description or key
 
     return self
 end
@@ -59,6 +60,15 @@ end
 --
 function PickerConfigItem:getTextFormat()
     return self.textFormat
+end
+
+---
+-- Gets the description.
+--
+-- @treturn string The description.
+--
+function PickerConfigItem:getDescription()
+    return self.description
 end
 
 return PickerConfigItem

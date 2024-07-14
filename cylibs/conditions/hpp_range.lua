@@ -28,8 +28,8 @@ end
 
 function HitPointsPercentRangeCondition:get_config_items()
     return L{
-        ConfigItem.new('min_hpp', 0, 100, 1, function(value) return value.." %" end),
-        ConfigItem.new('max_hpp', 0, 100, 1, function(value) return value.." %" end),
+        ConfigItem.new('min_hpp', 0, 100, 1, function(value) return value.." %" end, "Min HP %"),
+        ConfigItem.new('max_hpp', 0, 100, 1, function(value) return value.." %" end, "Max HP %"),
     }
 end
 

@@ -25,7 +25,7 @@ function MinTacticalPointsCondition:is_satisfied(target_index)
 end
 
 function MinTacticalPointsCondition:get_config_items()
-    return L{ ConfigItem.new('min_tp', 0, 3000, 100, function(value) return value.."" end) }
+    return L{ ConfigItem.new('min_tp', 0, 3000, 100, function(value) return value.."" end, "Min TP") }
 end
 
 function MinTacticalPointsCondition:tostring()

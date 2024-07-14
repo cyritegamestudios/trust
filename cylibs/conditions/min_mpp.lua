@@ -25,7 +25,7 @@ function MinManaPointsPercentCondition:is_satisfied(target_index)
 end
 
 function MinManaPointsPercentCondition:get_config_items()
-    return L{ ConfigItem.new('min_mpp', 0, 100, 1, function(value) return value.." %" end) }
+    return L{ ConfigItem.new('min_mpp', 0, 100, 1, function(value) return value.." %" end, "Min MP %") }
 end
 
 function MinManaPointsPercentCondition:tostring()

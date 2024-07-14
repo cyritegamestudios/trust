@@ -32,7 +32,7 @@ function FollowSettingsMenuItem:getConfigMenuItem()
         ButtonItem.default('Reset', 18),
     }, L{}, function(menuArgs)
         local configItems = L{
-            ConfigItem.new('distance', 1, 18, 1, function(value) return value.." yalms" end),
+            ConfigItem.new('distance', 1, 18, 1, function(value) return value.." yalms" end, "Follow Distance"),
         }
         return ConfigEditor.new(self.addonSettings, self.addonSettings:getSettings().follow, configItems)
     end, "Following", "Configure follow settings.")

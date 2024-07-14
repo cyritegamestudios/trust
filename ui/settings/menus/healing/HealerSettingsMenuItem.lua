@@ -52,8 +52,8 @@ function HealerSettingsMenuItem:getConfigMenuItem()
         local cureSettings = self.trustSettings:getSettings()[self.trustSettingsMode.value].CureSettings
 
         local configItems = L{
-            ConfigItem.new('Default', 0, 100, 1, function(value) return value.." %" end),
-            ConfigItem.new('Emergency', 0, 100, 1, function(value) return value.." %" end),
+            ConfigItem.new('Default', 0, 100, 1, function(value) return value.." %" end, "Cure Threshold"),
+            ConfigItem.new('Emergency', 0, 100, 1, function(value) return value.." %" end, "Emergency Cure Threshold"),
         }
 
         local settingsKeys = list.subtract(L(T(cureSettings.Thresholds):keyset()), L{'Default', 'Emergency'})

@@ -45,7 +45,7 @@ function HasBuffCondition:get_config_items()
     all_buffs = L(all_buffs)
     all_buffs:sort()
     return L{
-        PickerConfigItem.new('buff_name', self.buff_name, all_buffs)
+        PickerConfigItem.new('buff_name', self.buff_name, all_buffs, nil, "Buff Name")
     }
 end
 

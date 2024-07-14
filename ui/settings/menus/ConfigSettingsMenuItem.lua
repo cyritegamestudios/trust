@@ -37,8 +37,8 @@ function ConfigSettingsMenuItem:getLoggingMenuItem(addonSettings)
         end, "Logging", "Configure debug logging.")
     }, function(menuArgs)
         local configItems = L{
-            BooleanConfigItem.new('enabled'),
-            BooleanConfigItem.new('logtofile'),
+            BooleanConfigItem.new('enabled', "Enable Logging"),
+            BooleanConfigItem.new('logtofile', "Log to File"),
         }
         return ConfigEditor.new(addonSettings, addonSettings:getSettings()[("logging"):lower()], configItems)
     end, "Logging", "Configure debug logging.")

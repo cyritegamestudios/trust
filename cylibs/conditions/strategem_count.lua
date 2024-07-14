@@ -25,8 +25,8 @@ end
 
 function StrategemCountCondition:get_config_items()
     return L{
-        ConfigItem.new('strategem_count', 0, 5, 1, function(value) return value.."" end),
-        PickerConfigItem.new('operator', self.operator, L{ Condition.Operator.GreaterThanOrEqualTo, Condition.Operator.Equals, Condition.Operator.GreaterThan, Condition.Operator.LessThan, Condition.Operator.LessThanOrEqualTo })
+        ConfigItem.new('strategem_count', 0, 5, 1, function(value) return value.."" end, "Number of Strategems"),
+        PickerConfigItem.new('operator', self.operator, L{ Condition.Operator.GreaterThanOrEqualTo, Condition.Operator.Equals, Condition.Operator.GreaterThan, Condition.Operator.LessThan, Condition.Operator.LessThanOrEqualTo }, nil, "Operator")
     }
 end
 

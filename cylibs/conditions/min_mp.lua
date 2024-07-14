@@ -25,7 +25,7 @@ function MinManaPointsCondition:is_satisfied(target_index)
 end
 
 function MinManaPointsCondition:get_config_items()
-    return L{ ConfigItem.new('min_mp', 0, 3000, 50, function(value) return value.."" end) }
+    return L{ ConfigItem.new('min_mp', 0, 3000, 50, function(value) return value.."" end, "Min MP") }
 end
 
 function MinManaPointsCondition:tostring()

@@ -46,9 +46,9 @@ function WidgetSettingsMenuItem:getWidgetMenuItem(widgetName)
         ButtonItem.default('Save')
     }, L{}, function(menuArgs)
         local configItems = L{
-            ConfigItem.new('x', 0, windower.get_windower_settings().ui_x_res, 1, function(value) return value.."" end),
-            ConfigItem.new('y', 0, windower.get_windower_settings().ui_y_res, 1, function(value) return value.."" end),
-            BooleanConfigItem.new('visible'),
+            ConfigItem.new('x', 0, windower.get_windower_settings().ui_x_res, 1, function(value) return value.."" end, "X"),
+            ConfigItem.new('y', 0, windower.get_windower_settings().ui_y_res, 1, function(value) return value.."" end, "Y"),
+            BooleanConfigItem.new('visible', "Show Widget"),
         }
         return ConfigEditor.new(self.addonSettings, self.addonSettings:getSettings()[(widgetName.."_widget"):lower()], configItems)
     end, "Widgets", "Configure the "..widgetName.." widget. UI does not update until saved.")

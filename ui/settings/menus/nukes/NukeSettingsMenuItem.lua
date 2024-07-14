@@ -97,9 +97,9 @@ function NukeSettingsMenuItem:getConfigMenuItem()
             local nukeSettings = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].NukeSettings
 
             local configItems = L{
-                ConfigItem.new('Delay', 0, 60, 1, function(value) return value.."s" end),
-                ConfigItem.new('MinManaPointsPercent', 0, 100, 1, function(value) return value.." %" end),
-                ConfigItem.new('MinNumMobsToCleave', 0, 30, 1, function(value) return value.."" end)
+                ConfigItem.new('Delay', 0, 60, 1, function(value) return value.."s" end, "Delay Between Nukes"),
+                ConfigItem.new('MinManaPointsPercent', 0, 100, 1, function(value) return value.." %" end, "Min MP %"),
+                ConfigItem.new('MinNumMobsToCleave', 0, 30, 1, function(value) return value.."" end, "Min Number Mobs to Cleave")
             }
 
             local nukeConfigEditor = ConfigEditor.new(self.trustSettings, nukeSettings, configItems)

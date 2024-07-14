@@ -91,7 +91,7 @@ function ConfigEditor:reloadSettings()
 
     for configItem in self.configItems:it() do
         local sectionHeaderItem = SectionHeaderItem.new(
-                TextItem.new(configItem:getKey(), TextStyle.Default.SectionHeader),
+                TextItem.new(configItem:getDescription(), TextStyle.Default.SectionHeader),
                 ImageItem.new(windower.addon_path..'assets/icons/icon_bullet.png', 8, 8),
                 16
         )
@@ -132,14 +132,16 @@ end
 
 function ConfigEditor:onConfirmClick()
     for sectionIndex = 1, self:getDataSource():numberOfSections(), 1 do
-        local sectionHeaderItem = self:getDataSource():headerItemForSection(sectionIndex)
-        local configItem = self:getDataSource():itemAtIndexPath(IndexPath.new(sectionIndex, 1))
-        if configItem.__type == SliderItem.__type then
-            self.configSettings[sectionHeaderItem:getTitleItem():getText()] = configItem:getCurrentValue()
-        elseif configItem.__type == FFXIToggleButtonItem.__type then
-            self.configSettings[sectionHeaderItem:getTitleItem():getText()] = configItem:getEnabled()
-        elseif configItem.__type == PickerItem.__type then
-            self.configSettings[sectionHeaderItem:getTitleItem():getText()] = configItem:getCurrentValue()
+        if self.configItems[sectionIndex] then
+            local configItem = self:getDataSource():itemAtIndexPath(IndexPath.new(sectionIndex, 1))
+            local configKey = self.configItems[sectionIndex]:getKey()
+            if configItem.__type == SliderItem.__type then
+                self.configSettings[configKey] = configItem:getCurrentValue()
+            elseif configItem.__type == FFXIToggleButtonItem.__type then
+                self.configSettings[configKey] = configItem:getEnabled()
+            elseif configItem.__type == PickerItem.__type then
+                self.configSettings[configKey] = configItem:getCurrentValue()
+            end
         end
     end
 

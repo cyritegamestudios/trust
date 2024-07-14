@@ -26,7 +26,7 @@ end
 
 function MaxDistanceCondition:get_config_items()
     return L{
-        ConfigItem.new('distance', 0, 50, 1, function(value) return value.." yalms" end),
+        ConfigItem.new('distance', 0, 50, 1, function(value) return value.." yalms" end, "Target Distance"),
     }
 end
 

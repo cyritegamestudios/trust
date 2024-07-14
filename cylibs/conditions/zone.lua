@@ -7,6 +7,8 @@ local serializer_util = require('cylibs/util/serializer_util')
 local Condition = require('cylibs/conditions/condition')
 local ZoneCondition = setmetatable({}, { __index = Condition })
 ZoneCondition.__index = ZoneCondition
+ZoneCondition.__type = "ZoneCondition"
+ZoneCondition.__class = "ZoneCondition"
 
 function ZoneCondition.new(zone_ids)
     local self = setmetatable(Condition.new(), ZoneCondition)
