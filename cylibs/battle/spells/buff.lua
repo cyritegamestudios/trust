@@ -54,21 +54,7 @@ function Buff:is_aoe()
 end
 
 function Buff:serialize()
-    local conditions_classes_to_serialize = L{
-        InBattleCondition.__class,
-        IdleCondition.__class,
-        HasBuffCondition.__class,
-        HasBuffsCondition.__class,
-        MainJobCondition.__class,
-        MaxDistanceCondition.__class,
-        MaxHitPointsPercentCondition.__class,
-        MinHitPointsPercentCondition.__class,
-        MinManaPointsPercentCondition.__class,
-        MinManaPointsCondition.__class,
-        MinTacticalPointsCondition.__class,
-        NotCondition.__class,
-        ZoneCondition.__class,
-    }
+    local conditions_classes_to_serialize = Condition.defaultSerializableConditionClasses()
     local conditions_to_serialize = self.conditions:filter(function(condition) return conditions_classes_to_serialize:contains(condition.__class)  end)
     return "Buff.new(" .. serializer_util.serialize_args(self.original_spell_name, self.job_abilities, self.job_names, self.spell_prefix, conditions_to_serialize) .. ")"
 end

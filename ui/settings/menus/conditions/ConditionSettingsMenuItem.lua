@@ -9,7 +9,7 @@ local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local ConditionSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 ConditionSettingsMenuItem.__index = ConditionSettingsMenuItem
 
-function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode)
+function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentMenuItem)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
@@ -53,7 +53,7 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode)
         return editConditionsView
     end
 
-    self:reloadSettings()
+    self:reloadSettings(parentMenuItem)
 
     return self
 end
@@ -64,16 +64,25 @@ function ConditionSettingsMenuItem:destroy()
     self.dispose_bag:destroy()
 end
 
-function ConditionSettingsMenuItem:reloadSettings()
-    self:setChildMenuItem("Add", self:getAddConditionMenuItem())
+function ConditionSettingsMenuItem:reloadSettings(parentMenuItem)
+    self:setChildMenuItem("Add", self:getAddConditionMenuItem(parentMenuItem))
     self:setChildMenuItem("Edit", self:getEditConditionMenuItem())
 end
 
-function ConditionSettingsMenuItem:getAddConditionMenuItem()
+function ConditionSettingsMenuItem:getAddConditionMenuItem(parentMenuItem)
     local addConditionsMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
-    }, L{}, function(_, infoView)
-        local chooseConditionView = FFXIPickerView.withItems(L(self.editableConditionClasses:keyset()), L{}, false, nil, nil, FFXIClassicStyle.WindowSize.Editor.ConfigEditor)
+    }, {
+        Confirm = MenuItem.action(function(menu)
+            if parentMenuItem ~= nil then
+                menu:showMenu(parentMenuItem)
+            end
+        end, "Confirm", "Create an empty Gambit")
+    }, function(_, infoView)
+        local conditionClasses = L(self.editableConditionClasses:keyset())
+        conditionClasses:sort()
+
+        local chooseConditionView = FFXIPickerView.withItems(conditionClasses, L{}, false, nil, nil, FFXIClassicStyle.WindowSize.Editor.ConfigEditor)
         chooseConditionView:setTitle("Choose a condition.")
         chooseConditionView:setShouldRequestFocus(true)
         chooseConditionView:on_pick_items():addAction(function(_, selectedItems)

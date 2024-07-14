@@ -90,7 +90,11 @@ function GambitSettingsMenuItem:getAddAbilityMenuItem()
         local addAbilityMenuItem = MenuItem.new(L{
             ButtonItem.default('Confirm', 18),
             ButtonItem.default('Clear', 18),
-        }, {},
+        }, {
+            Confirm = MenuItem.action(function(menu)
+                menu:showMenu(self)
+            end, "Confirm", "Create an empty Gambit")
+        },
             function(_, _)
                 local imageItemForAbility = function(abilityName, sectionIndex)
                     --[[if sectionIndex == 1 then
@@ -112,7 +116,11 @@ function GambitSettingsMenuItem:getAddAbilityMenuItem()
                     selectedItems = selectedItems:map(function(item) return item:getText() end)
                     for selectedItem in selectedItems:it() do
                         local ability = self:getAbility(selectedItem)
-                        currentGambits:append(Gambit.new(target, L{}, ability))
+
+                        local newGambit = Gambit.new(target, L{}, ability)
+                        currentGambits:append(newGambit)
+
+                        chooseAbilitiesView.menuArgs['conditions'] = newGambit.conditions
                     end
 
                     self.trustSettings:saveSettings(true)
@@ -156,7 +164,7 @@ function GambitSettingsMenuItem:getRemoveAbilityMenuItem()
 end
 
 function GambitSettingsMenuItem:getEditConditionsMenuItem()
-    return ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, L{})
+    return ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, self)
 end
 
 return GambitSettingsMenuItem

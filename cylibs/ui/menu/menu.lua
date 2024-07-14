@@ -46,7 +46,13 @@ function Menu:destroy()
 end
 
 function Menu:showMenu(menuItem)
-    self.menuItemStack:append(menuItem)
+    if self.menuItemStack:contains(menuItem) then
+        while self.menuItemStack:length() > 0 and self.menuItemStack[self.menuItemStack:length()]:getUUID() ~= menuItem:getUUID() do
+            self.menuItemStack:remove(self.menuItemStack:length())
+        end
+    else
+        self.menuItemStack:append(menuItem)
+    end
 
     if not self.menuView then
         self.menuView = MenuView.new(menuItem, self.contentViewStack, self.infoView)
@@ -67,7 +73,7 @@ function Menu:showMenu(menuItem)
                     return
                 end
                 if childMenuItem:getAction() ~= nil then
-                    childMenuItem:getAction()()
+                    childMenuItem:getAction()(self)
                     return
                 end
                 if childMenuItem:getButtonItems():length() > 0 then

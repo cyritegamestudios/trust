@@ -24,7 +24,11 @@ function Gambit:getAbility()
 end
 
 function Gambit:tostring()
-    return self.target..": "..localization_util.commas(self.conditions:map(function(condition) return condition:tostring()  end)).. " → "..self.ability:get_name()
+    local conditionsDescription = "Never"
+    if self.conditions:length() > 0 then
+        conditionsDescription = localization_util.commas(self.conditions:map(function(condition) return condition:tostring()  end))
+    end
+    return self.target..": "..conditionsDescription.. " → "..self.ability:get_name()
 end
 
 function Gambit:serialize()

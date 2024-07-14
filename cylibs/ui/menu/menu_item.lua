@@ -17,6 +17,7 @@ MenuItem.__type = "MenuItem"
 function MenuItem.new(buttonItems, childMenuItems, contentViewConstructor, titleText, descriptionText, keepViews)
     local self = setmetatable({}, MenuItem)
 
+    self.uuid = os.time()..'-'..math.random(100000)
     self.buttonItems = buttonItems
     self.childMenuItems = childMenuItems
     self.contentViewConstructor = contentViewConstructor
@@ -127,6 +128,15 @@ end
 function MenuItem:__eq(otherItem)
     return otherItem.__type == MenuItem.__type and otherItem:getTitleText() == self:getTitleText()
             and otherItem:getDescriptionText() == self:getDescriptionText()
+end
+
+---
+-- Returns the unique identifier for this MenuItem.
+--
+-- @treturn number Unique identifier
+--
+function MenuItem:getUUID()
+    return self.uuid
 end
 
 return MenuItem
