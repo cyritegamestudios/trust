@@ -13,6 +13,7 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
+        ButtonItem.default('Invert', 18),
         ButtonItem.default('Edit', 18),
     }, {}, nil, "Conditions", "Specify when this buff should be used.", true), ConditionSettingsMenuItem)
 
@@ -30,6 +31,7 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
         [MinManaPointsPercentCondition.__type] = "min_mpp",
         [MinTacticalPointsCondition.__type] = "min_tp",
         [MaxDistanceCondition.__type] = "max_distance",
+        --[NotCondition.__type] = "not_condition",
         [HasBuffCondition.__type] = "has_buff_condition",
         [ZoneCondition.__type] = "zone",
         [MainJobCondition.__type] = "main_job",
@@ -48,7 +50,10 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
 
         self.dispose_bag:add(editConditionsView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
             self.selectedCondition = self.conditions[indexPath.row]
+            self.selectedConditionIndex = indexPath.row
         end, editConditionsView:getDelegate():didSelectItemAtIndexPath()))
+
+        self.editConditionsView = editConditionsView
 
         return editConditionsView
     end
@@ -67,6 +72,7 @@ end
 function ConditionSettingsMenuItem:reloadSettings(parentMenuItem)
     self:setChildMenuItem("Add", self:getAddConditionMenuItem(parentMenuItem))
     self:setChildMenuItem("Edit", self:getEditConditionMenuItem())
+    self:setChildMenuItem("Invert", self:getInvertConditionMenuItem())
 end
 
 function ConditionSettingsMenuItem:getAddConditionMenuItem(parentMenuItem)
@@ -77,7 +83,7 @@ function ConditionSettingsMenuItem:getAddConditionMenuItem(parentMenuItem)
             if parentMenuItem ~= nil then
                 menu:showMenu(parentMenuItem)
             end
-        end, "Confirm", "Create an empty Gambit")
+        end, "Confirm", "Create a new Gambit.")
     }, function(_, infoView)
         local conditionClasses = L(self.editableConditionClasses:keyset())
         conditionClasses:sort()
@@ -109,7 +115,11 @@ function ConditionSettingsMenuItem:getEditConditionMenuItem()
             configItems = self.selectedCondition:get_config_items()
         end
         if configItems then
-            local conditionConfigEditor = ConfigEditor.new(self.trustSettings, self.selectedCondition, configItems)
+            local condition = self.selectedCondition
+            if condition.__type == NotCondition.__type then
+                condition = condition.conditions[1]
+            end
+            local conditionConfigEditor = ConfigEditor.new(self.trustSettings, condition, configItems)
             conditionConfigEditor:setShouldRequestFocus(true)
             return conditionConfigEditor
         else
@@ -117,6 +127,27 @@ function ConditionSettingsMenuItem:getEditConditionMenuItem()
         end
     end, "Conditions", "Edit the selected condition.")
     return editConditionMenuItem
+end
+
+function ConditionSettingsMenuItem:getInvertConditionMenuItem()
+    local invertConditionMenuItem = MenuItem.new(L{}, L{}, function(menuArgs, _)
+        if self.selectedCondition then
+            local editedCondition
+            if self.selectedCondition.__type == NotCondition.__type then
+                editedCondition = self.selectedCondition.conditions[1]
+            else
+                editedCondition = NotCondition.new(L{ self.selectedCondition })
+            end
+            self.conditions[self.selectedConditionIndex] = editedCondition
+
+            self.editConditionsView:reloadSettings()
+
+            self.trustSettings:saveSettings(true)
+
+            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've inverted the condition logic!")
+        end
+    end, "Conditions", "Invert the selected condition logic.")
+    return invertConditionMenuItem
 end
 
 return ConditionSettingsMenuItem

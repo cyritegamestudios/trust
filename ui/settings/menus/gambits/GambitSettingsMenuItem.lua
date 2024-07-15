@@ -30,7 +30,7 @@ function GambitSettingsMenuItem.new(trustSettings, trustSettingsMode)
 
         local gambitSettingsEditor = FFXIPickerView.withItems(currentGambits:map(function(gambit)
             return gambit:tostring()
-        end), L{}, false, nil, nil, FFXIClassicStyle.WindowSize.Editor.ConfigEditor, true)
+        end), L{}, false, nil, nil, FFXIClassicStyle.WindowSize.Editor.ConfigEditorLarge, true)
         gambitSettingsEditor:setAllowsCursorSelection(true)
 
         self.disposeBag:add(gambitSettingsEditor:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
@@ -157,7 +157,7 @@ function GambitSettingsMenuItem:getAddAbilityMenuItem()
                 end)
 
                 return chooseAbilitiesView
-            end, "Gambits", "Add a new empty Gambit.")
+            end, "Gambits", "Add a new Gambit.")
         return addAbilityMenuItem
     end
 
@@ -169,7 +169,7 @@ function GambitSettingsMenuItem:getAddAbilityMenuItem()
         Self = createAddAbilityMenuItem(GambitTarget.TargetType.Self),
         Ally = createAddAbilityMenuItem(GambitTarget.TargetType.Ally),
         Enemy = createAddAbilityMenuItem(GambitTarget.TargetType.Enemy),
-    }, nil, "Gambits", "Add a new empty Gambit.")
+    }, nil, "Gambits", "Add a new Gambit.")
 
     return targetMenuItem
 end
