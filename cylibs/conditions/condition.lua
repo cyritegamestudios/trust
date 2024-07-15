@@ -75,6 +75,7 @@ function Condition.defaultSerializableConditionClasses()
         MainJobCondition.__class,
         MaxDistanceCondition.__class,
         MaxHitPointsPercentCondition.__class,
+        MaxManaPointsPercentCondition.__class,
         MinHitPointsPercentCondition.__class,
         MinManaPointsPercentCondition.__class,
         MinManaPointsCondition.__class,

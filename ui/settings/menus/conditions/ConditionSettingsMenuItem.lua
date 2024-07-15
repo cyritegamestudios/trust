@@ -28,6 +28,7 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
         [MinHitPointsPercentCondition.__type] = "min_hpp",
         [HitPointsPercentRangeCondition.__type] = "hpp_range",
         [MinManaPointsCondition.__type] = "min_mp",
+        [MaxManaPointsPercentCondition.__type] = "max_mpp",
         [MinManaPointsPercentCondition.__type] = "min_mpp",
         [MinTacticalPointsCondition.__type] = "min_tp",
         [MaxDistanceCondition.__type] = "max_distance",

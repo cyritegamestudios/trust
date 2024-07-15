@@ -52,5 +52,12 @@ return {
             },
             Distance = 20
         },
+        GambitSettings = {
+            Gambits = L{
+                Gambit.new("Ally", L{MaxHitPointsPercentCondition.new(80), InBattleCondition.new()}, JobAbility.new("Cover", L{}, L{})),
+                Gambit.new("Enemy", L{InBattleCondition.new()}, JobAbility.new("Shield Bash", L{}, L{})),
+                Gambit.new("Self", L{MinTacticalPointsCondition.new(2000), MaxManaPointsPercentCondition.new(30)}, JobAbility.new("Chivalry", L{}, L{}))
+            }
+        },
     }
 }

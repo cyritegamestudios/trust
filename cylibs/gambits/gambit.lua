@@ -16,7 +16,8 @@ function Gambit.new(target, conditions, ability)
 end
 
 function Gambit:isSatisfied(target)
-    return self.conditions:length() > 0 and Condition.check_conditions(self.conditions, target:get_mob().index)
+    local allConditions = L{}:extend(self.conditions):extend(self:getAbility():get_conditions())
+    return self.conditions:length() > 0 and Condition.check_conditions(allConditions, target:get_mob().index)
 end
 
 function Gambit:getAbility()
