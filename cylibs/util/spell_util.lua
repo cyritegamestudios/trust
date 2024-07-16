@@ -85,7 +85,13 @@ function spell_util.knows_spell(spell_id)
     if spell and spell_known then
         if spell.type == 'BlueMagic' then
             if spell.blu_points ~= nil then
-                local equipped_spells = windower.ffxi.get_mjob_data().spells
+                local player = windower.ffxi.get_player()
+                local equipped_spells
+                if player.main_job_id == 16 then
+                    equipped_spells = windower.ffxi.get_mjob_data().spells
+                else
+                    equipped_spells = windower.ffxi.get_sjob_data().spells
+                end
                 for _, equipped_spell_id in pairs(equipped_spells or {}) do
                     if equipped_spell_id == spell_id then
                         return true
