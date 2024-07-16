@@ -7,6 +7,7 @@ local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local Gambit = require('cylibs/gambits/gambit')
 local GambitTarget = require('cylibs/gambits/gambit_target')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
+local job_util = require('cylibs/util/job_util')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesView = require('ui/settings/editors/ModeSettingsEditor')
 
@@ -97,22 +98,6 @@ function GambitSettingsMenuItem:getAbilities(gambitTarget)
     return sections
 end
 
-function GambitSettingsMenuItem:getAbility(abilityName)
-    if res.spells:with('en', abilityName) then
-        return Spell.new(abilityName, L{}, L{})
-    elseif res.job_abilities:with('en', abilityName) then
-        return JobAbility.new(abilityName, L{}, L{})
-    elseif res.weapon_skills:with('en', abilityName) then
-        return WeaponSkill.new(abilityName, L{})
-    elseif abilityName == 'Approach' then
-        return Approach.new()
-    elseif abilityName == 'Ranged Attack' then
-        return RangedAttack.new()
-    else
-        return nil
-    end
-end
-
 function GambitSettingsMenuItem:getAddAbilityMenuItem()
     local createAddAbilityMenuItem = function(target)
         local addAbilityMenuItem = MenuItem.new(L{
@@ -121,7 +106,7 @@ function GambitSettingsMenuItem:getAddAbilityMenuItem()
         }, {
             Confirm = MenuItem.action(function(menu)
                 menu:showMenu(self)
-            end, "Confirm", "Create an empty Gambit")
+            end, "Gambits", "Add a new "..target.." Gambit.")
         },
             function(_, _)
                 local imageItemForAbility = function(abilityName, sectionIndex)
@@ -143,7 +128,7 @@ function GambitSettingsMenuItem:getAddAbilityMenuItem()
 
                     selectedItems = selectedItems:map(function(item) return item:getText() end)
                     for selectedItem in selectedItems:it() do
-                        local ability = self:getAbility(selectedItem)
+                        local ability = job_util.getAbility(selectedItem)
 
                         local newGambit = Gambit.new(target, L{}, ability)
                         currentGambits:append(newGambit)
@@ -157,7 +142,7 @@ function GambitSettingsMenuItem:getAddAbilityMenuItem()
                 end)
 
                 return chooseAbilitiesView
-            end, "Gambits", "Add a new Gambit.")
+            end, "Gambits", "Add a new "..target.." Gambit.")
         return addAbilityMenuItem
     end
 

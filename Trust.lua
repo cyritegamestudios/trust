@@ -3,11 +3,10 @@ _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
 _addon.version = '9.6.0'
 _addon.release_notes = [[
-This update features improvements to the Ninja trust, additional
-settings for pulling and the ability to choose Alter Egos to summon
-using the Trust UI.
+This update introduces Gambits, a powerful system that lets you
+customize the behavior of your Trusts using conditional commands.
 
-	• Ninja
+	• Gambits
 	    • Nuke and magic burst with Ninjutsu elemental spells.
 	    • Enfeeble enemies with Ninjutsu debuffs.
 	    • Pull enemies for the party to fight.
@@ -23,12 +22,12 @@ using the Trust UI.
 	• UI
 	    • Additional help text added to menus for modes, spells
 	      job abilites and more.
-	    • Added ability to customize Alter Egos under Settinsg > Alter Egos.
+	    • Added ability to customize Alter Egos under Settings > Alter Egos.
 
 	• Bug Fixes
-	    • Fixed issue where job abilities would not work without Shortcuts.
-	    • Fixed issue where a debuff on cooldown would stop other debuffs
-	      from being applied.
+	    • Fixed issue where Blue Magic buffs couldn't be added as a sub job.
+	    • Fixed issue where Blue Magic buffs would not update when
+	      setting or removing spells.
 
 	• Press escape or enter to exit.
 

@@ -18,8 +18,17 @@ function MainJobCondition.new(job_name_short)
 end
 
 function MainJobCondition:is_satisfied(target_index)
-    local main_job_id = windower.ffxi.get_player().main_job_id
-    return res.jobs[main_job_id].ens == self.job_name_short
+    local target = windower.ffxi.get_mob_by_index(target_index)
+    if target then
+        local party = player.party
+        if party then
+           local party_member = party:get_party_member(target.id)
+            if party_member then
+                return party_member:get_main_job_short() == self.job_name_short
+            end
+        end
+    end
+    return false
 end
 
 function MainJobCondition:get_config_items()
