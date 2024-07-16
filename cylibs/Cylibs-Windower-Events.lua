@@ -39,6 +39,8 @@ WindowerEvents.PetUpdate = Event.newEvent()
 WindowerEvents.Equipment = {}
 WindowerEvents.Equipment.MainWeaponChanged = Event.newEvent()
 WindowerEvents.Equipment.RangedWeaponChanged = Event.newEvent()
+WindowerEvents.BlueMagic = {}
+WindowerEvents.BlueMagic.SpellsChanged = Event.newEvent()
 
 local main_weapon_id
 local ranged_weapon_id
@@ -60,6 +62,7 @@ local incoming_event_ids = S{
 local outgoing_event_ids = S{
     0x015,
     0x05E,
+    0x102,
 }
 
 -- Jump table with a mapping of message_id to handler for that message_id
@@ -331,6 +334,17 @@ local outgoing_event_dispatcher = {
 
         IpcRelay.shared():send_message(ZoneMessage.new(player.name, player.id, zone_id, zone_line, zone_type, x, y, z))
     end,
+
+    [0x102] = function(data)
+        local packet = packets.parse('outgoing', data)
+
+        local main_job = packet['Main Job']
+        local sub_job = packet['Sub Job']
+
+        if main_job == 16 or sub_job == 16 then
+            WindowerEvents.BlueMagic.SpellsChanged:trigger()
+        end
+    end
 
 }
 
