@@ -93,7 +93,21 @@ function spell_util.knows_spell(spell_id)
                 end
             else
                 -- Unbridled Learning/Wisdom
-                return true
+                local player = windower.ffxi.get_player()
+                -- Main job can cast spell
+                local main_job_level = player.main_job_level
+                -- Job point spell
+                if (spell.levels[player.main_job_id] or 0) > 99 then
+                    main_job_level = job_util.get_job_points(res.jobs[player.main_job_id]['ens'])
+                end
+                -- Main job can cast (including JP)
+                if spell.levels[player.main_job_id] and main_job_level >= spell.levels[player.main_job_id] then
+                    return true
+                end
+                -- Sub job can cast
+                if spell.levels[player.sub_job_id] and player.sub_job_level >= spell.levels[player.sub_job_id] then
+                    return true
+                end
             end
         else
             local player = windower.ffxi.get_player()

@@ -123,7 +123,7 @@ function Nuker:get_spell(element)
         return true
     end)
     for spell in spells:it() do
-        local conditions = spell:get_conditions():extend(L{ MinManaPointsCondition.new(spell:get_spell().mp_cost) })
+        local conditions = L{}:extend(spell:get_conditions()):extend(L{ MinManaPointsCondition.new(spell:get_spell().mp_cost) })
         if Condition.check_conditions(conditions, self.target_index) then
             return spell
         end
@@ -138,7 +138,7 @@ end
 function Nuker:get_aoe_spell()
     local aoe_spells = self.spells:filter(function(spell) return self.job:get_aoe_spells():contains(spell:get_name()) end)
     for spell in aoe_spells:it() do
-        local conditions = spell:get_conditions():extend(L{ MinManaPointsCondition.new(spell:get_spell().mp_cost) })
+        local conditions = L{}:extend(spell:get_conditions()):extend(L{ MinManaPointsCondition.new(spell:get_spell().mp_cost) })
         if Condition.check_conditions(conditions, self.target_index) then
             return spell
         end

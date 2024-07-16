@@ -8,6 +8,9 @@ function FFXIAssetManager.imageItemForSpell(spellName)
     local spell = res.spells:with('en', spellName)
     if spell then
         local element = res.elements[spell.element].en
+        if element == 'None' then
+            element = 'Light'
+        end
         local skill = res.skills[spell.skill].en
         if skill == "Singing" then
             return ImageItem.new(windower.addon_path..'assets/icons/icon_singing_light.png', 15, 15)
