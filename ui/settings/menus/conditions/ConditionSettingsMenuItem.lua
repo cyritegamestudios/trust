@@ -48,7 +48,7 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
 
         local editConditionsView = ConditionsSettingsEditor.new(trustSettings, conditions, L(self.editableConditionClasses:keyset()))
         editConditionsView:setTitle("Edit conditions.")
-        editConditionsView:setShouldRequestFocus(true)
+        editConditionsView:setShouldRequestFocus(self.conditions:length() > 0)
 
         self.dispose_bag:add(editConditionsView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
             self.selectedCondition = self.conditions[indexPath.row]

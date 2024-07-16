@@ -17,9 +17,15 @@ function MinTacticalPointsCondition.new(min_tp)
 end
 
 function MinTacticalPointsCondition:is_satisfied(target_index)
-    local player = windower.ffxi.get_player()
-    if player and player.vitals.tp >= self.min_tp then
-        return true
+    local target = windower.ffxi.get_mob_by_index(target_index)
+    if target then
+        local party = player.party
+        if party then
+            local party_member = party:get_party_member(target.id)
+            if party_member then
+                return party_member:get_tp() >= self.min_tp
+            end
+        end
     end
     return false
 end
