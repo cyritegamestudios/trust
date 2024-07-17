@@ -29,6 +29,10 @@ function Gambit:getAbilityTarget()
     return self.target
 end
 
+function Gambit:getConditions()
+    return self.conditions
+end
+
 function Gambit:getConditionsTarget()
     return self.conditions_target
 end

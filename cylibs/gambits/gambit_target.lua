@@ -4,11 +4,10 @@ local GambitTarget = {}
 GambitTarget.__index = GambitTarget
 GambitTarget.__class = "GambitTarget"
 
-GambitTarget.TargetType = {}
+GambitTarget.TargetType = T{}
 GambitTarget.TargetType.Self = "Self"
 GambitTarget.TargetType.Ally = "Ally"
 GambitTarget.TargetType.Enemy = "Enemy"
-GambitTarget.TargetType.Inherited = "Inherited"
 
 function GambitTarget.new(targetType)
     local self = setmetatable({}, GambitTarget)

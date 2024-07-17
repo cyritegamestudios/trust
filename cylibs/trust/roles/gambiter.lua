@@ -51,7 +51,7 @@ function Gambiter:tic(new_time, old_time)
     if state.AutoGambitMode.value == 'Off' then
         return
     end
-    --self:check_gambits()
+    self:check_gambits()
 end
 
 function Gambiter:check_gambits(targets, param)

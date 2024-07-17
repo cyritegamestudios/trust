@@ -84,7 +84,7 @@ function ConditionsSettingsEditor:onRemoveConditionClick()
         local item = self:getDataSource():itemAtIndexPath(selectedIndexPath)
         if item then
             local condition = self.conditions[selectedIndexPath.row]
-            if condition and self.editableConditionClasses:contains(condition.__class) then
+            if condition and self.editableConditionClasses:contains(condition.__class) or condition.__class == NotCondition.__class then
                 self.conditions:remove(selectedIndexPath.row)
                 self:getDataSource():removeItem(selectedIndexPath)
 

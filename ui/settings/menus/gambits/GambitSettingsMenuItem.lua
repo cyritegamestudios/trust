@@ -6,6 +6,7 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local Gambit = require('cylibs/gambits/gambit')
+local GambitSettingsEditor = require('ui/settings/editors/GambitSettingsEditor')
 local GambitTarget = require('cylibs/gambits/gambit_target')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local job_util = require('cylibs/util/job_util')
@@ -19,9 +20,10 @@ GambitSettingsMenuItem.__index = GambitSettingsMenuItem
 function GambitSettingsMenuItem.new(trustSettings, trustSettingsMode)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Add', 18),
+        ButtonItem.default('Edit', 18),
         ButtonItem.default('Remove', 18),
-        ButtonItem.default('Conditions', 18),
-        ButtonItem.default('Targets', 18),
+        --ButtonItem.default('Conditions', 18),
+        --ButtonItem.default('Targets', 18),
         ButtonItem.default('Modes', 18),
     }, {}, nil, "Gambits", "Add custom behaviors.", true), GambitSettingsMenuItem)
 
@@ -65,9 +67,10 @@ end
 
 function GambitSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Add", self:getAddAbilityMenuItem())
+    self:setChildMenuItem("Edit", self:getEditGambitMenuItem())
     self:setChildMenuItem("Remove", self:getRemoveAbilityMenuItem())
-    self:setChildMenuItem("Conditions", self:getEditConditionsMenuItem())
-    self:setChildMenuItem("Targets", self:getEditTargetsMenuItem())
+    --self:setChildMenuItem("Conditions", self:getEditConditionsMenuItem())
+    --self:setChildMenuItem("Targets", self:getEditTargetsMenuItem())
     self:setChildMenuItem("Modes", self:getModesMenuItem())
 end
 
@@ -164,6 +167,21 @@ function GambitSettingsMenuItem:getAddAbilityMenuItem()
     return targetMenuItem
 end
 
+function GambitSettingsMenuItem:getEditGambitMenuItem()
+    local editGambitMenuItem = MenuItem.new(L{
+        ButtonItem.default('Confirm', 18),
+        ButtonItem.default('Conditions', 18),
+    }, {}, function(menuArgs, _)
+        local gambitEditor = GambitSettingsEditor.new(self.selectedGambit, self.trustSettings, self.trustSettingsMode)
+        gambitEditor.menuArgs['conditions'] = self.selectedGambit:getConditions()
+        return gambitEditor
+    end, "Gambits", "Edit the selected Gambit.")
+
+    editGambitMenuItem:setChildMenuItem("Conditions", ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, editGambitMenuItem))
+
+    return editGambitMenuItem
+end
+
 function GambitSettingsMenuItem:getRemoveAbilityMenuItem()
     return MenuItem.action(function()
         local selectedIndexPath = self.gambitSettingsEditor:getDelegate():getCursorIndexPath()
@@ -185,7 +203,7 @@ function GambitSettingsMenuItem:getEditConditionsMenuItem()
 end
 
 function GambitSettingsMenuItem:getEditTargetsMenuItem()
-    local getEditTargetsMenuItem = MenuItem.new(L{
+    local getEditGambitMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
     }, {}, function(menuArgs, _)
         local configItems = L{
