@@ -57,9 +57,10 @@ function HasBuffsCondition:is_satisfied(target_index)
 end
 
 function HasBuffsCondition:get_config_items()
-    local all_buffs = buff_util.get_all_buff_ids(true):map(function(buff_id)
+    local all_buffs = S(buff_util.get_all_buff_ids(true):map(function(buff_id)
         return res.buffs[buff_id].en
-    end)
+    end))
+    all_buffs = L(all_buffs)
     all_buffs:sort()
     return L{
         GroupConfigItem.new('buff_names', L{

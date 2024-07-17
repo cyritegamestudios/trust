@@ -7,6 +7,7 @@ _libs = _libs or {}
 
 require('lists')
 local buff_util = require('cylibs/util/buff_util')
+local list_ext = require('cylibs/util/extensions/lists')
 
 local monster_util = {}
 
@@ -23,6 +24,14 @@ local aggroes_by_magic_regex = L{
     '%a+ Wamoura',
     '%a+ Weapon'
 }
+
+local ability_ids = list.from_range(257, 800)
+
+function monster_util.get_all_ability_ids()
+    local result = L{}
+    result = result:extend(ability_ids)
+    return result
+end
 
 function monster_util.test(target_name)
     for regex in aggroes_by_magic_regex:it() do
