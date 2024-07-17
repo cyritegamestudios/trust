@@ -17,9 +17,15 @@ function MaxManaPointsPercentCondition.new(max_mpp)
 end
 
 function MaxManaPointsPercentCondition:is_satisfied(target_index)
-    local target = windower.ffxi.get_player()--windower.ffxi.get_mob_by_index(target_index)
+    local target = windower.ffxi.get_mob_by_index(target_index)
     if target then
-        return target.vitals.mpp <= self.max_mpp
+        local party = player.party
+        if party then
+            local party_member = party:get_party_member(target.id)
+            if party_member then
+                return party_member:get_mpp() <= self.max_mpp
+            end
+        end
     end
     return false
 end
