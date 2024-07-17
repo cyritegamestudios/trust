@@ -86,7 +86,7 @@ function ConditionSettingsMenuItem:getAddConditionMenuItem(parentMenuItem)
             if parentMenuItem ~= nil then
                 menu:showMenu(parentMenuItem)
             end
-        end, "Confirm", "Create a new Gambit.")
+        end, "Conditions", "Add a new condition.")
     }, function(_, infoView)
         local conditionClasses = L(self.editableConditionClasses:keyset())
         conditionClasses:sort()

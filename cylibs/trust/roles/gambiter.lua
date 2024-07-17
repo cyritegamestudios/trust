@@ -25,6 +25,22 @@ end
 
 function Gambiter:on_add()
     Role.on_add(self)
+
+    -- Enemy abilities
+    WindowerEvents.Ability.Ready:addAction(function(target_id, ability_id)
+        if not ability_id then
+            return
+        end
+        local target = self:get_target()
+        if target and target:get_id() == target_id then
+            local ability = res.monster_abilities[ability_id]
+            if ability then
+                logger.notice(self.__class, 'ability_ready', 'check_gambits', ability.en)
+
+                self:check_gambits(L{ target }, ability.en)
+            end
+        end
+    end)
 end
 
 function Gambiter:target_change(target_index)
@@ -35,38 +51,51 @@ function Gambiter:tic(new_time, old_time)
     if state.AutoGambitMode.value == 'Off' then
         return
     end
-    self:check_gambits()
+    --self:check_gambits()
 end
 
-function Gambiter:check_gambits()
+function Gambiter:check_gambits(targets, param)
+    if state.AutoGambitMode.value == 'Off' then
+        return
+    end
+
     logger.notice(self.__class, 'check_gambits')
 
     for gambit in self.gambits:it() do
-        local target_group = self:get_gambit_target(gambit.target)
-        if target_group then
-            local targets = L{ target_group }
-            if target_group.__class == Party.__class then
-                targets = target_group:get_party_members(false, 21)
-            end
-            for target in targets:it() do
-                if gambit:isSatisfied(target) then
+        local targets = targets or self:get_gambit_targets(gambit:getConditionsTarget())
+        for target in targets:it() do
+            if gambit:isSatisfied(target, param) then
+                if gambit:getAbilityTarget() == gambit:getConditionsTarget() then
                     self:perform_gambit(gambit, target)
-                    break
+                else
+                    local ability_targets = self:get_gambit_targets(gambit:getAbilityTarget())
+                    if ability_targets:length() > 0 then
+                        self:perform_gambit(gambit, ability_targets[1])
+                    end
                 end
+                break
             end
         end
     end
 end
 
-function Gambiter:get_gambit_target(gambit_target)
+function Gambiter:get_gambit_targets(gambit_target)
+    local targets
+    local target_group
     if gambit_target == GambitTarget.TargetType.Self then
-        return self:get_player()
+        target_group = self:get_player()
     elseif gambit_target == GambitTarget.TargetType.Ally then
-        return self:get_party()
+        target_group = self:get_party()
     elseif gambit_target == GambitTarget.TargetType.Enemy then
-        return self:get_target()
+        target_group = self:get_target()
     end
-    return nil
+    if target_group then
+        targets = L{ target_group }
+        if target_group.__class == Party.__class then
+            targets = target_group:get_party_members(false, 21)
+        end
+    end
+    return targets
 end
 
 function Gambiter:perform_gambit(gambit, target)

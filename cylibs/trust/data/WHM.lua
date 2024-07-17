@@ -63,7 +63,9 @@ function WhiteMageTrust:on_init()
 		end
 
 		local gambiter = self:role_with_type("gambiter")
-		gambiter:set_gambit_settings(new_trust_settings.GambitSettings)
+		if gambiter then
+			gambiter:set_gambit_settings(new_trust_settings.GambitSettings)
+		end
 
 		local nuker_roles = self:roles_with_types(L{ "nuker", "magicburster" })
 		for role in nuker_roles:it() do

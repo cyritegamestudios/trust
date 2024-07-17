@@ -87,13 +87,13 @@ function Condition.defaultSerializableConditionClasses()
     }
 end
 
-function Condition.check_conditions(conditions, param)
+function Condition.check_conditions(conditions, param, ...)
     for condition in conditions:it() do
         local target_index = condition:get_target_index()
         if target_index == nil then
             target_index = param
         end
-        if not condition:is_satisfied(target_index) then
+        if not condition:is_satisfied(target_index, ...) then
             logger.error(Condition.__class, "Failed", condition:tostring())
             return false
         end

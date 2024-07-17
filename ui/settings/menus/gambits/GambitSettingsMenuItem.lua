@@ -1,6 +1,7 @@
 local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConditionSettingsMenuItem = require('ui/settings/menus/conditions/ConditionSettingsMenuItem')
+local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
@@ -10,6 +11,7 @@ local IndexPath = require('cylibs/ui/collection_view/index_path')
 local job_util = require('cylibs/util/job_util')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesView = require('ui/settings/editors/ModeSettingsEditor')
+local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 
 local GambitSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 GambitSettingsMenuItem.__index = GambitSettingsMenuItem
@@ -19,6 +21,7 @@ function GambitSettingsMenuItem.new(trustSettings, trustSettingsMode)
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
         ButtonItem.default('Conditions', 18),
+        ButtonItem.default('Targets', 18),
         ButtonItem.default('Modes', 18),
     }, {}, nil, "Gambits", "Add custom behaviors.", true), GambitSettingsMenuItem)
 
@@ -36,6 +39,7 @@ function GambitSettingsMenuItem.new(trustSettings, trustSettingsMode)
 
         self.disposeBag:add(gambitSettingsEditor:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
             local selectedGambit = currentGambits[indexPath.row]
+            self.selectedGambit = selectedGambit
             gambitSettingsEditor.menuArgs['conditions'] = selectedGambit.conditions
         end, gambitSettingsEditor:getDelegate():didSelectItemAtIndexPath()))
 
@@ -63,6 +67,7 @@ function GambitSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Add", self:getAddAbilityMenuItem())
     self:setChildMenuItem("Remove", self:getRemoveAbilityMenuItem())
     self:setChildMenuItem("Conditions", self:getEditConditionsMenuItem())
+    self:setChildMenuItem("Targets", self:getEditTargetsMenuItem())
     self:setChildMenuItem("Modes", self:getModesMenuItem())
 end
 
@@ -130,7 +135,7 @@ function GambitSettingsMenuItem:getAddAbilityMenuItem()
                     for selectedItem in selectedItems:it() do
                         local ability = job_util.getAbility(selectedItem)
 
-                        local newGambit = Gambit.new(target, L{}, ability)
+                        local newGambit = Gambit.new(target, L{}, ability, target)
                         currentGambits:append(newGambit)
 
                         chooseAbilitiesView.menuArgs['conditions'] = newGambit.conditions
@@ -177,6 +182,20 @@ end
 
 function GambitSettingsMenuItem:getEditConditionsMenuItem()
     return ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, self)
+end
+
+function GambitSettingsMenuItem:getEditTargetsMenuItem()
+    local getEditTargetsMenuItem = MenuItem.new(L{
+        ButtonItem.default('Confirm', 18),
+    }, {}, function(menuArgs, _)
+        local configItems = L{
+            PickerConfigItem.new('conditions_target', self.selectedGambit.conditions_target or GambitTarget.TargetType.Self, L{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Ally, GambitTarget.TargetType.Enemy }, nil, "Conditions target"),
+            PickerConfigItem.new('target', self.selectedGambit.target or GambitTarget.TargetType.Self, L{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Ally, GambitTarget.TargetType.Enemy }, nil, "Action target"),
+        }
+        local configEditor = ConfigEditor.new(self.trustSettings, self.selectedGambit, configItems)
+        return configEditor
+    end, "Gambits", "Change targets of Gambit conditions and abilities.")
+    return getEditTargetsMenuItem
 end
 
 function GambitSettingsMenuItem:getModesMenuItem()

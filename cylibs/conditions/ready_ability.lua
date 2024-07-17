@@ -13,7 +13,7 @@ ReadyAbilityCondition.__class = "ReadyAbilityCondition"
 ReadyAbilityCondition.__type = "ReadyAbilityCondition"
 
 function ReadyAbilityCondition.new(ability_name)
-    local self = setmetatable(Condition.new(windower.ffxi.get_player().index), ReadyAbilityCondition)
+    local self = setmetatable(Condition.new(), ReadyAbilityCondition)
     self.ability_name = ability_name or 'Foot Kick'
     return self
 end

@@ -41,6 +41,8 @@ WindowerEvents.Equipment.MainWeaponChanged = Event.newEvent()
 WindowerEvents.Equipment.RangedWeaponChanged = Event.newEvent()
 WindowerEvents.BlueMagic = {}
 WindowerEvents.BlueMagic.SpellsChanged = Event.newEvent()
+WindowerEvents.Ability = {}
+WindowerEvents.Ability.Ready = Event.newEvent()
 
 local main_weapon_id
 local ranged_weapon_id
@@ -71,6 +73,18 @@ local incoming_event_dispatcher = {
         local act = windower.packets.parse_action(data)
         act.size = data:byte(5)
         WindowerEvents.Action:trigger(act)
+
+        if act.category == 7 then
+            for _, target in pairs(act.targets) do
+                local action = target.actions[1]
+                if action then
+                    -- ${actor} uses ${weapon_skill}.${lb}${target} takes ${number} points of damage.
+                    if L{ 43, 326, 675 }:contains(action.message) then
+                        WindowerEvents.Ability.Ready:trigger(target.id, action.param)
+                    end
+                end
+            end
+        end
 
         for _, target in pairs(act.targets) do
             local action = target.actions[1]
@@ -105,6 +119,13 @@ local incoming_event_dispatcher = {
                 -- NOTE: this causes a memory leak
                 --IpcRelay.shared():send_message(LoseDebuffMessage.new(target_id, param_1))
             end
+        end
+
+        if L{ 43, 326, 675 }:contains(message_id) then
+            if windower.ffxi.get_mob_by_id(actor_id).name == 'Locus Ghost Crab' then
+                print(message_id, param_1 or 'nil', param_2 or 'nil')
+            end
+            WindowerEvents.Ability.Ready:trigger(target_id, param_1)
         end
     end,
 
