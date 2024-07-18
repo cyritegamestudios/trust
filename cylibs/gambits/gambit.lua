@@ -51,4 +51,8 @@ function Gambit:serialize()
     return "Gambit.new(" .. serializer_util.serialize(self.target) .. ", " .. conditions .. ", " .. self.ability:serialize() .. ", " .. serializer_util.serialize(self.conditions_target) .. ")"
 end
 
+function Gambit:copy()
+    return Gambit.new(self:getAbilityTarget(), self:getConditions(), self:getAbility(), self:getConditionsTarget())
+end
+
 return Gambit
