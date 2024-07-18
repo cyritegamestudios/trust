@@ -186,6 +186,7 @@ function Puller:pull_target(target)
         self.action_queue:push_action(pull_action, true)
     else
         self:get_party():add_to_chat(self.party:get_player(), "I can't use any of my pull actions right now. Maybe we should add more?", "pull_action_cooldown", 10)
+        self.action_queue:push_action(BlockAction.new(function() player_util.face(target:get_mob())  end, "face target"))
     end
 end
 

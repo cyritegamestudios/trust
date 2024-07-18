@@ -26,7 +26,7 @@ end
 
 function HasBuffsCondition.from_party_member(buff_names, num_required, party_member)
     local self = setmetatable(Condition.new(party_member:get_mob().index), HasBuffsCondition)
-    self.buff_names = buff_names -- save arg for serializer
+    self.buff_names = buff_names or L{} -- save arg for serializer
     self.buff_ids = buff_names:map(function(buff_name) return buff_util.buff_id(buff_name)  end)
     self.num_required = num_required or buff_names:length()
     self.party_member = party_member
@@ -79,7 +79,8 @@ function HasBuffsCondition:get_config_items()
 end
 
 function HasBuffsCondition:tostring()
-    return "Has "..self.num_required.."+ of "..localization_util.commas(self.buff_names)
+    local buff_names = self.buff_names or L{}
+    return "Has "..self.num_required.."+ of "..localization_util.commas(buff_names)
 end
 
 function HasBuffsCondition:serialize()

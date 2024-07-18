@@ -8,6 +8,7 @@ local Event = require('cylibs/events/Luvent')
 local GainDebuffMessage = require('cylibs/messages/gain_buff_message')
 local LoseDebuffMessage = require('cylibs/messages/lose_buff_message')
 local monster_util = require('cylibs/util/monster_util')
+local weapon_skills_ext = require('cylibs/res/weapon_skills')
 
 local DebuffTracker = {}
 DebuffTracker.__index = DebuffTracker
@@ -74,6 +75,14 @@ function DebuffTracker:monitor()
 
         for _,target in pairs(action.targets) do
             if target.id == self.mob_id then
+                if action.category == 3 then
+                    local weapon_skill = weapon_skills_ext[action.param]
+                    if weapon_skill then
+                        for debuff_id in L(weapon_skill.status):it() do
+                            self:add_debuff(debuff_id)
+                        end
+                    end
+                end
                 for _,action in pairs(target.actions) do
                     if type(action) ~= 'number' then
                         if action.message == 644 then
