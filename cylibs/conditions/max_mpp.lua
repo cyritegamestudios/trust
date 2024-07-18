@@ -35,7 +35,7 @@ function MaxManaPointsPercentCondition:get_config_items()
 end
 
 function MaxManaPointsPercentCondition:tostring()
-    return "Player MP <= "..self.max_mpp.. "%"
+    return "MP <= "..self.max_mpp.. "%"
 end
 
 function MaxManaPointsPercentCondition:serialize()

@@ -188,6 +188,7 @@ function CollectionViewDataSource:removeAllItems()
             self.cellCache[indexPath.section][indexPath.row] = nil
         end
     end
+    self.cellCache = {}
 
     -- Trigger the itemsChanged event
     self.itemsChanged:trigger(diff.added, diff.removed, diff.updated)

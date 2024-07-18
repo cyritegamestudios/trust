@@ -15,6 +15,7 @@ local TextStyle = require('cylibs/ui/style/text_style')
 
 local PickerCollectionViewCell = setmetatable({}, {__index = CollectionViewCell })
 PickerCollectionViewCell.__index = PickerCollectionViewCell
+PickerCollectionViewCell.__type = "PickerCollectionViewCell"
 
 
 function PickerCollectionViewCell.new(item)
@@ -81,7 +82,7 @@ function PickerCollectionViewCell:onKeyboardEvent(key, pressed, flags, blocked)
             local currentIndex = self:getItem():getAllValues():indexOf(self:getItem():getCurrentValue())
             if key == 'Left' then
                 local newIndex = currentIndex - 1
-                if newIndex <= 1 then
+                if newIndex < 1 then
                     newIndex = self:getItem():getAllValues():length()
                 end
                 local newValue = self:getItem():getAllValues()[newIndex]

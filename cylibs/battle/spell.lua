@@ -270,6 +270,13 @@ function Spell:serialize()
     return "Spell.new(" .. serializer_util.serialize_args(self.spell_name, self.job_abilities, self.job_names, self.target, conditions_to_serialize, self.consumable) .. ")"
 end
 
+function Spell:__eq(otherItem)
+    if otherItem.__type == self.__type and otherItem:get_name() == self:get_name() then
+        return true
+    end
+    return false
+end
+
 function Spell:__tostring()
     return self:description()
 end

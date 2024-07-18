@@ -3,6 +3,7 @@ local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
 local Color = require('cylibs/ui/views/color')
 local ConfigItem = require('ui/settings/editors/config/ConfigItem')
+local Event = require('cylibs/events/Luvent')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FFXIToggleButtonItem = require('ui/themes/ffxi/FFXIToggleButtonItem')
 local GroupConfigItem = require('ui/settings/editors/config/GroupConfigItem')
@@ -26,6 +27,10 @@ local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_f
 local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
 local ConfigEditor = setmetatable({}, {__index = FFXIWindow })
 ConfigEditor.__index = ConfigEditor
+
+function ConfigEditor:onConfigChanged()
+    return self.configChanged
+end
 
 
 function ConfigEditor.new(trustSettings, configSettings, configItems)
@@ -69,6 +74,7 @@ function ConfigEditor.new(trustSettings, configSettings, configItems)
     self.configItems = configItems:filter(function(configItem)
         return configSettings[configItem:getKey()] ~= nil
     end)
+    self.configChanged = Event.newEvent()
     self.numSections = self.configItems:length()
 
     self:reloadSettings()
@@ -80,7 +86,45 @@ function ConfigEditor.new(trustSettings, configSettings, configItems)
 end
 
 function ConfigEditor:destroy()
-    CollectionView.destroy(self)
+    FFXIWindow.destroy(self)
+end
+
+function ConfigEditor:setConfigItems(configItems)
+    self.configItems = configItems:filter(function(configItem)
+        return self.configSettings[configItem:getKey()] ~= nil
+    end)
+    self:reloadSettings()
+end
+
+function ConfigEditor:reloadConfigItem(configItem)
+    local sectionIndex = self.configItems:indexOf(configItem)
+
+    self:getDataSource():removeItemsInSection(sectionIndex)
+
+    local items = L{}
+
+    local defaultItems = L{}
+    if configItem.__type == GroupConfigItem.__type then
+        for childConfigItem in configItem:getConfigItems():it() do
+            defaultItems:append(self:getCellItemForConfigItem(childConfigItem))
+        end
+    else
+        defaultItems:append(self:getCellItemForConfigItem(configItem))
+    end
+
+    if defaultItems:length() > 0 then
+        local rowIndex = 1
+        for defaultItem in defaultItems:it() do
+            items:append(IndexedItem.new(defaultItem, IndexPath.new(sectionIndex, rowIndex)))
+            rowIndex = rowIndex + 1
+        end
+        sectionIndex = sectionIndex + 1
+    end
+
+    self:getDataSource():addItems(items)
+
+    self:setNeedsLayout()
+    self:layoutIfNeeded()
 end
 
 function ConfigEditor:reloadSettings()
@@ -147,7 +191,7 @@ function ConfigEditor:getCellItemForConfigItem(configItem)
     return nil
 end
 
-function ConfigEditor:onConfirmClick()
+function ConfigEditor:onConfirmClick(skipSave)
     for sectionIndex = 1, self:getDataSource():numberOfSections(), 1 do
         local configItem = self.configItems[sectionIndex]
         if configItem then
@@ -180,7 +224,9 @@ function ConfigEditor:onConfirmClick()
         end
     end
 
-    if self.trustSettings then
+    --self:onConfigChanged():trigger(self.configSettings)
+
+    if self.trustSettings and not skipSave then
         self.trustSettings:saveSettings(true)
         addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my settings!")
     end

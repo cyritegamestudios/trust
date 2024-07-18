@@ -22,10 +22,8 @@ function GambitSettingsMenuItem.new(trustSettings, trustSettingsMode)
         ButtonItem.default('Add', 18),
         ButtonItem.default('Edit', 18),
         ButtonItem.default('Remove', 18),
-        --ButtonItem.default('Conditions', 18),
-        --ButtonItem.default('Targets', 18),
         ButtonItem.default('Modes', 18),
-    }, {}, nil, "Gambits", "Add custom behaviors.", true), GambitSettingsMenuItem)
+    }, {}, nil, "Gambits", "Add custom behaviors.", false), GambitSettingsMenuItem)  -- changed keep views to false
 
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
@@ -62,19 +60,17 @@ end
 function GambitSettingsMenuItem:destroy()
     MenuItem.destroy(self)
 
-    self.dispose_bag:destroy()
+    self.disposeBag:destroy()
 end
 
 function GambitSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Add", self:getAddAbilityMenuItem())
     self:setChildMenuItem("Edit", self:getEditGambitMenuItem())
     self:setChildMenuItem("Remove", self:getRemoveAbilityMenuItem())
-    --self:setChildMenuItem("Conditions", self:getEditConditionsMenuItem())
-    --self:setChildMenuItem("Targets", self:getEditTargetsMenuItem())
     self:setChildMenuItem("Modes", self:getModesMenuItem())
 end
 
-function GambitSettingsMenuItem:getAbilities(gambitTarget)
+function GambitSettingsMenuItem:getAbilities(gambitTarget, flatten)
     local gambitTargetMap = T{
         [GambitTarget.TargetType.Self] = S{'Self'},
         [GambitTarget.TargetType.Ally] = S{'Party'},
@@ -103,68 +99,37 @@ function GambitSettingsMenuItem:getAbilities(gambitTarget)
             return targets:contains('Enemy')
         end)
     }
+    if flatten then
+        sections = sections:flatten()
+    end
     return sections
 end
 
+function GambitSettingsMenuItem:getAbilitiesByTargetType()
+    local abilitiesByTargetType = T{}
+
+    abilitiesByTargetType[GambitTarget.TargetType.Self] = self:getAbilities(GambitTarget.TargetType.Self, true):map(function(abilityName) return job_util.getAbility(abilityName)  end):compact_map()
+    abilitiesByTargetType[GambitTarget.TargetType.Ally] = self:getAbilities(GambitTarget.TargetType.Ally, true):map(function(abilityName) return job_util.getAbility(abilityName)  end):compact_map()
+    abilitiesByTargetType[GambitTarget.TargetType.Enemy] = self:getAbilities(GambitTarget.TargetType.Enemy, true):map(function(abilityName) return job_util.getAbility(abilityName)  end):compact_map()
+
+    return abilitiesByTargetType
+end
+
 function GambitSettingsMenuItem:getAddAbilityMenuItem()
-    local createAddAbilityMenuItem = function(target)
-        local addAbilityMenuItem = MenuItem.new(L{
-            ButtonItem.default('Confirm', 18),
-            ButtonItem.default('Clear', 18),
-        }, {
-            Confirm = MenuItem.action(function(menu)
-                menu:showMenu(self)
-            end, "Gambits", "Add a new "..target.." Gambit.")
-        },
-            function(_, _)
-                local imageItemForAbility = function(abilityName, sectionIndex)
-                    --[[if sectionIndex == 1 then
-                        return AssetManager.imageItemForSpell(abilityName)
-                    elseif sectionIndex == 2 then
-                        return AssetManager.imageItemForJobAbility(abilityName)
-                    else
-                        return nil
-                    end]]
-                    return nil
-                end
+    return MenuItem.action(function(menu)
+        local abilitiesByTargetType = self:getAbilitiesByTargetType()
 
-                local chooseAbilitiesView = FFXIPickerView.withSections(self:getAbilities(target), L{}, false, nil, imageItemForAbility)
-                chooseAbilitiesView:on_pick_items():addAction(function(pickerView, selectedItems)
-                    pickerView:getDelegate():deselectAllItems()
+        local newGambit = Gambit.new(GambitTarget.TargetType.Self, L{}, abilitiesByTargetType[GambitTarget.TargetType.Self][1], GambitTarget.TargetType.Self)
 
-                    local currentGambits = self.trustSettings:getSettings()[self.trustSettingsMode.value].GambitSettings.Gambits
+        local currentGambits = self.trustSettings:getSettings()[self.trustSettingsMode.value].GambitSettings.Gambits
+        currentGambits:append(newGambit)
 
-                    selectedItems = selectedItems:map(function(item) return item:getText() end)
-                    for selectedItem in selectedItems:it() do
-                        local ability = job_util.getAbility(selectedItem)
+        --self.selectedGambit = newGambit
 
-                        local newGambit = Gambit.new(target, L{}, ability, target)
-                        currentGambits:append(newGambit)
+        self.trustSettings:saveSettings(true)
 
-                        chooseAbilitiesView.menuArgs['conditions'] = newGambit.conditions
-                    end
-
-                    self.trustSettings:saveSettings(true)
-
-                    addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've added an empty Gambit for "..localization_util.commas(selectedItems).."!")
-                end)
-
-                return chooseAbilitiesView
-            end, "Gambits", "Add a new "..target.." Gambit.")
-        return addAbilityMenuItem
-    end
-
-    local targetMenuItem = MenuItem.new(L{
-        ButtonItem.default('Self', 18),
-        ButtonItem.default('Ally', 18),
-        ButtonItem.default('Enemy', 18),
-    }, {
-        Self = createAddAbilityMenuItem(GambitTarget.TargetType.Self),
-        Ally = createAddAbilityMenuItem(GambitTarget.TargetType.Ally),
-        Enemy = createAddAbilityMenuItem(GambitTarget.TargetType.Enemy),
-    }, nil, "Gambits", "Add a new Gambit.")
-
-    return targetMenuItem
+        menu:showMenu(self)
+    end, "Gambits", "Add a new Gambit.")
 end
 
 function GambitSettingsMenuItem:getEditGambitMenuItem()
@@ -172,12 +137,13 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
         ButtonItem.default('Confirm', 18),
         ButtonItem.default('Conditions', 18),
     }, {}, function(menuArgs, _)
-        local gambitEditor = GambitSettingsEditor.new(self.selectedGambit, self.trustSettings, self.trustSettingsMode)
-        gambitEditor.menuArgs['conditions'] = self.selectedGambit:getConditions()
+        local abilitiesByTargetType = self:getAbilitiesByTargetType()
+
+        local gambitEditor = GambitSettingsEditor.new(self.selectedGambit, self.trustSettings, self.trustSettingsMode, abilitiesByTargetType)
         return gambitEditor
     end, "Gambits", "Edit the selected Gambit.")
 
-    editGambitMenuItem:setChildMenuItem("Conditions", ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, editGambitMenuItem))
+    editGambitMenuItem:setChildMenuItem("Conditions", ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode))
 
     return editGambitMenuItem
 end
@@ -208,11 +174,14 @@ function GambitSettingsMenuItem:getEditTargetsMenuItem()
     }, {}, function(menuArgs, _)
         local configItems = L{
             PickerConfigItem.new('conditions_target', self.selectedGambit.conditions_target or GambitTarget.TargetType.Self, L{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Ally, GambitTarget.TargetType.Enemy }, nil, "Conditions target"),
-            PickerConfigItem.new('target', self.selectedGambit.target or GambitTarget.TargetType.Self, L{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Ally, GambitTarget.TargetType.Enemy }, nil, "Action target"),
+            PickerConfigItem.new('target', self.selectedGambit.target or GambitTarget.TargetType.Self, L{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Ally, GambitTarget.TargetType.Enemy }, nil, "Ability target"),
         }
         local configEditor = ConfigEditor.new(self.trustSettings, self.selectedGambit, configItems)
         return configEditor
     end, "Gambits", "Change targets of Gambit conditions and abilities.")
+
+    -- TODO: on confirm, update abilities if necessary
+
     return getEditTargetsMenuItem
 end
 
