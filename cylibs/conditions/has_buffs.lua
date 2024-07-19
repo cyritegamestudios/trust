@@ -58,8 +58,12 @@ end
 
 function HasBuffsCondition:get_config_items()
     local all_buffs = S(buff_util.get_all_buff_ids(true):map(function(buff_id)
-        return res.buffs[buff_id].en
-    end))
+        local buff = res.buffs[buff_id]
+        if buff then
+            return buff.en
+        end
+        return nil
+    end):compact_map())
     all_buffs = L(all_buffs)
     all_buffs:append('None')
     all_buffs:sort()
