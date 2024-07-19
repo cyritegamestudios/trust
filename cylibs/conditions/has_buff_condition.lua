@@ -24,7 +24,12 @@ end
 function HasBuffCondition:is_satisfied(target_index)
     local target = windower.ffxi.get_mob_by_index(self:get_target_index() or target_index)
     if target then
-        return L(party_util.get_buffs(target.id)):contains(self.buff_id)
+        local monster = player.party:get_target(target.id)
+        if monster then
+            return monster:has_debuff(self.buff_id)
+        else
+            return L(party_util.get_buffs(target.id)):contains(self.buff_id)
+        end
     end
     return false
 end
