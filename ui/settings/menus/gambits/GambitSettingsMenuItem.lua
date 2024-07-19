@@ -135,6 +135,9 @@ function GambitSettingsMenuItem:getAddAbilityMenuItem()
         self.trustSettings:saveSettings(true)
 
         menu:showMenu(self)
+
+        self.gambitSettingsEditor:getDelegate():selectItemAtIndexPath(IndexPath.new(1, currentGambits:length()))
+
     end, "Gambits", "Add a new Gambit.")
 end
 
