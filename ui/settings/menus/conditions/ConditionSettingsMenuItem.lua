@@ -15,7 +15,7 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
         ButtonItem.default('Remove', 18),
         ButtonItem.default('Invert', 18),
         ButtonItem.default('Edit', 18),
-    }, {}, nil, "Conditions", "Specify when this buff should be used.", true), ConditionSettingsMenuItem)
+    }, {}, nil, "Conditions", "Edit conditions.", true), ConditionSettingsMenuItem)
 
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
@@ -32,7 +32,6 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
         [MinManaPointsPercentCondition.__type] = "min_mpp",
         [MinTacticalPointsCondition.__type] = "min_tp",
         [MaxDistanceCondition.__type] = "max_distance",
-        --[NotCondition.__type] = "not_condition",
         [HasBuffCondition.__type] = "has_buff_condition",
         [ZoneCondition.__type] = "zone",
         [MainJobCondition.__type] = "main_job",
@@ -61,7 +60,7 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
         return editConditionsView
     end
 
-    self:reloadSettings(parentMenuItem)
+    self:reloadSettings(parentMenuItem or self)
 
     return self
 end

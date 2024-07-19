@@ -68,6 +68,12 @@ function PickerView.new(pickerItems, allowsMultipleSelection, cursorImageItem)
     self:setScrollDelta(16)
     self:setScrollEnabled(true)
 
+    self:getDisposeBag():add(self:getDataSource():onItemsWillChange():addAction(function(_, removedIndexPaths, _)
+        for _, indexPath in pairs(removedIndexPaths) do
+            self.pickerItems[indexPath.section]:remove(indexPath.row)
+        end
+    end), self:getDataSource():onItemsWillChange())
+
     self:reload()
 
     self.pick_items = Event.newEvent()
@@ -188,7 +194,9 @@ end
 --
 function PickerView:addItem(text, section)
     local newItem = PickerItem.new(TextItem.new(text, TextStyle.PickerView.Text), false)
+    print(self.pickerItems[section])
     self.pickerItems[section]:append(newItem)
+    print(self.pickerItems[section])
 
     self:reload()
 end

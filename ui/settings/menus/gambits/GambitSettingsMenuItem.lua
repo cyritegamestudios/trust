@@ -159,24 +159,33 @@ function GambitSettingsMenuItem:getRemoveAbilityMenuItem()
                 local indexPath = selectedIndexPath
                 local currentGambits = self.trustSettings:getSettings()[self.trustSettingsMode.value].GambitSettings.Gambits
                 currentGambits:remove(indexPath.row)
+
                 self.gambitSettingsEditor:getDataSource():removeItem(indexPath)
+                --self.gambitSettingsEditor:removeItem(item:getText(), indexPath.section)
+
+                self.selectedGambit = nil
                 self.trustSettings:saveSettings(true)
+
+                if self.gambitSettingsEditor:getDataSource():numberOfItemsInSection(1) > 0 then
+                    self.selectedGambit = currentGambits[1]
+                    self.gambitSettingsEditor:getDelegate():selectItemAtIndexPath(IndexPath.new(1, 1))
+                end
             end
         end
     end, "Gambits", "Remove the selected Gambit.")
 end
 
 function GambitSettingsMenuItem:getCopyGambitMenuItem()
-    return MenuItem.action(function()
+    return MenuItem.action(function(menu)
         if self.selectedGambit then
             local newGambit = self.selectedGambit:copy()
 
             local currentGambits = self.trustSettings:getSettings()[self.trustSettingsMode.value].GambitSettings.Gambits
             currentGambits:append(newGambit)
 
-            self.gambitSettingsEditor:addItem(newGambit:tostring(), 1)
-
             self.trustSettings:saveSettings(true)
+
+            menu:showMenu(self)
         end
     end, "Gambits", "Copy the selected Gambit.")
 end

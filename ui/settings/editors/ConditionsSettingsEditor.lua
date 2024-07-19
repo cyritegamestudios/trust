@@ -3,7 +3,6 @@ local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_v
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
-local Padding = require('cylibs/ui/style/padding')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
