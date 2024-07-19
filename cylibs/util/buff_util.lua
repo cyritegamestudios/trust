@@ -367,4 +367,8 @@ function buff_util.get_all_debuffs()
 	end)
 end
 
+function buff_util.get_all_debuff_ids()
+	return L(T(debuffs):keyset())
+end
+
 return buff_util

@@ -24,6 +24,7 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
         [IdleCondition.__type] = "idle",
         [InBattleCondition.__type] = "in_battle",
         [HasBuffsCondition.__type] = "has_buffs",
+        [HasDebuffCondition.__type] = "has_debuff",
         [MaxHitPointsPercentCondition.__type] = "max_hpp",
         [MinHitPointsPercentCondition.__type] = "min_hpp",
         [HitPointsPercentRangeCondition.__type] = "hpp_range",
