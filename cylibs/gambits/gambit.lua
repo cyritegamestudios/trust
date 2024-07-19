@@ -52,7 +52,11 @@ function Gambit:serialize()
 end
 
 function Gambit:copy()
-    return Gambit.new(self:getAbilityTarget(), self:getConditions(), self:getAbility(), self:getConditionsTarget())
+    local conditions = L{}
+    for condition in self:getConditions() do
+        conditions:append(condition)
+    end
+    return Gambit.new(self:getAbilityTarget(), conditions, self:getAbility(), self:getConditionsTarget())
 end
 
 return Gambit
