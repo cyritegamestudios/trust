@@ -22,6 +22,7 @@ function GambitSettingsMenuItem.new(trustSettings, trustSettingsMode)
         ButtonItem.default('Add', 18),
         ButtonItem.default('Edit', 18),
         ButtonItem.default('Remove', 18),
+        ButtonItem.default('Copy', 18),
         ButtonItem.default('Modes', 18),
     }, {}, nil, "Gambits", "Add custom behaviors.", false), GambitSettingsMenuItem)  -- changed keep views to false
 
@@ -34,7 +35,7 @@ function GambitSettingsMenuItem.new(trustSettings, trustSettingsMode)
 
         local gambitSettingsEditor = FFXIPickerView.withItems(currentGambits:map(function(gambit)
             return gambit:tostring()
-        end), L{}, false, nil, nil, FFXIClassicStyle.WindowSize.Editor.ConfigEditorLarge, true)
+        end), L{}, false, nil, nil, FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge, true)
         gambitSettingsEditor:setAllowsCursorSelection(true)
 
         self.disposeBag:add(gambitSettingsEditor:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
@@ -67,6 +68,7 @@ function GambitSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Add", self:getAddAbilityMenuItem())
     self:setChildMenuItem("Edit", self:getEditGambitMenuItem())
     self:setChildMenuItem("Remove", self:getRemoveAbilityMenuItem())
+    self:setChildMenuItem("Copy", self:getCopyGambitMenuItem())
     self:setChildMenuItem("Modes", self:getModesMenuItem())
 end
 
@@ -162,6 +164,21 @@ function GambitSettingsMenuItem:getRemoveAbilityMenuItem()
             end
         end
     end, "Gambits", "Remove the selected Gambit.")
+end
+
+function GambitSettingsMenuItem:getCopyGambitMenuItem()
+    return MenuItem.action(function()
+        if self.selectedGambit then
+            local newGambit = self.selectedGambit:copy()
+
+            local currentGambits = self.trustSettings:getSettings()[self.trustSettingsMode.value].GambitSettings.Gambits
+            currentGambits:append(newGambit)
+
+            self.gambitSettingsEditor:addItem(newGambit:tostring(), 1)
+
+            self.trustSettings:saveSettings(true)
+        end
+    end, "Gambits", "Copy the selected Gambit.")
 end
 
 function GambitSettingsMenuItem:getEditConditionsMenuItem()

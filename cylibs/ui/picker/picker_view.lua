@@ -181,4 +181,16 @@ function PickerView:onSelectMenuItemAtIndexPath(textItem, _)
     end
 end
 
+---
+-- Adds a new item to the PickerView.
+-- @tparam string text Text item to add.
+-- @tparam number section Section to add item to.
+--
+function PickerView:addItem(text, section)
+    local newItem = PickerItem.new(TextItem.new(text, TextStyle.PickerView.Text), false)
+    self.pickerItems[section]:append(newItem)
+
+    self:reload()
+end
+
 return PickerView
