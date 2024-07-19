@@ -82,7 +82,7 @@ function Gambiter:check_gambits(targets, param)
 end
 
 function Gambiter:get_gambit_targets(gambit_target)
-    local targets
+    local targets = L{}
     local target_group
     if gambit_target == GambitTarget.TargetType.Self then
         target_group = self:get_player()
