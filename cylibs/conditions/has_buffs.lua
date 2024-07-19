@@ -61,6 +61,7 @@ function HasBuffsCondition:get_config_items()
         return res.buffs[buff_id].en
     end))
     all_buffs = L(all_buffs)
+    all_buffs:append('None')
     all_buffs:sort()
     return L{
         GroupConfigItem.new('buff_names', L{
@@ -68,10 +69,16 @@ function HasBuffsCondition:get_config_items()
                 return buff_name:gsub("^%l", string.upper)
             end, "Buff 1"),
             PickerConfigItem.new('buff_name_2', self.buff_names[2] or 'None', all_buffs, function(buff_name)
-                return buff_name:gsub("^%l", string.upper)
+                if buff_name then
+                    return buff_name:gsub("^%l", string.upper)
+                end
+                return 'None'
             end, "Buff 2"),
             PickerConfigItem.new('buff_name_3', self.buff_names[3] or 'None', all_buffs, function(buff_name)
-                return buff_name:gsub("^%l", string.upper)
+                if buff_name then
+                    return buff_name:gsub("^%l", string.upper)
+                end
+                return 'None'
             end, "Buff 3")
         }, nil, "Buff Names"),
         ConfigItem.new('num_required', 1, 3, 1, nil, "Number Required")
