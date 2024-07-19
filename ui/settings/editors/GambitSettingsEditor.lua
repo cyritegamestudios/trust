@@ -37,6 +37,12 @@ function GambitSettingsEditor.new(gambit, trustSettings, trustSettingsMode, abil
 
     --self:reloadSettings()
 
+    self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
+        if indexPath.section == 4 then
+            self:getDelegate():deselectItemAtIndexPath(indexPath)
+        end
+    end), self:getDelegate():didSelectItemAtIndexPath())
+
     self:getDisposeBag():add(self:onConfigChanged():addAction(function(gambit)
         self:reloadConfigItems()
     end), self:onConfigChanged())
