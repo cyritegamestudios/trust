@@ -67,10 +67,12 @@ function Gambiter:check_gambits(targets, param)
             if gambit:isSatisfied(target, param) then
                 if gambit:getAbilityTarget() == gambit:getConditionsTarget() then
                     self:perform_gambit(gambit, target)
+                    return
                 else
                     local ability_targets = self:get_gambit_targets(gambit:getAbilityTarget())
                     if ability_targets:length() > 0 then
                         self:perform_gambit(gambit, ability_targets[1])
+                        return
                     end
                 end
                 break

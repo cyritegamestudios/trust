@@ -36,7 +36,9 @@ function WeaponSkill.new(weapon_skill_name, conditions)
 end
 
 function WeaponSkill:to_action(target_index, _)
-    return WeaponSkillAction.new(self:get_name(), target_index)
+    local action = WeaponSkillAction.new(self:get_name(), target_index)
+    action.identifier = self.__class..'_'..self:get_name()
+    return action
 end
 
 function WeaponSkill:serialize()
