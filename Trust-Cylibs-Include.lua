@@ -30,6 +30,8 @@ SequenceAction = require('cylibs/actions/sequence')
 BlockAction = require('cylibs/actions/block')
 Approach = require('cylibs/battle/approach')
 RangedAttack = require('cylibs/battle/ranged_attack')
+TurnAround = require('cylibs/battle/turn_around')
+TurnToFace = require('cylibs/battle/turn_to_face')
 
 -- Gambits
 Gambit = require('cylibs/gambits/gambit')

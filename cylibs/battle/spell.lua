@@ -266,7 +266,8 @@ end
 function Spell:serialize()
     local conditions_classes_to_serialize = Condition.defaultSerializableConditionClasses()
     local conditions_to_serialize = self.conditions:filter(function(condition)
-        return conditions_classes_to_serialize:contains(condition.__class)  end)
+        return conditions_classes_to_serialize:contains(condition.__class)
+    end)
     return "Spell.new(" .. serializer_util.serialize_args(self.spell_name, self.job_abilities, self.job_names, self.target, conditions_to_serialize, self.consumable) .. ")"
 end
 

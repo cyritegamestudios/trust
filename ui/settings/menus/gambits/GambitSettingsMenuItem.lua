@@ -101,9 +101,9 @@ function GambitSettingsMenuItem:getAbilities(gambitTarget, flatten)
         end):map(function(weaponSkillId)
             return res.weapon_skills[weaponSkillId].en
         end),
-        L{ 'Approach', 'Ranged Attack' }:filter(function(_)
+        L{ 'Approach', 'Ranged Attack', 'Turn Around', 'Turn to Face' }:filter(function(_)
             return targets:contains('Enemy')
-        end)
+        end),
     }
     if flatten then
         sections = sections:flatten()
@@ -129,8 +129,6 @@ function GambitSettingsMenuItem:getAddAbilityMenuItem()
 
         local currentGambits = self.trustSettings:getSettings()[self.trustSettingsMode.value].GambitSettings.Gambits
         currentGambits:append(newGambit)
-
-        --self.selectedGambit = newGambit
 
         self.trustSettings:saveSettings(true)
 
