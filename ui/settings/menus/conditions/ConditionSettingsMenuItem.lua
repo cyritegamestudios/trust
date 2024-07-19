@@ -30,6 +30,7 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
         [MinManaPointsCondition.__type] = "min_mp",
         [MaxManaPointsPercentCondition.__type] = "max_mpp",
         [MinManaPointsPercentCondition.__type] = "min_mpp",
+        [MaxTacticalPointsCondition.__type] = "max_tp",
         [MinTacticalPointsCondition.__type] = "min_tp",
         [MaxDistanceCondition.__type] = "max_distance",
         [HasBuffCondition.__type] = "has_buff_condition",
