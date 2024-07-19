@@ -22,6 +22,8 @@ function GambitSettingsMenuItem.new(trustSettings, trustSettingsMode)
         ButtonItem.default('Add', 18),
         ButtonItem.default('Edit', 18),
         ButtonItem.default('Remove', 18),
+        ButtonItem.default('Move Up', 18),
+        ButtonItem.default('Move Down', 18),
         ButtonItem.default('Copy', 18),
         ButtonItem.default('Modes', 18),
     }, {}, nil, "Gambits", "Add custom behaviors.", false), GambitSettingsMenuItem)  -- changed keep views to false
@@ -69,6 +71,8 @@ function GambitSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Edit", self:getEditGambitMenuItem())
     self:setChildMenuItem("Remove", self:getRemoveAbilityMenuItem())
     self:setChildMenuItem("Copy", self:getCopyGambitMenuItem())
+    self:setChildMenuItem("Move Up", self:getMoveUpGambitMenuItem())
+    self:setChildMenuItem("Move Down", self:getMoveDownGambitMenuItem())
     self:setChildMenuItem("Modes", self:getModesMenuItem())
 end
 
@@ -188,6 +192,44 @@ function GambitSettingsMenuItem:getCopyGambitMenuItem()
             menu:showMenu(self)
         end
     end, "Gambits", "Copy the selected Gambit.")
+end
+
+function GambitSettingsMenuItem:getMoveUpGambitMenuItem()
+    return MenuItem.action(function(menu)
+        local currentGambits = self.trustSettings:getSettings()[self.trustSettingsMode.value].GambitSettings.Gambits
+
+        local selectedIndexPath = self.gambitSettingsEditor:getDelegate():getCursorIndexPath()
+        if selectedIndexPath and selectedIndexPath.row > 1 then
+            local temp = currentGambits[selectedIndexPath.row - 1]
+            currentGambits[selectedIndexPath.row - 1] = currentGambits[selectedIndexPath.row]
+            currentGambits[selectedIndexPath.row] = temp
+
+            self.trustSettings:saveSettings(true)
+
+            menu:showMenu(self)
+
+            self.gambitSettingsEditor:getDelegate():selectItemAtIndexPath(IndexPath.new(selectedIndexPath.section, selectedIndexPath.row - 1))
+        end
+    end, "Gambits", "Move the selected Gambit up.")
+end
+
+function GambitSettingsMenuItem:getMoveDownGambitMenuItem()
+    return MenuItem.action(function(menu)
+        local currentGambits = self.trustSettings:getSettings()[self.trustSettingsMode.value].GambitSettings.Gambits
+
+        local selectedIndexPath = self.gambitSettingsEditor:getDelegate():getCursorIndexPath()
+        if selectedIndexPath and selectedIndexPath.row < currentGambits:length() then
+            local temp = currentGambits[selectedIndexPath.row + 1]
+            currentGambits[selectedIndexPath.row + 1] = currentGambits[selectedIndexPath.row]
+            currentGambits[selectedIndexPath.row] = temp
+
+            self.trustSettings:saveSettings(true)
+
+            menu:showMenu(self)
+
+            self.gambitSettingsEditor:getDelegate():selectItemAtIndexPath(IndexPath.new(selectedIndexPath.section, selectedIndexPath.row + 1))
+        end
+    end, "Gambits", "Move the selected Gambit down.")
 end
 
 function GambitSettingsMenuItem:getEditConditionsMenuItem()
