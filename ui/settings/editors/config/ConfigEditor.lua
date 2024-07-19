@@ -1,7 +1,5 @@
 local BooleanConfigItem = require('ui/settings/editors/config/BooleanConfigItem')
-local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
-local Color = require('cylibs/ui/views/color')
 local ConfigItem = require('ui/settings/editors/config/ConfigItem')
 local Event = require('cylibs/events/Luvent')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
@@ -10,7 +8,6 @@ local GroupConfigItem = require('ui/settings/editors/config/GroupConfigItem')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
-local Padding = require('cylibs/ui/style/padding')
 local PickerCollectionViewCell = require('cylibs/ui/collection_view/cells/picker_collection_view_cell')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local PickerItem = require('cylibs/ui/collection_view/items/picker_item')
@@ -71,13 +68,9 @@ function ConfigEditor.new(trustSettings, configSettings, configItems)
 
     self.trustSettings = trustSettings
     self.configSettings = configSettings
-    self.configItems = configItems:filter(function(configItem)
-        return configSettings[configItem:getKey()] ~= nil
-    end)
     self.configChanged = Event.newEvent()
-    self.numSections = self.configItems:length()
 
-    self:reloadSettings()
+    self:setConfigItems(configItems)
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
@@ -93,6 +86,7 @@ function ConfigEditor:setConfigItems(configItems)
     self.configItems = configItems:filter(function(configItem)
         return self.configSettings[configItem:getKey()] ~= nil
     end)
+    self.numSections = self.configItems:length()
     self:reloadSettings()
 end
 

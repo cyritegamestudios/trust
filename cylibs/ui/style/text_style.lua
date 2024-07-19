@@ -308,6 +308,19 @@ TextStyle.Picker = {
             true,
             Color.yellow
     ),
+    TextSmall = TextStyle.new(
+            Color.clear,
+            Color.clear,
+            "Arial",
+            10,
+            Color.white,
+            Color.lightGrey,
+            0,
+            0,
+            Color.clear,
+            false,
+            Color.yellow
+    ),
 }
 
 return TextStyle

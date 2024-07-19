@@ -21,7 +21,7 @@ PickerCollectionViewCell.__type = "PickerCollectionViewCell"
 function PickerCollectionViewCell.new(item)
     local self = setmetatable(CollectionViewCell.new(item), PickerCollectionViewCell)
 
-    self.textView = TextCollectionViewCell.new(TextItem.new(item:getTextFormat()(item:getCurrentValue()), TextStyle.Default.TextSmall))
+    self.textView = TextCollectionViewCell.new(TextItem.new(item:getTextFormat()(item:getCurrentValue()), TextStyle.Picker.TextSmall))
     self:addSubview(self.textView)
 
     self:setNeedsLayout()
@@ -39,6 +39,8 @@ function PickerCollectionViewCell:setSelected(selected)
         return false
     end
 
+    self.textView:setSelected(selected)
+
     if selected then
         self:requestFocus()
     else
@@ -49,7 +51,7 @@ end
 function PickerCollectionViewCell:setItem(item)
     CollectionViewCell.setItem(self, item)
 
-    self.textView:setItem(TextItem.new(item:getTextFormat()(item:getCurrentValue()), TextStyle.Default.TextSmall))
+    self.textView:setItem(TextItem.new(item:getTextFormat()(item:getCurrentValue()), TextStyle.Picker.TextSmall))
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
