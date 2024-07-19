@@ -9,7 +9,7 @@ function Gambit.new(target, conditions, ability, conditions_target)
     local self = setmetatable({}, Gambit)
 
     self.target = target
-    self.conditions = conditions
+    self.conditions = conditions or L{}
     self.ability = ability
     self.conditions_target = conditions_target
 
@@ -53,7 +53,7 @@ end
 
 function Gambit:copy()
     local conditions = L{}
-    for condition in self:getConditions() do
+    for condition in self:getConditions():it() do
         conditions:append(condition)
     end
     return Gambit.new(self:getAbilityTarget(), conditions, self:getAbility(), self:getConditionsTarget())
