@@ -38,6 +38,7 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
         [ZoneCondition.__type] = "zone",
         [MainJobCondition.__type] = "main_job",
         [ReadyAbilityCondition.__type] = "ready_ability",
+        [FinishAbilityCondition.__type] = "finish_ability",
         --[ModeCondition.__type] = "mode", -- Need to dynamically reload mode values when mode name config cell changes
     }
 

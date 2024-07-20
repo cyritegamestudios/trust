@@ -57,6 +57,7 @@ end
 function TurnAround:to_action(target_index, _)
     return SequenceAction.new(L{
         BlockAction.new(function() player_util.face_away(windower.ffxi.get_mob_by_index(target_index)) end, "face away from target"),
+        WaitAction.new(0, 0, 0, 1.5),
     }, self.__class..'_turn_around')
 end
 

@@ -37,7 +37,40 @@ function Gambiter:on_add()
             if ability then
                 logger.notice(self.__class, 'ability_ready', 'check_gambits', ability.en)
 
-                self:check_gambits(L{ target }, ability.en)
+                local gambits = self.gambits:filter(function(gambit)
+                    for condition in gambit:getConditions():it() do
+                        if condition.__type == ReadyAbilityCondition.__type then
+                            return true
+                        end
+                        return false
+                    end
+                end)
+
+                self:check_gambits(L{ target }, gambits, ability.en)
+            end
+        end
+    end)
+
+    WindowerEvents.Ability.Finish:addAction(function(target_id, ability_id)
+        if not ability_id then
+            return
+        end
+        local target = self:get_target()
+        if target and target:get_id() == target_id then
+            local ability = res.monster_abilities[ability_id]
+            if ability then
+                logger.notice(self.__class, 'ability_finish', 'check_gambits', ability.en)
+
+                local gambits = self.gambits:filter(function(gambit)
+                    for condition in gambit:getConditions():it() do
+                        if condition.__type == FinishAbilityCondition.__type then
+                            return true
+                        end
+                        return false
+                    end
+                end)
+
+                self:check_gambits(L{ target }, gambits, ability.en)
             end
         end
     end)
@@ -54,14 +87,14 @@ function Gambiter:tic(new_time, old_time)
     self:check_gambits()
 end
 
-function Gambiter:check_gambits(targets, param)
+function Gambiter:check_gambits(targets, gambits, param)
     if state.AutoGambitMode.value == 'Off' then
         return
     end
 
     logger.notice(self.__class, 'check_gambits')
 
-    for gambit in self.gambits:it() do
+    for gambit in (gambits or self.gambits):it() do
         local targets = targets or self:get_gambit_targets(gambit:getConditionsTarget()) or L{}
         for target in targets:it() do
             if gambit:isSatisfied(target, param) then

@@ -43,6 +43,7 @@ WindowerEvents.BlueMagic = {}
 WindowerEvents.BlueMagic.SpellsChanged = Event.newEvent()
 WindowerEvents.Ability = {}
 WindowerEvents.Ability.Ready = Event.newEvent()
+WindowerEvents.Ability.Finish = Event.newEvent()
 
 local main_weapon_id
 local ranged_weapon_id
@@ -75,7 +76,11 @@ local incoming_event_dispatcher = {
         WindowerEvents.Action:trigger(act)
 
         if act.category == 7 then
-            for _, target in pairs(act.targets) do
+            if res.monster_abilities[act.targets[1].actions[1].param] then
+                WindowerEvents.Ability.Ready:trigger(act.actor_id, act.targets[1].actions[1].param)
+            end
+
+            --[[for _, target in pairs(act.targets) do
                 local action = target.actions[1]
                 if action then
                     -- ${actor} uses ${weapon_skill}.${lb}${target} takes ${number} points of damage.
@@ -83,7 +88,21 @@ local incoming_event_dispatcher = {
                         WindowerEvents.Ability.Ready:trigger(target.id, action.param)
                     end
                 end
+            end]]
+        elseif act.category == 11 then
+            if res.monster_abilities[act.param] then
+                WindowerEvents.Ability.Finish:trigger(act.actor_id, act.param)
             end
+            --[[for _, target in pairs(act.targets) do
+                local action = target.actions[1]
+                if action then
+                    -- ${actor} uses ${weapon_skill}.${lb}${target} takes ${number} points of damage.
+                    if L{ 185, 186, 187, 188 }:contains(action.message) then
+                        WindowerEvents.Ability.Finish:trigger(act.actor_id, act.param)
+                        break
+                    end
+                end
+            end]]
         end
 
         for _, target in pairs(act.targets) do
