@@ -83,7 +83,11 @@ function PickerCollectionViewCell:onKeyboardEvent(key, pressed, flags, blocked)
         if key then
             local currentIndex = self:getItem():getAllValues():indexOf(self:getItem():getCurrentValue())
             if key == 'Left' then
-                local newIndex = currentIndex - 1
+                local interval = 1
+                if flags == 1 then
+                    interval = 50
+                end
+                local newIndex = currentIndex - interval
                 if newIndex < 1 then
                     newIndex = self:getItem():getAllValues():length()
                 end
@@ -92,7 +96,11 @@ function PickerCollectionViewCell:onKeyboardEvent(key, pressed, flags, blocked)
                 self:setItem(self:getItem())
                 return true
             elseif key == 'Right' then
-                local newIndex = currentIndex + 1
+                local interval = 1
+                if flags == 1 then
+                    interval = 50
+                end
+                local newIndex = currentIndex + interval
                 if newIndex > self:getItem():getAllValues():length() then
                     newIndex = 1
                 end

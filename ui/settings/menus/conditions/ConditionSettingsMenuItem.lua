@@ -114,7 +114,7 @@ end
 function ConditionSettingsMenuItem:getEditConditionMenuItem()
     local editConditionMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
-    }, L{}, function(menuArgs, _)
+    }, L{}, function(menuArgs, infoView)
         local configItems
         if self.selectedCondition and self.selectedCondition.get_config_items ~= nil then
             configItems = self.selectedCondition:get_config_items()
@@ -124,7 +124,7 @@ function ConditionSettingsMenuItem:getEditConditionMenuItem()
             if condition.__type == NotCondition.__type then
                 condition = condition.conditions[1]
             end
-            local conditionConfigEditor = ConfigEditor.new(self.trustSettings, condition, configItems)
+            local conditionConfigEditor = ConfigEditor.new(self.trustSettings, condition, configItems, infoView)
             conditionConfigEditor:setShouldRequestFocus(true)
             return conditionConfigEditor
         else

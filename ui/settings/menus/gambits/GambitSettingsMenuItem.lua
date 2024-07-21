@@ -32,7 +32,7 @@ function GambitSettingsMenuItem.new(trustSettings, trustSettingsMode)
     self.trustSettingsMode = trustSettingsMode
     self.disposeBag = DisposeBag.new()
 
-    self.contentViewConstructor = function(_, _)
+    self.contentViewConstructor = function(_, infoView)
         local currentGambits = self.trustSettings:getSettings()[self.trustSettingsMode.value].GambitSettings.Gambits
 
         local gambitSettingsEditor = FFXIPickerView.withItems(currentGambits:map(function(gambit)
@@ -143,7 +143,7 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
     local editGambitMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
         ButtonItem.default('Conditions', 18),
-    }, {}, function(menuArgs, _)
+    }, {}, function(menuArgs, infoView)
         local abilitiesByTargetType = self:getAbilitiesByTargetType()
 
         local gambitEditor = GambitSettingsEditor.new(self.selectedGambit, self.trustSettings, self.trustSettingsMode, abilitiesByTargetType)

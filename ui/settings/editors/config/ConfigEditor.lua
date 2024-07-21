@@ -30,7 +30,7 @@ function ConfigEditor:onConfigChanged()
 end
 
 
-function ConfigEditor.new(trustSettings, configSettings, configItems)
+function ConfigEditor.new(trustSettings, configSettings, configItems, infoView)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         if item.__type == SliderItem.__type then
             local cell = SliderCollectionViewCell.new(item)
@@ -71,6 +71,21 @@ function ConfigEditor.new(trustSettings, configSettings, configItems)
     self.configChanged = Event.newEvent()
 
     self:setConfigItems(configItems)
+
+    self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
+        if infoView then
+            local cell = self:getDataSource():cellForItemAtIndexPath(indexPath)
+            if cell and cell.__type == PickerCollectionViewCell.__type then
+                infoView:setDescription("Hold shift and press the left and right arrow keys to cycle faster.")
+            end
+        end
+    end), self:getDelegate():didSelectItemAtIndexPath())
+
+    self:getDisposeBag():add(self:getDelegate():didDeselectItemAtIndexPath():addAction(function(indexPath)
+        if infoView then
+            infoView:setDescription("Edit the selected condition.")
+        end
+    end), self:getDelegate():didDeselectItemAtIndexPath())
 
     self:setNeedsLayout()
     self:layoutIfNeeded()

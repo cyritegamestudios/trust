@@ -28,8 +28,12 @@ end
 
 function ReadyAbilityCondition:get_config_items()
     local all_ability_names = S(monster_util.get_all_ability_ids():map(function(ability_id)
-        return res.monster_abilities[ability_id].en
-    end))
+        local monster_ability = res.monster_abilities[ability_id]
+        if monster_ability then
+            return monster_ability.en
+        end
+        return nil
+    end):compact_map())
     all_ability_names = L(all_ability_names)
     all_ability_names:sort()
     return L{
