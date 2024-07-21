@@ -130,7 +130,9 @@ function ConditionSettingsMenuItem:getEditConditionMenuItem()
         else
             addon_message(260, '('..windower.ffxi.get_player().name..') '.."This condition can't be configured!")
         end
-    end, "Conditions", "Edit the selected condition.")
+    end, "Conditions", "Edit the selected condition.", false, function()
+        return self.selectedCondition ~= nil
+    end)
     return editConditionMenuItem
 end
 
@@ -151,7 +153,9 @@ function ConditionSettingsMenuItem:getInvertConditionMenuItem()
 
             addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've inverted the condition logic!")
         end
-    end, "Conditions", "Invert the selected condition logic.")
+    end, "Conditions", "Invert the selected condition logic.", false, function()
+        return self.selectedCondition ~= nil
+    end)
     return invertConditionMenuItem
 end
 

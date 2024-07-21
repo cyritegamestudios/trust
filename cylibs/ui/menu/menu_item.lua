@@ -14,7 +14,7 @@ MenuItem.__type = "MenuItem"
 --
 -- @treturn MenuItem The newly created MenuItem.
 --
-function MenuItem.new(buttonItems, childMenuItems, contentViewConstructor, titleText, descriptionText, keepViews)
+function MenuItem.new(buttonItems, childMenuItems, contentViewConstructor, titleText, descriptionText, keepViews, enabled)
     local self = setmetatable({}, MenuItem)
 
     self.uuid = os.time()..'-'..math.random(100000)
@@ -24,6 +24,7 @@ function MenuItem.new(buttonItems, childMenuItems, contentViewConstructor, title
     self.descriptionText = descriptionText
     self.titleText = titleText
     self.keepViews = keepViews
+    self.enabled = enabled or function() return true  end
 
     return self
 end
@@ -117,6 +118,15 @@ end
 --
 function MenuItem:getAction()
     return self.callback
+end
+
+---
+-- Returns whether this MenuItem is enabled.
+--
+-- @treturn boolean True if the MenuItem is enabled.
+--
+function MenuItem:isEnabled()
+    return self.enabled()
 end
 
 ---

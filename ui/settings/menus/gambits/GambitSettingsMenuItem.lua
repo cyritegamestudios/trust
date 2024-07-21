@@ -148,7 +148,9 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
 
         local gambitEditor = GambitSettingsEditor.new(self.selectedGambit, self.trustSettings, self.trustSettingsMode, abilitiesByTargetType)
         return gambitEditor
-    end, "Gambits", "Edit the selected Gambit.")
+    end, "Gambits", "Edit the selected Gambit.", false, function()
+        return self.selectedGambit ~= nil
+    end)
 
     editGambitMenuItem:setChildMenuItem("Conditions", ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode))
 
