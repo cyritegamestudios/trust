@@ -8,6 +8,7 @@ local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local Gambit = require('cylibs/gambits/gambit')
 local GambitSettingsEditor = require('ui/settings/editors/GambitSettingsEditor')
 local GambitTarget = require('cylibs/gambits/gambit_target')
+local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local job_util = require('cylibs/util/job_util')
 local MenuItem = require('cylibs/ui/menu/menu_item')
@@ -203,15 +204,24 @@ function GambitSettingsMenuItem:getMoveUpGambitMenuItem()
 
         local selectedIndexPath = self.gambitSettingsEditor:getDelegate():getCursorIndexPath()
         if selectedIndexPath and selectedIndexPath.row > 1 then
-            local temp = currentGambits[selectedIndexPath.row - 1]
-            currentGambits[selectedIndexPath.row - 1] = currentGambits[selectedIndexPath.row]
-            currentGambits[selectedIndexPath.row] = temp
 
-            self.trustSettings:saveSettings(true)
+            local newIndexPath = self.gambitSettingsEditor:getDataSource():getPreviousIndexPath(selectedIndexPath)
+            local item1 = self.gambitSettingsEditor:getDataSource():itemAtIndexPath(selectedIndexPath)
+            local item2 = self.gambitSettingsEditor:getDataSource():itemAtIndexPath(newIndexPath)
+            if item1 and item2 then
+                self.gambitSettingsEditor:getDataSource():swapItems(IndexedItem.new(item1, selectedIndexPath), IndexedItem.new(item2, newIndexPath))
+                self.gambitSettingsEditor:getDelegate():selectItemAtIndexPath(newIndexPath)
 
-            menu:showMenu(self)
+                local temp = currentGambits[selectedIndexPath.row - 1]
+                currentGambits[selectedIndexPath.row - 1] = currentGambits[selectedIndexPath.row]
+                currentGambits[selectedIndexPath.row] = temp
 
-            self.gambitSettingsEditor:getDelegate():selectItemAtIndexPath(IndexPath.new(selectedIndexPath.section, selectedIndexPath.row - 1))
+                self.trustSettings:saveSettings(true)
+
+                --menu:showMenu(self)
+
+                self.gambitSettingsEditor:getDelegate():selectItemAtIndexPath(IndexPath.new(selectedIndexPath.section, selectedIndexPath.row - 1))
+            end
         end
     end, "Gambits", "Move the selected Gambit up.")
 end
@@ -222,15 +232,22 @@ function GambitSettingsMenuItem:getMoveDownGambitMenuItem()
 
         local selectedIndexPath = self.gambitSettingsEditor:getDelegate():getCursorIndexPath()
         if selectedIndexPath and selectedIndexPath.row < currentGambits:length() then
-            local temp = currentGambits[selectedIndexPath.row + 1]
-            currentGambits[selectedIndexPath.row + 1] = currentGambits[selectedIndexPath.row]
-            currentGambits[selectedIndexPath.row] = temp
 
-            self.trustSettings:saveSettings(true)
+            local newIndexPath = self.gambitSettingsEditor:getDataSource():getNextIndexPath(selectedIndexPath)-- IndexPath.new(indexPath.section, indexPath.row + 1)
+            local item1 = self.gambitSettingsEditor:getDataSource():itemAtIndexPath(selectedIndexPath)
+            local item2 = self.gambitSettingsEditor:getDataSource():itemAtIndexPath(newIndexPath)
+            if item1 and item2 then
+                self.gambitSettingsEditor:getDataSource():swapItems(IndexedItem.new(item1, selectedIndexPath), IndexedItem.new(item2, newIndexPath))
+                self.gambitSettingsEditor:getDelegate():selectItemAtIndexPath(newIndexPath)
 
-            menu:showMenu(self)
+                local temp = currentGambits[selectedIndexPath.row + 1]
+                currentGambits[selectedIndexPath.row + 1] = currentGambits[selectedIndexPath.row]
+                currentGambits[selectedIndexPath.row] = temp
 
-            self.gambitSettingsEditor:getDelegate():selectItemAtIndexPath(IndexPath.new(selectedIndexPath.section, selectedIndexPath.row + 1))
+                self.trustSettings:saveSettings(true)
+
+                self.gambitSettingsEditor:getDelegate():selectItemAtIndexPath(IndexPath.new(selectedIndexPath.section, selectedIndexPath.row + 1))
+            end
         end
     end, "Gambits", "Move the selected Gambit down.")
 end
