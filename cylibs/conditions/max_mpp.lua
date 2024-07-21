@@ -39,7 +39,7 @@ function MaxManaPointsPercentCondition:tostring()
 end
 
 function MaxManaPointsPercentCondition.description()
-    return "Mana Points are less than or equal to a percentage."
+    return "MP <= X%."
 end
 
 function MaxManaPointsPercentCondition:serialize()

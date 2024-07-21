@@ -57,7 +57,7 @@ function HasBuffCondition:tostring()
 end
 
 function HasBuffCondition.description()
-    return "Target has a buff."
+    return "Has buff."
 end
 
 function HasBuffCondition:serialize()

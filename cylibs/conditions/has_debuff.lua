@@ -57,7 +57,7 @@ function HasDebuffCondition:tostring()
 end
 
 function HasDebuffCondition.description()
-    return "Target has a debuff."
+    return "Has debuff."
 end
 
 function HasDebuffCondition:serialize()

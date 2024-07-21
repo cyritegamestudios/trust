@@ -47,7 +47,7 @@ function ZoneCondition:tostring()
 end
 
 function ZoneCondition.description()
-    return "In a specific zone."
+    return "In a zone."
 end
 
 function ZoneCondition:serialize()

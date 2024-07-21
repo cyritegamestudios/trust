@@ -26,6 +26,10 @@ function SpellRecastReadyCondition:tostring()
     return res.spells[self.spell_id].en.." recast is ready"
 end
 
+function SpellRecastReadyCondition.description()
+    return "Spell recast is ready."
+end
+
 function SpellRecastReadyCondition:serialize()
     return "SpellRecastReadyCondition.new(" .. serializer_util.serialize_args(self.spell_id) .. ")"
 end

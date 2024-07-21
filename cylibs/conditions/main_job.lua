@@ -48,7 +48,7 @@ function MainJobCondition:tostring()
 end
 
 function MainJobCondition.description()
-    return "Target has a specific main job."
+    return "Main job is X."
 end
 
 function MainJobCondition:serialize()

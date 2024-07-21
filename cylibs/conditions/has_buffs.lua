@@ -95,7 +95,7 @@ function HasBuffsCondition:tostring()
 end
 
 function HasBuffsCondition.description()
-    return "Target has one or more buffs."
+    return "Has one or more buffs."
 end
 
 function HasBuffsCondition:serialize()

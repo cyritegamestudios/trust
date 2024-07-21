@@ -29,7 +29,7 @@ function InBattleCondition:tostring()
 end
 
 function InBattleCondition.description()
-    return "Target is in battle."
+    return "Is in battle."
 end
 
 function InBattleCondition:serialize()

@@ -38,7 +38,7 @@ function HitPointsPercentRangeCondition:tostring()
 end
 
 function HitPointsPercentRangeCondition.description()
-    return "Hit Points are within a given range."
+    return "HP >= X% and HP <= Y%"
 end
 
 function HitPointsPercentRangeCondition:serialize()

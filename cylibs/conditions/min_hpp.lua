@@ -33,7 +33,7 @@ function MinHitPointsPercentCondition:tostring()
 end
 
 function MinHitPointsPercentCondition.description()
-    return "Hit Points are greater than or equal to a percentage."
+    return "HP >= X%."
 end
 
 function MinHitPointsPercentCondition:serialize()

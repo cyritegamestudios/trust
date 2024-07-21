@@ -27,7 +27,7 @@ function JobAbilityRecastReadyCondition:tostring()
 end
 
 function JobAbilityRecastReadyCondition.description()
-    return "Job ability is ready to use."
+    return "Job ability recast is ready."
 end
 
 function JobAbilityRecastReadyCondition:serialize()

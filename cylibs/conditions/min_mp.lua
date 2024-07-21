@@ -39,7 +39,7 @@ function MinManaPointsCondition:tostring()
 end
 
 function MinManaPointsCondition.description()
-    return "Mana Points are greater than or equal to a value."
+    return "MP >= X."
 end
 
 function MinManaPointsCondition:serialize()

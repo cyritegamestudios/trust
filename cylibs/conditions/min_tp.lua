@@ -43,7 +43,7 @@ function MinTacticalPointsCondition:tostring()
 end
 
 function MinTacticalPointsCondition.description()
-    return "Tactical Points are greater than or equal to a value."
+    return "TP >= X."
 end
 
 function MinTacticalPointsCondition:serialize()

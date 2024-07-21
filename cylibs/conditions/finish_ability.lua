@@ -47,7 +47,7 @@ function FinishAbilityCondition:tostring()
 end
 
 function FinishAbilityCondition.description()
-    return "Target finishes using an ability."
+    return "Finishes using an ability."
 end
 
 function FinishAbilityCondition:serialize()

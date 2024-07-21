@@ -37,7 +37,7 @@ function ModeCondition:tostring()
 end
 
 function ModeCondition.description()
-    return "Mode is equal to a value."
+    return "Mode is set to X."
 end
 
 function ModeCondition:serialize()

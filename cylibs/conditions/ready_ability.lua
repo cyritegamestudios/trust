@@ -47,7 +47,7 @@ function ReadyAbilityCondition:tostring()
 end
 
 function ReadyAbilityCondition.description()
-    return "Target readies an ability."
+    return "Readies an ability."
 end
 
 function ReadyAbilityCondition:serialize()
