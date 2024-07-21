@@ -37,9 +37,9 @@ end
 
 function HasRunesCondition:tostring()
     if self.num_required == 1 then
-        return "Has >= 1 rune."
+        return "Has >= 1 rune"
     else
-        return "Has >= "..self.num_required.." runes."
+        return "Has >= "..self.num_required.." runes"
     end
 end
 
