@@ -55,7 +55,7 @@ function GambitSettingsMenuItem.new(trustSettings, trustSettingsMode)
 
         return gambitSettingsEditor
     end
-
+    
     self:reloadSettings()
 
     return self
@@ -223,7 +223,7 @@ function GambitSettingsMenuItem:getMoveUpGambitMenuItem()
                 self.gambitSettingsEditor:getDelegate():selectItemAtIndexPath(IndexPath.new(selectedIndexPath.section, selectedIndexPath.row - 1))
             end
         end
-    end, "Gambits", "Move the selected Gambit up.")
+    end, "Gambits", "Move the selected Gambit up. Gambits get evaluated in order.")
 end
 
 function GambitSettingsMenuItem:getMoveDownGambitMenuItem()
@@ -249,7 +249,7 @@ function GambitSettingsMenuItem:getMoveDownGambitMenuItem()
                 self.gambitSettingsEditor:getDelegate():selectItemAtIndexPath(IndexPath.new(selectedIndexPath.section, selectedIndexPath.row + 1))
             end
         end
-    end, "Gambits", "Move the selected Gambit down.")
+    end, "Gambits", "Move the selected Gambit down. Gambits get evaluated in order.")
 end
 
 function GambitSettingsMenuItem:getEditConditionsMenuItem()
