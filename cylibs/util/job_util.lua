@@ -162,6 +162,10 @@ function job_util.getAbility(abilityName)
         return TurnAround.new()
     elseif abilityName == 'Turn to Face' then
         return TurnToFace.new()
+    elseif abilityName == 'Run Away' then
+        return RunAway.new()
+    elseif abilityName == 'Run To' then
+        return RunTo.new()
     else
         return nil
     end

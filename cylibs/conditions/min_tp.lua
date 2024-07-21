@@ -17,6 +17,7 @@ function MinTacticalPointsCondition.new(min_tp)
 end
 
 function MinTacticalPointsCondition:is_satisfied(target_index)
+    target_index = self:get_target_index() or target_index
     local target = windower.ffxi.get_mob_by_index(target_index)
     if target then
         if target.id == windower.ffxi.get_player().id then

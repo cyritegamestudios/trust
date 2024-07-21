@@ -101,7 +101,7 @@ function GambitSettingsMenuItem:getAbilities(gambitTarget, flatten)
         end):map(function(weaponSkillId)
             return res.weapon_skills[weaponSkillId].en
         end):sort(),
-        L{ 'Approach', 'Ranged Attack', 'Turn Around', 'Turn to Face' }:filter(function(_)
+        L{ 'Approach', 'Ranged Attack', 'Turn Around', 'Turn to Face', 'Run Away', 'Run To' }:filter(function(_)
             return targets:contains('Enemy')
         end),
     }
@@ -237,23 +237,6 @@ end
 
 function GambitSettingsMenuItem:getEditConditionsMenuItem()
     return ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, self)
-end
-
-function GambitSettingsMenuItem:getEditTargetsMenuItem()
-    local getEditGambitMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
-    }, {}, function(menuArgs, _)
-        local configItems = L{
-            PickerConfigItem.new('conditions_target', self.selectedGambit.conditions_target or GambitTarget.TargetType.Self, L{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Ally, GambitTarget.TargetType.Enemy }, nil, "Conditions target"),
-            PickerConfigItem.new('target', self.selectedGambit.target or GambitTarget.TargetType.Self, L{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Ally, GambitTarget.TargetType.Enemy }, nil, "Ability target"),
-        }
-        local configEditor = ConfigEditor.new(self.trustSettings, self.selectedGambit, configItems)
-        return configEditor
-    end, "Gambits", "Change targets of Gambit conditions and abilities.")
-
-    -- TODO: on confirm, update abilities if necessary
-
-    return getEditTargetsMenuItem
 end
 
 function GambitSettingsMenuItem:getModesMenuItem()

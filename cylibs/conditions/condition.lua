@@ -72,6 +72,7 @@ function Condition.defaultSerializableConditionClasses()
         IdleCondition.__class,
         HasBuffCondition.__class,
         HasBuffsCondition.__class,
+        HasRunesCondition.__class,
         MainJobCondition.__class,
         MaxDistanceCondition.__class,
         MaxHitPointsPercentCondition.__class,
