@@ -90,7 +90,9 @@ function HasBuffsCondition:get_config_items()
 end
 
 function HasBuffsCondition:tostring()
-    local buff_names = self.buff_names or L{}
+    local buff_names = (self.buff_names or L{}):map(function(buff_name)
+        return buff_name:gsub("^%l", string.upper)
+    end)
     return "Has "..self.num_required.."+ of "..localization_util.commas(buff_names)
 end
 
