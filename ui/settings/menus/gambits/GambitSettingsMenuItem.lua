@@ -261,7 +261,7 @@ function GambitSettingsMenuItem:getModesMenuItem()
         local modesView = ModesView.new(L{'AutoGambitMode'}, infoView)
         modesView:setShouldRequestFocus(true)
         return modesView
-    end, "Modes", "Change gambit behavior.")
+    end, "Modes", "Change Gambit behavior.")
     return gambitModesMenuItem
 end
 

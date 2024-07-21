@@ -2,6 +2,7 @@
 -- Condition checking whether a certain number of enemies are nearby and claimed.
 -- @class module
 -- @name EnemiesNearbyCondition
+local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local serializer_util = require('cylibs/util/serializer_util')
 
 local Condition = require('cylibs/conditions/condition')
@@ -28,7 +29,8 @@ end
 function EnemiesNearbyCondition:get_config_items()
     return L{
         ConfigItem.new('num_required', 1, 30, 1, function(value) return value.."" end, "Number of Enemies"),
-        ConfigItem.new('distance', 1, 30, 1, function(value) return value.." yalms" end, "Distance from Player")
+        ConfigItem.new('distance', 1, 30, 1, function(value) return value.." yalms" end, "Distance from Player"),
+        PickerConfigItem.new('operator', self.operator, L{ Condition.Operator.GreaterThanOrEqualTo, Condition.Operator.Equals, Condition.Operator.GreaterThan, Condition.Operator.LessThan, Condition.Operator.LessThanOrEqualTo }, nil, "Operator")
     }
 end
 
@@ -41,7 +43,7 @@ function EnemiesNearbyCondition:tostring()
 end
 
 function EnemiesNearbyCondition.description()
-    return "Number of enemies nearby"
+    return "Number of enemies nearby."
 end
 
 function EnemiesNearbyCondition:serialize()
