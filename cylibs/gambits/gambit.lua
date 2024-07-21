@@ -54,7 +54,7 @@ end
 function Gambit:copy()
     local conditions = L{}
     for condition in self:getConditions():it() do
-        conditions:append(condition)
+        conditions:append(condition:copy())
     end
     return Gambit.new(self:getAbilityTarget(), conditions, self:getAbility(), self:getConditionsTarget())
 end
