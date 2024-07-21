@@ -88,19 +88,19 @@ function GambitSettingsMenuItem:getAbilities(gambitTarget, flatten)
             return spell.type ~= 'Trust' and S(spell.targets):intersection(targets):length() > 0
         end):map(function(spell)
             return spell.en
-        end),
+        end):sort(),
         player_util.get_job_abilities():filter(function(jobAbilityId)
             local jobAbility = res.job_abilities[jobAbilityId]
             return S(jobAbility.targets):intersection(targets):length() > 0
         end):map(function(jobAbilityId)
             return res.job_abilities[jobAbilityId].en
-        end),
+        end):sort(),
         L(windower.ffxi.get_abilities().weapon_skills):filter(function(weaponSkillId)
             local weaponSkill = res.weapon_skills[weaponSkillId]
             return S(weaponSkill.targets):intersection(targets):length() > 0
         end):map(function(weaponSkillId)
             return res.weapon_skills[weaponSkillId].en
-        end),
+        end):sort(),
         L{ 'Approach', 'Ranged Attack', 'Turn Around', 'Turn to Face' }:filter(function(_)
             return targets:contains('Enemy')
         end),
