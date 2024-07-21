@@ -42,6 +42,10 @@ function MinTacticalPointsCondition:tostring()
     return "TP >= "..self.min_tp
 end
 
+function MinTacticalPointsCondition.description()
+    return "Tactical Points are greater than or equal to a value."
+end
+
 function MinTacticalPointsCondition:serialize()
     return "MinTacticalPointsCondition.new(" .. serializer_util.serialize_args(self.min_tp) .. ")"
 end

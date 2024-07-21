@@ -26,6 +26,10 @@ function JobAbilityRecastReadyCondition:tostring()
     return self.job_ability_name..' is ready'
 end
 
+function JobAbilityRecastReadyCondition.description()
+    return "Job ability is ready to use."
+end
+
 function JobAbilityRecastReadyCondition:serialize()
     return "JobAbilityRecastReadyCondition.new(" .. serializer_util.serialize_args(self.job_ability_name) .. ")"
 end

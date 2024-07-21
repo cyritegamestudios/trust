@@ -46,6 +46,10 @@ function ReadyAbilityCondition:tostring()
     return "Readies "..self.ability_name
 end
 
+function ReadyAbilityCondition.description()
+    return "Target readies an ability."
+end
+
 function ReadyAbilityCondition:serialize()
     return "ReadyAbilityCondition.new(" .. serializer_util.serialize_args(self.ability_name) .. ")"
 end

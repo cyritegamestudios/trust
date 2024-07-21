@@ -27,6 +27,10 @@ function IdleCondition:tostring()
     return "Is idle"
 end
 
+function IdleCondition.description()
+    return "Target is not in battle."
+end
+
 function IdleCondition:serialize()
     return "IdleCondition.new(" .. serializer_util.serialize_args() .. ")"
 end

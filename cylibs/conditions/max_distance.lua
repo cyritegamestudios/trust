@@ -34,6 +34,10 @@ function MaxDistanceCondition:tostring()
     return "Target distance <= "..self.distance.. " yalms"
 end
 
+function MaxDistanceCondition.description()
+    return "Target is a maximum distance from the player."
+end
+
 function MaxDistanceCondition:serialize()
     return "MaxDistanceCondition.new(" .. serializer_util.serialize_args(self.distance) .. ")"
 end

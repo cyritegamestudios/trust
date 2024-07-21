@@ -36,6 +36,10 @@ function ModeCondition:tostring()
     return self.mode_name..' is '..self.mode_value
 end
 
+function ModeCondition.description()
+    return "Mode is equal to a value."
+end
+
 function ModeCondition:serialize()
     return "ModeCondition.new(" .. serializer_util.serialize_args(self.mode_name, self.mode_value) .. ")"
 end

@@ -28,6 +28,10 @@ function InBattleCondition:tostring()
     return "Is in battle"
 end
 
+function InBattleCondition.description()
+    return "Target is in battle."
+end
+
 function InBattleCondition:serialize()
     return "InBattleCondition.new(" .. serializer_util.serialize_args() .. ")"
 end

@@ -52,9 +52,12 @@ function HasDebuffCondition:get_config_items()
     }
 end
 
-
 function HasDebuffCondition:tostring()
     return "Is "..res.buffs:with('en', self.debuff_name).enl
+end
+
+function HasDebuffCondition.description()
+    return "Target has a debuff."
 end
 
 function HasDebuffCondition:serialize()

@@ -46,6 +46,10 @@ function ZoneCondition:tostring()
     return "In "..localization_util.commas(L(self.zone_ids):map(function(zone_id) return res.zones[zone_id].en end))
 end
 
+function ZoneCondition.description()
+    return "In a specific zone."
+end
+
 function ZoneCondition:serialize()
     return "ZoneCondition.new(" .. serializer_util.serialize_args(self.zone_ids) .. ")"
 end

@@ -52,9 +52,12 @@ function HasBuffCondition:get_config_items()
     }
 end
 
-
 function HasBuffCondition:tostring()
     return "Is "..res.buffs:with('en', self.buff_name).enl
+end
+
+function HasBuffCondition.description()
+    return "Target has a buff."
 end
 
 function HasBuffCondition:serialize()

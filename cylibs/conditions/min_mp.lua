@@ -38,6 +38,10 @@ function MinManaPointsCondition:tostring()
     return "MP >= "..self.min_mp
 end
 
+function MinManaPointsCondition.description()
+    return "Mana Points are greater than or equal to a value."
+end
+
 function MinManaPointsCondition:serialize()
     return "MinManaPointsCondition.new(" .. serializer_util.serialize_args(self.min_mp) .. ")"
 end

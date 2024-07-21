@@ -46,6 +46,10 @@ function FinishAbilityCondition:tostring()
     return "Finishes "..self.ability_name
 end
 
+function FinishAbilityCondition.description()
+    return "Target finishes using an ability."
+end
+
 function FinishAbilityCondition:serialize()
     return "FinishAbilityCondition.new(" .. serializer_util.serialize_args(self.ability_name) .. ")"
 end

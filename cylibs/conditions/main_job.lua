@@ -47,6 +47,10 @@ function MainJobCondition:tostring()
     return "Main job is "..res.jobs:with('ens', self.job_name_short).en
 end
 
+function MainJobCondition.description()
+    return "Target has a specific main job."
+end
+
 function MainJobCondition:serialize()
     return "MainJobCondition.new(" .. serializer_util.serialize_args(self.job_name_short) .. ")"
 end

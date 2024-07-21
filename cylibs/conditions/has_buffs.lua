@@ -94,6 +94,10 @@ function HasBuffsCondition:tostring()
     return "Has "..self.num_required.."+ of "..localization_util.commas(buff_names)
 end
 
+function HasBuffsCondition.description()
+    return "Target has one or more buffs."
+end
+
 function HasBuffsCondition:serialize()
     return "HasBuffsCondition.new(" .. serializer_util.serialize_args(self.buff_names, self.num_required) .. ")"
 end

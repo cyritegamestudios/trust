@@ -106,6 +106,17 @@ function ConditionSettingsMenuItem:getAddConditionMenuItem(parentMenuItem)
 
             addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've added a new condition!")
         end)
+        chooseConditionView:getDisposeBag():add(chooseConditionView:getDelegate():didHighlightItemAtIndexPath():addAction(function(indexPath)
+            local item = chooseConditionView:getDataSource():itemAtIndexPath(indexPath)
+            if item then
+                local conditionClass = require('cylibs/conditions/'..self.editableConditionClasses[item:getText()])
+                if conditionClass and conditionClass.description then
+                    infoView:setDescription(conditionClass.description())
+                else
+                    infoView:setDescription("Add a new condition.")
+                end
+            end
+        end), chooseConditionView:getDelegate():didHighlightItemAtIndexPath())
         return chooseConditionView
     end, "Conditions", "Add a new condition.")
     return addConditionsMenuItem

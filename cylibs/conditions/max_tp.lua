@@ -42,6 +42,10 @@ function MaxTacticalPointsCondition:tostring()
     return "TP <= "..self.max_tp
 end
 
+function MaxTacticalPointsCondition.description()
+    return "Tactical Points are less than or equal to a given value."
+end
+
 function MaxTacticalPointsCondition:serialize()
     return "MaxTacticalPointsCondition.new(" .. serializer_util.serialize_args(self.max_tp) .. ")"
 end
