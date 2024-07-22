@@ -185,7 +185,6 @@ function Corsair:should_double_up(roll_id, roll_num)
 end
 
 function Corsair:can_fold()
-    print(self.roll_mode)
     if self.roll_mode.value == "Safe" then
         return false
     end
