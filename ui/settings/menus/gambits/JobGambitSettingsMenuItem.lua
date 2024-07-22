@@ -29,7 +29,7 @@ function JobGambitSettingsMenuItem.new(trustSettings, trustSettingsMode)
     self.disposeBag = DisposeBag.new()
 
     self.contentViewConstructor = function(_, infoView)
-        local currentGambits = self.trustSettings:getSettings()[self.trustSettingsMode.value].GambitSettings.Default
+        local currentGambits = self.trustSettings:getSettings()[self.trustSettingsMode.value].GambitSettings.Default or L{}
 
         local gambitSettingsEditor = FFXIPickerView.withItems(currentGambits:map(function(gambit)
             return gambit:tostring()
