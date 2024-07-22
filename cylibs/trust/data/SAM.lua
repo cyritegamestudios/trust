@@ -59,7 +59,7 @@ end
 function SamuraiTrust:tic(old_time, new_time)
 	Trust.tic(self, old_time, new_time)
 
-	self:check_tp()
+	--self:check_tp()
 end
 
 function SamuraiTrust:check_tp()

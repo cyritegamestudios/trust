@@ -18,5 +18,13 @@ return {
             },
             Distance = 20
         },
+        GambitSettings = {
+            Default = L{
+                Gambit.new("Self", L{MaxTacticalPointsCondition.new(1000), NotCondition.new(L{ModeCondition.new("AutoBuffMode", "Off")})}, JobAbility.new("Meditate", L{}, L{}), "Self")
+            },
+            Gambits = L{
+
+            },
+        }
     }
 }
