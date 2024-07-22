@@ -46,7 +46,6 @@ function Trust:init()
 		end
 
 		self.gambits = new_trust_settings.GambitSettings.Default or L{}
-		print(self.gambits)
 	end)
 
 	self.on_party_target_change_id = self.party:on_party_target_change():addAction(

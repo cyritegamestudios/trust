@@ -52,6 +52,8 @@ function FoodSettingsMenuItem:getFoodMenuItem()
             'Behe. Steak +1',
             'Marine Stewpot',
             'Prm. Mn. Stewpot',
+            'Squid Sushi',
+            'Squid Sushi +1',
             'Miso Ramen',
             'Miso Ramen +1',
             'Black Curry Bun',

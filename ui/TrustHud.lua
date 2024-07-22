@@ -18,6 +18,7 @@ local Frame = require('cylibs/ui/views/frame')
 local GambitSettingsMenuItem = require('ui/settings/menus/gambits/GambitSettingsMenuItem')
 local GameInfo = require('cylibs/util/ffxi/game_info')
 local HelpView = require('cylibs/trust/ui/help_view')
+local JobGambitSettingsMenuItem = require('ui/settings/menus/gambits/JobGambitSettingsMenuItem')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 local ModesView = require('ui/settings/editors/ModeSettingsEditor')
@@ -350,8 +351,16 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         childMenuItems['Alter Egos'] = self:getMenuItemForRole(trust:role_with_type("truster"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize)
     end
 
+    local jobName = res.jobs:with('ens', jobNameShort).en
+
     menuItems:append(ButtonItem.default('Gambits', 18))
-    childMenuItems.Gambits = GambitSettingsMenuItem.new(trustSettings, trustSettingsMode)
+    childMenuItems.Gambits = MenuItem.new(L{
+        ButtonItem.default('Custom', 18),
+        ButtonItem.default(jobName, 18),
+    }, {
+        Custom = GambitSettingsMenuItem.new(trustSettings, trustSettingsMode),
+        [jobName] = JobGambitSettingsMenuItem.new(trustSettings, trustSettingsMode),
+    }, nil, "Gambits", "Configure Trust behavior.")
 
     local settingsMenuItem = MenuItem.new(menuItems, childMenuItems, nil, "Settings", "Configure Trust settings for skillchains, buffs, debuffs and more.")
     return settingsMenuItem
