@@ -1,7 +1,3 @@
-require('tables')
-require('lists')
-require('logger')
-
 Samurai = require('cylibs/entity/jobs/SAM')
 
 local Trust = require('cylibs/trust/trust')
@@ -9,9 +5,7 @@ local SamuraiTrust = setmetatable({}, {__index = Trust })
 SamuraiTrust.__index = SamuraiTrust
 
 local Buffer = require('cylibs/trust/roles/buffer')
-local JobAbilityAction = require('cylibs/actions/job_ability')
 local JobAbility = require('cylibs/battle/abilities/job_ability')
-local job_util = require('cylibs/util/job_util')
 
 function SamuraiTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local roles = S{
@@ -59,18 +53,7 @@ end
 function SamuraiTrust:tic(old_time, new_time)
 	Trust.tic(self, old_time, new_time)
 
-	--self:check_tp()
-end
-
-function SamuraiTrust:check_tp()
-	local tp = windower.ffxi.get_player().vitals.tp
-	if tp < 1000 then
-		if state.AutoBuffMode.value ~= 'Off' then
-			if job_util.can_use_job_ability('Meditate') then
-				self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, 'Meditate'))
-			end
-		end
-	end
+	self:check_gambits(self.gambits)
 end
 
 return SamuraiTrust
