@@ -22,10 +22,13 @@ function Trust.new(action_queue, roles, trust_settings, job)
 		user_events = {};
 		status = 0;
 		role_blacklist = S{};
+		gambits = L{};
 		trust_settings_changed = Event.newEvent();
 		trust_modes_override = Event.newEvent();
 		trust_modes_reset = Event.newEvent();
 	}, Trust)
+
+	self.gambits = trust_settings.GambitSettings.Default or L{}
 
 	return self
 end
@@ -35,6 +38,16 @@ function Trust:init()
 		self:add_role(role)
 	end
 	self:on_init()
+
+	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
+		local gambiter = self:role_with_type("gambiter")
+		if gambiter then
+			gambiter:set_gambit_settings(new_trust_settings.GambitSettings)
+		end
+
+		self.gambits = new_trust_settings.GambitSettings.Default or L{}
+		print(self.gambits)
+	end)
 
 	self.on_party_target_change_id = self.party:on_party_target_change():addAction(
 			function(_, new_target_index, old_target_index)
@@ -178,6 +191,13 @@ end
 
 function Trust:job_status_change(new_status)
 	self.status = new_status
+end
+
+function Trust:check_gambits(gambits)
+	local gambiter = self:role_with_type("gambiter")
+	if gambiter then
+		gambiter:check_gambits(nil, gambits)
+	end
 end
 
 function Trust:set_player(player)

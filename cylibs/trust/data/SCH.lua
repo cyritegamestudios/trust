@@ -90,7 +90,9 @@ function ScholarTrust:tic(old_time, new_time)
     Trust.tic(self, old_time, new_time)
 
     self:check_arts()
-    self:check_sublimation()
+    --self:check_sublimation()
+
+    self:check_gambits(self.gambits)
 end
 
 function ScholarTrust:check_arts()
