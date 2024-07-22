@@ -12,7 +12,7 @@ PickerConfigItem.__type = "PickerConfigItem"
 -- @tparam function Formatter for current value.
 -- @treturn ConfigItem The newly created ConfigItem instance.
 --
-function PickerConfigItem.new(key, initialValue, allValues, textFormat, description)
+function PickerConfigItem.new(key, initialValue, allValues, textFormat, description, onReload)
     local self = setmetatable({}, PickerConfigItem)
 
     self.key = key
@@ -22,6 +22,8 @@ function PickerConfigItem.new(key, initialValue, allValues, textFormat, descript
         return tostring(value)
     end
     self.description = description or key
+    self.dependencies = L{}
+    self.onReload = onReload
 
     return self
 end
@@ -54,6 +56,18 @@ function PickerConfigItem:getAllValues()
 end
 
 ---
+-- Sets all possible values.
+--
+-- @tparam list allValues All possible values.
+--
+function PickerConfigItem:setAllValues(allValues)
+    self.allValues = allValues
+    if not self.allValues:contains(self.initialValue) then
+        self.initialValue = self.allValues[1]
+    end
+end
+
+---
 -- Gets the formatted text.
 --
 -- @treturn function The formatted text.
@@ -69,6 +83,26 @@ end
 --
 function PickerConfigItem:getDescription()
     return self.description
+end
+
+---
+-- Adds a ConfigItem dependency.  When the value of this PickerConfigItem changes, dependency
+-- ConfigItems will be reloaded.
+--
+-- @tparam ConfigItem ConfigItem dependency.
+--
+function PickerConfigItem:addDependency(configItem)
+    self.dependencies:append(configItem)
+end
+
+---
+-- Gets the dependencies. When the value of this PickerConfigItem changes, dependency
+-- ConfigItems will be reloaded.
+--
+-- @treturn list List of ConfigItem dependencies.
+--
+function PickerConfigItem:getDependencies()
+    return self.dependencies
 end
 
 return PickerConfigItem

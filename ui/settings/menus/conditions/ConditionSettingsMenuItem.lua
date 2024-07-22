@@ -41,6 +41,7 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
         [FinishAbilityCondition.__type] = "finish_ability",
         [HasRunesCondition.__type] = "has_runes",
         [EnemiesNearbyCondition.__type] = "enemies_nearby",
+        [ModeCondition.__type] = "mode",
         --[ModeCondition.__type] = "mode", -- Need to dynamically reload mode values when mode name config cell changes
     }
 

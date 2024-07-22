@@ -85,6 +85,18 @@ function ConfigEditor.new(trustSettings, configSettings, configItems, infoView)
         if infoView then
             infoView:setDescription("Edit the selected condition.")
         end
+        local configItem = self.configItems[indexPath.section]
+        local item = self:getDataSource():itemAtIndexPath(indexPath)
+        if item:getCurrentValue() ~= configItem:getInitialValue() then
+            for dependency in configItem:getDependencies():it() do
+                if dependency.onReload then
+                    local allValues = dependency.onReload(configItem:getKey(), item:getCurrentValue())
+                    dependency:setAllValues(allValues)
+
+                    self:reloadConfigItem(dependency)
+                end
+            end
+        end
     end), self:getDelegate():didDeselectItemAtIndexPath())
 
     self:setNeedsLayout()

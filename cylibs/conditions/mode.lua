@@ -18,7 +18,7 @@ function ModeCondition.new(mode_name, mode_value)
     return self
 end
 
-function ModeCondition:is_satisfied(target_index)
+function ModeCondition:is_satisfied(_)
     if state[self.mode_name] then
         return state[self.mode_name].value == self.mode_value
     end
@@ -26,9 +26,17 @@ function ModeCondition:is_satisfied(target_index)
 end
 
 function ModeCondition:get_config_items()
+    local mode_value_item = PickerConfigItem.new('mode_value', self.mode_value, L(state[self.mode_name]:options()):sort(), nil, "Mode Value", function(configItemKey, configItemValue)
+        if configItemKey == 'mode_name' then
+            return L(state[configItemValue]:options()):sort()
+        end
+    end)
+    local mode_name_item = PickerConfigItem.new('mode_name', self.mode_name, L(T(state):keyset()):sort(), nil, "Mode Name")
+    mode_name_item:addDependency(mode_value_item)
+
     return L{
-        PickerConfigItem.new('mode_name', self.mode_name, L(T(state):keyset()):sort(), nil, "Mode Name"),
-        PickerConfigItem.new('mode_value', self.mode_value, L(state[self.mode_name]:options()):sort(), nil, "Mode Value")
+        mode_name_item,
+        mode_value_item
     }
 end
 
