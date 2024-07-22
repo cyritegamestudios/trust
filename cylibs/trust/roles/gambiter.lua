@@ -94,7 +94,8 @@ function Gambiter:check_gambits(targets, gambits, param)
 
     logger.notice(self.__class, 'check_gambits')
 
-    for gambit in (gambits or self.gambits):it() do
+    local gambits = (gambits or self.gambits):filter(function(gambit) return gambit:isEnabled() end)
+    for gambit in gambits:it() do
         local targets = targets or self:get_gambit_targets(gambit:getConditionsTarget()) or L{}
         for target in targets:it() do
             if gambit:isSatisfied(target, param) then

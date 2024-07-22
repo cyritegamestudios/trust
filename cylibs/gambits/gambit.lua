@@ -12,6 +12,7 @@ function Gambit.new(target, conditions, ability, conditions_target)
     self.conditions = conditions or L{}
     self.ability = ability
     self.conditions_target = conditions_target
+    self.enabled = true
 
     return self
 end
@@ -35,6 +36,14 @@ end
 
 function Gambit:getConditionsTarget()
     return self.conditions_target
+end
+
+function Gambit:setEnabled(enabled)
+    self.enabled = enabled
+end
+
+function Gambit:isEnabled()
+    return self.enabled
 end
 
 function Gambit:tostring()

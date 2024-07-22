@@ -42,6 +42,22 @@ function GambitSettingsMenuItem.new(trustSettings, trustSettingsMode)
         end), L{}, false, nil, nil, FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge, true)
         gambitSettingsEditor:setAllowsCursorSelection(true)
 
+        gambitSettingsEditor:setNeedsLayout()
+        gambitSettingsEditor:layoutIfNeeded()
+
+        local itemsToUpdate = L{}
+        for rowIndex = 1, gambitSettingsEditor:getDataSource():numberOfItemsInSection(1) do
+            local indexPath = IndexPath.new(1, rowIndex)
+            local item = gambitSettingsEditor:getDataSource():itemAtIndexPath(indexPath)
+            item:setEnabled(currentGambits[rowIndex]:isEnabled())
+            itemsToUpdate:append(IndexedItem.new(item, indexPath))
+        end
+
+        gambitSettingsEditor:getDataSource():updateItems(itemsToUpdate)
+
+        gambitSettingsEditor:setNeedsLayout()
+        gambitSettingsEditor:layoutIfNeeded()
+
         self.disposeBag:add(gambitSettingsEditor:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
             local selectedGambit = currentGambits[indexPath.row]
             self.selectedGambit = selectedGambit
@@ -202,17 +218,18 @@ end
 
 function GambitSettingsMenuItem:getToggleMenuItem()
     return MenuItem.action(function(menu)
-        if self.selectedGambit then
-            local newGambit = self.selectedGambit:copy()
+        local selectedIndexPath = self.gambitSettingsEditor:getDelegate():getCursorIndexPath()
+        if selectedIndexPath then
+            local item = self.gambitSettingsEditor:getDataSource():itemAtIndexPath(selectedIndexPath)
+            if item then
+                item:setEnabled(not item:getEnabled())
+                self.gambitSettingsEditor:getDataSource():updateItem(item, selectedIndexPath)
 
-            local currentGambits = self.trustSettings:getSettings()[self.trustSettingsMode.value].GambitSettings.Gambits
-            currentGambits:append(newGambit)
-
-            self.trustSettings:saveSettings(true)
-
-            menu:showMenu(self)
+                local currentGambits = self.trustSettings:getSettings()[self.trustSettingsMode.value].GambitSettings.Gambits
+                currentGambits[selectedIndexPath.row]:setEnabled(not currentGambits[selectedIndexPath.row]:isEnabled())
+            end
         end
-    end, "Gambits", "Toggle the selected Gambit on and off.")
+    end, "Gambits", "Temporarily enable or disable the selected Gambit until the addon reloads.")
 end
 
 function GambitSettingsMenuItem:getMoveUpGambitMenuItem()
