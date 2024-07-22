@@ -26,6 +26,7 @@ function GambitSettingsMenuItem.new(trustSettings, trustSettingsMode)
         ButtonItem.default('Move Up', 18),
         ButtonItem.default('Move Down', 18),
         ButtonItem.default('Copy', 18),
+        ButtonItem.default('Toggle', 18),
         ButtonItem.default('Modes', 18),
     }, {}, nil, "Gambits", "Add custom behaviors.", false), GambitSettingsMenuItem)  -- changed keep views to false
 
@@ -55,7 +56,7 @@ function GambitSettingsMenuItem.new(trustSettings, trustSettingsMode)
 
         return gambitSettingsEditor
     end
-    
+
     self:reloadSettings()
 
     return self
@@ -74,6 +75,7 @@ function GambitSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Copy", self:getCopyGambitMenuItem())
     self:setChildMenuItem("Move Up", self:getMoveUpGambitMenuItem())
     self:setChildMenuItem("Move Down", self:getMoveDownGambitMenuItem())
+    self:setChildMenuItem("Toggle", self:getToggleMenuItem())
     self:setChildMenuItem("Modes", self:getModesMenuItem())
 end
 
@@ -196,6 +198,21 @@ function GambitSettingsMenuItem:getCopyGambitMenuItem()
             menu:showMenu(self)
         end
     end, "Gambits", "Copy the selected Gambit.")
+end
+
+function GambitSettingsMenuItem:getToggleMenuItem()
+    return MenuItem.action(function(menu)
+        if self.selectedGambit then
+            local newGambit = self.selectedGambit:copy()
+
+            local currentGambits = self.trustSettings:getSettings()[self.trustSettingsMode.value].GambitSettings.Gambits
+            currentGambits:append(newGambit)
+
+            self.trustSettings:saveSettings(true)
+
+            menu:showMenu(self)
+        end
+    end, "Gambits", "Toggle the selected Gambit on and off.")
 end
 
 function GambitSettingsMenuItem:getMoveUpGambitMenuItem()
