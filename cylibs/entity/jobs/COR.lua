@@ -111,9 +111,10 @@ rolls["Avenger's Roll"].Unlucky = 8
 -------
 -- Default initializer for a new Corsair.
 -- @treturn COR A Corsair
-function Corsair.new(action_queue)
+function Corsair.new(action_queue, roll_mode)
     local self = setmetatable(Job.new(), Corsair)
     self.action_queue = action_queue
+    self.roll_mode = roll_mode
     return self
 end
 
@@ -168,13 +169,13 @@ function Corsair:should_double_up(roll_id, roll_num)
     if roll_num == 11 then
         return false
     end
-    if self:is_snake_eye_active() then
-        return true
-    end
     if self:is_lucky_roll(roll_id, roll_num) then
         return false
     end
     if self:is_unlucky_roll(roll_id, roll_num) then
+        return true
+    end
+    if self:is_snake_eye_active() then
         return true
     end
     if roll_num > 5 and not self:can_fold() then
@@ -184,6 +185,11 @@ function Corsair:should_double_up(roll_id, roll_num)
 end
 
 function Corsair:can_fold()
+    print(self.roll_mode)
+    if self.roll_mode.value == "Safe" then
+        return false
+    end
+
     return job_util.knows_job_ability(job_util.job_ability_id('Fold')) == true
         and job_util.can_use_job_ability('Fold')
 end
