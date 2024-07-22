@@ -17,6 +17,9 @@ function MaxTacticalPointsCondition.new(max_tp)
 end
 
 function MaxTacticalPointsCondition:is_satisfied(target_index)
+    if target_index == windower.ffxi.get_player().index then
+        return windower.ffxi.get_player().vitals.tp <= self.max_tp
+    end
     local target = windower.ffxi.get_mob_by_index(target_index)
     if target then
         if target.id == windower.ffxi.get_player().id then
