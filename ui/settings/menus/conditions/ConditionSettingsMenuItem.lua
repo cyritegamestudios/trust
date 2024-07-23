@@ -46,6 +46,7 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
         [ModeCondition.__type] = "mode",
         [PetHitPointsPercentCondition.__type] = "pet_hpp",
         [HasPetCondition.__type] = "has_pet",
+        [NumResistsCondition.__type] = "num_resists",
         --[ModeCondition.__type] = "mode", -- Need to dynamically reload mode values when mode name config cell changes
     }
 

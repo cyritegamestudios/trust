@@ -367,6 +367,17 @@ function buff_util.get_all_debuffs()
 	end)
 end
 
+function buff_util.get_all_debuff_spells()
+	local result = L{}
+	for _, spells in pairs(debuffs) do
+		result = result:extend(L(spells))
+	end
+	result = result:map(function(spell_id)
+		return res.spells[spell_id].en
+	end):compact_map()
+	return result
+end
+
 function buff_util.get_all_debuff_ids()
 	return L(T(debuffs):keyset())
 end
