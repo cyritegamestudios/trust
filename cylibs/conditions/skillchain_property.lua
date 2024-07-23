@@ -17,24 +17,35 @@ SkillchainPropertyCondition.__type = "SkillchainPropertyCondition"
 
 function SkillchainPropertyCondition.new(allowed_skillchain_properties)
     local self = setmetatable(Condition.new(), SkillchainPropertyCondition)
-    self.allowed_skillchain_properties = L(allowed_skillchain_properties):compact_map() or L{}
+    self.allowed_skillchain_properties = L((allowed_skillchain_properties or L{ skillchain_util.Light }):map(function(skillchain)
+        if type(skillchain) == 'string' then
+            return skillchain
+        else
+            return skillchain:get_name()
+        end
+    end))
     return self
 end
 
 function SkillchainPropertyCondition:is_satisfied(target_index, skillchain)
-    if S(self.allowed_skillchain_properties):contains(skillchain) then
-        return true
+    if skillchain then
+        if type(skillchain) ~= 'string' then
+            skillchain = skillchain:get_name()
+        end
+        if S(self.allowed_skillchain_properties):contains(skillchain) then
+            return true
+        end
     end
     return false
 end
 
 function SkillchainPropertyCondition:get_config_items()
-    local all_skillchain_properties = L(skillchain_util.all_skillchains())
+    local all_skillchain_properties = L(skillchain_util.AllSkillchains):map(function(skillchain) return skillchain:get_name() end)
     all_skillchain_properties:append('None')
     all_skillchain_properties:sort()
 
     local textFormat = function(skillchain)
-        if skillchain == 'None' then
+        if type(skillchain) == 'string' then
             return skillchain
         end
         return skillchain:get_name()
@@ -50,7 +61,7 @@ function SkillchainPropertyCondition:get_config_items()
 end
 
 function SkillchainPropertyCondition:tostring()
-    return "Skillchain property is "..localization_util.commas(self.allowed_skillchain_properties:map(function(skillchain) return skillchain:get_name() end) or L{}, 'or')
+    return "Skillchain property is "..localization_util.commas(self.allowed_skillchain_properties or L{}, 'or')
 end
 
 function SkillchainPropertyCondition.description()
