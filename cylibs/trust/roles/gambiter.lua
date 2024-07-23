@@ -99,7 +99,7 @@ function Gambiter:on_add()
     self.skillchainer:on_skillchain():addAction(function(target_id, skillchain_step)
         local target = self:get_target()
         if target and target:get_id() == target_id then
-            logger.notice(self.__class, 'gain_debuff', 'check_gambits', debuff.en)
+            --[[logger.notice(self.__class, 'gain_debuff', 'check_gambits', debuff.en)
 
             local gambits = self:get_all_gambits():filter(function(gambit)
                 for condition in gambit:getConditions():it() do
@@ -110,7 +110,7 @@ function Gambiter:on_add()
                 end
             end)
 
-            self:check_gambits(L{ target }, gambits, debuff.en)
+            self:check_gambits(L{ target }, gambits, debuff.en)]]
         end
     end)
 end
