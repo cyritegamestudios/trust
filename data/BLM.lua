@@ -55,6 +55,11 @@ return {
                 Spell.new('Burn', L{}, L{})
             },
             Distance = 20
-        }
+        },
+        GambitSettings = {
+            Gambits = L{
+
+            }
+        },
     }
 }

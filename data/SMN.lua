@@ -43,5 +43,10 @@ return {
             },
             Distance = 20
         },
+        GambitSettings = {
+            Gambits = L{
+
+            }
+        },
     }
 }
