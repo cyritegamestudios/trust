@@ -16,8 +16,8 @@ HasBuffsCondition.__index = HasBuffsCondition
 HasBuffsCondition.__type = "HasBuffsCondition"
 HasBuffsCondition.__class = "HasBuffsCondition"
 
-function HasBuffsCondition.new(buff_names, num_required)
-    local self = setmetatable(Condition.new(), HasBuffsCondition)
+function HasBuffsCondition.new(buff_names, num_required, target_index)
+    local self = setmetatable(Condition.new(target_index), HasBuffsCondition)
     self.buff_names = buff_names or L{ "sleep" } -- save arg for serializer
     self.buff_ids = self.buff_names:map(function(buff_name) return buff_util.buff_id(buff_name)  end)
     self.num_required = num_required or self.buff_names:length()
