@@ -5,7 +5,7 @@ local Gambiter = setmetatable({}, {__index = Role })
 Gambiter.__index = Gambiter
 Gambiter.__class = "Gambiter"
 
-state.AutoGambitMode = M{['description'] = 'Auto Gambit Mode', 'Off', 'Auto'}
+state.AutoGambitMode = M{['description'] = 'Auto Gambit Mode', 'Auto', 'Off'}
 state.AutoGambitMode:set_description('Off', "Okay, I'll ignore any gambits you've set.")
 state.AutoGambitMode:set_description('Auto', "Okay, I'll customize my battle plan with gambits.")
 
@@ -36,7 +36,7 @@ function Gambiter:on_add()
             if ability then
                 logger.notice(self.__class, 'ability_ready', 'check_gambits', ability.en)
 
-                local gambits = self.gambits:filter(function(gambit)
+                local gambits = self:get_all_gambits():filter(function(gambit)
                     for condition in gambit:getConditions():it() do
                         if condition.__type == ReadyAbilityCondition.__type then
                             return true
@@ -60,7 +60,7 @@ function Gambiter:on_add()
             if ability then
                 logger.notice(self.__class, 'ability_finish', 'check_gambits', ability.en)
 
-                local gambits = self.gambits:filter(function(gambit)
+                local gambits = self:get_all_gambits():filter(function(gambit)
                     for condition in gambit:getConditions():it() do
                         if condition.__type == FinishAbilityCondition.__type then
                             return true
@@ -186,7 +186,7 @@ function Gambiter:get_all_gambits()
 end
 
 function Gambiter:tostring()
-    return tostring(self.gambits)
+    return tostring(self:get_all_gambits())
 end
 
 return Gambiter

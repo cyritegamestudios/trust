@@ -25,7 +25,6 @@ function MeleeAccuracyCondition:is_satisfied(target_index)
     if target then
         local party_member = player.party:get_party_member(target.id)
         if party_member then
-            print('accuracy is', party_member:get_battle_stat_tracker():get_accuracy())
             return Condition:eval(party_member:get_battle_stat_tracker():get_accuracy(), self.accuracy_percentage, self.operator)
         end
     end

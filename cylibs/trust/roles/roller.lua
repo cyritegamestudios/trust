@@ -6,7 +6,7 @@ Roller.__index = Roller
 
 state.AutoRollMode = M{['description'] = 'Auto Roll Mode', 'Manual', 'Auto', 'Safe', 'Off'}
 state.AutoRollMode:set_description('Manual', "Okay, you do the first roll and I'll double up on my own.")
-state.AutoRollMode:set_description('Auto', "Okay, I'll roll on my own and chase 11s.")
+state.AutoRollMode:set_description('Auto', "Okay, I'll roll on my own and chase 11s or lucky rolls.")
 state.AutoRollMode:set_description('Safe', "Okay, I'll roll on my own and try not to bust.")
 
 -- Event called when rolls begin

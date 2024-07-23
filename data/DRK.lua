@@ -7,7 +7,6 @@ return {
             Spell.new("Endark II", L{}, L{}, nil, L{}),
             Spell.new("Absorb-DEX", L{}, L{}, "bt", L{}),
             Spell.new("Absorb-STR", L{}, L{}, "bt", L{}),
-            Spell.new("Dread Spikes", L{}, L{}, nil, L{HasBuffCondition.new("Max HP Boost"), IdleCondition.new()})
         },
         PartyBuffs = L{
 
@@ -30,6 +29,7 @@ return {
         GambitSettings = {
             Default = L{
                 Gambit.new("Enemy", L{MeleeAccuracyCondition.new(75, "<="), MainJobCondition.new("DRK")},  Spell.new("Absorb-ACC", L{}, L{}), "Self"),
+                Gambit.new("Self", L{HasBuffCondition.new("Max HP Boost"), IdleCondition.new(), NotCondition.new(L{HasBuffCondition.new("Dread Spikes")})},  Spell.new("Dread Spikes", L{}, L{}), "Self"),
             },
             Gambits = L{
 

@@ -195,6 +195,8 @@ function load_user_files(main_job_id, sub_job_id)
 	player.trust.main_job:add_role(Assistant.new(action_queue))
 	player.trust.main_job:add_role(Gambiter.new(action_queue, player.trust.main_job_settings.Default.GambitSettings))
 
+	player.trust.sub_job:add_role(Gambiter.new(action_queue, player.trust.sub_job_settings.Default.GambitSettings))
+
 	target_change_time = os.time()
 
 	default_trust_name = string.gsub(string.lower(player.main_job_name), "%s+", "")
