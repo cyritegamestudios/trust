@@ -177,8 +177,8 @@ function Gambiter:get_type()
 end
 
 function Gambiter:set_gambit_settings(gambit_settings)
-    self.gambits = gambit_settings.Gambits
-    self.job_gambits = gambit_settings.Default
+    self.gambits = gambit_settings.Gambits or L{}
+    self.job_gambits = gambit_settings.Default or L{}
 end
 
 function Gambiter:get_all_gambits()
