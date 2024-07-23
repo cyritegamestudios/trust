@@ -151,7 +151,7 @@ function MagicBurster:get_priority(element)
 end
 
 function MagicBurster:cast_spell(spell)
-    if not Condition.check_conditions(L{ MinManaPointsPercentCondition.new(self.magic_burst_mpp) }, self.target_index) then
+    if not Condition.check_conditions(L{ MinManaPointsPercentCondition.new(self.magic_burst_mpp, windower.ffxi.get_player().index) }, self.target_index) then
         return
     end
     if Condition.check_conditions(spell:get_conditions(), self.target_index) then
@@ -184,7 +184,7 @@ function MagicBurster:get_spell(element)
         return true
     end)
     for spell in spells:it() do
-        local conditions = L{}:extend(spell:get_conditions()):extend(L{ MinManaPointsCondition.new(spell:get_mp_cost()) })
+        local conditions = L{}:extend(spell:get_conditions()):extend(L{ MinManaPointsCondition.new(spell:get_mp_cost(), windower.ffxi.get_player().index) })
         if Condition.check_conditions(conditions, self.target_index) then
             return spell
         end
