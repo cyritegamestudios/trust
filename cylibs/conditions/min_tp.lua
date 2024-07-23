@@ -10,16 +10,13 @@ MinTacticalPointsCondition.__index = MinTacticalPointsCondition
 MinTacticalPointsCondition.__class = "MinTacticalPointsCondition"
 MinTacticalPointsCondition.__type = "MinTacticalPointsCondition"
 
-function MinTacticalPointsCondition.new(min_tp)
-    local self = setmetatable(Condition.new(), MinTacticalPointsCondition)
+function MinTacticalPointsCondition.new(min_tp, target_index)
+    local self = setmetatable(Condition.new(target_index), MinTacticalPointsCondition)
     self.min_tp = min_tp or 1000
     return self
 end
 
 function MinTacticalPointsCondition:is_satisfied(target_index)
-    if target_index == windower.ffxi.get_player().index then
-        return windower.ffxi.get_player().vitals.tp >= self.min_tp
-    end
     local target = windower.ffxi.get_mob_by_index(target_index)
     if target then
         local party = player.party

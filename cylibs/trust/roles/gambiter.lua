@@ -9,10 +9,11 @@ state.AutoGambitMode = M{['description'] = 'Auto Gambit Mode', 'Auto', 'Off'}
 state.AutoGambitMode:set_description('Off', "Okay, I'll ignore any gambits you've set.")
 state.AutoGambitMode:set_description('Auto', "Okay, I'll customize my battle plan with gambits.")
 
-function Gambiter.new(action_queue, gambit_settings)
+function Gambiter.new(action_queue, gambit_settings, skillchainer)
     local self = setmetatable(Role.new(action_queue), Gambiter)
 
     self.action_queue = action_queue
+    self.skillchainer = skillchainer
 
     self:set_gambit_settings(gambit_settings)
 
@@ -92,6 +93,24 @@ function Gambiter:on_add()
 
                 self:check_gambits(L{ target }, gambits, debuff.en)
             end
+        end
+    end)
+
+    self.skillchainer:on_skillchain():addAction(function(target_id, skillchain_step)
+        local target = self:get_target()
+        if target and target:get_id() == target_id then
+            logger.notice(self.__class, 'gain_debuff', 'check_gambits', debuff.en)
+
+            local gambits = self:get_all_gambits():filter(function(gambit)
+                for condition in gambit:getConditions():it() do
+                    if condition.__type == GainDebuffCondition.__type then
+                        return true
+                    end
+                    return false
+                end
+            end)
+
+            self:check_gambits(L{ target }, gambits, debuff.en)
         end
     end)
 end

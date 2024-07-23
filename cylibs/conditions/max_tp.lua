@@ -10,8 +10,8 @@ MaxTacticalPointsCondition.__index = MaxTacticalPointsCondition
 MaxTacticalPointsCondition.__class = "MaxTacticalPointsCondition"
 MaxTacticalPointsCondition.__type = "MaxTacticalPointsCondition"
 
-function MaxTacticalPointsCondition.new(max_tp)
-    local self = setmetatable(Condition.new(), MaxTacticalPointsCondition)
+function MaxTacticalPointsCondition.new(max_tp, target_index)
+    local self = setmetatable(Condition.new(target_index), MaxTacticalPointsCondition)
     self.max_tp = max_tp or 1000
     return self
 end
