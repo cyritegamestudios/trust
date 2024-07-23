@@ -87,41 +87,6 @@ end
 
 function RedMageTrust:tic(old_time, new_time)
 	Trust.tic(self, old_time, new_time)
-
-	self:check_mp()
-end
-
--------
--- Checks the player's mp. If it is less than 20% and AutoConvertMode is set to Auto, uses convert.
-function RedMageTrust:check_mp()
-	if state.AutoConvertMode.value == 'Off'
-			or (os.time() - self.last_mp_check) < 8 then
-		return
-	end
-	self.last_mp_check = os.time()
-
-	if windower.ffxi.get_player().vitals.mpp < 20 then
-		self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, 'Convert'), true)
-	end
-end
-
--------
--- Checks the player's accuracy. If it is less than 80%, casts Distract on the current battle target.
-function RedMageTrust:check_accuracy()
-	if self.battle_stat_tracker:get_accuracy() < 80 then
-		local target = self:get_target()
-		if not target then
-			return
-		end
-		local distract = Debuff.new('Distract')
-		if distract then
-			local debuff = buff_util.debuff_for_spell(distract:get_spell().id)
-			if debuff and not target:has_debuff(debuff.id)
-					and target:get_resist_tracker():numResists(distract:get_spell().id) < 2 then
-				self.action_queue:push_action(SpellAction.new(0, 0, 0, distract:get_spell().id, self.target_index, self:get_player()), true)
-			end
-		end
-	end
 end
 
 return RedMageTrust
