@@ -30,7 +30,11 @@ function HasPetCondition:is_satisfied(target_index)
 end
 
 function HasPetCondition:tostring()
-    return "HasPetCondition"
+    return "Has pet"
+end
+
+function HasPetCondition.description()
+    return "Has pet."
 end
 
 function HasPetCondition:serialize()

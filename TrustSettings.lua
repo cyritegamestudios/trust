@@ -192,7 +192,7 @@ function TrustSettings:runMigrations(settings)
         end
         if not settingsForMode.GambitSettings then
             settingsForMode.GambitSettings = {}
-            settingsForMode.GambitSettings.Gambits = L{}
+            settingsForMode.GambitSettings.Gambits = self.defaultSettings.Default.GambitSettings.Gambits
             needsMigration = true
         end
         if not settingsForMode.GambitSettings.Default then
