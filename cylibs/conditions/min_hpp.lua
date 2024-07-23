@@ -10,8 +10,8 @@ MinHitPointsPercentCondition.__index = MinHitPointsPercentCondition
 MinHitPointsPercentCondition.__class = "MinHitPointsPercentCondition"
 MinHitPointsPercentCondition.__type = "MinHitPointsPercentCondition"
 
-function MinHitPointsPercentCondition.new(min_hpp)
-    local self = setmetatable(Condition.new(), MinHitPointsPercentCondition)
+function MinHitPointsPercentCondition.new(min_hpp, target_index)
+    local self = setmetatable(Condition.new(target_index), MinHitPointsPercentCondition)
     self.min_hpp = min_hpp or 0
     return self
 end

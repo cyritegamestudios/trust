@@ -10,8 +10,8 @@ MinManaPointsCondition.__index = MinManaPointsCondition
 MinManaPointsCondition.__class = "MinManaPointsCondition"
 MinManaPointsCondition.__type = "MinManaPointsCondition"
 
-function MinManaPointsCondition.new(min_mp)
-    local self = setmetatable(Condition.new(), MinManaPointsCondition)
+function MinManaPointsCondition.new(min_mp, target_index)
+    local self = setmetatable(Condition.new(target_index), MinManaPointsCondition)
     self.min_mp = min_mp or 0
     return self
 end

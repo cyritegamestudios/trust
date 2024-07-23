@@ -10,8 +10,8 @@ MinManaPointsPercentCondition.__index = MinManaPointsPercentCondition
 MinManaPointsPercentCondition.__class = "MinManaPointsPercentCondition"
 MinManaPointsPercentCondition.__type = "MinManaPointsPercentCondition"
 
-function MinManaPointsPercentCondition.new(min_mpp)
-    local self = setmetatable(Condition.new(), MinManaPointsPercentCondition)
+function MinManaPointsPercentCondition.new(min_mpp, target_index)
+    local self = setmetatable(Condition.new(target_index), MinManaPointsPercentCondition)
     self.min_mpp = min_mpp or 0
     return self
 end

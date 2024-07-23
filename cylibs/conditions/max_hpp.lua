@@ -10,8 +10,8 @@ MaxHitPointsPercentCondition.__index = MaxHitPointsPercentCondition
 MaxHitPointsPercentCondition.__type = "MaxHitPointsPercentCondition"
 MaxHitPointsPercentCondition.__class = "MaxHitPointsPercentCondition"
 
-function MaxHitPointsPercentCondition.new(max_hpp)
-    local self = setmetatable(Condition.new(), MaxHitPointsPercentCondition)
+function MaxHitPointsPercentCondition.new(max_hpp, target_index)
+    local self = setmetatable(Condition.new(target_index), MaxHitPointsPercentCondition)
     self.max_hpp = max_hpp or 100
     return self
 end

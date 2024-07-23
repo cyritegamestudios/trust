@@ -10,8 +10,8 @@ MaxManaPointsPercentCondition.__index = MaxManaPointsPercentCondition
 MaxManaPointsPercentCondition.__type = "MaxManaPointsPercentCondition"
 MaxManaPointsPercentCondition.__class = "MaxManaPointsPercentCondition"
 
-function MaxManaPointsPercentCondition.new(max_mpp)
-    local self = setmetatable(Condition.new(), MaxManaPointsPercentCondition)
+function MaxManaPointsPercentCondition.new(max_mpp, target_index)
+    local self = setmetatable(Condition.new(target_index), MaxManaPointsPercentCondition)
     self.max_mpp = max_mpp or 100
     return self
 end
