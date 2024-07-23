@@ -53,8 +53,6 @@ end
 
 function PaladinTrust:job_target_change(target_index)
 	Trust.job_target_change(self, target_index)
-
-	self.target_index = target_index
 end
 
 function PaladinTrust:tic(old_time, new_time)
