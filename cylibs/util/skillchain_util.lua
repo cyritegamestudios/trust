@@ -127,6 +127,15 @@ skillchain_util.DarknessSkillchains = S{
     skillchain_util.Reverberation, skillchain_util.Induration
 }
 
+skillchain_util.AllSkillchains = S{
+    skillchain_util.Radiance, skillchain_util.LightLv4, skillchain_util.Light, skillchain_util.Fragmentation,
+    skillchain_util.Fusion, skillchain_util.Impaction, skillchain_util.Liquefaction,
+    skillchain_util.Detonation, skillchain_util.Transfixion,
+    skillchain_util.Umbra, skillchain_util.DarknessLv4, skillchain_util.Darkness, skillchain_util.Distortion,
+    skillchain_util.Gravitation, skillchain_util.Scission, skillchain_util.Compression,
+    skillchain_util.Reverberation, skillchain_util.Induration
+}
+
 skillchain_util.skillchain = {
     Umbra = L{
         L{skillchain_util.Darkness, skillchain_util.Darkness},

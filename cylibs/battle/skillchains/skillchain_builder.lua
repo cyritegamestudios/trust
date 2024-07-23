@@ -79,7 +79,7 @@ function SkillchainBuilder:get_next_steps()
             end
         end
         steps = L(steps:filter(function(step)
-            return Condition.check_conditions(self.conditions, skillchain_util[step:get_skillchain()])
+            return Condition.check_conditions(self.conditions, nil, skillchain_util[step:get_skillchain()])
         end))
         self:sort_steps(steps, self.step:get_skillchain())
 
@@ -112,7 +112,6 @@ function SkillchainBuilder:sort_steps(steps, current_skillchain)
     --print('sorted steps', steps:map(function(step) return step:get_ability():get_name()..', ('..step:get_skillchain()..')'  end))
     return steps
 end
-
 -------
 -- Sets the list of abilities that should be used to calculate skillchain steps.
 -- @tparam list abilities List of SkillchainAbility

@@ -95,7 +95,7 @@ function Condition.check_conditions(conditions, param, ...)
             target_index = param
         end
         if not condition:is_satisfied(target_index, ...) then
-            logger.error(Condition.__class, "Failed", condition:tostring())
+            logger.error(condition.__class, "Failed", condition:tostring())
             return false
         end
     end

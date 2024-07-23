@@ -17,32 +17,40 @@ SkillchainPropertyCondition.__type = "SkillchainPropertyCondition"
 
 function SkillchainPropertyCondition.new(allowed_skillchain_properties)
     local self = setmetatable(Condition.new(), SkillchainPropertyCondition)
-    self.allowed_skillchain_properties = allowed_skillchain_properties or L{ 'Light' }
+    self.allowed_skillchain_properties = L(allowed_skillchain_properties):compact_map() or L{}
     return self
 end
 
 function SkillchainPropertyCondition:is_satisfied(target_index, skillchain)
-    if self.allowed_skillchain_properties:contains(skillchain) then
+    if S(self.allowed_skillchain_properties):contains(skillchain) then
         return true
     end
     return false
 end
 
 function SkillchainPropertyCondition:get_config_items()
-    local all_skillchain_properties = skillchain_util.all_skillchain_properties()
+    local all_skillchain_properties = L(skillchain_util.all_skillchains())
     all_skillchain_properties:append('None')
     all_skillchain_properties:sort()
+
+    local textFormat = function(skillchain)
+        if skillchain == 'None' then
+            return skillchain
+        end
+        return skillchain:get_name()
+    end
+
     return L{
         GroupConfigItem.new('allowed_skillchain_properties', L{
-            PickerConfigItem.new('property_1', self.allowed_skillchain_properties[1] or 'None', all_skillchain_properties, nil, "Property 1"),
-            PickerConfigItem.new('property_2', self.allowed_skillchain_properties[2] or 'None', all_skillchain_properties, nil, "Property 2"),
-            PickerConfigItem.new('property_3', self.allowed_skillchain_properties[3] or 'None', all_skillchain_properties, nil, "Property 3")
+            PickerConfigItem.new('property_1', self.allowed_skillchain_properties[1] or 'None', all_skillchain_properties, textFormat, "Property 1"),
+            PickerConfigItem.new('property_2', self.allowed_skillchain_properties[2] or 'None', all_skillchain_properties, textFormat, "Property 2"),
+            PickerConfigItem.new('property_3', self.allowed_skillchain_properties[3] or 'None', all_skillchain_properties, textFormat, "Property 3")
         }, nil, "Skillchain Properties"),
     }
 end
 
 function SkillchainPropertyCondition:tostring()
-    return "Skillchain property is "..localization_util.commas(self.allowed_skillchain_properties or L{}, 'or')
+    return "Skillchain property is "..localization_util.commas(self.allowed_skillchain_properties:map(function(skillchain) return skillchain:get_name() end) or L{}, 'or')
 end
 
 function SkillchainPropertyCondition.description()
