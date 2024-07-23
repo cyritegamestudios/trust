@@ -5,8 +5,8 @@ return {
         AutoFood="Grape Daifuku",
         SelfBuffs = L{
             Spell.new("Endark II", L{}, L{}, nil, L{}),
-            Spell.new("Absorb-DEX", L{}, L{}, "bt", L{}),
             Spell.new("Absorb-STR", L{}, L{}, "bt", L{}),
+            Spell.new("Absorb-DEX", L{}, L{}, "bt", L{}),
         },
         PartyBuffs = L{
 
@@ -21,7 +21,7 @@ return {
         PullSettings = {
             Abilities = L{
                 Spell.new('Absorb-STR', L{}, L{}),
-                Spell.new('Absorb-ACC', L{}, L{}),
+                Spell.new('Absorb-DEX', L{}, L{}),
                 Spell.new('Stone', L{}, L{})
             },
             Distance = 20
