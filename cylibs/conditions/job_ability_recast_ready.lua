@@ -12,7 +12,7 @@ JobAbilityRecastReadyCondition.__index = JobAbilityRecastReadyCondition
 JobAbilityRecastReadyCondition.__class = "JobAbilityRecastReadyCondition"
 
 function JobAbilityRecastReadyCondition.new(job_ability_name)
-    local self = setmetatable(Condition.new(windower.ffxi.get_player().index), JobAbilityRecastReadyCondition)
+    local self = setmetatable(Condition.new(), JobAbilityRecastReadyCondition)
     self.job_ability_name = job_ability_name
     return self
 end

@@ -13,7 +13,7 @@ SpellRecastReadyCondition.__type = "SpellRecastReadyCondition"
 SpellRecastReadyCondition.__class = "SpellRecastReadyCondition"
 
 function SpellRecastReadyCondition.new(spell_id)
-    local self = setmetatable(Condition.new(windower.ffxi.get_player().index), SpellRecastReadyCondition)
+    local self = setmetatable(Condition.new(), SpellRecastReadyCondition)
     self.spell_id = spell_id or 23
     return self
 end

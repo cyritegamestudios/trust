@@ -11,7 +11,7 @@ MinManaPointsCondition.__class = "MinManaPointsCondition"
 MinManaPointsCondition.__type = "MinManaPointsCondition"
 
 function MinManaPointsCondition.new(min_mp)
-    local self = setmetatable(Condition.new(windower.ffxi.get_player().index), MinManaPointsCondition)
+    local self = setmetatable(Condition.new(), MinManaPointsCondition)
     self.min_mp = min_mp or 0
     return self
 end

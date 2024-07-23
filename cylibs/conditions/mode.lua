@@ -12,7 +12,7 @@ ModeCondition.__class = "ModeCondition"
 ModeCondition.__type = "ModeCondition"
 
 function ModeCondition.new(mode_name, mode_value)
-    local self = setmetatable(Condition.new(windower.ffxi.get_player().index), ModeCondition)
+    local self = setmetatable(Condition.new(), ModeCondition)
     self.mode_name = mode_name or 'AutoBuffMode'
     self.mode_value = mode_value or 'Off'
     return self

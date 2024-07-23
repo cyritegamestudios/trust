@@ -11,7 +11,7 @@ MinTacticalPointsCondition.__class = "MinTacticalPointsCondition"
 MinTacticalPointsCondition.__type = "MinTacticalPointsCondition"
 
 function MinTacticalPointsCondition.new(min_tp)
-    local self = setmetatable(Condition.new(windower.ffxi.get_player().index), MinTacticalPointsCondition)
+    local self = setmetatable(Condition.new(), MinTacticalPointsCondition)
     self.min_tp = min_tp or 1000
     return self
 end

@@ -10,7 +10,7 @@ NeverCondition.__class = "NeverCondition"
 NeverCondition.__type = "NeverCondition"
 
 function NeverCondition.new()
-    local self = setmetatable(Condition.new(windower.ffxi.get_player().index), NeverCondition)
+    local self = setmetatable(Condition.new(), NeverCondition)
     return self
 end
 

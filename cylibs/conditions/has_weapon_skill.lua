@@ -10,7 +10,7 @@ HasWeaponSkillCondition.__index = HasWeaponSkillCondition
 HasWeaponSkillCondition.__class = "HasWeaponSkillCondition"
 
 function HasWeaponSkillCondition.new(weapon_skill_name)
-    local self = setmetatable(Condition.new(windower.ffxi.get_player().index), HasWeaponSkillCondition)
+    local self = setmetatable(Condition.new(), HasWeaponSkillCondition)
     self.weapon_skill_name = weapon_skill_name
     return self
 end

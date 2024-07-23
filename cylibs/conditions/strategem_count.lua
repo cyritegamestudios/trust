@@ -13,7 +13,7 @@ StrategemCountCondition.__type = "StrategemCountCondition"
 StrategemCountCondition.__class = "StrategemCountCondition"
 
 function StrategemCountCondition.new(strategem_count, operator)
-    local self = setmetatable(Condition.new(windower.ffxi.get_player().index), StrategemCountCondition)
+    local self = setmetatable(Condition.new(), StrategemCountCondition)
     self.strategem_count = strategem_count or 1
     self.operator = operator or Condition.Operator.GreaterThanOrEqualTo
     return self

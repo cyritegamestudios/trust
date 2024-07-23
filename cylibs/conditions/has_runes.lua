@@ -14,7 +14,7 @@ HasRunesCondition.__type = "HasRunesCondition"
 HasRunesCondition.__class = "HasRunesCondition"
 
 function HasRunesCondition.new(num_required)
-    local self = setmetatable(Condition.new(windower.ffxi.get_player().index), HasRunesCondition)
+    local self = setmetatable(Condition.new(), HasRunesCondition)
     self.num_required = num_required or 1
     return self
 end
