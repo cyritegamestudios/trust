@@ -26,7 +26,6 @@ end
 function Gambiter:on_add()
     Role.on_add(self)
 
-    -- Enemy abilities
     WindowerEvents.Ability.Ready:addAction(function(target_id, ability_id)
         if not ability_id then
             return
@@ -74,6 +73,27 @@ function Gambiter:on_add()
             end
         end
     end)
+
+    WindowerEvents.GainDebuff:addAction(function(target_id, debuff_id)
+        local target = self:get_target()
+        if target and target:get_id() == target_id then
+            local debuff = res.buffs[debuff_id]
+            if debuff then
+                logger.notice(self.__class, 'gain_debuff', 'check_gambits', debuff.en)
+
+                local gambits = self:get_all_gambits():filter(function(gambit)
+                    for condition in gambit:getConditions():it() do
+                        if condition.__type == GainDebuffCondition.__type then
+                            return true
+                        end
+                        return false
+                    end
+                end)
+
+                self:check_gambits(L{ target }, gambits, debuff.en)
+            end
+        end
+    end)
 end
 
 function Gambiter:target_change(target_index)
@@ -94,7 +114,7 @@ function Gambiter:check_gambits(targets, gambits, param)
 
     logger.notice(self.__class, 'check_gambits')
 
-    local gambits = (gambits or self.gambits):filter(function(gambit) return gambit:isEnabled() end)
+    local gambits = (gambits or self:get_all_gambits()):filter(function(gambit) return gambit:isEnabled() end)
     for gambit in gambits:it() do
         local targets = targets or self:get_gambit_targets(gambit:getConditionsTarget()) or L{}
         for target in targets:it() do
@@ -158,6 +178,11 @@ end
 
 function Gambiter:set_gambit_settings(gambit_settings)
     self.gambits = gambit_settings.Gambits
+    self.job_gambits = gambit_settings.Default
+end
+
+function Gambiter:get_all_gambits()
+    return L{}:extend(self.gambits):extend(self.job_gambits)
 end
 
 function Gambiter:tostring()

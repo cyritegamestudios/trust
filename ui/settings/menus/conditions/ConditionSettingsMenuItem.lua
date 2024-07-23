@@ -23,6 +23,7 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
     self.editableConditionClasses = T{
         [IdleCondition.__type] = "idle",
         [InBattleCondition.__type] = "in_battle",
+        [GainDebuffCondition.__type] = "gain_debuff",
         [HasBuffsCondition.__type] = "has_buffs",
         [HasDebuffCondition.__type] = "has_debuff",
         [MaxHitPointsPercentCondition.__type] = "max_hpp",
