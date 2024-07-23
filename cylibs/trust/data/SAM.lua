@@ -52,8 +52,6 @@ end
 
 function SamuraiTrust:tic(old_time, new_time)
 	Trust.tic(self, old_time, new_time)
-
-	self:check_gambits(self.gambits)
 end
 
 return SamuraiTrust

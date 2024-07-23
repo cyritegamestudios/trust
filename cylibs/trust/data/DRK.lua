@@ -4,10 +4,8 @@ local Trust = require('cylibs/trust/trust')
 local DarkKnightTrust = setmetatable({}, {__index = Trust })
 DarkKnightTrust.__index = DarkKnightTrust
 
-local BattleStatTracker = require('cylibs/battle/battle_stat_tracker')
 local Spell = require('cylibs/battle/spell')
 local buff_util = require('cylibs/util/buff_util')
-local spell_util = require('cylibs/util/spell_util')
 
 local Buffer = require('cylibs/trust/roles/buffer')
 local Debuffer = require('cylibs/trust/roles/debuffer')
@@ -27,8 +25,6 @@ function DarkKnightTrust.new(settings, action_queue, battle_settings, trust_sett
 
 	self.settings = settings
 	self.action_queue = action_queue
-	self.battle_stat_tracker = BattleStatTracker.new(windower.ffxi.get_player().id)
-	self.battle_stat_tracker:monitor()
 
 	return self
 end
@@ -49,33 +45,14 @@ function DarkKnightTrust:on_init()
 end
 
 function DarkKnightTrust:on_deinit()
-	self.battle_stat_tracker:destroy()
 end
 
 function DarkKnightTrust:job_target_change(target_index)
 	Trust.job_target_change(self, target_index)
-
-	self.target_index = target_index
-
-	self.battle_stat_tracker:reset()
 end
 
 function DarkKnightTrust:tic(old_time, new_time)
 	Trust.tic(self, old_time, new_time)
-
-	self:check_accuracy()
-end
-
-function DarkKnightTrust:check_accuracy()
-	if self.battle_stat_tracker:get_accuracy() < 80 then
-		if not buff_util.is_buff_active(self:get_job():buff_for_absorb_spell('Absorb-ACC').id)
-				and spell_util.can_cast_spell(spell_util.spell_id('Absorb-ACC')) then
-			self.action_queue:push_action(SequenceAction.new(L{
-				SpellAction.new(0, 0, 0, spell_util.spell_id('Absorb-ACC'), self.target_index, self:get_player()),
-				WaitAction.new(0, 0, 0, 1),
-			}, 'absorb-acc'), true)
-		end
-	end
 end
 
 function DarkKnightTrust:job_magic_burst(target_id, spell)

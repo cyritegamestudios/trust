@@ -29,6 +29,7 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
         [MaxHitPointsPercentCondition.__type] = "max_hpp",
         [MinHitPointsPercentCondition.__type] = "min_hpp",
         [HitPointsPercentRangeCondition.__type] = "hpp_range",
+        [MeleeAccuracyCondition.__type] = "melee_accuracy",
         [MinManaPointsCondition.__type] = "min_mp",
         [MaxManaPointsPercentCondition.__type] = "max_mpp",
         [MinManaPointsPercentCondition.__type] = "min_mpp",

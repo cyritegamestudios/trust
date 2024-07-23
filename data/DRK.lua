@@ -27,5 +27,13 @@ return {
             },
             Distance = 20
         },
+        GambitSettings = {
+            Default = L{
+                Gambit.new("Enemy", L{MeleeAccuracyCondition.new(75, "<="), MainJobCondition.new("DRK")},  Spell.new("Absorb-ACC", L{}, L{}), "Self"),
+            },
+            Gambits = L{
+
+            }
+        },
     }
 }

@@ -10,9 +10,7 @@ local Trust = require('cylibs/trust/trust')
 local RedMageTrust = setmetatable({}, {__index = Trust })
 RedMageTrust.__index = RedMageTrust
 
-local BattleStatTracker = require('cylibs/battle/battle_stat_tracker')
 local Debuff = require('cylibs/battle/spells/debuff')
-local Monster = require('cylibs/battle/monster')
 local buff_util = require('cylibs/util/buff_util')
 
 local Buffer = require('cylibs/trust/roles/buffer')
@@ -78,27 +76,18 @@ function RedMageTrust:on_init()
 			role:set_nuke_settings(new_trust_settings.NukeSettings)
 		end
 	end)
-
-	self.battle_stat_tracker = BattleStatTracker.new(windower.ffxi.get_player().id)
-	self.battle_stat_tracker:monitor()
 end
 
 function RedMageTrust:on_deinit()
-	self.battle_stat_tracker:destroy()
 end
 
 function RedMageTrust:job_target_change(target_index)
 	Trust.job_target_change(self, target_index)
-
-	self.target_index = target_index
-
-	self.battle_stat_tracker:reset()
 end
 
 function RedMageTrust:tic(old_time, new_time)
 	Trust.tic(self, old_time, new_time)
 
-	self:check_accuracy()
 	self:check_mp()
 end
 

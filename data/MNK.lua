@@ -20,5 +20,14 @@ return {
             },
             Distance = 20
         },
+        GambitSettings = {
+            Default = L{
+                Gambit.new("Self", L{MeleeAccuracyCondition.new(75, "<=")}, JobAbility.new('Focus', L{}), "Self"),
+                Gambit.new("Self", L{MaxHitPointsPercentCondition.new(25)}, JobAbility.new("Chakra", L{}, L{}), "Self")
+            },
+            Gambits = L{
+
+            }
+        },
     }
 }

@@ -72,5 +72,14 @@ return {
             },
             Distance = 20
         },
+        GambitSettings = {
+            Default = L{
+                Gambit.new("Self", L{MaxManaPointsPercentCondition.new(20), ModeCondition.new("AutoConvertMode", "Auto")}, JobAbility.new("Convert", L{}, L{}), "Self"),
+                Gambit.new("Enemy", L{MeleeAccuracyCondition.new(75, "<="), MainJobCondition.new("RDM")},  Debuff.new("Distract", L{}, L{}), "Self"),
+            },
+            Gambits = L{
+
+            }
+        },
     }
 }
