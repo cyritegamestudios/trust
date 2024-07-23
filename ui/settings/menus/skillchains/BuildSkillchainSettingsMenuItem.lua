@@ -66,7 +66,7 @@ function BuildSkillchainSettingsMenuItem:getConfirmMenuItem()
             end
             self.currentPage = newPage
 
-            local newSkillchains = self.skillchains:slice(startIndex, math.min(self.skillchains:length(), startIndex + itemsPerPage))
+            local newSkillchains = L{}:extend(self.skillchains):slice(startIndex, math.min(self.skillchains:length(), startIndex + itemsPerPage))
             self.currentSkillchains = newSkillchains
 
             local pickerItems = L(newSkillchains:map(function(abilities)
@@ -98,7 +98,7 @@ function BuildSkillchainSettingsMenuItem:getConfirmMenuItem()
         local skillchains = skillchain_builder:build(self.builderSettings.Property, self.builderSettings.NumSteps)
         self.skillchains = skillchains
 
-        self.currentSkillchains = skillchains:slice(1, math.min(skillchains:length(), 18))
+        self.currentSkillchains = L{}:extend(skillchains):slice(1, math.min(skillchains:length(), 18))
         local pickerItems = L(self.currentSkillchains:map(function(abilities)
             local abilities = L(abilities:map(function(ability) return ability:get_name() end))
             return localization_util.join(abilities, '→')
@@ -136,6 +136,7 @@ function BuildSkillchainSettingsMenuItem:getConfirmMenuItem()
         end)]]
         chooseSkillchainView:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
             chooseSkillchainView.menuArgs.Skillchain = self.currentSkillchains[indexPath.row]
+            --print('current skillchain is', self.currentSkillchains[indexPath.row]:map(function(s) return s:get_name()  end))
         end)
         self.chooseSkillchainView = chooseSkillchainView
         return chooseSkillchainView

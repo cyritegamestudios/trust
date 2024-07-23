@@ -71,7 +71,8 @@ function PickerView.new(pickerItems, allowsMultipleSelection, cursorImageItem)
 
     self:getDisposeBag():add(self:getDataSource():onItemsWillChange():addAction(function(_, removedIndexPaths, _)
         for _, indexPath in pairs(removedIndexPaths) do
-            self.pickerItems[indexPath.section]:remove(indexPath.row)
+            -- this causes items to be removed from the data source during reload
+            --self.pickerItems[indexPath.section]:remove(indexPath.row)
         end
     end), self:getDataSource():onItemsWillChange())
 
@@ -178,7 +179,7 @@ end
 -- @tparam IndexPath indexPath Selected index path.
 --
 function PickerView:onSelectMenuItemAtIndexPath(textItem, _)
-    if L{ 'Confirm', 'Save', 'Search' }:contains(textItem:getText()) then
+    if L{ 'Confirm', 'Save', 'Search', 'Select' }:contains(textItem:getText()) then
         local selectedItems = L(self:getDelegate():getSelectedIndexPaths():map(function(indexPath)
             return self:getDataSource():itemAtIndexPath(indexPath)
         end)):compact_map()
