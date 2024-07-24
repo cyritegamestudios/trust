@@ -184,7 +184,7 @@ function PickerView:onSelectMenuItemAtIndexPath(textItem, _)
             return self:getDataSource():itemAtIndexPath(indexPath)
         end)):compact_map()
         if selectedItems:length() > 0 then
-            self:on_pick_items():trigger(self, selectedItems)
+            self:on_pick_items():trigger(self, selectedItems, L(self:getDelegate():getSelectedIndexPaths()))
         end
     end
 end

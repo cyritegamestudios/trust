@@ -50,6 +50,7 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
         [SkillchainPropertyCondition.__type] = "skillchain_property",
         --[ModeCondition.__type] = "mode", -- Need to dynamically reload mode values when mode name config cell changes
     }
+    self.conditionPickerItems = L(self.editableConditionClasses:keyset()):sort()
 
     self.contentViewConstructor = function(menuArgs, _)
         local conditions = menuArgs and menuArgs['conditions']
@@ -83,6 +84,10 @@ function ConditionSettingsMenuItem:destroy()
     self.dispose_bag:destroy()
 end
 
+function ConditionSettingsMenuItem:getFileForCondition(conditionClass)
+    return require('cylibs/conditions/'..self.editableConditionClasses[conditionClass])
+end
+
 function ConditionSettingsMenuItem:reloadSettings(parentMenuItem)
     self:setChildMenuItem("Add", self:getAddConditionMenuItem(parentMenuItem))
     self:setChildMenuItem("Edit", self:getEditConditionMenuItem())
@@ -102,11 +107,13 @@ function ConditionSettingsMenuItem:getAddConditionMenuItem(parentMenuItem)
         local conditionClasses = L(self.editableConditionClasses:keyset())
         conditionClasses:sort()
 
-        local chooseConditionView = FFXIPickerView.withItems(conditionClasses, L{}, false, nil, nil, FFXIClassicStyle.WindowSize.Editor.ConfigEditor)
+        local chooseConditionView = FFXIPickerView.withItems(self.conditionPickerItems:map(function(conditionClass)
+            return self:getFileForCondition(conditionClass).description()
+        end), L{}, false, nil, nil, FFXIClassicStyle.WindowSize.Editor.ConfigEditor)
         chooseConditionView:setTitle("Choose a condition.")
         chooseConditionView:setShouldRequestFocus(true)
-        chooseConditionView:on_pick_items():addAction(function(_, selectedItems)
-            local conditionClass = require('cylibs/conditions/'..self.editableConditionClasses[selectedItems[1]:getText()])
+        chooseConditionView:on_pick_items():addAction(function(_, _, selectedIndexPaths)
+            local conditionClass = self:getFileForCondition(self.conditionPickerItems[selectedIndexPaths[1].row])
             local newCondition = conditionClass.new()
 
             self.conditions:append(newCondition)
@@ -115,17 +122,14 @@ function ConditionSettingsMenuItem:getAddConditionMenuItem(parentMenuItem)
 
             addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've added a new condition!")
         end)
-        chooseConditionView:getDisposeBag():add(chooseConditionView:getDelegate():didHighlightItemAtIndexPath():addAction(function(indexPath)
-            local item = chooseConditionView:getDataSource():itemAtIndexPath(indexPath)
-            if item then
-                local conditionClass = require('cylibs/conditions/'..self.editableConditionClasses[item:getText()])
-                if conditionClass and conditionClass.description then
-                    infoView:setDescription(conditionClass.description())
-                else
-                    infoView:setDescription("Add a new condition.")
-                end
+        --[[chooseConditionView:getDisposeBag():add(chooseConditionView:getDelegate():didHighlightItemAtIndexPath():addAction(function(indexPath)
+            local conditionClass = self:getFileForCondition(self.conditionPickerItems[indexPath.row])
+            if conditionClass and conditionClass.description then
+                infoView:setDescription(conditionClass.description())
+            else
+                infoView:setDescription("Add a new condition.")
             end
-        end), chooseConditionView:getDelegate():didHighlightItemAtIndexPath())
+        end), chooseConditionView:getDelegate():didHighlightItemAtIndexPath())]]
         return chooseConditionView
     end, "Conditions", "Add a new condition.")
     return addConditionsMenuItem
