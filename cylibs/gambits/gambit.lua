@@ -21,8 +21,8 @@ function Gambit:isSatisfied(target, param)
     if target == nil or target:get_mob() == nil then
         return false
     end
-    local allConditions = L{}:extend(self.conditions):extend(self:getAbility():get_conditions())
-    return self.conditions:length() > 0 and Condition.check_conditions(allConditions, target:get_mob().index, param)
+    return self.conditions:length() > 0 and Condition.check_conditions(self.conditions, target:get_mob().index, param)
+        and Condition.check_conditions(self:getAbility():get_conditions(), windower.ffxi.get_player().index, param)
 end
 
 function Gambit:getAbility()
