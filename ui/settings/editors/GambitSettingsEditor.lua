@@ -95,6 +95,7 @@ end
 function GambitSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
     if textItem:getText() == 'Conditions' then
         self.menuArgs['conditions'] = self.gambit:getConditions()
+        self.menuArgs['targetTypes'] = S{ self.gambit:getConditionsTarget() }
     end
 
     ConfigEditor.onSelectMenuItemAtIndexPath(self, textItem, indexPath)

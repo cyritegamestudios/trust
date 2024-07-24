@@ -46,6 +46,10 @@ function MeleeAccuracyCondition.description()
     return "Melee accuracy."
 end
 
+function MeleeAccuracyCondition.valid_targets()
+    return S{ Condition.TargetType.Self, Condition.TargetType.Ally }
+end
+
 function MeleeAccuracyCondition:serialize()
     return "MeleeAccuracyCondition.new(" .. serializer_util.serialize_args(self.accuracy_percentage, self.operator) .. ")"
 end

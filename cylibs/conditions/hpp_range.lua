@@ -40,6 +40,10 @@ function HitPointsPercentRangeCondition.description()
     return "HP >= X% and HP <= Y%"
 end
 
+function HitPointsPercentRangeCondition.valid_targets()
+    return Condition.TargetType.AllTargets
+end
+
 function HitPointsPercentRangeCondition:serialize()
     return "HitPointsPercentRangeCondition.new(" .. serializer_util.serialize_args(self.min_hpp, self.max_hpp) .. ")"
 end

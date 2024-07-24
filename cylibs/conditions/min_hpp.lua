@@ -36,6 +36,10 @@ function MinHitPointsPercentCondition.description()
     return "HP >= X%."
 end
 
+function MinHitPointsPercentCondition.valid_targets()
+    return Condition.TargetType.AllTargets
+end
+
 function MinHitPointsPercentCondition:serialize()
     return "MinHitPointsPercentCondition.new(" .. serializer_util.serialize_args(self.min_hpp) .. ")"
 end

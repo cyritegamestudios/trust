@@ -46,6 +46,10 @@ function PetHitPointsPercentCondition.description()
     return "Pet HP %."
 end
 
+function PetHitPointsPercentCondition.valid_targets()
+    return S{ Condition.TargetType.Self, Condition.TargetType.Ally }
+end
+
 function PetHitPointsPercentCondition:serialize()
     return "PetHitPointsPercentCondition.new(" .. serializer_util.serialize_args(self.hpp, self.operator) .. ")"
 end

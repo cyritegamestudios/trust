@@ -42,6 +42,10 @@ function MinManaPointsCondition.description()
     return "MP >= X."
 end
 
+function MinManaPointsCondition.valid_targets()
+    return S{ Condition.TargetType.Self, Condition.TargetType.Ally }
+end
+
 function MinManaPointsCondition:serialize()
     return "MinManaPointsCondition.new(" .. serializer_util.serialize_args(self.min_mp) .. ")"
 end

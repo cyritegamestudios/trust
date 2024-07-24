@@ -43,6 +43,10 @@ function NotCondition:tostring()
     return "Not "..localization_util.commas(self.conditions:map(function(condition) return condition:tostring() end))
 end
 
+function NotCondition.valid_targets()
+    return Condition.TargetType.AllTargets
+end
+
 function NotCondition:serialize()
     return "NotCondition.new(" .. serializer_util.serialize_args(self.conditions) .. ")"
 end

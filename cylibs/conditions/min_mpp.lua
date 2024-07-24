@@ -42,6 +42,10 @@ function MinManaPointsPercentCondition.description()
     return "MP >= X%."
 end
 
+function MinManaPointsPercentCondition.valid_targets()
+    return S{ Condition.TargetType.Self, Condition.TargetType.Ally }
+end
+
 function MinManaPointsPercentCondition:serialize()
     return "MinManaPointsPercentCondition.new(" .. serializer_util.serialize_args(self.min_mpp) .. ")"
 end

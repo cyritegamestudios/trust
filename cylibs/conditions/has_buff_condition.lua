@@ -61,6 +61,10 @@ function HasBuffCondition.description()
     return "Has buff."
 end
 
+function HasBuffCondition.valid_targets()
+    return Condition.TargetType.AllTargets
+end
+
 function HasBuffCondition:serialize()
     return "HasBuffCondition.new(" .. serializer_util.serialize_args(self.buff_name) .. ")"
 end

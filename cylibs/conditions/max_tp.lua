@@ -46,6 +46,10 @@ function MaxTacticalPointsCondition.description()
     return "TP <= X."
 end
 
+function MaxTacticalPointsCondition.valid_targets()
+    return S{ Condition.TargetType.Self, Condition.TargetType.Ally }
+end
+
 function MaxTacticalPointsCondition:serialize()
     return "MaxTacticalPointsCondition.new(" .. serializer_util.serialize_args(self.max_tp) .. ")"
 end

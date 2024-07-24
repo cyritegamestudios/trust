@@ -30,6 +30,10 @@ function SpellRecastReadyCondition.description()
     return "Spell recast is ready."
 end
 
+function SpellRecastReadyCondition.valid_targets()
+    return S{ Condition.TargetType.Self }
+end
+
 function SpellRecastReadyCondition:serialize()
     return "SpellRecastReadyCondition.new(" .. serializer_util.serialize_args(self.spell_id) .. ")"
 end

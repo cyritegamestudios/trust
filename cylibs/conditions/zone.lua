@@ -50,6 +50,10 @@ function ZoneCondition.description()
     return "In a zone."
 end
 
+function ZoneCondition.valid_targets()
+    return S{ Condition.TargetType.Self }
+end
+
 function ZoneCondition:serialize()
     return "ZoneCondition.new(" .. serializer_util.serialize_args(self.zone_ids) .. ")"
 end

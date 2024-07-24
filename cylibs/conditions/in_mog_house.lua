@@ -20,6 +20,10 @@ function InMogHouseCondition:tostring()
     return "InMogHouseCondition"
 end
 
+function InMogHouseCondition.valid_targets()
+    return S{ Condition.TargetType.Self }
+end
+
 function InMogHouseCondition:serialize()
     return "InMogHouseCondition.new()"
 end

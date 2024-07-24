@@ -28,6 +28,7 @@ return {
                 Gambit.new("Enemy", L{MaxTacticalPointsCondition.new(1000)}, JobAbility.new("Soul Jump", L{}, L{}), "Self"),
                 Gambit.new("Enemy", L{MaxTacticalPointsCondition.new(1000)}, JobAbility.new("Spirit Jump", L{}, L{}), "Self"),
                 Gambit.new("Enemy", L{MaxHitPointsPercentCondition.new(10)}, JobAbility.new("Super Jump", L{}, L{}), "Self"),
+                Gambit.new("Self", L{HasPetCondition.new(L{})}, JobAbility.new("Steady Wing", L{}, L{}), "Self"),
             },
             Gambits = L{
                 Gambit.new("Enemy", L{MinHitPointsPercentCondition.new(80)}, JobAbility.new("Angon", L{}, L{}), "Enemy"),

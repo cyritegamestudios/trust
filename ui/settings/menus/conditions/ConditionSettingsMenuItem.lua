@@ -9,7 +9,7 @@ local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local ConditionSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 ConditionSettingsMenuItem.__index = ConditionSettingsMenuItem
 
-function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentMenuItem)
+function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentMenuItem, targetTypes)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
@@ -19,6 +19,7 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
 
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
+    self.targetTypes = targetTypes or Condition.TargetType.AllTargets
     self.dispose_bag = DisposeBag.new()
     self.editableConditionClasses = T{
         [IdleCondition.__type] = "idle",
@@ -48,9 +49,11 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
         [HasPetCondition.__type] = "has_pet",
         [NumResistsCondition.__type] = "num_resists",
         [SkillchainPropertyCondition.__type] = "skillchain_property",
-        --[ModeCondition.__type] = "mode", -- Need to dynamically reload mode values when mode name config cell changes
     }
-    self.conditionPickerItems = L(self.editableConditionClasses:keyset()):sort()
+    self.conditionPickerItems = L(self.editableConditionClasses:keyset()):filter(function(c)
+        local conditionClass = self:getFileForCondition(c)
+        return L(self.targetTypes:intersection(conditionClass.valid_targets())):length() > 0
+    end):sort()
 
     self.contentViewConstructor = function(menuArgs, _)
         local conditions = menuArgs and menuArgs['conditions']
@@ -58,6 +61,17 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
             conditions = self.conditions
         end
         self.conditions = conditions
+
+        local targetTypes = menuArgs and menuArgs['targetTypes']
+        if not targetTypes then
+            targetTypes = self.targetTypes
+        end
+        self.targetTypes = targetTypes or Condition.TargetType.AllTargets
+
+        self.conditionPickerItems = L(self.editableConditionClasses:keyset()):filter(function(c)
+            local conditionClass = self:getFileForCondition(c)
+            return L(self.targetTypes:intersection(conditionClass.valid_targets())):length() > 0
+        end)
 
         local editConditionsView = ConditionsSettingsEditor.new(trustSettings, conditions, L(self.editableConditionClasses:keyset()))
         editConditionsView:setTitle("Edit conditions.")

@@ -26,6 +26,10 @@ function NeverCondition:tostring()
     return "Never"
 end
 
+function NeverCondition.valid_targets()
+    return Condition.TargetType.AllTargets
+end
+
 function NeverCondition:serialize()
     return "NeverCondition.new()"
 end

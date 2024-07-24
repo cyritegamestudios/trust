@@ -51,6 +51,10 @@ function MainJobCondition.description()
     return "Main job is X."
 end
 
+function MainJobCondition.valid_targets()
+    return S{ Condition.TargetType.Self, Condition.TargetType.Ally }
+end
+
 function MainJobCondition:serialize()
     return "MainJobCondition.new(" .. serializer_util.serialize_args(self.job_name_short) .. ")"
 end

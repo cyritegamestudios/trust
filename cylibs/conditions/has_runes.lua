@@ -47,6 +47,10 @@ function HasRunesCondition.description()
     return "Has >= X runes."
 end
 
+function HasRunesCondition.valid_targets()
+    return S{ Condition.TargetType.Self }
+end
+
 function HasRunesCondition:serialize()
     return "HasRunesCondition.new(" .. serializer_util.serialize_args(self.num_required) .. ")"
 end

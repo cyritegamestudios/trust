@@ -60,6 +60,10 @@ function HasDebuffCondition.description()
     return "Has debuff."
 end
 
+function HasDebuffCondition.valid_targets()
+    return Condition.TargetType.AllTargets
+end
+
 function HasDebuffCondition:serialize()
     return "HasDebuffCondition.new(" .. serializer_util.serialize_args(self.debuff_name) .. ")"
 end

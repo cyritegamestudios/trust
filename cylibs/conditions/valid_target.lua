@@ -27,6 +27,10 @@ function ValidTargetCondition:tostring()
     return "ValidTargetCondition"
 end
 
+function ValidTargetCondition.valid_targets()
+    return Condition.TargetType.AllTargets
+end
+
 function ValidTargetCondition:serialize()
     return "ValidTargetCondition.new(" .. serializer_util.serialize_args(self.blacklist_names) .. ")"
 end

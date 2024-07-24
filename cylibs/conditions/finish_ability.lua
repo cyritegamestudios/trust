@@ -50,6 +50,10 @@ function FinishAbilityCondition.description()
     return "Finishes using an ability."
 end
 
+function FinishAbilityCondition.valid_targets()
+    return S{ Condition.TargetType.Enemy }
+end
+
 function FinishAbilityCondition:serialize()
     return "FinishAbilityCondition.new(" .. serializer_util.serialize_args(self.ability_name) .. ")"
 end

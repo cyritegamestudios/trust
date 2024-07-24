@@ -104,6 +104,10 @@ function HasBuffsCondition.description()
     return "Has one or more buffs."
 end
 
+function HasBuffsCondition.valid_targets()
+    return S{ Condition.TargetType.Self, Condition.TargetType.Ally }
+end
+
 function HasBuffsCondition:serialize()
     return "HasBuffsCondition.new(" .. serializer_util.serialize_args(self.buff_names, self.num_required) .. ")"
 end

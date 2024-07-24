@@ -68,6 +68,10 @@ function SkillchainPropertyCondition.description()
     return "Active skillchain property."
 end
 
+function SkillchainPropertyCondition.valid_targets()
+    return S{ Condition.TargetType.Enemy }
+end
+
 function SkillchainPropertyCondition:serialize()
     return "SkillchainPropertyCondition.new(" .. serializer_util.serialize_args(self.allowed_skillchain_properties) .. ")"
 end

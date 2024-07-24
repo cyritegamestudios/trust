@@ -37,6 +37,10 @@ function HasPetCondition.description()
     return "Has pet."
 end
 
+function HasPetCondition.valid_targets()
+    return S{ Condition.TargetType.Self, Condition.TargetType.Ally }
+end
+
 function HasPetCondition:serialize()
     return "HasPetCondition.new(" .. serializer_util.serialize_args(self.pet_names) .. ")"
 end

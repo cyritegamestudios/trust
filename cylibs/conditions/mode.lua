@@ -48,6 +48,10 @@ function ModeCondition.description()
     return "Mode is set to X."
 end
 
+function ModeCondition.valid_targets()
+    return Condition.TargetType.AllTargets
+end
+
 function ModeCondition:serialize()
     return "ModeCondition.new(" .. serializer_util.serialize_args(self.mode_name, self.mode_value) .. ")"
 end

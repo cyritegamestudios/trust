@@ -62,6 +62,7 @@ function GambitSettingsMenuItem.new(trustSettings, trustSettingsMode)
             local selectedGambit = currentGambits[indexPath.row]
             self.selectedGambit = selectedGambit
             gambitSettingsEditor.menuArgs['conditions'] = selectedGambit.conditions
+            gambitSettingsEditor.menuArgs['targetTypes'] = S{ selectedGambit:getConditionsTarget() }
         end, gambitSettingsEditor:getDelegate():didSelectItemAtIndexPath()))
 
         if currentGambits:length() > 0 then

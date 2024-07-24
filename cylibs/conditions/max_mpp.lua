@@ -42,6 +42,10 @@ function MaxManaPointsPercentCondition.description()
     return "MP <= X%."
 end
 
+function MaxManaPointsPercentCondition.valid_targets()
+    return S{ Condition.TargetType.Self, Condition.TargetType.Ally }
+end
+
 function MaxManaPointsPercentCondition:serialize()
     return "MaxManaPointsPercentCondition.new(" .. serializer_util.serialize_args(self.max_mpp) .. ")"
 end

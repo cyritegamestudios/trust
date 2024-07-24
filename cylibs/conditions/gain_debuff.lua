@@ -50,6 +50,10 @@ function GainDebuffCondition.description()
     return "Gain debuff."
 end
 
+function GainDebuffCondition.valid_targets()
+    return Condition.TargetType.AllTargets
+end
+
 function GainDebuffCondition:serialize()
     return "GainDebuffCondition.new(" .. serializer_util.serialize_args(self.debuff_name) .. ")"
 end

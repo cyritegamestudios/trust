@@ -46,6 +46,10 @@ function EnemiesNearbyCondition.description()
     return "Number of enemies nearby."
 end
 
+function EnemiesNearbyCondition.valid_targets()
+    return Condition.TargetType.AllTargets
+end
+
 function EnemiesNearbyCondition:serialize()
     return "EnemiesNearbyCondition.new(" .. serializer_util.serialize_args(self.num_required, self.distance, self.operator) .. ")"
 end

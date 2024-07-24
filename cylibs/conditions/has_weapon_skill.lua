@@ -23,6 +23,10 @@ function HasWeaponSkillCondition:tostring()
     return "HasWeaponSkillCondition"
 end
 
+function HasWeaponSkillCondition.valid_targets()
+    return S{ Condition.TargetType.Self }
+end
+
 function HasWeaponSkillCondition:serialize()
     return "HasWeaponSkillCondition.new(" .. serializer_util.serialize_args(self.weapon_skill_name) .. ")"
 end

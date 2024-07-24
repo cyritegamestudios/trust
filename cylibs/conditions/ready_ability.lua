@@ -50,6 +50,10 @@ function ReadyAbilityCondition.description()
     return "Readies an ability."
 end
 
+function ReadyAbilityCondition.valid_targets()
+    return S{ Condition.TargetType.Enemy }
+end
+
 function ReadyAbilityCondition:serialize()
     return "ReadyAbilityCondition.new(" .. serializer_util.serialize_args(self.ability_name) .. ")"
 end

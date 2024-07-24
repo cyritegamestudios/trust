@@ -42,6 +42,10 @@ function MinTacticalPointsCondition.description()
     return "TP >= X."
 end
 
+function MinTacticalPointsCondition.valid_targets()
+    return S{ Condition.TargetType.Self, Condition.TargetType.Ally }
+end
+
 function MinTacticalPointsCondition:serialize()
     return "MinTacticalPointsCondition.new(" .. serializer_util.serialize_args(self.min_tp) .. ")"
 end

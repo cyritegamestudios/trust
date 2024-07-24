@@ -15,6 +15,12 @@ Condition.Operator.GreaterThanOrEqualTo = ">="
 Condition.Operator.LessThan = "<"
 Condition.Operator.LessThanOrEqualTo = "<="
 
+Condition.TargetType = {}
+Condition.TargetType.Self = "Self"
+Condition.TargetType.Ally = "Ally"
+Condition.TargetType.Enemy = "Enemy"
+Condition.TargetType.AllTargets = S{ Condition.TargetType.Self, Condition.TargetType.Ally, Condition.TargetType.Enemy }
+
 -------
 -- Default initializer for a condition.
 -- @tparam number target_index (optional) Target index, will override target_index passed into is_satisfied
@@ -100,6 +106,10 @@ function Condition.check_conditions(conditions, param, ...)
         end
     end
     return true
+end
+
+function Condition.valid_targets()
+    return Condition.TargetType.AllTargets
 end
 
 function Condition:copy()

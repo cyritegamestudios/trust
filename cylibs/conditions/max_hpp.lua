@@ -36,6 +36,10 @@ function MaxHitPointsPercentCondition.description()
     return "HP <= X%."
 end
 
+function MaxHitPointsPercentCondition.valid_targets()
+    return Condition.TargetType.AllTargets
+end
+
 function MaxHitPointsPercentCondition:serialize()
     return "MaxHitPointsPercentCondition.new(" .. serializer_util.serialize_args(self.max_hpp) .. ")"
 end

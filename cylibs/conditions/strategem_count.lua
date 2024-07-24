@@ -34,6 +34,10 @@ function StrategemCountCondition:tostring()
     return "Strategems "..self.operator.." "..self.strategem_count
 end
 
+function StrategemCountCondition.valid_targets()
+    return S{ Condition.TargetType.Self }
+end
+
 function StrategemCountCondition:serialize()
     return "StrategemCountCondition.new(" .. serializer_util.serialize_args(self.strategem_count, self.operator) .. ")"
 end

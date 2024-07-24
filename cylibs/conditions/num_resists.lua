@@ -54,6 +54,10 @@ function NumResistsCondition.description()
     return "Number of times spell has been resisted."
 end
 
+function NumResistsCondition.valid_targets()
+    return S{ Condition.TargetType.Enemy }
+end
+
 function NumResistsCondition:serialize()
     return "NumResistsCondition.new(" .. serializer_util.serialize_args(self.spell_name, self.operator, self.num_resists) .. ")"
 end

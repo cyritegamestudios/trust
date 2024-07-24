@@ -31,6 +31,10 @@ function IdleCondition.description()
     return "Is idle."
 end
 
+function IdleCondition.valid_targets()
+    return Condition.TargetType.AllTargets
+end
+
 function IdleCondition:serialize()
     return "IdleCondition.new(" .. serializer_util.serialize_args() .. ")"
 end

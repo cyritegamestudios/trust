@@ -32,6 +32,10 @@ function InBattleCondition.description()
     return "Is in battle."
 end
 
+function InBattleCondition.valid_targets()
+    return Condition.TargetType.AllTargets
+end
+
 function InBattleCondition:serialize()
     return "InBattleCondition.new(" .. serializer_util.serialize_args() .. ")"
 end

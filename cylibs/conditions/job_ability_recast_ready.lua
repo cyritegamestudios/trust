@@ -30,6 +30,10 @@ function JobAbilityRecastReadyCondition.description()
     return "Job ability recast is ready."
 end
 
+function JobAbilityRecastReadyCondition.valid_targets()
+    return S{ Condition.TargetType.Self }
+end
+
 function JobAbilityRecastReadyCondition:serialize()
     return "JobAbilityRecastReadyCondition.new(" .. serializer_util.serialize_args(self.job_ability_name) .. ")"
 end
