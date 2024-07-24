@@ -4,7 +4,7 @@ return {
     Default = {
         AutoFood="Grape Daifuku",
         SelfBuffs = L{
-            Spell.new("Endark II", L{}, L{}, nil, L{}),
+            Spell.new("Endark II", L{}, L{}, nil, L{IdleCondition.new()}),
             Spell.new("Absorb-STR", L{}, L{}, "bt", L{}),
             Spell.new("Absorb-DEX", L{}, L{}, "bt", L{}),
         },
