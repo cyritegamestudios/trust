@@ -27,6 +27,7 @@ function GambitSettingsMenuItem.new(trustSettings, trustSettingsMode)
         ButtonItem.default('Move Down', 18),
         ButtonItem.default('Copy', 18),
         ButtonItem.default('Toggle', 18),
+        ButtonItem.default('Reset', 18),
         ButtonItem.default('Modes', 18),
     }, {}, nil, "Gambits", "Add custom behaviors.", false), GambitSettingsMenuItem)  -- changed keep views to false
 
@@ -93,6 +94,7 @@ function GambitSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Move Up", self:getMoveUpGambitMenuItem())
     self:setChildMenuItem("Move Down", self:getMoveDownGambitMenuItem())
     self:setChildMenuItem("Toggle", self:getToggleMenuItem())
+    self:setChildMenuItem("Reset", self:getResetGambitsMenuItem())
     self:setChildMenuItem("Modes", self:getModesMenuItem())
 end
 
@@ -289,6 +291,25 @@ end
 
 function GambitSettingsMenuItem:getEditConditionsMenuItem()
     return ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, self)
+end
+
+function GambitSettingsMenuItem:getResetGambitsMenuItem()
+    return MenuItem.action(function(menu)
+        local defaultGambitSettings = self.trustSettings:getDefaultSettings().Default.GambitSettings
+        if defaultGambitSettings and defaultGambitSettings.Gambits then
+            local currentGambitSettings = self.trustSettings:getSettings()[self.trustSettingsMode.value].GambitSettings
+            currentGambitSettings.Gambits:clear()
+            for gambit in defaultGambitSettings.Gambits:it() do
+                currentGambitSettings.Gambits:append(gambit:copy())
+            end
+
+            self.trustSettings:saveSettings(true)
+
+            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've reset my Gambits to their factory settings!")
+
+            menu:showMenu(self)
+        end
+    end, "Gambits", "Temporarily enable or disable the selected Gambit until the addon reloads.")
 end
 
 function GambitSettingsMenuItem:getModesMenuItem()

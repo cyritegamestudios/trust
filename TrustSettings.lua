@@ -171,6 +171,10 @@ function TrustSettings:getSettings()
     return self.settings
 end
 
+function TrustSettings:getDefaultSettings()
+    return self.defaultSettings
+end
+
 function TrustSettings:runMigrations(settings)
     local needsMigration = false
 
