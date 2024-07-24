@@ -122,6 +122,9 @@ function PuppetmasterTrust:check_deploy()
 end
 
 function PuppetmasterTrust:check_automaton()
+	if not self.automaton then
+		return
+	end
 	if self.automaton:is_mage() then
 		self:check_restore_mp()
 	end
