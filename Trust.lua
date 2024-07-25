@@ -1,33 +1,33 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '9.6.0'
+_addon.version = '10.0.0'
 _addon.release_notes = [[
-This update introduces Gambits, a powerful system that lets you
-customize the behavior of your Trusts using conditional commands.
+This update introduces Gambits, a powerful system inspired by Final Fantasy
+12 that lets you customize the behavior of your Trust. Gambits are a
+targeted "if X, then Y" conditional statement that can be used to cast
+spells, perform job abilities and more.
 
 	• Gambits
-	    • Nuke and magic burst with Ninjutsu elemental spells.
-	    • Enfeeble enemies with Ninjutsu debuffs.
-	    • Pull enemies for the party to fight.
-	    • Use Utsusemi: Ichi, Ni and San.
+	    • There are 4 parts to a Gambit:
+	        1. Ability Target (Self, Ally or Enemy)
+	            • Self, Ally or Enemy.
+	        2. Ability
+	            • Spell, job ability or action to perform.
+	        3. Conditions Target
+	            • Target of conditions.
+	        4. Conditions
+	            • Conditions to check.
 
 	• Conditions
-	    • Customize when to use spells using conditions under
-	      Settings > Buffs > Self/Party > Conditions.
-	    • Customize when to use job abilities using conditions under
-	      Settings > Buffs > Abilities > Conditions.
-	    • Choose from min HP, HP range, min MP, target distance and more.
+	    • Customize when to perform Gambits with one or more conditions.
+	    • Choose from HP %, MP %, TP, buffs, debuffs and more!
 
-	• UI
-	    • Additional help text added to menus for modes, spells
-	      job abilites and more.
-	    • Added ability to customize Alter Egos under Settings > Alter Egos.
+	• Puppetmaster
+	    • Attachment sets can now be saved and loaded under
+	      Settings > Automaton > Attachments, replacing
+	      the need for the AutoControl addon!
 
-	• Bug Fixes
-	    • Fixed issue where Blue Magic buffs couldn't be added as a sub job.
-	    • Fixed issue where Blue Magic buffs would not update when
-	      setting or removing spells.
 
 	• Press escape or enter to exit.
 
@@ -405,7 +405,7 @@ function check_version()
 
 		local Frame = require('cylibs/ui/views/frame')
 
-		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 580))
+		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 625))
 
 		updateView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
 			updateView:getDelegate():deselectItemAtIndexPath(indexPath)

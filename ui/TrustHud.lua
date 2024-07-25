@@ -557,14 +557,28 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
 
     -- Help
     local helpMenuItem = MenuItem.new(L{
+        ButtonItem.default('Wiki', 18),
+        ButtonItem.default('Commands', 18),
+        ButtonItem.default('Multi-Boxing', 18),
+        ButtonItem.default('Support', 18),
         ButtonItem.default('Debug', 18),
     }, {
+        Wiki = MenuItem.action(function()
+            windower.open_url(self.addon_settings:getSettings().help.wiki_base_url)
+        end, "Wiki", "Learn more about Trust."),
+        Commands = MenuItem.action(function()
+            windower.open_url(self.addon_settings:getSettings().help.wiki_base_url..'/Commands')
+            windower.send_command('trust commands')
+        end, "Commands", "See a list of Trust commands."),
+        ['Multi-Boxing'] = MenuItem.action(function()
+            windower.open_url(self.addon_settings:getSettings().help.wiki_base_url..'/Multi-Boxing')
+        end, "Multi-Boxing", "Learn more about multi-boxing with Trust."),
+        Support = MenuItem.action(function()
+            windower.open_url(self.addon_settings:getSettings().discord.channels.support)
+        end, "Support", "Get help on Discord."),
         Debug = debugMenuItem,
     },
-    function()
-        local helpView = setupView(HelpView.new(jobNameShort, self.addon_settings:getSettings().help.wiki_base_url), viewSize)
-        return helpView
-    end, "Help", "Get help using Trust.")
+    nil, "Help", "Get help using Trust.")
 
     -- Mode settings
 
