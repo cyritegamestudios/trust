@@ -73,24 +73,34 @@ function Condition:serialize()
 end
 
 function Condition.defaultSerializableConditionClasses()
-    return L{
-        InBattleCondition.__class,
+    return L {
         IdleCondition.__class,
-        HasBuffCondition.__class,
+        InBattleCondition.__class,
+        GainDebuffCondition.__class,
         HasBuffsCondition.__class,
-        HasRunesCondition.__class,
-        MainJobCondition.__class,
-        MaxDistanceCondition.__class,
+        HasDebuffCondition.__class,
         MaxHitPointsPercentCondition.__class,
         MinHitPointsPercentCondition.__class,
+        HitPointsPercentRangeCondition.__class,
+        MeleeAccuracyCondition.__class,
         MinManaPointsCondition.__class,
-        MinManaPointsPercentCondition.__class,
         MaxManaPointsPercentCondition.__class,
-        MinManaPointsCondition.__class,
+        MinManaPointsPercentCondition.__class,
+        MaxTacticalPointsCondition.__class,
         MinTacticalPointsCondition.__class,
-        ModeCondition.__class,
-        NotCondition.__class,
+        MaxDistanceCondition.__class,
+        HasBuffCondition.__class,
         ZoneCondition.__class,
+        MainJobCondition.__class,
+        ReadyAbilityCondition.__class,
+        FinishAbilityCondition.__class,
+        HasRunesCondition.__class,
+        EnemiesNearbyCondition.__class,
+        ModeCondition.__class,
+        PetHitPointsPercentCondition.__class,
+        HasPetCondition.__class,
+        NumResistsCondition.__class,
+        SkillchainPropertyCondition.__class
     }
 end
 
