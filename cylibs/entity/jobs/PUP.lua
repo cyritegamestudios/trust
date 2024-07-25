@@ -133,6 +133,11 @@ function Puppetmaster:equip_attachment_set(head_name, frame_name, attachment_nam
         end
     end
 
+    actions:append(BlockAction.new(function()
+        self:remove_all_attachments()
+    end), 'equip_remove_all_attachments')
+    actions:append(WaitAction.new(0, 0, 0, 1.0))
+
     local attachment_ids = attachment_names:map(function(attachment_name)
         return attachments:with('en', attachment_name).id
     end):compact_map()
