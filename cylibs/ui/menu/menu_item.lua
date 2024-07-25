@@ -14,15 +14,17 @@ MenuItem.__type = "MenuItem"
 --
 -- @treturn MenuItem The newly created MenuItem.
 --
-function MenuItem.new(buttonItems, childMenuItems, contentViewConstructor, titleText, descriptionText, keepViews)
+function MenuItem.new(buttonItems, childMenuItems, contentViewConstructor, titleText, descriptionText, keepViews, enabled)
     local self = setmetatable({}, MenuItem)
 
+    self.uuid = os.time()..'-'..math.random(100000)
     self.buttonItems = buttonItems
     self.childMenuItems = childMenuItems
     self.contentViewConstructor = contentViewConstructor
     self.descriptionText = descriptionText
     self.titleText = titleText
     self.keepViews = keepViews
+    self.enabled = enabled or function() return true  end
 
     return self
 end
@@ -119,6 +121,15 @@ function MenuItem:getAction()
 end
 
 ---
+-- Returns whether this MenuItem is enabled.
+--
+-- @treturn boolean True if the MenuItem is enabled.
+--
+function MenuItem:isEnabled()
+    return self.enabled()
+end
+
+---
 -- Checks if this MenuItem is equal to another TextItem.
 --
 -- @tparam any otherItem The other item to compare.
@@ -127,6 +138,15 @@ end
 function MenuItem:__eq(otherItem)
     return otherItem.__type == MenuItem.__type and otherItem:getTitleText() == self:getTitleText()
             and otherItem:getDescriptionText() == self:getDescriptionText()
+end
+
+---
+-- Returns the unique identifier for this MenuItem.
+--
+-- @treturn number Unique identifier
+--
+function MenuItem:getUUID()
+    return self.uuid
 end
 
 return MenuItem

@@ -100,6 +100,12 @@ function TextCollectionViewCell:layoutIfNeeded()
 
     self:applyTextStyle()
 
+    if self:getItem():getEnabled() then
+        self.textView:alpha(255)
+    else
+        self.textView:alpha(150)
+    end
+
     self.textView:visible(self:getAbsoluteVisibility() and self:isVisible())
 
     return true

@@ -3,7 +3,6 @@ local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_v
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
-local Padding = require('cylibs/ui/style/padding')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
@@ -84,7 +83,7 @@ function ConditionsSettingsEditor:onRemoveConditionClick()
         local item = self:getDataSource():itemAtIndexPath(selectedIndexPath)
         if item then
             local condition = self.conditions[selectedIndexPath.row]
-            if condition and self.editableConditionClasses:contains(condition.__class) then
+            if condition and self.editableConditionClasses:contains(condition.__class) or condition.__class == NotCondition.__class then
                 self.conditions:remove(selectedIndexPath.row)
                 self:getDataSource():removeItem(selectedIndexPath)
 

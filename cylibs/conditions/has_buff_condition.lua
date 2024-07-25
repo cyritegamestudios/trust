@@ -24,33 +24,45 @@ end
 function HasBuffCondition:is_satisfied(target_index)
     local target = windower.ffxi.get_mob_by_index(self:get_target_index() or target_index)
     if target then
-        return L(party_util.get_buffs(target.id)):contains(self.buff_id)
+        local buff_id = buff_util.buff_id(self.buff_name)
+        local monster = player.party:get_target(target.id)
+        if monster then
+            return monster:has_debuff(buff_id)
+        else
+            return L(party_util.get_buffs(target.id)):contains(buff_id)
+        end
     end
     return false
 end
 
 function HasBuffCondition:get_config_items()
-    local all_buffs = S{
-        'Max HP Boost',
-        "KO", "weakness", "sleep", "poison",
-        "paralysis", "blindness", "silence", "petrification",
-        "disease", "curse", "stun", "bind",
-        "weight", "slow", "charm", "doom",
-        "amnesia", "charm", "gradual petrification", "sleep",
-        "curse", "addle",
-        "Finishing Move 1", "Finishing Move 2", "Finishing Move 3", "Finishing Move 4", "Finishing Move 5", "Finishing Move (6+)"
-    }
-    all_buffs:add(self.buff_name)
-
+    local all_buffs = S(buff_util.get_all_buff_ids(true):map(function(buff_id)
+        local buff = res.buffs[buff_id]
+        if buff then
+            return buff.en
+        end
+        return nil
+    end):compact_map())
     all_buffs = L(all_buffs)
     all_buffs:sort()
+
     return L{
-        PickerConfigItem.new('buff_name', self.buff_name, all_buffs)
+        PickerConfigItem.new('buff_name', self.buff_name, all_buffs, function(buff_name)
+            return buff_name:gsub("^%l", string.upper)
+        end, "Buff Name")
     }
 end
 
 function HasBuffCondition:tostring()
-    return "Player is "..res.buffs:with('en', self.buff_name).enl
+    return "Is "..res.buffs:with('en', self.buff_name).enl:gsub("^%l", string.upper)
+end
+
+function HasBuffCondition.description()
+    return "Has buff."
+end
+
+function HasBuffCondition.valid_targets()
+    return Condition.TargetType.AllTargets
 end
 
 function HasBuffCondition:serialize()

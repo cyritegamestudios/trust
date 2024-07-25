@@ -66,7 +66,7 @@ function BuildSkillchainSettingsMenuItem:getConfirmMenuItem()
             end
             self.currentPage = newPage
 
-            local newSkillchains = self.skillchains:slice(startIndex, math.min(self.skillchains:length(), startIndex + itemsPerPage))
+            local newSkillchains = L{}:extend(self.skillchains):slice(startIndex, math.min(self.skillchains:length(), startIndex + itemsPerPage))
             self.currentSkillchains = newSkillchains
 
             local pickerItems = L(newSkillchains:map(function(abilities)
@@ -98,7 +98,7 @@ function BuildSkillchainSettingsMenuItem:getConfirmMenuItem()
         local skillchains = skillchain_builder:build(self.builderSettings.Property, self.builderSettings.NumSteps)
         self.skillchains = skillchains
 
-        self.currentSkillchains = skillchains:slice(1, math.min(skillchains:length(), 18))
+        self.currentSkillchains = L{}:extend(skillchains):slice(1, math.min(skillchains:length(), 18))
         local pickerItems = L(self.currentSkillchains:map(function(abilities)
             local abilities = L(abilities:map(function(ability) return ability:get_name() end))
             return localization_util.join(abilities, '→')
@@ -108,32 +108,6 @@ function BuildSkillchainSettingsMenuItem:getConfirmMenuItem()
         chooseSkillchainView.menuArgs.Skillchain = self.currentSkillchains[1]
         chooseSkillchainView:setTitle("Choose a skillchain.")
         chooseSkillchainView:setAllowsCursorSelection(true)
-        --[[chooseSkillchainView:on_pick_items():addAction(function(p, selectedItems)
-            local selectedIndexPaths = L(p:getDelegate():getSelectedIndexPaths())
-            if selectedIndexPaths:length() > 0 then
-                local selectedSkillchain = self.currentSkillchains[selectedIndexPaths[1].row]
-
-                local currentSettings = self.weaponSkillSettings:getSettings()[self.weaponSkillSettingsMode.value]
-                if currentSettings then
-                    for i = 1, 6 do
-                        if i <= selectedSkillchain:length() then
-                            local found = false
-                            for combat_skill in currentSettings.Skills:it() do
-                                local ability = combat_skill:get_ability(selectedSkillchain[i]:get_name())
-                                if ability then
-                                    currentSettings.Skillchain[i] = ability
-                                    found = true
-                                end
-                            end
-                        else
-                            currentSettings.Skillchain[i] = SkillchainAbility.auto()
-                        end
-                    end
-                end
-            end
-            self.weaponSkillSettings:saveSettings(true)
-            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my skillchain!")
-        end)]]
         chooseSkillchainView:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
             chooseSkillchainView.menuArgs.Skillchain = self.currentSkillchains[indexPath.row]
         end)

@@ -18,6 +18,7 @@ function TextItem.new(text, style, pattern)
     self.text = text
     self.style = style
     self.pattern = pattern or '${text}'
+    self.enabled = true
     self.horizontalAlignment = Alignment.left()
     self.offset = { x = 0, y = 0 }
 
@@ -112,6 +113,24 @@ end
 --
 function TextItem:setShouldTruncateText(truncate_text)
     self.truncate_text = truncate_text
+end
+
+---
+-- Sets whether the button is enabled.
+--
+-- @tparam boolean enabled Whether the button is enabled
+--
+function TextItem:setEnabled(enabled)
+    self.enabled = enabled
+end
+
+---
+-- Gets whether the button is enabled.
+--
+-- @treturn boolean True if the button is enabled
+--
+function TextItem:getEnabled()
+    return self.enabled
 end
 
 ---

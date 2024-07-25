@@ -10,8 +10,8 @@ MinHitPointsPercentCondition.__index = MinHitPointsPercentCondition
 MinHitPointsPercentCondition.__class = "MinHitPointsPercentCondition"
 MinHitPointsPercentCondition.__type = "MinHitPointsPercentCondition"
 
-function MinHitPointsPercentCondition.new(min_hpp)
-    local self = setmetatable(Condition.new(), MinHitPointsPercentCondition)
+function MinHitPointsPercentCondition.new(min_hpp, target_index)
+    local self = setmetatable(Condition.new(target_index), MinHitPointsPercentCondition)
     self.min_hpp = min_hpp or 0
     return self
 end
@@ -25,11 +25,19 @@ function MinHitPointsPercentCondition:is_satisfied(target_index)
 end
 
 function MinHitPointsPercentCondition:get_config_items()
-    return L{ ConfigItem.new('min_hpp', 0, 100, 1, function(value) return value.." yalms" end) }
+    return L{ ConfigItem.new('min_hpp', 0, 100, 1, function(value) return value.." %" end, "Min HP %") }
 end
 
 function MinHitPointsPercentCondition:tostring()
     return "HP >= "..self.min_hpp.. "%"
+end
+
+function MinHitPointsPercentCondition.description()
+    return "HP >= X%."
+end
+
+function MinHitPointsPercentCondition.valid_targets()
+    return Condition.TargetType.AllTargets
 end
 
 function MinHitPointsPercentCondition:serialize()

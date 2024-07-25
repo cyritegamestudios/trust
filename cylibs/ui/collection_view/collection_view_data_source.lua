@@ -188,6 +188,7 @@ function CollectionViewDataSource:removeAllItems()
             self.cellCache[indexPath.section][indexPath.row] = nil
         end
     end
+    self.cellCache = {}
 
     -- Trigger the itemsChanged event
     self.itemsChanged:trigger(diff.added, diff.removed, diff.updated)
@@ -221,6 +222,9 @@ function CollectionViewDataSource:updateItems(indexedItems)
             if self.sizeForItem ~= nil then
                 cachedCell:setItemSize(self.sizeForItem(indexedItem:getItem(), indexedItem:getIndexPath()))
             end
+            -- FIXME: revert this if it causes errors
+            cachedCell:setNeedsLayout()
+            cachedCell:layoutIfNeeded()
         end
     end
 

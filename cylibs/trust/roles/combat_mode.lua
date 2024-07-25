@@ -51,6 +51,13 @@ function CombatMode:on_add()
             end
         end
     end), state.CombatMode:on_state_change())
+
+    self.dispose_bag:add(WindowerEvents.ActionMessage:addAction(function(actor_id, target_id, actor_index, target_index, message_id, param_1, param_2, param_3)
+        -- Unable to see ${target}
+        if message_id == 5 then
+            self:check_distance()
+        end
+    end), WindowerEvents.ActionMessage)
 end
 
 function CombatMode:target_change(target_index)
@@ -66,6 +73,10 @@ function CombatMode:tic(new_time, old_time)
 end
 
 function CombatMode:check_distance()
+    if self.target_index == nil then
+        return
+    end
+
     local target = windower.ffxi.get_mob_by_index(self.target_index)
     local self_mob = windower.ffxi.get_mob_by_target('me')
     if target == nil or not battle_util.is_valid_target(target.id) then return end

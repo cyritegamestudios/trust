@@ -13,7 +13,7 @@ SpellRecastReadyCondition.__type = "SpellRecastReadyCondition"
 SpellRecastReadyCondition.__class = "SpellRecastReadyCondition"
 
 function SpellRecastReadyCondition.new(spell_id)
-    local self = setmetatable(Condition.new(windower.ffxi.get_player().index), SpellRecastReadyCondition)
+    local self = setmetatable(Condition.new(), SpellRecastReadyCondition)
     self.spell_id = spell_id or 23
     return self
 end
@@ -24,6 +24,14 @@ end
 
 function SpellRecastReadyCondition:tostring()
     return res.spells[self.spell_id].en.." recast is ready"
+end
+
+function SpellRecastReadyCondition.description()
+    return "Spell recast is ready."
+end
+
+function SpellRecastReadyCondition.valid_targets()
+    return S{ Condition.TargetType.Self }
 end
 
 function SpellRecastReadyCondition:serialize()

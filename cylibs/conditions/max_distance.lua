@@ -26,12 +26,20 @@ end
 
 function MaxDistanceCondition:get_config_items()
     return L{
-        ConfigItem.new('distance', 0, 50, 1, function(value) return value.." yalms" end),
+        ConfigItem.new('distance', 0, 50, 1, function(value) return value.." yalms" end, "Target Distance"),
     }
 end
 
 function MaxDistanceCondition:tostring()
     return "Target distance <= "..self.distance.. " yalms"
+end
+
+function MaxDistanceCondition.description()
+    return "Target distance <= X yalms from player."
+end
+
+function MaxDistanceCondition.valid_targets()
+    return Condition.TargetType.AllTargets
 end
 
 function MaxDistanceCondition:serialize()

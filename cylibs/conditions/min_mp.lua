@@ -10,26 +10,40 @@ MinManaPointsCondition.__index = MinManaPointsCondition
 MinManaPointsCondition.__class = "MinManaPointsCondition"
 MinManaPointsCondition.__type = "MinManaPointsCondition"
 
-function MinManaPointsCondition.new(min_mp)
-    local self = setmetatable(Condition.new(windower.ffxi.get_player().index), MinManaPointsCondition)
+function MinManaPointsCondition.new(min_mp, target_index)
+    local self = setmetatable(Condition.new(target_index), MinManaPointsCondition)
     self.min_mp = min_mp or 0
     return self
 end
 
 function MinManaPointsCondition:is_satisfied(target_index)
-    local player = windower.ffxi.get_player()
-    if player and player.vitals.mp >= self.min_mp then
-        return true
+    local target = windower.ffxi.get_mob_by_index(target_index)
+    if target then
+        local party = player.party
+        if party then
+            local party_member = party:get_party_member(target.id)
+            if party_member then
+                return party_member:get_mp() >= self.min_mp
+            end
+        end
     end
     return false
 end
 
 function MinManaPointsCondition:get_config_items()
-    return L{ ConfigItem.new('min_mp', 0, 3000, 50, function(value) return value.."" end) }
+    return L{ ConfigItem.new('min_mp', 0, 3000, 50, function(value) return value.."" end, "Min MP") }
 end
 
 function MinManaPointsCondition:tostring()
     return "MP >= "..self.min_mp
+end
+
+function MinManaPointsCondition.description()
+    return "MP >= X."
+end
+
+function MinManaPointsCondition.valid_targets()
+    return S{ Condition.TargetType.Self, Condition.TargetType.Ally }
 end
 
 function MinManaPointsCondition:serialize()

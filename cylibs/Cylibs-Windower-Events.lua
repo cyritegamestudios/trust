@@ -39,6 +39,11 @@ WindowerEvents.PetUpdate = Event.newEvent()
 WindowerEvents.Equipment = {}
 WindowerEvents.Equipment.MainWeaponChanged = Event.newEvent()
 WindowerEvents.Equipment.RangedWeaponChanged = Event.newEvent()
+WindowerEvents.BlueMagic = {}
+WindowerEvents.BlueMagic.SpellsChanged = Event.newEvent()
+WindowerEvents.Ability = {}
+WindowerEvents.Ability.Ready = Event.newEvent()
+WindowerEvents.Ability.Finish = Event.newEvent()
 
 local main_weapon_id
 local ranged_weapon_id
@@ -60,6 +65,7 @@ local incoming_event_ids = S{
 local outgoing_event_ids = S{
     0x015,
     0x05E,
+    0x102,
 }
 
 -- Jump table with a mapping of message_id to handler for that message_id
@@ -68,6 +74,16 @@ local incoming_event_dispatcher = {
         local act = windower.packets.parse_action(data)
         act.size = data:byte(5)
         WindowerEvents.Action:trigger(act)
+
+        if act.category == 7 then
+            if res.monster_abilities[act.targets[1].actions[1].param] then
+                WindowerEvents.Ability.Ready:trigger(act.actor_id, act.targets[1].actions[1].param)
+            end
+        elseif act.category == 11 then
+            if res.monster_abilities[act.param] then
+                WindowerEvents.Ability.Finish:trigger(act.actor_id, act.param)
+            end
+        end
 
         for _, target in pairs(act.targets) do
             local action = target.actions[1]
@@ -102,6 +118,13 @@ local incoming_event_dispatcher = {
                 -- NOTE: this causes a memory leak
                 --IpcRelay.shared():send_message(LoseDebuffMessage.new(target_id, param_1))
             end
+        end
+
+        if L{ 43, 326, 675 }:contains(message_id) then
+            if windower.ffxi.get_mob_by_id(actor_id).name == 'Locus Ghost Crab' then
+                print(message_id, param_1 or 'nil', param_2 or 'nil')
+            end
+            WindowerEvents.Ability.Ready:trigger(target_id, param_1)
         end
     end,
 
@@ -331,6 +354,17 @@ local outgoing_event_dispatcher = {
 
         IpcRelay.shared():send_message(ZoneMessage.new(player.name, player.id, zone_id, zone_line, zone_type, x, y, z))
     end,
+
+    [0x102] = function(data)
+        local packet = packets.parse('outgoing', data)
+
+        local main_job = packet['Main Job']
+        local sub_job = packet['Sub Job']
+
+        if main_job == 16 or sub_job == 16 then
+            WindowerEvents.BlueMagic.SpellsChanged:trigger()
+        end
+    end
 
 }
 

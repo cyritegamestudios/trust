@@ -147,4 +147,28 @@ function job_util.get_skills_for_job(job_id)
     return jobs_ext[job_id].skills or L{}
 end
 
+function job_util.getAbility(abilityName)
+    if res.spells:with('en', abilityName) then
+        return Spell.new(abilityName, L{}, L{})
+    elseif res.job_abilities:with('en', abilityName) then
+        return JobAbility.new(abilityName, L{}, L{})
+    elseif res.weapon_skills:with('en', abilityName) then
+        return WeaponSkill.new(abilityName, L{})
+    elseif abilityName == 'Approach' then
+        return Approach.new()
+    elseif abilityName == 'Ranged Attack' then
+        return RangedAttack.new()
+    elseif abilityName == 'Turn Around' then
+        return TurnAround.new()
+    elseif abilityName == 'Turn to Face' then
+        return TurnToFace.new()
+    elseif abilityName == 'Run Away' then
+        return RunAway.new()
+    elseif abilityName == 'Run To' then
+        return RunTo.new()
+    else
+        return nil
+    end
+end
+
 return job_util

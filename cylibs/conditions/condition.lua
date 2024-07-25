@@ -15,6 +15,12 @@ Condition.Operator.GreaterThanOrEqualTo = ">="
 Condition.Operator.LessThan = "<"
 Condition.Operator.LessThanOrEqualTo = "<="
 
+Condition.TargetType = {}
+Condition.TargetType.Self = "Self"
+Condition.TargetType.Ally = "Ally"
+Condition.TargetType.Enemy = "Enemy"
+Condition.TargetType.AllTargets = S{ Condition.TargetType.Self, Condition.TargetType.Ally, Condition.TargetType.Enemy }
+
 -------
 -- Default initializer for a condition.
 -- @tparam number target_index (optional) Target index, will override target_index passed into is_satisfied
@@ -66,18 +72,75 @@ function Condition:serialize()
     return "Condition.new(" .. serializer_util.serialize_args() .. ")"
 end
 
-function Condition.check_conditions(conditions, param)
+function Condition.defaultSerializableConditionClasses()
+    return L {
+        IdleCondition.__class,
+        InBattleCondition.__class,
+        GainDebuffCondition.__class,
+        HasBuffsCondition.__class,
+        HasDebuffCondition.__class,
+        MaxHitPointsPercentCondition.__class,
+        MinHitPointsPercentCondition.__class,
+        HitPointsPercentRangeCondition.__class,
+        MeleeAccuracyCondition.__class,
+        MinManaPointsCondition.__class,
+        MaxManaPointsPercentCondition.__class,
+        MinManaPointsPercentCondition.__class,
+        MaxTacticalPointsCondition.__class,
+        MinTacticalPointsCondition.__class,
+        MaxDistanceCondition.__class,
+        HasBuffCondition.__class,
+        ZoneCondition.__class,
+        MainJobCondition.__class,
+        ReadyAbilityCondition.__class,
+        FinishAbilityCondition.__class,
+        HasRunesCondition.__class,
+        EnemiesNearbyCondition.__class,
+        ModeCondition.__class,
+        PetHitPointsPercentCondition.__class,
+        HasPetCondition.__class,
+        NumResistsCondition.__class,
+        SkillchainPropertyCondition.__class
+    }
+end
+
+function Condition.check_conditions(conditions, param, ...)
     for condition in conditions:it() do
         local target_index = condition:get_target_index()
         if target_index == nil then
             target_index = param
         end
-        if not condition:is_satisfied(target_index) then
-            logger.error(Condition.__class, "Failed", condition:tostring())
+        if not condition:is_satisfied(target_index, ...) then
+            logger.error(condition.__class, "Failed", condition:tostring())
             return false
         end
     end
     return true
+end
+
+function Condition.valid_targets()
+    return Condition.TargetType.AllTargets
+end
+
+function Condition:copy()
+    local original = self
+    local lookup_table = {}
+
+    local function _copy(original)
+        if type(original) ~= "table" then
+            return original
+        elseif lookup_table[original] then
+            return lookup_table[original]
+        end
+        local new_table = {}
+        lookup_table[original] = new_table
+        for key, value in pairs(original) do
+            new_table[_copy(key)] = _copy(value)
+        end
+        return setmetatable(new_table, getmetatable(original))
+    end
+
+    return _copy(original)
 end
 
 return Condition

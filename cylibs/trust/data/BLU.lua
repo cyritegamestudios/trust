@@ -46,6 +46,12 @@ function BlueMageTrust:on_init()
 			puller:set_pull_settings(new_trust_settings.PullSettings)
 		end
 	end)
+
+	WindowerEvents.BlueMagic.SpellsChanged:addAction(function()
+		local buffer = self:role_with_type("buffer")
+		buffer:set_self_spells(self:get_trust_settings().SelfBuffs)
+		buffer:set_party_spells(self:get_trust_settings().PartyBuffs)
+	end)
 end
 
 function BlueMageTrust:destroy()

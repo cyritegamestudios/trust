@@ -49,7 +49,7 @@ end
 function LoadSettingsMenuItem:getEditMenuItem()
     local editMenuItem = MenuItem.new(L{
         ButtonItem.default('Delete', 18),
-    }, {}, nil, "Edit", "Edit saved sets.", true)
+    }, {}, nil, "Settings", "Edit saved sets.", true)
     return editMenuItem
 end
 

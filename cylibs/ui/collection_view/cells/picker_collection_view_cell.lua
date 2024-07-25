@@ -15,12 +15,13 @@ local TextStyle = require('cylibs/ui/style/text_style')
 
 local PickerCollectionViewCell = setmetatable({}, {__index = CollectionViewCell })
 PickerCollectionViewCell.__index = PickerCollectionViewCell
+PickerCollectionViewCell.__type = "PickerCollectionViewCell"
 
 
 function PickerCollectionViewCell.new(item)
     local self = setmetatable(CollectionViewCell.new(item), PickerCollectionViewCell)
 
-    self.textView = TextCollectionViewCell.new(TextItem.new(tostring(item:getCurrentValue()), TextStyle.Default.TextSmall))
+    self.textView = TextCollectionViewCell.new(TextItem.new(item:getTextFormat()(item:getCurrentValue()), TextStyle.Picker.TextSmall))
     self:addSubview(self.textView)
 
     self:setNeedsLayout()
@@ -38,6 +39,8 @@ function PickerCollectionViewCell:setSelected(selected)
         return false
     end
 
+    self.textView:setSelected(selected)
+
     if selected then
         self:requestFocus()
     else
@@ -48,7 +51,7 @@ end
 function PickerCollectionViewCell:setItem(item)
     CollectionViewCell.setItem(self, item)
 
-    self.textView:setItem(TextItem.new(tostring(item:getCurrentValue()), TextStyle.Default.TextSmall))
+    self.textView:setItem(TextItem.new(item:getTextFormat()(item:getCurrentValue()), TextStyle.Picker.TextSmall))
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
@@ -80,7 +83,11 @@ function PickerCollectionViewCell:onKeyboardEvent(key, pressed, flags, blocked)
         if key then
             local currentIndex = self:getItem():getAllValues():indexOf(self:getItem():getCurrentValue())
             if key == 'Left' then
-                local newIndex = currentIndex - 1
+                local interval = 1
+                if flags == 1 then
+                    interval = 50
+                end
+                local newIndex = currentIndex - interval
                 if newIndex < 1 then
                     newIndex = self:getItem():getAllValues():length()
                 end
@@ -89,8 +96,12 @@ function PickerCollectionViewCell:onKeyboardEvent(key, pressed, flags, blocked)
                 self:setItem(self:getItem())
                 return true
             elseif key == 'Right' then
-                local newIndex = (currentIndex + 1) % (self:getItem():getAllValues():length() + 1)
-                if newIndex == 0 then
+                local interval = 1
+                if flags == 1 then
+                    interval = 50
+                end
+                local newIndex = currentIndex + interval
+                if newIndex > self:getItem():getAllValues():length() then
                     newIndex = 1
                 end
                 local newValue = self:getItem():getAllValues()[newIndex]

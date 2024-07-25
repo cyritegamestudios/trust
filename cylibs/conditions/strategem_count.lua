@@ -13,7 +13,7 @@ StrategemCountCondition.__type = "StrategemCountCondition"
 StrategemCountCondition.__class = "StrategemCountCondition"
 
 function StrategemCountCondition.new(strategem_count, operator)
-    local self = setmetatable(Condition.new(windower.ffxi.get_player().index), StrategemCountCondition)
+    local self = setmetatable(Condition.new(), StrategemCountCondition)
     self.strategem_count = strategem_count or 1
     self.operator = operator or Condition.Operator.GreaterThanOrEqualTo
     return self
@@ -25,13 +25,17 @@ end
 
 function StrategemCountCondition:get_config_items()
     return L{
-        ConfigItem.new('strategem_count', 0, 5, 1, function(value) return value.."" end),
-        PickerConfigItem.new('operator', self.operator, L{ Condition.Operator.GreaterThanOrEqualTo, Condition.Operator.Equals, Condition.Operator.GreaterThan, Condition.Operator.LessThan, Condition.Operator.LessThanOrEqualTo })
+        ConfigItem.new('strategem_count', 0, 5, 1, function(value) return value.."" end, "Number of Strategems"),
+        PickerConfigItem.new('operator', self.operator, L{ Condition.Operator.GreaterThanOrEqualTo, Condition.Operator.Equals, Condition.Operator.GreaterThan, Condition.Operator.LessThan, Condition.Operator.LessThanOrEqualTo }, nil, "Operator")
     }
 end
 
 function StrategemCountCondition:tostring()
     return "Strategems "..self.operator.." "..self.strategem_count
+end
+
+function StrategemCountCondition.valid_targets()
+    return S{ Condition.TargetType.Self }
 end
 
 function StrategemCountCondition:serialize()

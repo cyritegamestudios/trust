@@ -79,6 +79,7 @@ function RollSettingsMenuItem:getModesMenuItem()
     local rollModesMenuItem = MenuItem.new(L{
         ButtonItem.default('Manual', 18),
         ButtonItem.default('Auto', 18),
+        ButtonItem.default('Safe', 18),
         ButtonItem.default('Off', 18),
     }, L{
         Manual = MenuItem.action(function()
@@ -87,6 +88,9 @@ function RollSettingsMenuItem:getModesMenuItem()
         Auto = MenuItem.action(function()
             handle_set('AutoRollMode', 'Auto')
         end, "Rolling", state.AutoRollMode:get_description('Auto')),
+        Safe = MenuItem.action(function()
+            handle_set('AutoRollMode', 'Safe')
+        end, "Rolling", state.AutoRollMode:get_description('Safe')),
         Off = MenuItem.action(function()
             handle_set('AutoRollMode', 'Off')
         end, "Rolling", state.AutoRollMode:get_description('Off')),

@@ -27,8 +27,18 @@ function WeaponSkill.new(weapon_skill_name, conditions)
     if not conditions:contains(min_tp) then
         conditions:append(min_tp)
     end
-    local self = setmetatable(SkillchainAbility.new('weapon_skills', weapon_skill.id, conditions), WeaponSkill)
+    local skillchain_ability = SkillchainAbility.new('weapon_skills', weapon_skill.id, conditions)
+    if skillchain_ability == nil then
+        return nil
+    end
+    local self = setmetatable(skillchain_ability, WeaponSkill)
     return self
+end
+
+function WeaponSkill:to_action(target_index, _)
+    local action = WeaponSkillAction.new(self:get_name(), target_index)
+    action.identifier = self.__class..'_'..self:get_name()
+    return action
 end
 
 function WeaponSkill:serialize()

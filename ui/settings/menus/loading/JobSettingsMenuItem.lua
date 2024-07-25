@@ -43,7 +43,7 @@ end
 function JobSettingsMenuItem:getEditMenuItem()
     local editMenuItem = MenuItem.new(L{
         ButtonItem.default('Delete', 18),
-    }, L{}, nil, "Edit", "Edit saved sets.", true)
+    }, L{}, nil, "Settings", "Edit saved sets.", true)
     return editMenuItem
 end
 

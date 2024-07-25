@@ -3,6 +3,7 @@
 -- @class module
 -- @name PartyMember
 
+local BattleStatTracker = require('cylibs/battle/battle_stat_tracker')
 local battle_util = require('cylibs/util/battle_util')
 local buff_util = require('cylibs/util/buff_util')
 local DisposeBag = require('cylibs/events/dispose_bag')
@@ -99,6 +100,7 @@ function PartyMember.new(id)
     self.debuff_ids = L{}
     self.buff_ids = L{}
     self.combat_skill_ids = S{}
+    self.battle_stat_tracker = BattleStatTracker.new(id)
     self.is_monitoring = false
     self.last_zone_time = os.time()
     self.heartbeat_time = os.time()
@@ -137,6 +139,8 @@ function PartyMember.new(id)
     self:set_buff_ids(party_util.get_buffs(self.id))
     self:set_debuff_ids(L(buff_util.debuffs_for_buff_ids(party_util.get_buffs(self.id))))
 
+    self.dispose_bag:addAny(L{ self.battle_stat_tracker })
+
     return self
 end
 
@@ -173,6 +177,8 @@ function PartyMember:monitor()
         return false
     end
     self.is_monitoring = true
+
+    self.battle_stat_tracker:monitor()
 
     self.dispose_bag:add(WindowerEvents.CharacterUpdate:addAction(function(mob_id, name, hp, hpp, mp, mpp, tp, main_job_id, sub_job_id)
         if self:get_id() == mob_id then
@@ -235,6 +241,10 @@ function PartyMember:monitor()
             self:set_zone_id(current_zone_id, zone_line, zone_type)
         end
     end), WindowerEvents.ZoneRequest)
+
+    self.dispose_bag:add(self:on_target_change():addAction(function(_, _)
+        self.battle_stat_tracker:reset()
+    end), self:on_target_change())
 
     return true
 end
@@ -386,8 +396,8 @@ function PartyMember:set_hp(hp)
 end
 
 -------
--- Returns the player's current hit point.
--- @treturn number Hit point
+-- Returns the player's current hit points.
+-- @treturn number Hit points
 function PartyMember:get_hp()
     return self.hp
 end
@@ -397,6 +407,49 @@ end
 -- @treturn number Maximum hit points
 function PartyMember:get_max_hp()
     return self.hp / (self.hpp / 100.0)
+end
+
+-------
+-- Sets the party member's current mana point percentage.
+-- @tparam number Mana point percentage
+function PartyMember:set_mpp(mpp)
+    mpp = mpp or 100
+    if self.mpp == mpp then
+        return
+    end
+    self.mpp = mpp
+end
+
+-------
+-- Returns the player's current mana point percentage.
+-- @treturn number Mana point percentage
+function PartyMember:get_mpp()
+    return self.mpp
+end
+
+-------
+-- Sets the party member's current mana points.
+-- @tparam number Mana points
+function PartyMember:set_mp(mp)
+    mp = mp or 0
+    if self.mp == mp then
+        return
+    end
+    self.mp = mp
+end
+
+-------
+-- Returns the player's current mana points.
+-- @treturn number Mana points
+function PartyMember:get_mp()
+    return self.mp
+end
+
+-------
+-- Returns the player's current tactical points.
+-- @treturn number Tactical points
+function PartyMember:get_tp()
+    return self.tp
 end
 
 -------
@@ -592,6 +645,13 @@ function PartyMember:update_combat_skills()
     self.combat_skill_ids = combat_skill_ids
 
     self:on_combat_skills_change():trigger(self, self.combat_skill_ids)
+end
+
+-------
+-- Returns the battle stat tracker.
+-- @treturn BattleStatTracker The battle stat tracker
+function PartyMember:get_battle_stat_tracker()
+    return self.battle_stat_tracker
 end
 
 -------

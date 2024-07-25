@@ -11,7 +11,7 @@ Flourish.__class = "Flourish"
 function Flourish.new(flourish_name, target_index)
     local self = setmetatable(JobAbility.new(0, 0, 0, flourish_name, target_index), Flourish)
 
-    self.conditions:append(HasBuffsCondition.new(L{ "Finishing Move 1", "Finishing Move 2", "Finishing Move 3", "Finishing Move 4", "Finishing Move 5", "Finishing Move (6+)" }, 1))
+    self.conditions:append(HasBuffsCondition.new(L{ "Finishing Move 1", "Finishing Move 2", "Finishing Move 3", "Finishing Move 4", "Finishing Move 5", "Finishing Move (6+)" }, 1, windower.ffxi.get_player().index))
     self.conditions:append(ValidTargetCondition.new())
 
     return self

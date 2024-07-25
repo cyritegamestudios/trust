@@ -39,15 +39,19 @@ function TextFieldCollectionViewCell:onKeyboardEvent(key, pressed, flags, blocke
         local key = Keyboard.input():getKey(key)
         if key then
             local textItem = self:getItem():getTextItem()
-            if textItem and key ~= "Escape" then
+            if textItem and not self:getKeyBlacklist():contains(key) then
                 local currentText = textItem:getText():gsub('|', '')
                 local newText
                 if key == "Backspace" then
                     newText = currentText:slice(1, currentText:length()-1)
                 elseif key == "Escape" then
                     newText = currentText
-                elseif not S{ 'lshift', 'rshift' }:contains(key:lower()) then
-                    newText = (currentText..key:lower()):ucfirst()
+                elseif not S{ 'LShift', 'RShift' }:contains(key) then
+                    local nextChar = key:lower()
+                    if flags == 1 then
+                        nextChar = nextChar:ucfirst()
+                    end
+                    newText = (currentText..nextChar):ucfirst()
                 else
                     newText = currentText
                 end
@@ -61,6 +65,10 @@ function TextFieldCollectionViewCell:onKeyboardEvent(key, pressed, flags, blocke
         return true
     end
     return true
+end
+
+function TextFieldCollectionViewCell:getKeyBlacklist()
+    return S{ 'Left', 'Right', 'Escape', 'LShift', 'RRhift' }
 end
 
 function TextFieldCollectionViewCell:setCursorVisible(cursorVisible)
@@ -86,7 +94,7 @@ function TextFieldCollectionViewCell:setHasFocus(hasFocus)
 
     self:layoutIfNeeded()
 
-    local keys = L{'a','w','s','d','f','e','h','i','k','l','lshift'}
+    local keys = L{'a','w','s','d','f','e','h','i','k','l','lshift','-'}
     for key in keys:it() do
         if self:hasFocus() then
             windower.send_command('bind %s block':format(key))

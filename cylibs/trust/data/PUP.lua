@@ -1,7 +1,3 @@
-require('tables')
-require('lists')
-require('logger')
-
 Puppetmaster = require('cylibs/entity/jobs/PUP')
 
 local DisposeBag = require('cylibs/events/dispose_bag')
@@ -99,8 +95,6 @@ function PuppetmasterTrust:tic(old_time, new_time)
 	logger.notice(self.__class, 'tic', 'pet status', self.automaton and self.automaton:get_name() or 'no pet')
 
 	if self.automaton then
-		self:check_repair()
-		self:check_overload()
 		self:check_maneuvers()
 		self:check_deploy()
 	end
@@ -124,14 +118,11 @@ function PuppetmasterTrust:check_deploy()
 end
 
 function PuppetmasterTrust:check_automaton()
-	if self.automaton == nil then
-		if state.AutoPetMode.value == 'Auto' and self:get_job():can_activate() then
-			self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, 'Activate'), true)
-		end
-	else
-		if self.automaton:is_mage() then
-			self:check_restore_mp()
-		end
+	if not self.automaton then
+		return
+	end
+	if self.automaton:is_mage() then
+		self:check_restore_mp()
 	end
 end
 
@@ -143,18 +134,6 @@ function PuppetmasterTrust:check_restore_mp()
 		return
 	elseif vitals.hpp > 80 and vitals.mpp < 25 and job_util.can_use_job_ability('Deactivate') then
 		self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, 'Deactivate'), true)
-	end
-end
-
-function PuppetmasterTrust:check_repair()
-	if state.AutoRepairMode.value ~= 'Off' and self.automaton:get_vitals().hpp < 20 and self:get_job():can_repair() then
-		self.automaton:repair()
-	end
-end
-
-function PuppetmasterTrust:check_overload()
-	if self:get_job():is_overloaded() then
-		self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, 'Cooldown'), true)
 	end
 end
 

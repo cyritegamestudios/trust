@@ -8,7 +8,7 @@ local InMogHouseCondition = setmetatable({}, { __index = Condition })
 InMogHouseCondition.__index = InMogHouseCondition
 
 function InMogHouseCondition.new()
-    local self = setmetatable(Condition.new(windower.ffxi.get_player().index), InMogHouseCondition)
+    local self = setmetatable(Condition.new(), InMogHouseCondition)
     return self
 end
 
@@ -18,6 +18,10 @@ end
 
 function InMogHouseCondition:tostring()
     return "InMogHouseCondition"
+end
+
+function InMogHouseCondition.valid_targets()
+    return S{ Condition.TargetType.Self }
 end
 
 function InMogHouseCondition:serialize()

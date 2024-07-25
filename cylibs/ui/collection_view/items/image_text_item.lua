@@ -46,6 +46,24 @@ function ImageTextItem:getImageItem()
 end
 
 ---
+-- Sets whether the button is enabled.
+--
+-- @tparam boolean enabled Whether the button is enabled
+--
+function ImageTextItem:setEnabled(enabled)
+    self:getTextItem():setEnabled(enabled)
+end
+
+---
+-- Gets whether the button is enabled.
+--
+-- @treturn boolean True if the button is enabled
+--
+function ImageTextItem:getEnabled()
+    return self:getTextItem():getEnabled()
+end
+
+---
 -- Checks if this ImageTextItem is equal to another ImageTextItem.
 --
 -- @tparam ImageTextItem otherItem The other ImageTextItem to compare.

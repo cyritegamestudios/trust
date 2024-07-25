@@ -111,9 +111,9 @@ function SongSettingsMenuItem:getConfigMenuItem()
                 local songSettings = T(self.trustSettings:getSettings())[self.trustSettingsMode.value]
 
                 local configItems = L{
-                    ConfigItem.new('NumSongs', 2, 4, 1, function(value) return value.."" end),
-                    ConfigItem.new('SongDuration', 120, 400, 10, function(value) return value.."s" end),
-                    ConfigItem.new('SongDelay', 4, 8, 1, function(value) return value.."s" end)
+                    ConfigItem.new('NumSongs', 2, 4, 1, function(value) return value.."" end, "Maximum Number of Songs"),
+                    ConfigItem.new('SongDuration', 120, 400, 10, function(value) return value.."s" end, "Song Duration"),
+                    ConfigItem.new('SongDelay', 4, 8, 1, function(value) return value.."s" end, "Delay Between Songs")
                 }
 
                 local songConfigEditor = ConfigEditor.new(self.trustSettings, songSettings, configItems)

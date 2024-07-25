@@ -25,7 +25,15 @@ function InBattleCondition:is_satisfied(target_index)
 end
 
 function InBattleCondition:tostring()
-    return "Player is in battle"
+    return "Is in battle"
+end
+
+function InBattleCondition.description()
+    return "Is in battle."
+end
+
+function InBattleCondition.valid_targets()
+    return Condition.TargetType.AllTargets
 end
 
 function InBattleCondition:serialize()

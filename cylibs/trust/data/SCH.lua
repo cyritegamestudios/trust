@@ -90,26 +90,13 @@ function ScholarTrust:tic(old_time, new_time)
     Trust.tic(self, old_time, new_time)
 
     self:check_arts()
-    self:check_sublimation()
+
+    self:check_gambits(self.gambits)
 end
 
 function ScholarTrust:check_arts()
     if state.AutoArtsMode.value ~= 'Off' then
         self:switch_arts(state.AutoArtsMode.value)
-    end
-end
-
-function ScholarTrust:check_sublimation()
-    if buff_util.is_buff_active(buff_util.buff_id('Refresh')) then
-        return
-    end
-
-    if self:get_job():is_sublimation_active() then
-        if windower.ffxi.get_player().vitals.mpp < 20 then
-            self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, 'Sublimation'), true)
-        end
-    elseif job_util.can_use_job_ability('Sublimation') then
-        self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, 'Sublimation'), true)
     end
 end
 

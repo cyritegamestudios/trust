@@ -21,7 +21,7 @@ function PaladinTrust.new(settings, action_queue, battle_settings, trust_setting
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		Puller.new(action_queue, battle_settings.targets, L{ Spell.new('Flash'), Spell.new('Banish') }:compact_map()),
-		Tank.new(action_queue, L{ 'Sentinel' }, L{ Spell.new('Flash') })
+		Tank.new(action_queue, L{}, L{ Spell.new('Flash') })
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), PaladinTrust)
 
@@ -53,8 +53,6 @@ end
 
 function PaladinTrust:job_target_change(target_index)
 	Trust.job_target_change(self, target_index)
-
-	self.target_index = target_index
 end
 
 function PaladinTrust:tic(old_time, new_time)

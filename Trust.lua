@@ -1,34 +1,33 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '9.5.2'
+_addon.version = '10.0.0'
 _addon.release_notes = [[
-This update features improvements to the Ninja trust, additional
-settings for pulling and the ability to choose Alter Egos to summon
-using the Trust UI.
+This update introduces Gambits, a powerful system inspired by Final Fantasy
+12 that lets you customize the behavior of your Trust. Gambits are a
+targeted "if X, then Y" conditional statement that can be used to cast
+spells, perform job abilities and more.
 
-	• Ninja
-	    • Nuke and magic burst with Ninjutsu elemental spells.
-	    • Enfeeble enemies with Ninjutsu debuffs.
-	    • Pull enemies for the party to fight.
-	    • Use Utsusemi: Ichi, Ni and San.
+	• Gambits
+	    • There are 4 parts to a Gambit:
+	        1. Ability Target (Self, Ally or Enemy)
+	            • Self, Ally or Enemy.
+	        2. Ability
+	            • Spell, job ability or action to perform.
+	        3. Conditions Target
+	            • Target of conditions.
+	        4. Conditions
+	            • Conditions to check.
 
 	• Conditions
-	    • Customize when to use spells using conditions under
-	      Settings > Buffs > Self/Party > Conditions.
-	    • Customize when to use job abilities using conditions under
-	      Settings > Buffs > Abilities > Conditions.
-	    • Choose from min HP, HP range, min MP, target distance and more.
+	    • Customize when to perform Gambits with one or more conditions.
+	    • Choose from HP %, MP %, TP, buffs, debuffs and more!
 
-	• UI
-	    • Additional help text added to menus for modes, spells
-	      job abilites and more.
-	    • Added ability to customize Alter Egos under Settinsg > Alter Egos.
+	• Puppetmaster
+	    • Attachment sets can now be saved and loaded under
+	      Settings > Automaton > Attachments, replacing
+	      the need for the AutoControl addon!
 
-	• Bug Fixes
-	    • Fixed issue where job abilities would not work without Shortcuts.
-	    • Fixed issue where a debuff on cooldown would stop other debuffs
-	      from being applied.
 
 	• Press escape or enter to exit.
 
@@ -182,18 +181,23 @@ function load_user_files(main_job_id, sub_job_id)
 	player.trust.main_job = main_job_trust
 	player.trust.sub_job = sub_job_trust
 
+	local skillchainer = Skillchainer.new(action_queue, weapon_skill_settings)
+
 	player.trust.main_job:add_role(Attacker.new(action_queue))
 	player.trust.main_job:add_role(CombatMode.new(action_queue, addon_settings:getSettings().battle.melee_distance, addon_settings:getSettings().battle.range_distance))
 	player.trust.main_job:add_role(Eater.new(action_queue, main_job_trust:get_trust_settings().AutoFood))
 	player.trust.main_job:add_role(Follower.new(action_queue, addon_settings:getSettings().follow.distance))
 	player.trust.main_job:add_role(Pather.new(action_queue, 'data/paths/'))
-	player.trust.main_job:add_role(Skillchainer.new(action_queue, weapon_skill_settings))
+	player.trust.main_job:add_role(skillchainer)
+	player.trust.main_job:add_role(Gambiter.new(action_queue, player.trust.main_job_settings.Default.GambitSettings, skillchainer))
 	player.trust.main_job:add_role(Spammer.new(action_queue, weapon_skill_settings))
 	player.trust.main_job:add_role(Cleaver.new(action_queue, weapon_skill_settings))
 	player.trust.main_job:add_role(Targeter.new(action_queue))
 	player.trust.main_job:add_role(Truster.new(action_queue, addon_settings:getSettings().battle.trusts))
 	player.trust.main_job:add_role(Aftermather.new(action_queue, player.trust.main_job:role_with_type("skillchainer")))
 	player.trust.main_job:add_role(Assistant.new(action_queue))
+
+	player.trust.sub_job:add_role(Gambiter.new(action_queue, player.trust.sub_job_settings.Default.GambitSettings, skillchainer))
 
 	target_change_time = os.time()
 
@@ -401,7 +405,7 @@ function check_version()
 
 		local Frame = require('cylibs/ui/views/frame')
 
-		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 580))
+		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 625))
 
 		updateView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
 			updateView:getDelegate():deselectItemAtIndexPath(indexPath)

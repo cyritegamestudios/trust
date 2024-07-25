@@ -142,19 +142,7 @@ function JobAbility:get_name()
 end
 
 function JobAbility:serialize()
-    local conditions_classes_to_serialize = L{
-        InBattleCondition.__class,
-        IdleCondition.__class,
-        HasBuffCondition.__class,
-        HasBuffsCondition.__class,
-        MaxDistanceCondition.__class,
-        MaxHitPointsPercentCondition.__class,
-        MinHitPointsPercentCondition.__class,
-        MinManaPointsPercentCondition.__class,
-        MinManaPointsCondition.__class,
-        MinTacticalPointsCondition.__class,
-        NotCondition.__class
-    }
+    local conditions_classes_to_serialize = Condition.defaultSerializableConditionClasses()
     local conditions_to_serialize = self.conditions:filter(function(condition) return conditions_classes_to_serialize:contains(condition.__class)  end)
 
     return "JobAbility.new(" .. serializer_util.serialize_args(self.job_ability_name, conditions_to_serialize, self.job_names, self.target) .. ")"

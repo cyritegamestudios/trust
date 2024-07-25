@@ -24,7 +24,15 @@ function IdleCondition:is_satisfied(target_index)
 end
 
 function IdleCondition:tostring()
-    return "Player is idle"
+    return "Is idle"
+end
+
+function IdleCondition.description()
+    return "Is idle."
+end
+
+function IdleCondition.valid_targets()
+    return Condition.TargetType.AllTargets
 end
 
 function IdleCondition:serialize()

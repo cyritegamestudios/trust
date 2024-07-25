@@ -16,7 +16,7 @@ BuildSkillchainEditor.__index = BuildSkillchainEditor
 
 function BuildSkillchainEditor.new(builderSettings, skillchainer, selectedCombatSkillIds)
     local configItems = L{
-        ConfigItem.new('NumSteps', 2, 6, 1, function(value) return value.."" end),
+        ConfigItem.new('NumSteps', 2, 6, 1, function(value) return value.."" end, "Number of Steps"),
         PickerConfigItem.new('Property', 'Light Lv.4', skillchain_util.all_skillchain_properties()),
     }
 

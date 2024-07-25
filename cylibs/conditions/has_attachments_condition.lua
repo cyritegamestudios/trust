@@ -30,6 +30,10 @@ function HasAttachmentsCondition:tostring()
     return "HasAttachmentsCondition"
 end
 
+function HasAttachmentsCondition.valid_targets()
+    return S{ Condition.TargetType.Self }
+end
+
 function HasAttachmentsCondition:serialize()
     return "HasAttachmentsCondition.new(" .. serializer_util.serialize_args(self.attachment_names) .. ")"
 end

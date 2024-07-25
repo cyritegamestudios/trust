@@ -4,10 +4,9 @@ return {
     Default = {
         AutoFood="Grape Daifuku",
         SelfBuffs = L{
-            Spell.new("Endark II", L{}, L{}, nil, L{}),
-            Spell.new("Absorb-DEX", L{}, L{}, "bt", L{}),
+            Spell.new("Endark II", L{}, L{}, nil, L{IdleCondition.new()}),
             Spell.new("Absorb-STR", L{}, L{}, "bt", L{}),
-            Spell.new("Dread Spikes", L{}, L{}, nil, L{HasBuffCondition.new("Max HP Boost"), IdleCondition.new()})
+            Spell.new("Absorb-DEX", L{}, L{}, "bt", L{}),
         },
         PartyBuffs = L{
 
@@ -22,10 +21,19 @@ return {
         PullSettings = {
             Abilities = L{
                 Spell.new('Absorb-STR', L{}, L{}),
-                Spell.new('Absorb-ACC', L{}, L{}),
+                Spell.new('Absorb-DEX', L{}, L{}),
                 Spell.new('Stone', L{}, L{})
             },
             Distance = 20
+        },
+        GambitSettings = {
+            Default = L{
+                Gambit.new("Enemy", L{MeleeAccuracyCondition.new(75, "<="), MainJobCondition.new("DRK")},  Spell.new("Absorb-ACC", L{}, L{}), "Self"),
+                Gambit.new("Self", L{HasBuffCondition.new("Max HP Boost"), IdleCondition.new(), NotCondition.new(L{HasBuffCondition.new("Dread Spikes")})},  Spell.new("Dread Spikes", L{}, L{}), "Self"),
+            },
+            Gambits = L{
+
+            }
         },
     }
 }

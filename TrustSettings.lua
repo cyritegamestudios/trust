@@ -171,12 +171,15 @@ function TrustSettings:getSettings()
     return self.settings
 end
 
+function TrustSettings:getDefaultSettings()
+    return self.defaultSettings
+end
+
 function TrustSettings:runMigrations(settings)
     local needsMigration = false
 
     local modeNames = list.subtract(L(T(settings):keyset()), L{'Version'})
 
-    -- 1. Add PullSettings
     for modeName in modeNames:it() do
         local settingsForMode = settings[modeName]
         if not settingsForMode.PullSettings then
@@ -190,6 +193,23 @@ function TrustSettings:runMigrations(settings)
         if not settingsForMode.Debuffs then
             settingsForMode.Debuffs = L{}
             needsMigration = true
+        end
+        if not settingsForMode.GambitSettings then
+            settingsForMode.GambitSettings = {}
+            settingsForMode.GambitSettings.Gambits = self.defaultSettings.Default.GambitSettings.Gambits
+            needsMigration = true
+        end
+        if not settingsForMode.GambitSettings.Default then
+            if self.defaultSettings.Default.GambitSettings and self.defaultSettings.Default.GambitSettings.Default then
+                settingsForMode.GambitSettings.Default = self.defaultSettings.Default.GambitSettings and self.defaultSettings.Default.GambitSettings.Default or L{}
+                needsMigration = true
+            end
+        end
+        if not settingsForMode.AttachmentSettings then
+            if self.defaultSettings.Default.AttachmentSettings then
+                settingsForMode.AttachmentSettings = self.defaultSettings.Default.AttachmentSettings
+                needsMigration = true
+            end
         end
     end
 

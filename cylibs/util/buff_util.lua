@@ -8,6 +8,7 @@ _libs = _libs or {}
 require('lists')
 
 local res = require('resources')
+local list_ext = require('cylibs/util/extensions/lists')
 local job_abilities_ext = require('cylibs/res/job_abilities')
 local spells_ext = require('cylibs/res/spells')
 
@@ -90,10 +91,7 @@ local buff_conflicts = T{
 	[446] = S{66,444,445,446},
 }
 
-local buffs = L{
-
-}
-
+local buff_ids = list.from_range(32, 633)
 
 -------
 -- Determines if the player has a given buff active.
@@ -350,6 +348,15 @@ function buff_util.active_synth_support()
 	return nil
 end
 
+function buff_util.get_all_buff_ids(include_debuffs)
+	local result = L{}
+	result = result:extend(buff_ids)
+	if include_debuffs then
+		result = result:extend(L(T(debuffs):keyset()))
+	end
+	return result:compact_map()
+end
+
 function buff_util.is_debuff(debuff_id)
 	return debuffs[debuff_id] ~= nil
 end
@@ -358,6 +365,21 @@ function buff_util.get_all_debuffs()
 	return L(T(debuffs):keyset()):map(function(debuff_id)
 		return res.buffs[debuff_id].en:gsub("^%l", string.upper)
 	end)
+end
+
+function buff_util.get_all_debuff_spells()
+	local result = L{}
+	for _, spells in pairs(debuffs) do
+		result = result:extend(L(spells))
+	end
+	result = result:map(function(spell_id)
+		return res.spells[spell_id].en
+	end):compact_map()
+	return result
+end
+
+function buff_util.get_all_debuff_ids()
+	return L(T(debuffs):keyset())
 end
 
 return buff_util

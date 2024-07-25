@@ -46,6 +46,10 @@ function ValidSpellTargetCondition:tostring()
     return "ValidSpellTargetCondition"
 end
 
+function ValidSpellTargetCondition.valid_targets()
+    return Condition.TargetType.AllTargets
+end
+
 function ValidSpellTargetCondition:serialize()
     return "ValidSpellTargetCondition.new(" .. serializer_util.serialize_args(self.spell_name, self.blacklist_names) .. ")"
 end

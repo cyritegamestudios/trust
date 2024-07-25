@@ -25,7 +25,8 @@ end
 -- Comma separates elements of a list and returns as a string
 -- @tparam list list List to separate
 -- @treturn string Comma separated list of elements
-function localization_util.commas(list)
+function localization_util.commas(list, join_word)
+    join_word = join_word or "and"
     if list:length() == 0 then
         return ""
     end
@@ -37,7 +38,7 @@ function localization_util.commas(list)
         if i < list:length() then
             result = result..', '..list[i]
         else
-            result = result..' and '..list[i]
+            result = result..' '..join_word..' '..list[i]
         end
     end
     result = result:sub(1, -1)

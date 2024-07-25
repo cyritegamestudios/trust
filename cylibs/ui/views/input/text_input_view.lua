@@ -100,6 +100,8 @@ function TextInputView:setHasFocus(hasFocus)
 
     if not self:hasFocus() then
         self:getDelegate():deselectAllItems()
+    else
+        self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
     end
 end
 

@@ -27,6 +27,14 @@ function ClaimedCondition:tostring()
     return "ClaimedCondition"
 end
 
+function ClaimedCondition.description()
+    return "Target is claimed."
+end
+
+function ClaimedCondition.valid_targets()
+    return S{ Condition.TargetType.Enemy }
+end
+
 function ClaimedCondition:__eq(otherItem)
     return otherItem.__class == ClaimedCondition.__class
 end
