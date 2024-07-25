@@ -25,7 +25,7 @@ local aggroes_by_magic_regex = L{
     '%a+ Weapon'
 }
 
-local ability_ids = list.from_range(257, 2000)
+local ability_ids = list.from_range(257, 4394)
 
 function monster_util.get_all_ability_ids()
     local result = L{}
