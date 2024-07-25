@@ -110,7 +110,7 @@ function BuffSettingsMenuItem:getEditBuffMenuItem()
 end
 
 function BuffSettingsMenuItem:getConditionsMenuItem()
-    return ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, L{})
+    return ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode)
 end
 
 return BuffSettingsMenuItem
