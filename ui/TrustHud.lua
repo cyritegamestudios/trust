@@ -1,6 +1,5 @@
 local AlterEgoSettingsMenuItem = require('ui/settings/menus/AlterEgoSettingsMenuItem')
-local AttachmentSettingsMenuItem = require('ui/settings/menus/attachments/AttachmentSettingsMenuItem')
-local AutomatonView = require('cylibs/entity/automaton/ui/automaton_view')
+local AutomatonSettingsMenuItem = require('ui/settings/menus/attachments/AutomatonSettingsMenuItem')
 local BackgroundView = require('cylibs/ui/views/background/background_view')
 local BufferView = require('ui/views/BufferView')
 local BufferSettingsMenuItem = require('ui/settings/menus/buffs/BufferSettingsMenuItem')
@@ -302,8 +301,8 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
     end
 
     if jobNameShort == 'PUP' then
-        menuItems:append(ButtonItem.default('Attachments', 18))
-        childMenuItems['Attachments'] = AttachmentSettingsMenuItem.new(trustSettings, trustSettingsMode)
+        menuItems:append(ButtonItem.default('Automaton', 18))
+        childMenuItems['Automaton'] = AutomatonSettingsMenuItem.new(trustSettings, trustSettingsMode)
     end
 
     -- Add menu items only if the Trust has the appropriate role
@@ -523,17 +522,6 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
         return setupView(view, viewSize)
     end)
 
-    -- Puppetmaster
-    local automatonMenuItem = MenuItem.new(L{}, {},
-    function()
-        local backgroundImageView = createBackgroundView(viewSize.width, viewSize.height)
-        local automatonView = AutomatonView.new(trustSettings, trustSettingsMode)
-        automatonView:setBackgroundImageView(backgroundImageView)
-        --automatonView:setNavigationBar(createTitleView(viewSize))
-        automatonView:setSize(viewSize.width, viewSize.height)
-        return automatonView
-    end)
-
     -- Bard
     local singerMenuItem = MenuItem.new(L{
         ButtonItem.default('Clear All', 18),
@@ -551,9 +539,7 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
         ButtonItem.default('Buffs', 18),
         ButtonItem.default('Targets', 18)
     }
-    if jobNameShort == 'PUP' then
-        statusMenuButtons:insert(2, ButtonItem.default('Automaton', 18))
-    elseif jobNameShort == 'BRD' then
+    if jobNameShort == 'BRD' then
         statusMenuButtons:insert(2, ButtonItem.default('Songs', 18))
     end
 
@@ -563,7 +549,6 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
 
     local statusMenuItem = MenuItem.new(statusMenuButtons, {
         Party = partyMenuItem,
-        Automaton = automatonMenuItem,
         Buffs = buffsMenuItem,
         Debuffs = debuffsMenuItem,
         Targets = targetsMenuItem,

@@ -91,7 +91,7 @@ end
 
 function AttachmentSettingsMenuItem:getViewAttachmentsMenuItem()
     return MenuItem.new(L{}, {}, function(menuArgs, infoView)
-        local attachmentListEditor = FFXIPickerView.withItems(self.selectedSet:getAttachments(), L{}, true)
+        local attachmentListEditor = FFXIPickerView.withItems(L{ self.selectedSet:getHeadName(), self.selectedSet:getFrameName() }:extend(self.selectedSet:getAttachments()), L{}, true)
         return attachmentListEditor
     end, "Attachments", "View attachments in the set.")
 end
