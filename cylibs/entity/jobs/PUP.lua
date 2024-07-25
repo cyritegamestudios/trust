@@ -143,6 +143,10 @@ function Puppetmaster:equip_attachment_set(head_name, frame_name, attachment_nam
     actions:append(EquipAttachmentAction.new(head_id))
     actions:append(EquipAttachmentAction.new(frame_id))
 
+    actions:append(BlockAction.new(function()
+        self:remove_all_attachments()
+    end), 'equip_remove_all_attachments')
+
     local slot_num = 1
     for attachment_id in attachment_ids:it() do
         actions:append(EquipAttachmentAction.new(attachment_id, slot_num))

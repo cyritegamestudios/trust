@@ -20,10 +20,14 @@ end
 function HasPetCondition:is_satisfied(target_index)
     local target = windower.ffxi.get_mob_by_index(self:get_target_index() or target_index)
     if target then
-        local pet_index = target.pet_index
-        if pet_index and pet_index ~= 0 then
-            local pet = windower.ffxi.get_mob_by_index(pet_index)
-            return pet and (self.pet_names:contains(pet.name) or self.pet_names:empty())
+        if target.id == windower.ffxi.get_player().id then
+            return pet_util.has_pet()
+        else
+            local pet_index = target.pet_index
+            if pet_index and pet_index ~= 0 then
+                local pet = windower.ffxi.get_mob_by_index(pet_index)
+                return pet and (self.pet_names:contains(pet.name) or self.pet_names:empty())
+            end
         end
     end
     return false
