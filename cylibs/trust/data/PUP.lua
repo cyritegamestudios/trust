@@ -1,7 +1,3 @@
-require('tables')
-require('lists')
-require('logger')
-
 Puppetmaster = require('cylibs/entity/jobs/PUP')
 
 local DisposeBag = require('cylibs/events/dispose_bag')

@@ -15,6 +15,24 @@ return {
             },
             Distance = 20
         },
+        AttachmentSettings = {
+            Sets = {
+                Tank = AttachmentSet.new('Valoredge Frame', 'Soulsoother Head', L {
+                    'Strobe',
+                    'Strobe II',
+                    'Heat Capacitor II',
+                    'Mana Jammer IV',
+                    'Mana Jammer III',
+                    'Regulator',
+                    'Armor Plate IV',
+                    'Barrier Module II',
+                    'Auto-Repair Kit IV',
+                    'Optic Fiber',
+                    'Optic Fiber II',
+                    'Flashbulb'
+                }),
+            }
+        },
         GambitSettings = {
             Default = L{
                 Gambit.new("Self", L{NotCondition.new(L{HasPetCondition.new(L{})}), ModeCondition.new("AutoPetMode", "Auto")}, JobAbility.new("Activate", L{}, L{}), "Self"),

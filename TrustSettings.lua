@@ -205,6 +205,12 @@ function TrustSettings:runMigrations(settings)
                 needsMigration = true
             end
         end
+        if not settingsForMode.AttachmentSettings then
+            if self.defaultSettings.Default.AttachmentSettings then
+                settingsForMode.AttachmentSettings = self.defaultSettings.Default.AttachmentSettings
+                needsMigration = true
+            end
+        end
     end
 
     if needsMigration then

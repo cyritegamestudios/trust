@@ -1,4 +1,5 @@
 local AlterEgoSettingsMenuItem = require('ui/settings/menus/AlterEgoSettingsMenuItem')
+local AttachmentSettingsMenuItem = require('ui/settings/menus/attachments/AttachmentSettingsMenuItem')
 local AutomatonView = require('cylibs/entity/automaton/ui/automaton_view')
 local BackgroundView = require('cylibs/ui/views/background/background_view')
 local BufferView = require('ui/views/BufferView')
@@ -300,6 +301,11 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         childMenuItems['Rolls'] = RollSettingsMenuItem.new(trustSettings, trustSettingsMode, trust)
     end
 
+    if jobNameShort == 'PUP' then
+        menuItems:append(ButtonItem.default('Attachments', 18))
+        childMenuItems['Attachments'] = AttachmentSettingsMenuItem.new(trustSettings, trustSettingsMode)
+    end
+
     -- Add menu items only if the Trust has the appropriate role
     if trust:role_with_type("buffer") then
         menuItems:append(ButtonItem.default('Buffs', 18))
@@ -595,6 +601,7 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
         ButtonItem.default('Config', 18),
         ButtonItem.default('Help', 18),
         ButtonItem.default('Donate', 18),
+        ButtonItem.default('Discord', 18),
     }, {
         Status = statusMenuItem,
         Settings = settingsMenuItem,
@@ -603,7 +610,10 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
         Help = helpMenuItem,
         Donate = MenuItem.action(function()
             windower.open_url(self.addon_settings:getSettings().donate.url)
-        end, "Donate", "Enjoying Trust? Show your support!")
+        end, "Donate", "Enjoying Trust? Show your support!"),
+        Discord = MenuItem.action(function()
+            windower.open_url(self.addon_settings:getSettings().discord.url)
+        end, "Discord", "Need help? Join the Discord!")
     }, nil, jobName, "Settings for "..jobName..".")
 
     return mainMenuItem
