@@ -22,6 +22,7 @@ function SongSettingsMenuItem.new(addonSettings, trustSettings, trustSettingsMod
     function()
         local songSettingsView = SongSettingsEditor.new(trustSettings, trustSettingsMode, addonSettings:getSettings().help.wiki_base_url..'/Singer')
         songSettingsView:setShouldRequestFocus(true)
+        songSettingsView:setAllowsCursorSelection(true)
         return songSettingsView
     end, "Songs", "Choose songs to sing."), SongSettingsMenuItem)
 

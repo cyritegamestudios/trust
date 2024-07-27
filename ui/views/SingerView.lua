@@ -34,7 +34,7 @@ function SingerView.new(singer)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = TextCollectionViewCell.new(item)
         cell:setItemSize(20)
-        cell:setIsSelectable(indexPath.row ~= 1)
+        cell:setIsSelectable(false)
         cell:setUserInteractionEnabled(false)
         return cell
     end)
