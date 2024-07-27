@@ -26,7 +26,8 @@ You will need the latest version of [Trust](https://github.com/cyritegamestudios
 3. Follow the instructions in the installer.
 4. To update, launch the installer again and click "Check for Updates".
 
-![image](https://github.com/user-attachments/assets/97766118-5fe5-4e72-8f97-4181af0c42b2)
+![image](https://github.com/user-attachments/assets/e9c228e2-422f-450a-a5e2-447e2abce078)
+
 
 ### Manual
 1. Download the latest release of [Trust](https://github.com/cyritegamestudios/trust/releases) from GitHub (trust.zip under `Assets` at the bottom of the release page).
