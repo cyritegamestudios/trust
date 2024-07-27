@@ -137,4 +137,22 @@ function Bard:get_song_delay()
     return song_delay
 end
 
+-------
+-- Returns the item ids of all instruments which grant 1 or more
+-- additional song effects.
+-- @treturn list List of item ids (see res/items.lua)
+function Bard:get_extra_song_instrument_ids()
+    return S{
+        18571, -- Daurdabla
+        18574, -- Daurdabla
+        18575, -- Daurdabla
+        18576, -- Daurdabla
+        21407, -- Terpander
+        22304, -- Loughnashade
+        22305, -- Loughnashade
+        22306, -- Loughnashade
+        22307, -- Loughnashade
+    }
+end
+
 return Bard

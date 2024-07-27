@@ -9,7 +9,7 @@ SongRecord.__eq = SongRecord.equals
 SongRecord.__class = "SongRecord"
 
 -------
--- Default initializer for a new spell.
+-- Default initializer for a new song record.
 -- @tparam number song_id Song id (see spells.lua)
 -- @tparam number song_duration Song duration in seconds
 -- @treturn SongRecord A song record
@@ -48,6 +48,14 @@ end
 -- @tparam number expire_time Expiration time
 function SongRecord:set_expire_time(expire_time)
     self.expire_time = expire_time
+end
+
+-------
+-- Sets the song duration.
+-- @tparam number song_duration New song duration
+function SongRecord:set_song_duration(song_duration)
+    self.song_duration = song_duration
+    self.expire_time = os.time() + self.song_duration
 end
 
 -------
