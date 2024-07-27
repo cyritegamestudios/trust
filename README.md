@@ -21,8 +21,8 @@ Get help or request a feature in the [Cyrite Game Studios Discord](https://disco
 You will need the latest version of [Trust](https://github.com/cyritegamestudios/trust) in order to use Trust.
 
 ### Recommended
-1. Download and launch the Trust [installer](https://www.dropbox.com/scl/fi/huciv7hr11ny9ue9pv4f4/Trust-Installer.msi?rlkey=dluk5hvah9qkvld50x1obeohq&st=051pt03d&dl=0) ([backup](https://github.com/cyritegamestudios/trust/blob/main/Trust%20Installer.msi)).
-2. In the security popup, click "More Info" and "Run Anyway".
+1. Download and launch the Trust [installer](https://github.com/cyritegamestudios/trust/blob/main/Setup). If you running Trust v10.0.6+, the installer should be in your `addons/trust/Setup` folder already.
+2. If a Windows security popup appears, click "More Info" and "Run Anyway".
 3. Follow the instructions in the installer.
 4. To update, launch the installer again and click "Check for Updates".
 
