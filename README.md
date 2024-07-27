@@ -18,28 +18,37 @@ Trust is a Windower 4 addon for FFXI that turns your character into a Trust. It 
 Get help or request a feature in the [Cyrite Game Studios Discord](https://discord.gg/CfPxDy759J). Do NOT ask questions about Trust in game.
 
 ## Setup
-See the [Setup Guide](https://github.com/cyritegamestudios/trust/wiki/Getting-Started#setup) or read below:
-
 You will need the latest version of [Trust](https://github.com/cyritegamestudios/trust) in order to use Trust.
 
+### Recommended
+1. Download and launch the Trust [installer](https://www.dropbox.com/scl/fi/huciv7hr11ny9ue9pv4f4/Trust-Installer.msi?rlkey=dluk5hvah9qkvld50x1obeohq&st=051pt03d&dl=0) ([backup](https://github.com/cyritegamestudios/trust/blob/main/Trust%20Installer.msi)).
+2. In the security popup, click "More Info" and "Run Anyway".
+3. Follow the instructions in the installer.
+4. To update, launch the installer again and click "Check for Updates".
+
+![image](https://github.com/user-attachments/assets/97766118-5fe5-4e72-8f97-4181af0c42b2)
+
+### Manual
 1. Download the latest release of [Trust](https://github.com/cyritegamestudios/trust/releases) from GitHub (trust.zip under `Assets` at the bottom of the release page).
 2. Unzip `trust.zip`, right click the `trust` folder, copy it and paste it into the `Windower/addons` folder. Note that this will *not* override your entire existing `trust` folder, only changed files.
 3. If you have downloaded multiple copies of `trust`, the name of your folder might be `trust (2)`, `trust (3)`, etc. Rename this folder to be **Trust** if needed.
-4. Double check that the `Windower/addons/trust` folder exists.
-5. Run `// lua r trust` and you're ready to get started!
-6. To update your version of Trust, repeat steps 1-4 above.
-7. _**You can configure your Trust through the menu by pressing down Control and the Numpad+ buttons.**_
+4. To update your version of Trust, repeat steps 1-3 above.
 
-If using Git:
+### Git
 1. Create a folder named `Trust` in your `Windower/addons` folder.
 2. Run `git clone git@github.com:cyritegamestudios/trust.git .` in that folder.
 3. To update, do a `git pull`.
 
-### Dependencies
+## Dependencies
 
 Trust also requires the following addons, which can be installed through [Windower](https://docs.windower.net/addons/):
 * [Shortcuts](https://docs.windower.net/addons/shortcuts/)
 * [Gearswap](https://docs.windower.net/addons/gearswap/) (vanilla or Selendrile)
+
+## Post Install
+1. Double check that the `Windower/addons/trust` folder exists.
+2. Run `// lua r trust` and you're ready to get started!
+3. _**You can configure your Trust through the menu by pressing down Control and the Numpad+ buttons.**_
 
 ### Optional
 
