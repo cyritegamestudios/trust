@@ -5,4 +5,4 @@ To run the installer:
 3. Follow the instructions in the installer to update to the latest version of Trust.
 4. To check for updates, launch the Trust installer.
 
-**NOTE: the installer *CANNOT* be located inside of your Trust folder or updates won't be installed properly. Move the installer to your Desktop folder or elsewhere outside of the Trust folder.**
+**NOTE: do **NOT** put the installer inside of your Trust folder or updates won't be installed properly. Unzip TrustInstaller.zip to your Desktop or another location.**
