@@ -11,6 +11,7 @@ local SongRecord = require('cylibs/battle/songs/song_record')
 
 local SongTracker = {}
 SongTracker.__index = SongTracker
+SongTracker.__class = "SongTracker"
 
 -- Event called when a song is < self.expiring_duration seconds from wearing off
 function SongTracker:on_song_duration_warning()
@@ -49,7 +50,7 @@ function SongTracker.new(player, party, dummy_songs, songs, pianissimo_songs, jo
     self.songs_changed = Event.newEvent()
 
     local has_songs = false
-    local all_songs = dummy_songs:extend(songs):extend(pianissimo_songs)
+    local all_songs = L{}:extend(dummy_songs):extend(songs):extend(pianissimo_songs)
     for party_member in party:get_party_members(true, 30):it() do
         for song in all_songs:it() do
             local buff_id = res.buffs:with('id', song:get_spell().status).id
@@ -97,9 +98,11 @@ function SongTracker:monitor()
             function (_, song_id, targets)
                 local song = res.spells:with('id', song_id)
                 if song.type == 'BardSong' and song.status and self.job:is_bard_song_buff(song.status) then
+                    self:check_instrument(song_id, self.party:get_player():get_ranged_weapon_id())
                     for _, target in pairs(targets) do
                         local action = target.actions[1]
                         if action then
+                            self.last_song_id = song_id
                             -- ${target} gains the effect of ${status}
                             if action.message == 266 then
                                 self:on_gain_song(target.id, song_id, action.param)
@@ -114,6 +117,19 @@ function SongTracker:monitor()
     self.action_events.zone_change = windower.register_event('zone change', function()
         self:reset()
     end)
+
+    self.dispose_bag:add(WindowerEvents.BuffDurationChanged:addAction(function(target_id, buff_records)
+        if self.last_song_id == nil then
+            return
+        end
+        local buff_record = buff_records:filter(function(record)
+            return record:get_buff_id() == buff_util.buff_for_spell(self.last_song_id).id
+        end):reverse()[1]
+        if buff_record then
+            --self:update_song_duration(target_id, self.last_song_id, buff_record:get_time_remaining())
+            self.last_song_id = nil
+        end
+    end), WindowerEvents.BuffDurationChanged)
 
     local on_party_member_added = function(party_member)
         self.dispose_bag:add(party_member:on_gain_buff():addAction(function(p, buff_id)
@@ -140,6 +156,15 @@ function SongTracker:monitor()
 
     for party_member in self.party:get_party_members(true):it() do
         on_party_member_added(party_member)
+    end
+end
+
+function SongTracker:check_instrument(song_id, instrument_id)
+    local dummy_song_ids = S(self.dummy_songs:map(function(dummy_song) return dummy_song:get_ability_id() end))
+    if dummy_song_ids:contains(song_id) then
+        if not self.job:get_extra_song_instrument_ids():contains(instrument_id) then
+            self.party:add_to_chat(self.party:get_player(), "It looks like I'm not singing "..res.spells[song_id].en.." with an instrument that grants me an extra song. Can you look at my GearSwap?", nil, nil, true)
+        end
     end
 end
 
@@ -344,6 +369,18 @@ function SongTracker:prune_expired_songs(target_id)
         for song_record in self.active_songs[target_id]:it() do
             if song_record:is_expired() then
                 self:on_lose_song(target_id, song_record:get_song_id(), song_record:get_buff_id())
+            end
+        end
+    end
+end
+
+function SongTracker:update_song_duration(target_id, song_id, song_duration)
+    if self.active_songs[target_id] then
+        for song_record in self.active_songs[target_id]:it() do
+            if song_record:get_song_id() == song_id then
+                logger.notice(self.__class, 'update_song_duration', res.spells[song_id].en, song_duration, 'old_duration', song_record:get_time_remaining())
+                song_record:set_song_duration(song_duration)
+                return
             end
         end
     end

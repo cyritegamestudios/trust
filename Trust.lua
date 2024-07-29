@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '10.0.9'
+_addon.version = '10.1.0'
 _addon.release_notes = [[
 This update introduces Gambits, a powerful system inspired by Final Fantasy
 12 that lets you customize the behavior of your Trust. Gambits are a
@@ -197,7 +197,9 @@ function load_user_files(main_job_id, sub_job_id)
 	player.trust.main_job:add_role(Aftermather.new(action_queue, player.trust.main_job:role_with_type("skillchainer")))
 	player.trust.main_job:add_role(Assistant.new(action_queue))
 
-	player.trust.sub_job:add_role(Gambiter.new(action_queue, player.trust.sub_job_settings.Default.GambitSettings, skillchainer))
+	if player.sub_job_name_short ~= 'NON' then
+		player.trust.sub_job:add_role(Gambiter.new(action_queue, player.trust.sub_job_settings.Default.GambitSettings, skillchainer))
+	end
 
 	target_change_time = os.time()
 
@@ -387,7 +389,8 @@ function trust_for_job_short(job_name_short, settings, trust_settings, action_qu
 		BeastmasterTrust = require('cylibs/trust/data/BST')
 		trust = BeastmasterTrust.new(settings.BST, action_queue, settings.battle, trust_settings)
 	else
-		trust = Trust.new()
+		NoneTrust = require('cylibs/trust/data/NON')
+		trust = NoneTrust.new(action_queue)
 	end
 
 	trust:set_player(player)
@@ -621,7 +624,7 @@ local function addon_command(cmd, ...)
 end
 
 function load_chunk_event()
-	load_user_files(windower.ffxi.get_player().main_job_id, windower.ffxi.get_player().sub_job_id)
+	load_user_files(windower.ffxi.get_player().main_job_id, windower.ffxi.get_player().sub_job_id or 0)
 
 	trust_remote_commands = TrustRemoteCommands.new(addon_settings:getSettings().remote_commands.whitelist, commands:keyset())
 

@@ -107,7 +107,11 @@ function GambitSettingsMenuItem:getAbilities(gambitTarget, flatten)
     local targets = gambitTargetMap[gambitTarget]
     local sections = L{
         spell_util.get_spells(function(spell)
-            return spell.type ~= 'Trust' and S(spell.targets):intersection(targets):length() > 0
+            local spellTargets = L(spell.targets)
+            if spell.type == 'Geomancy' and spellTargets:length() == 1 and spellTargets[1] == 'Self' then
+                spellTargets:append('Party')
+            end
+            return spell.type ~= 'Trust' and S(spellTargets):intersection(targets):length() > 0
         end):map(function(spell)
             return spell.en
         end):sort(),

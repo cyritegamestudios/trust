@@ -5,13 +5,14 @@ local Gambit = {}
 Gambit.__index = Gambit
 Gambit.__class = "Gambit"
 
-function Gambit.new(target, conditions, ability, conditions_target)
+function Gambit.new(target, conditions, ability, conditions_target, tags)
     local self = setmetatable({}, Gambit)
 
     self.target = target
     self.conditions = conditions or L{}
     self.ability = ability
     self.conditions_target = conditions_target
+    self.tags = tags or S{}
     self.enabled = true
 
     return self
@@ -39,6 +40,14 @@ end
 
 function Gambit:getConditionsTarget()
     return self.conditions_target
+end
+
+function Gambit:addTag(tag)
+    self.tags:add(tag)
+end
+
+function Gambit:getTags()
+    return self.tags
 end
 
 function Gambit:setEnabled(enabled)

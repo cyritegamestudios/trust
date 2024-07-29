@@ -199,8 +199,11 @@ function TrustHud:getMainMenuItem()
         ButtonItem.default(player.sub_job_name, 18),
     }, {
         [player.main_job_name] = mainJobItem,
-        [player.sub_job_name] = subJobItem,
     }, nil, "Jobs")
+
+    if player.sub_job_name ~= 'None' then
+        mainMenuItem:setChildMenuItem(player.sub_job_name, subJobItem)
+    end
 
     self.mainMenuItem = mainMenuItem
 
@@ -444,9 +447,7 @@ function TrustHud:getPullerMenuItem(trust, jobNameShort, trustSettings, trustSet
 end
 
 function TrustHud:getSingerMenuItem(trust, trustSettings, trustSettingsMode, viewSize)
-    local singerSettingsMenuItem = SongSettingsMenuItem.new(self.addon_settings, trustSettings, trustSettingsMode, function(view)
-        return setupView(view, viewSize)
-    end)
+    local singerSettingsMenuItem = SongSettingsMenuItem.new(self.addon_settings, trustSettings, trustSettingsMode, trust)
     return singerSettingsMenuItem
 end
 
