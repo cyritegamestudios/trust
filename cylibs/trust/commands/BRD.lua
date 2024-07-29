@@ -1,3 +1,5 @@
+local SongValidator = require('cylibs/entity/jobs/bard/song_validator')
+
 local TrustCommands = require('cylibs/trust/commands/trust_commands')
 local BardTrustCommands = setmetatable({}, {__index = TrustCommands })
 BardTrustCommands.__index = BardTrustCommands
@@ -12,6 +14,7 @@ function BardTrustCommands.new(trust, action_queue)
     self:add_command('target', self.handle_set_song_target, 'Sets the song target, // trust brd song_target party_member_name')
     self:add_command('sing', self.handle_sing, 'Sings songs, optionally with nitro, // trust brd sing use_nitro')
     self:add_command('clear', self.handle_clear_songs, 'Clears the list of tracked songs')
+    self:add_command('validate', self.handle_validate_songs, 'Runs diagnostics to validate songs are working properly')
 
     return self
 end
@@ -112,6 +115,23 @@ function BardTrustCommands:handle_clear_songs()
 
     success = true
     message = "Song tracker has been cleared"
+
+    return success, message
+end
+
+function BardTrustCommands:handle_validate_songs()
+    local success
+    local message
+
+    local singer = self.trust:role_with_type("singer")
+
+    self.action_queue:clear()
+
+    local song_validator = SongValidator.new(singer, self.action_queue)
+    song_validator:validate()
+
+    success = true
+    message = "Starting song validation"
 
     return success, message
 end

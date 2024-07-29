@@ -444,9 +444,7 @@ function TrustHud:getPullerMenuItem(trust, jobNameShort, trustSettings, trustSet
 end
 
 function TrustHud:getSingerMenuItem(trust, trustSettings, trustSettingsMode, viewSize)
-    local singerSettingsMenuItem = SongSettingsMenuItem.new(self.addon_settings, trustSettings, trustSettingsMode, function(view)
-        return setupView(view, viewSize)
-    end)
+    local singerSettingsMenuItem = SongSettingsMenuItem.new(self.addon_settings, trustSettings, trustSettingsMode, trust)
     return singerSettingsMenuItem
 end
 

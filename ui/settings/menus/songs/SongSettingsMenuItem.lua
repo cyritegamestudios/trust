@@ -6,17 +6,19 @@ local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesView = require('ui/settings/editors/ModeSettingsEditor')
 local SongPickerView = require('ui/settings/pickers/SongPickerView')
 local SongSettingsEditor = require('ui/settings/SongSettingsEditor')
+local SongValidator = require('cylibs/entity/jobs/bard/song_validator')
 
 local SongSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 SongSettingsMenuItem.__index = SongSettingsMenuItem
 
-function SongSettingsMenuItem.new(addonSettings, trustSettings, trustSettingsMode, viewFactory)
+function SongSettingsMenuItem.new(addonSettings, trustSettings, trustSettingsMode, trust)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Edit', 18),
         ButtonItem.default('Move Up', 18),
         ButtonItem.default('Move Down', 18),
         ButtonItem.default('Config', 18),
         ButtonItem.default('Modes', 18),
+        ButtonItem.default('Diagnostics', 18),
         ButtonItem.default('Help', 18),
     }, {},
     function()
@@ -30,7 +32,7 @@ function SongSettingsMenuItem.new(addonSettings, trustSettings, trustSettingsMod
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
     self.songSettings = T(trustSettings:getSettings())[trustSettingsMode.value]
-    self.viewFactory = viewFactory
+    self.songValidator = SongValidator.new(trust:role_with_type("singer"), action_queue)
     self.dispose_bag = DisposeBag.new()
 
     self:reloadSettings()
@@ -51,6 +53,7 @@ function SongSettingsMenuItem:reloadSettings()
     --self:setChildMenuItem("Move Up", MenuItem.new(L{}, {}, nil))
     self:setChildMenuItem("Config", self:getConfigMenuItem())
     self:setChildMenuItem("Modes", self:getModesMenuItem())
+    self:setChildMenuItem("Diagnostics", self:getDiagnosticsMenuItem())
     self:setChildMenuItem("Help", MenuItem.action(function()
         windower.open_url(self.addonSettings:getSettings().help.wiki_base_url..'/Singer')
     end))
@@ -123,6 +126,12 @@ function SongSettingsMenuItem:getConfigMenuItem()
                 return songConfigEditor
             end, "Config", "Configure general song settings.")
     return songConfigMenuItem
+end
+
+function SongSettingsMenuItem:getDiagnosticsMenuItem()
+    return MenuItem.action(function()
+        self.songValidator:validate()
+    end, "Songs", "Run diagnostics to debug issues with songs.")
 end
 
 function SongSettingsMenuItem:getModesMenuItem()

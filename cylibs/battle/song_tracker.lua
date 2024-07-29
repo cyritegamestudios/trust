@@ -50,7 +50,7 @@ function SongTracker.new(player, party, dummy_songs, songs, pianissimo_songs, jo
     self.songs_changed = Event.newEvent()
 
     local has_songs = false
-    local all_songs = dummy_songs:extend(songs):extend(pianissimo_songs)
+    local all_songs = L{}:extend(dummy_songs):extend(songs):extend(pianissimo_songs)
     for party_member in party:get_party_members(true, 30):it() do
         for song in all_songs:it() do
             local buff_id = res.buffs:with('id', song:get_spell().status).id
