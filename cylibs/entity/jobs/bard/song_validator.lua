@@ -38,6 +38,7 @@ function SongValidator.new(singer, action_queue)
 
                 self.current_actions = L{}
                 self.current_action_identifiers = S{}
+                self.singer.song_tracker.diagnostics_enabled = false
             else
                 self.action_queue:push_action(SequenceAction.new(L{ next_action, WaitAction.new(0, 0, 0, 2) }, next_action:getidentifier()), true)
             end
@@ -46,6 +47,7 @@ function SongValidator.new(singer, action_queue)
 
             self.current_actions = L{}
             self.current_action_identifiers = S{}
+            self.singer.song_tracker.diagnostics_enabled = false
         end
     end), self.action_queue:on_action_end())
 
@@ -69,6 +71,8 @@ function SongValidator:validate()
         self.singer:get_party():add_to_chat(self.singer:get_party():get_player(), "I can't run diagnostics if I have any songs active. Get rid of my songs and try again.")
         return
     end
+
+    self.singer.song_tracker.diagnostics_enabled = true
 
     local song_target = self.singer:get_party():get_player()
     local player = self.singer:get_player()
@@ -126,10 +130,6 @@ function SongValidator:validate()
 
     local next_action = self.current_actions:remove(1)
     self.action_queue:push_action(SequenceAction.new(L{ next_action, WaitAction.new(0, 0, 0, 2) }, next_action:getidentifier()), true)
-end
-
-function SongValidator:start_testing()
-
 end
 
 -------

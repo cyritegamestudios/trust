@@ -12,7 +12,7 @@ function Gambit.new(target, conditions, ability, conditions_target, tags)
     self.conditions = conditions or L{}
     self.ability = ability
     self.conditions_target = conditions_target
-    self.tags = tags or S{}
+    self.tags = tags or L{}
     self.enabled = true
 
     return self
@@ -43,11 +43,11 @@ function Gambit:getConditionsTarget()
 end
 
 function Gambit:addTag(tag)
-    self.tags:add(tag)
+    self.tags:append(tag)
 end
 
 function Gambit:getTags()
-    return self.tags
+    return S(self.tags)
 end
 
 function Gambit:setEnabled(enabled)
@@ -69,7 +69,8 @@ end
 function Gambit:serialize()
     --return "Gambit.new(" .. serializer_util.serialize_args(self.target, self.conditions, self.ability).. ")"
     local conditions = serializer_util.serialize(self.conditions, 0)
-    return "Gambit.new(" .. serializer_util.serialize(self.target) .. ", " .. conditions .. ", " .. self.ability:serialize() .. ", " .. serializer_util.serialize(self.conditions_target) .. ")"
+    local tags = serializer_util.serialize(self.tags or L{}, 0)
+    return "Gambit.new(" .. serializer_util.serialize(self.target) .. ", " .. conditions .. ", " .. self.ability:serialize() .. ", " .. serializer_util.serialize(self.conditions_target) .. ", " .. tags .. ")"
 end
 
 function Gambit:copy()
@@ -78,6 +79,11 @@ function Gambit:copy()
         conditions:append(condition:copy())
     end
     return Gambit.new(self:getAbilityTarget(), conditions, self:getAbility(), self:getConditionsTarget())
+end
+
+function Gambit:__eq(otherItem)
+    return otherItem.__class == Gambit.__class
+            and self:tostring() == otherItem:tostring()
 end
 
 return Gambit

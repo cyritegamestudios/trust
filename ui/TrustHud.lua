@@ -30,6 +30,7 @@ local PartyMemberView = require('cylibs/entity/party/ui/party_member_view')
 local PartyStatusWidget = require('ui/widgets/PartyStatusWidget')
 local PartyTargetsMenuItem = require('ui/settings/menus/PartyTargetsMenuItem')
 local PathSettingsMenuItem = require('ui/settings/menus/misc/PathSettingsMenuItem')
+local ReactSettingsMenuItem = require('ui/settings/menus/gambits/react/ReactSettingsMenuItem')
 local SingerView = require('ui/views/SingerView')
 local SongSettingsMenuItem = require('ui/settings/menus/songs/SongSettingsMenuItem')
 local SpellPickerView = require('ui/settings/pickers/SpellPickerView')
@@ -365,9 +366,11 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
     childMenuItems.Gambits = MenuItem.new(L{
         ButtonItem.default('Custom', 18),
         ButtonItem.default(jobName, 18),
+        ButtonItem.default('Reactions', 18),
     }, {
         Custom = GambitSettingsMenuItem.new(trustSettings, trustSettingsMode),
         [jobName] = JobGambitSettingsMenuItem.new(trustSettings, trustSettingsMode),
+        Reactions = ReactSettingsMenuItem.new(trustSettings, trustSettingsMode),
     }, nil, "Gambits", "Configure Trust behavior.")
 
     local settingsMenuItem = MenuItem.new(menuItems, childMenuItems, nil, "Settings", "Configure Trust settings for skillchains, buffs, debuffs and more.")

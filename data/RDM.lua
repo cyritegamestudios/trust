@@ -7,7 +7,7 @@ return {
             Buff.new("Refresh", L{}, L{}, nil, L{}),
             Buff.new("Haste", L{}, L{}, nil, L{}),
             Buff.new("Temper", L{}, L{}, nil, L{InBattleCondition.new()}),
-            Spell.new("Enblizzard", L{}, L{}, nil, L{InBattleCondition.new()}),
+            Spell.new("Enblizzard", L{}, L{}, nil, L{InBattleCondition.new(), MainJobCondition.new('RDM')}),
             Spell.new("Gain-INT", L{}, L{}, nil, L{IdleCondition.new()}),
             Spell.new("Gain-STR", L{}, L{}, nil, L{InBattleCondition.new()}),
             Spell.new("Phalanx", L{}, nil, nil, L{}),
