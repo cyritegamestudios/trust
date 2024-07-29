@@ -324,8 +324,6 @@ local incoming_event_dispatcher = {
     end,
 
     [0x063] = function(data)
-        local packet = packets.parse('incoming', data)
-
         local buff_records = L{}
 
         for n=1,32 do
@@ -340,18 +338,9 @@ local incoming_event_dispatcher = {
             end
         end
 
-
-
-        --[[for i = 1, 32 do
-            local buff_id = packet['Buffs '..i]
-            if buff_id ~= 255 then
-                local duration = packet['Time '..i] - (os.time() + bufftime_offset)
-                print('buff id', buff_id, duration)
-                buff_records:append(BuffRecord.new(buff_id, duration))
-            end
-        end]]
-
-        WindowerEvents.BuffDurationChanged:trigger(windower.ffxi.get_player().id, buff_records)
+        if buff_records:length() > 0 then
+            WindowerEvents.BuffDurationChanged:trigger(windower.ffxi.get_player().id, buff_records)
+        end
     end
 
 }

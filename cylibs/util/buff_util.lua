@@ -382,8 +382,4 @@ function buff_util.get_all_debuff_ids()
 	return L(T(debuffs):keyset())
 end
 
-function buff_util.get_duration(buff_id)
-	local buff_ids = L(windower.ffxi.get_player().buff_ids):filter(function()  end)
-end
-
 return buff_util
