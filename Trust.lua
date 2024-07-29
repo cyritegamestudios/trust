@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '10.0.9'
+_addon.version = '10.1.0'
 _addon.release_notes = [[
 This update introduces Gambits, a powerful system inspired by Final Fantasy
 12 that lets you customize the behavior of your Trust. Gambits are a
