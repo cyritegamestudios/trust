@@ -330,6 +330,16 @@ function ActionQueue:get_actions()
 	return actions
 end
 
+function ActionQueue:has_action(identifier)
+	local current_actions = self:get_actions()
+	for action in current_actions:it() do
+		if action:getidentifier() == identifier then
+			return true
+		end
+	end
+	return false
+end
+
 return ActionQueue
 
 
