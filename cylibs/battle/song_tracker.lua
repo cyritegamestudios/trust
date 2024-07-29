@@ -98,11 +98,11 @@ function SongTracker:monitor()
             function (_, song_id, targets)
                 local song = res.spells:with('id', song_id)
                 if song.type == 'BardSong' and song.status and self.job:is_bard_song_buff(song.status) then
-                    self:check_instrument(song_id, self.party:get_player():get_ranged_weapon_id())
                     for _, target in pairs(targets) do
                         local action = target.actions[1]
                         if action then
                             self.last_song_id = song_id
+                            self:check_instrument(song_id, self.party:get_player():get_ranged_weapon_id())
                             -- ${target} gains the effect of ${status}
                             if action.message == 266 then
                                 self:on_gain_song(target.id, song_id, action.param)
@@ -160,6 +160,9 @@ function SongTracker:monitor()
 end
 
 function SongTracker:check_instrument(song_id, instrument_id)
+    if not self.diagnostics_enabled then
+        return
+    end
     local dummy_song_ids = S(self.dummy_songs:map(function(dummy_song) return dummy_song:get_ability_id() end))
     if dummy_song_ids:contains(song_id) then
         if not self.job:get_extra_song_instrument_ids():contains(instrument_id) then

@@ -155,4 +155,12 @@ function Bard:get_extra_song_instrument_ids()
     }
 end
 
+function Bard:get_last_equipped_instrument()
+    local data = windower.packets.last_incoming(0x050)
+    if data then
+
+    end
+    return nil
+end
+
 return Bard

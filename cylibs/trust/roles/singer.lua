@@ -98,7 +98,7 @@ function Singer:get_is_singing()
 end
 
 function Singer:tic(new_time, old_time)
-    logger.notice("Song delay is", self.brd_job:get_song_delay(), "seconds", "("..(self:get_last_tic_time() - self.last_sing_time), "seconds since last sing)")
+    logger.notice(self.__class, "tic", "song_delay", self.brd_job:get_song_delay(), "seconds", "("..(self:get_last_tic_time() - self.last_sing_time), "seconds since last sing)")
 
     if self.state_var.value == 'Off'
             or (self:get_last_tic_time() - self.last_sing_time) <= self.brd_job:get_song_delay()
@@ -113,18 +113,18 @@ end
 function Singer:assert_num_songs(party_member)
     local max_num_songs = self.song_tracker:get_max_num_songs(party_member:get_id())
 
-    logger.notice("Maximum number of songs is", max_num_songs)
+    logger.notice(self.__class, "assert_num_songs", "maximum number of songs is", max_num_songs)
 
     local current_num_songs = L(self.song_tracker:get_songs(party_member:get_mob().id)):length()
     local current_num_song_buffs = self.brd_job:get_song_buff_ids(party_member:get_buff_ids()):length()
 
     if current_num_songs ~= current_num_song_buffs then
-        logger.error("Expected", current_num_song_buffs, "songs but got", current_num_songs, "song records")
+        logger.error(self.__class, "assert_num_songs", "expected", current_num_song_buffs, "songs but got", current_num_songs, "song records")
 
         local songs_from_records = L(self.song_tracker:get_songs(party_member:get_mob().id)):map(function(song_record) return res.spells[song_record:get_song_id()].en end)
         local song_buff_names = self.brd_job:get_song_buff_ids(party_member:get_buff_ids()):map(function(buff_id) return res.buffs[buff_id].en  end)
 
-        logger.error("Song records are", tostring(songs_from_records), "but buffs are", tostring(song_buff_names))
+        logger.error(self.__class, "assert_num_songs", "song records are", tostring(songs_from_records), "but buffs are", tostring(song_buff_names))
     end
 end
 
@@ -156,7 +156,7 @@ function Singer:get_next_song(party_member, dummy_songs, songs)
     local song_target_id = party_member:get_mob().id
     local buff_ids = L(party_member:get_buff_ids())
 
-    logger.notice("Target songs for", party_member:get_mob().name, songs:map(function(song) return song:get_spell().en end))
+    logger.notice(self.__class, "get_next_song", party_member:get_mob().name, songs:map(function(song) return song:get_spell().en end))
 
     local current_num_songs = self.song_tracker:get_num_songs(song_target_id, buff_ids)
     if current_num_songs < songs:length() then
@@ -178,7 +178,7 @@ function Singer:get_next_song(party_member, dummy_songs, songs)
             if not self.song_tracker:has_song(song_target_id, song:get_spell().id, buff_ids) then
                 return song
             elseif self.song_tracker:is_expiring_soon(song_target_id, L{ song }) then
-                logger.notice("Resinging", song:get_spell().en)
+                logger.notice(self.__class, "get_next_song", "resinging", song:get_spell().en)
                 return song
             end
         end
@@ -198,7 +198,7 @@ function Singer:sing_song(song, target_index)
         local job_abilities = S(song:get_job_abilities():copy())
         if target_index == windower.ffxi.get_player().index and self.song_target:get_mob().index == windower.ffxi.get_player().index then
             if buff_util.is_buff_active(buff_util.buff_id('Pianissimo')) then
-                logger.error("Attempting to sing a song on self but Pianissimo is active")
+                logger.error(self.__class, "sing_song", "attempting to sing a song on self but Pianissimo is active")
                 actions:append(BlockAction.new(function()
                     buff_util.cancel_buff(buff_util.buff_id('Pianissimo'))
                 end), 'cancel_pianissimo', 'Cancelling Pianissimo')
@@ -237,7 +237,7 @@ function Singer:sing_song(song, target_index)
 
         self.action_queue:push_action(sing_action, true)
 
-        logger.notice("Singing", res.spells[song:get_spell().id].name, "on", windower.ffxi.get_mob_by_index(target_index).name)
+        logger.notice(self.__class, "sing_song", "singing", res.spells[song:get_spell().id].name, "on", windower.ffxi.get_mob_by_index(target_index).name)
 
         return true
     end
@@ -280,8 +280,8 @@ function Singer:nitro()
             actions:append(JobAbilityAction.new(0, 0, 0, 'Clarion Call'))
             actions:append(WaitAction.new(0, 0, 0, 1.5))
 
-            logger.notice("Using Clarion Call")
-            logger.notice("Current songs for", player:get_mob().name, "are", self.song_tracker:get_songs(player:get_id(), L(player:get_buff_ids())):map(function(song_record) return res.spells[song_record:get_song_id()].en  end))
+            logger.notice(self.__class, "nitro", "using Clarion Call")
+            logger.notice(self.__class, "nitro", "current songs for", player:get_mob().name, "are", self.song_tracker:get_songs(player:get_id(), L(player:get_buff_ids())):map(function(song_record) return res.spells[song_record:get_song_id()].en  end))
         end
     end
 
@@ -300,7 +300,7 @@ end
 function Singer:get_merged_songs(party_member)
     local max_num_songs = self.song_tracker:get_max_num_songs(party_member:get_id())
 
-    logger.notice("Maximum number of songs for", party_member:get_name(), "is", max_num_songs)
+    logger.notice(self.__class, "get_merged_songs", "maximum number of songs for", party_member:get_name(), "is", max_num_songs)
 
     if party_member:get_id() == self.song_target:get_id() then
         return self.songs:slice(1, max_num_songs):reverse()
@@ -318,7 +318,7 @@ function Singer:get_merged_songs(party_member)
     end
 
     if all_songs:length() == 0 then
-        logger.error("No valid songs found for", party_member:get_name())
+        logger.error(self.__class, "get_merged_songs", "no valid songs found for", party_member:get_name())
     end
 
     return all_songs
