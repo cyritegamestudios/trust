@@ -201,7 +201,7 @@ function TrustHud:getMainMenuItem()
         [player.main_job_name] = mainJobItem,
     }, nil, "Jobs")
 
-    if self.sub_job_name then
+    if player.sub_job_name ~= 'None' then
         mainMenuItem:setChildMenuItem(player.sub_job_name, subJobItem)
     end
 
