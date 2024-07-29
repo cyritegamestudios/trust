@@ -78,6 +78,15 @@ function TrustSettings:loadSettings()
     else
         addon_message(207, 'Unable to load trust settings for '..self.jobNameShort)
     end
+    --[[if self.jobNameShort == 'NON' then
+        self.defaultSettings = {}
+        self.settings = {
+            Default = {
+
+            }
+        }
+        return self.settings
+    end]]
     return nil
 end
 

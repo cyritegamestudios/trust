@@ -199,8 +199,11 @@ function TrustHud:getMainMenuItem()
         ButtonItem.default(player.sub_job_name, 18),
     }, {
         [player.main_job_name] = mainJobItem,
-        [player.sub_job_name] = subJobItem,
     }, nil, "Jobs")
+
+    if self.sub_job_name then
+        mainMenuItem:setChildMenuItem(player.sub_job_name, subJobItem)
+    end
 
     self.mainMenuItem = mainMenuItem
 
