@@ -116,7 +116,7 @@ function Bard:get_song_duration(song_name)
     local modifier = 1.0
     if song_name then
         if song_name == 'Honor March' then
-            modifier = 1.1
+            modifier = 1.0
         end
     end
     local base_song_duration = self.song_duration * modifier
