@@ -1,7 +1,3 @@
-require('tables')
-require('lists')
-require('logger')
-
 local Trust = require('cylibs/trust/trust')
 local DancerTrust = setmetatable({}, {__index = Trust })
 DancerTrust.__index = DancerTrust
@@ -9,9 +5,7 @@ DancerTrust.__index = DancerTrust
 local Buffer = require('cylibs/trust/roles/buffer')
 local Dancer = require('cylibs/entity/jobs/DNC')
 local DisposeBag = require('cylibs/events/dispose_bag')
-local FlourishAction = require('cylibs/actions/flourish')
 local Healer = require('cylibs/trust/roles/healer')
-local Stepper = require('cylibs/trust/roles/stepper')
 
 function DancerTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = Dancer.new(trust_settings.CureSettings)
@@ -23,8 +17,6 @@ function DancerTrust.new(settings, action_queue, battle_settings, trust_settings
 
 	self.settings = settings
 	self.action_queue = action_queue
-	self.last_step_time = os.time()
-	self.step_target_index = nil
 	self.dispose_bag = DisposeBag.new()
 
 	return self
@@ -62,37 +54,12 @@ end
 
 function DancerTrust:job_target_change(target_index)
 	Trust.job_target_change(self, target_index)
-
-	self.target_index = target_index
-	self.step_target_index = nil
 end
 
 function DancerTrust:tic(old_time, new_time)
 	Trust.tic(self, old_time, new_time)
 
-	self:check_steps()
 	self:check_finishing_moves()
-end
-
-function DancerTrust:check_steps()
-	if state.AutoStepMode.value == 'Off' or os.time() - self.last_step_time < 10 or self.target_index == nil or player.status ~= 'Engaged' or self.step_target_index == self.target_index then
-		return
-	end
-	local target = windower.ffxi.get_mob_by_index(self.target_index)
-	if battle_util.is_valid_target(target.id) then
-		self.last_step_time = os.time()
-		self.step_target_index = self.target_index
-
-		local actions = L{}
-		if job_util.knows_job_ability(job_util.job_ability_id('Presto')) then
-			actions:append(JobAbilityAction.new(0, 0, 0, 'Presto'))
-			actions:append(WaitAction.new(0, 0, 0, 1.5))
-		end
-		actions:append(JobAbilityAction.new(0, 0, 0, 'Box Step', target.index))
-
-		local step_action = SequenceAction.new(actions, 'box_step')
-		self.action_queue:push_action(step_action, true)
-	end
 end
 
 function DancerTrust:check_finishing_moves()

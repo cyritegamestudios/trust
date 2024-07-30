@@ -87,7 +87,7 @@ function StepTracker:reset()
 end
 
 function StepTracker:get_daze_action_messages()
-    return S{ 520 }
+    return S{ 519, 520, 521 }
 end
 
 function StepTracker:get_daze_name(message_id, level)

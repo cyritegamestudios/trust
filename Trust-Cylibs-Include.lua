@@ -34,6 +34,7 @@ RunAway = require('cylibs/battle/run_away')
 RunTo = require('cylibs/battle/run_to')
 TurnAround = require('cylibs/battle/turn_around')
 TurnToFace = require('cylibs/battle/turn_to_face')
+Command = require('cylibs/battle/command')
 
 -- Gambits
 Gambit = require('cylibs/gambits/gambit')
