@@ -1,5 +1,5 @@
 local DisposeBag = require('cylibs/events/dispose_bag')
-local ResistTracker = require('cylibs/battle/resist_tracker')
+local StepTracker = require('cylibs/battle/trackers/step_tracker')
 local buff_util = require('cylibs/util/buff_util')
 local spell_util = require('cylibs/util/spell_util')
 
@@ -16,7 +16,7 @@ function Stepper.new(action_queue, steps)
 
     self:set_steps(steps)
 
-    self.battle_target_destroyables = DisposeBag.new()
+    self.dispose_bag = DisposeBag.new()
     self.last_step_time = os.time()
 
     return self

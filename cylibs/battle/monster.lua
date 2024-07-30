@@ -15,6 +15,7 @@ local monster_abilities_ext = require('cylibs/res/monster_abilities')
 local monster_util = require('cylibs/util/monster_util')
 local ResistTracker = require('cylibs/battle/resist_tracker')
 local spell_util = require('cylibs/util/spell_util')
+local StepTracker = require('cylibs/battle/trackers/step_tracker')
 
 local Monster = setmetatable({}, {__index = Entity })
 Monster.__index = Monster
@@ -150,9 +151,12 @@ function Monster:monitor()
     self.debuff_tracker = DebuffTracker.new(self:get_id())
     self.debuff_tracker:monitor()
 
+    self.step_tracker = StepTracker.new(self:get_id(), self.debuff_tracker)
+    self.step_tracker:monitor()
+
     self.resist_tracker = ResistTracker.new(self:get_id(), self:on_spell_resisted())
 
-    self.dispose_bag:addAny(L{ self.debuff_tracker, self.resist_tracker })
+    self.dispose_bag:addAny(L{ self.debuff_tracker, self.step_tracker, self.resist_tracker })
 
     self.dispose_bag:add(WindowerEvents.Action:addAction(function(act)
         if act.actor_id == self.mob_id then
@@ -294,6 +298,13 @@ end
 -- @treturn ResistTracker Resist tracker
 function Monster:get_resist_tracker()
     return self.resist_tracker
+end
+
+-------
+-- Returns the monster's step tracker.
+-- @treturn StepTracker Step tracker
+function Monster:get_step_tracker()
+    return self.step_tracker
 end
 
 -------

@@ -49,6 +49,7 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
         [HasPetCondition.__type] = "has_pet",
         [NumResistsCondition.__type] = "num_resists",
         [SkillchainPropertyCondition.__type] = "skillchain_property",
+        [HasDazeCondition.__type] = "has_daze",
     }
     self.conditionPickerItems = L(self.editableConditionClasses:keyset()):filter(function(c)
         local conditionClass = self:getFileForCondition(c)
