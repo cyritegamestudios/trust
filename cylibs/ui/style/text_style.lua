@@ -203,6 +203,19 @@ TextStyle.Default = {
             false,
             Color.yellow
     ),
+    TextExtraSmall = TextStyle.new(
+            Color.clear,
+            Color.clear,
+            "Arial",
+            6,
+            Color.white,
+            Color.lightGrey,
+            2,
+            0,
+            Color.clear,
+            false,
+            Color.yellow
+    ),
     Subheadline = TextStyle.new(
             Color.clear,
             Color.clear,

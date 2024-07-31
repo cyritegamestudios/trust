@@ -45,6 +45,7 @@ default.target_widget = {}
 default.target_widget.x = 4
 default.target_widget.y = 472
 default.target_widget.visible = true
+default.target_widget.detailed = true
 default.trust_widget = {}
 default.trust_widget.x = 4
 default.trust_widget.y = 300

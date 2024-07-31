@@ -1,4 +1,5 @@
 local ActionQueue = require('cylibs/actions/action_queue')
+local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local ButtonCollectionViewCell = require('cylibs/ui/collection_view/cells/button_collection_view_cell')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
@@ -8,11 +9,14 @@ local Color = require('cylibs/ui/views/color')
 local ContainerCollectionViewCell = require('cylibs/ui/collection_view/cells/container_collection_view_cell')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIBackgroundView = require('ui/themes/ffxi/FFXIBackgroundView')
+local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
 local Frame = require('cylibs/ui/views/frame')
 local HorizontalFlowLayout = require('cylibs/ui/collection_view/layouts/horizontal_flow_layout')
 local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_collection_view_cell')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
+local ImageTextCollectionViewCell = require('cylibs/ui/collection_view/cells/image_text_collection_view_cell')
+local ImageTextItem = require('cylibs/ui/collection_view/items/image_text_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local MarqueeCollectionViewCell = require('cylibs/ui/collection_view/cells/marquee_collection_view_cell')
@@ -73,15 +77,20 @@ function TargetWidget.new(frame, addonSettings, party, trust)
             cell:setItemSize(14)
             cell:setUserInteractionEnabled(false)
             return cell
-        else
+        elseif indexPath.row == 3 then
             local cell = ContainerCollectionViewCell.new(item)
             cell:setItemSize(item.viewSize or 14)
+            cell:setUserInteractionEnabled(false)
+            return cell
+        elseif indexPath.row == 4 then
+            local cell = ContainerCollectionViewCell.new(item)
+            cell:setItemSize(item.viewSize or 32)
             cell:setUserInteractionEnabled(false)
             return cell
         end
     end)
 
-    local self = setmetatable(Widget.new(frame, "Target", addonSettings, dataSource, VerticalFlowLayout.new(0, Padding.new(8, 4, 0, 0), 4), 30), TargetWidget)
+    local self = setmetatable(Widget.new(frame, "Target", addonSettings, dataSource, VerticalFlowLayout.new(2, Padding.new(8, 4, 0, 0), 4), 30), TargetWidget)
 
     self.addonSettings = addonSettings
     self.actionQueue = ActionQueue.new(nil, false, 5, false, true)
@@ -89,12 +98,16 @@ function TargetWidget.new(frame, addonSettings, party, trust)
     self.party = party
     self.debuffsView = self:createDebuffsView()
     self.maxNumDebuffs = 7
+    self.infoViewIconSize = 8
+    self.infoViewHeight = 32
+    self.infoView = self:createInfoView()
     self.targetDisposeBag = DisposeBag.new()
 
     local itemsToAdd = L{
         IndexedItem.new(TextItem.new("", TargetWidget.Text), IndexPath.new(1, 1)),
         IndexedItem.new(TextItem.new("", TargetWidget.Subheadline), IndexPath.new(1, 2)),
-        IndexedItem.new(ViewItem.new(self.debuffsView, true, 14), IndexPath.new(1, 3))
+        IndexedItem.new(ViewItem.new(self.debuffsView, true, 14), IndexPath.new(1, 3)),
+        IndexedItem.new(ViewItem.new(self.infoView, true, self.infoViewHeight), IndexPath.new(1, 4))
     }
     self:getDataSource():addItems(itemsToAdd)
 
@@ -204,6 +217,9 @@ function TargetWidget:setTarget(target_index)
     self:getDataSource():updateItem(targetItem, IndexPath.new(1, 1))
 
     self:setVisible(not targetText:empty())
+
+    self:setExpanded(self:shouldExpand())
+
     self:layoutIfNeeded()
 end
 
@@ -230,20 +246,48 @@ function TargetWidget:setExpanded(expanded)
         return false
     end
 
+    self.needsResize = false
+
+    -- Debuffs view
     local indexPath = IndexPath.new(1, 3)
 
     local itemSize = 14
-    if expanded then
+    if expanded --[[and L(target.debuff_tracker:get_debuff_ids()):length() > 0]] then
         itemSize = 14
     else
         itemSize = 0
     end
     self:getDataSource():updateItem(ViewItem.new(self.debuffsView, true, itemSize), indexPath)
 
+    -- Info view
+    local indexPath = IndexPath.new(1, 4)
+
+    local itemSize = self.infoViewHeight
+    if expanded and (target and target:has_resistance_info()) and self:getSettings(self.addonSettings).detailed then
+        itemSize = self.infoViewHeight
+        self:updateInfoView(target)
+    else
+        itemSize = 0
+        self.infoView:getDataSource():removeAllItems()
+    end
+
+    self.infoView:setNeedsLayout()
+    self.infoView:layoutIfNeeded()
+
+    self:getDataSource():updateItem(ViewItem.new(self.infoView, true, itemSize), indexPath)
+
     self:setSize(self:getSize().width, self:getContentSize().height)
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
+end
+
+function TargetWidget:shouldExpand()
+    local target = self.party:get_target_by_index(self.target_index)
+    if not target then
+        return false
+    end
+    return L(target.debuff_tracker:get_debuff_ids()):length() > 0 or target:has_resistance_info()
 end
 
 function TargetWidget:createDebuffsView(target)
@@ -285,6 +329,54 @@ function TargetWidget:updateDebuffs()
     self.debuffsView:getDataSource():updateItems(itemsToUpdate)
 
     self:setExpanded(allDebuffIds:length() > 0)
+end
+
+function TargetWidget:createInfoView(target)
+    local containerDataSource = CollectionViewDataSource.new(function(item)
+        local cell = ContainerCollectionViewCell.new(item)
+        cell:setItemSize(12)
+        return cell
+    end)
+
+    local containerView = CollectionView.new(containerDataSource, VerticalFlowLayout.new(0, Padding.equal(0)), nil, FFXIClassicStyle.static())
+    return containerView
+end
+
+function TargetWidget:updateInfoView(target)
+    self.infoView:getDataSource():removeAllItems()
+
+    local elementsBySection = L{
+        L{ 0, 1, 2 },
+        L{ 3, 4, 5 },
+        L{ 6, 7}
+    }
+
+    local sectionItemsToAdd = L{}
+
+    for elements in elementsBySection:it() do
+        local dataSource = CollectionViewDataSource.new(function(item)
+            local cell = ImageTextCollectionViewCell.new(item)
+            cell:setItemSize(40)
+            return cell
+        end)
+
+        local collectionView = CollectionView.new(dataSource, HorizontalFlowLayout.new(0, Padding.new(2, 0, 0, 0)), nil, CollectionViewStyle.empty())
+        collectionView:setScrollEnabled(false)
+
+        local itemsToAdd = IndexedItem.fromItems(elements:map(function(elementId)
+            local resistance = (target:get_resistance(elementId) * 100).."%"
+            local textItem = TextItem.new(resistance, TextStyle.Default.Subheadline)
+            textItem:setOffset(-2, -5)
+            return ImageTextItem.new(AssetManager.imageItemForElement(elementId), textItem, 0)
+        end), 1)
+        dataSource:addItems(itemsToAdd)
+
+        local viewItem = ViewItem.new(collectionView, true, 12)
+
+        sectionItemsToAdd:append(viewItem)
+    end
+
+    self.infoView:getDataSource():addItems(IndexedItem.fromItems(sectionItemsToAdd, 1))
 end
 
 return TargetWidget

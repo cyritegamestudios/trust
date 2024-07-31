@@ -31,7 +31,8 @@ function ImageTextCollectionViewCell:layoutIfNeeded()
         return false
     end
 
-    self.textView:setPosition(self:getItem():getImageItem():getSize().width + 4, 0)
+    self.textView:setPosition(self:getItem():getImageItem():getSize().width + self:getItem():getSpacing(), 0)
+    self.textView:setVisible(self:isVisible())
     self.textView:setNeedsLayout()
     self.textView:layoutIfNeeded()
 

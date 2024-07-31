@@ -497,6 +497,10 @@ function handle_zone_change(new_zone_id, old_zone_id)
 	end
 end
 
+function handle_load_set(mode_set_name)
+	state.TrustMode:set(mode_set_name)
+end
+
 function handle_save_trust(mode_name)
 	trust_mode_settings:saveSettings(mode_name or state.TrustMode.value)
 end
@@ -588,6 +592,7 @@ commands['start'] = handle_start
 commands['stop'] = handle_stop
 commands['toggle'] = handle_toggle_addon
 commands['reload'] = handle_reload
+commands['load'] = handle_load_set
 commands['save'] = handle_save_trust
 commands['create'] = handle_create_trust
 commands['status'] = handle_trust_status

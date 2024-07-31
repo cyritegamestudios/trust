@@ -42,4 +42,13 @@ function FFXIAssetManager.imageItemForWeaponSkill(weaponSkillName)
     return ImageItem.new(windower.addon_path..'assets/icons/icon_job_ability_light.png', 15, 15)
 end
 
+function FFXIAssetManager.imageItemForElement(elementId)
+    local element = res.elements[elementId]
+    if element then
+        local imageName = string.gsub('icon_'..element.en..'_small.png', " ", "_"):lower()
+        return ImageItem.new(windower.addon_path..'assets/icons/'..imageName, 8, 8)
+    end
+    return ImageItem.new(windower.addon_path..'assets/icons/icon_light_small.png', 8, 8)
+end
+
 return FFXIAssetManager

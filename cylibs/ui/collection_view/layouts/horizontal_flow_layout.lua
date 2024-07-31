@@ -53,8 +53,7 @@ function HorizontalFlowLayout:layoutSubviews(collectionView, indexPathFilter)
                 else
                     cell:setPosition(xOffset, self.padding.top)
                 end
-
-                cell:setVisible(collectionView:getContentView():isVisible())
+                cell:setVisible(collectionView:getContentView():isVisible() and cell:isVisible())
                 cell:layoutIfNeeded()
             end
 

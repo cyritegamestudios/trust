@@ -13,6 +13,8 @@ local buff_util = require('cylibs/util/buff_util')
 local logger = require('cylibs/logger/logger')
 local monster_abilities_ext = require('cylibs/res/monster_abilities')
 local monster_util = require('cylibs/util/monster_util')
+local monster_families = require('cylibs/res/monster_families')
+local monsters = require('cylibs/res/monsters')
 local ResistTracker = require('cylibs/battle/resist_tracker')
 local spell_util = require('cylibs/util/spell_util')
 local StepTracker = require('cylibs/battle/trackers/step_tracker')
@@ -82,6 +84,20 @@ function Monster.new(mob_id)
     self.mob_id = mob_id
     self.current_target = nil
     self.buff_ids = S{}
+    self.resistances = T{}
+
+    local mob = windower.ffxi.get_mob_by_id(self.mob_id)
+    if mob then
+        local monster = monsters[mob.models[1]]
+        if monster then
+            self.family = monster.family
+            self.type = monster.type
+            local family = monster_families:with('family', monster.family)
+            if family then
+                self.resistances = family.resistances
+            end
+        end
+    end
 
     self.target_change = Event.newEvent()
     self.tp_move_finish = Event.newEvent()
@@ -354,6 +370,14 @@ end
 -- @treturn SkillchainStep Active skillchain, or nil if no skillchain is active
 function Monster:get_skillchain()
     return self.skillchain_step
+end
+
+function Monster:has_resistance_info()
+    return L(T(self.resistances):keyset()):length() > 0
+end
+
+function Monster:get_resistance(element_id)
+    return self.resistances[element_id] or 1
 end
 
 -------

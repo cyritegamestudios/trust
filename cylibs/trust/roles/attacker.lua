@@ -72,6 +72,10 @@ function Attacker:check_engage()
         if state.AutoEngageMode.value == 'Mirror' then
             if self:get_party():get_assist_target():get_status() == 'Idle' then
                 self.action_queue:push_action(CommandAction.new(0, 0, 0, '/attackoff'), true)
+            else
+                if self:get_party():get_assist_target():get_status() == 'Engaged' then
+                    self:attack_mob(target)
+                end
             end
         else
             if target.index ~= windower.ffxi.get_player().target_index then
