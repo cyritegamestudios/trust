@@ -70,7 +70,7 @@ function TargetWidget.new(frame, addonSettings, party, trust)
         if indexPath.row == 1 then
             local cell = TextCollectionViewCell.new(item)
             cell:setItemSize(14)
-            cell:setUserInteractionEnabled(true)
+            cell:setUserInteractionEnabled(false)
             return cell
         elseif indexPath.row == 2 then
             local cell = MarqueeCollectionViewCell.new(item)
@@ -372,7 +372,7 @@ function TargetWidget:updateInfoView(target)
         end), 1)
         dataSource:addItems(itemsToAdd)
 
-        local viewItem = ViewItem.new(collectionView, true, 12)
+        local viewItem = ViewItem.new(collectionView, false, 12)
 
         sectionItemsToAdd:append(viewItem)
     end
