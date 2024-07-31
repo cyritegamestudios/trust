@@ -25,6 +25,7 @@ function SkillchainTrustCommands.new(trust, weapon_skill_settings, action_queue)
     self:add_command('auto', self.handle_toggle_auto, 'Automatically make skillchains')
     self:add_command('cleave', self.handle_toggle_cleave, 'Cleave monsters')
     self:add_command('spam', self.handle_toggle_spam, 'Spam the same weapon skill, // trust sc spam ability_name (optional)')
+    self:add_command('mintp', self.handle_set_mintp, 'Sets the minimum tp for spamming, // trust sc mintp 1000')
 
     -- AutoAftermathMode
     self:add_command('am', function(_) return self:handle_toggle_mode('AutoAftermathMode', 'Auto', 'Off')  end, 'Prioritize maintaining aftermath on mythic weapons')
@@ -162,6 +163,21 @@ function SkillchainTrustCommands:handle_toggle_cleave(_)
     local message
 
     self:handle_toggle_mode('AutoSkillchainMode', 'Cleave', 'Off')
+
+    return success, message
+end
+
+function SkillchainTrustCommands:handle_set_mintp(_, min_tp)
+    local success = false
+    local message
+
+    min_tp = tonumber(min_tp or 1000)
+
+    local spammer = self.trust:role_with_type("spammer")
+    spammer:set_conditions(L{ MinTacticalPointsCondition.new(min_tp) })
+
+    success = true
+    message = "Minimum tp for spamming is now "..min_tp
 
     return success, message
 end
