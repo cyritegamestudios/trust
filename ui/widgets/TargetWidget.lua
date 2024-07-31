@@ -242,17 +242,16 @@ function TargetWidget:setExpanded(expanded)
     if not target then
         expanded = false
     end
-    if not Widget.setExpanded(self, expanded) then
+    if not Widget.setExpanded(self, expanded) and not self.needsResize then
         return false
     end
-
     self.needsResize = false
 
     -- Debuffs view
     local indexPath = IndexPath.new(1, 3)
 
     local itemSize = 14
-    if expanded --[[and L(target.debuff_tracker:get_debuff_ids()):length() > 0]] then
+    if expanded and L(target.debuff_tracker:get_debuff_ids()):length() > 0 then
         itemSize = 14
     else
         itemSize = 0
@@ -327,6 +326,8 @@ function TargetWidget:updateDebuffs()
     end
 
     self.debuffsView:getDataSource():updateItems(itemsToUpdate)
+
+    self.needsResize = true
 
     self:setExpanded(allDebuffIds:length() > 0)
 end
