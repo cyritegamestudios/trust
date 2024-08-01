@@ -5,13 +5,15 @@ local Padding = require('cylibs/ui/style/padding')
 local GridLayout = {}
 GridLayout.__index = GridLayout
 
-function GridLayout.new(itemSpacing, padding, sectionSpacing)
+function GridLayout.new(itemSpacing, padding, sectionSpacing, width, itemWidth, itemHeight)
     local self = setmetatable({}, GridLayout)
 
     self.disposeBag = DisposeBag.new()
     self.itemSpacing = itemSpacing or 0
     self.sectionSpacing = sectionSpacing or 0
     self.padding = padding or Padding.equal(0)
+    self.width = width
+    self.itemSize = {  width = itemWidth, height = itemHeight }
 
     return self
 end
@@ -22,7 +24,10 @@ end
 
 -- Add a function to determine the size of a cell
 function GridLayout:sizeForItemAtIndexPath(collectionView, cell)
-    return { width = collectionView:getSize().width, height = cell:getItemSize() }
+    if self.itemSize then
+        return self.itemSize
+    end
+    return { width = cell:getItemSize(), height = cell:getItemSize() }
 end
 
 local num_layout_called = 0
@@ -71,7 +76,7 @@ function GridLayout:layoutSubviews(collectionView, indexPathFilter)
 
                 cellSize = self:sizeForItemAtIndexPath(collectionView, cell)
 
-                if xOffset + cellSize.width + self.itemSpacing > collectionView:getSize().width then
+                if xOffset + cellSize.width + self.itemSpacing > self.width then
                     xOffset = 0
                     yOffset = yOffset + cellSize.height + self.itemSpacing
                 end
@@ -80,6 +85,8 @@ function GridLayout:layoutSubviews(collectionView, indexPathFilter)
                 cell:setSize(cellSize.width - self.padding.left - self.padding.right, cellSize.height)
                 cell:setVisible(collectionView:getContentView():isVisible() and cell:isVisible())
                 cell:layoutIfNeeded()
+
+                xOffset = xOffset + cellSize.width + self.itemSpacing
             end
         end
 
