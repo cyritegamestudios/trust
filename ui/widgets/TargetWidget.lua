@@ -12,6 +12,7 @@ local FFXIBackgroundView = require('ui/themes/ffxi/FFXIBackgroundView')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
 local Frame = require('cylibs/ui/views/frame')
+local GridLayout = require('cylibs/ui/collection_view/layouts/grid_layout')
 local HorizontalFlowLayout = require('cylibs/ui/collection_view/layouts/horizontal_flow_layout')
 local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_collection_view_cell')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
@@ -351,6 +352,31 @@ function TargetWidget:updateInfoView(target)
         L{ 3, 4, 5 },
         L{ 6, 7}
     }
+
+    --[[local sectionItemsToAdd = L{}
+
+    for elements in elementsBySection:it() do
+        local dataSource = CollectionViewDataSource.new(function(item)
+            local cell = ImageTextCollectionViewCell.new(item)
+            cell:setItemSize(40)
+            return cell
+        end)
+
+        local collectionView = CollectionView.new(dataSource, HorizontalFlowLayout.new(0, Padding.new(2, 0, 0, 0)), nil, CollectionViewStyle.empty())
+        collectionView:setScrollEnabled(false)
+
+        local itemsToAdd = IndexedItem.fromItems(elements:map(function(elementId)
+            local resistance = (target:get_resistance(elementId) * 100).."%"
+            local textItem = TextItem.new(resistance, TextStyle.Default.Subheadline)
+            textItem:setOffset(-2, -5)
+            return ImageTextItem.new(AssetManager.imageItemForElement(elementId), textItem, 0)
+        end), 1)
+        dataSource:addItems(itemsToAdd)
+
+        local viewItem = ViewItem.new(collectionView, false, 12)
+
+        sectionItemsToAdd:append(viewItem)
+    end]]
 
     local sectionItemsToAdd = L{}
 
