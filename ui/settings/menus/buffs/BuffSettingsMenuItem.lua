@@ -35,12 +35,17 @@ function BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsPref
         buffSettingsView:setShouldRequestFocus(true)
 
         self.dispose_bag:add(buffSettingsView:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
-            local buff = buffs[indexPath.row]
-            if buff then
-                local description = buff:get_conditions():map(function(condition)
-                    return condition:tostring()
-                end)
-                infoView:setDescription("Use when: "..localization_util.commas(description))
+            local item = buffSettingsView:getDataSource():itemAtIndexPath(indexPath)
+            if item and not item:getTextItem():getEnabled() then
+                infoView:setDescription("Unavailable on current job.")
+            else
+                local buff = buffs[indexPath.row]
+                if buff then
+                    local description = buff:get_conditions():map(function(condition)
+                        return condition:tostring()
+                    end)
+                    infoView:setDescription("Use when: "..localization_util.commas(description))
+                end
             end
         end, buffSettingsView:getDelegate():didMoveCursorToItemAtIndexPath()))
 

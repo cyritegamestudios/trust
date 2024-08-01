@@ -90,12 +90,17 @@ function BufferSettingsMenuItem:getJobAbilitiesMenuItem()
         function(_, infoView)
             local jobAbilitiesSettingsView = JobAbilitiesSettingsEditor.new(self.trustSettings, self.trustSettingsMode, self.settingsPrefix)
             self.dispose_bag:add(jobAbilitiesSettingsView:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
-                local jobAbility = jobAbilitiesSettingsView.jobAbilities[indexPath.row]
-                if jobAbility then
-                    local description = jobAbility:get_conditions():map(function(condition)
-                        return condition:tostring()
-                    end)
-                    infoView:setDescription("Use when: "..localization_util.commas(description))
+                local item = jobAbilitiesSettingsView:getDataSource():itemAtIndexPath(indexPath)
+                if item and not item:getTextItem():getEnabled() then
+                    infoView:setDescription("Unavailable on current job.")
+                else
+                    local jobAbility = jobAbilitiesSettingsView.jobAbilities[indexPath.row]
+                    if jobAbility then
+                        local description = jobAbility:get_conditions():map(function(condition)
+                            return condition:tostring()
+                        end)
+                        infoView:setDescription("Use when: "..localization_util.commas(description))
+                    end
                 end
             end, jobAbilitiesSettingsView:getDelegate():didMoveCursorToItemAtIndexPath()))
             return jobAbilitiesSettingsView
