@@ -86,6 +86,10 @@ function GambitSettingsMenuItem:destroy()
     self.disposeBag:destroy()
 end
 
+function GambitSettingsMenuItem:getConfigKey()
+    return "gambits"
+end
+
 function GambitSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Add", self:getAddAbilityMenuItem())
     self:setChildMenuItem("Edit", self:getEditGambitMenuItem())

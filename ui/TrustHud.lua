@@ -195,7 +195,7 @@ function TrustHud:registerShortcuts()
             menuItem:setChildMenuItem('Shortcuts', shortcutsMenuItem)
 
             local shortcutSettings = self.addon_settings:getSettings().shortcuts.menus[menuItem:getConfigKey()]
-            if shortcutSettings.enabled and shortcutSettings.key and shortcutSettings.flags then
+            if shortcutSettings and shortcutSettings.enabled and shortcutSettings.key and shortcutSettings.flags then
                 Keyboard.input():registerKeybind(shortcutSettings.key, shortcutSettings.flags, function(keybind, pressed)
                     self:openMenu(menuItem)
                 end)
