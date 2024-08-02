@@ -60,4 +60,8 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
     return self
 end
 
+function SkillchainSettingsMenuItem:getConfigKey()
+    return "skillchains"
+end
+
 return SkillchainSettingsMenuItem
