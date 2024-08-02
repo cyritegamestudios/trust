@@ -52,6 +52,23 @@ default.trust_widget.y = 300
 default.trust_widget.visible = true
 default.verbose = true
 default.version = '1.0.0'
+default.shortcuts = {}
+default.shortcuts.menus = {}
+default.shortcuts.menus.modes = {}
+default.shortcuts.menus.modes.enabled = false
+default.shortcuts.menus.modes.key = "M"
+default.shortcuts.menus.modes.flags = 1
+default.shortcuts.widgets = {}
+default.shortcuts.widgets.trust = {}
+default.shortcuts.widgets.trust.enabled = false
+default.shortcuts.widgets.trust.key = "T"
+default.shortcuts.widgets.trust.flags = 1
+default.shortcuts.widgets.party = {}
+default.shortcuts.widgets.party.enabled = false
+default.shortcuts.widgets.party.key = "P"
+default.shortcuts.widgets.party.flags = 1
+
+
 
 function TrustAddonSettings:onSettingsChanged()
     return self.settingsChanged

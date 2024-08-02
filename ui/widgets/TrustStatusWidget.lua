@@ -175,11 +175,13 @@ function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, 
         self:setAction('OFF')
     end
 
-    --Keyboard.input():registerFocusKeybind(20, 4, self)
-
-    --self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
-
     return self
+end
+
+function TrustStatusWidget:destroy()
+    Widget.destroy(self)
+
+    -- TODO: unregister old keybind
 end
 
 function TrustStatusWidget:getSettings(addonSettings)

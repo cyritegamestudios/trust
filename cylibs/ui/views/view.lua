@@ -38,6 +38,7 @@ function View.new(frame)
     self.editing = false
     self.focusable = true
     self.focusLocked = false
+    self.resignFocusKeys = L{ 1, 205 }
     self.uuid = os.time()..'-'..math.random(100000)
     self.destroyed = false
     self.disposeBag = DisposeBag.new()
@@ -356,7 +357,7 @@ end
 --
 function View:onKeyboardEvent(key, pressed, flags, blocked)
     if pressed then
-        if L{ 1, 205 }:contains(key) then
+        if self.resignFocusKeys:contains(key) then
             self:resignFocus()
         end
     end

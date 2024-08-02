@@ -44,9 +44,9 @@ function GambitSettingsEditor.new(gambit, trustSettings, trustSettingsMode, abil
         end
     end), self:getDelegate():didSelectItemAtIndexPath())
 
-    self:getDisposeBag():add(self:onConfigChanged():addAction(function(gambit)
-        self:reloadConfigItems()
-    end), self:onConfigChanged())
+    --self:getDisposeBag():add(self:onConfigChanged():addAction(function(gambit)
+    --    self:reloadConfigItems()
+    --end), self:onConfigChanged())
 
     return self
 end

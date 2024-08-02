@@ -5,6 +5,8 @@ local Event = require('cylibs/events/Luvent')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local Frame = require('cylibs/ui/views/frame')
 local FFXIBackgroundView = require('ui/themes/ffxi/FFXIBackgroundView')
+local IndexPath = require('cylibs/ui/collection_view/index_path')
+local Keyboard = require('cylibs/ui/input/keyboard')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
@@ -29,6 +31,7 @@ function Widget.new(frame, title, addonSettings, dataSource, layout, titleWidth)
     self.events = {}
     self.settingsChanged = Event.newEvent()
     self.title = title
+    self.resignFocusKeys = L{ 1 }
 
     self:setVisible(false)
     self:setScrollEnabled(false)
@@ -94,7 +97,23 @@ function Widget.new(frame, title, addonSettings, dataSource, layout, titleWidth)
         self:setVisible(settings.visible)
         self:setPosition(settings.x, settings.y)
         self:layoutIfNeeded()
+
+        local shortcutSettings = self.addonSettings:getSettings().shortcuts.widgets[title:lower()]
+        if shortcutSettings and shortcutSettings.enabled then
+            Keyboard.input():registerKeybind(shortcutSettings.key, shortcutSettings.flags, function(_, _)
+                self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
+                self:requestFocus()
+            end)
+        end
     end), addonSettings:onSettingsChanged())
+
+    local shortcutSettings = self.addonSettings:getSettings().shortcuts.widgets[title:lower()]
+    if shortcutSettings and shortcutSettings.enabled then
+        Keyboard.input():registerKeybind(shortcutSettings.key, shortcutSettings.flags, function(_, _)
+            self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
+            self:requestFocus()
+        end)
+    end
 
     return self
 end
@@ -177,6 +196,20 @@ function Widget:setEditing(editing)
         end
     end
     return true
+end
+
+function Widget:setHasFocus(hasFocus)
+    CollectionView.setHasFocus(self, hasFocus)
+
+    if hasFocus then
+        for key in L{'up','down','enter'}:it() do
+            windower.send_command('bind %s block':format(key))
+        end
+    else
+        for key in L{'up','down','enter'}:it() do
+            windower.send_command('unbind %s':format(key))
+        end
+    end
 end
 
 function Widget:__eq(otherItem)

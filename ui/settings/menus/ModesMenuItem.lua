@@ -1,11 +1,16 @@
+local BooleanConfigItem = require('ui/settings/editors/config/BooleanConfigItem')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
+local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local DisposeBag = require('cylibs/events/dispose_bag')
+local Keyboard = require('cylibs/ui/input/keyboard')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesView = require('ui/settings/editors/ModeSettingsEditor')
+local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local FFXITextInputView = require('ui/themes/ffxi/FFXITextInputView')
 
 local ModesMenuItem = setmetatable({}, {__index = MenuItem })
 ModesMenuItem.__index = ModesMenuItem
+ModesMenuItem.__type = "ModesMenuItem"
 
 function ModesMenuItem.new(trustSettings)
     local self = setmetatable(MenuItem.new(L{
@@ -37,6 +42,10 @@ function ModesMenuItem:reloadSettings()
         addon_message(260, '('..windower.ffxi.get_player().name..') '.."You got it! I'll remember what to do.")
     end), "Save", "Override the current mode set.")
     self:setChildMenuItem("Save As", self:getSaveAsMenuItem())
+end
+
+function ModesMenuItem:getConfigKey()
+    return "modes"
 end
 
 function ModesMenuItem:getSaveAsMenuItem()

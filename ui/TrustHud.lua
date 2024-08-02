@@ -1,11 +1,13 @@
 local AlterEgoSettingsMenuItem = require('ui/settings/menus/AlterEgoSettingsMenuItem')
 local AutomatonSettingsMenuItem = require('ui/settings/menus/attachments/AutomatonSettingsMenuItem')
 local BackgroundView = require('cylibs/ui/views/background/background_view')
+local BooleanConfigItem = require('ui/settings/editors/config/BooleanConfigItem')
 local BufferView = require('ui/views/BufferView')
 local BufferSettingsMenuItem = require('ui/settings/menus/buffs/BufferSettingsMenuItem')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local Color = require('cylibs/ui/views/color')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
+local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local ConfigSettingsMenuItem = require('ui/settings/menus/ConfigSettingsMenuItem')
 local HealerSettingsMenuItem = require('ui/settings/menus/healing/HealerSettingsMenuItem')
 local DebufferView = require('ui/views/DebufferView')
@@ -19,6 +21,8 @@ local GambitSettingsMenuItem = require('ui/settings/menus/gambits/GambitSettings
 local GameInfo = require('cylibs/util/ffxi/game_info')
 local HelpView = require('cylibs/trust/ui/help_view')
 local JobGambitSettingsMenuItem = require('ui/settings/menus/gambits/JobGambitSettingsMenuItem')
+local Keybind = require('cylibs/ui/input/keybind')
+local Keyboard = require('cylibs/ui/input/keyboard')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 local ModesView = require('ui/settings/editors/ModeSettingsEditor')
@@ -30,6 +34,7 @@ local PartyMemberView = require('cylibs/entity/party/ui/party_member_view')
 local PartyStatusWidget = require('ui/widgets/PartyStatusWidget')
 local PartyTargetsMenuItem = require('ui/settings/menus/PartyTargetsMenuItem')
 local PathSettingsMenuItem = require('ui/settings/menus/misc/PathSettingsMenuItem')
+local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local ReactSettingsMenuItem = require('ui/settings/menus/gambits/react/ReactSettingsMenuItem')
 local SingerView = require('ui/views/SingerView')
 local SongSettingsMenuItem = require('ui/settings/menus/songs/SongSettingsMenuItem')
@@ -129,6 +134,8 @@ function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, a
         end
     end), self.gameInfo:onMenuChange())
 
+    self:registerShortcuts()
+
     return self
 end
 
@@ -146,6 +153,55 @@ function TrustHud:destroy()
 
     for _, itemView in pairs(self.itemViews) do
         itemView:destroy()
+    end
+end
+
+function TrustHud:registerShortcuts()
+    local stack = L{ self.mainMenuItem }
+    while stack:length() > 0 do
+        local menuItem = stack:remove(1)
+        if menuItem:getConfigKey() then
+            local shortcutsMenuItem = MenuItem.new(L{
+                ButtonItem.default('Save', 18),
+            }, {},
+                function(_, _)
+                    local shortcutSettings = self.addon_settings:getSettings().shortcuts.menus[menuItem:getConfigKey()]
+
+                    local configItems = L{
+                        BooleanConfigItem.new('enabled', "Keyboard Shortcut"),
+                        PickerConfigItem.new('key', shortcutSettings.key or Keyboard.allKeys()[1], Keyboard.allKeys(), function(keyName)
+                            return keyName
+                        end, "Key"),
+                        PickerConfigItem.new('flags', shortcutSettings.flags or Keyboard.allFlags()[1], Keyboard.allFlags(), function(flag)
+                            return Keyboard.input():getFlag(flag)
+                        end, "Secondary Key"),
+                    }
+
+                    local shortcutsEditor = ConfigEditor.new(self.addon_settings, shortcutSettings, configItems)
+
+                    self.disposeBag:add(shortcutsEditor:onConfigChanged():addAction(function(newSettings, oldSettings)
+                        if oldSettings.key and oldSettings.flags then
+                            Keyboard.input():unregisterKeybind(oldSettings.key, oldSettings.flags)
+                        end
+                        if newSettings.enabled and newSettings.key and newSettings.flags then
+                            Keyboard.input():registerKeybind(newSettings.key, newSettings.flags, function(keybind, pressed)
+                                self:openMenu(menuItem)
+                            end)
+                        end
+                    end), shortcutsEditor:onConfigChanged())
+
+                    return shortcutsEditor
+                end, menuItem:getTitleText(), "Configure keyboard shortcuts to show this menu.")
+            menuItem:setChildMenuItem('Shortcuts', shortcutsMenuItem)
+
+            local shortcutSettings = self.addon_settings:getSettings().shortcuts.menus[menuItem:getConfigKey()]
+            if shortcutSettings.enabled and shortcutSettings.key and shortcutSettings.flags then
+                Keyboard.input():registerKeybind(shortcutSettings.key, shortcutSettings.flags, function(keybind, pressed)
+                    self:openMenu(menuItem)
+                end)
+            end
+        end
+        stack = stack:extend(menuItem:getChildMenuItems())
     end
 end
 
@@ -178,6 +234,13 @@ function TrustHud:toggleMenu()
     self.trustMenu:closeAll()
 
     self.trustMenu:showMenu(self.mainMenuItem)
+end
+
+function TrustHud:openMenu(menuItem)
+    if menuItem then
+        self.trustMenu:closeAll()
+        self.trustMenu:showMenu(menuItem)
+    end
 end
 
 function TrustHud:getBackgroundImageView()
@@ -272,9 +335,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
     end, "Debuffs", "Choose debuffs to use on enemies.")
 
     -- Modes
-    local modesMenuItem = ModesMenuItem.new(trustSettings, function(view)
-        return setupView(view, viewSize)
-    end)
+    local modesMenuItem = ModesMenuItem.new(trustSettings)
 
     -- Settings
     local menuItems = L{
