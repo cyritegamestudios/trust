@@ -20,7 +20,7 @@ end
 
 function Widget.new(frame, title, addonSettings, dataSource, layout, titleWidth)
     local widgetStyle = FFXIClassicStyle.default()
-    widgetStyle.cursorItem = nil
+    --widgetStyle.cursorItem = nil
 
     local self = setmetatable(CollectionView.new(dataSource, layout, nil, widgetStyle), Widget)
 

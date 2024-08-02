@@ -4,6 +4,7 @@ local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_c
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
+local Keyboard = require('cylibs/ui/input/keyboard')
 local Padding = require('cylibs/ui/style/padding')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
@@ -13,6 +14,8 @@ local Widget = require('ui/widgets/Widget')
 
 local PartyStatusWidget = setmetatable({}, {__index = Widget })
 PartyStatusWidget.__index = PartyStatusWidget
+PartyStatusWidget.__type = "PartyStatusWidget"
+
 
 PartyStatusWidget.TextSmall = TextStyle.new(
         Color.clear,
@@ -83,6 +86,10 @@ function PartyStatusWidget.new(frame, addonSettings, party, actionQueue)
     --[[self:getDisposeBag():add(actionQueue:on_action_end():addAction(function(a, _)
         self:setAction('')
     end), self.actionQueue:on_action_end())]]
+
+    --Keyboard.input():registerFocusKeybind(25, 4, self)
+
+    --self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
 
     return self
 end
@@ -187,5 +194,7 @@ function PartyStatusWidget:setExpanded(expanded)
     end
     self.assistTargetIcon:layoutIfNeeded()
 end
+
+
 
 return PartyStatusWidget

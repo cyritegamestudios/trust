@@ -23,9 +23,25 @@ function Keyboard.new()
         [0x0C] = "Minus"
     }
 
+    self.keybinds = T{}
     self.events = {}
 
     self.events.keyboard = windower.register_event('keyboard', function(key, pressed, flags, blocked)
+        local dictKey = key..'_'..flags
+        local view = self.keybinds[dictKey]
+        if view then
+            local focusable = FocusManager.shared():getFocusable()
+            if focusable then
+                focusable:resignFocus()
+            end
+            if view:requestFocus() then
+                view:setNeedsLayout()
+                view:layoutIfNeeded()
+                return true
+            end
+            return true
+        end
+
         local focusable = FocusManager.shared():getFocusable()
         if focusable and focusable.onKeyboardEvent then
             local blocked = focusable:onKeyboardEvent(key, pressed, flags, blocked)
@@ -39,6 +55,16 @@ end
 
 function Keyboard:getKey(dikCode)
     return self.DIKKeyMap[dikCode]
+end
+
+function Keyboard:registerFocusKeybind(key, flags, view)
+    local dictKey = key..'_'..flags
+    self.keybinds[dictKey] = view
+end
+
+function Keyboard:unregisterFocusKeybind(key, flags)
+    local dictKey = key..'_'..flags
+    self.keybinds[dictKey] = nil
 end
 
 function Keyboard:destroy()
@@ -55,5 +81,7 @@ function Keyboard.input()
     end
     return keyboardInput
 end
+
+
 
 return Keyboard

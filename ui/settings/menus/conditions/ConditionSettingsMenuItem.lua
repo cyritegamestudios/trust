@@ -9,13 +9,13 @@ local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local ConditionSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 ConditionSettingsMenuItem.__index = ConditionSettingsMenuItem
 
-function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentMenuItem, targetTypes)
+function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentMenuItem, targetTypes, enabled)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
         ButtonItem.default('Invert', 18),
         ButtonItem.default('Edit', 18),
-    }, {}, nil, "Conditions", "Edit conditions.", true), ConditionSettingsMenuItem)
+    }, {}, nil, "Conditions", "Edit conditions.", true, enabled), ConditionSettingsMenuItem)
 
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode

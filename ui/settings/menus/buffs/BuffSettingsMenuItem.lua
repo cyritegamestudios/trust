@@ -31,6 +31,8 @@ function BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsPref
         else
             buffs = T(trustSettings:getSettings())[trustSettingsMode.value][settingsKey]
         end
+        self.buffs = buffs
+
         local buffSettingsView = BuffSettingsEditor.new(trustSettings, buffs, targets)
         buffSettingsView:setShouldRequestFocus(true)
 
@@ -110,12 +112,16 @@ function BuffSettingsMenuItem:getEditBuffMenuItem()
             return editSpellView
         end
         return nil
-    end, "Buffs", "Edit buff settings.")
+    end, "Buffs", "Edit buff settings.", false, function()
+                return self.buffs and self.buffs:length() > 0
+            end)
     return editBuffMenuItem
 end
 
 function BuffSettingsMenuItem:getConditionsMenuItem()
-    return ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode)
+    return ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, nil, nil, function()
+        return self.buffs and self.buffs:length() > 0
+    end)
 end
 
 return BuffSettingsMenuItem

@@ -9,6 +9,7 @@ local Frame = require('cylibs/ui/views/frame')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
+local Keyboard = require('cylibs/ui/input/keyboard')
 local MarqueeCollectionViewCell = require('cylibs/ui/collection_view/cells/marquee_collection_view_cell')
 local Mouse = require('cylibs/ui/input/mouse')
 local Padding = require('cylibs/ui/style/padding')
@@ -173,6 +174,10 @@ function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, 
     if not addonEnabled:getValue() then
         self:setAction('OFF')
     end
+
+    --Keyboard.input():registerFocusKeybind(20, 4, self)
+
+    --self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
 
     return self
 end
