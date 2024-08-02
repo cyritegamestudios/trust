@@ -66,6 +66,15 @@ function FocusManager:resignFocus(focusable)
     end
 end
 
+function FocusManager:resignAllFocus()
+    local currentFocusable = self.focusStack:last()
+    while currentFocusable do
+        self.focusStack:remove(self.focusStack:length())
+        currentFocusable:setHasFocus(false)
+        currentFocusable = self.focusStack:last()
+    end
+end
+
 function FocusManager:getFocusable()
     return self.focusStack:last()
 end

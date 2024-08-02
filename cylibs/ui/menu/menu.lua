@@ -158,7 +158,8 @@ function Menu:onKeyboardEvent(key, pressed, flags, blocked)
                 self.viewStack:dismiss()
                 self.menuItemStack = L{}
                 self.menuView = nil
-                self:resignFocus()
+                --self:resignFocus()
+                FocusManager.shared():resignAllFocus()
             end
         else
             local currentView = self.viewStack:getCurrentView()
