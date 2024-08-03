@@ -30,6 +30,8 @@ jobs:
       run: echo "Hello ${{ inputs.release_name }}"
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
     - name: Update manifest.json
       run: |
         release_name="${{ inputs.release_name }}"
