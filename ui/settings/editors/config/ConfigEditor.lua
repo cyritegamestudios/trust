@@ -213,8 +213,12 @@ function ConfigEditor:getCellItemForConfigItem(configItem)
 end
 
 function ConfigEditor:onConfirmClick(skipSave)
-    local originalSettings = T(self.configSettings):copy(true)
-
+    local originalSettings
+    if self.configSettings.copy then
+        originalSettings = self.configSettings:copy()
+    else
+        originalSettings = T(self.configSettings):copy(true)
+    end
     for sectionIndex = 1, self:getDataSource():numberOfSections(), 1 do
         local configItem = self.configItems[sectionIndex]
         if configItem then
