@@ -74,23 +74,6 @@ function PartyStatusWidget.new(frame, addonSettings, party, actionQueue)
         self:setAssistTarget(party_member)
     end), party:on_party_assist_target_change())
 
-    --[[self:getDisposeBag():add(actionQueue:on_action_start():addAction(function(_, a)
-        if a.target_index then
-            local party_member = windower.ffxi.get_mob_by_index(a.target_index)
-            if party_member then
-
-            end
-        end
-    end), self.actionQueue:on_action_start())]]
-
-    --[[self:getDisposeBag():add(actionQueue:on_action_end():addAction(function(a, _)
-        self:setAction('')
-    end), self.actionQueue:on_action_end())]]
-
-    --Keyboard.input():registerFocusKeybind(25, 4, self)
-
-    --self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
-
     return self
 end
 
@@ -194,7 +177,5 @@ function PartyStatusWidget:setExpanded(expanded)
     end
     self.assistTargetIcon:layoutIfNeeded()
 end
-
-
 
 return PartyStatusWidget

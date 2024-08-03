@@ -172,24 +172,6 @@ function MenuItem:getConfigKey()
 end
 
 ---
--- Sets the keybind shortcut to navigate to this menu.
--- @tparam KeyBind keybind Keybind shortcut
--- @treturn boolean True if the MenuItem is enabled.
---
-function MenuItem:setKeybind(keybind)
-    self.keybind = keybind
-end
-
----
--- Returns the keybind shortcut to navigate to this menu.
---
--- @treturn KeyBind The keybind shortcut.
---
-function MenuItem:getKeybind()
-    return self.keybind
-end
-
----
 -- Checks if this MenuItem is equal to another TextItem.
 --
 -- @tparam any otherItem The other item to compare.

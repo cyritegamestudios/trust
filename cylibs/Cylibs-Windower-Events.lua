@@ -36,7 +36,6 @@ WindowerEvents.DebuffsChanged = Event.newEvent()
 WindowerEvents.BuffDurationChanged = Event.newEvent()
 WindowerEvents.GainDebuff = Event.newEvent()
 WindowerEvents.LoseDebuff = Event.newEvent()
-WindowerEvents.GainDaze = Event.newEvent()
 WindowerEvents.AllianceMemberListUpdate = Event.newEvent()
 WindowerEvents.PetUpdate = Event.newEvent()
 WindowerEvents.Equipment = {}

@@ -43,21 +43,6 @@ function Keyboard.new()
             return blocked
         end
 
-        --[[local dictKey = key..'_'..flags
-        local view = self.keybinds[dictKey]
-        if view then
-            local focusable = FocusManager.shared():getFocusable()
-            if focusable then
-                focusable:resignFocus()
-            end
-            if view:requestFocus() then
-                view:setNeedsLayout()
-                view:layoutIfNeeded()
-                return true
-            end
-            return true
-        end]]
-
         local focusable = FocusManager.shared():getFocusable()
         if focusable and focusable.onKeyboardEvent then
             local blocked = focusable:onKeyboardEvent(key, pressed, flags, blocked)
@@ -152,7 +137,5 @@ function Keyboard.input()
     end
     return keyboardInput
 end
-
-
 
 return Keyboard

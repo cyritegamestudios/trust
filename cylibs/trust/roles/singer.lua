@@ -115,9 +115,7 @@ function Singer:tic(new_time, old_time)
     end
     self.song_tracker:tic(new_time, old_time)
 
-    --if not self.is_singing then
-        self:check_songs()
-    --end
+    self:check_songs()
 end
 
 function Singer:assert_num_songs(party_member)
@@ -140,18 +138,12 @@ end
 
 function Singer:check_songs()
     if self:get_player():is_moving() then
-        --return
+        return
     end
 
     local player = self:get_party():get_player()
 
     self:assert_num_songs(player)
-
-    --if self:should_nitro() then
-    --    self:nitro()
-    --    return
-    --end
-
 
     local party_members = self:get_party():get_party_members(true):filter(function(p) return p:get_id() ~= self.song_target:get_id()  end)
     for party_member in list.extend(L{self.song_target}, party_members):it() do
@@ -277,6 +269,8 @@ end
 
 function Singer:should_nitro()
     if state.AutoNitroMode.value == 'Auto' and self.brd_job:is_nitro_ready() then
+        -- NOTE: this check doesn't work anymore beucase nitro job abilities are being added
+        -- directly to the spell action
         if self.action_queue:has_action('nitro') then
             return false
         end

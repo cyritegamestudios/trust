@@ -92,7 +92,6 @@ function SongTracker:destroy()
     self.song_duration_warning:removeAllActions()
     self.songs_changed:removeAllActions()
     self.song_added:removeAllActions()
-    self.song_added:removeAllActions()
 end
 
 -------

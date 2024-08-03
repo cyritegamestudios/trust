@@ -240,7 +240,6 @@ function TrustHud:openMenu(menuItem)
     if not self.trustMenu:isVisible() and menuItem then
         self.trustMenu:closeAll()
         self.trustMenu:showMenu(menuItem)
-        --self.trustMenu.menuView:requestFocus()
     end
 end
 
