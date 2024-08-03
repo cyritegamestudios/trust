@@ -106,7 +106,7 @@ function SongTracker:monitor()
     self.dispose_bag:add(self.player:on_spell_finish():addAction(
             function (_, song_id, targets)
                 local song = res.spells:with('id', song_id)
-                if song.type == 'BardSong' and song.status and self.job:is_bard_song_buff(song.status) then
+                if song and song.type == 'BardSong' and song.status and self.job:is_bard_song_buff(song.status) then
                     for _, target in pairs(targets) do
                         local action = target.actions[1]
                         if action then
