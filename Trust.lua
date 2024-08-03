@@ -3,30 +3,38 @@ _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
 _addon.version = '10.2.0'
 _addon.release_notes = [[
-This update introduces Gambits, a powerful system inspired by Final Fantasy
-12 that lets you customize the behavior of your Trust. Gambits are a
-targeted "if X, then Y" conditional statement that can be used to cast
-spells, perform job abilities and more.
+This update introduces significant improvements to Bard and Dancer,
+adds elemental resistances to the target widget, new conditions,
+menu keyboard shortcuts and more!
 
-	• Gambits
-	    • There are 4 parts to a Gambit:
-	        1. Ability Target (Self, Ally or Enemy)
-	            • Self, Ally or Enemy.
-	        2. Ability
-	            • Spell, job ability or action to perform.
-	        3. Conditions Target
-	            • Target of conditions.
-	        4. Conditions
-	            • Conditions to check.
+	• Bard
+	    • Singing speed has been significantly improved (37s → 23s
+	      for default nitro + pianissimo songs).
+	    • Time spent singing on Alter Egos has been reduced.
 
-	• Conditions
-	    • Customize when to perform Gambits with one or more conditions.
-	    • Choose from HP %, MP %, TP, buffs, debuffs and more!
+	• Dancer
+	    • Added step tracking for Quick Step, Box Step and Stutter Step.
+	    • Added ability to apply a specific level daze to an enemy
+	      using Gambits (see "Has daze" condition).
 
-	• Puppetmaster
-	    • Attachment sets can now be saved and loaded under
-	      Settings > Automaton > Attachments, replacing
-	      the need for the AutoControl addon!
+	• Target Widget
+	    • Elemental resistances are now shown for select enemies.
+	    • Visibility can be configured under Config > Widgets > Target
+	      by toggling "Show Detailed View" and selecting "Save".
+
+	• Menu Shortcuts
+	    • Keyboard shortcuts have been added to directly navigate to
+	      the Modes (Shift + M), Skillchains (Shift + S) and
+	      Gambits (Shift + G) menus.
+	    • To enable keyboard shortcuts, select "Shortcuts" on the
+	      respective menu, set "Keyboard Shortcut" to "On" and
+	      select "Save".
+
+	• Bug Fixes
+	    • Fixed issue where song editor would incorrectly override
+	      the Default set.
+	    • Fixed issue where `CombatMode` `Mirror` would not mirror
+	      movements until the target was claimed.
 
 
 	• Press escape or enter to exit.
