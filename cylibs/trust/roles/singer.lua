@@ -140,7 +140,7 @@ end
 
 function Singer:check_songs()
     if self:get_player():is_moving() then
-        return
+        --return
     end
 
     local player = self:get_party():get_player()
