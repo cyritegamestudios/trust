@@ -7,6 +7,7 @@ local serializer_util = require('cylibs/util/serializer_util')
 
 local RunAway = {}
 RunAway.__index = RunAway
+RunAway.__type = "RunAway"
 RunAway.__class = "RunAway"
 
 -------
@@ -75,6 +76,14 @@ function RunAway:serialize()
         return conditions_classes_to_serialize:contains(condition.__class)
     end)
     return "RunAway.new(" .. serializer_util.serialize_args(self.distance, conditions_to_serialize) .. ")"
+end
+
+function RunAway:__eq(otherItem)
+    if otherItem.__type == self.__type and otherItem:get_name() == self:get_name()
+            and otherItem:get_distance() == self:get_distance() then
+        return true
+    end
+    return false
 end
 
 return RunAway
