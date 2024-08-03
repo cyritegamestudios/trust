@@ -45,7 +45,7 @@ return {
         ["autoclarioncallmode"]="Auto",
         ["actionbatchingmode"]="Off",
         ["autonukemode"]="Off",
-        ["autosleepmode"]="Auto",
+        ["autosleepmode"]="Off",
         ["autobuffmode"]="Off"
     }
 }
