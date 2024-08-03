@@ -177,6 +177,14 @@ function SkillchainAbility:to_action(target_index, player, job_abilities)
     return SequenceAction.new(actions, 'skillchain_ability_sc', false)
 end
 
+function SkillchainAbility:copy()
+    local conditions = L{}
+    for condition in self:get_conditions():it() do
+        conditions:append(condition:copy())
+    end
+    return SkillchainAbility.new(self.resource, self.ability_id, conditions, self.party_member)
+end
+
 function SkillchainAbility:serialize()
     local name = self:get_name()
     if name == SkillchainAbility.Auto then
