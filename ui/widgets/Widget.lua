@@ -203,7 +203,7 @@ end
 
 function Widget:setHasFocus(hasFocus)
     CollectionView.setHasFocus(self, hasFocus)
-    
+
     if hasFocus then
         for key in L{'up','down','enter'}:it() do
             windower.send_command('bind %s block':format(key))
