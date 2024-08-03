@@ -36,7 +36,7 @@ function Keyboard.new()
     self.events = {}
 
     self.events.keyboard = windower.register_event('keyboard', function(key, pressed, flags, blocked)
-        if not blocked and self:hasKeybind(key, flags) then
+        if not blocked and self:hasKeybind(key, flags) and FocusManager.shared():getFocusable() == nil then
             local keybind = Keybind.new(self:getKey(key), flags)
             self:getKeybindHandler(key, flags)(keybind, pressed)
             blocked = true

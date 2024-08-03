@@ -58,6 +58,9 @@ function Widget.new(frame, title, addonSettings, dataSource, layout, titleWidth)
     self:getDisposeBag():add(Mouse.input():onMouseEvent():addAction(function(type, x, y, delta, blocked)
         if type == Mouse.Event.Click then
             if self:isExpanded() and self:hitTest(x, y) then
+                if not self:hasFocus() then
+                    self:requestFocus()
+                end
                 local startPosition = self:getAbsolutePosition()
                 self.dragging = { x = startPosition.x, y = startPosition.y, dragX = x, dragY = y }
 
@@ -200,7 +203,7 @@ end
 
 function Widget:setHasFocus(hasFocus)
     CollectionView.setHasFocus(self, hasFocus)
-
+    
     if hasFocus then
         for key in L{'up','down','enter'}:it() do
             windower.send_command('bind %s block':format(key))

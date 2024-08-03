@@ -157,7 +157,7 @@ function TrustHud:destroy()
 end
 
 function TrustHud:registerShortcuts()
-    local stack = L{ self.mainMenuItem }
+    local stack = L{ self.mainMenuItem:getChildMenuItem(player.main_job_name) }
     while stack:length() > 0 do
         local menuItem = stack:remove(1)
         if menuItem:getConfigKey() then

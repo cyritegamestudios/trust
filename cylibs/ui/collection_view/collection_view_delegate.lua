@@ -55,6 +55,12 @@ function CollectionViewDelegate.new(collectionView)
                 if cell:isVisible() and cell:isUserInteractionEnabled() then
                     if cell:hitTest(x, y) then
                         if type == Mouse.Event.Click then
+                            if not self.collectionView:hasFocus() then
+                                -- Consider adding this back to get rid of double cursor issue. I think you need to check
+                                -- to see if the focusable is already in the stack. This also causes individual cells to
+                                -- be selected though creating a really odd focus stack
+                                --self.collectionView:requestFocus()
+                            end
                             if cell:isSelected() then
                                 self:deselectItemAtIndexPath(indexPath)
                             else

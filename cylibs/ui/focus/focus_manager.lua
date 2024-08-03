@@ -34,6 +34,12 @@ end
 -- @treturn boolean Whether or not the object successfully focused.
 --
 function FocusManager:requestFocus(focusable)
+    for parentFocusable in self.focusStack:it() do
+        if parentFocusable == focusable then
+            return false
+        end
+    end
+
     local currentFocusable = self.focusStack:last()
     if currentFocusable then
         if not currentFocusable:shouldResignFocus() or currentFocusable == focusable then

@@ -26,6 +26,7 @@ TrustStatusWidget.__index = TrustStatusWidget
 TrustStatusWidget.Buttons = {}
 TrustStatusWidget.Buttons.On = ImageItem.new(
         windower.addon_path..'assets/buttons/toggle_button_on.png',
+        windower.addon_path..'assets/buttons/toggle_button_on.png',
         17,
         14
 )
