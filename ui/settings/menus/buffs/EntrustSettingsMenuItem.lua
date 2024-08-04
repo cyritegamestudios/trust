@@ -36,8 +36,6 @@ function EntrustSettingsMenuItem:destroy()
     MenuItem.destroy(self)
 
     self.dispose_bag:destroy()
-
-    self.viewFactory = nil
 end
 
 function EntrustSettingsMenuItem:reloadSettings()

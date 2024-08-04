@@ -48,6 +48,7 @@ end
 function Menu:showMenu(menuItem)
     if self.menuItemStack:contains(menuItem) then
         while self.menuItemStack:length() > 0 and self.menuItemStack[self.menuItemStack:length()]:getUUID() ~= menuItem:getUUID() do
+            print('removing')
             self.menuItemStack:remove(self.menuItemStack:length())
         end
     else

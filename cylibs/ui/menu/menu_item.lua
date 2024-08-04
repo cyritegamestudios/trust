@@ -180,6 +180,7 @@ end
 function MenuItem:__eq(otherItem)
     return otherItem.__type == MenuItem.__type and otherItem:getTitleText() == self:getTitleText()
             and otherItem:getDescriptionText() == self:getDescriptionText()
+            and otherItem:getUUID() == self:getUUID()
 end
 
 ---
