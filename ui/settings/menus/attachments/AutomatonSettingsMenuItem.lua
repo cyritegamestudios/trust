@@ -33,7 +33,7 @@ end
 
 function AutomatonSettingsMenuItem:getModesMenuItem()
     local automatonModesMenuItem = MenuItem.new(L{}, L{}, function(_, infoView)
-        local modesView = ModesView.new(L{'AutoAssaultMode', 'AutoManeuverMode', 'AutoPetMode', 'AutoRepairMode'}, infoView)
+        local modesView = ModesView.new(L{'AutoAssaultMode', 'AutoManeuverMode', 'AutoPetMode', 'AutoRepairMode', 'ManeuverMode'}, infoView)
         modesView:setShouldRequestFocus(true)
         return modesView
     end, "Modes", "Change automaton behavior.")

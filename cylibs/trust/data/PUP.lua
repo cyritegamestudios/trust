@@ -121,6 +121,10 @@ function PuppetmasterTrust:check_automaton()
 	if not self.automaton then
 		return
 	end
+
+	local pet_type = self.automaton:get_pet_mode()
+	state.ManeuverMode:set(pet_type)
+
 	if self.automaton:is_mage() then
 		self:check_restore_mp()
 	end
@@ -176,6 +180,7 @@ function PuppetmasterTrust:update_automaton(pet_id, pet_name)
 
 		local pet_type = self.automaton:get_pet_mode()
 		state.ManeuverMode:set(pet_type)
+		print('setting ManeuverMode to', pet_type)
 	end
 end
 
