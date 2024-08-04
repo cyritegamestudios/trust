@@ -11,7 +11,7 @@ function ModeDelta.new(newModes)
     return self
 end
 
-function ModeDelta:apply()
+function ModeDelta:apply(hideHelpText)
     if self.isApplied then
         return
     end
@@ -20,12 +20,12 @@ function ModeDelta:apply()
         local stateVar = get_state(stateName)
         if stateVar then
             self.oldModes[stateName] = stateVar.value
-            stateVar:set(value)
+            stateVar:set(value, hideHelpText)
         end
     end
 end
 
-function ModeDelta:remove()
+function ModeDelta:remove(hideHelpText)
     if not self.isApplied then
         return
     end
@@ -33,7 +33,7 @@ function ModeDelta:remove()
     for stateName, _ in pairs(self.oldModes) do
         local stateVar = get_state(stateName)
         if stateVar and self.oldModes[stateName] then
-            stateVar:set(self.oldModes[stateName])
+            stateVar:set(self.oldModes[stateName], hideHelpText)
         end
     end
     self.oldModes = {}

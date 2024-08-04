@@ -274,7 +274,7 @@ end
 
 
 -- Set the current value
-_meta.M.__methods['set'] = function(m, val)
+_meta.M.__methods['set'] = function(m, val, hideHelpText)
     local old_value = m.Current
     if m._track._type == 'boolean' then
         if val == nil then
@@ -322,7 +322,7 @@ _meta.M.__methods['set'] = function(m, val)
         end
     end
 
-    m:on_state_change():trigger(m, m.Current, old_value)
+    m:on_state_change():trigger(m, m.Current, old_value, hideHelpText)
 
     return m.Current
 end
