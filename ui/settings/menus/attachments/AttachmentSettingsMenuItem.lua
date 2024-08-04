@@ -84,7 +84,7 @@ function AttachmentSettingsMenuItem:getEquipSetMenuItem()
             else
                 addon_message(260, '('..windower.ffxi.get_player().name..') '.."I can't change sets while my Automaton is still out!")
             end]]
-            self.job:equip_attachment_set(self.selectedSet:getHeadName(), self.selectedSet:getFrameName(), self.selectedSet:getAttachments(), action_queue, true)
+            self.job:equip_attachment_set(self.selectedSet:getHeadName(), self.selectedSet:getFrameName(), self.selectedSet:getAttachments(), true)
         end
     end, "Attachments", "Equip the selected attachment set.")
 end

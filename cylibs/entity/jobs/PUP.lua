@@ -4,6 +4,7 @@
 -- @name Puppetmaster
 
 local buff_util = require('cylibs/util/buff_util')
+local DisposeBag = require('cylibs/events/dispose_bag')
 local EquipAttachmentAction = require('cylibs/actions/equip_attachment')
 local job_util = require('cylibs/util/job_util')
 local zone_util = require('cylibs/util/zone_util')
@@ -19,6 +20,11 @@ Puppetmaster.__index = Puppetmaster
 -- @treturn PUP A Puppetmaster
 function Puppetmaster.new()
     local self = setmetatable(Job.new(), Puppetmaster)
+    self.automaton_action_queue = ActionQueue.new(nil, true, 20, false, false)
+    self.dispose_bag = DisposeBag.new()
+
+    self.dispose_bag:addAny(L{ self.automaton_action_queue })
+
     return self
 end
 
@@ -26,6 +32,8 @@ end
 -- Destroy function for a Puppetmaster.
 function Puppetmaster:destroy()
     Job.destroy(self)
+
+    self.dispose_bag:destroy()
 end
 
 -------
@@ -114,7 +122,7 @@ function Puppetmaster:create_attachment_set()
     return attachment_set
 end
 
-function Puppetmaster:equip_attachment_set(head_name, frame_name, attachment_names, action_queue, auto_deactivate)
+function Puppetmaster:equip_attachment_set(head_name, frame_name, attachment_names, auto_deactivate)
     if attachment_names:empty() then
         return
     end
@@ -126,6 +134,7 @@ function Puppetmaster:equip_attachment_set(head_name, frame_name, attachment_nam
             return
         else
             if not job_util.can_use_job_ability('Deactivate') then
+                addon_message(260, '('..windower.ffxi.get_player().name..') '.."Deactivate isn't ready, try again in "..math.floor(player_util.get_job_ability_recast('Deactivate')).." seconds.")
                 return
             end
             actions:append(JobAbilityAction.new(0, 0, 0, 'Deactivate'))
@@ -159,12 +168,13 @@ function Puppetmaster:equip_attachment_set(head_name, frame_name, attachment_nam
     end), 'equip_attachments_done')
 
     local equip_action = SequenceAction.new(actions, 'equip_attachment_set', true)
+    equip_action.display_name = "Equipping attachments"
     equip_action.priority = ActionPriority.highest
     equip_action.max_duration = 15
 
     addon_message(260, '('..windower.ffxi.get_player().name..') '.."Give me a sec, I'm updating my attachments...")
 
-    action_queue:push_action(equip_action, true)
+    self.automaton_action_queue:push_action(equip_action, true)
 end
 
 return Puppetmaster
