@@ -127,6 +127,7 @@ function Puppetmaster:equip_attachment_set(head_name, frame_name, attachment_nam
         return
     end
 
+    local auto_pet_mode = state.AutoPetMode.value
     local actions = L{}
 
     if pet_util.has_pet() then
@@ -136,6 +137,11 @@ function Puppetmaster:equip_attachment_set(head_name, frame_name, attachment_nam
             if not job_util.can_use_job_ability('Deactivate') then
                 addon_message(260, '('..windower.ffxi.get_player().name..') '.."Deactivate isn't ready, try again in "..math.floor(player_util.get_job_ability_recast('Deactivate')).." seconds.")
                 return
+            end
+            if auto_pet_mode ~= 'Off' then
+                actions:append(BlockAction.new(function()
+                    state.AutoPetMode:set('Off')
+                end), 'disable_auto_pet_mode')
             end
             actions:append(JobAbilityAction.new(0, 0, 0, 'Deactivate'))
             actions:append(WaitAction.new(0, 0, 0, 0.5))
@@ -164,6 +170,9 @@ function Puppetmaster:equip_attachment_set(head_name, frame_name, attachment_nam
     end
 
     actions:append(BlockAction.new(function()
+        if auto_pet_mode ~= 'Off' then
+            state.AutoPetMode:set(auto_pet_mode)
+        end
         addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, done!")
     end), 'equip_attachments_done')
 
