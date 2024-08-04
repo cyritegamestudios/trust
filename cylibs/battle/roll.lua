@@ -42,6 +42,14 @@ function Roll:should_use_crooked_cards()
     return self.use_crooked_cards
 end
 
+function Roll:tostring()
+    if self.use_crooked_cards then
+        return self.roll_name.." (Crooked Cards)"
+    else
+        return self.roll_name
+    end
+end
+
 function Roll:serialize()
     return "Roll.new(" .. serializer_util.serialize_args(self.roll_name, self.use_crooked_cards) .. ")"
 end
