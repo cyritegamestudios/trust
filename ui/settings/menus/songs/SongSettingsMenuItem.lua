@@ -112,7 +112,13 @@ function SongSettingsMenuItem:getConfigMenuItem()
         ButtonItem.default('Confirm', 18),
     }, {},
             function()
-                local songSettings = T(self.trustSettings:getSettings())[self.trustSettingsMode.value]
+                local allSettings = T(self.trustSettings:getSettings())[self.trustSettingsMode.value]
+
+                local songSettings = T{
+                    NumSongs = allSettings.NumSongs,
+                    SongDuration = allSettings.SongDuration,
+                    SongDelay = allSettings.SongDelay
+                }
 
                 local configItems = L{
                     ConfigItem.new('NumSongs', 2, 4, 1, function(value) return value.."" end, "Maximum Number of Songs"),
@@ -121,8 +127,18 @@ function SongSettingsMenuItem:getConfigMenuItem()
                 }
 
                 local songConfigEditor = ConfigEditor.new(self.trustSettings, songSettings, configItems)
+
                 songConfigEditor:setTitle('Configure general song settings.')
                 songConfigEditor:setShouldRequestFocus(true)
+
+                self.dispose_bag:add(songConfigEditor:onConfigChanged():addAction(function(newSettings, _)
+                    allSettings.NumSongs = newSettings.NumSongs
+                    allSettings.SongDuration = newSettings.SongDuration
+                    allSettings.SongDelay = newSettings.SongDelay
+
+                    self.trustSettings:saveSettings(true)
+                end), songConfigEditor:onConfigChanged())
+
                 return songConfigEditor
             end, "Config", "Configure general song settings.")
     return songConfigMenuItem
