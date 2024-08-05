@@ -55,6 +55,18 @@ function FFXIClassicStyle.default()
     return self
 end
 
+function FFXIClassicStyle.static()
+    local self = setmetatable(CollectionViewStyle.new(
+            nil,
+            nil,
+            FFXIClassicStyle.CenterImageItem,
+            FFXIClassicStyle.Border.LeftImageItem,
+            FFXIClassicStyle.Border.CenterImageItem,
+            FFXIClassicStyle.Border.RightImageItem
+    ), FFXIClassicStyle)
+    return self
+end
+
 function FFXIClassicStyle:getDefaultPickerSize()
     return { width = 180, height = 192 }
 end

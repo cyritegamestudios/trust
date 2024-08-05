@@ -90,7 +90,7 @@ end
 -- @treturn number Number of songs
 function Bard:get_max_num_songs(include_clarion_call, current_num_bard_songs)
     local current_num_bard_songs = current_num_bard_songs or self:get_song_buff_ids():length()
-    local num_songs = math.max(current_num_bard_songs, self.max_num_songs)
+    local num_songs = math.min(math.max(current_num_bard_songs, self.max_num_songs), self.max_num_songs + 1)
     if include_clarion_call or self:is_clarion_call_active() then
         num_songs = math.max(num_songs, self.max_num_songs + 1)
     end
@@ -116,7 +116,7 @@ function Bard:get_song_duration(song_name)
     local modifier = 1.0
     if song_name then
         if song_name == 'Honor March' then
-            modifier = 1.1
+            modifier = 1.0
         end
     end
     local base_song_duration = self.song_duration * modifier

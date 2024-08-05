@@ -124,7 +124,9 @@ function JobAbilitiesSettingsEditor:reloadSettings()
 
     for jobAbility in self.jobAbilities:it() do
         local imageItem = AssetManager.imageItemForJobAbility(jobAbility:get_job_ability_name())
-        items:append(IndexedItem.new(ImageTextItem.new(imageItem, TextItem.new(jobAbility:get_job_ability_name(), TextStyle.Default.PickerItem)), IndexPath.new(1, rowIndex)))
+        local textItem = TextItem.new(jobAbility:get_job_ability_name(), TextStyle.Default.PickerItem)
+        textItem:setEnabled(job_util.knows_job_ability(jobAbility:get_ability_id()))
+        items:append(IndexedItem.new(ImageTextItem.new(imageItem, textItem), IndexPath.new(1, rowIndex)))
         rowIndex = rowIndex + 1
     end
 

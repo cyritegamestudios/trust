@@ -34,6 +34,7 @@ RunAway = require('cylibs/battle/run_away')
 RunTo = require('cylibs/battle/run_to')
 TurnAround = require('cylibs/battle/turn_around')
 TurnToFace = require('cylibs/battle/turn_to_face')
+Command = require('cylibs/battle/command')
 
 -- Gambits
 Gambit = require('cylibs/gambits/gambit')
@@ -48,6 +49,7 @@ GainDebuffCondition = require('cylibs/conditions/gain_debuff')
 HasAttachmentsCondition = require('cylibs/conditions/has_attachments_condition')
 HasBuffCondition = require('cylibs/conditions/has_buff_condition')
 HasBuffsCondition = require('cylibs/conditions/has_buffs')
+HasDazeCondition = require('cylibs/conditions/has_daze')
 HasDebuffCondition = require('cylibs/conditions/has_debuff')
 HasPetCondition = require('cylibs/conditions/has_pet')
 HasRunesCondition = require('cylibs/conditions/has_runes')
@@ -91,6 +93,7 @@ BloodPactMagic = require('cylibs/battle/abilities/blood_pact_magic')
 ElementalMagic = require('cylibs/battle/abilities/elemental_magic')
 Skillchain = require('cylibs/util/skillchain')
 AttachmentSet = require('cylibs/entity/automaton/attachment_set')
+ManeuverSet = require('cylibs/entity/automaton/maneuver_set')
 
 -- Roles
 Role = require('cylibs/trust/roles/role')

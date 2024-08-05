@@ -34,6 +34,12 @@ end
 -- @treturn boolean Whether or not the object successfully focused.
 --
 function FocusManager:requestFocus(focusable)
+    for parentFocusable in self.focusStack:it() do
+        if parentFocusable == focusable then
+            return false
+        end
+    end
+
     local currentFocusable = self.focusStack:last()
     if currentFocusable then
         if not currentFocusable:shouldResignFocus() or currentFocusable == focusable then
@@ -63,6 +69,15 @@ function FocusManager:resignFocus(focusable)
         if currentFocusable then
             currentFocusable:setHasFocus(true)
         end
+    end
+end
+
+function FocusManager:resignAllFocus()
+    local currentFocusable = self.focusStack:last()
+    while currentFocusable do
+        self.focusStack:remove(self.focusStack:length())
+        currentFocusable:setHasFocus(false)
+        currentFocusable = self.focusStack:last()
     end
 end
 

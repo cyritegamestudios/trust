@@ -7,6 +7,7 @@ _libs = _libs or {}
 
 require('lists')
 
+local buffs_ext = require('cylibs/res/buffs')
 local res = require('resources')
 local list_ext = require('cylibs/util/extensions/lists')
 local job_abilities_ext = require('cylibs/res/job_abilities')
@@ -63,6 +64,11 @@ local debuffs = T{
 	[193] = S{463,471,376,377}, --lullabies
 	[194] = S{421,422,423}, --elegy
 	[217] = S{454,455,456,457,458,459,460,461,871,872,873,874,875,876,877,878}, --threnodies
+	[391] = S{202}, -- sluggish daze
+	[392] = S{202}, -- sluggish daze
+	[393] = S{202}, -- sluggish daze
+	[394] = S{202}, -- sluggish daze
+	[395] = S{202}, -- sluggish daze
 	[404] = S{843,844,883}, --Magic Evasion Down
 	[597] = S{879}, --inundation
 }
@@ -160,6 +166,8 @@ function buff_util.buff_id(buff_name)
 		local buff = res.buffs:with('en', buff_name)
 		if buff == nil then
 			buff = res.buffs:with('enl', buff_name)
+		elseif buffs_ext:with('en', buff_name) then
+			buff = buffs_ext:with('en', buff_name)
 		end
 		if buff then
 			return buff.id

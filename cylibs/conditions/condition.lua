@@ -100,7 +100,8 @@ function Condition.defaultSerializableConditionClasses()
         PetHitPointsPercentCondition.__class,
         HasPetCondition.__class,
         NumResistsCondition.__class,
-        SkillchainPropertyCondition.__class
+        SkillchainPropertyCondition.__class,
+        HasDazeCondition.__class,
     }
 end
 

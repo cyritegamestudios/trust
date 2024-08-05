@@ -38,6 +38,10 @@ return {
             Distance = 20
         },
         GambitSettings = {
+            Default = L{
+                Gambit.new("Enemy", L{HasBuffCondition.new("Presto")}, JobAbility.new("Box Step", L{}, L{}), "Self", L{}),
+                Gambit.new("Self", L{HasDazeCondition.new("Sluggish Daze", 5, "<")}, JobAbility.new("Presto", L{}, L{}), "Enemy", L{}),
+            },
             Gambits = L{
 
             }

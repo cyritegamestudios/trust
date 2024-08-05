@@ -6,9 +6,9 @@ function register_help_text(state_name, state_var)
         return
     end
 
-    registered_state_names[state_name] = state_var:on_state_change():addAction(function(m, new_value)
+    registered_state_names[state_name] = state_var:on_state_change():addAction(function(m, new_value, hide_help_text)
         local description = m:get_description(new_value)
-        if description then
+        if description and not hide_help_text then
             display_help_text(description)
         end
     end)

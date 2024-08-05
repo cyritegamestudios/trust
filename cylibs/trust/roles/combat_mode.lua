@@ -25,12 +25,13 @@ state.FlankMode:set_description('Back', "Ok, I'll flank from the back in battle.
 state.FlankMode:set_description('Left', "Ok, I'll flank from the left in battle.")
 state.FlankMode:set_description('Right', "Ok, I'll flank from the right in battle.")
 
-function CombatMode.new(action_queue, melee_distance, range_distance)
+function CombatMode.new(action_queue, melee_distance, range_distance, addon_enabled)
     local self = setmetatable(Role.new(action_queue), CombatMode)
 
     self.action_queue = action_queue
     self.melee_distance = melee_distance
     self.range_distance = range_distance
+    self.addon_enabled = addon_enabled
     self.dispose_bag = DisposeBag.new()
 
     return self
@@ -109,10 +110,10 @@ function CombatMode:check_distance()
                     end
                 end
             else
-                if target.distance:sqrt() > self.melee_distance + self_mob.model_size + target.model_size - 0.1 then
+                if target.distance:sqrt() > self.melee_distance --[[+ self_mob.model_size + target.model_size - 0.1]] then
                     self.action_queue:push_action(BlockAction.new(function() player_util.face(target) end))
                     self.action_queue:push_action(
-                        RunToAction.new(target.index, self.melee_distance + self_mob.model_size + target.model_size - 0.1),
+                        RunToAction.new(target.index, self.melee_distance --[[+ self_mob.model_size + target.model_size - 0.1]]),
                         true)
                 else
                     self.action_queue:push_action(BlockAction.new(function() player_util.face(target) end))
@@ -131,16 +132,33 @@ function CombatMode:check_distance()
         else
             self:face_target(target)
         end
+    elseif L{'Mirror'}:contains(state.CombatMode.value) then
+        local assist_target = self:get_party():get_assist_target()
+        if assist_target then
+            local dist = player_util.distance(self:get_party():get_player():get_position(), assist_target:get_position())
+            if dist > 2 then
+                self.action_queue:push_action(RunToAction.new(assist_target:get_mob().index, 1), true)
+                return
+            end
+        end
+        self:face_target(target)
     else
         self:face_target(target)
     end
 end
 
 function CombatMode:face_target(target)
+    if not self.addon_enabled:getValue() then
+        return
+    end
+    -- NOTE: this specifically does not go into the action queue because it occurs too
+    -- frequently and would delay other actions.
     if state.AutoFaceMobMode.value == 'Auto' then
-        self.action_queue:push_action(BlockAction.new(function() player_util.face(target)  end, "face target"))
+        player_util.face(target)
+        --self.action_queue:push_action(BlockAction.new(function() player_util.face(target)  end, "face target"))
     elseif state.AutoFaceMobMode.value == 'Away' then
-        self.action_queue:push_action(BlockAction.new(function() player_util.face_away(target) end, "face away from target"))
+        player_util.face_away(target)
+        --self.action_queue:push_action(BlockAction.new(function() player_util.face_away(target) end, "face away from target"))
     end
 end
 

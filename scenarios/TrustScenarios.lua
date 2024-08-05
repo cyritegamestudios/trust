@@ -8,7 +8,7 @@ function TrustScenarios.new(action_queue, party, trust)
         action_queue = action_queue;
         party = party;
         trust = trust;
-        scenarios = S{};
+        scenarios = L{};
         dispose_bag = DisposeBag.new();
     }, TrustScenarios)
 
@@ -40,21 +40,27 @@ function TrustScenarios:add_scenario(name)
         if name == 'di' then
             local DomainInvasion = require('cylibs/scenarios/data/domain_invasion/domain_invasion')
             local scenario = DomainInvasion.new(self.action_queue)
-            self.scenarios:add(scenario)
+            self.scenarios:append(scenario)
             self:start_scenario(scenario)
         elseif name == 'einherjar' then
             local Einherjar = require('scenarios/data/einherjar/einherjar')
             local scenario = Einherjar.new(self.action_queue, self.party, self.trust)
-            self.scenarios:add(scenario)
+            self.scenarios:append(scenario)
             self:start_scenario(scenario)
         elseif name == 'upinarms' then
             local UpInArms = require('scenarios/data/up_in_arms/up_in_arms')
             local scenario = UpInArms.new(self.action_queue, self.party, self.trust)
-            self.scenarios:add(scenario)
+            self.scenarios:append(scenario)
             self:start_scenario(scenario)
         elseif name == 'starter_weaponskill' then
             local StarterWeaponSkill = require('scenarios/data/misc/starter_weaponskill')
             local scenario = StarterWeaponSkill.new(self.action_queue, self.party, self.trust, 'Armor Break', 'KajaChopper', 'Apocalypse')
+            self.scenarios:append(scenario)
+            self:start_scenario(scenario)
+        elseif name == 'research' then
+            local Research = require('scenarios/data/research/research')
+            local scenario = Research.new(self.action_queue, self.party, self.trust)
+            self.scenarios:append(scenario)
             self:start_scenario(scenario)
         end
     end
@@ -80,7 +86,7 @@ function TrustScenarios:remove_scenario(name)
         local scenario = scenarios[1]
         scenario:stop()
         scenario:destroy()
-        self.scenarios:remove(scenario)
+        self.scenarios:remove(self.scenarios:indexOf(scenario))
     end
 end
 

@@ -1,32 +1,40 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '10.1.1'
+_addon.version = '10.2.0'
 _addon.release_notes = [[
-This update introduces Gambits, a powerful system inspired by Final Fantasy
-12 that lets you customize the behavior of your Trust. Gambits are a
-targeted "if X, then Y" conditional statement that can be used to cast
-spells, perform job abilities and more.
+This update introduces significant improvements to Bard and Dancer,
+adds elemental resistances to the target widget, new conditions,
+menu keyboard shortcuts and more!
 
-	• Gambits
-	    • There are 4 parts to a Gambit:
-	        1. Ability Target (Self, Ally or Enemy)
-	            • Self, Ally or Enemy.
-	        2. Ability
-	            • Spell, job ability or action to perform.
-	        3. Conditions Target
-	            • Target of conditions.
-	        4. Conditions
-	            • Conditions to check.
+	• Bard
+	    • Singing speed has been significantly improved (37s → 23s
+	      for default nitro + pianissimo songs).
+	    • Time spent singing on Alter Egos has been reduced.
 
-	• Conditions
-	    • Customize when to perform Gambits with one or more conditions.
-	    • Choose from HP %, MP %, TP, buffs, debuffs and more!
+	• Dancer
+	    • Added step tracking for Quick Step, Box Step and Stutter Step.
+	    • Added ability to apply a specific level daze to an enemy
+	      using Gambits (see "Has daze" condition).
 
-	• Puppetmaster
-	    • Attachment sets can now be saved and loaded under
-	      Settings > Automaton > Attachments, replacing
-	      the need for the AutoControl addon!
+	• Target Widget
+	    • Elemental resistances are now shown for select enemies.
+	    • Visibility can be configured under Config > Widgets > Target
+	      by toggling "Show Detailed View" and selecting "Save".
+
+	• Menu Shortcuts
+	    • Keyboard shortcuts have been added to directly navigate to
+	      the Modes (Shift + M), Skillchains (Shift + S) and
+	      Gambits (Shift + G) menus.
+	    • To enable keyboard shortcuts, select "Shortcuts" on the
+	      respective menu, set "Keyboard Shortcut" to "On" and
+	      select "Save".
+
+	• Bug Fixes
+	    • Fixed issue where song editor would incorrectly override
+	      the Default set.
+	    • Fixed issue where `CombatMode` `Mirror` would not mirror
+	      movements until the target was claimed.
 
 
 	• Press escape or enter to exit.
@@ -184,7 +192,7 @@ function load_user_files(main_job_id, sub_job_id)
 	local skillchainer = Skillchainer.new(action_queue, weapon_skill_settings)
 
 	player.trust.main_job:add_role(Attacker.new(action_queue))
-	player.trust.main_job:add_role(CombatMode.new(action_queue, addon_settings:getSettings().battle.melee_distance, addon_settings:getSettings().battle.range_distance))
+	player.trust.main_job:add_role(CombatMode.new(action_queue, addon_settings:getSettings().battle.melee_distance, addon_settings:getSettings().battle.range_distance, addon_enabled))
 	player.trust.main_job:add_role(Eater.new(action_queue, main_job_trust:get_trust_settings().AutoFood))
 	player.trust.main_job:add_role(Follower.new(action_queue, addon_settings:getSettings().follow.distance))
 	player.trust.main_job:add_role(Pather.new(action_queue, 'data/paths/'))
@@ -497,6 +505,10 @@ function handle_zone_change(new_zone_id, old_zone_id)
 	end
 end
 
+function handle_load_set(mode_set_name)
+	state.TrustMode:set(mode_set_name)
+end
+
 function handle_save_trust(mode_name)
 	trust_mode_settings:saveSettings(mode_name or state.TrustMode.value)
 end
@@ -588,6 +600,7 @@ commands['start'] = handle_start
 commands['stop'] = handle_stop
 commands['toggle'] = handle_toggle_addon
 commands['reload'] = handle_reload
+commands['load'] = handle_load_set
 commands['save'] = handle_save_trust
 commands['create'] = handle_create_trust
 commands['status'] = handle_trust_status

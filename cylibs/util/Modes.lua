@@ -274,7 +274,7 @@ end
 
 
 -- Set the current value
-_meta.M.__methods['set'] = function(m, val)
+_meta.M.__methods['set'] = function(m, val, hideHelpText)
     local old_value = m.Current
     if m._track._type == 'boolean' then
         if val == nil then
@@ -311,6 +311,9 @@ _meta.M.__methods['set'] = function(m, val)
             
             if not found then
                 error("Unknown mode value: " .. tostring(val), 2)
+                for v, ind in pairs(m._track._invert) do
+                    print(v, val, val:length(), v:lower() == val:lower())
+                end
             end
         end
     elseif m._track._type == 'string' then
@@ -322,7 +325,7 @@ _meta.M.__methods['set'] = function(m, val)
         end
     end
 
-    m:on_state_change():trigger(m, m.Current, old_value)
+    m:on_state_change():trigger(m, m.Current, old_value, hideHelpText)
 
     return m.Current
 end

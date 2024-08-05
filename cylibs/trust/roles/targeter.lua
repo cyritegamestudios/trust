@@ -5,9 +5,10 @@ Targeter.__class = "Targeter"
 local DisposeBag = require('cylibs/events/dispose_bag')
 local SwitchTargetAction = require('cylibs/actions/switch_target')
 
-state.AutoTargetMode = M{['description'] = 'Auto Target Mode', 'Off', 'Auto', 'Same', 'Party'}
+state.AutoTargetMode = M{['description'] = 'Auto Target Mode', 'Off', 'Auto', 'Party', 'Mirror'}
 state.AutoTargetMode:set_description('Auto', "Okay, I'll automatically target a new monster after we defeat one.")
 state.AutoTargetMode:set_description('Party', "Okay, I'll automatically target monsters on the party's hate list.")
+state.AutoTargetMode:set_description('Mirror', "Okay, I'll target what the person I'm assisting is fighting.")
 
 function Targeter.new(action_queue)
     local self = setmetatable(Role.new(action_queue), Targeter)
@@ -27,10 +28,12 @@ end
 
 function Targeter:on_add()
     state.AutoTargetMode:on_state_change():addAction(function(_, new_value)
-        if new_value ~= 'Off' then
+        if not L{ 'Off' }:contains(new_value) then
             windower.send_command('input /autotarget off')
-            windower.send_command('trust assist clear')
-            self:get_party():add_to_chat(self:get_party():get_player(), "I can't assist while auto targeting, so I've cleared my assist target.")
+            if not L{ 'Mirror' }:contains(new_value) then
+                windower.send_command('trust assist clear')
+                self:get_party():add_to_chat(self:get_party():get_player(), "I can't assist while auto targeting, so I've cleared my assist target.")
+            end
         end
     end)
 
@@ -63,6 +66,17 @@ end
 
 function Targeter:target_change(target_index)
     Role.target_change(self, target_index)
+
+    if state.AutoTargetMode.value == 'Mirror' then
+        local assist_target_index = self:get_party():get_assist_target():get_target_index()
+        if windower.ffxi.get_player().target_index ~= assist_target_index then
+            local target = self:get_party():get_target_by_index(assist_target_index)
+            if target and target:get_mob().status ~= 0 then
+                self:get_party():add_to_chat(self.party:get_player(), "I'm switching targets to the "..target:get_mob().name.." now.")
+                self:target_mob(target:get_mob())
+            end
+        end
+    end
 end
 
 function Targeter:tic(new_time, old_time)

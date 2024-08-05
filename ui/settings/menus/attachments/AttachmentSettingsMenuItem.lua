@@ -20,21 +20,21 @@ local Puppetmaster = require('cylibs/entity/jobs/PUP')
 local AttachmentSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 AttachmentSettingsMenuItem.__index = AttachmentSettingsMenuItem
 
-function AttachmentSettingsMenuItem.new(trustSettings, trustSettingsMode)
+function AttachmentSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsKeyName, isEditable)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('View', 18),
         ButtonItem.default('Equip', 18),
-        ButtonItem.default('Save As', 18),
-        ButtonItem.default('Delete', 18),
-    }, {}, nil, "Attachments", "Equip or save attachment sets.", false), AttachmentSettingsMenuItem)
+    }, {}, nil, "Attachments", "Equip or save "..settingsKeyName.." attachment sets.", false), AttachmentSettingsMenuItem)
 
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
+    self.settingsKeyName = settingsKeyName
+    self.isEditable = isEditable
     self.job = Puppetmaster.new()
     self.disposeBag = DisposeBag.new()
 
     self.contentViewConstructor = function(_, infoView)
-        local attachmentSets = trustSettings:getSettings()[trustSettingsMode.value].AttachmentSettings.Sets
+        local attachmentSets = trustSettings:getSettings()[trustSettingsMode.value].AutomatonSettings.AttachmentSettings[settingsKeyName]
 
         local attachmentSettingsEditor = FFXIPickerView.withItems(L(T(attachmentSets):keyset()):sort(), L{})
         attachmentSettingsEditor:setAllowsCursorSelection(true)
@@ -71,8 +71,10 @@ end
 function AttachmentSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("View", self:getViewAttachmentsMenuItem())
     self:setChildMenuItem("Equip", self:getEquipSetMenuItem())
-    self:setChildMenuItem("Save As", self:getCreateSetMenuItem())
-    self:setChildMenuItem("Delete", self:getDeleteSetMenuItem())
+    if self.isEditable then
+        self:setChildMenuItem("Save As", self:getCreateSetMenuItem())
+        self:setChildMenuItem("Delete", self:getDeleteSetMenuItem())
+    end
 end
 
 function AttachmentSettingsMenuItem:getEquipSetMenuItem()
@@ -84,7 +86,7 @@ function AttachmentSettingsMenuItem:getEquipSetMenuItem()
             else
                 addon_message(260, '('..windower.ffxi.get_player().name..') '.."I can't change sets while my Automaton is still out!")
             end]]
-            self.job:equip_attachment_set(self.selectedSet:getHeadName(), self.selectedSet:getFrameName(), self.selectedSet:getAttachments(), action_queue, true)
+            self.job:equip_attachment_set(self.selectedSet:getHeadName(), self.selectedSet:getFrameName(), self.selectedSet:getAttachments(), true)
         end
     end, "Attachments", "Equip the selected attachment set.")
 end
@@ -99,7 +101,7 @@ end
 function AttachmentSettingsMenuItem:getCreateSetMenuItem()
     local createSetMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
-    }, L{
+    }, {
         Confirm = MenuItem.action(function(menu)
             menu:showMenu(self)
         end)
@@ -111,7 +113,7 @@ function AttachmentSettingsMenuItem:getCreateSetMenuItem()
             if newSetName:length() > 1 then
                 local newSet = self.job:create_attachment_set()
                 if newSet then
-                    local attachmentSets = self.trustSettings:getSettings()[self.trustSettingsMode.value].AttachmentSettings.Sets
+                    local attachmentSets = self.trustSettings:getSettings()[self.trustSettingsMode.value].AutomatonSettings.AttachmentSettings[self.settingsKeyName]
                     attachmentSets[newSetName] = newSet
 
                     self.trustSettings:saveSettings(true)
@@ -130,7 +132,12 @@ end
 function AttachmentSettingsMenuItem:getDeleteSetMenuItem()
     return MenuItem.action(function(menu)
         if self.selectedSetName then
-            local attachmentSets = self.trustSettings:getSettings()[self.trustSettingsMode.value].AttachmentSettings.Sets
+            local attachmentSets = self.trustSettings:getSettings()[self.trustSettingsMode.value].AutomatonSettings.AttachmentSettings[self.settingsKeyName]
+            if L(T(attachmentSets):keyset()):length() <= 1 then
+                addon_message(260, '('..windower.ffxi.get_player().name..') '.."I can't delete my last set!")
+                return
+            end
+
             attachmentSets[self.selectedSetName] = nil
 
             self.trustSettings:saveSettings(true)

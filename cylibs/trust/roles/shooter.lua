@@ -63,6 +63,7 @@ function Shooter:on_add()
     self:get_player():on_weapon_skill_finish():addAction(
             function (_, _)
                 self.last_shoot_time = os.clock()
+                self.action_queue:push_action(WaitAction.new(0, 0, 0, 2.0), true)
             end)
 
     self.dispose_bag:add(Renderer.shared():onPrerender():addAction(function()
@@ -74,6 +75,8 @@ function Shooter:on_add()
                 logger.notice(self.__class, 'onPrerender', 'restarting', os.clock() - self.last_shoot_time)
                 self:ranged_attack()
             end
+        elseif self.is_shooting and os.time() - self.last_shoot_time > 8 then
+            self.is_shooting = false
         end
     end), Renderer.shared():onPrerender())
 end
@@ -84,6 +87,8 @@ function Shooter:ranged_attack()
         return
     end
     logger.notice(self.__class, 'ranged_attack', 'average shot time', self.total_shot_time / self.num_shots)
+
+    self.action_queue:cleanup()
 
     self.last_shoot_time = os.clock()
 

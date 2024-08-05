@@ -30,7 +30,7 @@ function ConfigEditor:onConfigChanged()
 end
 
 
-function ConfigEditor.new(trustSettings, configSettings, configItems, infoView)
+function ConfigEditor.new(trustSettings, configSettings, configItems, infoView, validator)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         if item.__type == SliderItem.__type then
             local cell = SliderCollectionViewCell.new(item)
@@ -68,6 +68,7 @@ function ConfigEditor.new(trustSettings, configSettings, configItems, infoView)
 
     self.trustSettings = trustSettings
     self.configSettings = configSettings
+    self.validator = validator or function() return true end
     self.configChanged = Event.newEvent()
 
     self:setConfigItems(configItems)
@@ -213,6 +214,12 @@ function ConfigEditor:getCellItemForConfigItem(configItem)
 end
 
 function ConfigEditor:onConfirmClick(skipSave)
+    local originalSettings
+    if self.configSettings.copy then
+        originalSettings = self.configSettings:copy()
+    else
+        originalSettings = T(self.configSettings):copy(true)
+    end
     for sectionIndex = 1, self:getDataSource():numberOfSections(), 1 do
         local configItem = self.configItems[sectionIndex]
         if configItem then
@@ -245,7 +252,12 @@ function ConfigEditor:onConfirmClick(skipSave)
         end
     end
 
-    --self:onConfigChanged():trigger(self.configSettings)
+    if not self.validator(self.configSettings) then
+        return
+    end
+
+
+    self:onConfigChanged():trigger(self.configSettings, originalSettings)
 
     if self.trustSettings and not skipSave then
         self.trustSettings:saveSettings(true)

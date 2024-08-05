@@ -25,6 +25,7 @@ You will need the latest version of [Trust](https://github.com/cyritegamestudios
 2. If a Windows security popup appears, click "More Info" and "Run Anyway".
 3. Follow the instructions in the installer.
 4. To update, launch the installer again and click "Check for Updates".
+5. If you'd like to get early access to updates, click the dropdown in the top right and select **Alpha**.
 
 ![image](https://github.com/user-attachments/assets/e9c228e2-422f-450a-a5e2-447e2abce078)
 

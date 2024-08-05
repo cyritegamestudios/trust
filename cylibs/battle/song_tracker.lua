@@ -23,6 +23,12 @@ function SongTracker:on_songs_changed()
     return self.songs_changed
 end
 
+-- Event called when active songs change
+function SongTracker:on_song_added()
+    return self.song_added
+end
+
+
 -------
 -- Default initializer for a new song tracker.
 -- @tparam Player player Player entity
@@ -48,6 +54,7 @@ function SongTracker.new(player, party, dummy_songs, songs, pianissimo_songs, jo
     self.dispose_bag = DisposeBag.new()
     self.song_duration_warning = Event.newEvent()
     self.songs_changed = Event.newEvent()
+    self.song_added = Event.newEvent()
 
     local has_songs = false
     local all_songs = L{}:extend(dummy_songs):extend(songs):extend(pianissimo_songs)
@@ -84,6 +91,7 @@ function SongTracker:destroy()
 
     self.song_duration_warning:removeAllActions()
     self.songs_changed:removeAllActions()
+    self.song_added:removeAllActions()
 end
 
 -------
@@ -97,7 +105,7 @@ function SongTracker:monitor()
     self.dispose_bag:add(self.player:on_spell_finish():addAction(
             function (_, song_id, targets)
                 local song = res.spells:with('id', song_id)
-                if song.type == 'BardSong' and song.status and self.job:is_bard_song_buff(song.status) then
+                if song and song.type == 'BardSong' and song.status and self.job:is_bard_song_buff(song.status) then
                     for _, target in pairs(targets) do
                         local action = target.actions[1]
                         if action then
@@ -127,7 +135,7 @@ function SongTracker:monitor()
         end):reverse()[1]
         if buff_record then
             --self:update_song_duration(target_id, self.last_song_id, buff_record:get_time_remaining())
-            self.last_song_id = nil
+            --self.last_song_id = nil
         end
     end), WindowerEvents.BuffDurationChanged)
 
@@ -136,6 +144,9 @@ function SongTracker:monitor()
             if self.job:is_bard_song_buff(buff_id) then
                 logger.notice(p:get_name(), "gains the effect of", res.buffs[buff_id].name)
                 self:prune_all_songs(p:get_id(), p:get_buff_ids())
+                if self.last_song_id and res.spells[self.last_song_id].status == buff_id then
+                    self:on_song_added():trigger(self, p:get_id(), self.last_song_id, buff_id)
+                end
             end
         end), party_member:on_gain_buff())
 
@@ -200,7 +211,6 @@ function SongTracker:check_song_expiration()
             end
         end
     end
-
 end
 
 -------
@@ -473,7 +483,11 @@ end
 -- @treturn number Maximum number of songs
 function SongTracker:get_max_num_songs(target_id)
     local party_member = self.party:get_party_member(target_id)
-    return self.job:get_max_num_songs(false, self.job:get_song_buff_ids(party_member:get_buff_ids()):length())
+    if not party_member:is_trust() then
+        return self.job:get_max_num_songs(false, self.job:get_song_buff_ids(party_member:get_buff_ids()):length())
+    else
+        return self.job:get_max_num_songs(false, self.job:get_song_buff_ids(self.party:get_player():get_buff_ids()):length())
+    end
 end
 
 return SongTracker

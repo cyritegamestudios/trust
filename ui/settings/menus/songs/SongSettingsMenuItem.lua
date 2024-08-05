@@ -64,7 +64,7 @@ function SongSettingsMenuItem:getEditMenuItem()
         ButtonItem.default('Confirm', 18),
     }, {},
     function(args)
-        local songs = self.songSettings.Songs
+        local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].Songs
 
         local allSongs = spell_util.get_spells(function(spell)
             return spell.type == 'BardSong' and S{'Self'}:intersection(S(spell.targets)):length() > 0
@@ -82,7 +82,7 @@ function SongSettingsMenuItem:getEditMenuItem()
         ButtonItem.default('Confirm', 18),
     }, {},
     function(args)
-        local songs = self.songSettings.DummySongs
+        local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].DummySongs
 
         local allSongs = spell_util.get_spells(function(spell)
             return spell.type == 'BardSong' and S{'Self'}:intersection(S(spell.targets)):length() > 0

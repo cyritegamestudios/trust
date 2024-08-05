@@ -44,7 +44,7 @@ function GambitSettingsEditor.new(gambit, trustSettings, trustSettingsMode, abil
         end
     end), self:getDelegate():didSelectItemAtIndexPath())
 
-    self:getDisposeBag():add(self:onConfigChanged():addAction(function(gambit)
+    self:getDisposeBag():add(self:onConfigChanged():addAction(function(_, _)
         self:reloadConfigItems()
     end), self:onConfigChanged())
 
@@ -112,7 +112,6 @@ function GambitSettingsEditor:setHasFocus(focus)
             if item then
                 if item:getCurrentValue() ~= self.gambit:getAbilityTarget() then
                     self.gambit.target = item:getCurrentValue()
-
                     local abilities = self.abilitiesByTargetType[item:getCurrentValue()]
                     local currentAbility
                     if abilities:indexOf(self.gambit:getAbility()) ~= -1 then

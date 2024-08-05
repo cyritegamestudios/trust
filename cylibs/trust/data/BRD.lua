@@ -57,11 +57,11 @@ function BardTrust:on_init()
 	if singer then
 		singer:on_songs_begin():addAction(function()
 			self:get_party():add_to_chat(self.party:get_player(), "Singing songs, hold tight.", "on_songs_begin", 5)
-			self.song_modes_delta:apply()
+			self.song_modes_delta:apply(true)
 		end)
 		singer:on_songs_end():addAction(function()
 			self:get_party():add_to_chat(self.party:get_player(), "Alright, you're good to go!", "on_songs_end", 5)
-			self.song_modes_delta:remove()
+			self.song_modes_delta:remove(true)
 		end)
 	end
 

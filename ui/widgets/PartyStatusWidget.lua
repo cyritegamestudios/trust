@@ -4,6 +4,7 @@ local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_c
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
+local Keyboard = require('cylibs/ui/input/keyboard')
 local Padding = require('cylibs/ui/style/padding')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
@@ -13,6 +14,8 @@ local Widget = require('ui/widgets/Widget')
 
 local PartyStatusWidget = setmetatable({}, {__index = Widget })
 PartyStatusWidget.__index = PartyStatusWidget
+PartyStatusWidget.__type = "PartyStatusWidget"
+
 
 PartyStatusWidget.TextSmall = TextStyle.new(
         Color.clear,
@@ -70,19 +73,6 @@ function PartyStatusWidget.new(frame, addonSettings, party, actionQueue)
     self:getDisposeBag():add(party:on_party_assist_target_change():addAction(function(_, party_member)
         self:setAssistTarget(party_member)
     end), party:on_party_assist_target_change())
-
-    --[[self:getDisposeBag():add(actionQueue:on_action_start():addAction(function(_, a)
-        if a.target_index then
-            local party_member = windower.ffxi.get_mob_by_index(a.target_index)
-            if party_member then
-
-            end
-        end
-    end), self.actionQueue:on_action_start())]]
-
-    --[[self:getDisposeBag():add(actionQueue:on_action_end():addAction(function(a, _)
-        self:setAction('')
-    end), self.actionQueue:on_action_end())]]
 
     return self
 end

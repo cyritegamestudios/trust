@@ -41,7 +41,9 @@ function Buff.new(spell_name, job_abilities, job_names, spell_prefix, conditions
         self.original_spell_name = spell_name
         return self
     else
-        return nil
+        local self = setmetatable(Spell.new(spell_name, job_abilities or L{}, job_names or L{}, nil, conditions, nil), Buff)
+        self.original_spell_name = spell_name
+        return self
     end
 end
 

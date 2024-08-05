@@ -7,6 +7,7 @@ local serializer_util = require('cylibs/util/serializer_util')
 
 local RunTo = {}
 RunTo.__index = RunTo
+RunTo.__type = "RunTo"
 RunTo.__class = "RunTo"
 
 -------
@@ -76,6 +77,14 @@ function RunTo:serialize()
         return conditions_classes_to_serialize:contains(condition.__class)
     end)
     return "RunTo.new(" .. serializer_util.serialize_args(self.distance, conditions_to_serialize) .. ")"
+end
+
+function RunTo:__eq(otherItem)
+    if otherItem.__type == self.__type and otherItem:get_name() == self:get_name()
+        and otherItem:get_distance() == self:get_distance() then
+        return true
+    end
+    return false
 end
 
 return RunTo

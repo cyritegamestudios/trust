@@ -107,6 +107,7 @@ function Menu:showMenu(menuItem)
 
     if self.viewStack:isEmpty() then
         self.viewStack:present(self.menuView)
+        self.menuView:requestFocus()
     end
 
     self:requestFocus()
@@ -157,7 +158,7 @@ function Menu:onKeyboardEvent(key, pressed, flags, blocked)
                 self.viewStack:dismiss()
                 self.menuItemStack = L{}
                 self.menuView = nil
-                self:resignFocus()
+                FocusManager.shared():resignAllFocus()
             end
         else
             local currentView = self.viewStack:getCurrentView()
@@ -166,7 +167,7 @@ function Menu:onKeyboardEvent(key, pressed, flags, blocked)
             end
         end
     end
-    return L{1}:contains(key)
+    return L{1,203,205}:contains(key)
 end
 
 function Menu:closeAll()

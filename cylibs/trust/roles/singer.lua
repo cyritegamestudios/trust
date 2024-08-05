@@ -74,6 +74,14 @@ function Singer:on_add()
         end
     end), self.state_var:on_state_change())
 
+    self.dispose_bag:add(self.song_tracker:on_song_added():addAction(
+        function (_, target_id, song_id, buff_id)
+            if self.state_var.value == 'Off' then
+                return
+            end
+            self:check_songs()
+        end), self.song_tracker:on_song_added())
+
     self.dispose_bag:addAny(L{ self.song_tracker })
 end
 
@@ -129,27 +137,31 @@ function Singer:assert_num_songs(party_member)
 end
 
 function Singer:check_songs()
-    local player = self:get_party():get_player()
-
-    self:assert_num_songs(player)
-
-    if self:should_nitro() then
-        self:nitro()
+    if self:get_player():is_moving() then
         return
     end
+
+    local player = self:get_party():get_player()
+    local has_more_songs = false
+
+    self:assert_num_songs(player)
 
     local party_members = self:get_party():get_party_members(true):filter(function(p) return p:get_id() ~= self.song_target:get_id()  end)
     for party_member in list.extend(L{self.song_target}, party_members):it() do
         if party_member:is_alive() then
             local next_song = self:get_next_song(party_member, self.dummy_songs, self:get_merged_songs(party_member))
             if next_song then
-                self:sing_song(next_song, party_member:get_mob().index)
-                return
+                has_more_songs = true
+                self:sing_song(next_song, party_member:get_mob().index, self:should_nitro())
+                if party_member:get_id() == self.song_target:get_id() then
+                    return
+                end
             end
         end
     end
-
-    self:set_is_singing(false)
+    if not has_more_songs then
+        self:set_is_singing(false)
+    end
 end
 
 function Singer:get_next_song(party_member, dummy_songs, songs)
@@ -175,7 +187,7 @@ function Singer:get_next_song(party_member, dummy_songs, songs)
         end
     else
         for song in songs:it() do
-            if not self.song_tracker:has_song(song_target_id, song:get_spell().id, buff_ids) then
+            if not self.song_tracker:has_song(song_target_id, song:get_spell().id, buff_ids) and spell_util.can_cast_spell(song:get_spell().id) then
                 return song
             elseif self.song_tracker:is_expiring_soon(song_target_id, L{ song }) then
                 logger.notice(self.__class, "get_next_song", "resinging", song:get_spell().en)
@@ -186,16 +198,28 @@ function Singer:get_next_song(party_member, dummy_songs, songs)
     return nil
 end
 
-function Singer:sing_song(song, target_index)
-    if spell_util.can_cast_spell(song:get_spell().id) then
+function Singer:sing_song(song, target_index, should_nitro)
+    local action_identifier = 'singer_sing_song_'..song:get_spell().en
+
+    self.action_queue:cleanup()
+
+    if spell_util.can_cast_spell(song:get_spell().id) and not self.action_queue:has_action(action_identifier) then
         self:set_is_singing(true)
 
         local actions = L{}
         local conditions = L{}
+        local extra_duration = 0
 
         self.last_sing_time = self:get_last_tic_time()
 
-        local job_abilities = S(song:get_job_abilities():copy())
+        local job_abilities = L{}
+        if should_nitro then
+            self.song_tracker:set_all_expiring_soon()
+            job_abilities = self:get_nitro_abilities()
+            extra_duration = extra_duration + 4
+        end
+
+        local job_abilities = job_abilities:extend(song:get_job_abilities():copy())
         if target_index == windower.ffxi.get_player().index and self.song_target:get_mob().index == windower.ffxi.get_player().index then
             if buff_util.is_buff_active(buff_util.buff_id('Pianissimo')) then
                 logger.error(self.__class, "sing_song", "attempting to sing a song on self but Pianissimo is active")
@@ -206,9 +230,15 @@ function Singer:sing_song(song, target_index)
         else
             if self.song_target:get_mob().index ~= target_index then
                 if not job_util.can_use_job_ability('Pianissimo') then
+                    local pianissimo_recast = windower.ffxi.get_ability_recasts()[res.job_abilities:with('en', 'Pianissimo').recast_id]
+                    coroutine.schedule(function()
+                        self:check_songs()
+                    end, pianissimo_recast + 0.25)
                     return false
                 end
-                job_abilities:add('Pianissimo')
+                if not S(job_abilities):contains('Pianissimo') then
+                    job_abilities:append('Pianissimo')
+                end
                 conditions:append(HasBuffCondition.new('Pianissimo', windower.ffxi.get_player().index))
             end
         end
@@ -231,8 +261,8 @@ function Singer:sing_song(song, target_index)
         actions:append(spell_action)
         actions:append(WaitAction.new(0, 0, 0, 2))
 
-        local sing_action = SequenceAction.new(actions, 'singer_sing_song', true)
-        sing_action.max_duration = 8
+        local sing_action = SequenceAction.new(actions, action_identifier, true)
+        sing_action.max_duration = 8 + extra_duration
         sing_action.priority = ActionPriority.highest
 
         self.action_queue:push_action(sing_action, true)
@@ -246,6 +276,12 @@ end
 
 function Singer:should_nitro()
     if state.AutoNitroMode.value == 'Auto' and self.brd_job:is_nitro_ready() then
+        -- NOTE: this check doesn't work anymore beucase nitro job abilities are being added
+        -- directly to the spell action
+        if self.action_queue:has_action('nitro') then
+            return false
+        end
+
         local player = self:get_party():get_player()
         local buff_ids = L(player:get_buff_ids())
         local songs = self:get_merged_songs(player)
@@ -263,6 +299,27 @@ function Singer:should_nitro()
         end
     end
     return false
+end
+
+function Singer:get_nitro_abilities()
+    local player = self:get_party():get_player()
+
+    local job_ability_names = L{}
+
+    if state.AutoClarionCallMode.value == 'Auto' and self.brd_job:is_clarion_call_ready() then
+        local current_num_songs = self.song_tracker:get_num_songs(player:get_mob().id, L(player:get_buff_ids()))
+        if current_num_songs < self.brd_job:get_max_num_songs(true) then
+            job_ability_names:append('Clarion Call')
+
+            logger.notice(self.__class, "nitro", "using Clarion Call")
+            logger.notice(self.__class, "nitro", "current songs for", player:get_mob().name, "are", self.song_tracker:get_songs(player:get_id(), L(player:get_buff_ids())):map(function(song_record) return res.spells[song_record:get_song_id()].en  end))
+        end
+    end
+
+    job_ability_names:append('Nightingale')
+    job_ability_names:append('Troubadour')
+
+    return job_ability_names
 end
 
 function Singer:nitro()
@@ -309,7 +366,7 @@ function Singer:get_merged_songs(party_member)
     local pianissimo_songs = self.pianissimo_songs:filter(function(song) return song:get_job_names():contains(party_member:get_main_job_short()) end)
 
     local all_songs = L{}
-    if state.AutoPianissimoMode.value == 'Merged' then
+    if not party_member:is_trust() and state.AutoPianissimoMode.value == 'Merged' then
         local songs = self.songs:filter(function(song) return not song:get_job_names() or song:get_job_names():contains(party_member:get_main_job_short()) end)
         all_songs = pianissimo_songs:extend(songs)
         all_songs = all_songs:slice(1, math.min(all_songs:length(), max_num_songs)):reverse()

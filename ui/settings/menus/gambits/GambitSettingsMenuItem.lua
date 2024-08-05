@@ -86,6 +86,10 @@ function GambitSettingsMenuItem:destroy()
     self.disposeBag:destroy()
 end
 
+function GambitSettingsMenuItem:getConfigKey()
+    return "gambits"
+end
+
 function GambitSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Add", self:getAddAbilityMenuItem())
     self:setChildMenuItem("Edit", self:getEditGambitMenuItem())
@@ -171,7 +175,6 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
         ButtonItem.default('Conditions', 18),
     }, {}, function(menuArgs, infoView)
         local abilitiesByTargetType = self:getAbilitiesByTargetType()
-
         local gambitEditor = GambitSettingsEditor.new(self.selectedGambit, self.trustSettings, self.trustSettingsMode, abilitiesByTargetType)
         return gambitEditor
     end, "Gambits", "Edit the selected Gambit.", false, function()

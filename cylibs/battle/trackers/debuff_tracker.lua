@@ -3,6 +3,7 @@
 -- @class module
 -- @name DebuffTracker
 
+local buffs_ext = require('cylibs/res/buffs')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Event = require('cylibs/events/Luvent')
 local GainDebuffMessage = require('cylibs/messages/gain_buff_message')
@@ -134,6 +135,14 @@ end
 function DebuffTracker:add_debuff(debuff_id)
     if not self:has_debuff(debuff_id) and buff_util.is_debuff(debuff_id) then
         logger.notice(self.__class, 'gain_debuff', monster_util.monster_name(self.mob_id), res.buffs[debuff_id].en)
+
+        local debuff = buffs_ext[debuff_id]
+        if debuff then
+            local overwrites = L(debuff.overwrites)
+            for overwritten_debuff_id in overwrites:it() do
+                self:remove_debuff(overwritten_debuff_id)
+            end
+        end
 
         self.debuff_ids:add(debuff_id)
         self:on_gain_debuff():trigger(self.mob_id, debuff_id)

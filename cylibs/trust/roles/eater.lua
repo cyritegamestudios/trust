@@ -8,6 +8,7 @@ function Eater.new(action_queue, food_name)
     local self = setmetatable(Role.new(action_queue), Eater)
 
     self.action_queue = action_queue
+    -- TODO: update when trust settings change
     self.food_name = food_name
     -- Checking item causes a huge memory footprint increase
     self.is_food_enabled = food_name ~= nil --and res.items:with('en', food_name) ~= nil

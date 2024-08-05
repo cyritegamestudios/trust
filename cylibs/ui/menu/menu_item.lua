@@ -1,3 +1,5 @@
+local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
+
 local MenuItem = {}
 MenuItem.__index = MenuItem
 MenuItem.__type = "MenuItem"
@@ -71,12 +73,34 @@ function MenuItem:getChildMenuItem(text)
 end
 
 ---
+-- Gets the child menu items.
+--
+-- @treturn list Child MenuItems.
+--
+function MenuItem:getChildMenuItems()
+    local result = L{}
+    for _, childMenuItem in pairs(self.childMenuItems) do
+        if type(childMenuItem) ~= 'number' then
+            result:append(childMenuItem)
+        end
+    end
+    return result
+end
+
+---
 -- Sets the child MenuItem with the specified text.
 --
 -- @tparam string text The name of the child MenuItem.
 -- @tparam MenuItem|nil The child MenuItem with the specified text, or nil if removing.
 --
 function MenuItem:setChildMenuItem(text, childMenuItem)
+    local match = self.buttonItems:firstWhere(function(buttonItem)
+        return buttonItem:getTextItem().text == text
+    end)
+    if not match then
+        self.buttonItems:append(ButtonItem.default(text, 18))
+    end
+
     self.childMenuItems[text] = childMenuItem
 end
 
@@ -130,6 +154,24 @@ function MenuItem:isEnabled()
 end
 
 ---
+-- Returns the menu item's config key.
+--
+-- @tparam string configKey Sets the config key.
+--
+function MenuItem:setConfigKey(configKey)
+    self.configKey = configKey
+end
+
+---
+-- Returns the menu item's config key.
+--
+-- @treturn string Config key.
+--
+function MenuItem:getConfigKey()
+    return self.configKey
+end
+
+---
 -- Checks if this MenuItem is equal to another TextItem.
 --
 -- @tparam any otherItem The other item to compare.
@@ -138,6 +180,7 @@ end
 function MenuItem:__eq(otherItem)
     return otherItem.__type == MenuItem.__type and otherItem:getTitleText() == self:getTitleText()
             and otherItem:getDescriptionText() == self:getDescriptionText()
+            and otherItem:getUUID() == self:getUUID()
 end
 
 ---

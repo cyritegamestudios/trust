@@ -9,6 +9,7 @@ local Frame = require('cylibs/ui/views/frame')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
+local Keyboard = require('cylibs/ui/input/keyboard')
 local MarqueeCollectionViewCell = require('cylibs/ui/collection_view/cells/marquee_collection_view_cell')
 local Mouse = require('cylibs/ui/input/mouse')
 local Padding = require('cylibs/ui/style/padding')
@@ -24,6 +25,7 @@ TrustStatusWidget.__index = TrustStatusWidget
 
 TrustStatusWidget.Buttons = {}
 TrustStatusWidget.Buttons.On = ImageItem.new(
+        windower.addon_path..'assets/buttons/toggle_button_on.png',
         windower.addon_path..'assets/buttons/toggle_button_on.png',
         17,
         14
@@ -175,6 +177,12 @@ function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, 
     end
 
     return self
+end
+
+function TrustStatusWidget:destroy()
+    Widget.destroy(self)
+
+    -- TODO: unregister old keybind
 end
 
 function TrustStatusWidget:getSettings(addonSettings)

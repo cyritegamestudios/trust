@@ -2,6 +2,7 @@ local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local EntrustSettingsMenuItem = require('ui/settings/menus/buffs/EntrustSettingsMenuItem')
+local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local GeomancySettingsEditor = require('ui/settings/editors/GeomancySettingsEditor')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesView = require('ui/settings/editors/ModeSettingsEditor')
@@ -10,18 +11,23 @@ local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local GeomancySettingsMenuItem = setmetatable({}, {__index = MenuItem })
 GeomancySettingsMenuItem.__index = GeomancySettingsMenuItem
 
-function GeomancySettingsMenuItem.new(trustSettings, trust, geomancySettings, entrustSpells, viewFactory)
+function GeomancySettingsMenuItem.new(trustSettings, trust, geomancySettings, entrustSpells)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Geo', 18),
         ButtonItem.default('Indi', 18),
         ButtonItem.default('Entrust', 18),
         ButtonItem.default('Modes', 18),
-    }, {}, nil, "Geomancy", "Configure indicolure and geocolure settings."), GeomancySettingsMenuItem)
+    }, {}, function(_, _)
+        --local geomancySettings = trustSettings:getSettings()[trustSettingsMode.value]
+
+        local geomancyView = FFXIPickerView.withItems(L{ geomancySettings.Geo:get_spell().en, geomancySettings.Indi:get_spell().en }:extend(entrustSpells:map(function(spell) return spell:description() end)), L{}, false, nil, nil, FFXIClassicStyle.WindowSize.Editor.ConfigEditor, true)
+        geomancyView:setShouldRequestFocus(false)
+        return geomancyView
+    end, "Geomancy", "Configure indicolure and geocolure settings."), GeomancySettingsMenuItem)
 
     self.trustSettings = trustSettings
     self.geomancySettings = geomancySettings
     self.entrustSpells = entrustSpells
-    self.viewFactory = viewFactory
     self.dispose_bag = DisposeBag.new()
 
     self:reloadSettings()
@@ -33,21 +39,19 @@ function GeomancySettingsMenuItem:destroy()
     MenuItem.destroy(self)
 
     self.dispose_bag:destroy()
-
-    self.viewFactory = nil
 end
 
 function GeomancySettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Geo", self:getGeoMenuItem())
     self:setChildMenuItem("Indi", self:getIndiMenuItem())
-    self:setChildMenuItem("Entrust", EntrustSettingsMenuItem.new(self.trustSettings, self.entrustSpells, self.viewFactory))
+    self:setChildMenuItem("Entrust", EntrustSettingsMenuItem.new(self.trustSettings, self.entrustSpells))
     self:setChildMenuItem("Modes", self:getModesMenuItem())
 end
 
 function GeomancySettingsMenuItem:getGeoMenuItem()
     local editSpellMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
-    }, L{}, function(menuArgs)
+    }, {}, function(_, _)
         local allSpells = spell_util.get_spells(function(spell)
             return spell.skill == 44 and S{ 'Party', 'Enemy'}:intersection(S(spell.targets)):length() > 0
         end):map(function(spell) return spell.en end)
@@ -78,7 +82,7 @@ function GeomancySettingsMenuItem:getGeoMenuItem()
 
     local spellTargetsMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
-    }, L{}, function(menuArgs)
+    }, {}, function(menuArgs)
         local spell = self.geomancySettings.Geo
 
         local chooseSpellsView = FFXIPickerView.withItems(spell:get_valid_targets(), L{ self.geomancySettings.Geo.target or "me" }, false)
@@ -99,15 +103,10 @@ function GeomancySettingsMenuItem:getGeoMenuItem()
     local geocolureMenuItem = MenuItem.new(L{
         ButtonItem.default('Edit', 18),
         ButtonItem.default('Targets', 18)
-    }, L{
+    }, {
         Edit = editSpellMenuItem,
         Targets = spellTargetsMenuItem,
-    }, function(_)
-        local geomancyView = GeomancySettingsEditor.new(self.trustSettings, L{ self.geomancySettings.Geo }, L{})
-        geomancyView:setTitle("Geocolures spells to use.")
-        geomancyView:setShouldRequestFocus(true)
-        return geomancyView
-    end, "Geocolures", "Customize geocolures to use on party members and enemies.")
+    }, nil, "Geocolures", "Customize geocolures to use on party members and enemies.")
 
     return geocolureMenuItem
 end
@@ -115,7 +114,7 @@ end
 function GeomancySettingsMenuItem:getIndiMenuItem()
     local indicolureMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
-    }, L{}, function(menuArgs)
+    }, {}, function(menuArgs)
         local allSpells = spell_util.get_spells(function(spell)
             return spell.skill == 44 and S{ 'Self' }:equals(S(spell.targets))
         end):map(function(spell) return spell.en end)
@@ -144,7 +143,7 @@ end
 function GeomancySettingsMenuItem:getModesMenuItem()
     local geomancyModesMenuItem = MenuItem.new(L{
         --ButtonItem.default('Save', 18),
-    }, L{}, function(_, infoView)
+    }, {}, function(_, infoView)
         local modesView = ModesView.new(L{'AutoGeoMode', 'AutoIndiMode', 'AutoEntrustMode'}, infoView)
         modesView:setShouldRequestFocus(true)
         modesView:setTitle("Set modes for geocolures and indicolures.")

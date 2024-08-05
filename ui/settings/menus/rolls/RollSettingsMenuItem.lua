@@ -2,8 +2,9 @@ local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local CursorItem = require('ui/themes/FFXI/CursorItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
-local MenuItem = require('cylibs/ui/menu/menu_item')
+local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+local MenuItem = require('cylibs/ui/menu/menu_item')
 
 local RollSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 RollSettingsMenuItem.__index = RollSettingsMenuItem
@@ -15,7 +16,13 @@ function RollSettingsMenuItem.new(trustSettings, trustSettingsMode, trust)
         ButtonItem.default('Modes', 18),
     }, {
 
-    }, nil, "Rolls", "Configure settings for Phantom Roll."), RollSettingsMenuItem)
+    }, function(_, _)
+        local rollSettings = trustSettings:getSettings()[trustSettingsMode.value]
+
+        local rollsView = FFXIPickerView.withItems(L{ rollSettings.Roll1:tostring(), rollSettings.Roll2:tostring() }, L{}, false, nil, nil, FFXIClassicStyle.WindowSize.Editor.ConfigEditor)
+        rollsView:setShouldRequestFocus(false)
+        return rollsView
+    end, "Rolls", "Configure settings for Phantom Roll."), RollSettingsMenuItem)
 
     self.all_rolls = trust:get_job():get_all_rolls():sort()
     self.trustSettings = trustSettings
@@ -41,7 +48,7 @@ function RollSettingsMenuItem:reloadSettings()
     local settings = self.trustSettings:getSettings()[self.trustSettingsMode.value]
     self.rolls = L{ settings.Roll1, settings.Roll2 }
 
-    self:setChildMenuItem("Roll 1", self:getRollMenuItem(self.rolls[1], "Choose a primary roll."))
+    self:setChildMenuItem("Roll 1", self:getRollMenuItem(self.rolls[1], "Choose a primary roll to use with Crooked Cards."))
     self:setChildMenuItem("Roll 2", self:getRollMenuItem(self.rolls[2], "Choose a secondary roll."))
     self:setChildMenuItem("Modes", self:getModesMenuItem())
 end
