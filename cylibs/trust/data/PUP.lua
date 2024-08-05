@@ -42,7 +42,7 @@ function PuppetmasterTrust.new(settings, action_queue, battle_settings, trust_se
 	end)
 	state.ManeuverMode = M{['description'] = 'Maneuver Mode', mode_names}
 	for mode_name in mode_names:it() do
-		state.ManeuverMode:set_description(mode_name, 'Switching to '..mode_name..' maneuver set.')
+		state.ManeuverMode:set_description(mode_name, 'Maneuver set for '..mode_name..' pet type.')
 	end
 
 	return self
