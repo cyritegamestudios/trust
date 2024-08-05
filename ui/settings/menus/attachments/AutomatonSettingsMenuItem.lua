@@ -52,9 +52,9 @@ function AutomatonSettingsMenuItem:getManeuverSettingsMenuItem()
         ButtonItem.default('Default'),
         ButtonItem.default('Overdrive'),
     }, {
-        Default = ManeuverSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, 'Default', true),
-        Overdrive = ManeuverSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, 'Overdrive', true),
-    }, nil, "Maneuvers", "Select a maneuver set.")
+        Default = ManeuverSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, 'Default', "Edit Default maneuver sets. These will automatically be chosen based on equipped head/frame."),
+        Overdrive = ManeuverSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, 'Overdrive', "Edit Default maneuver sets. These will automatically be chosen based on equipped head/frame while Overdrive is active."),
+    }, nil, "Maneuvers", "Edit maneuver sets.")
     return maneuverSettingsMenuItem
 end
 

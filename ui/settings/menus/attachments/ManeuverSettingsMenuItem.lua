@@ -20,15 +20,14 @@ local Puppetmaster = require('cylibs/entity/jobs/PUP')
 local ManeuverSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 ManeuverSettingsMenuItem.__index = ManeuverSettingsMenuItem
 
-function ManeuverSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsKeyName, isEditable)
+function ManeuverSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsKeyName, descriptionText)
     local self = setmetatable(MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
-    }, {}, nil, "Maneuvers", "Choose from "..settingsKeyName.." maneuver sets.", false), ManeuverSettingsMenuItem)
+        --ButtonItem.default('Confirm', 18),
+    }, {}, nil, "Maneuvers", descriptionText, false), ManeuverSettingsMenuItem)
 
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
     self.settingsKeyName = settingsKeyName
-    self.isEditable = isEditable
     self.job = Puppetmaster.new()
     self.disposeBag = DisposeBag.new()
 
@@ -70,10 +69,7 @@ function ManeuverSettingsMenuItem:destroy()
 end
 
 function ManeuverSettingsMenuItem:reloadSettings()
-    self:setChildMenuItem("Confirm", self:getConfirmMenuItem())
-    if self.isEditable then
-        self:setChildMenuItem("Edit", self:getEditSetMenuItem())
-    end
+    self:setChildMenuItem("Edit", self:getEditSetMenuItem())
 end
 
 function ManeuverSettingsMenuItem:getConfirmMenuItem()
