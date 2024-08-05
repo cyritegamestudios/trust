@@ -311,6 +311,9 @@ _meta.M.__methods['set'] = function(m, val, hideHelpText)
             
             if not found then
                 error("Unknown mode value: " .. tostring(val), 2)
+                for v, ind in pairs(m._track._invert) do
+                    print(v, val, val:length(), v:lower() == val:lower())
+                end
             end
         end
     elseif m._track._type == 'string' then

@@ -79,7 +79,7 @@ end
 -------
 -- Returns the Puppetmaster's active maneuvers, if any.
 -- @treturn list Localized names of current maneuvers
-function Puppetmaster:get_maneuvers()
+function Puppetmaster:get_current_maneuvers()
     return L(windower.ffxi.get_player().buffs):map(function(buff_id)
         return res.buffs:with('id', buff_id).en
     end):filter(function(buff_name)
@@ -184,6 +184,18 @@ function Puppetmaster:equip_attachment_set(head_name, frame_name, attachment_nam
     addon_message(260, '('..windower.ffxi.get_player().name..') '.."Give me a sec, I'm updating my attachments...")
 
     self.automaton_action_queue:push_action(equip_action, true)
+end
+
+function Puppetmaster:get_maneuvers(pet_type)
+    if buff_util.is_buff_active(buff_util.buff_id('Overdrive')) then
+        return self.maneuver_settings.Overdrive[pet_type]
+    else
+        return self.maneuver_settings.Default[pet_type]
+    end
+end
+
+function Puppetmaster:set_maneuver_settings(maneuver_settings)
+    self.maneuver_settings = maneuver_settings
 end
 
 return Puppetmaster

@@ -32,13 +32,18 @@ function PuppetmasterTrust.new(settings, action_queue, battle_settings, trust_se
 
 	self.settings = settings
 	self.action_queue = action_queue
-	self.defaultManeuvers = trust_settings.DefaultManeuvers
-	self.overdriveManeuvers = trust_settings.OverdriveManeuvers
 	self.maneuver_last_used = os.time()
 	self.economizer_last_used = os.time()
 	self.dispose_bag = DisposeBag.new()
 
-	state.ManeuverMode = M{['description'] = 'Maneuver Mode', T(T(trust_settings.DefaultManeuvers):keyset())}
+	local mode_names = T(T(trust_settings.AutomatonSettings.ManeuverSettings.Default):keyset()):map(function(m)
+		return m
+		--return m:gsub("^%s*(.-)%s*$", "%1")
+	end)
+	state.ManeuverMode = M{['description'] = 'Maneuver Mode', mode_names}
+	for mode_name in mode_names:it() do
+		state.ManeuverMode:set_description(mode_name, 'Switching to '..mode_name..' maneuver set.')
+	end
 
 	return self
 end
@@ -50,14 +55,8 @@ function PuppetmasterTrust:on_init()
 		self:update_automaton(pet_util.get_pet().id, pet_util.get_pet().name)
 	end
 
-	self.dispose_bag:add(self:get_player():on_pet_change():addAction(
-			function (_, pet_id, pet_name)
-				self:update_automaton(pet_id, pet_name)
-			end), self:get_player():on_pet_change())
-
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
-		self.defaultManeuvers = new_trust_settings.DefaultManeuvers
-		self.overdriveManeuvers = new_trust_settings.OverdriveManeuvers
+		self:get_job():set_maneuver_settings(new_trust_settings.AutomatonSettings.ManeuverSettings)
 
 		local puller = self:role_with_type("puller")
 		if puller then
@@ -65,11 +64,10 @@ function PuppetmasterTrust:on_init()
 		end
 	end)
 
-	state.ManeuverMode:on_state_change():addAction(function(_, new_value)
-		if self.defaultManeuvers[new_value] then
-			self.maneuver_set = self.defaultManeuvers[new_value]
-		end
-	end)
+	self.dispose_bag:add(self:get_player():on_pet_change():addAction(
+		function (_, pet_id, pet_name)
+			self:update_automaton(pet_id, pet_name)
+		end), self:get_player():on_pet_change())
 end
 
 function PuppetmasterTrust:on_deinit()
@@ -83,7 +81,6 @@ end
 function PuppetmasterTrust:job_target_change(target_index)
 	Trust.job_target_change(self, target_index)
 
-	self.target_index = target_index
 	self.target_change_time = os.time()
 end
 
@@ -97,6 +94,27 @@ function PuppetmasterTrust:tic(old_time, new_time)
 	if self.automaton then
 		self:check_maneuvers()
 		self:check_deploy()
+	end
+end
+
+function PuppetmasterTrust:check_maneuvers()
+	if os.time() - self.maneuver_last_used < 5 then
+		return
+	end
+
+	if state.AutoManeuverMode.value == 'Auto' and self.automaton and windower.ffxi.get_ability_recasts()[210] == 0 then
+		local maneuver_set = self:get_job():get_maneuvers(state.ManeuverMode.value)
+
+		for element in L{ 'Fire', 'Earth', 'Water', 'Wind', 'Ice', 'Thunder', 'Light', 'Dark' }:it() do
+			local num_required = maneuver_set:getNumManeuvers(element)
+			if not Condition.check_conditions(L{ HasBuffsCondition.new(L{ element..' Maneuver' }, num_required) }, windower.ffxi.get_player().index) then
+				local maneuver_action = JobAbilityAction.new(0, 0, 0, element..' Maneuver')
+				maneuver_action.identifier = 'use_maneuver'
+				self.action_queue:push_action(maneuver_action, true)
+				self.maneuver_last_used = os.time()
+				return
+			end
+		end
 	end
 end
 
@@ -141,31 +159,6 @@ function PuppetmasterTrust:check_restore_mp()
 	end
 end
 
-function PuppetmasterTrust:check_maneuvers()
-	if os.time() - self.maneuver_last_used < 5 then
-		return
-	end
-
-	if state.AutoManeuverMode.value == 'Auto' and self.automaton and self.maneuver_set and windower.ffxi.get_ability_recasts()[210] == 0 then
-		local pet_mode = self.automaton:get_pet_mode()
-		local current_maneuvers = self:get_job():get_maneuvers()
-
-		local maneuver_set = self.maneuver_set
-		if buff_util.is_buff_active(buff_util.buff_id('Overdrive')) and self.overdriveManeuvers[pet_mode] then
-			maneuver_set = self.overdriveManeuvers[pet_mode]
-		end
-
-		for maneuver in maneuver_set:it() do
-			local maneuversActive = current_maneuvers:filter(function(maneuver_name) return maneuver_name == maneuver.Name end)
-			if #maneuversActive < maneuver.Amount then
-				self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, maneuver.Name), true)
-				self.maneuver_last_used = os.time()
-				return
-			end
-		end
-	end
-end
-
 function PuppetmasterTrust:update_automaton(pet_id, pet_name)
 	if self.automaton then
 		self.automaton:destroy()
@@ -180,7 +173,6 @@ function PuppetmasterTrust:update_automaton(pet_id, pet_name)
 
 		local pet_type = self.automaton:get_pet_mode()
 		state.ManeuverMode:set(pet_type)
-		print('setting ManeuverMode to', pet_type)
 	end
 end
 
@@ -204,6 +196,10 @@ function PuppetmasterTrust:shed_hate()
 		self.action_queue:push_action(SequenceAction.new(actions, 'pup_hate_shed'), true)
 		return
 	end
+end
+
+function PuppetmasterTrust:set_maneuver_settings(maneuver_settings)
+	self.maneuver_settings = maneuver_settings
 end
 
 return PuppetmasterTrust

@@ -93,6 +93,7 @@ BloodPactMagic = require('cylibs/battle/abilities/blood_pact_magic')
 ElementalMagic = require('cylibs/battle/abilities/elemental_magic')
 Skillchain = require('cylibs/util/skillchain')
 AttachmentSet = require('cylibs/entity/automaton/attachment_set')
+ManeuverSet = require('cylibs/entity/automaton/maneuver_set')
 
 -- Roles
 Role = require('cylibs/trust/roles/role')
