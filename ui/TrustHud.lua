@@ -34,6 +34,7 @@ local PartyMemberView = require('cylibs/entity/party/ui/party_member_view')
 local PartyStatusWidget = require('ui/widgets/PartyStatusWidget')
 local PartyTargetsMenuItem = require('ui/settings/menus/PartyTargetsMenuItem')
 local PathSettingsMenuItem = require('ui/settings/menus/misc/PathSettingsMenuItem')
+local PetStatusWidget = require('ui/widgets/PetStatusWidget')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local ReactSettingsMenuItem = require('ui/settings/menus/gambits/react/ReactSettingsMenuItem')
 local SingerView = require('ui/views/SingerView')
@@ -225,6 +226,9 @@ function TrustHud:createWidgets(addon_settings, addon_enabled, action_queue, par
 
     local partyStatusWidget = PartyStatusWidget.new(Frame.new(0, 0, 125, 55), addon_settings, party)
     self.widgetManager:addWidget(partyStatusWidget, "party")
+
+    local petStatusWidget = PetStatusWidget.new(Frame.new(0, 0, 125, 50), addon_settings, party:get_player())
+    self.widgetManager:addWidget(petStatusWidget, "pet")
 
     --local settingsWidget = SettingsWidget.new(Frame.new(0, 0, 125, 40), addon_settings, state.TrustMode, state.MainTrustSettingsMode)
     --self.widgetManager:addWidget(settingsWidget, "settings")
