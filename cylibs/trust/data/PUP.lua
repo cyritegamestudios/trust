@@ -38,7 +38,6 @@ function PuppetmasterTrust.new(settings, action_queue, battle_settings, trust_se
 
 	local mode_names = T(T(trust_settings.AutomatonSettings.ManeuverSettings.Default):keyset()):map(function(m)
 		return m
-		--return m:gsub("^%s*(.-)%s*$", "%1")
 	end)
 	state.ManeuverMode = M{['description'] = 'Maneuver Mode', mode_names}
 	for mode_name in mode_names:it() do

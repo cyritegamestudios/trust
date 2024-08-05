@@ -84,18 +84,7 @@ end
 function ManeuverSettingsMenuItem:getEditSetMenuItem()
     local editSetMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
-    }, {
-        Confirm = MenuItem.action(function()
-            --[[local numManeuvers = self.selectedSet:getTotalNumManeuvers()
-            if numManeuvers < 3 then
-                if numManeuvers == 0 then
-                    addon_message(260, '('..windower.ffxi.get_player().name..') '.."Are you sure? You didn't select any maneuvers!")
-                else
-                    addon_message(260, '('..windower.ffxi.get_player().name..') '.."Are you sure? You only selected "..numManeuvers.." maneuvers!")
-                end
-            end]]
-        end)
-    }, function(_)
+    }, {}, function(_)
         local configItems = L{}
         for element in L{ 'Fire', 'Earth', 'Water', 'Wind', 'Ice', 'Thunder', 'Light', 'Dark' }:it() do
             configItems:append(PickerConfigItem.new(element, self.selectedSet:getNumManeuvers(element), L{ 0, 1, 2, 3 }, nil, element.." Maneuver"))
