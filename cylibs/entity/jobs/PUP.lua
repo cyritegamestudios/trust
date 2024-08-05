@@ -8,7 +8,6 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local EquipAttachmentAction = require('cylibs/actions/equip_attachment')
 local job_util = require('cylibs/util/job_util')
 local zone_util = require('cylibs/util/zone_util')
-local res = require('resources')
 local attachments = require('cylibs/res/attachments')
 
 local Job = require('cylibs/entity/jobs/job')
@@ -52,9 +51,10 @@ function Puppetmaster:can_repair()
     end
     local item_id = windower.ffxi.get_items().equipment['ammo']
     if item_id and item_id ~= 0 then
-        local item = res.items:with('id', item_id)
-        if item then
-            return item.en == 'Automat. Oil +3'
+        local automaton_oil_item_ids = L{ 18731, 18732, 18733, 19185 }
+        --local item = res.items:with('id', item_id)
+        if automaton_oil_item_ids:contains(item_id) then
+            return true
         end
     end
     return false
