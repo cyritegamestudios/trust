@@ -34,7 +34,7 @@ local PartyMemberView = require('cylibs/entity/party/ui/party_member_view')
 local PartyStatusWidget = require('ui/widgets/PartyStatusWidget')
 local PartyTargetsMenuItem = require('ui/settings/menus/PartyTargetsMenuItem')
 local PathSettingsMenuItem = require('ui/settings/menus/misc/PathSettingsMenuItem')
-local PetStatusWidget = require('ui/widgets/PetStatusWidget')
+local AutomatonStatusWidget = require('ui/widgets/AutomatonStatusWidget')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local ReactSettingsMenuItem = require('ui/settings/menus/gambits/react/ReactSettingsMenuItem')
 local SingerView = require('ui/views/SingerView')
@@ -227,8 +227,10 @@ function TrustHud:createWidgets(addon_settings, addon_enabled, action_queue, par
     local partyStatusWidget = PartyStatusWidget.new(Frame.new(0, 0, 125, 55), addon_settings, party)
     self.widgetManager:addWidget(partyStatusWidget, "party")
 
-    local petStatusWidget = PetStatusWidget.new(Frame.new(0, 0, 125, 50), addon_settings, party:get_player())
-    self.widgetManager:addWidget(petStatusWidget, "pet")
+    if player.main_job_name_short == 'PUP' then
+        local petStatusWidget = AutomatonStatusWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), self, main_trust_settings, state.MainTrustSettingsMode)
+        self.widgetManager:addWidget(petStatusWidget, "pet")
+    end
 
     --local settingsWidget = SettingsWidget.new(Frame.new(0, 0, 125, 40), addon_settings, state.TrustMode, state.MainTrustSettingsMode)
     --self.widgetManager:addWidget(settingsWidget, "settings")
