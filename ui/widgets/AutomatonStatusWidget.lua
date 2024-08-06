@@ -140,6 +140,13 @@ function AutomatonStatusWidget.new(frame, addonSettings, player, trustHud, trust
         self:layoutIfNeeded()
     end), WindowerEvents.AutomatonUpdate)
 
+    self:getDisposeBag():add(WindowerEvents.ZoneRequest:addAction(function(player_id, _, _, _)
+        if player_id == self.id then
+            self:setVisible(false)
+            self:layoutIfNeeded()
+        end
+    end), WindowerEvents.ZoneRequest)
+
     self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
         self:getDelegate():deselectItemAtIndexPath(indexPath)
 
