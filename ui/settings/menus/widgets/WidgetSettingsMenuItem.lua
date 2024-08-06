@@ -11,7 +11,7 @@ local WidgetSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 WidgetSettingsMenuItem.__index = WidgetSettingsMenuItem
 
 function WidgetSettingsMenuItem.new(addonSettings)
-    local widgetNames = L{ 'Trust', 'Party', 'Target' }
+    local widgetNames = L{ 'Trust', 'Party', 'Target', 'Pet' }
 
     local buttonItems = widgetNames:map(function(widgetName)
         return ButtonItem.default(widgetName, 18)

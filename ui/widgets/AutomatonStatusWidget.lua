@@ -169,6 +169,11 @@ function AutomatonStatusWidget:setVisible(visible)
     if windower.ffxi.get_mob_by_target('pet') == nil or not self.isInitialized then
         visible = false
     end
+
+    if visible then
+        self:getDataSource():updateItem(TextItem.new(pup_util.get_pet_mode(), AutomatonStatusWidget.TextSmall3), IndexPath.new(1, 4))
+    end
+
     Widget.setVisible(self, visible)
 end
 
