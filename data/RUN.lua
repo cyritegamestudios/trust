@@ -24,8 +24,12 @@ return {
             Distance = 20
         },
         GambitSettings = {
+            Default = L{
+                Gambit.new("Self", L{MaxHitPointsPercentCondition.new(30), HasRunesCondition.new(3)}, JobAbility.new("Vivacious Pulse", L{}, L{}), "Self", L{})
+            },
             Gambits = L{
-
+                Gambit.new("Self", L{NotCondition.new(L{HasBuffsCondition.new(L{"Valiance", "Vallation"}, 1)}), HasRunesCondition.new(3)}, JobAbility.new("Valiance", L{}, L{}), "Self", L{}),
+                Gambit.new("Self", L{NotCondition.new(L{HasBuffsCondition.new(L{"Valiance", "Vallation"}, 1)}), HasRunesCondition.new(3)}, JobAbility.new("Vallation", L{}, L{}), "Self", L{}),
             }
         },
     }
