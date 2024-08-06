@@ -18,7 +18,7 @@ function PathSettingsMenuItem.new(pather)
     }, {}, nil, "Paths", "Start, stop or record a new path."), PathSettingsMenuItem)
 
     self.pather = pather
-    self.path_recorder = PathRecorder.new(self.pather:get_path_dir())
+    self.path_recorder = self.pather:get_path_recorder()
     self.dispose_bag = DisposeBag.new()
 
     self.contentViewConstructor = function(_)
@@ -36,8 +36,6 @@ function PathSettingsMenuItem.new(pather)
         return pathSettingsEditor
     end
 
-    self.dispose_bag:addAny(L{ self.path_recorder })
-
     self:reloadSettings()
 
     return self
@@ -47,8 +45,6 @@ function PathSettingsMenuItem:destroy()
     MenuItem.destroy(self)
 
     self.dispose_bag:destroy()
-
-    self.viewFactory = nil
 end
 
 function PathSettingsMenuItem:reloadSettings()

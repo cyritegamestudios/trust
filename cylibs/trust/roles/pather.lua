@@ -5,10 +5,22 @@ Pather.__class = "Pather"
 require('queues')
 
 local DisposeBag = require('cylibs/events/dispose_bag')
+local Event = require('cylibs/events/Luvent')
 local ModeDelta = require('cylibs/modes/mode_delta')
 local Path = require('cylibs/paths/path')
 local PatherModes = require('cylibs/trust/data/modes/common/pather')
+local PathRecorder = require('cylibs/paths/path_recorder')
 local player_util = require('cylibs/util/player_util')
+
+-- Event called when path replay starts.
+function Pather:on_path_replay_start()
+    return self.path_replay_start
+end
+
+-- Event called when path replay stops
+function Pather:on_path_replay_stop()
+    return self.path_replay_stop
+end
 
 -------
 -- Default initializer for a pather role.
@@ -24,8 +36,13 @@ function Pather.new(action_queue, path_dir)
     self.is_reversed = false
     self.actions = L{}
     self.pather_delta = ModeDelta.new(PatherModes.Running)
+    self.path_recorder = PathRecorder.new(self:get_path_dir())
     self.action_dispose_bag = DisposeBag.new()
+    self.path_replay_start = Event.newEvent()
+    self.path_replay_stop = Event.newEvent()
     self.dispose_bag = DisposeBag.new()
+
+    self.dispose_bag:addAny(L{ self.path_recorder })
 
     return self
 end
@@ -34,6 +51,9 @@ function Pather:destroy()
     Role.destroy(self)
 
     self.dispose_bag:destroy()
+
+    self.path_replay_start:removeAllEvents()
+    self.path_replay_stop:removeAllEvents()
 end
 
 function Pather:on_add()
@@ -74,6 +94,8 @@ function Pather:start()
     end
     self.enabled = true
 
+    self:on_path_replay_start():trigger(self, self.path)
+
     self:perform_next_action()
 end
 
@@ -84,6 +106,8 @@ function Pather:stop()
         return
     end
     self.enabled = false
+
+    self:on_path_replay_stop():trigger(self, self.path)
 end
 
 function Pather:perform_next_action()
@@ -103,6 +127,8 @@ function Pather:perform_next_action()
             logger.notice(self.__class, 'perform_next_action', 'current_index', self.current_index, 'too far', action:tostring())
 
             self:get_party():add_to_chat(self:get_party():get_player(), "I can't do that, I'm "..dist.." yalms away from the closest point!")
+
+            self:stop()
         end
     else
         self.pather_delta:remove()
@@ -191,6 +217,10 @@ end
 
 function Pather:get_type()
     return "pather"
+end
+
+function Pather:get_path_recorder()
+    return self.path_recorder
 end
 
 return Pather
