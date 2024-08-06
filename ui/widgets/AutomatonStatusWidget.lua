@@ -213,8 +213,4 @@ function AutomatonStatusWidget:setTp(tp)
     self:getDataSource():updateItem(TextItem.new("TP  "..tp, AutomatonStatusWidget.TextSmall), IndexPath.new(1, 3))
 end
 
-function AutomatonStatusWidget:setVitals(hp, maxHp, mp, maxMp, tp)
-
-end
-
 return AutomatonStatusWidget

@@ -175,6 +175,63 @@ function CollectionView:setScrollDelta(delta)
 end
 
 ---
+-- Sets the content offset when scrolling up/right.
+--
+-- @tparam ScrollBar scrollBar The scroll bar that was clicked.
+--
+function CollectionView:scrollForward(scrollBar)
+    local scrollDelta = self:getScrollDelta()
+
+    local currentIndexPath = self:getDelegate():getCursorIndexPath()
+    if currentIndexPath then
+        local nextIndexPath = self:getDataSource():getNextIndexPath(currentIndexPath, false)
+        if nextIndexPath.section > currentIndexPath.section then
+            local sectionHeaderView = self:getDataSource():headerViewForSection(nextIndexPath.section)
+            if sectionHeaderView then
+                scrollDelta = scrollDelta + sectionHeaderView:getItemSize()
+            end
+        end
+    end
+
+    local newContentOffset = Frame.new(self:getContentOffset().x, self:getContentOffset().y, 0, 0)
+    if scrollBar == self.horizontalScrollBar then
+        newContentOffset.x = math.max(self:getContentOffset().x - scrollDelta, -self:getContentSize().width / 2)
+    else
+        local minY = -(self:getContentSize().height + self:getPadding().bottom - self:getSize().height)
+        newContentOffset.y = math.max(self:getContentOffset().y - scrollDelta, minY)
+    end
+    self:setContentOffset(newContentOffset.x, newContentOffset.y)
+end
+
+---
+-- Sets the content offset when scrolling down/left.
+--
+-- @tparam ScrollBar scrollBar The scroll bar that was clicked.
+--
+function CollectionView:scrollBack(scrollBar)
+    local scrollDelta = self:getScrollDelta()
+
+    local currentIndexPath = self:getDelegate():getCursorIndexPath()
+    if currentIndexPath then
+        local nextIndexPath = self:getDataSource():getNextIndexPath(currentIndexPath, false)
+        if nextIndexPath.section > currentIndexPath.section then
+            local sectionHeaderView = self:getDataSource():headerViewForSection(nextIndexPath.section)
+            if sectionHeaderView then
+                scrollDelta = scrollDelta + sectionHeaderView:getItemSize()
+            end
+        end
+    end
+
+    local newContentOffset = Frame.new(self:getContentOffset().x, self:getContentOffset().y, 0, 0)
+    if scrollBar == self.horizontalScrollBar then
+        newContentOffset.x = math.min(self:getContentOffset().x + scrollDelta, 0)
+    else
+        newContentOffset.y = math.min(self:getContentOffset().y + scrollDelta, 8)
+    end
+    self:setContentOffset(newContentOffset.x, newContentOffset.y)
+end
+
+---
 -- Checks if layout updates are needed and triggers layout if necessary.
 -- This function is typically called before rendering to ensure that the View's layout is up to date.
 --
