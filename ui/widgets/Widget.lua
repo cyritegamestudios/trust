@@ -20,9 +20,11 @@ function Widget:onSettingsChanged()
     return self.settingsChanged
 end
 
-function Widget.new(frame, title, addonSettings, dataSource, layout, titleWidth)
+function Widget.new(frame, title, addonSettings, dataSource, layout, titleWidth, hideCursor)
     local widgetStyle = FFXIClassicStyle.default()
-    --widgetStyle.cursorItem = nil
+    if hideCursor then
+        widgetStyle.cursorItem = nil
+    end
 
     local self = setmetatable(CollectionView.new(dataSource, layout, nil, widgetStyle), Widget)
 
@@ -59,7 +61,8 @@ function Widget.new(frame, title, addonSettings, dataSource, layout, titleWidth)
         if type == Mouse.Event.Click then
             if self:isExpanded() and self:hitTest(x, y) then
                 if not self:hasFocus() then
-                    self:requestFocus()
+                    -- TODO: do I need to uncomment this?
+                    --self:requestFocus()
                 end
                 local startPosition = self:getAbsolutePosition()
                 self.dragging = { x = startPosition.x, y = startPosition.y, dragX = x, dragY = y }

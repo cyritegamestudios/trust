@@ -38,6 +38,7 @@ WindowerEvents.GainDebuff = Event.newEvent()
 WindowerEvents.LoseDebuff = Event.newEvent()
 WindowerEvents.AllianceMemberListUpdate = Event.newEvent()
 WindowerEvents.PetUpdate = Event.newEvent()
+WindowerEvents.AutomatonUpdate = Event.newEvent()
 WindowerEvents.Equipment = {}
 WindowerEvents.Equipment.MainWeaponChanged = Event.newEvent()
 WindowerEvents.Equipment.RangedWeaponChanged = Event.newEvent()
@@ -65,6 +66,7 @@ local incoming_event_ids = S{
     0x076,
     0x0C8,
     0x037,
+    0x044,
     0x050,
     0x068,
     0x063,
@@ -276,9 +278,19 @@ local incoming_event_dispatcher = {
         end
     end,
 
-    [0x050] = function(data)
-        local packet = packets.parse('incoming', data)
+    [0x044] = function(data)
+        if data:unpack('C', 0x05) == 0x12 then    -- puppet update
+            local pet_name = data:unpack('z', 0x59)
+            local current_hp, max_hp, current_mp, max_mp = data:unpack('HHHH', 0x069)
 
+            local pet = windower.ffxi.get_mob_by_target("pet")
+            if pet and pet.name == pet_name then
+                WindowerEvents.AutomatonUpdate:trigger(pet.id, pet_name, current_hp, max_hp, current_mp, max_mp)
+            end
+        end
+    end,
+
+    [0x050] = function(data)
         -- Main weapon
         if data:byte(6) == 0 then
             main_weapon_id = windower.ffxi.get_items(data:byte(7), data:byte(5)).id
