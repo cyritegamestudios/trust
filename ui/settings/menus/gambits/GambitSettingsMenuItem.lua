@@ -316,7 +316,7 @@ function GambitSettingsMenuItem:getResetGambitsMenuItem()
 
             menu:showMenu(self)
         end
-    end, "Gambits", "Temporarily enable or disable the selected Gambit until the addon reloads.")
+    end, "Gambits", "Reset to default Gambits.")
 end
 
 function GambitSettingsMenuItem:getModesMenuItem()
