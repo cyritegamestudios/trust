@@ -3,7 +3,6 @@ return {
     ["Rolling"]={
         ["autodispelmode"]="Off",
         ["autodebuffmode"]="Off",
-        ["autofacemobmode"]="Off",
         ["autopullmode"]="Off",
         ["autobuffmode"]="Off",
         ["autoskillchainmode"]="Off",
