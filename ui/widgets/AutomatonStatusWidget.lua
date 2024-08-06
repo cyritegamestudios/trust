@@ -93,11 +93,19 @@ AutomatonStatusWidget.Subheadline = TextStyle.new(
         Color.red
 )
 
+AutomatonStatusWidget.hasMp = true
+
 function AutomatonStatusWidget.new(frame, addonSettings, player, trustHud, trustSettings, trustSettingsMode)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         if indexPath.section == 1 then
             local cell = TextCollectionViewCell.new(item)
-            cell:setItemSize(13)
+            local itemSize = 13
+            if indexPath.row == 2 then
+                if not AutomatonStatusWidget.hasMp then
+                    itemSize = 0
+                end
+            end
+            cell:setItemSize(itemSize)
             cell:setUserInteractionEnabled(indexPath.row == 4)
             return cell
         end
@@ -185,15 +193,28 @@ function AutomatonStatusWidget:setVisible(visible)
 end
 
 function AutomatonStatusWidget:setHp(hp, maxHp)
-    self:getDataSource():updateItem(TextItem.new("HP  "..hp.."/"..maxHp, AutomatonStatusWidget.TextSmall), IndexPath.new(1, 1))
+    self:getDataSource():updateItem(TextItem.new("HP  "..hp.." / "..maxHp, AutomatonStatusWidget.TextSmall), IndexPath.new(1, 1))
 end
 
 function AutomatonStatusWidget:setMp(mp, maxMp)
-    self:getDataSource():updateItem(TextItem.new("MP  "..mp.."/"..maxMp, AutomatonStatusWidget.TextSmall), IndexPath.new(1, 2))
+    --AutomatonStatusWidget.hasMp = maxMp and maxMp > 0
+    if AutomatonStatusWidget.hasMp then
+        self:getDataSource():updateItem(TextItem.new("MP  "..mp.." / "..maxMp, AutomatonStatusWidget.TextSmall), IndexPath.new(1, 2))
+    else
+        self:getDataSource():updateItem(TextItem.new("", AutomatonStatusWidget.TextSmall), IndexPath.new(1, 2))
+    end
+    self:setSize(self:getSize().width, self:getContentSize().height)
+
+    self:setNeedsLayout()
+    self:layoutIfNeeded()
 end
 
 function AutomatonStatusWidget:setTp(tp)
     self:getDataSource():updateItem(TextItem.new("TP  "..tp, AutomatonStatusWidget.TextSmall), IndexPath.new(1, 3))
+end
+
+function AutomatonStatusWidget:setVitals(hp, maxHp, mp, maxMp, tp)
+
 end
 
 return AutomatonStatusWidget
