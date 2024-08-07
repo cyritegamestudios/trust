@@ -34,8 +34,8 @@ function PathRecorder.new(output_folder, mob_id)
 end
 
 function PathRecorder:destroy()
-    self.path_record_start:removeAllEvents()
-    self.path_record_stop:removeAllEvents()
+    self.path_record_start():removeAllActions()
+    self.path_record_stop:removeAllActions()
 
     self.dispose_bag:destroy()
 end
