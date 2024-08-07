@@ -1,5 +1,6 @@
 local IndexPath = {}
 IndexPath.__index = IndexPath
+IndexPath.__class = "IndexPath"
 IndexPath.__type = "IndexPath"
 
 ---

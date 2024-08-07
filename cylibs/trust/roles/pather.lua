@@ -52,8 +52,8 @@ function Pather:destroy()
 
     self.dispose_bag:destroy()
 
-    self.path_replay_start:removeAllEvents()
-    self.path_replay_stop:removeAllEvents()
+    self.path_replay_start:removeAllActions()
+    self.path_replay_stop:removeAllActions()
 end
 
 function Pather:on_add()

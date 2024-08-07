@@ -285,7 +285,7 @@ function load_trust_commands(job_name_short, trust, action_queue, party)
 		LoggingCommands.new(trust, action_queue),
 		PathCommands.new(trust, action_queue),
 		PullCommands.new(trust, action_queue),
-		ScenarioCommands.new(trust, action_queue, party),
+		ScenarioCommands.new(trust, action_queue, party, addon_settings),
 		SendAllCommands.new(trust, action_queue),
 		SendCommands.new(trust, action_queue),
 		SkillchainCommands.new(trust, weapon_skill_settings, action_queue),
