@@ -7,11 +7,8 @@ This update introduces a new widget for Puppetmaster, improves
 tanking logic for Rune Fencer, and simplifies the process of
 recording and replaying paths.
 
-	• Puppetmaster
-	    • Added widget to display HP, MP, TP and actions performed
-	      by your Automaton.
-	    • Added button on widget to open the Automaton settings
-	      menu directly.
+	• Autocomplete
+	    • Added autocomplete for // trust commands.
 
 	• Rune Fencer
 	    • Added Gambits for Valiance, Vallation and Vivacious Pulse.
@@ -292,7 +289,7 @@ function load_trust_commands(job_name_short, trust, action_queue, party)
 	local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 
 	command_widget = FFXIPickerView.withItems(L{}, L{})
-	command_widget:setPosition(16, windower.get_windower_settings().ui_y_res - 232)
+	command_widget:setPosition(16, windower.get_windower_settings().ui_y_res - 233)
 	command_widget:setShouldRequestFocus(false)
 	command_widget:setUserInteractionEnabled(false)
 	command_widget:setVisible(false)
@@ -306,7 +303,10 @@ function load_trust_commands(job_name_short, trust, action_queue, party)
 			command_widget:setVisible(true)
 			command_widget:setItems(terms, L{})
 		else
-			command_widget:setVisible(false)
+			if command_widget:isVisible() then
+				command_widget:setVisible(false)
+				command_widget:setContentOffset(0, 0)
+			end
 		end
 	end)
 end
@@ -574,17 +574,6 @@ function handle_toggle_menu()
 end
 
 function handle_debug()
-	local CommandTrie = require('cylibs/ui/input/autocomplete/command_trie')
-
-	local command_trie = CommandTrie.new()
-
-	command_trie:addCommand('// trust sc auto')
-	command_trie:addCommand('// trust sc spam')
-	command_trie:addCommand('// trust sc cleave')
-	command_trie:addCommand('// trust debug')
-
-	print(command_trie:getCommands('// trust sc'))
-
 	print(num_created)
 	print('images', num_images_created)
 
