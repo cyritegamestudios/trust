@@ -3,6 +3,7 @@ local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_v
 local ConfigItem = require('ui/settings/editors/config/ConfigItem')
 local Event = require('cylibs/events/Luvent')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
+local FFXITextFieldItem = require('ui/themes/ffxi/FFXITextFieldItem')
 local FFXIToggleButtonItem = require('ui/themes/ffxi/FFXIToggleButtonItem')
 local GroupConfigItem = require('ui/settings/editors/config/GroupConfigItem')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
@@ -15,6 +16,9 @@ local SectionHeaderItem = require('cylibs/ui/collection_view/items/section_heade
 local SliderCollectionViewCell = require('cylibs/ui/collection_view/cells/slider_collection_view_cell')
 local SliderItem = require('cylibs/ui/collection_view/items/slider_item')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
+local TextFieldCollectionViewCell = require('cylibs/ui/collection_view/cells/text_field_collection_view_cell')
+local TextFieldItem = require('cylibs/ui/collection_view/items/text_field_item')
+local TextInputConfigItem = require('ui/settings/editors/config/TextInputConfigItem')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
 local ToggleButtonCollectionViewCell = require('cylibs/ui/collection_view/cells/toggle_button_collection_view_cell')
@@ -54,6 +58,12 @@ function ConfigEditor.new(trustSettings, configSettings, configItems, infoView, 
             cell:setUserInteractionEnabled(true)
             cell:setIsSelectable(true)
             cell:setItemSize(16)
+            return cell
+        elseif item.__type == TextFieldItem.__type then
+            local cell = TextFieldCollectionViewCell.new(item)
+            cell:setUserInteractionEnabled(true)
+            cell:setIsSelectable(true)
+            cell:setItemSize(32)
             return cell
         end
         return nil
@@ -195,13 +205,13 @@ end
 function ConfigEditor:getCellItemForConfigItem(configItem)
     if configItem.__type == ConfigItem.__type then
         return SliderItem.new(
-            configItem:getMinValue(),
-            configItem:getMaxValue(),
-            self.configSettings[configItem:getKey()],
-            configItem:getInterval(),
-            ImageItem.new(windower.addon_path..'assets/backgrounds/slider_track.png', 166, 16),
-            ImageItem.new(windower.addon_path..'assets/backgrounds/slider_fill.png', 166, 16),
-            configItem:getTextFormat()
+                configItem:getMinValue(),
+                configItem:getMaxValue(),
+                self.configSettings[configItem:getKey()],
+                configItem:getInterval(),
+                ImageItem.new(windower.addon_path..'assets/backgrounds/slider_track.png', 166, 16),
+                ImageItem.new(windower.addon_path..'assets/backgrounds/slider_fill.png', 166, 16),
+                configItem:getTextFormat()
         )
     elseif configItem.__type == BooleanConfigItem.__type then
         local defaultItem = FFXIToggleButtonItem.new()
@@ -209,6 +219,8 @@ function ConfigEditor:getCellItemForConfigItem(configItem)
         return defaultItem
     elseif configItem.__type == PickerConfigItem.__type then
         return PickerItem.new(configItem:getInitialValue(), configItem:getAllValues(), configItem:getTextFormat())
+    elseif configItem.__type == TextInputConfigItem.__type then
+        return FFXITextFieldItem.new(configItem:getPlaceholderText(), configItem:getValidator())
     end
     return nil
 end
@@ -247,6 +259,8 @@ function ConfigEditor:onConfirmClick(skipSave)
                     self.configSettings[configKey] = cellConfigItem:getEnabled()
                 elseif cellConfigItem.__type == PickerItem.__type then
                     self.configSettings[configKey] = cellConfigItem:getCurrentValue()
+                elseif cellConfigItem.__type == TextFieldItem.__type then
+                    self.configSettings[configKey] = cellConfigItem:getTextItem():getText()
                 end
             end
         end

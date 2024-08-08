@@ -51,6 +51,15 @@ function WidgetManager:addWidget(widget, widgetName)
     end
 end
 
+function WidgetManager:removeWidget(widgetName)
+    local widget = self:getWidget(widgetName)
+    if not widget then
+        return
+    end
+
+    widget:destroy()
+end
+
 function WidgetManager:getWidget(widgetName)
     return self.widgets[widgetName]
 end

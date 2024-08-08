@@ -1,41 +1,19 @@
 local AutomatonSettingsMenuItem = require('ui/settings/menus/attachments/AutomatonSettingsMenuItem')
-local ButtonCollectionViewCell = require('cylibs/ui/collection_view/cells/button_collection_view_cell')
-local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
-local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
 local Color = require('cylibs/ui/views/color')
-local FFXIBackgroundView = require('ui/themes/ffxi/FFXIBackgroundView')
-local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
-local Frame = require('cylibs/ui/views/frame')
-local ImageItem = require('cylibs/ui/collection_view/items/image_item')
-local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
+local DisposeBag = require('cylibs/events/dispose_bag')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
-local Keyboard = require('cylibs/ui/input/keyboard')
-local MarqueeCollectionViewCell = require('cylibs/ui/collection_view/cells/marquee_collection_view_cell')
-local Mouse = require('cylibs/ui/input/mouse')
 local Padding = require('cylibs/ui/style/padding')
-local ResizableImageItem = require('cylibs/ui/collection_view/items/resizable_image_item')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
+local Timer = require('cylibs/util/timers/timer')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 local Widget = require('ui/widgets/Widget')
 
 local AutomatonStatusWidget = setmetatable({}, {__index = Widget })
 AutomatonStatusWidget.__index = AutomatonStatusWidget
 
-AutomatonStatusWidget.Buttons = {}
-AutomatonStatusWidget.Buttons.On = ImageItem.new(
-        windower.addon_path..'assets/buttons/toggle_button_on.png',
-        windower.addon_path..'assets/buttons/toggle_button_on.png',
-        17,
-        14
-)
-AutomatonStatusWidget.Buttons.Off = ImageItem.new(
-        windower.addon_path..'assets/buttons/toggle_button_off.png',
-        23,
-        14
-)
 
 AutomatonStatusWidget.TextSmall = TextStyle.new(
         Color.clear,
@@ -44,20 +22,6 @@ AutomatonStatusWidget.TextSmall = TextStyle.new(
         9,
         Color.white,
         Color.lightGrey,
-        0,
-        0,
-        Color.clear,
-        false,
-        Color.yellow,
-        true
-)
-AutomatonStatusWidget.TextSmall2 = TextStyle.new(
-        Color.clear,
-        Color.clear,
-        "Arial",
-        9,
-        Color.new(255, 77, 186, 255),
-        Color.new(255, 65, 155, 200),
         0,
         0,
         Color.clear,
@@ -93,11 +57,19 @@ AutomatonStatusWidget.Subheadline = TextStyle.new(
         Color.red
 )
 
+AutomatonStatusWidget.hasMp = true
+
 function AutomatonStatusWidget.new(frame, addonSettings, player, trustHud, trustSettings, trustSettingsMode)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         if indexPath.section == 1 then
             local cell = TextCollectionViewCell.new(item)
-            cell:setItemSize(13)
+            local itemSize = 13
+            if indexPath.row == 2 then
+                if not AutomatonStatusWidget.hasMp then
+                    itemSize = 0
+                end
+            end
+            cell:setItemSize(itemSize)
             cell:setUserInteractionEnabled(indexPath.row == 4)
             return cell
         end
@@ -107,11 +79,18 @@ function AutomatonStatusWidget.new(frame, addonSettings, player, trustHud, trust
 
     self.addonSettings = addonSettings
     self.id = player:get_id()
+    self.actionDisposeBag = DisposeBag.new()
 
     self:getDataSource():addItem(TextItem.new("HP", AutomatonStatusWidget.TextSmall), IndexPath.new(1, 1))
     self:getDataSource():addItem(TextItem.new("MP", AutomatonStatusWidget.TextSmall), IndexPath.new(1, 2))
     self:getDataSource():addItem(TextItem.new("TP", AutomatonStatusWidget.TextSmall), IndexPath.new(1, 3))
     self:getDataSource():addItem(TextItem.new(pup_util.get_pet_mode(), AutomatonStatusWidget.TextSmall3), IndexPath.new(1, 4))
+    self:getDataSource():addItem(TextItem.new('Idle', AutomatonStatusWidget.Subheadline), IndexPath.new(1, 5))
+
+    self:getDisposeBag():add(player:on_pet_change():addAction(
+        function (_, pet_id, pet_name)
+            self:updateAutomaton(pet_id, pet_name)
+        end), player:on_pet_change())
 
     self:getDisposeBag():add(WindowerEvents.PetUpdate:addAction(function(owner_id, pet_id, pet_index, pet_name, pet_hpp, pet_mpp, pet_tp)
         if owner_id == self.id then
@@ -153,13 +132,20 @@ function AutomatonStatusWidget.new(frame, addonSettings, player, trustHud, trust
         trustHud:openMenu(AutomatonSettingsMenuItem.new(trustSettings, trustSettingsMode))
     end), self:getDelegate():didSelectItemAtIndexPath())
 
+    self:setAction('Idle')
     self:setTp(0)
+
+    if pet_util.has_pet() then
+        self:updateAutomaton(pet_util.get_pet().id, pet_util.get_pet().name)
+    end
 
     self:setVisible(false)
     self:setShouldRequestFocus(false)
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
+
+    self:getDisposeBag():addAny(L{ self.actionDisposeBag })
 
     return self
 end
@@ -184,16 +170,57 @@ function AutomatonStatusWidget:setVisible(visible)
     Widget.setVisible(self, visible)
 end
 
+function AutomatonStatusWidget:updateAutomaton(petId, petName)
+    if self.automaton then
+        self.automaton:destroy()
+        self.automaton = nil
+    end
+
+    if petId then
+        self.automaton = Automaton.new(petId, self.action_queue)
+        self.automaton:monitor()
+
+        self:getDisposeBag():add(self.automaton:on_job_ability_finish():addAction(function(_, abilityName)
+            self.actionDisposeBag:destroy()
+
+            self:setAction(abilityName)
+
+            self.actionTimer = Timer.scheduledTimer(3, 3)
+
+            self.actionDisposeBag:add(self.actionTimer:onTimeChange():addAction(function(_)
+                self:setAction('Idle')
+            end), self.actionTimer:onTimeChange())
+
+            self.actionTimer:start()
+
+            self.actionDisposeBag:addAny(L{ self.actionTimer })
+        end), self.automaton:on_job_ability_finish())
+    end
+end
+
 function AutomatonStatusWidget:setHp(hp, maxHp)
-    self:getDataSource():updateItem(TextItem.new("HP  "..hp.."/"..maxHp, AutomatonStatusWidget.TextSmall), IndexPath.new(1, 1))
+    self:getDataSource():updateItem(TextItem.new("HP  "..hp.." / "..maxHp, AutomatonStatusWidget.TextSmall), IndexPath.new(1, 1))
 end
 
 function AutomatonStatusWidget:setMp(mp, maxMp)
-    self:getDataSource():updateItem(TextItem.new("MP  "..mp.."/"..maxMp, AutomatonStatusWidget.TextSmall), IndexPath.new(1, 2))
+    --AutomatonStatusWidget.hasMp = maxMp and maxMp > 0
+    if AutomatonStatusWidget.hasMp then
+        self:getDataSource():updateItem(TextItem.new("MP  "..mp.." / "..maxMp, AutomatonStatusWidget.TextSmall), IndexPath.new(1, 2))
+    else
+        self:getDataSource():updateItem(TextItem.new("", AutomatonStatusWidget.TextSmall), IndexPath.new(1, 2))
+    end
+    self:setSize(self:getSize().width, self:getContentSize().height)
+
+    self:setNeedsLayout()
+    self:layoutIfNeeded()
 end
 
 function AutomatonStatusWidget:setTp(tp)
     self:getDataSource():updateItem(TextItem.new("TP  "..tp, AutomatonStatusWidget.TextSmall), IndexPath.new(1, 3))
+end
+
+function AutomatonStatusWidget:setAction(abilityName)
+    self:getDataSource():updateItem(TextItem.new(abilityName, AutomatonStatusWidget.Subheadline), IndexPath.new(1, 5))
 end
 
 return AutomatonStatusWidget

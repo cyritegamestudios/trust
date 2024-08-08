@@ -6,7 +6,6 @@ return {
         ["autoraisemode"]="Off",
         ["autobuffmode"]="Off",
         ["autodebuffmode"]="Off",
-        ["autofacemobmode"]="Off",
         ["autosilencemode"]="Off",
         ["autopullmode"]="Off",
         ["autohealmode"]="Emergency",

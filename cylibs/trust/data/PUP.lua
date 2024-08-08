@@ -34,6 +34,7 @@ function PuppetmasterTrust.new(settings, action_queue, battle_settings, trust_se
 	self.action_queue = action_queue
 	self.maneuver_last_used = os.time()
 	self.economizer_last_used = os.time()
+	self.target_change_time = os.time()
 	self.dispose_bag = DisposeBag.new()
 
 	local mode_names = T(T(trust_settings.AutomatonSettings.ManeuverSettings.Default):keyset()):map(function(m)

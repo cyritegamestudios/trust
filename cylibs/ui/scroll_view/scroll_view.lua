@@ -43,24 +43,11 @@ function ScrollView:createScrollBars()
 
     for scrollBar in self.scrollBars:it() do
         self:getDisposeBag():add(scrollBar:onScrollBackClick():addAction(function(s)
-            local newContentOffset = Frame.new(self:getContentOffset().x, self:getContentOffset().y, 0, 0)
-            if s == self.horizontalScrollBar then
-                newContentOffset.x = math.min(self:getContentOffset().x + self:getScrollDelta(), 0)
-            else
-                newContentOffset.y = math.min(self:getContentOffset().y + self:getScrollDelta(), 8)
-            end
-            self:setContentOffset(newContentOffset.x, newContentOffset.y)
+            self:scrollBack(s)
         end), scrollBar:onScrollBackClick())
 
         self:getDisposeBag():add(scrollBar:onScrollForwardClick():addAction(function(s)
-            local newContentOffset = Frame.new(self:getContentOffset().x, self:getContentOffset().y, 0, 0)
-            if s == self.horizontalScrollBar then
-                newContentOffset.x = math.max(self:getContentOffset().x - self:getScrollDelta(), -self:getContentSize().width / 2)
-            else
-                local minY = -(self:getContentSize().height + self:getPadding().bottom - self:getSize().height)
-                newContentOffset.y = math.max(self:getContentOffset().y - self:getScrollDelta(), minY)
-            end
-            self:setContentOffset(newContentOffset.x, newContentOffset.y)
+            self:scrollForward(s)
         end), scrollBar:onScrollForwardClick())
 
         self:getDisposeBag():add(Mouse.input():onMouseWheel():addAction(function(type, x, y, delta, blocked)
@@ -86,6 +73,27 @@ function ScrollView:createScrollBars()
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
+end
+
+function ScrollView:scrollForward(scrollBar)
+    local newContentOffset = Frame.new(self:getContentOffset().x, self:getContentOffset().y, 0, 0)
+    if scrollBar == self.horizontalScrollBar then
+        newContentOffset.x = math.max(self:getContentOffset().x - self:getScrollDelta(), -self:getContentSize().width / 2)
+    else
+        local minY = -(self:getContentSize().height + self:getPadding().bottom - self:getSize().height)
+        newContentOffset.y = math.max(self:getContentOffset().y - self:getScrollDelta(), minY)
+    end
+    self:setContentOffset(newContentOffset.x, newContentOffset.y)
+end
+
+function ScrollView:scrollBack(scrollBar)
+    local newContentOffset = Frame.new(self:getContentOffset().x, self:getContentOffset().y, 0, 0)
+    if scrollBar == self.horizontalScrollBar then
+        newContentOffset.x = math.min(self:getContentOffset().x + self:getScrollDelta(), 0)
+    else
+        newContentOffset.y = math.min(self:getContentOffset().y + self:getScrollDelta(), 8)
+    end
+    self:setContentOffset(newContentOffset.x, newContentOffset.y)
 end
 
 ---

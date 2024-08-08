@@ -3,9 +3,10 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local TrustScenarios = {}
 TrustScenarios.__index = TrustScenarios
 
-function TrustScenarios.new(action_queue, party, trust)
+function TrustScenarios.new(action_queue, addon_settings, party, trust)
     local self = setmetatable({
         action_queue = action_queue;
+        addon_settings = addon_settings;
         party = party;
         trust = trust;
         scenarios = L{};
@@ -60,6 +61,11 @@ function TrustScenarios:add_scenario(name)
         elseif name == 'research' then
             local Research = require('scenarios/data/research/research')
             local scenario = Research.new(self.action_queue, self.party, self.trust)
+            self.scenarios:append(scenario)
+            self:start_scenario(scenario)
+        elseif name == 'nyzul' then
+            local Nyzul = require('scenarios/data/nyzul/nyzul')
+            local scenario = Nyzul.new(self.action_queue, self.addon_settings, self.party, self.trust, hud.widgetManager)
             self.scenarios:append(scenario)
             self:start_scenario(scenario)
         end

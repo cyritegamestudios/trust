@@ -1,4 +1,5 @@
 local DisposeBag = require('cylibs/events/dispose_bag')
+local Event = require('cylibs/events/Luvent')
 local FileIO = require('files')
 local Path = require('cylibs/paths/path')
 local serializer_util = require('cylibs/util/serializer_util')
@@ -8,6 +9,16 @@ local PathRecorder = {}
 PathRecorder.__index = PathRecorder
 PathRecorder.__class = "PathRecorder"
 
+-- Event called when path recording starts.
+function PathRecorder:on_path_record_start()
+    return self.path_record_start
+end
+
+-- Event called when path recording stops
+function PathRecorder:on_path_record_stop()
+    return self.path_record_stop
+end
+
 function PathRecorder.new(output_folder, mob_id)
     local self = setmetatable({}, PathRecorder)
 
@@ -15,12 +26,17 @@ function PathRecorder.new(output_folder, mob_id)
     self.mob_id = mob_id or windower.ffxi.get_player().id
     self.recording = false
     self.actions = L{}
+    self.path_record_start = Event.newEvent()
+    self.path_record_stop = Event.newEvent()
     self.dispose_bag = DisposeBag.new()
 
     return self
 end
 
 function PathRecorder:destroy()
+    self.path_record_start:removeAllActions()
+    self.path_record_stop:removeAllActions()
+
     self.dispose_bag:destroy()
 end
 
@@ -33,6 +49,8 @@ function PathRecorder:start_recording()
         return
     end
     self.recording = true
+
+    self:on_path_record_start():trigger(self)
 
     self.dispose_bag:add(WindowerEvents.PositionChanged:addAction(function(mob_id, x, y, z)
         if mob_id == self.mob_id then
@@ -48,6 +66,8 @@ function PathRecorder:stop_recording(path_name, discard)
         return nil
     end
     self.recording = false
+
+    self:on_path_record_stop():trigger(self, path_name, discard)
 
     if discard then
         self:clear()

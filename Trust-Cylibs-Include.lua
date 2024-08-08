@@ -75,6 +75,7 @@ ReadyAbilityCondition = require('cylibs/conditions/ready_ability')
 SkillchainPropertyCondition = require('cylibs/conditions/skillchain_property')
 SpellRecastReadyCondition = require('cylibs/conditions/spell_recast_ready')
 StrategemCountCondition = require('cylibs/conditions/strategem_count')
+TargetNameCondition = require('cylibs/conditions/target_name')
 ValidTargetCondition = require('cylibs/conditions/valid_target')
 ZoneCondition = require('cylibs/conditions/zone')
 

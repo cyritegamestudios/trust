@@ -85,7 +85,6 @@ function BufferSettingsMenuItem:getJobAbilitiesMenuItem()
         ButtonItem.default('Conditions', 18),
     }, {
         Add = chooseJobAbilitiesItem,
-        Conditions = ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, L{}),
     },
         function(_, infoView)
             local jobAbilitiesSettingsView = JobAbilitiesSettingsEditor.new(self.trustSettings, self.trustSettingsMode, self.settingsPrefix)
@@ -105,6 +104,9 @@ function BufferSettingsMenuItem:getJobAbilitiesMenuItem()
             end, jobAbilitiesSettingsView:getDelegate():didMoveCursorToItemAtIndexPath()))
             return jobAbilitiesSettingsView
         end, "Job Abilities", "Choose job ability buffs.")
+
+    jobAbilitiesSettingsItem:setChildMenuItem("Conditions", ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode))
+
     return jobAbilitiesSettingsItem
 end
 

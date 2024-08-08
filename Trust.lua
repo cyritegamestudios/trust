@@ -1,40 +1,29 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '10.2.2'
+_addon.version = '10.3.0'
 _addon.release_notes = [[
-This update introduces significant improvements to Bard and Dancer,
-adds elemental resistances to the target widget, new conditions,
-menu keyboard shortcuts and more!
+This update introduces a new widget for Puppetmaster, improves
+tanking logic for Rune Fencer, and simplifies the process of
+recording and replaying paths.
 
-	• Bard
-	    • Singing speed has been significantly improved (37s → 23s
-	      for default nitro + pianissimo songs).
-	    • Time spent singing on Alter Egos has been reduced.
+	• Puppetmaster
+	    • Added widget to display HP, MP, TP and actions performed
+	      by your Automaton.
+	    • Added button on widget to open the Automaton settings
+	      menu directly.
 
-	• Dancer
-	    • Added step tracking for Quick Step, Box Step and Stutter Step.
-	    • Added ability to apply a specific level daze to an enemy
-	      using Gambits (see "Has daze" condition).
+	• Rune Fencer
+	    • Added Gambits for Valiance, Vallation and Vivacious Pulse.
 
-	• Target Widget
-	    • Elemental resistances are now shown for select enemies.
-	    • Visibility can be configured under Config > Widgets > Target
-	      by toggling "Show Detailed View" and selecting "Save".
-
-	• Menu Shortcuts
-	    • Keyboard shortcuts have been added to directly navigate to
-	      the Modes (Shift + M), Skillchains (Shift + S) and
-	      Gambits (Shift + G) menus.
-	    • To enable keyboard shortcuts, select "Shortcuts" on the
-	      respective menu, set "Keyboard Shortcut" to "On" and
-	      select "Save".
+	• UI
+	    • Added path widget for recording and replaying paths.
 
 	• Bug Fixes
-	    • Fixed issue where song editor would incorrectly override
-	      the Default set.
-	    • Fixed issue where `CombatMode` `Mirror` would not mirror
-	      movements until the target was claimed.
+	    • Fixed issue where self targeting weaponskills would sometimes
+	      target enemies.
+	    • Fixed issue where Bard and Corsair would not face the enemy
+	      while singing and rolling.
 
 
 	• Press escape or enter to exit.
@@ -285,7 +274,7 @@ function load_trust_commands(job_name_short, trust, action_queue, party)
 		LoggingCommands.new(trust, action_queue),
 		PathCommands.new(trust, action_queue),
 		PullCommands.new(trust, action_queue),
-		ScenarioCommands.new(trust, action_queue, party),
+		ScenarioCommands.new(trust, action_queue, party, addon_settings),
 		SendAllCommands.new(trust, action_queue),
 		SendCommands.new(trust, action_queue),
 		SkillchainCommands.new(trust, weapon_skill_settings, action_queue),
@@ -416,7 +405,7 @@ function check_version()
 
 		local Frame = require('cylibs/ui/views/frame')
 
-		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 625))
+		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 600))
 
 		updateView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
 			updateView:getDelegate():deselectItemAtIndexPath(indexPath)

@@ -5,14 +5,16 @@ local ScenarioTrustCommands = setmetatable({}, {__index = TrustCommands })
 ScenarioTrustCommands.__index = ScenarioTrustCommands
 ScenarioTrustCommands.__class = "ScenarioTrustCommands"
 
-function ScenarioTrustCommands.new(trust, action_queue, party)
+function ScenarioTrustCommands.new(trust, action_queue, party, addon_settings)
     local self = setmetatable(TrustCommands.new(), ScenarioTrustCommands)
 
     self.trust = trust
     self.action_queue = action_queue
-    self.scenarios = TrustScenarios.new(action_queue, party, trust)
+    self.addon_settings = addon_settings
+    self.scenarios = TrustScenarios.new(action_queue, addon_settings, party, trust)
 
     self:add_command('start', self.handle_start_scenario, 'Start a scenario')
+    self:add_command('restart', self.handle_restart_scenario, 'Restart a scenario')
     self:add_command('stop', self.handle_stop_scenario, 'Stop an active scenario')
 
     return self
@@ -39,6 +41,14 @@ function ScenarioTrustCommands:handle_start_scenario(_, scenario_name)
         success = false
         message = 'Scenario '..scenario_name..' is already active'
     end
+
+    return success, message
+end
+
+-- // trust scenario restart scenario_name
+function ScenarioTrustCommands:handle_restart_scenario(_, scenario_name)
+    local success, message = self:handle_stop_scenario(_, scenario_name)
+    success, message = self:handle_start_scenario(_, scenario_name)
 
     return success, message
 end
