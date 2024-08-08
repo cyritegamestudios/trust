@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '10.3.1'
+_addon.version = '10.4.0'
 _addon.release_notes = [[
 This update introduces a new widget for Puppetmaster, improves
 tanking logic for Rune Fencer, and simplifies the process of
@@ -288,6 +288,27 @@ function load_trust_commands(job_name_short, trust, action_queue, party)
 	for command in common_commands:it() do
 		add_command(command)
 	end
+
+	local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+
+	command_widget = FFXIPickerView.withItems(L{}, L{})
+	command_widget:setPosition(16, windower.get_windower_settings().ui_y_res - 232)
+	command_widget:setShouldRequestFocus(false)
+	command_widget:setUserInteractionEnabled(false)
+	command_widget:setVisible(false)
+
+	local ChatAutoCompleter = require('cylibs/ui/input/autocomplete/chat_auto_completer')
+
+	chat_auto_completer = ChatAutoCompleter.new(common_commands)
+	chat_auto_completer:onAutoCompleteListChange():addAction(function(_, terms)
+		command_widget:getDataSource():removeAllItems()
+		if terms:length() > 0 then
+			command_widget:setVisible(true)
+			command_widget:setItems(terms, L{})
+		else
+			command_widget:setVisible(false)
+		end
+	end)
 end
 
 function get_job_commands(job_name_short, trust, action_queue)
@@ -553,6 +574,17 @@ function handle_toggle_menu()
 end
 
 function handle_debug()
+	local CommandTrie = require('cylibs/ui/input/autocomplete/command_trie')
+
+	local command_trie = CommandTrie.new()
+
+	command_trie:addCommand('// trust sc auto')
+	command_trie:addCommand('// trust sc spam')
+	command_trie:addCommand('// trust sc cleave')
+	command_trie:addCommand('// trust debug')
+
+	print(command_trie:getCommands('// trust sc'))
+
 	print(num_created)
 	print('images', num_images_created)
 
