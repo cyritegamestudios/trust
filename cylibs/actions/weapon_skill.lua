@@ -18,6 +18,7 @@ function WeaponSkillAction.new(weapon_skill_name, target_index)
 
 	if res.weapon_skills:with('en', weapon_skill_name).targets:contains('Self') then
 		target_index = windower.ffxi.get_player().index
+		self.target_index = target_index
 	end
 
 	if target_index ~= windower.ffxi.get_player().index then
