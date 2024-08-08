@@ -16,6 +16,10 @@ function WeaponSkillAction.new(weapon_skill_name, target_index)
 
 	self.weapon_skill_name = weapon_skill_name
 
+	if res.weapon_skills:with('en', weapon_skill_name).targets:contains('Self') then
+		target_index = windower.ffxi.get_player().index
+	end
+
 	if target_index ~= windower.ffxi.get_player().index then
 		self:add_condition(MaxDistanceCondition.new(battle_util.get_weapon_skill_distance(weapon_skill_name, target_index), target_index))
 	end
