@@ -31,7 +31,7 @@ function SongSettingsMenuItem.new(addonSettings, trustSettings, trustSettingsMod
     self.addonSettings = addonSettings
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
-    self.songSettings = T(trustSettings:getSettings())[trustSettingsMode.value]
+    self.songSettings = T(trustSettings:getSettings())[trustSettingsMode.value].SongSettings
     self.songValidator = SongValidator.new(trust:role_with_type("singer"), action_queue)
     self.dispose_bag = DisposeBag.new()
 
@@ -64,7 +64,7 @@ function SongSettingsMenuItem:getEditMenuItem()
         ButtonItem.default('Confirm', 18),
     }, {},
     function(args)
-        local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].Songs
+        local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.Songs
 
         local allSongs = spell_util.get_spells(function(spell)
             return spell.type == 'BardSong' and S{'Self'}:intersection(S(spell.targets)):length() > 0
@@ -82,7 +82,7 @@ function SongSettingsMenuItem:getEditMenuItem()
         ButtonItem.default('Confirm', 18),
     }, {},
     function(args)
-        local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].DummySongs
+        local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.DummySongs
 
         local allSongs = spell_util.get_spells(function(spell)
             return spell.type == 'BardSong' and S{'Self'}:intersection(S(spell.targets)):length() > 0
@@ -115,9 +115,9 @@ function SongSettingsMenuItem:getConfigMenuItem()
                 local allSettings = T(self.trustSettings:getSettings())[self.trustSettingsMode.value]
 
                 local songSettings = T{
-                    NumSongs = allSettings.NumSongs,
-                    SongDuration = allSettings.SongDuration,
-                    SongDelay = allSettings.SongDelay
+                    NumSongs = allSettings.SongSettings.NumSongs,
+                    SongDuration = allSettings.SongSettings.SongDuration,
+                    SongDelay = allSettings.SongSettings.SongDelay
                 }
 
                 local configItems = L{
@@ -132,9 +132,9 @@ function SongSettingsMenuItem:getConfigMenuItem()
                 songConfigEditor:setShouldRequestFocus(true)
 
                 self.dispose_bag:add(songConfigEditor:onConfigChanged():addAction(function(newSettings, _)
-                    allSettings.NumSongs = newSettings.NumSongs
-                    allSettings.SongDuration = newSettings.SongDuration
-                    allSettings.SongDelay = newSettings.SongDelay
+                    allSettings.SongSettings.NumSongs = newSettings.NumSongs
+                    allSettings.SongSettings.SongDuration = newSettings.SongDuration
+                    allSettings.SongSettings.SongDelay = newSettings.SongDelay
 
                     self.trustSettings:saveSettings(true)
                 end), songConfigEditor:onConfigChanged())

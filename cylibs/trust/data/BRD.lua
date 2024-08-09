@@ -35,7 +35,7 @@ function BardTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = Bard.new(trust_settings)
 	local roles = S{
 		Debuffer.new(action_queue, trust_settings.Debuffs),
-		Singer.new(action_queue, trust_settings.DummySongs, trust_settings.Songs, trust_settings.PartyBuffs, job, state.AutoSongMode, ActionPriority.medium),
+		Singer.new(action_queue, trust_settings.SongSettings.DummySongs, trust_settings.SongSettings.Songs, trust_settings.SongSettings.PianissimoSongs, job, state.AutoSongMode, ActionPriority.medium),
 		Dispeler.new(action_queue, L{ Spell.new('Magic Finale') }, L{}, true),
 		Puller.new(action_queue, battle_settings.targets, L{ Spell.new('Carnage Elegy') }),
 		Sleeper.new(action_queue, L{ Spell.new('Horde Lullaby'), Spell.new('Horde Lullaby II') }, 4)
@@ -70,9 +70,9 @@ function BardTrust:on_init()
 
 		local singer = self:role_with_type("singer")
 
-		singer:set_dummy_songs(new_trust_settings.DummySongs)
-		singer:set_songs(new_trust_settings.Songs)
-		singer:set_pianissimo_songs(new_trust_settings.PartyBuffs)
+		singer:set_dummy_songs(new_trust_settings.SongSettings.DummySongs)
+		singer:set_songs(new_trust_settings.SongSettings.Songs)
+		singer:set_pianissimo_songs(new_trust_settings.SongSettings.PianissimoSongs)
 
 		local debuffer = self:role_with_type("debuffer")
 		debuffer:set_debuff_spells(new_trust_settings.Debuffs)

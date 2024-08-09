@@ -111,7 +111,7 @@ function load_user_files(main_job_id, sub_job_id)
 	main_trust_settings:onSettingsChanged():addAction(function(newSettings)
 		local oldValue = state.MainTrustSettingsMode.value
 		player.trust.main_job_settings = newSettings
-		local mode_names = list.subtract(L(T(newSettings):keyset()), L{'Version'})
+		local mode_names = list.subtract(L(T(newSettings):keyset()), L{'Migrations','Version'})
 		if not mode_names:equals(state.MainTrustSettingsMode:options()) then
 			state.MainTrustSettingsMode:options(T(mode_names):unpack())
 		end
@@ -128,7 +128,7 @@ function load_user_files(main_job_id, sub_job_id)
 	sub_trust_settings:onSettingsChanged():addAction(function(newSettings)
 		local oldValue = state.SubTrustSettingsMode.value
 		player.trust.sub_job_settings = newSettings
-		local mode_names = list.subtract(L(T(newSettings):keyset()), L{'Version'})
+		local mode_names = list.subtract(L(T(newSettings):keyset()), L{'Migrations','Version'})
 		if not mode_names:equals(state.SubTrustSettingsMode:options()) then
 			state.SubTrustSettingsMode:options(T(mode_names):unpack())
 		end
@@ -145,7 +145,7 @@ function load_user_files(main_job_id, sub_job_id)
 	weapon_skill_settings:onSettingsChanged():addAction(function(newSettings)
 		local oldValue = state.WeaponSkillSettingsMode.value
 		player.trust.weapon_skill_settings = newSettings
-		local mode_names = list.subtract(L(T(newSettings):keyset()), L{'Version'})
+		local mode_names = list.subtract(L(T(newSettings):keyset()), L{'Migrations','Version'})
 		state.WeaponSkillSettingsMode:options(T(mode_names):unpack())
 		if mode_names:contains(oldValue) then
 			state.WeaponSkillSettingsMode:set(oldValue)
@@ -158,6 +158,11 @@ function load_user_files(main_job_id, sub_job_id)
 	player.trust.main_job_settings = main_trust_settings:loadSettings()
 	player.trust.sub_job_settings = sub_trust_settings:loadSettings()
 	player.trust.weapon_skill_settings = weapon_skill_settings:loadSettings(true)
+
+	local MigrationManager = require('settings/migrations/migration_manager')
+
+	migration_manager = MigrationManager.new(main_trust_settings, addon_settings, weapon_skill_settings)
+	migration_manager:perform()
 
 	state.MainTrustSettingsMode:on_state_change():addAction(function(_, new_value)
 		player.trust.main_job:set_trust_settings(player.trust.main_job_settings[new_value])

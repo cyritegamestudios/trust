@@ -183,8 +183,8 @@ function SongSettingsEditor:reloadSettings()
 
     local items = L{}
 
-    self.dummySongs = L(T(self.trustSettings:getSettings())[self.settingsMode.value].DummySongs)
-    self.songs = L(T(self.trustSettings:getSettings())[self.settingsMode.value].Songs)
+    self.dummySongs = L(T(self.trustSettings:getSettings())[self.settingsMode.value].SongSettings.DummySongs)
+    self.songs = L(T(self.trustSettings:getSettings())[self.settingsMode.value].SongSettings.Songs)
 
     local dummySongsSectionHeaderItem = SectionHeaderItem.new(
         TextItem.new("Dummy Songs", TextStyle.Default.SectionHeader),
