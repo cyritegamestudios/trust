@@ -473,6 +473,10 @@ end
 
 -- Handlers
 
+function handle_stop()
+	addon_enabled:setValue(false)
+end
+
 function handle_tic(old_time, new_time)
 	if not trust or not windower.ffxi.get_player() or not addon_enabled:getValue() or not player or not player.trust then return end
 
