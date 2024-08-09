@@ -53,6 +53,27 @@ function TrustCommands:description()
     return result
 end
 
+function TrustCommands:get_description(command_name)
+    for name, command in pairs(self.commands) do
+        if name == command_name then
+            return command.description
+        end
+    end
+    return ""
+end
+
+function TrustCommands:get_all_commands()
+    local result = L{}
+    for command_name, command in pairs(self.commands) do
+        if command_name == 'default' then
+            result:append('// trust '..self:get_command_name())
+        else
+            result:append('// trust '..self:get_command_name()..' '..command_name)
+        end
+    end
+    return result
+end
+
 return TrustCommands
 
 

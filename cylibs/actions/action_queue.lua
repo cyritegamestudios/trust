@@ -17,12 +17,8 @@ ActionQueue.__index = ActionQueue
 
 ActionQueue.Mode = {}
 ActionQueue.Mode.Default = "default"
-ActionQueue.Mode.Batch = "batch"
 
 ActionQueue.empty = Event.newEvent()
-
-state.ActionBatchingMode = M{['description'] = 'Actions Batching Mode', 'Off', 'Auto'}
-state.ActionBatchingMode:set_description('Auto', "Okay, I'll think about my decisions more carefully.")
 
 -- Event called when an action starts.
 function ActionQueue:on_action_start()
@@ -52,7 +48,6 @@ function ActionQueue.new(completion, is_priority_queue, max_size, debugging_enab
 	self.verbose = verbose
 	self.identifier = os.time()
 	self.mode = ActionQueue.Mode.Default
-	self.batch_actions = L{}
 	self.action_start = Event.newEvent()
 	self.action_end = Event.newEvent()
 	self.action_queued = Event.newEvent()
@@ -130,11 +125,6 @@ function ActionQueue:push_action(action, check_duplicates)
 		return
 	end
 
-	if self.mode == ActionQueue.Mode.Batch then
-		self.batch_actions:append(action)
-		return
-	end
-
 	self.queue:push(action)
 
 	if self.is_priority_queue and self.queue:length() > 1 then
@@ -170,12 +160,6 @@ function ActionQueue:push_actions(actions, check_duplicates)
 	end
 
 	if actions:length() == 0 then
-		return
-	end
-	if self.mode == ActionQueue.Mode.Batch then
-		for action in actions:it() do
-			self.batch_actions:append(action)
-		end
 		return
 	end
 
@@ -281,32 +265,23 @@ end
 --
 -- This function allows you to set the operating mode for the ActionQueue.
 --
--- @tparam ActionQueue.Mode mode The mode to set. Should be one of ActionQueue.Mode.Default or ActionQueue.Mode.Batch.
+-- @tparam ActionQueue.Mode mode The mode to set. Should be ActionQueue.Mode.Default.
 -- @see ActionQueue.Mode
 --
 function ActionQueue:set_mode(mode)
-	if state.ActionBatchingMode.value == 'Off' then
-		return
-	end
-	if not L{ ActionQueue.Mode.Default, ActionQueue.Mode.Batch }:contains(mode) then
+	if not L{ ActionQueue.Mode.Default }:contains(mode) then
 		mode = ActionQueue.Mode.default
 	end
 	if self.mode == mode then
 		return
 	end
-	if self.mode == ActionQueue.Mode.Batch then
-		self.mode = mode
-		self:push_actions(self.batch_actions, true)
-		self.batch_actions = L{}
-	else
-		self.mode = mode
-	end
+	self.mode = mode
 end
 
 ---
 -- Gets the current operating mode of the ActionQueue object.
 --
--- @treturn ActionQueue.Mode Returns the current mode, which can be ActionQueue.Mode.Default or ActionQueue.Mode.Batch.
+-- @treturn ActionQueue.Mode Returns the current mode, which can be ActionQueue.Mode.Default.
 -- @see ActionQueue.Mode
 --
 function ActionQueue:get_mode()

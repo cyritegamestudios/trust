@@ -22,9 +22,9 @@ local all_song_buff_ids = L{
 -- @treturn BRD A Bard
 function Bard.new(trust_settings)
     local self = setmetatable(Job.new(), Bard)
-    self.max_num_songs = trust_settings.NumSongs or 4
-    self.song_duration = trust_settings.SongDuration or 240
-    self.song_delay = trust_settings.SongDelay or 6
+    self.max_num_songs = trust_settings.SongSettings.NumSongs or 4
+    self.song_duration = trust_settings.SongSettings.SongDuration or 240
+    self.song_delay = trust_settings.SongSettings.SongDelay or 6
     return self
 end
 

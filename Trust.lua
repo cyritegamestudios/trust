@@ -1,29 +1,22 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '10.3.1'
+_addon.version = '10.4.0'
 _addon.release_notes = [[
-This update introduces a new widget for Puppetmaster, improves
-tanking logic for Rune Fencer, and simplifies the process of
-recording and replaying paths.
+This update introduces new menus for Bard and autocomplete for
+Trust commands.
 
-	• Puppetmaster
-	    • Added widget to display HP, MP, TP and actions performed
-	      by your Automaton.
-	    • Added button on widget to open the Automaton settings
-	      menu directly.
+	• Autocomplete
+	    • Added autocomplete for // trust commands.
 
-	• Rune Fencer
-	    • Added Gambits for Valiance, Vallation and Vivacious Pulse.
-
-	• UI
-	    • Added path widget for recording and replaying paths.
+	• Bard
+	    • Added menu to customize Pianissimo songs under
+	      Settings > Songs > Edit > Pianissimo.
+	    • Added menu to select ally jobs.
 
 	• Bug Fixes
-	    • Fixed issue where self targeting weaponskills would sometimes
-	      target enemies.
-	    • Fixed issue where Bard and Corsair would not face the enemy
-	      while singing and rolling.
+	    • Fixed issue where Marcato would be used when Soul Voice
+	      was active.
 
 
 	• Press escape or enter to exit.
@@ -114,7 +107,7 @@ function load_user_files(main_job_id, sub_job_id)
 	main_trust_settings:onSettingsChanged():addAction(function(newSettings)
 		local oldValue = state.MainTrustSettingsMode.value
 		player.trust.main_job_settings = newSettings
-		local mode_names = list.subtract(L(T(newSettings):keyset()), L{'Version'})
+		local mode_names = list.subtract(L(T(newSettings):keyset()), L{'Migrations','Version'})
 		if not mode_names:equals(state.MainTrustSettingsMode:options()) then
 			state.MainTrustSettingsMode:options(T(mode_names):unpack())
 		end
@@ -131,7 +124,7 @@ function load_user_files(main_job_id, sub_job_id)
 	sub_trust_settings:onSettingsChanged():addAction(function(newSettings)
 		local oldValue = state.SubTrustSettingsMode.value
 		player.trust.sub_job_settings = newSettings
-		local mode_names = list.subtract(L(T(newSettings):keyset()), L{'Version'})
+		local mode_names = list.subtract(L(T(newSettings):keyset()), L{'Migrations','Version'})
 		if not mode_names:equals(state.SubTrustSettingsMode:options()) then
 			state.SubTrustSettingsMode:options(T(mode_names):unpack())
 		end
@@ -148,7 +141,7 @@ function load_user_files(main_job_id, sub_job_id)
 	weapon_skill_settings:onSettingsChanged():addAction(function(newSettings)
 		local oldValue = state.WeaponSkillSettingsMode.value
 		player.trust.weapon_skill_settings = newSettings
-		local mode_names = list.subtract(L(T(newSettings):keyset()), L{'Version'})
+		local mode_names = list.subtract(L(T(newSettings):keyset()), L{'Migrations','Version'})
 		state.WeaponSkillSettingsMode:options(T(mode_names):unpack())
 		if mode_names:contains(oldValue) then
 			state.WeaponSkillSettingsMode:set(oldValue)
@@ -161,6 +154,11 @@ function load_user_files(main_job_id, sub_job_id)
 	player.trust.main_job_settings = main_trust_settings:loadSettings()
 	player.trust.sub_job_settings = sub_trust_settings:loadSettings()
 	player.trust.weapon_skill_settings = weapon_skill_settings:loadSettings(true)
+
+	local MigrationManager = require('settings/migrations/migration_manager')
+
+	migration_manager = MigrationManager.new(main_trust_settings, addon_settings, weapon_skill_settings)
+	migration_manager:perform()
 
 	state.MainTrustSettingsMode:on_state_change():addAction(function(_, new_value)
 		player.trust.main_job:set_trust_settings(player.trust.main_job_settings[new_value])
@@ -203,7 +201,6 @@ function load_user_files(main_job_id, sub_job_id)
 	default_trust_name = string.gsub(string.lower(player.main_job_name), "%s+", "")
 
 	load_trust_modes(player.main_job_name_short)
-	load_trust_reactions(player.main_job_name_short)
 	load_ui()
 	load_trust_commands(player.main_job_name_short, player.trust.main_job, action_queue, player.party)
 
@@ -212,9 +209,9 @@ function load_user_files(main_job_id, sub_job_id)
 	weapon_skill_settings:copySettings()
 
 	if state.AutoEnableMode.value == 'Auto' then
-		handle_start()
+		addon_enabled:setValue(true)
 	else
-		handle_stop()
+		addon_enabled:setValue(false)
 	end
 
 	check_version()
@@ -261,17 +258,14 @@ function load_trust_modes(job_name_short)
 	player.trust.trust_name = job_name_short
 end
 
-function load_trust_reactions(job_name_short)
-	--trust_reactions = TrustReactions.new(job_name_short)
-	--trust_reactions:loadReactions()
-end
-
 function load_trust_commands(job_name_short, trust, action_queue, party)
 	local common_commands = L{
 		AssistCommands.new(trust, action_queue),
 		AttackCommands.new(trust, action_queue),
 		FollowCommands.new(trust, action_queue),
+		GeneralCommands.new(trust, action_queue, addon_enabled, trust_mode_settings, main_trust_settings, sub_trust_settings),
 		LoggingCommands.new(trust, action_queue),
+		MenuCommands.new(trust, action_queue, hud),
 		PathCommands.new(trust, action_queue),
 		PullCommands.new(trust, action_queue),
 		ScenarioCommands.new(trust, action_queue, party, addon_settings),
@@ -288,6 +282,46 @@ function load_trust_commands(job_name_short, trust, action_queue, party)
 	for command in common_commands:it() do
 		add_command(command)
 	end
+
+	local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+
+	command_widget = FFXIPickerView.withItems(L{}, L{})
+	command_widget:setPosition(16, windower.get_windower_settings().ui_y_res - 233)
+	command_widget:setShouldRequestFocus(false)
+	command_widget:setUserInteractionEnabled(false)
+	command_widget:setVisible(false)
+
+	local ChatAutoCompleter = require('cylibs/ui/input/autocomplete/chat_auto_completer')
+
+	chat_auto_completer = ChatAutoCompleter.new(common_commands)
+	chat_auto_completer:onAutoCompleteListChange():addAction(function(_, terms)
+		command_widget:getDataSource():removeAllItems()
+		if not addon_settings:getSettings().autocomplete.visible then
+			return
+		end
+		if terms:length() > 0 then
+			command_widget:setVisible(true)
+			command_widget:setItems(terms, L{})
+			local description
+			if terms:length() == 1 then
+				hud.infoBar:setTitle("Commands")
+				local args = string.split(terms[1], " ")
+				if args[3] and args[4] and shortcuts[args[3]] then
+					description = shortcuts[args[3]]:get_description(args[4])
+				end
+			end
+			hud.infoBar:setDescription(description or '')
+			hud.infoBar:setVisible(description ~= nil)
+			hud.infoBar:layoutIfNeeded()
+		else
+			if command_widget:isVisible() then
+				command_widget:setVisible(false)
+				command_widget:setContentOffset(0, 0)
+				hud.infoBar:setVisible(false)
+				hud.infoBar:layoutIfNeeded()
+			end
+		end
+	end)
 end
 
 function get_job_commands(job_name_short, trust, action_queue)
@@ -405,7 +439,7 @@ function check_version()
 
 		local Frame = require('cylibs/ui/views/frame')
 
-		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 600))
+		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 400))
 
 		updateView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
 			updateView:getDelegate():deselectItemAtIndexPath(indexPath)
@@ -435,6 +469,10 @@ end
 
 -- Handlers
 
+function handle_stop()
+	addon_enabled:setValue(false)
+end
+
 function handle_tic(old_time, new_time)
 	if not trust or not windower.ffxi.get_player() or not addon_enabled:getValue() or not player or not player.trust then return end
 
@@ -458,23 +496,6 @@ function handle_status_change(new_status_id, old_status_id)
 	end
 end
 
-function handle_start()
-	addon_enabled:setValue(true)
-end
-
-function handle_stop()
-	addon_enabled:setValue(false)
-end
-
-function handle_toggle_addon()
-	addon_enabled:setValue(not addon_enabled:getValue())
-end
-
-function handle_reload()
-	main_trust_settings:loadSettings()
-	sub_trust_settings:loadSettings()
-end
-
 function handle_unload()
 	windower.chat.input('// lua unload trust')
 end
@@ -492,14 +513,6 @@ function handle_zone_change(new_zone_id, old_zone_id)
 	if state.AutoDisableMode.value ~= 'Off' then
 		handle_stop()
 	end
-end
-
-function handle_load_set(mode_set_name)
-	state.TrustMode:set(mode_set_name)
-end
-
-function handle_save_trust(mode_name)
-	trust_mode_settings:saveSettings(mode_name or state.TrustMode.value)
 end
 
 function handle_create_trust(job_name_short)
@@ -548,10 +561,6 @@ function handle_command(args)
 	action_queue:push_action(action, false)
 end
 
-function handle_toggle_menu()
-	hud:toggleMenu()
-end
-
 function handle_debug()
 	print(num_created)
 	print('images', num_images_created)
@@ -585,20 +594,10 @@ end
 
 local commands = T{}
 
-commands['start'] = handle_start
-commands['stop'] = handle_stop
-commands['toggle'] = handle_toggle_addon
-commands['reload'] = handle_reload
-commands['load'] = handle_load_set
-commands['save'] = handle_save_trust
-commands['create'] = handle_create_trust
-commands['status'] = handle_trust_status
 commands['command'] = handle_command
 commands['debug'] = handle_debug
 commands['tests'] = handle_tests
 commands['help'] = handle_help
-commands['migrate'] = handle_migrate_settings
-commands['menu'] = handle_toggle_menu
 commands['commands'] = handle_command_list
 
 local function addon_command(cmd, ...)
@@ -618,6 +617,8 @@ local function addon_command(cmd, ...)
 		player.trust.sub_job_commands:handle_command(unpack({...}))
 	elseif shortcuts[cmd] then
 		shortcuts[cmd]:handle_command(...)
+	elseif shortcuts['default']:is_valid_command(cmd, ...) then
+		shortcuts['default']:handle_command(cmd, ...)
 	else
 		if not L{'cycle', 'set', 'help'}:contains(cmd) then
 			error("Unknown command %s":format(cmd))

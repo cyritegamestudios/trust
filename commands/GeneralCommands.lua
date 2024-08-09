@@ -3,52 +3,136 @@ local GeneralTrustCommands = setmetatable({}, {__index = TrustCommands })
 GeneralTrustCommands.__index = GeneralTrustCommands
 GeneralTrustCommands.__class = "GeneralTrustCommands"
 
-function GeneralTrustCommands.new(trust, action_queue)
+function GeneralTrustCommands.new(trust, action_queue, addon_enabled, trust_mode_settings, main_trust_settings, sub_trust_settings)
     local self = setmetatable(TrustCommands.new(), GeneralTrustCommands)
 
     self.trust = trust
     self.action_queue = action_queue
+    self.addon_enabled = addon_enabled
+    self.trust_mode_settings = trust_mode_settings
+    self.main_trust_settings = main_trust_settings
+    self.sub_trust_settings = sub_trust_settings
+    self.hud = hud
 
-    self:add_command('default', self.handle_send_command, 'Send a command to a specific player, // trust send player_name command')
+    -- State
+    self:add_command('start', self.handle_start, 'Start Trust')
+    self:add_command('stop', self.handle_stop, 'Stop Trust')
+    self:add_command('toggle', self.handle_toggle, 'Toggle Trust On and Off')
+    self:add_command('reload', self.handle_reload, 'Reload job settings files')
+    self:add_command('status', self.handle_status, 'View Trust status')
+
+    -- Modes
+    self:add_command('load', self.handle_load_set, 'Load a mode set, // trust load mode_set_name')
+    self:add_command('save', self.handle_save_set, 'Save changes to the current mode set or new set, // trust save mode_set_name (optional)')
 
     return self
 end
 
 function GeneralTrustCommands:get_command_name()
-    return 'send'
+    return 'default'
 end
 
--- // trust send player_name command
-function GeneralTrustCommands:handle_send_command(...)
+function GeneralTrustCommands:get_all_commands()
+    local result = L{}
+    for command_name, command in pairs(self.commands) do
+        result:append('// trust '..command_name)
+    end
+    return result
+end
+
+-- // trust status
+function GeneralTrustCommands:handle_status()
     local success = true
     local message
 
-    local target_name = arg[1]
-
-    local windower_command = ''
-    for i, token in ipairs(arg) do
-        if i > 1 then
-            if token == 'me' then
-                token = windower.ffxi.get_player().name
-            end
-            windower_command = windower_command..token..' '
-        end
+    local statuses = L{}
+    for key,var in pairs(state) do
+        statuses:append(key..': '..var.value)
     end
-    if #windower_command > 0 then
-        if L{'All', 'Send'}:contains(state.IpcMode.value) then
-            IpcRelay.shared():send_message(CommandMessage.new(windower_command, target_name))
-            success = true
-            message = 'Executing command: '..windower_command..' on '..target_name
-        else
-            success = false
-            message = 'IpcMode must be set to All or Send to use this command'
-        end
-    else
-        success = false
-        message = 'Invalid command: '..windower_command or 'nil'
+    statuses:sort()
+
+    for status in statuses:it() do
+        addon_message(207, status)
+    end
+
+    if player.party:get_assist_target() then
+        addon_message(209, 'Assisting '..player.party:get_assist_target():get_name())
     end
 
     return success, message
 end
+
+-- // trust start
+function GeneralTrustCommands:handle_start(_)
+    local success = true
+    local message = "Trust started"
+
+    self.addon_enabled:setValue(true)
+
+    return success, message
+end
+
+-- // trust stop
+function GeneralTrustCommands:handle_stop(_)
+    local success = true
+    local message = "Trust stopped"
+
+    self.addon_enabled:setValue(false)
+
+    return success, message
+end
+
+-- // trust toggle
+function GeneralTrustCommands:handle_toggle(_)
+    local success = true
+    local message = "Trust stopped"
+
+    if self.addon_enabled:getValue() then
+        success, message = self:handle_stop(_)
+    else
+        success, message = self:handle_start(_)
+    end
+
+    return success, message
+end
+
+-- // trust reload
+function GeneralTrustCommands:handle_reload(_)
+    local success = true
+    local message
+
+    self.main_trust_settings:loadSettings()
+    self.sub_trust_settings:loadSettings()
+
+    return success, message
+end
+
+-- // trust load mode_set_name
+function GeneralTrustCommands:handle_load_set(_, mode_set_name)
+    local success
+    local message
+
+    if not mode_set_name then
+        success = false
+        message = "Invalid mode set name"
+    else
+        success = true
+
+        state.TrustMode:set(mode_set_name)
+    end
+
+    return success, message
+end
+
+-- // trust save or // trust save mode_set_name
+function GeneralTrustCommands:handle_save_set(_, mode_set_name)
+    local success = true
+    local message
+
+    trust_mode_settings:saveSettings(mode_set_name or state.TrustMode.value)
+
+    return success, message
+end
+
 
 return GeneralTrustCommands

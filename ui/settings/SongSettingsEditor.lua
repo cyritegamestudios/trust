@@ -117,8 +117,10 @@ function SongSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
             local songList
             if indexPath.section == 1 then
                 songList = self.dummySongs
-            else
+            elseif indexPath.section == 2 then
                 songList = self.songs
+            else
+                songList = self.pianissimoSongs
             end
             if indexPath and indexPath.row < #songList --[[#self.weaponSkills > 1 and indexPath.row <= #self.weaponSkills]] then
                 local newIndexPath = self:getDataSource():getNextIndexPath(indexPath)-- IndexPath.new(indexPath.section, indexPath.row + 1)
@@ -143,8 +145,10 @@ function SongSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
             local songList
             if indexPath.section == 1 then
                 songList = self.dummySongs
-            else
+            elseif indexPath.section == 2 then
                 songList = self.songs
+            else
+                songList = self.pianissimoSongs
             end
             if indexPath and indexPath.row > 1 --[[#self.weaponSkills > 1 and indexPath.row <= #self.weaponSkills]] then
                 local newIndexPath = self:getDataSource():getPreviousIndexPath(indexPath)-- IndexPath.new(indexPath.section, indexPath.row + 1)
@@ -183,8 +187,9 @@ function SongSettingsEditor:reloadSettings()
 
     local items = L{}
 
-    self.dummySongs = L(T(self.trustSettings:getSettings())[self.settingsMode.value].DummySongs)
-    self.songs = L(T(self.trustSettings:getSettings())[self.settingsMode.value].Songs)
+    self.dummySongs = L(T(self.trustSettings:getSettings())[self.settingsMode.value].SongSettings.DummySongs)
+    self.songs = L(T(self.trustSettings:getSettings())[self.settingsMode.value].SongSettings.Songs)
+    self.pianissimoSongs = L(T(self.trustSettings:getSettings())[self.settingsMode.value].SongSettings.PianissimoSongs)
 
     local dummySongsSectionHeaderItem = SectionHeaderItem.new(
         TextItem.new("Dummy Songs", TextStyle.Default.SectionHeader),
@@ -209,6 +214,19 @@ function SongSettingsEditor:reloadSettings()
     rowIndex = 1
     for song in self.songs:it() do
         items:append(IndexedItem.new(TextItem.new(song:get_spell().en, TextStyle.Default.TextSmall), IndexPath.new(2, rowIndex)))
+        rowIndex = rowIndex + 1
+    end
+
+    local pianissimoSongsSectionHeaderItem = SectionHeaderItem.new(
+            TextItem.new("Pianissimo", TextStyle.Default.SectionHeader),
+            ImageItem.new(windower.addon_path..'assets/icons/icon_bullet.png', 8, 8),
+            16
+    )
+    self:getDataSource():setItemForSectionHeader(3, pianissimoSongsSectionHeaderItem)
+
+    rowIndex = 1
+    for song in self.pianissimoSongs:it() do
+        items:append(IndexedItem.new(TextItem.new(song:get_spell().en, TextStyle.Default.TextSmall), IndexPath.new(3, rowIndex)))
         rowIndex = rowIndex + 1
     end
 

@@ -178,7 +178,7 @@ end
 function TrustSettings:runMigrations(settings)
     local needsMigration = false
 
-    local modeNames = list.subtract(L(T(settings):keyset()), L{'Version'})
+    local modeNames = list.subtract(L(T(settings):keyset()), L{'Migrations','Version'})
 
     for modeName in modeNames:it() do
         local settingsForMode = settings[modeName]

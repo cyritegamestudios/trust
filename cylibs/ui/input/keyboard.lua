@@ -1,3 +1,4 @@
+local Event = require('cylibs/events/Luvent')
 local FocusManager = require('cylibs/ui/focus/focus_manager')
 local Keybind = require('cylibs/ui/input/keybind')
 
@@ -9,6 +10,10 @@ Keyboard.Flags = {}
 Keyboard.Flags.Shift = 1
 Keyboard.Flags.Command = 2
 Keyboard.Flags.Control = 4
+
+function Keyboard:on_key_pressed()
+    return self.key_pressed
+end
 
 
 function Keyboard.new()
@@ -33,9 +38,12 @@ function Keyboard.new()
     }
 
     self.keybinds = T{}
+    self.key_pressed = Event.newEvent()
     self.events = {}
 
     self.events.keyboard = windower.register_event('keyboard', function(key, pressed, flags, blocked)
+        self:on_key_pressed():trigger(key, pressed, flags, blocked)
+
         if not blocked and not windower.ffxi.get_info().chat_open and self:hasKeybind(key, flags) and FocusManager.shared():getFocusable() == nil then
             local keybind = Keybind.new(self:getKey(key), flags)
             self:getKeybindHandler(key, flags)(keybind, pressed)
@@ -61,6 +69,7 @@ function Keyboard:destroy()
             windower.unregister_event(event)
         end
     end
+    self.key_pressed:removeAllActions()
 end
 
 ---

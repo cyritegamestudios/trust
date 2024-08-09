@@ -1,7 +1,10 @@
+local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local ConfigItem = require('ui/settings/editors/config/ConfigItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
+local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+local IndexPath = require('cylibs/ui/collection_view/index_path')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesView = require('ui/settings/editors/ModeSettingsEditor')
 local SongPickerView = require('ui/settings/pickers/SongPickerView')
@@ -31,7 +34,7 @@ function SongSettingsMenuItem.new(addonSettings, trustSettings, trustSettingsMod
     self.addonSettings = addonSettings
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
-    self.songSettings = T(trustSettings:getSettings())[trustSettingsMode.value]
+    self.songSettings = T(trustSettings:getSettings())[trustSettingsMode.value].SongSettings
     self.songValidator = SongValidator.new(trust:role_with_type("singer"), action_queue)
     self.dispose_bag = DisposeBag.new()
 
@@ -64,7 +67,7 @@ function SongSettingsMenuItem:getEditMenuItem()
         ButtonItem.default('Confirm', 18),
     }, {},
     function(args)
-        local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].Songs
+        local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.Songs
 
         local allSongs = spell_util.get_spells(function(spell)
             return spell.type == 'BardSong' and S{'Self'}:intersection(S(spell.targets)):length() > 0
@@ -82,7 +85,7 @@ function SongSettingsMenuItem:getEditMenuItem()
         ButtonItem.default('Confirm', 18),
     }, {},
     function(args)
-        local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].DummySongs
+        local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.DummySongs
 
         local allSongs = spell_util.get_spells(function(spell)
             return spell.type == 'BardSong' and S{'Self'}:intersection(S(spell.targets)):length() > 0
@@ -99,12 +102,129 @@ function SongSettingsMenuItem:getEditMenuItem()
     local songTypeMenuItem = MenuItem.new(L{
         ButtonItem.default('Songs', 18),
         ButtonItem.default('Dummy', 18),
+        ButtonItem.default('Pianissimo', 18),
     }, {
         Songs = editSongsMenuItem,
-        Dummy = editDummySongsMenuItem
+        Dummy = editDummySongsMenuItem,
+        Pianissimo = self:getPianissmoSongsMenuItem(),
     }, nil, "Songs", "Choose dummy songs and songs to sing.")
 
     return songTypeMenuItem
+end
+
+function SongSettingsMenuItem:getPianissmoSongsMenuItem()
+    local imageItemForText = function(text)
+        return AssetManager.imageItemForSpell(text)
+    end
+
+    local addPianissimoSongMenuItem = MenuItem.new(L{
+        ButtonItem.default('Confirm'),
+    }, {}, function(_, _)
+        local allSongs = spell_util.get_spells(function(spell)
+            return spell.type == 'BardSong' and S{'Self'}:intersection(S(spell.targets)):length() > 0
+        end):map(function(spell) return spell.en end)
+
+        local chooseSongsView = FFXIPickerView.withItems(allSongs, L{}, true, nil, imageItemForText)
+
+        chooseSongsView:setTitle("Choose pianissimo songs.")
+        chooseSongsView:setShouldRequestFocus(true)
+
+        self.dispose_bag:add(chooseSongsView:on_pick_items():addAction(function(_, selectedItems)
+            if selectedItems:length() > 0 then
+                local newSongs = selectedItems:map(function(item)
+                    return Spell.new(item:getText(), L{ 'Pianissimo' })
+                end):compact_map()
+
+                local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.PianissimoSongs
+                songs = songs:extend(newSongs)
+
+                self.trustSettings:saveSettings(true)
+                addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my songs!")
+            end
+        end), chooseSongsView:on_pick_items())
+
+        return chooseSongsView
+    end, "Pianissimo", "Add a new pianissimo song.")
+
+    local editJobsMenuItem = MenuItem.new(L{
+        ButtonItem.default('Confirm', 18),
+    }, {}, function(_, _)
+        local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.PianissimoSongs
+
+        local jobsPickerView = FFXIPickerView.withItems(job_util.all_jobs(), songs[self.selectedPianissimoSongIndex]:get_job_names(), true)
+
+        self.dispose_bag:add(jobsPickerView:on_pick_items():addAction(function(_, selectedItems)
+            if selectedItems:length() > 0 then
+                local newJobNames = selectedItems:map(function(item)
+                    return item:getText()
+                end):compact_map()
+
+                local song = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.PianissimoSongs[self.selectedPianissimoSongIndex]
+
+                local jobNames = song:get_job_names()
+                jobNames:clear()
+
+                for jobName in newJobNames:it() do
+                    jobNames:append(jobName)
+                end
+
+                self.trustSettings:saveSettings(true)
+                addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll only pianissimo this song on these jobs!")
+            end
+        end), jobsPickerView:on_pick_items())
+
+        return jobsPickerView
+    end, "Pianissimo", "Choose jobs to pianissimo this song on.")
+
+    local editPianissimoSongsMenuItem = MenuItem.new(L{
+        ButtonItem.default('Add'),
+        ButtonItem.default('Remove'),
+        ButtonItem.default('Jobs'),
+    }, {
+        Add = addPianissimoSongMenuItem,
+        Jobs = editJobsMenuItem,
+    }, function(_, infoView)
+        local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.PianissimoSongs
+
+        local pianissimoSongsView = FFXIPickerView.withItems(songs:map(function(song) return song:get_spell().en end), L{}, false, nil, imageItemForText)
+
+        pianissimoSongsView:setShouldRequestFocus(true)
+        pianissimoSongsView:setAllowsCursorSelection(true)
+
+        self.dispose_bag:add(pianissimoSongsView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
+            self.selectedPianissimoSongIndex = indexPath.row
+            local song = songs[self.selectedPianissimoSongIndex]
+            if song then
+                infoView:setDescription("Use when: Ally job is "..localization_util.commas(song:get_job_names(), "or"))
+            end
+        end), pianissimoSongsView:getDelegate():didSelectItemAtIndexPath())
+
+        if pianissimoSongsView:getDataSource():numberOfItemsInSection(1) > 0 then
+            pianissimoSongsView:getDelegate():selectItemAtIndexPath(IndexPath.new(1, 1))
+        end
+
+        return pianissimoSongsView
+    end, "Pianissimo", "Choose pianissimo songs.")
+
+    editPianissimoSongsMenuItem:setChildMenuItem("Remove", MenuItem.action(function(menu)
+        if self.selectedPianissimoSongIndex then
+            local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.PianissimoSongs
+            songs:remove(self.selectedPianissimoSongIndex)
+
+            self.trustSettings:saveSettings(true)
+            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my songs!")
+
+            self.selectedPianissimoSongIndex = nil
+
+            menu:showMenu(editPianissimoSongsMenuItem)
+        end
+    end))
+
+    addPianissimoSongMenuItem:setChildMenuItem("Confirm", MenuItem.action(function(menu)
+        menu:showMenu(editPianissimoSongsMenuItem)
+    end))
+
+    return editPianissimoSongsMenuItem
 end
 
 function SongSettingsMenuItem:getConfigMenuItem()
@@ -115,9 +235,9 @@ function SongSettingsMenuItem:getConfigMenuItem()
                 local allSettings = T(self.trustSettings:getSettings())[self.trustSettingsMode.value]
 
                 local songSettings = T{
-                    NumSongs = allSettings.NumSongs,
-                    SongDuration = allSettings.SongDuration,
-                    SongDelay = allSettings.SongDelay
+                    NumSongs = allSettings.SongSettings.NumSongs,
+                    SongDuration = allSettings.SongSettings.SongDuration,
+                    SongDelay = allSettings.SongSettings.SongDelay
                 }
 
                 local configItems = L{
@@ -132,9 +252,9 @@ function SongSettingsMenuItem:getConfigMenuItem()
                 songConfigEditor:setShouldRequestFocus(true)
 
                 self.dispose_bag:add(songConfigEditor:onConfigChanged():addAction(function(newSettings, _)
-                    allSettings.NumSongs = newSettings.NumSongs
-                    allSettings.SongDuration = newSettings.SongDuration
-                    allSettings.SongDelay = newSettings.SongDelay
+                    allSettings.SongSettings.NumSongs = newSettings.NumSongs
+                    allSettings.SongSettings.SongDuration = newSettings.SongDuration
+                    allSettings.SongSettings.SongDelay = newSettings.SongDelay
 
                     self.trustSettings:saveSettings(true)
                 end), songConfigEditor:onConfigChanged())
