@@ -4,6 +4,7 @@ local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local ConfigItem = require('ui/settings/editors/config/ConfigItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+local IndexPath = require('cylibs/ui/collection_view/index_path')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesView = require('ui/settings/editors/ModeSettingsEditor')
 local SongPickerView = require('ui/settings/pickers/SongPickerView')
@@ -193,6 +194,10 @@ function SongSettingsMenuItem:getPianissmoSongsMenuItem()
         self.dispose_bag:add(pianissimoSongsView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
             self.selectedPianissimoSongIndex = indexPath.row
         end), pianissimoSongsView:getDelegate():didSelectItemAtIndexPath())
+
+        if pianissimoSongsView:getDataSource():numberOfItemsInSection(1) > 0 then
+            pianissimoSongsView:getDelegate():selectItemAtIndexPath(IndexPath.new(1, 1))
+        end
 
         return pianissimoSongsView
     end, "Pianissimo", "Choose pianissimo songs.")
