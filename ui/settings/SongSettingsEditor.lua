@@ -117,8 +117,10 @@ function SongSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
             local songList
             if indexPath.section == 1 then
                 songList = self.dummySongs
-            else
+            elseif indexPath.section == 2 then
                 songList = self.songs
+            else
+                songList = self.pianissimoSongs
             end
             if indexPath and indexPath.row < #songList --[[#self.weaponSkills > 1 and indexPath.row <= #self.weaponSkills]] then
                 local newIndexPath = self:getDataSource():getNextIndexPath(indexPath)-- IndexPath.new(indexPath.section, indexPath.row + 1)
@@ -143,8 +145,10 @@ function SongSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
             local songList
             if indexPath.section == 1 then
                 songList = self.dummySongs
-            else
+            elseif indexPath.section == 2 then
                 songList = self.songs
+            else
+                songList = self.pianissimoSongs
             end
             if indexPath and indexPath.row > 1 --[[#self.weaponSkills > 1 and indexPath.row <= #self.weaponSkills]] then
                 local newIndexPath = self:getDataSource():getPreviousIndexPath(indexPath)-- IndexPath.new(indexPath.section, indexPath.row + 1)
