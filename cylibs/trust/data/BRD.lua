@@ -29,7 +29,7 @@ state.AutoNitroMode = M{['description'] = 'Auto Nitro Mode', 'Auto', 'Off'}
 state.AutoNitroMode:set_description('Auto', "Okay, I'll use Nightingale and Troubadour before singing songs.")
 
 state.AutoClarionCallMode = M{['description'] = 'Auto Clarion Call Mode', 'Off', 'Auto'}
-state.AutoClarionCallMode:set_description('Auto', "Okay, I'll try to sing as many songs as possible.")
+state.AutoClarionCallMode:set_description('Auto', "Okay, I'll use Clarion Call before Nightingale and Troubadour.")
 
 function BardTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = Bard.new(trust_settings)
