@@ -3,24 +3,20 @@ _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
 _addon.version = '10.4.0'
 _addon.release_notes = [[
-This update introduces a new widget for Puppetmaster, improves
-tanking logic for Rune Fencer, and simplifies the process of
-recording and replaying paths.
+This update introduces new menus for Bard and autocomplete
+for Trust commands.
 
 	• Autocomplete
 	    • Added autocomplete for // trust commands.
 
-	• Rune Fencer
-	    • Added Gambits for Valiance, Vallation and Vivacious Pulse.
-
-	• UI
-	    • Added path widget for recording and replaying paths.
+	• Bard
+	    • Added menu to customize Pianissimo songs under
+	      Settings > Songs > Edit > Pianissimo.
+	    • Added menu to select ally jobs.
 
 	• Bug Fixes
-	    • Fixed issue where self targeting weaponskills would sometimes
-	      target enemies.
-	    • Fixed issue where Bard and Corsair would not face the enemy
-	      while singing and rolling.
+	    • Fixed issue where Marcato would be used when Soul Voice
+	      was active.
 
 
 	• Press escape or enter to exit.
@@ -443,7 +439,7 @@ function check_version()
 
 		local Frame = require('cylibs/ui/views/frame')
 
-		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 600))
+		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 400))
 
 		updateView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
 			updateView:getDelegate():deselectItemAtIndexPath(indexPath)
