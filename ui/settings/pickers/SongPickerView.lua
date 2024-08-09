@@ -51,11 +51,6 @@ function SongPickerView:onSelectMenuItemAtIndexPath(textItem, _)
             self.trustSettings:saveSettings(true)
             addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my songs!")
         end
-    elseif textItem:getText() == 'Remove' then
-        local selectedIndexPaths = self:getDelegate():getSelectedIndexPaths()
-        if selectedIndexPaths:length() > 0 then
-
-        end
     end
 end
 
