@@ -85,6 +85,7 @@ local buff_conflicts = T{
 	[68] = S{460}, -- Warcry
 	[460] = S{68}, -- Blood Rage
 	[33] = S{13, 565, 265, 581}, -- Haste
+	[231] = S{52}, -- Marcato
 	[358] = S{401}, -- Light Arts/Addendum: White
 	[359] = S{402}, -- Dark Arts/Addendum: Black
 	[531] = S{535}, -- Vallation

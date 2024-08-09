@@ -244,7 +244,7 @@ function Singer:sing_song(song, target_index, should_nitro)
         end
         for job_ability_name in job_abilities:it() do
             local job_ability = res.job_abilities:with('en', job_ability_name)
-            if job_ability and not buff_util.is_buff_active(job_ability.status) then
+            if job_ability and not buff_util.is_buff_active(job_ability.status) and not buff_util.conflicts_with_buffs(job_ability.status, self:get_party():get_player():get_buff_ids()) then
                 if job_util.can_use_job_ability(job_ability_name) then
                     actions:append(JobAbilityAction.new(0, 0, 0, job_ability_name))
                     actions:append(WaitAction.new(0, 0, 0, 1.5))
