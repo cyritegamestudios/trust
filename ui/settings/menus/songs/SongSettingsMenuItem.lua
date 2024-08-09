@@ -183,7 +183,7 @@ function SongSettingsMenuItem:getPianissmoSongsMenuItem()
     }, {
         Add = addPianissimoSongMenuItem,
         Jobs = editJobsMenuItem,
-    }, function(_, _)
+    }, function(_, infoView)
         local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.PianissimoSongs
 
         local pianissimoSongsView = FFXIPickerView.withItems(songs:map(function(song) return song:get_spell().en end), L{}, false, nil, imageItemForText)
@@ -193,6 +193,10 @@ function SongSettingsMenuItem:getPianissmoSongsMenuItem()
 
         self.dispose_bag:add(pianissimoSongsView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
             self.selectedPianissimoSongIndex = indexPath.row
+            local song = songs[self.selectedPianissimoSongIndex]
+            if song then
+                infoView:setDescription("Use when: Ally job is "..localization_util.commas(song:get_job_names(), "or"))
+            end
         end), pianissimoSongsView:getDelegate():didSelectItemAtIndexPath())
 
         if pianissimoSongsView:getDataSource():numberOfItemsInSection(1) > 0 then

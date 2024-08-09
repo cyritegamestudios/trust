@@ -185,6 +185,7 @@ function SongSettingsEditor:reloadSettings()
 
     self.dummySongs = L(T(self.trustSettings:getSettings())[self.settingsMode.value].SongSettings.DummySongs)
     self.songs = L(T(self.trustSettings:getSettings())[self.settingsMode.value].SongSettings.Songs)
+    self.pianissimoSongs = L(T(self.trustSettings:getSettings())[self.settingsMode.value].SongSettings.PianissimoSongs)
 
     local dummySongsSectionHeaderItem = SectionHeaderItem.new(
         TextItem.new("Dummy Songs", TextStyle.Default.SectionHeader),
@@ -209,6 +210,19 @@ function SongSettingsEditor:reloadSettings()
     rowIndex = 1
     for song in self.songs:it() do
         items:append(IndexedItem.new(TextItem.new(song:get_spell().en, TextStyle.Default.TextSmall), IndexPath.new(2, rowIndex)))
+        rowIndex = rowIndex + 1
+    end
+
+    local pianissimoSongsSectionHeaderItem = SectionHeaderItem.new(
+            TextItem.new("Pianissimo", TextStyle.Default.SectionHeader),
+            ImageItem.new(windower.addon_path..'assets/icons/icon_bullet.png', 8, 8),
+            16
+    )
+    self:getDataSource():setItemForSectionHeader(3, pianissimoSongsSectionHeaderItem)
+
+    rowIndex = 1
+    for song in self.pianissimoSongs:it() do
+        items:append(IndexedItem.new(TextItem.new(song:get_spell().en, TextStyle.Default.TextSmall), IndexPath.new(3, rowIndex)))
         rowIndex = rowIndex + 1
     end
 
