@@ -306,10 +306,23 @@ function load_trust_commands(job_name_short, trust, action_queue, party)
 		if terms:length() > 0 then
 			command_widget:setVisible(true)
 			command_widget:setItems(terms, L{})
+			local description
+			if terms:length() == 1 then
+				hud.infoBar:setTitle("Commands")
+				local args = string.split(terms[1], " ")
+				if args[3] and args[4] and shortcuts[args[3]] then
+					description = shortcuts[args[3]]:get_description(args[4])
+				end
+			end
+			hud.infoBar:setDescription(description or '')
+			hud.infoBar:setVisible(description ~= nil)
+			hud.infoBar:layoutIfNeeded()
 		else
 			if command_widget:isVisible() then
 				command_widget:setVisible(false)
 				command_widget:setContentOffset(0, 0)
+				hud.infoBar:setVisible(false)
+				hud.infoBar:layoutIfNeeded()
 			end
 		end
 	end)
