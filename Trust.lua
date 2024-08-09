@@ -3,8 +3,8 @@ _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
 _addon.version = '10.4.0'
 _addon.release_notes = [[
-This update introduces new menus for Bard and autocomplete
-for Trust commands.
+This update introduces new menus for Bard and autocomplete for
+Trust commands.
 
 	• Autocomplete
 	    • Added autocomplete for // trust commands.
