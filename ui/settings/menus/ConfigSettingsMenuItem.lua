@@ -3,18 +3,20 @@ local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local FFXITextInputView = require('ui/themes/ffxi/FFXITextInputView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
+local RemoteCommandsSettingsMenuItem = require('ui/settings/menus/RemoteCommandsSettingsMenuItem')
 local WidgetSettingsMenuItem = require('ui/settings/menus/widgets/WidgetSettingsMenuItem')
 
 local ConfigSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 ConfigSettingsMenuItem.__index = ConfigSettingsMenuItem
 
-function ConfigSettingsMenuItem.new(addonSettings, viewFactory)
+function ConfigSettingsMenuItem.new(addonSettings)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Widgets', 18),
         ButtonItem.default('Logging', 18),
+        ButtonItem.default('Remote', 18),
     }, {}, nil, "Config", "Change Trust's options."), ConfigSettingsMenuItem)
 
-    self:reloadSettings(addonSettings, viewFactory)
+    self:reloadSettings(addonSettings)
 
     return self
 end
@@ -23,9 +25,10 @@ function ConfigSettingsMenuItem:destroy()
     MenuItem.destroy(self)
 end
 
-function ConfigSettingsMenuItem:reloadSettings(addonSettings, viewFactory)
-    self:setChildMenuItem("Widgets", WidgetSettingsMenuItem.new(addonSettings, viewFactory))
+function ConfigSettingsMenuItem:reloadSettings(addonSettings)
+    self:setChildMenuItem("Widgets", WidgetSettingsMenuItem.new(addonSettings))
     self:setChildMenuItem("Logging", self:getLoggingMenuItem(addonSettings))
+    self:setChildMenuItem("Remote", RemoteCommandsSettingsMenuItem.new(addonSettings))
 end
 
 function ConfigSettingsMenuItem:getLoggingMenuItem(addonSettings)
