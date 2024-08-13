@@ -14,7 +14,7 @@ function Migration_v1.new()
 end
 
 function Migration_v1:perform(trustSettings, _, _)
-    if not trustSettings.jobNameShort == 'BRD' then
+    if trustSettings.jobNameShort ~= 'BRD' then
         return true
     end
 
