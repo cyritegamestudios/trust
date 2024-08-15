@@ -170,9 +170,9 @@ function SummonerTrust:update_avatar(pet_id, pet_name)
 	if pet_id and L{
 		'Shiva','Ramuh','Ifrit','Carbuncle','Fenrir',
 		'Diabolos','Garuda','Leviathan','Titan','Siren',
-		'Cait Sith','Fire Spirit','Ice Spirit','Air Spirit',
-		'Earth Spirit','Thunder Spirit','Water Spirit',
-		'Light Spirit','Dark Spirit'
+		'Cait Sith','FireSpirit','IceSpirit','AirSpirit',
+		'EarthSpirit','ThunderSpirit','WaterSpirit',
+		'LightSpirit','DarkSpirit'
 	}:contains(pet_name) then
 		self.avatar = Avatar.new(pet_id, self.action_queue)
 		self.avatar:monitor()

@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '10.4.1'
+_addon.version = '10.4.2'
 _addon.release_notes = [[
 This update introduces new menus for Bard and autocomplete for
 Trust commands.
