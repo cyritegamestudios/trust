@@ -22,6 +22,7 @@ function MigrationManager:perform()
 
     for migration in self.migrations:it() do
         if not currentMigrations:contains(migration:getMigrationCode()) and migration:shouldPerform(self.trustSettings, self.addonSettings, self.weaponSkillSettings) then
+            print('doing migration')
             shouldSaveSettings = true
             migration:perform(self.trustSettings, self.addonSettings, self.weaponSkillSettings)
             currentMigrations:add(migration:getMigrationCode())
