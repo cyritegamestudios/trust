@@ -49,7 +49,7 @@ end
 
 function BloodPactSkillSettings:get_default_ability()
     if self.defaultWeaponSkillId then
-        local ability = SkillchainAbility.new('weapon_skills', self.defaultWeaponSkillId, L{ MinTacticalPointsCondition.new(1000) })
+        local ability = SkillchainAbility.new('job_abilities', self.defaultWeaponSkillId, L{ JobAbilityRecastReadyCondition.new(self.defaultWeaponSkillName) })
         if ability then
             return ability
         end
