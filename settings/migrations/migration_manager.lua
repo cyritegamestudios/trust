@@ -21,11 +21,10 @@ function MigrationManager:perform()
     local shouldSaveSettings = false
 
     for migration in self.migrations:it() do
-        if not currentMigrations:contains(migration:getMigrationCode()) then
-            if migration:perform(self.trustSettings, self.addonSettings, self.weaponSkillSettings) then
-                shouldSaveSettings = true
-                currentMigrations:add(migration:getMigrationCode())
-            end
+        if not currentMigrations:contains(migration:getMigrationCode()) and migration:shouldPerform(self.trustSettings, self.addonSettings, self.weaponSkillSettings) then
+            shouldSaveSettings = true
+            migration:perform(self.trustSettings, self.addonSettings, self.weaponSkillSettings)
+            currentMigrations:add(migration:getMigrationCode())
         end
     end
 
