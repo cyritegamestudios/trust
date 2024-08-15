@@ -13,11 +13,11 @@ function Migration_v1.new()
     return self
 end
 
-function Migration_v1:perform(trustSettings, _, _)
-    if trustSettings.jobNameShort ~= 'BRD' then
-        return true
-    end
+function Migration_v1:shouldPerform(trustSettings, _, _)
+    return L{ 'BRD' }:contains(trustSettings.jobNameShort)
+end
 
+function Migration_v1:perform(trustSettings, _, _)
     local modeNames = list.subtract(L(T(trustSettings:getSettings()):keyset()), L{'Version','Migrations'})
     for modeName in modeNames:it() do
         local settings = trustSettings:getSettings()[modeName]
@@ -34,7 +34,6 @@ function Migration_v1:perform(trustSettings, _, _)
             settings.PartyBuffs = nil
         end
     end
-    return true
 end
 
 return Migration_v1
