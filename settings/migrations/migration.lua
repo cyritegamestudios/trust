@@ -6,6 +6,10 @@ function Migration.new()
     return self
 end
 
+function Migration:should_perform()
+    return true
+end
+
 function Migration:perform(trustSettings, addonSettings, weaponSkillSettings)
 end
 

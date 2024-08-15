@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '10.4.0'
+_addon.version = '10.4.1'
 _addon.release_notes = [[
 This update introduces new menus for Bard and autocomplete for
 Trust commands.
@@ -17,6 +17,8 @@ Trust commands.
 	• Bug Fixes
 	    • Fixed issue where Marcato would be used when Soul Voice
 	      was active.
+	    • Fixed issue where settings migration would be applied on
+	      the incorrect jobs.
 
 
 	• Press escape or enter to exit.
