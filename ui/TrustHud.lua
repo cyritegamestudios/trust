@@ -518,9 +518,7 @@ function TrustHud:getSkillchainerMenuItem(weaponSkillSettings, weaponSkillSettin
 end
 
 function TrustHud:getPullerMenuItem(trust, jobNameShort, trustSettings, trustSettingsMode, viewSize)
-    local pullerSettingsMenuItem = PullSettingsMenuItem.new(L{}, trust, jobNameShort, self.addon_settings, self.addon_settings:getSettings().battle.targets, trustSettings, trustSettingsMode, function(view)
-        return setupView(view, viewSize)
-    end)
+    local pullerSettingsMenuItem = PullSettingsMenuItem.new(L{}, trust, jobNameShort, self.addon_settings, self.addon_settings:getSettings().battle.targets, trustSettings, trustSettingsMode)
     return pullerSettingsMenuItem
 end
 
