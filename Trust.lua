@@ -3,8 +3,15 @@ _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
 _addon.version = '10.4.4'
 _addon.release_notes = [[
-This update introduces new menus for Bard and autocomplete for
-Trust commands.
+This update introduces new menus for Bard, autocomplete for Trust
+commands and important bug fixes for users running the Japanese client.
+
+	• Pulling
+	    • By popular demand, pulling capabilities have been added
+	      to all jobs.
+	    • When neither the main nor sub job can pull, default pull actions
+	      like Approach and Ranged Attack will be used.
+	    • Pull actions can be customized under Settings > Pulling > Actions.
 
 	• Autocomplete
 	    • Added autocomplete for // trust commands.
@@ -15,10 +22,8 @@ Trust commands.
 	    • Added menu to select ally jobs.
 
 	• Bug Fixes
-	    • Fixed issue where Marcato would be used when Soul Voice
-	      was active.
-	    • Fixed issue where settings migration would be applied on
-	      the incorrect jobs.
+	    • Fixed issue where Summoner would not dismiss Earth Spirit.
+	    • Fixed issue with JP clients when running GearSwap in Japanese.
 
 
 	• Press escape or enter to exit.
@@ -451,7 +456,7 @@ function check_version()
 
 		local Frame = require('cylibs/ui/views/frame')
 
-		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 400))
+		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 550))
 
 		updateView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
 			updateView:getDelegate():deselectItemAtIndexPath(indexPath)
