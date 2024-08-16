@@ -100,40 +100,4 @@ function localization_util.truncate(text, max_num_chars)
     return text:slice(1, max_num_chars - 3).."…"
 end
 
-function localization_util.command(ability_id, target_id)
-    local spell = res.spells[ability_id]
-    if spell then
-        local spell_name = spell.en
-        if use_client_locale then
-            spell_name = spell.name
-        end
-        if windower.ffxi.get_info().language:lower() == 'japanese' then
-            return "/ma %s ":format(spell_name)..target_id
-        else
-            return '/ma "%s" ':format(spell_name)..target_id
-        end
-    end
-
-    local job_ability = res.job_abilities[ability_id]
-    if job_ability then
-        local job_ability_name = job_ability.en
-        if use_client_locale then
-            job_ability_name = job_ability.name
-        end
-        if windower.ffxi.get_info().language:lower() == 'japanese' then
-            if target_id == nil then
-                return "/ja %s <me>":format(job_ability_name)
-            else
-                return "/ja %s ":format(job_ability_name)..target.id
-            end
-        else
-            if target_id == nil then
-                return '/ja "%s" <me>':format(job_ability_name)
-            else
-                return '/ja "%s" ':format(job_ability_name)..target.id
-            end
-        end
-    end
-end
-
 return localization_util
