@@ -195,7 +195,11 @@ function load_user_files(main_job_id, sub_job_id)
 	player.trust.main_job:add_role(Assistant.new(action_queue))
 
 	if player.trust.main_job:role_with_type("puller") == nil and player.trust.sub_job:role_with_type("puller") == nil then
-		player.trust.main_job:add_role(Puller.new(action_queue, addon_settings:getSettings().targets, player.trust.main_job_settings.Default.PullSettings.Abilities or L{ Approach.new() }))
+		local pull_abilities = player.trust.main_job_settings.Default.PullSettings.Abilities
+		if pull_abilities == nil or pull_abilities:length() == 0 then
+			pull_abilities = L{ Approach.new() }
+		end
+		player.trust.main_job:add_role(Puller.new(action_queue, addon_settings:getSettings().targets, pull_abilities))
 	end
 
 	if player.sub_job_name_short ~= 'NON' then
