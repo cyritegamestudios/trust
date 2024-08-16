@@ -10,7 +10,7 @@ return {
 
         },
         JobAbilities = L{
-            JobAbility.new('Hasso', L{}, L{}, nil),
+            JobAbility.new("Hasso", L{CombatSkillsCondition.new(L{'Great Sword','Great Axe','Scythe','Polearm','Great Katana','Staff'})}, L{}),
             JobAbility.new('Sekkanoki', L{ MinTacticalPointsCondition.new(1500), InBattleCondition.new() })
         },
         PullSettings = {
