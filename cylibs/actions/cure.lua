@@ -71,8 +71,6 @@ function CureAction:perform()
         return
     end
 
-    local target = self.party_member:get_mob()
-
     self.dispose_bag:add(self.player:on_spell_finish():addAction(
             function(p, spell_id, _)
                 if p:get_mob().id == windower.ffxi.get_player().id then
@@ -91,8 +89,6 @@ function CureAction:perform()
                 end
             end), self.player:on_spell_interrupted())
 
-    --windower.send_command('@input /ma "'..cure_spell:get_spell().en..'" '..target.id)
-    print('curing')
     windower.chat.input(self:localize(cure_spell:get_spell().id))
 end
 
