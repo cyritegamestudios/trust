@@ -91,7 +91,27 @@ function CureAction:perform()
                 end
             end), self.player:on_spell_interrupted())
 
-    windower.send_command('@input /ma "'..cure_spell:get_spell().en..'" '..target.id)
+    --windower.send_command('@input /ma "'..cure_spell:get_spell().en..'" '..target.id)
+    print('curing')
+    windower.chat.input(self:localize(cure_spell:get_spell().id))
+end
+
+function CureAction:localize(spell_id)
+    local target = self.party_member:get_mob()
+
+    local spell = res.spells[spell_id]
+    if spell then
+        local spell_name = spell.en
+        if localization_util.should_use_client_locale() then
+            spell_name = localization_util.encode(spell.name, windower.ffxi.get_info().language:lower())
+        end
+        if windower.ffxi.get_info().language:lower() == 'japanese' then
+            return "/ma %s ":format(spell_name)..target.id
+        else
+            return '/ma "%s" ':format(spell_name)..target.id
+        end
+    end
+    return ""
 end
 
 function CureAction:getspellid()

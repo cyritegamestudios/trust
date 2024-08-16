@@ -26,18 +26,24 @@ function Strategem:can_perform()
 end
 
 function Strategem:perform()
-    if self.target_index == nil then
-        windower.chat.input('/%s':format(self.strategem_name))
-    else
-        local target = windower.ffxi.get_mob_by_index(self.target_index)
-        if target then
-            windower.chat.input('/'..self.strategem_name..' '..target.id)
-        end
-    end
+    windower.chat.input(self:localize())
 
     coroutine.sleep(1)
 
     self:complete(true)
+end
+
+
+function Strategem:localize()
+    local job_ability = res.job_abilities:with('en', self.strategem_name)
+    if job_ability then
+        local job_ability_name = job_ability.en
+        if localization_util.should_use_client_locale() then
+            job_ability_name = localization_util.encode(job_ability.name, windower.ffxi.get_info().language:lower())
+        end
+        return '/ja %s <me>':format(job_ability_name)
+    end
+    return ""
 end
 
 function Strategem:get_strategem_name()
