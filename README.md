@@ -21,13 +21,13 @@ Get help or request a feature in the [Cyrite Game Studios Discord](https://disco
 You will need the latest version of [Trust](https://github.com/cyritegamestudios/trust) in order to use Trust.
 
 ### Recommended
-1. Download and launch the Trust [installer](https://github.com/cyritegamestudios/trust/blob/main/Setup). **Please move it to your Desktop or another folder. It will not work if run within your Trust folder.**
+1. Download and launch the Trust [installer](https://github.com/cyritegamestudios/trust/blob/main/Setup/TrustInstaller.zip). If you running Trust v10.0.8+, the installer should be in your `addons/trust/Setup` folder already. **Please move it to your Desktop. If you run the installer from within the Trust folder it will not work.**
 2. If a Windows security popup appears, click "More Info" and "Run Anyway".
 3. Follow the instructions in the installer.
-4. To update, launch the installer again and click "Check for Updates".
+4. To update, launch the installer again.
 5. If you'd like to get early access to updates, click the dropdown in the top right and select **Alpha**.
 
-![image](https://github.com/user-attachments/assets/e9c228e2-422f-450a-a5e2-447e2abce078)
+![image](https://github.com/user-attachments/assets/06b59159-b92e-483e-8f3e-7d9b5c32026d)
 
 
 ### Manual
@@ -43,7 +43,7 @@ You will need the latest version of [Trust](https://github.com/cyritegamestudios
 
 ## Dependencies
 
-Trust also requires the following addons, which can be installed through [Windower](https://docs.windower.net/addons/):
+Trust also requires the following addons, which can be installed through [Windower](https://docs.windower.net/addons/). **After installing all dependencies, run the `// lua list` command and ensure both appear in the list of loaded addons**:
 * [Shortcuts](https://docs.windower.net/addons/shortcuts/)
 * [Gearswap](https://docs.windower.net/addons/gearswap/) (vanilla or Selendrile)
 
@@ -51,6 +51,12 @@ Trust also requires the following addons, which can be installed through [Window
 1. Double check that the `Windower/addons/trust` folder exists.
 2. Run `// lua r trust` and you're ready to get started!
 3. _**You can configure your Trust through the menu by pressing down Control and the Numpad+ buttons.**_
+
+## 日本のゲームクライアント
+日本語クライントで、gearswapを日本語で使用している場合は
+Config→LanguageのUse client language for actions をONにしSaveすることでtrustが正常に動作する可能性があります
+
+![image](https://github.com/user-attachments/assets/9048cb76-6ec7-4ca0-a37f-2078c69185a5)
 
 ### Optional
 
