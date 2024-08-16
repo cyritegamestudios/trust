@@ -19,6 +19,7 @@ return {
         },
         PullSettings = {
             Abilities = L{
+                Approach.new()
             },
             Distance = 20
         },

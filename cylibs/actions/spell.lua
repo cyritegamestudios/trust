@@ -84,14 +84,25 @@ function SpellAction:perform()
 				end
 			end), self.player:on_unable_to_cast())
 
-	local target = windower.ffxi.get_mob_by_index(self.target_index)
-	local spell = res.spells[self.spell_id]
+	windower.chat.input(self:localize())
+end
 
-	if windower.ffxi.get_info().language:lower() == 'japanese' then
-		windower.chat.input("/ma %s ":format(spell.en)..target.id)
-	else
-		windower.chat.input('/ma "%s" ':format(spell.en)..target.id)
+function SpellAction:localize()
+	local target = windower.ffxi.get_mob_by_index(self.target_index)
+
+	local spell = res.spells[self.spell_id]
+	if spell then
+		local spell_name = spell.en
+		if localization_util.should_use_client_locale() then
+			spell_name = localization_util.encode(spell.name, windower.ffxi.get_info().language:lower())
+		end
+		if windower.ffxi.get_info().language:lower() == 'japanese' then
+			return "/ma %s ":format(spell_name)..target.id
+		else
+			return '/ma "%s" ':format(spell_name)..target.id
+		end
 	end
+	return ""
 end
 
 function SpellAction:getspellid()

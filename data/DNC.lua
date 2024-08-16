@@ -33,7 +33,8 @@ return {
         },
         PullSettings = {
             Abilities = L{
-                JobAbility.new("Animated Flourish", L{}, L{})
+                JobAbility.new("Animated Flourish", L{}, L{}),
+                RangedAttack.new(),
             },
             Distance = 20
         },

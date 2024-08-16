@@ -1,10 +1,17 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '10.4.1'
+_addon.version = '10.4.4'
 _addon.release_notes = [[
-This update introduces new menus for Bard and autocomplete for
-Trust commands.
+This update introduces new menus for Bard, autocomplete for Trust
+commands and important bug fixes for users running the Japanese client.
+
+	• Pulling
+	    • By popular demand, pulling capabilities have been added
+	      to all jobs.
+	    • When neither the main nor sub job can pull, default pull actions
+	      like Approach and Ranged Attack will be used.
+	    • Pull actions can be customized under Settings > Pulling > Actions.
 
 	• Autocomplete
 	    • Added autocomplete for // trust commands.
@@ -15,10 +22,8 @@ Trust commands.
 	    • Added menu to select ally jobs.
 
 	• Bug Fixes
-	    • Fixed issue where Marcato would be used when Soul Voice
-	      was active.
-	    • Fixed issue where settings migration would be applied on
-	      the incorrect jobs.
+	    • Fixed issue where Summoner would not dismiss Earth Spirit.
+	    • Fixed issue with JP clients when running GearSwap in Japanese.
 
 
 	• Press escape or enter to exit.
@@ -31,6 +36,8 @@ require('Trust-Include')
 
 addon_settings = TrustAddonSettings.new()
 addon_settings:loadSettings()
+
+localization_util.set_should_use_client_locale(addon_settings:getSettings().locales.actions.use_client_locale or false)
 
 addon_enabled = ValueRelay.new(false)
 addon_enabled:onValueChanged():addAction(function(_, isEnabled)
@@ -193,6 +200,14 @@ function load_user_files(main_job_id, sub_job_id)
 	player.trust.main_job:add_role(Truster.new(action_queue, addon_settings:getSettings().battle.trusts))
 	player.trust.main_job:add_role(Aftermather.new(action_queue, player.trust.main_job:role_with_type("skillchainer")))
 	player.trust.main_job:add_role(Assistant.new(action_queue))
+
+	if player.trust.main_job:role_with_type("puller") == nil and player.trust.sub_job:role_with_type("puller") == nil then
+		local pull_abilities = player.trust.main_job_settings.Default.PullSettings.Abilities
+		if pull_abilities == nil or pull_abilities:length() == 0 then
+			pull_abilities = L{ Approach.new() }
+		end
+		player.trust.main_job:add_role(Puller.new(action_queue, addon_settings:getSettings().targets, pull_abilities))
+	end
 
 	if player.sub_job_name_short ~= 'NON' then
 		player.trust.sub_job:add_role(Gambiter.new(action_queue, player.trust.sub_job_settings.Default.GambitSettings, skillchainer))
@@ -441,7 +456,7 @@ function check_version()
 
 		local Frame = require('cylibs/ui/views/frame')
 
-		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 400))
+		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 550))
 
 		updateView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
 			updateView:getDelegate():deselectItemAtIndexPath(indexPath)

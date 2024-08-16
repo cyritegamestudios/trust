@@ -14,6 +14,7 @@ function ConfigSettingsMenuItem.new(addonSettings)
         ButtonItem.default('Widgets', 18),
         ButtonItem.default('Logging', 18),
         ButtonItem.default('Remote', 18),
+        ButtonItem.default('Language', 18),
     }, {}, nil, "Config", "Change Trust's options."), ConfigSettingsMenuItem)
 
     self:reloadSettings(addonSettings)
@@ -29,6 +30,7 @@ function ConfigSettingsMenuItem:reloadSettings(addonSettings)
     self:setChildMenuItem("Widgets", WidgetSettingsMenuItem.new(addonSettings))
     self:setChildMenuItem("Logging", self:getLoggingMenuItem(addonSettings))
     self:setChildMenuItem("Remote", RemoteCommandsSettingsMenuItem.new(addonSettings))
+    self:setChildMenuItem("Language", self:getLanguageSettingsMenuItem(addonSettings))
 end
 
 function ConfigSettingsMenuItem:getLoggingMenuItem(addonSettings)
@@ -68,6 +70,22 @@ function ConfigSettingsMenuItem:getLoggingMenuItem(addonSettings)
         return ConfigEditor.new(addonSettings, addonSettings:getSettings()[("logging"):lower()], configItems)
     end, "Logging", "Configure debug logging.")
     return loggingMenuItem
+end
+
+function ConfigSettingsMenuItem:getLanguageSettingsMenuItem(addonSettings)
+    local languageMenuItem = MenuItem.new(L{
+        ButtonItem.default('Save'),
+    }, {
+        Save = MenuItem.action(function()
+            localization_util.set_should_use_client_locale(addonSettings:getSettings().locales.actions.use_client_locale)
+        end),
+    }, function(menuArgs)
+        local configItems = L{
+            BooleanConfigItem.new('use_client_locale', "Use client langauge for actions"),
+        }
+        return ConfigEditor.new(addonSettings, addonSettings:getSettings().locales.actions, configItems)
+    end, "Language", "Configure language settings.")
+    return languageMenuItem
 end
 
 return ConfigSettingsMenuItem

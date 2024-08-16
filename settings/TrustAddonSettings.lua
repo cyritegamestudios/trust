@@ -85,6 +85,9 @@ default.shortcuts.widgets.party = {}
 default.shortcuts.widgets.party.enabled = false
 default.shortcuts.widgets.party.key = "P"
 default.shortcuts.widgets.party.flags = 1
+default.locales = {}
+default.locales.actions = {}
+default.locales.actions.use_client_locale = false
 
 
 

@@ -32,44 +32,45 @@ function JobAbility:destroy()
     Action.destroy(self)
 end
 
-function JobAbility:use_job_ability()
-    if self.target_index == nil then
-        if windower.ffxi.get_info().language:lower() == 'japanese' then
-            windower.chat.input("/ma %s <me>":format(self.job_ability_name))
-        else
-            windower.chat.input('/ma "%s" <me>':format(self.job_ability_name))
-        end
-    else
-        local target = windower.ffxi.get_mob_by_index(self.target_index)
-        if windower.ffxi.get_info().language:lower() == 'japanese' then
-            windower.chat.input("/ma %s ":format(self.job_ability_name)..target.id)
-        else
-            windower.chat.input('/ma "%s" ':format(self.job_ability_name)..target.id)
-        end
-    end
-end
-
 function JobAbility:perform()
     logger.notice(self.__class, 'perform', self.job_ability_name)
 
-    if self.target_index == nil then
-        if windower.ffxi.get_info().language:lower() == 'japanese' then
-            windower.chat.input("/ja %s <me>":format(self.job_ability_name))
-        else
-            windower.chat.input('/ja "%s" <me>':format(self.job_ability_name))
-        end
-    else
-        local target = windower.ffxi.get_mob_by_index(self.target_index)
-        if windower.ffxi.get_info().language:lower() == 'japanese' then
-            windower.chat.input("/ja %s ":format(self.job_ability_name)..target.id)
-        else
-            windower.chat.input('/ja "%s" ':format(self.job_ability_name)..target.id)
-        end
-    end
+    windower.chat.input(self:localize())
 
     coroutine.sleep(1)
 
     self:complete(true)
+end
+
+function JobAbility:localize()
+    local target_id
+
+    if self.target_index then
+        local target = windower.ffxi.get_mob_by_index(self.target_index)
+        target_id = target.id
+    end
+
+    local job_ability = res.job_abilities:with('en', self.job_ability_name)
+    if job_ability then
+        local job_ability_name = job_ability.en
+        if localization_util.should_use_client_locale() then
+            job_ability_name = localization_util.encode(job_ability.name, windower.ffxi.get_info().language:lower())
+        end
+        if windower.ffxi.get_info().language:lower() == 'japanese' then
+            if target_id == nil then
+                return "/ja %s <me>":format(job_ability_name)
+            else
+                return "/ja %s ":format(job_ability_name)..target_id
+            end
+        else
+            if target_id == nil then
+                return '/ja "%s" <me>':format(job_ability_name)
+            else
+                return '/ja "%s" ':format(job_ability_name)..target_id
+            end
+        end
+    end
+    return ""
 end
 
 function JobAbility:get_job_ability_name()

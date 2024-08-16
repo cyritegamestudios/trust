@@ -9,6 +9,34 @@ local localization_util = {}
 
 local translation_cache = {}
 
+local use_client_locale = false
+
+-------
+-- Sets the locale to be used when localization action commands (e.g. /ma <spell_name> <t>)
+-- @tparam string locale Locale (e.g. 'en', 'jp')
+function localization_util.set_should_use_client_locale(should_use_client_locale)
+    use_client_locale = should_use_client_locale
+end
+
+function localization_util.should_use_client_locale()
+    return use_client_locale
+end
+
+-------
+-- Encodes the given text to be output into the chat log. Pass in the UTF-8 string
+-- and it will properly encode it for NA and JP clients. For JP clients, pass in the
+-- Japanese text.
+-- @tparam string text Text to encode.
+-- @treturn string Encoded text
+function localization_util.encode(text, language)
+    language = language or windower.ffxi.get_info().language:lower()
+    if language == 'japanese' then
+        return windower.to_shift_jis(text)
+    else
+        return text
+    end
+end
+
 -------
 -- Returns the auto translate entry for the given term, if it exists.
 -- @tparam string term Term to translate
