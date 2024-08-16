@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '10.4.2'
+_addon.version = '10.4.3'
 _addon.release_notes = [[
 This update introduces new menus for Bard and autocomplete for
 Trust commands.
@@ -193,6 +193,10 @@ function load_user_files(main_job_id, sub_job_id)
 	player.trust.main_job:add_role(Truster.new(action_queue, addon_settings:getSettings().battle.trusts))
 	player.trust.main_job:add_role(Aftermather.new(action_queue, player.trust.main_job:role_with_type("skillchainer")))
 	player.trust.main_job:add_role(Assistant.new(action_queue))
+
+	if player.trust.main_job:role_with_type("puller") == nil and player.trust.sub_job:role_with_type("puller") == nil then
+		player.trust.main_job:add_role(Puller.new(action_queue, addon_settings:getSettings().targets, player.trust.main_job_settings.Default.PullSettings.Abilities or L{ Approach.new() }))
+	end
 
 	if player.sub_job_name_short ~= 'NON' then
 		player.trust.sub_job:add_role(Gambiter.new(action_queue, player.trust.sub_job_settings.Default.GambitSettings, skillchainer))

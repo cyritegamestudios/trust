@@ -14,7 +14,7 @@ return {
         },
         PullSettings = {
             Abilities = L{
-                JobAbility.new("Jump", L{}, L{})
+                RangedAttack.new(),
             },
             Distance = 20
         },

@@ -14,7 +14,7 @@ return {
         },
         PullSettings = {
             Abilities = L{
-                Approach.new()
+                RangedAttack.new()
             },
             Distance = 20
         },
