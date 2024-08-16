@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '10.4.3'
+_addon.version = '10.4.4'
 _addon.release_notes = [[
 This update introduces new menus for Bard and autocomplete for
 Trust commands.
@@ -31,6 +31,8 @@ require('Trust-Include')
 
 addon_settings = TrustAddonSettings.new()
 addon_settings:loadSettings()
+
+localization_util.set_should_use_client_locale(addon_settings:getSettings().locales.actions.use_client_locale or false)
 
 addon_enabled = ValueRelay.new(false)
 addon_enabled:onValueChanged():addAction(function(_, isEnabled)
