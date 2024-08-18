@@ -11,7 +11,6 @@ Puller.__class = "Puller"
 state.AutoPullMode = M{['description'] = 'Auto Pull Mode', 'Off', 'Auto','Party','All'}
 state.AutoPullMode:set_description('Off', "Okay, I won't pull monsters for the party.")
 state.AutoPullMode:set_description('Auto', "Okay, I'll automatically pull monsters for the party.")
---state.AutoPullMode:set_description('Target', "Okay, I'll pull whatever monster I'm currently targeting.")
 state.AutoPullMode:set_description('Party', "Okay, I'll pull monsters the party is fighting.")
 state.AutoPullMode:set_description('All', "Okay, I'll pull any monster that's nearby.")
 
@@ -19,7 +18,7 @@ state.ApproachPullMode = M{['description'] = 'Approach Pull Mode', 'Off', 'Auto'
 state.ApproachPullMode:set_description('Auto', "Okay, I'll pull by engaging and approaching instead.")
 
 
-function Puller.new(action_queue, target_names, pull_abilities, truster)
+function Puller.new(action_queue, target_names, pull_abilities)
     local self = setmetatable(Role.new(action_queue), Puller)
 
     self.action_queue = action_queue
@@ -28,7 +27,6 @@ function Puller.new(action_queue, target_names, pull_abilities, truster)
     self.pull_settings = {
         Abilities = pull_abilities
     }
-    self.truster = truster
     self.last_pull_time = os.time() - 6
     self.dispose_bag = DisposeBag.new()
 

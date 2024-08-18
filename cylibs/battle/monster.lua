@@ -273,7 +273,8 @@ function Monster:handle_gain_buff(buff_id)
     if not self.buff_ids:contains(buff_id) then
         self.buff_ids:add(buff_id)
         self:on_gain_buff():trigger(self, self:get_mob().index, buff_id)
-        logger.notice(self:get_name(), "gains the effect of", res.buffs[buff_id].name, self:get_buffs())
+
+        logger.notice(self:get_name(), "gains the effect of", (res.buffs[buff_id] and res.buffs[buff_id].name) or 'unknown', self:get_buffs())
     end
 end
 
@@ -281,7 +282,8 @@ function Monster:handle_lose_buff(buff_id)
     if self.buff_ids:contains(buff_id) then
         self.buff_ids:remove(buff_id)
         self:on_lose_buff():trigger(self, self:get_mob().index, buff_id)
-        logger.notice(self:get_name(), "loses the effect of", res.buffs[buff_id].name, self:get_buffs())
+
+        logger.notice(self:get_name(), "loses the effect of", (res.buffs[buff_id] and res.buffs[buff_id].name) or 'unknown', self:get_buffs())
     end
 end
 
