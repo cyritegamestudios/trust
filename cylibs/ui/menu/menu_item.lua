@@ -110,9 +110,9 @@ end
 -- @tparam table args (optional) Args to pass to the contentViewConstructor
 -- @treturn ContentView The ContentView associated with this MenuItem.
 --
-function MenuItem:getContentView(args, infoView)
+function MenuItem:getContentView(args, infoView, showMenu)
     if self.contentViewConstructor ~= nil then
-        return self.contentViewConstructor(args, infoView)
+        return self.contentViewConstructor(args, infoView, showMenu)
     end
     return nil
 end

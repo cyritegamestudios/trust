@@ -15,6 +15,7 @@ local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_f
 
 local PickerView = setmetatable({}, {__index = CollectionView })
 PickerView.__index = PickerView
+PickerView.__type = "PickerView"
 
 TextStyle.PickerView = {
     Text = TextStyle.new(

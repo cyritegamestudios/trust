@@ -155,10 +155,8 @@ function CombatMode:face_target(target)
     -- frequently and would delay other actions.
     if state.AutoFaceMobMode.value == 'Auto' then
         player_util.face(target)
-        --self.action_queue:push_action(BlockAction.new(function() player_util.face(target)  end, "face target"))
     elseif state.AutoFaceMobMode.value == 'Away' then
         player_util.face_away(target)
-        --self.action_queue:push_action(BlockAction.new(function() player_util.face_away(target) end, "face away from target"))
     end
 end
 

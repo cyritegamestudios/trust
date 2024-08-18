@@ -4,6 +4,7 @@ local MenuView = require('cylibs/ui/menu/menu_view')
 
 local Menu =  {}
 Menu.__index = Menu
+Menu.__type = "Menu"
 
 
 function Menu.new(contentViewStack, viewStack, infoView)
@@ -55,7 +56,7 @@ function Menu:showMenu(menuItem)
     end
 
     if not self.menuView then
-        self.menuView = MenuView.new(menuItem, self.contentViewStack, self.infoView)
+        self.menuView = MenuView.new(menuItem, self.contentViewStack, self.infoView, function(menuItem) self:showMenu(menuItem) end)
         self.menuView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
             self.menuView:getDelegate():deselectAllItems()
 

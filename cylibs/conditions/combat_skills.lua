@@ -2,6 +2,7 @@
 -- Condition checking whether the target has any of the given combat skills.
 -- @class module
 -- @name CombatSkillsCondition
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local serializer_util = require('cylibs/util/serializer_util')
 
 local Condition = require('cylibs/conditions/condition')
@@ -12,7 +13,7 @@ CombatSkillsCondition.__class = "CombatSkillsCondition"
 
 function CombatSkillsCondition.new(combat_skill_names)
     local self = setmetatable(Condition.new(), CombatSkillsCondition)
-    self.combat_skill_names = combat_skill_names or L{}
+    self.combat_skill_names = combat_skill_names or L{ 'Dagger' }
     return self
 end
 
@@ -29,6 +30,29 @@ function CombatSkillsCondition:is_satisfied(_)
         end
     end
     return false
+end
+
+function CombatSkillsCondition:get_config_items()
+    local all_combat_skills = L{
+        'Hand-to-Hand',
+        'Dagger',
+        'Sword',
+        'Great Sword',
+        'Axe',
+        'Great Axe',
+        'Scythe',
+        'Polearm',
+        'Katana',
+        'Great Katana',
+        'Club',
+        'Staff',
+        'Archery',
+        'Marksmanship',
+        'Throwing'
+    }
+    return L{
+        MultiPickerConfigItem.new('combat_skill_names', self.combat_skill_names, all_combat_skills, nil, "Combat Skills")
+    }
 end
 
 function CombatSkillsCondition:tostring()
