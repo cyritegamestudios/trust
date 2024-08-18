@@ -4,7 +4,8 @@ _addon.name = 'Trust'
 _addon.version = '10.4.6'
 _addon.release_notes = [[
 This update introduces new menus for Bard, autocomplete for Trust
-commands and important bug fixes for users running the Japanese client.
+commands, new commands and important bug fixes for users running the
+Japanese client.
 
 	• Pulling
 	    • By popular demand, pulling capabilities have been added
@@ -21,9 +22,16 @@ commands and important bug fixes for users running the Japanese client.
 	      Settings > Songs > Edit > Pianissimo.
 	    • Added menu to select ally jobs.
 
+	• Commands
+	    • Added `// trust mb` and `// trust nuke` commands to cycle
+	      between magic burst and nuke modes
+	    • Added `// trust sch storm` commands to set storm element
+
 	• Bug Fixes
 	    • Fixed issue where Summoner would not dismiss Earth Spirit.
 	    • Fixed issue with JP clients when running GearSwap in Japanese.
+	    • Fixed issue where menu would not update on Scholar.
+	    • Fixed issue where Hasso would be used with 1-handed weapons.
 
 
 	• Press escape or enter to exit.
@@ -458,7 +466,7 @@ function check_version()
 
 		local Frame = require('cylibs/ui/views/frame')
 
-		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 550))
+		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 650))
 
 		updateView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
 			updateView:getDelegate():deselectItemAtIndexPath(indexPath)
