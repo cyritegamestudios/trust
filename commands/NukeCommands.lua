@@ -32,7 +32,7 @@ function NukeTrustCommands:get_settings()
     return self.trust_settings:getSettings()[state.MainTrustSettingsMode.value]
 end
 
--- // trust nuke [auto, earth, lightning, water, fire, ice, wind, light, dark]
+-- // trust nuke [auto, earth, lightning, water, fire, ice, wind, light, dark, cleave]
 function NukeTrustCommands:handle_toggle_mode(mode_var_name, on_value, off_value)
     local success = true
     local message

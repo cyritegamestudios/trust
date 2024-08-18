@@ -102,6 +102,7 @@ function Condition.defaultSerializableConditionClasses()
         NumResistsCondition.__class,
         SkillchainPropertyCondition.__class,
         HasDazeCondition.__class,
+        CombatSkillsCondition.__class,
     }
 end
 
