@@ -66,7 +66,7 @@ return {
         GambitSettings = {
             Default = L{
                 Gambit.new("Self", L{NotCondition.new(L{HasBuffsCondition.new(L{"Sublimation: Activated", "Sublimation: Complete", "Refresh"}, 1)})}, JobAbility.new("Sublimation", L{}, L{}), "Self"),
-                Gambit.new("Self", L{HasBuffsCondition.new(L{"Sublimation: Activated", "Sublimation: Complete"}, 1), MaxManaPointsPercentCondition.new(30)}, JobAbility.new("Sublimation", L{}, L{}), "Self")
+                Gambit.new("Self", L{HasBuffsCondition.new(L{"Sublimation: Complete"}, 1), MaxManaPointsPercentCondition.new(30)}, JobAbility.new("Sublimation", L{}, L{}), "Self")
             },
             Gambits = L{
 
