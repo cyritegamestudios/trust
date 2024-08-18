@@ -236,4 +236,26 @@ function Scholar:set_trust_settings(trust_settings)
     self.cure_settings = trust_settings.CureSettings or cure_util.default_cure_settings.Magic
 end
 
+-------
+-- Returns the highest tier storm spell for the given element.
+-- @tparam string element Element (e.g. earth, lightning)
+-- @treturn Buff Buff for storm
+function Scholar:get_storm(element)
+    local element_to_storm = {
+        Fire = 'Firestorm',
+        Ice = 'Hailstorm',
+        Wind = 'Windstorm',
+        Earth = 'Sandstorm',
+        Lightning = 'Thunderstorm',
+        Water = 'Rainstorm',
+        Light = 'Aurorastorm',
+        Dark = 'Voidstorm',
+    }
+    local storm_name = element_to_storm[element:gsub("^%l", string.upper)]
+    if storm_name then
+        return Buff.new(storm_name)
+    end
+    return nil
+end
+
 return Scholar

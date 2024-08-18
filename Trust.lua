@@ -219,7 +219,7 @@ function load_user_files(main_job_id, sub_job_id)
 
 	load_trust_modes(player.main_job_name_short)
 	load_ui()
-	load_trust_commands(player.main_job_name_short, player.trust.main_job, action_queue, player.party)
+	load_trust_commands(player.main_job_name_short, player.trust.main_job, action_queue, player.party, main_trust_settings)
 
 	main_trust_settings:copySettings()
 	sub_trust_settings:copySettings()
@@ -275,7 +275,7 @@ function load_trust_modes(job_name_short)
 	player.trust.trust_name = job_name_short
 end
 
-function load_trust_commands(job_name_short, trust, action_queue, party)
+function load_trust_commands(job_name_short, trust, action_queue, party, main_trust_settings)
 	local common_commands = L{
 		AssistCommands.new(trust, action_queue),
 		AttackCommands.new(trust, action_queue),
@@ -292,7 +292,7 @@ function load_trust_commands(job_name_short, trust, action_queue, party)
 		SendCommands.new(trust, action_queue),
 		SkillchainCommands.new(trust, weapon_skill_settings, action_queue),
 		WidgetCommands.new(trust, action_queue, addon_settings, hud.widgetManager),
-	}:extend(get_job_commands(job_name_short, trust, action_queue))
+	}:extend(get_job_commands(job_name_short, trust, action_queue, main_trust_settings))
 
 	local add_command = function(command)
 		shortcuts[command:get_command_name()] = command
@@ -343,16 +343,16 @@ function load_trust_commands(job_name_short, trust, action_queue, party)
 	end)
 end
 
-function get_job_commands(job_name_short, trust, action_queue)
+function get_job_commands(job_name_short, trust, action_queue, main_trust_settings, sub_trust_settings)
 	local root_paths = L{windower.windower_path..'addons/libs/', windower.addon_path}
 	for root_path in root_paths:it() do
 		local file_prefix = root_path..'cylibs/trust/commands/'..job_name_short
 		if windower.file_exists(file_prefix..'_'..windower.ffxi.get_player().name..'.lua') then
 			local TrustCommands = require('cylibs/trust/commands/'..job_name_short..'_'..windower.ffxi.get_player().name)
-			return L{ TrustCommands.new(trust, action_queue) }
+			return L{ TrustCommands.new(trust, action_queue, main_trust_settings) }
 		elseif windower.file_exists(file_prefix..'.lua') then
 			local TrustCommands = require('cylibs/trust/commands/'..job_name_short)
-			return L{ TrustCommands.new(trust, action_queue) }
+			return L{ TrustCommands.new(trust, action_queue, main_trust_settings) }
 		end
 	end
 	return L{}

@@ -3,20 +3,26 @@ local ScholarTrustCommands = setmetatable({}, {__index = TrustCommands })
 ScholarTrustCommands.__index = ScholarTrustCommands
 ScholarTrustCommands.__class = "ScholarTrustCommands"
 
-function ScholarTrustCommands.new(trust, action_queue)
+function ScholarTrustCommands.new(trust, action_queue, trust_settings)
     local self = setmetatable(TrustCommands.new(), ScholarTrustCommands)
 
     self.trust = trust
+    self.trust_settings = trust_settings
     self.action_queue = action_queue
 
     self:add_command('sc', self.handle_skillchain, 'Make a skillchain using immanence, // trust sch sc fusion')
     self:add_command('accession', self.handle_accession, 'Cast a spell with accession, // trust sch accession spell_name')
+    self:add_command('storm', self.handle_storm, 'Set storm element')
 
     return self
 end
 
 function ScholarTrustCommands:get_command_name()
     return 'sch'
+end
+
+function ScholarTrustCommands:get_settings()
+    return self.trust_settings:getSettings()[state.MainTrustSettingsMode.value]
 end
 
 function ScholarTrustCommands:get_job()
@@ -145,6 +151,40 @@ function ScholarTrustCommands:handle_accession(_, spell_name)
                 message = "Using Accession + "..spell_name
             end
         end
+    end
+
+    return success, message
+end
+
+-- // trust sch storm [fire|ice|wind|earth|lightning|water|light|dark]
+function ScholarTrustCommands:handle_storm(_, element)
+    local success
+    local message
+
+    local storm = self.trust:get_job():get_storm(element:lower())
+    if storm then
+        success = true
+        message = "Setting storm to "..storm:get_spell().en
+
+        local current_settings = self:get_settings()
+        for arts_name in L{ 'LightArts', 'DarkArts' }:it() do
+            local new_buffs = L{ storm }
+
+            local self_buffs = current_settings[arts_name].SelfBuffs
+            for buff in self_buffs:it() do
+                if not buff:get_spell().en:contains('storm') then
+                    new_buffs:append(buff)
+                end
+            end
+
+            self_buffs:clear()
+            self_buffs = self_buffs:extend(new_buffs)
+        end
+
+        self.trust_settings:saveSettings(true)
+    else
+        success = false
+        message = "Invalid element "..(element or 'nil')
     end
 
     return success, message
