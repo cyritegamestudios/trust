@@ -55,7 +55,6 @@ function Trust:init()
 					return
 				end
 				logger.notice(self.__class, 'on_party_target_change', new_target_index or 'nil', old_target_index or 'nil')
-				-- TODO: prune invalid actions instead of clear
 				self.action_queue:cleanup()
 				self.target_index = new_target_index
 				self:job_target_change(new_target_index, old_target_index)
