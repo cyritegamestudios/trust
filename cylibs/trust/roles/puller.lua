@@ -19,7 +19,7 @@ state.ApproachPullMode = M{['description'] = 'Approach Pull Mode', 'Off', 'Auto'
 state.ApproachPullMode:set_description('Auto', "Okay, I'll pull by engaging and approaching instead.")
 
 
-function Puller.new(action_queue, target_names, pull_abilities)
+function Puller.new(action_queue, target_names, pull_abilities, truster)
     local self = setmetatable(Role.new(action_queue), Puller)
 
     self.action_queue = action_queue
@@ -28,6 +28,7 @@ function Puller.new(action_queue, target_names, pull_abilities)
     self.pull_settings = {
         Abilities = pull_abilities
     }
+    self.truster = truster
     self.last_pull_time = os.time() - 6
     self.dispose_bag = DisposeBag.new()
 
@@ -129,7 +130,7 @@ function Puller:check_pull()
 
     if os.time() - self.last_pull_time < 6 or self:get_pull_target() == nil
             or Condition.check_conditions(L{ ClaimedCondition.new(self:get_party():get_party_members(true):map(function(p) return p:get_id() end)) }, self:get_pull_target():get_mob().index)
-            or (state.AutoTrustsMode.value ~= 'Off' and party_util.is_party_leader(windower.ffxi.get_player().id) and self:get_party():num_party_members() < 6) then
+            or (state.AutoTrustsMode.value ~= 'Off' and party_util.is_party_leader(windower.ffxi.get_player().id) and player.trust.main_job:role_with_type("truster"):get_valid_trusts():length() > 0) then
         return
     end
     self.last_pull_time = os.time()

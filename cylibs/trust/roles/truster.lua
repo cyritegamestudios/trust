@@ -3,6 +3,7 @@ local trusts = require('cylibs/res/trusts')
 
 local Truster = setmetatable({}, {__index = Role })
 Truster.__index = Truster
+Truster.__class = "Truster"
 
 state.AutoTrustsMode = M{['description'] = 'Auto Trusts Mode', 'Off', 'Auto'}
 state.AutoTrustsMode:set_description('Auto', "Okay, I'll automatically summon trusts before battle.")
@@ -53,6 +54,24 @@ function Truster:tic(new_time, old_time)
     self:check_trusts()
 end
 
+function Truster:get_valid_trusts()
+    local party_member_names = self:get_party():get_party_members():map(function(p) return p:get_name() end)
+
+    logger.notice(self.__class, 'get_valid_trusts', 'party_member_names', party_member_names)
+
+    local trust_names = self.trusts:copy():filter(function(trust_name)
+        local sanitized_name = trust_name
+        if trusts:with('enl', trust_name) then
+            sanitized_name = trusts:with('enl', trust_name).en
+        end
+        return not party_member_names:contains(sanitized_name) and not party_member_names:contains(trust_name)
+                and spell_util.can_cast_spell(spell_util.spell_id(trust_name))
+    end)
+    trust_names = trust_names:slice(1, math.min(6 - self:get_party():num_party_members(), trust_names:length()))
+
+    return trust_names
+end
+
 -------
 -- Summons trusts if there are fewer than 6 players in the party.
 function Truster:check_trusts()
@@ -61,14 +80,9 @@ function Truster:check_trusts()
         return
     end
 
-    local trust_names = self.trusts:copy():filter(function(trust_name)
-        local sanitized_name = trust_name
-        if trusts:with('enl', trust_name) then
-            sanitized_name = trusts:with('enl', trust_name).en
-        end
-        return self:get_party():get_party_member_named(sanitized_name) == nil and spell_util.can_cast_spell(spell_util.spell_id(trust_name))
-    end)
-    trust_names = trust_names:slice(1, math.min(6 - self:get_party():num_party_members(), trust_names:length()))
+    local trust_names = self:get_valid_trusts()
+
+    logger.notice(self.__class, 'check_trusts', trust_names)
 
     for trust_name in trust_names:it() do
         self:call_trust(trust_name)
@@ -78,12 +92,14 @@ end
 function Truster:call_trust(trust_name)
     local trust_spell = res.spells:with('en', trust_name)
     if trust_spell then
+        logger.notice(self.__class, 'call_trust', trust_name)
+
         local actions = L{}
 
         actions:append(WaitAction.new(0, 0, 0, 5))
         actions:append(SpellAction.new(0, 0, 0, trust_spell.id, nil, self:get_player()))
 
-        local trust_action = SequenceAction.new(actions, 'truster_call_trust_'..trust_name)
+        local trust_action = SequenceAction.new(actions, 'truster_call_trust')
         trust_action.priority = ActionPriority.highest
         trust_action.max_duration = 20
 
