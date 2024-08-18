@@ -93,10 +93,24 @@ function PullSettingsMenuItem:getConfigMenuItem()
     return MenuItem.new(L{
         ButtonItem.default('Save')
     }, L{}, function(menuArgs)
+        local allSettings = self.trust_settings:getSettings()[self.trust_settings_mode.value]
+
+        local pullSettings = T{
+            Distance = allSettings.PullSettings.Distance,
+        }
+
         local configItems = L{
             ConfigItem.new('Distance', 0, 35, 1, function(value) return value.." yalms" end, "Target Distance"),
         }
-        return ConfigEditor.new(self.trust_settings, self.trust_settings:getSettings()[self.trust_settings_mode.value].PullSettings, configItems)
+        local pullConfigEditor = ConfigEditor.new(self.trust_settings, pullSettings, configItems)
+
+        self.dispose_bag:add(pullConfigEditor:onConfigChanged():addAction(function(newSettings, _)
+            allSettings.PullSettings.Distance = newSettings.Distance
+
+            self.trust_settings:saveSettings(true)
+        end), pullConfigEditor:onConfigChanged())
+
+        return pullConfigEditor
     end, "Config", "Configure pull settings.")
 end
 

@@ -1,10 +1,11 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '10.4.4'
+_addon.version = '10.4.6'
 _addon.release_notes = [[
 This update introduces new menus for Bard, autocomplete for Trust
-commands and important bug fixes for users running the Japanese client.
+commands, new commands and important bug fixes for users running the
+Japanese client.
 
 	• Pulling
 	    • By popular demand, pulling capabilities have been added
@@ -21,9 +22,16 @@ commands and important bug fixes for users running the Japanese client.
 	      Settings > Songs > Edit > Pianissimo.
 	    • Added menu to select ally jobs.
 
+	• Commands
+	    • Added `// trust mb` and `// trust nuke` commands to cycle
+	      between magic burst and nuke modes
+	    • Added `// trust sch storm` commands to set storm element
+
 	• Bug Fixes
 	    • Fixed issue where Summoner would not dismiss Earth Spirit.
 	    • Fixed issue with JP clients when running GearSwap in Japanese.
+	    • Fixed issue where menu would not update on Scholar.
+	    • Fixed issue where Hasso would be used with 1-handed weapons.
 
 
 	• Press escape or enter to exit.
@@ -219,7 +227,7 @@ function load_user_files(main_job_id, sub_job_id)
 
 	load_trust_modes(player.main_job_name_short)
 	load_ui()
-	load_trust_commands(player.main_job_name_short, player.trust.main_job, action_queue, player.party)
+	load_trust_commands(player.main_job_name_short, player.trust.main_job, action_queue, player.party, main_trust_settings)
 
 	main_trust_settings:copySettings()
 	sub_trust_settings:copySettings()
@@ -275,14 +283,16 @@ function load_trust_modes(job_name_short)
 	player.trust.trust_name = job_name_short
 end
 
-function load_trust_commands(job_name_short, trust, action_queue, party)
+function load_trust_commands(job_name_short, trust, action_queue, party, main_trust_settings)
 	local common_commands = L{
 		AssistCommands.new(trust, action_queue),
 		AttackCommands.new(trust, action_queue),
 		FollowCommands.new(trust, action_queue),
 		GeneralCommands.new(trust, action_queue, addon_enabled, trust_mode_settings, main_trust_settings, sub_trust_settings),
 		LoggingCommands.new(trust, action_queue),
+		MagicBurstCommands.new(trust, main_trust_settings, action_queue),
 		MenuCommands.new(trust, action_queue, hud),
+		NukeCommands.new(trust, main_trust_settings, action_queue),
 		PathCommands.new(trust, action_queue),
 		PullCommands.new(trust, action_queue),
 		ScenarioCommands.new(trust, action_queue, party, addon_settings),
@@ -290,7 +300,7 @@ function load_trust_commands(job_name_short, trust, action_queue, party)
 		SendCommands.new(trust, action_queue),
 		SkillchainCommands.new(trust, weapon_skill_settings, action_queue),
 		WidgetCommands.new(trust, action_queue, addon_settings, hud.widgetManager),
-	}:extend(get_job_commands(job_name_short, trust, action_queue))
+	}:extend(get_job_commands(job_name_short, trust, action_queue, main_trust_settings))
 
 	local add_command = function(command)
 		shortcuts[command:get_command_name()] = command
@@ -341,16 +351,16 @@ function load_trust_commands(job_name_short, trust, action_queue, party)
 	end)
 end
 
-function get_job_commands(job_name_short, trust, action_queue)
+function get_job_commands(job_name_short, trust, action_queue, main_trust_settings, sub_trust_settings)
 	local root_paths = L{windower.windower_path..'addons/libs/', windower.addon_path}
 	for root_path in root_paths:it() do
 		local file_prefix = root_path..'cylibs/trust/commands/'..job_name_short
 		if windower.file_exists(file_prefix..'_'..windower.ffxi.get_player().name..'.lua') then
 			local TrustCommands = require('cylibs/trust/commands/'..job_name_short..'_'..windower.ffxi.get_player().name)
-			return L{ TrustCommands.new(trust, action_queue) }
+			return L{ TrustCommands.new(trust, action_queue, main_trust_settings) }
 		elseif windower.file_exists(file_prefix..'.lua') then
 			local TrustCommands = require('cylibs/trust/commands/'..job_name_short)
-			return L{ TrustCommands.new(trust, action_queue) }
+			return L{ TrustCommands.new(trust, action_queue, main_trust_settings) }
 		end
 	end
 	return L{}
@@ -456,7 +466,7 @@ function check_version()
 
 		local Frame = require('cylibs/ui/views/frame')
 
-		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 550))
+		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 675))
 
 		updateView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
 			updateView:getDelegate():deselectItemAtIndexPath(indexPath)

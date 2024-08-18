@@ -288,6 +288,20 @@ function TrustHud:getMainMenuItem()
     return self.mainMenuItem
 end
 
+function TrustHud:reloadMainMenuItem()
+    local showMenu = self.trustMenu:isVisible()
+
+    self.trustMenu:closeAll()
+    self.mainMenuItem:destroy()
+    self.mainMenuItem = nil
+
+    self:getMainMenuItem()
+
+    if showMenu then
+        self.trustMenu:showMenu(self.mainMenuItem)
+    end
+end
+
 local function createBackgroundView(width, height)
     local backgroundView = FFXIBackgroundView.new(Frame.new(0, 0, width, height), true)
     --[[local backgroundView = BackgroundView.new(Frame.new(0, 0, width, height),
@@ -518,9 +532,7 @@ function TrustHud:getSkillchainerMenuItem(weaponSkillSettings, weaponSkillSettin
 end
 
 function TrustHud:getPullerMenuItem(trust, jobNameShort, trustSettings, trustSettingsMode, viewSize)
-    local pullerSettingsMenuItem = PullSettingsMenuItem.new(L{}, trust, jobNameShort, self.addon_settings, self.addon_settings:getSettings().battle.targets, trustSettings, trustSettingsMode, function(view)
-        return setupView(view, viewSize)
-    end)
+    local pullerSettingsMenuItem = PullSettingsMenuItem.new(L{}, trust, jobNameShort, self.addon_settings, self.addon_settings:getSettings().battle.targets, trustSettings, trustSettingsMode)
     return pullerSettingsMenuItem
 end
 

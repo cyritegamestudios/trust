@@ -169,6 +169,10 @@ local incoming_event_dispatcher = {
         local packet = packets.parse('incoming', data)
 
         local mob_id = packet['ID']
+        if mob_id == nil then
+            return
+        end
+
         local mob = windower.ffxi.get_mob_by_id(mob_id)
         if not mob then
             return

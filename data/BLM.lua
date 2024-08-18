@@ -57,6 +57,9 @@ return {
             Distance = 20
         },
         GambitSettings = {
+            Default = L{
+                Gambit.new("Self", L{MinManaPointsPercentCondition.new(50), InBattleCondition.new()}, JobAbility.new("Cascade", L{}, L{}), "Self", L{})
+            },
             Gambits = L{
 
             }

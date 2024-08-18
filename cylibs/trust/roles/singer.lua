@@ -123,7 +123,7 @@ function Singer:assert_num_songs(party_member)
 
     logger.notice(self.__class, "assert_num_songs", "maximum number of songs is", max_num_songs)
 
-    local current_num_songs = L(self.song_tracker:get_songs(party_member:get_mob().id)):length()
+    local current_num_songs = L(self.song_tracker:get_songs(party_member:get_id())):length()
     local current_num_song_buffs = self.brd_job:get_song_buff_ids(party_member:get_buff_ids()):length()
 
     if current_num_songs ~= current_num_song_buffs then

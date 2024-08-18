@@ -101,13 +101,20 @@ end
 function BuffSettingsEditor:reloadSettings()
     self:getDataSource():removeAllItems()
 
+    local checkJob = function(spell)
+        local job_conditions = spell:get_conditions():filter(function(condition)
+            return condition.__class == MainJobCondition.__class
+        end) or L{}
+        return job_conditions:empty() or Condition.check_conditions(job_conditions, windower.ffxi.get_player().index)
+    end
+
     local items = L{}
 
     local rowIndex = 1
     for spell in self.buffs:it() do
         local imageItem = AssetManager.imageItemForSpell(spell:get_name())
         local textItem = TextItem.new(spell:get_spell().en, TextStyle.Default.PickerItem)
-        textItem:setEnabled(spell_util.knows_spell(spell:get_spell().id))
+        textItem:setEnabled(spell_util.knows_spell(spell:get_spell().id) and checkJob(spell))
         items:append(IndexedItem.new(ImageTextItem.new(imageItem, textItem), IndexPath.new(1, rowIndex)))
         rowIndex = rowIndex + 1
     end

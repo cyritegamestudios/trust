@@ -12,6 +12,9 @@ local PickerItem = require('cylibs/ui/collection_view/items/picker_item')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
+local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
+local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+local MenuItem = require('cylibs/ui/menu/menu_item')
 
 local PickerCollectionViewCell = setmetatable({}, {__index = CollectionViewCell })
 PickerCollectionViewCell.__index = PickerCollectionViewCell
@@ -21,7 +24,10 @@ PickerCollectionViewCell.__type = "PickerCollectionViewCell"
 function PickerCollectionViewCell.new(item)
     local self = setmetatable(CollectionViewCell.new(item), PickerCollectionViewCell)
 
-    self.textView = TextCollectionViewCell.new(TextItem.new(item:getTextFormat()(item:getCurrentValue()), TextStyle.Picker.TextSmall))
+    local textItem = TextItem.new(item:getTextFormat()(item:getCurrentValue()), TextStyle.Picker.TextSmall)
+    textItem:setShouldTruncateText(false)
+
+    self.textView = TextCollectionViewCell.new(textItem)
     self:addSubview(self.textView)
 
     self:setNeedsLayout()
@@ -41,10 +47,16 @@ function PickerCollectionViewCell:setSelected(selected)
 
     self.textView:setSelected(selected)
 
-    if selected then
-        self:requestFocus()
+    if not self:getItem():allowsMultipleSelection() then
+        if selected then
+            self:requestFocus()
+        else
+            self:resignFocus()
+        end
     else
-        self:resignFocus()
+        if selected then
+            self:showPickerView()
+        end
     end
 end
 
@@ -73,6 +85,28 @@ function PickerCollectionViewCell:hitTest(x, y)
     return self.textView:hitTest(x, y)
 end
 
+function PickerCollectionViewCell:showPickerView()
+    local item = self:getItem()
+    if item:allowsMultipleSelection() then
+        local menuItem = MenuItem.new(L{
+            ButtonItem.default('Confirm')
+        }, {}, function(_, _)
+            local pickerView = FFXIPickerView.withItems(item:getAllValues(), item:getCurrentValue(), true)
+            pickerView:setShouldRequestFocus(true)
+            pickerView:on_pick_items():addAction(function(pickerView, selectedItems)
+                self:getItem():setCurrentValue(selectedItems:map(function(item) return item:getText() end))
+                self:setItem(self:getItem())
+
+                self:getItem():getOnPickItems()(self:getItem():getCurrentValue())
+            end)
+            pickerView:setShouldRequestFocus(true)
+            return pickerView
+        end, "Choose", "Choose one or more values.")
+
+        item:getShowMenu()(menuItem)
+    end
+end
+
 function PickerCollectionViewCell:onKeyboardEvent(key, pressed, flags, blocked)
     local blocked = blocked or CollectionViewCell.onKeyboardEvent(self, key, pressed, flags, blocked)
     if blocked then
@@ -83,6 +117,9 @@ function PickerCollectionViewCell:onKeyboardEvent(key, pressed, flags, blocked)
         if key then
             local currentIndex = self:getItem():getAllValues():indexOf(self:getItem():getCurrentValue())
             if key == 'Left' then
+                if self:getItem():allowsMultipleSelection() then
+                    return false
+                end
                 local interval = 1
                 if flags == 1 then
                     interval = 50
@@ -96,6 +133,9 @@ function PickerCollectionViewCell:onKeyboardEvent(key, pressed, flags, blocked)
                 self:setItem(self:getItem())
                 return true
             elseif key == 'Right' then
+                if self:getItem():allowsMultipleSelection() then
+                    return false
+                end
                 local interval = 1
                 if flags == 1 then
                     interval = 50
@@ -118,6 +158,9 @@ function PickerCollectionViewCell:onKeyboardEvent(key, pressed, flags, blocked)
 end
 
 function PickerCollectionViewCell:setHasFocus(hasFocus)
+    if self:getItem():allowsMultipleSelection() then
+        hasFocus = false
+    end
     CollectionViewCell.setHasFocus(self, hasFocus)
 
     self:layoutIfNeeded()
