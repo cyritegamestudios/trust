@@ -93,6 +93,10 @@ function DebuffTracker:monitor()
                             for debuff_id in debuff_ids:it() do
                                 self:on_lose_debuff():trigger(self.mob_id, debuff_id)
                             end
+                        elseif L{ 1 }:contains(action.message) then
+                            for sleep_debuff_id in L{ 2, 19 }:it() do
+                                self:remove_debuff(sleep_debuff_id)
+                            end
                         end
                     end
                 end
