@@ -11,7 +11,6 @@ Puller.__class = "Puller"
 state.AutoPullMode = M{['description'] = 'Auto Pull Mode', 'Off', 'Auto','Party','All'}
 state.AutoPullMode:set_description('Off', "Okay, I won't pull monsters for the party.")
 state.AutoPullMode:set_description('Auto', "Okay, I'll automatically pull monsters for the party.")
---state.AutoPullMode:set_description('Target', "Okay, I'll pull whatever monster I'm currently targeting.")
 state.AutoPullMode:set_description('Party', "Okay, I'll pull monsters the party is fighting.")
 state.AutoPullMode:set_description('All', "Okay, I'll pull any monster that's nearby.")
 

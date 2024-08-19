@@ -22,8 +22,15 @@ function ValidSpellTargetCondition:is_satisfied(target_index)
     if not ValidTargetCondition.is_satisfied(self, target_index) then
         return false
     end
+    local target_type = self:get_target_type(target_index)
+    if target_type == 'Enemy' then
+        local target = windower.ffxi.get_mob_by_index(target_index)
+        if target and target.hpp <= 0 then
+            return false
+        end
+    end
     local spell_targets = spell_util.spell_targets(self.spell_name)
-    return spell_targets:contains(self:get_target_type(target_index))
+    return spell_targets:contains(target_type)
 end
 
 function ValidSpellTargetCondition:get_target_type(target_index)

@@ -67,7 +67,6 @@ function Gambit:tostring()
 end
 
 function Gambit:serialize()
-    --return "Gambit.new(" .. serializer_util.serialize_args(self.target, self.conditions, self.ability).. ")"
     local conditions = serializer_util.serialize(self.conditions, 0)
     local tags = serializer_util.serialize(self.tags or L{}, 0)
     return "Gambit.new(" .. serializer_util.serialize(self.target) .. ", " .. conditions .. ", " .. self.ability:serialize() .. ", " .. serializer_util.serialize(self.conditions_target) .. ", " .. tags .. ")"
