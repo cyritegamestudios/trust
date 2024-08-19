@@ -18,7 +18,7 @@ state.ApproachPullMode = M{['description'] = 'Approach Pull Mode', 'Off', 'Auto'
 state.ApproachPullMode:set_description('Auto', "Okay, I'll pull by engaging and approaching instead.")
 
 
-function Puller.new(action_queue, target_names, pull_abilities)
+function Puller.new(action_queue, target_names, pull_abilities, truster)
     local self = setmetatable(Role.new(action_queue), Puller)
 
     self.action_queue = action_queue
@@ -27,6 +27,7 @@ function Puller.new(action_queue, target_names, pull_abilities)
     self.pull_settings = {
         Abilities = pull_abilities
     }
+    self.truster = truster
     self.last_pull_time = os.time() - 6
     self.dispose_bag = DisposeBag.new()
 
