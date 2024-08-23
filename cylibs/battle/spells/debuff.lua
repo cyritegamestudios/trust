@@ -34,7 +34,7 @@ function Debuff.new(spell_name, job_abilities, job_names, spell_prefix)
 end
 
 function Debuff:serialize()
-    return "Debuff.new(" .. serializer_util.serialize_args(self.original_spell_name, self.job_abilities, self.job_names, self.spell_prefix) .. ")"
+    return "Debuff.new(" .. serializer_util.serialize_args(self.original_spell_name, self.job_abilities, L{}, self.spell_prefix) .. ")"
 end
 
 return Debuff
