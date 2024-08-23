@@ -44,7 +44,7 @@ function TargetNameCondition:tostring()
 end
 
 function TargetNameCondition.description()
-    return "Target with name."
+    return "Targeting mob with name."
 end
 
 function TargetNameCondition.valid_targets()
