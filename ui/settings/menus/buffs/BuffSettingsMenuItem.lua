@@ -15,6 +15,7 @@ function BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsPref
         ButtonItem.default('Remove', 18),
         ButtonItem.default('Edit', 18),
         ButtonItem.default('Conditions', 18),
+        ButtonItem.default('Reset', 18),
     }, {}, nil, "Buffs", descriptionText), BuffSettingsMenuItem)
 
     self.trustSettings = trustSettings
@@ -69,6 +70,7 @@ function BuffSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Add", self:getAddBuffMenuItem())
     self:setChildMenuItem("Edit", self:getEditBuffMenuItem())
     self:setChildMenuItem("Conditions", self:getConditionsMenuItem())
+    self:setChildMenuItem("Reset", self:getResetMenuItem())
 end
 
 function BuffSettingsMenuItem:getAddBuffMenuItem()
@@ -122,6 +124,23 @@ function BuffSettingsMenuItem:getConditionsMenuItem()
     return ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, nil, nil, function()
         return self.buffs and self.buffs:length() > 0
     end)
+end
+
+function BuffSettingsMenuItem:getResetMenuItem()
+    return MenuItem.action(function(menu)
+        local defaultSettings = T(self.trustSettings:getDefaultSettings()):clone().Default
+
+        local currentSettings = self.trustSettings:getSettings()[self.trustSettingsMode.value]
+        if self.settingsPrefix then
+            currentSettings[self.settingsPrefix][self.settingsKey] = defaultSettings[self.settingsPrefix][self.settingsKey]
+        else
+            currentSettings[self.settingsKey] = defaultSettings[self.settingsKey]
+        end
+        self.trustSettings:saveSettings(true)
+        addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've forgotten any custom settings!")
+
+        menu:showMenu(self)
+    end, "Reset", "Reset to default settings. WARNING: your settings will be overriden.")
 end
 
 return BuffSettingsMenuItem
