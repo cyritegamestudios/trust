@@ -28,8 +28,7 @@ function TrustInfoBar.new(frame)
         return cell
     end)
 
-    local style = CollectionView.defaultStyle()
-    --style.cursorItem = nil
+    local style = CollectionView.defaultBackgroundStyle()
 
     local self = setmetatable(CollectionView.new(dataSource, HorizontalFlowLayout.new(4, Padding.new(0, 0, 0, 0)), nil, style), TrustInfoBar)
 
