@@ -20,7 +20,7 @@ function ModeConfigEditor.new(modeNames, infoView)
     local configItems = modeNames:map(function(modeName)
         if state[modeName] then
             modeSettings[modeName:lower()] = state[modeName].value
-            return PickerConfigItem.new(modeName:lower(), state[modeName].value, L(state[modeName]:options()), nil, modeName)
+            return PickerConfigItem.new(modeName:lower(), state[modeName].value, L(state[modeName]:options()), nil, state[modeName].description or modeName)
         end
         return nil
     end):compact_map()

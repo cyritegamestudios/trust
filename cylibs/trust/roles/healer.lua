@@ -10,7 +10,7 @@ local Healer = setmetatable({}, {__index = Role })
 Healer.__index = Healer
 Healer.__class = "Healer"
 
-state.AutoHealMode = M{['description'] = 'Auto Heal Mode', 'Auto', 'Emergency', 'Off'}
+state.AutoHealMode = M{['description'] = 'Heal Player and Party', 'Auto', 'Emergency', 'Off'}
 state.AutoHealMode:set_description('Auto', "You can count on me to heal the party.")
 state.AutoHealMode:set_description('Emergency', "Okay, I'll only heal when you're in a pinch.")
 

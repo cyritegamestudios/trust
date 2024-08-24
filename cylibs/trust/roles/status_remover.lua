@@ -9,10 +9,10 @@ local StatusRemover = setmetatable({}, {__index = Role })
 StatusRemover.__index = StatusRemover
 StatusRemover.__class = "StatusRemover"
 
-state.AutoStatusRemovalMode = M{['description'] = 'Auto Status Removal Mode', 'Auto', 'Off'}
+state.AutoStatusRemovalMode = M{['description'] = 'Remove Status Ailments', 'Auto', 'Off'}
 state.AutoStatusRemovalMode:set_description('Auto', "Okay, I'll remove status effects.")
 
-state.AutoDetectAuraMode = M{['description'] = 'Auto Detect Aura Mode', 'Off', 'Auto'}
+state.AutoDetectAuraMode = M{['description'] = 'Detect Auras', 'Off', 'Auto'}
 state.AutoDetectAuraMode:set_description('Auto', "Okay, I'll try not to remove status effects caused by auras.")
 
 -------
