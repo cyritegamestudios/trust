@@ -21,7 +21,7 @@ BorderView.__index = BorderView
 -- @treturn BackgroundView The created background view.
 --
 function BorderView.new(frame, resizableImageItem)
-    local self = setmetatable(CollectionView.new(CollectionViewDataSource.new(), HorizontalFlowLayout.new(0)), BorderView)
+    local self = setmetatable(CollectionView.new(CollectionViewDataSource.new(), HorizontalFlowLayout.new(0), nil, CollectionView.defaultBackgroundStyle()), BorderView)
 
     self.borderImageItem = resizableImageItem
 

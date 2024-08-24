@@ -55,6 +55,18 @@ function FFXIClassicStyle.default()
     return self
 end
 
+function FFXIClassicStyle.background()
+    local self = setmetatable(CollectionViewStyle.new(
+            nil,
+            ScrollItem.new(),
+            FFXIClassicStyle.CenterImageItem,
+            FFXIClassicStyle.Border.LeftImageItem,
+            FFXIClassicStyle.Border.CenterImageItem,
+            FFXIClassicStyle.Border.RightImageItem
+    ), FFXIClassicStyle)
+    return self
+end
+
 function FFXIClassicStyle.static()
     local self = setmetatable(CollectionViewStyle.new(
             nil,

@@ -18,6 +18,16 @@ function CollectionView.setDefaultStyle(style)
     defaultStyle = style
 end
 
+local defaultBackgroundStyle
+
+function CollectionView.defaultBackgroundStyle()
+    return defaultBackgroundStyle
+end
+
+function CollectionView.setDefaultBackgroundStyle(style)
+    defaultBackgroundStyle = style
+end
+
 ---
 -- Creates a new CollectionView instance with the specified data source and layout.
 --
@@ -81,11 +91,13 @@ function CollectionView.new(dataSource, layout, delegate, style)
     self.delegate:didMoveCursorToItemAtIndexPath():addAction(function(cursorIndexPath)
         local cell = self:getDataSource():cellForItemAtIndexPath(cursorIndexPath)
         if cell then
-            self.selectionBackground:setPosition(cell:getPosition().x - self.cursorImageItem:getSize().width - 7, cell:getPosition().y + (cell:getSize().height - self.cursorImageItem:getSize().height) / 2)
-            self.selectionBackground:setSize(self.cursorImageItem:getSize().width, self.cursorImageItem:getSize().height)
-            self.selectionBackground:setVisible(self:hasFocus())
-            self.selectionBackground:setNeedsLayout()
-            self.selectionBackground:layoutIfNeeded()
+            if self.selectionBackground then
+                self.selectionBackground:setPosition(cell:getPosition().x - self.cursorImageItem:getSize().width - 7, cell:getPosition().y + (cell:getSize().height - self.cursorImageItem:getSize().height) / 2)
+                self.selectionBackground:setSize(self.cursorImageItem:getSize().width, self.cursorImageItem:getSize().height)
+                self.selectionBackground:setVisible(self:hasFocus())
+                self.selectionBackground:setNeedsLayout()
+                self.selectionBackground:layoutIfNeeded()
+            end
         end
     end)
 

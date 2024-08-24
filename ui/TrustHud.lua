@@ -79,6 +79,7 @@ function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, a
     local self = setmetatable(View.new(), TrustHud)
 
     CollectionView.setDefaultStyle(FFXIClassicStyle.default())
+    CollectionView.setDefaultBackgroundStyle(FFXIClassicStyle.background())
 
     self.lastMenuToggle = os.time()
     self.menuSize = Frame.new(0, 0, menu_width, menu_height)

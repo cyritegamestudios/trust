@@ -41,7 +41,7 @@ TitleBorderView.HeaderSmall = TextStyle.new(
 -- @treturn BackgroundView The created background view.
 --
 function TitleBorderView.new(frame, resizableImageItem)
-    local self = setmetatable(CollectionView.new(CollectionViewDataSource.new(), HorizontalFlowLayout.new(0)), TitleBorderView)
+    local self = setmetatable(CollectionView.new(CollectionViewDataSource.new(), HorizontalFlowLayout.new(0), nil, CollectionView.defaultBackgroundStyle()), TitleBorderView)
 
     self.borderImageItem = resizableImageItem
     self.title = ""
