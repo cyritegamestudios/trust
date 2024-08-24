@@ -126,10 +126,12 @@ function PickerView:reload()
     end
 end
 
-function PickerView:setItems(texts, selectedTexts)
+function PickerView:setItems(texts, selectedTexts, shouldTruncateText)
     selectedTexts = selectedTexts or L{}
     self.pickerItems = L{ texts:map(function(text)
-        return PickerItem.new(TextItem.new(text, TextStyle.PickerView.Text), selectedTexts:contains(text))
+        local textItem = TextItem.new(text, TextStyle.PickerView.Text)
+        textItem:setShouldTruncateText(shouldTruncateText)
+        return PickerItem.new(textItem, selectedTexts:contains(text))
     end) }
     self:reload()
 end
