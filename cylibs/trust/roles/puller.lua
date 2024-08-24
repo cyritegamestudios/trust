@@ -2,6 +2,7 @@ local Approach = require('cylibs/battle/approach')
 local ClaimedCondition = require('cylibs/conditions/claimed')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local ffxi_util = require('cylibs/util/ffxi_util')
+local RunToLocationAction = require('cylibs/actions/runtolocation')
 local SwitchTargetAction = require('cylibs/actions/switch_target')
 
 local Puller = setmetatable({}, {__index = Role })
@@ -13,6 +14,10 @@ state.AutoPullMode:set_description('Off', "Okay, I won't pull monsters for the p
 state.AutoPullMode:set_description('Auto', "Okay, I'll automatically pull monsters for the party.")
 state.AutoPullMode:set_description('Party', "Okay, I'll pull monsters the party is fighting.")
 state.AutoPullMode:set_description('All', "Okay, I'll pull any monster that's nearby.")
+
+state.AutoCampMode = M{['description'] = 'Auto Camp Mode', 'Off', 'Auto'}
+state.AutoCampMode:set_description('Off', "Okay, I won't return to camp after battle.")
+state.AutoCampMode:set_description('Auto', "Okay, I'll return to camp after battle.")
 
 state.ApproachPullMode = M{['description'] = 'Approach Pull Mode', 'Off', 'Auto'}
 state.ApproachPullMode:set_description('Auto', "Okay, I'll pull by engaging and approaching instead.")
@@ -65,8 +70,25 @@ function Puller:on_add()
     self.dispose_bag:add(WindowerEvents.MobKO:addAction(function(mob_id, mob_name)
         if self:get_pull_target() and self:get_pull_target():get_id() == mob_id then
             self:set_pull_target(nil)
+            self:return_to_camp()
         end
     end), WindowerEvents.MobKO)
+end
+
+function Puller:return_to_camp()
+    if state.AutoCampMode.value == 'Off' or self:get_camp_position() == nil then
+        return
+    end
+
+    if ffxi_util.distance(ffxi_util.get_mob_position(windower.ffxi.get_player().name), self:get_camp_position()) > 40 then
+        self:set_camp_position(nil)
+        return
+    end
+
+    local return_to_camp_action = RunToLocationAction.new(self:get_camp_position()[1], self:get_camp_position()[2], self:get_camp_position()[3], 2.0)
+    return_to_camp_action.identifier = "Return to camp"
+
+    self.action_queue:push_action(return_to_camp_action, true)
 end
 
 function Puller:target_change(target_index)
@@ -251,6 +273,14 @@ function Puller:get_target_names()
         return L{}
     end
     return self.target_names
+end
+
+function Puller:set_camp_position(position)
+    self.camp_position = position
+end
+
+function Puller:get_camp_position()
+    return self.camp_position
 end
 
 function Puller:allows_duplicates()
