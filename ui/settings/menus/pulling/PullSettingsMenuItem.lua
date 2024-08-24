@@ -61,7 +61,7 @@ function PullSettingsMenuItem:getTargetsMenuItem()
         local chooseTargetsView = TargetsPickerView.new(self.addon_settings, self.puller)
         chooseTargetsView:setShouldRequestFocus(true)
         return chooseTargetsView
-    end, "Targets", "Add targets to pull.")
+    end, "Targets", "Choose which enemies to pull.")
 
     local targetsMenuItem = MenuItem.new(L{
         ButtonItem.default('Add', 18),
