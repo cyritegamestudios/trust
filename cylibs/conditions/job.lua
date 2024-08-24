@@ -43,10 +43,10 @@ function JobCondition:tostring()
     if self.job_name_shorts:equals(job_util.all_jobs()) then
         return "Target job is any job"
     else
-        --if self.job_name_shorts:length() > 15 then
-        --    local excluded_job_name_shorts = list.diff(self.job_name_shorts, job_util.all_jobs())
-        --    return "Target is any job except "..localization_util.commas(excluded_job_name_shorts, 'or')
-        --end
+        if self.job_name_shorts:length() > 15 then
+            local excluded_job_name_shorts = list.diff(self.job_name_shorts, job_util.all_jobs())
+            return "Target is any job except "..localization_util.commas(excluded_job_name_shorts, 'or')
+        end
         return "Target job is "..localization_util.commas(self.job_name_shorts, 'or')
     end
 end
