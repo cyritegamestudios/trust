@@ -19,7 +19,7 @@ function LoadSettingsMenuItem.new(addonSettings, trustModeSettings, jobSettings,
         local loadSettingsView = LoadSettingsView.new(state.TrustMode, addonSettings, trustModeSettings)
         loadSettingsView:setShouldRequestFocus(true)
         return loadSettingsView
-    end, "Settings", "Load saved modes and job settings"), LoadSettingsMenuItem)
+    end, "Settings", "Load saved modes and job settings."), LoadSettingsMenuItem)
 
     self.addonSettings = addonSettings
     self.trustModeSettings = trustModeSettings

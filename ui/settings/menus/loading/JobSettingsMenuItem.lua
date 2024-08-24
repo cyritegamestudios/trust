@@ -15,7 +15,7 @@ function JobSettingsMenuItem.new(jobSettingsMode, jobSettings, viewFactory)
         local loadSettingsView = JobSettingsView.new(jobSettingsMode, jobSettings)
         loadSettingsView:setShouldRequestFocus(true)
         return loadSettingsView
-    end, "Settings", "Load saved modes and job settings"), JobSettingsMenuItem)
+    end, "Settings", "Load saved modes and job settings."), JobSettingsMenuItem)
 
     self.jobSettingsMode = jobSettingsMode
     self.jobSettings = jobSettings

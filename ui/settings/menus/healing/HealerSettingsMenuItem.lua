@@ -40,7 +40,9 @@ end
 
 function HealerSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Config", self:getConfigMenuItem())
-    self:setChildMenuItem("Blacklist", self:getBlacklistMenuItem())
+    if self.trustSettings:getSettings().Default.CureSettings.StatusRemovals ~= nil then
+        self:setChildMenuItem("Blacklist", self:getBlacklistMenuItem())
+    end
     self:setChildMenuItem("Modes", self:getModesMenuItem())
 end
 
