@@ -4,7 +4,7 @@ local ConfigItem = require('ui/settings/editors/config/ConfigItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local ElementPickerView = require('ui/settings/pickers/ElementPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModesView = require('ui/settings/editors/ModeSettingsEditor')
+local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
 local NukeSettingsEditor = require('ui/settings/NukeSettingsEditor')
 local SpellPickerView = require('ui/settings/pickers/SpellPickerView')
 
@@ -110,7 +110,9 @@ function NukeSettingsMenuItem:getConfigMenuItem()
 end
 
 function NukeSettingsMenuItem:getModesMenuItem()
-    local nukeModesMenuItem = MenuItem.new(L{}, L{}, function(_, infoView)
+    local nukeModesMenuItem = MenuItem.new(L{
+        ButtonItem.default('Confirm')
+    }, L{}, function(_, infoView)
         local modesView = ModesView.new(L{'AutoMagicBurstMode', 'AutoNukeMode', 'MagicBurstTargetMode'}, infoView)
         modesView:setShouldRequestFocus(true)
         return modesView

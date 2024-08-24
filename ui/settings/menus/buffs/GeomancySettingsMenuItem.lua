@@ -5,7 +5,7 @@ local EntrustSettingsMenuItem = require('ui/settings/menus/buffs/EntrustSettings
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local GeomancySettingsEditor = require('ui/settings/editors/GeomancySettingsEditor')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModesView = require('ui/settings/editors/ModeSettingsEditor')
+local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 
 local GeomancySettingsMenuItem = setmetatable({}, {__index = MenuItem })
@@ -142,7 +142,7 @@ end
 
 function GeomancySettingsMenuItem:getModesMenuItem()
     local geomancyModesMenuItem = MenuItem.new(L{
-        --ButtonItem.default('Save', 18),
+        ButtonItem.default('Confirm', 18),
     }, {}, function(_, infoView)
         local modesView = ModesView.new(L{'AutoGeoMode', 'AutoIndiMode', 'AutoEntrustMode'}, infoView)
         modesView:setShouldRequestFocus(true)

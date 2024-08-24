@@ -13,7 +13,7 @@ local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local job_util = require('cylibs/util/job_util')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModesView = require('ui/settings/editors/ModeSettingsEditor')
+local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local Puppetmaster = require('cylibs/entity/jobs/PUP')
 

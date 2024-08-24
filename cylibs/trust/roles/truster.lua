@@ -5,7 +5,7 @@ local Truster = setmetatable({}, {__index = Role })
 Truster.__index = Truster
 Truster.__class = "Truster"
 
-state.AutoTrustsMode = M{['description'] = 'Auto Trusts Mode', 'Off', 'Auto'}
+state.AutoTrustsMode = M{['description'] = 'Call Alter Egos', 'Off', 'Auto'}
 state.AutoTrustsMode:set_description('Auto', "Okay, I'll automatically summon trusts before battle.")
 
 function Truster.new(action_queue, trusts)

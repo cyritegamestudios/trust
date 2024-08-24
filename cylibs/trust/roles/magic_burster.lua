@@ -10,7 +10,7 @@ local Renderer = require('cylibs/ui/views/render')
 local skillchain_util = require('cylibs/util/skillchain_util')
 local spell_util = require('cylibs/util/spell_util')
 
-state.AutoMagicBurstMode = M{['description'] = 'Auto Magic Burst Mode', 'Off', 'Auto', 'Earth', 'Lightning', 'Water', 'Fire', 'Ice', 'Wind', 'Light', 'Dark'}
+state.AutoMagicBurstMode = M{['description'] = 'Magic Burst', 'Off', 'Auto', 'Earth', 'Lightning', 'Water', 'Fire', 'Ice', 'Wind', 'Light', 'Dark'}
 state.AutoMagicBurstMode:set_description('Auto', "Okay, if you make skillchains I'll try to magic burst.")
 state.AutoMagicBurstMode:set_description('Earth', "Okay, I'll only magic burst with earth spells.")
 state.AutoMagicBurstMode:set_description('Lightning', "Okay, I'll only magic burst with lightning spells.")
@@ -21,7 +21,7 @@ state.AutoMagicBurstMode:set_description('Wind', "Okay, I'll only magic burst wi
 state.AutoMagicBurstMode:set_description('Light', "Okay, I'll only magic burst with light spells.")
 state.AutoMagicBurstMode:set_description('Dark', "Okay, I'll only magic burst with dark spells.")
 
-state.MagicBurstTargetMode = M{['description'] = 'Magic Burst Target Mode', 'Single', 'All'}
+state.MagicBurstTargetMode = M{['description'] = 'Magic Burst Target Type', 'Single', 'All'}
 state.MagicBurstTargetMode:set_description('Single', "Okay, I'll only magic burst with single target spells.")
 state.MagicBurstTargetMode:set_description('All', "Okay, I'll magic burst with both single target and AOE spells.")
 

@@ -9,17 +9,17 @@ local Puller = setmetatable({}, {__index = Role })
 Puller.__index = Puller
 Puller.__class = "Puller"
 
-state.AutoPullMode = M{['description'] = 'Auto Pull Mode', 'Off', 'Auto','Party','All'}
+state.AutoPullMode = M{['description'] = 'Pull Monsters to Fight', 'Off', 'Auto','Party','All'}
 state.AutoPullMode:set_description('Off', "Okay, I won't pull monsters for the party.")
 state.AutoPullMode:set_description('Auto', "Okay, I'll automatically pull monsters for the party.")
 state.AutoPullMode:set_description('Party', "Okay, I'll pull monsters the party is fighting.")
 state.AutoPullMode:set_description('All', "Okay, I'll pull any monster that's nearby.")
 
-state.AutoCampMode = M{['description'] = 'Auto Camp Mode', 'Off', 'Auto'}
+state.AutoCampMode = M{['description'] = 'Return to Camp after Battle', 'Off', 'Auto'}
 state.AutoCampMode:set_description('Off', "Okay, I won't return to camp after battle.")
-state.AutoCampMode:set_description('Auto', "Okay, I'll return to camp after battle.")
+state.AutoCampMode:set_description('Auto', "Okay, I'll return to camp after battle (set camp with // trust pull camp).")
 
-state.ApproachPullMode = M{['description'] = 'Approach Pull Mode', 'Off', 'Auto'}
+state.ApproachPullMode = M{['description'] = 'Force Pull with Approach', 'Off', 'Auto'}
 state.ApproachPullMode:set_description('Auto', "Okay, I'll pull by engaging and approaching instead.")
 
 

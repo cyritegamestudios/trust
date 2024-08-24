@@ -6,10 +6,10 @@ local Debuffer = setmetatable({}, {__index = Role })
 Debuffer.__index = Debuffer
 Debuffer.__class = "Debuffer"
 
-state.AutoDebuffMode = M{['description'] = 'Auto Debuff Mode', 'Off', 'Auto'}
+state.AutoDebuffMode = M{['description'] = 'Debuff Enemies', 'Off', 'Auto'}
 state.AutoDebuffMode:set_description('Auto', "Okay, I'll debuff the monster.")
 
-state.AutoSilenceMode = M{['description'] = 'Auto Silence Mode', 'Off', 'Auto'}
+state.AutoSilenceMode = M{['description'] = 'Silence Casters', 'Off', 'Auto'}
 state.AutoSilenceMode:set_description('Auto', "Okay, I'll try to silence monsters that cast spells.")
 
 function Debuffer.new(action_queue, debuff_spells)

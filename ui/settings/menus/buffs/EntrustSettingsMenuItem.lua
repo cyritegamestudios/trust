@@ -4,7 +4,7 @@ local CursorItem = require('ui/themes/FFXI/CursorItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local GeomancySettingsEditor = require('ui/settings/editors/GeomancySettingsEditor')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModesView = require('ui/settings/editors/ModeSettingsEditor')
+local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local SpellPickerView = require('ui/settings/pickers/SpellPickerView')
 

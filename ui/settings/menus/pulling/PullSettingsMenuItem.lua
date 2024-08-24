@@ -3,7 +3,7 @@ local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local ConfigItem = require('ui/settings/editors/config/ConfigItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModesView = require('ui/settings/editors/ModeSettingsEditor')
+local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
 local PullActionMenuItem = require('ui/settings/menus/pulling/PullActionMenuItem')
 local PullSettingsEditor = require('ui/settings/PullSettingsEditor')
 local TargetsPickerView = require('ui/settings/pickers/TargetsPickerView')
@@ -80,8 +80,10 @@ function PullSettingsMenuItem:getTargetsMenuItem()
 end
 
 function PullSettingsMenuItem:getModesMenuItem()
-    local pullModesMenuItem = MenuItem.new(L{}, L{}, function(_, infoView)
-        local modesView = ModesView.new(L{ 'AutoPullMode', 'AutoApproachMode' }, infoView)
+    local pullModesMenuItem = MenuItem.new(L{
+        ButtonItem.default('Confirm')
+    }, L{}, function(_, infoView)
+        local modesView = ModesView.new(L{ 'AutoPullMode', 'ApproachPullMode', 'AutoCampMode' }, infoView)
         modesView:setShouldRequestFocus(true)
         modesView:setTitle("Set modes for pulling.")
         return modesView

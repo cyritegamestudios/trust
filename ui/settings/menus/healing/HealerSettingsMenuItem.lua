@@ -4,7 +4,6 @@ local ConfigItem = require('ui/settings/editors/config/ConfigItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModeConfigEditor = require('ui/settings/editors/config/ModeConfigEditor')
-local ModesView = require('ui/settings/editors/ModeSettingsEditor')
 local StatusRemovalPickerView = require('ui/settings/pickers/StatusRemovalPickerView')
 
 local HealerSettingsMenuItem = setmetatable({}, {__index = MenuItem })

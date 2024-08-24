@@ -11,20 +11,20 @@ local SkillchainPropertyCondition = require('cylibs/conditions/skillchain_proper
 local SkillchainTracker = require('cylibs/battle/skillchains/skillchain_tracker')
 local skillchain_util = require('cylibs/util/skillchain_util')
 
-state.AutoSkillchainMode = M{['description'] = 'Auto Skillchain Mode', 'Off', 'Auto', 'Cleave', 'Spam'}
+state.AutoSkillchainMode = M{['description'] = 'Create Skillchains', 'Off', 'Auto', 'Cleave', 'Spam'}
 state.AutoSkillchainMode:set_description('Off', "Okay, I won't use weapon skills or make skillchains.")
 state.AutoSkillchainMode:set_description('Auto', "Okay, I'll try to make skillchains.")
 
-state.SkillchainPropertyMode = M{['description'] = 'Skillchain Property Mode', 'Off', 'Light', 'Darkness'}
+state.SkillchainPropertyMode = M{['description'] = 'Skillchain Properties', 'Off', 'Light', 'Darkness'}
 state.SkillchainPropertyMode:set_description('Off', "Okay, I'll try to make skillchains of all properties.")
 state.SkillchainPropertyMode:set_description('Light', "Okay, I'll only make Light skillchains unless I have instructions to use certain weapon skills.")
 state.SkillchainPropertyMode:set_description('Darkness', "Okay, I'll only make Darkness skillchains unless I have instructions to use certain weapon skills.")
 
-state.SkillchainDelayMode = M{['description'] = 'Skillchain Delay Mode', 'Off', 'Maximum'}
+state.SkillchainDelayMode = M{['description'] = 'Delay Between Weapon Skills', 'Off', 'Maximum'}
 state.SkillchainDelayMode:set_description('Off', "Okay, I'll use the next weapon skill as soon as the skillchain window opens.")
 state.SkillchainDelayMode:set_description('Maximum', "Okay, I'll wait until the end of the skillchain window to use my next weapon skill.")
 
-state.SkillchainAssistantMode = M{['description'] = 'Skillchain Assistant Mode', 'Auto', 'Off'}
+state.SkillchainAssistantMode = M{['description'] = 'Show Skillchain Assistant', 'Auto', 'Off'}
 state.SkillchainAssistantMode:set_description('Auto', "Okay, I'll suggest weapon skills you can use to continue the skillchain.")
 state.SkillchainAssistantMode:set_description('Off', "Okay, I'll keep my suggestions to myself!")
 

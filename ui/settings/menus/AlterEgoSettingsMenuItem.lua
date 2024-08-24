@@ -1,7 +1,7 @@
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModesView = require('ui/settings/editors/ModeSettingsEditor')
+local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
 
 local AlterEgoSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 AlterEgoSettingsMenuItem.__index = AlterEgoSettingsMenuItem
@@ -49,7 +49,9 @@ function AlterEgoSettingsMenuItem:getEditMenuItem()
 end
 
 function AlterEgoSettingsMenuItem:getModesMenuItem()
-    local curesModesMenuItem = MenuItem.new(L{}, L{}, function(_, infoView)
+    local curesModesMenuItem = MenuItem.new(L{
+        ButtonItem.default('Confirm')
+    }, L{}, function(_, infoView)
         local modesView = ModesView.new(L{'AutoTrustsMode'}, infoView)
         modesView:setShouldRequestFocus(true)
         modesView:setTitle("Set modes for summoning alter egos.")

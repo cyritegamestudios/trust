@@ -12,7 +12,7 @@ local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local job_util = require('cylibs/util/job_util')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModesView = require('ui/settings/editors/ModeSettingsEditor')
+local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 
 local ReactSettingsMenuItem = setmetatable({}, {__index = MenuItem })
@@ -196,7 +196,9 @@ function ReactSettingsMenuItem:getEditConditionsMenuItem()
 end
 
 function ReactSettingsMenuItem:getModesMenuItem()
-    local gambitModesMenuItem = MenuItem.new(L{}, L{}, function(_, infoView)
+    local gambitModesMenuItem = MenuItem.new(L{
+        ButtonItem.default('Confirm')
+    }, L{}, function(_, infoView)
         local modesView = ModesView.new(L{'AutoGambitMode'}, infoView)
         modesView:setShouldRequestFocus(true)
         return modesView

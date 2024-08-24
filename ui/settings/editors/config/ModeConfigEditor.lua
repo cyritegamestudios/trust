@@ -15,6 +15,10 @@ ModeConfigEditor.__index = ModeConfigEditor
 
 
 function ModeConfigEditor.new(modeNames, infoView)
+    modeNames = modeNames:filter(function(modeName)
+        return state[modeName] ~= nil
+    end)
+
     local modeSettings = {}
 
     local configItems = modeNames:map(function(modeName)
@@ -40,7 +44,11 @@ function ModeConfigEditor.new(modeNames, infoView)
     self:onConfigChanged():addAction(function(newSettings, oldSettings)
         for modeName, value in pairs(newSettings) do
             if oldSettings[modeName] ~= value then
-                handle_set(modeName, value)
+                for m in modeNames:it() do
+                    if m:lower() == modeName then
+                        handle_set(m, value)
+                    end
+                end
             end
         end
     end)
@@ -64,7 +72,7 @@ function ModeConfigEditor:updateInfoBar(indexPath)
             local description = state[self.modeNames[indexPath.section]]:get_description(item:getText()) or "View and change Trust modes."
 
             description = string.gsub(description, "^Okay, ", "")
-            description = description:gsub("^%l", string.upper)
+            description = self.modeNames[indexPath.section]..': '..description:gsub("^%l", string.upper)
 
             self.infoView:setDescription(description)
         end

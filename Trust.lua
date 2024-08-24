@@ -73,7 +73,7 @@ state.AutoUnloadOnDeathMode = M{['description'] = 'Auto Unload On Death Mode', '
 state.AutoUnloadOnDeathMode:set_description('Off', "Okay, I'll pause Trust after getting knocked out but won't unload it. DO NOT USE WHILE AFK!")
 state.AutoUnloadOnDeathMode:set_description('Auto', "Okay, I'll automatically unload Trust after getting knocked out.")
 
-state.AutoBuffMode = M{['description'] = 'Auto Buff Mode', 'Off', 'Auto'}
+state.AutoBuffMode = M{['description'] = 'Buff Self and Party', 'Off', 'Auto'}
 state.AutoBuffMode:set_description('Auto', "Okay, I'll automatically buff myself and the party.")
 
 state.AutoEnmityReductionMode = M{['description'] = 'Auto Enmity Reduction Mode', 'Off', 'Auto'}

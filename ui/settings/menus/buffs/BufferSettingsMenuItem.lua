@@ -6,7 +6,7 @@ local FoodSettingsMenuItem = require('ui/settings/menus/buffs/FoodSettingsMenuIt
 local JobAbilityPickerView = require('ui/settings/pickers/JobAbilityPickerView')
 local JobAbilitiesSettingsEditor = require('ui/settings/JobAbilitiesSettingsEditor')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModesView = require('ui/settings/editors/ModeSettingsEditor')
+local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
 local SpellSettingsEditor = require('ui/settings/SpellSettingsEditor')
 
 local BufferSettingsMenuItem = setmetatable({}, {__index = MenuItem })
@@ -116,7 +116,9 @@ function BufferSettingsMenuItem:getFoodMenuItem()
 end
 
 function BufferSettingsMenuItem:getModesMenuItem()
-    local buffModesMenuItem = MenuItem.new(L{}, L{}, function(_, infoView)
+    local buffModesMenuItem = MenuItem.new(L{
+        ButtonItem.default('Confirm')
+    }, L{}, function(_, infoView)
         local modesView = ModesView.new(L{'AutoBarSpellMode', 'AutoBuffMode'}, infoView)
         modesView:setShouldRequestFocus(true)
         return modesView
