@@ -38,8 +38,6 @@ function GambitSettingsEditor.new(gambit, trustSettings, trustSettingsMode, abil
     )
     self:getDataSource():setItemForSectionHeader(4, conditionsSectionHeaderItem)
 
-    --self:reloadSettings()
-
     self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
         if indexPath.section == 4 then
             self:getDelegate():deselectItemAtIndexPath(indexPath)

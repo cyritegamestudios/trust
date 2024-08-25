@@ -65,6 +65,13 @@ function JobGambitSettingsMenuItem.new(trustSettings, trustSettingsMode)
             end
         end), self.gambitSettingsEditor:getDelegate():didSelectItemAtIndexPath())
 
+        self.gambitSettingsEditor:getDisposeBag():add(gambitSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
+            local selectedGambit = currentGambits[indexPath.row]
+            if selectedGambit then
+                infoView:setDescription(selectedGambit:tostring())
+            end
+        end), gambitSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath())
+
         return gambitSettingsEditor
     end
 

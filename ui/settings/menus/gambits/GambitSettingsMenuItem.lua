@@ -62,9 +62,17 @@ function GambitSettingsMenuItem.new(trustSettings, trustSettingsMode)
         self.disposeBag:add(gambitSettingsEditor:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
             local selectedGambit = currentGambits[indexPath.row]
             self.selectedGambit = selectedGambit
+
             gambitSettingsEditor.menuArgs['conditions'] = selectedGambit.conditions
             gambitSettingsEditor.menuArgs['targetTypes'] = S{ selectedGambit:getConditionsTarget() }
         end, gambitSettingsEditor:getDelegate():didSelectItemAtIndexPath()))
+
+        self.disposeBag:add(gambitSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
+            local selectedGambit = currentGambits[indexPath.row]
+            if selectedGambit then
+                infoView:setDescription(selectedGambit:tostring())
+            end
+        end), gambitSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath())
 
         if currentGambits:length() > 0 then
             gambitSettingsEditor:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
