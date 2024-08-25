@@ -294,8 +294,9 @@ function ConfigEditor:onConfirmClick(skipSave)
         return
     end
 
-
-    self:onConfigChanged():trigger(self.configSettings, originalSettings)
+    if self.configSettings ~= originalSettings then
+        self:onConfigChanged():trigger(self.configSettings, originalSettings)
+    end
 
     if self.trustSettings and not skipSave then
         self.trustSettings:saveSettings(true)

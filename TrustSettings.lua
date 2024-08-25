@@ -144,6 +144,7 @@ function TrustSettings:deleteSettings(setName)
 end
 
 function TrustSettings:backupSettings(filePath)
+    filePath = filePath or self.settingsFolder..self.jobNameShort..'_'..windower.ffxi.get_player().name..'.lua'
     local playerSettings = FileIO.new(filePath)
     if playerSettings:exists() then
         local backupFilePath = self.settingsFolder..self.backupsFolder..self.jobNameShort..'_'..windower.ffxi.get_player().name..'.lua'

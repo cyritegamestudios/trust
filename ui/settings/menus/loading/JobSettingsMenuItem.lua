@@ -11,6 +11,8 @@ function JobSettingsMenuItem.new(jobSettingsMode, jobSettings, viewFactory)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Save As', 18),
         ButtonItem.default('Edit', 18),
+        ButtonItem.default('Backup', 18),
+        ButtonItem.default('Reset', 18),
     }, {}, function(args)
         local loadSettingsView = JobSettingsView.new(jobSettingsMode, jobSettings)
         loadSettingsView:setShouldRequestFocus(true)
@@ -38,6 +40,8 @@ end
 function JobSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Save As", self:getCreateSetMenuItem())
     self:setChildMenuItem("Edit", self:getEditMenuItem())
+    self:setChildMenuItem("Backup", self:getBackupMenuItem())
+    self:setChildMenuItem("Reset", self:getResetMenuItem())
 end
 
 function JobSettingsMenuItem:getEditMenuItem()
@@ -68,6 +72,28 @@ function JobSettingsMenuItem:getCreateSetMenuItem()
         return createSetView
     end, "Settings", "Save a new job settings set.")
     return createSetMenuItem
+end
+
+function JobSettingsMenuItem:getBackupMenuItem()
+    return MenuItem.action(function()
+        self.jobSettings:backupSettings()
+    end, "Settings", "Backup job settings file.")
+end
+
+function JobSettingsMenuItem:getResetMenuItem()
+    local resetMenuItem = MenuItem.new(L{
+        ButtonItem.default('Confirm'),
+    }, {
+        Confirm = MenuItem.action(function()
+            local defaultSettings = T(self.jobSettings:getDefaultSettings()):clone().Default
+
+            self.jobSettings:getSettings()[self.jobSettingsMode.value] = defaultSettings
+            self.jobSettings:saveSettings(true)
+
+            addon_message(260, '('..windower.ffxi.get_player().name..") Alright, I've reset "..self.jobSettingsMode.value.." to the default job settings!")
+        end, "Settings", "Reset to default job settings. WARNING: your settings will be overriden.")
+    }, nil, "Settings", "Reset to default job settings. WARNING: your settings will be overriden.", true)
+    return resetMenuItem
 end
 
 return JobSettingsMenuItem
