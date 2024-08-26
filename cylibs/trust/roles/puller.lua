@@ -82,6 +82,7 @@ function Puller:return_to_camp()
 
     if ffxi_util.distance(ffxi_util.get_mob_position(windower.ffxi.get_player().name), self:get_camp_position()) > 40 then
         self:set_camp_position(nil)
+        self:get_party():add_to_chat(self:get_party():get_player(), "I'm too far from camp to go back now.")
         return
     end
 
