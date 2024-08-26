@@ -15,9 +15,10 @@ MarqueeCollectionViewCell.__type = "MarqueeCollectionViewCell"
 -- @tparam TextItem item The item associated with the cell.
 -- @treturn CollectionViewCell The newly created cell.
 --
-function MarqueeCollectionViewCell.new(item)
+function MarqueeCollectionViewCell.new(item, multiplier)
     local self = setmetatable(TextCollectionViewCell.new(item), MarqueeCollectionViewCell)
 
+    self.multiplier = multiplier or 1
     self.currentIndex = -1
     self.numCharacters = 10
     self.currentText = self:getItem():getText()
@@ -59,9 +60,9 @@ function MarqueeCollectionViewCell:setVisible(visible)
 end
 
 function MarqueeCollectionViewCell:updateNumCharacters()
-    local multiplier = 1
+    local multiplier = self.multiplier
     if self:getItem():getStyle():isBold() then
-        multiplier = 1.2
+        multiplier = multiplier * 1.2
     end
     self.numCharacters = math.floor(self:getSize().width / (self:getItem():getStyle():getFontSize() * multiplier) + 6)
 end

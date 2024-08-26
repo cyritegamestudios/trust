@@ -18,10 +18,17 @@ Automaton = require('cylibs/entity/automaton')
 local Dispeler = require('cylibs/trust/roles/dispeler')
 local Buffer = require('cylibs/trust/roles/buffer')
 
-state.AutoAssaultMode = M{['description'] = 'Auto Assault Mode', 'Off', 'Auto'}
-state.AutoManeuverMode = M{['description'] = 'Auto Maneuver Mode', 'Off', 'Auto'}
-state.AutoPetMode = M{['description'] = 'Auto Pet Mode', 'Off', 'Auto'}
-state.AutoRepairMode = M{['description'] = 'Auto Repair Mode', 'Auto', 'Off'}
+state.AutoAssaultMode = M{['description'] = 'Deploy Pet in Battle', 'Off', 'Auto'}
+state.AutoAssaultMode:set_description('Auto', "Okay, my pet will fight with me!")
+
+state.AutoManeuverMode = M{['description'] = 'Use Maneuvers', 'Off', 'Auto'}
+state.AutoManeuverMode:set_description('Auto', "Okay, I'll automatically use maneuvers.")
+
+state.AutoPetMode = M{['description'] = 'Call Pet', 'Off', 'Auto'}
+state.AutoPetMode:set_description('Auto', "Okay, I'll automatically call a pet.")
+
+state.AutoRepairMode = M{['description'] = 'Use Repair', 'Auto', 'Off'}
+state.AutoRepairMode:set_description('Auto', "Okay, I'll use repair when my automaton's HP is low.")
 
 function PuppetmasterTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local roles = S{
@@ -40,7 +47,7 @@ function PuppetmasterTrust.new(settings, action_queue, battle_settings, trust_se
 	local mode_names = T(T(trust_settings.AutomatonSettings.ManeuverSettings.Default):keyset()):map(function(m)
 		return m
 	end)
-	state.ManeuverMode = M{['description'] = 'Maneuver Mode', mode_names}
+	state.ManeuverMode = M{['description'] = 'Maneuver Set', mode_names}
 	for mode_name in mode_names:it() do
 		state.ManeuverMode:set_description(mode_name, 'Maneuver set for '..mode_name..' pet type.')
 	end

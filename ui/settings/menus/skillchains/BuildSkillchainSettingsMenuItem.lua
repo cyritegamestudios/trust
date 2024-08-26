@@ -73,7 +73,7 @@ function BuildSkillchainSettingsMenuItem:getConfirmMenuItem()
                 local abilities = L(abilities:map(function(ability) return ability:get_name() end))
                 return localization_util.join(abilities, '→')
             end))
-            self.chooseSkillchainView:setItems(pickerItems)
+            self.chooseSkillchainView:setItems(pickerItems, L{}, true)
         end
     end
 
@@ -90,7 +90,7 @@ function BuildSkillchainSettingsMenuItem:getConfirmMenuItem()
         Next = MenuItem.action(function()
             setPage(self.currentPage + 1)
         end, "Skillchains", "See next page."),
-    }, function(menuArgs)
+    }, function(menuArgs, infoView)
         self.currentPage = 1
 
         local skillchain_builder = SkillchainBuilder.with_skills(L(self.builderSettings.CombatSkills))
@@ -104,12 +104,14 @@ function BuildSkillchainSettingsMenuItem:getConfirmMenuItem()
             return localization_util.join(abilities, '→')
         end))
 
-        local chooseSkillchainView = FFXIPickerView.withItems(pickerItems, L{}, false, nil, nil, FFXIClassicStyle.WindowSize.Editor.ConfigEditorLarge)
+        local chooseSkillchainView = FFXIPickerView.withItems(pickerItems, L{}, false, nil, nil, FFXIClassicStyle.WindowSize.Editor.ConfigEditorLarge, true)
         chooseSkillchainView.menuArgs.Skillchain = self.currentSkillchains[1]
         chooseSkillchainView:setTitle("Choose a skillchain.")
         chooseSkillchainView:setAllowsCursorSelection(true)
         chooseSkillchainView:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
             chooseSkillchainView.menuArgs.Skillchain = self.currentSkillchains[indexPath.row]
+            local abilities = L(self.currentSkillchains[indexPath.row]:map(function(ability) return ability:get_name() end))
+            infoView:setDescription(localization_util.join(abilities, '→'))
         end)
         self.chooseSkillchainView = chooseSkillchainView
         return chooseSkillchainView

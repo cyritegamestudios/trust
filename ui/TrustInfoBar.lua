@@ -22,17 +22,21 @@ function TrustInfoBar.new(frame)
         else
             itemSize = frame.width - 111 - 15 - 4
         end
-        local cell = InfoBarCollectionViewCell.new(Frame.new(0, 0, itemSize, frame.height))
+        local cell = InfoBarCollectionViewCell.new(Frame.new(0, 0, itemSize, frame.height), false, TextStyle.Default.NavigationTitle)
         cell:setTitle(item:getText())
         cell:setItemSize(itemSize)
         return cell
     end)
 
-    local self = setmetatable(CollectionView.new(dataSource, HorizontalFlowLayout.new(4, Padding.new(0, 0, 0, 0))), TrustInfoBar)
+    local style = CollectionView.defaultBackgroundStyle()
+
+    local self = setmetatable(CollectionView.new(dataSource, HorizontalFlowLayout.new(4, Padding.new(0, 0, 0, 0)), nil, style), TrustInfoBar)
 
     self:setSize(0, frame.height)
     self:setUserInteractionEnabled(false)
     self:setScrollEnabled(false)
+    self:setAllowsCursorSelection(false)
+    self:setShouldRequestFocus(false)
 
     self:getDataSource():addItems(L{
         IndexedItem.new(TextItem.new("", TextStyle.Default.ButtonSmall), IndexPath.new(1, 1)),
@@ -43,12 +47,12 @@ function TrustInfoBar.new(frame)
 end
 
 function TrustInfoBar:setTitle(title)
-    local titleItem = TextItem.new(title or "", TextStyle.Default.ButtonSmall)
+    local titleItem = TextItem.new(title or "", TextStyle.Default.NavigationTitle)
     self:getDataSource():updateItem(titleItem, IndexPath.new(1, 1))
 end
 
 function TrustInfoBar:setDescription(description)
-    local descriptionItem = TextItem.new(description or "", TextStyle.Default.ButtonSmall)
+    local descriptionItem = TextItem.new(description or "", TextStyle.Default.NavigationTitle)
     self:getDataSource():updateItem(descriptionItem, IndexPath.new(1, 2))
 end
 

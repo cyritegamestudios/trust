@@ -2,7 +2,7 @@ local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local ConfigItem = require('ui/settings/editors/config/ConfigItem')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModesView = require('ui/settings/editors/ModeSettingsEditor')
+local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
 
 local FollowSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 FollowSettingsMenuItem.__index = FollowSettingsMenuItem
@@ -40,7 +40,9 @@ function FollowSettingsMenuItem:getConfigMenuItem()
 end
 
 function FollowSettingsMenuItem:getModesMenuItem()
-    local curesModesMenuItem = MenuItem.new(L{}, L{}, function(_, infoView)
+    local curesModesMenuItem = MenuItem.new(L{
+        ButtonItem.default('Confirm')
+    }, L{}, function(_, infoView)
         local modesView = ModesView.new(L{'AutoFollowMode', 'IpcMode'}, infoView)
         modesView:setShouldRequestFocus(true)
         modesView:setTitle("Set modes for following.")

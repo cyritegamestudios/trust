@@ -12,7 +12,7 @@ local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local job_util = require('cylibs/util/job_util')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModesView = require('ui/settings/editors/ModeSettingsEditor')
+local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 
 local GambitSettingsMenuItem = setmetatable({}, {__index = MenuItem })
@@ -62,9 +62,17 @@ function GambitSettingsMenuItem.new(trustSettings, trustSettingsMode)
         self.disposeBag:add(gambitSettingsEditor:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
             local selectedGambit = currentGambits[indexPath.row]
             self.selectedGambit = selectedGambit
+
             gambitSettingsEditor.menuArgs['conditions'] = selectedGambit.conditions
             gambitSettingsEditor.menuArgs['targetTypes'] = S{ selectedGambit:getConditionsTarget() }
         end, gambitSettingsEditor:getDelegate():didSelectItemAtIndexPath()))
+
+        self.disposeBag:add(gambitSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
+            local selectedGambit = currentGambits[indexPath.row]
+            if selectedGambit then
+                infoView:setDescription(selectedGambit:tostring())
+            end
+        end), gambitSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath())
 
         if currentGambits:length() > 0 then
             gambitSettingsEditor:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
@@ -320,7 +328,9 @@ function GambitSettingsMenuItem:getResetGambitsMenuItem()
 end
 
 function GambitSettingsMenuItem:getModesMenuItem()
-    local gambitModesMenuItem = MenuItem.new(L{}, L{}, function(_, infoView)
+    local gambitModesMenuItem = MenuItem.new(L{
+        ButtonItem.default('Confirm')
+    }, L{}, function(_, infoView)
         local modesView = ModesView.new(L{'AutoGambitMode'}, infoView)
         modesView:setShouldRequestFocus(true)
         return modesView

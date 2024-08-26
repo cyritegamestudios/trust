@@ -3,7 +3,7 @@ local BloodPactSettingsEditor = require('ui/settings/editors/BloodPactSettingsEd
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModesView = require('ui/settings/editors/ModeSettingsEditor')
+local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 
 local BloodPactSettingsMenuItem = setmetatable({}, {__index = MenuItem })
@@ -74,7 +74,9 @@ function BloodPactSettingsMenuItem:getBuffsMenuItem()
 end
 
 function BloodPactSettingsMenuItem:getModesMenuItem()
-    local geomancyModesMenuItem = MenuItem.new(L{}, L{}, function(_, infoView)
+    local geomancyModesMenuItem = MenuItem.new(L{
+        ButtonItem.default('Confirm')
+    }, L{}, function(_, infoView)
         local modesView = ModesView.new(L{'AutoAssaultMode', 'AutoAvatarMode', 'AutoBuffMode'}, infoView)
         modesView:setShouldRequestFocus(true)
         modesView:setTitle("Set modes for Summoner.")

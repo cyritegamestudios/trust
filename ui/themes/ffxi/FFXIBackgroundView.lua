@@ -2,6 +2,7 @@ local BorderView = require('cylibs/ui/views/border/border_view')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
 local Event = require('cylibs/events/Luvent')
+local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local Frame = require('cylibs/ui/views/frame')
 local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_collection_view_cell')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
@@ -49,8 +50,8 @@ end
 -- @param bottomImagePath The file path of the bottom image.
 -- @treturn BackgroundView The created background view.
 --
-function FFXIBackgroundView.new(frame, hideTitle, style)
-    style = style or CollectionView.defaultStyle()
+function FFXIBackgroundView.new(frame, hideTitle)
+    local style = FFXIClassicStyle.background()
 
     local self = setmetatable(CollectionView.new(CollectionViewDataSource.new(), VerticalFlowLayout.new(0), nil, style), FFXIBackgroundView)
 

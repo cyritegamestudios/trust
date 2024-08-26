@@ -17,18 +17,18 @@ local Puller = require('cylibs/trust/roles/puller')
 local Singer = require('cylibs/trust/roles/singer')
 local Sleeper = require('cylibs/trust/roles/sleeper')
 
-state.AutoSongMode = M{['description'] = 'Auto Song Mode', 'Off', 'Auto', 'Dummy'}
+state.AutoSongMode = M{['description'] = 'Sing Songs', 'Off', 'Auto', 'Dummy'}
 state.AutoSongMode:set_description('Auto', "Okay, I'll keep songs on the party.")
 state.AutoSongMode:set_description('Dummy', "Okay, I'll only sing dummy songs.")
 
-state.AutoPianissimoMode = M{['description'] = 'Auto Pianissimo Mode', 'Merged', 'Override'}
+state.AutoPianissimoMode = M{['description'] = 'Pianissimo Type', 'Merged', 'Override'}
 state.AutoPianissimoMode:set_description('Merged', "Okay, I'll make sure to keep all songs on everyone.")
 state.AutoPianissimoMode:set_description('Override', "Okay, I'll only focus on Pianissimo songs.")
 
-state.AutoNitroMode = M{['description'] = 'Auto Nitro Mode', 'Auto', 'Off'}
+state.AutoNitroMode = M{['description'] = 'Use Nitro', 'Auto', 'Off'}
 state.AutoNitroMode:set_description('Auto', "Okay, I'll use Nightingale and Troubadour before singing songs.")
 
-state.AutoClarionCallMode = M{['description'] = 'Auto Clarion Call Mode', 'Off', 'Auto'}
+state.AutoClarionCallMode = M{['description'] = 'Use Clarion Call', 'Off', 'Auto'}
 state.AutoClarionCallMode:set_description('Auto', "Okay, I'll use Clarion Call before Nightingale and Troubadour.")
 
 function BardTrust.new(settings, action_queue, battle_settings, trust_settings)

@@ -25,7 +25,7 @@ local Keybind = require('cylibs/ui/input/keybind')
 local Keyboard = require('cylibs/ui/input/keyboard')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
-local ModesView = require('ui/settings/editors/ModeSettingsEditor')
+local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
 local NavigationBar = require('cylibs/ui/navigation/navigation_bar')
 local PullSettingsMenuItem = require('ui/settings/menus/pulling/PullSettingsMenuItem')
 local LoadSettingsMenuItem = require('ui/settings/menus/loading/LoadSettingsMenuItem')
@@ -79,6 +79,7 @@ function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, a
     local self = setmetatable(View.new(), TrustHud)
 
     CollectionView.setDefaultStyle(FFXIClassicStyle.default())
+    CollectionView.setDefaultBackgroundStyle(FFXIClassicStyle.background())
 
     self.lastMenuToggle = os.time()
     self.menuSize = Frame.new(0, 0, menu_width, menu_height)
@@ -342,7 +343,9 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
                 return chooseSpellsView
             end, "Debuffs", "Add a new debuff.")
 
-    local debuffModesMenuItem = MenuItem.new(L{}, L{}, function(_, infoView)
+    local debuffModesMenuItem = MenuItem.new(L{
+        ButtonItem.default('Confirm')
+    }, L{}, function(_, infoView)
         local modesView = ModesView.new(L{'AutoDebuffMode', 'AutoDispelMode', 'AutoSilenceMode'}, infoView)
         modesView:setShouldRequestFocus(true)
         return modesView

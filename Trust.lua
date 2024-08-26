@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '10.5.0'
+_addon.version = '10.5.3'
 _addon.release_notes = [[
 This update introduces new menus for Bard, autocomplete for Trust
 commands, new commands and important bug fixes for users running the
@@ -73,7 +73,7 @@ state.AutoUnloadOnDeathMode = M{['description'] = 'Auto Unload On Death Mode', '
 state.AutoUnloadOnDeathMode:set_description('Off', "Okay, I'll pause Trust after getting knocked out but won't unload it. DO NOT USE WHILE AFK!")
 state.AutoUnloadOnDeathMode:set_description('Auto', "Okay, I'll automatically unload Trust after getting knocked out.")
 
-state.AutoBuffMode = M{['description'] = 'Auto Buff Mode', 'Off', 'Auto'}
+state.AutoBuffMode = M{['description'] = 'Buff Self and Party', 'Off', 'Auto'}
 state.AutoBuffMode:set_description('Auto', "Okay, I'll automatically buff myself and the party.")
 
 state.AutoEnmityReductionMode = M{['description'] = 'Auto Enmity Reduction Mode', 'Off', 'Auto'}
@@ -312,15 +312,35 @@ function load_trust_commands(job_name_short, trust, action_queue, party, main_tr
 
 	local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 
-	command_widget = FFXIPickerView.withItems(L{}, L{})
+	command_widget = FFXIPickerView.withItems(L{}, L{}, false, nil, nil, nil, true)
 	command_widget:setPosition(16, windower.get_windower_settings().ui_y_res - 233)
 	command_widget:setShouldRequestFocus(false)
 	command_widget:setUserInteractionEnabled(false)
 	command_widget:setVisible(false)
 
+	local all_commands = L{}
+
+	for command in common_commands:it() do
+		for text in command:get_all_commands():it() do
+			all_commands:append(text)
+		end
+	end
+
+	for state_name, _ in pairs(state) do
+		local state_var = get_state(state_name)
+		if state_var then
+			all_commands:append('// trust cycle '..state_name)
+			for option in state_var:options():it() do
+				all_commands:append('// trust set '..state_name..' '..option)
+			end
+		end
+	end
+
+	all_commands:sort()
+
 	local ChatAutoCompleter = require('cylibs/ui/input/autocomplete/chat_auto_completer')
 
-	chat_auto_completer = ChatAutoCompleter.new(common_commands)
+	chat_auto_completer = ChatAutoCompleter.new(all_commands)
 	chat_auto_completer:onAutoCompleteListChange():addAction(function(_, terms)
 		command_widget:getDataSource():removeAllItems()
 		if not addon_settings:getSettings().autocomplete.visible then
@@ -328,12 +348,12 @@ function load_trust_commands(job_name_short, trust, action_queue, party, main_tr
 		end
 		if terms:length() > 0 then
 			command_widget:setVisible(true)
-			command_widget:setItems(terms, L{})
+			command_widget:setItems(terms:map(function(term) return term:gsub("^// trust ", "") end), L{})
 			local description
 			if terms:length() == 1 then
 				hud.infoBar:setTitle("Commands")
 				local args = string.split(terms[1], " ")
-				if args[3] and args[4] and shortcuts[args[3]] then
+				if args[3] and args[4] and shortcuts[args[3]] and type(shortcuts[args[3]]) ~= 'function' then
 					description = shortcuts[args[3]]:get_description(args[4])
 				end
 			end

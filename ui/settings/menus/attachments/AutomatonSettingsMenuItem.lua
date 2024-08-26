@@ -2,7 +2,7 @@ local AttachmentSettingsMenuItem = require('ui/settings/menus/attachments/Attach
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ManeuverSettingsMenuItem = require('ui/settings/menus/attachments/ManeuverSettingsMenuItem')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModesView = require('ui/settings/editors/ModeSettingsEditor')
+local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
 
 local AutomatonSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 AutomatonSettingsMenuItem.__index = AutomatonSettingsMenuItem
@@ -59,8 +59,10 @@ function AutomatonSettingsMenuItem:getManeuverSettingsMenuItem()
 end
 
 function AutomatonSettingsMenuItem:getModesMenuItem()
-    local automatonModesMenuItem = MenuItem.new(L{}, L{}, function(_, infoView)
-        local modesView = ModesView.new(L{'AutoAssaultMode', 'AutoManeuverMode', 'AutoPetMode', 'AutoRepairMode', 'ManeuverMode'}, infoView)
+    local automatonModesMenuItem = MenuItem.new(L{
+        ButtonItem.default('Confirm')
+    }, L{}, function(_, infoView)
+        local modesView = ModesView.new(L{'AutoPetMode', 'AutoAssaultMode', 'AutoRepairMode', 'AutoManeuverMode', 'ManeuverMode'}, infoView)
         modesView:setShouldRequestFocus(true)
         return modesView
     end, "Modes", "Change automaton behavior.")

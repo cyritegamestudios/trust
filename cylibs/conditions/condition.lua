@@ -104,6 +104,7 @@ function Condition.defaultSerializableConditionClasses()
         SkillchainPropertyCondition.__class,
         HasDazeCondition.__class,
         CombatSkillsCondition.__class,
+        NotCondition.__class,
     }
 end
 

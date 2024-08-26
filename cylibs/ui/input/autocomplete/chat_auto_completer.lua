@@ -15,9 +15,7 @@ function ChatAutoCompleter.new(commands)
 
     self.commandTrie = CommandTrie.new()
     for command in commands:it() do
-        for text in command:get_all_commands():it() do
-            self.commandTrie:addCommand(text)
-        end
+        self.commandTrie:addCommand(command)
     end
 
     self.disposeBag = DisposeBag.new()

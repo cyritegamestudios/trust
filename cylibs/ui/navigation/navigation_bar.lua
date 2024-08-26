@@ -1,18 +1,19 @@
 local BackgroundView = require('cylibs/ui/views/background/background_view')
 local FFXIBackgroundView = require('ui/themes/ffxi/FFXIBackgroundView')
 local Frame = require('cylibs/ui/views/frame')
+local MarqueeCollectionViewCell = require('cylibs/ui/collection_view/cells/marquee_collection_view_cell')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
 
-local NavigationBar = setmetatable({}, { __index = TextCollectionViewCell })
+local NavigationBar = setmetatable({}, { __index = MarqueeCollectionViewCell })
 NavigationBar.__index = NavigationBar
 
 
 function NavigationBar.new(frame, hideBackground, textStyle)
     textStyle = textStyle or TextStyle.Default.NavigationTitle
 
-    local self = setmetatable(TextCollectionViewCell.new(TextItem.new('', textStyle)), NavigationBar)
+    local self = setmetatable(MarqueeCollectionViewCell.new(TextItem.new('', textStyle), 0.65), NavigationBar)
 
     self:setItemSize(frame.height)
     self:setEstimatedSize(textStyle:getFontSize() * 1.75)
@@ -23,6 +24,7 @@ function NavigationBar.new(frame, hideBackground, textStyle)
 
     if not hideBackground then
         local backgroundView = FFXIBackgroundView.new(frame, true)
+        backgroundView:setShouldRequestFocus(false)
 
         self:setBackgroundImageView(backgroundView)
 
@@ -37,7 +39,7 @@ function NavigationBar.new(frame, hideBackground, textStyle)
 end
 
 function NavigationBar:destroy()
-    TextCollectionViewCell.destroy(self)
+    MarqueeCollectionViewCell.destroy(self)
 end
 
 function NavigationBar:setTitle(title)

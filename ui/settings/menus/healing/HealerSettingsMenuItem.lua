@@ -3,7 +3,7 @@ local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local ConfigItem = require('ui/settings/editors/config/ConfigItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModesView = require('ui/settings/editors/ModeSettingsEditor')
+local ModeConfigEditor = require('ui/settings/editors/config/ModeConfigEditor')
 local StatusRemovalPickerView = require('ui/settings/pickers/StatusRemovalPickerView')
 
 local HealerSettingsMenuItem = setmetatable({}, {__index = MenuItem })
@@ -40,7 +40,9 @@ end
 
 function HealerSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Config", self:getConfigMenuItem())
-    self:setChildMenuItem("Blacklist", self:getBlacklistMenuItem())
+    if self.trustSettings:getSettings().Default.CureSettings.StatusRemovals ~= nil then
+        self:setChildMenuItem("Blacklist", self:getBlacklistMenuItem())
+    end
     self:setChildMenuItem("Modes", self:getModesMenuItem())
 end
 
@@ -84,8 +86,10 @@ function HealerSettingsMenuItem:getBlacklistMenuItem()
 end
 
 function HealerSettingsMenuItem:getModesMenuItem()
-    local curesModesMenuItem = MenuItem.new(L{}, L{}, function(_, infoView)
-        local modesView = ModesView.new(L{'AutoHealMode', 'AutoStatusRemovalMode', 'AutoDetectAuraMode'}, infoView)
+    local curesModesMenuItem = MenuItem.new(L{
+        ButtonItem.default('Confirm'),
+    }, L{}, function(_, infoView)
+        local modesView = ModeConfigEditor.new(L{'AutoHealMode', 'AutoStatusRemovalMode', 'AutoDetectAuraMode'}, infoView)
         modesView:setShouldRequestFocus(true)
         modesView:setTitle("Set modes for healing and status removals.")
         return modesView

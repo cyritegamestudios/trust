@@ -30,11 +30,15 @@ function Spell.new(spell_name, job_abilities, job_names, target, conditions, con
     local self = setmetatable({
         spell_name = spell_name;
         job_abilities = job_abilities or L{};
-        job_names = job_names or job_util.all_jobs();
+        job_names = job_names;
         target = target;
         consumable = consumable;
         conditions = conditions or L{};
     }, Spell)
+
+    if S(res.spells:with('en', spell_name)):contains('Party') then
+        job_names = job_names or job_util.all_jobs()
+    end
 
     self:add_condition(SpellRecastReadyCondition.new(res.spells:with('en', spell_name).id))
 

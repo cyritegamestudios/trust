@@ -27,7 +27,7 @@ function handle_cycle(field)
 
         local descrip = state_var.description or field
 
-        addon_message(122,descrip..' is now '..state_var.current..'.')
+        addon_message(122,field..' is now '..state_var.current..'.')
         --handle_update({'auto'})
     else
         addon_message(123,'Cycle: Unknown field ['..field..']')
@@ -71,7 +71,7 @@ function handle_set(field, value)
             state_change(descrip, newVal, oldVal)
         end
 
-        local msg = descrip..' is now '..state_var.current
+        local msg = field..' is now '..state_var.current
         if state_var == state.DefenseMode and newVal ~= 'None' then
             msg = msg .. ' (' .. state[newVal .. 'DefenseMode'].current .. ')'
         end
