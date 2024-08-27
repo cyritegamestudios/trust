@@ -86,6 +86,7 @@ function Player.new(id)
     self.target_index = nil
     self.pet_id = nil
     self.is_monitoring = false
+    self.moving = false
     self.pet_id = nil
     self.last_position = V{0, 0, 0}
     
@@ -198,9 +199,9 @@ function Player:monitor()
                 local p = packets.parse('outgoing', original)
                 local current_position = ffxi_util.get_player_position()
                 if ffxi_util.distance(self.last_position, current_position) > 0.01 then
-                    self.is_moving = true
+                    self.moving = true
                 else
-                    self.is_moving = false
+                    self.moving = false
                 end
                 self.last_position = current_position
                 self:update_target(p['Target Index'])
