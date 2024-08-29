@@ -5,6 +5,7 @@
 local ConfigItem = require('ui/settings/editors/config/ConfigItem')
 local GroupConfigItem = require('ui/settings/editors/config/GroupConfigItem')
 local localization_util = require('cylibs/util/localization_util')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local serializer_util = require('cylibs/util/serializer_util')
 local skillchain_util = require('cylibs/util/skillchain_util')
@@ -52,11 +53,7 @@ function SkillchainPropertyCondition:get_config_items()
     end
 
     return L{
-        GroupConfigItem.new('allowed_skillchain_properties', L{
-            PickerConfigItem.new('property_1', self.allowed_skillchain_properties[1] or 'None', all_skillchain_properties, textFormat, "Property 1"),
-            PickerConfigItem.new('property_2', self.allowed_skillchain_properties[2] or 'None', all_skillchain_properties, textFormat, "Property 2"),
-            PickerConfigItem.new('property_3', self.allowed_skillchain_properties[3] or 'None', all_skillchain_properties, textFormat, "Property 3")
-        }, nil, "Skillchain Properties"),
+        MultiPickerConfigItem.new('allowed_skillchain_properties', self.allowed_skillchain_properties, all_skillchain_properties, nil, "Skillchain Properties")
     }
 end
 
