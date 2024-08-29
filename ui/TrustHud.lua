@@ -1,6 +1,7 @@
 local AlterEgoSettingsMenuItem = require('ui/settings/menus/AlterEgoSettingsMenuItem')
 local AutomatonSettingsMenuItem = require('ui/settings/menus/attachments/AutomatonSettingsMenuItem')
 local BackgroundView = require('cylibs/ui/views/background/background_view')
+local BlueMagicSettingsMenuItem = require('ui/settings/menus/bluemagic/BlueMagicSettingsMenuItem')
 local BooleanConfigItem = require('ui/settings/editors/config/BooleanConfigItem')
 local BufferView = require('ui/views/BufferView')
 local BufferSettingsMenuItem = require('ui/settings/menus/buffs/BufferSettingsMenuItem')
@@ -399,6 +400,11 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
     if jobNameShort == 'PUP' then
         menuItems:append(ButtonItem.default('Automaton', 18))
         childMenuItems['Automaton'] = AutomatonSettingsMenuItem.new(trustSettings, trustSettingsMode)
+    end
+
+    if jobNameShort == 'BLU' then
+        menuItems:append(ButtonItem.default('Blue Magic', 18))
+        childMenuItems['Blue Magic'] = BlueMagicSettingsMenuItem.new(trustSettings, trustSettingsMode, true)
     end
 
     -- Add menu items only if the Trust has the appropriate role
