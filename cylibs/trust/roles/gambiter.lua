@@ -196,8 +196,12 @@ function Gambiter:get_type()
 end
 
 function Gambiter:set_gambit_settings(gambit_settings)
-    self.gambits = gambit_settings.Gambits or L{}
-    self.job_gambits = gambit_settings.Default or L{}
+    self.gambits = (gambit_settings.Gambits or L{}):filter(function(gambit)
+        return gambit:getAbility() ~= nil
+    end)
+    self.job_gambits = (gambit_settings.Default or L{}):filter(function(gambit)
+        return gambit:getAbility() ~= nil
+    end)
 end
 
 function Gambiter:get_all_gambits()
