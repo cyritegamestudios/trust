@@ -94,7 +94,13 @@ function NukeSettingsMenuItem:getConfigMenuItem()
         ButtonItem.default('Confirm', 18),
     }, {},
         function()
-            local nukeSettings = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].NukeSettings
+            local allSettings = T(self.trustSettings:getSettings())[self.trustSettingsMode.value]
+
+            local nukeSettings = T{
+                Delay = allSettings.NukeSettings.Delay,
+                MinManaPointsPercent = allSettings.NukeSettings.MinManaPointsPercent,
+                MinNumMobsToCleave = allSettings.NukeSettings.MinNumMobsToCleave
+            }
 
             local configItems = L{
                 ConfigItem.new('Delay', 0, 60, 1, function(value) return value.."s" end, "Delay Between Nukes"),
@@ -103,7 +109,17 @@ function NukeSettingsMenuItem:getConfigMenuItem()
             }
 
             local nukeConfigEditor = ConfigEditor.new(self.trustSettings, nukeSettings, configItems)
+
             nukeConfigEditor:setShouldRequestFocus(true)
+
+            self.dispose_bag:add(nukeConfigEditor:onConfigChanged():addAction(function(newSettings, _)
+                allSettings.NukeSettings.Delay = newSettings.Delay
+                allSettings.NukeSettings.MinManaPointsPercent = newSettings.MinManaPointsPercent
+                allSettings.NukeSettings.MinNumMobsToCleave = newSettings.MinNumMobsToCleave
+
+                self.trustSettings:saveSettings(true)
+            end), nukeConfigEditor:onConfigChanged())
+
             return nukeConfigEditor
         end, "Config", "Configure general nuke settings.")
     return nukeConfigMenuItem
