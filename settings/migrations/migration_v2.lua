@@ -1,7 +1,7 @@
 ---------------------------
--- Move all Bard settings under SongSettings.
+-- Add BlueMagicSettings to Blue Magic job settings.
 -- @class module
--- @name Migration_v1
+-- @name Migration_v2
 
 local Migration = require('settings/migrations/migration')
 local Migration_v2 = setmetatable({}, { __index = Migration })

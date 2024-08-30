@@ -172,7 +172,7 @@ function BlueMage:create_spell_set()
 end
 
 -------
--- Removes all equipped attachments.
+-- Removes all equipped spells.
 function BlueMage:remove_all_spells()
     windower.ffxi.reset_blue_magic_spells()
 end
