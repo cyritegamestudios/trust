@@ -3,11 +3,12 @@ local PullTrustCommands = setmetatable({}, {__index = TrustCommands })
 PullTrustCommands.__index = PullTrustCommands
 PullTrustCommands.__class = "PullTrustCommands"
 
-function PullTrustCommands.new(trust, action_queue)
+function PullTrustCommands.new(trust, action_queue, puller)
     local self = setmetatable(TrustCommands.new(), PullTrustCommands)
 
     self.trust = trust
     self.action_queue = action_queue
+    self.puller = puller
 
     -- AutoPullMode
     self:add_command('auto', function(_) return self:handle_toggle_mode('AutoPullMode', 'Auto', 'Off')  end, 'Automatically pull mobs for the party')
@@ -23,7 +24,7 @@ function PullTrustCommands:get_command_name()
 end
 
 function PullTrustCommands:get_puller()
-    return self.trust:role_with_type("puller")
+    return self.puller
 end
 
 -- // trust pull camp
@@ -31,15 +32,12 @@ function PullTrustCommands:handle_camp(_)
     local success
     local message
 
-    if state.AutoCampMode.value == 'Off' then
-        success = false
-        message = "AutoCampMode must be set to Auto"
-    else
-        self:get_puller():set_camp_position(ffxi_util.get_mob_position(windower.ffxi.get_player().name))
+    handle_set('AutoCampMode', 'Auto')
 
-        success = true
-        message = "Return to the current position after battle"
-    end
+    self:get_puller():set_camp_position(ffxi_util.get_mob_position(windower.ffxi.get_player().name))
+
+    success = true
+    message = "Return to the current position after battle"
 
     return success, message
 end
