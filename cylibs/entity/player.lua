@@ -86,7 +86,9 @@ function Player.new(id)
     self.target_index = nil
     self.pet_id = nil
     self.is_monitoring = false
+    self.moving = false
     self.pet_id = nil
+    self.last_position = V{0, 0, 0}
     
     self.target_change = Event.newEvent()
     self.ranged_attack_begin = Event.newEvent()
@@ -195,7 +197,13 @@ function Player:monitor()
             -- Notify target changes
             if id == 0x015 then
                 local p = packets.parse('outgoing', original)
-                self.moving = p['Run Count'] > 2
+                local current_position = ffxi_util.get_player_position()
+                if ffxi_util.distance(self.last_position, current_position) > 0.01 then
+                    self.moving = true
+                else
+                    self.moving = false
+                end
+                self.last_position = current_position
                 self:update_target(p['Target Index'])
             end
         end)

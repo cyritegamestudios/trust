@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '10.5.3'
+_addon.version = '10.5.8'
 _addon.release_notes = [[
 This update introduces new menus for Bard, autocomplete for Trust
 commands, new commands and important bug fixes for users running the
@@ -227,7 +227,7 @@ function load_user_files(main_job_id, sub_job_id)
 
 	load_trust_modes(player.main_job_name_short)
 	load_ui()
-	load_trust_commands(player.main_job_name_short, player.trust.main_job, action_queue, player.party, main_trust_settings)
+	load_trust_commands(player.main_job_name_short, player.trust.main_job, player.trust.sub_job, action_queue, player.party, main_trust_settings)
 
 	main_trust_settings:copySettings()
 	sub_trust_settings:copySettings()
@@ -283,24 +283,24 @@ function load_trust_modes(job_name_short)
 	player.trust.trust_name = job_name_short
 end
 
-function load_trust_commands(job_name_short, trust, action_queue, party, main_trust_settings)
+function load_trust_commands(job_name_short, main_job_trust, sub_job_trust, action_queue, party, main_trust_settings)
 	local common_commands = L{
-		AssistCommands.new(trust, action_queue),
-		AttackCommands.new(trust, action_queue),
-		FollowCommands.new(trust, action_queue),
-		GeneralCommands.new(trust, action_queue, addon_enabled, trust_mode_settings, main_trust_settings, sub_trust_settings),
-		LoggingCommands.new(trust, action_queue),
-		MagicBurstCommands.new(trust, main_trust_settings, action_queue),
-		MenuCommands.new(trust, action_queue, hud),
-		NukeCommands.new(trust, main_trust_settings, action_queue),
-		PathCommands.new(trust, action_queue),
-		PullCommands.new(trust, action_queue),
-		ScenarioCommands.new(trust, action_queue, party, addon_settings),
-		SendAllCommands.new(trust, action_queue),
-		SendCommands.new(trust, action_queue),
-		SkillchainCommands.new(trust, weapon_skill_settings, action_queue),
-		WidgetCommands.new(trust, action_queue, addon_settings, hud.widgetManager),
-	}:extend(get_job_commands(job_name_short, trust, action_queue, main_trust_settings))
+		AssistCommands.new(main_job_trust, action_queue),
+		AttackCommands.new(main_job_trust, action_queue),
+		FollowCommands.new(main_job_trust, action_queue),
+		GeneralCommands.new(main_job_trust, action_queue, addon_enabled, trust_mode_settings, main_trust_settings, sub_trust_settings),
+		LoggingCommands.new(main_job_trust, action_queue),
+		MagicBurstCommands.new(main_job_trust, main_trust_settings, action_queue),
+		MenuCommands.new(main_job_trust, action_queue, hud),
+		NukeCommands.new(main_job_trust, main_trust_settings, action_queue),
+		PathCommands.new(main_job_trust, action_queue),
+		PullCommands.new(main_job_trust, action_queue, main_job_trust:role_with_type("puller") or sub_job_trust:role_with_type("puller")),
+		ScenarioCommands.new(main_job_trust, action_queue, party, addon_settings),
+		SendAllCommands.new(main_job_trust, action_queue),
+		SendCommands.new(main_job_trust, action_queue),
+		SkillchainCommands.new(main_job_trust, weapon_skill_settings, action_queue),
+		WidgetCommands.new(main_job_trust, action_queue, addon_settings, hud.widgetManager),
+	}:extend(get_job_commands(job_name_short, main_job_trust, action_queue, main_trust_settings))
 
 	local add_command = function(command)
 		shortcuts[command:get_command_name()] = command

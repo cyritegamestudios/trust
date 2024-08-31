@@ -1,4 +1,5 @@
 local Migration_v1 = require('settings/migrations/migration_v1')
+local Migration_v2 = require('settings/migrations/migration_v2')
 
 local MigrationManager = {}
 MigrationManager.__index = MigrationManager
@@ -10,7 +11,8 @@ function MigrationManager.new(trustSettings, addonSettings, weaponSkillSettings)
     self.addonSettings = addonSettings
     self.weaponSkillSettings = weaponSkillSettings
     self.migrations = L{
-        Migration_v1.new()
+        Migration_v1.new(),
+        Migration_v2.new(),
     }
 
     return self

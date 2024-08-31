@@ -5,6 +5,8 @@
 
 local buff_util = require('cylibs/util/buff_util')
 local cure_util = require('cylibs/util/cure_util')
+local DisposeBag = require('cylibs/events/dispose_bag')
+local EquipSpellAction = require('cylibs/actions/equip_spell')
 
 local Job = require('cylibs/entity/jobs/job')
 local BlueMage = setmetatable({}, {__index = Job })
@@ -16,7 +18,14 @@ BlueMage.__index = BlueMage
 -- @treturn BLU A Blue Mage
 function BlueMage.new(cure_settings)
     local self = setmetatable(Job.new(), BlueMage)
+
+    self.spells_action_queue = ActionQueue.new(nil, true, 20, false, false)
+    self.dispose_bag = DisposeBag.new()
+
+    self.dispose_bag:addAny(L{ self.spells_action_queue })
+
     self:set_cure_settings(cure_settings)
+
     return self
 end
 
@@ -141,6 +150,67 @@ end
 function BlueMage:set_cure_settings(cure_settings)
     self.cure_settings = cure_settings or cure_util.default_cure_settings.Magic
     self.ignore_debuff_ids = self.cure_settings.StatusRemovals.Blacklist:map(function(debuff_name) return buff_util.buff_id(debuff_name) end)
+end
+
+function BlueMage:create_spell_set()
+    local mjob_data = windower.ffxi.get_mjob_data()
+    if mjob_data == nil or mjob_data.spells == nil then
+        return
+    end
+
+    local spell_ids = L{}
+    for _, spell_id in pairs(mjob_data.spells) do
+        spell_ids:append(spell_id)
+    end
+
+    local spell_names = spell_ids:map(function(spell_id)
+        return res.spells[spell_id].en
+    end)
+
+    local spell_set = BlueMagicSet.new(spell_names)
+    return spell_set
+end
+
+-------
+-- Removes all equipped spells.
+function BlueMage:remove_all_spells()
+    windower.ffxi.reset_blue_magic_spells()
+end
+
+function BlueMage:equip_spells(spell_names)
+    if spell_names:empty() then
+        return
+    end
+
+    local actions = L{}
+
+    actions:append(BlockAction.new(function()
+        self:remove_all_spells()
+    end), 'equip_remove_all_spells')
+    actions:append(WaitAction.new(0, 0, 0, 1.0))
+
+    local spell_ids = spell_names:map(function(spell_name)
+        return res.spells:with('en', spell_name).id
+    end):compact_map()
+
+    local slot_num = 1
+    for spell_id in spell_ids:it() do
+        actions:append(EquipSpellAction.new(spell_id, slot_num))
+        slot_num = slot_num + 1
+    end
+
+    actions:append(BlockAction.new(function()
+        addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, done!")
+    end), 'equip_spells_done')
+
+    local equip_action = SequenceAction.new(actions, 'equip_spell_set', true)
+    equip_action.display_name = "Equipping spells"
+    equip_action.priority = ActionPriority.highest
+    equip_action.max_duration = 15
+
+    addon_message(260, '('..windower.ffxi.get_player().name..') '.."Give me a sec, I'm updating my spells...")
+
+    self.spells_action_queue:push_action(equip_action, true)
 end
 
 return BlueMage
