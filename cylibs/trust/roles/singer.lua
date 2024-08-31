@@ -129,7 +129,7 @@ function Singer:assert_num_songs(party_member)
     if current_num_songs ~= current_num_song_buffs then
         logger.error(self.__class, "assert_num_songs", "expected", current_num_song_buffs, "songs but got", current_num_songs, "song records")
 
-        local songs_from_records = L(self.song_tracker:get_songs(party_member:get_mob().id)):map(function(song_record) return res.spells[song_record:get_song_id()].en end)
+        local songs_from_records = L(self.song_tracker:get_songs(party_member:get_id())):map(function(song_record) return res.spells[song_record:get_song_id()].en end)
         local song_buff_names = self.brd_job:get_song_buff_ids(party_member:get_buff_ids()):map(function(buff_id) return res.buffs[buff_id].en  end)
 
         logger.error(self.__class, "assert_num_songs", "song records are", tostring(songs_from_records), "but buffs are", tostring(song_buff_names))

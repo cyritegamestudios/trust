@@ -200,7 +200,7 @@ function Monster:handle_action_by_monster(act)
     end
 
     local target = windower.ffxi.get_mob_by_id(act.targets[1].id)
-    if target.id and target.id ~= self.mob_id then
+    if target and target.id and target.id ~= self.mob_id then
         -- I think mighty guard is going into this case
         if self.current_target == nil or target.id ~= self.current_target.id then
             self:on_target_change():trigger(self, target.index)
