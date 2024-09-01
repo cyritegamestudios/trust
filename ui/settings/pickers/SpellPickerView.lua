@@ -35,7 +35,8 @@ function SpellPickerView.new(trustSettings, spells, allSpells, defaultJobNames, 
         'Drain II', 'Drain III'
     }
     self.doNotConvertSpellIds = L{
-        100, 101, 102, 103, 104, 105, 106, 107, 312, 313, 314, 315, 316, 317, 338, 339, 340
+        100, 101, 102, 103, 104, 105, 106, 107, 312, 313, 314, 315, 316, 317, 338, 339, 340,
+        857, 858, 859, 860, 861, 862, 863, 864 -- Storms
     }
 
     self:setScrollEnabled(true)

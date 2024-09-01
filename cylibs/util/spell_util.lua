@@ -136,6 +136,10 @@ function spell_util.knows_spell(spell_id)
     return false
 end
 
+function spell_util.storms_with_buff_id(buff_id)
+
+end
+
 -------
 -- Returns the highest tier spell that grants the given buff, e.g. given the buff_id for Refresh, returns Refresh III.
 -- Will only return spells the player can cast.

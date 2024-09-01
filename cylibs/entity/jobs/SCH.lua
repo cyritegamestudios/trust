@@ -253,7 +253,11 @@ function Scholar:get_storm(element)
     }
     local storm_name = element_to_storm[element:gsub("^%l", string.upper)]
     if storm_name then
-        return Buff.new(storm_name)
+        if spell_util.knows_spell(spell_util.spell_id(storm_name.." II")) then
+            return Spell.new(storm_name.." II")
+        else
+            return Spell.new(storm_name)
+        end
     end
     return nil
 end

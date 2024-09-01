@@ -13,9 +13,6 @@ state.AutoEngageMode:set_description('Always', "Okay, I'll automatically engage 
 state.AutoEngageMode:set_description('Mirror', "Okay, I'll only engage if the person I'm assisting is fighting.")
 state.AutoEngageMode:set_description('Assist', "Okay, I'll lock onto the target but I won't draw my weapons.")
 
-state.EngageMode = M{['description'] = 'Engage Mode', 'None', 'Behind'}
-state.EngageMode:set_description('Behind', "Okay, I'll get behind the monster when fighting.")
-
 function Attacker.new(action_queue)
     local self = setmetatable(Role.new(action_queue), Attacker)
     self.action_queue = action_queue
