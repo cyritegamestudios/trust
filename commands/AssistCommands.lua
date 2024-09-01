@@ -9,7 +9,7 @@ function AssistTrustCommands.new(trust, action_queue)
     self.trust = trust
     self.action_queue = action_queue
 
-    self:add_command('default', self.handle_assist_player, 'Assist a party or alliance member, // trust assist player_name')
+    self:add_command('default', self.handle_assist_player, 'Assist a party or alliance member, // trust assist player_name [mirror]')
     self:add_command('me', self.handle_assist_me, 'Make all players assist me')
     self:add_command('clear', self.handle_clear_assist, 'Clear assist target')
 
@@ -20,8 +20,8 @@ function AssistTrustCommands:get_command_name()
     return 'assist'
 end
 
--- // trust assist player_name
-function AssistTrustCommands:handle_assist_player(party_member_name)
+-- // trust assist player_name [mirror]
+function AssistTrustCommands:handle_assist_player(party_member_name, mirror)
     local success
     local message
 
@@ -31,6 +31,13 @@ function AssistTrustCommands:handle_assist_player(party_member_name)
         message = "Now assisting "..party_member_name
 
         self.trust:get_party():set_assist_target(alliance_member)
+
+        if mirror then
+            for mode_name in L{ 'AutoEngageMode', 'CombatMode' }:it() do
+                handle_set(mode_name, 'Mirror')
+            end
+            message = message.." (mirroring battle status and combat distance)"
+        end
 
         if state.AutoPullMode and state.AutoPullMode.value ~= 'Off' then
             state.AutoPullMode:set('Off')
