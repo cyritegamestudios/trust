@@ -1,3 +1,5 @@
+local skillchain_util = require('cylibs/util/skillchain_util')
+
 local TrustCommands = require('cylibs/trust/commands/trust_commands')
 local ScholarTrustCommands = setmetatable({}, {__index = TrustCommands })
 ScholarTrustCommands.__index = ScholarTrustCommands
@@ -10,9 +12,9 @@ function ScholarTrustCommands.new(trust, action_queue, trust_settings)
     self.trust_settings = trust_settings
     self.action_queue = action_queue
 
-    self:add_command('sc', self.handle_skillchain, 'Make a skillchain using immanence, // trust sch sc fusion')
+    self:add_command('sc', self.handle_skillchain, 'Make a skillchain using immanence, // trust sch sc skillchain_property')
     self:add_command('accession', self.handle_accession, 'Cast a spell with accession, // trust sch accession spell_name')
-    self:add_command('storm', self.handle_storm, 'Set storm element')
+    self:add_command('storm', self.handle_storm, 'Set storm element, // trust sch storm element_name')
 
     return self
 end
@@ -188,6 +190,22 @@ function ScholarTrustCommands:handle_storm(_, element)
     end
 
     return success, message
+end
+
+function ScholarTrustCommands:get_all_commands()
+    local result = TrustCommands.get_all_commands(self)
+
+    for skillchain_property in skillchain_util.all_skillchain_properties():it() do
+        if not skillchain_property:contains('Light') and not skillchain_property:contains('Dark') then
+            result:append('// trust sch sc '..skillchain_property:lower())
+        end
+    end
+
+    for element_name in L{ 'fire', 'ice', 'wind', 'earth', 'lightning', 'water', 'light', 'dark' }:it() do
+        result:append('// trust sch storm '..element_name)
+    end
+
+    return result
 end
 
 return ScholarTrustCommands
