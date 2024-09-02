@@ -58,6 +58,20 @@ end
 -- Returns the name of the spirit pact that aligns with the current day.
 -- @treturn string Localized name of the spirit pact (e.g. Earth Spirit)
 function Summoner:get_spirit_for_current_day()
+    local day_to_spirit = T{
+        Firesday = 'Fire Spirit',
+        Earthsday = 'Earth Spirit',
+        Watersday = 'Water Spirit',
+        Windsday = 'Air Spirit',
+        Iceday = 'Ice Spirit',
+        Lightningday = 'Thunder Spirit',
+        Lightsday = 'Light Spirit',
+        Darksday = 'Dark Spirit'
+    }
+    local spirit_name = day_to_spirit[res.days[windower.ffxi.get_info().day].en]
+    if spell_util.knows_spell(res.spells:with('en', spirit_name).id) then
+        return spirit_name
+    end
     return 'Earth Spirit'
 end
 
