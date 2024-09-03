@@ -10,10 +10,10 @@ local native_commands_whitelist = S{
     'pcmd leader',
 }
 
-function TrustRemoteCommands.new(whitelist, commands)
+function TrustRemoteCommands.new(whitelist, handle_addon_command)
     local self = setmetatable({
         whitelist = whitelist;
-        commands = commands;
+        handle_addon_command = handle_addon_command;
         action_events = {}
     }, TrustRemoteCommands)
 
@@ -27,7 +27,7 @@ function TrustRemoteCommands:on_init()
         if not gm and self.whitelist:contains(sender) then
             local args = string.split(message, ' ')
             if args[1] == 'trust' then
-                self:handle_command(sender, args:slice(2))
+                windower.send_command('input // '..message)
             elseif native_commands_whitelist:contains(message) then
                 self:handle_native_command(sender, message)
             end
@@ -45,23 +45,6 @@ function TrustRemoteCommands:destroy()
     if self.action_events then
         for _,event in pairs(self.action_events) do
             windower.unregister_event(event)
-        end
-    end
-end
-
-function TrustRemoteCommands:handle_command(sender, args)
-    local cmd = args[1]
-    if cmd then
-        local params = ''
-        for _,v in ipairs(args) do
-            params = params..' '..tostring(v)
-        end
-        if self.commands:contains(cmd) or L{'cycle', 'set', 'assist', 'follow'}:contains(cmd) then
-            windower.send_command('input // trust '..params)
-
-            addon_message(209, 'Executing remote command from '..sender..': trust'..params)
-        else
-            error('Unknown remote command from '..sender..': trust'..params)
         end
     end
 end

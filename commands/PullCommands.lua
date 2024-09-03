@@ -42,4 +42,19 @@ function PullTrustCommands:handle_camp(_)
     return success, message
 end
 
+-- // trust pull [auto, party, all]
+function PullTrustCommands:handle_toggle_mode(mode_var_name, on_value, off_value)
+    local success = true
+    local message
+
+    local mode_var = get_state(mode_var_name)
+    if mode_var.value == on_value then
+        handle_set(mode_var_name, off_value)
+    else
+        handle_set(mode_var_name, on_value)
+    end
+
+    return success, message
+end
+
 return PullTrustCommands
