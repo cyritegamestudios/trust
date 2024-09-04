@@ -23,9 +23,11 @@ function WeaponSkill.new(weapon_skill_name, conditions)
     if weapon_skill == nil then
         return nil
     end
-    local min_tp = MinTacticalPointsCondition.new(1000)
-    if not conditions:contains(min_tp) then
-        conditions:append(min_tp)
+    local matches = conditions:filter(function(c)
+        return c.__class == MinTacticalPointsCondition.__class
+    end)
+    if matches:length() == 0 then
+        conditions:append(MinTacticalPointsCondition.new(1000))
     end
     local skillchain_ability = SkillchainAbility.new('weapon_skills', weapon_skill.id, conditions)
     if skillchain_ability == nil then
@@ -42,7 +44,11 @@ end
 end]]
 
 function WeaponSkill:serialize()
-    return "WeaponSkill.new(" .. serializer_util.serialize_args(self:get_name()) .. ")"
+    local conditions_classes_to_serialize = Condition.defaultSerializableConditionClasses()
+    local conditions_to_serialize = self.conditions:filter(function(condition)
+        return conditions_classes_to_serialize:contains(condition.__class)
+    end)
+    return "WeaponSkill.new(" .. serializer_util.serialize_args(self:get_name(), conditions_to_serialize) .. ")"
 end
 
 function WeaponSkill:__eq(otherItem)
