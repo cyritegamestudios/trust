@@ -1,5 +1,6 @@
 local AlterEgoSettingsMenuItem = require('ui/settings/menus/AlterEgoSettingsMenuItem')
 local AutomatonSettingsMenuItem = require('ui/settings/menus/attachments/AutomatonSettingsMenuItem')
+local AvatarStatusWidget = require('ui/widgets/AvatarStatusWidget')
 local BackgroundView = require('cylibs/ui/views/background/background_view')
 local BlueMagicSettingsMenuItem = require('ui/settings/menus/bluemagic/BlueMagicSettingsMenuItem')
 local BooleanConfigItem = require('ui/settings/editors/config/BooleanConfigItem')
@@ -235,6 +236,11 @@ function TrustHud:createWidgets(addon_settings, addon_enabled, action_queue, par
 
     if player.main_job_name_short == 'PUP' then
         local petStatusWidget = AutomatonStatusWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), self, main_trust_settings, state.MainTrustSettingsMode)
+        self.widgetManager:addWidget(petStatusWidget, "pet")
+    end
+
+    if player.main_job_name_short == 'SMN' then
+        local petStatusWidget = AvatarStatusWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), self, main_trust_settings, state.MainTrustSettingsMode)
         self.widgetManager:addWidget(petStatusWidget, "pet")
     end
 

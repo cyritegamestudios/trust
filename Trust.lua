@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '10.5.9'
+_addon.version = '10.6.1'
 _addon.release_notes = [[
 This update introduces new menus for Bard, autocomplete for Trust
 commands, new commands and important bug fixes for users running the
@@ -484,7 +484,7 @@ function check_version()
 		addon_settings:getSettings().version = _addon.version
 		addon_settings:saveSettings()
 
-		local Frame = require('cylibs/ui/views/frame')
+		--[[local Frame = require('cylibs/ui/views/frame')
 
 		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 675))
 
@@ -496,7 +496,7 @@ function check_version()
 			hud:getViewStack():dismiss()
 		end)
 
-		hud:getViewStack():present(updateView)
+		hud:getViewStack():present(updateView)]]
 	end
 end
 
