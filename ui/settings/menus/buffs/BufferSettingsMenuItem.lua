@@ -73,6 +73,7 @@ function BufferSettingsMenuItem:getJobAbilitiesMenuItem()
             else
                 jobAbilities = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].JobAbilities
             end
+            self.buffs = jobAbilities
 
             local chooseJobAbilitiesView = JobAbilityPickerView.new(self.trustSettings, jobAbilities, allJobAbilities)
             chooseJobAbilitiesView:setTitle("Choose job abilities to add.")
@@ -105,7 +106,9 @@ function BufferSettingsMenuItem:getJobAbilitiesMenuItem()
             return jobAbilitiesSettingsView
         end, "Job Abilities", "Choose job ability buffs.")
 
-    jobAbilitiesSettingsItem:setChildMenuItem("Conditions", ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode))
+    jobAbilitiesSettingsItem:setChildMenuItem("Conditions", ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, nil, nil, function()
+        return self.buffs and self.buffs:length() > 0
+    end))
 
     return jobAbilitiesSettingsItem
 end
