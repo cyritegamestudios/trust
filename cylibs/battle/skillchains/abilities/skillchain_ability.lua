@@ -91,7 +91,7 @@ end
 -- Returns the list of conditions that must be met to skillchain with this ability.
 -- @treturn list List of conditions
 function SkillchainAbility:get_conditions()
-    local conditions = L{}:extend(self.conditions)
+    local conditions = L{}:extend(self.conditions or L{})
     if self.party_member then
         local buffs = self:get_buffs()
         if buffs:length() > 0 then
