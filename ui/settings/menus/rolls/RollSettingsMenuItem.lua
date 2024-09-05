@@ -1,33 +1,63 @@
 local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
+local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local CursorItem = require('ui/themes/FFXI/CursorItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
+local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
+local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 
 local RollSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 RollSettingsMenuItem.__index = RollSettingsMenuItem
 
 function RollSettingsMenuItem.new(trustSettings, trustSettingsMode, trust)
     local self = setmetatable(MenuItem.new(L{
-        ButtonItem.default('Roll 1', 18),
-        ButtonItem.default('Roll 2', 18),
+        ButtonItem.default('Confirm', 18),
         ButtonItem.default('Modes', 18),
     }, {
 
-    }, function(_, _)
-        local rollSettings = trustSettings:getSettings()[trustSettingsMode.value]
-
-        local rollsView = FFXIPickerView.withItems(L{ rollSettings.Roll1:tostring(), rollSettings.Roll2:tostring() }, L{}, false, nil, nil, FFXIClassicStyle.WindowSize.Editor.ConfigEditor)
-        rollsView:setShouldRequestFocus(false)
-        return rollsView
-    end, "Rolls", "Configure settings for Phantom Roll."), RollSettingsMenuItem)
+    }, nil, "Rolls", "Configure settings for Phantom Roll."), RollSettingsMenuItem)
 
     self.all_rolls = trust:get_job():get_all_rolls():sort()
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
     self.dispose_bag = DisposeBag.new()
+
+    self.contentViewConstructor = function(_, _)
+        local allSettings = T(self.trustSettings:getSettings())[self.trustSettingsMode.value]
+
+        local rollSettings = T{
+            Roll1 = allSettings.Roll1:get_roll_name(),
+            Roll2 = allSettings.Roll2:get_roll_name(),
+        }
+
+        local configItems = L{
+            PickerConfigItem.new('Roll1', rollSettings.Roll1, trust:get_job():get_all_rolls():sort(), nil, "Roll 1 (Crooked Cards)"),
+            PickerConfigItem.new('Roll2', rollSettings.Roll2, trust:get_job():get_all_rolls():sort(), nil, "Roll 2"),
+        }
+
+        local rollConfigEditor = ConfigEditor.new(self.trustSettings, rollSettings, configItems)
+
+        rollConfigEditor:setTitle('Configure general song settings.')
+        rollConfigEditor:setShouldRequestFocus(true)
+
+        self.dispose_bag:add(rollConfigEditor:onConfigChanged():addAction(function(newSettings, _)
+            if newSettings.Roll1 ~= newSettings.Roll2 then
+                allSettings.Roll1 = Roll.new(newSettings.Roll1, true)
+                allSettings.Roll2 = Roll.new(newSettings.Roll2, false)
+
+                self.trustSettings:saveSettings(true)
+
+                addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll use "..newSettings.Roll1.." and "..newSettings.Roll2.." now!")
+            else
+                addon_message(260, '('..windower.ffxi.get_player().name..') '.."I can't use the same roll twice!")
+            end
+        end), rollConfigEditor:onConfigChanged())
+
+        return rollConfigEditor
+    end
 
     self:reloadSettings()
 
@@ -45,64 +75,18 @@ function RollSettingsMenuItem:destroy()
 end
 
 function RollSettingsMenuItem:reloadSettings()
-    local settings = self.trustSettings:getSettings()[self.trustSettingsMode.value]
-    self.rolls = L{ settings.Roll1, settings.Roll2 }
-
-    self:setChildMenuItem("Roll 1", self:getRollMenuItem(self.rolls[1], "Choose a primary roll to use with Crooked Cards."))
-    self:setChildMenuItem("Roll 2", self:getRollMenuItem(self.rolls[2], "Choose a secondary roll."))
     self:setChildMenuItem("Modes", self:getModesMenuItem())
 end
 
-function RollSettingsMenuItem:getRollMenuItem(roll, descriptionText)
-    local rollMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
-    }, L{}, function(menuArgs)
-        local imageItemForText = function(text)
-            return AssetManager.imageItemForJobAbility(text)
-        end
-
-        local chooseRollView = FFXIPickerView.withItems(self.all_rolls, L{ roll:get_roll_name() }, false, nil, imageItemForText)
-        chooseRollView:setTitle(descriptionText)
-        chooseRollView:setAllowsCursorSelection(false)
-        chooseRollView:on_pick_items():addAction(function(_, selectedItems)
-            local roll_name = selectedItems[1]:getText()
-            if roll_name then
-                if roll_name == self.rolls[1]:get_roll_name() or roll_name == self.rolls[2]:get_roll_name() then
-                    addon_message(260, '('..windower.ffxi.get_player().name..') '.."I'm already using "..roll_name.."!")
-                    return
-                end
-                roll:set_roll_name(roll_name)
-
-                self.trustSettings:saveSettings(true)
-                addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll use "..roll_name.." now!")
-            end
-        end)
-        return chooseRollView
-    end, "Rolling", descriptionText)
-    return rollMenuItem
-end
-
 function RollSettingsMenuItem:getModesMenuItem()
-    local rollModesMenuItem = MenuItem.new(L{
-        ButtonItem.default('Manual', 18),
-        ButtonItem.default('Auto', 18),
-        ButtonItem.default('Safe', 18),
-        ButtonItem.default('Off', 18),
-    }, L{
-        Manual = MenuItem.action(function()
-            handle_set('AutoRollMode', 'Manual')
-        end, "Rolling", state.AutoRollMode:get_description('Manual')),
-        Auto = MenuItem.action(function()
-            handle_set('AutoRollMode', 'Auto')
-        end, "Rolling", state.AutoRollMode:get_description('Auto')),
-        Safe = MenuItem.action(function()
-            handle_set('AutoRollMode', 'Safe')
-        end, "Rolling", state.AutoRollMode:get_description('Safe')),
-        Off = MenuItem.action(function()
-            handle_set('AutoRollMode', 'Off')
-        end, "Rolling", state.AutoRollMode:get_description('Off')),
-    }, nil, "Modes", "Change rolling modes.")
-    return rollModesMenuItem
+    local buffModesMenuItem = MenuItem.new(L{
+        ButtonItem.default('Confirm')
+    }, L{}, function(_, infoView)
+        local modesView = ModesView.new(L{'AutoRollMode'}, infoView)
+        modesView:setShouldRequestFocus(true)
+        return modesView
+    end, "Modes", "Change rolling behavior.")
+    return buffModesMenuItem
 end
 
 return RollSettingsMenuItem
