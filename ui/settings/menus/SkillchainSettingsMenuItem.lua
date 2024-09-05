@@ -23,17 +23,7 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
                 createSkillchainView:setShouldRequestFocus(true)
                 return createSkillchainView
             end, "Skillchains", "Edit which weapon skill to use for the selected step.")
-
-    local skillchainSetsMenuItem = MenuItem.new(L{
-        ButtonItem.default('Cycle', 18),
-        ButtonItem.default('Create', 18),
-        ButtonItem.default('Delete', 18),
-    }, L{
-        Cycle = MenuItem.action(nil, "Modes", "Cycle through saved weapon skill sets."),
-        Create = MenuItem.action(nil, "Modes", "Create a new weapon skill set from the Default set."),
-        Delete = MenuItem.action(nil, "Modes", "Delete the current weapon skill set and switch to the default set."),
-    }, nil, "Modes", "Create, delete or cycle through weapon skill settings.", true)
-
+    
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Edit', 18),
         ButtonItem.default('Skip', 18),
@@ -41,7 +31,6 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
         ButtonItem.default('Clear All', 18),
         ButtonItem.default('Conditions', 18),
         ButtonItem.default('Find', 18),
-        ButtonItem.default('Sets', 18),
     }, {
         Edit = skillchainStepPickerItem,
         Skip = MenuItem.action(nil, "Skillchains", "Wait for party members to use a weapon skill for the selected step."),
@@ -49,7 +38,6 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
         ["Clear All"] = MenuItem.action(nil, "Skillchains", "Automatically determine weapon skills to use for all steps."),
         Conditions = ConditionSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettingsMode),
         Find = BuildSkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettingsMode, skillchainer),
-        Sets = skillchainSetsMenuItem,
     },
     nil, "Skillchains", "Edit or create a new skillchain."), SkillchainSettingsMenuItem)
 
