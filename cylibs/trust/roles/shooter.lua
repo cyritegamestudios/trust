@@ -71,7 +71,7 @@ function Shooter:on_add()
             return
         end
         if L{ 'Auto', 'Manual' }:contains(state.AutoShootMode.value) and not self.is_shooting and (os.clock() - self.last_shoot_time) > self.ranged_attack_delay then
-            if windower.ffxi.get_player().vitals.tp < self.ranged_attack_max_tp then
+            if windower.ffxi.get_player().vitals.tp < self.ranged_attack_max_tp or state.AutoSkillchainMode.value == 'Off' then
                 logger.notice(self.__class, 'onPrerender', 'restarting', os.clock() - self.last_shoot_time)
                 self:ranged_attack()
             end
