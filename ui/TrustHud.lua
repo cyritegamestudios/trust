@@ -40,6 +40,7 @@ local PathWidget = require('ui/widgets/PathWidget')
 local AutomatonStatusWidget = require('ui/widgets/AutomatonStatusWidget')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local ReactSettingsMenuItem = require('ui/settings/menus/gambits/react/ReactSettingsMenuItem')
+local ShooterSettingsMenuItem = require('ui/settings/menus/ShooterSettingsMenuItem')
 local SingerView = require('ui/views/SingerView')
 local SongSettingsMenuItem = require('ui/settings/menus/songs/SongSettingsMenuItem')
 local SpellPickerView = require('ui/settings/pickers/SpellPickerView')
@@ -446,6 +447,11 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         childMenuItems.Pulling = self:getMenuItemForRole(trust:role_with_type("puller"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode)
     end
 
+    if trust:role_with_type("shooter") then
+        menuItems:append(ButtonItem.default('Shooting', 18))
+        childMenuItems.Shooting = self:getMenuItemForRole(trust:role_with_type("shooter"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode)
+    end
+
     if trust:role_with_type("nuker") then
         childMenuItems.Nukes = self:getMenuItemForRole(trust:role_with_type("nuker"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode)
         menuItems:append(ButtonItem.default('Nukes', 18))
@@ -510,6 +516,9 @@ function TrustHud:getMenuItemForRole(role, weaponSkillSettings, weaponSkillSetti
     if role:get_type() == "nuker" then
         return self:getNukerMenuItem(trust, trustSettings, trustSettingsMode, jobNameShort, viewSize)
     end
+    if role:get_type() == "shooter" then
+        return self:getShooterMenuItem(trust, trustSettings, trustSettingsMode)
+    end
     if role:get_type() == "follower" then
         return self:getFollowerMenuItem(role)
     end
@@ -556,6 +565,11 @@ end
 function TrustHud:getPullerMenuItem(trust, jobNameShort, trustSettings, trustSettingsMode, viewSize)
     local pullerSettingsMenuItem = PullSettingsMenuItem.new(L{}, trust, jobNameShort, self.addon_settings, self.addon_settings:getSettings().battle.targets, trustSettings, trustSettingsMode)
     return pullerSettingsMenuItem
+end
+
+function TrustHud:getShooterMenuItem(trust, trustSettings, trustSettingsMode)
+    local shooterSettingsMenuItem = ShooterSettingsMenuItem.new(trustSettings, trustSettingsMode, trust:role_with_type("shooter"))
+    return shooterSettingsMenuItem
 end
 
 function TrustHud:getSingerMenuItem(trust, trustSettings, trustSettingsMode, viewSize)
