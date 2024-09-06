@@ -13,6 +13,7 @@ function JobAbilitiesSettingsMenuItem.new(trustSettings, trustSettingsMode, sett
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
         ButtonItem.default('Conditions', 18),
+        ButtonItem.default('Reset', 18),
     }, {},
     nil, "Job Abilities", "Choose job ability buffs."), JobAbilitiesSettingsMenuItem)
 
@@ -29,7 +30,7 @@ function JobAbilitiesSettingsMenuItem.new(trustSettings, trustSettingsMode, sett
             jobAbilities = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].JobAbilities
         end
         self.buffs = jobAbilities
-        
+
         local jobAbilitiesSettingsView = JobAbilitiesSettingsEditor.new(self.trustSettings, self.trustSettingsMode, self.settingsPrefix)
         self.dispose_bag:add(jobAbilitiesSettingsView:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
             local item = jobAbilitiesSettingsView:getDataSource():itemAtIndexPath(indexPath)
@@ -65,6 +66,7 @@ function JobAbilitiesSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Conditions", ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, nil, nil, function()
         return self.buffs and self.buffs:length() > 0
     end))
+    self:setChildMenuItem("Reset", self:getResetMenuItem())
 end
 
 function JobAbilitiesSettingsMenuItem:getAddAbilityMenuItem()
@@ -90,6 +92,23 @@ function JobAbilitiesSettingsMenuItem:getAddAbilityMenuItem()
         return chooseJobAbilitiesView
     end, "Job Abilities", "Add a new job ability buff.")
     return chooseJobAbilitiesItem
+end
+
+function JobAbilitiesSettingsMenuItem:getResetMenuItem()
+    return MenuItem.action(function(menu)
+        local defaultSettings = T(self.trustSettings:getDefaultSettings()):clone().Default
+
+        local currentSettings = self.trustSettings:getSettings()[self.trustSettingsMode.value]
+        if self.settingsPrefix then
+            currentSettings[self.settingsPrefix].JobAbilities = defaultSettings[self.settingsPrefix].JobAbilities
+        else
+            currentSettings.JobAbilities = defaultSettings.JobAbilities
+        end
+        self.trustSettings:saveSettings(true)
+        addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've forgotten any custom settings!")
+
+        menu:showMenu(self)
+    end, "Reset", "Reset to default settings. WARNING: your settings will be overriden.")
 end
 
 return JobAbilitiesSettingsMenuItem
