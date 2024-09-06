@@ -6,7 +6,7 @@ Truster.__index = Truster
 Truster.__class = "Truster"
 
 state.AutoTrustsMode = M{['description'] = 'Call Alter Egos', 'Off', 'Auto'}
-state.AutoTrustsMode:set_description('Auto', "Okay, I'll automatically summon trusts before battle.")
+state.AutoTrustsMode:set_description('Auto', "Okay, I'll automatically summon Alter Egos before battle when I am pulling.")
 
 function Truster.new(action_queue, trusts)
     local self = setmetatable(Role.new(action_queue), Truster)

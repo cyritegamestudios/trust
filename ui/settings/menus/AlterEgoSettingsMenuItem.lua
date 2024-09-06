@@ -1,51 +1,81 @@
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
+local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
+local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
+local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 
 local AlterEgoSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 AlterEgoSettingsMenuItem.__index = AlterEgoSettingsMenuItem
 
 function AlterEgoSettingsMenuItem.new(truster, addonSettings)
     local self = setmetatable(MenuItem.new(L{
-        ButtonItem.default('Edit', 18),
+        ButtonItem.default('Confirm', 18),
         ButtonItem.default('Modes', 18),
-    }, {}, nil, "Alter Egos", "Choose Alter Egos to summon."), AlterEgoSettingsMenuItem)
+    }, {}, nil, "Alter Egos", "Choose Alter Egos to call."), AlterEgoSettingsMenuItem)
 
     self.truster = truster
     self.addonSettings = addonSettings
+    self.disposeBag = DisposeBag.new()
+
+    self.contentViewConstructor = function(_, _)
+        local allSettings = L(addonSettings:getSettings().battle.trusts)
+
+        local alterEgoSettings = T{}
+        local configItems = L{}
+        for i = 1, allSettings:length() do
+            local allAlterEgos = res.spells:with_all('type', 'Trust'):map(function(alterEgo) return alterEgo.en end)
+                :filter(function(alterEgo) return spell_util.knows_spell(spell_util.spell_id(alterEgo))  end)
+                :sort()
+            local alterEgoKey = "Trust"..i
+            local alterEgoName = allSettings[i]
+            alterEgoSettings[alterEgoKey] = alterEgoName
+            configItems:append(PickerConfigItem.new(alterEgoKey, alterEgoName, allAlterEgos, nil, "Alter Ego "..i))
+        end
+
+        local alterEgoConfigEditor = ConfigEditor.new(addonSettings, alterEgoSettings, configItems)
+
+        alterEgoConfigEditor:setTitle("Choose Alter Egos to call.")
+        alterEgoConfigEditor:setShouldRequestFocus(true)
+
+        self.disposeBag:add(alterEgoConfigEditor:onConfigChanged():addAction(function(newSettings, _)
+            local alterEgoNames = L{}
+
+            for i = 1, newSettings:keyset():length() do
+                local alterEgoKey = "Trust"..i
+                local alterEgoName = newSettings[alterEgoKey]
+                alterEgoNames:append(alterEgoName)
+            end
+
+            if S(alterEgoNames):length() == alterEgoNames:length() then
+                self.truster:set_trusts(alterEgoNames)
+
+                self.addonSettings:getSettings().battle.trusts = alterEgoNames
+                self.addonSettings:saveSettings(true)
+
+                addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll call Alter Egos in this order!")
+            else
+                addon_message(260, '('..windower.ffxi.get_player().name..') '.."I can't summon the same Alter Ego twice!")
+            end
+        end), alterEgoConfigEditor:onConfigChanged())
+
+        return alterEgoConfigEditor
+    end
 
     self:reloadSettings()
 
     return self
 end
 
-function AlterEgoSettingsMenuItem:reloadSettings()
-    self:setChildMenuItem("Edit", self:getEditMenuItem())
-    self:setChildMenuItem("Modes", self:getModesMenuItem())
+function AlterEgoSettingsMenuItem:destroy()
+    MenuItem.destroy(self)
+
+    self.disposeBag:destroy()
 end
 
-function AlterEgoSettingsMenuItem:getEditMenuItem()
-    local editMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
-    }, L{}, function(_)
-        local allAlterEgos = res.spells:with_all('type', 'Trust'):map(function(alterEgo) return alterEgo.en end)
-            :filter(function(alterEgo) return spell_util.knows_spell(spell_util.spell_id(alterEgo))  end)
-            :sort()
-
-        local chooseAlterEgosView = FFXIPickerView.withItems(allAlterEgos, self.truster:get_trusts(), true)
-        chooseAlterEgosView:setTitle("Choose Alter Egos to summon.")
-        chooseAlterEgosView:on_pick_items():addAction(function(_, selectedItems)
-            local alterEgos = selectedItems:map(function(item) return item:getText() end):compact_map()
-            self.truster:set_trusts(alterEgos)
-
-            self.addonSettings:getSettings().battle.trusts = alterEgos
-            self.addonSettings:saveSettings(true)
-            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my list of Alter Egos to summon!")
-        end)
-        return chooseAlterEgosView
-    end, "Alter Egos", "Choose Alter Egos to summon.")
-    return editMenuItem
+function AlterEgoSettingsMenuItem:reloadSettings()
+    self:setChildMenuItem("Modes", self:getModesMenuItem())
 end
 
 function AlterEgoSettingsMenuItem:getModesMenuItem()
