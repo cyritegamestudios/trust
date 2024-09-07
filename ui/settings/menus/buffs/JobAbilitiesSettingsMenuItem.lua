@@ -62,7 +62,6 @@ end
 
 function JobAbilitiesSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Add", self:getAddAbilityMenuItem())
-    --self:setChildMenuItem("Remove", self:getRemoveAbilityMenuItem())
     self:setChildMenuItem("Conditions", ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, nil, nil, function()
         return self.buffs and self.buffs:length() > 0
     end))

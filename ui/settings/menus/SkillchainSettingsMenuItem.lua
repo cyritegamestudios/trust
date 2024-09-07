@@ -56,7 +56,6 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
             self.selectedAbility = selectedAbility
 
             createSkillchainView.menuArgs['conditions'] = selectedAbility:get_conditions()
-            --createSkillchainView.menuArgs['targetTypes'] = S{ selectedGambit:getConditionsTarget() }
         end, createSkillchainView:getDelegate():didSelectItemAtIndexPath()))
 
         return createSkillchainView
