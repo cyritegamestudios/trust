@@ -10,7 +10,7 @@ local SkillSettingsMenuItem = require('ui/settings/menus/SkillSettingsMenuItem')
 local WeaponSkillSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 WeaponSkillSettingsMenuItem.__index = WeaponSkillSettingsMenuItem
 
-function WeaponSkillSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettingsMode, trust, viewFactory)
+function WeaponSkillSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettingsMode, trust)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Skillchains', 18),
         ButtonItem.default('Abilities', 18),
@@ -21,7 +21,6 @@ function WeaponSkillSettingsMenuItem.new(weaponSkillSettings, weaponSkillSetting
     self.skillchainer = trust:role_with_type("skillchainer")
     self.weaponSkillSettings = weaponSkillSettings
     self.weaponSkillSettingsMode = weaponSkillSettingsMode
-    self.viewFactory = viewFactory
     self.dispose_bag = DisposeBag.new()
 
     local getActiveSkills = function(player)
@@ -52,12 +51,10 @@ function WeaponSkillSettingsMenuItem:destroy()
     MenuItem.destroy(self)
 
     self.dispose_bag:destroy()
-
-    self.viewFactory = nil
 end
 
 function WeaponSkillSettingsMenuItem:reloadSettings(activeSkills)
-    self:setChildMenuItem("Skillchains", SkillchainSettingsMenuItem.new(self.weaponSkillSettings, self.weaponSkillSettingsMode, self.skillchainer, self.viewFactory))
+    self:setChildMenuItem("Skillchains", SkillchainSettingsMenuItem.new(self.weaponSkillSettings, self.weaponSkillSettingsMode, self.skillchainer))
     self:setChildMenuItem("Abilities", self:getAbilitiesMenuItem(activeSkills))
     self:setChildMenuItem("Modes", self:getModesMenuItem(activeSkills))
 end
@@ -67,7 +64,7 @@ function WeaponSkillSettingsMenuItem:getAbilitiesMenuItem(activeSkills)
 
     local childMenuItems = {}
     for skillSettings in activeSkills:it() do
-        childMenuItems[skillSettings:get_name()] = SkillSettingsMenuItem.new(self.weaponSkillSettings, skillSettings, self.viewFactory)
+        childMenuItems[skillSettings:get_name()] = SkillSettingsMenuItem.new(self.weaponSkillSettings, skillSettings)
     end
     local abilitiesMenuItem = MenuItem.new(settings.Skills:map(
             function(skill)

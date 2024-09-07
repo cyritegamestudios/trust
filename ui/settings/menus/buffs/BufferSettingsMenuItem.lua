@@ -3,8 +3,7 @@ local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConditionSettingsMenuItem = require('ui/settings/menus/conditions/ConditionSettingsMenuItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local FoodSettingsMenuItem = require('ui/settings/menus/buffs/FoodSettingsMenuItem')
-local JobAbilityPickerView = require('ui/settings/pickers/JobAbilityPickerView')
-local JobAbilitiesSettingsEditor = require('ui/settings/JobAbilitiesSettingsEditor')
+local JobAbilitiesSettingsMenuItem = require('ui/settings/menus/buffs/JobAbilitiesSettingsMenuItem')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
 local SpellSettingsEditor = require('ui/settings/SpellSettingsEditor')
@@ -57,57 +56,7 @@ function BufferSettingsMenuItem:getPartyBuffsMenuItem()
 end
 
 function BufferSettingsMenuItem:getJobAbilitiesMenuItem()
-    local chooseJobAbilitiesItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
-        ButtonItem.default('Clear', 18),
-    }, {},
-        function()
-            local jobId = res.jobs:with('ens', self.jobNameShort).id
-            local allJobAbilities = player_util.get_job_abilities():map(function(jobAbilityId) return res.job_abilities[jobAbilityId] end):filter(function(jobAbility)
-                return jobAbility.status ~= nil and S{'Self'}:intersection(S(jobAbility.targets)):length() > 0
-            end):map(function(jobAbility) return jobAbility.en end)
-
-            local jobAbilities
-            if self.settingsPrefix then
-                jobAbilities = T(self.trustSettings:getSettings())[self.trustSettingsMode.value][self.settingsPrefix].JobAbilities
-            else
-                jobAbilities = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].JobAbilities
-            end
-
-            local chooseJobAbilitiesView = JobAbilityPickerView.new(self.trustSettings, jobAbilities, allJobAbilities)
-            chooseJobAbilitiesView:setTitle("Choose job abilities to add.")
-            return chooseJobAbilitiesView
-        end, "Job Abilities", "Add a new job ability buff.")
-
-    local jobAbilitiesSettingsItem = MenuItem.new(L{
-        ButtonItem.default('Add', 18),
-        ButtonItem.default('Remove', 18),
-        ButtonItem.default('Conditions', 18),
-    }, {
-        Add = chooseJobAbilitiesItem,
-    },
-        function(_, infoView)
-            local jobAbilitiesSettingsView = JobAbilitiesSettingsEditor.new(self.trustSettings, self.trustSettingsMode, self.settingsPrefix)
-            self.dispose_bag:add(jobAbilitiesSettingsView:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
-                local item = jobAbilitiesSettingsView:getDataSource():itemAtIndexPath(indexPath)
-                if item and not item:getTextItem():getEnabled() then
-                    infoView:setDescription("Unavailable on current job.")
-                else
-                    local jobAbility = jobAbilitiesSettingsView.jobAbilities[indexPath.row]
-                    if jobAbility then
-                        local description = jobAbility:get_conditions():map(function(condition)
-                            return condition:tostring()
-                        end)
-                        infoView:setDescription("Use when: "..localization_util.commas(description))
-                    end
-                end
-            end, jobAbilitiesSettingsView:getDelegate():didMoveCursorToItemAtIndexPath()))
-            return jobAbilitiesSettingsView
-        end, "Job Abilities", "Choose job ability buffs.")
-
-    jobAbilitiesSettingsItem:setChildMenuItem("Conditions", ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode))
-
-    return jobAbilitiesSettingsItem
+    return JobAbilitiesSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, self.settingsPrefix)
 end
 
 function BufferSettingsMenuItem:getFoodMenuItem()
