@@ -63,7 +63,7 @@ function Sleeper:check_sleep()
 
     if mobs_to_sleep:length() >= self.min_mobs_to_sleep then
         for sleep_spell in self.sleep_spells:it() do
-            if spell_util.get_spell_recast(sleep_spell:get_spell().id) == 0 then
+            if not spell_util.is_spell_on_cooldown(sleep_spell:get_spell().id) then
                 self:cast_spell(sleep_spell, mobs_to_sleep[1].index)
                 return
             end
