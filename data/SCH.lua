@@ -66,7 +66,9 @@ return {
         GambitSettings = {
             Default = L{
                 Gambit.new("Self", L{NotCondition.new(L{HasBuffsCondition.new(L{"Sublimation: Activated", "Sublimation: Complete", "Refresh"}, 1)})}, JobAbility.new("Sublimation", L{}, L{}), "Self"),
-                Gambit.new("Self", L{HasBuffsCondition.new(L{"Sublimation: Complete"}, 1), MaxManaPointsPercentCondition.new(30)}, JobAbility.new("Sublimation", L{}, L{}), "Self")
+                Gambit.new("Self", L{HasBuffsCondition.new(L{"Sublimation: Complete"}, 1), MaxManaPointsPercentCondition.new(30)}, JobAbility.new("Sublimation", L{}, L{}), "Self"),
+                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Addendum: Black")}), HasBuffCondition.new("Dark Arts"), StrategemCountCondition.new(1, ">=")}, JobAbility.new("Addendum: Black", L{}, L{}), "Self", L{}),
+                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Addendum: White")}), HasBuffCondition.new("Light Arts"), StrategemCountCondition.new(1, ">=")}, JobAbility.new("Addendum: White", L{}, L{}), "Self", L{})
             },
             Gambits = L{
 
