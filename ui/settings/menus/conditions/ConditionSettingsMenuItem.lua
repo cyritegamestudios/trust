@@ -53,6 +53,7 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
         [HasDazeCondition.__type] = "has_daze",
         [TargetNameCondition.__type] = "target_name",
         [CombatSkillsCondition.__type] = "combat_skills",
+        [StrategemCountCondition.__type] = "strategem_count",
     }
     self.conditionPickerItems = L(self.editableConditionClasses:keyset()):filter(function(c)
         local conditionClass = self:getFileForCondition(c)

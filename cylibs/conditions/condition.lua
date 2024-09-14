@@ -105,6 +105,7 @@ function Condition.defaultSerializableConditionClasses()
         HasDazeCondition.__class,
         CombatSkillsCondition.__class,
         NotCondition.__class,
+        StrategemCountCondition.__class,
     }
 end
 
