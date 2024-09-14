@@ -90,7 +90,7 @@ function Geocolure:is_in_range(target)
     if luopan then
         local target_mob = windower.ffxi.get_mob_by_target(target)
         if target_mob then
-            return geometry_util.distance(target_mob, luopan) <= 10
+            return geometry_util.distance(target_mob, luopan) <= 6
         else
             return true
         end
