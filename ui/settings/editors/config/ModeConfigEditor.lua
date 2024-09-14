@@ -29,7 +29,7 @@ function ModeConfigEditor.new(modeNames, infoView)
         return nil
     end):compact_map()
 
-    local self = setmetatable(ConfigEditor.new(nil, modeSettings, configItems), ModeConfigEditor)
+    local self = setmetatable(ConfigEditor.new(nil, modeSettings, configItems, nil, function(_) return not is_modes_locked() end), ModeConfigEditor)
 
     self.infoView = infoView
     self.modeNames = modeNames
@@ -51,6 +51,10 @@ function ModeConfigEditor.new(modeNames, infoView)
                 end
             end
         end
+    end)
+
+    self:onConfigValidationError():addAction(function()
+        addon_message(123, "You cannot change modes at this time.")
     end)
 
     return self

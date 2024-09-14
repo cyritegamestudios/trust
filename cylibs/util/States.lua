@@ -11,7 +11,23 @@ _libs = _libs or {}
 -- @table State
 state = {}
 
+local modes_locked = false
+local modes_locked_reason
+
+function set_modes_locked(locked, reason)
+    modes_locked = locked
+    modes_locked_reason = reason
+end
+
+function is_modes_locked()
+    return modes_locked
+end
+
 function handle_cycle(field)
+    if modes_locked then
+        addon_message(123, modes_locked_reason or "You cannot changes modes at this time.")
+        return
+    end
     if field == nil then
         addon_message(123,'Cycle parameter failure: field not specified.')
         return
@@ -50,6 +66,10 @@ function get_state(name)
 end
 
 function handle_set(field, value)
+    if modes_locked then
+        addon_message(123, modes_locked_reason or "You cannot changes modes at this time.")
+        return
+    end
     if field == nil then
         add_to_chat(123,'Set parameter failure: field not specified.')
         return

@@ -26,7 +26,7 @@ function CorsairTrust.new(settings, action_queue, battle_settings, trust_setting
 
 	self.settings = settings
 	self.action_queue = action_queue
-	self.roll_modes_delta = ModeDelta.new(CorsairModes.Rolling)
+	self.roll_modes_delta = ModeDelta.new(CorsairModes.Rolling, "You cannot change modes while rolling.")
 	self.dispose_bag = DisposeBag.new()
 
 	return self

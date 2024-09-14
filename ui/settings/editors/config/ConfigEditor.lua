@@ -35,6 +35,10 @@ function ConfigEditor:onConfigChanged()
     return self.configChanged
 end
 
+function ConfigEditor:onConfigValidationError()
+    return self.configValidationError
+end
+
 
 function ConfigEditor.new(trustSettings, configSettings, configItems, infoView, validator, showMenu)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
@@ -86,6 +90,7 @@ function ConfigEditor.new(trustSettings, configSettings, configItems, infoView, 
         showMenu(menuItem)
     end
     self.configChanged = Event.newEvent()
+    self.configValidationError = Event.newEvent()
 
     self:setConfigItems(configItems)
 
@@ -135,6 +140,9 @@ end
 
 function ConfigEditor:destroy()
     FFXIWindow.destroy(self)
+
+    self.configChanged:removeAllActions()
+    self.configValidationError:removeAllActions()
 end
 
 function ConfigEditor:setConfigItems(configItems)
@@ -291,6 +299,7 @@ function ConfigEditor:onConfirmClick(skipSave)
     end
 
     if not self.validator(self.configSettings) then
+        self:onConfigValidationError():trigger()
         return
     end
 

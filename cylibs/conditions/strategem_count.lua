@@ -44,7 +44,6 @@ end
 
 function StrategemCountCondition:tostring()
     return "Has "..' '..self.operator..' '..self.strategem_count..' strategems'
-
 end
 
 function StrategemCountCondition.description()
