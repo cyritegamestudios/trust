@@ -18,7 +18,8 @@ _libs.spell_util = spell_util
 
 -- Spells that come from things like items
 local spells_whitelist = L{
-    'Honor March'
+    'Honor March', 'Aria of Passion',
+    'Dispelga', 'Impact'
 }
 
 local aoe_spells = L{
@@ -182,24 +183,7 @@ end
 -- @tparam number spell_id Spell id (see spells.lua)
 -- @treturn Boolean True if the player knows the spell and its recast timer is up.
 function spell_util.can_cast_spell(spell_id)
-    return spell_util.get_spell_recast(spell_id) == 0 and spell_util.knows_spell(spell_id)
-end
-
--------
--- Returns the spell recast for the given spell. Note that this will return 0 if a player has learned a spell but
--- does not have access to it on their current job.
--- @tparam number spell_id Spell id (see spells.lua)
--- @treturn number Recast time (in seconds)
-function spell_util.get_spell_recast(spell_id)
-    -- Honor March
-    if spell_id == 417 then return 0 end
-
-    local all_spells = windower.ffxi.get_spells()
-    local recast_times = windower.ffxi.get_spell_recasts()
-
-    if not all_spells[spell_id] then return 9999 end
-
-    return recast_times[spell_id]
+    return spell_util.knows_spell(spell_id) and windower.ffxi.get_spell_recasts()[spell_id] == 0
 end
 
 -------
@@ -207,8 +191,7 @@ end
 -- @tparam number spell_id Spell id (see spells.lua)
 -- @treturn boolean Whether the spell is on cooldown.
 function spell_util.is_spell_on_cooldown(spell_id)
-    local recast_time = spell_util.get_spell_recast(spell_id)
-    return recast_time > 0
+    return windower.ffxi.get_spell_recasts()[spell_id] > 0
 end
 
 -------
