@@ -15,12 +15,12 @@ CreateBattleSetEditor.SettinsgKeys.WeaponSkillSettings = 'create_weapon_skill_se
 function CreateBattleSetEditor.new(trustModeSettings, jobSettings, weaponSkillSettings, infoView)
     local newSetSettings = {}
 
-    newSetSettings[CreateBattleSetEditor.SettinsgKeys.SetName] = 'NewSet'
+    newSetSettings[CreateBattleSetEditor.SettinsgKeys.SetName] = 'NewProfile'
     newSetSettings[CreateBattleSetEditor.SettinsgKeys.JobSettings] = false
     newSetSettings[CreateBattleSetEditor.SettinsgKeys.WeaponSkillSettings] = false
 
     local configItems = L{
-        TextInputConfigItem.new(CreateBattleSetEditor.SettinsgKeys.SetName, newSetSettings[CreateBattleSetEditor.SettinsgKeys.SetName], 'Set Name', function(text)
+        TextInputConfigItem.new(CreateBattleSetEditor.SettinsgKeys.SetName, newSetSettings[CreateBattleSetEditor.SettinsgKeys.SetName], 'Profile Name', function(text)
             return true
         end),
         BooleanConfigItem.new(CreateBattleSetEditor.SettinsgKeys.JobSettings, 'Create new job settings'),
@@ -39,10 +39,10 @@ function CreateBattleSetEditor.new(trustModeSettings, jobSettings, weaponSkillSe
     self:getDisposeBag():add(self:onConfigChanged():addAction(function(newConfigSettings, _)
         local setName = newConfigSettings[CreateBattleSetEditor.SettinsgKeys.SetName]
         if self.trustModeSettings:getSetNames():contains(setName) then
-            addon_message(123, "A set with this name already exists.")
+            addon_message(123, "A profile with this name already exists.")
             return
         elseif setName:length() < 2 or setName:find('%s') then
-            addon_message(123, "Set names cannot contain spaces and must be at least 2 characters.")
+            addon_message(123, "Profile names cannot contain spaces and must be at least 2 characters.")
             return
         end
 

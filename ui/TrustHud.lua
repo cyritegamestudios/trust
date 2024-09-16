@@ -119,17 +119,6 @@ function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, a
             if old_value == new_value then
                 return
             end
-            --[[local showMenu = self.trustMenu:isVisible()
-
-            self.trustMenu:closeAll()
-            self.mainMenuItem:destroy()
-            self.mainMenuItem = nil
-
-            self:getMainMenuItem()
-
-            if showMenu then
-                --self.trustMenu:showMenu(self.mainMenuItem)
-            end]]
             self:reloadJobMenuItems()
         end), mode:on_state_change())
     end
