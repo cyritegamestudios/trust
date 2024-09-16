@@ -2,9 +2,6 @@ local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local CreateBattleSetEditor = require('ui/settings/editors/sets/CreateBattleSetEditor')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
-local FFXITextInputView = require('ui/themes/ffxi/FFXITextInputView')
-local JobSettingsMenuItem = require('ui/settings/menus/loading/JobSettingsMenuItem')
-local LoadSettingsView = require('ui/settings/LoadSettingsView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local TrustSetsConfigEditor = require('ui/settings/editors/TrustSetsConfigEditor')
 
@@ -13,12 +10,12 @@ LoadSettingsMenuItem.__index = LoadSettingsMenuItem
 
 function LoadSettingsMenuItem.new(addonSettings, trustModeSettings, jobSettings, weaponSkillSettings)
     local self = setmetatable(MenuItem.new(L{
-        ButtonItem.default('Save As', 18),
+        ButtonItem.default('Create', 18),
         ButtonItem.default('Edit', 18),
         ButtonItem.default('Delete', 18),
     }, {
 
-    }, nil, "Settings", "Load saved modes and job settings."), LoadSettingsMenuItem)
+    }, nil, "Profiles", "Load a saved profile."), LoadSettingsMenuItem)
 
     self.contentViewConstructor = function(_, _)
         local loadSettingsView = FFXIPickerView.withItems(L(state.TrustMode:options()), state.TrustMode.value)
@@ -70,7 +67,7 @@ function LoadSettingsMenuItem:destroy()
 end
 
 function LoadSettingsMenuItem:reloadSettings()
-    self:setChildMenuItem("Save As", self:getCreateSetMenuItem())
+    self:setChildMenuItem("Create", self:getCreateSetMenuItem())
     self:setChildMenuItem("Edit", self:getEditSetMenuItem())
     self:setChildMenuItem("Delete", self:getDeleteSetMenuItem())
 end
@@ -81,23 +78,22 @@ function LoadSettingsMenuItem:getCreateSetMenuItem()
     }, {
         Confirm = MenuItem.action(function(menu)
             menu:showMenu(self)
-        end, "Confirm", "Create a new battle set.")
+        end, "Confirm", "Create a new profile.")
     }, function(_)
         local createSetView = CreateBattleSetEditor.new(self.trustModeSettings, self.jobSettings, self.weaponSkillSettings)
         return createSetView
-    end, "Settings", "Create a new battle set.")
+    end, "Profiles", "Create a new profile.")
     return createSetMenuItem
 end
 
 function LoadSettingsMenuItem:getEditSetMenuItem()
     local editMenuItem = MenuItem.new(L{
         ButtonItem.default('Save', 18),
-        ButtonItem.default('Delete', 18),
     }, {}, function(_, _)
         local loadSettingsView = TrustSetsConfigEditor.new(self.highlightedSetName or 'Default', self.trustModeSettings, self.jobSettings, self.weaponSkillSettings, nil)
         loadSettingsView:setShouldRequestFocus(true)
         return loadSettingsView
-    end, "Settings", "Edit saved sets.", true)
+    end, "Profiles", "Edit saved profiles.", true)
     return editMenuItem
 end
 
@@ -105,7 +101,7 @@ function LoadSettingsMenuItem:getDeleteSetMenuItem()
     return MenuItem.action(function(menu)
         if self.selectedSetName then
             if self.selectedSetName == 'Default' then
-                addon_message(123, "You cannot delete the Default set.")
+                addon_message(123, "You cannot delete the Default profile.")
                 return
             end
             self.trustModeSettings:deleteSettings(self.selectedSetName)
@@ -113,9 +109,7 @@ function LoadSettingsMenuItem:getDeleteSetMenuItem()
             menu:showMenu(self)
             --self.loadSettingsView:setItems(L(state.TrustMode:options()), state.TrustMode.value)
         end
-    end, "Settings", "Delete the selected battle set.")
+    end, "Profiles", "Delete the selected profile.")
 end
-
-
 
 return LoadSettingsMenuItem
