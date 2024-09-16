@@ -114,8 +114,6 @@ function CollectionViewDelegate:destroy()
 
     self.collectionView = nil
 
-    --print(debug.traceback())
-
     for event in self.events:it() do
         event:removeAllActions()
     end
@@ -137,10 +135,6 @@ end
 -- @treturn boolean Returns true if the item should be selected, false otherwise.
 --
 function CollectionViewDelegate:shouldSelectItemAtIndexPath(indexPath)
-    if self.collectionView == nil then
-        addon_message(123, debug.traceback())
-        --print(debug.traceback())
-    end
     local cell = self.collectionView:getDataSource():cellForItemAtIndexPath(indexPath)
     return cell:isSelectable() and not cell:isSelected()
 end
@@ -151,9 +145,6 @@ end
 -- @tparam IndexPath indexPath The index path of the item.
 --
 function CollectionViewDelegate:selectItemAtIndexPath(indexPath)
-    if self.collectionView == nil then
-        print('destroyed', self.isDestroyed or 'false')
-    end
     if not self:shouldSelectItemAtIndexPath(indexPath) then
         if self.collectionView:getAllowsMultipleSelection() then
             self:deselectItemAtIndexPath(indexPath)

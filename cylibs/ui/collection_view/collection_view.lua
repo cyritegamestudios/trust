@@ -295,9 +295,6 @@ function CollectionView:onKeyboardEvent(key, pressed, flags, blocked)
                 self:getDelegate():setCursorIndexPath(nextIndexPath)
                 return true
             elseif key == 28 then
-                if self.destroyed then
-                    print('destroyed')
-                end
                 self:getDelegate():selectItemAtIndexPath(self:getDelegate():getCursorIndexPath())
             end
         end

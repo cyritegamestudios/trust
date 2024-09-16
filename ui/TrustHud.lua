@@ -296,29 +296,14 @@ function TrustHud:getMainMenuItem()
     if self.mainMenuItem then
         return self.mainMenuItem
     end
-
-    --local mainJobItem = self:getMenuItems(player.trust.main_job, main_trust_settings, state.MainTrustSettingsMode, weapon_skill_settings, state.WeaponSkillSettingsMode, player.main_job_name_short, player.main_job_name)
-    --local subJobItem = self:getMenuItems(player.trust.sub_job, sub_trust_settings, state.SubTrustSettingsMode, nil, nil, player.sub_job_name_short, player.sub_job_name)
-
-    --if mainJobItem:getChildMenuItem('Settings'):getChildMenuItem('Pulling') == nil then
-    --    local pullerMenuItem = subJobItem:getChildMenuItem('Settings'):getChildMenuItem('Pulling')
-    --    if pullerMenuItem then
-    --        mainJobItem:getChildMenuItem('Settings'):setChildMenuItem('Pulling', pullerMenuItem)
-    --    end
-    --end
-
+    
     local mainMenuItem = MenuItem.new(L{
         ButtonItem.default(player.main_job_name, 18),
         ButtonItem.default(player.sub_job_name, 18),
         ButtonItem.default('Profiles', 18),
     }, {
-        --[player.main_job_name] = mainJobItem,
         Profiles = LoadSettingsMenuItem.new(self.addon_settings, self.trustModeSettings, main_trust_settings, weapon_skill_settings)
     }, nil, "Jobs")
-
-    --if player.sub_job_name ~= 'None' then
-    --    mainMenuItem:setChildMenuItem(player.sub_job_name, subJobItem)
-    --end
 
     self.mainMenuItem = mainMenuItem
 
