@@ -213,4 +213,9 @@ function TrustSettings:runMigrations(settings)
     end
 end
 
+function TrustSettings:getSetNames()
+    local setNames = list.subtract(L(T(self:getSettings()):keyset()), L{'Version','Migrations'})
+    return setNames
+end
+
 return TrustSettings

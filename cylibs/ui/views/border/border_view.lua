@@ -10,6 +10,7 @@ local ResizableImageItem = require('cylibs/ui/collection_view/items/resizable_im
 
 local BorderView = setmetatable({}, {__index = CollectionView })
 BorderView.__index = BorderView
+BorderView.__type = "BorderView"
 
 ---
 -- Creates a background view with top, middle, and bottom images.

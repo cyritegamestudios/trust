@@ -10,6 +10,7 @@ local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_f
 
 local TextInputView = setmetatable({}, {__index = CollectionView })
 TextInputView.__index = TextInputView
+TextInputView.__type = "TextInputView"
 
 -- Event called when text is input.
 function TextInputView:onTextChanged()

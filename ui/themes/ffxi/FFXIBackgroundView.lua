@@ -13,6 +13,7 @@ local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_f
 
 local FFXIBackgroundView = setmetatable({}, {__index = CollectionView })
 FFXIBackgroundView.__index = FFXIBackgroundView
+FFXIBackgroundView.__type = "FFXIBackgroundView"
 
 FFXIBackgroundView.CenterImageItem = ImageItem.new(
         windower.addon_path..'assets/backgrounds/window_background.png',

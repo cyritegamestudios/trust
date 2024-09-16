@@ -32,6 +32,7 @@ function CollectionViewDelegate.new(collectionView)
     local self = setmetatable({}, { __index = CollectionViewDelegate })
 
     self.collectionView = collectionView
+    self.id = collectionView.__type or 'unknown'
     self.selectedIndexPaths = S{}
     self.highlightedIndexPaths = S{}
 
@@ -107,9 +108,13 @@ end
 -- Destroys the CollectionViewDelegate and cleans up any resources.
 --
 function CollectionViewDelegate:destroy()
+    self.isDestroyed = true
+
     self.disposeBag:destroy()
 
     self.collectionView = nil
+
+    --print(debug.traceback())
 
     for event in self.events:it() do
         event:removeAllActions()
@@ -132,6 +137,10 @@ end
 -- @treturn boolean Returns true if the item should be selected, false otherwise.
 --
 function CollectionViewDelegate:shouldSelectItemAtIndexPath(indexPath)
+    if self.collectionView == nil then
+        addon_message(123, debug.traceback())
+        --print(debug.traceback())
+    end
     local cell = self.collectionView:getDataSource():cellForItemAtIndexPath(indexPath)
     return cell:isSelectable() and not cell:isSelected()
 end
@@ -142,6 +151,9 @@ end
 -- @tparam IndexPath indexPath The index path of the item.
 --
 function CollectionViewDelegate:selectItemAtIndexPath(indexPath)
+    if self.collectionView == nil then
+        print('destroyed', self.isDestroyed or 'false')
+    end
     if not self:shouldSelectItemAtIndexPath(indexPath) then
         if self.collectionView:getAllowsMultipleSelection() then
             self:deselectItemAtIndexPath(indexPath)

@@ -2,8 +2,6 @@ local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModeConfigEditor = require('ui/settings/editors/config/ModeConfigEditor')
-local SkillchainAbilityPickerView = require('ui/settings/pickers/SkillchainAbilityPickerView')
-local SkillchainSettingsEditor = require('ui/settings/SkillchainSettingsEditor')
 local SkillchainSettingsMenuItem = require('ui/settings/menus/SkillchainSettingsMenuItem')
 local SkillSettingsMenuItem = require('ui/settings/menus/SkillSettingsMenuItem')
 

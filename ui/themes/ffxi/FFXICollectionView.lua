@@ -5,6 +5,7 @@ local Frame = require('cylibs/ui/views/frame')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local FFXICollectionView = setmetatable({}, {__index = CollectionView })
 FFXICollectionView.__index = FFXICollectionView
+FFXICollectionView.__type = "FFXICollectionView"
 
 function FFXICollectionView.new(viewSize, dataSource, layout, delegate)
     local self = setmetatable(CollectionView.new(dataSource, layout, delegate, FFXIClassicStyle.default()), FFXICollectionView)

@@ -178,6 +178,8 @@ function Menu:closeAll()
     end
     self.menuItemStack = L{}
     self.viewStack:dismissAll()
+
+    FocusManager.shared():resignAllFocus()
 end
 
 function Menu:isVisible()

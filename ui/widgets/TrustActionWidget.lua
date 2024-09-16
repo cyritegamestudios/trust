@@ -21,6 +21,7 @@ local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_f
 
 local TrustActionWidget = setmetatable({}, {__index = CollectionView })
 TrustActionWidget.__index = TrustActionWidget
+TrustActionWidget.__type = "TrustActionWidget"
 
 TrustActionWidget.Text = TextStyle.new(
         Color.clear,

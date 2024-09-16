@@ -6,6 +6,7 @@ local ScrollView = require('cylibs/ui/scroll_view/scroll_view')
 
 local CollectionView = setmetatable({}, {__index = ScrollView })
 CollectionView.__index = CollectionView
+CollectionView.__type = "CollectionView"
 CollectionView.__class = "CollectionView"
 
 local defaultStyle
@@ -88,7 +89,7 @@ function CollectionView.new(dataSource, layout, delegate, style)
             end
         end
     end)
-    self.delegate:didMoveCursorToItemAtIndexPath():addAction(function(cursorIndexPath)
+    self:getDisposeBag():add(self.delegate:didMoveCursorToItemAtIndexPath():addAction(function(cursorIndexPath)
         local cell = self:getDataSource():cellForItemAtIndexPath(cursorIndexPath)
         if cell then
             if self.selectionBackground then
@@ -99,7 +100,7 @@ function CollectionView.new(dataSource, layout, delegate, style)
                 self.selectionBackground:layoutIfNeeded()
             end
         end
-    end)
+    end), self.delegate:didMoveCursorToItemAtIndexPath())
 
     return self
 end
@@ -266,7 +267,7 @@ end
 
 function CollectionView:onKeyboardEvent(key, pressed, flags, blocked)
     local blocked = blocked or ScrollView.onKeyboardEvent(self, key, pressed, flags, blocked)
-    if not self:isVisible() or blocked then
+    if not self:isVisible() or blocked or self.destroyed then
         return blocked
     end
     if pressed then
@@ -294,6 +295,9 @@ function CollectionView:onKeyboardEvent(key, pressed, flags, blocked)
                 self:getDelegate():setCursorIndexPath(nextIndexPath)
                 return true
             elseif key == 28 then
+                if self.destroyed then
+                    print('destroyed')
+                end
                 self:getDelegate():selectItemAtIndexPath(self:getDelegate():getCursorIndexPath())
             end
         end

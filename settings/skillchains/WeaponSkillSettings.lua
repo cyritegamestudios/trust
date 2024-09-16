@@ -112,6 +112,15 @@ function WeaponSkillSettings:saveSettings(saveToFile)
     self:onSettingsChanged():trigger(self.settings)
 end
 
+function WeaponSkillSettings:createSettings(setName)
+    if setName ~= 'Default' and not self.settings[setName] then
+        self.settings[setName] = self.settings['Default']
+
+        self:saveSettings(true)
+        self:reloadSettings()
+    end
+end
+
 function WeaponSkillSettings:copySettings(override)
     local filePath = self.settingsFolder..self.jobNameShort..'_'..windower.ffxi.get_player().name..'.lua'
     local playerSettings = FileIO.new(filePath)
@@ -143,6 +152,11 @@ end
 
 function WeaponSkillSettings:getDefaultSettings()
     return self.defaultSettings
+end
+
+function WeaponSkillSettings:getSetNames()
+    local setNames = list.subtract(L(T(self:getSettings()):keyset()), L{'Version','Migrations'})
+    return setNames
 end
 
 function WeaponSkillSettings:getSettings()

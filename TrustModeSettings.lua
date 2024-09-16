@@ -74,13 +74,15 @@ function TrustModeSettings:getSettingsFilePath()
     return nil
 end
 
-function TrustModeSettings:saveSettings(setName)
+function TrustModeSettings:saveSettings(setName, trust_modes, skip_set_mode)
     local setName = setName or state.TrustMode.value
 
-    local trust_modes = {}
-    for state_name, _ in pairs(state) do
-        if state_name ~= 'TrustMode' then
-            trust_modes[state_name:lower()] = state[state_name].value
+    if not trust_modes then
+        trust_modes = {}
+        for state_name, _ in pairs(state) do
+            if state_name ~= 'TrustMode' then
+                trust_modes[state_name:lower()] = state[state_name].value
+            end
         end
     end
 
@@ -112,7 +114,7 @@ function TrustModeSettings:saveSettings(setName)
 
     self:reloadSettings()
 
-    if setName ~= state.TrustMode.value then
+    if not skip_set_mode and setName ~= state.TrustMode.value then
         state.TrustMode:set(setName)
     end
 
@@ -154,6 +156,11 @@ function TrustModeSettings:copySettings()
 
         addon_message(207, 'Copied mode settings to '..filePath)
     end
+end
+
+function TrustModeSettings:getSetNames()
+    local setNames = list.subtract(L(T(self:getSettings()):keyset()), L{'Version','Migrations'})
+    return setNames
 end
 
 function TrustModeSettings:getSettings()

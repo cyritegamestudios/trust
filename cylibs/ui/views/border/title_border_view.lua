@@ -15,6 +15,7 @@ local TextStyle = require('cylibs/ui/style/text_style')
 
 local TitleBorderView = setmetatable({}, {__index = CollectionView })
 TitleBorderView.__index = TitleBorderView
+TitleBorderView.__type = "TitleBorderView"
 
 TitleBorderView.HeaderSmall = TextStyle.new(
         Color.yellow,

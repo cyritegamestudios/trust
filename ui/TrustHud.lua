@@ -116,7 +116,7 @@ function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, a
 
     for mode in L{ state.MainTrustSettingsMode, state.SubTrustSettingsMode }:it() do
         self:getDisposeBag():add(mode:on_state_change():addAction(function(m, new_value, old_value)
-            if old_value == new_value then
+            --[[if old_value == new_value then
                 return
             end
             local showMenu = self.trustMenu:isVisible()
@@ -127,8 +127,8 @@ function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, a
             self:getMainMenuItem()
 
             if showMenu then
-                self.trustMenu:showMenu(self.mainMenuItem)
-            end
+                --self.trustMenu:showMenu(self.mainMenuItem)
+            end]]
         end), mode:on_state_change())
     end
 
@@ -316,20 +316,6 @@ function TrustHud:reloadMainMenuItem()
     if showMenu then
         self.trustMenu:showMenu(self.mainMenuItem)
     end
-end
-
-local function createBackgroundView(width, height)
-    local backgroundView = FFXIBackgroundView.new(Frame.new(0, 0, width, height), true)
-    --[[local backgroundView = BackgroundView.new(Frame.new(0, 0, width, height),
-            windower.addon_path..'assets/backgrounds/menu_bg_top.png',
-            windower.addon_path..'assets/backgrounds/menu_bg_mid.png',
-            windower.addon_path..'assets/backgrounds/menu_bg_bottom.png')]]
-    return backgroundView
-end
-
-local function createTitleView(viewSize)
-    local titleView = NavigationBar.new(Frame.new(0, 0, viewSize.width, 35))
-    return titleView
 end
 
 local function setupView(view, viewSize, hideBackground)
@@ -710,7 +696,7 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
     -- Mode settings
 
     -- Load
-    local loadSettingsItem = LoadSettingsMenuItem.new(self.addon_settings, self.trustModeSettings, trustSettings, function(view)
+    local loadSettingsItem = LoadSettingsMenuItem.new(self.addon_settings, self.trustModeSettings, trustSettings, weaponSkillSettings, function(view)
         return setupView(view, viewSize)
     end)
 

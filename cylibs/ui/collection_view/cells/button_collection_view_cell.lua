@@ -13,6 +13,7 @@ local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_col
 
 local ButtonCollectionViewCell = setmetatable({}, {__index = CollectionViewCell })
 ButtonCollectionViewCell.__index = ButtonCollectionViewCell
+ButtonCollectionViewCell.__type = "ButtonCollectionViewCell"
 
 
 function ButtonCollectionViewCell.new(buttonItem)
@@ -58,6 +59,7 @@ function ButtonCollectionViewCell:createButton(buttonItem, buttonState)
 
     local buttonView = CollectionView.new(dataSource, HorizontalFlowLayout.new(), nil, CollectionViewStyle.empty())
     buttonView:setSize(buttonItem:getSize().width, buttonItem:getSize().height)
+    buttonView.__type = "ButtonViewCollectionView"
 
     local rowIndex = 0
     local items = items:map(function(item)

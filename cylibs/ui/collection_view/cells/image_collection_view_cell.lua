@@ -4,6 +4,7 @@ local CollectionViewCell = require('cylibs/ui/collection_view/collection_view_ce
 
 local ImageCollectionViewCell = setmetatable({}, {__index = CollectionViewCell })
 ImageCollectionViewCell.__index = ImageCollectionViewCell
+ImageCollectionViewCell.__type = "ImageCollectionViewCell"
 
 
 function ImageCollectionViewCell.new(item)
