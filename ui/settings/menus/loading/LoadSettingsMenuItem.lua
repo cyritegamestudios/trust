@@ -1,5 +1,5 @@
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
-local CreateBattleSetEditor = require('ui/settings/editors/sets/CreateBattleSetEditor')
+local CreateProfileEditor = require('ui/settings/editors/sets/CreateProfileEditor')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
@@ -80,7 +80,7 @@ function LoadSettingsMenuItem:getCreateSetMenuItem()
             menu:showMenu(self)
         end, "Confirm", "Create a new profile.")
     }, function(_)
-        local createSetView = CreateBattleSetEditor.new(self.trustModeSettings, self.jobSettings, self.weaponSkillSettings)
+        local createSetView = CreateProfileEditor.new(self.trustModeSettings, self.jobSettings, self.weaponSkillSettings)
         return createSetView
     end, "Profiles", "Create a new profile.")
     return createSetMenuItem

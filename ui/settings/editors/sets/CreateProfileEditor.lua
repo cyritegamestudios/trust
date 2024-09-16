@@ -2,32 +2,32 @@ local BooleanConfigItem = require('ui/settings/editors/config/BooleanConfigItem'
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local TextInputConfigItem = require('ui/settings/editors/config/TextInputConfigItem')
 
-local CreateBattleSetEditor = setmetatable({}, {__index = ConfigEditor })
-CreateBattleSetEditor.__index = CreateBattleSetEditor
-CreateBattleSetEditor.__type = "CreateBattleSetEditor"
+local CreateProfileEditor = setmetatable({}, {__index = ConfigEditor })
+CreateProfileEditor.__index = CreateProfileEditor
+CreateProfileEditor.__type = "CreateProfileEditor"
 
 -- Settings keys
-CreateBattleSetEditor.SettinsgKeys = {}
-CreateBattleSetEditor.SettinsgKeys.SetName = 'set_name'
-CreateBattleSetEditor.SettinsgKeys.JobSettings = 'create_job_settings'
-CreateBattleSetEditor.SettinsgKeys.WeaponSkillSettings = 'create_weapon_skill_settings'
+CreateProfileEditor.SettinsgKeys = {}
+CreateProfileEditor.SettinsgKeys.SetName = 'set_name'
+CreateProfileEditor.SettinsgKeys.JobSettings = 'create_job_settings'
+CreateProfileEditor.SettinsgKeys.WeaponSkillSettings = 'create_weapon_skill_settings'
 
-function CreateBattleSetEditor.new(trustModeSettings, jobSettings, weaponSkillSettings, infoView)
+function CreateProfileEditor.new(trustModeSettings, jobSettings, weaponSkillSettings, infoView)
     local newSetSettings = {}
 
-    newSetSettings[CreateBattleSetEditor.SettinsgKeys.SetName] = 'NewProfile'
-    newSetSettings[CreateBattleSetEditor.SettinsgKeys.JobSettings] = false
-    newSetSettings[CreateBattleSetEditor.SettinsgKeys.WeaponSkillSettings] = false
+    newSetSettings[CreateProfileEditor.SettinsgKeys.SetName] = 'NewProfile'
+    newSetSettings[CreateProfileEditor.SettinsgKeys.JobSettings] = false
+    newSetSettings[CreateProfileEditor.SettinsgKeys.WeaponSkillSettings] = false
 
     local configItems = L{
-        TextInputConfigItem.new(CreateBattleSetEditor.SettinsgKeys.SetName, newSetSettings[CreateBattleSetEditor.SettinsgKeys.SetName], 'Profile Name', function(text)
+        TextInputConfigItem.new(CreateProfileEditor.SettinsgKeys.SetName, newSetSettings[CreateProfileEditor.SettinsgKeys.SetName], 'Profile Name', function(text)
             return true
         end),
-        BooleanConfigItem.new(CreateBattleSetEditor.SettinsgKeys.JobSettings, 'Create new job settings'),
-        BooleanConfigItem.new(CreateBattleSetEditor.SettinsgKeys.WeaponSkillSettings, 'Create new weapon skill settings'),
+        BooleanConfigItem.new(CreateProfileEditor.SettinsgKeys.JobSettings, 'Create new job settings'),
+        BooleanConfigItem.new(CreateProfileEditor.SettinsgKeys.WeaponSkillSettings, 'Create new weapon skill settings'),
     }
 
-    local self = setmetatable(ConfigEditor.new(nil, newSetSettings, configItems, nil, function(_) return true end), CreateBattleSetEditor)
+    local self = setmetatable(ConfigEditor.new(nil, newSetSettings, configItems, nil, function(_) return true end), CreateProfileEditor)
 
     self.newSetSettings = newSetSettings
     self.trustModeSettings = trustModeSettings
@@ -37,7 +37,7 @@ function CreateBattleSetEditor.new(trustModeSettings, jobSettings, weaponSkillSe
     self:setShouldRequestFocus(true)
 
     self:getDisposeBag():add(self:onConfigChanged():addAction(function(newConfigSettings, _)
-        local setName = newConfigSettings[CreateBattleSetEditor.SettinsgKeys.SetName]
+        local setName = newConfigSettings[CreateProfileEditor.SettinsgKeys.SetName]
         if self.trustModeSettings:getSetNames():contains(setName) then
             addon_message(123, "A profile with this name already exists.")
             return
@@ -53,13 +53,13 @@ function CreateBattleSetEditor.new(trustModeSettings, jobSettings, weaponSkillSe
             end
         end
 
-        local shouldCreateJobSettings = newConfigSettings[CreateBattleSetEditor.SettinsgKeys.JobSettings]
+        local shouldCreateJobSettings = newConfigSettings[CreateProfileEditor.SettinsgKeys.JobSettings]
         if shouldCreateJobSettings then
             trust_modes['maintrustsettingsmode'] = setName
             jobSettings:createSettings(setName)
         end
 
-        local shouldCreateWeaponSkillSettings = newConfigSettings[CreateBattleSetEditor.SettinsgKeys.WeaponSkillSettings]
+        local shouldCreateWeaponSkillSettings = newConfigSettings[CreateProfileEditor.SettinsgKeys.WeaponSkillSettings]
         if shouldCreateWeaponSkillSettings then
             trust_modes['weaponskillsettingsmode'] = setName
             weaponSkillSettings:createSettings(setName)
@@ -71,4 +71,4 @@ function CreateBattleSetEditor.new(trustModeSettings, jobSettings, weaponSkillSe
     return self
 end
 
-return CreateBattleSetEditor
+return CreateProfileEditor
