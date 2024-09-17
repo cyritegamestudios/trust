@@ -59,9 +59,6 @@ function WeaponSkillSettings:loadSettings(verbose)
         if err then
             error(err)
         else
-            if verbose then
-                addon_message(207, 'Loaded weapon skill settings from '..filePath)
-            end
             local loadDefaultJobSettings, _ = loadfile(self:getSettingsFilePath(true))
             self.defaultSettings = loadDefaultJobSettings()
             self.settings = loadJobSettings()
@@ -75,7 +72,7 @@ function WeaponSkillSettings:loadSettings(verbose)
             return self.settings
         end
     else
-        addon_message(207, 'Unable to load weapon skill settings for '..self.jobNameShort)
+        addon_message(123, 'Unable to load weapon skill settings for '..self.jobNameShort)
     end
     return nil
 end

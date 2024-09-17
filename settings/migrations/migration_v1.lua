@@ -36,6 +36,10 @@ function Migration_v1:perform(trustSettings, _, _)
     end
 end
 
+function Migration_v1:getDescription()
+    return "Updating Bard job settings."
+end
+
 return Migration_v1
 
 

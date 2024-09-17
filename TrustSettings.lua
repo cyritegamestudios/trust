@@ -61,7 +61,6 @@ function TrustSettings:loadSettings()
         if err then
             error(err)
         else
-            addon_message(207, 'Loaded trust settings from '..filePath)
             local loadDefaultJobSettings, _ = loadfile(self:getSettingsFilePath(true))
             self.defaultSettings = loadDefaultJobSettings()
             self.settings = loadJobSettings()
@@ -76,7 +75,7 @@ function TrustSettings:loadSettings()
             return self.settings
         end
     else
-        addon_message(207, 'Unable to load trust settings for '..self.jobNameShort)
+        addon_message(123, 'Unable to load trust settings for '..self.jobNameShort)
     end
     return nil
 end

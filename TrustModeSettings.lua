@@ -31,7 +31,6 @@ function TrustModeSettings:loadSettings()
         if err then
             error(err)
         else
-            addon_message(207, 'Loaded mode settings from '..filePath)
             self.settings = loadModeSettings()
 
             for setName, modeSet in pairs(T(self.settings)) do
@@ -55,7 +54,7 @@ function TrustModeSettings:loadSettings()
             self:onSettingsChanged():trigger(self:getSettings())
         end
     else
-        addon_message(207, 'Unable to load mode settings for '..self.jobNameShort)
+        addon_message(123, 'Unable to load mode settings for '..self.jobNameShort)
     end
 end
 

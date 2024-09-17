@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '10.7.0'
+_addon.version = '10.7.1'
 _addon.release_notes = [[
 This update introduces new menus for Bard, autocomplete for Trust
 commands, new commands and important bug fixes for users running the
@@ -84,7 +84,7 @@ state.AutoEnmityReductionMode:set_description('Auto', "Okay, I'll automatically 
 function load_user_files(main_job_id, sub_job_id)
 	load_logger_settings()
 
-	notice('Loaded '.._addon.name..' ('.._addon.version..')')
+	addon_system_message("Loaded Trust v".._addon.version)
 
 	action_queue = ActionQueue.new(nil, true, 5, false, true)
 
@@ -176,6 +176,13 @@ function load_user_files(main_job_id, sub_job_id)
 
 	migration_manager = MigrationManager.new(main_trust_settings, addon_settings, weapon_skill_settings)
 	migration_manager:perform()
+
+	if player.sub_job_name ~= 'None' then
+		sub_job_migration_manager = MigrationManager.new(sub_trust_settings, addon_settings, nil)
+		sub_job_migration_manager:perform()
+	end
+
+	addon_system_message("Trust is up to date.")
 
 	state.MainTrustSettingsMode:on_state_change():addAction(function(_, new_value)
 		player.trust.main_job:set_trust_settings(player.trust.main_job_settings[new_value])
@@ -277,8 +284,6 @@ function load_trust_modes(job_name_short)
 	trust_mode_settings:loadSettings()
 
 	set_help_text_enabled(addon_settings:getSettings().help.mode_text_enabled)
-
-	addon_message(207, 'Trust modes set to '..state.TrustMode.value)
 
 	player.trust.trust_name = job_name_short
 end
@@ -512,6 +517,10 @@ end
 
 function addon_message(color,str)
     windower.add_to_chat(color, _addon.name..': '..str)
+end
+
+function addon_system_message(str)
+	windower.add_to_chat(122, str)
 end
 
 -- Handlers
