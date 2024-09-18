@@ -13,8 +13,8 @@ local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_f
 
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local ElementalResitanceView = setmetatable({}, {__index = CollectionView })
-BufferView.__index = BufferView
-BufferView.__type = 'BufferView'
+ElementalResitanceView.__index = ElementalResitanceView
+ElementalResitanceView.__type = 'ElementalResitanceView'
 
 TextStyle.BufferView = {
     Text = TextStyle.new(
@@ -31,7 +31,7 @@ TextStyle.BufferView = {
     ),
 }
 
-function BufferView.new(buffer)
+function ElementalResitanceView.new(buffer)
     local dataSource = CollectionViewDataSource.new(function(item)
         local cell = TextCollectionViewCell.new(item)
         cell:setItemSize(20)
@@ -39,7 +39,7 @@ function BufferView.new(buffer)
         return cell
     end)
 
-    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0), 6)), BufferView)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, Padding.new(10, 15, 0, 0), 6)), ElementalResitanceView)
 
     self:setScrollDelta(20)
     self:setShouldRequestFocus(false)
@@ -120,10 +120,10 @@ function BufferView.new(buffer)
     return self
 end
 
-function BufferView:layoutIfNeeded()
+function ElementalResitanceView:layoutIfNeeded()
     CollectionView.layoutIfNeeded(self)
 
     self:setTitle("View current buffs on the player and party.")
 end
 
-return BufferView
+return ElementalResitanceView

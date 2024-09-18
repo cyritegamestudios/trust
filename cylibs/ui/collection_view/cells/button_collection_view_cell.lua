@@ -13,6 +13,7 @@ local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_col
 
 local ButtonCollectionViewCell = setmetatable({}, {__index = CollectionViewCell })
 ButtonCollectionViewCell.__index = ButtonCollectionViewCell
+ButtonCollectionViewCell.__type = "ButtonCollectionViewCell"
 
 
 function ButtonCollectionViewCell.new(buttonItem)

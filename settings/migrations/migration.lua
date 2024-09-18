@@ -10,7 +10,15 @@ function Migration:shouldPerform(trustSettings, addonSettings, weaponSkillSettin
     return false
 end
 
+function Migration:shouldRepeat()
+    return false
+end
+
 function Migration:perform(trustSettings, addonSettings, weaponSkillSettings)
+end
+
+function Migration:getDescription()
+    return ""
 end
 
 function Migration:getMigrationCode()

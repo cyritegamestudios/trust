@@ -5,6 +5,7 @@ local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_col
 
 local ImageTextCollectionViewCell = setmetatable({}, {__index = CollectionViewCell })
 ImageTextCollectionViewCell.__index = ImageTextCollectionViewCell
+ImageTextCollectionViewCell.__type = "ImageTextCollectionViewCell"
 
 
 function ImageTextCollectionViewCell.new(imageTextItem)

@@ -31,7 +31,6 @@ function TrustModeSettings:loadSettings()
         if err then
             error(err)
         else
-            addon_message(207, 'Loaded mode settings from '..filePath)
             self.settings = loadModeSettings()
 
             for setName, modeSet in pairs(T(self.settings)) do
@@ -55,7 +54,7 @@ function TrustModeSettings:loadSettings()
             self:onSettingsChanged():trigger(self:getSettings())
         end
     else
-        addon_message(207, 'Unable to load mode settings for '..self.jobNameShort)
+        addon_message(123, 'Unable to load mode settings for '..self.jobNameShort)
     end
 end
 
@@ -74,13 +73,15 @@ function TrustModeSettings:getSettingsFilePath()
     return nil
 end
 
-function TrustModeSettings:saveSettings(setName)
+function TrustModeSettings:saveSettings(setName, trust_modes, skip_set_mode)
     local setName = setName or state.TrustMode.value
 
-    local trust_modes = {}
-    for state_name, _ in pairs(state) do
-        if state_name ~= 'TrustMode' then
-            trust_modes[state_name:lower()] = state[state_name].value
+    if not trust_modes then
+        trust_modes = {}
+        for state_name, _ in pairs(state) do
+            if state_name ~= 'TrustMode' then
+                trust_modes[state_name:lower()] = state[state_name].value
+            end
         end
     end
 
@@ -112,7 +113,7 @@ function TrustModeSettings:saveSettings(setName)
 
     self:reloadSettings()
 
-    if setName ~= state.TrustMode.value then
+    if not skip_set_mode and setName ~= state.TrustMode.value then
         state.TrustMode:set(setName)
     end
 
@@ -154,6 +155,11 @@ function TrustModeSettings:copySettings()
 
         addon_message(207, 'Copied mode settings to '..filePath)
     end
+end
+
+function TrustModeSettings:getSetNames()
+    local setNames = list.subtract(L(T(self:getSettings()):keyset()), L{'Version','Migrations'})
+    return setNames
 end
 
 function TrustModeSettings:getSettings()

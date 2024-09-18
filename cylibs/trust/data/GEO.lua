@@ -12,13 +12,13 @@ local Trust = require('cylibs/trust/trust')
 local GeomancerTrust = setmetatable({}, {__index = Trust })
 GeomancerTrust.__index = GeomancerTrust
 
-state.AutoGeoMode = M{['description'] = 'Auto Geo Mode', 'Off', 'Auto'}
+state.AutoGeoMode = M{['description'] = 'Use geocolures', 'Off', 'Auto'}
 state.AutoGeoMode:set_description('Auto', "Okay, I'll use Geocolure spells on party members and enemies.")
 
-state.AutoIndiMode = M{['description'] = 'Auto Indi Mode', 'Auto', 'Off'}
+state.AutoIndiMode = M{['description'] = 'Use indicolures', 'Auto', 'Off'}
 state.AutoIndiMode:set_description('Auto', "Okay, I'll use Indicolure spells on myself and party members.")
 
-state.AutoEntrustMode = M{['description'] = 'Auto Entrust Mode', 'Auto', 'Off'}
+state.AutoEntrustMode = M{['description'] = 'Use entrust', 'Auto', 'Off'}
 state.AutoEntrustMode:set_description('Auto', "Okay, I'll entrust Indicolure spells on party members.")
 
 function GeomancerTrust.new(settings, action_queue, battle_settings, trust_settings)

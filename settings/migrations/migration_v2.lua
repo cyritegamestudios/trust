@@ -30,6 +30,10 @@ function Migration_v2:perform(trustSettings, _, _)
     end
 end
 
+function Migration_v2:getDescription()
+    return "Updating Blue Mage job settings."
+end
+
 return Migration_v2
 
 

@@ -8,6 +8,7 @@ local View = require('cylibs/ui/views/view')
 
 local BackgroundView = setmetatable({}, {__index = CollectionView })
 BackgroundView.__index = BackgroundView
+BackgroundView.__type = "BackgroundView"
 
 
 ---

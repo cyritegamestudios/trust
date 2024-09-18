@@ -32,6 +32,7 @@ function CollectionViewDelegate.new(collectionView)
     local self = setmetatable({}, { __index = CollectionViewDelegate })
 
     self.collectionView = collectionView
+    self.id = collectionView.__type or 'unknown'
     self.selectedIndexPaths = S{}
     self.highlightedIndexPaths = S{}
 
@@ -107,6 +108,8 @@ end
 -- Destroys the CollectionViewDelegate and cleans up any resources.
 --
 function CollectionViewDelegate:destroy()
+    self.isDestroyed = true
+
     self.disposeBag:destroy()
 
     self.collectionView = nil

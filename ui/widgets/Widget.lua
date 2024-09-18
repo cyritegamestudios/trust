@@ -14,6 +14,7 @@ local Mouse = require('cylibs/ui/input/mouse')
 
 local Widget = setmetatable({}, {__index = CollectionView })
 Widget.__index = Widget
+Widget.__type = "Widget"
 
 
 function Widget:onSettingsChanged()

@@ -119,16 +119,7 @@ function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, a
             if old_value == new_value then
                 return
             end
-            local showMenu = self.trustMenu:isVisible()
-
-            self.trustMenu:closeAll()
-            self.mainMenuItem:destroy()
-
-            self:getMainMenuItem()
-
-            if showMenu then
-                self.trustMenu:showMenu(self.mainMenuItem)
-            end
+            self:reloadJobMenuItems()
         end), mode:on_state_change())
     end
 
@@ -273,9 +264,15 @@ function TrustHud:getBackgroundImageView()
             windower.addon_path..'assets/backgrounds/menu_bg_bottom.png')
 end
 
-function TrustHud:getMainMenuItem()
-    if self.mainMenuItem then
-        return self.mainMenuItem
+function TrustHud:reloadJobMenuItems()
+    local oldMainJobItem = self.mainMenuItem:getChildMenuItem(player.main_job_name)
+    if oldMainJobItem then
+        oldMainJobItem:destroy()
+    end
+
+    local oldSubJobItem = self.mainMenuItem:getChildMenuItem(player.sub_job_name)
+    if oldSubJobItem then
+        oldSubJobItem:destroy()
     end
 
     local mainJobItem = self:getMenuItems(player.trust.main_job, main_trust_settings, state.MainTrustSettingsMode, weapon_skill_settings, state.WeaponSkillSettingsMode, player.main_job_name_short, player.main_job_name)
@@ -288,18 +285,29 @@ function TrustHud:getMainMenuItem()
         end
     end
 
+    self.mainMenuItem:setChildMenuItem(player.main_job_name, mainJobItem)
+
+    if player.sub_job_name ~= 'None' then
+        self.mainMenuItem:setChildMenuItem(player.sub_job_name, subJobItem)
+    end
+end
+
+function TrustHud:getMainMenuItem()
+    if self.mainMenuItem then
+        return self.mainMenuItem
+    end
+    
     local mainMenuItem = MenuItem.new(L{
         ButtonItem.default(player.main_job_name, 18),
         ButtonItem.default(player.sub_job_name, 18),
+        ButtonItem.default('Profiles', 18),
     }, {
-        [player.main_job_name] = mainJobItem,
+        Profiles = LoadSettingsMenuItem.new(self.addon_settings, self.trustModeSettings, main_trust_settings, weapon_skill_settings)
     }, nil, "Jobs")
 
-    if player.sub_job_name ~= 'None' then
-        mainMenuItem:setChildMenuItem(player.sub_job_name, subJobItem)
-    end
-
     self.mainMenuItem = mainMenuItem
+
+    self:reloadJobMenuItems()
 
     return self.mainMenuItem
 end
@@ -316,20 +324,6 @@ function TrustHud:reloadMainMenuItem()
     if showMenu then
         self.trustMenu:showMenu(self.mainMenuItem)
     end
-end
-
-local function createBackgroundView(width, height)
-    local backgroundView = FFXIBackgroundView.new(Frame.new(0, 0, width, height), true)
-    --[[local backgroundView = BackgroundView.new(Frame.new(0, 0, width, height),
-            windower.addon_path..'assets/backgrounds/menu_bg_top.png',
-            windower.addon_path..'assets/backgrounds/menu_bg_mid.png',
-            windower.addon_path..'assets/backgrounds/menu_bg_bottom.png')]]
-    return backgroundView
-end
-
-local function createTitleView(viewSize)
-    local titleView = NavigationBar.new(Frame.new(0, 0, viewSize.width, 35))
-    return titleView
 end
 
 local function setupView(view, viewSize, hideBackground)
@@ -707,13 +701,6 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
     },
     nil, "Help", "Get help using Trust.")
 
-    -- Mode settings
-
-    -- Load
-    local loadSettingsItem = LoadSettingsMenuItem.new(self.addon_settings, self.trustModeSettings, trustSettings, function(view)
-        return setupView(view, viewSize)
-    end)
-
     -- Config
     local configSettingsItem = ConfigSettingsMenuItem.new(self.addon_settings, function(view)
         return setupView(view, viewSize)
@@ -723,7 +710,6 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
     local mainMenuItem = MenuItem.new(L{
         ButtonItem.default('Status', 18),
         ButtonItem.default('Settings', 18),
-        ButtonItem.default('Load', 18),
         ButtonItem.default('Config', 18),
         ButtonItem.default('Help', 18),
         ButtonItem.default('Donate', 18),
@@ -731,7 +717,6 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
     }, {
         Status = statusMenuItem,
         Settings = settingsMenuItem,
-        Load = loadSettingsItem,
         Config = configSettingsItem,
         Help = helpMenuItem,
         Donate = MenuItem.action(function()

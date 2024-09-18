@@ -4,6 +4,7 @@ local Frame = require('cylibs/ui/views/frame')
 
 local FFXIWindow = setmetatable({}, {__index = CollectionView })
 FFXIWindow.__index = FFXIWindow
+FFXIWindow.__type = "FFXIWindow"
 
 function FFXIWindow.new(dataSource, layout, delegate, showTitle, viewSize, style)
     style = style or CollectionView.defaultStyle()

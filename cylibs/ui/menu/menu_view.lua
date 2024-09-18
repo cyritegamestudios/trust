@@ -11,6 +11,7 @@ local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_f
 
 local MenuView = setmetatable({}, {__index = CollectionView })
 MenuView.__index = MenuView
+MenuView.__type = "MenuView"
 
 function MenuView:onSelectMenuItemAtIndexPath()
     return self.selectMenuItem

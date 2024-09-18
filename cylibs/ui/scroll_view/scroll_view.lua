@@ -12,6 +12,7 @@ require('queues')
 
 local ScrollView = setmetatable({}, {__index = View })
 ScrollView.__index = ScrollView
+ScrollView.__type = "ScrollView"
 
 
 function ScrollView.new(frame, style)

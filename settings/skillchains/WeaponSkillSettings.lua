@@ -59,9 +59,6 @@ function WeaponSkillSettings:loadSettings(verbose)
         if err then
             error(err)
         else
-            if verbose then
-                addon_message(207, 'Loaded weapon skill settings from '..filePath)
-            end
             local loadDefaultJobSettings, _ = loadfile(self:getSettingsFilePath(true))
             self.defaultSettings = loadDefaultJobSettings()
             self.settings = loadJobSettings()
@@ -75,7 +72,7 @@ function WeaponSkillSettings:loadSettings(verbose)
             return self.settings
         end
     else
-        addon_message(207, 'Unable to load weapon skill settings for '..self.jobNameShort)
+        addon_message(123, 'Unable to load weapon skill settings for '..self.jobNameShort)
     end
     return nil
 end
@@ -112,6 +109,15 @@ function WeaponSkillSettings:saveSettings(saveToFile)
     self:onSettingsChanged():trigger(self.settings)
 end
 
+function WeaponSkillSettings:createSettings(setName)
+    if setName ~= 'Default' and not self.settings[setName] then
+        self.settings[setName] = self.settings['Default']
+
+        self:saveSettings(true)
+        self:reloadSettings()
+    end
+end
+
 function WeaponSkillSettings:copySettings(override)
     local filePath = self.settingsFolder..self.jobNameShort..'_'..windower.ffxi.get_player().name..'.lua'
     local playerSettings = FileIO.new(filePath)
@@ -143,6 +149,11 @@ end
 
 function WeaponSkillSettings:getDefaultSettings()
     return self.defaultSettings
+end
+
+function WeaponSkillSettings:getSetNames()
+    local setNames = list.subtract(L(T(self:getSettings()):keyset()), L{'Version','Migrations'})
+    return setNames
 end
 
 function WeaponSkillSettings:getSettings()

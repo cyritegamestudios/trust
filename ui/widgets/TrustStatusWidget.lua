@@ -130,7 +130,8 @@ function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, 
 
     for mode in L{ state.TrustMode }:it() do
         self:getDisposeBag():add(mode:on_state_change():addAction(function(_, new_value, old_value)
-            if new_value ~= old_value then
+            local item = self:getDataSource():itemAtIndexPath(IndexPath.new(1, 3))
+            if item and item:getText() and item:getText() ~= new_value then
                 self:getDataSource():updateItem(TextItem.new(state.TrustMode.value, TrustStatusWidget.TextSmall3), IndexPath.new(1, 3))
             end
         end), mode:on_state_change())

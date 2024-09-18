@@ -27,6 +27,10 @@ function Migration_v3:perform(trustSettings, _, _)
     end
 end
 
+function Migration_v3:getDescription()
+    return "Updating default gambits for Scholar."
+end
+
 return Migration_v3
 
 

@@ -2,6 +2,7 @@ local View = require('cylibs/ui/views/view')
 
 local CollectionViewCell = setmetatable({}, {__index = View })
 CollectionViewCell.__index = CollectionViewCell
+CollectionViewCell.__type = "CollectionViewCell"
 
 ---
 -- Creates a new CollectionViewCell.
