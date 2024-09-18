@@ -96,6 +96,24 @@ function Gambiter:on_add()
         end
     end)
 
+    WindowerEvents.PetUpdate:addAction(function(owner_id, pet_id, pet_index, pet_name, pet_hpp, pet_mpp, pet_tp)
+        local target = self:get_player()
+        if target and target:get_id() == owner_id then
+            logger.notice(self.__class, 'on_pet_update', 'check_gambits')
+
+            local gambits = self:get_all_gambits():filter(function(gambit)
+                for condition in gambit:getConditions():it() do
+                    if condition.__type == PetTacticalPointsCondition.__type then
+                        return true
+                    end
+                    return false
+                end
+            end)
+
+            self:check_gambits(L{ target }, gambits, pet_tp)
+        end
+    end)
+
     self.skillchainer:on_skillchain():addAction(function(target_id, skillchain_step)
         local target = self:get_target()
         if target and target:get_id() == target_id then
@@ -179,9 +197,10 @@ function Gambiter:perform_gambit(gambit, target)
     end
 
     logger.notice(self.__class, 'perform_gambit', gambit:tostring(), target:get_mob().name)
-
+    print('performing')
     local action = gambit:getAbility():to_action(target:get_mob().index, self:get_player())
     if action then
+        print('success!')
         action.priority = ActionPriority.highest
         self.action_queue:push_action(action, true)
     end

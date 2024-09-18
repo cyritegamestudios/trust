@@ -47,6 +47,7 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
         [EnemiesNearbyCondition.__type] = "enemies_nearby",
         [ModeCondition.__type] = "mode",
         [PetHitPointsPercentCondition.__type] = "pet_hpp",
+        [PetTacticalPointsCondition.__type] = "pet_tp",
         [HasPetCondition.__type] = "has_pet",
         [NumResistsCondition.__type] = "num_resists",
         [SkillchainPropertyCondition.__type] = "skillchain_property",
