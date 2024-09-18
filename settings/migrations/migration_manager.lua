@@ -32,6 +32,7 @@ function MigrationManager:perform()
         if shouldPerform then
             return migration:shouldRepeat() or not currentMigrations:contains(migration:getMigrationCode())
         end
+        return false
     end)
 
     local migrationStep = 1
