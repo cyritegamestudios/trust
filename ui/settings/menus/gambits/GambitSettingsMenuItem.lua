@@ -113,7 +113,7 @@ end
 function GambitSettingsMenuItem:getAbilities(gambitTarget, flatten)
     local gambitTargetMap = T{
         [GambitTarget.TargetType.Self] = S{'Self'},
-        [GambitTarget.TargetType.Ally] = S{'Party'},
+        [GambitTarget.TargetType.Ally] = S{'Party', 'Corpse'},
         [GambitTarget.TargetType.Enemy] = S{'Enemy'}
     }
     local targets = gambitTargetMap[gambitTarget]

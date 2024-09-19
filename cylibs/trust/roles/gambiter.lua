@@ -197,10 +197,9 @@ function Gambiter:perform_gambit(gambit, target)
     end
 
     logger.notice(self.__class, 'perform_gambit', gambit:tostring(), target:get_mob().name)
-    print('performing')
+
     local action = gambit:getAbility():to_action(target:get_mob().index, self:get_player())
     if action then
-        print('success!')
         action.priority = ActionPriority.highest
         self.action_queue:push_action(action, true)
     end
