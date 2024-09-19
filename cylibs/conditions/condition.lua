@@ -99,6 +99,7 @@ function Condition.defaultSerializableConditionClasses()
         EnemiesNearbyCondition.__class,
         ModeCondition.__class,
         PetHitPointsPercentCondition.__class,
+        PetTacticalPointsCondition.__class,
         HasPetCondition.__class,
         NumResistsCondition.__class,
         SkillchainPropertyCondition.__class,
