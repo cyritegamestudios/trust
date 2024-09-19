@@ -22,7 +22,7 @@ return {
             Default = L{
                 Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Spirit Surge")}), NotCondition.new(L{HasPetCondition.new()})}, JobAbility.new("Call Wyvern", L{}, L{}), "Self", L{}),
                 Gambit.new("Self", L{HasPetCondition.new(L{}), PetHitPointsPercentCondition.new(25, "<=")}, JobAbility.new("Spirit Link", L{}, L{}), "Self"),
-                Gambit.new("Self", L{HasPetCondition.new(L{}), PetTacticalPointsCondition.new(3000, "==")}, JobAbility.new("Spirit Link", L{}, L{}), "Self", L{}),
+                Gambit.new("Self", L{HasPetCondition.new(L{}), PetTacticalPointsCondition.new(3000, "=="), MaxTacticalPointsCondition.new(500)}, JobAbility.new("Spirit Link", L{}, L{}), "Self", L{}),
                 Gambit.new("Self", L{HasPetCondition.new(L{}), InBattleCondition.new()}, JobAbility.new("Spirit Bond", L{}, L{}), "Self"),
                 Gambit.new("Enemy", L{MaxTacticalPointsCondition.new(1000)}, JobAbility.new("Jump", L{}, L{}), "Self"),
                 Gambit.new("Enemy", L{MaxTacticalPointsCondition.new(1000)}, JobAbility.new("High Jump", L{}, L{}), "Self"),
