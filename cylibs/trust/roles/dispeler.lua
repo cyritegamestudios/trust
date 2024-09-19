@@ -76,7 +76,8 @@ end
 
 function Dispeler:tic(_, _)
     if state.AutoDispelMode.value == 'Off' or not self.should_retry
-            or (os.time() - self.last_check_buffs_time) < self.check_buffs_cooldown or self.battle_target == nil then
+            or (os.time() - self.last_check_buffs_time) < self.check_buffs_cooldown
+            or self.battle_target == nil or self.battle_target:get_mob() == nil then
         return
     end
     self.last_check_buffs_time = os.time()

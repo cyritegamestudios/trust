@@ -6,6 +6,7 @@ local PickerCollectionViewCell = require('cylibs/ui/collection_view/cells/picker
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local SectionHeaderItem = require('cylibs/ui/collection_view/items/section_header_item')
 
+local TextInputConfigItem = require('ui/settings/editors/config/TextInputConfigItem')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
 
@@ -13,14 +14,12 @@ local GambitSettingsEditor = setmetatable({}, {__index = ConfigEditor })
 GambitSettingsEditor.__index = GambitSettingsEditor
 GambitSettingsEditor.__type = "GambitSettingsEditor"
 
-
 function GambitSettingsEditor.new(gambit, trustSettings, trustSettingsMode, abilitiesByTargetType)
     local validTargets = L(GambitTarget.TargetType:keyset()):filter(function(targetType) return abilitiesByTargetType[targetType]:length() > 0 end)
+
     local configItems = L{
         PickerConfigItem.new('target', gambit.target or GambitTarget.TargetType.Self, validTargets, nil, "Ability target"),
-        PickerConfigItem.new('ability', gambit:getAbility(), abilitiesByTargetType[gambit:getAbilityTarget()], function(ability)
-            return ability:get_name()
-        end, "Ability"),
+        GambitSettingsEditor.configItemFromGambit(gambit, abilitiesByTargetType),
         PickerConfigItem.new('conditions_target', gambit.conditions_target or GambitTarget.TargetType.Self, L(GambitTarget.TargetType:keyset()), nil, "Conditions target"),
     }
 
@@ -51,6 +50,16 @@ function GambitSettingsEditor.new(gambit, trustSettings, trustSettingsMode, abil
     return self
 end
 
+function GambitSettingsEditor.configItemFromGambit(gambit, abilitiesByTargetType)
+    local abilityConfigItem = PickerConfigItem.new('ability', gambit:getAbility(), abilitiesByTargetType[gambit:getAbilityTarget()], function(ability)
+        --if ability.__type == Command.__type then
+        --    return tostring(ability)
+        --end
+        return ability:get_name()
+    end, "Ability")
+    return abilityConfigItem
+end
+
 function GambitSettingsEditor:reloadSettings()
     ConfigEditor.reloadSettings(self)
 
@@ -74,9 +83,7 @@ function GambitSettingsEditor:reloadConfigItems()
     end
     local configItems = L{
         PickerConfigItem.new('target', self.gambit.target or GambitTarget.TargetType.Self, self.validTargets, nil, "Ability target"),
-        PickerConfigItem.new('ability', currentAbility, abilities, function(ability)
-            return ability:get_name()
-        end, "Ability"),
+        GambitSettingsEditor.configItemFromGambit(self.gambit, self.abilitiesByTargetType),
         PickerConfigItem.new('conditions_target', self.gambit.conditions_target or GambitTarget.TargetType.Self, L(GambitTarget.TargetType:keyset()), nil, "Conditions target"),
     }
     self:setConfigItems(configItems)
@@ -119,6 +126,7 @@ function GambitSettingsEditor:setHasFocus(focus)
                     else
                         currentAbility = abilities[1]
                     end
+                    local abilityConfigItem = GambitSettingsEditor.configItemFromGambit()
                     local abilityConfigItem = PickerConfigItem.new('ability', currentAbility, abilities, function(ability)
                         return ability:get_name()
                     end, "Ability")

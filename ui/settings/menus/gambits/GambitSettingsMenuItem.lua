@@ -142,6 +142,9 @@ function GambitSettingsMenuItem:getAbilities(gambitTarget, flatten)
         L{ 'Approach', 'Ranged Attack', 'Turn Around', 'Turn to Face', 'Run Away', 'Run To' }:filter(function(_)
             return targets:contains('Enemy')
         end),
+        L{ 'Command' }:filter(function(_)
+            return targets:contains('Self')
+        end),
     }
     if flatten then
         sections = sections:flatten()
@@ -180,8 +183,10 @@ end
 function GambitSettingsMenuItem:getEditGambitMenuItem()
     local editGambitMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
+        ButtonItem.default('Edit', 18),
         ButtonItem.default('Conditions', 18),
-    }, {}, function(menuArgs, infoView)
+    }, {
+    }, function(menuArgs, infoView)
         local abilitiesByTargetType = self:getAbilitiesByTargetType()
         local gambitEditor = GambitSettingsEditor.new(self.selectedGambit, self.trustSettings, self.trustSettingsMode, abilitiesByTargetType)
         return gambitEditor
@@ -189,6 +194,29 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
         return self.selectedGambit ~= nil
     end)
 
+    local editAbilityMenuItem = MenuItem.new(L{
+        ButtonItem.default('Confirm'),
+    }, {
+        Confirm = MenuItem.action(function(parent)
+            parent:showMenu(editGambitMenuItem)
+        end, "Gambits", "Edit ability.")
+    }, function(_, _)
+        if self.selectedGambit then
+            local configItems = L{}
+            if self.selectedGambit:getAbility().get_config_items then
+                configItems = self.selectedGambit:getAbility():get_config_items() or L{}
+            end
+            if not configItems:empty() then
+                local editAbilityEditor = ConfigEditor.new(nil, self.selectedGambit:getAbility(), configItems)
+                return editAbilityEditor
+            end
+            return nil
+        end
+    end, "Gambits", "Edit ability.", false, function()
+        return self.selectedGambit:getAbility().get_config_items and self.selectedGambit:getAbility():get_config_items():length() > 0
+    end)
+
+    editGambitMenuItem:setChildMenuItem("Edit", editAbilityMenuItem)
     editGambitMenuItem:setChildMenuItem("Conditions", ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode))
 
     return editGambitMenuItem

@@ -35,6 +35,7 @@ function Keyboard.new()
         [0x01] = "Escape", [0x2A] = "LShift",
         [0x0C] = "Minus",
         [0x1D] = "LControl", [0x9D] = "RControl",
+        [0x33] = ",", [0x34] = ".",
     }
 
     self.keybinds = T{}
@@ -76,7 +77,14 @@ end
 -- Returns the friendly name key for the given DIKCode (e.g. 50 -> M).
 -- @treturn string The friendly name for the key.
 --
-function Keyboard:getKey(dikCode)
+function Keyboard:getKey(dikCode, flags)
+    if flags == 1 then
+        if self.DIKKeyMap[dikCode] == "," then
+            return "<"
+        elseif self.DIKKeyMap[dikCode] == "." then
+            return ">"
+        end
+    end
     return self.DIKKeyMap[dikCode]
 end
 

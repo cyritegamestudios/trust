@@ -16,7 +16,11 @@ function TextInputConfigItem.new(key, placeholderText, description, validator)
     local self = setmetatable({}, TextInputConfigItem)
 
     self.key = key
-    self.placeholderText = placeholderText
+    if type(placeholderText) == 'string' then
+        self.placeholderText = placeholderText
+    else
+        self.placeholderText = placeholderText:get_windower_command()
+    end
     self.description = description or key
     self.validator = validator or function(_) return true  end
 

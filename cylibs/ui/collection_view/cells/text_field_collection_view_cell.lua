@@ -36,7 +36,7 @@ function TextFieldCollectionViewCell:onKeyboardEvent(key, pressed, flags, blocke
         return true
     end
     if pressed then
-        local key = Keyboard.input():getKey(key)
+        local key = Keyboard.input():getKey(key, flags)
         if key then
             local textItem = self:getItem():getTextItem()
             if textItem and not self:getKeyBlacklist():contains(key) then
@@ -94,7 +94,7 @@ function TextFieldCollectionViewCell:setHasFocus(hasFocus)
 
     self:layoutIfNeeded()
 
-    local keys = L{'a','w','s','d','f','e','h','i','k','l','lshift','-'}
+    local keys = L{'a','w','s','d','f','e','h','i','k','l','y','lshift','-'}
     for key in keys:it() do
         if self:hasFocus() then
             windower.send_command('bind %s block':format(key))
