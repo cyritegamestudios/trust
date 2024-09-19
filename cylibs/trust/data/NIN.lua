@@ -39,6 +39,9 @@ function NinjaTrust:on_init()
 		buffer:set_job_abilities(new_trust_settings.JobAbilities)
 		buffer:set_self_spells(new_trust_settings.SelfBuffs)
 
+		local debuffer = self:role_with_type("debuffer")
+		debuffer:set_debuff_spells(new_trust_settings.Debuffs)
+
 		local puller = self:role_with_type("puller")
 		if puller then
 			puller:set_pull_settings(new_trust_settings.PullSettings)
