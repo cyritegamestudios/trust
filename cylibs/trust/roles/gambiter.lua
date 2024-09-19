@@ -200,6 +200,9 @@ function Gambiter:perform_gambit(gambit, target)
 
     local action = gambit:getAbility():to_action(target:get_mob().index, self:get_player())
     if action then
+        if gambit:getTags():contains('reaction') then
+            self.action_queue:clear()
+        end
         action.priority = ActionPriority.highest
         self.action_queue:push_action(action, true)
     end
