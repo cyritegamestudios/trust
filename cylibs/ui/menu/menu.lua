@@ -68,7 +68,11 @@ function Menu:showMenu(menuItem)
             end
 
             local childMenuItem = self.menuView:getItem():getChildMenuItem(textItem:getText())
-            if childMenuItem and childMenuItem:isEnabled() then
+            if childMenuItem then
+                if not childMenuItem:isEnabled() then
+                    addon_system_message("Unable to perform this action.")
+                    return
+                end
                 if type(childMenuItem) == 'function' then
                     childMenuItem()
                     return
@@ -94,8 +98,6 @@ function Menu:showMenu(menuItem)
                         end
                     end
                 end
-            else
-                addon_system_message("Unable to perform this action.")
             end
         end)
         self.menuView:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
