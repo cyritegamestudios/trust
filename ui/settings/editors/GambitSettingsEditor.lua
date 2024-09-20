@@ -52,9 +52,6 @@ end
 
 function GambitSettingsEditor.configItemFromGambit(gambit, abilitiesByTargetType)
     local abilityConfigItem = PickerConfigItem.new('ability', gambit:getAbility(), abilitiesByTargetType[gambit:getAbilityTarget()], function(ability)
-        --if ability.__type == Command.__type then
-        --    return tostring(ability)
-        --end
         return ability:get_name()
     end, "Ability")
     return abilityConfigItem
