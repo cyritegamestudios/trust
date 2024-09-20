@@ -95,15 +95,6 @@ function TextFieldCollectionViewCell:setHasFocus(hasFocus)
     self:layoutIfNeeded()
 
     Keyboard.input():setActive(self:hasFocus())
-
-    --[[local keys = L{'a','w','s','d','f','e','h','i','k','l','y','lshift','-'}
-    for key in keys:it() do
-        if self:hasFocus() then
-            windower.send_command('bind %s block':format(key))
-        else
-            windower.send_command('unbind %s':format(key))
-        end
-    end]]
 end
 
 return TextFieldCollectionViewCell

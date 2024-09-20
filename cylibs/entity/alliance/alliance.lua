@@ -35,6 +35,7 @@ function Alliance.new(party_chat)
     local self = setmetatable(Entity.new(0), Alliance)
 
     self.is_monitoring = false
+    self.events = {}
     self.parties = L{}
     self.alliance_members_list = T{}
     self.pending_party_member_ids = S{}
@@ -59,6 +60,10 @@ end
 -------
 -- Stops tracking the player's actions and disposes of all registered event handlers.
 function Alliance:destroy()
+    for _,event in pairs(self.events) do
+        windower.unregister_event(event)
+    end
+
     self:on_party_added():removeAllActions()
     self:on_party_removed():removeAllActions()
     self:on_alliance_dissolved():removeAllActions()
@@ -113,6 +118,20 @@ function Alliance:monitor()
             end
         end
     end), WindowerEvents.CharacterUpdate)
+
+    self.events.zone_change = windower.register_event('zone change', function(new_zone_id, old_zone_id)
+        for party in self.parties:it() do
+            local party_members_to_remove = L{}
+            for party_member in party:get_party_members(false):it() do
+                if party_member:is_trust() then
+                    party_members_to_remove:append(party_member)
+                end
+            end
+            for party_member in party_members_to_remove:it() do
+                party:remove_party_member(party_member:get_id())
+            end
+        end
+    end)
 
     WindowerEvents.replay_last_events(L{ WindowerEvents.AllianceMemberListUpdate, WindowerEvents.CharacterUpdate })
 end
