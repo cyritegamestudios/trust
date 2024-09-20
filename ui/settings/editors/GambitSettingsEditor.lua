@@ -123,7 +123,6 @@ function GambitSettingsEditor:setHasFocus(focus)
                     else
                         currentAbility = abilities[1]
                     end
-                    local abilityConfigItem = GambitSettingsEditor.configItemFromGambit()
                     local abilityConfigItem = PickerConfigItem.new('ability', currentAbility, abilities, function(ability)
                         return ability:get_name()
                     end, "Ability")
