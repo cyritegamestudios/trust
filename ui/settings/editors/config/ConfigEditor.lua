@@ -89,6 +89,7 @@ function ConfigEditor.new(trustSettings, configSettings, configItems, infoView, 
         self:resignFocus()
         showMenu(menuItem)
     end
+    self.valueForCellConfigItem = {}
     self.configChanged = Event.newEvent()
     self.configValidationError = Event.newEvent()
 
@@ -257,6 +258,10 @@ function ConfigEditor:getCellItemForConfigItem(configItem)
     return nil
 end
 
+function ConfigEditor:setCellConfigItemOverride(cellConfigItemType, valueForCellConfigItem)
+    self.valueForCellConfigItem[cellConfigItemType] = valueForCellConfigItem
+end
+
 function ConfigEditor:onConfirmClick(skipSave)
     local originalSettings
     if self.configSettings.copy then
@@ -285,14 +290,19 @@ function ConfigEditor:onConfirmClick(skipSave)
             else
                 local cellConfigItem = self:getDataSource():itemAtIndexPath(IndexPath.new(sectionIndex, 1))
 
-                if cellConfigItem.__type == SliderItem.__type then
-                    self.configSettings[configKey] = cellConfigItem:getCurrentValue()
-                elseif cellConfigItem.__type == FFXIToggleButtonItem.__type then
-                    self.configSettings[configKey] = cellConfigItem:getEnabled()
-                elseif cellConfigItem.__type == PickerItem.__type then
-                    self.configSettings[configKey] = cellConfigItem:getCurrentValue()
-                elseif cellConfigItem.__type == TextFieldItem.__type then
-                    self.configSettings[configKey] = cellConfigItem:getTextItem():getText()
+                local valueForCellConfigItem = self.valueForCellConfigItem[cellConfigItem.__type]
+                if valueForCellConfigItem then
+                    self.configSettings[configKey] = valueForCellConfigItem(cellConfigItem)
+                else
+                    if cellConfigItem.__type == SliderItem.__type then
+                        self.configSettings[configKey] = cellConfigItem:getCurrentValue()
+                    elseif cellConfigItem.__type == FFXIToggleButtonItem.__type then
+                        self.configSettings[configKey] = cellConfigItem:getEnabled()
+                    elseif cellConfigItem.__type == PickerItem.__type then
+                        self.configSettings[configKey] = cellConfigItem:getCurrentValue()
+                    elseif cellConfigItem.__type == TextFieldItem.__type then
+                        self.configSettings[configKey] = cellConfigItem:getTextItem():getText()
+                    end
                 end
             end
         end

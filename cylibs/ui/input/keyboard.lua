@@ -35,6 +35,7 @@ function Keyboard.new()
         [0x01] = "Escape", [0x2A] = "LShift",
         [0x0C] = "Minus",
         [0x1D] = "LControl", [0x9D] = "RControl",
+        [0x33] = ",", [0x34] = ".", [0x35] = "/", [0x28] = "\""
     }
 
     self.keybinds = T{}
@@ -76,7 +77,14 @@ end
 -- Returns the friendly name key for the given DIKCode (e.g. 50 -> M).
 -- @treturn string The friendly name for the key.
 --
-function Keyboard:getKey(dikCode)
+function Keyboard:getKey(dikCode, flags)
+    if flags == 1 then
+        if self.DIKKeyMap[dikCode] == "," then
+            return "<"
+        elseif self.DIKKeyMap[dikCode] == "." then
+            return ">"
+        end
+    end
     return self.DIKKeyMap[dikCode]
 end
 
@@ -97,7 +105,7 @@ function Keyboard.allKeys()
     return L{
         "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
         "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
-        "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
+        "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ",", ".","/"
     }
 end
 
@@ -138,7 +146,23 @@ function Keyboard:getKeybindHandler(key, flags)
     return self.keybinds[keybind:tostring()]
 end
 
+function Keyboard:setActive(active)
+    if self.active == active then
+        return
+    end
+    self.active = active
 
+    local keys = Keyboard.allKeys()
+    for secondaryKey in L{ "", "~", "^" }:it() do
+        for key in keys:it() do
+            if self.active then
+                windower.send_command('bind %s%s block':format(secondaryKey, key))
+            else
+                windower.send_command('unbind %s%s':format(secondaryKey, key))
+            end
+        end
+    end
+end
 
 function Keyboard.input()
     if keyboardInput == nil then

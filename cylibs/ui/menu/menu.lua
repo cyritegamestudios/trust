@@ -94,6 +94,8 @@ function Menu:showMenu(menuItem)
                         end
                     end
                 end
+            else
+                addon_system_message("Unable to perform this action.")
             end
         end)
         self.menuView:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
