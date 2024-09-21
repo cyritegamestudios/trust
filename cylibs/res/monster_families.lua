@@ -31,7 +31,7 @@ return T{
     -- Vermin
     [26] = {id=26, en="Antlion", family="Antlion", type="Vermin", resistances={[0]=1.3,[1]=1.5,[4]=1.3,[5]=1.3,[6]=1.3,[7]=1.3}},
     [27] = {id=27, en="Bee", family="Bee", type="Vermin", resistances={[0]=1.25,[1]=1.5,[2]=0.75,[3]=1.25,[4]=1.25,[5]=1.25,[6]=1.25,[7]=1.25}},
-    [28] = {id=28, en="Beetle", family="Beetle", type="Vermin", resistances={}},
+    [28] = {id=28, en="Beetle", family="Beetle", type="Vermin", resistances={[0]=1,[1]=1.5,[2]=1,[3]=1,[4]=1,[5]=1,[6]=1.5,[7]=1}},
     [29] = {id=29, en="Bztavian", family="Bztavian", type="Vermin", resistances={}},
     [30] = {id=30, en="Chapuli", family="Chapuli", type="Vermin", resistances={}},
     [31] = {id=31, en="Chigoe", family="Chigoe", type="Vermin", resistances={[0]=1.125,[1]=1.125}},

@@ -37,6 +37,7 @@ return T{
     [398] = {id=398, model_id="398", family="Wyvern", type="Dragon"},
     [402] = {id=402, model_id="402", family="Manticore", type="Beast"},
     [404] = {id=404, model_id="404", family="Behemoth", type="Lizard"},
+    [408] = {id=408, model_id="408", family="Beetle", type="Vermin"},
     [412] = {id=412, model_id="412", family="Magic Pot", type="Arcana"},
     [421] = {id=421, model_id="421", family="Dragon", type="Dragon"},
     [426] = {id=426, model_id="426", family="Worm", type="Vermin"},
