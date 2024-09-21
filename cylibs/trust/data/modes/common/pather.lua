@@ -16,5 +16,6 @@ return {
         ["autofoodmode"]="Off",
         ["autobarspellmode"]="Off",
         ["autotrustsmode"]="Off",
+        ["autopullmode"]="Off",
     },
 }
