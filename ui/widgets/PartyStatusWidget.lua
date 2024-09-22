@@ -6,6 +6,7 @@ local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Keyboard = require('cylibs/ui/input/keyboard')
 local Padding = require('cylibs/ui/style/padding')
+local PartyMemberMenuItem = require('ui/settings/menus/party/PartyMemberMenuItem')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
@@ -57,6 +58,8 @@ function PartyStatusWidget.new(frame, addonSettings, party, actionQueue)
         if item then
             local party_member = party:get_party_member_named(item:getText())
             if party_member then
+                --local partyMemberMenuItem = PartyMemberMenuItem.new(party_member)
+                --hud:openMenu(partyMemberMenuItem)
                 party:set_assist_target(party_member)
             end
         end

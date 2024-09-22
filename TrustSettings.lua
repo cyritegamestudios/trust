@@ -42,9 +42,10 @@ function TrustSettings:onSettingsChanged()
     return self.settingsChanged
 end
 
-function TrustSettings.new(jobNameShort)
+function TrustSettings.new(jobNameShort, playerName)
     local self = setmetatable({}, TrustSettings)
     self.jobNameShort = jobNameShort
+    self.playerName = playerName or windower.ffxi.get_player().name
     self.settingsFolder = 'data/'
     self.backupsFolder = 'backups/'
     self.settingsVersion = TrustSettings.settingsVersion[jobNameShort] or 1
@@ -86,8 +87,8 @@ end
 
 function TrustSettings:getSettingsFilePath(default_settings)
     local file_prefix = windower.addon_path..self.settingsFolder..self.jobNameShort
-    if windower.file_exists(file_prefix..'_'..windower.ffxi.get_player().name..'.lua') and not default_settings then
-        return file_prefix..'_'..windower.ffxi.get_player().name..'.lua'
+    if windower.file_exists(file_prefix..'_'..self.playerName..'.lua') and not default_settings then
+        return file_prefix..'_'..self.playerName..'.lua'
     elseif windower.file_exists(file_prefix..'.lua') then
         return file_prefix..'.lua'
     end
@@ -104,7 +105,7 @@ end
 
 function TrustSettings:saveSettings(saveToFile)
     if saveToFile then
-        local filePath = self.settingsFolder..self.jobNameShort..'_'..windower.ffxi.get_player().name..'.lua'
+        local filePath = self.settingsFolder..self.jobNameShort..'_'..self.playerName..'.lua'
 
         local file = FileIO.new(filePath)
         file:write('-- Settings file for '..self.jobNameShort ..'\nreturn ' .. serializer_util.serialize(self.settings)) -- Uses our new lua serializer!
@@ -113,7 +114,7 @@ function TrustSettings:saveSettings(saveToFile)
 end
 
 function TrustSettings:copySettings(override)
-    local filePath = self.settingsFolder..self.jobNameShort..'_'..windower.ffxi.get_player().name..'.lua'
+    local filePath = self.settingsFolder..self.jobNameShort..'_'..self.playerName..'.lua'
     local playerSettings = FileIO.new(filePath)
     if not playerSettings:exists() or override then
         if playerSettings:exists() then
@@ -143,10 +144,10 @@ function TrustSettings:deleteSettings(setName)
 end
 
 function TrustSettings:backupSettings(filePath)
-    filePath = filePath or self.settingsFolder..self.jobNameShort..'_'..windower.ffxi.get_player().name..'.lua'
+    filePath = filePath or self.settingsFolder..self.jobNameShort..'_'..self.playerName..'.lua'
     local playerSettings = FileIO.new(filePath)
     if playerSettings:exists() then
-        local backupFilePath = self.settingsFolder..self.backupsFolder..self.jobNameShort..'_'..windower.ffxi.get_player().name..'.lua'
+        local backupFilePath = self.settingsFolder..self.backupsFolder..self.jobNameShort..'_'..self.playerName..'.lua'
         local backupSettings = FileIO.new(backupFilePath)
         backupSettings:write(playerSettings:read())
 
@@ -161,7 +162,7 @@ function TrustSettings.migrateSettings(jobNameShort, legacySettings, isPlayer)
     end
     local filePath = self.settingsFolder..jobNameShort..'.lua'
     if isPlayer then
-        filePath = self.settingsFolder..jobNameShort..'_'..windower.ffxi.get_player().name..'.lua'
+        filePath = self.settingsFolder..jobNameShort..'_'..self.playerName..'.lua'
     end
     local file = FileIO.new(filePath)
     file:write('-- Settings file for '..jobNameShort ..'\nreturn ' .. T(newSettings):tovstring())
@@ -176,6 +177,11 @@ function TrustSettings:getDefaultSettings()
 end
 
 function TrustSettings:runMigrations(settings)
+    -- Do not run migrations when impersonating a user
+    if self.playerName ~= windower.ffxi.get_player().name then
+        return
+    end
+
     local needsMigration = false
 
     local modeNames = list.subtract(L(T(settings):keyset()), L{'Migrations','Version'})

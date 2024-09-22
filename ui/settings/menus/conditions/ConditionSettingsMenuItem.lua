@@ -59,7 +59,11 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
     self.conditionPickerItems = L(self.editableConditionClasses:keyset()):filter(function(c)
         local conditionClass = self:getFileForCondition(c)
         return L(self.targetTypes:intersection(conditionClass.valid_targets())):length() > 0
-    end):sort()
+    end):sort(function(c1, c2)
+        c1 = self:getFileForCondition(c1).description()
+        c2 = self:getFileForCondition(c2).description()
+        return c1 < c2
+    end)
 
     self.contentViewConstructor = function(menuArgs, _)
         local conditions = menuArgs and menuArgs['conditions']
@@ -77,6 +81,10 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
         self.conditionPickerItems = L(self.editableConditionClasses:keyset()):filter(function(c)
             local conditionClass = self:getFileForCondition(c)
             return L(self.targetTypes:intersection(conditionClass.valid_targets())):length() > 0
+        end):sort(function(c1, c2)
+            c1 = self:getFileForCondition(c1).description()
+            c2 = self:getFileForCondition(c2).description()
+            return c1 < c2
         end)
 
         local editConditionsView = ConditionsSettingsEditor.new(trustSettings, conditions, L(self.editableConditionClasses:keyset()))
@@ -142,14 +150,6 @@ function ConditionSettingsMenuItem:getAddConditionMenuItem(parentMenuItem)
 
             addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've added a new condition!")
         end)
-        --[[chooseConditionView:getDisposeBag():add(chooseConditionView:getDelegate():didHighlightItemAtIndexPath():addAction(function(indexPath)
-            local conditionClass = self:getFileForCondition(self.conditionPickerItems[indexPath.row])
-            if conditionClass and conditionClass.description then
-                infoView:setDescription(conditionClass.description())
-            else
-                infoView:setDescription("Add a new condition.")
-            end
-        end), chooseConditionView:getDelegate():didHighlightItemAtIndexPath())]]
         return chooseConditionView
     end, "Conditions", "Add a new condition.")
     return addConditionsMenuItem

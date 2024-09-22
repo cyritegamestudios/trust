@@ -13,7 +13,7 @@ ModesView.__index = ModesView
 ModesView.__type = "ModesView"
 
 
-function ModesView.new(modeNames, infoView)
+function ModesView.new(modeNames, infoView, modes)
     local layoutParams = FFXIWindow.getLayoutParams(
             15,
             16,
@@ -29,10 +29,12 @@ function ModesView.new(modeNames, infoView)
         return cell
     end)
 
-    modeNames = modeNames:filter(function(modeName) return state[modeName] ~= nil end)
+    modes = modes or state
+    modeNames = modeNames:filter(function(modeName) return modes[modeName] ~= nil end)
 
     local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, layoutParams.padding), nil, false, layoutParams.viewSize), ModesView)
 
+    self.modes = modes
     self:setShouldRequestFocus(true)
     self:setScrollDelta(16)
     self:setScrollEnabled(true)
@@ -41,8 +43,8 @@ function ModesView.new(modeNames, infoView)
 
     local currentRow = 1
     for modeName in modeNames:it() do
-        if state[modeName] then
-            itemsToAdd:append(IndexedItem.new(TextItem.new(modeName..': '..state[modeName].value, TextStyle.Default.TextSmall), IndexPath.new(1, currentRow)))
+        if modes[modeName] then
+            itemsToAdd:append(IndexedItem.new(TextItem.new(modeName..': '..modes[modeName].value, TextStyle.Default.TextSmall), IndexPath.new(1, currentRow)))
             currentRow = currentRow + 1
         end
     end
@@ -56,7 +58,7 @@ function ModesView.new(modeNames, infoView)
             handle_cycle(selectedModeName)
             local oldItem = self:getDataSource():itemAtIndexPath(indexPath)
             if oldItem then
-                local newItem = TextItem.new(selectedModeName..': '..state[selectedModeName].value, oldItem:getStyle())
+                local newItem = TextItem.new(selectedModeName..': '..modes[selectedModeName].value, oldItem:getStyle())
                 self:setDescription(selectedModeName, infoView)
                 self:getDataSource():updateItem(newItem, indexPath)
             end
@@ -79,7 +81,7 @@ function ModesView:setDescription(modeName, infoView)
     if not infoView then
         return
     end
-    local description = state[modeName]:get_description(state[modeName].value) or "View and change Trust modes."
+    local description = self.modes[modeName]:get_description(self.modes[modeName].value) or "View and change Trust modes."
     description = string.gsub(description, "^Okay, ", "")
     description = description:gsub("^%l", string.upper)
     infoView:setDescription(description)
