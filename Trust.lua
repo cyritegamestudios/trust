@@ -59,7 +59,7 @@ end)
 
 player = {}
 
-local shortcuts = T{}
+shortcuts = T{}
 
 -- States
 
@@ -523,6 +523,10 @@ end
 
 function addon_system_message(str)
 	windower.add_to_chat(122, str)
+end
+
+function addon_system_error(str)
+	windower.add_to_chat(123, str)
 end
 
 -- Handlers

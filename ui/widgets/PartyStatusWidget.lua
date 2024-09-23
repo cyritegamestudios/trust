@@ -58,9 +58,9 @@ function PartyStatusWidget.new(frame, addonSettings, party, actionQueue)
         if item then
             local party_member = party:get_party_member_named(item:getText())
             if party_member then
-                --local partyMemberMenuItem = PartyMemberMenuItem.new(party_member)
-                --hud:openMenu(partyMemberMenuItem)
-                party:set_assist_target(party_member)
+                local partyMemberMenuItem = PartyMemberMenuItem.new(party_member)
+                hud:openMenu(partyMemberMenuItem)
+                --party:set_assist_target(party_member)
             end
         end
     end), self:getDelegate():didSelectItemAtIndexPath())

@@ -14,10 +14,11 @@ Command.__type = "Command"
 -------
 -- Default initializer for a new command.
 -- @treturn Command A command.
-function Command.new(windower_command, conditions)
+function Command.new(windower_command, conditions, description)
     local self = setmetatable({}, Command)
     self.windower_command = windower_command or '/jump'
     self.conditions = conditions or L{}
+    self.description = description
     return self
 end
 
@@ -55,7 +56,7 @@ function Command:get_name()
 end
 
 function Command:get_display_name()
-    return self.windower_command
+    return self.description or self.windower_command
 end
 
 function Command:__tostring()

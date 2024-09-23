@@ -74,6 +74,18 @@ function TrustCommands:get_all_commands()
     return result
 end
 
+function TrustCommands:to_commands()
+    local result = L{}
+    for command_name, command in pairs(self.commands) do
+        if command_name == 'default' then
+            result:append(Command.new('// trust '..self:get_command_name(), L{}, command.description))
+        else
+            result:append(Command.new('// trust '..self:get_command_name()..' '..command_name, L{}, command.description))
+        end
+    end
+    return result
+end
+
 return TrustCommands
 
 
