@@ -58,9 +58,13 @@ function PartyStatusWidget.new(frame, addonSettings, party, actionQueue)
         if item then
             local party_member = party:get_party_member_named(item:getText())
             if party_member then
-                local partyMemberMenuItem = PartyMemberMenuItem.new(party_member)
-                hud:openMenu(partyMemberMenuItem)
-                --party:set_assist_target(party_member)
+                if party_member:get_name() == windower.ffxi.get_player().name then
+                    party:set_assist_target(party_member)
+                else
+                    local partyMemberMenuItem = PartyMemberMenuItem.new(party_member)
+                    hud:closeAllMenus()
+                    hud:openMenu(partyMemberMenuItem)
+                end
             end
         end
     end), self:getDelegate():didSelectItemAtIndexPath())
