@@ -316,7 +316,7 @@ local incoming_event_dispatcher = {
                 ranged_weapon_id = nil
             end
             local weapons = require('cylibs/res/weapons')
-            if main_weapon_id == nil or weapons[main_weapon_id] == nil then
+            if ranged_weapon_id == nil or weapons[ranged_weapon_id] == nil then
                 return
             end
             coroutine.schedule(function()

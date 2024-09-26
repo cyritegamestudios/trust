@@ -50,7 +50,7 @@ end
 -- Returns the maximum approach range in yalms.
 -- @treturn number Range in yalms
 function Approach:get_range()
-    return 35
+    return 50
 end
 
 -------
