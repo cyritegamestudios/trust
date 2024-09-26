@@ -179,12 +179,15 @@ function Puller:get_next_target()
             return monster
         end
     else
-        local exclude_targets = self:get_party():get_targets(function(target)
-            return target:is_claimed() and target ~= self:get_target()
-        end):map(function(target) return target:get_mob().index  end)
-        local target = ffxi_util.find_closest_mob(self:get_target_names(), L{}:extend(party_util.party_targets())--[[exclude_targets]], self.blacklist, self.pull_settings.Distance or 20)
+        local target = ffxi_util.find_closest_mob(self:get_target_names(), L{}:extend(party_util.party_targets()), self.blacklist, self.pull_settings.Distance or 20)
         if target and target.distance:sqrt() < (self.pull_settings.Distance or 20) then
             local monster = Monster.new(target.id)
+            return monster
+        end
+        local aggroed_mobs = ffxi_util.find_aggroed_mobs()
+        if aggroed_mobs and aggroed_mobs:length() > 0 then
+            logger.notice(self.__class, 'get_next_target', 'pulling aggroed mob')
+            local monster = Monster.new(aggroed_mobs[1].id)
             return monster
         end
     end

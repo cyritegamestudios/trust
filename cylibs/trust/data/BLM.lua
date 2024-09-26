@@ -3,7 +3,6 @@ local BlackMageTrust = setmetatable({}, {__index = Trust })
 BlackMageTrust.__index = BlackMageTrust
 
 local BlackMage = require('cylibs/entity/jobs/BLM')
-local BlackMageTrustCommands = require('cylibs/trust/commands/BLM') -- keep this for dependency script
 local Buffer = require('cylibs/trust/roles/buffer')
 local Debuffer = require('cylibs/trust/roles/debuffer')
 local MagicBurster = require('cylibs/trust/roles/magic_burster')
@@ -24,10 +23,6 @@ function BlackMageTrust.new(settings, action_queue, battle_settings, trust_setti
 		Sleeper.new(action_queue, L{ Spell.new('Sleepga'), Spell.new('Sleepga II') }, 4)
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings), BlackMageTrust)
-
-	self.settings = settings
-	self.action_queue = action_queue
-
 	return self
 end
 
@@ -36,16 +31,12 @@ function BlackMageTrust:on_init()
 
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
 		local buffer = self:role_with_type("buffer")
-		if buffer then
-			buffer:set_job_abilities(new_trust_settings.JobAbilities)
-			buffer:set_self_spells(new_trust_settings.SelfBuffs)
-			buffer:set_party_spells(new_trust_settings.PartyBuffs)
-		end
+		buffer:set_job_abilities(new_trust_settings.JobAbilities)
+		buffer:set_self_spells(new_trust_settings.SelfBuffs)
+		buffer:set_party_spells(new_trust_settings.PartyBuffs)
 
 		local debuffer = self:role_with_type("debuffer")
-		if debuffer then
-			debuffer:set_debuff_spells(new_trust_settings.Debuffs)
-		end
+		debuffer:set_debuff_spells(new_trust_settings.Debuffs)
 
 		local puller = self:role_with_type("puller")
 		if puller then
@@ -57,16 +48,6 @@ function BlackMageTrust:on_init()
 			role:set_nuke_settings(new_trust_settings.NukeSettings)
 		end
 	end)
-end
-
-function BlackMageTrust:job_target_change(target_index)
-	Trust.job_target_change(self, target_index)
-
-	self.target_index = target_index
-end
-
-function BlackMageTrust:tic(old_time, new_time)
-	Trust.tic(self, old_time, new_time)
 end
 
 return BlackMageTrust

@@ -301,6 +301,10 @@ local incoming_event_dispatcher = {
             if main_weapon_id == 65535 then
                 main_weapon_id = nil
             end
+            local weapons = require('cylibs/res/weapons')
+            if main_weapon_id == nil or weapons[main_weapon_id] == nil then
+                return
+            end
             coroutine.schedule(function()
                 WindowerEvents.Equipment.MainWeaponChanged:trigger(windower.ffxi.get_player().id, main_weapon_id)
                 IpcRelay.shared():send_message(EquipmentChangedMessage.new(windower.ffxi.get_player().id, main_weapon_id, ranged_weapon_id))
@@ -310,6 +314,10 @@ local incoming_event_dispatcher = {
             ranged_weapon_id = windower.ffxi.get_items(data:byte(7), data:byte(5)).id
             if ranged_weapon_id == 65535 then
                 ranged_weapon_id = nil
+            end
+            local weapons = require('cylibs/res/weapons')
+            if ranged_weapon_id == nil or weapons[ranged_weapon_id] == nil then
+                return
             end
             coroutine.schedule(function()
                 WindowerEvents.Equipment.RangedWeaponChanged:trigger(windower.ffxi.get_player().id, ranged_weapon_id)

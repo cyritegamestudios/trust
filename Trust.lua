@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '10.7.8'
+_addon.version = '10.8.0'
 _addon.release_notes = [[
 This update introduces new menus for Bard, autocomplete for Trust
 commands, new commands and important bug fixes for users running the
@@ -59,9 +59,11 @@ end)
 
 player = {}
 
-local shortcuts = T{}
+shortcuts = T{}
 
 -- States
+
+state.TrustMode = M{['description'] = 'Trust Mode', T{}}
 
 state.AutoEnableMode = M{['description'] = 'Auto Enable Mode', 'Auto', 'Off'}
 state.AutoEnableMode:set_description('Auto', "Okay, I'll automatically get to work after the addon loads.")
@@ -251,7 +253,7 @@ function load_user_files(main_job_id, sub_job_id)
 end
 
 function load_trust_modes(job_name_short)
-	trust_mode_settings = TrustModeSettings.new(job_name_short)
+	trust_mode_settings = TrustModeSettings.new(job_name_short, windower.ffxi.get_player().name, state.TrustMode)
 	trust_mode_settings:copySettings()
 
 	local function update_for_new_modes(new_modes)
@@ -521,6 +523,10 @@ end
 
 function addon_system_message(str)
 	windower.add_to_chat(122, str)
+end
+
+function addon_system_error(str)
+	windower.add_to_chat(123, str)
 end
 
 -- Handlers

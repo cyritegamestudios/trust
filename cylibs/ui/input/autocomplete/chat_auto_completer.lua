@@ -13,6 +13,7 @@ end
 function ChatAutoCompleter.new(commands)
     local self = setmetatable({}, ChatAutoCompleter)
 
+    self.allCommands = commands
     self.commandTrie = CommandTrie.new()
     for command in commands:it() do
         self.commandTrie:addCommand(command)
@@ -35,6 +36,10 @@ function ChatAutoCompleter:destroy()
     self.disposeBag:destroy()
 
     self.autoCompleteListChange:removeAllActions()
+end
+
+function ChatAutoCompleter:getAllCommands()
+    return self.allCommands
 end
 
 function ChatAutoCompleter:onKeyboardEvent(key, pressed, flags, blocked)

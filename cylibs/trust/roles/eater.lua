@@ -36,7 +36,7 @@ function Eater:tic(new_time, old_time)
 end
 
 function Eater:check_food()
-    if state.AutoFoodMode.value == 'Off' or not self.is_food_enabled
+    if state.AutoFoodMode.value == 'Off' or not self.is_food_enabled or player.status == 'Idle'
             or (os.time() - self.last_check_food_time) < 15 then
         return
     end

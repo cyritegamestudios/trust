@@ -38,6 +38,12 @@ function Attacker:target_change(target_index)
 
     self.target_index = target_index
 
+    if self.target_index == windower.ffxi.get_player().index then
+        self.last_target_self = os.time()
+    else
+        self.last_target_self = nil
+    end
+
     self:tic(os.time() - 3, os.time())
 end
 
@@ -102,9 +108,12 @@ function Attacker:attack_mob(target)
 end
 
 function Attacker:is_targeting_self()
+    if self.last_target_self == nil then
+        return
+    end
     local current_target_index = windower.ffxi.get_player().target_index
     if current_target_index then
-        if current_target_index == windower.ffxi.get_player().index then
+        if current_target_index == windower.ffxi.get_player().index and (os.time() - self.last_target_self) > 6 then
             return true
         end
     end

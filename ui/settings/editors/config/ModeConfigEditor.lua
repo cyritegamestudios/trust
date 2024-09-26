@@ -1,36 +1,29 @@
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
-local ConfigItem = require('ui/settings/editors/config/ConfigItem')
-local ImageItem = require('cylibs/ui/collection_view/items/image_item')
-local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
-local IndexPath = require('cylibs/ui/collection_view/index_path')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
-local SectionHeaderItem = require('cylibs/ui/collection_view/items/section_header_item')
-local skillchain_util = require('cylibs/util/skillchain_util')
-
-local TextItem = require('cylibs/ui/collection_view/items/text_item')
-local TextStyle = require('cylibs/ui/style/text_style')
 
 local ModeConfigEditor = setmetatable({}, {__index = ConfigEditor })
 ModeConfigEditor.__index = ModeConfigEditor
 
 
-function ModeConfigEditor.new(modeNames, infoView)
+function ModeConfigEditor.new(modeNames, infoView, modes)
+    modes = modes or state
     modeNames = modeNames:filter(function(modeName)
-        return state[modeName] ~= nil
+        return modes[modeName] ~= nil
     end)
 
     local modeSettings = {}
 
     local configItems = modeNames:map(function(modeName)
-        if state[modeName] then
-            modeSettings[modeName:lower()] = state[modeName].value
-            return PickerConfigItem.new(modeName:lower(), state[modeName].value, L(state[modeName]:options()), nil, state[modeName].description or modeName)
+        if modes[modeName] then
+            modeSettings[modeName:lower()] = modes[modeName].value
+            return PickerConfigItem.new(modeName:lower(), modes[modeName].value, L(modes[modeName]:options()), nil, modes[modeName].description or modeName)
         end
         return nil
     end):compact_map()
 
     local self = setmetatable(ConfigEditor.new(nil, modeSettings, configItems, nil, function(_) return not is_modes_locked() end), ModeConfigEditor)
 
+    self.modes = modes
     self.infoView = infoView
     self.modeNames = modeNames
 
@@ -73,7 +66,7 @@ function ModeConfigEditor:updateInfoBar(indexPath)
     if indexPath then
         local item = self:getDataSource():itemAtIndexPath(indexPath)
         if item then
-            local description = state[self.modeNames[indexPath.section]]:get_description(item:getText()) or "View and change Trust modes."
+            local description = self.modes[self.modeNames[indexPath.section]]:get_description(item:getText()) or "View and change Trust modes."
 
             description = string.gsub(description, "^Okay, ", "")
             description = self.modeNames[indexPath.section]..': '..description:gsub("^%l", string.upper)
