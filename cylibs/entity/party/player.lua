@@ -22,11 +22,11 @@ function Player.new(id)
 
     self:set_zone_id(windower.ffxi.get_info().zone)
     local main_weapon_id = inventory_util.get_main_weapon_id()
-    if main_weapon_id then
+    if main_weapon_id and main_weapon_id ~= 0 then
         self:set_main_weapon_id(main_weapon_id)
     end
     local ranged_weapon_id = inventory_util.get_ranged_weapon_id()
-    if ranged_weapon_id then
+    if ranged_weapon_id and ranged_weapon_id ~= 0 then
         self:set_ranged_weapon_id(ranged_weapon_id)
     end
 
