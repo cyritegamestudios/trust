@@ -60,6 +60,7 @@ function PartyStatusWidget.new(frame, addonSettings, party, actionQueue)
             if party_member then
                 if party_member:get_name() == windower.ffxi.get_player().name then
                     party:set_assist_target(party_member)
+                    windower.send_command('trust follow clear')
                 else
                     local partyMemberMenuItem = PartyMemberMenuItem.new(party_member)
                     hud:closeAllMenus()
