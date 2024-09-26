@@ -1,6 +1,7 @@
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local DisposeBag = require('cylibs/events/dispose_bag')
+local IpcRelay = require('cylibs/messages/ipc/ipc_relay')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModeConfigEditor = require('ui/settings/editors/config/ModeConfigEditor')
@@ -10,7 +11,7 @@ local TrustModeSettings = require('TrustModeSettings')
 local PartyMemberMenuItem = setmetatable({}, {__index = MenuItem })
 PartyMemberMenuItem.__index = PartyMemberMenuItem
 
-function PartyMemberMenuItem.new(partyMember)
+function PartyMemberMenuItem.new(partyMember, party, whitelist)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Assist', 18),
         ButtonItem.default('Commands', 18),
@@ -19,6 +20,8 @@ function PartyMemberMenuItem.new(partyMember)
     self.trustMode = M{['description'] = partyMember:get_name()..' Trust Mode', T{}}
     self.partyMember = partyMember
     self.partyMemberName = partyMember:get_name()
+    self.party = party
+    self.whitelist = whitelist or S{}
 
     --self.trustModeSettings = TrustModeSettings.new(partyMember:get_main_job_short(), self.partyMemberName, self.trustMode)
     --self.trustModeSettings:loadSettings()
@@ -99,22 +102,36 @@ function PartyMemberMenuItem:getCommandsMenuItem()
     end, self.partyMemberName, "Send commands to "..self.partyMemberName)
 
     commandsMenuItem:setChildMenuItem("Send", MenuItem.action(function(_)
-        if not self.selectedCommand or not L{'All', 'Send'}:contains(state.IpcMode.value) then
-            addon_system_error("Unable to send command.")
-            return
-        end
-        windower.send_command('trust send '..self.partyMemberName..' '..self.selectedCommand:get_windower_command())
+        self:sendCommand(self.selectedCommand, false)
     end), "Send", "Send command to "..self.partyMemberName)
 
     commandsMenuItem:setChildMenuItem("Send All", MenuItem.action(function(_)
-        if not self.selectedCommand or not L{'All', 'Send'}:contains(state.IpcMode.value) then
-            addon_system_error("Unable to send command.")
-            return
-        end
-        windower.send_command('trust sendall '..self.partyMemberName..' '..self.selectedCommand:get_windower_command())
+        self:sendCommand(self.selectedCommand, true)
     end), "Send All", "Send command to all party members")
 
     return commandsMenuItem
+end
+
+function PartyMemberMenuItem:sendCommand(command, sendAll)
+    if not command or not L{'All', 'Send'}:contains(state.IpcMode.value) then
+        addon_system_error("Unable to send command.")
+        return
+    end
+
+    local partyMemberNames = L{ self.partyMemberName }
+    if sendAll then
+        partyMemberNames = self.party:get_party_members(false)
+                :filter(function(p) return not p:is_trust() end)
+                :map(function(p) return p:get_name() end)
+    end
+
+    for partyMemberName in partyMemberNames:it() do
+        if IpcRelay.shared():is_connected(self.partyMemberName) then
+            windower.send_command('trust send '..partyMemberName..' '..self.selectedCommand:get_windower_command())
+        elseif self.whitelist:contains(partyMemberName) then
+            windower.chat.input('/tell '..partyMemberName..' '..self.selectedCommand:get_windower_command())
+        end
+    end
 end
 
 function PartyMemberMenuItem:getModesMenuItem()
