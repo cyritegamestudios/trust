@@ -21,8 +21,14 @@ function Player.new(id)
     local self = setmetatable(PartyMember.new(id), Player)
 
     self:set_zone_id(windower.ffxi.get_info().zone)
-    self:set_main_weapon_id(inventory_util.get_main_weapon_id())
-    self:set_ranged_weapon_id(inventory_util.get_ranged_weapon_id())
+    local main_weapon_id = inventory_util.get_main_weapon_id()
+    if main_weapon_id then
+        self:set_main_weapon_id(main_weapon_id)
+    end
+    local ranged_weapon_id = inventory_util.get_ranged_weapon_id()
+    if ranged_weapon_id then
+        self:set_ranged_weapon_id(ranged_weapon_id)
+    end
 
     self.events = {}
     self.level_change = Event.newEvent()
