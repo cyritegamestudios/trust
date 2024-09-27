@@ -79,6 +79,11 @@ function PartyMember:on_pet_change()
     return self.pet_change
 end
 
+-- Event called when a player's spell finishes casting.
+function PartyMember:on_spell_finish()
+    return self.spell_finish
+end
+
 -------
 -- Default initializer for a PartyMember.
 -- @tparam number id Mob id
@@ -118,6 +123,7 @@ function PartyMember.new(id)
     self.equipment_change = Event.newEvent()
     self.combat_skills_change = Event.newEvent()
     self.pet_change = Event.newEvent()
+    self.spell_finish = Event.newEvent()
 
     local party_member_info = party_util.get_party_member(id)
     if party_member_info then
@@ -167,6 +173,7 @@ function PartyMember:destroy()
     self.equipment_change:removeAllActions()
     self.combat_skills_change:removeAllActions()
     self.pet_change:removeAllActions()
+    self.spell_finish:removeAllActions()
 end
 
 -------
@@ -241,6 +248,14 @@ function PartyMember:monitor()
             self:set_zone_id(current_zone_id, zone_line, zone_type)
         end
     end), WindowerEvents.ZoneRequest)
+
+    self.dispose_bag:add(WindowerEvents.Action:addAction(function(action)
+        if action.actor_id ~= self:get_id() then return end
+
+        if action.category == 4 then
+            self:on_spell_finish():trigger(self, action.param, action.targets)
+        end
+    end), WindowerEvents.Action)
 
     self.dispose_bag:add(self:on_target_change():addAction(function(_, _)
         self.battle_stat_tracker:reset()

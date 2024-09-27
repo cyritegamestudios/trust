@@ -48,8 +48,13 @@ end
 function Puller:on_add()
     Role.on_add(self)
 
+    if state.AutoPullMode.value ~= 'Off' then
+        windower.send_command('input /autotarget off')
+    end
+
     self.dispose_bag:add(state.AutoPullMode:on_state_change():addAction(function(_, new_value)
         if new_value ~= 'Off' then
+            windower.send_command('input /autotarget off')
             local assist_target = self:get_party():get_assist_target()
             if assist_target:get_id() ~= windower.ffxi.get_player().id then
                 self:get_party():add_to_chat(self:get_party():get_player(), "I can't pull while I'm assisting someone else, so I'm going to stop assisting "..assist_target:get_name()..".")

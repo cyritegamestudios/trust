@@ -3,12 +3,15 @@ local Event = require('cylibs/events/Luvent')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local EquipmentChangedMessage = require('cylibs/messages/equipment_changed_message')
 local GainDebuffMessage = require('cylibs/messages/gain_buff_message')
+local inventory_util = require('cylibs/util/inventory_util')
 local IpcRelay = require('cylibs/messages/ipc/ipc_relay')
 local logger = require('cylibs/logger/logger')
 local LoseDebuffMessage = require('cylibs/messages/lose_buff_message')
 local MobUpdateMessage = require('cylibs/messages/mob_update_message')
 local packets = require('packets')
+local Timer = require('cylibs/util/timers/timer')
 local ZoneMessage = require('cylibs/messages/zone_message')
+
 
 ---------------------------
 -- Windower global event handler. Requiring this in your addon will automatically create a global
@@ -47,6 +50,9 @@ WindowerEvents.BlueMagic.SpellsChanged = Event.newEvent()
 WindowerEvents.Ability = {}
 WindowerEvents.Ability.Ready = Event.newEvent()
 WindowerEvents.Ability.Finish = Event.newEvent()
+WindowerEvents.Spell = {}
+WindowerEvents.Spell.Begin = Event.newEvent()
+WindowerEvents.Spell.Finish = Event.newEvent()
 
 local main_weapon_id
 local ranged_weapon_id
@@ -85,7 +91,11 @@ local incoming_event_dispatcher = {
         act.size = data:byte(5)
         WindowerEvents.Action:trigger(act)
 
-        if act.category == 7 then
+        if act.category == 4 then
+            if act.param and res.spells[act.param] then
+                WindowerEvents.Spell.Finish:trigger(act.actor_id, act.param)
+            end
+        elseif act.category == 7 then
             if res.monster_abilities[act.targets[1].actions[1].param] then
                 WindowerEvents.Ability.Ready:trigger(act.actor_id, act.targets[1].actions[1].param)
             end
@@ -305,6 +315,7 @@ local incoming_event_dispatcher = {
             if main_weapon_id == nil or weapons[main_weapon_id] == nil then
                 return
             end
+            print('setting main weapon', weapons[main_weapon_id].en)
             coroutine.schedule(function()
                 WindowerEvents.Equipment.MainWeaponChanged:trigger(windower.ffxi.get_player().id, main_weapon_id)
                 IpcRelay.shared():send_message(EquipmentChangedMessage.new(windower.ffxi.get_player().id, main_weapon_id, ranged_weapon_id))
@@ -500,6 +511,18 @@ WindowerEvents.Events.LoseBuff = windower.register_event('lose buff', function(_
     WindowerEvents.DebuffsChanged:trigger(target_id, L(buff_util.debuffs_for_buff_ids(buff_ids)))
 end)
 
+local init_timer = Timer.scheduledTimer(5, 1)
+
+WindowerEvents.DisposeBag:add(init_timer:onTimeChange():addAction(function(_)
+    main_weapon_id = inventory_util.get_main_weapon_id()
+    if main_weapon_id and main_weapon_id ~= 0 then
+        WindowerEvents.Equipment.MainWeaponChanged:trigger(windower.ffxi.get_player().id, main_weapon_id)
+    end
+    if main_weapon_id and main_weapon_id ~= 0 then
+        init_timer:destroy()
+    end
+end), init_timer:onTimeChange())
+
 WindowerEvents.DisposeBag:add(IpcRelay.shared():on_message_received():addAction(function(ipc_message)
     if ipc_message.__class == MobUpdateMessage.__class then
         local mob = windower.ffxi.get_mob_by_name(ipc_message:get_mob_name())
@@ -519,5 +542,7 @@ WindowerEvents.DisposeBag:add(IpcRelay.shared():on_message_received():addAction(
         WindowerEvents.Equipment.RangedWeaponChanged:trigger(ipc_message:get_mob_id(), ipc_message:get_ranged_weapon_id())
     end
 end), IpcRelay.shared():on_message_received())
+
+init_timer:start()
 
 return WindowerEvents
