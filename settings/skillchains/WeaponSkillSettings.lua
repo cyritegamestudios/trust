@@ -109,9 +109,9 @@ function WeaponSkillSettings:saveSettings(saveToFile)
     self:onSettingsChanged():trigger(self.settings)
 end
 
-function WeaponSkillSettings:createSettings(setName)
+function WeaponSkillSettings:createSettings(setName, weaponSkillSettings)
     if setName ~= 'Default' and not self.settings[setName] then
-        self.settings[setName] = self.settings['Default']
+        self.settings[setName] = weaponSkillSettings or self.settings['Default']
 
         self:saveSettings(true)
         self:reloadSettings()

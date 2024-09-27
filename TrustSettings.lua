@@ -127,9 +127,9 @@ function TrustSettings:copySettings(override)
     end
 end
 
-function TrustSettings:createSettings(setName)
+function TrustSettings:createSettings(setName, jobSettings)
     if setName ~= 'Default' and not self.settings[setName] then
-        self.settings[setName] = self.settings['Default']
+        self.settings[setName] = jobSettings or self.settings['Default']
 
         self:saveSettings(true)
         self:reloadSettings()
