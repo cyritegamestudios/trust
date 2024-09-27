@@ -156,7 +156,7 @@ function LoadSettingsMenuItem:getShareSetMenuItem()
         profile:saveToFile()
 
         addon_system_message("Profile saved to "..windower.addon_path..profile:getFilePath())
-    end, "Profiles", "Export your settings to a file to share with friends.")
+    end, "Profiles", "Share the selected profile with friends.")
 end
 
 return LoadSettingsMenuItem
