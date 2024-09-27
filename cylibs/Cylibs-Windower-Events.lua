@@ -141,9 +141,6 @@ local incoming_event_dispatcher = {
         end
 
         if L{ 43, 326, 675 }:contains(message_id) then
-            if windower.ffxi.get_mob_by_id(actor_id).name == 'Locus Ghost Crab' then
-                print(message_id, param_1 or 'nil', param_2 or 'nil')
-            end
             WindowerEvents.Ability.Ready:trigger(target_id, param_1)
         end
     end,
@@ -315,7 +312,6 @@ local incoming_event_dispatcher = {
             if main_weapon_id == nil or weapons[main_weapon_id] == nil then
                 return
             end
-            print('setting main weapon', weapons[main_weapon_id].en)
             coroutine.schedule(function()
                 WindowerEvents.Equipment.MainWeaponChanged:trigger(windower.ffxi.get_player().id, main_weapon_id)
                 IpcRelay.shared():send_message(EquipmentChangedMessage.new(windower.ffxi.get_player().id, main_weapon_id, ranged_weapon_id))

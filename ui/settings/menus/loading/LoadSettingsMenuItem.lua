@@ -13,7 +13,6 @@ function LoadSettingsMenuItem.new(addonSettings, trustModeSettings, jobSettings,
         ButtonItem.default('Create', 18),
         ButtonItem.default('Edit', 18),
         ButtonItem.default('Delete', 18),
-        ButtonItem.default('Share', 18),
     }, {
 
     }, nil, "Profiles", "Load a saved profile."), LoadSettingsMenuItem)
