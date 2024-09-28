@@ -63,7 +63,7 @@ function Widget.new(frame, title, addonSettings, dataSource, layout, titleWidth,
             if self:isExpanded() and self:hitTest(x, y) then
                 if not self:hasFocus() then
                     -- TODO: do I need to uncomment this?
-                    --self:requestFocus()
+                    self:requestFocus()
                 end
                 local startPosition = self:getAbsolutePosition()
                 self.dragging = { x = startPosition.x, y = startPosition.y, dragX = x, dragY = y }
