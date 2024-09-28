@@ -2,7 +2,9 @@ local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local CreateProfileEditor = require('ui/settings/editors/sets/CreateProfileEditor')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+local ImportProfileMenuItem = require('ui/settings/menus/loading/ImportProfileMenuItem')
 local MenuItem = require('cylibs/ui/menu/menu_item')
+local Profile = require('ui/settings/profiles/Profile')
 local TrustSetsConfigEditor = require('ui/settings/editors/TrustSetsConfigEditor')
 
 local LoadSettingsMenuItem = setmetatable({}, {__index = MenuItem })
@@ -13,6 +15,8 @@ function LoadSettingsMenuItem.new(addonSettings, trustModeSettings, jobSettings,
         ButtonItem.default('Create', 18),
         ButtonItem.default('Edit', 18),
         ButtonItem.default('Delete', 18),
+        ButtonItem.default('Import', 18),
+        ButtonItem.default('Share', 18),
     }, {
 
     }, nil, "Profiles", "Load a saved profile."), LoadSettingsMenuItem)
@@ -70,6 +74,8 @@ function LoadSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Create", self:getCreateSetMenuItem())
     self:setChildMenuItem("Edit", self:getEditSetMenuItem())
     self:setChildMenuItem("Delete", self:getDeleteSetMenuItem())
+    self:setChildMenuItem("Import", ImportProfileMenuItem.new(self.trustModeSettings, self.jobSettings, self.weaponSkillSettings))
+    self:setChildMenuItem("Share", self:getShareSetMenuItem())
 end
 
 function LoadSettingsMenuItem:getCreateSetMenuItem()
@@ -110,6 +116,47 @@ function LoadSettingsMenuItem:getDeleteSetMenuItem()
             --self.loadSettingsView:setItems(L(state.TrustMode:options()), state.TrustMode.value)
         end
     end, "Profiles", "Delete the selected profile.")
+end
+
+function LoadSettingsMenuItem:getImportSetMenuItem()
+    return MenuItem.action(function(_)
+        local profile = Profile.new(
+                _addon.version,
+                state.TrustMode.value,
+                self.jobSettings.jobNameShort,
+                self.trustModeSettings:getSettings().Default,
+                self.jobSettings:getSettings().Default,
+                self.weaponSkillSettings:getSettings().Default
+        )
+        profile:saveToFile()
+
+        addon_system_message("Profile saved to "..windower.addon_path..profile:getFilePath())
+    end, "Profiles", "Import a Profile.")
+end
+
+function LoadSettingsMenuItem:getShareSetMenuItem()
+    return MenuItem.action(function(menu)
+        local setName = state.TrustMode.value
+        if setName == 'Default' then
+            setName = 'Shared'
+        end
+
+        local modeSettings = T(self.trustModeSettings:getSettings()[state.TrustMode.value]):copy()
+        modeSettings['maintrustsettingsmode'] = setName
+        modeSettings['weaponskillsettingsmode'] = setName
+
+        local profile = Profile.new(
+                _addon.version,
+                setName,
+                self.jobSettings.jobNameShort,
+                modeSettings,
+                self.jobSettings:getSettings()[state.MainTrustSettingsMode.value],
+                self.weaponSkillSettings:getSettings()[state.WeaponSkillSettingsMode.value]
+        )
+        profile:saveToFile()
+
+        addon_system_message("Profile saved to "..windower.addon_path..profile:getFilePath())
+    end, "Profiles", "Share the selected profile with friends.")
 end
 
 return LoadSettingsMenuItem

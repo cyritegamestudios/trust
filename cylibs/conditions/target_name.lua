@@ -40,7 +40,7 @@ function TargetNameCondition:get_config_items()
 end
 
 function TargetNameCondition:tostring()
-    return "Target is "..self.name.."."
+    return "Target is "..self.name
 end
 
 function TargetNameCondition.description()
