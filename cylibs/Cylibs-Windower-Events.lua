@@ -512,10 +512,8 @@ local init_timer = Timer.scheduledTimer(5, 1)
 WindowerEvents.DisposeBag:add(init_timer:onTimeChange():addAction(function(_)
     main_weapon_id = inventory_util.get_main_weapon_id()
     if main_weapon_id and main_weapon_id ~= 0 then
-        WindowerEvents.Equipment.MainWeaponChanged:trigger(windower.ffxi.get_player().id, main_weapon_id)
-    end
-    if main_weapon_id and main_weapon_id ~= 0 then
         init_timer:destroy()
+        WindowerEvents.Equipment.MainWeaponChanged:trigger(windower.ffxi.get_player().id, main_weapon_id)
     end
 end), init_timer:onTimeChange())
 
