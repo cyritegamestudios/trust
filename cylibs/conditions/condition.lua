@@ -107,6 +107,7 @@ function Condition.defaultSerializableConditionClasses()
         CombatSkillsCondition.__class,
         NotCondition.__class,
         StrategemCountCondition.__class,
+        IsAlterEgoCondition.__class,
     }
 end
 
