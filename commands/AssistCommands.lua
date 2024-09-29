@@ -1,3 +1,5 @@
+local TargetLock = require('cylibs/entity/party/target_lock')
+
 local TrustCommands = require('cylibs/trust/commands/trust_commands')
 local AssistTrustCommands = setmetatable({}, {__index = TrustCommands })
 AssistTrustCommands.__index = AssistTrustCommands
@@ -12,6 +14,7 @@ function AssistTrustCommands.new(trust, action_queue)
     self:add_command('default', self.handle_assist_player, 'Assist a party or alliance member, // trust assist player_name [mirror]')
     self:add_command('me', self.handle_assist_me, 'Make all players assist me')
     self:add_command('clear', self.handle_clear_assist, 'Clear assist target')
+    self:add_command('party', self.handle_lock_target, 'Locks your target on the party\'s current battle target')
 
     return self
 end
@@ -70,7 +73,40 @@ end
 
 -- // trust assist clear
 function AssistTrustCommands:handle_clear_assist()
+    if self.target_lock then
+        self.target_lock:destroy()
+        self.target_lock = nil
+    end
+
     return self:handle_assist_player(windower.ffxi.get_player().name)
+end
+
+-- // trust assist party
+function AssistTrustCommands:handle_lock_target()
+    local success
+    local message
+
+    local battle_target = windower.ffxi.get_mob_by_target('bt')
+    if battle_target then
+        self:handle_clear_assist()
+
+        self.target_lock = TargetLock.new(battle_target.index)
+        self.target_lock:monitor()
+
+        self.target_lock:on_target_ko():addAction(function(_, _)
+            self:handle_clear_assist()
+        end)
+
+        self.trust:get_party():set_assist_target(self.target_lock)
+
+        success = true
+        message = 'Target locked to '..battle_target.name
+    else
+        success = false
+        message = 'The party must be fighting something to lock onto a target'
+    end
+
+    return success, message
 end
 
 return AssistTrustCommands
