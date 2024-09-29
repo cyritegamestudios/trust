@@ -165,7 +165,7 @@ function TrustSettings.migrateSettings(jobNameShort, legacySettings, isPlayer)
         filePath = self.settingsFolder..jobNameShort..'_'..self.playerName..'.lua'
     end
     local file = FileIO.new(filePath)
-    file:write('-- Settings file for '..jobNameShort ..'\nreturn ' .. T(newSettings):tovstring())
+    file:write('-- ===DO NOT MODIFY THIS FILE=== Settings file for '..jobNameShort ..'\nreturn ' .. T(newSettings):tovstring())
 end
 
 function TrustSettings:getSettings()
