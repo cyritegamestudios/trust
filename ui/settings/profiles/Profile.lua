@@ -24,11 +24,11 @@ end
 
 function Profile:saveToFile()
     local file = FileIO.new(self:getFilePath())
-    file:write('-- Profile for '..self.jobNameShort ..'\nreturn ' .. serializer_util.serialize(self.settings))
+    file:write('-- ===DO NOT MODIFY THIS FILE=== Profile for '..self.jobNameShort ..'\nreturn ' .. serializer_util.serialize(self.settings))
 end
 
 function Profile:getFilePath()
-    return 'data/export/profiles/'..self.jobNameShort..'_'..windower.ffxi.get_player().name..'.lua'
+    return 'data/export/profiles/'..self.jobNameShort..'_'..windower.ffxi.get_player().name..'_'..self.setName..'.lua'
 end
 
 return Profile

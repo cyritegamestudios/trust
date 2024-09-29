@@ -9,7 +9,12 @@ ImportProfileMenuItem.__index = ImportProfileMenuItem
 function ImportProfileMenuItem.new(trustModeSettings, jobSettings, weaponSkillSettings)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
-    }, {}, nil, "Profiles", "Import a Profile."), ImportProfileMenuItem)
+        ButtonItem.default('Discord', 18),
+    }, {
+        Discord = MenuItem.action(function(menu, infoView)
+            windower.open_url('https://discord.com/channels/1069136494616399883/1290049758530113588')
+        end, "Profiles", "Find Profiles shared by other Trusters on Discord.")
+    }, nil, "Profiles", "Import a Profile."), ImportProfileMenuItem)
 
     self.trustModeSettings = trustModeSettings
     self.jobSettings = jobSettings
@@ -50,13 +55,9 @@ function ImportProfileMenuItem:loadFile(fileName)
     else
         local profileSettings = loadProfileSettings()
 
-        if profileSettings.JobNameShort ~= player.main_job_name_short then
-            addon_system_error("The selected profile is not compatible with the current job.")
-            return
-        end
-
-        if profileSettings.TrustVersion > _addon.version then
-            addon_system_error("You must be running Trust v"..profileSettings.TrustVersion.." or later to import this profile.")
+        local success, message = self:validateProfile(profileSettings)
+        if not success then
+            addon_system_error(message)
             return
         end
 
@@ -73,6 +74,27 @@ function ImportProfileMenuItem:loadFile(fileName)
 
         addon_system_message("Imported profile with name "..setName..".")
     end
+end
+
+function ImportProfileMenuItem:validateProfile(profileSettings)
+    local trustVersion = profileSettings.TrustVersion
+    if trustVersion > _addon.version then
+        return false, "You must be running Trust v"..profileSettings.TrustVersion.." or later to import this profile."
+    end
+
+    local jobNameShort = profileSettings.JobNameShort
+    if jobNameShort ~= player.main_job_name_short then
+        return false, "The selected profile is not compatible with the current job."
+    end
+
+    local defaultJobSettings = T(self.jobSettings:getDefaultSettings().Default)
+
+    local missingKeys = S(defaultJobSettings:keyset()):diff(T(profileSettings.JobSettings):keyset())
+    if missingKeys:length() > 0 then
+        return false, "The selected profile is not valid. Missing settings keys: "..localization_util.commas(L(missingKeys)).."."
+    end
+
+    return true
 end
 
 function ImportProfileMenuItem:listFiles()
