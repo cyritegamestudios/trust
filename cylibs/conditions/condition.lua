@@ -108,6 +108,7 @@ function Condition.defaultSerializableConditionClasses()
         NotCondition.__class,
         StrategemCountCondition.__class,
         IsAlterEgoCondition.__class,
+        ReadyChargesCondition.__class,
     }
 end
 

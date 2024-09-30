@@ -1,6 +1,7 @@
 local Migration_v1 = require('settings/migrations/migration_v1')
 local Migration_v2 = require('settings/migrations/migration_v2')
 local Migration_v3 = require('settings/migrations/migration_v3')
+local Migration_v4 = require('settings/migrations/migration_v4')
 local UpdateDefaultGambits = require('settings/migrations/update_default_gambits')
 
 local MigrationManager = {}
@@ -16,6 +17,7 @@ function MigrationManager.new(trustSettings, addonSettings, weaponSkillSettings)
         Migration_v1.new(),
         Migration_v2.new(),
         Migration_v3.new(),
+        Migration_v4.new(),
         UpdateDefaultGambits.new(),
     }
 
@@ -47,6 +49,10 @@ function MigrationManager:perform()
     if migrationsToRun:length() > 0 then
         self.trustSettings:getSettings().Migrations = L(currentMigrations)
         self.trustSettings:saveSettings(true)
+
+        if self.weaponSkillSettings then
+            self.weaponSkillSettings:saveSettings(true)
+        end
     end
 end
 

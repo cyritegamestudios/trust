@@ -167,7 +167,12 @@ function SkillchainAbility:to_action(target_index, player, job_abilities)
     if self.resource == 'weapon_skills' then
         actions:append(WeaponSkillAction.new(self:get_name(), target_index))
     elseif self.resource == 'job_abilities' then
-        actions:append(JobAbilityAction.new(0, 0, 0, self:get_name(), target_index))
+        local job_ability = res.job_abilities:with('en', self:get_name())
+        if job_ability and job_ability.prefix == '/pet' then
+            actions:append(JobAbilityAction.new(0, 0, 0, self:get_name()))
+        else
+            actions:append(JobAbilityAction.new(0, 0, 0, self:get_name(), target_index))
+        end
     elseif self.resource == 'spells' then
         actions:append(SpellAction.new(0, 0, 0, self:get_ability_id(), target_index, player))
     end

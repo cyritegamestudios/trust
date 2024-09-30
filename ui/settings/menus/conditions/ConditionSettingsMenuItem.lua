@@ -56,6 +56,7 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
         [CombatSkillsCondition.__type] = "combat_skills",
         [StrategemCountCondition.__type] = "strategem_count",
         [IsAlterEgoCondition.__type] = "is_alter_ego",
+        [ReadyChargesCondition.__type] = "ready_charges",
     }
     self.conditionPickerItems = L(self.editableConditionClasses:keyset()):filter(function(c)
         local conditionClass = self:getFileForCondition(c)

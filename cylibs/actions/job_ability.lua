@@ -43,6 +43,8 @@ function JobAbility:perform()
 end
 
 function JobAbility:localize()
+    local job_ability = res.job_abilities[self.job_ability_name]
+    local prefix = job_ability and job_ability.prefix or '/ja'
     local target_id
 
     if self.target_index then
@@ -58,15 +60,15 @@ function JobAbility:localize()
         end
         if windower.ffxi.get_info().language:lower() == 'japanese' then
             if target_id == nil then
-                return "/ja %s <me>":format(job_ability_name)
+                return "%s %s <me>":format(prefix, job_ability_name)
             else
-                return "/ja %s ":format(job_ability_name)..target_id
+                return "%s %s ":format(prefix, job_ability_name)..target_id
             end
         else
             if target_id == nil then
-                return '/ja "%s" <me>':format(job_ability_name)
+                return '%s "%s" <me>':format(prefix, job_ability_name)
             else
-                return '/ja "%s" ':format(job_ability_name)..target_id
+                return '%s "%s" ':format(prefix, job_ability_name)..target_id
             end
         end
     end

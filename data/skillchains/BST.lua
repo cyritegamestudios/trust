@@ -13,6 +13,7 @@ return {
         Blacklist = L{
         },
         Skills = L{
+            ReadyMoveSkillSettings.new(L{}),
             CombatSkillSettings.new('Dagger', L{}),
             CombatSkillSettings.new('Sword', L{}),
             CombatSkillSettings.new('Axe', L{}),
