@@ -119,6 +119,13 @@ function BeastmasterTrust:update_familiar(pet_id, pet_name)
 		self.familiar = Familiar.new(pet_id, self.action_queue)
 		self.familiar:monitor()
 	end
+
+	coroutine.schedule(function()
+		local skillchainer = self:role_with_type("skillchainer")
+		if skillchainer then
+			skillchainer:update_abilities()
+		end
+	end, 5)
 end
 
 return BeastmasterTrust
