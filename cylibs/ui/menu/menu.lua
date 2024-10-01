@@ -176,6 +176,8 @@ function Menu:onKeyboardEvent(key, pressed, flags, blocked)
 end
 
 function Menu:closeAll()
+    local isMenuShown = self:isVisible()
+
     if self.menuView then
         self.menuView:destroy()
         self.menuView = nil
@@ -183,7 +185,9 @@ function Menu:closeAll()
     self.menuItemStack = L{}
     self.viewStack:dismissAll()
 
-    FocusManager.shared():resignAllFocus()
+    if isMenuShown then
+        FocusManager.shared():resignAllFocus()
+    end
 end
 
 function Menu:isVisible()
