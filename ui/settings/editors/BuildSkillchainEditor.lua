@@ -1,3 +1,4 @@
+local BooleanConfigItem = require('ui/settings/editors/config/BooleanConfigItem')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local ConfigItem = require('ui/settings/editors/config/ConfigItem')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
@@ -18,6 +19,7 @@ function BuildSkillchainEditor.new(builderSettings, skillchainer, selectedCombat
     local configItems = L{
         ConfigItem.new('NumSteps', 2, 6, 1, function(value) return value.."" end, "Number of Steps"),
         PickerConfigItem.new('Property', 'Light Lv.4', skillchain_util.all_skillchain_properties()),
+        BooleanConfigItem.new('IncludeAeonic', 'Enable Aeonic'),
     }
 
     local self = setmetatable(ConfigEditor.new(nil, builderSettings, configItems), BuildSkillchainEditor)
@@ -34,12 +36,14 @@ function BuildSkillchainEditor.new(builderSettings, skillchainer, selectedCombat
         ImageItem.new(windower.addon_path..'assets/icons/icon_bullet.png', 8, 8),
         16
     )
-    self:getDataSource():setItemForSectionHeader(3, sectionHeaderItem)
+    self:getDataSource():setItemForSectionHeader(4, sectionHeaderItem)
 
     self:reloadSettings()
 
     self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
         if indexPath.section == 3 then
+            builderSettings.IncludeAeonic = true
+        elseif indexPath.section == 4 then
             local item = self:getDataSource():itemAtIndexPath(indexPath)
             if item then
                 local combatSkill = res.skills:with('en', item:getText())
@@ -52,6 +56,8 @@ function BuildSkillchainEditor.new(builderSettings, skillchainer, selectedCombat
 
     self:getDelegate():didDeselectItemAtIndexPath():addAction(function(indexPath)
         if indexPath.section == 3 then
+            builderSettings.IncludeAeonic = false
+        elseif indexPath.section == 4 then
             local item = self:getDataSource():itemAtIndexPath(indexPath)
             if item then
                 local combatSkill = res.skills:with('en', item:getText())
@@ -75,7 +81,7 @@ function BuildSkillchainEditor:reloadSettings()
     local combatSkillIds = L{1,2,3,4,5,6,7,8,9,10,11,12,25,26}
     local combatSkillItems = IndexedItem.fromItems(combatSkillIds:map(function(combatSkillId)
         return TextItem.new(res.skills[combatSkillId].en, TextStyle.Default.TextSmall)
-    end), 3)
+    end), 4)
 
     self:getDataSource():addItems(combatSkillItems)
 
@@ -92,6 +98,10 @@ function BuildSkillchainEditor:reloadSettings()
         end
     end
 
+    if self.builderSettings.IncludeAeonic then
+        selectedIndexPaths:append(IndexPath.new(3, 1))
+    end
+
     for selectedIndexPath in selectedIndexPaths:it() do
         self:getDelegate():selectItemAtIndexPath(selectedIndexPath)
     end
@@ -103,6 +113,13 @@ function BuildSkillchainEditor:setVisible(visible)
     ConfigEditor.setVisible(self, visible)
 
     self:reloadSettings()
+end
+
+function BuildSkillchainEditor:shouldDeselectOnLoseFocus(section)
+    if section == 3 then
+        return false
+    end
+    return true
 end
 
 return BuildSkillchainEditor

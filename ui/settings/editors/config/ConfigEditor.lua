@@ -338,13 +338,19 @@ function ConfigEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
     end
 end
 
+function ConfigEditor:shouldDeselectOnLoseFocus(section)
+    return true
+end
+
 function ConfigEditor:setHasFocus(focus)
     FFXIWindow.setHasFocus(self, focus)
 
     if focus then
         local sections = S{}
         for i = 1, self.numSections do
-            sections:add(i)
+            if self:shouldDeselectOnLoseFocus(i) then
+                sections:add(i)
+            end
         end
         self:getDelegate():deselectItemsInSections(sections)
     end

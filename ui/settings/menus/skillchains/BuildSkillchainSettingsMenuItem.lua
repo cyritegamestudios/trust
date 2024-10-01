@@ -14,6 +14,7 @@ function BuildSkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSet
     builderSettings.NumSteps = 2
     builderSettings.Property = 'Light Lv.4'
     builderSettings.CombatSkills = S{}
+    builderSettings.IncludeAeonic = false
 
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Search', 18),
@@ -94,6 +95,7 @@ function BuildSkillchainSettingsMenuItem:getConfirmMenuItem()
         self.currentPage = 1
 
         local skillchain_builder = SkillchainBuilder.with_skills(L(self.builderSettings.CombatSkills))
+        skillchain_builder.include_aeonic = self.builderSettings.IncludeAeonic
 
         local skillchains = skillchain_builder:build(self.builderSettings.Property, self.builderSettings.NumSteps)
         self.skillchains = skillchains
