@@ -1,7 +1,7 @@
 ---------------------------
 -- Wrapper around a physical blood pact.
 -- @class module
--- @name WeaponSkill
+-- @name BloodPactRage
 
 local res = require('resources')
 local serializer_util = require('cylibs/util/serializer_util')
@@ -14,8 +14,8 @@ BloodPactRage.__class = "BloodPactRage"
 
 -------
 -- Default initializer for a new physical blood pact.
--- @tparam string weapon_skill_name Localized name of the weapon skill (see res/weapon_skills.lua)
--- @treturn WeaponSkill A weapon skill
+-- @tparam string blood_pact_name Localized name of the blood pact (see res/job_abilities.lua)
+-- @treturn BloodPactRage A blood pact rage
 function BloodPactRage.new(blood_pact_name)
     local blood_pact = res.job_abilities:with('en', blood_pact_name)
     if blood_pact == nil then

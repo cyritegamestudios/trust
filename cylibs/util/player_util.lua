@@ -228,6 +228,35 @@ function player_util.get_current_strategem_count()
 	return math.max(currentCharges, 0)
 end
 
+function player_util.get_ready_charges()
+	if not pet_util.has_pet() then
+		return 0
+	end
+
+	local abil_recasts = windower.ffxi.get_ability_recasts()
+	local readyRecast = abil_recasts[102]
+
+	local maxCharges = 3
+
+	local base_chargetimer = 30
+
+	local job_points = job_util.get_job_points('BST')
+	if job_points > 100 then
+		base_chargetimer = base_chargetimer - 5
+	end
+
+	base_chargetimer = base_chargetimer - (2 * windower.ffxi.get_player().merits.sic_recast)
+
+	local ReadyChargeTimer = base_chargetimer
+
+	-- The *# is your current recharge timer.
+	local fullRechargeTime = 3*ReadyChargeTimer
+
+	local currentCharges = math.floor(maxCharges - maxCharges * readyRecast / fullRechargeTime)
+
+	return currentCharges
+end
+
 -- NOTE:  this currently causes all of the items data to constantly be in memory which
 -- bloats the addon size. Figure out another way to do this with packets.
 function player_util.has_item(item_name, quantity)
