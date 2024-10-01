@@ -75,8 +75,9 @@ function ReadyMoveAction:is_equal(action)
     return self:gettype() == action:gettype() and self:get_ready_move_name() == action:get_ready_move_name()
 end
 
+-- Fixed tostring method
 function ReadyMoveAction:tostring()
-    return "ReadyMoveAction command: %s":format(self.command)
+    return "ReadyMoveAction command: %s":format(self.ready_move_name)
 end
 
 return ReadyMoveAction
