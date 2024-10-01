@@ -85,13 +85,4 @@ function FocusManager:getFocusable()
     return self.focusStack:last()
 end
 
-function FocusManager:isInFocusStack(focusable)
-    for f in self.focusStack:it() do
-        if f == focusable then
-            return true
-        end
-    end
-    return false
-end
-
 return FocusManager
