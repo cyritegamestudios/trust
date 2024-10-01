@@ -57,6 +57,10 @@ function ReadyMoveSkillSettings:get_default_ability()
 end
 
 function ReadyMoveSkillSettings:get_charges(readyMoveName)
+    local jobAbility = res.job_abilities:with('en', readyMoveName)
+    if jobAbility then
+        return jobAbility.mp_cost
+    end
     return 3
 end
 
