@@ -57,7 +57,7 @@ function ReadyMoveSkillSettings:get_default_ability()
 end
 
 function ReadyMoveSkillSettings:get_charges(readyMoveName)
-    return 2
+    return 3
 end
 
 function ReadyMoveSkillSettings:set_default_ability(ability_name)
