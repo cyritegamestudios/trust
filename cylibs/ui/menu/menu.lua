@@ -22,7 +22,7 @@ function Menu.new(contentViewStack, viewStack, infoView)
 
     self.disposeBag:add(viewStack:onStackSizeChanged():addAction(function(stackSize)
         if stackSize > 0 then
-            for key in L{'up','down','left','right','enter'}:it() do
+            for key in L{'up','down','left','right','enter','numpadenter'}:it() do
                 windower.send_command('bind %s block':format(key))
             end
             self.infoView:setVisible(true)
@@ -31,7 +31,7 @@ function Menu.new(contentViewStack, viewStack, infoView)
     end), viewStack:onStackSizeChanged())
 
     self.disposeBag:add(viewStack:onEmpty():addAction(function(_)
-        for key in L{'up','down','left','right','enter'}:it() do
+        for key in L{'up','down','left','right','enter','numpadenter'}:it() do
             windower.send_command('unbind %s':format(key))
         end
         self.infoView:setVisible(false)
