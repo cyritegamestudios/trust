@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '10.9.1'
+_addon.version = '10.9.2'
 _addon.release_notes = [[
 This update introduces new menus for Bard, autocomplete for Trust
 commands, new commands and important bug fixes for users running the
@@ -704,7 +704,7 @@ function load_chunk_event()
 end
 
 function unload_chunk_event()
-	for key in L{'up','down','left','right','enter', addon_settings:getSettings().menu_key}:extend(L{'a','w','s','d','f','e','h','i','k','l'}):it() do
+	for key in L{'up','down','left','right','enter','numpadenter', addon_settings:getSettings().menu_key}:extend(L{'a','w','s','d','f','e','h','i','k','l'}):it() do
 		windower.send_command('unbind %s':format(key))
 	end
 	IpcRelay.shared():destroy()
