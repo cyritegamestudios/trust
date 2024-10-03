@@ -15,13 +15,12 @@ UseItem.__type = "UseItem"
 -------
 -- Default initializer for a new use item.
 -- @treturn UseItem A use item action.
-function UseItem.new(item_name, conditions, description, resource)
+function UseItem.new(item_name, conditions, description)
     local self = setmetatable({}, UseItem)
 
     self.item_name = item_name or 'Grape Daifuku'
     self.conditions = conditions or L{}
     self.description = description
-    self.resource = resource or 'items'
 
     local item_count_condition = (conditions or L{}):filter(function(condition) return condition.__type == ItemCountCondition.__type end)
     if item_count_condition:length() == 0 then

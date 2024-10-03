@@ -4,13 +4,20 @@
 -- @name InventoryUtil
 
 local inventory_util = {}
+
 local item_cache = T(require('cylibs/res/items'))
 local food_cache = T(require('cylibs/res/food'))
 
+-------
+-- Returns abridged metadata for all items.
+-- @treturn table Metadata for all items (see cylibs/res/items.lua)
 function inventory_util.all_items(resource)
     return item_cache
 end
 
+-------
+-- Returns abridged metadata for food items.
+-- @treturn table Metadata for food items (see cylibs/res/food.lua)
 function inventory_util.all_food()
     return food_cache
 end

@@ -5,7 +5,6 @@ local inventory_util = require('cylibs/util/inventory_util')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
-local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 
 local FoodSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 FoodSettingsMenuItem.__index = FoodSettingsMenuItem
@@ -43,7 +42,7 @@ function FoodSettingsMenuItem.new(trustSettings, trustSettingsMode)
 
             trustSettings:saveSettings(true)
 
-            addon_system_message("Auto food set to "..newItemName..".")
+            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll eat "..newItemName.." now when I have them in my inventory!")
         end)
         return editAbilityEditor
     end, "Food", "Choose food to eat."), FoodSettingsMenuItem)
@@ -65,64 +64,6 @@ end
 
 function FoodSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Modes", self:getModesMenuItem())
-end
-
-function FoodSettingsMenuItem:getFoodMenuItem()
-    local chooseFoodMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
-    }, L{}, function(menuArgs)
-        local allFood = L{
-            'Grape Daifuku',
-            'Grape Daifuku +1',
-            'Om. Sandwich',
-            'Om. Sand. +1',
-            'Popo. con Queso',
-            'Popo. con Que. +1',
-            'Red Curry Bun',
-            'R. Curry Bun +1',
-            'Hydra Kofte',
-            'Hydra Kofte +1',
-            'Behemoth Steak',
-            'Behe. Steak +1',
-            'Marine Stewpot',
-            'Prm. Mn. Stewpot',
-            'Squid Sushi',
-            'Squid Sushi +1',
-            'Miso Ramen',
-            'Miso Ramen +1',
-            'Black Curry Bun',
-            'B. Curry Bun +1',
-            'Tavnazian Taco',
-            'Tropical Crepe',
-            'Crepe des rois',
-            'Pear Crepe',
-            'Crepe Belle Helene'
-        }
-
-        local allGambits = self.trustSettings:getSettings()[self.trustSettingsMode.value].Gambits.Default
-
-        local currentFood
-
-        local foodGambit = allGambits:firstWhere(function(gambit) return gambit:contains('food') end) == nil
-        if foodGambit then
-            currentFood = foodGambit:get_conditions():filter(function(c) return c.__type == ItemCountCondition.__type end)[1].item_name
-        end
-        currentFood = currentFood or 'Grape Daifuku'
-
-        local chooseFoodView = FFXIPickerView.withItems(allFood, currentFood, false)
-        chooseFoodView:setTitle("Choose a food to eat.")
-        chooseFoodView:setShouldRequestFocus(true)
-        chooseFoodView:on_pick_items():addAction(function(_, selectedItems)
-            local newFood = selectedItems[1]:getText()
-
-            self.trustSettings:getSettings()[self.trustSettingsMode.value].AutoFood = newFood
-            self.trustSettings:saveSettings(true)
-
-            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll eat "..newFood.." now when I have them in my inventory!")
-        end)
-        return chooseFoodView
-    end, "Food", "Choose a food to eat.")
-    return chooseFoodMenuItem
 end
 
 function FoodSettingsMenuItem:getModesMenuItem()
