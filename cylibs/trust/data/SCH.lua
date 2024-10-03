@@ -134,7 +134,7 @@ function ScholarTrust:update_for_arts(new_arts_mode)
             Buffer.new(self.action_queue, self:get_job():get_dark_arts_job_abilities(), self:get_job():get_dark_arts_self_buffs(), self:get_job():get_dark_arts_party_buffs()),
             Debuffer.new(self.action_queue),
             Dispeler.new(self.action_queue, L{ Spell.new('Dispel', L{'Addendum: Black'}) }, L{}, true),
-            MagicBurster.new(self.action_queue, self:get_trust_settings().NukeSettings, 0.8, L{ }, self:get_job()),
+            MagicBurster.new(self.action_queue, self:get_trust_settings().NukeSettings, 0.8, L{ 'Ebullience' }, self:get_job()),
             ManaRestorer.new(self.action_queue, L{'Myrkr', 'Spirit Taker'}, L{}, 40),
             Nuker.new(self.action_queue, self:get_trust_settings().NukeSettings, 0.8, L{}, self:get_job()),
             Puller.new(self.action_queue, self.battle_settings.targets, L{ Spell.new('Stone') }:compact_map()),
