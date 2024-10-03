@@ -132,7 +132,7 @@ function SongSettingsMenuItem:getPianissmoSongsMenuItem()
         self.dispose_bag:add(chooseSongsView:on_pick_items():addAction(function(_, selectedItems)
             if selectedItems:length() > 0 then
                 local newSongs = selectedItems:map(function(item)
-                    return Spell.new(item:getText(), L{ 'Pianissimo' })
+                    return Spell.new(item:getText(), L{ 'Pianissimo' }, L{})
                 end):compact_map()
 
                 local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.PianissimoSongs
@@ -195,7 +195,11 @@ function SongSettingsMenuItem:getPianissmoSongsMenuItem()
             self.selectedPianissimoSongIndex = indexPath.row
             local song = songs[self.selectedPianissimoSongIndex]
             if song then
-                infoView:setDescription("Use when: Ally job is "..localization_util.commas(song:get_job_names(), "or"))
+                if song:get_job_names():length() > 0 then
+                    infoView:setDescription("Use when: Ally job is "..localization_util.commas(song:get_job_names(), "or"))
+                else
+                    infoView:setDescription("Use when: Never (no jobs selected)")
+                end
             end
         end), pianissimoSongsView:getDelegate():didSelectItemAtIndexPath())
 
