@@ -206,7 +206,6 @@ function load_user_files(main_job_id, sub_job_id)
 
 	player.trust.main_job:add_role(Attacker.new(action_queue))
 	player.trust.main_job:add_role(CombatMode.new(action_queue, addon_settings:getSettings().battle.melee_distance, addon_settings:getSettings().battle.range_distance, addon_enabled))
-	player.trust.main_job:add_role(Eater.new(action_queue, main_job_trust:get_trust_settings().AutoFood))
 	player.trust.main_job:add_role(Follower.new(action_queue, addon_settings:getSettings().follow.distance))
 	player.trust.main_job:add_role(Pather.new(action_queue, 'data/paths/'))
 	player.trust.main_job:add_role(skillchainer)

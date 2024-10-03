@@ -24,6 +24,9 @@ return {
             Distance = 20
         },
         GambitSettings = {
+            Default = L{
+
+            },
             Gambits = L{
 
             }

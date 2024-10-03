@@ -5,9 +5,14 @@
 
 local inventory_util = {}
 local item_cache = T(require('cylibs/res/items'))
+local food_cache = T(require('cylibs/res/food'))
 
-function inventory_util.all_items()
+function inventory_util.all_items(resource)
     return item_cache
+end
+
+function inventory_util.all_food()
+    return food_cache
 end
 
 -------

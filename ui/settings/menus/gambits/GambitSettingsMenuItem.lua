@@ -142,7 +142,7 @@ function GambitSettingsMenuItem:getAbilities(gambitTarget, flatten)
         L{ 'Approach', 'Ranged Attack', 'Turn Around', 'Turn to Face', 'Run Away', 'Run To' }:filter(function(_)
             return targets:contains('Enemy')
         end),
-        L{ 'Command' }:filter(function(_)
+        L{ 'Use Item', 'Command' }:filter(function(_)
             return targets:contains('Self')
         end),
     }

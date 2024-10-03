@@ -168,6 +168,8 @@ function job_util.getAbility(abilityName)
         return RunTo.new()
     elseif abilityName == 'Command' then
         return Command.new()
+    elseif abilityName == 'Use Item' then
+        return UseItem.new()
     else
         return nil
     end
