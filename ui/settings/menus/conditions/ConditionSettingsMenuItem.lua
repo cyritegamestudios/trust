@@ -57,6 +57,7 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
         [StrategemCountCondition.__type] = "strategem_count",
         [IsAlterEgoCondition.__type] = "is_alter_ego",
         [ReadyChargesCondition.__type] = "ready_charges",
+        [ItemCountCondition.__type] = "item_count",
     }
     self.conditionPickerItems = L(self.editableConditionClasses:keyset()):filter(function(c)
         local conditionClass = self:getFileForCondition(c)

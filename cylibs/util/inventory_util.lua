@@ -4,6 +4,11 @@
 -- @name InventoryUtil
 
 local inventory_util = {}
+local item_cache = T(require('cylibs/res/items'))
+
+function inventory_util.all_items()
+    return item_cache
+end
 
 -------
 -- Returns the inventory index for an item.
@@ -19,6 +24,26 @@ function inventory_util.get_inventory_index(item_id)
         item_index = item_index + 1
     end
     return nil
+end
+
+-------
+-- Returns the number of the given item in the player's inventory.
+-- @tparam number item_id Item id (see res/items.lua)
+-- @treturn number Number of items
+function inventory_util.get_item_count(item_id)
+    if type(item_id) == 'string' then
+        local item = inventory_util.all_items():with('en', item_id)
+        if item then
+            item_id = item.id
+        end
+    end
+    local items = L(windower.ffxi.get_items('inventory'))
+    for item in items:it() do
+        if item.id == item_id then
+            return item.count
+        end
+    end
+    return 0
 end
 
 -------
