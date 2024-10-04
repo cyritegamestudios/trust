@@ -102,7 +102,7 @@ function PullSettingsMenuItem:getConfigMenuItem()
         }
 
         local configItems = L{
-            ConfigItem.new('Distance', 0, 35, 1, function(value) return value.." yalms" end, "Target Distance"),
+            ConfigItem.new('Distance', 0, 50, 1, function(value) return value.." yalms" end, "Target Distance"),
         }
         local pullConfigEditor = ConfigEditor.new(self.trust_settings, pullSettings, configItems)
 
