@@ -109,6 +109,7 @@ function Condition.defaultSerializableConditionClasses()
         StrategemCountCondition.__class,
         IsAlterEgoCondition.__class,
         ReadyChargesCondition.__class,
+        ItemCountCondition.__class,
     }
 end
 

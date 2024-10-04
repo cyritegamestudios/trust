@@ -113,7 +113,11 @@ function ffxi_util.get_engaged_unclaimed_mobs(mob_list)
 end
 
 function ffxi_util.find_closest_mob(target_mobs, exclude_target_indices, exclude_names, distance)
-	return ffxi_util.find_closest_mobs(target_mobs, exclude_target_indices, exclude_names, distance)[1]
+	local mobs = ffxi_util.find_closest_mobs(target_mobs, exclude_target_indices, exclude_names, distance)
+	if mobs:length() > 0 then
+		return mobs[1]
+	end
+	return nil
 end
 
 function ffxi_util.mob_id_for_index(index)

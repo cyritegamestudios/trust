@@ -142,7 +142,7 @@ function GambitSettingsMenuItem:getAbilities(gambitTarget, flatten)
         L{ 'Approach', 'Ranged Attack', 'Turn Around', 'Turn to Face', 'Run Away', 'Run To' }:filter(function(_)
             return targets:contains('Enemy')
         end),
-        L{ 'Command' }:filter(function(_)
+        L{ 'Use Item', 'Command' }:filter(function(_)
             return targets:contains('Self')
         end),
     }
@@ -200,14 +200,14 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
         Confirm = MenuItem.action(function(parent)
             parent:showMenu(editGambitMenuItem)
         end, "Gambits", "Edit ability.")
-    }, function(_, _)
+    }, function(_, infoView)
         if self.selectedGambit then
             local configItems = L{}
             if self.selectedGambit:getAbility().get_config_items then
                 configItems = self.selectedGambit:getAbility():get_config_items() or L{}
             end
             if not configItems:empty() then
-                local editAbilityEditor = ConfigEditor.new(nil, self.selectedGambit:getAbility(), configItems)
+                local editAbilityEditor = ConfigEditor.new(nil, self.selectedGambit:getAbility(), configItems, infoView)
                 return editAbilityEditor
             end
             return nil

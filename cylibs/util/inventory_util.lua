@@ -5,6 +5,23 @@
 
 local inventory_util = {}
 
+local item_cache = T(require('cylibs/res/items'))
+local food_cache = T(require('cylibs/res/food'))
+
+-------
+-- Returns abridged metadata for all items.
+-- @treturn table Metadata for all items (see cylibs/res/items.lua)
+function inventory_util.all_items(resource)
+    return item_cache
+end
+
+-------
+-- Returns abridged metadata for food items.
+-- @treturn table Metadata for food items (see cylibs/res/food.lua)
+function inventory_util.all_food()
+    return food_cache
+end
+
 -------
 -- Returns the inventory index for an item.
 -- @tparam number item_id Item id (see res/items.lua)
@@ -19,6 +36,26 @@ function inventory_util.get_inventory_index(item_id)
         item_index = item_index + 1
     end
     return nil
+end
+
+-------
+-- Returns the number of the given item in the player's inventory.
+-- @tparam number item_id Item id (see res/items.lua)
+-- @treturn number Number of items
+function inventory_util.get_item_count(item_id)
+    if type(item_id) == 'string' then
+        local item = inventory_util.all_items():with('en', item_id)
+        if item then
+            item_id = item.id
+        end
+    end
+    local items = L(windower.ffxi.get_items('inventory'))
+    for item in items:it() do
+        if item.id == item_id then
+            return item.count
+        end
+    end
+    return 0
 end
 
 -------
