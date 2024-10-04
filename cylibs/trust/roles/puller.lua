@@ -188,9 +188,11 @@ function Puller:get_next_target()
         local nearby_mobs = ffxi_util.find_closest_mobs(L{}, L{}, L{}, 10):filter(function(mob)
             if res.statuses[mob.status].en == 'Engaged' then
                 if mob.claim_id == 0 then
+                    logger.notice(self.__class, 'get_next_target', 'engaged', 'unclaimed')
                     return true
                 else
                     if self:get_party():get_party_member(mob.claim_id) then
+                        logger.notice(self.__class, 'get_next_target', 'engaged', 'claimed')
                         return true
                     end
                 end
@@ -198,6 +200,7 @@ function Puller:get_next_target()
             return false
         end)
         if nearby_mobs:length() > 0 then
+            logger.notice(self.__class, 'get_next_target', 'aggroed mob')
             local monster = Monster.new(nearby_mobs[1].id)
             return monster
         end
@@ -209,6 +212,7 @@ function Puller:get_next_target()
         end)
         local target = ffxi_util.find_closest_mob(self:get_target_names(), L{}:extend(claimed_party_targets), self.blacklist, self.pull_settings.Distance or 20)
         if target and target.distance:sqrt() < (self.pull_settings.Distance or 20) then
+            logger.notice(self.__class, 'get_next_target', 'new mob')
             local monster = Monster.new(target.id)
             return monster
         end
