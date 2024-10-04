@@ -65,8 +65,11 @@ function PartyStatusWidget.new(frame, addonSettings, party, actionQueue)
                     party:set_assist_target(party_member)
                 else
                     local partyMemberMenuItem = PartyMemberMenuItem.new(party_member, party, addonSettings:getSettings().remote_commands.whitelist)
-                    hud:closeAllMenus()
-                    hud:openMenu(partyMemberMenuItem)
+                    coroutine.schedule(function()
+                        self:resignFocus()
+                        hud:closeAllMenus()
+                        hud:openMenu(partyMemberMenuItem)
+                    end, 0.2)
                 end
             end
         end
