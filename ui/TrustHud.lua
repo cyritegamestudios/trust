@@ -725,7 +725,7 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
         Discord = MenuItem.action(function()
             windower.open_url(self.addon_settings:getSettings().discord.url)
         end, "Discord", "Need help? Join the Discord!")
-    }, nil, jobName, "Settings for "..jobName..".")
+    }, nil, jobName, "Settings for "..jobName..". Use the up, down, left, right, enter and escape keys to navigate the menu.")
 
     return mainMenuItem
 end

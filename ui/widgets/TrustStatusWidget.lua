@@ -132,10 +132,10 @@ function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, 
         self:getDelegate():deselectItemAtIndexPath(indexPath)
         if indexPath.section == 1 then
             if L{ 1, 2 }:contains(indexPath.row) then
-                self:resignFocus()
                 coroutine.schedule(function()
+                    self:resignFocus()
                     windower.send_command('trust menu')
-                end, 0.1)
+                end, 0.2)
             elseif indexPath.row == 3 then
                 local item = self:getDataSource():itemAtIndexPath(indexPath)
                 if item then
