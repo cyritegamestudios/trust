@@ -13,7 +13,7 @@ function FoodSettingsMenuItem.new(trustSettings, trustSettingsMode)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
         ButtonItem.default('Modes', 18),
-    }, {}, function(_, _)
+    }, {}, function(_, infoView)
         local allGambits = trustSettings:getSettings()[trustSettingsMode.value].GambitSettings.Gambits
 
         local foodGambit = allGambits:firstWhere(function(gambit) return gambit:getTags():contains('food') end)
@@ -33,7 +33,7 @@ function FoodSettingsMenuItem.new(trustSettings, trustSettingsMode)
 
         local configItems = L{ PickerConfigItem.new('item_name', foodGambit:getAbility():get_item_name(), item_names, nil, "Food Name") }
 
-        local editAbilityEditor = ConfigEditor.new(nil, itemSettings, configItems)
+        local editAbilityEditor = ConfigEditor.new(nil, itemSettings, configItems, infoView)
         editAbilityEditor:onConfigChanged():addAction(function(newAbility, _)
             local newItemName = newAbility['item_name']
 

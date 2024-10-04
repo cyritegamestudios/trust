@@ -1,4 +1,11 @@
 return {
+    [4148] = {id=4148,en="Antidote",},
+    [4149] = {id=4149,en="Panacea",},
+    [4150] = {id=4150,en="Eye Drops",},
+    [4151] = {id=4151,en="Echo Drops",},
+    [4153] = {id=4153,en="Antacid",},
+    [4154] = {id=4154,en="Holy Water",},
+    [4155] = {id=4155,en="Remedy",},
     [4265] = {id=4265,en="Black Drop",},
     [4266] = {id=4266,en="Fulm-long Sub",},
     [4267] = {id=4267,en="Btr. Nebimonite",},

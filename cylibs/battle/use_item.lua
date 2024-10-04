@@ -63,18 +63,31 @@ function UseItem:get_name()
     return 'Use Item'
 end
 
+-------
+-- Returns the display name.
+-- @treturn string Display name
 function UseItem:get_display_name()
     return self.description or 'Use '..self.item_name
 end
 
+-------
+-- Returns a string representation of this ability.
+-- @treturn string String representation of this ability
 function UseItem:__tostring()
     return 'Use '..self.item_name
 end
 
+-------
+-- Return the item name (see cylibs/res/items.lua)
+-- @treturn string Item name
 function UseItem:get_item_name()
     return self.item_name
 end
 
+-------
+-- Returns the config items that will be used when creating the config editor
+-- to edit this ability.
+-- @treturn list List of ConfigItem
 function UseItem:get_config_items()
     local item_names = L{}
     for _, item in pairs(inventory_util.all_items()) do

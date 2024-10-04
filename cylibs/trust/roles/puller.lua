@@ -184,15 +184,32 @@ function Puller:get_next_target()
             return monster
         end
     else
-        local target = ffxi_util.find_closest_mob(self:get_target_names(), L{}:extend(party_util.party_targets()), self.blacklist, self.pull_settings.Distance or 20)
-        if target and target.distance:sqrt() < (self.pull_settings.Distance or 20) then
-            local monster = Monster.new(target.id)
+        -- First, check mobs that are aggroed and unclaimed or aggroed and claimed by a party member
+        local nearby_mobs = ffxi_util.find_closest_mobs(L{}, L{}, L{}, 10):filter(function(mob)
+            if res.statuses[mob.status].en == 'Engaged' then
+                if mob.claim_id == 0 then
+                    return true
+                else
+                    if self:get_party():get_party_member(mob.claim_id) then
+                        return true
+                    end
+                end
+            end
+            return false
+        end)
+        if nearby_mobs:length() > 0 then
+            local monster = Monster.new(nearby_mobs[1].id)
             return monster
         end
-        local aggroed_mobs = ffxi_util.find_aggroed_mobs()
-        if aggroed_mobs and aggroed_mobs:length() > 0 then
-            logger.notice(self.__class, 'get_next_target', 'pulling aggroed mob')
-            local monster = Monster.new(aggroed_mobs[1].id)
+
+        -- Next, pull idle unclaimed mobs from the pull target whitelist
+        local claimed_party_targets = party_util.party_targets():filter(function(target_index)
+            local target = windower.ffxi.get_mob_by_index(target_index)
+            return target and target.claim_id and target.claim_id ~= 0
+        end)
+        local target = ffxi_util.find_closest_mob(self:get_target_names(), L{}:extend(claimed_party_targets), self.blacklist, self.pull_settings.Distance or 20)
+        if target and target.distance:sqrt() < (self.pull_settings.Distance or 20) then
+            local monster = Monster.new(target.id)
             return monster
         end
     end
