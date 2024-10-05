@@ -133,6 +133,10 @@ function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, a
 
     self:registerShortcuts()
 
+    -- To initialize it
+    local Mouse = require('cylibs/ui/input/mouse')
+    Mouse.input()
+
     return self
 end
 
@@ -234,6 +238,10 @@ function TrustHud:createWidgets(addon_settings, addon_enabled, action_queue, par
     if player.main_job_name_short == 'SMN' then
         local petStatusWidget = AvatarStatusWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), self, main_trust_settings, state.MainTrustSettingsMode)
         self.widgetManager:addWidget(petStatusWidget, "pet")
+    end
+
+    for widget in self.widgetManager:getAllWidgets():it() do
+        self:addSubview(widget)
     end
 
     --local settingsWidget = SettingsWidget.new(Frame.new(0, 0, 125, 40), addon_settings, state.TrustMode, state.MainTrustSettingsMode)
@@ -728,6 +736,10 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
     }, nil, jobName, "Settings for "..jobName..". Use the up, down, left, right, enter and escape keys to navigate the menu.")
 
     return mainMenuItem
+end
+
+function TrustHud:hitTest(x, y)
+    return true
 end
 
 return TrustHud

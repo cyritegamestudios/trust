@@ -364,6 +364,13 @@ function View:onKeyboardEvent(key, pressed, flags, blocked)
 end
 
 ---
+-- Called when a mouse event fires.
+--
+function View:onMouseEvent(type, x, y, delta)
+    return false
+end
+
+---
 -- Sets whether the view is in edit mode.
 --
 -- @tparam boolean editing The new value for `editing`.
@@ -391,6 +398,14 @@ end
 --
 function View:isEditing()
     return self.editing
+end
+
+function View:getSubviews()
+    local subviews = L{}
+    for _, subview in pairs(self.subviews) do
+        subviews:append(subview)
+    end
+    return subviews
 end
 
 ---

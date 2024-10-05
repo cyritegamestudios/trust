@@ -114,6 +114,7 @@ function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, 
     self:getDataSource():addItem(TextItem.new(state.TrustMode.value, TrustStatusWidget.TextSmall3), IndexPath.new(1, 3))
     self:getDataSource():addItem(TextItem.new('', TrustStatusWidget.Subheadline), IndexPath.new(2, 1))
 
+    self:setUserInteractionEnabled(true)
     self:setVisible(true)
 
     self:setNeedsLayout()

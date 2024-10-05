@@ -64,6 +64,14 @@ function WidgetManager:getWidget(widgetName)
     return self.widgets[widgetName]
 end
 
+function WidgetManager:getAllWidgets()
+    local widgets = L{}
+    for _, widget in pairs(self.widgets) do
+        widgets:append(widget)
+    end
+    return widgets
+end
+
 function WidgetManager:saveChanges()
     if not self.widgetsToSave:empty() then
         logger.notice(self.__class, 'saveChanges', 'saving batched changes', self.widgetsToSave:map(function(w) return w.title end))

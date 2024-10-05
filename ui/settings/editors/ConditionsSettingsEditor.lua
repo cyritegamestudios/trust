@@ -18,6 +18,7 @@ function ConditionsSettingsEditor.new(trustSettings, conditions, editableConditi
         local cell = TextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
         cell:setItemSize(16)
+        cell:setUserInteractionEnabled(true)
         return cell
     end)
 

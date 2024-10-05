@@ -24,7 +24,9 @@ function MenuTrustCommands:handle_toggle_menu(_)
     local success = true
     local message
 
-    self.hud:toggleMenu()
+    coroutine.schedule(function()
+        self.hud:toggleMenu()
+    end, 0.2)
 
     return success, message
 end

@@ -3,6 +3,12 @@ local Event = require('cylibs/events/Luvent')
 local Mouse = {}
 Mouse.__index = Mouse
 
+Mouse.Event = {}
+Mouse.Event.Move = 0
+Mouse.Event.Click = 1
+Mouse.Event.ClickRelease = 2
+Mouse.Event.Wheel = 10
+
 function Mouse:onMove()
     return self.move
 end
@@ -26,6 +32,7 @@ end
 function Mouse.new()
     local self = setmetatable({}, Mouse)
 
+    self.rootView = hud
     self.events = {}
     self.move = Event.newEvent()
     self.click = Event.newEvent()
@@ -43,21 +50,38 @@ function Mouse.new()
         end
         self.lastMouseEvent[type] = os.time()
 
-        if type == Mouse.Event.Move then
-            self:onMove():trigger(type, x, y, delta, blocked)
-        elseif type == Mouse.Event.Click then
-            self:onClick():trigger(type, x, y, delta, blocked)
-        elseif type == Mouse.Event.ClickRelease then
-            self:onClickRelease():trigger(type, x, y, delta, blocked)
-        elseif type == Mouse.Event.Wheel then
-            self:onMouseWheel():trigger(type, x, y, delta, blocked)
-            return true
-        end
-        self:onMouseEvent():trigger(type, x, y, delta, blocked)
-        return self.blockEvent
+        return self:handleMouseEvent(type, x, y, delta)
     end)
 
     return self
+end
+
+function Mouse:handleMouseEvent(type, x, y, delta)
+    local handled
+    local currentView
+    local allViews = Q{ hud }
+    if hud.trustMenu.menuView then
+        allViews:push(hud.trustMenu.menuView)
+    end
+    if hud.viewStack.currentView then
+        allViews:push(hud.viewStack.currentView)
+    end
+    while not allViews:empty() do
+        currentView = allViews:pop()
+        if currentView:hitTest(x, y) then
+            handled = currentView:onMouseEvent(type, x, y, delta)
+            if handled then
+                return true
+            else
+                for subview in currentView:getSubviews():it() do
+                    if subview:isUserInteractionEnabled() then
+                        allViews:push(subview)
+                    end
+                end
+            end
+        end
+    end
+    return false
 end
 
 function Mouse:destroy()
@@ -80,11 +104,7 @@ function Mouse.input()
     return mouse_input
 end
 
-Mouse.Event = {}
-Mouse.Event.Move = 0
-Mouse.Event.Click = 1
-Mouse.Event.ClickRelease = 2
-Mouse.Event.Wheel = 10
+
 
 function Mouse:setMouseEventCooldown(mouseEventCooldown)
     self.mouseEventCooldown = mouseEventCooldown

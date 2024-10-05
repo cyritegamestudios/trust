@@ -302,4 +302,11 @@ function CollectionView:onKeyboardEvent(key, pressed, flags, blocked)
     return L{200, 208}:contains(key)
 end
 
+function CollectionView:onMouseEvent(type, x, y, delta)
+    if self:getDelegate():onMouseEvent(type, x, y, delta) then
+        return true
+    end
+    return ScrollView.onMouseEvent(self, type, x, y, delta)
+end
+
 return CollectionView

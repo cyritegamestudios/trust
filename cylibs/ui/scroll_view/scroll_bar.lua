@@ -45,34 +45,9 @@ function ScrollBar.new(frame, backgroundImageItem)
         self:setBackgroundColor(Color.white:withAlpha(75))
     end
 
+    self:setUserInteractionEnabled(true)
     self:setNeedsLayout()
     self:layoutIfNeeded()
-
-    self:getDisposeBag():add(Mouse.input():onMouseEvent():addAction(function(type, x, y, delta, blocked)
-        if type == Mouse.Event.Click then
-            if self:hitTest(x, y) then
-                self.isClicking = true
-                self:scrollBarClick(x, y)
-                Mouse.input().blockEvent = true
-            end
-        elseif type == Mouse.Event.Move then
-            if self.isClicking then
-                Mouse.input().blockEvent = true
-            end
-        elseif type == Mouse.Event.ClickRelease then
-            if self.isClicking then
-                self.isClicking = false
-                Mouse.input().blockEvent = true
-                coroutine.schedule(function()
-                    Mouse.input().blockEvent = false
-                end, 0.1)
-            end
-        else
-            self.isClicking = false
-            Mouse.input().blockEvent = false
-        end
-        return false
-    end), Mouse.input():onMouseEvent())
 
     return self
 end
@@ -110,6 +85,33 @@ function ScrollBar:scrollBarClick(x, y)
             self:onScrollBackClick():trigger(self)
         end
     end
+end
+
+---
+-- Handle a mouse event.
+--
+-- @tparam number x The x-coordinate of the click event.
+-- @tparam number y The y-coordinate of the click event.
+--
+function ScrollBar:onMouseEvent(type, x, y, delta)
+    if type == Mouse.Event.Click then
+        self.isClicking = true
+        self:scrollBarClick(x, y)
+        return true
+    elseif type == Mouse.Event.Move then
+        if self.isClicking then
+            return true
+        end
+    elseif type == Mouse.Event.ClickRelease then
+        if self.isClicking then
+            self.isClicking = false
+            return true
+        end
+    else
+        self.isClicking = false
+        return false
+    end
+    return false
 end
 
 return ScrollBar
