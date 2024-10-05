@@ -29,7 +29,7 @@ function Mouse:onMouseEvent()
     return self.mouseEvent
 end
 
-function Mouse.new(rootView)
+function Mouse.new()
     local self = setmetatable({}, Mouse)
 
     self.rootView = hud
@@ -51,19 +51,6 @@ function Mouse.new(rootView)
         self.lastMouseEvent[type] = os.time()
 
         return self:handleMouseEvent(type, x, y, delta)
-
-        --[[if type == Mouse.Event.Move then
-            self:onMove():trigger(type, x, y, delta, blocked)
-        elseif type == Mouse.Event.Click then
-            self:onClick():trigger(type, x, y, delta, blocked)
-        elseif type == Mouse.Event.ClickRelease then
-            self:onClickRelease():trigger(type, x, y, delta, blocked)
-        elseif type == Mouse.Event.Wheel then
-            self:onMouseWheel():trigger(type, x, y, delta, blocked)
-            return true
-        end
-        self:onMouseEvent():trigger(type, x, y, delta, blocked)
-        return self.blockEvent]]
     end)
 
     return self
@@ -112,7 +99,7 @@ end
 
 function Mouse.input()
     if mouse_input == nil then
-        mouse_input = Mouse.new(hud)
+        mouse_input = Mouse.new()
     end
     return mouse_input
 end

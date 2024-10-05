@@ -239,24 +239,4 @@ function Menu:setHasFocus(hasFocus)
     end
 end
 
-function Menu:getUUID()
-    return "Menu"
-end
-
-
-function Menu:isUserInteractionEnabled()
-    return self.menuView ~= nil
-end
-
-function Menu:hitTest(x, y)
-    return self.menuView ~= nil
-end
-
-function Menu:getSubviews()
-    if self.menuView then
-        return L{ self.menuView }
-    end
-    return L{}
-end
-
 return Menu
