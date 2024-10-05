@@ -33,6 +33,7 @@ function MenuView.new(menuItem, viewStack, infoView, showMenu)
     self:setScrollDelta(buttonHeight)
     self:setAllowsMultipleSelection(false)
     self:setAllowsScrollWrap(true)
+    self:setUserInteractionEnabled(true)
 
     self.menuItem = menuItem
     self.selectMenuItem = Event.newEvent()
@@ -128,6 +129,10 @@ function MenuView:setItem(menuItem)
         self.views:append(contentView)
         self.viewStack:present(contentView)
     end
+end
+
+function MenuView:onMouseEvent(type, x, y, delta)
+    return self:getDelegate():onMouseEvent(type, x, y, delta)
 end
 
 function MenuView:getItem()

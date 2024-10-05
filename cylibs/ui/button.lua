@@ -25,39 +25,6 @@ function Button.new(text, width, height)
 
     self.click = Event.newEvent()
 
-    self:getDisposeBag():add(Mouse.input():onClick():addAction(function(type, x, y, delta, blocked)
-        if blocked or not self:isVisible() then
-            return
-        end
-        if self:hitTest(x, y) then
-            self:setSelected(true)
-        end
-        return false
-    end), Mouse.input():onClick())
-
-    self:getDisposeBag():add(Mouse.input():onClickRelease():addAction(function(type, x, y, delta, blocked)
-        if blocked or not self:isVisible() then
-            return
-        end
-        self:setSelected(false)
-        if self:hitTest(x, y) then
-            self:onClick():trigger(self, x, y)
-        end
-        return false
-    end), Mouse.input():onClickRelease())
-
-    self:getDisposeBag():add(Mouse.input():onMove():addAction(function(_, x, y, delta, blocked)
-        if blocked or not self:isVisible() then
-            return false
-        end
-        if self:hitTest(x, y) then
-            self:setHighlighted(true)
-        else
-            self:setHighlighted(false)
-        end
-        return false
-    end), Mouse.input():onMove())
-
     self:layoutIfNeeded()
 
     return self
@@ -75,6 +42,37 @@ end
 -- @treturn string Text
 function Button:getText()
     return self.text
+end
+
+function Button:onMouseEvent(type, x, y, delta)
+    if type == Mouse.Event.Click then
+        if not self:isVisible() then
+            return
+        end
+        if self:hitTest(x, y) then
+            self:setSelected(true)
+        end
+        return false
+    elseif type == Mouse.Event.ClickRelease then
+        if not self:isVisible() then
+            return
+        end
+        self:setSelected(false)
+        if self:hitTest(x, y) then
+            self:onClick():trigger(self, x, y)
+        end
+        return false
+    elseif type == Mouse.Event.Move then
+        if not self:isVisible() then
+            return false
+        end
+        if self:hitTest(x, y) then
+            self:setHighlighted(true)
+        else
+            self:setHighlighted(false)
+        end
+        return false
+    end
 end
 
 return Button

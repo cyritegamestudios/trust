@@ -51,19 +51,6 @@ function ScrollView:createScrollBars()
             self:scrollForward(s)
         end), scrollBar:onScrollForwardClick())
 
-        self:getDisposeBag():add(Mouse.input():onMouseWheel():addAction(function(type, x, y, delta, blocked)
-            if blocked or not self:isVisible() or not self:isScrollEnabled() or self:getContentSize().height <= self:getSize().height then
-                return
-            end
-            if self:hitTest(x, y) then
-                if delta < 0 then
-                    self.verticalScrollBar:onScrollForwardClick():trigger(self.verticalScrollBar)
-                else
-                    self.verticalScrollBar:onScrollBackClick():trigger(self.verticalScrollBar)
-                end
-            end
-        end), Mouse.input():onMouseWheel())
-
         self:addSubview(scrollBar)
 
         scrollBar:setVisible(false)
@@ -303,6 +290,19 @@ function ScrollView:shouldClipToBounds(view)
     end
 end
 
-
+function ScrollView:onMouseEvent(type, x, y, delta)
+    if not self:isVisible() or not self:isScrollEnabled() or self:getContentSize().height <= self:getSize().height then
+        return false
+    end
+    if type == Mouse.Event.Wheel then
+        if delta < 0 then
+            self.verticalScrollBar:onScrollForwardClick():trigger(self.verticalScrollBar)
+        else
+            self.verticalScrollBar:onScrollBackClick():trigger(self.verticalScrollBar)
+        end
+        return true
+    end
+    return false
+end
 
 return ScrollView
