@@ -13,8 +13,8 @@ function ImportProfileMenuItem.new(trustModeSettings, jobSettings, weaponSkillSe
     }, {
         Discord = MenuItem.action(function(menu, infoView)
             windower.open_url('https://discord.com/channels/1069136494616399883/1290049758530113588')
-        end, "Profiles", "Find Profiles shared by other Trusters on Discord.")
-    }, nil, "Profiles", "Import a Profile."), ImportProfileMenuItem)
+        end, "Profiles", "Find profiles shared by other Trusters on Discord.")
+    }, nil, "Profiles", "Import a profile from "..windower.addon_path.."/data/export/profiles."), ImportProfileMenuItem)
 
     self.trustModeSettings = trustModeSettings
     self.jobSettings = jobSettings
@@ -24,7 +24,7 @@ function ImportProfileMenuItem.new(trustModeSettings, jobSettings, weaponSkillSe
     self.contentViewConstructor = function(_)
         local profileListPicker = FFXIPickerView.withItems(self:listFiles(), L{}, false, nil, nil, nil, true)
 
-        profileListPicker:setTitle("Choose a Profile to import.")
+        profileListPicker:setTitle("Choose a profile to import.")
         profileListPicker:setShouldRequestFocus(true)
         profileListPicker:setAllowsCursorSelection(true)
 

@@ -17,8 +17,11 @@ function LoadSettingsMenuItem.new(addonSettings, trustModeSettings, jobSettings,
         ButtonItem.default('Delete', 18),
         ButtonItem.default('Import', 18),
         ButtonItem.default('Share', 18),
+        ButtonItem.default('Help', 18),
     }, {
-
+        Help = MenuItem.action(function(_)
+            windower.open_url(addonSettings:getSettings().help.wiki_base_url..'/Profiles')
+        end, "Profiles", "Learn more about profiles in the wiki.")
     }, nil, "Profiles", "Load a saved profile."), LoadSettingsMenuItem)
 
     self.contentViewConstructor = function(_, _)
