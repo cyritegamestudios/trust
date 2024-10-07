@@ -54,6 +54,19 @@ function ScholarTrust:on_init()
             puller:set_pull_settings(new_trust_settings.PullSettings)
         end
 
+        local buffer = self:role_with_type("buffer")
+        if buffer then
+            if self.current_arts_mode == 'LightArts' then
+                buffer:set_job_abilities(self:get_job():get_light_arts_job_abilities())
+                buffer:set_self_spells(self:get_job():get_light_arts_self_buffs())
+                buffer:set_party_spells(self:get_job():get_light_arts_party_buffs())
+            else
+                buffer:set_job_abilities(self:get_job():get_dark_arts_job_abilities())
+                buffer:set_self_spells(self:get_job():get_dark_arts_self_buffs())
+                buffer:set_party_spells(self:get_job():get_dark_arts_party_buffs())
+            end
+        end
+
         local nuker_roles = self:roles_with_types(L{ "nuker", "magicburster" })
         for role in nuker_roles:it() do
             role:set_nuke_settings(new_trust_settings.NukeSettings)
