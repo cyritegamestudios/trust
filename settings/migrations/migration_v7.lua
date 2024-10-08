@@ -24,7 +24,8 @@ function Migration_v7:perform(trustSettings, _, _)
         local currentSettings = trustSettings:getSettings()[modeName]
         if currentSettings.NukeSettings then
             if currentSettings.NukeSettings.JobAbilities == nil then
-                currentSettings.NukeSettings.JobAbilities = L{}
+                local defaultSettings = T(trustSettings:getDefaultSettings().Default.NukeSettings):clone()
+                currentSettings.NukeSettings.JobAbilities = defaultSettings.JobAbilities
             end
         end
     end
