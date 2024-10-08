@@ -34,6 +34,9 @@ return {
                 Spell.new('Doton: San'),
                 Spell.new('Doton: Ni'),
             },
+            JobAbilities = L{
+                JobAbility.new("Futae", L{}, L{}),
+            },
             Blacklist = L{
 
             },

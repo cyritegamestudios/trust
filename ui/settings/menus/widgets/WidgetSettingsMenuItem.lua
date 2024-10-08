@@ -80,7 +80,7 @@ function WidgetSettingsMenuItem:getWidgetMenuItem(widgetName)
                         end
                         if newSettings.enabled and newSettings.key and newSettings.flags then
                             Keyboard.input():registerKeybind(newSettings.key, newSettings.flags, function(keybind, pressed)
-                                self:openMenu(menuItem)
+                                self:openMenu(self)
                             end)
                         end
                     end), shortcutsEditor:onConfigChanged())

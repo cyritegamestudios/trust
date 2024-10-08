@@ -213,10 +213,10 @@ end
 -- Return the Action to cast this spell on a target. Optionally first uses job abilities where conditions are satisfied.
 -- @tparam number target_index Target for the spell
 -- @treturn Action Action to cast the spell
-function Spell:to_action(target_index, player)
+function Spell:to_action(target_index, player, job_abilities)
     local actions = L{}
 
-    local job_abilities = self:get_job_abilities():map(function(job_ability_name)
+    local job_abilities = (job_abilities or self:get_job_abilities()):map(function(job_ability_name)
         local conditions = L{}
 
         local job_ability = res.job_abilities:with('en', job_ability_name)

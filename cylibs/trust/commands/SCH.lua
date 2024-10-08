@@ -158,8 +158,8 @@ function ScholarTrustCommands:handle_accession(_, spell_name)
     return success, message
 end
 
--- // trust sch storm [fire|ice|wind|earth|lightning|water|light|dark]
-function ScholarTrustCommands:handle_storm(_, element)
+-- // trust sch storm [fire|ice|wind|earth|lightning|water|light|dark] [true|false]
+function ScholarTrustCommands:handle_storm(_, element, include_party)
     local success
     local message
 
@@ -170,17 +170,31 @@ function ScholarTrustCommands:handle_storm(_, element)
 
         local current_settings = self:get_settings()
         for arts_name in L{ 'LightArts', 'DarkArts' }:it() do
-            local new_buffs = L{ storm }
 
-            local self_buffs = current_settings[arts_name].SelfBuffs
-            for buff in self_buffs:it() do
-                if not buff:get_spell().en:contains('storm') then
-                    new_buffs:append(buff)
+            local update_storm = function(storm, buffs)
+                local new_buffs = L{ storm }
+
+                for buff in buffs:it() do
+                    if not buff:get_spell().en:contains('storm') then
+                        new_buffs:append(buff)
+                    end
                 end
+
+                buffs:clear()
+                buffs = buffs:extend(new_buffs)
             end
 
-            self_buffs:clear()
-            self_buffs = self_buffs:extend(new_buffs)
+            update_storm(storm, current_settings[arts_name].SelfBuffs)
+
+            if include_party then
+                local party_storm = self.trust:get_job():get_storm(element:lower())
+                party_storm:set_job_names(L{'BLM','SCH','RDM','GEO'})
+                update_storm(party_storm, current_settings[arts_name].PartyBuffs)
+            end
+        end
+
+        if include_party then
+            message = message.." for self and party"
         end
 
         self.trust_settings:saveSettings(true)

@@ -1,5 +1,5 @@
 ---------------------------
--- Condition checking whether the player's main job is equal to job_id.
+-- Condition checking whether the player has a specific main job.
 -- @class module
 -- @name MainJobCondition
 local serializer_util = require('cylibs/util/serializer_util')

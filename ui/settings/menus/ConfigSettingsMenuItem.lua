@@ -15,6 +15,7 @@ function ConfigSettingsMenuItem.new(addonSettings)
         ButtonItem.default('Logging', 18),
         ButtonItem.default('Remote', 18),
         ButtonItem.default('Language', 18),
+        ButtonItem.default('Shortcuts', 18),
     }, {}, nil, "Config", "Change Trust's options."), ConfigSettingsMenuItem)
 
     self:reloadSettings(addonSettings)

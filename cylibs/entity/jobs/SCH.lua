@@ -262,4 +262,14 @@ function Scholar:get_storm(element)
     return nil
 end
 
+-------
+-- Returns all storm names (e.g. Hailstorm II).
+-- @treturn list List of storm names.
+function Scholar:get_all_storm_names()
+    return L{
+        'Firestorm II', 'Hailstorm II', 'Windstorm II', 'Sandstorm II',
+        'Thunderstorm II', 'Rainstorm II', 'Aurorastorm II', 'Voidstorm II'
+    }
+end
+
 return Scholar

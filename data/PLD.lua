@@ -41,6 +41,9 @@ return {
                 Spell.new('Holy'),
                 Spell.new('Banish II'),
             },
+            JobAbilities = L{
+
+            },
             Blacklist = L{
 
             },

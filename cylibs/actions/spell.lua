@@ -30,6 +30,7 @@ function SpellAction.new(x, y, z, spell_id, target_index, player, conditions)
 
 	self.dispose_bag = DisposeBag.new()
 	self.spell_id = spell_id
+	self.identifier = spell_id
 	self.player = player
 	self.user_events = {}
 
@@ -125,7 +126,7 @@ function SpellAction:getrawdata()
 end
 
 function SpellAction:getidentifier()
-	return self.spell_id
+	return self.identifier
 end
 
 function SpellAction:copy()
