@@ -14,7 +14,7 @@ function ScholarTrustCommands.new(trust, action_queue, trust_settings)
 
     self:add_command('sc', self.handle_skillchain, 'Make a skillchain using immanence, // trust sch sc skillchain_property')
     self:add_command('accession', self.handle_accession, 'Cast a spell with accession, // trust sch accession spell_name')
-    self:add_command('storm', self.handle_storm, 'Set storm element, // trust sch storm element_name')
+    self:add_command('storm', self.handle_storm, 'Set storm element for self and party, // trust sch storm element_name include_party')
 
     return self
 end
