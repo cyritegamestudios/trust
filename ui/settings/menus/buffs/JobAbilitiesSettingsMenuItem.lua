@@ -75,7 +75,7 @@ function JobAbilitiesSettingsMenuItem:getAddAbilityMenuItem()
     }, {},
     function()
         local allJobAbilities = player_util.get_job_abilities():map(function(jobAbilityId) return res.job_abilities[jobAbilityId] end):filter(function(jobAbility)
-            return jobAbility.status ~= nil and S{'Self'}:intersection(S(jobAbility.targets)):length() > 0
+            return buff_util.buff_for_job_ability(jobAbility.id) ~= nil and S{'Self'}:intersection(S(jobAbility.targets)):length() > 0
         end):map(function(jobAbility) return jobAbility.en end)
 
         local jobAbilities

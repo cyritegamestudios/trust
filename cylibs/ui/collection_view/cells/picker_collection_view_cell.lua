@@ -21,10 +21,12 @@ PickerCollectionViewCell.__index = PickerCollectionViewCell
 PickerCollectionViewCell.__type = "PickerCollectionViewCell"
 
 
-function PickerCollectionViewCell.new(item)
+function PickerCollectionViewCell.new(item, textStyle)
+    textStyle = textStyle or TextStyle.Picker.TextSmall
+
     local self = setmetatable(CollectionViewCell.new(item), PickerCollectionViewCell)
 
-    local textItem = TextItem.new(item:getTextFormat()(item:getCurrentValue()), TextStyle.Picker.TextSmall)
+    local textItem = TextItem.new(item:getTextFormat()(item:getCurrentValue()), textStyle)
     textItem:setShouldTruncateText(false)
 
     self.textView = TextCollectionViewCell.new(textItem)

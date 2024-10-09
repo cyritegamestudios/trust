@@ -65,6 +65,9 @@ return {
                 Spell.new("Stone III", L{}, nil, nil, L{})
             },
             Delay = 4,
+            JobAbilities = L{
+
+            },
             Blacklist = L{
 
             }

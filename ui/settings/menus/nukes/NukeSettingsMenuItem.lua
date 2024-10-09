@@ -3,6 +3,7 @@ local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local ConfigItem = require('ui/settings/editors/config/ConfigItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local ElementPickerView = require('ui/settings/pickers/ElementPickerView')
+local JobAbilitiesSettingsMenuItem = require('ui/settings/menus/buffs/JobAbilitiesSettingsMenuItem')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
 local NukeSettingsEditor = require('ui/settings/NukeSettingsEditor')
@@ -14,6 +15,7 @@ NukeSettingsMenuItem.__index = NukeSettingsMenuItem
 function NukeSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, addonSettings, jobNameShort, viewFactory)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Edit', 18),
+        ButtonItem.default('Abilities', 18),
         ButtonItem.default('Blacklist', 18),
         ButtonItem.default('Config', 18),
         ButtonItem.default('Modes', 18),
@@ -45,6 +47,7 @@ end
 
 function NukeSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Edit", self:getNukesMenuItem())
+    self:setChildMenuItem("Abilities", self:getAbilitiesMenuItem())
     self:setChildMenuItem("Blacklist", self:getBlacklistMenuItem())
     self:setChildMenuItem("Config", self:getConfigMenuItem())
     self:setChildMenuItem("Modes", self:getModesMenuItem())
@@ -70,6 +73,13 @@ function NukeSettingsMenuItem:getNukesMenuItem()
             return chooseSpellsView
         end, "Nukes", "Choose which nukes to use when magic bursting or free nuking.")
     return chooseNukesMenuItem
+end
+
+function NukeSettingsMenuItem:getAbilitiesMenuItem()
+    local jobAbilitiesMenuItem = JobAbilitiesSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, 'NukeSettings')
+    jobAbilitiesMenuItem.titleText = "Nukes"
+    jobAbilitiesMenuItem.descriptionText = "Choose abilities to use before a magic burst or free nuke."
+    return jobAbilitiesMenuItem
 end
 
 function NukeSettingsMenuItem:getBlacklistMenuItem()

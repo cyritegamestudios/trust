@@ -4,6 +4,7 @@ local Migration_v3 = require('settings/migrations/migration_v3')
 local Migration_v4 = require('settings/migrations/migration_v4')
 local Migration_v5 = require('settings/migrations/migration_v5')
 local Migration_v6 = require('settings/migrations/migration_v6')
+local Migration_v7 = require('settings/migrations/migration_v7')
 local UpdateDefaultGambits = require('settings/migrations/update_default_gambits')
 
 local MigrationManager = {}
@@ -22,6 +23,7 @@ function MigrationManager.new(trustSettings, addonSettings, weaponSkillSettings)
         Migration_v4.new(),
         Migration_v5.new(),
         Migration_v6.new(),
+        Migration_v7.new(),
         UpdateDefaultGambits.new(),
     }
 

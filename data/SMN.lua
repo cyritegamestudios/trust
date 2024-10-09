@@ -34,6 +34,9 @@ return {
                 BloodPactMagic.new('Level ? Holy'),
                 BloodPactMagic.new('Tornado II'),
             },
+            JobAbilities = L{
+
+            },
             Blacklist = L{
 
             },

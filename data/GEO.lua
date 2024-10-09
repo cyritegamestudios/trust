@@ -38,6 +38,9 @@ return {
                 Spell.new('Stone IV'),
                 Spell.new('Stonera III'),
             },
+            JobAbilities = L{
+                JobAbility.new("Theurgic Focus", L{}, L{}),
+            },
             Blacklist = L{
 
             },

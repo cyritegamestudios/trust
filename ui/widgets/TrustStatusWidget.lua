@@ -172,7 +172,6 @@ function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, 
         self:setAction('OFF')
     end
 
-
     self.events.zone_change = windower.register_event('zone change', function(new_zone_id, old_zone_id)
         if new_zone_id ~= old_zone_id then
             self:setJobs(mainJobName, subJobName)

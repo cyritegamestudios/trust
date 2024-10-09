@@ -30,13 +30,13 @@ state.MagicBurstTargetMode:set_description('All', "Okay, I'll magic burst with b
 -- @tparam ActionQueue action_queue Action queue
 -- @tparam T nuke_settings Nuke settings (see data/JobNameShort.lua)
 -- @tparam fast_cast number Fast cast modifier (0.0 - 1.0)
--- @tparam List job_ability_names List of job abilities to use with spells (e.g. Cascade, Ebullience)
+-- @tparam List default_job_ability_names List of job abilities to use with spells if none are specified in settings (e.g. Cascade, Ebullience)
 -- @treturn Nuker A nuker role
-function MagicBurster.new(action_queue, nuke_settings, fast_cast, job_ability_names, job)
+function MagicBurster.new(action_queue, nuke_settings, fast_cast, default_job_ability_names, job)
     local self = setmetatable(Role.new(action_queue), MagicBurster)
 
     self.fast_cast = fast_cast or 0.8
-    self.job_ability_names = job_ability_names or L{}
+    self.default_job_abilities = default_job_ability_names:map(function(job_ability_name) return JobAbility.new(job_ability_name) end) or L{}
     self.job = job
     self.last_prerender_time = os.time()
     self.last_magic_burst_time = os.time()
@@ -64,7 +64,7 @@ function MagicBurster:on_add()
     end), Renderer.shared():onPrerender())
 
     self.dispose_bag:add(self.action_queue:on_action_end():addAction(function(a, success)
-        if a:getidentifier() == self.action_identifier then
+        if a:getidentifier() == self.action_identifier or not self.action_queue:has_action(self.action_identifier) then
             self.is_casting = false
             if not success then
                 self.last_magic_burst_time = os.time() - self.magic_burst_cooldown
@@ -113,7 +113,6 @@ function MagicBurster:check_magic_burst(skillchain)
     if state.AutoMagicBurstMode.value == 'Off' or (os.time() - self.last_magic_burst_time) < self.magic_burst_cooldown or self.is_casting then
         return
     end
-
     local elements = L(skillchain:get_elements():filter(function(element)
         if state.AutoMagicBurstMode.value ~= 'Auto' then
             return element:get_name() == state.AutoMagicBurstMode.value
@@ -159,10 +158,17 @@ function MagicBurster:cast_spell(spell)
 
         windower.send_command('gs c set MagicBurstMode Single')
 
-        local job_ability_names = L{}:extend(self.job_ability_names):filter(function(job_ability_name) return job_util.can_use_job_ability(job_ability_name)  end)
-        spell:set_job_abilities(job_ability_names)
+        local player = windower.ffxi.get_player()
 
-        local spell_action = spell:to_action(self.target_index, self:get_player())
+        local job_abilities
+        local job_ability = L{}:extend(self.job_abilities):firstWhere(function(job_ability)
+            return job_util.can_use_job_ability(job_ability:get_job_ability_name()) and Condition.check_conditions(job_ability:get_conditions(), player.index)
+        end)
+        if job_ability then
+            job_abilities = L{ job_ability:get_job_ability_name() }
+        end
+
+        local spell_action = spell:to_action(self.target_index, self:get_player(), job_abilities)
         spell_action.priority = ActionPriority.high
         spell_action.identifier = self.action_identifier
 
@@ -220,6 +226,7 @@ function MagicBurster:set_nuke_settings(nuke_settings)
     self.magic_burst_cooldown = nuke_settings.Delay or 2
     self.magic_burst_mpp = nuke_settings.MinManaPointsPercent or 20
     self.element_blacklist = nuke_settings.Blacklist or L{}
+    self.job_abilities = nuke_settings.JobAbilities or self.default_job_ability_names or L{}
     self:set_spells(nuke_settings.Spells)
 end
 

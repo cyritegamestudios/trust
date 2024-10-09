@@ -92,6 +92,7 @@ function Condition.defaultSerializableConditionClasses()
         HasBuffCondition.__class,
         ZoneCondition.__class,
         MainJobCondition.__class,
+        SubJobCondition.__class,
         JobCondition.__class,
         ReadyAbilityCondition.__class,
         FinishAbilityCondition.__class,

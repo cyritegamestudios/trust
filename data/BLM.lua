@@ -46,6 +46,11 @@ return {
                 Spell.new('Stone IV'),
                 Spell.new('Comet'),
             },
+            JobAbilities = L{
+                JobAbility.new("Ebullience", L{SubJobCondition.new('SCH'), StrategemCountCondition.new(1, ">=")}, L{}),
+                JobAbility.new("Manawell", L{}, L{}),
+                JobAbility.new("Cascade", L{MinManaPointsPercentCondition.new(40), MinTacticalPointsCondition.new(1000)}, L{})
+            },
             Blacklist = L{
 
             },
@@ -58,7 +63,6 @@ return {
         },
         GambitSettings = {
             Default = L{
-                Gambit.new("Self", L{MinManaPointsPercentCondition.new(50), InBattleCondition.new()}, JobAbility.new("Cascade", L{}, L{}), "Self", L{})
             },
             Gambits = L{
 
