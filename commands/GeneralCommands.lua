@@ -22,6 +22,8 @@ function GeneralTrustCommands.new(trust, action_queue, addon_enabled, trust_mode
     self:add_command('status', self.handle_status, 'View Trust status')
 
     -- Modes
+    self:add_command('set', self.handle_set_mode, 'Set a mode to a given value, // trust set mode_name mode_value')
+    self:add_command('cycle', self.handle_cycle_mode, 'Cycle the value of a mode, // trust cycle mode_name')
     self:add_command('load', self.handle_load_set, 'Load a mode set, // trust load mode_set_name')
     self:add_command('save', self.handle_save_set, 'Save changes to the current mode set or new set, // trust save mode_set_name (optional)')
 
@@ -103,6 +105,26 @@ function GeneralTrustCommands:handle_reload(_)
 
     self.main_trust_settings:loadSettings()
     self.sub_trust_settings:loadSettings()
+
+    return success, message
+end
+
+-- // trust set mode_name mode_value
+function GeneralTrustCommands:handle_set_mode(_, mode_name, mode_value)
+    local success = true
+    local message
+
+    handle_set(mode_name, mode_value)
+
+    return success, message
+end
+
+-- // trust cycle mode_name
+function GeneralTrustCommands:handle_cycle_mode(_, mode_name)
+    local success = true
+    local message
+
+    handle_cycle(mode_name)
 
     return success, message
 end

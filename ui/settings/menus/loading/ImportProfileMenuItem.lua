@@ -14,7 +14,7 @@ function ImportProfileMenuItem.new(trustModeSettings, jobSettings, weaponSkillSe
         Discord = MenuItem.action(function(menu, infoView)
             windower.open_url('https://discord.com/channels/1069136494616399883/1290049758530113588')
         end, "Profiles", "Find profiles shared by other Trusters on Discord.")
-    }, nil, "Profiles", "Import a profile from "..windower.addon_path.."/data/export/profiles."), ImportProfileMenuItem)
+    }, nil, "Profiles", "Import a profile from "..windower.addon_path.."data/export/profiles."), ImportProfileMenuItem)
 
     self.trustModeSettings = trustModeSettings
     self.jobSettings = jobSettings

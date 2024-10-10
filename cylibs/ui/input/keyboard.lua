@@ -1,6 +1,7 @@
 local Event = require('cylibs/events/Luvent')
 local FocusManager = require('cylibs/ui/focus/focus_manager')
 local Keybind = require('cylibs/ui/input/keybind')
+local ValueRelay = require('cylibs/events/value_relay')
 
 local Keyboard = {}
 Keyboard.__index = Keyboard
@@ -11,8 +12,14 @@ Keyboard.Flags.Shift = 1
 Keyboard.Flags.Command = 2
 Keyboard.Flags.Control = 4
 
+-- Event called when a key is pressed.
 function Keyboard:on_key_pressed()
     return self.key_pressed
+end
+
+-- Event called when the chat input opens and closes.
+function Keyboard:on_chat_toggle()
+    return self.chat_open:onValueChanged()
 end
 
 
@@ -39,17 +46,21 @@ function Keyboard.new()
     }
 
     self.keybinds = T{}
+    self.chat_open = ValueRelay.new(windower.ffxi.get_info().chat_open)
     self.key_pressed = Event.newEvent()
     self.events = {}
 
     self.events.keyboard = windower.register_event('keyboard', function(key, pressed, flags, blocked)
+        if not pressed then
+            self.chat_open:setValue(windower.ffxi.get_info().chat_open)
+        end
+
         self:on_key_pressed():trigger(key, pressed, flags, blocked)
 
         if not blocked and not windower.ffxi.get_info().chat_open and self:hasKeybind(key, flags) and FocusManager.shared():getFocusable() == nil then
             local keybind = Keybind.new(self:getKey(key), flags)
             self:getKeybindHandler(key, flags)(keybind, pressed)
-            blocked = true
-            return blocked
+            return true
         end
 
         local focusable = FocusManager.shared():getFocusable()
@@ -70,6 +81,7 @@ function Keyboard:destroy()
             windower.unregister_event(event)
         end
     end
+    self:on_chat_toggle():removeAllActions()
     self.key_pressed:removeAllActions()
 end
 

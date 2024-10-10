@@ -1,4 +1,5 @@
 local DisposeBag = require('cylibs/events/dispose_bag')
+local Keyboard = require('cylibs/ui/input/keyboard')
 local FocusManager = require('cylibs/ui/focus/focus_manager')
 local MenuView = require('cylibs/ui/menu/menu_view')
 
@@ -11,6 +12,7 @@ function Menu.new(contentViewStack, viewStack, infoView)
     local self = setmetatable({}, Menu)
 
     self.buttonHeight = 16
+    self.isChatOpen = false
     self.disposeBag = DisposeBag.new()
     self.menuItemStack = L{}
 
@@ -38,6 +40,27 @@ function Menu.new(contentViewStack, viewStack, infoView)
         self.infoView:layoutIfNeeded()
     end
     ), viewStack:onEmpty())
+
+    Keyboard.input():on_chat_toggle():addAction(function(_, isChatOpen)
+        if self.isChatOpen == isChatOpen then
+            return
+        end
+        self.isChatOpen = isChatOpen
+
+        if isChatOpen then
+            if self:isVisible() then
+                for key in L{'up','down','left','right','enter','numpadenter'}:it() do
+                    windower.send_command('unbind %s':format(key))
+                end
+            end
+        else
+            if self:isVisible() then
+                for key in L{'up','down','left','right','enter','numpadenter'}:it() do
+                    windower.send_command('bind %s block':format(key))
+                end
+            end
+        end
+    end)
 
     return self
 end
@@ -139,7 +162,7 @@ function Menu:onMoveCursorToIndexPath(cursorIndexPath)
 end
 
 function Menu:onKeyboardEvent(key, pressed, flags, blocked)
-    if blocked then
+    if windower.ffxi.get_info().chat_open or blocked then
         return blocked
     end
     if pressed then

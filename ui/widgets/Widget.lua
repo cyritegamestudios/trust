@@ -107,11 +107,11 @@ function Widget:layoutIfNeeded()
         end
     end
 
+    self:setSize(self.frame.width, self:getContentSize().height)
+
     if not CollectionView.layoutIfNeeded(self) then
         return
     end
-    self.backgroundImageView:setSize(self.frame.width, self:getContentSize().height)
-    self.backgroundImageView:layoutIfNeeded()
 end
 
 ---
