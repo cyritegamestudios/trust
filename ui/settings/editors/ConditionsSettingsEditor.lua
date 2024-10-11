@@ -89,7 +89,6 @@ function ConditionsSettingsEditor:onRemoveConditionClick()
                 self:getDataSource():removeItem(selectedIndexPath)
 
                 if self.trustSettings then
-                    print('saving')
                     self.trustSettings:saveSettings(true)
                 end
                 addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've removed this condition!")
