@@ -32,7 +32,11 @@ function ElementalMagic.new(spell_name, conditions)
 end
 
 function ElementalMagic:serialize()
-    return "ElementalMagic.new(" .. serializer_util.serialize_args(self:get_name()) .. ")"
+    local conditions_classes_to_serialize = Condition.defaultSerializableConditionClasses()
+    local conditions_to_serialize = self.conditions:filter(function(condition)
+        return conditions_classes_to_serialize:contains(condition.__class)
+    end)
+    return "ElementalMagic.new(" .. serializer_util.serialize_args(self:get_name(), conditions_to_serialize) .. ")"
 end
 
 function ElementalMagic:__eq(otherItem)

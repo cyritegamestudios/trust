@@ -34,7 +34,7 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
     self.skillchainer = skillchainer
     self.disposeBag = DisposeBag.new()
 
-    self.contentViewConstructor = function(_, _)
+    self.contentViewConstructor = function(_, infoView)
         local currentSettings = weaponSkillSettings:getSettings()[weaponSkillSettingsMode.value]
 
         local abilities = currentSettings.Skillchain
@@ -46,6 +46,16 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
             self.selectedAbility = abilities[indexPath.row]
             self.selectedIndex = indexPath.row
             createSkillchainView.menuArgs['conditions'] = self.selectedAbility.conditions -- get_conditions() makes a copy
+            if self.selectedAbility then
+                if self.selectedAbility:get_conditions():empty() then
+                    infoView:setDescription("Edit which weapon skill to use for the selected step.")
+                else
+                    local description = self.selectedAbility:get_conditions():map(function(condition)
+                        return condition:tostring()
+                    end)
+                    infoView:setDescription("Use when: "..localization_util.commas(description))
+                end
+            end
         end, createSkillchainView:getDelegate():didSelectItemAtIndexPath()))
 
         return createSkillchainView
@@ -59,10 +69,6 @@ end
 function SkillchainSettingsMenuItem:reloadSettings()
     self:setChildMenuItem('Clear All', MenuItem.action(nil, "Skillchains", "Automatically determine weapon skills to use for all steps."))
     self:setChildMenuItem('Edit', self:getEditSkillchainStepMenuItem())
-end
-
-function SkillchainSettingsMenuItem:saveSettings(saveToFile)
-    print('post save', self.conditions)
 end
 
 function SkillchainSettingsMenuItem:getEditSkillchainStepMenuItem()
