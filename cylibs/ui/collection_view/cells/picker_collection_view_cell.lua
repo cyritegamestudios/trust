@@ -167,6 +167,11 @@ function PickerCollectionViewCell:onMouseEvent(type, x, y, delta)
             self:resignFocus()
             return true
         end
+    elseif type == Mouse.Event.Wheel then
+        if self:hasFocus() then
+            self:onKeyboardEvent(205, true, 0, false)
+            return true
+        end
     end
     return false
 end

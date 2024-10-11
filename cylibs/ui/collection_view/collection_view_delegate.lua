@@ -80,6 +80,8 @@ function CollectionViewDelegate:onMouseEvent(type, x, y, delta)
                             self:deHighlightAllItems()
                             self:highlightItemAtIndexPath(indexPath)
                         end
+                    elseif type == Mouse.Event.Wheel then
+                        return cell:onMouseEvent(type, x, y, delta)
                     end
                     return false
                 else
