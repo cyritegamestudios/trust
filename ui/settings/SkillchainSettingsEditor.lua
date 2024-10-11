@@ -4,6 +4,7 @@ local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
+local SectionHeaderItem = require('cylibs/ui/collection_view/items/section_header_item')
 local SkillchainAbility = require('cylibs/battle/skillchains/abilities/skillchain_ability')
 local SkillchainBuilder = require('cylibs/battle/skillchains/skillchain_builder')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
@@ -25,7 +26,7 @@ function SkillchainSettingsEditor.new(weaponSkillSettings, abilities)
         return cell
     end)
 
-    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(4, FFXIClassicStyle.Padding.ConfigEditor), nil, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditor), SkillchainSettingsEditor)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(0, FFXIClassicStyle.Padding.ConfigEditor, 10), nil, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditor), SkillchainSettingsEditor)
 
     self:setAllowsCursorSelection(true)
     self:setScrollDelta(16)
@@ -73,34 +74,42 @@ function SkillchainSettingsEditor:reloadSettings()
 
     local items = L{}
 
-    for rowIndex = 1, 6 do
-        local ability = self.abilities[rowIndex]
+    for stepNum = 1, 6 do
+        local ability = self.abilities[stepNum]
         if not ability then
             ability = SkillchainAbility.auto()
         end
-        local indexPath = IndexPath.new(1, rowIndex)
-        local text = 'Step '..rowIndex..': '..ability:get_name()
-        if rowIndex > 1 then
-            local skillchain = skillchain_builder:reduce_skillchain(self.abilities:slice(1, rowIndex))
+        local indexPath = IndexPath.new(stepNum, 1)
+        local headerText = 'Step '..stepNum
+        if stepNum > 1 then
+            local skillchain = skillchain_builder:reduce_skillchain(self.abilities:slice(1, stepNum))
             if skillchain then
-                text = text..' ('..skillchain:get_name()..')'
+                headerText = headerText..' ('..skillchain:get_name()..')'
             end
         end
-        items:append(IndexedItem.new(TextItem.new(text, TextStyle.Default.TextSmall), indexPath))
+        local sectionHeaderItem = SectionHeaderItem.new(
+            TextItem.new(headerText, TextStyle.Default.SectionHeader),
+            ImageItem.new(windower.addon_path..'assets/icons/icon_bullet.png', 8, 8),
+            14
+        )
+        self:getDataSource():setItemForSectionHeader(stepNum, sectionHeaderItem)
+
+        items:append(IndexedItem.new(TextItem.new(ability:get_name(), TextStyle.Default.TextSmall), indexPath))
     end
 
     self:getDataSource():addItems(items)
 
-    if self:getDataSource():numberOfItemsInSection(1) > 0 then
-        self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
-    end
+    self:setNeedsLayout()
+    self:layoutIfNeeded()
+
+    self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
 end
 
 function SkillchainSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
     if textItem:getText() == 'Edit' then
         local cursorIndexPath = self:getDelegate():getCursorIndexPath()
         if cursorIndexPath then
-            self.menuArgs['selected_index'] = cursorIndexPath.row
+            self.menuArgs['selected_index'] = cursorIndexPath.section
         end
     elseif textItem:getText() == 'Clear' then
         local cursorIndexPath = self:getDelegate():getCursorIndexPath()
@@ -108,9 +117,9 @@ function SkillchainSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPat
             local item = self:getDataSource():itemAtIndexPath(cursorIndexPath)
             if item then
                 local indexPath = cursorIndexPath
-                self.abilities[indexPath.row] = SkillchainAbility.auto()
+                self.abilities[indexPath.section] = SkillchainAbility.auto()
                 self.weaponSkillSettings:saveSettings(true)
-                addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll figure out what to use on my own for Step "..indexPath.row.."!")
+                addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll figure out what to use on my own for Step "..indexPath.section.."!")
 
                 self:reloadSettings()
             end
@@ -121,9 +130,9 @@ function SkillchainSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPat
             local item = self:getDataSource():itemAtIndexPath(cursorIndexPath)
             if item then
                 local indexPath = cursorIndexPath
-                self.abilities[indexPath.row] = SkillchainAbility.skip()
+                self.abilities[indexPath.section] = SkillchainAbility.skip()
                 self.weaponSkillSettings:saveSettings(true)
-                addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll let a party member take care of Step "..indexPath.row.."!")
+                addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll let a party member take care of Step "..indexPath.section.."!")
 
                 self:reloadSettings()
             end

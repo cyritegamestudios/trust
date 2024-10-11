@@ -43,8 +43,8 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
         createSkillchainView:setShouldRequestFocus(true)
 
         self.disposeBag:add(createSkillchainView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
-            self.selectedAbility = abilities[indexPath.row]
-            self.selectedIndex = indexPath.row
+            self.selectedAbility = abilities[indexPath.section]
+            self.selectedIndex = indexPath.section
             createSkillchainView.menuArgs['conditions'] = self.selectedAbility.conditions -- get_conditions() makes a copy
             if self.selectedAbility then
                 if self.selectedAbility:get_conditions():empty() then
