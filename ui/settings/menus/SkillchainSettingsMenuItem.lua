@@ -21,7 +21,7 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
         ButtonItem.default('Clear All', 18),
         ButtonItem.default('Find', 18),
     }, {
-        Conditions = ConditionSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettingsMode, nil, S{ Condition.TargetType.Self }),
+        --Conditions = ConditionSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettingsMode, nil, S{ Condition.TargetType.Self }),
         Skip = MenuItem.action(nil, "Skillchains", "Wait for party members to use a weapon skill for the selected step."),
         Clear = MenuItem.action(nil, "Skillchains", "Automatically determine a weapon skill to use for the selected step."),
         Find = BuildSkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettingsMode, skillchainer),
@@ -129,11 +129,8 @@ function SkillchainSettingsMenuItem:getEditSkillchainStepMenuItem()
             self.disposeBag:add(editSkillchainStepEditor:onConfigChanged():addAction(function(newSettings, _)
                 local ability = self:getAbility(newSettings.step:get_ability():get_name())
                 if ability then
-                    -- FIXME: conditions not working properly
-                    -- could use set focus in editor
                     ability.conditions = newSettings.conditions
                     currentSettings.Skillchain[newSettings.step:get_step()] = ability
-                    --stepSettings.conditions = ability:get_conditions()
                     self.weaponSkillSettings:saveSettings(true)
 
                     addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my weapon skills!")

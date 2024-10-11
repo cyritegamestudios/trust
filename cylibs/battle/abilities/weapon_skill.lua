@@ -53,7 +53,6 @@ end
 
 function WeaponSkill:__eq(otherItem)
     if not L{ SkillchainAbility.__class, WeaponSkill.__class }:contains(otherItem.__class) then
-        print(otherItem:get_name(), self:get_name())
         return false
     end
     return otherItem:get_name() == self:get_name()
