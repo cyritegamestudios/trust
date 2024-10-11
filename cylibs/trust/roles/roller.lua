@@ -19,7 +19,7 @@ function Roller:on_rolls_end()
     return self.rolls_end
 end
 
-function Roller.new(action_queue, job, roll1, roll2, party)
+function Roller.new(action_queue, job, roll1, roll2)
     local self = setmetatable(Role.new(action_queue), Roller)
 
     self.action_queue = action_queue
@@ -166,11 +166,13 @@ function Roller:check_rolls()
                 self.job:roll(roll1.id, self.roll1:should_use_crooked_cards())
                 return
             end
-            local roll2 = res.job_abilities:with('en', self.roll2:get_roll_name())
-            if not self.job:has_roll(roll2.id) then
-                self:set_is_rolling(true)
-                self.job:roll(roll2.id, self.roll2:should_use_crooked_cards())
-                return
+            if self.job:get_max_num_rolls() > 1 then
+                local roll2 = res.job_abilities:with('en', self.roll2:get_roll_name())
+                if not self.job:has_roll(roll2.id) then
+                    self:set_is_rolling(true)
+                    self.job:roll(roll2.id, self.roll2:should_use_crooked_cards())
+                    return
+                end
             end
         end
     end

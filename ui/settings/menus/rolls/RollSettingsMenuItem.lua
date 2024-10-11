@@ -17,7 +17,6 @@ function RollSettingsMenuItem.new(trustSettings, trustSettingsMode, trust)
         ButtonItem.default('Confirm', 18),
         ButtonItem.default('Modes', 18),
     }, {
-
     }, nil, "Rolls", "Configure settings for Phantom Roll."), RollSettingsMenuItem)
 
     self.all_rolls = trust:get_job():get_all_rolls():sort()

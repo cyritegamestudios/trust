@@ -340,7 +340,18 @@ end
 -- Returns the name of all rolls the player can use.
 -- @treturn list List of roll names (see res/job_abilities.lua)
 function Corsair:get_all_rolls()
-    return T(rolls):keyset():filter(function(roll_name) return job_util.can_use_job_ability(roll_name)  end)
+    return L(T(rolls):keyset()):filter(function(roll_name) return job_util.knows_job_ability(job_util.job_ability_id(roll_name))  end):compact_map()
+end
+
+-------
+-- Returns the maximum number of rolls the player can use.
+-- @treturn number Number of rolls
+function Corsair:get_max_num_rolls()
+    local main_job_short = res.jobs[windower.ffxi.get_player().main_job_id].ens
+    if main_job_short == 'COR' then
+        return 2
+    end
+    return 1
 end
 
 return Corsair
