@@ -5,8 +5,6 @@ local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local PickerCollectionViewCell = require('cylibs/ui/collection_view/cells/picker_collection_view_cell')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local SectionHeaderItem = require('cylibs/ui/collection_view/items/section_header_item')
-
-local TextInputConfigItem = require('ui/settings/editors/config/TextInputConfigItem')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
 

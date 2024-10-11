@@ -86,6 +86,11 @@ function SkillchainStep:is_window_open()
     return os.clock() - self.start_time > self:get_delay()
 end
 
+-- FIXME: do deep copy here
+function SkillchainStep:copy()
+    return SkillchainStep.new(self:get_step(), self:get_ability(), self:get_skillchain(), self:get_delay(), self:get_expiration_time())
+end
+
 -- Returns a string representation of the skillchain.
 -- @treturn string String representation of the skillchain
 function SkillchainStep:__tostring()
@@ -94,6 +99,12 @@ function SkillchainStep:__tostring()
     else
         return "Step "..self:get_step()
     end
+end
+
+function SkillchainStep:__eq(otherItem)
+    return otherItem.__class == SkillchainStep.__class
+            and otherItem.ability:get_name() == self.ability:get_name()
+            and otherItem.skillchain == self.skillchain
 end
 
 return SkillchainStep

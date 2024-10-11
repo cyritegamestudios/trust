@@ -8,6 +8,7 @@ local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_c
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local Keyboard = require('cylibs/ui/input/keyboard')
 local list_ext = require('cylibs/util/extensions/lists')
+local Mouse = require('cylibs/ui/input/mouse')
 local PickerItem = require('cylibs/ui/collection_view/items/picker_item')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
@@ -158,6 +159,18 @@ function PickerCollectionViewCell:onKeyboardEvent(key, pressed, flags, blocked)
     end
     return false
 end
+
+function PickerCollectionViewCell:onMouseEvent(type, x, y, delta)
+    if type == Mouse.Event.ClickRelease then
+        if self:hasFocus() then
+            self:setShouldResignFocus(true)
+            self:resignFocus()
+            return true
+        end
+    end
+    return false
+end
+
 
 function PickerCollectionViewCell:setHasFocus(hasFocus)
     if self:getItem():allowsMultipleSelection() then

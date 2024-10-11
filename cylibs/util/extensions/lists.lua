@@ -140,3 +140,16 @@ end
 function list.lastWhere(l, filter)
     return list.firstWhere(l:reverse(), filter)
 end
+
+function list.unique(l, getKey)
+    local result = L{}
+    local keys = {}
+    for el in l:it() do
+        local key = getKey(el)
+        if not keys[key] then
+            result:append(el)
+            keys[key] = true
+        end
+    end
+    return result
+end

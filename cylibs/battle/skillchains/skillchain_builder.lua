@@ -14,7 +14,7 @@ SkillchainBuilder.__class = "SkillchainBuilder"
 -- @tparam list abilities List of all possible SkillchainAbility that can be used to build skillchains
 function SkillchainBuilder.new(abilities)
     local self = setmetatable({
-        abilities = (abilities or L{}):filter(function(ability) return skills[ability.resource][ability.ability_id] ~= nil end);
+        abilities = (abilities or L{}):filter(function(ability) return skills[ability.resource][ability.ability_id] ~= nil end):unique(function(ability) return ability:get_name() end);
         conditions = L{};
         cached_steps = L{};
         include_aeonic = false;
