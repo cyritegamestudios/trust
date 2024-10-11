@@ -16,17 +16,22 @@ ReadyMove.__class = "ReadyMove"
 -- Default initializer for a ready move.
 -- @tparam string weapon_skill_name Localized name of the weapon skill (see res/weapon_skills.lua)
 -- @treturn ReadyMove A ready move
-function ReadyMove.new(ready_move_name)
+function ReadyMove.new(ready_move_name, conditions)
+    conditions = conditions or L{}
     local ready_move = res.job_abilities:with('en', ready_move_name)
     if ready_move == nil then
         return nil
     end
-    local self = setmetatable(SkillchainAbility.new('job_abilities', ready_move.id), ReadyMove)
+    local self = setmetatable(SkillchainAbility.new('job_abilities', ready_move.id, conditions), ReadyMove)
     return self
 end
 
 function ReadyMove:serialize()
-    return "ReadyMove.new(" .. serializer_util.serialize_args(self:get_name()) .. ")"
+    local conditions_classes_to_serialize = Condition.defaultSerializableConditionClasses()
+    local conditions_to_serialize = self.conditions:filter(function(condition)
+        return conditions_classes_to_serialize:contains(condition.__class)
+    end)
+    return "ReadyMove.new(" .. serializer_util.serialize_args(self:get_name(), conditions_to_serialize) .. ")"
 end
 
 function ReadyMove:__eq(otherItem)
