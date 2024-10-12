@@ -67,10 +67,12 @@ function CollectionViewDelegate:onMouseEvent(type, x, y, delta)
                             -- be selected though creating a really odd focus stack
                             --self.collectionView:requestFocus()
                         end
-                        if cell:isSelected() then
-                            self:deselectItemAtIndexPath(indexPath)
-                        else
-                            self:selectItemAtIndexPath(indexPath)
+                        if not cell:onMouseEvent(type, x, y, delta) then
+                            if cell:isSelected() then
+                                self:deselectItemAtIndexPath(indexPath)
+                            else
+                                self:selectItemAtIndexPath(indexPath)
+                            end
                         end
                         return true
                     elseif type == Mouse.Event.Move then
@@ -78,6 +80,8 @@ function CollectionViewDelegate:onMouseEvent(type, x, y, delta)
                             self:deHighlightAllItems()
                             self:highlightItemAtIndexPath(indexPath)
                         end
+                    elseif type == Mouse.Event.Wheel then
+                        return cell:onMouseEvent(type, x, y, delta)
                     end
                     return false
                 else

@@ -185,9 +185,11 @@ function PickerView:onSelectMenuItemAtIndexPath(textItem, _)
         local selectedItems = L(self:getDelegate():getSelectedIndexPaths():map(function(indexPath)
             return self:getDataSource():itemAtIndexPath(indexPath)
         end)):compact_map()
-        if selectedItems:length() > 0 then
+        if selectedItems:length() > 0 or self:getAllowsMultipleSelection() then
             self:on_pick_items():trigger(self, selectedItems, L(self:getDelegate():getSelectedIndexPaths()))
         end
+    elseif L{ 'Clear All' }:contains(textItem:getText()) then
+        self:getDelegate():deselectAllItems()
     end
 end
 
@@ -198,9 +200,7 @@ end
 --
 function PickerView:addItem(text, section)
     local newItem = PickerItem.new(TextItem.new(text, TextStyle.Picker.Text), false)
-    print(self.pickerItems[section])
     self.pickerItems[section]:append(newItem)
-    print(self.pickerItems[section])
 
     self:reload()
 end

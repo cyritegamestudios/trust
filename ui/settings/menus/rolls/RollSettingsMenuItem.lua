@@ -1,10 +1,6 @@
-local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
-local CursorItem = require('ui/themes/FFXI/CursorItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
-local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
-local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
@@ -17,7 +13,6 @@ function RollSettingsMenuItem.new(trustSettings, trustSettingsMode, trust)
         ButtonItem.default('Confirm', 18),
         ButtonItem.default('Modes', 18),
     }, {
-
     }, nil, "Rolls", "Configure settings for Phantom Roll."), RollSettingsMenuItem)
 
     self.all_rolls = trust:get_job():get_all_rolls():sort()

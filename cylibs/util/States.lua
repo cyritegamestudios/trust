@@ -109,24 +109,3 @@ end
 function addon_message(color,str)
     windower.add_to_chat(color, _addon.name..': '..str)
 end
-
----- A list of addon commands to manipulate State values. Syntax: // st field (see below).
--- @table Commands
--- @field cycle Cycles through the values of a State. Usage: // addon_name cycle state_name (e.g. // st cycle AutoTargetMode)
--- @field set Sets the value a State. Usage: // addon_name set state_name value (e.g. // st set AutoTargetMode Off)
-local commands = {}
-commands['cycle'] = handle_cycle
-commands['set'] = handle_set
-
-local function addon_command(cmd, ...)
-    local cmd = cmd or 'help'
-
-    if commands[cmd] then
-        local msg = commands[cmd](unpack({...}))
-        if msg then
-            error(msg)
-        end
-    end
-end
-
-windower.register_event('addon command', addon_command)

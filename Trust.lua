@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '11.0.4'
+_addon.version = '11.1.2'
 _addon.release_notes = [[
 This update introduces new menus for Bard, autocomplete for Trust
 commands, new commands and important bug fixes for users running the
@@ -59,7 +59,7 @@ end)
 
 player = {}
 
-shortcuts = T{}
+shortcuts = {}
 
 -- States
 
@@ -363,15 +363,19 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_trust, acti
 					description = shortcuts[args[3]]:get_description(args[4]).."."
 				end
 			end
-			hud.infoBar:setDescription(description or '')
-			hud.infoBar:setVisible(description ~= nil)
-			hud.infoBar:layoutIfNeeded()
+			if not hud.trustMenu:isVisible() then
+				hud.infoBar:setDescription(description or '')
+				hud.infoBar:setVisible(description ~= nil)
+				hud.infoBar:layoutIfNeeded()
+			end
 		else
 			if command_widget:isVisible() then
 				command_widget:setVisible(false)
 				command_widget:setContentOffset(0, 0)
-				hud.infoBar:setVisible(false)
-				hud.infoBar:layoutIfNeeded()
+				if not hud.trustMenu:isVisible() then
+					hud.infoBar:setVisible(false)
+					hud.infoBar:layoutIfNeeded()
+				end
 			end
 		end
 	end)
@@ -660,15 +664,18 @@ commands['debug'] = handle_debug
 commands['tests'] = handle_tests
 commands['help'] = handle_help
 commands['commands'] = handle_command_list
+commands['version'] = function() addon_system_message("Trust v".._addon.version..".") end
 
 local function addon_command(cmd, ...)
     local cmd = cmd or 'help'
 
-    if commands[cmd] then
-		local msg = nil
-		if not L{'cycle', 'set'}:contains(cmd) then
-			msg = commands[cmd](unpack({...}))
-		end
+	if hud.trustMenu:isVisible() then
+		addon_system_error("Unable to execute commands while the menu is open.")
+		return
+	end
+
+    if commands[cmd] and not L{'set','cycle'}:contains(cmd) then
+		local msg = commands[cmd](unpack({...}))
 		if msg then
 			error(msg)
 		end
@@ -681,9 +688,7 @@ local function addon_command(cmd, ...)
 	elseif shortcuts['default']:is_valid_command(cmd, ...) then
 		shortcuts['default']:handle_command(cmd, ...)
 	else
-		if not L{'cycle', 'set', 'help'}:contains(cmd) then
-			error("Unknown command %s":format(cmd))
-		end
+		error("Unknown command %s":format(cmd))
     end
 end
 

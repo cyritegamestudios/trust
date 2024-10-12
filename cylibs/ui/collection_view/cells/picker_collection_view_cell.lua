@@ -8,6 +8,7 @@ local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_c
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local Keyboard = require('cylibs/ui/input/keyboard')
 local list_ext = require('cylibs/util/extensions/lists')
+local Mouse = require('cylibs/ui/input/mouse')
 local PickerItem = require('cylibs/ui/collection_view/items/picker_item')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
@@ -27,7 +28,7 @@ function PickerCollectionViewCell.new(item, textStyle)
     local self = setmetatable(CollectionViewCell.new(item), PickerCollectionViewCell)
 
     local textItem = TextItem.new(item:getTextFormat()(item:getCurrentValue()), textStyle)
-    textItem:setShouldTruncateText(false)
+    textItem:setShouldTruncateText(item:getShouldTruncateText())
 
     self.textView = TextCollectionViewCell.new(textItem)
     self:addSubview(self.textView)
@@ -80,6 +81,9 @@ function PickerCollectionViewCell:layoutIfNeeded()
         return false
     end
 
+    self.textView:setSize(self:getSize().width, self:getSize().height)
+    self.textView:layoutIfNeeded()
+
     return true
 end
 
@@ -91,9 +95,10 @@ function PickerCollectionViewCell:showPickerView()
     local item = self:getItem()
     if item:allowsMultipleSelection() then
         local menuItem = MenuItem.new(L{
-            ButtonItem.default('Confirm')
+            ButtonItem.default('Confirm'),
+            ButtonItem.default('Clear All'),
         }, {}, function(_, _)
-            local pickerView = FFXIPickerView.withItems(item:getAllValues(), item:getCurrentValue(), true)
+            local pickerView = FFXIPickerView.withItems(item:getAllValues(), item:getCurrentValue(), true, nil, item:getImageItemForText())
             pickerView:setShouldRequestFocus(true)
             pickerView:on_pick_items():addAction(function(pickerView, selectedItems)
                 self:getItem():setCurrentValue(selectedItems:map(function(item) return item:getText() end))
@@ -103,7 +108,7 @@ function PickerCollectionViewCell:showPickerView()
             end)
             pickerView:setShouldRequestFocus(true)
             return pickerView
-        end, "Choose", "Choose one or more values.")
+        end, item:getPickerTitle() or "Choose", item:getPickerDescription() or "Choose one or more values.")
 
         item:getShowMenu()(menuItem)
     end
@@ -158,6 +163,23 @@ function PickerCollectionViewCell:onKeyboardEvent(key, pressed, flags, blocked)
     end
     return false
 end
+
+function PickerCollectionViewCell:onMouseEvent(type, x, y, delta)
+    if type == Mouse.Event.ClickRelease then
+        if self:hasFocus() then
+            self:setShouldResignFocus(true)
+            self:resignFocus()
+            return true
+        end
+    elseif type == Mouse.Event.Wheel then
+        if self:hasFocus() then
+            self:onKeyboardEvent(205, true, 0, false)
+            return true
+        end
+    end
+    return false
+end
+
 
 function PickerCollectionViewCell:setHasFocus(hasFocus)
     if self:getItem():allowsMultipleSelection() then

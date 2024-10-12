@@ -51,9 +51,6 @@ function TradeConfirmAction:perform()
     if self.wait_for_confirm then
         self.events.incoming_chunk = windower.register_event('incoming chunk', function(id, data)
             if id == 0x022 then
-                if data == nil then
-                    print('111')
-                end
                 local response = packets.parse('incoming', data)
                 if response['Index'] == self:get_target_index() then
                     if L{ 2, 9 }:contains(response['Type']) then

@@ -20,9 +20,9 @@ state.SkillchainPropertyMode:set_description('Off', "Okay, I'll try to make skil
 state.SkillchainPropertyMode:set_description('Light', "Okay, I'll only make Light skillchains unless I have instructions to use certain weapon skills.")
 state.SkillchainPropertyMode:set_description('Darkness', "Okay, I'll only make Darkness skillchains unless I have instructions to use certain weapon skills.")
 
-state.SkillchainDelayMode = M{['description'] = 'Delay Between Weapon Skills', 'Off', 'Maximum'}
+state.SkillchainDelayMode = M{['description'] = 'Prioritze Magic Bursts', 'Off', 'Maximum'}
 state.SkillchainDelayMode:set_description('Off', "Okay, I'll use the next weapon skill as soon as the skillchain window opens.")
-state.SkillchainDelayMode:set_description('Maximum', "Okay, I'll wait until the end of the skillchain window to use my next weapon skill.")
+state.SkillchainDelayMode:set_description('Maximum', "Okay, I'll delay using weapon skills to let my party magic burst.")
 
 state.SkillchainAssistantMode = M{['description'] = 'Show Skillchain Assistant', 'Auto', 'Off'}
 state.SkillchainAssistantMode:set_description('Auto', "Okay, I'll suggest weapon skills you can use to continue the skillchain.")

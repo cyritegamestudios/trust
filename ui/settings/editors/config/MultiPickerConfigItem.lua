@@ -12,7 +12,7 @@ MultiPickerConfigItem.__type = "MultiPickerConfigItem"
 -- @tparam function Formatter for current value.
 -- @treturn ConfigItem The newly created MultiPickerConfigItem instance.
 --
-function MultiPickerConfigItem.new(key, initialValues, allValues, textFormat, description, onReload)
+function MultiPickerConfigItem.new(key, initialValues, allValues, textFormat, description, onReload, imageItemForText)
     local self = setmetatable({}, MultiPickerConfigItem)
 
     self.key = key
@@ -24,6 +24,7 @@ function MultiPickerConfigItem.new(key, initialValues, allValues, textFormat, de
     self.description = description or key
     self.dependencies = L{}
     self.onReload = onReload
+    self.imageItemForText = imageItemForText
 
     return self
 end
@@ -120,10 +121,50 @@ function MultiPickerConfigItem:getMenuItem()
     return MenuItem.new(L{
         ButtonItem.default('Confirm')
     }, {}, function(_, _)
-        local pickerView = FFXIPickerView.withItems(self:getCurrentValues(), self:getAllValues(), true)
+        local pickerView = FFXIPickerView.withItems(self:getCurrentValues(), self:getAllValues(), true, nil, self.imageItemForText, nil, true)
         pickerView:setShouldRequestFocus(true)
         return pickerView
     end)
+end
+
+function MultiPickerConfigItem:getImageItemForText()
+    return self.imageItemForText
+end
+
+---
+-- Sets the picker title
+--
+-- @tparam string pickerTitle Sets the picker title.
+--
+function MultiPickerConfigItem:setPickerTitle(pickerTitle)
+    self.pickerTitle = pickerTitle
+end
+
+---
+-- Returns the picker title.
+--
+-- @treturn string The picker title.
+--
+function MultiPickerConfigItem:getPickerTitle()
+    return self.pickerTitle
+end
+
+---
+-- Sets the picker title
+--
+-- @tparam string pickerTitle Sets the picker title.
+--
+function MultiPickerConfigItem:setPickerDescription(pickerDescription)
+    self.pickerDescription = pickerDescription
+end
+
+---
+-- Returns the picker description.
+--
+-- @treturn string The picker description.
+--
+function MultiPickerConfigItem:getPickerDescription()
+    return self.pickerDescription
 end
 
 return MultiPickerConfigItem

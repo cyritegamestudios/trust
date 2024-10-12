@@ -31,6 +31,7 @@ function Migration_v6:perform(trustSettings, _, _)
 end
 
 function Migration_v6:getDefaultFoodGambit(trustSettings, foodName)
+    foodName = foodName or 'Grape Daifuku'
     return Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new(trustSettings.jobNameShort)}, UseItem.new(foodName, L{ItemCountCondition.new(foodName, 1, ">=")}), "Self", L{"food"})
 end
 
