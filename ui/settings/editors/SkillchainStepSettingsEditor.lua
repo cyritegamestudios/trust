@@ -36,8 +36,6 @@ function SkillchainStepSettingsEditor.new(stepSettings, nextSteps)
     )
     self:getDataSource():setItemForSectionHeader(2, conditionsSectionHeaderItem)
 
-    --self:reloadSettings()
-
     return self
 end
 

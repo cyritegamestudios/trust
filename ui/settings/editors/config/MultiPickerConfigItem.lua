@@ -121,7 +121,6 @@ function MultiPickerConfigItem:getMenuItem()
     return MenuItem.new(L{
         ButtonItem.default('Confirm')
     }, {}, function(_, _)
-        print(self.imageForText)
         local pickerView = FFXIPickerView.withItems(self:getCurrentValues(), self:getAllValues(), true, nil, self.imageItemForText, nil, true)
         pickerView:setShouldRequestFocus(true)
         return pickerView

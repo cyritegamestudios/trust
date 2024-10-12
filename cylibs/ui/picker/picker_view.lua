@@ -190,7 +190,6 @@ function PickerView:onSelectMenuItemAtIndexPath(textItem, _)
         end
     elseif L{ 'Clear All' }:contains(textItem:getText()) then
         self:getDelegate():deselectAllItems()
-        --self:on_pick_items():trigger(self, L{}, L{})
     end
 end
 
