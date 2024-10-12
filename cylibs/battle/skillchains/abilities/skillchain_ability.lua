@@ -12,6 +12,7 @@ SkillchainAbility.__class = "SkillchainAbility"
 
 SkillchainAbility.Auto = "Auto"
 SkillchainAbility.Skip = "Skip"
+SkillchainAbility.None = "None"
 
 -------
 -- Default initializer for a SkillchainAbility that represents any ability (or spell) that can participate in a skillchain.
@@ -47,6 +48,14 @@ function SkillchainAbility.auto()
     local self = setmetatable({
         ability_id = SkillchainAbility.Auto;
         name = "Auto";
+    }, SkillchainAbility)
+    return self
+end
+
+function SkillchainAbility.none()
+    local self = setmetatable({
+        ability_id = SkillchainAbility.None;
+        name = "None";
     }, SkillchainAbility)
     return self
 end

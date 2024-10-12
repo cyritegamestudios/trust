@@ -117,7 +117,7 @@ function ConfigEditor.new(trustSettings, configSettings, configItems, infoView, 
 
     self:getDisposeBag():add(self:getDelegate():didDeselectItemAtIndexPath():addAction(function(indexPath)
         if infoView then
-            infoView:setDescription("Edit the selected condition.")
+            infoView:setDescription("Edit the selected item.")
         end
         local configItem = self.configItems[indexPath.section]
         local item = self:getDataSource():itemAtIndexPath(indexPath)
@@ -246,7 +246,10 @@ function ConfigEditor:getCellItemForConfigItem(configItem)
     elseif configItem.__type == PickerConfigItem.__type then
         return PickerItem.new(configItem:getInitialValue(), configItem:getAllValues(), configItem:getTextFormat())
     elseif configItem.__type == MultiPickerConfigItem.__type then
-        local pickerItem = PickerItem.new(configItem:getInitialValues(), configItem:getAllValues(), configItem:getTextFormat(), true)
+        local pickerItem = PickerItem.new(configItem:getInitialValues(), configItem:getAllValues(), configItem:getTextFormat(), true, configItem:getImageItemForText())
+        pickerItem:setShouldTruncateText(true)
+        pickerItem:setPickerTitle(configItem:getPickerTitle())
+        pickerItem:setPickerDescription(configItem:getPickerDescription())
         pickerItem:setShowMenu(self.showMenu)
         pickerItem:setOnPickItems(function(newValue)
             self.configSettings[configItem:getKey()] = newValue

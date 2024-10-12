@@ -12,7 +12,7 @@ PickerItem.__type = "PickerItem"
 -- @tparam function Formatter for current value.
 -- @treturn ConfigItem The newly created ConfigItem instance.
 --
-function PickerItem.new(currentValue, allValues, textFormat, allowsMultipleSelection)
+function PickerItem.new(currentValue, allValues, textFormat, allowsMultipleSelection, imageItemForText)
     local self = setmetatable({}, PickerItem)
 
     self.currentValue = currentValue
@@ -21,6 +21,8 @@ function PickerItem.new(currentValue, allValues, textFormat, allowsMultipleSelec
         return tostring(value)
     end
     self.multipleSelection = allowsMultipleSelection
+    self.imageItemForText = imageItemForText
+    self.shouldTruncateText = false
 
     return self
 end
@@ -133,6 +135,69 @@ end
 --
 function PickerItem:allowsMultipleSelection()
     return self.multipleSelection
+end
+
+---
+-- Returns the image item for this picker item.
+--
+-- @treturn function Returns an ImageItem.
+--
+function PickerItem:getImageItemForText()
+    return self.imageItemForText
+end
+
+---
+-- Sets whether text should be truncated.
+--
+-- @tparam boolean shouldTruncateText Whether text should be truncated.
+--
+function PickerItem:setShouldTruncateText(shouldTruncateText)
+    self.shouldTruncateText = shouldTruncateText
+end
+
+---
+-- Returns whether text should be truncated.
+--
+-- @treturn boolean True if text should be truncated.
+--
+function PickerItem:getShouldTruncateText()
+    return self.shouldTruncateText
+end
+
+---
+-- Sets the picker title
+--
+-- @tparam string pickerTitle Sets the picker title.
+--
+function PickerItem:setPickerTitle(pickerTitle)
+    self.pickerTitle = pickerTitle
+end
+
+---
+-- Returns the picker title.
+--
+-- @treturn string The picker title.
+--
+function PickerItem:getPickerTitle()
+    return self.pickerTitle
+end
+
+---
+-- Sets the picker title
+--
+-- @tparam string pickerTitle Sets the picker title.
+--
+function PickerItem:setPickerDescription(pickerDescription)
+    self.pickerDescription = pickerDescription
+end
+
+---
+-- Returns the picker description.
+--
+-- @treturn string The picker description.
+--
+function PickerItem:getPickerDescription()
+    return self.pickerDescription
 end
 
 return PickerItem
