@@ -1,3 +1,4 @@
+local CollectionViewCellCache = require('cylibs/ui/collection_view/collection_view_cell_cache')
 local ContainerCollectionViewCell = require('cylibs/ui/collection_view/cells/container_collection_view_cell')
 local Event = require('cylibs/events/Luvent')
 local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_collection_view_cell')

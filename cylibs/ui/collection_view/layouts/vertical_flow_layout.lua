@@ -6,7 +6,7 @@ local SectionHeaderCollectionViewCell = require('cylibs/ui/collection_view/cells
 local VerticalFlowLayout = {}
 VerticalFlowLayout.__index = VerticalFlowLayout
 
-function VerticalFlowLayout.new(itemSpacing, padding, sectionSpacing)
+function VerticalFlowLayout.new(itemSpacing, padding, sectionSpacing, sizeForItem)
     local self = setmetatable({}, VerticalFlowLayout)
 
     self.disposeBag = DisposeBag.new()

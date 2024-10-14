@@ -1,3 +1,4 @@
+local Event = require('cylibs/events/Luvent')
 local Frame = require('cylibs/ui/views/frame')
 local HorizontalScrollBar = require('cylibs/ui/scroll_view/horizontal_scroll_bar')
 local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_collection_view_cell')
@@ -13,7 +14,12 @@ require('queues')
 local ScrollView = setmetatable({}, {__index = View })
 ScrollView.__index = ScrollView
 ScrollView.__type = "ScrollView"
-
+---
+-- Called when a view is clipped.
+--
+function ScrollView:onDidEndDisplayingViews()
+    return self.didEndDisplayingViews
+end
 
 function ScrollView.new(frame, style)
     local self = setmetatable(View.new(frame), ScrollView)
@@ -27,10 +33,17 @@ function ScrollView.new(frame, style)
     self.scrollBarSize = 8
     self.scrollDelta = 10
     self.scrollBars = L{}
+    self.didEndDisplayingViews = Event.newEvent()
 
     self:addSubview(self.contentView)
 
     return self
+end
+
+function ScrollView:destroy()
+    View.destroy(self)
+
+    self.didEndDisplayingViews:removeAllActions()
 end
 
 function ScrollView:createScrollBars()
@@ -251,6 +264,7 @@ function ScrollView:updateContentView()
     if not self:isVisible() then
         return
     end
+    local clippedViews = L{}
     local subviews = Q{ self:getContentView() }
     while not subviews:empty() do
         local view = subviews:pop()
@@ -261,6 +275,7 @@ function ScrollView:updateContentView()
             if self:shouldClipToBounds(view) then
                 view:setVisible(false)
                 view:layoutIfNeeded()
+                clippedViews:append(view)
             else
                 view:setVisible(true)
                 view:layoutIfNeeded()
@@ -268,6 +283,9 @@ function ScrollView:updateContentView()
         else
             view:setVisible(true)
         end
+    end
+    if clippedViews:length() > 0 then
+        self:onDidEndDisplayingViews():trigger(self, clippedViews)
     end
 end
 

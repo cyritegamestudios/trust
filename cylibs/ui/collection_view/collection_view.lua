@@ -102,6 +102,15 @@ function CollectionView.new(dataSource, layout, delegate, style)
         end
     end), self.delegate:didMoveCursorToItemAtIndexPath())
 
+    self:getDisposeBag():add(self:onDidEndDisplayingViews():addAction(function(_, clippedViews)
+        --clippedViews = clippedViews:filter(function(view)
+        --    return
+        --end)
+        for view in clippedViews:it() do
+            print(view.__type, "will be recycled")
+        end
+    end), self:onDidEndDisplayingViews())
+
     return self
 end
 
