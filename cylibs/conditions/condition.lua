@@ -111,6 +111,8 @@ function Condition.defaultSerializableConditionClasses()
         IsAlterEgoCondition.__class,
         ReadyChargesCondition.__class,
         ItemCountCondition.__class,
+        SkillchainWindowCondition.__class,
+        SkillchainStepCondition.__class,
     }
 end
 

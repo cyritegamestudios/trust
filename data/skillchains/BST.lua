@@ -20,5 +20,8 @@ return {
             CombatSkillSettings.new('Scythe', L{}),
             CombatSkillSettings.new('Club', L{}),
         },
+        JobAbilities = L{
+
+        },
     }
 }

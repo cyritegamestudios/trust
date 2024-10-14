@@ -20,5 +20,8 @@ return {
             CombatSkillSettings.new('Dagger', L{}),
             CombatSkillSettings.new('Polearm', L{}),
         },
+        JobAbilities = L{
+
+        },
     }
 }

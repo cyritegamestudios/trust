@@ -25,5 +25,8 @@ return {
                 'Water II', 'Water III', 'Water IV', 'Water V'
             }),
         },
+        JobAbilities = L{
+
+        },
     }
 }

@@ -26,5 +26,8 @@ return {
             CombatSkillSettings.new('Archery', L{}),
             CombatSkillSettings.new('Marksmanship', L{}),
         },
+        JobAbilities = L{
+
+        },
     }
 }

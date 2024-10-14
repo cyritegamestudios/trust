@@ -374,6 +374,8 @@ function Skillchainer:set_current_settings(current_settings)
     self.current_settings = current_settings
     self.ability_for_step = current_settings.Skillchain
 
+    self:set_job_abilities(current_settings.JobAbilities)
+
     self:update_abilities()
 end
 
