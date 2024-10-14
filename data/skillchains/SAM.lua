@@ -21,8 +21,8 @@ return {
             CombatSkillSettings.new('Archery', L{}),
         },
         JobAbilities = L{
-            JobAbility.new("Sekkanoki", L{ MinTacticalPointsCondition.new(1500), InBattleCondition.new() }),
-            JobAbility.new("Sengikori", L{MinTacticalPointsCondition.new(1000), SkillchainWindowCondition.new(3, ">="), SkillchainStepCondition.new(1, ">")}),
+            JobAbility.new("Sekkanoki", L{MinTacticalPointsCondition.new(1500), SkillchainWindowCondition.new(3, ">=")}),
+            JobAbility.new("Sengikori", L{MinTacticalPointsCondition.new(1000), SkillchainWindowCondition.new(3.5, ">="), SkillchainStepCondition.new(1, ">")})
         },
     }
 }
