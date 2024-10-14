@@ -25,10 +25,12 @@ function SkillchainStepCondition:is_satisfied(target_index)
     if player then
         local enemy = party:get_target_by_index(player:get_target_index())
         if enemy then
+            local step_num = 0
             local skillchain = enemy:get_skillchain()
             if skillchain then
-                return self:eval(skillchain:get_step(), self.step_num, self.operator)
+                step_num = skillchain:get_step()
             end
+            return self:eval(step_num, self.step_num, self.operator)
         end
     end
     return false
@@ -36,7 +38,7 @@ end
 
 function SkillchainStepCondition:get_config_items()
     return L{
-        ConfigItem.new('duration', 0, 6, 1, function(value) return value.."" end, "Skillchain Step"),
+        ConfigItem.new('step_num', 0, 6, 1, function(value) return value.."" end, "Skillchain Step"),
         PickerConfigItem.new('operator', self.operator, L{ Condition.Operator.GreaterThanOrEqualTo, Condition.Operator.Equals, Condition.Operator.GreaterThan, Condition.Operator.LessThan, Condition.Operator.LessThanOrEqualTo }, nil, "Operator")
     }
 end
