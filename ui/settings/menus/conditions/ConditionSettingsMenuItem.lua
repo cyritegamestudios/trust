@@ -70,7 +70,7 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
         return c1 < c2
     end)
 
-    self.contentViewConstructor = function(menuArgs, _)
+    self.contentViewConstructor = function(menuArgs, infoView)
         local conditions = menuArgs and menuArgs['conditions']
         if not conditions then
             conditions = self.conditions
@@ -99,6 +99,9 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
         self.dispose_bag:add(editConditionsView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
             self.selectedCondition = self.conditions[indexPath.row]
             self.selectedConditionIndex = indexPath.row
+            if self.selectedCondition then
+                infoView:setDescription(self.selectedCondition:tostring())
+            end
         end, editConditionsView:getDelegate():didSelectItemAtIndexPath()))
 
         self.editConditionsView = editConditionsView

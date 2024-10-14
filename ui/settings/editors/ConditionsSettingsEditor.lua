@@ -57,7 +57,9 @@ function ConditionsSettingsEditor:reloadSettings()
 
     local rowIndex = 1
     for condition in self.conditions:it() do
-        items:append(IndexedItem.new(TextItem.new(condition:tostring(), TextStyle.Default.TextSmall), IndexPath.new(1, rowIndex)))
+        local textItem = TextItem.new(condition:tostring(), TextStyle.Default.TextSmall)
+        textItem:setShouldTruncateText(true)
+        items:append(IndexedItem.new(textItem, IndexPath.new(1, rowIndex)))
         rowIndex = rowIndex + 1
     end
 
