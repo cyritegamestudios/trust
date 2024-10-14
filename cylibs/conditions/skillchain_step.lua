@@ -20,9 +20,10 @@ function SkillchainStepCondition.new(step_num, operator)
 end
 
 function SkillchainStepCondition:is_satisfied(target_index)
+    local party = player.party
     local player = player.party:get_player()
     if player then
-        local enemy = player.party:get_target_by_index(player:get_target_index())
+        local enemy = party:get_target_by_index(player:get_target_index())
         if enemy then
             local skillchain = enemy:get_skillchain()
             if skillchain then

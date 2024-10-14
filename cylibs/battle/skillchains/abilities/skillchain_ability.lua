@@ -19,9 +19,10 @@ SkillchainAbility.None = "None"
 -- @tparam string resource Resource for the ability (e.g. `weapon_skills` for `res/weapon_skills.lua`)
 -- @tparam number ability_id Id of the ability within the resource file
 -- @tparam list conditions (optional) List of conditions that must be met to use this ability
+-- @tparam list job_abilities (optional) List of job abilities to use before this ability
 -- @tparam PartyMember party_member (optional) Party member that will use or used this ability
 -- @treturn SkillchainAbility A skillchain abilty
-function SkillchainAbility.new(resource, ability_id, conditions, party_member)
+function SkillchainAbility.new(resource, ability_id, conditions, job_abilities, party_member)
     if not skills[resource][ability_id] then
         return nil
     end
@@ -29,6 +30,7 @@ function SkillchainAbility.new(resource, ability_id, conditions, party_member)
         resource = resource;
         ability_id = ability_id;
         conditions = conditions or L{};
+        job_abilities = job_abilities or L{};
         party_member = party_member;
         name = res[resource][ability_id].en;
         skill_id = res[resource][ability_id].skill;
@@ -135,8 +137,20 @@ function SkillchainAbility:get_skillchain_properties(include_aeonic)
     return properties:map(function(property_name) return skillchain_util[property_name] end)
 end
 
+-- Sets the job abilities to use before this ability.
+-- @tparam list job_abilities List of job abilities
+function SkillchainAbility:set_job_abilities(job_abilities)
+    self.job_abilities = job_abilities
+end
+
+-- Returns job abilities to use before this ability.
+-- @treturn list List of job abilities
+function SkillchainAbility:get_job_abilities()
+    return self.job_abilities
+end
+
 -- Returns whether this ability is AOE.
--- @treturn boolean True if AOE, falster otherwise
+-- @treturn boolean True if AOE, false otherwise
 function SkillchainAbility:is_aoe()
     local name = self:get_name()
     return spell_util.is_aoe_spell(name)
@@ -162,8 +176,10 @@ function SkillchainAbility:to_action(target_index, player, job_abilities)
         end
     end
 
-    for job_ability in (job_abilities or L{}):it() do
-        if job_util.can_use_job_ability(job_ability:get_name()) then
+    job_abilities = L{}:extend(job_abilities or L{}):extend(self.job_abilities)
+    for job_ability in job_abilities:it() do
+        if job_util.can_use_job_ability(job_ability:get_name())
+                and Condition.check_conditions(job_ability:get_conditions(), windower.ffxi.get_player().index) then
             local job_ability_action = job_ability:to_action()
             if job_ability_action:can_perform() then
                 actions:append(job_ability_action)
@@ -196,7 +212,7 @@ function SkillchainAbility:copy()
     for condition in self:get_conditions():it() do
         conditions:append(condition:copy())
     end
-    return SkillchainAbility.new(self.resource, self.ability_id, conditions, self.party_member)
+    return SkillchainAbility.new(self.resource, self.ability_id, conditions, self.job_abilities, self.party_member)
 end
 
 function SkillchainAbility:serialize()

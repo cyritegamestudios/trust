@@ -2,6 +2,7 @@ local BuildSkillchainSettingsMenuItem = require('ui/settings/menus/skillchains/B
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConditionSettingsMenuItem = require('ui/settings/menus/conditions/ConditionSettingsMenuItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
+local JobAbilitiesSettingsMenuItem = require('ui/settings/menus/buffs/JobAbilitiesSettingsMenuItem')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local SkillchainAbility = require('cylibs/battle/skillchains/abilities/skillchain_ability')
 local SkillchainBuilder = require('cylibs/battle/skillchains/skillchain_builder')
@@ -16,6 +17,7 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Edit', 18),
         --ButtonItem.default('Conditions', 18),
+        ButtonItem.default('Abilities', 18),
         ButtonItem.default('Skip', 18),
         ButtonItem.default('Clear', 18),
         ButtonItem.default('Clear All', 18),
@@ -67,8 +69,9 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
 end
 
 function SkillchainSettingsMenuItem:reloadSettings()
-    self:setChildMenuItem('Clear All', MenuItem.action(nil, "Skillchains", "Automatically determine weapon skills to use for all steps."))
     self:setChildMenuItem('Edit', self:getEditSkillchainStepMenuItem())
+    self:setChildMenuItem('Abilities', self:getAbilitiesMenuItem())
+    self:setChildMenuItem('Clear All', MenuItem.action(nil, "Skillchains", "Automatically determine weapon skills to use for all steps."))
 end
 
 function SkillchainSettingsMenuItem:getEditSkillchainStepMenuItem()
@@ -141,6 +144,13 @@ function SkillchainSettingsMenuItem:getEditSkillchainStepMenuItem()
         end, "Skillchains", "Edit which weapon skill to use for the selected step.")
 
     return editSkillchainStepMenuItem
+end
+
+function SkillchainSettingsMenuItem:getAbilitiesMenuItem()
+    local jobAbilitiesMenuItem = JobAbilitiesSettingsMenuItem.new(self.weaponSkillSettings, self.weaponSkillSettingsMode)
+    jobAbilitiesMenuItem.titleText = "Skillchains"
+    jobAbilitiesMenuItem.descriptionText = "Choose abilities to use before a weapon skill during a skillchain."
+    return jobAbilitiesMenuItem
 end
 
 function SkillchainSettingsMenuItem:getAbility(abilityName)

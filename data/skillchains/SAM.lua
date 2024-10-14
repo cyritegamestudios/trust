@@ -20,5 +20,9 @@ return {
             CombatSkillSettings.new('Club', L{}),
             CombatSkillSettings.new('Archery', L{}),
         },
+        JobAbilities = L{
+            JobAbility.new("Sekkanoki", L{ MinTacticalPointsCondition.new(1500), InBattleCondition.new() }),
+            JobAbility.new("Sengikori", L{MinTacticalPointsCondition.new(1000), SkillchainWindowCondition.new(3, ">="), SkillchainStepCondition.new(1, ">")}),
+        },
     }
 }

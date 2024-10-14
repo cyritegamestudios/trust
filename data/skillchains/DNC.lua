@@ -17,5 +17,8 @@ return {
             CombatSkillSettings.new('Hand-to-Hand', L{}),
             CombatSkillSettings.new('Sword', L{}),
         },
+        JobAbilities = L{
+
+        },
     }
 }

@@ -20,9 +20,10 @@ function SkillchainWindowCondition.new(duration, operator)
 end
 
 function SkillchainWindowCondition:is_satisfied(target_index)
+    local party = player.party
     local player = player.party:get_player()
     if player then
-        local enemy = player.party:get_target_by_index(player:get_target_index())
+        local enemy = party:get_target_by_index(player:get_target_index())
         if enemy then
             local skillchain = enemy:get_skillchain()
             if skillchain and not skillchain:is_expired() then
@@ -36,7 +37,7 @@ end
 
 function SkillchainWindowCondition:get_config_items()
     return L{
-        ConfigItem.new('duration', 0, 5, 1, function(value) return value.."s" end, "Time Remaining"),
+        ConfigItem.new('duration', 0, 5, 0.5, function(value) return value.."s" end, "Time Remaining"),
         PickerConfigItem.new('operator', self.operator, L{ Condition.Operator.GreaterThanOrEqualTo, Condition.Operator.LessThanOrEqualTo }, nil, "Operator")
     }
 end
