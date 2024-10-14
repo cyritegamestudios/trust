@@ -19,15 +19,11 @@ end
 function MaxTacticalPointsCondition:is_satisfied(target_index)
     local target = windower.ffxi.get_mob_by_index(target_index)
     if target then
-        if target.id == windower.ffxi.get_player().id then
-            return windower.ffxi.get_player().vitals.tp <= self.max_tp
-        else
-            local party = player.party
-            if party then
-                local party_member = party:get_party_member(target.id)
-                if party_member then
-                    return party_member:get_tp() <= self.max_tp
-                end
+        local party = player.party
+        if party then
+            local party_member = party:get_party_member(target.id)
+            if party_member then
+                return party_member:get_tp() <= self.max_tp
             end
         end
     end
