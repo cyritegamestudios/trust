@@ -42,6 +42,7 @@ return {
             Default = L{
                 Gambit.new("Enemy", L{HasBuffCondition.new("Presto"), InBattleCondition.new()}, JobAbility.new("Box Step", L{}, L{}), "Self", L{}),
                 Gambit.new("Self", L{HasDazeCondition.new("Sluggish Daze", 5, "<"), InBattleCondition.new()}, JobAbility.new("Presto", L{}, L{}), "Enemy", L{}),
+                Gambit.new("Self", L{MaxTacticalPointsCondition.new(900), HasBuffsCondition.new(L{"Finishing Move 4", "Finishing Move 5", "Finishing Move (6+)"}, 1)}, JobAbility.new("Reverse Flourish", L{}, L{}), "Self", L{}),
             },
             Gambits = L{
 
