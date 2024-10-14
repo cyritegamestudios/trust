@@ -58,6 +58,8 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
         [IsAlterEgoCondition.__type] = "is_alter_ego",
         [ReadyChargesCondition.__type] = "ready_charges",
         [ItemCountCondition.__type] = "item_count",
+        [SkillchainWindowCondition.__type] = "skillchain_window",
+        [SkillchainStepCondition.__type] = "skillchain_step"
     }
     self.conditionPickerItems = L(self.editableConditionClasses:keyset()):filter(function(c)
         local conditionClass = self:getFileForCondition(c)
