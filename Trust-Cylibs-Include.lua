@@ -36,6 +36,7 @@ TurnAround = require('cylibs/battle/turn_around')
 TurnToFace = require('cylibs/battle/turn_to_face')
 Command = require('cylibs/battle/command')
 UseItem = require('cylibs/battle/use_item')
+Engage = require('cylibs/battle/engage')
 
 -- Gambits
 Gambit = require('cylibs/gambits/gambit')

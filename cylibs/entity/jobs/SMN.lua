@@ -8,7 +8,7 @@ local Summoner = setmetatable({}, {__index = Job })
 Summoner.__index = Summoner
 
 local avatar_to_blood_pacts = T{
-    Carbuncle = L{},
+    Carbuncle = L{ 'Shining Ruby' },
     ["Cait Sith"] = L{ 'Reraise II' },
     Ifrit = L{ 'Crimson Howl', 'Inferno Howl' },
     Shiva = L{ 'Frost Armor', 'Crystal Blessing' },
