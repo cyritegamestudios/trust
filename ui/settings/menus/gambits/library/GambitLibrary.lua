@@ -14,6 +14,6 @@ return L{
         Gambit.new("Self", L{ItemCountCondition.new("Inoshishinofuda", 10, "<"), ItemCountCondition.new("Toolbag (Ino)", 1, ">=")}, UseItem.new("Toolbag (Ino)", L{ItemCountCondition.new("Toolbag (Ino)", 1, ">=")}), "Self", L{"Items", "Ninjutsu"}),
         Gambit.new("Self", L{ItemCountCondition.new("Shikanofuda", 10, "<"), ItemCountCondition.new("Toolbag (Shika)", 1, ">=")}, UseItem.new("Toolbag (Shika)", L{ItemCountCondition.new("Toolbag (Shika)", 1, ">=")}), "Self", L{"Items", "Ninjutsu"}),
         Gambit.new("Self", L{ItemCountCondition.new("Chonofuda", 10, "<"), ItemCountCondition.new("Toolbag (Cho)", 1, ">=")}, UseItem.new("Toolbag (Cho)", L{ItemCountCondition.new("Toolbag (Cho)", 1, ">=")}), "Self", L{"Items", "Ninjutsu"}),
-        Gambit.new("Self", L{ItemCountCondition.new("Trump Card", 10, "<")}, UseItem.new("Trump Card Case", L{ItemCountCondition.new("Trump Card Case", 1, ">=")}), "Self", L{}),
+        Gambit.new("Self", L{ItemCountCondition.new("Trump Card", 10, "<")}, UseItem.new("Trump Card Case", L{ItemCountCondition.new("Trump Card Case", 1, ">=")}), "Self", L{"Items", "Cards"}),
     })
 }
