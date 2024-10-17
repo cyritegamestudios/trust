@@ -54,7 +54,7 @@ function GambitLibraryMenuItem:getGambitCategoryMenuItem(category)
         --ButtonItem.default('Add All', 18),
     }, {
         Add = self:getAddGambitsMenuItem()
-    }, function(_, _)
+    }, function(_, infoView)
         local gambitList = FFXIPickerView.withItems(category:getGambits():map(function(gambit) return gambit:tostring() end), L{}, false, nil, nil, FFXIClassicStyle.WindowSize.Editor.ConfigEditorLarge, true)
         gambitList:setAllowsCursorSelection(true)
 
@@ -63,6 +63,9 @@ function GambitLibraryMenuItem:getGambitCategoryMenuItem(category)
 
         self.disposeBag:add(gambitList:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
             self.selectedGambit = category:getGambits()[indexPath.row]
+            if self.selectedGambit then
+                infoView:setDescription(self.selectedGambit:tostring())
+            end
         end), gambitList:getDelegate():didSelectItemAtIndexPath())
 
         return gambitList

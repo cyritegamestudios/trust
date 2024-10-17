@@ -297,6 +297,11 @@ function Singer:should_nitro()
             logger.notice(self.__class, 'should_nitro', 'using nitro', 'all songs')
             return true
         end
+
+        if total_num_songs > 0 and total_num_active_songs == 0 then
+            logger.notice(self.__class, 'should_nitro', 'using nitro', 'wrong songs')
+            return true
+        end
     end
     return false
 end

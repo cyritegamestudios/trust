@@ -108,7 +108,7 @@ function GambitSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Move Down", self:getMoveDownGambitMenuItem())
     self:setChildMenuItem("Toggle", self:getToggleMenuItem())
     self:setChildMenuItem("Reset", self:getResetGambitsMenuItem())
-    --self:setChildMenuItem("Library", self:getGambitLibraryMenuItem())
+    self:setChildMenuItem("Library", self:getGambitLibraryMenuItem())
     self:setChildMenuItem("Modes", self:getModesMenuItem())
 end
 
@@ -128,6 +128,7 @@ function GambitSettingsMenuItem:getAbilities(gambitTarget, flatten)
             return spell.type ~= 'Trust' and S(spellTargets):intersection(targets):length() > 0
         end):map(function(spell)
             return spell.en
+
         end):sort(),
         player_util.get_job_abilities():filter(function(jobAbilityId)
             local jobAbility = res.job_abilities[jobAbilityId]

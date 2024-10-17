@@ -16,8 +16,8 @@ function CreateProfileEditor.new(trustModeSettings, jobSettings, weaponSkillSett
     local newSetSettings = {}
 
     newSetSettings[CreateProfileEditor.SettinsgKeys.SetName] = 'NewProfile'
-    newSetSettings[CreateProfileEditor.SettinsgKeys.JobSettings] = false
-    newSetSettings[CreateProfileEditor.SettinsgKeys.WeaponSkillSettings] = false
+    newSetSettings[CreateProfileEditor.SettinsgKeys.JobSettings] = true
+    newSetSettings[CreateProfileEditor.SettinsgKeys.WeaponSkillSettings] = true
 
     local configItems = L{
         TextInputConfigItem.new(CreateProfileEditor.SettinsgKeys.SetName, newSetSettings[CreateProfileEditor.SettinsgKeys.SetName], 'Profile Name', function(text)
