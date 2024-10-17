@@ -12,7 +12,7 @@ Engage.__type = "Engage"
 Engage.__class = "Engage"
 
 -------
--- Default initializer for a new run to.
+-- Default initializer for a new engage.
 -- @treturn Engage An engage action.
 function Engage.new(conditions)
     local self = setmetatable({}, Engage)

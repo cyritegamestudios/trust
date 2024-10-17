@@ -1,13 +1,14 @@
 local ModeDelta = {}
 ModeDelta.__index = ModeDelta
 
-function ModeDelta.new(newModes, errorMessage)
+function ModeDelta.new(newModes, errorMessage, whitelist)
     local self = setmetatable({}, ModeDelta)
 
     self.newModes = newModes
     self.oldModes = {}
     self.isApplied = false
     self.errorMessage = errorMessage or "You cannot change modes at this time."
+    self.whitelist = whitelist or S{}
 
     return self
 end
@@ -17,7 +18,7 @@ function ModeDelta:apply(hideHelpText)
         return
     end
     self.isApplied = true
-    set_modes_locked(true, self.errorMessage)
+    set_modes_locked(true, self.errorMessage, self.whitelist)
     for stateName, value in pairs(self.newModes) do
         local stateVar = get_state(stateName)
         if stateVar then

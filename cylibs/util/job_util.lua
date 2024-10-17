@@ -166,6 +166,8 @@ function job_util.getAbility(abilityName)
         return RunAway.new()
     elseif abilityName == 'Run To' then
         return RunTo.new()
+    elseif abilityName == 'Engage' then
+        return Engage.new()
     elseif abilityName == 'Command' then
         return Command.new()
     elseif abilityName == 'Use Item' then

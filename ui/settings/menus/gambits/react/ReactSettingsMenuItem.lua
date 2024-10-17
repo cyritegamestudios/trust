@@ -106,7 +106,7 @@ function ReactSettingsMenuItem:getAbilities(gambitTarget, flatten)
         end):map(function(weaponSkillId)
             return res.weapon_skills[weaponSkillId].en
         end):sort(),
-        L{ 'Approach', 'Ranged Attack', 'Turn Around', 'Turn to Face', 'Run Away', 'Run To' }:filter(function(_)
+        L{ 'Approach', 'Ranged Attack', 'Turn Around', 'Turn to Face', 'Run Away', 'Run To', 'Engage' }:filter(function(_)
             return targets:contains('Enemy')
         end),
     }

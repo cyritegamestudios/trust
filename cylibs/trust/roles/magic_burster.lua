@@ -92,7 +92,7 @@ function MagicBurster:target_change(target_index)
 end
 
 function MagicBurster:on_prerender()
-    if (os.time() - self.last_prerender_time) < 1 then
+    if (os.time() - self.last_prerender_time) < 0.5 then
         return
     end
     self.last_prerender_time = os.time()
@@ -100,7 +100,7 @@ function MagicBurster:on_prerender()
     local target = self:get_target()
     if target then
         local step = target:get_skillchain()
-        if step and step:get_skillchain() then
+        if step and step:get_skillchain() and not step:is_expired() then
             self:check_magic_burst(step:get_skillchain())
         end
     end

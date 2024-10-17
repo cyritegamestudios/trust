@@ -5,7 +5,7 @@ local ModeConfigEditor = setmetatable({}, {__index = ConfigEditor })
 ModeConfigEditor.__index = ModeConfigEditor
 
 
-function ModeConfigEditor.new(modeNames, infoView, modes)
+function ModeConfigEditor.new(modeNames, infoView, modes, showModeName)
     modes = modes or state
     modeNames = modeNames:filter(function(modeName)
         return modes[modeName] ~= nil
@@ -16,7 +16,11 @@ function ModeConfigEditor.new(modeNames, infoView, modes)
     local configItems = modeNames:map(function(modeName)
         if modes[modeName] then
             modeSettings[modeName:lower()] = modes[modeName].value
-            return PickerConfigItem.new(modeName:lower(), modes[modeName].value, L(modes[modeName]:options()), nil, modes[modeName].description or modeName)
+            local sectionHeader = modes[modeName].description or modeName
+            if showModeName then
+                sectionHeader = modeName
+            end
+            return PickerConfigItem.new(modeName:lower(), modes[modeName].value, L(modes[modeName]:options()), nil, sectionHeader)
         end
         return nil
     end):compact_map()
