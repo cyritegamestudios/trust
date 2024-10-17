@@ -40,7 +40,7 @@ function ConfigEditor:onConfigValidationError()
 end
 
 
-function ConfigEditor.new(trustSettings, configSettings, configItems, infoView, validator, showMenu)
+function ConfigEditor.new(trustSettings, configSettings, configItems, infoView, validator, showMenu, viewSize)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         if item.__type == SliderItem.__type then
             local cell = SliderCollectionViewCell.new(item)
@@ -75,7 +75,7 @@ function ConfigEditor.new(trustSettings, configSettings, configItems, infoView, 
         return nil
     end)
 
-    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(0, FFXIClassicStyle.Padding.ConfigEditor, 10), nil, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditor), ConfigEditor)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(0, FFXIClassicStyle.Padding.ConfigEditor, 10), nil, false, viewSize or FFXIClassicStyle.WindowSize.Editor.ConfigEditor), ConfigEditor)
 
     self:setAllowsCursorSelection(false)
     self:setAllowsMultipleSelection(true)

@@ -4,7 +4,8 @@ local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Keyboard = require('cylibs/ui/input/keyboard')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModesView = require('ui/settings/editors/ModeSettingsEditor')
+local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
+--local ModesView = require('ui/settings/editors/ModeSettingsEditor')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local FFXITextInputView = require('ui/themes/ffxi/FFXITextInputView')
 
@@ -14,11 +15,10 @@ ModesMenuItem.__type = "ModesMenuItem"
 
 function ModesMenuItem.new(trustSettings)
     local self = setmetatable(MenuItem.new(L{
-        ButtonItem.default('Save', 18),
-        ButtonItem.default('Save As', 18),
+        ButtonItem.default('Confirm', 18),
     }, {},
         function(_, infoView)
-            local modesView = ModesView.new(L(T(state):keyset()):sort(), infoView)
+            local modesView = ModesView.new(L(T(state):keyset()):sort(), infoView, state, true)
             modesView:setShouldRequestFocus(true)
             return modesView
         end, "Modes", "View and change Trust modes."), ModesMenuItem)
@@ -37,11 +37,11 @@ function ModesMenuItem:destroy()
 end
 
 function ModesMenuItem:reloadSettings()
-    self:setChildMenuItem("Save", MenuItem.action(function()
+    --[[self:setChildMenuItem("Save", MenuItem.action(function()
         windower.send_command('trust save '..state.TrustMode.value)
         addon_message(260, '('..windower.ffxi.get_player().name..') '.."You got it! I'll remember what to do.")
     end), "Save", "Override the current mode set.")
-    self:setChildMenuItem("Save As", self:getSaveAsMenuItem())
+    self:setChildMenuItem("Save As", self:getSaveAsMenuItem())]]
 end
 
 function ModesMenuItem:getConfigKey()

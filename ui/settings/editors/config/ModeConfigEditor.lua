@@ -1,11 +1,12 @@
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
+local Frame = require('cylibs/ui/views/frame')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 
 local ModeConfigEditor = setmetatable({}, {__index = ConfigEditor })
 ModeConfigEditor.__index = ModeConfigEditor
 
 
-function ModeConfigEditor.new(modeNames, infoView, modes)
+function ModeConfigEditor.new(modeNames, infoView, modes, showModeName)
     modes = modes or state
     modeNames = modeNames:filter(function(modeName)
         return modes[modeName] ~= nil
@@ -16,12 +17,16 @@ function ModeConfigEditor.new(modeNames, infoView, modes)
     local configItems = modeNames:map(function(modeName)
         if modes[modeName] then
             modeSettings[modeName:lower()] = modes[modeName].value
-            return PickerConfigItem.new(modeName:lower(), modes[modeName].value, L(modes[modeName]:options()), nil, modes[modeName].description or modeName)
+            local sectionHeader = modes[modeName].description or modeName
+            if showModeName then
+                sectionHeader = modeName
+            end
+            return PickerConfigItem.new(modeName:lower(), modes[modeName].value, L(modes[modeName]:options()), nil, sectionHeader)
         end
         return nil
     end):compact_map()
 
-    local self = setmetatable(ConfigEditor.new(nil, modeSettings, configItems, nil, function(_) return not is_modes_locked() end), ModeConfigEditor)
+    local self = setmetatable(ConfigEditor.new(nil, modeSettings, configItems, nil, function(_) return not is_modes_locked() end, nil, Frame.new(0, 0, 350, 350)), ModeConfigEditor)
 
     self.modes = modes
     self.infoView = infoView

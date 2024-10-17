@@ -1,3 +1,5 @@
+require('sets')
+
 ---------------------------
 -- Utility class for representing player states. Requiring this in your addon will automatically create a global
 -- State table and addon commands to retrieve and manipulate state values.
@@ -13,10 +15,16 @@ state = {}
 
 local modes_locked = false
 local modes_locked_reason
+local modes_whitelist = S{}
 
-function set_modes_locked(locked, reason)
+function set_modes_locked(locked, reason, whitelist)
     modes_locked = locked
     modes_locked_reason = reason
+    if locked then
+        modes_whitelist = S((whitelist or L{}):map(function(mode) return mode:lower() end))
+    else
+        modes_whitelist = S{}
+    end
 end
 
 function is_modes_locked()
@@ -24,7 +32,7 @@ function is_modes_locked()
 end
 
 function handle_cycle(field)
-    if modes_locked then
+    if modes_locked and not modes_whitelist:contains(field:lower()) then
         addon_message(123, modes_locked_reason or "You cannot changes modes at this time.")
         return
     end
@@ -66,7 +74,7 @@ function get_state(name)
 end
 
 function handle_set(field, value)
-    if modes_locked then
+    if modes_locked and not modes_whitelist:contains(field:lower()) then
         addon_message(123, modes_locked_reason or "You cannot changes modes at this time.")
         return
     end
