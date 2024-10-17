@@ -6,6 +6,7 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local Gambit = require('cylibs/gambits/gambit')
+local GambitLibraryMenuItem = require('ui/settings/menus/gambits/GambitLibraryMenuItem')
 local GambitSettingsEditor = require('ui/settings/editors/GambitSettingsEditor')
 local GambitTarget = require('cylibs/gambits/gambit_target')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
@@ -107,6 +108,7 @@ function GambitSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Move Down", self:getMoveDownGambitMenuItem())
     self:setChildMenuItem("Toggle", self:getToggleMenuItem())
     self:setChildMenuItem("Reset", self:getResetGambitsMenuItem())
+    self:setChildMenuItem("Library", self:getGambitLibraryMenuItem())
     self:setChildMenuItem("Modes", self:getModesMenuItem())
 end
 
@@ -139,7 +141,7 @@ function GambitSettingsMenuItem:getAbilities(gambitTarget, flatten)
         end):map(function(weaponSkillId)
             return res.weapon_skills[weaponSkillId].en
         end):sort(),
-        L{ 'Approach', 'Ranged Attack', 'Turn Around', 'Turn to Face', 'Run Away', 'Run To' }:filter(function(_)
+        L{ 'Approach', 'Ranged Attack', 'Turn Around', 'Turn to Face', 'Run Away', 'Run To', 'Engage' }:filter(function(_)
             return targets:contains('Enemy')
         end),
         L{ 'Use Item', 'Command' }:filter(function(_)
@@ -208,6 +210,13 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
             end
             if not configItems:empty() then
                 local editAbilityEditor = ConfigEditor.new(nil, self.selectedGambit:getAbility(), configItems, infoView)
+
+                self.disposeBag:add(editAbilityEditor:onConfigChanged():addAction(function(newSettings, oldSettings)
+                    if self.selectedGambit:getAbility().on_config_changed then
+                        self.selectedGambit:getAbility():on_config_changed(oldSettings)
+                    end
+                end), editAbilityEditor:onConfigChanged())
+
                 return editAbilityEditor
             end
             return nil
@@ -353,6 +362,11 @@ function GambitSettingsMenuItem:getResetGambitsMenuItem()
             menu:showMenu(self)
         end
     end, "Gambits", "Reset to default Gambits.")
+end
+
+function GambitSettingsMenuItem:getGambitLibraryMenuItem()
+    return GambitLibraryMenuItem.new(self.trustSettings, self.trustSettingsMode, self
+    )
 end
 
 function GambitSettingsMenuItem:getModesMenuItem()

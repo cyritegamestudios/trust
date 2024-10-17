@@ -98,6 +98,17 @@ function UseItem:get_config_items()
 end
 
 -------
+-- Called when the ability is updated via get_config_items.
+-- @tparam UseItem Old use item
+function UseItem:on_config_changed(old_use_item)
+    if old_use_item:get_item_name() ~= self:get_item_name() then
+        self.conditions = L{
+            ItemCountCondition.new(self:get_item_name(), 1, Condition.Operator.GreaterThanOrEqualTo)
+        }
+    end
+end
+
+-------
 -- Return the Action to use this action on a target.
 -- @treturn Action Action to use ability
 function UseItem:to_action(target_index, _)
@@ -134,7 +145,7 @@ function UseItem:copy()
 end
 
 function UseItem:__eq(otherItem)
-    if otherItem.__type == self.__type then
+    if otherItem.__type == self.__type and otherItem.item_name == self.item_name then
         return true
     end
     return false
