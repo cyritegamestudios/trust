@@ -1,5 +1,5 @@
 ---------------------------
--- Move all Bard settings under SongSettings.
+-- Remove mages from default melee songs to avoid pianissimo loops.
 -- @class module
 -- @name Migration_v9
 

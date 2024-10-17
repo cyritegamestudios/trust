@@ -1,12 +1,7 @@
-local BooleanConfigItem = require('ui/settings/editors/config/BooleanConfigItem')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
-local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local DisposeBag = require('cylibs/events/dispose_bag')
-local Keyboard = require('cylibs/ui/input/keyboard')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
---local ModesView = require('ui/settings/editors/ModeSettingsEditor')
-local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local FFXITextInputView = require('ui/themes/ffxi/FFXITextInputView')
 
 local ModesMenuItem = setmetatable({}, {__index = MenuItem })

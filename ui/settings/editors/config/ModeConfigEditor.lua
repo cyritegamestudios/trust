@@ -1,5 +1,4 @@
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
-local Frame = require('cylibs/ui/views/frame')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 
 local ModeConfigEditor = setmetatable({}, {__index = ConfigEditor })
@@ -26,7 +25,7 @@ function ModeConfigEditor.new(modeNames, infoView, modes, showModeName)
         return nil
     end):compact_map()
 
-    local self = setmetatable(ConfigEditor.new(nil, modeSettings, configItems, nil, function(_) return not is_modes_locked() end, nil, Frame.new(0, 0, 350, 350)), ModeConfigEditor)
+    local self = setmetatable(ConfigEditor.new(nil, modeSettings, configItems, nil, function(_) return not is_modes_locked() end), ModeConfigEditor)
 
     self.modes = modes
     self.infoView = infoView
