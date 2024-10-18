@@ -27,6 +27,8 @@ function ScrollView.new(frame, style)
     self.scrollBarSize = 8
     self.scrollDelta = 10
     self.scrollBars = L{}
+    self.scrollCooldown = 0.1
+    self.lastScrollTime = os.clock()
 
     self:addSubview(self.contentView)
 
@@ -199,12 +201,29 @@ function ScrollView:setScrollDelta(delta)
     self.scrollDelta = delta
 end
 
+function ScrollView:canScroll()
+    if os.clock() - self.lastScrollTime < self.scrollCooldown then
+        return false
+    end
+    return true
+end
+
 function ScrollView:scrollUp()
+    if not self:canScroll() then
+        return false
+    end
+    self.lastScrollTime = os.clock()
     self.verticalScrollBar:onScrollBackClick():trigger(self.verticalScrollBar)
+    return true
 end
 
 function ScrollView:scrollDown()
+    if not self:canScroll() then
+        return false
+    end
+    self.lastScrollTime = os.clock()
     self.verticalScrollBar:onScrollForwardClick():trigger(self.verticalScrollBar)
+    return true
 end
 
 ---
