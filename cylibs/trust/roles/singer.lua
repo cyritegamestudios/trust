@@ -146,7 +146,7 @@ function Singer:check_songs()
 
     self:assert_num_songs(player)
 
-    local party_members = self:get_party():get_party_members(true):filter(function(p) return p:get_id() ~= self.song_target:get_id()  end)
+    local party_members = self:get_party():get_party_members(true, 20):filter(function(p) return p:get_id() ~= self.song_target:get_id()  end)
     for party_member in list.extend(L{self.song_target}, party_members):it() do
         if party_member:is_alive() then
             local next_song = self:get_next_song(party_member, self.dummy_songs, self:get_merged_songs(party_member))
@@ -295,6 +295,11 @@ function Singer:should_nitro()
         local total_num_active_songs = self.song_tracker:get_num_songs(player:get_mob().id, buff_ids, songs)
         if total_num_active_songs == self.brd_job:get_max_num_songs() and self.song_tracker:is_expiring_soon(player:get_mob().id, songs) then
             logger.notice(self.__class, 'should_nitro', 'using nitro', 'all songs')
+            return true
+        end
+
+        if total_num_songs > 0 and total_num_active_songs == 0 then
+            logger.notice(self.__class, 'should_nitro', 'using nitro', 'wrong songs')
             return true
         end
     end
