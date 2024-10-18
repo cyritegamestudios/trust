@@ -204,6 +204,9 @@ function CollectionView:scrollForward(scrollBar)
                 scrollDelta = scrollDelta + sectionHeaderView:getItemSize()
             end
         end
+        if self:getDelegate():getCursorIndexPath() then
+            self:getDelegate():setCursorIndexPath(nextIndexPath)
+        end
     end
 
     local newContentOffset = Frame.new(self:getContentOffset().x, self:getContentOffset().y, 0, 0)
@@ -233,6 +236,9 @@ function CollectionView:scrollBack(scrollBar)
                 scrollDelta = scrollDelta + sectionHeaderView:getItemSize()
             end
         end
+        if self:getDelegate():getCursorIndexPath() then
+            self:getDelegate():setCursorIndexPath(self:getDataSource():getPreviousIndexPath(currentIndexPath, false))
+        end
     end
 
     local newContentOffset = Frame.new(self:getContentOffset().x, self:getContentOffset().y, 0, 0)
@@ -242,6 +248,18 @@ function CollectionView:scrollBack(scrollBar)
         newContentOffset.y = math.min(self:getContentOffset().y + scrollDelta, 8)
     end
     self:setContentOffset(newContentOffset.x, newContentOffset.y)
+end
+
+function CollectionView:setContentOffset(contentOffsetX, contentOffsetY)
+    ScrollView.setContentOffset(self, contentOffsetX, contentOffsetY)
+
+    local cursorIndexPath = self:getDelegate():getCursorIndexPath()
+    if cursorIndexPath then
+        local cell = self:getDataSource():cellForItemAtIndexPath(cursorIndexPath)
+        if not cell:isVisible() then
+
+        end
+    end
 end
 
 ---
