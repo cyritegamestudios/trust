@@ -146,7 +146,7 @@ function Singer:check_songs()
 
     self:assert_num_songs(player)
 
-    local party_members = self:get_party():get_party_members(true):filter(function(p) return p:get_id() ~= self.song_target:get_id()  end)
+    local party_members = self:get_party():get_party_members(true, 20):filter(function(p) return p:get_id() ~= self.song_target:get_id()  end)
     for party_member in list.extend(L{self.song_target}, party_members):it() do
         if party_member:is_alive() then
             local next_song = self:get_next_song(party_member, self.dummy_songs, self:get_merged_songs(party_member))
