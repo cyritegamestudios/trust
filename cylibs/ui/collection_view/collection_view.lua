@@ -250,18 +250,6 @@ function CollectionView:scrollBack(scrollBar)
     self:setContentOffset(newContentOffset.x, newContentOffset.y)
 end
 
-function CollectionView:setContentOffset(contentOffsetX, contentOffsetY)
-    ScrollView.setContentOffset(self, contentOffsetX, contentOffsetY)
-
-    local cursorIndexPath = self:getDelegate():getCursorIndexPath()
-    if cursorIndexPath then
-        local cell = self:getDataSource():cellForItemAtIndexPath(cursorIndexPath)
-        if not cell:isVisible() then
-
-        end
-    end
-end
-
 ---
 -- Checks if layout updates are needed and triggers layout if necessary.
 -- This function is typically called before rendering to ensure that the View's layout is up to date.
