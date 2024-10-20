@@ -300,6 +300,9 @@ end
 -- @tparam IndexPath indexPath The new value for `cursorIndexPath`
 --
 function CollectionViewDelegate:setCursorIndexPath(indexPath)
+    if indexPath == nil then
+        return
+    end
     local cell = self.collectionView:getDataSource():cellForItemAtIndexPath(indexPath)
     if cell then
         self.cursorIndexPath = indexPath
