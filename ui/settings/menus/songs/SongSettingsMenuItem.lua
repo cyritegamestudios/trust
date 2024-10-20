@@ -246,7 +246,7 @@ function SongSettingsMenuItem:getConfigMenuItem()
 
                 local configItems = L{
                     ConfigItem.new('NumSongs', 2, 4, 1, function(value) return value.."" end, "Maximum Number of Songs"),
-                    ConfigItem.new('SongDuration', 120, 400, 10, function(value) return value.."s" end, "Song Duration (no Troubadour)"),
+                    ConfigItem.new('SongDuration', 120, 400, 10, function(value) return value.."s" end, "Base Song Duration"),
                     ConfigItem.new('SongDelay', 4, 8, 1, function(value) return value.."s" end, "Delay Between Songs")
                 }
 
@@ -263,12 +263,15 @@ function SongSettingsMenuItem:getConfigMenuItem()
                     self.trustSettings:saveSettings(true)
                 end), songConfigEditor:onConfigChanged())
 
-                self.dispose_bag:add(songConfigEditor:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
-                    print(indexPath.section)
-                    if indexPath.section == 2 then
+                self.dispose_bag:add(songConfigEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
+                    if indexPath.section == 1 then
+                        infoView:setDescription("Maximum number of songs without Clarion Call.")
+                    elseif indexPath.section == 2 then
                         infoView:setDescription("Base song duration with gear but without Troubadour.")
+                    else
+                        infoView:setDescription("Configure general song settings.")
                     end
-                end), songConfigEditor:getDelegate():didSelectItemAtIndexPath())
+                end), songConfigEditor:getDelegate():didMoveCursorToItemAtIndexPath())
 
                 return songConfigEditor
             end, "Config", "Configure general song settings.")
