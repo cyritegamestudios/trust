@@ -22,9 +22,7 @@ local all_song_buff_ids = L{
 -- @treturn BRD A Bard
 function Bard.new(trust_settings)
     local self = setmetatable(Job.new(), Bard)
-    self.max_num_songs = trust_settings.SongSettings.NumSongs or 4
-    self.song_duration = trust_settings.SongSettings.SongDuration or 240
-    self.song_delay = trust_settings.SongSettings.SongDelay or 6
+    self:set_trust_settings(trust_settings)
     return self
 end
 
@@ -153,6 +151,15 @@ function Bard:get_extra_song_instrument_ids()
         22306, -- Loughnashade
         22307, -- Loughnashade
     }
+end
+
+-------
+-- Updates the songs settings based on trust settings.
+-- @tparam table Trust settings
+function Bard:set_trust_settings(trust_settings)
+    self.max_num_songs = trust_settings.SongSettings.NumSongs or 4
+    self.song_duration = trust_settings.SongSettings.SongDuration or 240
+    self.song_delay = trust_settings.SongSettings.SongDelay or 6
 end
 
 return Bard
