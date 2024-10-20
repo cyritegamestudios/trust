@@ -235,7 +235,7 @@ function SongSettingsMenuItem:getConfigMenuItem()
     local songConfigMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
     }, {},
-            function()
+            function(_, infoView)
                 local allSettings = T(self.trustSettings:getSettings())[self.trustSettingsMode.value]
 
                 local songSettings = T{
@@ -246,7 +246,7 @@ function SongSettingsMenuItem:getConfigMenuItem()
 
                 local configItems = L{
                     ConfigItem.new('NumSongs', 2, 4, 1, function(value) return value.."" end, "Maximum Number of Songs"),
-                    ConfigItem.new('SongDuration', 120, 400, 10, function(value) return value.."s" end, "Song Duration"),
+                    ConfigItem.new('SongDuration', 120, 400, 10, function(value) return value.."s" end, "Song Duration (no Troubadour)"),
                     ConfigItem.new('SongDelay', 4, 8, 1, function(value) return value.."s" end, "Delay Between Songs")
                 }
 
@@ -262,6 +262,13 @@ function SongSettingsMenuItem:getConfigMenuItem()
 
                     self.trustSettings:saveSettings(true)
                 end), songConfigEditor:onConfigChanged())
+
+                self.dispose_bag:add(songConfigEditor:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
+                    print(indexPath.section)
+                    if indexPath.section == 2 then
+                        infoView:setDescription("Base song duration with gear but without Troubadour.")
+                    end
+                end), songConfigEditor:getDelegate():didSelectItemAtIndexPath())
 
                 return songConfigEditor
             end, "Config", "Configure general song settings.")

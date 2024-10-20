@@ -66,6 +66,8 @@ function BardTrust:on_init()
 	end
 
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
+		self:get_job():set_trust_settings(new_trust_settings)
+
 		self.num_songs = new_trust_settings.NumSongs
 
 		local singer = self:role_with_type("singer")
