@@ -34,6 +34,7 @@ function SongSettingsEditor.new(trustSettings, settingsMode, helpUrl)
         cell:setClipsToBounds(true)
         cell:setItemSize(16)
         cell:setUserInteractionEnabled(false)
+        cell:setIsSelectable(false)
         return cell
     end)
 
