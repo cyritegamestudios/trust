@@ -102,7 +102,7 @@ function LoadSettingsMenuItem:getEditSetMenuItem()
         local loadSettingsView = TrustSetsConfigEditor.new(self.highlightedSetName or 'Default', self.trustModeSettings, self.jobSettings, self.weaponSkillSettings, nil)
         loadSettingsView:setShouldRequestFocus(true)
         return loadSettingsView
-    end, "Profiles", "Edit saved profiles.", true)
+    end, "Profiles", "Edit the selected profile.", true)
     return editMenuItem
 end
 
