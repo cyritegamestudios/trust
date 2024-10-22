@@ -386,9 +386,9 @@ end
 -- Return a description of the monster.
 -- @treturn string Description
 function Monster:description()
-    local result = self:get_name()..' '..self:get_id()..' '..self:get_mob().hpp
+    local result = self:get_name()..', HP: '..self:get_mob().hpp..'%'
     if self:get_mob().claim_id and windower.ffxi.get_mob_by_id(self:get_mob().claim_id) then
-        result = result..' ('..windower.ffxi.get_mob_by_id(self:get_mob().claim_id).name..')'
+        result = result..', Claimed By: '..windower.ffxi.get_mob_by_id(self:get_mob().claim_id).name
     end
     return result
 end
