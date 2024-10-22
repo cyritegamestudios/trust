@@ -267,7 +267,7 @@ end
 function party_util.is_alter_ego(target_name)
     local trusts = require('cylibs/res/trusts')
     local trust_names = L(res.spells:with_all('type', 'Trust'):map(function(trust) return trust.name end))
-    return trust_names:contains(target_name) or trust_names:contains(target_name..' (UC)') or trusts:with('enl', target_name) or trusts:with('party_name', target_name)
+    return trust_names:contains(target_name) or trust_names:contains(target_name..' (UC)') or trusts:with('enl', target_name) or res.spells:with('party_name', target_name)
 end
 
 return party_util
