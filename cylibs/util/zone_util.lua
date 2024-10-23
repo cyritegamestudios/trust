@@ -47,7 +47,8 @@ local cities = S{
     "Western Adoulin",
     "Celennia Memorial Library",
     "Mog Garden",
-    "Leafallia"
+    "Leafallia",
+    "Kazham",
 }
 
 ---

@@ -75,6 +75,7 @@ end
 -------
 -- Summons trusts if there are fewer than 6 players in the party.
 function Truster:check_trusts()
+    -- check for towns
     if state.AutoTrustsMode.value == 'Off' or self:get_party():num_party_members() == 6
              or player.status ~= 'Idle' or not party_util.is_party_leader(windower.ffxi.get_player().id) then
         return

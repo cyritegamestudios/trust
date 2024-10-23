@@ -59,7 +59,8 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
         [ReadyChargesCondition.__type] = "ready_charges",
         [ItemCountCondition.__type] = "item_count",
         [SkillchainWindowCondition.__type] = "skillchain_window",
-        [SkillchainStepCondition.__type] = "skillchain_step"
+        [SkillchainStepCondition.__type] = "skillchain_step",
+        [InTownCondition.__type] = "in_town",
     }
     self.conditionPickerItems = L(self.editableConditionClasses:keyset()):filter(function(c)
         local conditionClass = self:getFileForCondition(c)

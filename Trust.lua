@@ -354,7 +354,7 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_trust, acti
 		end
 		if terms:length() > 0 then
 			command_widget:setVisible(true)
-			command_widget:setItems(terms:map(function(term) return term:gsub("^// trust ", "") end), L{})
+			command_widget:setItems(terms:map(function(term) return term:gsub("^//%s*trust ", "") end), L{})
 			local description
 			if terms:length() == 1 then
 				hud.infoBar:setTitle("Commands")
