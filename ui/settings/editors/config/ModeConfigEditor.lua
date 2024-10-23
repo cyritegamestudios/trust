@@ -48,6 +48,7 @@ function ModeConfigEditor.new(modeNames, infoView, modes, showModeName)
                 end
             end
         end
+        addon_system_message("Modes reset when the addon reloads. To persist changes to your profile, use // trust save.")
     end)
 
     self:onConfigValidationError():addAction(function()
