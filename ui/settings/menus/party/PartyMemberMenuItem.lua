@@ -33,7 +33,7 @@ function PartyMemberMenuItem.new(partyMember, party, whitelist, trust)
     self.party = party
     self.whitelist = whitelist or S{}
     self.trust = trust
-    
+
     self.commands = L{
         Command.new('trust start', L{}, 'Start'),
         Command.new('trust stop', L{}, 'Stop'),
