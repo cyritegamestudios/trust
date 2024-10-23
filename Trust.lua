@@ -65,7 +65,7 @@ shortcuts = {}
 
 state.TrustMode = M{['description'] = 'Trust Mode', T{}}
 
-state.AutoEnableMode = M{['description'] = 'Auto Enable Mode', 'Auto', 'Off'}
+state.AutoEnableMode = M{['description'] = 'Auto Enable Mode', 'Off', 'Auto'}
 state.AutoEnableMode:set_description('Auto', "Okay, I'll automatically get to work after the addon loads.")
 
 state.AutoDisableMode = M{['description'] = 'Auto Disable Mode', 'Auto', 'Off'}
