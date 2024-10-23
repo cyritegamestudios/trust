@@ -12,10 +12,19 @@ local PartyMemberMenuItem = setmetatable({}, {__index = MenuItem })
 PartyMemberMenuItem.__index = PartyMemberMenuItem
 
 function PartyMemberMenuItem.new(partyMember, party, whitelist, trust)
+    local allRoles = L{}:extend(L(player.trust.main_job:get_roles())):extend(L(player.trust.sub_job:get_roles()))
+
+    local roles = L(allRoles:filter(function(role)
+        return role.get_party_member_blacklist ~= nil
+    end))
+
+    local configButtonItem = ButtonItem.default('Config', 18)
+    configButtonItem:setEnabled(roles:length() > 0)
+
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Assist', 18),
         ButtonItem.default('Commands', 18),
-        ButtonItem.default('Config', 18),
+        configButtonItem
     }, {}, nil, partyMember:get_name(), "See status and configure party member."), PartyMemberMenuItem)
 
     self.trustMode = M{['description'] = partyMember:get_name()..' Trust Mode', T{}}
@@ -24,23 +33,7 @@ function PartyMemberMenuItem.new(partyMember, party, whitelist, trust)
     self.party = party
     self.whitelist = whitelist or S{}
     self.trust = trust
-
-    --self.trustModeSettings = TrustModeSettings.new(partyMember:get_main_job_short(), self.partyMemberName, self.trustMode)
-    --self.trustModeSettings:loadSettings()
-    --self.modes = T(self.trustModeSettings:getSettings()).Default
-    --self.modeNames = self.modes:keyset()
-
-    local trustCommands = L{
-        AssistCommands.new(),
-        GeneralCommands.new(),
-    }
-
-    --local commands = L{}
-    --for trustCommand in trustCommands:it() do
-    --    commands = commands:extend(trustCommand:to_commands())
-    --end
-    --self.commands = commands
-
+    
     self.commands = L{
         Command.new('trust start', L{}, 'Start'),
         Command.new('trust stop', L{}, 'Stop'),
@@ -53,7 +46,7 @@ function PartyMemberMenuItem.new(partyMember, party, whitelist, trust)
 
     self.disposeBag = DisposeBag.new()
 
-    self:reloadSettings()
+    self:reloadSettings(roles)
 
     return self
 end
@@ -64,12 +57,12 @@ function PartyMemberMenuItem:destroy()
     self.disposeBag:destroy()
 end
 
-function PartyMemberMenuItem:reloadSettings()
+function PartyMemberMenuItem:reloadSettings(roles)
     self:setChildMenuItem("Assist", MenuItem.action(function(_)
         windower.send_command('trust assist '..self.partyMemberName)
     end, self.partyMemberName, "Assist "..self.partyMemberName.." in battle"))
     self:setChildMenuItem("Commands", self:getCommandsMenuItem())
-    self:setChildMenuItem("Config", self:getConfigMenuItem())
+    self:setChildMenuItem("Config", self:getConfigMenuItem(roles))
     --self:setChildMenuItem("Modes", self:getModesMenuItem())
 end
 
@@ -137,15 +130,9 @@ function PartyMemberMenuItem:sendCommand(command, sendAll)
     end
 end
 
-function PartyMemberMenuItem:getConfigMenuItem()
-    local configMenuItem = MenuItem.new(L{}, {}, nil, "Config", "Choose which actions to perform on this player.")
-
-    local allRoles = L{}:extend(L(player.trust.main_job:get_roles())):extend(L(player.trust.sub_job:get_roles()))
-
-    local roles = allRoles:filter(function(role)
-        if role:get_type() == 'healer' then
-        end
-        return role.get_party_member_blacklist ~= nil
+function PartyMemberMenuItem:getConfigMenuItem(roles)
+    local configMenuItem = MenuItem.new(L{}, {}, nil, "Config", "Choose which roles to perform on this player.", false, function()
+        return roles:length() > 0
     end)
 
     for role in roles:it() do
