@@ -26,6 +26,10 @@ function SpellAction.new(x, y, z, spell_id, target_index, player, conditions)
 		ValidSpellTargetCondition.new(res.spells[spell_id].en, alter_ego_util.untargetable_alter_egos()),
 	})
 
+	if res.spells[spell_id].type == 'Trust' then
+		conditions:append(NotCondition.new(L{InTownCondition.new()}))
+	end
+
 	local self = setmetatable(Action.new(x, y, z, target_index, conditions), SpellAction)
 
 	self.dispose_bag = DisposeBag.new()

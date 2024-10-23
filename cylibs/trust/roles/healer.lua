@@ -25,6 +25,7 @@ function Healer.new(action_queue, main_job)
     self.main_job = main_job
     self.last_cure_time = os.time()
     self.cure_delay = main_job:get_cure_delay()
+    self.party_member_blacklist = L{}
 
     self.dispose_bag = DisposeBag.new()
 
@@ -132,9 +133,17 @@ end
 -- @treturn list List of party members
 function Healer:get_valid_cure_targets(filter)
     local party_members = self:get_party():get_party_members(true, 21):filter(function(party_member)
-        return party_member:is_valid() and filter(party_member)
+        return self:is_valid_cure_target(party_member) and filter(party_member)
     end)
     return party_members
+end
+
+-------
+-- Returns whether a party member can be cured.
+-- @tparam party_member PartyMember The party member
+-- @treturn boolean True if the party member is a valid cure target
+function Healer:is_valid_cure_target(party_member)
+    return party_member:is_valid() and not S(self.party_member_blacklist):contains(party_member:get_name())
 end
 
 -------
@@ -248,6 +257,14 @@ end
 
 function Healer:get_tracker()
     return self.healer_tracker
+end
+
+function Healer:set_party_member_blacklist(blacklist)
+    self.party_member_blacklist = blacklist
+end
+
+function Healer:get_party_member_blacklist()
+    return self.party_member_blacklist
 end
 
 return Healer

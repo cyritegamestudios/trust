@@ -113,6 +113,7 @@ function Condition.defaultSerializableConditionClasses()
         ItemCountCondition.__class,
         SkillchainWindowCondition.__class,
         SkillchainStepCondition.__class,
+        InTownCondition.__class,
     }
 end
 

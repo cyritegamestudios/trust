@@ -11,10 +11,20 @@ local TrustModeSettings = require('TrustModeSettings')
 local PartyMemberMenuItem = setmetatable({}, {__index = MenuItem })
 PartyMemberMenuItem.__index = PartyMemberMenuItem
 
-function PartyMemberMenuItem.new(partyMember, party, whitelist)
+function PartyMemberMenuItem.new(partyMember, party, whitelist, trust)
+    local allRoles = L{}:extend(L(player.trust.main_job:get_roles())):extend(L(player.trust.sub_job:get_roles()))
+
+    local roles = L(allRoles:filter(function(role)
+        return role.get_party_member_blacklist ~= nil
+    end))
+
+    local configButtonItem = ButtonItem.default('Config', 18)
+    configButtonItem:setEnabled(roles:length() > 0)
+
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Assist', 18),
         ButtonItem.default('Commands', 18),
+        configButtonItem
     }, {}, nil, partyMember:get_name(), "See status and configure party member."), PartyMemberMenuItem)
 
     self.trustMode = M{['description'] = partyMember:get_name()..' Trust Mode', T{}}
@@ -22,22 +32,7 @@ function PartyMemberMenuItem.new(partyMember, party, whitelist)
     self.partyMemberName = partyMember:get_name()
     self.party = party
     self.whitelist = whitelist or S{}
-
-    --self.trustModeSettings = TrustModeSettings.new(partyMember:get_main_job_short(), self.partyMemberName, self.trustMode)
-    --self.trustModeSettings:loadSettings()
-    --self.modes = T(self.trustModeSettings:getSettings()).Default
-    --self.modeNames = self.modes:keyset()
-
-    local trustCommands = L{
-        AssistCommands.new(),
-        GeneralCommands.new(),
-    }
-
-    --local commands = L{}
-    --for trustCommand in trustCommands:it() do
-    --    commands = commands:extend(trustCommand:to_commands())
-    --end
-    --self.commands = commands
+    self.trust = trust
 
     self.commands = L{
         Command.new('trust start', L{}, 'Start'),
@@ -51,7 +46,7 @@ function PartyMemberMenuItem.new(partyMember, party, whitelist)
 
     self.disposeBag = DisposeBag.new()
 
-    self:reloadSettings()
+    self:reloadSettings(roles)
 
     return self
 end
@@ -62,11 +57,12 @@ function PartyMemberMenuItem:destroy()
     self.disposeBag:destroy()
 end
 
-function PartyMemberMenuItem:reloadSettings()
+function PartyMemberMenuItem:reloadSettings(roles)
     self:setChildMenuItem("Assist", MenuItem.action(function(_)
         windower.send_command('trust assist '..self.partyMemberName)
     end, self.partyMemberName, "Assist "..self.partyMemberName.." in battle"))
     self:setChildMenuItem("Commands", self:getCommandsMenuItem())
+    self:setChildMenuItem("Config", self:getConfigMenuItem(roles))
     --self:setChildMenuItem("Modes", self:getModesMenuItem())
 end
 
@@ -132,6 +128,38 @@ function PartyMemberMenuItem:sendCommand(command, sendAll)
             windower.chat.input('/tell '..partyMemberName..' '..self.selectedCommand:get_windower_command())
         end
     end
+end
+
+function PartyMemberMenuItem:getConfigMenuItem(roles)
+    local configMenuItem = MenuItem.new(L{}, {}, nil, "Config", "Choose which roles to perform on this player.", false, function()
+        return roles:length() > 0
+    end)
+
+    for role in roles:it() do
+        configMenuItem:setChildMenuItem(role:get_type():gsub("^%l", string.upper), MenuItem.new(L{
+        ButtonItem.default('Confirm', 18),
+    }, {}, function(_, _)
+            local partyMemberNames = self.party:get_party_members(false):map(function(party_member)
+                return party_member:get_name()
+            end)
+            local partyMemberPickerView = FFXIPickerView.withItems(partyMemberNames, role:get_party_member_blacklist() or L{}, true)
+            self.disposeBag:add(partyMemberPickerView:on_pick_items():addAction(function(_, selectedItems)
+                local newPartyMemberNames = selectedItems:map(function(item)
+                    return item:getText()
+                end)
+                role:set_party_member_blacklist(newPartyMemberNames)
+                if newPartyMemberNames:length() > 0 then
+                    self.party:add_to_chat(self.party:get_player(), "Alright, I'll ignore "..localization_util.commas(newPartyMemberNames, "and").." for the "..role:get_type().." role until the addon reloads!")
+                else
+                    self.party:add_to_chat(self.party:get_player(), "Alright, I'll perform the "..role:get_type().." role for everyone in my party!")
+                end
+            end), partyMemberPickerView:on_pick_items())
+
+            return partyMemberPickerView
+        end, role:get_type():gsub("^%l", string.upper), "Choose party members to ignore for this role."))
+    end
+
+    return configMenuItem
 end
 
 function PartyMemberMenuItem:getModesMenuItem()

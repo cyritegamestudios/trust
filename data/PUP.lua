@@ -63,8 +63,8 @@ return {
         },
         GambitSettings = {
             Default = L{
-                Gambit.new("Self", L{NotCondition.new(L{HasPetCondition.new(L{})}), ModeCondition.new("AutoPetMode", "Auto")}, JobAbility.new("Activate", L{}, L{}), "Self"),
-                Gambit.new("Self", L{NotCondition.new(L{HasPetCondition.new(L{})}), ModeCondition.new("AutoPetMode", "Auto")}, JobAbility.new("Deus Ex Automata", L{}, L{}), "Self"),
+                Gambit.new("Self", L{NotCondition.new(L{HasPetCondition.new(L{})}), ModeCondition.new("AutoPetMode", "Auto"), NotCondition.new(L{InTownCondition.new()})}, JobAbility.new("Activate", L{}, L{}), "Self"),
+                Gambit.new("Self", L{NotCondition.new(L{HasPetCondition.new(L{})}), ModeCondition.new("AutoPetMode", "Auto"), NotCondition.new(L{InTownCondition.new()})}, JobAbility.new("Deus Ex Automata", L{}, L{}), "Self"),
                 Gambit.new("Self", L{HasPetCondition.new(L{}), PetHitPointsPercentCondition.new(20, "<="), ModeCondition.new("AutoRepairMode", "Auto")}, JobAbility.new("Repair", L{}, L{}), "Self"),
                 Gambit.new("Self", L{HasBuffCondition.new("Overload")}, JobAbility.new("Cooldown", L{}, L{}), "Self"),
             },

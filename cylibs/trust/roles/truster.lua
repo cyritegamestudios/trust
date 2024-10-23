@@ -1,5 +1,6 @@
 local spell_util = require('cylibs/util/spell_util')
 local trusts = require('cylibs/res/trusts')
+local zone_util = require('cylibs/util/zone_util')
 
 local Truster = setmetatable({}, {__index = Role })
 Truster.__index = Truster
@@ -77,6 +78,11 @@ end
 function Truster:check_trusts()
     if state.AutoTrustsMode.value == 'Off' or self:get_party():num_party_members() == 6
              or player.status ~= 'Idle' or not party_util.is_party_leader(windower.ffxi.get_player().id) then
+        return
+    end
+
+    local info = windower.ffxi.get_info()
+    if info and zone_util.is_city(info.zone) then
         return
     end
 

@@ -15,7 +15,7 @@ ZoneCondition.__class = "ZoneCondition"
 
 function ZoneCondition.new(zone_ids)
     local self = setmetatable(Condition.new(), ZoneCondition)
-    self.zone_ids = zone_ids or S{ windower.ffxi.get_info().zone }
+    self.zone_ids = zone_ids or L{ windower.ffxi.get_info().zone }
     return self
 end
 

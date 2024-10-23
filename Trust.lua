@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '11.4.2'
+_addon.version = '11.5.0'
 _addon.release_notes = [[
 This update introduces new menus for Bard, autocomplete for Trust
 commands, new commands and important bug fixes for users running the
@@ -65,7 +65,7 @@ shortcuts = {}
 
 state.TrustMode = M{['description'] = 'Trust Mode', T{}}
 
-state.AutoEnableMode = M{['description'] = 'Auto Enable Mode', 'Auto', 'Off'}
+state.AutoEnableMode = M{['description'] = 'Auto Enable Mode', 'Off', 'Auto'}
 state.AutoEnableMode:set_description('Auto', "Okay, I'll automatically get to work after the addon loads.")
 
 state.AutoDisableMode = M{['description'] = 'Auto Disable Mode', 'Auto', 'Off'}
@@ -354,7 +354,7 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_trust, acti
 		end
 		if terms:length() > 0 then
 			command_widget:setVisible(true)
-			command_widget:setItems(terms:map(function(term) return term:gsub("^// trust ", "") end), L{})
+			command_widget:setItems(terms:map(function(term) return term:gsub("^//%s*trust ", "") end), L{})
 			local description
 			if terms:length() == 1 then
 				hud.infoBar:setTitle("Commands")
