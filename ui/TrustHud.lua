@@ -389,7 +389,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
     end, "Debuffs", "Choose debuffs to use on enemies.")
 
     -- Modes
-    local modesMenuItem = ModesMenuItem.new(trustSettings)
+    local modesMenuItem = ModesMenuItem.new(self.trustModeSettings)
 
     -- Settings
     local menuItems = L{
