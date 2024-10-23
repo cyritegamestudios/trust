@@ -225,7 +225,7 @@ function TrustHud:createWidgets(addon_settings, addon_enabled, action_queue, par
     local targetWidget = TargetWidget.new(Frame.new(0, 0, 125, 40), addon_settings, party, trust)
     self.widgetManager:addWidget(targetWidget, "target")
 
-    local partyStatusWidget = PartyStatusWidget.new(Frame.new(0, 0, 125, 55), addon_settings, party)
+    local partyStatusWidget = PartyStatusWidget.new(Frame.new(0, 0, 125, 55), addon_settings, party, trust)
     self.widgetManager:addWidget(partyStatusWidget, "party")
 
     local pathWidget = PathWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), self, main_trust_settings, state.MainTrustSettingsMode, trust)

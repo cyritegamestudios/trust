@@ -33,7 +33,7 @@ PartyStatusWidget.TextSmall = TextStyle.new(
         true
 )
 
-function PartyStatusWidget.new(frame, addonSettings, party, actionQueue)
+function PartyStatusWidget.new(frame, addonSettings, party, trust)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = TextCollectionViewCell.new(item)
         cell:setItemSize(14)
@@ -64,7 +64,7 @@ function PartyStatusWidget.new(frame, addonSettings, party, actionQueue)
                 elseif party_member:is_trust() then
                     party:set_assist_target(party_member)
                 else
-                    local partyMemberMenuItem = PartyMemberMenuItem.new(party_member, party, addonSettings:getSettings().remote_commands.whitelist)
+                    local partyMemberMenuItem = PartyMemberMenuItem.new(party_member, party, addonSettings:getSettings().remote_commands.whitelist, trust)
                     coroutine.schedule(function()
                         self:resignFocus()
                         hud:closeAllMenus()
