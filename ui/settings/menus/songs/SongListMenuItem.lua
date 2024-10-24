@@ -39,7 +39,7 @@ function SongListMenuItem.new(trustSettings, trustSettingsMode)
         }
 
         local configItems = L{
-            PickerConfigItem.new('Song1', songSettings.Song1, allSongs, nil, "Song 1"),
+            PickerConfigItem.new('Song1', songSettings.Song1, allSongs, nil, "Song 1 (Marcato)"),
             PickerConfigItem.new('Song2', songSettings.Song2, allSongs, nil, "Song 2"),
             PickerConfigItem.new('Song3', songSettings.Song3, allSongs, nil, "Song 3"),
             PickerConfigItem.new('Song4', songSettings.Song4, allSongs, nil, "Song 4"),
@@ -75,7 +75,7 @@ function SongListMenuItem.new(trustSettings, trustSettingsMode)
                 local newSongName = newSettings["Song"..i]
                 if songs[i]:get_name() ~= newSongName then
                     local jobAbilities = L{}
-                    if newSongName == "Honor March" then
+                    if i == 1 then
                         jobAbilities = L{ "Marcato"}
                     end
                     songs[i] = Spell.new(newSongName, jobAbilities, job_util.all_jobs())

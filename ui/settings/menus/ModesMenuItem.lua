@@ -40,7 +40,7 @@ function ModesMenuItem:reloadSettings()
         self:setChildMenuItem("Save", MenuItem.action(function()
             self.trustModeSettings:saveSettings(state.TrustMode.value)
             addon_message(260, '('..windower.ffxi.get_player().name..') '.."You got it! I'll update my profile and remember this for next time!")
-        end, "Modes", "Change modes and permanently save changes to the current profile."))
+        end, "Modes", "Change modes and save changes to the current profile."))
     end
 end
 
