@@ -219,6 +219,13 @@ function Widget:onMouseEvent(type, x, y, delta)
     return false
 end
 
+function Widget:hitTest(x, y)
+    if not self.dragging then
+        return CollectionView.hitTest(self, x, y)
+    end
+    return true
+end
+
 function Widget:__eq(otherItem)
     return self.title == otherItem.title
 end
