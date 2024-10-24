@@ -1,19 +1,8 @@
-local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
-local ConditionSettingsMenuItem = require('ui/settings/menus/conditions/ConditionSettingsMenuItem')
-local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
-local Gambit = require('cylibs/gambits/gambit')
-local GambitSettingsEditor = require('ui/settings/editors/GambitSettingsEditor')
-local GambitTarget = require('cylibs/gambits/gambit_target')
-local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
-local IndexPath = require('cylibs/ui/collection_view/index_path')
-local job_util = require('cylibs/util/job_util')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
-local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 
 local GambitLibraryMenuItem = setmetatable({}, {__index = MenuItem })
 GambitLibraryMenuItem.__index = GambitLibraryMenuItem
@@ -25,7 +14,7 @@ function GambitLibraryMenuItem.new(trustSettings, trustSettingsMode, parentMenuI
         return ButtonItem.default(category:getName(), 18)
     end))
 
-    local self = setmetatable(MenuItem.new(buttonItems, {}, nil, "Gambits", "Browse gambits."), GambitLibraryMenuItem)
+    local self = setmetatable(MenuItem.new(buttonItems, {}, nil, "Gambits", "Browse pre-made gambits."), GambitLibraryMenuItem)
 
     for category in gambitCategories:it() do
         self:setChildMenuItem(category:getName(), self:getGambitCategoryMenuItem(category))

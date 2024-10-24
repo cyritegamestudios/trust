@@ -32,7 +32,7 @@ function ReactSettingsMenuItem.new(trustSettings, trustSettingsMode)
 
     self.contentViewConstructor = function(_, infoView)
         local currentGambits = self.trustSettings:getSettings()[self.trustSettingsMode.value].GambitSettings.Gambits:filter(function(g)
-            return g:getTags():contains('reaction')
+            return g:getTags():contains('reaction') or g:getTags():contains('Reaction')
         end)
 
         local gambitSettingsEditor = FFXIPickerView.withItems(currentGambits:map(function(gambit)
