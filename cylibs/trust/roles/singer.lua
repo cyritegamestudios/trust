@@ -148,26 +148,27 @@ function Singer:check_songs()
 
     local party_members = self:get_party():get_party_members(true, 20):filter(function(p) return p:get_id() ~= self.song_target:get_id()  end)
 
-    local party_members_without_songs = party_members:filter(function(p)
-        return p:is_alive() and self:get_next_song(p, self.dummy_songs, self:get_merged_songs(p)) ~= nil
-    end)
-    print(party_members_without_songs:length())
+    -- 1. Determine the singer's songs:
+    --    a. If all party members have their merged songs, set songs to merged songs.
+    --    b. If >= 1 party members are missing a song and the singer *does not* have all of their merged songs, set songs to main songs.
+    --    c. If >= 1 party members are missing a song and the singer *does* have all of their merged songs, set songs to merged songs.
+    -- 2. If singer is missing a song, sing the song.
+    --    a. If singer's songs are merged songs, use pianissimo.
+    --    b. If singer's songs are main songs, do not use pianissimo.
+    -- 3. If party member is missing a song, sing song with pianissimo.
 
-    local song_target_songs = self:get_merged_songs(self.song_target, true)
-    if party_members_without_songs:length() == 0 then
-        print('everyone else has songs')
-        song_target_songs = self:get_merged_songs(self.song_target, false)
-        print(song_target_songs:map(function(s) return s:get_name() end))
-    end
+    -- Song target songs
+    local song_target_songs, is_merged_songs = self:get_self_merged_songs(party_members)
 
     local next_song = self:get_next_song(self.song_target, self.dummy_songs, song_target_songs)
     if next_song then
-        has_more_songs = true
-        self:sing_song(next_song, self.song_target:get_mob().index, self:should_nitro(), party_members_without_songs:length() == 0 and not self:should_nitro())
+        -- if merged songs and not has all merged songs don't allow pianissimo and nitro active?
+        local allow_pianissimo = is_merged_songs and not self.song_tracker:is_expiring_soon(self.song_target:get_id(), song_target_songs) --and not self:should_nitro()
+        self:sing_song(next_song, self.song_target:get_mob().index, self:should_nitro(), allow_pianissimo)
         return
     end
 
-
+    -- Party member songs
     for party_member in list.extend(L{}, party_members):it() do
         if party_member:is_alive() then
             local next_song = self:get_next_song(party_member, self.dummy_songs, self:get_merged_songs(party_member))
@@ -382,23 +383,56 @@ function Singer:nitro()
     self.action_queue:push_action(nitro_action, true)
 end
 
-function Singer:get_merged_songs(party_member, exclude_pianissimo)
+function Singer:get_self_merged_songs(party_members)
+    local merged_songs = self:get_merged_songs(self.song_target)
+
+    local max_num_songs = self.song_tracker:get_max_num_songs(self.song_target:get_id())
+    local songs = self.songs:slice(1, max_num_songs):reverse()
+
+    if self.song_tracker:is_expiring_soon(self.song_target:get_id(), songs) or self:should_nitro() then
+        return songs, false
+    end
+
+    local party_members_missing_songs = party_members:filter(function(p)
+        return p:is_alive() and self:get_next_song(p, self.dummy_songs, self:get_merged_songs(p)) ~= nil
+    end)
+    -- If all party members have their merged songs, set songs to merged songs.
+    if party_members_missing_songs:length() == 0 then
+        return merged_songs, true
+    else
+        local buff_ids = L(self.song_target:get_buff_ids())
+        -- If >= 1 party members are missing a song and the singer *does not* have all of their merged songs, set songs to main songs.
+        if self.song_tracker:has_all_songs(self.song_target:get_id(), merged_songs:map(function(song) return song:get_spell().id end), buff_ids) then
+            return merged_songs, true
+        -- If >= 1 party members are missing a song and the singer *does* have all of their merged songs, set songs to merged songs.
+        else
+            return songs, false
+        end
+    end
+end
+
+function Singer:get_merged_songs(party_member)
+    -- 1. Determine the singer's songs:
+    --    a. If all party members have their merged songs, set songs to merged songs.
+    --    b. If >= 1 party members are missing a song and the singer *does not* have all of their merged songs, set songs to main songs.
+    --    c. If >= 1 party members are missing a song and the singer *does* have all of their merged songs, set songs to merged songs.
+    -- 2. If singer is missing a song, sing the song.
+    --    a. If singer's songs are merged songs, use pianissimo.
+    --    b. If singer's songs are main songs, do not use pianissimo.
+    -- 3. If party member is missing a song, sing song with pianissimo.
     local max_num_songs = self.song_tracker:get_max_num_songs(party_member:get_id())
 
     logger.notice(self.__class, "get_merged_songs", "maximum number of songs for", party_member:get_name(), "is", max_num_songs)
 
-    if exclude_pianissimo and party_member:get_id() == self.song_target:get_id() then
-        return self.songs:slice(1, max_num_songs):reverse()
-    end
-
-    local pianissimo_songs = self.pianissimo_songs:filter(function(song) return song:get_job_names():contains(party_member:get_main_job_short()) end)
-    if exclude_pianissimo then
-        pianissimo_songs = L{}
-    end
+    local pianissimo_songs = self.pianissimo_songs:filter(function(song)
+        return song:get_job_names():contains(party_member:get_main_job_short())
+    end)
 
     local all_songs = L{}
     if not party_member:is_trust() and state.AutoPianissimoMode.value == 'Merged' then
-        local songs = self.songs:filter(function(song) return not song:get_job_names() or song:get_job_names():contains(party_member:get_main_job_short()) end)
+        local songs = self.songs:filter(function(song)
+            return not song:get_job_names() or song:get_job_names():contains(party_member:get_main_job_short()) or party_member:get_main_job_short() == 'NON'
+        end)
         all_songs = pianissimo_songs:extend(songs)
         all_songs = all_songs:slice(1, math.min(all_songs:length(), max_num_songs)):reverse()
     else
