@@ -71,7 +71,7 @@ end
 -- Returns a string representation of this record.
 -- @treturn string String representation of this record
 function BuffRecord:tostring()
-    return res.buffs[self:get_buff_id()].en
+    return res.buffs[self:get_buff_id()].en..' ('..self:get_time_remaining()..'s)'
 end
 
 return BuffRecord

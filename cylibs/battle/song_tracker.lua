@@ -70,9 +70,35 @@ function SongTracker.new(player, party, dummy_songs, songs, pianissimo_songs, jo
     end
 
     if has_songs then
-        party:add_to_chat(self.party:get_player(), "It looks like there are already some active songs. I'll try my best to figure out what they are.")
+        party:add_to_chat(self.party:get_player(), "It looks like there are already some active songs. I'll try my best to figure out what they are. Use // trust brd clear if I got it wrong and you want me to resing!")
 
-        self:set_expiring_soon(windower.ffxi.get_player().id)
+        if WindowerEvents.can_replay_last_event(WindowerEvents.BuffDurationChanged) then
+            local action_id = WindowerEvents.BuffDurationChanged:addAction(function(_, buff_records)
+                local song_records = L(buff_records:filter(function(buff_record)
+                    return self.job:is_bard_song_buff(buff_record:get_buff_id())
+                end)):sort(function(buff_record_1, buff_record_2)
+                    return buff_record_1:get_expire_time() < buff_record_2:get_expire_time()
+                end)
+                if song_records:length() > 0 then
+                    local min_song_duration = math.max(song_records[1]:get_time_remaining(), 0)
+
+                    local active_songs = all_songs:filter(function(song)
+                        return self:has_song(self.party:get_player().id, song:get_spell().id)
+                    end)
+                    for song in active_songs:it() do
+                        self:update_song_duration(self.party:get_player().id, song:get_spell().id, min_song_duration)
+                    end
+                else
+                    self:set_expiring_soon(windower.ffxi.get_player().id)
+                end
+                return false
+            end)
+            WindowerEvents.BuffDurationChanged:setActionTriggerLimit(action_id, 1)
+
+            WindowerEvents.replay_last_event(WindowerEvents.BuffDurationChanged)
+        else
+            self:set_expiring_soon(windower.ffxi.get_player().id)
+        end
     end
 
     return self
@@ -125,19 +151,6 @@ function SongTracker:monitor()
     self.action_events.zone_change = windower.register_event('zone change', function()
         self:reset()
     end)
-
-    self.dispose_bag:add(WindowerEvents.BuffDurationChanged:addAction(function(target_id, buff_records)
-        if self.last_song_id == nil then
-            return
-        end
-        local buff_record = buff_records:filter(function(record)
-            return record:get_buff_id() == buff_util.buff_for_spell(self.last_song_id).id
-        end):reverse()[1]
-        if buff_record then
-            --self:update_song_duration(target_id, self.last_song_id, buff_record:get_time_remaining())
-            --self.last_song_id = nil
-        end
-    end), WindowerEvents.BuffDurationChanged)
 
     local on_party_member_added = function(party_member)
         self.dispose_bag:add(party_member:on_gain_buff():addAction(function(p, buff_id)
