@@ -2,7 +2,6 @@ local BlockAction = require('cylibs/actions/block')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Event = require('cylibs/events/Luvent')
 local logger = require('cylibs/logger/logger')
-local Renderer = require('cylibs/ui/views/render')
 local res = require('resources')
 
 local Singer = setmetatable({}, {__index = Role })
@@ -162,8 +161,7 @@ function Singer:check_songs()
 
     local next_song = self:get_next_song(self.song_target, self.dummy_songs, song_target_songs)
     if next_song then
-        -- if merged songs and not has all merged songs don't allow pianissimo and nitro active?
-        local allow_pianissimo = is_merged_songs and not self.song_tracker:is_expiring_soon(self.song_target:get_id(), song_target_songs) --and not self:should_nitro()
+        local allow_pianissimo = is_merged_songs and not self.song_tracker:is_expiring_soon(self.song_target:get_id(), song_target_songs)
         self:sing_song(next_song, self.song_target:get_mob().index, self:should_nitro(), allow_pianissimo)
         return
     end
@@ -224,8 +222,6 @@ function Singer:sing_song(song, target_index, should_nitro, allow_self_pianissim
     local action_identifier = 'singer_sing_song_'..song:get_spell().en
 
     self.action_queue:cleanup()
-
-    -- does this work??    allow_self_pianissimo = allow_self_pianissimo and not should_nitro and not self:get_job():is_nitro_active()
 
     if spell_util.can_cast_spell(song:get_spell().id) and not self.action_queue:has_action(action_identifier) then
         self:set_is_singing(true)
