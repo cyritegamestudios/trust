@@ -2,16 +2,16 @@ local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local ConfigItem = require('ui/settings/editors/config/ConfigItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
+local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
+local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
 local PullActionMenuItem = require('ui/settings/menus/pulling/PullActionMenuItem')
-local PullSettingsEditor = require('ui/settings/PullSettingsEditor')
-local TargetsPickerView = require('ui/settings/pickers/TargetsPickerView')
 
 local PullSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 PullSettingsMenuItem.__index = PullSettingsMenuItem
 
-function PullSettingsMenuItem.new(abilities, trust, job_name_short, addon_settings, targets, trust_settings, trust_settings_mode)
+function PullSettingsMenuItem.new(abilities, trust, job_name_short, trust_settings, trust_settings_mode)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Targets', 18),
         ButtonItem.default('Actions', 18),
@@ -25,8 +25,6 @@ function PullSettingsMenuItem.new(abilities, trust, job_name_short, addon_settin
     self.puller = trust:role_with_type("puller")
     self.puller_settings = self.puller:get_pull_settings()
     self.job_name_short = job_name_short
-    self.addon_settings = addon_settings
-    self.targets = targets
     self.trust_settings = trust_settings
     self.trust_settings_mode = trust_settings_mode
     self.dispose_bag = DisposeBag.new()
@@ -52,15 +50,40 @@ end
 function PullSettingsMenuItem:getTargetsMenuItem()
     local chooseTargetsMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
-        ButtonItem.default('Clear', 18),
+        ButtonItem.default('Clear All', 18),
     }, {
-        Confirm = MenuItem.action(nil, "Targets", "Confirm targets to pull."),
         Clear = MenuItem.action(nil, "Targets", "Clear selected targets."),
     },
     function()
-        local chooseTargetsView = TargetsPickerView.new(self.addon_settings, self.puller)
-        chooseTargetsView:setShouldRequestFocus(true)
-        return chooseTargetsView
+        local currentTargets = self.trust_settings:getSettings()[self.trust_settings_mode.value].PullSettings.Targets
+
+        local allMobs = S{}
+        local nearbyMobs = windower.ffxi.get_mob_array()
+        for _, mob in pairs(nearbyMobs) do
+            if mob.valid_target and mob.spawn_type == 16 then
+                allMobs:add(mob.name)
+            end
+        end
+
+        local targetPickerView = FFXIPickerView.withItems(L(allMobs), L{}, true)
+
+        self.dispose_bag:add(targetPickerView:on_pick_items():addAction(function(_, selectedItems)
+            targetPickerView:getDelegate():deselectAllItems()
+
+            local targetNames = selectedItems:map(function(item)
+                return item:getText()
+            end)
+            if targetNames:length() > 0 then
+                local newTargets = S(currentTargets:extend(targetNames))
+
+                self.trust_settings:getSettings()[self.trust_settings_mode.value].PullSettings.Targets = L(newTargets)
+                self.trust_settings:saveSettings(true)
+
+                addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my list of enemies to pull!")
+            end
+        end), targetPickerView:on_pick_items())
+
+        return targetPickerView
     end, "Targets", "Choose which enemies to pull.")
 
     local targetsMenuItem = MenuItem.new(L{
@@ -68,13 +91,36 @@ function PullSettingsMenuItem:getTargetsMenuItem()
         ButtonItem.default('Remove', 18),
     }, {
         Add = chooseTargetsMenuItem,
-        Remove = MenuItem.action(nil, "Targets", "Remove selected target from list of enemies to pull."),
+        Remove = MenuItem.action(function()
+            if self.pullTargetsEditor then
+                local cursorIndexPath = self.pullTargetsEditor:getDelegate():getCursorIndexPath()
+                if cursorIndexPath then
+                    local currentTargets = self.trust_settings:getSettings()[self.trust_settings_mode.value].PullSettings.Targets
+                    currentTargets:remove(cursorIndexPath.row)
+
+                    self.pullTargetsEditor:getDataSource():removeItem(cursorIndexPath)
+
+                    self.trust_settings:saveSettings(true)
+
+                    addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I won't pull this enemy anymore!")
+                end
+            end
+        end, "Targets", "Remove selected target from list of enemies to pull.", false, function()
+            return self.trust_settings:getSettings()[self.trust_settings_mode.value].PullSettings.Targets:length() > 0
+        end),
     },
     function()
-        local pullSettingsView = PullSettingsEditor.new(self.addon_settings, self.puller)
-        pullSettingsView:setShouldRequestFocus(true)
-        return pullSettingsView
+        local currentTargets = self.trust_settings:getSettings()[self.trust_settings_mode.value].PullSettings.Targets
+
+        self.pullTargetsEditor = FFXIPickerView.withItems(currentTargets, L{}, false, nil, nil, FFXIClassicStyle.WindowSize.Editor.ConfigEditor)
+        self.pullTargetsEditor:setAllowsCursorSelection(true)
+
+        return self.pullTargetsEditor
     end, "Targets", "Choose which enemies to pull.")
+
+    chooseTargetsMenuItem:setChildMenuItem("Confirm", MenuItem.action(function(menu)
+        menu:showMenu(targetsMenuItem)
+    end, "Targets", "Confirm enemies to pull."))
 
     return targetsMenuItem
 end
@@ -94,7 +140,7 @@ end
 function PullSettingsMenuItem:getConfigMenuItem()
     return MenuItem.new(L{
         ButtonItem.default('Save')
-    }, L{}, function(menuArgs)
+    }, L{}, function(_, _)
         local allSettings = self.trust_settings:getSettings()[self.trust_settings_mode.value]
 
         local pullSettings = T{

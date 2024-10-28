@@ -21,6 +21,11 @@ return {
             Abilities = L{
                 JobAbility.new('Provoke', L{}, L{})
             },
+            Targets = L{
+                "Locus Ghost Crab",
+                "Locus Dire Bat",
+                "Locus Armet Beetle",
+            },
             Distance = 20
         },
         GambitSettings = {

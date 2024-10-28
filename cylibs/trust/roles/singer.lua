@@ -2,7 +2,6 @@ local BlockAction = require('cylibs/actions/block')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Event = require('cylibs/events/Luvent')
 local logger = require('cylibs/logger/logger')
-local Renderer = require('cylibs/ui/views/render')
 local res = require('resources')
 
 local Singer = setmetatable({}, {__index = Role })
@@ -147,7 +146,28 @@ function Singer:check_songs()
     self:assert_num_songs(player)
 
     local party_members = self:get_party():get_party_members(true, 20):filter(function(p) return p:get_id() ~= self.song_target:get_id()  end)
-    for party_member in list.extend(L{self.song_target}, party_members):it() do
+
+    -- 1. Determine the singer's songs:
+    --    a. If all party members have their merged songs, set songs to merged songs.
+    --    b. If >= 1 party members are missing a song and the singer *does not* have all of their merged songs, set songs to main songs.
+    --    c. If >= 1 party members are missing a song and the singer *does* have all of their merged songs, set songs to merged songs.
+    -- 2. If singer is missing a song, sing the song.
+    --    a. If singer's songs are merged songs, use pianissimo.
+    --    b. If singer's songs are main songs, do not use pianissimo.
+    -- 3. If party member is missing a song, sing song with pianissimo.
+
+    -- Song target songs
+    local song_target_songs, is_merged_songs = self:get_self_merged_songs(party_members)
+
+    local next_song = self:get_next_song(self.song_target, self.dummy_songs, song_target_songs)
+    if next_song then
+        local allow_pianissimo = is_merged_songs and not self.song_tracker:is_expiring_soon(self.song_target:get_id(), song_target_songs)
+        self:sing_song(next_song, self.song_target:get_mob().index, self:should_nitro(), allow_pianissimo)
+        return
+    end
+
+    -- Party member songs
+    for party_member in list.extend(L{}, party_members):it() do
         if party_member:is_alive() then
             local next_song = self:get_next_song(party_member, self.dummy_songs, self:get_merged_songs(party_member))
             if next_song then
@@ -198,7 +218,7 @@ function Singer:get_next_song(party_member, dummy_songs, songs)
     return nil
 end
 
-function Singer:sing_song(song, target_index, should_nitro)
+function Singer:sing_song(song, target_index, should_nitro, allow_self_pianissimo)
     local action_identifier = 'singer_sing_song_'..song:get_spell().en
 
     self.action_queue:cleanup()
@@ -220,7 +240,7 @@ function Singer:sing_song(song, target_index, should_nitro)
         end
 
         local job_abilities = job_abilities:extend(song:get_job_abilities():copy())
-        if target_index == windower.ffxi.get_player().index and self.song_target:get_mob().index == windower.ffxi.get_player().index then
+        if not allow_self_pianissimo and target_index == windower.ffxi.get_player().index and self.song_target:get_mob().index == windower.ffxi.get_player().index then
             if buff_util.is_buff_active(buff_util.buff_id('Pianissimo')) then
                 logger.error(self.__class, "sing_song", "attempting to sing a song on self but Pianissimo is active")
                 actions:append(BlockAction.new(function()
@@ -228,7 +248,7 @@ function Singer:sing_song(song, target_index, should_nitro)
                 end), 'cancel_pianissimo', 'Cancelling Pianissimo')
             end
         else
-            if self.song_target:get_mob().index ~= target_index then
+            if self.song_target:get_mob().index ~= target_index or allow_self_pianissimo then
                 if not job_util.can_use_job_ability('Pianissimo') then
                     local pianissimo_recast = windower.ffxi.get_ability_recasts()[res.job_abilities:with('en', 'Pianissimo').recast_id]
                     coroutine.schedule(function()
@@ -276,7 +296,7 @@ end
 
 function Singer:should_nitro()
     if state.AutoNitroMode.value == 'Auto' and self.brd_job:is_nitro_ready() then
-        -- NOTE: this check doesn't work anymore beucase nitro job abilities are being added
+        -- NOTE: this check doesn't work anymore because nitro job abilities are being added
         -- directly to the spell action
         if self.action_queue:has_action('nitro') then
             return false
@@ -359,20 +379,56 @@ function Singer:nitro()
     self.action_queue:push_action(nitro_action, true)
 end
 
+function Singer:get_self_merged_songs(party_members)
+    local merged_songs = self:get_merged_songs(self.song_target)
+
+    local max_num_songs = self.song_tracker:get_max_num_songs(self.song_target:get_id())
+    local songs = self.songs:slice(1, max_num_songs):reverse()
+
+    if self.song_tracker:is_expiring_soon(self.song_target:get_id(), songs) or self:should_nitro() then
+        return songs, false
+    end
+
+    local party_members_missing_songs = party_members:filter(function(p)
+        return p:is_alive() and self:get_next_song(p, self.dummy_songs, self:get_merged_songs(p)) ~= nil
+    end)
+    -- If all party members have their merged songs, set songs to merged songs.
+    if party_members_missing_songs:length() == 0 then
+        return merged_songs, true
+    else
+        local buff_ids = L(self.song_target:get_buff_ids())
+        -- If >= 1 party members are missing a song and the singer *does not* have all of their merged songs, set songs to main songs.
+        if self.song_tracker:has_all_songs(self.song_target:get_id(), merged_songs:map(function(song) return song:get_spell().id end), buff_ids) then
+            return merged_songs, true
+        -- If >= 1 party members are missing a song and the singer *does* have all of their merged songs, set songs to merged songs.
+        else
+            return songs, false
+        end
+    end
+end
+
 function Singer:get_merged_songs(party_member)
+    -- 1. Determine the singer's songs:
+    --    a. If all party members have their merged songs, set songs to merged songs.
+    --    b. If >= 1 party members are missing a song and the singer *does not* have all of their merged songs, set songs to main songs.
+    --    c. If >= 1 party members are missing a song and the singer *does* have all of their merged songs, set songs to merged songs.
+    -- 2. If singer is missing a song, sing the song.
+    --    a. If singer's songs are merged songs, use pianissimo.
+    --    b. If singer's songs are main songs, do not use pianissimo.
+    -- 3. If party member is missing a song, sing song with pianissimo.
     local max_num_songs = self.song_tracker:get_max_num_songs(party_member:get_id())
 
     logger.notice(self.__class, "get_merged_songs", "maximum number of songs for", party_member:get_name(), "is", max_num_songs)
 
-    if party_member:get_id() == self.song_target:get_id() then
-        return self.songs:slice(1, max_num_songs):reverse()
-    end
-
-    local pianissimo_songs = self.pianissimo_songs:filter(function(song) return song:get_job_names():contains(party_member:get_main_job_short()) end)
+    local pianissimo_songs = self.pianissimo_songs:filter(function(song)
+        return song:get_job_names():contains(party_member:get_main_job_short())
+    end)
 
     local all_songs = L{}
     if not party_member:is_trust() and state.AutoPianissimoMode.value == 'Merged' then
-        local songs = self.songs:filter(function(song) return not song:get_job_names() or song:get_job_names():contains(party_member:get_main_job_short()) end)
+        local songs = self.songs:filter(function(song)
+            return not song:get_job_names() or song:get_job_names():contains(party_member:get_main_job_short()) or party_member:get_main_job_short() == 'NON'
+        end)
         all_songs = pianissimo_songs:extend(songs)
         all_songs = all_songs:slice(1, math.min(all_songs:length(), max_num_songs)):reverse()
     else

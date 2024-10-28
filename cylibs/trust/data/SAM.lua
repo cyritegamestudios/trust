@@ -37,13 +37,6 @@ function SamuraiTrust:on_init()
 	end)
 end
 
-function SamuraiTrust:on_role_added(role)
-	Trust.on_role_added(self, role)
-	if role:get_type() == "skillchainer" then
-		--role:set_job_abilities(L{ JobAbility.new('Sengikori') })
-	end
-end
-
 function SamuraiTrust:job_target_change(target_index)
 	Trust.job_target_change(self, target_index)
 

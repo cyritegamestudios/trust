@@ -473,6 +473,12 @@ end
 local IncomingChunkHandler = windower.register_event('incoming chunk', incoming_chunk_handler)
 local OutgoingChunkHandler = windower.register_event('outgoing chunk', outgoing_chunk_handler)
 
+local EventToPackets = {
+    [WindowerEvents.AllianceMemberListUpdate] = L{ 0x0C8 },
+    [WindowerEvents.CharacterUpdate] = L{ 0x0DD, 0x0DF },
+    [WindowerEvents.BuffDurationChanged] = L{ 0x063 },
+}
+
 -- Replay necessary packets
 function WindowerEvents.replay_last_events(events)
     for event in events:it() do
@@ -481,8 +487,17 @@ function WindowerEvents.replay_last_events(events)
         elseif event == WindowerEvents.CharacterUpdate then
             incoming_chunk_handler(0x0DD, windower.packets.last_incoming(0x0DD))
             incoming_chunk_handler(0x0DF, windower.packets.last_incoming(0x0DF))
+        elseif event == WindowerEvents.BuffDurationChanged then
+            incoming_chunk_handler(0x063, windower.packets.last_incoming(0x063))
         end
     end
+end
+
+function WindowerEvents.can_replay_last_event(event)
+    if event == WindowerEvents.BuffDurationChanged then
+        return windower.packets.last_incoming(0x063) ~= nil
+    end
+    return false
 end
 
 function WindowerEvents.replay_last_event(event)

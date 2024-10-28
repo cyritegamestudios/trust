@@ -42,6 +42,11 @@ return {
                 Spell.new('Glutinous Dart', L{}, L{}),
                 Approach.new(),
             },
+            Targets = L{
+                "Locus Ghost Crab",
+                "Locus Dire Bat",
+                "Locus Armet Beetle",
+            },
             Distance = 20
         },
         BlueMagicSettings = {

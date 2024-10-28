@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '11.6.1'
+_addon.version = '11.7.0'
 _addon.release_notes = [[
 This update introduces new menus for Bard, autocomplete for Trust
 commands, new commands and important bug fixes for users running the
@@ -222,7 +222,7 @@ function load_user_files(main_job_id, sub_job_id)
 		if pull_abilities == nil or pull_abilities:length() == 0 then
 			pull_abilities = L{ Approach.new() }
 		end
-		player.trust.main_job:add_role(Puller.new(action_queue, addon_settings:getSettings().targets, pull_abilities))
+		player.trust.main_job:add_role(Puller.new(action_queue, player.trust.main_job_settings.Default.PullSettings.Targets, pull_abilities))
 	end
 
 	if player.sub_job_name_short ~= 'NON' then

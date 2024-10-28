@@ -12,6 +12,8 @@ return {
         PullSettings = {
             Abilities = L{
             },
+            Targets = L{
+            },
             Distance = 20
         },
     }

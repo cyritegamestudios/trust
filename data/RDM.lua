@@ -79,6 +79,11 @@ return {
             Abilities = L{
                 Debuff.new("Dia", L{}, L{})
             },
+            Targets = L{
+                "Locus Ghost Crab",
+                "Locus Dire Bat",
+                "Locus Armet Beetle",
+            },
             Distance = 20
         }
     }
