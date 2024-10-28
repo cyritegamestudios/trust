@@ -18,7 +18,7 @@ function BlueMageTrust.new(settings, action_queue, battle_settings, trust_settin
 		Dispeler.new(action_queue, L{ Spell.new('Blank Gaze') }, L{}, true),
 		Healer.new(action_queue, job),
 		ManaRestorer.new(action_queue, L{}, L{ Spell.new('Magic Hammer'), Spell.new('MP Drainkiss') }, 40),
-		Puller.new(action_queue, battle_settings.targets, L{ Spell.new('Glutinous Dart') }:compact_map())
+		Puller.new(action_queue, trust_settings.PullSettings.Targets, L{ Spell.new('Glutinous Dart') }:compact_map())
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), BlueMageTrust)
 

@@ -30,7 +30,8 @@ function Puller.new(action_queue, target_names, pull_abilities, truster)
     self.target_names = target_names
     self.pull_abilities = pull_abilities
     self.pull_settings = {
-        Abilities = pull_abilities
+        Abilities = pull_abilities,
+        Targets = target_names or L{},
     }
     self.truster = truster
     self.last_pull_time = os.time() - 6
@@ -210,11 +211,14 @@ function Puller:get_next_target()
             local target = windower.ffxi.get_mob_by_index(target_index)
             return target and target.claim_id and target.claim_id ~= 0
         end)
-        local target = ffxi_util.find_closest_mob(self:get_target_names(), L{}:extend(claimed_party_targets), self.blacklist, self.pull_settings.Distance or 20)
-        if target and target.distance:sqrt() < (self.pull_settings.Distance or 20) then
-            logger.notice(self.__class, 'get_next_target', 'new mob')
-            local monster = Monster.new(target.id)
-            return monster
+        if self:get_target_names():length() > 0 then
+            local target = ffxi_util.find_closest_mob(self:get_target_names(), L{}:extend(claimed_party_targets), self.blacklist, self.pull_settings.Distance or 20)
+            if target and target.distance:sqrt() < (self.pull_settings.Distance or 20) then
+            if target and target.distance:sqrt() < (self.pull_settings.Distance or 20) then
+                logger.notice(self.__class, 'get_next_target', 'new mob')
+                local monster = Monster.new(target.id)
+                return monster
+            end
         end
     end
     return nil
@@ -272,7 +276,8 @@ end
 
 function Puller:set_pull_settings(pull_settings)
     self.pull_settings = pull_settings
-    self.pull_abilities = self.pull_settings.Abilities or L{}
+    self.pull_abilities = pull_settings.Abilities or L{}
+    self:set_target_names(pull_settings.Targets or L{})
 end
 
 function Puller:get_pull_abilities()
