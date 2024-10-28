@@ -25,7 +25,9 @@ function JobAbilityPickerView.new(trustSettings, jobAbilities, allJobAbilities, 
 
     self:setScrollEnabled(true)
 
-    self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
+    if allJobAbilities:length() > 0 then
+        self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
+    end
 
     return self
 end
