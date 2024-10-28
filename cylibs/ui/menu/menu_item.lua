@@ -41,8 +41,8 @@ end
 --
 -- @treturn MenuItem The newly created MenuItem.
 --
-function MenuItem.action(callback, titleText, descriptionText)
-    local self = MenuItem.new(L{}, L{}, nil, titleText, descriptionText, false)
+function MenuItem.action(callback, titleText, descriptionText, keepViews, enabled)
+    local self = MenuItem.new(L{}, L{}, nil, titleText, descriptionText, keepViews, enabled)
 
     self.callback = callback
 

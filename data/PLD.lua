@@ -53,6 +53,11 @@ return {
                 Spell.new("Flash", L{}, L{}),
                 Spell.new("Banish", L{}, L{})
             },
+            Targets = L{
+                "Locus Ghost Crab",
+                "Locus Dire Bat",
+                "Locus Armet Beetle",
+            },
             Distance = 20
         },
         GambitSettings = {

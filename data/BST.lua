@@ -21,6 +21,11 @@ return {
             Abilities = L{
                 Approach.new()
             },
+            Targets = L{
+                "Locus Ghost Crab",
+                "Locus Dire Bat",
+                "Locus Armet Beetle",
+            },
             Distance = 20
         },
         GambitSettings = {

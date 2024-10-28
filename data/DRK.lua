@@ -24,6 +24,11 @@ return {
                 Spell.new('Absorb-DEX', L{}, L{}),
                 Spell.new('Stone', L{}, L{})
             },
+            Targets = L{
+                "Locus Ghost Crab",
+                "Locus Dire Bat",
+                "Locus Armet Beetle",
+            },
             Distance = 20
         },
         GambitSettings = {
