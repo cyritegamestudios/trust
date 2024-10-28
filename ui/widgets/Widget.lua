@@ -210,6 +210,7 @@ function Widget:onMouseEvent(type, x, y, delta)
         if self.dragging then
             self.dragging = nil
             self:setEditing(false)
+            addon_system_message("Use // trust widget save to save positions for all widgets.")
             return true
         end
     else

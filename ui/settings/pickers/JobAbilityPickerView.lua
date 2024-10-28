@@ -7,9 +7,15 @@ local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local JobAbilityPickerView = setmetatable({}, {__index = FFXIPickerView })
 JobAbilityPickerView.__index = JobAbilityPickerView
 
-function JobAbilityPickerView.new(trustSettings, jobAbilities, allJobAbilities)
+function JobAbilityPickerView.new(trustSettings, jobAbilities, allJobAbilities, includeCurrentJobOnly)
     local imageItemForText = function(text)
         return AssetManager.imageItemForJobAbility(text)
+    end
+
+    if includeCurrentJobOnly then
+        allJobAbilities = allJobAbilities:filter(function(jobAbilityName)
+            return job_util.knows_job_ability(res.job_abilities:with('en', jobAbilityName).id, res.jobs:with('ens', trustSettings.jobNameShort).id)
+        end)
     end
 
     local self = setmetatable(FFXIPickerView.withItems(allJobAbilities, L{}, true, nil, imageItemForText), JobAbilityPickerView)

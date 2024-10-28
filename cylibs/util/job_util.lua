@@ -7,6 +7,7 @@ _libs = _libs or {}
 
 local res = require('resources')
 local jobs_ext = require('cylibs/res/jobs')
+local job_abilities_ext = require('cylibs/res/job_abilities')
 
 local job_util = {}
 
@@ -54,16 +55,24 @@ end
 -- Returns whether the player knows a job ability, either from their main job or sub job.
 -- @tparam number job_ability_id Job ability id (see job_abilities.lua)
 -- @treturn Boolean True if the player knows the given job ability
-function job_util.knows_job_ability(job_ability_id)
+function job_util.knows_job_ability(job_ability_id, job_id)
+    local can_use_job_ability = false
     local all_job_abilities = T(windower.ffxi.get_abilities().job_abilities)
     if all_job_abilities then
         for _,v in pairs(all_job_abilities) do
             if v == job_ability_id then
-                return true
+                can_use_job_ability = true
+                break
             end
         end
     end
-    return false
+    if can_use_job_ability and job_id then
+        local job_ability = job_abilities_ext[job_ability_id]
+        if job_ability and job_ability.levels then
+            return S(T(job_ability.levels):keyset()):contains(job_id)
+        end
+    end
+    return can_use_job_ability
 end
 
 -------
