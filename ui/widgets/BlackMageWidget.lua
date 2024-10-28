@@ -172,4 +172,11 @@ function BlackMageWidget:setTarget(target)
     end
 end
 
+function BlackMageWidget:setVisible(visible)
+    if self.target == nil then
+        visible = false
+    end
+    Widget.setVisible(self, visible)
+end
+
 return BlackMageWidget
