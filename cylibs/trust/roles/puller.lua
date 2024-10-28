@@ -27,7 +27,7 @@ function Puller.new(action_queue, target_names, pull_abilities, truster)
     local self = setmetatable(Role.new(action_queue), Puller)
 
     self.action_queue = action_queue
-    self.target_names = target_names
+    self.target_names = target_names or L{}
     self.pull_abilities = pull_abilities
     self.pull_settings = {
         Abilities = pull_abilities,
@@ -213,7 +213,6 @@ function Puller:get_next_target()
         end)
         if self:get_target_names():length() > 0 then
             local target = ffxi_util.find_closest_mob(self:get_target_names(), L{}:extend(claimed_party_targets), self.blacklist, self.pull_settings.Distance or 20)
-            if target and target.distance:sqrt() < (self.pull_settings.Distance or 20) then
             if target and target.distance:sqrt() < (self.pull_settings.Distance or 20) then
                 logger.notice(self.__class, 'get_next_target', 'new mob')
                 local monster = Monster.new(target.id)

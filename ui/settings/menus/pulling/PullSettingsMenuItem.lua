@@ -11,7 +11,7 @@ local PullActionMenuItem = require('ui/settings/menus/pulling/PullActionMenuItem
 local PullSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 PullSettingsMenuItem.__index = PullSettingsMenuItem
 
-function PullSettingsMenuItem.new(abilities, trust, job_name_short, addon_settings, targets, trust_settings, trust_settings_mode)
+function PullSettingsMenuItem.new(abilities, trust, job_name_short, trust_settings, trust_settings_mode)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Targets', 18),
         ButtonItem.default('Actions', 18),
@@ -25,8 +25,6 @@ function PullSettingsMenuItem.new(abilities, trust, job_name_short, addon_settin
     self.puller = trust:role_with_type("puller")
     self.puller_settings = self.puller:get_pull_settings()
     self.job_name_short = job_name_short
-    self.addon_settings = addon_settings
-    self.targets = targets
     self.trust_settings = trust_settings
     self.trust_settings_mode = trust_settings_mode
     self.dispose_bag = DisposeBag.new()

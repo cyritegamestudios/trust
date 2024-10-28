@@ -20,7 +20,11 @@ end
 function Migration_v10:perform(trustSettings, _, _)
     local modeNames = list.subtract(L(T(trustSettings:getSettings()):keyset()), L{'Version','Migrations'})
     for modeName in modeNames:it() do
-        trustSettings:getSettings()[modeName].PullSettings.Targets = L{}
+        trustSettings:getSettings()[modeName].PullSettings.Targets = L{
+            "Locus Ghost Crab",
+            "Locus Dire Bat",
+            "Locus Armet Beetle",
+        }
     end
 end
 
