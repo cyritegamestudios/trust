@@ -193,7 +193,7 @@ function SkillchainAbility:to_action(target_index, player, job_abilities)
         actions:append(WeaponSkillAction.new(self:get_name(), target_index))
     elseif self.resource == 'job_abilities' then
         local job_ability = res.job_abilities:with('en', self:get_name())
-        if job_ability and job_ability.prefix == '/pet' then
+        if job_ability and job_ability.prefix == '/pet' and job_ability.type ~= 'BloodPactRage' then
             actions:append(JobAbilityAction.new(0, 0, 0, self:get_name()))
         else
             actions:append(JobAbilityAction.new(0, 0, 0, self:get_name(), target_index))
