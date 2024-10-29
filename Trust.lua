@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '11.7.0'
+_addon.version = '11.7.3'
 _addon.release_notes = [[
 This update introduces new menus for Bard, autocomplete for Trust
 commands, new commands and important bug fixes for users running the
@@ -298,6 +298,7 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_trust, acti
 		LoggingCommands.new(main_job_trust, action_queue),
 		MagicBurstCommands.new(main_job_trust, main_trust_settings, action_queue),
 		MenuCommands.new(main_job_trust, action_queue, hud),
+		MountCommands.new(main_job_trust, main_job_trust:role_with_type("follower").walk_action_queue),
 		NukeCommands.new(main_job_trust, main_trust_settings, action_queue),
 		PathCommands.new(main_job_trust, action_queue),
 		PullCommands.new(main_job_trust, action_queue, main_job_trust:role_with_type("puller") or sub_job_trust:role_with_type("puller")),

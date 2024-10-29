@@ -29,8 +29,9 @@ end
 
 function TrustCommands:handle_command(...)
     local cmd = select(1, ...)
+    local full_cmd = table.concat({...}, " ") or ""
 
-    local trust_command = self.commands[cmd] or self.commands['default']
+    local trust_command = self.commands[cmd] or self.commands[full_cmd] or self.commands['default']
     if trust_command then
         local success, message = trust_command.callback(...)
         if success then

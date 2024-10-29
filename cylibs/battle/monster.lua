@@ -10,6 +10,7 @@ local Event = require('cylibs/events/Luvent')
 local res = require('resources')
 local action_message_util = require('cylibs/util/action_message_util')
 local buff_util = require('cylibs/util/buff_util')
+local CumulativeMagicTracker = require('cylibs/battle/trackers/cumulative_magic_tracker')
 local logger = require('cylibs/logger/logger')
 local monster_abilities_ext = require('cylibs/res/monster_abilities')
 local monster_util = require('cylibs/util/monster_util')
@@ -167,12 +168,15 @@ function Monster:monitor()
     self.debuff_tracker = DebuffTracker.new(self:get_id())
     self.debuff_tracker:monitor()
 
+    self.cumulative_magic_tracker = CumulativeMagicTracker.new(self:get_id())
+    self.cumulative_magic_tracker:monitor()
+
     self.step_tracker = StepTracker.new(self:get_id(), self.debuff_tracker)
     self.step_tracker:monitor()
 
     self.resist_tracker = ResistTracker.new(self:get_id(), self:on_spell_resisted())
 
-    self.dispose_bag:addAny(L{ self.debuff_tracker, self.step_tracker, self.resist_tracker })
+    self.dispose_bag:addAny(L{ self.debuff_tracker, self.step_tracker, self.resist_tracker, self.cumulative_magic_tracker })
 
     self.dispose_bag:add(WindowerEvents.Action:addAction(function(act)
         if act.actor_id == self.mob_id then
@@ -309,6 +313,13 @@ end
 -- @treturn boolean True if the monster has the given debuff, false otherwise
 function Monster:has_debuff(debuff_id)
     return self.debuff_tracker:has_debuff(debuff_id)
+end
+
+-------
+-- Returns the current cumulative magic effect.
+-- @treturn CumulativeMagicEffect Cumulative magic effect, or nil if none
+function Monster:get_cumulative_effect()
+    return self.cumulative_magic_tracker:get_current_effect()
 end
 
 -------

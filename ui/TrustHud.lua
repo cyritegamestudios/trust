@@ -41,6 +41,7 @@ local AutomatonStatusWidget = require('ui/widgets/AutomatonStatusWidget')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local ReactSettingsMenuItem = require('ui/settings/menus/gambits/react/ReactSettingsMenuItem')
 local ScholarWidget = require('ui/widgets/ScholarWidget')
+local BlackMageWidget = require('ui/widgets/BlackMageWidget')
 local ShooterSettingsMenuItem = require('ui/settings/menus/ShooterSettingsMenuItem')
 local SingerView = require('ui/views/SingerView')
 local SongSettingsMenuItem = require('ui/settings/menus/songs/SongSettingsMenuItem')
@@ -239,6 +240,11 @@ function TrustHud:createWidgets(addon_settings, addon_enabled, action_queue, par
     if player.main_job_name_short == 'SMN' then
         local petStatusWidget = AvatarStatusWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), self, main_trust_settings, state.MainTrustSettingsMode)
         self.widgetManager:addWidget(petStatusWidget, "pet")
+    end
+
+    if player.main_job_name_short == 'BLM' then
+        local blackMageWidget = BlackMageWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), trust)
+        self.widgetManager:addWidget(blackMageWidget, "black_mage")
     end
 
     --if player.main_job_name_short == 'SCH' then

@@ -86,7 +86,7 @@ function JobAbilitiesSettingsMenuItem:getAddAbilityMenuItem()
         end
         self.buffs = jobAbilities
 
-        local chooseJobAbilitiesView = JobAbilityPickerView.new(self.trustSettings, jobAbilities, allJobAbilities)
+        local chooseJobAbilitiesView = JobAbilityPickerView.new(self.trustSettings, jobAbilities, allJobAbilities, true)
         chooseJobAbilitiesView:setTitle("Choose job abilities to add.")
         return chooseJobAbilitiesView
     end, "Job Abilities", "Add a new job ability buff.")
