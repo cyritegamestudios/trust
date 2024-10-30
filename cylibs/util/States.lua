@@ -73,6 +73,15 @@ function get_state(name)
     end
 end
 
+function get_state_name(l_name)
+    for key,var in pairs(state) do
+        if key:lower() == l_name then
+            return key
+        end
+    end
+    return l_name
+end
+
 function handle_set(field, value)
     if modes_locked and not modes_whitelist:contains(field:lower()) then
         addon_message(123, modes_locked_reason or "You cannot changes modes at this time.")

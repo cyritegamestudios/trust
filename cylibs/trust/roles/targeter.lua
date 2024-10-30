@@ -5,7 +5,7 @@ Targeter.__class = "Targeter"
 local DisposeBag = require('cylibs/events/dispose_bag')
 local SwitchTargetAction = require('cylibs/actions/switch_target')
 
-state.AutoTargetMode = M{['description'] = 'Auto Target Mode', 'Off', 'Auto', 'Party', 'Mirror'}
+state.AutoTargetMode = M{['description'] = 'Auto Target Mode', 'Off', 'Auto', 'Mirror'}
 state.AutoTargetMode:set_description('Auto', "Okay, I'll automatically target a new monster after we defeat one.")
 state.AutoTargetMode:set_description('Party', "Okay, I'll automatically target monsters on the party's hate list.")
 state.AutoTargetMode:set_description('Mirror', "Okay, I'll target what the person I'm assisting is fighting.")
@@ -26,14 +26,19 @@ function Targeter:destroy()
     self.dispose_bag:destroy()
 end
 
+function Targeter:check_state_for_assist(assist_target)
+    if not L{ 'Off', 'Mirror' }:contains(state.AutoTargetMode.value) and assist_target and assist_target.id ~= windower.ffxi.get_player().id then
+        state.AutoTargetMode:set('Off')
+        self:get_party():add_to_chat(self:get_party():get_player(), "No need to auto target, I'll already target what "..assist_target:get_name().." targets!")
+    end
+end
+
 function Targeter:on_add()
     state.AutoTargetMode:on_state_change():addAction(function(_, new_value)
         if not L{ 'Off' }:contains(new_value) then
             windower.send_command('input /autotarget off')
-            if not L{ 'Mirror' }:contains(new_value) then
-                windower.send_command('trust assist clear')
-                self:get_party():add_to_chat(self:get_party():get_player(), "I can't assist while auto targeting, so I've cleared my assist target.")
-            end
+            local assist_target = self:get_party():get_assist_target()
+            self:check_state_for_assist(assist_target)
         end
     end)
 
@@ -41,10 +46,14 @@ function Targeter:on_add()
         self.dispose_bag:add(state.AutoPullMode:on_state_change():addAction(function(_, new_value)
             if new_value ~= 'Off' and state.AutoTargetMode.value ~= 'Off' then
                 state.AutoTargetMode:set('Off')
-                self:get_party():add_to_chat(self:get_party():get_player(), "I can't auto target while pulling, so I'm going to stop auto targeting.")
+                self:get_party():add_to_chat(self:get_party():get_player(), "No need to auto target, I'll already target what I'm pulling!")
             end
         end), state.AutoPullMode:on_state_change())
     end
+
+    self.dispose_bag:add(self:get_party():on_party_assist_target_change():addAction(function(_, assist_target)
+        self:check_state_for_assist(assist_target)
+    end), self:get_party():on_party_assist_target_change())
 
     self.dispose_bag:add(WindowerEvents.MobKO:addAction(function(mob_id, mob_name)
         if self:get_target() and self:get_target():get_id() == mob_id then

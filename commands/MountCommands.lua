@@ -11,19 +11,24 @@ function MountCommands.new(trust, action_queue)
 
     self.trust = trust
     self.action_queue = action_queue
+    self.allowed_mounts = S(player_util.get_mounts())
 
     local mount_names = L{}
     for _, mount in pairs(res.mounts) do
-        local description = "Calls forth a "..mount.en..", "
-        self:add_command(mount.en, function(_)
-            return self:handle_mount(mount.en)
-        end, description..' // trust mount '..mount.en)
-        mount_names:append(mount.en)
+        if self.allowed_mounts:contains(mount.en) then
+            local description = "Calls forth a "..mount.en..", "
+            self:add_command(mount.en, function(_)
+                return self:handle_mount(mount.en)
+            end, description..' // trust mount '..mount.en)
+            mount_names:append(mount.en)
+        end
     end
 
     self:add_command('default', function(mount_name)
         return self:handle_mount('Raptor')
-    end, 'Mount, // trust mount mount_name')
+    end, 'Calls forth a mount, // trust mount mount_name')
+
+    self:add_command('random', self.handle_random_mount, 'Calls forth a random mount, // trust mount random')
 
     self:add_command('all', self.handle_mount_all, 'Calls forth a mount on all characters, // trust mount all [mount_name]')
     self:add_command('dismount', self.handle_dismount, 'Dismounts if mounted, // trust mount dismount [all]')
@@ -40,11 +45,16 @@ function MountCommands:handle_mount(mount_name, include_party)
     local success
     local message
 
+    mount_name = (mount_name or ""):gsub("(%a)(%w*)", function(first, rest)
+        return first:upper() .. rest:lower()
+    end)
+
     local mount = res.mounts:with('en', mount_name)
-    if mount == nil then
+
+    if self.allowed_mounts:contains(mount.en:lower()) then
         success = false
         message = "Invalid mount"
-        return
+        return success, message
     end
 
     local mount_id = mount.id
@@ -55,7 +65,7 @@ function MountCommands:handle_mount(mount_name, include_party)
     else
         success = true
         if include_party then
-            message = "Mounting on all characters"
+            message = "Mounting "..mount_name.." on all characters"
             IpcRelay.shared():send_message(CommandMessage.new('trust mount '..mount.en))
         else
             message = "Mounting"
@@ -66,7 +76,23 @@ function MountCommands:handle_mount(mount_name, include_party)
     return success, message
 end
 
--- // trust mount all mount_name
+-- // trust mount random
+function MountCommands:handle_random_mount()
+    local success
+    local message
+
+    if self.allowed_mounts:length() > 0 then
+        local mount_index = math.ceil(math.random() * self.allowed_mounts:length())
+        success, message = self:handle_mount(L(self.allowed_mounts)[mount_index])
+    else
+        success = false
+        message = "You have not learned any mounts"
+    end
+
+    return success, message
+end
+
+-- // trust mount all [mount_name]
 function MountCommands:handle_mount_all(_, ...)
     local mount_name = table.concat({...}, " ") or ""
     if mount_name == nil or mount_name:empty() then
