@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '11.7.3'
+_addon.version = '11.7.4'
 _addon.release_notes = [[
 This update introduces new menus for Bard, autocomplete for Trust
 commands, new commands and important bug fixes for users running the
@@ -671,6 +671,7 @@ local function addon_command(cmd, ...)
     local cmd = cmd or 'help'
 	
 	if hud.trustMenu:isVisible() and not S{ 'assist', 'send', 'sendall'}:contains(cmd) then
+		print(cmd)
 		addon_system_error("Unable to execute commands while the menu is open.")
 		return
 	end

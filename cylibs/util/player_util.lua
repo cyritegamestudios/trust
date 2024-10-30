@@ -281,4 +281,31 @@ function player_util.get_current_target()
 	return nil
 end
 
+function player_util.get_mounts()
+	local possible_mounts = L{}
+	for _, mount in pairs(res.mounts) do
+		possible_mounts:append(mount.name:lower())
+	end
+	local allowed_mounts_set = S{}
+	local kis = windower.ffxi.get_key_items()
+
+	for _, id in ipairs(kis) do
+		local ki = res.key_items[id]
+		if ki ~= nil then
+			if ki.category == 'Mounts' and ki.name ~= "trainer's whistle" then
+				local mount_index = possible_mounts:find(function(possible_mount)
+					return windower.wc_match(ki.name:lower(), '♪' .. possible_mount .. '*')
+				end)
+				local mount = possible_mounts[mount_index]
+				allowed_mounts_set:add(mount)
+			end
+		end
+	end
+	return L(allowed_mounts_set):map(function(mount)
+		return mount:gsub("(%a)(%w*)", function(first, rest)
+			return first:upper() .. rest:lower()
+		end)
+	end)
+end
+
 return player_util

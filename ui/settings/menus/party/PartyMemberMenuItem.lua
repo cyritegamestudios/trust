@@ -42,6 +42,7 @@ function PartyMemberMenuItem.new(partyMember, party, whitelist, trust)
         Command.new('trust assist '..windower.ffxi.get_player().name, L{}, 'Assist me'),
         Command.new('trust assist clear', L{}, 'Clear assist'),
         Command.new('trust assist '..windower.ffxi.get_player().name..' true', L{}, 'Mirror me in battle'),
+        Command.new('trust mount random', L{}, 'Call forth a mount'),
     }
 
     self.disposeBag = DisposeBag.new()
@@ -123,6 +124,7 @@ function PartyMemberMenuItem:sendCommand(command, sendAll)
 
     for partyMemberName in partyMemberNames:it() do
         if IpcRelay.shared():is_connected(self.partyMemberName) then
+            print('trust send '..partyMemberName..' '..self.selectedCommand:get_windower_command())
             windower.send_command('trust send '..partyMemberName..' '..self.selectedCommand:get_windower_command())
         elseif self.whitelist:contains(partyMemberName) then
             windower.chat.input('/tell '..partyMemberName..' '..self.selectedCommand:get_windower_command())
