@@ -184,7 +184,12 @@ function load_user_files(main_job_id, sub_job_id)
 		sub_job_migration_manager:perform()
 	end
 
-	addon_system_message("Trust is up to date.")
+	local new_version = check_version()
+	if new_version then
+		addon_system_message("A newer version of Trust is available! Use the installer to update to v"..new_version..".")
+	else
+		addon_system_message("Trust is up to date.")
+	end
 
 	state.MainTrustSettingsMode:on_state_change():addAction(function(_, new_value)
 		player.trust.main_job:set_trust_settings(player.trust.main_job_settings[new_value])
@@ -247,7 +252,6 @@ function load_user_files(main_job_id, sub_job_id)
 		addon_enabled:setValue(false)
 	end
 
-	check_version()
 	check_files()
 end
 
@@ -494,12 +498,27 @@ function trust_for_job_short(job_name_short, settings, trust_settings, action_qu
 end
 
 function check_version()
-	local version = addon_settings:getSettings().version
+	local UrlRequest = require('cylibs/util/network/url_request')
+
+	local manifest_url = addon_settings:getSettings().updater.manifest_url or 'https://raw.githubusercontent.com/cyritegamestudios/trust/main/manifest.json'
+	local request = UrlRequest.new('GET', manifest_url, {})
+
+	local fetch = request:get()
+	local success, response, code, body, status = coroutine.resume(fetch)
+	if success then
+		local version = body.version
+		if version and version ~= _addon.version then
+			return version
+		end
+	end
+	return nil
+
+	--[[local version = addon_settings:getSettings().version
 	if version ~= _addon.version then
 		addon_settings:getSettings().version = _addon.version
 		addon_settings:saveSettings()
 
-		--[[local Frame = require('cylibs/ui/views/frame')
+		local Frame = require('cylibs/ui/views/frame')
 
 		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 675))
 
@@ -511,8 +530,8 @@ function check_version()
 			hud:getViewStack():dismiss()
 		end)
 
-		hud:getViewStack():present(updateView)]]
-	end
+		hud:getViewStack():present(updateView)
+	end]]
 end
 
 function check_files()
@@ -632,6 +651,17 @@ function handle_command(args)
 end
 
 function handle_debug()
+	local UrlRequest = require('cylibs/util/network/url_request')
+
+	local request = UrlRequest.new('GET', 'https://raw.githubusercontent.com/cyritegamestudios/trust/main/manifest.json', {})
+
+	local fetch = request:get()
+	local success, response, code, body, status = coroutine.resume(fetch)
+
+	if success then
+		table.vprint(body)
+	end
+
 	print(num_created)
 	print('images', num_images_created)
 
