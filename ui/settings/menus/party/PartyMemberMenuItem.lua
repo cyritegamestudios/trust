@@ -124,7 +124,6 @@ function PartyMemberMenuItem:sendCommand(command, sendAll)
 
     for partyMemberName in partyMemberNames:it() do
         if IpcRelay.shared():is_connected(self.partyMemberName) then
-            print('trust send '..partyMemberName..' '..self.selectedCommand:get_windower_command())
             windower.send_command('trust send '..partyMemberName..' '..self.selectedCommand:get_windower_command())
         elseif self.whitelist:contains(partyMemberName) then
             windower.chat.input('/tell '..partyMemberName..' '..self.selectedCommand:get_windower_command())
