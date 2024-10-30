@@ -5,7 +5,7 @@ Targeter.__class = "Targeter"
 local DisposeBag = require('cylibs/events/dispose_bag')
 local SwitchTargetAction = require('cylibs/actions/switch_target')
 
-state.AutoTargetMode = M{['description'] = 'Auto Target Mode', 'Off', 'Auto', 'Party', 'Mirror'}
+state.AutoTargetMode = M{['description'] = 'Auto Target Mode', 'Off', 'Auto', 'Mirror'}
 state.AutoTargetMode:set_description('Auto', "Okay, I'll automatically target a new monster after we defeat one.")
 state.AutoTargetMode:set_description('Party', "Okay, I'll automatically target monsters on the party's hate list.")
 state.AutoTargetMode:set_description('Mirror', "Okay, I'll target what the person I'm assisting is fighting.")

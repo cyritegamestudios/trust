@@ -260,7 +260,11 @@ function load_trust_modes(job_name_short)
 			local state_var = get_state(state_name)
 			if state_var then
 				unregister_help_text(state_name, state_var)
-				state_var:set(value)
+				if S(state_var:options()):contains(value) then
+					state_var:set(value)
+				else
+					addon_system_error(get_state_name(state_name)..' has no value '..value..'. To fix this error, choose a new value and save your profile.')
+				end
 				register_help_text(state_name, state_var)
 			end
 		end
