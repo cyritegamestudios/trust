@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '11.7.4'
+_addon.version = '11.8.0'
 _addon.release_notes = [[
 This update introduces new menus for Bard, autocomplete for Trust
 commands, new commands and important bug fixes for users running the
@@ -387,6 +387,7 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_trust, acti
 		end
 		if terms:length() > 0 then
 			command_widget:setVisible(true)
+			command_widget:setContentOffset(0, 0)
 			command_widget:setItems(terms:map(function(term) return term:gsub("^//%s*trust ", "") end), L{}, true)
 		else
 			if command_widget:isVisible() then

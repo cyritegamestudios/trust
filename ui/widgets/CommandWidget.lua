@@ -12,7 +12,7 @@ function CommandWidget.new()
 
     self.disposeBag = DisposeBag.new()
     self.keybindDisposeBag = DisposeBag.new()
-    
+
     self.disposeBag:add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
         local item = self:getDataSource():itemAtIndexPath(indexPath)
         if item then
