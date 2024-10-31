@@ -142,10 +142,12 @@ function Aftermather:set_is_aftermath_active(is_aftermath_active)
     self.is_aftermath_active = is_aftermath_active
 
     if self.aftermath_weapon_skill then
-        if not self.is_aftermath_active then
-            self:get_party():add_to_chat(self:get_party():get_player(), "Hold on, getting aftermath back up.")
-        else
-            self:get_party():add_to_chat(self:get_party():get_player(), "Aftermath is up, good to go!")
+        if addon_enabled:getValue() then
+            if not self.is_aftermath_active then
+                self:get_party():add_to_chat(self:get_party():get_player(), "Hold on, getting aftermath back up.")
+            else
+                self:get_party():add_to_chat(self:get_party():get_player(), "Aftermath is up, good to go!")
+            end
         end
     end
 end
