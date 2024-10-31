@@ -37,8 +37,7 @@ function UrlRequest:get()
 
         local response, code, headers, status = https.request {
             url=self.url, method='GET',
-            sink=ltn12.sink.table(body)
-
+            sink=ltn12.sink.table(body),
         }
         if code == 200 then
             body = JSON.decode(table.concat(body))

@@ -55,23 +55,66 @@ function TrustSettings.new(jobNameShort, playerName)
     return self
 end
 
+function TrustSettings:loadSettingsAsync()
+    return coroutine.create(function()
+        local defaultSettings
+        local settings
+        local settingsVersion
+        local error
+        local filePath = self:getSettingsFilePath()
+        if filePath then
+            local loadJobSettings, err = loadfile(filePath)
+            if err then
+                error = err
+            else
+                local loadDefaultJobSettings, _ = loadfile(self:getSettingsFilePath(true))
+                defaultSettings = loadDefaultJobSettings()
+                settings = loadJobSettings()
+                settingsVersion = self.settings.Version or -1
+                --if not self:checkSettingsVersion() then
+                --    error("Trust has been upgraded! A new job settings file will be generated for", self.jobNameShort)
+                --    self:copySettings(true)
+                --    return self:loadSettings()
+                --end
+                self:runMigrations(self.settings)
+                self:onSettingsChanged():trigger(self.settings)
+                return self.settings
+            end
+        else
+            addon_message(123, 'Unable to load trust settings for '..self.jobNameShort)
+        end
+        coroutine.yield(defaultSettings, settings, settingsVersion, err)
+    end)
+end
+
+function TrustSettings:loadFile(filePath)
+    return coroutine.create(function()
+        local settings
+        local loadSettings, err = loadfile(filePath)
+        if not err then
+            settings = loadSettings()
+        end
+        coroutine.yield(settings, err)
+    end)
+end
+
 function TrustSettings:loadSettings()
     local filePath = self:getSettingsFilePath()
     if filePath then
-        local loadJobSettings, err = loadfile(filePath)
+        local success, jobSettings, err = coroutine.resume(self:loadFile(filePath))--loadfile(filePath)
         if err then
             error(err)
         else
-            local loadDefaultJobSettings, _ = loadfile(self:getSettingsFilePath(true))
-            self.defaultSettings = loadDefaultJobSettings()
-            self.settings = loadJobSettings()
+            local success, defaultJobSettings, _ = coroutine.resume(self:loadFile(self:getSettingsFilePath(true)))--loadfile(self:getSettingsFilePath(true))
+            self.defaultSettings = defaultJobSettings
+            self.settings = jobSettings
             self.settingsVersion = self.settings.Version or -1
             if not self:checkSettingsVersion() then
                 error("Trust has been upgraded! A new job settings file will be generated for", self.jobNameShort)
                 self:copySettings(true)
                 return self:loadSettings()
             end
-            self:runMigrations(self.settings)
+            self:runMigrations(self.settings, self.defaultSettings)
             self:onSettingsChanged():trigger(self.settings)
             return self.settings
         end
@@ -103,12 +146,21 @@ function TrustSettings:checkSettingsVersion()
     return self:getSettingsVersion() >= self.defaultSettings.Version
 end
 
+function TrustSettings:saveToFile(filePath, settings)
+    return coroutine.create(function()
+        local file = FileIO.new(filePath)
+        file:write('-- Settings file for '..self.jobNameShort ..'\nreturn ' .. serializer_util.serialize(settings)) -- Uses our new lua serializer!
+        coroutine.yield()
+    end)
+end
+
 function TrustSettings:saveSettings(saveToFile)
     if saveToFile then
         local filePath = self.settingsFolder..self.jobNameShort..'_'..self.playerName..'.lua'
+        local _ = coroutine.resume(self:saveToFile(filePath, self.settings))
 
-        local file = FileIO.new(filePath)
-        file:write('-- Settings file for '..self.jobNameShort ..'\nreturn ' .. serializer_util.serialize(self.settings)) -- Uses our new lua serializer!
+        --local file = FileIO.new(filePath)
+        --file:write('-- Settings file for '..self.jobNameShort ..'\nreturn ' .. serializer_util.serialize(self.settings)) -- Uses our new lua serializer!
     end
     self:onSettingsChanged():trigger(self.settings)
 end
@@ -176,7 +228,7 @@ function TrustSettings:getDefaultSettings()
     return self.defaultSettings
 end
 
-function TrustSettings:runMigrations(settings)
+function TrustSettings:runMigrations(settings, defaultSettings)
     -- Do not run migrations when impersonating a user
     if self.playerName ~= windower.ffxi.get_player().name then
         return
@@ -189,7 +241,7 @@ function TrustSettings:runMigrations(settings)
     for modeName in modeNames:it() do
         local settingsForMode = settings[modeName]
         if not settingsForMode.PullSettings then
-            settingsForMode.PullSettings = self.defaultSettings.Default.PullSettings
+            settingsForMode.PullSettings = defaultSettings.Default.PullSettings
             needsMigration = true
         end
         if not settingsForMode.PullSettings.Distance then
@@ -202,12 +254,12 @@ function TrustSettings:runMigrations(settings)
         end
         if not settingsForMode.GambitSettings then
             settingsForMode.GambitSettings = {}
-            settingsForMode.GambitSettings.Gambits = self.defaultSettings.Default.GambitSettings.Gambits
+            settingsForMode.GambitSettings.Gambits = defaultSettings.Default.GambitSettings.Gambits
             needsMigration = true
         end
         if not settingsForMode.GambitSettings.Default then
-            if self.defaultSettings.Default.GambitSettings and self.defaultSettings.Default.GambitSettings.Default then
-                settingsForMode.GambitSettings.Default = self.defaultSettings.Default.GambitSettings and self.defaultSettings.Default.GambitSettings.Default or L{}
+            if defaultSettings.Default.GambitSettings and defaultSettings.Default.GambitSettings.Default then
+                settingsForMode.GambitSettings.Default = defaultSettings.Default.GambitSettings and defaultSettings.Default.GambitSettings.Default or L{}
                 needsMigration = true
             end
         end

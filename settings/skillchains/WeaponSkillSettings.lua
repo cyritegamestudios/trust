@@ -52,16 +52,27 @@ function WeaponSkillSettings.new(jobNameShort)
     return self
 end
 
+function WeaponSkillSettings:loadFile(filePath)
+    return coroutine.create(function()
+        local settings
+        local loadSettings, err = loadfile(filePath)
+        if not err then
+            settings = loadSettings()
+        end
+        coroutine.yield(settings, err)
+    end)
+end
+
 function WeaponSkillSettings:loadSettings(verbose)
     local filePath = self:getSettingsFilePath()
     if filePath then
-        local loadJobSettings, err = loadfile(filePath)
+        local success, jobSettings, err = coroutine.resume(self:loadFile(filePath))--loadfile(filePath)
         if err then
             error(err)
         else
-            local loadDefaultJobSettings, _ = loadfile(self:getSettingsFilePath(true))
-            self.defaultSettings = loadDefaultJobSettings()
-            self.settings = loadJobSettings()
+            local success, defaultJobSettings, _ = coroutine.resume(self:loadFile(self:getSettingsFilePath(true)))--loadfile(self:getSettingsFilePath(true))
+            self.defaultSettings = defaultJobSettings
+            self.settings = jobSettings
             self.settingsVersion = self.settings.Version or -1
             if not self:checkSettingsVersion() then
                 error("Weapon skill settings have been upgraded! A new settings file will be generated for", self.jobNameShort)
