@@ -325,9 +325,10 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_trust, acti
 		add_command(command)
 	end
 
+	local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 	local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 
-	command_widget = FFXIPickerView.withItems(L{}, L{}, false, nil, nil, nil, true)
+	command_widget = FFXIPickerView.withItems(L{}, L{}, false, nil, nil, FFXIClassicStyle.WindowSize.Picker.Wide, true)
 	command_widget:setPosition(16, windower.get_windower_settings().ui_y_res - 233)
 	command_widget:setShouldRequestFocus(false)
 	command_widget:setUserInteractionEnabled(false)
@@ -363,13 +364,16 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_trust, acti
 		end
 		if terms:length() > 0 then
 			command_widget:setVisible(true)
-			command_widget:setItems(terms:map(function(term) return term:gsub("^//%s*trust ", "") end), L{})
+			command_widget:setItems(terms:map(function(term) return term:gsub("^//%s*trust ", "") end), L{}, true)
 			local description
 			if terms:length() == 1 then
 				hud.infoBar:setTitle("Commands")
 				local args = string.split(terms[1], " ")
 				if args[3] and args[4] and shortcuts[args[3]] and type(shortcuts[args[3]]) ~= 'function' then
 					description = shortcuts[args[3]]:get_description(args[4]).."."
+				end
+				if description == nil or description:empty() then
+					description = terms[1]
 				end
 			end
 			if not hud.trustMenu:isVisible() then
