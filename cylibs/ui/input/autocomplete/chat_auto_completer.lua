@@ -43,7 +43,7 @@ function ChatAutoCompleter:getAllCommands()
 end
 
 function ChatAutoCompleter:onKeyboardEvent(key, pressed, flags, blocked)
-    if windower.chat.is_open() then
+    if windower.ffxi.get_info().chat_open then
         if not pressed then
             local chatText = windower.chat.get_input()
             if chatText and chatText:contains("// trust") then
