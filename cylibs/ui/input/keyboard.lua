@@ -38,7 +38,7 @@ function Keyboard.new()
         [0x06] = "5",     [0x07] = "6",     [0x08] = "7",     [0x09] = "8",
         [0x0A] = "9",     [0x0B] = "0",
         [0x0E] = "Backspace", [0x039] = " ",
-        [0xCB] = "Left", [0xCD] = "Right",
+        [0xCB] = "Left", [0xCD] = "Right", [0xC8] = "Up",
         [0x01] = "Escape", [0x2A] = "LShift",
         [0x0C] = "Minus",
         [0x1D] = "LControl", [0x9D] = "RControl",
@@ -57,7 +57,7 @@ function Keyboard.new()
 
         self:on_key_pressed():trigger(key, pressed, flags, blocked)
 
-        if not blocked and not windower.ffxi.get_info().chat_open and self:hasKeybind(key, flags) and FocusManager.shared():getFocusable() == nil then
+        if not blocked and self:isValidKeybind(key, flags) and FocusManager.shared():getFocusable() == nil then
             local keybind = Keybind.new(self:getKey(key), flags)
             self:getKeybindHandler(key, flags)(keybind, pressed)
             return true
@@ -148,6 +148,14 @@ function Keyboard:hasKeybind(key, flags)
     end
     local keybind = Keybind.new(self:getKey(key), flags)
     return self.keybinds[keybind:tostring()] ~= nil
+end
+
+function Keyboard:isValidKeybind(key, flags)
+    local keybind = self:getKeybindHandler(key, flags)
+    if not keybind then
+        return false
+    end
+    return not windower.ffxi.get_info().chat_open
 end
 
 function Keyboard:getKeybindHandler(key, flags)

@@ -325,12 +325,11 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_trust, acti
 		add_command(command)
 	end
 
-	local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
-	local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+	local CommandWidget = require('ui/widgets/CommandWidget')
 
-	command_widget = FFXIPickerView.withItems(L{}, L{}, false, nil, nil, FFXIClassicStyle.WindowSize.Picker.Wide, true)
+	command_widget = CommandWidget.new()
 	command_widget:setPosition(16, windower.get_windower_settings().ui_y_res - 233)
-	command_widget:setShouldRequestFocus(false)
+	--command_widget:setShouldRequestFocus(false)
 	command_widget:setUserInteractionEnabled(false)
 	command_widget:setVisible(false)
 
@@ -356,6 +355,30 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_trust, acti
 
 	local ChatAutoCompleter = require('cylibs/ui/input/autocomplete/chat_auto_completer')
 
+	command_widget:getDelegate():didHighlightItemAtIndexPath():addAction(function(indexPath)
+		local term = command_widget:getDataSource():itemAtIndexPath(indexPath)
+		if term and term:getText() then
+			term = "// trust "..term:getText()
+
+			local description
+
+			hud.infoBar:setTitle("Commands")
+			local args = string.split(term, " ")
+			if args[3] and args[4] and shortcuts[args[3]] and type(shortcuts[args[3]]) ~= 'function' then
+				description = shortcuts[args[3]]:get_description(args[4]).."."
+			end
+			if description == nil or description:empty() then
+				description = term
+			end
+
+			if not hud.trustMenu:isVisible() then
+				hud.infoBar:setDescription(description or '')
+				hud.infoBar:setVisible(description ~= nil)
+				hud.infoBar:layoutIfNeeded()
+			end
+		end
+	end)
+
 	chat_auto_completer = ChatAutoCompleter.new(all_commands)
 	chat_auto_completer:onAutoCompleteListChange():addAction(function(_, terms)
 		command_widget:getDataSource():removeAllItems()
@@ -365,22 +388,6 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_trust, acti
 		if terms:length() > 0 then
 			command_widget:setVisible(true)
 			command_widget:setItems(terms:map(function(term) return term:gsub("^//%s*trust ", "") end), L{}, true)
-			local description
-			if terms:length() == 1 then
-				hud.infoBar:setTitle("Commands")
-				local args = string.split(terms[1], " ")
-				if args[3] and args[4] and shortcuts[args[3]] and type(shortcuts[args[3]]) ~= 'function' then
-					description = shortcuts[args[3]]:get_description(args[4]).."."
-				end
-				if description == nil or description:empty() then
-					description = terms[1]
-				end
-			end
-			if not hud.trustMenu:isVisible() then
-				hud.infoBar:setDescription(description or '')
-				hud.infoBar:setVisible(description ~= nil)
-				hud.infoBar:layoutIfNeeded()
-			end
 		else
 			if command_widget:isVisible() then
 				command_widget:setVisible(false)

@@ -46,6 +46,10 @@ function ChatAutoCompleter:onKeyboardEvent(key, pressed, flags, blocked)
     if windower.ffxi.get_info().chat_open then
         if not pressed then
             local chatText = windower.chat.get_input()
+            if chatText == self.lastChatText then
+                return
+            end
+            self.lastChatText = chatText
             if chatText and chatText:contains("// trust") then
                 local result = self.commandTrie:getCommands(chatText)
                 self:onAutoCompleteListChange():trigger(self, result)
