@@ -24,14 +24,25 @@ function TrustModeSettings.new(jobNameShort, playerName, trustMode)
     return self
 end
 
+function TrustModeSettings:loadFile(filePath)
+    return coroutine.create(function()
+        local settings
+        local loadSettings, err = loadfile(filePath)
+        if not err then
+            settings = loadSettings()
+        end
+        coroutine.yield(settings, err)
+    end)
+end
+
 function TrustModeSettings:loadSettings()
     local filePath = self:getSettingsFilePath()
     if filePath then
-        local loadModeSettings, err = loadfile(filePath)
+        local success, modeSettings, err = coroutine.resume(self:loadFile(filePath))
         if err then
             error(err)
         else
-            self.settings = loadModeSettings()
+            self.settings = modeSettings
 
             for setName, modeSet in pairs(T(self.settings)) do
                 if setName ~= 'Default' then

@@ -16,7 +16,7 @@ function ChatAutoCompleter.new(commands)
     self.allCommands = commands
     self.commandTrie = CommandTrie.new()
     for command in commands:it() do
-        self.commandTrie:addCommand(command)
+        self.commandTrie:addCommand(command:gsub("^//%s*trust%s*", ""))
     end
 
     self.disposeBag = DisposeBag.new()
@@ -43,11 +43,15 @@ function ChatAutoCompleter:getAllCommands()
 end
 
 function ChatAutoCompleter:onKeyboardEvent(key, pressed, flags, blocked)
-    if windower.chat.is_open() then
+    if windower.ffxi.get_info().chat_open then
         if not pressed then
             local chatText = windower.chat.get_input()
-            if chatText and chatText:contains("// trust") then
-                local result = self.commandTrie:getCommands(chatText)
+            if chatText == self.lastChatText then
+                return
+            end
+            self.lastChatText = chatText
+            if chatText and (chatText:contains("// trust") or chatText:contains("//trust")) then
+                local result = self.commandTrie:getCommands(chatText:gsub("^//%s*trust%s*", ""))
                 self:onAutoCompleteListChange():trigger(self, result)
             else
                 self:onAutoCompleteListChange():trigger(self, L{})

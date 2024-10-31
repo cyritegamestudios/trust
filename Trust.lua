@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '11.7.4'
+_addon.version = '11.8.0'
 _addon.release_notes = [[
 This update introduces new menus for Bard, autocomplete for Trust
 commands, new commands and important bug fixes for users running the
@@ -58,6 +58,8 @@ addon_enabled:onValueChanged():addAction(function(_, isEnabled)
 end)
 
 player = {}
+addon_load_time = os.time()
+should_check_version = true
 
 shortcuts = {}
 
@@ -84,6 +86,8 @@ state.AutoEnmityReductionMode:set_description('Auto', "Okay, I'll automatically 
 -- Main
 
 function load_user_files(main_job_id, sub_job_id)
+	local start_time = os.clock()
+
 	load_logger_settings()
 
 	addon_system_message("Loaded Trust v".._addon.version)
@@ -184,8 +188,6 @@ function load_user_files(main_job_id, sub_job_id)
 		sub_job_migration_manager:perform()
 	end
 
-	addon_system_message("Trust is up to date.")
-
 	state.MainTrustSettingsMode:on_state_change():addAction(function(_, new_value)
 		player.trust.main_job:set_trust_settings(player.trust.main_job_settings[new_value])
 	end)
@@ -247,8 +249,15 @@ function load_user_files(main_job_id, sub_job_id)
 		addon_enabled:setValue(false)
 	end
 
-	check_version()
 	check_files()
+
+	local end_time = os.clock()
+
+	local load_time = math.floor((end_time - start_time) * 1000 + 0.5) / 1000
+
+	addon_system_message("Trust is up to date ("..load_time.."s).")
+
+	logger.notice('performance', 'load_user_files', 'end', load_time)
 end
 
 function load_trust_modes(job_name_short)
@@ -321,11 +330,10 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_trust, acti
 		add_command(command)
 	end
 
-	local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+	local CommandWidget = require('ui/widgets/CommandWidget')
 
-	command_widget = FFXIPickerView.withItems(L{}, L{}, false, nil, nil, nil, true)
+	command_widget = CommandWidget.new()
 	command_widget:setPosition(16, windower.get_windower_settings().ui_y_res - 233)
-	command_widget:setShouldRequestFocus(false)
 	command_widget:setUserInteractionEnabled(false)
 	command_widget:setVisible(false)
 
@@ -351,6 +359,30 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_trust, acti
 
 	local ChatAutoCompleter = require('cylibs/ui/input/autocomplete/chat_auto_completer')
 
+	command_widget:getDelegate():didHighlightItemAtIndexPath():addAction(function(indexPath)
+		local term = command_widget:getDataSource():itemAtIndexPath(indexPath)
+		if term and term:getText() then
+			term = "// trust "..term:getText()
+
+			local description
+
+			local args = string.split(term, " ")
+			if args[3] and args[4] and shortcuts[args[3]] and type(shortcuts[args[3]]) ~= 'function' then
+				description = shortcuts[args[3]]:get_description(args[4]).."."
+			end
+			if description == nil or description:empty() then
+				description = term
+			end
+
+			if not hud.trustMenu:isVisible() then
+				hud.infoBar:setTitle("Commands")
+				hud.infoBar:setDescription(description or '')
+				hud.infoBar:setVisible(description ~= nil)
+				hud.infoBar:layoutIfNeeded()
+			end
+		end
+	end)
+
 	chat_auto_completer = ChatAutoCompleter.new(all_commands)
 	chat_auto_completer:onAutoCompleteListChange():addAction(function(_, terms)
 		command_widget:getDataSource():removeAllItems()
@@ -359,20 +391,8 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_trust, acti
 		end
 		if terms:length() > 0 then
 			command_widget:setVisible(true)
-			command_widget:setItems(terms:map(function(term) return term:gsub("^//%s*trust ", "") end), L{})
-			local description
-			if terms:length() == 1 then
-				hud.infoBar:setTitle("Commands")
-				local args = string.split(terms[1], " ")
-				if args[3] and args[4] and shortcuts[args[3]] and type(shortcuts[args[3]]) ~= 'function' then
-					description = shortcuts[args[3]]:get_description(args[4]).."."
-				end
-			end
-			if not hud.trustMenu:isVisible() then
-				hud.infoBar:setDescription(description or '')
-				hud.infoBar:setVisible(description ~= nil)
-				hud.infoBar:layoutIfNeeded()
-			end
+			command_widget:setContentOffset(0, 0)
+			command_widget:setItems(terms:map(function(term) return term:gsub("^//%s*trust ", "") end), L{}, true)
 		else
 			if command_widget:isVisible() then
 				command_widget:setVisible(false)
@@ -494,25 +514,20 @@ function trust_for_job_short(job_name_short, settings, trust_settings, action_qu
 end
 
 function check_version()
-	local version = addon_settings:getSettings().version
-	if version ~= _addon.version then
-		addon_settings:getSettings().version = _addon.version
-		addon_settings:saveSettings()
+	local UrlRequest = require('cylibs/util/network/url_request')
 
-		--[[local Frame = require('cylibs/ui/views/frame')
+	local manifest_url = addon_settings:getSettings().updater.manifest_url or 'https://raw.githubusercontent.com/cyritegamestudios/trust/main/manifest.json'
+	local request = UrlRequest.new('GET', manifest_url, {})
 
-		local updateView = TrustMessageView.new("Version ".._addon.version, "What's new", _addon.release_notes, "Click here for full release notes.", Frame.new(0, 0, 500, 675))
-
-		updateView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
-			updateView:getDelegate():deselectItemAtIndexPath(indexPath)
-			windower.open_url(_addon.release_url)
-		end)
-		updateView:setDismissCallback(function()
-			hud:getViewStack():dismiss()
-		end)
-
-		hud:getViewStack():present(updateView)]]
+	local fetch = request:get()
+	local success, response, code, body, status = coroutine.resume(fetch)
+	if success then
+		local version = body.version
+		if version and version ~= _addon.version then
+			return version
+		end
 	end
+	return nil
 end
 
 function check_files()
@@ -544,6 +559,16 @@ function handle_stop()
 end
 
 function handle_tic(old_time, new_time)
+	if should_check_version then
+		if os.time() - addon_load_time > 5 then
+			should_check_version = false
+			local new_version = check_version()
+			if new_version then
+				addon_system_message("A newer version of Trust is available! Use the installer to update to v"..new_version..".")
+			end
+		end
+	end
+
 	if not trust or not windower.ffxi.get_player() or not addon_enabled:getValue() or not player or not player.trust then return end
 
 	action_queue:set_mode(ActionQueue.Mode.Batch)
@@ -632,6 +657,17 @@ function handle_command(args)
 end
 
 function handle_debug()
+	local UrlRequest = require('cylibs/util/network/url_request')
+
+	local request = UrlRequest.new('GET', 'https://raw.githubusercontent.com/cyritegamestudios/trust/main/manifest.json', {})
+
+	local fetch = request:get()
+	local success, response, code, body, status = coroutine.resume(fetch)
+
+	if success then
+		table.vprint(body)
+	end
+
 	print(num_created)
 	print('images', num_images_created)
 
