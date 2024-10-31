@@ -55,38 +55,6 @@ function TrustSettings.new(jobNameShort, playerName)
     return self
 end
 
-function TrustSettings:loadSettingsAsync()
-    return coroutine.create(function()
-        local defaultSettings
-        local settings
-        local settingsVersion
-        local error
-        local filePath = self:getSettingsFilePath()
-        if filePath then
-            local loadJobSettings, err = loadfile(filePath)
-            if err then
-                error = err
-            else
-                local loadDefaultJobSettings, _ = loadfile(self:getSettingsFilePath(true))
-                defaultSettings = loadDefaultJobSettings()
-                settings = loadJobSettings()
-                settingsVersion = self.settings.Version or -1
-                --if not self:checkSettingsVersion() then
-                --    error("Trust has been upgraded! A new job settings file will be generated for", self.jobNameShort)
-                --    self:copySettings(true)
-                --    return self:loadSettings()
-                --end
-                self:runMigrations(self.settings)
-                self:onSettingsChanged():trigger(self.settings)
-                return self.settings
-            end
-        else
-            addon_message(123, 'Unable to load trust settings for '..self.jobNameShort)
-        end
-        coroutine.yield(defaultSettings, settings, settingsVersion, err)
-    end)
-end
-
 function TrustSettings:loadFile(filePath)
     return coroutine.create(function()
         local settings
@@ -101,11 +69,11 @@ end
 function TrustSettings:loadSettings()
     local filePath = self:getSettingsFilePath()
     if filePath then
-        local success, jobSettings, err = coroutine.resume(self:loadFile(filePath))--loadfile(filePath)
+        local success, jobSettings, err = coroutine.resume(self:loadFile(filePath))
         if err then
             error(err)
         else
-            local success, defaultJobSettings, _ = coroutine.resume(self:loadFile(self:getSettingsFilePath(true)))--loadfile(self:getSettingsFilePath(true))
+            local success, defaultJobSettings, _ = coroutine.resume(self:loadFile(self:getSettingsFilePath(true)))
             self.defaultSettings = defaultJobSettings
             self.settings = jobSettings
             self.settingsVersion = self.settings.Version or -1
@@ -158,9 +126,6 @@ function TrustSettings:saveSettings(saveToFile)
     if saveToFile then
         local filePath = self.settingsFolder..self.jobNameShort..'_'..self.playerName..'.lua'
         local _ = coroutine.resume(self:saveToFile(filePath, self.settings))
-
-        --local file = FileIO.new(filePath)
-        --file:write('-- Settings file for '..self.jobNameShort ..'\nreturn ' .. serializer_util.serialize(self.settings)) -- Uses our new lua serializer!
     end
     self:onSettingsChanged():trigger(self.settings)
 end

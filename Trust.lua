@@ -86,7 +86,7 @@ state.AutoEnmityReductionMode:set_description('Auto', "Okay, I'll automatically 
 -- Main
 
 function load_user_files(main_job_id, sub_job_id)
-	start_time = os.clock()
+	local start_time = os.clock()
 
 	load_logger_settings()
 
@@ -251,7 +251,7 @@ function load_user_files(main_job_id, sub_job_id)
 
 	check_files()
 
-	end_time = os.clock()
+	local end_time = os.clock()
 
 	local load_time = math.floor((end_time - start_time) * 1000 + 0.5) / 1000
 

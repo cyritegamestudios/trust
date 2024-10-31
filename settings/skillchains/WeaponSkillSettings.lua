@@ -66,11 +66,11 @@ end
 function WeaponSkillSettings:loadSettings(verbose)
     local filePath = self:getSettingsFilePath()
     if filePath then
-        local success, jobSettings, err = coroutine.resume(self:loadFile(filePath))--loadfile(filePath)
+        local success, jobSettings, err = coroutine.resume(self:loadFile(filePath))
         if err then
             error(err)
         else
-            local success, defaultJobSettings, _ = coroutine.resume(self:loadFile(self:getSettingsFilePath(true)))--loadfile(self:getSettingsFilePath(true))
+            local success, defaultJobSettings, _ = coroutine.resume(self:loadFile(self:getSettingsFilePath(true)))
             self.defaultSettings = defaultJobSettings
             self.settings = jobSettings
             self.settingsVersion = self.settings.Version or -1
