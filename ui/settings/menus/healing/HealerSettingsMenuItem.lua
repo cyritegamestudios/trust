@@ -3,13 +3,13 @@ local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local ConfigItem = require('ui/settings/editors/config/ConfigItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModeConfigEditor = require('ui/settings/editors/config/ModeConfigEditor')
+local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 local StatusRemovalPickerView = require('ui/settings/pickers/StatusRemovalPickerView')
 
 local HealerSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 HealerSettingsMenuItem.__index = HealerSettingsMenuItem
 
-function HealerSettingsMenuItem.new(trust, trustSettings, trustSettingsMode)
+function HealerSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings)
     local menuItems = L{
         ButtonItem.default('Config', 18),
     }
@@ -22,6 +22,7 @@ function HealerSettingsMenuItem.new(trust, trustSettings, trustSettingsMode)
 
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
+    self.trustModeSettings = trustModeSettings
     self.showStatusRemovals = trust:role_with_type("statusremover") ~= nil
     self.dispose_bag = DisposeBag.new()
 
@@ -86,15 +87,8 @@ function HealerSettingsMenuItem:getBlacklistMenuItem()
 end
 
 function HealerSettingsMenuItem:getModesMenuItem()
-    local curesModesMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm'),
-    }, L{}, function(_, infoView)
-        local modesView = ModeConfigEditor.new(L{'AutoHealMode', 'AutoStatusRemovalMode', 'AutoDetectAuraMode'}, infoView)
-        modesView:setShouldRequestFocus(true)
-        modesView:setTitle("Set modes for healing and status removals.")
-        return modesView
-    end, "Modes", "Set modes for healing and status removals.")
-    return curesModesMenuItem
+    return ModesMenuItem.new(self.trustModeSettings, "Set modes for healing and status removals.",
+            L{'AutoHealMode', 'AutoStatusRemovalMode', 'AutoDetectAuraMode'})
 end
 
 return HealerSettingsMenuItem

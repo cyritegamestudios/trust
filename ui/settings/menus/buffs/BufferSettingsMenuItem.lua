@@ -1,17 +1,16 @@
 local BuffSettingsMenuItem = require('ui/settings/menus/buffs/BuffSettingsMenuItem')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
-local ConditionSettingsMenuItem = require('ui/settings/menus/conditions/ConditionSettingsMenuItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local FoodSettingsMenuItem = require('ui/settings/menus/buffs/FoodSettingsMenuItem')
 local JobAbilitiesSettingsMenuItem = require('ui/settings/menus/buffs/JobAbilitiesSettingsMenuItem')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
+local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 local SpellSettingsEditor = require('ui/settings/SpellSettingsEditor')
 
 local BufferSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 BufferSettingsMenuItem.__index = BufferSettingsMenuItem
 
-function BufferSettingsMenuItem.new(trustSettings, trustSettingsMode, jobNameShort, settingsPrefix)
+function BufferSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSettings, jobNameShort, settingsPrefix)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Self', 18),
         ButtonItem.default('Party', 18),
@@ -19,9 +18,9 @@ function BufferSettingsMenuItem.new(trustSettings, trustSettingsMode, jobNameSho
         ButtonItem.default('Food', 18),
         ButtonItem.default('Modes', 18),
     }, {}, nil, "Buffs", "Choose buffs to use."), BufferSettingsMenuItem)
-
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
+    self.trustModeSettings = trustModeSettings
     self.jobNameShort = jobNameShort
     self.settingsPrefix = settingsPrefix
     self.dispose_bag = DisposeBag.new()
@@ -60,19 +59,13 @@ function BufferSettingsMenuItem:getJobAbilitiesMenuItem()
 end
 
 function BufferSettingsMenuItem:getFoodMenuItem()
-    local foodSettingsMenuItem = FoodSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode)
+    local foodSettingsMenuItem = FoodSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, self.trustModeSettings)
     return foodSettingsMenuItem
 end
 
 function BufferSettingsMenuItem:getModesMenuItem()
-    local buffModesMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm')
-    }, L{}, function(_, infoView)
-        local modesView = ModesView.new(L{'AutoBarSpellMode', 'AutoBuffMode'}, infoView)
-        modesView:setShouldRequestFocus(true)
-        return modesView
-    end, "Modes", "Change buffing behavior.")
-    return buffModesMenuItem
+    return ModesMenuItem.new(self.trustModeSettings, "Change buffing behavior.",
+            L{'AutoBarSpellMode', 'AutoBuffMode'})
 end
 
 function BufferSettingsMenuItem:getEditBuffMenuItem()

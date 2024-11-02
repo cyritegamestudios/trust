@@ -2,13 +2,13 @@ local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
+local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 
 local RollSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 RollSettingsMenuItem.__index = RollSettingsMenuItem
 
-function RollSettingsMenuItem.new(trustSettings, trustSettingsMode, trust)
+function RollSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSettings, trust)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
         ButtonItem.default('Modes', 18),
@@ -18,6 +18,7 @@ function RollSettingsMenuItem.new(trustSettings, trustSettingsMode, trust)
     self.all_rolls = trust:get_job():get_all_rolls():sort()
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
+    self.trustModeSettings = trustModeSettings
     self.dispose_bag = DisposeBag.new()
 
     self.contentViewConstructor = function(_, _)
@@ -74,14 +75,7 @@ function RollSettingsMenuItem:reloadSettings()
 end
 
 function RollSettingsMenuItem:getModesMenuItem()
-    local buffModesMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm')
-    }, L{}, function(_, infoView)
-        local modesView = ModesView.new(L{'AutoRollMode'}, infoView)
-        modesView:setShouldRequestFocus(true)
-        return modesView
-    end, "Modes", "Change rolling behavior.")
-    return buffModesMenuItem
+    return ModesMenuItem.new(self.trustModeSettings, "Set modes for rolls.", L{'AutoRollMode'})
 end
 
 return RollSettingsMenuItem

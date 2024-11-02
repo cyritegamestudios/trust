@@ -1,24 +1,16 @@
-local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
-local ConditionSettingsMenuItem = require('ui/settings/menus/conditions/ConditionSettingsMenuItem')
-local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
-local Gambit = require('cylibs/gambits/gambit')
-local GambitSettingsEditor = require('ui/settings/editors/GambitSettingsEditor')
-local GambitTarget = require('cylibs/gambits/gambit_target')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
-local job_util = require('cylibs/util/job_util')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
-local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
+local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 
 local JobGambitSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 JobGambitSettingsMenuItem.__index = JobGambitSettingsMenuItem
 
-function JobGambitSettingsMenuItem.new(trustSettings, trustSettingsMode)
+function JobGambitSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSettings)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Toggle', 18),
         ButtonItem.default('Modes', 18),
@@ -26,6 +18,7 @@ function JobGambitSettingsMenuItem.new(trustSettings, trustSettingsMode)
 
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
+    self.trustModeSettings = trustModeSettings
     self.disposeBag = DisposeBag.new()
 
     self.contentViewConstructor = function(_, infoView)
@@ -109,14 +102,8 @@ end
 
 
 function JobGambitSettingsMenuItem:getModesMenuItem()
-    local gambitModesMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm')
-    }, L{}, function(_, infoView)
-        local modesView = ModesView.new(L{'AutoGambitMode'}, infoView)
-        modesView:setShouldRequestFocus(true)
-        return modesView
-    end, "Modes", "Change Gambit behavior.")
-    return gambitModesMenuItem
+    return ModesMenuItem.new(self.trustModeSettings, "Set modes for gambits.",
+            L{'AutoGambitMode'})
 end
 
 return JobGambitSettingsMenuItem

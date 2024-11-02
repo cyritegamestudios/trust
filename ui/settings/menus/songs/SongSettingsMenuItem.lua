@@ -6,17 +6,16 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
+local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local SongListMenuItem = require('ui/settings/menus/songs/SongListMenuItem')
-local SongPickerView = require('ui/settings/pickers/SongPickerView')
 local SongSettingsEditor = require('ui/settings/SongSettingsEditor')
 local SongValidator = require('cylibs/entity/jobs/bard/song_validator')
 
 local SongSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 SongSettingsMenuItem.__index = SongSettingsMenuItem
 
-function SongSettingsMenuItem.new(addonSettings, trustSettings, trustSettingsMode, trust)
+function SongSettingsMenuItem.new(addonSettings, trustSettings, trustSettingsMode, trustModeSettings, trust)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Dummy', 18),
         ButtonItem.default('Songs', 18),
@@ -29,13 +28,13 @@ function SongSettingsMenuItem.new(addonSettings, trustSettings, trustSettingsMod
     function()
         local songSettingsView = SongSettingsEditor.new(trustSettings, trustSettingsMode, addonSettings:getSettings().help.wiki_base_url..'/Singer')
         songSettingsView:setShouldRequestFocus(true)
-        --songSettingsView:setAllowsCursorSelection(true)
         return songSettingsView
     end, "Songs", "Choose songs to sing."), SongSettingsMenuItem)
 
     self.addonSettings = addonSettings
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
+    self.trustModeSettings = trustModeSettings
     self.songSettings = T(trustSettings:getSettings())[trustSettingsMode.value].SongSettings
     self.songValidator = SongValidator.new(trust:role_with_type("singer"), action_queue)
     self.dispose_bag = DisposeBag.new()
@@ -373,15 +372,8 @@ function SongSettingsMenuItem:getDiagnosticsMenuItem()
 end
 
 function SongSettingsMenuItem:getModesMenuItem()
-    local songModesMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm')
-    }, L{}, function(_, infoView)
-        local modesView = ModesView.new(L{'AutoSongMode', 'AutoClarionCallMode', 'AutoNitroMode', 'AutoPianissimoMode'}, infoView)
-        modesView:setShouldRequestFocus(true)
-        modesView:setTitle("Set modes for singing.")
-        return modesView
-    end, "Modes", "Change singing behavior.")
-    return songModesMenuItem
+    return ModesMenuItem.new(self.trustModeSettings, "Set modes for singing.",
+            L{'AutoSongMode', 'AutoClarionCallMode', 'AutoNitroMode', 'AutoPianissimoMode'})
 end
 
 function SongSettingsMenuItem:validateDummySongs(songNames)

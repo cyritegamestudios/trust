@@ -5,13 +5,13 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
+local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 local PullActionMenuItem = require('ui/settings/menus/pulling/PullActionMenuItem')
 
 local PullSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 PullSettingsMenuItem.__index = PullSettingsMenuItem
 
-function PullSettingsMenuItem.new(abilities, trust, job_name_short, trust_settings, trust_settings_mode)
+function PullSettingsMenuItem.new(abilities, trust, job_name_short, trust_settings, trust_settings_mode, trust_mode_settings)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Targets', 18),
         ButtonItem.default('Actions', 18),
@@ -27,6 +27,7 @@ function PullSettingsMenuItem.new(abilities, trust, job_name_short, trust_settin
     self.job_name_short = job_name_short
     self.trust_settings = trust_settings
     self.trust_settings_mode = trust_settings_mode
+    self.trust_mode_settings = trust_mode_settings
     self.dispose_bag = DisposeBag.new()
 
     self:reloadSettings()
@@ -126,15 +127,8 @@ function PullSettingsMenuItem:getTargetsMenuItem()
 end
 
 function PullSettingsMenuItem:getModesMenuItem()
-    local pullModesMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm')
-    }, L{}, function(_, infoView)
-        local modesView = ModesView.new(L{ 'AutoPullMode', 'ApproachPullMode', 'AutoCampMode' }, infoView)
-        modesView:setShouldRequestFocus(true)
-        modesView:setTitle("Set modes for pulling.")
-        return modesView
-    end, "Modes", "Change pulling behavior.")
-    return pullModesMenuItem
+    return ModesMenuItem.new(self.trust_mode_settings, "Set modes for pulling.",
+            L{ 'AutoPullMode', 'ApproachPullMode', 'AutoCampMode' })
 end
 
 function PullSettingsMenuItem:getConfigMenuItem()

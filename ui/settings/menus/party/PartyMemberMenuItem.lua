@@ -1,12 +1,8 @@
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
-local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local IpcRelay = require('cylibs/messages/ipc/ipc_relay')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModeConfigEditor = require('ui/settings/editors/config/ModeConfigEditor')
-local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
-local TrustModeSettings = require('TrustModeSettings')
 
 local PartyMemberMenuItem = setmetatable({}, {__index = MenuItem })
 PartyMemberMenuItem.__index = PartyMemberMenuItem
@@ -64,24 +60,9 @@ function PartyMemberMenuItem:reloadSettings(roles)
     end, self.partyMemberName, "Assist "..self.partyMemberName.." in battle"))
     self:setChildMenuItem("Commands", self:getCommandsMenuItem())
     self:setChildMenuItem("Config", self:getConfigMenuItem(roles))
-    --self:setChildMenuItem("Modes", self:getModesMenuItem())
 end
 
 function PartyMemberMenuItem:getCommandsMenuItem()
-    --[[local commands = L{
-        AssistCommands.new(main_job_trust, action_queue),
-        AttackCommands.new(main_job_trust, action_queue),
-        FollowCommands.new(main_job_trust, action_queue),
-        GeneralCommands.new(main_job_trust, action_queue, addon_enabled, trust_mode_settings, main_trust_settings, sub_trust_settings),
-        MagicBurstCommands.new(main_job_trust, main_trust_settings, action_queue),
-        NukeCommands.new(main_job_trust, main_trust_settings, action_queue),
-        PathCommands.new(main_job_trust, action_queue),
-        PullCommands.new(main_job_trust, action_queue, main_job_trust:role_with_type("puller") or sub_job_trust:role_with_type("puller")),
-        ScenarioCommands.new(main_job_trust, action_queue, party, addon_settings),
-        SkillchainCommands.new(main_job_trust, weapon_skill_settings, action_queue),
-    }:map(function(command)
-        return command:get_command_name()
-    end)]]
     local commandsMenuItem = MenuItem.new(L{
         ButtonItem.default('Send'),
         ButtonItem.default('Send All'),
@@ -161,17 +142,6 @@ function PartyMemberMenuItem:getConfigMenuItem(roles)
     end
 
     return configMenuItem
-end
-
-function PartyMemberMenuItem:getModesMenuItem()
-    local partyMemberModesMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm')
-    }, L{}, function(_, infoView)
-        local modesView = ModeConfigEditor.new(L(self.modeNames), infoView, self.modes)
-        modesView:setShouldRequestFocus(true)
-        return modesView
-    end, "Modes", "Set modes for "..self.partyMemberName)
-    return partyMemberModesMenuItem
 end
 
 return PartyMemberMenuItem

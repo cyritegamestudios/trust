@@ -7,16 +7,18 @@ local ModesMenuItem = setmetatable({}, {__index = MenuItem })
 ModesMenuItem.__index = ModesMenuItem
 ModesMenuItem.__type = "ModesMenuItem"
 
-function ModesMenuItem.new(trustModeSettings)
+function ModesMenuItem.new(trustModeSettings, description, modeNames, showModeName)
+    description = description or "View and change Trust modes."
+    modeNames = modeNames or L(T(state):keyset()):sort()
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
         ButtonItem.default('Save', 18),
     }, {},
         function(_, infoView)
-            local modesView = ModesView.new(L(T(state):keyset()):sort(), infoView, state, true)
+            local modesView = ModesView.new(modeNames, infoView, state, showModeName)
             modesView:setShouldRequestFocus(true)
             return modesView
-        end, "Modes", "View and change Trust modes."), ModesMenuItem)
+        end, "Modes", description), ModesMenuItem)
 
     self.trustModeSettings = trustModeSettings
     self.disposeBag = DisposeBag.new()

@@ -2,12 +2,12 @@ local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local ConfigItem = require('ui/settings/editors/config/ConfigItem')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
+local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 
 local ShooterSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 ShooterSettingsMenuItem.__index = ShooterSettingsMenuItem
 
-function ShooterSettingsMenuItem.new(trustSettings, trustSettingsMode, shooter)
+function ShooterSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSettings, shooter)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Config', 18),
         ButtonItem.default('Modes', 18),
@@ -15,6 +15,7 @@ function ShooterSettingsMenuItem.new(trustSettings, trustSettingsMode, shooter)
 
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
+    self.trustModeSettings = trustModeSettings
     self.shooter = shooter
 
     self:reloadSettings()
@@ -43,15 +44,8 @@ function ShooterSettingsMenuItem:getConfigMenuItem()
 end
 
 function ShooterSettingsMenuItem:getModesMenuItem()
-    local curesModesMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm')
-    }, L{}, function(_, infoView)
-        local modesView = ModesView.new(L{'AutoShootMode', 'AutoSkillchainMode'}, infoView)
-        modesView:setShouldRequestFocus(true)
-        modesView:setTitle("Set modes for shooting.")
-        return modesView
-    end, "Modes", "Set modes for shooting.")
-    return curesModesMenuItem
+    return ModesMenuItem.new(self.trustModeSettings, "Set modes for shooting.",
+            L{'AutoShootMode', 'AutoSkillchainMode'})
 end
 
 return ShooterSettingsMenuItem

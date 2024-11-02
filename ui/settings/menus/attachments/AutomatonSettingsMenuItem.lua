@@ -2,12 +2,12 @@ local AttachmentSettingsMenuItem = require('ui/settings/menus/attachments/Attach
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ManeuverSettingsMenuItem = require('ui/settings/menus/attachments/ManeuverSettingsMenuItem')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
+local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 
 local AutomatonSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 AutomatonSettingsMenuItem.__index = AutomatonSettingsMenuItem
 
-function AutomatonSettingsMenuItem.new(trustSettings, trustSettingsMode)
+function AutomatonSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSettings)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Attachments', 18),
         ButtonItem.default('Maneuvers', 18),
@@ -16,6 +16,7 @@ function AutomatonSettingsMenuItem.new(trustSettings, trustSettingsMode)
 
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
+    self.trustModeSettings = trustModeSettings
 
     self:reloadSettings()
 
@@ -59,14 +60,8 @@ function AutomatonSettingsMenuItem:getManeuverSettingsMenuItem()
 end
 
 function AutomatonSettingsMenuItem:getModesMenuItem()
-    local automatonModesMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm')
-    }, L{}, function(_, infoView)
-        local modesView = ModesView.new(L{'AutoPetMode', 'AutoAssaultMode', 'AutoRepairMode', 'AutoManeuverMode', 'ManeuverMode'}, infoView)
-        modesView:setShouldRequestFocus(true)
-        return modesView
-    end, "Modes", "Change automaton behavior.")
-    return automatonModesMenuItem
+    return ModesMenuItem.new(self.trustModeSettings, "Set modes for automaton behavior.",
+            L{'AutoPetMode', 'AutoAssaultMode', 'AutoRepairMode', 'AutoManeuverMode', 'ManeuverMode'})
 end
 
 return AutomatonSettingsMenuItem

@@ -1,14 +1,14 @@
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModeConfigEditor = require('ui/settings/editors/config/ModeConfigEditor')
+local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 local SkillchainSettingsMenuItem = require('ui/settings/menus/SkillchainSettingsMenuItem')
 local SkillSettingsMenuItem = require('ui/settings/menus/SkillSettingsMenuItem')
 
 local WeaponSkillSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 WeaponSkillSettingsMenuItem.__index = WeaponSkillSettingsMenuItem
 
-function WeaponSkillSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettingsMode, trust)
+function WeaponSkillSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettingsMode, trustModeSettings, trust)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Skillchains', 18),
         ButtonItem.default('Abilities', 18),
@@ -19,6 +19,7 @@ function WeaponSkillSettingsMenuItem.new(weaponSkillSettings, weaponSkillSetting
     self.skillchainer = trust:role_with_type("skillchainer")
     self.weaponSkillSettings = weaponSkillSettings
     self.weaponSkillSettingsMode = weaponSkillSettingsMode
+    self.trustModeSettings = trustModeSettings
     self.dispose_bag = DisposeBag.new()
 
     local getActiveSkills = function(player)
@@ -74,15 +75,8 @@ function WeaponSkillSettingsMenuItem:getAbilitiesMenuItem(activeSkills)
 end
 
 function WeaponSkillSettingsMenuItem:getModesMenuItem()
-    local skillchainModesMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm')
-    }, L{}, function(_, infoView)
-        local modesView = ModeConfigEditor.new(L{'AutoSkillchainMode', 'SkillchainPropertyMode', 'SkillchainDelayMode', 'SkillchainAssistantMode', 'WeaponSkillSettingsMode'}, infoView)
-        modesView:setShouldRequestFocus(true)
-        modesView:setTitle("Set modes for weapon skills and skillchains.")
-        return modesView
-    end, "Modes", "Change weapon skill and skillchain behavior.")
-    return skillchainModesMenuItem
+    return ModesMenuItem.new(self.trustModeSettings, "Change weapon skill and skillchain behavior.",
+            L{'AutoSkillchainMode', 'SkillchainPropertyMode', 'SkillchainDelayMode', 'SkillchainAssistantMode', 'WeaponSkillSettingsMode'})
 end
 
 return WeaponSkillSettingsMenuItem
