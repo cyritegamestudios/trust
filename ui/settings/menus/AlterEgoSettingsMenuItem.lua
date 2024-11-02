@@ -1,21 +1,21 @@
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local DisposeBag = require('cylibs/events/dispose_bag')
-local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
+local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 
 local AlterEgoSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 AlterEgoSettingsMenuItem.__index = AlterEgoSettingsMenuItem
 
-function AlterEgoSettingsMenuItem.new(truster, addonSettings)
+function AlterEgoSettingsMenuItem.new(truster, trustModeSettings, addonSettings)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
         ButtonItem.default('Modes', 18),
     }, {}, nil, "Alter Egos", "Choose Alter Egos to call."), AlterEgoSettingsMenuItem)
 
     self.truster = truster
+    self.trustModeSettings = trustModeSettings
     self.addonSettings = addonSettings
     self.disposeBag = DisposeBag.new()
 
@@ -79,15 +79,8 @@ function AlterEgoSettingsMenuItem:reloadSettings()
 end
 
 function AlterEgoSettingsMenuItem:getModesMenuItem()
-    local curesModesMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm')
-    }, L{}, function(_, infoView)
-        local modesView = ModesView.new(L{'AutoTrustsMode'}, infoView)
-        modesView:setShouldRequestFocus(true)
-        modesView:setTitle("Set modes for summoning alter egos.")
-        return modesView
-    end, "Modes", "Set modes for summoning alter egos.")
-    return curesModesMenuItem
+    return ModesMenuItem.new(self.trustModeSettings, "Set modes for calling alter egos to fight by your side.",
+            L{'AutoTrustsMode'})
 end
 
 return AlterEgoSettingsMenuItem

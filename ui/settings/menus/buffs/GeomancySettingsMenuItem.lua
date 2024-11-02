@@ -3,15 +3,14 @@ local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local EntrustSettingsMenuItem = require('ui/settings/menus/buffs/EntrustSettingsMenuItem')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
-local GeomancySettingsEditor = require('ui/settings/editors/GeomancySettingsEditor')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
+local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 
 local GeomancySettingsMenuItem = setmetatable({}, {__index = MenuItem })
 GeomancySettingsMenuItem.__index = GeomancySettingsMenuItem
 
-function GeomancySettingsMenuItem.new(trustSettings, trust, geomancySettings, entrustSpells)
+function GeomancySettingsMenuItem.new(trustSettings, trustModeSettings, geomancySettings, entrustSpells)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Geo', 18),
         ButtonItem.default('Indi', 18),
@@ -26,6 +25,7 @@ function GeomancySettingsMenuItem.new(trustSettings, trust, geomancySettings, en
     end, "Geomancy", "Configure indicolure and geocolure settings."), GeomancySettingsMenuItem)
 
     self.trustSettings = trustSettings
+    self.trustModeSettings = trustModeSettings
     self.geomancySettings = geomancySettings
     self.entrustSpells = entrustSpells
     self.dispose_bag = DisposeBag.new()
@@ -141,15 +141,8 @@ function GeomancySettingsMenuItem:getIndiMenuItem()
 end
 
 function GeomancySettingsMenuItem:getModesMenuItem()
-    local geomancyModesMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
-    }, {}, function(_, infoView)
-        local modesView = ModesView.new(L{'AutoGeoMode', 'AutoIndiMode', 'AutoEntrustMode'}, infoView)
-        modesView:setShouldRequestFocus(true)
-        modesView:setTitle("Set modes for geocolures and indicolures.")
-        return modesView
-    end, "Modes", "Set modes for geocolures and indicolures.")
-    return geomancyModesMenuItem
+    return ModesMenuItem.new(self.trustModeSettings, "Set modes for geocolures and indicolures.",
+            L{'AutoGeoMode', 'AutoIndiMode', 'AutoEntrustMode'})
 end
 
 return GeomancySettingsMenuItem

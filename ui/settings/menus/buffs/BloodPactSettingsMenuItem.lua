@@ -3,13 +3,13 @@ local BloodPactSettingsEditor = require('ui/settings/editors/BloodPactSettingsEd
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
+local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 
 local BloodPactSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 BloodPactSettingsMenuItem.__index = BloodPactSettingsMenuItem
 
-function BloodPactSettingsMenuItem.new(trustSettings, trust, bloodPacts, viewFactory)
+function BloodPactSettingsMenuItem.new(trustSettings, trust, bloodPacts, trustModeSettings)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Buffs', 18),
         ButtonItem.default('Modes', 18),
@@ -20,9 +20,9 @@ function BloodPactSettingsMenuItem.new(trustSettings, trust, bloodPacts, viewFac
     end, "Summoner", "Configure Summoner settings."), BloodPactSettingsMenuItem)
 
     self.trustSettings = trustSettings
+    self.trustModeSettings = trustModeSettings
     self.bloodPacts = bloodPacts
     self.job = trust:get_job()
-    self.viewFactory = viewFactory
     self.dispose_bag = DisposeBag.new()
 
     self:reloadSettings()
@@ -34,8 +34,6 @@ function BloodPactSettingsMenuItem:destroy()
     MenuItem.destroy(self)
 
     self.dispose_bag:destroy()
-
-    self.viewFactory = nil
 end
 
 function BloodPactSettingsMenuItem:reloadSettings()
@@ -74,15 +72,8 @@ function BloodPactSettingsMenuItem:getBuffsMenuItem()
 end
 
 function BloodPactSettingsMenuItem:getModesMenuItem()
-    local geomancyModesMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm')
-    }, L{}, function(_, infoView)
-        local modesView = ModesView.new(L{'AutoAssaultMode', 'AutoAvatarMode', 'AutoBuffMode'}, infoView)
-        modesView:setShouldRequestFocus(true)
-        modesView:setTitle("Set modes for Summoner.")
-        return modesView
-    end, "Modes", "Change behavior of Avatars.")
-    return geomancyModesMenuItem
+    return ModesMenuItem.new(self.trustModeSettings, "Set modes for avatar behavior.",
+            L{'AutoAssaultMode', 'AutoAvatarMode', 'AutoBuffMode'})
 end
 
 return BloodPactSettingsMenuItem

@@ -59,7 +59,7 @@ AutomatonStatusWidget.Subheadline = TextStyle.new(
 
 AutomatonStatusWidget.hasMp = true
 
-function AutomatonStatusWidget.new(frame, addonSettings, player, trustHud, trustSettings, trustSettingsMode)
+function AutomatonStatusWidget.new(frame, addonSettings, player, trustHud, trustSettings, trustSettingsMode, trustModeSettings)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         if indexPath.section == 1 then
             local cell = TextCollectionViewCell.new(item)
@@ -129,7 +129,7 @@ function AutomatonStatusWidget.new(frame, addonSettings, player, trustHud, trust
     self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
         self:getDelegate():deselectItemAtIndexPath(indexPath)
 
-        trustHud:openMenu(AutomatonSettingsMenuItem.new(trustSettings, trustSettingsMode))
+        trustHud:openMenu(AutomatonSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSettings))
     end), self:getDelegate():didSelectItemAtIndexPath())
 
     self:setAction('Idle')

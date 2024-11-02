@@ -5,14 +5,14 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local ElementPickerView = require('ui/settings/pickers/ElementPickerView')
 local JobAbilitiesSettingsMenuItem = require('ui/settings/menus/buffs/JobAbilitiesSettingsMenuItem')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
+local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 local NukeSettingsEditor = require('ui/settings/NukeSettingsEditor')
 local SpellPickerView = require('ui/settings/pickers/SpellPickerView')
 
 local NukeSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 NukeSettingsMenuItem.__index = NukeSettingsMenuItem
 
-function NukeSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, addonSettings, jobNameShort, viewFactory)
+function NukeSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, addonSettings, jobNameShort)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Edit', 18),
         ButtonItem.default('Abilities', 18),
@@ -28,8 +28,8 @@ function NukeSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, addon
 
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
+    self.trustModeSettings = trustModeSettings
     self.jobNameShort = jobNameShort
-    self.viewFactory = viewFactory
     self.dispose_bag = DisposeBag.new()
 
     self:reloadSettings()
@@ -136,14 +136,8 @@ function NukeSettingsMenuItem:getConfigMenuItem()
 end
 
 function NukeSettingsMenuItem:getModesMenuItem()
-    local nukeModesMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm')
-    }, L{}, function(_, infoView)
-        local modesView = ModesView.new(L{'AutoMagicBurstMode', 'AutoNukeMode', 'MagicBurstTargetMode'}, infoView)
-        modesView:setShouldRequestFocus(true)
-        return modesView
-    end, "Modes", "Change nuking and magic bursting behavior.")
-    return nukeModesMenuItem
+    return ModesMenuItem.new(self.trustModeSettings, "Set modes for nuking and magic bursting.",
+            L{'AutoMagicBurstMode', 'AutoNukeMode', 'MagicBurstTargetMode'})
 end
 
 return NukeSettingsMenuItem

@@ -18,7 +18,6 @@ function BufferSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeS
         ButtonItem.default('Food', 18),
         ButtonItem.default('Modes', 18),
     }, {}, nil, "Buffs", "Choose buffs to use."), BufferSettingsMenuItem)
-    print(self.trustModeSettings)
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
     self.trustModeSettings = trustModeSettings
@@ -60,22 +59,13 @@ function BufferSettingsMenuItem:getJobAbilitiesMenuItem()
 end
 
 function BufferSettingsMenuItem:getFoodMenuItem()
-    local foodSettingsMenuItem = FoodSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode)
+    local foodSettingsMenuItem = FoodSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, self.trustModeSettings)
     return foodSettingsMenuItem
 end
 
 function BufferSettingsMenuItem:getModesMenuItem()
     return ModesMenuItem.new(self.trustModeSettings, "Change buffing behavior.",
             L{'AutoBarSpellMode', 'AutoBuffMode'})
-
-    --[[local buffModesMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm')
-    }, L{}, function(_, infoView)
-        local modesView = ModesView.new(L{'AutoBarSpellMode', 'AutoBuffMode'}, infoView)
-        modesView:setShouldRequestFocus(true)
-        return modesView
-    end, "Modes", "Change buffing behavior.")
-    return buffModesMenuItem]]
 end
 
 function BufferSettingsMenuItem:getEditBuffMenuItem()

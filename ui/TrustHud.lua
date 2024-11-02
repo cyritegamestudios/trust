@@ -15,20 +15,15 @@ local HealerSettingsMenuItem = require('ui/settings/menus/healing/HealerSettings
 local DebufferView = require('ui/views/DebufferView')
 local DebuffSettingsEditor = require('ui/settings/DebuffSettingsEditor')
 local DebugView = require('cylibs/actions/ui/debug_view')
-local FFXIBackgroundView = require('ui/themes/ffxi/FFXIBackgroundView')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FollowSettingsMenuItem = require('ui/settings/menus/FollowSettingsMenuItem')
 local Frame = require('cylibs/ui/views/frame')
 local GambitSettingsMenuItem = require('ui/settings/menus/gambits/GambitSettingsMenuItem')
 local GameInfo = require('cylibs/util/ffxi/game_info')
-local HelpView = require('cylibs/trust/ui/help_view')
 local JobGambitSettingsMenuItem = require('ui/settings/menus/gambits/JobGambitSettingsMenuItem')
-local Keybind = require('cylibs/ui/input/keybind')
 local Keyboard = require('cylibs/ui/input/keyboard')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
-local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
-local NavigationBar = require('cylibs/ui/navigation/navigation_bar')
 local PullSettingsMenuItem = require('ui/settings/menus/pulling/PullSettingsMenuItem')
 local LoadSettingsMenuItem = require('ui/settings/menus/loading/LoadSettingsMenuItem')
 local NukeSettingsMenuItem = require('ui/settings/menus/nukes/NukeSettingsMenuItem')
@@ -233,7 +228,7 @@ function TrustHud:createWidgets(addon_settings, addon_enabled, action_queue, par
     self.widgetManager:addWidget(pathWidget, "path")
 
     if player.main_job_name_short == 'PUP' then
-        local petStatusWidget = AutomatonStatusWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), self, main_trust_settings, state.MainTrustSettingsMode)
+        local petStatusWidget = AutomatonStatusWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), self, main_trust_settings, state.MainTrustSettingsMode, self.trustModeSettings)
         self.widgetManager:addWidget(petStatusWidget, "pet")
     end
 
@@ -372,13 +367,8 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
                 return chooseSpellsView
             end, "Debuffs", "Add a new debuff.")
 
-    local debuffModesMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm')
-    }, L{}, function(_, infoView)
-        local modesView = ModesView.new(L{'AutoDebuffMode', 'AutoDispelMode', 'AutoSilenceMode'}, infoView)
-        modesView:setShouldRequestFocus(true)
-        return modesView
-    end, "Modes", "Change debuffing behavior.")
+    local debuffModesMenuItem = ModesMenuItem.new(trustModeSettings, "Set modes for debuffs.",
+            L{'AutoDebuffMode', 'AutoDispelMode', 'AutoSilenceMode'})
 
     local debuffSettingsItem = MenuItem.new(L{
         ButtonItem.default('Add', 18),
@@ -408,26 +398,24 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
 
     if jobNameShort == 'GEO' then
         menuItems:append(ButtonItem.default('Geomancy', 18))
-        childMenuItems.Geomancy = GeomancySettingsMenuItem.new(trustSettings, trust, trustSettings:getSettings()[trustSettingsMode.value].Geomancy, trustSettings:getSettings()[trustSettingsMode.value].PartyBuffs, function(view)
+        childMenuItems.Geomancy = GeomancySettingsMenuItem.new(trustSettings, self.trustModeSettings, trustSettings:getSettings()[trustSettingsMode.value].Geomancy, trustSettings:getSettings()[trustSettingsMode.value].PartyBuffs, function(view)
             return setupView(view, viewSize)
         end)
     end
 
     if jobNameShort == 'SMN' then
         menuItems:append(ButtonItem.default('Blood Pacts', 18))
-        childMenuItems['Blood Pacts'] = BloodPactSettingsMenuItem.new(trustSettings, trust, trustSettings:getSettings()[trustSettingsMode.value].PartyBuffs, function(view)
-            return setupView(view, viewSize)
-        end)
+        childMenuItems['Blood Pacts'] = BloodPactSettingsMenuItem.new(trustSettings, trust, trustSettings:getSettings()[trustSettingsMode.value].PartyBuffs, self.trustModeSettings)
     end
 
     if jobNameShort == 'COR' then
         menuItems:append(ButtonItem.default('Rolls', 18))
-        childMenuItems['Rolls'] = RollSettingsMenuItem.new(trustSettings, trustSettingsMode, trust)
+        childMenuItems['Rolls'] = RollSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSettings, trust)
     end
 
     if jobNameShort == 'PUP' then
         menuItems:append(ButtonItem.default('Automaton', 18))
-        childMenuItems['Automaton'] = AutomatonSettingsMenuItem.new(trustSettings, trustSettingsMode)
+        childMenuItems['Automaton'] = AutomatonSettingsMenuItem.new(trustSettings, trustSettingsMode, self.trustModeSettings)
     end
 
     if jobNameShort == 'BLU' then
@@ -478,17 +466,17 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
 
     if trust:role_with_type("follower") then
         menuItems:append(ButtonItem.default('Following', 18))
-        childMenuItems.Following = self:getMenuItemForRole(trust:role_with_type("follower"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize)
-    end
-
-    if trust:role_with_type("pather") then
-        menuItems:append(ButtonItem.default('Paths', 18))
-        childMenuItems.Paths = self:getMenuItemForRole(trust:role_with_type("pather"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize)
+        childMenuItems.Following = self:getMenuItemForRole(trust:role_with_type("follower"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode, trustModeSettings)
     end
 
     if trust:role_with_type("truster") then
         menuItems:append(ButtonItem.default('Alter Egos', 18))
         childMenuItems['Alter Egos'] = self:getMenuItemForRole(trust:role_with_type("truster"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize)
+    end
+
+    if trust:role_with_type("pather") then
+        menuItems:append(ButtonItem.default('Paths', 18))
+        childMenuItems.Paths = self:getMenuItemForRole(trust:role_with_type("pather"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize)
     end
 
     local jobName = res.jobs:with('ens', jobNameShort).en
@@ -499,9 +487,9 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         ButtonItem.default(jobName, 18),
         ButtonItem.default('Reactions', 18),
     }, {
-        Custom = GambitSettingsMenuItem.new(trustSettings, trustSettingsMode),
-        [jobName] = JobGambitSettingsMenuItem.new(trustSettings, trustSettingsMode),
-        Reactions = ReactSettingsMenuItem.new(trustSettings, trustSettingsMode),
+        Custom = GambitSettingsMenuItem.new(trustSettings, trustSettingsMode, self.trustModeSettings),
+        [jobName] = JobGambitSettingsMenuItem.new(trustSettings, trustSettingsMode, self.trustModeSettings),
+        Reactions = ReactSettingsMenuItem.new(trustSettings, trustSettingsMode, self.trustModeSettings),
     }, nil, "Gambits", "Configure Trust behavior.")
 
     local settingsMenuItem = MenuItem.new(menuItems, childMenuItems, nil, "Settings", "Configure Trust settings for skillchains, buffs, debuffs and more.")
@@ -516,25 +504,25 @@ function TrustHud:getMenuItemForRole(role, weaponSkillSettings, weaponSkillSetti
         return self:getBufferMenuItem(trust, jobNameShort, trustSettings, trustSettingsMode, trustModeSettings)
     end
     if role:get_type() == "healer" then
-        return self:getHealerMenuItem(trust, trustSettings, trustSettingsMode, viewSize)
+        return self:getHealerMenuItem(trust, trustSettings, trustSettingsMode, trustModeSettings)
     end
     if role:get_type() == "skillchainer" then
         return self:getSkillchainerMenuItem(weaponSkillSettings, weaponSkillSettingsMode, trustModeSettings, trust)
     end
     if role:get_type() == "puller" then
-        return self:getPullerMenuItem(trust, jobNameShort, trustSettings, trustSettingsMode, viewSize)
+        return self:getPullerMenuItem(trust, jobNameShort, trustSettings, trustSettingsMode, trustModeSettings)
     end
     if role:get_type() == "singer" then
         return self:getSingerMenuItem(trust, trustSettings, trustSettingsMode, viewSize)
     end
     if role:get_type() == "nuker" then
-        return self:getNukerMenuItem(trust, trustSettings, trustSettingsMode, jobNameShort, viewSize)
+        return self:getNukerMenuItem(trust, trustSettings, trustSettingsMode, trustModeSettings, jobNameShort)
     end
     if role:get_type() == "shooter" then
         return self:getShooterMenuItem(trust, trustSettings, trustSettingsMode)
     end
     if role:get_type() == "follower" then
-        return self:getFollowerMenuItem(role)
+        return self:getFollowerMenuItem(role, trustModeSettings)
     end
     if role:get_type() == "pather" then
         return self:getPatherMenuItem(role, viewSize)
@@ -564,8 +552,8 @@ function TrustHud:getBufferMenuItem(trust, jobNameShort, trustSettings, trustSet
     end
 end
 
-function TrustHud:getHealerMenuItem(trust, trustSettings, trustSettingsMode, viewSize)
-    local healerSettingsMenuItem = HealerSettingsMenuItem.new(trust, trustSettings, trustSettingsMode)
+function TrustHud:getHealerMenuItem(trust, trustSettings, trustSettingsMode, trustModeSettings)
+    local healerSettingsMenuItem = HealerSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings)
     return healerSettingsMenuItem
 end
 
@@ -574,30 +562,28 @@ function TrustHud:getSkillchainerMenuItem(weaponSkillSettings, weaponSkillSettin
     return weaponSkillsSettingsMenuItem
 end
 
-function TrustHud:getPullerMenuItem(trust, jobNameShort, trustSettings, trustSettingsMode)
-    local pullerSettingsMenuItem = PullSettingsMenuItem.new(L{}, trust, jobNameShort, trustSettings, trustSettingsMode)
+function TrustHud:getPullerMenuItem(trust, jobNameShort, trustSettings, trustSettingsMode, trustModeSettings)
+    local pullerSettingsMenuItem = PullSettingsMenuItem.new(L{}, trust, jobNameShort, trustSettings, trustSettingsMode, trustModeSettings)
     return pullerSettingsMenuItem
 end
 
 function TrustHud:getShooterMenuItem(trust, trustSettings, trustSettingsMode)
-    local shooterSettingsMenuItem = ShooterSettingsMenuItem.new(trustSettings, trustSettingsMode, trust:role_with_type("shooter"))
+    local shooterSettingsMenuItem = ShooterSettingsMenuItem.new(trustSettings, trustSettingsMode, self.trustModeSettings, trust:role_with_type("shooter"))
     return shooterSettingsMenuItem
 end
 
 function TrustHud:getSingerMenuItem(trust, trustSettings, trustSettingsMode, viewSize)
-    local singerSettingsMenuItem = SongSettingsMenuItem.new(self.addon_settings, trustSettings, trustSettingsMode, trust)
+    local singerSettingsMenuItem = SongSettingsMenuItem.new(self.addon_settings, trustSettings, trustSettingsMode, self.trustModeSettings, trust)
     return singerSettingsMenuItem
 end
 
-function TrustHud:getNukerMenuItem(trust, trustSettings, trustSettingsMode, jobNameShort, viewSize)
-    local nukerSettingsMenuItem = NukeSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, self.addon_settings, jobNameShort, function(view)
-        return setupView(view, viewSize)
-    end)
+function TrustHud:getNukerMenuItem(trust, trustSettings, trustSettingsMode, trustModeSettings, jobNameShort)
+    local nukerSettingsMenuItem = NukeSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, self.addon_settings, jobNameShort)
     return nukerSettingsMenuItem
 end
 
-function TrustHud:getFollowerMenuItem(role)
-    return FollowSettingsMenuItem.new(role, self.addon_settings)
+function TrustHud:getFollowerMenuItem(role, trustModeSettings)
+    return FollowSettingsMenuItem.new(role, trustModeSettings, self.addon_settings)
 end
 
 function TrustHud:getPatherMenuItem(role, viewSize)
@@ -605,11 +591,7 @@ function TrustHud:getPatherMenuItem(role, viewSize)
 end
 
 function TrustHud:getTrusterMenuItem(role)
-    return AlterEgoSettingsMenuItem.new(role, self.addon_settings)
-end
-
-function TrustHud:getTrusterMenuItem(role)
-    return AlterEgoSettingsMenuItem.new(role, self.addon_settings)
+    return AlterEgoSettingsMenuItem.new(role, self.trustModeSettings, self.addon_settings)
 end
 
 function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSkillSettings, weaponSkillSettingsMode, trustModeSettings, jobNameShort, jobName)
@@ -634,28 +616,6 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
         partyMemberView:setShouldRequestFocus(false)
         return partyMemberView
     end, "Party", "View party status.")
-
-    -- Buffs
-    local buffsMenuItem = MenuItem.new(L{}, {},
-    function()
-        local buffer = trust:role_with_type("buffer")
-        if buffer then
-            return setupView(BufferView.new(buffer), viewSize)
-        end
-        return nil
-    end,"Buffs", "View buffs on the player and party.")
-
-    -- Debuffs
-    local debuffsMenuItem = MenuItem.new(L{}, {},
-    function()
-        local debuffer = trust:role_with_type("debuffer")
-        if debuffer then
-            local debufferView = setupView(DebufferView.new(debuffer, debuffer:get_target()), viewSize)
-            debufferView:setShouldRequestFocus(false)
-            return debufferView
-        end
-        return nil
-    end, "Debuffs", "View debuffs on enemies.")
 
     local targetsMenuItem = PartyTargetsMenuItem.new(self.party, function(view)
         return setupView(view, viewSize)
@@ -682,14 +642,8 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
         statusMenuButtons:insert(2, ButtonItem.default('Songs', 18))
     end
 
-    --if trust:role_with_type("debuffer") then
-    --    statusMenuButtons:insert(3, ButtonItem.default('Debuffs', 18))
-    --end
-
     local statusMenuItem = MenuItem.new(statusMenuButtons, {
         Party = partyMenuItem,
-        --Buffs = buffsMenuItem,
-        --Debuffs = debuffsMenuItem,
         Targets = targetsMenuItem,
         Songs = singerMenuItem,
     }, nil, "Status", "View status of party members and enemies.")

@@ -3,13 +3,13 @@ local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local inventory_util = require('cylibs/util/inventory_util')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
+local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 
 local FoodSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 FoodSettingsMenuItem.__index = FoodSettingsMenuItem
 
-function FoodSettingsMenuItem.new(trustSettings, trustSettingsMode)
+function FoodSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSettings)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
         ButtonItem.default('Modes', 18),
@@ -49,6 +49,7 @@ function FoodSettingsMenuItem.new(trustSettings, trustSettingsMode)
 
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
+    self.trustModeSettings = trustModeSettings
     self.dispose_bag = DisposeBag.new()
 
     self:reloadSettings()
@@ -67,15 +68,8 @@ function FoodSettingsMenuItem:reloadSettings()
 end
 
 function FoodSettingsMenuItem:getModesMenuItem()
-    local foodModesMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm')
-    }, L{}, function(_, infoView)
-        local modesView = ModesView.new(L{ 'AutoFoodMode' }, infoView)
-        modesView:setShouldRequestFocus(true)
-        modesView:setTitle("Set modes for eating.")
-        return modesView
-    end, "Modes", "Change eating behavior.")
-    return foodModesMenuItem
+    return ModesMenuItem.new(self.trustModeSettings, "Set modes for eating.",
+            L{ 'AutoFoodMode' })
 end
 
 return FoodSettingsMenuItem

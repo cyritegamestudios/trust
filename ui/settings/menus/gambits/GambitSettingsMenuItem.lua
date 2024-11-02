@@ -12,12 +12,12 @@ local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local job_util = require('cylibs/util/job_util')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
+local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 
 local GambitSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 GambitSettingsMenuItem.__index = GambitSettingsMenuItem
 
-function GambitSettingsMenuItem.new(trustSettings, trustSettingsMode)
+function GambitSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSettings)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Add', 18),
         ButtonItem.default('Edit', 18),
@@ -32,6 +32,7 @@ function GambitSettingsMenuItem.new(trustSettings, trustSettingsMode)
 
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
+    self.trustModeSettings = trustModeSettings
     self.disposeBag = DisposeBag.new()
 
     self.contentViewConstructor = function(_, infoView)
@@ -374,19 +375,12 @@ function GambitSettingsMenuItem:getResetGambitsMenuItem()
 end
 
 function GambitSettingsMenuItem:getGambitLibraryMenuItem()
-    return GambitLibraryMenuItem.new(self.trustSettings, self.trustSettingsMode, self
-    )
+    return GambitLibraryMenuItem.new(self.trustSettings, self.trustSettingsMode, self)
 end
 
 function GambitSettingsMenuItem:getModesMenuItem()
-    local gambitModesMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm')
-    }, L{}, function(_, infoView)
-        local modesView = ModesView.new(L{'AutoGambitMode'}, infoView)
-        modesView:setShouldRequestFocus(true)
-        return modesView
-    end, "Modes", "Change gambit behavior.")
-    return gambitModesMenuItem
+    return ModesMenuItem.new(self.trustModeSettings, "Set modes for gambits.",
+            L{'AutoGambitMode'})
 end
 
 return GambitSettingsMenuItem
