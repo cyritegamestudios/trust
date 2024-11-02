@@ -7,7 +7,7 @@ local ModesMenuItem = setmetatable({}, {__index = MenuItem })
 ModesMenuItem.__index = ModesMenuItem
 ModesMenuItem.__type = "ModesMenuItem"
 
-function ModesMenuItem.new(trustModeSettings, description, modeNames, showModeName)
+function ModesMenuItem.new(trustModeSettings, description, modeNames, showModeName, shortcutConfigKey)
     description = description or "View and change Trust modes."
     modeNames = modeNames or L(T(state):keyset()):sort()
     local self = setmetatable(MenuItem.new(L{
@@ -21,6 +21,7 @@ function ModesMenuItem.new(trustModeSettings, description, modeNames, showModeNa
         end, "Modes", description), ModesMenuItem)
 
     self.trustModeSettings = trustModeSettings
+    self.shortcutConfigKey = shortcutConfigKey
     self.disposeBag = DisposeBag.new()
 
     self:reloadSettings()
@@ -51,7 +52,7 @@ function ModesMenuItem:reloadSettings()
 end
 
 function ModesMenuItem:getConfigKey()
-    return "modes"
+    return self.shortcutConfigKey
 end
 
 return ModesMenuItem
