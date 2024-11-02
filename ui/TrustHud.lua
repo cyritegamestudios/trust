@@ -295,8 +295,8 @@ function TrustHud:reloadJobMenuItems()
         oldSubJobItem:destroy()
     end
 
-    local mainJobItem = self:getMenuItems(player.trust.main_job, main_trust_settings, state.MainTrustSettingsMode, weapon_skill_settings, state.WeaponSkillSettingsMode, player.main_job_name_short, player.main_job_name)
-    local subJobItem = self:getMenuItems(player.trust.sub_job, sub_trust_settings, state.SubTrustSettingsMode, nil, nil, player.sub_job_name_short, player.sub_job_name)
+    local mainJobItem = self:getMenuItems(player.trust.main_job, main_trust_settings, state.MainTrustSettingsMode, weapon_skill_settings, state.WeaponSkillSettingsMode, trust_mode_settings, player.main_job_name_short, player.main_job_name)
+    local subJobItem = self:getMenuItems(player.trust.sub_job, sub_trust_settings, state.SubTrustSettingsMode, nil, nil, trust_mode_settings, player.sub_job_name_short, player.sub_job_name)
 
     if mainJobItem:getChildMenuItem('Settings'):getChildMenuItem('Pulling') == nil then
         local pullerMenuItem = subJobItem:getChildMenuItem('Settings'):getChildMenuItem('Pulling')
@@ -355,7 +355,7 @@ local function setupView(view, viewSize, hideBackground)
     return view
 end
 
-function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, weaponSkillSettings, weaponSkillSettingsMode, jobNameShort)
+function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, weaponSkillSettings, weaponSkillSettingsMode, trustModeSettings, jobNameShort)
     local viewSize = Frame.new(0, 0, 500, 500)
 
     local chooseDebuffsItem = MenuItem.new(L{
@@ -395,7 +395,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
     end, "Debuffs", "Choose debuffs to use on enemies.")
 
     -- Modes
-    local modesMenuItem = ModesMenuItem.new(self.trustModeSettings)
+    local modesMenuItem = ModesMenuItem.new(self.trustModeSettings, "View and change Trust modes.", L(T(state):keyset()):sort(), true)
 
     -- Settings
     local menuItems = L{
@@ -438,7 +438,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
     -- Add menu items only if the Trust has the appropriate role
     if trust:role_with_type("buffer") then
         menuItems:append(ButtonItem.default('Buffs', 18))
-        childMenuItems.Buffs = self:getMenuItemForRole(trust:role_with_type("buffer"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode)
+        childMenuItems.Buffs = self:getMenuItemForRole(trust:role_with_type("buffer"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode, trustModeSettings)
     end
 
     local debuffer = trust:role_with_type("debuffer")
@@ -448,32 +448,32 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
 
     if trust:role_with_type("singer") then
         menuItems:append(ButtonItem.default('Songs', 18))
-        childMenuItems.Songs = self:getMenuItemForRole(trust:role_with_type("singer"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode)
+        childMenuItems.Songs = self:getMenuItemForRole(trust:role_with_type("singer"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode, trustModeSettings)
     end
 
     if trust:role_with_type("healer") then
         menuItems:append(ButtonItem.default('Healing', 18))
-        childMenuItems.Healing = self:getMenuItemForRole(trust:role_with_type("healer"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode)
+        childMenuItems.Healing = self:getMenuItemForRole(trust:role_with_type("healer"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode, trustModeSettings)
     end
 
     menuItems:append(ButtonItem.default('Pulling', 18))
     if trust:role_with_type("puller") then
-        childMenuItems.Pulling = self:getMenuItemForRole(trust:role_with_type("puller"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode)
+        childMenuItems.Pulling = self:getMenuItemForRole(trust:role_with_type("puller"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode, trustModeSettings)
     end
 
     if trust:role_with_type("shooter") then
         menuItems:append(ButtonItem.default('Shooting', 18))
-        childMenuItems.Shooting = self:getMenuItemForRole(trust:role_with_type("shooter"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode)
+        childMenuItems.Shooting = self:getMenuItemForRole(trust:role_with_type("shooter"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode, trustModeSettings)
     end
 
     if trust:role_with_type("nuker") then
-        childMenuItems.Nukes = self:getMenuItemForRole(trust:role_with_type("nuker"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode)
+        childMenuItems.Nukes = self:getMenuItemForRole(trust:role_with_type("nuker"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode, trustModeSettings)
         menuItems:append(ButtonItem.default('Nukes', 18))
     end
 
     if trust:role_with_type("skillchainer") then
         menuItems:append(ButtonItem.default('Weaponskills', 18))
-        childMenuItems.Weaponskills = self:getMenuItemForRole(trust:role_with_type("skillchainer"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize)
+        childMenuItems.Weaponskills = self:getMenuItemForRole(trust:role_with_type("skillchainer"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode, trustModeSettings)
     end
 
     if trust:role_with_type("follower") then
@@ -508,18 +508,18 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
     return settingsMenuItem
 end
 
-function TrustHud:getMenuItemForRole(role, weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode)
+function TrustHud:getMenuItemForRole(role, weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode, trustModeSettings)
     if role == nil then
         return nil
     end
     if role:get_type() == "buffer" then
-        return self:getBufferMenuItem(trust, jobNameShort, trustSettings, trustSettingsMode)
+        return self:getBufferMenuItem(trust, jobNameShort, trustSettings, trustSettingsMode, trustModeSettings)
     end
     if role:get_type() == "healer" then
         return self:getHealerMenuItem(trust, trustSettings, trustSettingsMode, viewSize)
     end
     if role:get_type() == "skillchainer" then
-        return self:getSkillchainerMenuItem(weaponSkillSettings, weaponSkillSettingsMode, trust, viewSize)
+        return self:getSkillchainerMenuItem(weaponSkillSettings, weaponSkillSettingsMode, trustModeSettings, trust)
     end
     if role:get_type() == "puller" then
         return self:getPullerMenuItem(trust, jobNameShort, trustSettings, trustSettingsMode, viewSize)
@@ -545,15 +545,15 @@ function TrustHud:getMenuItemForRole(role, weaponSkillSettings, weaponSkillSetti
     return nil
 end
 
-function TrustHud:getBufferMenuItem(trust, jobNameShort, trustSettings, trustSettingsMode)
+function TrustHud:getBufferMenuItem(trust, jobNameShort, trustSettings, trustSettingsMode, trustModeSettings)
     if jobNameShort ~= 'SCH' then
-        local bufferSettingsMenuItem = BufferSettingsMenuItem.new(trustSettings, trustSettingsMode, jobNameShort)
+        local bufferSettingsMenuItem = BufferSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSettings, jobNameShort)
         return bufferSettingsMenuItem
     else
         local childMenuItems = {}
 
-        childMenuItems["Light Arts"] = BufferSettingsMenuItem.new(trustSettings, trustSettingsMode, jobNameShort, 'LightArts')
-        childMenuItems["Dark Arts"] = BufferSettingsMenuItem.new(trustSettings, trustSettingsMode, jobNameShort, 'DarkArts')
+        childMenuItems["Light Arts"] = BufferSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSettings, jobNameShort, 'LightArts')
+        childMenuItems["Dark Arts"] = BufferSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSettings, jobNameShort, 'DarkArts')
 
         local artsSettingsMenuItem = MenuItem.new(L{
             ButtonItem.default('Light Arts', 18),
@@ -569,10 +569,8 @@ function TrustHud:getHealerMenuItem(trust, trustSettings, trustSettingsMode, vie
     return healerSettingsMenuItem
 end
 
-function TrustHud:getSkillchainerMenuItem(weaponSkillSettings, weaponSkillSettingsMode, trust, viewSize)
-    local weaponSkillsSettingsMenuItem = WeaponSkillSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettingsMode, trust, function(view)
-        return setupView(view, viewSize)
-    end)
+function TrustHud:getSkillchainerMenuItem(weaponSkillSettings, weaponSkillSettingsMode, trustModeSettings, trust)
+    local weaponSkillsSettingsMenuItem = WeaponSkillSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettingsMode, trustModeSettings, trust)
     return weaponSkillsSettingsMenuItem
 end
 
@@ -614,10 +612,10 @@ function TrustHud:getTrusterMenuItem(role)
     return AlterEgoSettingsMenuItem.new(role, self.addon_settings)
 end
 
-function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSkillSettings, weaponSkillSettingsMode, jobNameShort, jobName)
+function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSkillSettings, weaponSkillSettingsMode, trustModeSettings, jobNameShort, jobName)
     local viewSize = Frame.new(0, 0, 500, 500)
 
-    local settingsMenuItem = self:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, weaponSkillSettings, weaponSkillSettingsMode, jobNameShort)
+    local settingsMenuItem = self:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, weaponSkillSettings, weaponSkillSettingsMode, trustModeSettings, jobNameShort)
 
     -- Debug
     local debugMenuItem = MenuItem.new(L{
