@@ -45,7 +45,7 @@ end
 
 function ShooterSettingsMenuItem:getModesMenuItem()
     return ModesMenuItem.new(self.trustModeSettings, "Set modes for shooting.",
-            L{'AutoShootMode', 'AutoSkillchainMode'})
+            L{'AutoShootMode'})
 end
 
 return ShooterSettingsMenuItem

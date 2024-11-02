@@ -40,8 +40,12 @@ function ModesMenuItem:reloadSettings()
     end, "Modes", "Changes modes only until the addon reloads."))
     if self.trustModeSettings then
         self:setChildMenuItem("Save", MenuItem.action(function()
-            self.trustModeSettings:saveSettings(state.TrustMode.value)
-            addon_message(260, '('..windower.ffxi.get_player().name..') '.."You got it! I'll update my profile and remember this for next time!")
+            if self.trustModeSettings then
+                self.trustModeSettings:saveSettings(state.TrustMode.value)
+                addon_message(260, '('..windower.ffxi.get_player().name..') '.."You got it! I'll update my profile and remember this for next time!")
+            else
+                addon_system_error("Unable to save mode changes to profile. Please report this issue.")
+            end
         end, "Modes", "Change modes and save changes to the current profile."))
     end
 end
