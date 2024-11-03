@@ -14,7 +14,8 @@ return {
                 Buff.new("Shell", L{"Accession"}, L{}, nil, L{StrategemCountCondition.new(1, ">="), MainJobCondition.new("SCH")}),
                 Buff.new("Regen", L{"Accession", "Perpetuance"}, L{}, nil, L{StrategemCountCondition.new(2, ">="), MainJobCondition.new("SCH")}),
                 Spell.new("Phalanx", L{"Accession", "Perpetuance"}, nil, nil, L{StrategemCountCondition.new(2, ">="), MainJobCondition.new("SCH")}),
-                Spell.new("Aurorastorm", L{}, nil, nil, L{})
+                Buff.new("Aurorastorm", L{}, L{}, nil, L{NotCondition.new(L{MainJobCondition.new("SCH")})}),
+                Spell.new("Aurorastorm II", L{}, L{}, nil, L{}),
             }
         },
         StrategemCooldown = 33,
