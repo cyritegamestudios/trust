@@ -4,7 +4,6 @@ local AvatarStatusWidget = require('ui/widgets/AvatarStatusWidget')
 local BackgroundView = require('cylibs/ui/views/background/background_view')
 local BlueMagicSettingsMenuItem = require('ui/settings/menus/bluemagic/BlueMagicSettingsMenuItem')
 local BooleanConfigItem = require('ui/settings/editors/config/BooleanConfigItem')
-local BufferView = require('ui/views/BufferView')
 local BufferSettingsMenuItem = require('ui/settings/menus/buffs/BufferSettingsMenuItem')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local Color = require('cylibs/ui/views/color')
@@ -12,7 +11,6 @@ local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local ConfigSettingsMenuItem = require('ui/settings/menus/ConfigSettingsMenuItem')
 local HealerSettingsMenuItem = require('ui/settings/menus/healing/HealerSettingsMenuItem')
-local DebufferView = require('ui/views/DebufferView')
 local DebuffSettingsEditor = require('ui/settings/DebuffSettingsEditor')
 local DebugView = require('cylibs/actions/ui/debug_view')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
@@ -35,7 +33,6 @@ local PathWidget = require('ui/widgets/PathWidget')
 local AutomatonStatusWidget = require('ui/widgets/AutomatonStatusWidget')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local ReactSettingsMenuItem = require('ui/settings/menus/gambits/react/ReactSettingsMenuItem')
-local ScholarWidget = require('ui/widgets/ScholarWidget')
 local BlackMageWidget = require('ui/widgets/BlackMageWidget')
 local ShooterSettingsMenuItem = require('ui/settings/menus/ShooterSettingsMenuItem')
 local SingerView = require('ui/views/SingerView')
@@ -385,7 +382,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
     end, "Debuffs", "Choose debuffs to use on enemies.")
 
     -- Modes
-    local modesMenuItem = ModesMenuItem.new(self.trustModeSettings, "View and change Trust modes.", L(T(state):keyset()):sort(), true)
+    local modesMenuItem = ModesMenuItem.new(self.trustModeSettings, "View and change Trust modes.", L(T(state):keyset()):sort(), true, "modes")
 
     -- Settings
     local menuItems = L{

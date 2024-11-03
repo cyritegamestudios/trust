@@ -7,7 +7,7 @@ local ModesMenuItem = setmetatable({}, {__index = MenuItem })
 ModesMenuItem.__index = ModesMenuItem
 ModesMenuItem.__type = "ModesMenuItem"
 
-function ModesMenuItem.new(trustModeSettings, description, modeNames, showModeName)
+function ModesMenuItem.new(trustModeSettings, description, modeNames, showModeName, shortcutConfigKey)
     description = description or "View and change Trust modes."
     modeNames = modeNames or L(T(state):keyset()):sort()
     local self = setmetatable(MenuItem.new(L{
@@ -21,6 +21,7 @@ function ModesMenuItem.new(trustModeSettings, description, modeNames, showModeNa
         end, "Modes", description), ModesMenuItem)
 
     self.trustModeSettings = trustModeSettings
+    self.shortcutConfigKey = shortcutConfigKey
     self.disposeBag = DisposeBag.new()
 
     self:reloadSettings()
@@ -40,14 +41,18 @@ function ModesMenuItem:reloadSettings()
     end, "Modes", "Changes modes only until the addon reloads."))
     if self.trustModeSettings then
         self:setChildMenuItem("Save", MenuItem.action(function()
-            self.trustModeSettings:saveSettings(state.TrustMode.value)
-            addon_message(260, '('..windower.ffxi.get_player().name..') '.."You got it! I'll update my profile and remember this for next time!")
+            if self.trustModeSettings then
+                self.trustModeSettings:saveSettings(state.TrustMode.value)
+                addon_message(260, '('..windower.ffxi.get_player().name..') '.."You got it! I'll update my profile and remember this for next time!")
+            else
+                addon_system_error("Unable to save mode changes to profile. Please report this issue.")
+            end
         end, "Modes", "Change modes and save changes to the current profile."))
     end
 end
 
 function ModesMenuItem:getConfigKey()
-    return "modes"
+    return self.shortcutConfigKey
 end
 
 return ModesMenuItem

@@ -89,6 +89,7 @@ StrategemCountCondition = require('cylibs/conditions/strategem_count')
 SubJobCondition = require('cylibs/conditions/sub_job')
 TargetNameCondition = require('cylibs/conditions/target_name')
 ValidTargetCondition = require('cylibs/conditions/valid_target')
+ZoneChangeCondition = require('cylibs/conditions/zone_change')
 ZoneCondition = require('cylibs/conditions/zone')
 
 -- Battle

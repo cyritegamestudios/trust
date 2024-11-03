@@ -72,7 +72,7 @@ return {
         },
         GambitSettings = {
             Default = L{
-                Gambit.new("Ally", L{MaxManaPointsPercentCondition.new(20), MaxDistanceCondition.new(10)}, JobAbility.new("Devotion", L{}, L{}), "Ally"),
+                Gambit.new("Ally", L{MaxManaPointsPercentCondition.new(20), MaxDistanceCondition.new(10), JobCondition.new(L{"SCH", "DRK", "WHM", "SMN", "GEO", "PLD", "BLM", "BLU", "RDM", "BRD", "RUN"})}, JobAbility.new("Devotion", L{}, L{}), "Ally", L{}),
             },
             Gambits = L{
 

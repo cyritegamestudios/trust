@@ -3,6 +3,8 @@ local GambitCategory = require('ui/settings/menus/gambits/library/GambitCategory
 return L{
     GambitCategory.new("Abilities", "Use abilities.", L{
         Gambit.new("Self", L{MaxTacticalPointsCondition.new(900), HasBuffsCondition.new(L{"Finishing Move 4", "Finishing Move 5", "Finishing Move (6+)"}, 1)}, JobAbility.new("Reverse Flourish", L{}, L{}), "Self", L{"Abilities"}),
+        Gambit.new("Self", L{ModeCondition.new("AutoShootMode", "Auto")}, JobAbility.new("Double Shot", L{}, L{}), "Self", L{"Abilities"}),
+        Gambit.new("Self", L{ModeCondition.new("AutoShootMode", "Auto")}, JobAbility.new("Velocity Shot", L{}, L{}), "Self", L{"Abilities"}),
     }),
     GambitCategory.new("Enemies", "React to enemies.", L{
         Gambit.new("Enemy", L{ReadyAbilityCondition.new("Dancing Fullers")}, RunAway.new(12, L{}), "Enemy", L{"Enemies","Reaction"}),
@@ -35,5 +37,10 @@ return L{
         Gambit.new("Self", L{ItemCountCondition.new("Shikanofuda", 10, "<"), ItemCountCondition.new("Toolbag (Shika)", 1, ">=")}, UseItem.new("Toolbag (Shika)", L{ItemCountCondition.new("Toolbag (Shika)", 1, ">=")}), "Self", L{"Items", "Ninjutsu"}),
         Gambit.new("Self", L{ItemCountCondition.new("Chonofuda", 10, "<"), ItemCountCondition.new("Toolbag (Cho)", 1, ">=")}, UseItem.new("Toolbag (Cho)", L{ItemCountCondition.new("Toolbag (Cho)", 1, ">=")}), "Self", L{"Items", "Ninjutsu"}),
         Gambit.new("Self", L{ItemCountCondition.new("Trump Card", 10, "<")}, UseItem.new("Trump Card Case", L{ItemCountCondition.new("Trump Card Case", 1, ">=")}), "Self", L{"Items", "Cards"}),
+        Gambit.new("Self", L{ItemCountCondition.new("Sarama's Coffer", 1, ">=")}, UseItem.new("Sarama's Coffer", L{ItemCountCondition.new("Sarama's Coffer", 1, ">=")}), "Self", L{}),
+    }),
+    GambitCategory.new("Weaponskills", "Use weapon skills.", L{
+        Gambit.new("Enemy", L{NotCondition.new(L{HasDebuffCondition.new("Defense Down")}), InBattleCondition.new()}, WeaponSkill.new("Armor Break", L{MinTacticalPointsCondition.new(1000)}), "Enemy", L{"Weaponskills"}),
+        Gambit.new("Enemy", L{NotCondition.new(L{HasDebuffCondition.new("Defense Down")}), InBattleCondition.new()}, WeaponSkill.new("Full Break", L{MinTacticalPointsCondition.new(1000)}), "Enemy", L{"Weaponskills"})
     }),
 }
