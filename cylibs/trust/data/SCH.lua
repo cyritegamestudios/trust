@@ -94,6 +94,12 @@ function ScholarTrust:on_init()
             self:switch_arts('DarkArts')
         end
     end, self:get_party():get_player():on_gain_buff()))
+
+    coroutine.schedule(function()
+        if not (self:get_job():is_light_arts_active() or self:get_job():is_dark_arts_active()) then
+            addon_system_error("Scholar settings are currently restricted until Light Arts or Dark Arts is activated.")
+        end
+    end, 0.1)
 end
 
 function ScholarTrust:job_target_change(target_index)
