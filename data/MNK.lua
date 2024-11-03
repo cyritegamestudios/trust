@@ -2,7 +2,6 @@
 return {
     Version = 1,
     Default = {
-        AutoFood="Grape Daifuku",
         SelfBuffs = L{
 
         },
@@ -32,7 +31,7 @@ return {
                 Gambit.new("Self", L{MaxHitPointsPercentCondition.new(25)}, JobAbility.new("Chakra", L{}, L{}), "Self")
             },
             Gambits = L{
-
+                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("MNK")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"food"})
             }
         },
     }

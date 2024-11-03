@@ -18,13 +18,13 @@ return {
                 Gambit.new("Self", L{MaxManaPointsPercentCondition.new(20), ModeCondition.new("AutoConvertMode", "Auto")}, JobAbility.new("Convert", L{}, L{}), "Self", L{})
             },
             Gambits = L{
-                Gambit.new("Enemy", L{MeleeAccuracyCondition.new(75, "<="), MainJobCondition.new("RDM"), NumResistsCondition.new("Distract", "<", 3), NumResistsCondition.new("Distract II", "<", 3), NumResistsCondition.new("Distract III", "<", 3)}, Spell.new("Distract III", L{}, L{}), "Self", L{})
+                Gambit.new("Enemy", L{MeleeAccuracyCondition.new(75, "<="), MainJobCondition.new("RDM"), NumResistsCondition.new("Distract", "<", 3), NumResistsCondition.new("Distract II", "<", 3), NumResistsCondition.new("Distract III", "<", 3)}, Spell.new("Distract III", L{}, L{}), "Self", L{}),
+                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("RDM")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"food"})
             }
         },
         JobAbilities = L{
             JobAbility.new("Composure", L{}, L{})
         },
-        AutoFood = "Grape Daifuku",
         CureSettings = {
             Thresholds = {
                 ["Cure IV"] = 1500,

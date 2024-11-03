@@ -2,7 +2,6 @@
 return {
     Version = 2,
     Default = {
-        AutoFood="Grape Daifuku",
         Shooter = {
             Delay = 1.5
         },
@@ -34,7 +33,7 @@ return {
                 Gambit.new("Self", L{ModeCondition.new("AutoShootMode", "Auto")}, JobAbility.new("Triple Shot", L{}, L{}), "Self")
             },
             Gambits = L{
-
+                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("COR")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"food"})
             }
         },
     }

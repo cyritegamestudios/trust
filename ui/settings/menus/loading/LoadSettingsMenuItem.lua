@@ -10,7 +10,7 @@ local TrustSetsConfigEditor = require('ui/settings/editors/TrustSetsConfigEditor
 local LoadSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 LoadSettingsMenuItem.__index = LoadSettingsMenuItem
 
-function LoadSettingsMenuItem.new(addonSettings, trustModeSettings, jobSettings, weaponSkillSettings)
+function LoadSettingsMenuItem.new(addonSettings, trustModeSettings, jobSettings, weaponSkillSettings, subJobSettings)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Create', 18),
         ButtonItem.default('Edit', 18),
@@ -60,6 +60,7 @@ function LoadSettingsMenuItem.new(addonSettings, trustModeSettings, jobSettings,
     self.jobSettings = jobSettings
     self.weaponSkillSettings = weaponSkillSettings
     self.weaponSkillSettings = weaponSkillSettings
+    self.subJobSettings = subJobSettings
     self.disposeBag = DisposeBag.new()
 
     self:reloadSettings()
@@ -77,7 +78,7 @@ function LoadSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Create", self:getCreateSetMenuItem())
     self:setChildMenuItem("Edit", self:getEditSetMenuItem())
     self:setChildMenuItem("Delete", self:getDeleteSetMenuItem())
-    self:setChildMenuItem("Import", ImportProfileMenuItem.new(self.trustModeSettings, self.jobSettings, self.weaponSkillSettings))
+    self:setChildMenuItem("Import", ImportProfileMenuItem.new(self.trustModeSettings, self.jobSettings, self.weaponSkillSettings, self.subJobSettings))
     self:setChildMenuItem("Share", self:getShareSetMenuItem())
 end
 
@@ -154,7 +155,9 @@ function LoadSettingsMenuItem:getShareSetMenuItem()
                 self.jobSettings.jobNameShort,
                 modeSettings,
                 self.jobSettings:getSettings()[state.MainTrustSettingsMode.value],
-                self.weaponSkillSettings:getSettings()[state.WeaponSkillSettingsMode.value]
+                self.weaponSkillSettings:getSettings()[state.WeaponSkillSettingsMode.value],
+                self.subJobSettings and self.subJobSettings.jobNameShort,
+                self.subJobSettings and self.subJobSettings:getSettings()[state.SubTrustSettingsMode.value]
         )
         profile:saveToFile()
 

@@ -2,7 +2,6 @@
 return {
     Version = 2,
     Default = {
-        AutoFoodMode="Grape Daifuku",
         SelfBuffs = L{
             Spell.new("Utsusemi: San", L{}, L{}, nil, L{}),
             Spell.new("Utsusemi: Ni", L{}, L{}, nil, L{}),
@@ -58,7 +57,7 @@ return {
         },
         GambitSettings = {
             Gambits = L{
-
+                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("NIN")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"food"})
             }
         },
     }
