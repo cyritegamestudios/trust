@@ -2,7 +2,6 @@
 return {
     Version = 1,
     Default = {
-        AutoFood = "Miso Ramen",
         PartyBuffs = L{
 
         },
@@ -35,6 +34,7 @@ return {
             Gambits = L{
                 Gambit.new("Self", L{NotCondition.new(L{HasBuffsCondition.new(L{"Valiance", "Vallation"}, 1)}), HasRunesCondition.new(3)}, JobAbility.new("Valiance", L{}, L{}), "Self", L{}),
                 Gambit.new("Self", L{NotCondition.new(L{HasBuffsCondition.new(L{"Valiance", "Vallation"}, 1)}), HasRunesCondition.new(3)}, JobAbility.new("Vallation", L{}, L{}), "Self", L{}),
+                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("RUN")}, UseItem.new("Miso Ramen", L{ItemCountCondition.new("Miso Ramen", 1, ">=")}), "Self", L{"food"})
             }
         },
     }

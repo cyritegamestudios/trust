@@ -2,7 +2,6 @@
 return {
     Version = 1,
     Default = {
-        AutoFood="Grape Daifuku",
         SelfBuffs = L{
             Spell.new("Endark II", L{}, L{}, nil, L{IdleCondition.new()}),
             Spell.new("Absorb-STR", L{}, L{}, "bt", L{}),
@@ -37,7 +36,7 @@ return {
                 Gambit.new("Self", L{HasBuffCondition.new("Max HP Boost"), IdleCondition.new(), NotCondition.new(L{HasBuffCondition.new("Dread Spikes")})},  Spell.new("Dread Spikes", L{}, L{}), "Self"),
             },
             Gambits = L{
-
+                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("DRK")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"food"})
             }
         },
     }

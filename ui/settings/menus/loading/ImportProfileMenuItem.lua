@@ -6,7 +6,7 @@ local MenuItem = require('cylibs/ui/menu/menu_item')
 local ImportProfileMenuItem = setmetatable({}, {__index = MenuItem })
 ImportProfileMenuItem.__index = ImportProfileMenuItem
 
-function ImportProfileMenuItem.new(trustModeSettings, jobSettings, weaponSkillSettings)
+function ImportProfileMenuItem.new(trustModeSettings, jobSettings, weaponSkillSettings, subJobSettings)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
         ButtonItem.default('Discord', 18),
@@ -18,6 +18,7 @@ function ImportProfileMenuItem.new(trustModeSettings, jobSettings, weaponSkillSe
 
     self.trustModeSettings = trustModeSettings
     self.jobSettings = jobSettings
+    self.subJobSettings = subJobSettings
     self.weaponSkillSettings = weaponSkillSettings
     self.dispose_bag = DisposeBag.new()
 
@@ -71,6 +72,9 @@ function ImportProfileMenuItem:loadFile(fileName)
         self.jobSettings:createSettings(setName, T(profileSettings.JobSettings))
         self.weaponSkillSettings:createSettings(setName, profileSettings.WeaponSkillSettings)
         self.trustModeSettings:saveSettings(setName, T(profileSettings.ModeSettings), true)
+        if profileSettings.SubJobSettings then
+            self.subJobSettings:createSettings(setName, T(profileSettings.SubJobSettings))
+        end
 
         addon_system_message("Imported profile with name "..setName..".")
     end
@@ -87,11 +91,25 @@ function ImportProfileMenuItem:validateProfile(profileSettings)
         return false, "The selected profile is not compatible with the current job."
     end
 
+    local subJobNameShort = profileSettings.SubJobNameShort
+    if subJobNameShort ~= player.sub_job_name_short then
+        return false, "The selected profile is not compatible with the current sub job."
+    end
+
     local defaultJobSettings = T(self.jobSettings:getDefaultSettings().Default)
 
     local missingKeys = S(defaultJobSettings:keyset()):diff(T(profileSettings.JobSettings):keyset())
     if missingKeys:length() > 0 then
         return false, "The selected profile is not valid. Missing settings keys: "..localization_util.commas(L(missingKeys)).."."
+    end
+
+    if self.subJobSettings then
+        local defaultSubJobSettings = T(self.subJobSettings:getDefaultSettings().Default)
+
+        local missingKeys = S(defaultSubJobSettings:keyset()):diff(T(profileSettings.SubJobSettings):keyset())
+        if missingKeys:length() > 0 then
+            return false, "The selected profile is not valid. Missing sub job settings keys: "..localization_util.commas(L(missingKeys)).."."
+        end
     end
 
     return true
