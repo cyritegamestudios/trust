@@ -19,7 +19,10 @@ local StatusRemover = require('cylibs/trust/roles/status_remover')
 state.AutoArtsMode = M{['description'] = 'Auto Arts Mode', 'Off', 'LightArts', 'DarkArts'}
 
 function ScholarTrust.new(settings, action_queue, battle_settings, trust_settings)
-    local self = setmetatable(Trust.new(action_queue, S{}, trust_settings, Scholar.new(trust_settings)), ScholarTrust)
+    local self = setmetatable(Trust.new(action_queue, S{
+        Buffer.new(action_queue, L{}, L{}, L{}),
+        Debuffer.new(action_queue),
+    }, trust_settings, Scholar.new(trust_settings)), ScholarTrust)
 
     self.settings = settings
     self.battle_settings = battle_settings
@@ -91,6 +94,12 @@ function ScholarTrust:on_init()
             self:switch_arts('DarkArts')
         end
     end, self:get_party():get_player():on_gain_buff()))
+
+    coroutine.schedule(function()
+        if not (self:get_job():is_light_arts_active() or self:get_job():is_dark_arts_active()) then
+            addon_system_error("Scholar settings are currently restricted until Light Arts or Dark Arts is activated.")
+        end
+    end, 0.1)
 end
 
 function ScholarTrust:job_target_change(target_index)

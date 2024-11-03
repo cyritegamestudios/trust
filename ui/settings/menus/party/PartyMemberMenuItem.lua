@@ -57,7 +57,7 @@ end
 function PartyMemberMenuItem:reloadSettings(roles)
     self:setChildMenuItem("Assist", MenuItem.action(function(_)
         windower.send_command('trust assist '..self.partyMemberName)
-    end, self.partyMemberName, "Assist "..self.partyMemberName.." in battle"))
+    end, self.partyMemberName, "Assist "..self.partyMemberName.." in battle."))
     self:setChildMenuItem("Commands", self:getCommandsMenuItem())
     self:setChildMenuItem("Config", self:getConfigMenuItem(roles))
 end
@@ -77,7 +77,7 @@ function PartyMemberMenuItem:getCommandsMenuItem()
         end), commandList:getDelegate():didMoveCursorToItemAtIndexPath())
         commandList:setAllowsCursorSelection(true)
         return commandList
-    end, self.partyMemberName, "Send commands to "..self.partyMemberName)
+    end, self.partyMemberName, "Send commands to "..self.partyMemberName..".")
 
     commandsMenuItem:setChildMenuItem("Send", MenuItem.action(function(_)
         self:sendCommand(self.selectedCommand, false)

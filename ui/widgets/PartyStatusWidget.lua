@@ -7,6 +7,7 @@ local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Keyboard = require('cylibs/ui/input/keyboard')
 local Padding = require('cylibs/ui/style/padding')
 local PartyMemberMenuItem = require('ui/settings/menus/party/PartyMemberMenuItem')
+local PlayerMenuItem = require('ui/settings/menus/party/PlayerMenuItem')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
@@ -59,8 +60,12 @@ function PartyStatusWidget.new(frame, addonSettings, party, trust)
             local party_member = party:get_party_member_named(item:getText())
             if party_member then
                 if party_member:get_name() == windower.ffxi.get_player().name then
-                    party:set_assist_target(party_member)
-                    windower.send_command('trust follow clear')
+                    local playerMenuItem = PlayerMenuItem.new(party_member, party, addonSettings:getSettings().remote_commands.whitelist, trust)
+                    coroutine.schedule(function()
+                        self:resignFocus()
+                        hud:closeAllMenus()
+                        hud:openMenu(playerMenuItem)
+                    end, 0.2)
                 elseif party_member:is_trust() then
                     party:set_assist_target(party_member)
                 else
