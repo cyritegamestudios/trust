@@ -50,7 +50,7 @@ end
 -- Returns the maximum range in yalms.
 -- @treturn number Range in yalms
 function RangedAttack:get_range()
-    return 20
+    return 24
 end
 
 -------

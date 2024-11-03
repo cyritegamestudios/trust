@@ -114,6 +114,7 @@ function Condition.defaultSerializableConditionClasses()
         SkillchainWindowCondition.__class,
         SkillchainStepCondition.__class,
         InTownCondition.__class,
+        ZoneChangeCondition.__class,
     }
 end
 
