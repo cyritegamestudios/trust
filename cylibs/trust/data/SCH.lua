@@ -19,7 +19,10 @@ local StatusRemover = require('cylibs/trust/roles/status_remover')
 state.AutoArtsMode = M{['description'] = 'Auto Arts Mode', 'Off', 'LightArts', 'DarkArts'}
 
 function ScholarTrust.new(settings, action_queue, battle_settings, trust_settings)
-    local self = setmetatable(Trust.new(action_queue, S{}, trust_settings, Scholar.new(trust_settings)), ScholarTrust)
+    local self = setmetatable(Trust.new(action_queue, S{
+        Buffer.new(action_queue, L{}, L{}, L{}),
+        Debuffer.new(action_queue),
+    }, trust_settings, Scholar.new(trust_settings)), ScholarTrust)
 
     self.settings = settings
     self.battle_settings = battle_settings
