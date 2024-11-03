@@ -66,8 +66,6 @@ function PartyStatusWidget.new(frame, addonSettings, party, trust)
                         hud:closeAllMenus()
                         hud:openMenu(playerMenuItem)
                     end, 0.2)
-                    --party:set_assist_target(party_member)
-                    --windower.send_command('trust follow clear')
                 elseif party_member:is_trust() then
                     party:set_assist_target(party_member)
                 else
