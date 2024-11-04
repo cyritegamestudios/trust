@@ -156,7 +156,9 @@ function MagicBurster:cast_spell(spell)
     if Condition.check_conditions(spell:get_conditions(), self.target_index) then
         self.last_magic_burst_time = os.time()
 
-        windower.send_command(self.gearswap_command)
+        if self.gearswap_command and self.gearswap_command:length() > 0 then
+            windower.send_command(self.gearswap_command)
+        end
 
         local player = windower.ffxi.get_player()
 
