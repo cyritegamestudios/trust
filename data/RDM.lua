@@ -44,6 +44,7 @@ return {
         NukeSettings = {
             MinNumMobsToCleave = 2,
             MinManaPointsPercent = 40,
+            GearswapCommand = "gs c set MagicBurstMode Single",
             Spells = L{
                 Spell.new("Thunder V", L{}, nil, nil, L{}),
                 Spell.new("Thunder IV", L{}, nil, nil, L{}),

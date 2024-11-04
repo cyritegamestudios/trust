@@ -256,7 +256,7 @@ function ConfigEditor:getCellItemForConfigItem(configItem)
         end)
         return pickerItem
     elseif configItem.__type == TextInputConfigItem.__type then
-        return FFXITextFieldItem.new(configItem:getPlaceholderText(), configItem:getValidator())
+        return FFXITextFieldItem.new(configItem:getPlaceholderText(), configItem:getValidator(), configItem:getWidth())
     end
     return nil
 end

@@ -156,7 +156,7 @@ function MagicBurster:cast_spell(spell)
     if Condition.check_conditions(spell:get_conditions(), self.target_index) then
         self.last_magic_burst_time = os.time()
 
-        windower.send_command('gs c set MagicBurstMode Single')
+        windower.send_command(self.gearswap_command)
 
         local player = windower.ffxi.get_player()
 
@@ -227,6 +227,7 @@ function MagicBurster:set_nuke_settings(nuke_settings)
     self.magic_burst_mpp = nuke_settings.MinManaPointsPercent or 20
     self.element_blacklist = nuke_settings.Blacklist or L{}
     self.job_abilities = nuke_settings.JobAbilities or self.default_job_ability_names or L{}
+    self.gearswap_command = nuke_settings.GearswapCommand or 'gs c set MagicBurstMode Single'
     self:set_spells(nuke_settings.Spells)
 end
 
