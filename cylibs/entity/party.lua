@@ -191,10 +191,12 @@ end
 -------
 -- Returns the party member with the given name.
 -- @tparam string mob_name Party member mob name
+-- @tparam boolean ignore_range_check If true, will not require mob to be non-nil
 -- @treturn PartyMember Party member, or nil if none exists
-function Party:get_party_member_named(mob_name)
+function Party:get_party_member_named(mob_name, ignore_range_check)
     for _, party_member in pairs(self.party_members) do
-        if party_member:get_mob() and party_member:get_mob().name == mob_name then
+        if (party_member:get_mob() and party_member:get_mob().name == mob_name)
+                or ignore_range_check and party_member:get_name() == mob_name then
             return party_member
         end
     end
