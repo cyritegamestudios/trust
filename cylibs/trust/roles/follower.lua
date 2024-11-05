@@ -105,7 +105,7 @@ end
 -- @tparam string target_name Name of the target
 -- @treturn boolean True if the target can be followed
 function Follower:is_valid_target(target_name)
-    local target = self:get_alliance():get_alliance_member_named(target_name)
+    local target = self:get_alliance():get_alliance_member_named(target_name, true)
     if target == nil or target:get_name() == windower.ffxi.get_player().name or target:get_zone_id() ~= windower.ffxi.get_info().zone then
         return false
     end
@@ -138,10 +138,11 @@ function Follower:check_distance()
     local z = follow_target:get_position()[3]
 
     local player = windower.ffxi.get_mob_by_id(windower.ffxi.get_player().id)
-
-    local distance = player_util.distance(player_util.get_player_position(), follow_target:get_position())
-    if distance < self.maxfollowdistance and (math.abs(z - player.z) > 1 or distance > self.distance) then
-        self.walk_action_queue:push_action(RunToLocation.new(x, y, z, self.distance))
+    if player then
+        local distance = player_util.distance(player_util.get_player_position(), follow_target:get_position())
+        if distance < self.maxfollowdistance and (math.abs(z - player.z) > 1 or distance > self.distance) then
+            self.walk_action_queue:push_action(RunToLocation.new(x, y, z, self.distance))
+        end
     end
 end
 
@@ -192,12 +193,13 @@ function Follower:set_follow_target(target)
 end
 
 function Follower:can_zone(zone_id)
-    local player = self:get_party():get_player()
+    --[[local player = self:get_party():get_player()
     if not player or (os.time() - player:get_last_zone_time()) < self.zone_cooldown
             or zone_id ~= windower.ffxi.get_info().zone or windower.ffxi.get_info().zone == 0 then
         return false
     end
-    return true
+    return true]]
+    return false
 end
 
 function Follower:zone(zone_id, x, y, z, zone_line, zone_type, num_attempts)

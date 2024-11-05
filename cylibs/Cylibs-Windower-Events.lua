@@ -535,12 +535,12 @@ end), init_timer:onTimeChange())
 WindowerEvents.DisposeBag:add(IpcRelay.shared():on_message_received():addAction(function(ipc_message)
     if ipc_message.__class == MobUpdateMessage.__class then
         local mob = windower.ffxi.get_mob_by_name(ipc_message:get_mob_name())
-        --[[if mob == nil then
+        if mob == nil then
             local follower = player.trust.main_job:role_with_type("follower")
             if follower and follower:get_follow_target() and follower:get_follow_target():get_name() == ipc_message:get_mob_name() then
                 mob = follower:get_follow_target()
             end
-        end]]
+        end
         if mob then
             WindowerEvents.PositionChanged:trigger(mob.id, ipc_message:get_position()[1], ipc_message:get_position()[2], ipc_message:get_position()[3])
         end

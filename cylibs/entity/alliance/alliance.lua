@@ -150,11 +150,12 @@ end
 -------
 -- Returns a member of the alliance with the given name.
 -- @tparam string alliance_member_name Name of alliance member
+-- @tparam boolean ignore_range_check If true, will not require mob to be non-nil
 -- @treturn PartyMember Party member, or nil if member is not in the alliance
-function Alliance:get_alliance_member_named(alliance_member_name)
+function Alliance:get_alliance_member_named(alliance_member_name, ignore_range_check)
     local party = self:get_party(alliance_member_name)
     if party then
-        return party:get_party_member_named(alliance_member_name)
+        return party:get_party_member_named(alliance_member_name, ignore_range_check)
     end
     return nil
 end
