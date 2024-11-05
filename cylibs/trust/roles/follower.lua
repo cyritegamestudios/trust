@@ -193,13 +193,12 @@ function Follower:set_follow_target(target)
 end
 
 function Follower:can_zone(zone_id)
-    --[[local player = self:get_party():get_player()
+    local player = self:get_party():get_player()
     if not player or (os.time() - player:get_last_zone_time()) < self.zone_cooldown
             or zone_id ~= windower.ffxi.get_info().zone or windower.ffxi.get_info().zone == 0 then
         return false
     end
-    return true]]
-    return false
+    return true
 end
 
 function Follower:zone(zone_id, x, y, z, zone_line, zone_type, num_attempts)
