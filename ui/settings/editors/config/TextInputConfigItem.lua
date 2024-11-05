@@ -12,7 +12,7 @@ TextInputConfigItem.__type = "TextInputConfigItem"
 -- @tparam function Formatter for current value.
 -- @treturn ConfigItem The newly created ConfigItem instance.
 --
-function TextInputConfigItem.new(key, placeholderText, description, validator)
+function TextInputConfigItem.new(key, placeholderText, description, validator, width)
     local self = setmetatable({}, TextInputConfigItem)
 
     self.key = key
@@ -23,6 +23,7 @@ function TextInputConfigItem.new(key, placeholderText, description, validator)
     end
     self.description = description or key
     self.validator = validator or function(_) return true  end
+    self.width = width or 175
 
     return self
 end
@@ -52,6 +53,15 @@ end
 --
 function TextInputConfigItem:getValidator()
     return self.validator
+end
+
+---
+-- Gets the width.
+--
+-- @treturn number The width.
+--
+function TextInputConfigItem:getWidth()
+    return self.width
 end
 
 ---

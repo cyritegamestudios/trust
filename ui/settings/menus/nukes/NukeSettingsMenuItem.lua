@@ -8,6 +8,7 @@ local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 local NukeSettingsEditor = require('ui/settings/NukeSettingsEditor')
 local SpellPickerView = require('ui/settings/pickers/SpellPickerView')
+local TextInputConfigItem = require('ui/settings/editors/config/TextInputConfigItem')
 
 local NukeSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 NukeSettingsMenuItem.__index = NukeSettingsMenuItem
@@ -109,13 +110,15 @@ function NukeSettingsMenuItem:getConfigMenuItem()
             local nukeSettings = T{
                 Delay = allSettings.NukeSettings.Delay,
                 MinManaPointsPercent = allSettings.NukeSettings.MinManaPointsPercent,
-                MinNumMobsToCleave = allSettings.NukeSettings.MinNumMobsToCleave
+                MinNumMobsToCleave = allSettings.NukeSettings.MinNumMobsToCleave,
+                GearswapCommand = allSettings.NukeSettings.GearswapCommand or 'gs c set MagicBurstMode Single',
             }
 
             local configItems = L{
                 ConfigItem.new('Delay', 0, 60, 1, function(value) return value.."s" end, "Delay Between Nukes"),
                 ConfigItem.new('MinManaPointsPercent', 0, 100, 1, function(value) return value.." %" end, "Min MP %"),
-                ConfigItem.new('MinNumMobsToCleave', 0, 30, 1, function(value) return value.."" end, "Min Number Mobs to Cleave")
+                ConfigItem.new('MinNumMobsToCleave', 0, 30, 1, function(value) return value.."" end, "Min Number Mobs to Cleave"),
+                TextInputConfigItem.new('GearswapCommand', nukeSettings.GearswapCommand, 'Gearswap Command', function(_) return true  end, 225)
             }
 
             local nukeConfigEditor = ConfigEditor.new(self.trustSettings, nukeSettings, configItems)
@@ -126,6 +129,7 @@ function NukeSettingsMenuItem:getConfigMenuItem()
                 allSettings.NukeSettings.Delay = newSettings.Delay
                 allSettings.NukeSettings.MinManaPointsPercent = newSettings.MinManaPointsPercent
                 allSettings.NukeSettings.MinNumMobsToCleave = newSettings.MinNumMobsToCleave
+                allSettings.NukeSettings.GearswapCommand = (newSettings.GearswapCommand or 'gs c set MagicBurstMode Single'):gsub("^%u", string.lower)
 
                 self.trustSettings:saveSettings(true)
             end), nukeConfigEditor:onConfigChanged())

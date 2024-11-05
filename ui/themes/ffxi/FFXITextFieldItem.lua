@@ -7,10 +7,11 @@ local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local FFXITextFieldItem = setmetatable({}, {__index = ResizableImageItem })
 FFXITextFieldItem.__index = FFXITextFieldItem
 
-function FFXITextFieldItem.new(placeholderText, validator)
+function FFXITextFieldItem.new(placeholderText, validator, width)
+    width = width or 175
     local buttonHeight = 32
 
-    local centerImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/text_field_background_middle.png', 175, buttonHeight)
+    local centerImageItem = ImageItem.new(windower.addon_path..'assets/backgrounds/text_field_background_middle.png', width, buttonHeight)
     centerImageItem:setRepeat(150 / 10, 1)
 
     local defaultImageItem = ResizableImageItem.new(

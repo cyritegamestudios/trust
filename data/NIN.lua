@@ -19,6 +19,7 @@ return {
             Delay = 2,
             MinManaPointsPercent = 0,
             MinNumMobsToCleave = 2,
+            GearswapCommand = "gs c set MagicBurstMode Single",
             Spells = L{
                 Spell.new('Raiton: San'),
                 Spell.new('Raiton: Ni'),

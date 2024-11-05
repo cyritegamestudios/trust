@@ -43,6 +43,7 @@ return {
             Delay = 10,
             MinManaPointsPercent = 60,
             MinNumMobsToCleave = 2,
+            GearswapCommand = "gs c set MagicBurstMode Single",
             Spells = L{
                 Spell.new('Holy II'),
                 Spell.new('Holy'),
