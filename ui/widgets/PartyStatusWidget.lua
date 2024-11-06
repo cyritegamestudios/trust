@@ -61,14 +61,14 @@ function PartyStatusWidget.new(frame, addonSettings, party, trust)
     local self = setmetatable(Widget.new(frame, "Party", addonSettings, dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 4), 20), PartyStatusWidget)
 
     self.party = party
+    self.party_member_names = L{}
     self.partyDisposeBag = DisposeBag.new()
+    self.partyMemberIdToDisposeBag = {}
 
     local assistTargetItem = ImageItem.new(windower.addon_path..'assets/icons/icon_assist_target.png', 6, 6)
     self.assistTargetIcon = ImageCollectionViewCell.new(assistTargetItem)
 
     self:getContentView():addSubview(self.assistTargetIcon)
-
-    self:setPartyMembers(party:get_party_members(true))
 
     self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
         self:getDelegate():deselectAllItems()
@@ -99,55 +99,73 @@ function PartyStatusWidget.new(frame, addonSettings, party, trust)
         end
     end), self:getDelegate():didSelectItemAtIndexPath())
 
-    self:getDisposeBag():add(party:on_party_member_added():addAction(function(partyMember)
-        self:addPartyMember(partyMember)
+    self:getDisposeBag():add(WindowerEvents.AllianceMemberListUpdate:addAction(function(a)
+        coroutine.schedule(function()
+            self:set_party_member_names(party_util.get_party_member_names(false))
+        end, 0.1)
+    end), WindowerEvents.AllianceMemberListUpdate)
+
+    self:getDisposeBag():add(party:on_party_member_added():addAction(function(party_member)
+        self.partyMemberIdToDisposeBag[party_member:get_id()] = self.partyMemberIdToDisposeBag[party_member:get_id()] or DisposeBag.new()
+        self.partyMemberIdToDisposeBag[party_member:get_id()]:add(party_member:on_position_change():addAction(function(p, x, y, z)
+            self:updatePartyMember(p)
+        end), party_member:on_position_change())
     end), party:on_party_member_added())
 
     self:getDisposeBag():add(party:on_party_member_removed():addAction(function(party_member)
-        self:removePartyMember(party_member)
+        local dispose_bag = self.partyMemberIdToDisposeBag[party_member:get_id()]
+        if dispose_bag then
+            dispose_bag:dispose()
+        end
     end), party:on_party_member_removed())
 
     self:getDisposeBag():add(party:on_party_assist_target_change():addAction(function(_, party_member)
         self:setAssistTarget(party_member)
     end), party:on_party_assist_target_change())
 
+    self:set_party_member_names(party_util.get_party_member_names(false))
+
     return self
 end
 
--- FIXME: re-add this
-function PartyStatusWidget:tic(old_time, new_time)
-    Widget.tic(self, old_time, new_time)
+function PartyStatusWidget:set_party_member_names(party_member_names)
+    if self.party_member_names == party_member_names then
+        return
+    end
+    self.party_member_names = party_member_names
 
-    local player = self.party:get_player()
-    for partyMember in self.party:get_party_members():it() do
-        local indexPath = self:indexPathForPartyMember(partyMember)
-        if indexPath then
-            local cell = self:getDataSource():cellForItemAtIndexPath(indexPath)
-            if cell then
-                local dist = ffxi_util.distance(player:get_position(), partyMember:get_position())
-                if dist > 21 then
-                    cell:setAlpha(150)
-                else
-                    cell:setAlpha(255)
-                end
-                cell:setUserInteractionEnabled(dist <= 21)
+    self:getDataSource():removeAllItems()
+
+    local itemsToAdd = IndexedItem.fromItems(L(self.party_member_names:map(function(party_member_name)
+        local item = TextItem.new(party_member_name, PartyStatusWidget.TextSmall)
+        item:setEnabled(self:is_enabled(party_member_name))
+        return item
+    end)), 1)
+
+    self:getDataSource():addItems(itemsToAdd)
+
+    self:setAssistTarget(self.party:get_assist_target())
+
+    self:setSize(self:getSize().width, self:getContentSize().height)
+    self:layoutIfNeeded()
+end
+
+function PartyStatusWidget:is_enabled(party_member_name)
+    local party_member = self.party:get_party_member_named(party_member_name)
+    if party_member then
+        if not party_member:is_trust() and party_member:get_id() ~= windower.ffxi.get_player().id then
+            if not party_member:get_mob() or party_member:get_mob().distance:sqrt() > 21 or party_member:get_zone_id() ~= windower.ffxi.get_info().zone then
+                return false
             end
         end
+    else
+        return false
     end
+    return true
 end
 
 function PartyStatusWidget:getSettings(addonSettings)
     return addonSettings:getSettings().party_widget
-end
-
-function PartyStatusWidget:indexPathForPartyMember(party_member)
-    for i = 1, self:getDataSource():numberOfItemsInSection(1) do
-        local indexPath = IndexPath.new(1, i)
-        local item = self:getDataSource():itemAtIndexPath(indexPath)
-        if item and item:getText() == party_member:get_name() then
-            return indexPath
-        end
-    end
 end
 
 function PartyStatusWidget:setAssistTarget(party_member)
@@ -161,62 +179,26 @@ function PartyStatusWidget:setAssistTarget(party_member)
     end
 end
 
-function PartyStatusWidget:setPartyMembers(partyMembers)
-    self.partyDisposeBag:dispose()
-
-    self:getDataSource():removeAllItems()
-
-    local rowIndex = 0
-
-    local itemsToUpdate = partyMembers:map(function(p)
-        local item = TextItem.new(p:get_name(), PartyStatusWidget.TextSmall)
-        if not p:is_trust() and p:get_id() ~= windower.ffxi.get_player().id then
-            if not p:get_mob() or p:get_mob().distance:sqrt() > 21 or p:get_zone_id() ~= windower.ffxi.get_info().zone then
-                item:setEnabled(false)
-            end
-        end
-        return item
-    end):map(function(item)
-        rowIndex = rowIndex + 1
-        return IndexedItem.new(item, IndexPath.new(1, rowIndex))
-    end)
-
-    self:getDataSource():addItems(itemsToUpdate)
-
-    self:setAssistTarget(self.party:get_assist_target())
-
-    self:setSize(self:getSize().width, self:getContentSize().height)
-    self:layoutIfNeeded()
-
-    for partyMember in partyMembers:it() do
-        self.partyDisposeBag:add(partyMember:on_position_change():addAction(function(p, x, y, z)
-            self:updatePartyMember(p)
-        end), partyMember:on_position_change())
-    end
-end
-
-function PartyStatusWidget:addPartyMember(_)
-    self:setPartyMembers(self.party:get_party_members(true))
-end
-
-function PartyStatusWidget:removePartyMember(_)
-    self:setPartyMembers(self.party:get_party_members(true))
-
-    self:setAssistTarget(self.party:get_assist_target())
-end
-
 function PartyStatusWidget:updatePartyMember(partyMember)
     local indexPath = self:indexPathForPartyMember(partyMember)
     if indexPath then
         local item = TextItem.new(partyMember:get_name(), PartyStatusWidget.TextSmall)
-        if not partyMember:is_trust() and partyMember:get_id() ~= windower.ffxi.get_player().id then
-            if not partyMember:get_mob() or partyMember:get_mob().distance:sqrt() > 21 or partyMember:get_zone_id() ~= windower.ffxi.get_info().zone then
-                item:setEnabled(false)
-            end
-        end
+        item:setEnabled(self:is_enabled(partyMember:get_name()))
+
         self:getDataSource():updateItem(item, indexPath)
+
         self:setNeedsLayout()
         self:layoutIfNeeded()
+    end
+end
+
+function PartyStatusWidget:indexPathForPartyMember(party_member)
+    for i = 1, self:getDataSource():numberOfItemsInSection(1) do
+        local indexPath = IndexPath.new(1, i)
+        local item = self:getDataSource():itemAtIndexPath(indexPath)
+        if item and item:getText() == party_member:get_name() then
+            return indexPath
+        end
     end
 end
 
@@ -224,18 +206,6 @@ function PartyStatusWidget:setExpanded(expanded)
     if not Widget.setExpanded(self, expanded) then
         return false
     end
-
-    if expanded then
-        self.assistTargetIcon:setVisible(true)
-        self:getContentView():addSubview(self.assistTargetIcon)
-        self:setPartyMembers(self.party:get_party_members(true))
-    else
-        self.assistTargetIcon:removeFromSuperview()
-        self.assistTargetIcon:setVisible(false)
-        self:getDataSource():removeAllItems()
-        self:layoutIfNeeded()
-    end
-    self.assistTargetIcon:layoutIfNeeded()
 end
 
 return PartyStatusWidget
