@@ -239,6 +239,7 @@ end
 function TextItem:__eq(otherItem)
     return otherItem.__type == TextItem.__type
             and self.text == otherItem:getText()
+            and self:getEnabled() == otherItem:getEnabled()
 end
 
 function TextItem:tostring()

@@ -88,10 +88,11 @@ end
 -- Default initializer for a PartyMember.
 -- @tparam number id Mob id
 -- @treturn PartyMember A party member
-function PartyMember.new(id)
+function PartyMember.new(id, name)
     local self = setmetatable(Entity.new(id), PartyMember)
     self.uuid = os.time()
     self.id = id
+    self.name = name
     self.main_job_short = 'NON'
     self.sub_job_short = 'NON'
     self.hpp = 100
