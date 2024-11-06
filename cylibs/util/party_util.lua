@@ -71,6 +71,7 @@ function party_util.get_party_member_names(include_alliance)
     local party_member_names = L{}
     for key, party_member in pairs(windower.ffxi.get_party()) do
         if type(party_member) == 'table' and string.match(key, "p[0-5]") or (include_alliance and string.match(key, "a[10-25]")) then
+            -- NOTE: this can return an empty string when zoning, but the PartyStatusWidget currently relies on this behavior
             party_member_names:append(party_member.name)
         end
     end

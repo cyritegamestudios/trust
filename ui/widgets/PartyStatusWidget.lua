@@ -105,19 +105,23 @@ function PartyStatusWidget.new(frame, addonSettings, party, trust)
         end, 0.1)
     end), WindowerEvents.AllianceMemberListUpdate)
 
+    local on_position_change = function(p, x, y, z)
+        if S(self.party_member_names):contains(p:get_name()) then
+            if p:get_id() == windower.ffxi.get_player().id then
+                for party_member in self.party:get_party_members(false):it() do
+                    self:updatePartyMember(party_member)
+                end
+            else
+                self:updatePartyMember(p)
+            end
+        end
+    end
+
     self:getDisposeBag():add(party:on_party_member_added():addAction(function(party_member)
-        self.partyMemberIdToDisposeBag[party_member:get_id()] = self.partyMemberIdToDisposeBag[party_member:get_id()] or DisposeBag.new()
-        self.partyMemberIdToDisposeBag[party_member:get_id()]:add(party_member:on_position_change():addAction(function(p, x, y, z)
-            self:updatePartyMember(p)
+        self.partyDisposeBag:add(party_member:on_position_change():addAction(function(p, x, y, z)
+            on_position_change(p, x, y, z)
         end), party_member:on_position_change())
     end), party:on_party_member_added())
-
-    self:getDisposeBag():add(party:on_party_member_removed():addAction(function(party_member)
-        local dispose_bag = self.partyMemberIdToDisposeBag[party_member:get_id()]
-        if dispose_bag then
-            dispose_bag:dispose()
-        end
-    end), party:on_party_member_removed())
 
     self:getDisposeBag():add(party:on_party_assist_target_change():addAction(function(_, party_member)
         self:setAssistTarget(party_member)
@@ -125,11 +129,18 @@ function PartyStatusWidget.new(frame, addonSettings, party, trust)
 
     self:set_party_member_names(party_util.get_party_member_names(false))
 
+    for party_member in self.party:get_party_members(true):it() do
+        self.partyDisposeBag:add(party_member:on_position_change():addAction(function(p, x, y, z)
+            on_position_change(p, x, y, z)
+        end), party_member:on_position_change())
+    end
+
     return self
 end
 
 function PartyStatusWidget:set_party_member_names(party_member_names)
-    if self.party_member_names == party_member_names then
+    if self.party_member_names == party_member_names
+            or party_member_names:filter(function(p) return p:empty() end):length() > 0 then
         return
     end
     self.party_member_names = party_member_names
