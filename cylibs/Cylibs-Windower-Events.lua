@@ -268,7 +268,7 @@ local incoming_event_dispatcher = {
         -- NOTE: this might actually be incorrect if some parties are half full
         local alliance_index = 1
         for alliance_member in alliance_members:it() do
-            local party_member_info = party_util.get_party_member(alliance_member:get_id(), true)
+            local party_member_info = party_util.get_party_member_info(alliance_member:get_id())
             if party_member_info then
                 WindowerEvents.CharacterUpdate:trigger(alliance_member:get_id(), party_member_info.name, party_member_info.hp, party_member_info.hpp,
                         party_member_info.mp, party_member_info.mpp, party_member_info.tp, nil, nil)

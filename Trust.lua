@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '11.8.8'
+_addon.version = '11.9.0'
 _addon.release_notes = [[
 This update introduces new menus for Bard, autocomplete for Trust
 commands, new commands and important bug fixes for users running the
@@ -571,12 +571,14 @@ function handle_tic(old_time, new_time)
 
 	if not trust or not windower.ffxi.get_player() or not addon_enabled:getValue() or not player or not player.trust then return end
 
-	action_queue:set_mode(ActionQueue.Mode.Batch)
+	action_queue:set_enabled(addon_enabled:getValue())
+
+	--action_queue:set_mode(ActionQueue.Mode.Batch)
 
 	player.trust.main_job:tic(old_time, new_time)
 	player.trust.sub_job:tic(old_time, new_time)
 
-	action_queue:set_mode(ActionQueue.Mode.Default)
+	--action_queue:set_mode(ActionQueue.Mode.Default)
 end
 
 function handle_status_change(new_status_id, old_status_id)

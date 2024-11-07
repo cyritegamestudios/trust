@@ -246,6 +246,14 @@ function ActionQueue:clear()
 	self.queue:clear()
 end
 
+function ActionQueue:set_enabled(is_enabled)
+	if is_enabled then
+		self:enable()
+	else
+		self:disable()
+	end
+end
+
 -------
 -- Enables the action queue.
 function ActionQueue:enable()
@@ -256,6 +264,9 @@ end
 -- Disables the action queue. All queued actions will be cleared and new actions added with push_action will
 -- be ignored.
 function ActionQueue:disable()
+	if self.is_enabled == false then
+		return
+	end
 	self.is_enabled = false
 	self:clear()
 end

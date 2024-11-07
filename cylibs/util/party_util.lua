@@ -119,6 +119,16 @@ function party_util.get_party_member(target_id, include_alliance)
     return nil
 end
 
+function party_util.get_party_member_info(target_id)
+    for _, party_member_info in pairs(windower.ffxi.get_party()) do
+        if party_member_info and type(party_member_info) == 'table' and party_member_info.mob
+                and party_member_info.mob.id == target_id then
+            return party_member_info
+        end
+    end
+    return nil
+end
+
 --[[function party_util.get_party_index_from_alliance_index(alliance_index, id)
     if id == windower.ffxi.get_player().id then
         alliance_index = 1
