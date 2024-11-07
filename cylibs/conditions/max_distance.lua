@@ -19,7 +19,11 @@ end
 function MaxDistanceCondition:is_satisfied(target_index)
     local target = windower.ffxi.get_mob_by_index(target_index)
     if target then
-        return target.distance:sqrt() <= self.distance
+        if target.index == windower.ffxi.get_player().index then
+            return true
+        else
+            return target.distance:sqrt() <= self.distance
+        end
     end
     return false
 end

@@ -84,7 +84,8 @@ function Buffer:conditions_check(spell, target)
     if target == nil then
         return false
     end
-    for condition in spell:get_conditions():it() do
+    local conditions = L{ MaxDistanceCondition.new(spell:get_range(), target.index) }:extend(spell:get_conditions())
+    for condition in conditions:it() do
         if not condition:is_satisfied(target.index) then
             return false
         end
