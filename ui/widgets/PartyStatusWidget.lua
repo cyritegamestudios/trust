@@ -35,21 +35,6 @@ PartyStatusWidget.TextSmall = TextStyle.new(
         true
 )
 
-PartyStatusWidget.TextSmallDisabled = TextStyle.new(
-        Color.clear,
-        Color.clear,
-        "Arial",
-        9,
-        Color.yellow,
-        Color.yellow,
-        0,
-        0,
-        Color.clear,
-        false,
-        Color.yellow,
-        true
-)
-
 function PartyStatusWidget.new(frame, addonSettings, party, trust)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = TextCollectionViewCell.new(item)

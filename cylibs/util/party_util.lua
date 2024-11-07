@@ -129,26 +129,6 @@ function party_util.get_party_member_info(target_id)
     return nil
 end
 
---[[function party_util.get_party_index_from_alliance_index(alliance_index, id)
-    if id == windower.ffxi.get_player().id then
-        alliance_index = 1
-    else
-        alliance_index = math.max(2, alliance_index)
-    end
-
-    if alliance_index < 7 then
-        return 'p'..(alliance_index - 1)
-    elseif alliance_index < 13 then
-        return 'a'..(alliance_index + 2)
-    else
-        return 'a'..(alliance_index + 7)
-    end
-end
-
-function party_util.get_party_member_from_alliance_index(alliance_index, id)
-    return windower.ffxi.get_party()[party_util.get_party_index_from_alliance_index(alliance_index, id)]
-end]]
-
 -------
 -- Determines if a mob is a member of the player's party.
 -- @param target_id Mob id
