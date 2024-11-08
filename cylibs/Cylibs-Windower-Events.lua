@@ -527,7 +527,6 @@ end)
 local init_timer = Timer.scheduledTimer(5, 1)
 
 WindowerEvents.DisposeBag:add(init_timer:onTimeChange():addAction(function(_)
-    -- Create weapons
     main_weapon_id = inventory_util.get_main_weapon_id()
     if main_weapon_id and main_weapon_id ~= 0 then
         init_timer:destroy()

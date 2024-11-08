@@ -48,7 +48,6 @@ function PartyStatusWidget.new(frame, addonSettings, party, trust)
     self.party = party
     self.party_member_names = L{}
     self.partyDisposeBag = DisposeBag.new()
-    self.partyMemberIdToDisposeBag = {}
 
     local assistTargetItem = ImageItem.new(windower.addon_path..'assets/icons/icon_assist_target.png', 6, 6)
     self.assistTargetIcon = ImageCollectionViewCell.new(assistTargetItem)
