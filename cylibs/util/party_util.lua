@@ -57,7 +57,7 @@ end
 -- @treturn list List of MobMetadata for party members, or an empty list if the player is not in a party
 function party_util.get_party_members(include_alliance)
     local party_members = L{}
-    for key, party_member in pairs(windower.ffxi.get_party()) do
+    for _, party_member in pairs(windower.ffxi.get_party()) do
         if type(party_member) == 'table' and party_member.mob then
             if party_member.mob.in_party or (party_member.mob.in_alliance and include_alliance) then
                 party_members:append(party_member.mob)
@@ -65,6 +65,17 @@ function party_util.get_party_members(include_alliance)
         end
     end
     return party_members
+end
+
+function party_util.get_party_member_names(include_alliance)
+    local party_member_names = L{}
+    for key, party_member in pairs(windower.ffxi.get_party()) do
+        if type(party_member) == 'table' and string.match(key, "p[0-5]") or (include_alliance and string.match(key, "a[10-25]")) then
+            -- NOTE: this can return an empty string when zoning, but the PartyStatusWidget currently relies on this behavior
+            party_member_names:append(party_member.name)
+        end
+    end
+    return party_member_names
 end
 
 -------
@@ -98,11 +109,21 @@ end
 -- Returns a party member with the given id.
 -- @param target_id Mob id
 -- @treturn MobMetadata MobMetada for the party member, if a party member with the given id is in the party
-function party_util.get_party_member(target_id)
-    local party_members = party_util.get_party_members()
+function party_util.get_party_member(target_id, include_alliance)
+    local party_members = party_util.get_party_members(include_alliance)
     for party_member in party_members:it() do
         if party_member.id == target_id then
             return party_member
+        end
+    end
+    return nil
+end
+
+function party_util.get_party_member_info(target_id)
+    for _, party_member_info in pairs(windower.ffxi.get_party()) do
+        if party_member_info and type(party_member_info) == 'table' and party_member_info.mob
+                and party_member_info.mob.id == target_id then
+            return party_member_info
         end
     end
     return nil

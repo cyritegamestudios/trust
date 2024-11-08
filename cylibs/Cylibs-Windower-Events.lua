@@ -1,3 +1,4 @@
+local AllianceMember = require('cylibs/entity/alliance/alliance_member')
 local BuffRecord = require('cylibs/battle/buff_record')
 local Event = require('cylibs/events/Luvent')
 local DisposeBag = require('cylibs/events/dispose_bag')
@@ -254,26 +255,27 @@ local incoming_event_dispatcher = {
 
     [0x0C8] = function(data)
         local packet = packets.parse('incoming', data)
+
         local alliance_members = L{}
         for i = 1, 18 do
             local id = packet['ID '..i]
             if id and id ~= 0 then
-                alliance_members:append({id = id, index = packet['Index '..i], zone_id = packet['Zone '..i]})
+                alliance_members:append(AllianceMember.new(id, packet['Index '..i], packet['Zone '..i], math.ceil(i / 6)))
             end
         end
         WindowerEvents.AllianceMemberListUpdate:trigger(alliance_members)
 
-        for _, party_member in pairs(windower.ffxi.get_party()) do
-            if type(party_member) == 'table' then
-                if party_member.mob and party_member.mob.id then
-                    WindowerEvents.CharacterUpdate:trigger(party_member.mob.id, party_member.name, party_member.hp, party_member.hpp,
-                            party_member.mp, party_member.mpp, party_member.tp, nil, nil)
-                end
-            end
-        end
-
+        -- NOTE: this might actually be incorrect if some parties are half full
+        local alliance_index = 1
         for alliance_member in alliance_members:it() do
-            WindowerEvents.ZoneUpdate:trigger(alliance_member.id, alliance_member.zone_id)
+            local party_member_info = party_util.get_party_member_info(alliance_member:get_id())
+            if party_member_info then
+                WindowerEvents.CharacterUpdate:trigger(alliance_member:get_id(), party_member_info.name, party_member_info.hp, party_member_info.hpp,
+                        party_member_info.mp, party_member_info.mpp, party_member_info.tp, nil, nil)
+            end
+            WindowerEvents.ZoneUpdate:trigger(alliance_member:get_id(), alliance_member:get_zone_id())
+
+            alliance_index = alliance_index + 1
         end
     end,
 

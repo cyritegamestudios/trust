@@ -112,7 +112,7 @@ function Party:add_party_member(party_member_id, party_member_name)
     elseif party_member_id == windower.ffxi.get_player().id then
         self.party_members[party_member_id] = Player.new(party_member_id)
     else
-        self.party_members[party_member_id] = PartyMember.new(party_member_id)
+        self.party_members[party_member_id] = PartyMember.new(party_member_id, party_member_name)
     end
 
     local party_member = self.party_members[party_member_id]
@@ -136,19 +136,20 @@ end
 -- Removes a party member from the party.
 -- @tparam number party_member_id Party member id
 function Party:remove_party_member(party_member_id)
-    local party_member = self.party_members[party_member_id]
-    if party_member then
-        party_member:destroy()
-        self:on_party_member_removed():trigger(party_member)
-    end
-
     if self:get_assist_target() and self:get_assist_target():get_id() == party_member_id then
         self:set_assist_target(self:get_player())
     end
 
-    logger.notice(self.__class, "remove_party_member", party_member:get_name(), party_member_id)
+    local party_member = self.party_members[party_member_id]
+    if party_member then
+        party_member:destroy()
 
-    self.party_members[party_member_id] = nil
+        self.party_members[party_member_id] = nil
+
+        self:on_party_member_removed():trigger(party_member)
+    end
+
+    logger.notice(self.__class, "remove_party_member", party_member:get_name(), party_member_id)
 end
 
 -------
@@ -156,7 +157,21 @@ end
 -- @tparam number party_member_id Party member id
 -- @treturn boolean True if the player is in the party
 function Party:has_party_member(party_member_id)
+    if party_member_id == nil then
+        return false
+    end
     return self.party_members[party_member_id] ~= nil
+end
+
+-------
+-- Returns whether a player with the given name is in the party.
+-- @tparam string party_member_name Party member name
+-- @treturn boolean True if the player is in the party
+function Party:has_party_member_named(party_member_name)
+    if party_member_name == nil then
+        return false
+    end
+    return self:get_party_member_named(party_member_name, true) ~= nil
 end
 
 -------

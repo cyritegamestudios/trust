@@ -149,16 +149,14 @@ end
 function Follower:on_player_status_change(new_status_id, old_status_id)
     player.status = res.statuses[new_status_id].english
 
-    if player.status == 'Dead' then
+    if S{ 'Dead', 'Engaged', 'Resting' }:contains(player.status) then
         self:stop_following()
+        return
     end
 
     if state.AutoFollowMode.value == 'Always' then
         if player.status == 'Idle' then
-            coroutine.sleep(1)
             self:start_following()
-        else
-            self:stop_following()
         end
     end
 end

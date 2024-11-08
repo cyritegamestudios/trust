@@ -3,6 +3,7 @@
 -- @class module
 -- @name Alliance
 
+local AllianceMember = require('cylibs/entity/alliance/alliance_member')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Entity = require('cylibs/entity/entity')
 local Event = require('cylibs/events/Luvent')
@@ -49,8 +50,8 @@ function Alliance.new(party_chat)
         self.parties:append(Party.new(party_chat))
     end
 
-    local player = windower.ffxi.get_player()
-    self:get_parties()[1]:add_party_member(player.id, player.name)
+    --local player = windower.ffxi.get_player()
+    --self:get_parties()[1]:add_party_member(player.id, player.name)
 
     self.dispose_bag:addAny(self:get_parties())
 
@@ -89,6 +90,12 @@ function Alliance:monitor()
 
         for alliance_member in alliance_members_list:it() do
             self.alliance_members_list[alliance_member.id] = alliance_member
+            if alliance_member:get_mob() then
+                local party = self:get_parties()[alliance_member:get_party_index()]
+                if party then
+                    party:add_party_member(alliance_member:get_id(), alliance_member:get_name())
+                end
+            end
         end
 
         local new_member_ids = self.alliance_members_list:keyset()
@@ -108,13 +115,13 @@ function Alliance:monitor()
 
     -- Add pending alliance members to their respective parties
     self.dispose_bag:add(WindowerEvents.CharacterUpdate:addAction(function(mob_id, name, hp, hpp, mp, mpp, tp, main_job_id, sub_job_id)
-        local alliance_member_info = self.alliance_members_list[mob_id]
-        if alliance_member_info then
-            local party = self:get_party(name)
+        local alliance_member = self.alliance_members_list[mob_id]
+        if alliance_member then
+            local party = self:get_party(name) or self:get_parties()[alliance_member:get_party_index()]
             if party and not party:has_party_member(mob_id) then
                 logger.notice(self.__class, "character update", "adding", name, "to party at index", self:get_party_index(name))
                 local party_member = party:add_party_member(mob_id, name)
-                party_member:set_zone_id(alliance_member_info.zone_id)
+                party_member:set_zone_id(alliance_member:get_zone_id())
             end
         end
     end), WindowerEvents.CharacterUpdate)
@@ -133,7 +140,7 @@ function Alliance:monitor()
         end
     end)
 
-    WindowerEvents.replay_last_events(L{ WindowerEvents.AllianceMemberListUpdate, WindowerEvents.CharacterUpdate })
+    WindowerEvents.replay_last_events(L{ WindowerEvents.AllianceMemberListUpdate })
 end
 
 -------
