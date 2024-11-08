@@ -12,6 +12,7 @@ state.AutoAftermathMode:set_description('2000', "Okay, I'll try to keep Aftermat
 state.AutoAftermathMode:set_description('1000', "Okay, I'll try to keep Aftermath: Lv.1 up.")
 
 local aftermath_weapon_skills = {
+    -- Mythic
     ["Aymur"] = 74,
     ["Burtgang"] = 45,
     ["Carnwenhan"] = 28,
@@ -33,7 +34,38 @@ local aftermath_weapon_skills = {
     ["Vajra"] = 27,
     ["Yagrush"] = 171,
     ["Kenkonken"] = 12,
-    ["Terpsichore"] = 29
+    ["Terpsichore"] = 29,
+    -- Aeonic
+    ["Dojikiri Yasutsuna"] = 157,
+    ["Godhands"] = 15,
+    ["Aeneas"] = 225,
+    ["Sequence"] = 226,
+    ["Lionheart"] = 60,
+    ["Tri-edge"] = 77,
+    ["Chango"] = 93,
+    ["Anguta"] = 109,
+    ["Trishula"] = 125,
+    ["Heishi Shorinken"] = 141,
+    ["Tishtrya"] = 174,
+    ["Khatvanga"] = 191,
+    ["Fail-Not"] = 203,
+    ["Fomalhaut"] = 221,
+    -- Empyrean
+    ["Masamune"] = 156,
+    ["Verethragna"] = 14,
+    ["Twashtar"] = 31,
+    ["Almace"] = 225,
+    ["Caladbolg"] = 59,
+    ["Farsha"] = 76,
+    ["Ukonvasara"] = 92,
+    ["Redemption"] = 108,
+    ["Rhongomiant"] = 124,
+    ["Kannagi"] = 140,
+    ["Gambanteinn"] = 173,
+    ["Hvergelmir"] = 190,
+    ["Gandiva"] = 202,
+    ["Armageddon"] = 220,
+    -- Prime
 }
 
 function Aftermather.new(action_queue, skillchainer)

@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '11.9.0'
+_addon.version = '11.9.1'
 _addon.release_notes = [[
 This update introduces new menus for Bard, autocomplete for Trust
 commands, new commands and important bug fixes for users running the
@@ -606,7 +606,7 @@ end
 
 function handle_zone_change(new_zone_id, old_zone_id)
 	action_queue:clear()
-	player.party:set_assist_target(player.party:get_player())
+	--player.party:set_assist_target(player.party:get_player())
 	if state.AutoDisableMode.value ~= 'Off' then
 		handle_stop()
 	end
