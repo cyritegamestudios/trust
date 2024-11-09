@@ -29,7 +29,9 @@ function RangerTrust:on_init()
 		buffer:set_job_abilities(new_trust_settings.JobAbilities)
 
 		local shooter = self:role_with_type("shooter")
-		shooter:set_shoot_delay(new_trust_settings.Shooter.Delay)
+		if shooter then
+			shooter:set_shoot_delay(new_trust_settings.Shooter.Delay)
+		end
 
 		local puller = self:role_with_type("puller")
 		if puller then

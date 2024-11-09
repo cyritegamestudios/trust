@@ -100,7 +100,7 @@ function MagicBurster:on_prerender()
     local target = self:get_target()
     if target then
         local step = target:get_skillchain()
-        if step and step:get_skillchain() and not step:is_expired() then
+        if step and step:get_skillchain() and not step:is_expired() and step:get_time_remaining() > 1.5 then
             self:check_magic_burst(step:get_skillchain())
         end
     end
