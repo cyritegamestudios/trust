@@ -46,7 +46,9 @@ function StatusRemover:on_add()
     for party_member in self:get_party():get_party_members(true):it() do
         self.dispose_bag:add(party_member:on_gain_debuff():addAction(
             function (p, debuff_id)
-                self:remove_status_effect(L{p}, debuff_id)
+                if party_member:get_mob() and party_member:get_mob().distance:sqrt() < 21 then
+                    self:remove_status_effect(L{p}, debuff_id)
+                end
             end), party_member:on_gain_debuff())
     end
 end
