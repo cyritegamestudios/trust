@@ -67,6 +67,10 @@ function ScholarTrust:on_init()
                 buffer:set_job_abilities(self:get_job():get_dark_arts_job_abilities())
                 buffer:set_self_spells(self:get_job():get_dark_arts_self_buffs())
                 buffer:set_party_spells(self:get_job():get_dark_arts_party_buffs())
+            else
+                buffer:set_job_abilities(L{})
+                buffer:set_self_spells(L{})
+                buffer:set_party_spells(L{})
             end
         end
 
