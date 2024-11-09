@@ -60,7 +60,7 @@ function Healer:on_add()
 
     self.dispose_bag:add(self:get_party():on_party_member_added():addAction(on_party_member_added), self:get_party():on_party_member_added())
 
-    for party_member in self:get_party():get_party_members(true):it() do
+    for party_member in self:get_party():get_party_members(true, 21):it() do
         on_party_member_added(party_member)
     end
 
