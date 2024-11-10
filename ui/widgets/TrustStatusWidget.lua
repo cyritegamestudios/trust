@@ -206,6 +206,8 @@ function TrustStatusWidget:setJobs(mainJobName, subJobName)
     end)
 
     self:getDataSource():updateItems(itemsToUpdate)
+
+    self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
 end
 
 function TrustStatusWidget:setAction(text)

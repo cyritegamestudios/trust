@@ -10,17 +10,22 @@ function TrustCommands.new()
     return self
 end
 
-function TrustCommands:add_command(command_name, handler, description)
+function TrustCommands:add_command(command_name, handler, description, args)
     self.commands[command_name] = {
         callback = function(...)
             return handler(self, T{ ... }:unpack())
         end,
-        description = description or ''
+        description = description or '',
+        args = args or L{},
     }
 end
 
 function TrustCommands:get_command_name()
     return nil
+end
+
+function TrustCommands:get_localized_command_name()
+    return self:get_command_name()
 end
 
 function TrustCommands:is_valid_command(command_name, ...)
@@ -55,12 +60,23 @@ function TrustCommands:description()
 end
 
 function TrustCommands:get_description(command_name)
+    command_name = command_name or 'default'
     for name, command in pairs(self.commands) do
         if name == command_name then
             return command.description
         end
     end
     return ""
+end
+
+function TrustCommands:get_args(command_name)
+    command_name = command_name or 'default'
+    for name, command in pairs(self.commands) do
+        if name == command_name then
+            return command.args or L{}
+        end
+    end
+    return L{}
 end
 
 function TrustCommands:get_all_commands()

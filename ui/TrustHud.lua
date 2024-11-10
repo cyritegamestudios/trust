@@ -8,6 +8,7 @@ local BufferSettingsMenuItem = require('ui/settings/menus/buffs/BufferSettingsMe
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local Color = require('cylibs/ui/views/color')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
+local CommandsMenuItem = require('ui/settings/menus/commands/CommandsMenuItem')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local ConfigSettingsMenuItem = require('ui/settings/menus/ConfigSettingsMenuItem')
 local HealerSettingsMenuItem = require('ui/settings/menus/healing/HealerSettingsMenuItem')
@@ -304,6 +305,12 @@ function TrustHud:reloadJobMenuItems()
     end
 end
 
+function TrustHud:setCommands(commands)
+    if self.mainMenuItem then
+        self.mainMenuItem:setChildMenuItem('Commands', CommandsMenuItem.new(commands))
+    end
+end
+
 function TrustHud:getMainMenuItem()
     if self.mainMenuItem then
         return self.mainMenuItem
@@ -313,8 +320,9 @@ function TrustHud:getMainMenuItem()
         ButtonItem.default(player.main_job_name, 18),
         ButtonItem.default(player.sub_job_name, 18),
         ButtonItem.default('Profiles', 18),
+        ButtonItem.default('Commands', 18),
     }, {
-        Profiles = LoadSettingsMenuItem.new(self.addon_settings, self.trustModeSettings, main_trust_settings, weapon_skill_settings, sub_trust_settings)
+        Profiles = LoadSettingsMenuItem.new(self.addon_settings, self.trustModeSettings, main_trust_settings, weapon_skill_settings, sub_trust_settings),
     }, nil, "Jobs")
 
     self.mainMenuItem = mainMenuItem

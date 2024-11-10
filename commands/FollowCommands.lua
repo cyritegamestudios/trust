@@ -1,3 +1,4 @@
+local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local TrustCommands = require('cylibs/trust/commands/trust_commands')
 local FollowTrustCommands = setmetatable({}, {__index = TrustCommands })
 FollowTrustCommands.__index = FollowTrustCommands
@@ -9,13 +10,15 @@ function FollowTrustCommands.new(trust, action_queue)
     self.trust = trust
     self.action_queue = action_queue
 
-    self:add_command('default', self.handle_follow_party_member, 'Follow a player, // trust follow player_name')
+    local party_member_names = trust:get_party():get_party_members(true):map(function(p) return p:get_name() end)
+
+    self:add_command('default', self.handle_follow_party_member, 'Follow a player, // trust follow player_name', L{ PickerConfigItem.new('party_member_name', party_member_names[1], party_member_names, nil, "Party Member Name"), })
     self:add_command('me', self.handle_follow_me, 'Make all players follow me')
     self:add_command('start', self.handle_start, 'Resume following')
     self:add_command('stopall', self.handle_stop_all, 'Pause following for all players')
     self:add_command('stop', self.handle_stop, 'Pause following')
     self:add_command('clear', self.handle_clear, 'Clear the follow target')
-    self:add_command('distance', self.handle_set_follow_distance, 'Set the follow distance, // trust follow distance')
+    self:add_command('distance', self.handle_set_follow_distance, 'Set the follow distance, // trust follow distance', L{ ConfigItem.new('distance', 0, 50, 1, function(value) return value.." yalms" end, "Target Distance"), })
 
     return self
 end

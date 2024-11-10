@@ -1,4 +1,6 @@
+local ConfigItem = require('ui/settings/editors/config/ConfigItem')
 local localization_util = require('cylibs/util/localization_util')
+local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local SkillchainAbility = require('cylibs/battle/skillchains/abilities/skillchain_ability')
 local SkillchainBuilder = require('cylibs/battle/skillchains/skillchain_builder')
 local SkillchainStep = require('cylibs/battle/skillchains/skillchain_step')
@@ -25,22 +27,38 @@ function SkillchainTrustCommands.new(trust, weapon_skill_settings, action_queue)
     self:add_command('auto', self.handle_toggle_auto, 'Automatically make skillchains')
     self:add_command('cleave', self.handle_toggle_cleave, 'Cleave monsters')
     self:add_command('spam', self.handle_toggle_spam, 'Spam the same weapon skill, // trust sc spam ability_name (optional)')
-    self:add_command('mintp', self.handle_set_mintp, 'Sets the minimum tp for spamming, // trust sc mintp 1000')
+    self:add_command('mintp', self.handle_set_mintp, 'Sets the minimum tp for spamming, // trust sc mintp 1000', L{
+        ConfigItem.new('tp_amount', 1000, 3000, 50, function(value) return value.." TP" end, "Minimum TP")
+    })
 
     -- AutoAftermathMode
     self:add_command('am', function(_) return self:handle_toggle_mode('AutoAftermathMode', 'Auto', 'Off')  end, 'Prioritize maintaining aftermath on mythic weapons')
 
     -- Find a skillchain
-    self:add_command('set', self.handle_set_step, 'Sets a step of a skillchain, // trust sc set step_num weapon_skill_name')
-    self:add_command('next', self.handle_next, 'Finds weapon skills that skillchain with the given weapon skill')
-    self:add_command('build', self.handle_build, 'Builds a skillchain with the current equipped weapon')
-    self:add_command('default', self.handle_set_default, 'Sets the default weapon skill to use when no skillchains can be made')
+    self:add_command('set', self.handle_set_step, 'Sets a step of a skillchain, // trust sc set step_num weapon_skill_name', L{
+        ConfigItem.new('step_num', 1, 5, 1, function(value) return value end, "Step Number"),
+        -- TODO: add weapon skill picker item
+    })
+    self:add_command('next', self.handle_next, 'Finds weapon skills that skillchain with the given weapon skill', L{
+        PickerConfigItem.new('weapon_skill_name', 'Fast Blade', L{ 'Fast Blade' }, nil, "Weapon Skill Name"), -- TODO: add weapon skills
+    })
+    self:add_command('build', self.handle_build, 'Builds a skillchain with the current equipped weapon, // trust sc build skillchain_property num_steps', L{
+        PickerConfigItem.new('skillchain_property', 'Light Lv.4', skillchain_util.all_skillchain_properties(), nil, "Skillchain Property"),
+        ConfigItem.new('num_steps', 2, 6, 1, nil, "Number of Steps"),
+    })
+    self:add_command('default', self.handle_set_default, 'Sets the default weapon skill to use when no skillchains can be made, // trust sc weapon_skill_name', L{
+        PickerConfigItem.new('weapon_skill_name', 'Fast Blade', L{ 'Fast Blade' }, nil, "Weapon Skill Name"), -- TODO: add weapon skills
+    })
 
     return self
 end
 
 function SkillchainTrustCommands:get_command_name()
     return 'sc'
+end
+
+function SkillchainTrustCommands:get_localized_command_name()
+    return 'Skillchain'
 end
 
 function SkillchainTrustCommands:get_settings()
@@ -182,7 +200,7 @@ function SkillchainTrustCommands:handle_set_mintp(_, min_tp)
     return success, message
 end
 
--- // trust sc step_num ability_name
+-- // trust sc set step_num ability_name
 function SkillchainTrustCommands:handle_set_step(_, step_num, ...)
     local success = false
     local message

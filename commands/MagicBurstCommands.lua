@@ -28,6 +28,10 @@ function MagicBurstTrustCommands:get_command_name()
     return 'mb'
 end
 
+function MagicBurstTrustCommands:get_localized_command_name()
+    return 'Magic Burst'
+end
+
 function MagicBurstTrustCommands:get_settings()
     return self.trust_settings:getSettings()[state.MainTrustSettingsMode.value]
 end

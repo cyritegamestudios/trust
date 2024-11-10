@@ -1,5 +1,6 @@
 local DismountAction = require('cylibs/actions/dismount')
 local MountAction = require('cylibs/actions/mount')
+local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 
 local TrustCommands = require('cylibs/trust/commands/trust_commands')
 local MountCommands = setmetatable({}, {__index = TrustCommands })
@@ -26,12 +27,24 @@ function MountCommands.new(trust, action_queue)
 
     self:add_command('default', function(mount_name)
         return self:handle_mount('Raptor')
-    end, 'Calls forth a mount, // trust mount mount_name')
+    end, 'Calls forth a mount, // trust mount mount_name', L{
+        PickerConfigItem.new('mount_name', mount_names[1], mount_names, nil, "Mount Name"),
+    })
 
     self:add_command('random', self.handle_random_mount, 'Calls forth a random mount, // trust mount random')
 
-    self:add_command('all', self.handle_mount_all, 'Calls forth a mount on all characters, // trust mount all [mount_name]')
-    self:add_command('dismount', self.handle_dismount, 'Dismounts if mounted, // trust mount dismount [all]')
+    self:add_command('all', self.handle_mount_all, 'Calls forth a mount on all characters, // trust mount all mount_name', L{
+        PickerConfigItem.new('mount_name', mount_names[1], mount_names, nil, "Mount Name"),
+    })
+    self:add_command('dismount', self.handle_dismount, 'Dismounts if mounted, // trust mount dismount all', L{
+        PickerConfigItem.new('all', '', L{ '', 'all' }, function(value)
+            if value == 'all' then
+                return 'Party'
+            else
+                return 'Self'
+            end
+        end, "Dismount Target"),
+    })
 
     return self
 end

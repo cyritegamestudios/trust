@@ -1,3 +1,4 @@
+local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local TargetLock = require('cylibs/entity/party/target_lock')
 
 local TrustCommands = require('cylibs/trust/commands/trust_commands')
@@ -11,7 +12,12 @@ function AssistTrustCommands.new(trust, action_queue)
     self.trust = trust
     self.action_queue = action_queue
 
-    self:add_command('default', self.handle_assist_player, 'Assist a party or alliance member, // trust assist player_name [mirror]')
+    local party_member_names = trust:get_party():get_party_members(true):map(function(p) return p:get_name() end)
+
+    self:add_command('default', self.handle_assist_player, 'Assist a party or alliance member, // trust assist player_name mirror', L{
+        PickerConfigItem.new('party_member_name', party_member_names[1], party_member_names, nil, "Party Member Name"),
+        PickerConfigItem.new('mirror', "true", L{ "true", "false" }, nil, "Mirror Combat Position")
+    })
     self:add_command('me', self.handle_assist_me, 'Make all players assist me')
     self:add_command('clear', self.handle_clear_assist, 'Clear assist target')
     self:add_command('party', self.handle_lock_target, 'Locks your target on the party\'s current battle target')
