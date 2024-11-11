@@ -59,11 +59,24 @@ function TrustCommands:description()
     return result
 end
 
-function TrustCommands:get_description(command_name)
+function TrustCommands:get_description(command_name, include_args)
     command_name = command_name or 'default'
     for name, command in pairs(self.commands) do
         if name == command_name then
-            return command.description
+            local description = command.description
+            if include_args then
+                local args = self:get_args(command_name)
+                if args:length() > 0 then
+                    description = description..', Command: // trust '..self:get_command_name()
+                    if command_name ~= 'default' then
+                        description = description..' '..command_name
+                    end
+                    for arg in args:it() do
+                        description = description..' '..arg.key
+                    end
+                end
+            end
+            return description
         end
     end
     return ""

@@ -370,7 +370,7 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_trust, acti
 
 			local args = string.split(term, " ")
 			if args[3] and args[4] and shortcuts[args[3]] and type(shortcuts[args[3]]) ~= 'function' then
-				description = shortcuts[args[3]]:get_description(args[4]).."."
+				description = shortcuts[args[3]]:get_description(args[4], true)
 			end
 			if description == nil or description:empty() then
 				description = term

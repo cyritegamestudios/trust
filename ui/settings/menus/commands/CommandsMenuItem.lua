@@ -91,7 +91,7 @@ function CommandsMenuItem:reloadSettings(commands)
 
                 infoView:setTitle(commandName)
 
-                local description = command:get_description(args[4])
+                local description = command:get_description(args[4], true)
                 if not description or description:empty() then
                     description = selectedCommand
                 end

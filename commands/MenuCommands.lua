@@ -10,7 +10,7 @@ function MenuTrustCommands.new(trust, action_queue, hud)
     self.action_queue = action_queue
     self.hud = hud
 
-    self:add_command('default', self.handle_toggle_menu, 'Show and hide the Trust menu, // trust menu')
+    self:add_command('default', self.handle_toggle_menu, 'Show and hide the Trust menu')
 
     return self
 end
