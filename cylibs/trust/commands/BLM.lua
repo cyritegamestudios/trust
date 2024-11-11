@@ -1,4 +1,5 @@
 local Nukes = require('cylibs/res/nukes')
+local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 
 local TrustCommands = require('cylibs/trust/commands/trust_commands')
 local BlackMageTrustCommands = setmetatable({}, {__index = TrustCommands })
@@ -12,7 +13,11 @@ function BlackMageTrustCommands.new(trust, action_queue)
     self.action_queue = action_queue
 
     self:add_command('default', self.handle_show_blacklist, 'See enabled elements')
-    self:add_command('toggle', self.handle_toggle_element, 'Toggle an element for nuking and magic bursting, // trust nuke toggle element_name')
+
+    local elements = L{ 'fire', 'ice', 'wind', 'earth', 'lightning', 'water', 'light', 'dark' }
+    self:add_command('toggle', self.handle_toggle_element, 'Toggle an element for nuking and magic bursting, // trust nuke toggle element_name', L{
+        PickerConfigItem.new('element_name', elements[1], elements, function(v) return v:gsub("^%l", string.upper) end, "Element"),
+    })
     self:add_command('reset', self.handle_reset_blacklist, 'Re-enable all elements')
 
     return self
@@ -20,6 +25,10 @@ end
 
 function BlackMageTrustCommands:get_command_name()
     return 'blm'
+end
+
+function BlackMageTrustCommands:get_localized_command_name()
+    return 'Black Mage'
 end
 
 function BlackMageTrustCommands:is_valid_command(command_name, ...)
