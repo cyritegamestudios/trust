@@ -72,36 +72,43 @@ function CommandsMenuItem:reloadSettings(commands)
 
             self.selectedCommand = allCommands[1]
 
+            local update_for_command = function(selectedCommand)
+                self.selectedCommand = selectedCommand
+
+                local args = string.split(selectedCommand, " ")
+
+                local commandArgs = command:get_args(args[4])
+                if commandArgs:length() > 0 then
+                    commandMenuItem:setChildMenuItem("Confirm", configureMenuItem)
+                else
+                    commandMenuItem:setChildMenuItem("Confirm", MenuItem.action(function(_)
+                        coroutine.schedule(function()
+                            hud:closeAllMenus()
+                            windower.send_command('input '..self.selectedCommand)
+                        end, 0.1)
+                    end), commandName, "Choose a command.")
+                end
+
+                infoView:setTitle(commandName)
+
+                local description = command:get_description(args[4])
+                if not description or description:empty() then
+                    description = selectedCommand
+                end
+                infoView:setDescription(description)
+            end
+
             local commandList = FFXIPickerView.withItems(allCommands, allCommands[1], false, nil, nil, FFXIClassicStyle.WindowSize.Picker.Wide, true)
             commandList:setAllowsCursorSelection(true)
             commandList:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
                 local item = allCommands[indexPath.row]
                 if item then
-                    self.selectedCommand = item
-
-                    local args = string.split(item, " ")
-
-                    local commandArgs = command:get_args(args[4])
-                    if commandArgs:length() > 0 then
-                        commandMenuItem:setChildMenuItem("Confirm", configureMenuItem)
-                    else
-                        commandMenuItem:setChildMenuItem("Confirm", MenuItem.action(function(_)
-                            coroutine.schedule(function()
-                                hud:closeAllMenus()
-                                windower.send_command('input '..self.selectedCommand)
-                            end, 0.1)
-                        end), commandName, "Choose a command.")
-                    end
-
-                    infoView:setTitle(commandName)
-
-                    local description = command:get_description(args[4])
-                    if not description or description:empty() then
-                        description = item
-                    end
-                    infoView:setDescription(description)
+                    update_for_command(item)
                 end
             end)
+
+            update_for_command(self.selectedCommand)
+
             return commandList
         end
 
