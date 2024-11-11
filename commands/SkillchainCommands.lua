@@ -258,11 +258,14 @@ function SkillchainTrustCommands:handle_set_step(_, step_num, ...)
 end
 
 -- // trust sc next weapon_skill_name
-function SkillchainTrustCommands:handle_next(_, weapon_skill_name)
+function SkillchainTrustCommands:handle_next(_, ...)
     local success
     local message
 
-    local weapon_skill = res.weapon_skills:with('en', weapon_skill_name)
+    local ability_name = table.concat({...}, " ") or ""
+    ability_name = windower.convert_auto_trans(ability_name)
+
+    local weapon_skill = res.weapon_skills:with('en', ability_name)
     if weapon_skill then
         local abilities = res.weapon_skills:with_all('skill', weapon_skill.skill):map(function(weapon_skill) return SkillchainAbility.new('weapon_skills', weapon_skill.id) end):filter(function(ability) return ability ~= nil end)
 
