@@ -1,3 +1,4 @@
+local TextInputConfigItem = require('ui/settings/editors/config/TextInputConfigItem')
 local TrustCommands = require('cylibs/trust/commands/trust_commands')
 local LoggingTrustCommands = setmetatable({}, {__index = TrustCommands })
 LoggingTrustCommands.__index = LoggingTrustCommands
@@ -10,7 +11,9 @@ function LoggingTrustCommands.new(trust, action_queue)
     self.action_queue = action_queue
 
     self:add_command('default', self.handle_toggle, 'Toggle debug logging, // trust log')
-    self:add_command('filter', self.handle_set_filter, 'Filter by logs containing the specified text, // trust log filter filter_text')
+    self:add_command('filter', self.handle_set_filter, 'Filter by logs containing the specified text, // trust log filter filter_pattern', L{
+        TextInputConfigItem.new('filter_pattern', '', 'Filter Pattern', function(_) return true  end)
+    })
     self:add_command('all', self.handle_clear_filter, 'Clear filters and log everything')
 
     return self

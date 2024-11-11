@@ -27,6 +27,11 @@ function Party:on_party_member_removed()
     return self.party_member_removed
 end
 
+-- Event called when a party member is added or removed.
+function Party:on_party_members_changed()
+    return self.party_members_changed
+end
+
 -- Event called when the party's target changes.
 function Party:on_party_target_change()
     return self.target_change
@@ -53,6 +58,7 @@ function Party.new(party_chat)
 
     self.party_member_added = Event.newEvent()
     self.party_member_removed = Event.newEvent()
+    self.party_members_changed = Event.newEvent()
     self.target_change = Event.newEvent()
     self.assist_target_change = Event.newEvent()
 
@@ -76,6 +82,7 @@ function Party:destroy()
 
     self:on_party_member_added():removeAllActions()
     self:on_party_member_removed():removeAllActions()
+    self:on_party_members_changed():removeAllActions()
     self:on_party_target_change():removeAllActions()
     self:on_party_assist_target_change():removeAllActions()
 
@@ -126,6 +133,7 @@ function Party:add_party_member(party_member_id, party_member_name)
     --end)
 
     self:on_party_member_added():trigger(party_member)
+    self:on_party_members_changed():trigger(self:get_party_members(true))
 
     logger.notice(self.__class, "add_party_member", party_member:get_name(), party_member_id)
 
@@ -147,6 +155,7 @@ function Party:remove_party_member(party_member_id)
         self.party_members[party_member_id] = nil
 
         self:on_party_member_removed():trigger(party_member)
+        self:on_party_members_changed():trigger(self:get_party_members(true))
     end
 
     logger.notice(self.__class, "remove_party_member", party_member:get_name(), party_member_id)
@@ -240,6 +249,7 @@ function Party:prune_party_members()
                 coroutine.schedule(function()
                     self:on_party_member_removed():trigger(party_member)
                     party_member:destroy()
+                    self:on_party_members_changed():trigger(self:get_party_members(true))
                 end, 1)
             end
         end

@@ -10,7 +10,6 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local Entity = require('cylibs/entity/entity')
 local Event = require('cylibs/events/Luvent')
 local ffxi_util = require('cylibs/util/ffxi_util')
-local packets = require('packets')
 local party_util = require('cylibs/util/party_util')
 local res = require('resources')
 local Weapon = require('cylibs/battle/weapons/weapon')
@@ -130,9 +129,9 @@ function PartyMember.new(id, name)
     if party_member_info then
         self.hp = party_member_info.hp or 0
         self.hpp = party_member_info.hpp or 100
-        self.mp = party_member_info.mp
-        self.mpp = party_member_info.mpp
-        self.tp = party_member_info.tp
+        self.mp = party_member_info.mp or 0
+        self.mpp = party_member_info.mpp or 100
+        self.tp = party_member_info.tp or 0
         self.zone = party_member_info.zone
         self.name = party_member_info.name
 
@@ -191,14 +190,14 @@ function PartyMember:monitor()
     self.dispose_bag:add(WindowerEvents.CharacterUpdate:addAction(function(mob_id, name, hp, hpp, mp, mpp, tp, main_job_id, sub_job_id)
         if self:get_id() == mob_id then
             self.name = name
-            self.mp = mp
-            self.mpp = mpp
-            self.tp = tp
             self.main_job_short = main_job_id and res.jobs[main_job_id]['ens'] or 'NON'
             self.sub_job_short = sub_job_id and res.jobs[sub_job_id]['ens'] or 'NON'
 
             self:set_hp(hp)
             self:set_hpp(hpp)
+            self:set_mp(mp)
+            self:set_mpp(mpp)
+            self:set_tp(tp)
         end
     end), WindowerEvents.CharacterUpdate)
 
@@ -459,6 +458,17 @@ end
 -- @treturn number Mana points
 function PartyMember:get_mp()
     return self.mp
+end
+
+-------
+-- Sets the party member's current tactical points.
+-- @tparam number Tactical points
+function PartyMember:set_tp(tp)
+    tp = tp or 0
+    if self.tp == tp then
+        return
+    end
+    self.tp = tp
 end
 
 -------

@@ -73,7 +73,8 @@ function SummonerTrust:tic(old_time, new_time)
 		if not buff_util.is_buff_active(buff_util.buff_id("Avatar's Favor")) then
 			self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, "Avatar's Favor"))
 		end
-		if state.AutoAssaultMode.value ~= 'Off' and pet_util.pet_idle() and self.target_index and windower.ffxi.get_mob_by_index(self.target_index) then
+		local target = self:get_target()
+		if state.AutoAssaultMode.value ~= 'Off' and pet_util.pet_idle() and target and target:is_claimed() then
 			self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, 'Assault', self.target_index))
 		end
 	end

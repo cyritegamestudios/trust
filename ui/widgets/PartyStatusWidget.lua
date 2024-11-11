@@ -143,6 +143,8 @@ function PartyStatusWidget:set_party_member_names(party_member_names)
 
     self:setSize(self:getSize().width, self:getContentSize().height)
     self:layoutIfNeeded()
+
+    self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
 end
 
 function PartyStatusWidget:is_enabled(party_member_name)

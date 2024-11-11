@@ -37,6 +37,15 @@ function ConfigItem:getKey()
 end
 
 ---
+-- Gets the default value.
+--
+-- @treturn number The default value.
+--
+function ConfigItem:getDefaultValue()
+    return self:getMinValue()
+end
+
+---
 -- Gets the minimum value in the range.
 --
 -- @treturn number The minimum value in the range.

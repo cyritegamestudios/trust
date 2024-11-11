@@ -35,6 +35,10 @@ function ConfigEditor:onConfigChanged()
     return self.configChanged
 end
 
+function ConfigEditor:onConfigConfirm()
+    return self.configConfirm
+end
+
 function ConfigEditor:onConfigValidationError()
     return self.configValidationError
 end
@@ -92,6 +96,7 @@ function ConfigEditor.new(trustSettings, configSettings, configItems, infoView, 
     self.valueForCellConfigItem = {}
     self.configChanged = Event.newEvent()
     self.configValidationError = Event.newEvent()
+    self.configConfirm = Event.newEvent()
 
     self:setConfigItems(configItems)
 
@@ -144,6 +149,7 @@ function ConfigEditor:destroy()
 
     self.configChanged:removeAllActions()
     self.configValidationError:removeAllActions()
+    self.configConfirm:removeAllActions()
 end
 
 function ConfigEditor:setConfigItems(configItems)
@@ -233,7 +239,7 @@ function ConfigEditor:getCellItemForConfigItem(configItem)
         return SliderItem.new(
                 configItem:getMinValue(),
                 configItem:getMaxValue(),
-                self.configSettings[configItem:getKey()],
+                self.configSettings[configItem:getKey()] or configItem:getDefaultValue(),
                 configItem:getInterval(),
                 ImageItem.new(windower.addon_path..'assets/backgrounds/slider_track.png', 166, 16),
                 ImageItem.new(windower.addon_path..'assets/backgrounds/slider_fill.png', 166, 16),
@@ -315,6 +321,8 @@ function ConfigEditor:onConfirmClick(skipSave)
         self:onConfigValidationError():trigger()
         return
     end
+
+    self:onConfigConfirm():trigger(self.configSettings, originalSettings)
 
     if self.configSettings ~= originalSettings then
         self:onConfigChanged():trigger(self.configSettings, originalSettings)

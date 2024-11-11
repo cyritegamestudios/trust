@@ -1,3 +1,4 @@
+local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local skillchain_util = require('cylibs/util/skillchain_util')
 
 local TrustCommands = require('cylibs/trust/commands/trust_commands')
@@ -12,15 +13,26 @@ function ScholarTrustCommands.new(trust, action_queue, trust_settings)
     self.trust_settings = trust_settings
     self.action_queue = action_queue
 
-    self:add_command('sc', self.handle_skillchain, 'Make a skillchain using immanence, // trust sch sc skillchain_property')
+    self:add_command('sc', self.handle_skillchain, 'Make a skillchain using immanence, // trust sch sc skillchain_property', L{
+        PickerConfigItem.new('skillchain_property', skillchain_util.all_skillchain_properties()[1], skillchain_util.all_skillchain_properties(), nil, "Skillchain Property")
+    })
     self:add_command('accession', self.handle_accession, 'Cast a spell with accession, // trust sch accession spell_name')
-    self:add_command('storm', self.handle_storm, 'Set storm element for self and party, // trust sch storm element_name include_party')
+
+    local storm_elements = L{ 'fire', 'ice', 'wind', 'earth', 'lightning', 'water', 'light', 'dark' }
+    self:add_command('storm', self.handle_storm, 'Set storm element for self and party, // trust sch storm element_name include_party', L{
+        PickerConfigItem.new('storm_element_name', storm_elements[1], storm_elements, function(v) return v:gsub("^%l", string.upper) end, "Storm Element"),
+        PickerConfigItem.new('include_party', "false", L{ "false", "true" }, nil, "Include Party")
+    })
 
     return self
 end
 
 function ScholarTrustCommands:get_command_name()
     return 'sch'
+end
+
+function ScholarTrustCommands:get_localized_command_name()
+    return 'Scholar'
 end
 
 function ScholarTrustCommands:get_settings()
@@ -32,6 +44,7 @@ function ScholarTrustCommands:get_job()
 end
 
 function ScholarTrustCommands:get_spells(element)
+    element = element:lower()
     if element == "liquefaction" then
         return "Stone", "Fire"
     elseif element == "scission" then
@@ -162,6 +175,8 @@ end
 function ScholarTrustCommands:handle_storm(_, element, include_party)
     local success
     local message
+    print(tostring(include_party))
+    include_party = include_party ~= nil and tostring(include_party) == "true"
 
     local storm = self.trust:get_job():get_storm(element:lower())
     if storm then

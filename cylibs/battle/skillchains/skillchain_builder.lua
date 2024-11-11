@@ -124,6 +124,9 @@ end
 -- @tparam string skillchain_property Skillchain property (e.g. Fragmentation, Scission)
 -- @treturn list List of SkillchainAbility with a given skillchain property
 function SkillchainBuilder:get_abilities(skillchain_property)
+    if skillchain_property == nil then
+        return self.abilities
+    end
     return self.abilities:filter(function(ability) return ability:get_skillchain_properties(self.include_aeonic):contains(skillchain_property) end):compact_map()
 end
 
