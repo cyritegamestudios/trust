@@ -18,6 +18,8 @@ function SkillchainTrustCommands.new(trust, weapon_skill_settings, action_queue)
     self.weapon_skill_settings = weapon_skill_settings
     self.action_queue = action_queue
 
+    local ability_names = L(S(self:get_skillchainer().skillchain_builder:get_abilities():map(function(a) return a:get_name() end)))
+
     -- General
     self:add_command('clear', self.handle_clear, 'Clears the skillchain and sets all steps to auto')
     self:add_command('reload', self.handle_reload, 'Reloads the skillchain settings from file')
@@ -26,7 +28,9 @@ function SkillchainTrustCommands.new(trust, weapon_skill_settings, action_queue)
     -- AutoSkillchainMode
     self:add_command('auto', self.handle_toggle_auto, 'Automatically make skillchains')
     self:add_command('cleave', self.handle_toggle_cleave, 'Cleave monsters')
-    self:add_command('spam', self.handle_toggle_spam, 'Spam the same weapon skill, // trust sc spam ability_name (optional)')
+    self:add_command('spam', self.handle_toggle_spam, 'Spam the same weapon skill, // trust sc spam ability_name', L{
+        PickerConfigItem.new('weapon_skill_name', ability_names[1], ability_names, nil, "Weapon Skill Name")
+    })
     self:add_command('mintp', self.handle_set_mintp, 'Sets the minimum tp for spamming, // trust sc mintp 1000', L{
         ConfigItem.new('tp_amount', 1000, 3000, 50, function(value) return value.." TP" end, "Minimum TP")
     })
@@ -37,18 +41,33 @@ function SkillchainTrustCommands.new(trust, weapon_skill_settings, action_queue)
     -- Find a skillchain
     self:add_command('set', self.handle_set_step, 'Sets a step of a skillchain, // trust sc set step_num weapon_skill_name', L{
         ConfigItem.new('step_num', 1, 5, 1, function(value) return value end, "Step Number"),
-        -- TODO: add weapon skill picker item
+        PickerConfigItem.new('weapon_skill_name', ability_names[1], ability_names, nil, "Weapon Skill Name")
     })
     self:add_command('next', self.handle_next, 'Finds weapon skills that skillchain with the given weapon skill', L{
-        PickerConfigItem.new('weapon_skill_name', 'Fast Blade', L{ 'Fast Blade' }, nil, "Weapon Skill Name"), -- TODO: add weapon skills
+        PickerConfigItem.new('weapon_skill_name', ability_names[1], ability_names, nil, "Weapon Skill Name")
     })
     self:add_command('build', self.handle_build, 'Builds a skillchain with the current equipped weapon, // trust sc build skillchain_property num_steps', L{
         PickerConfigItem.new('skillchain_property', 'Light Lv.4', skillchain_util.all_skillchain_properties(), nil, "Skillchain Property"),
         ConfigItem.new('num_steps', 2, 6, 1, nil, "Number of Steps"),
     })
     self:add_command('default', self.handle_set_default, 'Sets the default weapon skill to use when no skillchains can be made, // trust sc weapon_skill_name', L{
-        PickerConfigItem.new('weapon_skill_name', 'Fast Blade', L{ 'Fast Blade' }, nil, "Weapon Skill Name"), -- TODO: add weapon skills
+        PickerConfigItem.new('weapon_skill_name', ability_names[1], ability_names, nil, "Weapon Skill Name")
     })
+
+    self:get_skillchainer():on_abilities_changed():addAction(function(_, abilities)
+        local ability_names = L(S(abilities:map(function(a) return a:get_name() end)))
+
+        self:add_command('spam', self.handle_toggle_spam, 'Spam the same weapon skill, // trust sc spam ability_name', L{
+            PickerConfigItem.new('weapon_skill_name', ability_names[1], ability_names, nil, "Weapon Skill Name")
+        })
+        self:add_command('set', self.handle_set_step, 'Sets a step of a skillchain, // trust sc set step_num weapon_skill_name', L{
+            ConfigItem.new('step_num', 1, 5, 1, function(value) return value end, "Step Number"),
+            PickerConfigItem.new('weapon_skill_name', ability_names[1], ability_names, nil, "Weapon Skill Name")
+        })
+        self:add_command('default', self.handle_set_default, 'Sets the default weapon skill to use when no skillchains can be made, // trust sc weapon_skill_name', L{
+            PickerConfigItem.new('weapon_skill_name', ability_names[1], ability_names, nil, "Weapon Skill Name")
+        })
+    end)
 
     return self
 end

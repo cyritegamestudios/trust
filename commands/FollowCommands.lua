@@ -13,6 +13,13 @@ function FollowTrustCommands.new(trust, action_queue)
     local party_member_names = trust:get_party():get_party_members(true):map(function(p) return p:get_name() end)
 
     self:add_command('default', self.handle_follow_party_member, 'Follow a player, // trust follow player_name', L{ PickerConfigItem.new('party_member_name', party_member_names[1], party_member_names, nil, "Party Member Name"), })
+
+    trust:get_party():on_party_members_changed():addAction(function(party_members)
+        local party_member_names = party_members:map(function(p) return p:get_name() end)
+
+        self:add_command('default', self.handle_follow_party_member, 'Follow a player, // trust follow player_name', L{ PickerConfigItem.new('party_member_name', party_member_names[1], party_member_names, nil, "Party Member Name") })
+    end)
+
     self:add_command('me', self.handle_follow_me, 'Make all players follow me')
     self:add_command('start', self.handle_start, 'Resume following')
     self:add_command('stopall', self.handle_stop_all, 'Pause following for all players')

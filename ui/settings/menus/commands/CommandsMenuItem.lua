@@ -35,7 +35,7 @@ function CommandsMenuItem:reloadSettings(commands)
     for command in commands:it() do
         local commandName = command:get_localized_command_name():gsub("^%l", string.upper)
 
-        local commandInfoMenuItem = MenuItem.new(L{
+        local configureMenuItem = MenuItem.new(L{
             ButtonItem.default('Confirm', 18)
         }, {}, function(_, infoView)
             if self.selectedCommand then
@@ -61,22 +61,37 @@ function CommandsMenuItem:reloadSettings(commands)
             return nil
         end, commandName, "Configure command.")
 
-        self:setChildMenuItem(commandName, MenuItem.new(L{
-            ButtonItem.default('Configure', 18),
+        local commandMenuItem = MenuItem.new(L{
+            ButtonItem.default('Confirm', 18),
         }, {
-            Configure = commandInfoMenuItem
-        }, function(_, infoView)
+            Confirm = configureMenuItem
+        }, nil, commandName, "Choose a command.")
+
+        commandMenuItem.contentViewConstructor = function(_, infoView)
             local allCommands = command:get_all_commands():sort()
+
+            self.selectedCommand = allCommands[1]
 
             local commandList = FFXIPickerView.withItems(allCommands, allCommands[1], false, nil, nil, FFXIClassicStyle.WindowSize.Picker.Wide, true)
             commandList:setAllowsCursorSelection(true)
-
             commandList:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
                 local item = allCommands[indexPath.row]
                 if item then
                     self.selectedCommand = item
 
                     local args = string.split(item, " ")
+
+                    local commandArgs = command:get_args(args[4])
+                    if commandArgs:length() > 0 then
+                        commandMenuItem:setChildMenuItem("Confirm", configureMenuItem)
+                    else
+                        commandMenuItem:setChildMenuItem("Confirm", MenuItem.action(function(_)
+                            coroutine.schedule(function()
+                                hud:closeAllMenus()
+                                windower.send_command('input '..self.selectedCommand)
+                            end, 0.1)
+                        end), commandName, "Choose a command.")
+                    end
 
                     infoView:setTitle(commandName)
 
@@ -88,7 +103,9 @@ function CommandsMenuItem:reloadSettings(commands)
                 end
             end)
             return commandList
-        end, commandName, "Choose a command."))
+        end
+
+        self:setChildMenuItem(commandName, commandMenuItem)
     end
 end
 

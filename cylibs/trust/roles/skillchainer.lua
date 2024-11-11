@@ -49,6 +49,11 @@ function Skillchainer:on_skills_changed()
     return self.skills_changed
 end
 
+-- Event called when the list of abilities have changed.
+function Skillchainer:on_abilities_changed()
+    return self.abilities_changed
+end
+
 function Skillchainer.new(action_queue, weapon_skill_settings)
     local self = setmetatable(Role.new(action_queue), Skillchainer)
 
@@ -65,6 +70,7 @@ function Skillchainer.new(action_queue, weapon_skill_settings)
     self.skillchain = Event.newEvent();
     self.skillchain_ended = Event.newEvent();
     self.skills_changed = Event.newEvent();
+    self.abilities_changed = Event.newEvent();
 
     self.dispose_bag = DisposeBag.new()
 
@@ -80,6 +86,7 @@ function Skillchainer:destroy()
     self:on_skillchain():removeAllActions()
     self:on_skillchain_ended():removeAllActions()
     self:on_skills_changed():removeAllActions()
+    self:on_abilities_changed():removeAllActions()
 
     self.dispose_bag:destroy()
 end
@@ -348,6 +355,7 @@ function Skillchainer:update_abilities()
     self.skillchain_builder:set_abilities(abilities)
 
     self:on_skills_changed():trigger(self, self.active_skills)
+    self:on_abilities_changed():trigger(self, abilities)
 end
 
 function Skillchainer:allows_duplicates()

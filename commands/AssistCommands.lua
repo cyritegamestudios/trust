@@ -22,6 +22,15 @@ function AssistTrustCommands.new(trust, action_queue)
     self:add_command('clear', self.handle_clear_assist, 'Clear assist target')
     self:add_command('party', self.handle_lock_target, 'Locks your target on the party\'s current battle target')
 
+    trust:get_party():on_party_members_changed():addAction(function(party_members)
+        local party_member_names = party_members:map(function(p) return p:get_name() end)
+
+        self:add_command('default', self.handle_assist_player, 'Assist a party or alliance member, // trust assist player_name mirror', L{
+            PickerConfigItem.new('party_member_name', party_member_names[1], party_member_names, nil, "Party Member Name"),
+            PickerConfigItem.new('mirror', "true", L{ "true", "false" }, nil, "Mirror Combat Position")
+        })
+    end)
+
     return self
 end
 
