@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '12.0.0'
+_addon.version = '12.0.1'
 _addon.release_notes = [[
 This update introduces new menus for Bard, autocomplete for Trust
 commands, new commands and important bug fixes for users running the
@@ -370,7 +370,7 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_trust, acti
 
 			local args = string.split(term, " ")
 			if args[3] and args[4] and shortcuts[args[3]] and type(shortcuts[args[3]]) ~= 'function' then
-				description = shortcuts[args[3]]:get_description(args[4]).."."
+				description = shortcuts[args[3]]:get_description(args[4], true)
 			end
 			if description == nil or description:empty() then
 				description = term

@@ -15,7 +15,7 @@ function BlackMageTrustCommands.new(trust, action_queue)
     self:add_command('default', self.handle_show_blacklist, 'See enabled elements')
 
     local elements = L{ 'fire', 'ice', 'wind', 'earth', 'lightning', 'water', 'light', 'dark' }
-    self:add_command('toggle', self.handle_toggle_element, 'Toggle an element for nuking and magic bursting, // trust nuke toggle element_name', L{
+    self:add_command('toggle', self.handle_toggle_element, 'Toggle an element for nuking and magic bursting', L{
         PickerConfigItem.new('element_name', elements[1], elements, function(v) return v:gsub("^%l", string.upper) end, "Element"),
     })
     self:add_command('reset', self.handle_reset_blacklist, 'Re-enable all elements')

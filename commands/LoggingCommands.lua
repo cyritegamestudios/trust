@@ -10,8 +10,8 @@ function LoggingTrustCommands.new(trust, action_queue)
     self.trust = trust
     self.action_queue = action_queue
 
-    self:add_command('default', self.handle_toggle, 'Toggle debug logging, // trust log')
-    self:add_command('filter', self.handle_set_filter, 'Filter by logs containing the specified text, // trust log filter filter_pattern', L{
+    self:add_command('default', self.handle_toggle, 'Toggle debug logging')
+    self:add_command('filter', self.handle_set_filter, 'Filter by logs containing the specified text', L{
         TextInputConfigItem.new('filter_pattern', '', 'Filter Pattern', function(_) return true  end)
     })
     self:add_command('all', self.handle_clear_filter, 'Clear filters and log everything')

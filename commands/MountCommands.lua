@@ -27,16 +27,16 @@ function MountCommands.new(trust, action_queue)
 
     self:add_command('default', function(mount_name)
         return self:handle_mount('Raptor')
-    end, 'Calls forth a mount, // trust mount mount_name', L{
+    end, 'Calls forth a mount', L{
         PickerConfigItem.new('mount_name', mount_names[1], mount_names, nil, "Mount Name"),
     })
 
-    self:add_command('random', self.handle_random_mount, 'Calls forth a random mount, // trust mount random')
+    self:add_command('random', self.handle_random_mount, 'Calls forth a random mount')
 
-    self:add_command('all', self.handle_mount_all, 'Calls forth a mount on all characters, // trust mount all mount_name', L{
+    self:add_command('all', self.handle_mount_all, 'Calls forth a mount on all characters', L{
         PickerConfigItem.new('mount_name', mount_names[1], mount_names, nil, "Mount Name"),
     })
-    self:add_command('dismount', self.handle_dismount, 'Dismounts if mounted, // trust mount dismount all', L{
+    self:add_command('dismount', self.handle_dismount, 'Dismounts if mounted', L{
         PickerConfigItem.new('all', '', L{ '', 'all' }, function(value)
             if value == 'all' then
                 return 'Party'

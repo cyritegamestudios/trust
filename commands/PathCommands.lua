@@ -18,10 +18,10 @@ function PathTrustCommands.new(trust, action_queue)
     self.dispose_bag = DisposeBag.new()
 
     self:add_command('record', self.handle_record_path, 'Start recording a path or discard the current path')
-    self:add_command('save', self.handle_save_path, 'Save a recorded path, // trust path save path_name', L{
+    self:add_command('save', self.handle_save_path, 'Save a recorded path', L{
         TextInputConfigItem.new('path_name', '', 'Path Name', function(_) return true  end)
     })
-    self:add_command('start', self.handle_start_path, 'Loads and starts a saved path, // trust path start path_name reverse', L{
+    self:add_command('start', self.handle_start_path, 'Loads and starts a saved path', L{
         TextInputConfigItem.new('path_name', '', 'Path Name', function(_) return true  end),
         PickerConfigItem.new('reverse', false, L{ true, false }, nil, "Reverse")
     })
