@@ -65,6 +65,21 @@ local aftermath_weapon_skills = {
     ["Hvergelmir"] = 190,
     ["Gandiva"] = 202,
     ["Armageddon"] = 220,
+    -- Relic
+    ["Spharai"] = 10,
+    ["Mandau"] = 26,
+    ["Excalibur"] = 43,
+    ["Ragnarok"] = 57,
+    ["Guttler"] = 73,
+    ["Bravura"] = 89,
+    ["Apocalypse"] = 105,
+    ["Gungnir"] = 121,
+    ["Kikoku"] = 137,
+    ["Amanomurakumo"] = 153,
+    ["Mjollnir"] = 170,
+    ["Claustrum"] = 185,
+    ["Yoichinoyumi"] = 200,
+    ["Annihilator"] = 216,
     -- Prime
 }
 
