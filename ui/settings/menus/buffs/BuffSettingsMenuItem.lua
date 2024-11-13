@@ -25,7 +25,7 @@ function BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsPref
     self.showJobs = showJobs
     self.dispose_bag = DisposeBag.new()
 
-    self.contentViewConstructor = function(menuArgs, infoView)
+    self.contentViewConstructor = function(_, infoView)
         local buffs
         if settingsPrefix then
             buffs = T(trustSettings:getSettings())[trustSettingsMode.value][settingsPrefix][settingsKey]
