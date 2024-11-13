@@ -319,6 +319,7 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_trust, acti
 		SendAllCommands.new(main_job_trust, action_queue),
 		SendCommands.new(main_job_trust, action_queue),
 		SkillchainCommands.new(main_job_trust, weapon_skill_settings, action_queue),
+		SoundCommands.new(hud.mediaPlayer),
 		WidgetCommands.new(main_job_trust, action_queue, addon_settings, hud.widgetManager),
 	}:extend(get_job_commands(job_name_short, main_job_trust, action_queue, main_trust_settings))
 
