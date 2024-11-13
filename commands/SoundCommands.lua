@@ -1,6 +1,3 @@
-local MountAction = require('cylibs/actions/mount')
-local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
-
 local TrustCommands = require('cylibs/trust/commands/trust_commands')
 local SoundCommands = setmetatable({}, {__index = TrustCommands })
 SoundCommands.__index = SoundCommands
@@ -28,7 +25,7 @@ function SoundCommands:get_command_name()
     return 'sounds'
 end
 
--- // trust sound
+-- // trust sounds
 function SoundCommands:handle_toggle_sound()
     if self.mediaPlayer:isEnabled() then
         return self:handle_set_sound_enabled(false)
@@ -37,7 +34,7 @@ function SoundCommands:handle_toggle_sound()
     end
 end
 
--- // trust sound [enable | disable]
+-- // trust sounds [enable | disable]
 function SoundCommands:handle_set_sound_enabled(is_enabled)
     local success = true
     local message

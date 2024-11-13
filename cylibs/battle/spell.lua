@@ -245,10 +245,16 @@ function Spell:to_action(target_index, player, job_abilities)
     return SequenceAction.new(actions, 'spell_'..self:get_spell().en)
 end
 
+-------
+-- Sets whether the spell is enabled.
+-- @tparam Boolean enabled The new value for enabled
 function Spell:setEnabled(enabled)
     self.enabled = enabled
 end
 
+-------
+-- Gets whether the spell is enabled.
+-- @treturn Boolean True if the spell is enabled
 function Spell:isEnabled()
     return self.enabled
 end
