@@ -33,6 +33,7 @@ function JobAbility.new(job_ability_name, conditions, job_names, target)
         target = target;
         valid_targets = job_ability.targets;
         resource = 'job_abilities';
+        enabled = true;
     }, JobAbility)
 
     if self:get_job_ability().type ~= 'Scholar' then
@@ -115,6 +116,20 @@ end
 -- @treturn Boolean True if the player knows this spell
 function JobAbility:is_valid()
     return job_util.knows_job_ability(job_util.job_ability_id(self:get_job_ability_name()))
+end
+
+-------
+-- Sets whether the job ability is enabled.
+-- @tparam Boolean enabled The new value for enabled
+function JobAbility:setEnabled(enabled)
+    self.enabled = enabled
+end
+
+-------
+-- Gets whether the job ability is enabled.
+-- @treturn Boolean True if the job ability is enabled
+function JobAbility:isEnabled()
+    return self.enabled
 end
 
 -------

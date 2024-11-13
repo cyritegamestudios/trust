@@ -105,7 +105,7 @@ function Buffer:check_buffs()
     if self.job_abilities_enabled then
         for job_ability in self.job_abilities:it() do
             local buff = buff_util.buff_for_job_ability(job_ability:get_job_ability_id())
-            if buff and not buff_util.is_buff_active(buff.id, player_buff_ids)
+            if buff and job_ability:isEnabled() and not buff_util.is_buff_active(buff.id, player_buff_ids)
                     and not buff_util.conflicts_with_buffs(buff.id, player_buff_ids) then
                 if job_util.can_use_job_ability(job_ability:get_job_ability_name()) and self:conditions_check(job_ability, windower.ffxi.get_player()) then
                     self.last_buff_time = os.time()
@@ -126,7 +126,7 @@ function Buffer:check_buffs()
 
         for spell in self.self_spells:it() do
             local buff = buff_util.buff_for_spell(spell:get_spell().id)
-            if buff and not buff_util.is_buff_active(buff.id, player_buff_ids) and not buff_util.conflicts_with_buffs(buff.id, player_buff_ids)
+            if buff and spell:isEnabled() and not buff_util.is_buff_active(buff.id, player_buff_ids) and not buff_util.conflicts_with_buffs(buff.id, player_buff_ids)
                     and spell_util.can_cast_spell(spell:get_spell().id) then
                 if self:range_check(spell) then
                     local target = self:get_spell_target(spell)
@@ -148,7 +148,7 @@ function Buffer:check_buffs()
             if party_member:is_alive() then
                 for spell in self.party_spells:it() do
                     local buff = buff_util.buff_for_spell(spell:get_spell().id)
-                    if buff and not (party_member:has_buff(buff.id) or (party_member:is_trust() and self.buff_tracker:has_buff(party_member:get_mob().id, buff.id)))
+                    if buff and spell:isEnabled() and not (party_member:has_buff(buff.id) or (party_member:is_trust() and self.buff_tracker:has_buff(party_member:get_mob().id, buff.id)))
                             and not (buff_util.conflicts_with_buffs(buff.id, party_member:get_buff_ids()))
                             and self:job_names_check(spell, party_member) and spell_util.can_cast_spell(spell:get_spell().id) then
                         local target = party_member:get_mob()

@@ -34,6 +34,7 @@ function Spell.new(spell_name, job_abilities, job_names, target, conditions, con
         target = target;
         consumable = consumable;
         conditions = conditions or L{};
+        enabled = true;
     }, Spell)
 
     if S(res.spells:with('en', spell_name)):contains('Party') then
@@ -242,6 +243,14 @@ function Spell:to_action(target_index, player, job_abilities)
     actions:append(WaitAction.new(0, 0, 0, 2))
 
     return SequenceAction.new(actions, 'spell_'..self:get_spell().en)
+end
+
+function Spell:setEnabled(enabled)
+    self.enabled = enabled
+end
+
+function Spell:isEnabled()
+    return self.enabled
 end
 
 -------

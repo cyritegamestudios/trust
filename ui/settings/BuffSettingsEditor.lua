@@ -114,7 +114,7 @@ function BuffSettingsEditor:reloadSettings()
     for spell in self.buffs:it() do
         local imageItem = AssetManager.imageItemForSpell(spell:get_name())
         local textItem = TextItem.new(spell:get_spell().en, TextStyle.Default.PickerItem)
-        textItem:setEnabled(spell_util.knows_spell(spell:get_spell().id) and checkJob(spell))
+        textItem:setEnabled(spell_util.knows_spell(spell:get_spell().id) and checkJob(spell) and spell:isEnabled())
         items:append(IndexedItem.new(ImageTextItem.new(imageItem, textItem), IndexPath.new(1, rowIndex)))
         rowIndex = rowIndex + 1
     end

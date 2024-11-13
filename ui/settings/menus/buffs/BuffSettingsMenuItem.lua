@@ -15,6 +15,7 @@ function BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsPref
         ButtonItem.default('Remove', 18),
         ButtonItem.default('Edit', 18),
         ButtonItem.default('Conditions', 18),
+        ButtonItem.default('Toggle', 18),
         ButtonItem.default('Reset', 18),
     }, {}, nil, "Buffs", descriptionText), BuffSettingsMenuItem)
 
@@ -40,7 +41,7 @@ function BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsPref
         self.dispose_bag:add(buffSettingsView:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
             local item = buffSettingsView:getDataSource():itemAtIndexPath(indexPath)
             if item and not item:getTextItem():getEnabled() then
-                infoView:setDescription("Unavailable on current job.")
+                infoView:setDescription("Unavailable on current job or settings.")
             else
                 local buff = buffs[indexPath.row]
                 if buff then
@@ -51,6 +52,8 @@ function BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsPref
                 end
             end
         end, buffSettingsView:getDelegate():didMoveCursorToItemAtIndexPath()))
+
+        self.buffSettingsView = buffSettingsView
 
         return buffSettingsView
     end
@@ -69,6 +72,7 @@ end
 function BuffSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Add", self:getAddBuffMenuItem())
     self:setChildMenuItem("Edit", self:getEditBuffMenuItem())
+    self:setChildMenuItem("Toggle", self:getToggleBuffMenuItem())
     self:setChildMenuItem("Conditions", self:getConditionsMenuItem())
     self:setChildMenuItem("Reset", self:getResetMenuItem())
 end
@@ -118,6 +122,22 @@ function BuffSettingsMenuItem:getEditBuffMenuItem()
                 return self.buffs and self.buffs:length() > 0
             end)
     return editBuffMenuItem
+end
+
+function BuffSettingsMenuItem:getToggleBuffMenuItem()
+    return MenuItem.action(function(menu)
+        local selectedIndexPath = self.buffSettingsView:getDelegate():getCursorIndexPath()
+        if selectedIndexPath then
+            local item = self.buffSettingsView:getDataSource():itemAtIndexPath(selectedIndexPath)
+            if item then
+                local enabled = not item:getEnabled()
+                item:setEnabled(enabled)
+                self.buffSettingsView:getDataSource():updateItem(item, selectedIndexPath)
+
+                self.buffs[selectedIndexPath.row]:setEnabled(enabled)
+            end
+        end
+    end, "Gambits", "Temporarily enable or disable the selected gambit until the addon reloads.")
 end
 
 function BuffSettingsMenuItem:getConditionsMenuItem()
