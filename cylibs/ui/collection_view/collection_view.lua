@@ -278,7 +278,7 @@ function CollectionView:setHasFocus(hasFocus)
 end
 
 function CollectionView:playSoundsForKey(keyName)
-    if self.mediaPlayer == nil or self.soundTheme == nil then
+    if self.mediaPlayer == nil or self.soundTheme == nil or self.isScrolling then
         return
     end
     if keyName == 'Escape' then
@@ -301,6 +301,7 @@ function CollectionView:onKeyboardEvent(key, pressed, flags, blocked)
         local currentIndexPath = self:getDelegate():getCursorIndexPath()
         if currentIndexPath then
             if key == 208 then
+                self.isScrolling = true
                 if self:canScroll() then
                     local nextIndexPath = self:getDataSource():getNextIndexPath(currentIndexPath, self.allowsScrollWrap)
                     local cell = self:getDataSource():cellForItemAtIndexPath(nextIndexPath)
@@ -311,6 +312,7 @@ function CollectionView:onKeyboardEvent(key, pressed, flags, blocked)
                 end
                 return true
             elseif key == 200 then
+                self.isScrolling = true
                 if self:canScroll() then
                     local nextIndexPath = self:getDataSource():getPreviousIndexPath(currentIndexPath, self.allowsScrollWrap)
                     local cell = self:getDataSource():cellForItemAtIndexPath(nextIndexPath)
@@ -334,6 +336,8 @@ function CollectionView:onKeyboardEvent(key, pressed, flags, blocked)
                 self:getDelegate():selectItemAtIndexPath(self:getDelegate():getCursorIndexPath())
             end
         end
+    else
+        self.isScrolling = false
     end
     return L{200, 208}:contains(key)
 end
