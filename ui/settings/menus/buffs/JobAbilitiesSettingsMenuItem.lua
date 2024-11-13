@@ -33,6 +33,8 @@ function JobAbilitiesSettingsMenuItem.new(trustSettings, trustSettingsMode, sett
         self.buffs = jobAbilities
 
         local jobAbilitiesSettingsView = JobAbilitiesSettingsEditor.new(self.trustSettings, self.trustSettingsMode, self.settingsPrefix)
+        jobAbilitiesSettingsView:setShouldRequestFocus(self.buffs and self.buffs:length() > 0)
+
         self.dispose_bag:add(jobAbilitiesSettingsView:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
             local item = jobAbilitiesSettingsView:getDataSource():itemAtIndexPath(indexPath)
             if item and not item:getTextItem():getEnabled() then

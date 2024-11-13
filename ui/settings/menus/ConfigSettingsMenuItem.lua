@@ -16,7 +16,7 @@ function ConfigSettingsMenuItem.new(addonSettings, mediaPlayer)
         ButtonItem.default('Remote', 18),
         ButtonItem.default('Sounds', 18),
         ButtonItem.default('Language', 18),
-    }, {}, nil, "Config", "Change Trust's options."), ConfigSettingsMenuItem)
+    }, {}, nil, "Config", "Configure addon settings."), ConfigSettingsMenuItem)
 
     self.mediaPlayer = mediaPlayer
 

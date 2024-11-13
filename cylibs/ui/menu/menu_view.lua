@@ -43,6 +43,7 @@ function MenuView.new(menuItem, viewStack, infoView, showMenu, mediaPlayer)
     self.infoView = infoView
     self.showMenu = showMenu
 
+    self:setVisible(false)
     self:setScrollEnabled(false)
     self:setItem(menuItem)
     self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))

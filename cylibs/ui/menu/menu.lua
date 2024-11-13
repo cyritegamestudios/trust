@@ -138,9 +138,9 @@ function Menu:showMenu(menuItem)
     self:onMoveCursorToIndexPath(cursorIndexPath)
 
     if self.viewStack:isEmpty() then
-        self.mediaPlayer:playSound(self.soundTheme:getSoundForAction(SoundTheme.UI.Menu.Open))
         self.viewStack:present(self.menuView)
         self.menuView:requestFocus()
+        self.mediaPlayer:playSound(self.soundTheme:getSoundForAction(SoundTheme.UI.Menu.Open))
     end
 
     self:requestFocus()

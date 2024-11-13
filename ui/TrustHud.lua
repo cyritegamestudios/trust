@@ -42,7 +42,6 @@ local BlackMageWidget = require('ui/widgets/BlackMageWidget')
 local ShooterSettingsMenuItem = require('ui/settings/menus/ShooterSettingsMenuItem')
 local SingerView = require('ui/views/SingerView')
 local SongSettingsMenuItem = require('ui/settings/menus/songs/SongSettingsMenuItem')
-local SoundTheme = require('cylibs/sounds/sound_theme')
 local SpellPickerView = require('ui/settings/pickers/SpellPickerView')
 local spell_util = require('cylibs/util/spell_util')
 local TargetWidget = require('ui/widgets/TargetWidget')
@@ -64,19 +63,6 @@ TrustHud.__index = TrustHud
 function TrustHud:onEnabledClick()
     return self.enabledClick
 end
-
-TextStyle.TargetView = TextStyle.new(
-        Color.clear,
-        Color.clear,
-        "Arial",
-        12,
-        Color.white,
-        Color.red,
-        2,
-        1,
-        Color.black,
-        true
-)
 
 function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, addon_enabled, menu_width, menu_height)
     local self = setmetatable(View.new(), TrustHud)
@@ -335,8 +321,10 @@ function TrustHud:getMainMenuItem()
         ButtonItem.default(player.sub_job_name, 18),
         ButtonItem.default('Profiles', 18),
         ButtonItem.default('Commands', 18),
+        ButtonItem.default('Config', 18),
     }, {
         Profiles = LoadSettingsMenuItem.new(self.addon_settings, self.trustModeSettings, main_trust_settings, weapon_skill_settings, sub_trust_settings),
+        Config = ConfigSettingsMenuItem.new(self.addon_settings, self.mediaPlayer),
     }, nil, "Jobs")
 
     self.mainMenuItem = mainMenuItem
@@ -699,14 +687,12 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
     local mainMenuItem = MenuItem.new(L{
         ButtonItem.default('Status', 18),
         ButtonItem.default('Settings', 18),
-        ButtonItem.default('Config', 18),
         ButtonItem.default('Help', 18),
         ButtonItem.default('Donate', 18),
         ButtonItem.default('Discord', 18),
     }, {
         Status = statusMenuItem,
         Settings = settingsMenuItem,
-        Config = configSettingsItem,
         Help = helpMenuItem,
         Donate = MenuItem.action(function()
             windower.open_url(self.addon_settings:getSettings().donate.url)

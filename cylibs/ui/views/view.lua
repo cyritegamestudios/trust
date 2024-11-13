@@ -237,6 +237,7 @@ function View:setBackgroundImageView(backgroundImageView)
             return
         end
         self.backgroundImageView = backgroundImageView
+        self.backgroundImageView:setVisible(self:isVisible())
 
         self:addSubview(self.backgroundImageView)
 
