@@ -15,12 +15,14 @@ local HealerSettingsMenuItem = require('ui/settings/menus/healing/HealerSettings
 local DebuffSettingsEditor = require('ui/settings/DebuffSettingsEditor')
 local DebugView = require('cylibs/actions/ui/debug_view')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
+local FFXISoundTheme = require('sounds/FFXISoundTheme')
 local FollowSettingsMenuItem = require('ui/settings/menus/FollowSettingsMenuItem')
 local Frame = require('cylibs/ui/views/frame')
 local GambitSettingsMenuItem = require('ui/settings/menus/gambits/GambitSettingsMenuItem')
 local GameInfo = require('cylibs/util/ffxi/game_info')
 local JobGambitSettingsMenuItem = require('ui/settings/menus/gambits/JobGambitSettingsMenuItem')
 local Keyboard = require('cylibs/ui/input/keyboard')
+local MediaPlayer = require('cylibs/sounds/media_player')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 local PullSettingsMenuItem = require('ui/settings/menus/pulling/PullSettingsMenuItem')
@@ -38,6 +40,7 @@ local BlackMageWidget = require('ui/widgets/BlackMageWidget')
 local ShooterSettingsMenuItem = require('ui/settings/menus/ShooterSettingsMenuItem')
 local SingerView = require('ui/views/SingerView')
 local SongSettingsMenuItem = require('ui/settings/menus/songs/SongSettingsMenuItem')
+local SoundTheme = require('cylibs/sounds/sound_theme')
 local SpellPickerView = require('ui/settings/pickers/SpellPickerView')
 local spell_util = require('cylibs/util/spell_util')
 local TargetWidget = require('ui/widgets/TargetWidget')
@@ -79,6 +82,8 @@ function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, a
     CollectionView.setDefaultStyle(FFXIClassicStyle.default())
     CollectionView.setDefaultBackgroundStyle(FFXIClassicStyle.background())
 
+    self.mediaPlayer = MediaPlayer.new(windower.addon_path..'sounds')
+    self.soundTheme = FFXISoundTheme.default()
     self.lastMenuToggle = os.time()
     self.menuSize = Frame.new(0, 0, menu_width, menu_height)
     self.viewStack = ViewStack.new(Frame.new(16, 48, 0, 0))
@@ -104,7 +109,7 @@ function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, a
 
     self:createWidgets(addon_settings, addon_enabled, action_queue, player.party, player.trust.main_job)
 
-    self.trustMenu = Menu.new(self.viewStack, self.menuViewStack, self.infoBar)
+    self.trustMenu = Menu.new(self.viewStack, self.menuViewStack, self.infoBar, self.mediaPlayer, self.soundTheme)
 
     self.tabbed_view = nil
     self.backgroundImageView = self:getBackgroundImageView()

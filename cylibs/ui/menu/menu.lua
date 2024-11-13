@@ -1,5 +1,6 @@
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Keyboard = require('cylibs/ui/input/keyboard')
+local SoundTheme = require('cylibs/sounds/sound_theme')
 local FocusManager = require('cylibs/ui/focus/focus_manager')
 local MenuView = require('cylibs/ui/menu/menu_view')
 
@@ -8,7 +9,7 @@ Menu.__index = Menu
 Menu.__type = "Menu"
 
 
-function Menu.new(contentViewStack, viewStack, infoView)
+function Menu.new(contentViewStack, viewStack, infoView, mediaPlayer, soundTheme)
     local self = setmetatable({}, Menu)
 
     self.buttonHeight = 16
@@ -19,6 +20,8 @@ function Menu.new(contentViewStack, viewStack, infoView)
     self.contentViewStack = contentViewStack
     self.viewStack = viewStack
     self.infoView = infoView
+    self.mediaPlayer = mediaPlayer
+    self.soundTheme = soundTheme
 
     self.disposeBag:addAny(L{ self.viewStack })
 
@@ -79,7 +82,7 @@ function Menu:showMenu(menuItem)
     end
 
     if not self.menuView then
-        self.menuView = MenuView.new(menuItem, self.contentViewStack, self.infoView, function(menuItem) self:showMenu(menuItem) end)
+        self.menuView = MenuView.new(menuItem, self.contentViewStack, self.infoView, function(menuItem) self:showMenu(menuItem) end, self.mediaPlayer)
         self.menuView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
             self.menuView:getDelegate():deselectAllItems()
 
@@ -93,6 +96,7 @@ function Menu:showMenu(menuItem)
             local childMenuItem = self.menuView:getItem():getChildMenuItem(textItem:getText())
             if childMenuItem then
                 if not childMenuItem:isEnabled() then
+                    self.mediaPlayer:playSound(self.soundTheme:getSoundForAction(SoundTheme.UI.Menu.Error))
                     addon_system_message("Unable to perform this action.")
                     return
                 end
@@ -134,6 +138,7 @@ function Menu:showMenu(menuItem)
     self:onMoveCursorToIndexPath(cursorIndexPath)
 
     if self.viewStack:isEmpty() then
+        self.mediaPlayer:playSound(self.soundTheme:getSoundForAction(SoundTheme.UI.Menu.Open))
         self.viewStack:present(self.menuView)
         self.menuView:requestFocus()
     end
@@ -161,24 +166,36 @@ function Menu:onMoveCursorToIndexPath(cursorIndexPath)
     self:updateInfoView(childMenuItem, self.menuView:getItem())
 end
 
+function Menu:playSoundsForKey(keyName)
+    if keyName == 'Enter' then
+        self.mediaPlayer:playSound(self.soundTheme:getSoundForAction(SoundTheme.UI.Menu.Enter))
+    elseif keyName == 'Escape' then
+        self.mediaPlayer:playSound(self.soundTheme:getSoundForAction(SoundTheme.UI.Menu.Escape))
+    elseif S{ 'Up', 'Down', 'Left', 'Right' }:contains(keyName) then
+        self.mediaPlayer:playSound(self.soundTheme:getSoundForAction(SoundTheme.UI.Menu.Cursor))
+    end
+end
+
 function Menu:onKeyboardEvent(key, pressed, flags, blocked)
     if windower.ffxi.get_info().chat_open or blocked then
         return blocked
     end
     if pressed then
-        -- left
-        if key == 203 then
+        local keyName = Keyboard.input():getKey(key, flags)
+
+        self:playSoundsForKey(keyName)
+
+        if keyName == 'Left' then
             local currentView = self.contentViewStack:getCurrentView()
             if currentView and currentView:shouldRequestFocus() then
                 currentView:requestFocus()
             end
-        -- right
-        elseif key == 205 then
+        elseif keyName == 'Right' then
             local currentView = self.contentViewStack:getCurrentView()
             if currentView and currentView:hasFocus() then
                 currentView:resignFocus()
             end
-        elseif key == 1 then
+        elseif keyName == 'Escape' then
             if self.menuItemStack:length() > 1 then
                 self.menuItemStack:remove(self.menuItemStack:length())
                 self.menuView:setItem(self.menuItemStack[self.menuItemStack:length()])

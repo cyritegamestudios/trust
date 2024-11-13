@@ -38,7 +38,7 @@ function Keyboard.new()
         [0x06] = "5",     [0x07] = "6",     [0x08] = "7",     [0x09] = "8",
         [0x0A] = "9",     [0x0B] = "0",
         [0x0E] = "Backspace", [0x039] = " ",
-        [0xCB] = "Left", [0xCD] = "Right", [0xC8] = "Up",
+        [0xCB] = "Left", [0xCD] = "Right", [0xC8] = "Up", [0xD0] = "Down", [0x1C] = "Enter",
         [0x01] = "Escape", [0x2A] = "LShift",
         [0x0C] = "Minus",
         [0x1D] = "LControl", [0x9D] = "RControl",
