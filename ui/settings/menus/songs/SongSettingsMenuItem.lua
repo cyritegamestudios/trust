@@ -25,7 +25,7 @@ function SongSettingsMenuItem.new(addonSettings, trustSettings, trustSettingsMod
         ButtonItem.default('Diagnostics', 18),
         ButtonItem.default('Help', 18),
     }, {},
-    function()
+    function(_, _, _, _)
         local songSettingsView = SongSettingsEditor.new(trustSettings, trustSettingsMode, addonSettings:getSettings().help.wiki_base_url..'/Singer')
         songSettingsView:setShouldRequestFocus(true)
         return songSettingsView

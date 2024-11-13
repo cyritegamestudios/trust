@@ -15,7 +15,9 @@ local HealerSettingsMenuItem = require('ui/settings/menus/healing/HealerSettings
 local DebuffSettingsEditor = require('ui/settings/DebuffSettingsEditor')
 local DebugView = require('cylibs/actions/ui/debug_view')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
+local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local FFXISoundTheme = require('sounds/FFXISoundTheme')
+local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
 local FollowSettingsMenuItem = require('ui/settings/menus/FollowSettingsMenuItem')
 local Frame = require('cylibs/ui/views/frame')
 local GambitSettingsMenuItem = require('ui/settings/menus/gambits/GambitSettingsMenuItem')
@@ -84,6 +86,12 @@ function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, a
 
     self.mediaPlayer = MediaPlayer.new(windower.addon_path..'sounds')
     self.soundTheme = FFXISoundTheme.default()
+
+    FFXIWindow.setDefaultMediaPlayer(self.mediaPlayer)
+    FFXIWindow.setDefaultSoundTheme(self.soundTheme)
+    FFXIPickerView.setDefaultMediaPlayer(self.mediaPlayer)
+    FFXIPickerView.setDefaultSoundTheme(self.soundTheme)
+
     self.lastMenuToggle = os.time()
     self.menuSize = Frame.new(0, 0, menu_width, menu_height)
     self.viewStack = ViewStack.new(Frame.new(16, 48, 0, 0))
@@ -224,7 +232,7 @@ function TrustHud:createWidgets(addon_settings, addon_enabled, action_queue, par
     local targetWidget = TargetWidget.new(Frame.new(0, 0, 125, 40), addon_settings, party, trust)
     self.widgetManager:addWidget(targetWidget, "target")
 
-    local partyStatusWidget = PartyStatusWidget.new(Frame.new(0, 0, 125, 55), addon_settings, party, trust)
+    local partyStatusWidget = PartyStatusWidget.new(Frame.new(0, 0, 125, 55), addon_settings, party, trust, self.mediaPlayer, self.soundTheme)
     self.widgetManager:addWidget(partyStatusWidget, "party")
 
     local pathWidget = PathWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), self, main_trust_settings, state.MainTrustSettingsMode, trust)

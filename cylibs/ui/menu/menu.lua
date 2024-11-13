@@ -116,7 +116,7 @@ function Menu:showMenu(menuItem)
                     if currentView then
                         menuArgs = currentView and type(currentView.getMenuArgs) == 'function' and currentView:getMenuArgs()
                     end
-                    local contentView = childMenuItem:getContentView(menuArgs, self.infoView)
+                    local contentView = childMenuItem:getContentView(menuArgs, self.infoView, self.mediaPlayer, self.soundTheme)
                     if contentView then
                         self.menuView.views:append(contentView)
                         self.contentViewStack:present(contentView)

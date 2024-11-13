@@ -1,8 +1,10 @@
 local CollectionViewDelegate = require('cylibs/ui/collection_view/collection_view_delegate')
 local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_collection_view_cell')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
+local Keyboard = require('cylibs/ui/input/keyboard')
 local Frame = require('cylibs/ui/views/frame')
 local ScrollView = require('cylibs/ui/scroll_view/scroll_view')
+local SoundTheme = require('cylibs/sounds/sound_theme')
 
 local CollectionView = setmetatable({}, {__index = ScrollView })
 CollectionView.__index = CollectionView
@@ -36,9 +38,11 @@ end
 -- @tparam CollectionViewLayout layout The layout strategy for arranging items in the collection view.
 -- @tparam CollectionViewDelegate delegate (optional) The delegate for interacting with items in the collection view.
 -- @tparam CollectionViewStyle style The style used to render the CollectionView.
+-- @tparam MediaPlayer mediaPlayer The media player.
+-- @tparam SoundTheme soundTheme The sound theme.
 -- @treturn CollectionView The newly created CollectionView instance.
 --
-function CollectionView.new(dataSource, layout, delegate, style)
+function CollectionView.new(dataSource, layout, delegate, style, mediaPlayer, soundTheme)
     style = style or CollectionView.defaultStyle()
 
     local self = setmetatable(ScrollView.new(Frame.zero(), style), CollectionView)
@@ -47,6 +51,8 @@ function CollectionView.new(dataSource, layout, delegate, style)
     self.dataSource = dataSource
     self.delegate = delegate or CollectionViewDelegate.new(self)
     self.style = style
+    self.mediaPlayer = mediaPlayer
+    self.soundTheme = soundTheme
     self.allowsMultipleSelection = false
     self.allowsCursorSelection = false
     self.cursorImageItem = style:getCursorItem()
@@ -271,12 +277,27 @@ function CollectionView:setHasFocus(hasFocus)
     self:layoutIfNeeded()
 end
 
+function CollectionView:playSoundsForKey(keyName)
+    if self.mediaPlayer == nil or self.soundTheme == nil then
+        return
+    end
+    if keyName == 'Escape' then
+        self.mediaPlayer:playSound(self.soundTheme:getSoundForAction(SoundTheme.UI.Menu.Escape))
+    elseif S{ 'Up', 'Down', 'Left', 'Right' }:contains(keyName) then
+        self.mediaPlayer:playSound(self.soundTheme:getSoundForAction(SoundTheme.UI.Menu.Cursor))
+    end
+end
+
 function CollectionView:onKeyboardEvent(key, pressed, flags, blocked)
     local blocked = blocked or ScrollView.onKeyboardEvent(self, key, pressed, flags, blocked)
     if not self:isVisible() or blocked or self.destroyed then
         return blocked
     end
     if pressed then
+        local keyName = Keyboard.input():getKey(key, flags)
+
+        self:playSoundsForKey(keyName)
+
         local currentIndexPath = self:getDelegate():getCursorIndexPath()
         if currentIndexPath then
             if key == 208 then
@@ -305,6 +326,11 @@ function CollectionView:onKeyboardEvent(key, pressed, flags, blocked)
                 end
                 return true
             elseif key == 28 then
+                if self.mediaPlayer and self.soundTheme then
+                    if self:getDelegate():shouldSelectItemAtIndexPath(self:getDelegate():getCursorIndexPath()) then
+                        self.mediaPlayer:playSound(self.soundTheme:getSoundForAction(SoundTheme.UI.Menu.Enter))
+                    end
+                end
                 self:getDelegate():selectItemAtIndexPath(self:getDelegate():getCursorIndexPath())
             end
         end
