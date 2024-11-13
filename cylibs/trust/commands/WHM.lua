@@ -19,6 +19,10 @@ function WhiteMageTrustCommands:get_command_name()
     return 'whm'
 end
 
+function WhiteMageTrustCommands:get_localized_command_name()
+    return 'White Mage'
+end
+
 function WhiteMageTrustCommands:get_job()
     return self.trust:get_job()
 end

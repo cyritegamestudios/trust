@@ -130,14 +130,13 @@ function BuffSettingsMenuItem:getToggleBuffMenuItem()
         if selectedIndexPath then
             local item = self.buffSettingsView:getDataSource():itemAtIndexPath(selectedIndexPath)
             if item then
-                local enabled = not item:getEnabled()
-                item:setEnabled(enabled)
-                self.buffSettingsView:getDataSource():updateItem(item, selectedIndexPath)
+                local buff = self.buffs[selectedIndexPath.row]
+                buff:setEnabled(not buff:isEnabled())
 
-                self.buffs[selectedIndexPath.row]:setEnabled(enabled)
+                self.buffSettingsView:reloadBuffAtIndexPath(selectedIndexPath)
             end
         end
-    end, "Gambits", "Temporarily enable or disable the selected gambit until the addon reloads.")
+    end, "Gambits", "Temporarily enable or disable the selected spell until the addon reloads.")
 end
 
 function BuffSettingsMenuItem:getConditionsMenuItem()
