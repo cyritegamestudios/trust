@@ -1,3 +1,4 @@
+local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local SongValidator = require('cylibs/entity/jobs/bard/song_validator')
 
 local TrustCommands = require('cylibs/trust/commands/trust_commands')
@@ -11,8 +12,9 @@ function BardTrustCommands.new(trust, action_queue)
     self.trust = trust
     self.action_queue = action_queue
 
-    self:add_command('target', self.handle_set_song_target, 'Sets the song target, // trust brd song_target party_member_name')
-    self:add_command('sing', self.handle_sing, 'Sings songs, optionally with nitro, // trust brd sing use_nitro')
+    self:add_command('sing', self.handle_sing, 'Sings songs, optionally with nitro', L{
+        PickerConfigItem.new('use_nitro', "true", L{ "true", "false" }, nil, "Use Nitro")
+    })
     self:add_command('clear', self.handle_clear_songs, 'Clears the list of tracked songs')
     self:add_command('validate', self.handle_validate_songs, 'Runs diagnostics to validate songs are working properly')
 
@@ -21,6 +23,10 @@ end
 
 function BardTrustCommands:get_command_name()
     return 'brd'
+end
+
+function BardTrustCommands:get_localized_command_name()
+    return 'Bard'
 end
 
 function BardTrustCommands:get_job()

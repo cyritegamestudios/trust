@@ -6,14 +6,21 @@ local FFXIWindow = setmetatable({}, {__index = CollectionView })
 FFXIWindow.__index = FFXIWindow
 FFXIWindow.__type = "FFXIWindow"
 
-function FFXIWindow.new(dataSource, layout, delegate, showTitle, viewSize, style)
+function FFXIWindow.setDefaultMediaPlayer(mediaPlayer)
+    defaultMediaPlayer = mediaPlayer
+end
+
+function FFXIWindow.setDefaultSoundTheme(soundTheme)
+    defaultSoundTheme = soundTheme
+end
+
+function FFXIWindow.new(dataSource, layout, delegate, showTitle, viewSize, style, mediaPlayer, soundTheme)
     style = style or CollectionView.defaultStyle()
     viewSize = viewSize or style:getDefaultSize()
 
     local backgroundView = FFXIBackgroundView.new(Frame.new(0, 0, viewSize.width, viewSize.height), not showTitle, style)
 
-    local self = setmetatable(CollectionView.new(dataSource, layout, delegate, style), FFXIWindow)
-
+    local self = setmetatable(CollectionView.new(dataSource, layout, delegate, style, mediaPlayer or defaultMediaPlayer, soundTheme or defaultSoundTheme), FFXIWindow)
 
     self:setBackgroundImageView(backgroundView)
 

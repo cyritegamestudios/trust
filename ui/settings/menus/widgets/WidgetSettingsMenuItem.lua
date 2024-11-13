@@ -17,7 +17,7 @@ function WidgetSettingsMenuItem.new(addonSettings)
         return ButtonItem.default(widgetName, 18)
     end)
 
-    local self = setmetatable(MenuItem.new(buttonItems, {}, nil, "Widgets", "Configure widgets."), WidgetSettingsMenuItem)
+    local self = setmetatable(MenuItem.new(buttonItems, {}, nil, "Widgets", "Configure widget settings."), WidgetSettingsMenuItem)
 
     self.addonSettings = addonSettings
     self.widgetNames = widgetNames

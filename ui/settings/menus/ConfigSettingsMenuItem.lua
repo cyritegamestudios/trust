@@ -9,13 +9,16 @@ local WidgetSettingsMenuItem = require('ui/settings/menus/widgets/WidgetSettings
 local ConfigSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 ConfigSettingsMenuItem.__index = ConfigSettingsMenuItem
 
-function ConfigSettingsMenuItem.new(addonSettings)
+function ConfigSettingsMenuItem.new(addonSettings, mediaPlayer)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Widgets', 18),
         ButtonItem.default('Logging', 18),
         ButtonItem.default('Remote', 18),
+        ButtonItem.default('Sounds', 18),
         ButtonItem.default('Language', 18),
-    }, {}, nil, "Config", "Change Trust's options."), ConfigSettingsMenuItem)
+    }, {}, nil, "Config", "Configure addon settings."), ConfigSettingsMenuItem)
+
+    self.mediaPlayer = mediaPlayer
 
     self:reloadSettings(addonSettings)
 
@@ -30,6 +33,7 @@ function ConfigSettingsMenuItem:reloadSettings(addonSettings)
     self:setChildMenuItem("Widgets", WidgetSettingsMenuItem.new(addonSettings))
     self:setChildMenuItem("Logging", self:getLoggingMenuItem(addonSettings))
     self:setChildMenuItem("Remote", RemoteCommandsSettingsMenuItem.new(addonSettings))
+    self:setChildMenuItem("Sounds", self:getSoundSettingsMenuItem(addonSettings))
     self:setChildMenuItem("Language", self:getLanguageSettingsMenuItem(addonSettings))
 end
 
@@ -70,6 +74,22 @@ function ConfigSettingsMenuItem:getLoggingMenuItem(addonSettings)
         return ConfigEditor.new(addonSettings, addonSettings:getSettings()[("logging"):lower()], configItems)
     end, "Logging", "Configure debug logging.")
     return loggingMenuItem
+end
+
+function ConfigSettingsMenuItem:getSoundSettingsMenuItem(addonSettings)
+    local languageMenuItem = MenuItem.new(L{
+        ButtonItem.default('Save'),
+    }, {
+        Save = MenuItem.action(function()
+            self.mediaPlayer:setEnabled(not addonSettings:getSettings().sounds.sound_effects.disabled)
+        end),
+    }, function(menuArgs)
+        local configItems = L{
+            BooleanConfigItem.new('disabled', "Disable sound effects"),
+        }
+        return ConfigEditor.new(addonSettings, addonSettings:getSettings().sounds.sound_effects, configItems)
+    end, "Sounds", "Configure sound settings.")
+    return languageMenuItem
 end
 
 function ConfigSettingsMenuItem:getLanguageSettingsMenuItem(addonSettings)

@@ -296,6 +296,7 @@ function CollectionViewDataSource:cellForItemAtIndexPath(indexPath)
         return cachedCell
     else
         local newCell = self.cellForItem(item, indexPath)
+        newCell:setVisible(false)
         newCell:setClipsToBounds(true)
 
         -- Create a cache for the section if it doesn't exist

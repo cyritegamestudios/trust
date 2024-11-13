@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '12.0.1'
+_addon.version = '12.1.0'
 _addon.release_notes = [[
 This update introduces new menus for Bard, autocomplete for Trust
 commands, new commands and important bug fixes for users running the
@@ -319,6 +319,7 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_trust, acti
 		SendAllCommands.new(main_job_trust, action_queue),
 		SendCommands.new(main_job_trust, action_queue),
 		SkillchainCommands.new(main_job_trust, weapon_skill_settings, action_queue),
+		SoundCommands.new(hud.mediaPlayer),
 		WidgetCommands.new(main_job_trust, action_queue, addon_settings, hud.widgetManager),
 	}:extend(get_job_commands(job_name_short, main_job_trust, action_queue, main_trust_settings))
 

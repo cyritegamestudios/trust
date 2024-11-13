@@ -28,6 +28,7 @@ function ButtonCollectionViewCell.new(buttonItem)
     self.textView = TextCollectionViewCell.new(buttonItem:getTextItem())
     self.textView:setEstimatedSize(buttonItem:getSize().height + 2)
     self.textView:setSize(buttonItem:getSize().width, buttonItem:getSize().height)
+    self.textView:setVisible(false)
 
     self:addSubview(self.textView)
 
@@ -71,6 +72,7 @@ function ButtonCollectionViewCell:createButton(buttonItem, buttonState)
     buttonView:setScrollEnabled(false)
     buttonView:setSize(buttonItem:getSize().width, buttonItem:getSize().height)
     buttonView:setVisible(false)
+    buttonView:layoutIfNeeded()
 
     self.backgroundViews[buttonState] = buttonView
 

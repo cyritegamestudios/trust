@@ -46,7 +46,7 @@ end
 -- @tparam ImageItem cursorImageItem (optional) The cursor image item
 -- @treturn PickerView The created PickerView.
 --
-function PickerView.new(pickerItems, allowsMultipleSelection, cursorImageItem)
+function PickerView.new(pickerItems, allowsMultipleSelection, cursorImageItem, mediaPlayer, soundTheme)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell
         if item.__type == TextItem.__type then
@@ -60,7 +60,7 @@ function PickerView.new(pickerItems, allowsMultipleSelection, cursorImageItem)
         return cell
     end)
 
-    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(0, Padding.new(8, 16, 8, 0)), nil, cursorImageItem), PickerView)
+    local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(0, Padding.new(8, 16, 8, 0)), nil, nil, mediaPlayer, soundTheme), PickerView)
 
     self.pickerItems = pickerItems
     self.menuArgs = {}

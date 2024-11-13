@@ -9,6 +9,7 @@ local Keyboard = require('cylibs/ui/input/keyboard')
 local Padding = require('cylibs/ui/style/padding')
 local PartyMemberMenuItem = require('ui/settings/menus/party/PartyMemberMenuItem')
 local PlayerMenuItem = require('ui/settings/menus/party/PlayerMenuItem')
+local SoundTheme = require('cylibs/sounds/sound_theme')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
@@ -35,7 +36,7 @@ PartyStatusWidget.TextSmall = TextStyle.new(
         true
 )
 
-function PartyStatusWidget.new(frame, addonSettings, party, trust)
+function PartyStatusWidget.new(frame, addonSettings, party, trust, mediaPlayer, soundTheme)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = TextCollectionViewCell.new(item)
         cell:setItemSize(14)
@@ -78,6 +79,7 @@ function PartyStatusWidget.new(frame, addonSettings, party, trust)
                     end, 0.2)
                 end
             else
+                mediaPlayer:playSound(soundTheme:getSoundForAction(SoundTheme.UI.Menu.Error))
                 addon_system_error(item:getText()..' is out of range.')
             end
         end

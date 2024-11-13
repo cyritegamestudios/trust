@@ -90,12 +90,12 @@ function FFXIBackgroundView.new(frame, hideTitle)
     else
         self.topBorderView = BorderView.new(Frame.new(0, 0, frame.width, 3), borderImageItem)
     end
-    self.topBorderView:setVisible(true)
+    self.topBorderView:setVisible(false)
 
     self:addSubview(self.topBorderView)
 
     self.bottomBorderView = BorderView.new(Frame.new(0, 0, frame.width, 3), borderImageItem)
-    self.bottomBorderView:setVisible(true)
+    self.bottomBorderView:setVisible(false)
 
     self:addSubview(self.bottomBorderView)
 
@@ -164,9 +164,11 @@ function FFXIBackgroundView:layoutIfNeeded()
         return
     end
 
+    self.topBorderView:setVisible(self:isVisible())
     self.topBorderView:setPosition(0, -self.topBorderView:getSize().height / 2 + 1)
     self.topBorderView:layoutIfNeeded()
 
+    self.bottomBorderView:setVisible(self:isVisible())
     self.bottomBorderView:setPosition(0, self:getSize().height - 1)
     self.bottomBorderView:layoutIfNeeded()
 end

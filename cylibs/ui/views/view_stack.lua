@@ -94,8 +94,9 @@ function ViewStack:present(view)
         --FocusManager.shared():requestFocus(self.currentView)
         --self.currentView:setHasFocus(true)
     end
-    self.currentView:setVisible(true)
     self.currentView:layoutIfNeeded()
+    self.currentView:setVisible(true)
+    --self.currentView:layoutIfNeeded()
 end
 
 function ViewStack:dismiss()

@@ -13,6 +13,7 @@ function JobAbilitiesSettingsMenuItem.new(trustSettings, trustSettingsMode, sett
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
         ButtonItem.default('Conditions', 18),
+        ButtonItem.default('Toggle', 18),
         ButtonItem.default('Reset', 18),
     }, {},
     nil, "Job Abilities", "Choose job ability buffs."), JobAbilitiesSettingsMenuItem)
@@ -32,10 +33,12 @@ function JobAbilitiesSettingsMenuItem.new(trustSettings, trustSettingsMode, sett
         self.buffs = jobAbilities
 
         local jobAbilitiesSettingsView = JobAbilitiesSettingsEditor.new(self.trustSettings, self.trustSettingsMode, self.settingsPrefix)
+        jobAbilitiesSettingsView:setShouldRequestFocus(self.buffs and self.buffs:length() > 0)
+
         self.dispose_bag:add(jobAbilitiesSettingsView:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
             local item = jobAbilitiesSettingsView:getDataSource():itemAtIndexPath(indexPath)
             if item and not item:getTextItem():getEnabled() then
-                infoView:setDescription("Unavailable on current job.")
+                infoView:setDescription("Unavailable on current job or settings.")
             else
                 local jobAbility = jobAbilitiesSettingsView.jobAbilities[indexPath.row]
                 if jobAbility then
@@ -46,6 +49,9 @@ function JobAbilitiesSettingsMenuItem.new(trustSettings, trustSettingsMode, sett
                 end
             end
         end, jobAbilitiesSettingsView:getDelegate():didMoveCursorToItemAtIndexPath()))
+
+        self.jobAbilitiesSettingsView = jobAbilitiesSettingsView
+
         return jobAbilitiesSettingsView
     end
 
@@ -62,6 +68,7 @@ end
 
 function JobAbilitiesSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Add", self:getAddAbilityMenuItem())
+    self:setChildMenuItem("Toggle", self:getToggleAbilityMenuItem())
     self:setChildMenuItem("Conditions", ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, nil, nil, function()
         return self.buffs and self.buffs:length() > 0
     end))
@@ -91,6 +98,22 @@ function JobAbilitiesSettingsMenuItem:getAddAbilityMenuItem()
         return chooseJobAbilitiesView
     end, "Job Abilities", "Add a new job ability buff.")
     return chooseJobAbilitiesItem
+end
+
+function JobAbilitiesSettingsMenuItem:getToggleAbilityMenuItem()
+    return MenuItem.action(function(menu)
+        local selectedIndexPath = self.jobAbilitiesSettingsView:getDelegate():getCursorIndexPath()
+        if selectedIndexPath then
+            local item = self.jobAbilitiesSettingsView:getDataSource():itemAtIndexPath(selectedIndexPath)
+            if item then
+                local enabled = not item:getEnabled()
+                item:setEnabled(enabled)
+                self.jobAbilitiesSettingsView:getDataSource():updateItem(item, selectedIndexPath)
+
+                self.buffs[selectedIndexPath.row]:setEnabled(enabled)
+            end
+        end
+    end, "Gambits", "Temporarily enable or disable the selected gambit until the addon reloads.")
 end
 
 function JobAbilitiesSettingsMenuItem:getResetMenuItem()
