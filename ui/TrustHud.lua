@@ -85,6 +85,7 @@ function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, a
     CollectionView.setDefaultBackgroundStyle(FFXIClassicStyle.background())
 
     self.mediaPlayer = MediaPlayer.new(windower.addon_path..'sounds')
+    self.mediaPlayer:setEnabled(not addon_settings:getSettings().sounds.sound_effects.disabled)
     self.soundTheme = FFXISoundTheme.default()
 
     FFXIWindow.setDefaultMediaPlayer(self.mediaPlayer)
@@ -692,9 +693,7 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
     nil, "Help", "Get help using Trust.")
 
     -- Config
-    local configSettingsItem = ConfigSettingsMenuItem.new(self.addon_settings, function(view)
-        return setupView(view, viewSize)
-    end)
+    local configSettingsItem = ConfigSettingsMenuItem.new(self.addon_settings, self.mediaPlayer)
 
     -- Main
     local mainMenuItem = MenuItem.new(L{

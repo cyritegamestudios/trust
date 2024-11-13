@@ -27,7 +27,9 @@ end
 -- @param string relativePath Relative path to sound.
 --
 function MediaPlayer:playSound(relativePath)
-    windower.play_sound(self.mediaPath..'/'..relativePath..'.wav')
+    if self:isEnabled() then
+        windower.play_sound(self.mediaPath..'/'..relativePath..'.wav')
+    end
 end
 
 ---

@@ -98,6 +98,9 @@ default.shortcuts.widgets.party.flags = 1
 default.locales = {}
 default.locales.actions = {}
 default.locales.actions.use_client_locale = false
+default.sounds = {}
+default.sounds.sound_effects = {}
+default.sounds.sound_effects.disabled = false
 
 
 
