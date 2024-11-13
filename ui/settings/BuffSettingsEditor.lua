@@ -101,20 +101,13 @@ end
 function BuffSettingsEditor:reloadSettings()
     self:getDataSource():removeAllItems()
 
-    local checkJob = function(spell)
-        local job_conditions = spell:get_conditions():filter(function(condition)
-            return condition.__class == MainJobCondition.__class
-        end) or L{}
-        return job_conditions:empty() or Condition.check_conditions(job_conditions, windower.ffxi.get_player().index)
-    end
-
     local items = L{}
 
     local rowIndex = 1
     for spell in self.buffs:it() do
         local imageItem = AssetManager.imageItemForSpell(spell:get_name())
         local textItem = TextItem.new(spell:get_spell().en, TextStyle.Default.PickerItem)
-        textItem:setEnabled(spell_util.knows_spell(spell:get_spell().id) and checkJob(spell) and spell:isEnabled())
+        textItem:setEnabled(spell_util.knows_spell(spell:get_spell().id) and self:checkJob(spell) and spell:isEnabled())
         items:append(IndexedItem.new(ImageTextItem.new(imageItem, textItem), IndexPath.new(1, rowIndex)))
         rowIndex = rowIndex + 1
     end
@@ -124,6 +117,25 @@ function BuffSettingsEditor:reloadSettings()
     if self:getDataSource():numberOfItemsInSection(1) > 0 then
         self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
     end
+end
+
+function BuffSettingsEditor:reloadBuffAtIndexPath(indexPath)
+    local item = self:getDataSource():itemAtIndexPath(indexPath)
+    if item then
+        local buff = self.buffs[indexPath.row]
+        if buff then
+            item:setEnabled(spell_util.knows_spell(buff:get_spell().id) and self:checkJob(buff) and buff:isEnabled())
+            self:getDataSource():updateItem(item, indexPath)
+        end
+
+    end
+end
+
+function BuffSettingsEditor:checkJob(spell)
+    local job_conditions = spell:get_conditions():filter(function(condition)
+        return condition.__class == MainJobCondition.__class
+    end) or L{}
+    return job_conditions:empty() or Condition.check_conditions(job_conditions, windower.ffxi.get_player().index)
 end
 
 return BuffSettingsEditor

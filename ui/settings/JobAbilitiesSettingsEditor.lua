@@ -124,4 +124,15 @@ function JobAbilitiesSettingsEditor:reloadSettings()
     end
 end
 
+function JobAbilitiesSettingsEditor:reloadBuffAtIndexPath(indexPath)
+    local item = self:getDataSource():itemAtIndexPath(indexPath)
+    if item then
+        local buff = self.jobAbilities[indexPath.row]
+        if buff then
+            item:setEnabled(job_util.knows_job_ability(buff:get_ability_id()) and buff:isEnabled())
+            self:getDataSource():updateItem(item, indexPath)
+        end
+    end
+end
+
 return JobAbilitiesSettingsEditor

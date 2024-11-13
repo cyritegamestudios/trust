@@ -22,7 +22,7 @@ function LoadSettingsMenuItem.new(addonSettings, trustModeSettings, jobSettings,
         Help = MenuItem.action(function(_)
             windower.open_url(addonSettings:getSettings().help.wiki_base_url..'/Profiles')
         end, "Profiles", "Learn more about profiles in the wiki.")
-    }, nil, "Profiles", "Load a saved profile."), LoadSettingsMenuItem)
+    }, nil, "Profiles", "Load, create and edit profiles."), LoadSettingsMenuItem)
 
     self.contentViewConstructor = function(_, _)
         local loadSettingsView = FFXIPickerView.withItems(L(state.TrustMode:options()), state.TrustMode.value)
