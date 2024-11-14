@@ -116,6 +116,8 @@ function TargetInfoView:reloadSettings()
     self:getDataSource():addItems(itemsToAdd)
 
     self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
+
+    self:layoutIfNeeded()
 end
 
 function TargetInfoView:setVisible(visible)

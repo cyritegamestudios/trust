@@ -108,6 +108,8 @@ function DebugView:updateActions()
     for indexPath in itemsToHighlight:it() do
         self:getDelegate():highlightItemAtIndexPath(indexPath)
     end
+
+    self:layoutIfNeeded()
 end
 
 function DebugView:layoutIfNeeded()

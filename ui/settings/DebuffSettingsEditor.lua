@@ -143,6 +143,8 @@ function DebuffSettingsEditor:reloadSettings()
     if items:length() > 0 then
         self:getDelegate():selectItemAtIndexPath(items[1]:getIndexPath())
     end
+
+    self:layoutIfNeeded()
 end
 
 return DebuffSettingsEditor

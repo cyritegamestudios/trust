@@ -117,6 +117,8 @@ function BuffSettingsEditor:reloadSettings()
     if self:getDataSource():numberOfItemsInSection(1) > 0 then
         self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
     end
+
+    self:layoutIfNeeded()
 end
 
 function BuffSettingsEditor:reloadBuffAtIndexPath(indexPath)

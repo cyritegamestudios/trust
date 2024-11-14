@@ -1,3 +1,5 @@
+local Event = require('cylibs/events/Luvent')
+
 require('sets')
 
 ---------------------------
@@ -16,6 +18,11 @@ state = {}
 local modes_locked = false
 local modes_locked_reason
 local modes_whitelist = S{}
+local state_changed = Event.newEvent()
+
+function on_state_changed()
+    return state_changed
+end
 
 function set_modes_locked(locked, reason, whitelist)
     modes_locked = locked
@@ -48,6 +55,9 @@ function handle_cycle(field)
         state_var:cycle()
 
         local newVal = state_var.value
+        if newVal ~= oldVal then
+            on_state_changed():trigger(field, newVal)
+        end
 
         local descrip = state_var.description or field
 
@@ -102,6 +112,10 @@ function handle_set(field, value)
         local oldVal = state_var.value
         state_var:set(value)
         local newVal = state_var.value
+
+        if newVal ~= oldVal then
+            on_state_changed():trigger(field, newVal)
+        end
 
         local descrip = state_var.description or cmdParams[1]
         if state_change then

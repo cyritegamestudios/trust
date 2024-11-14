@@ -122,6 +122,8 @@ function JobAbilitiesSettingsEditor:reloadSettings()
     if self.jobAbilities:length() > 0 then
         self:getDelegate():selectItemAtIndexPath(IndexPath.new(1, 1))
     end
+
+    self:layoutIfNeeded()
 end
 
 function JobAbilitiesSettingsEditor:reloadBuffAtIndexPath(indexPath)
