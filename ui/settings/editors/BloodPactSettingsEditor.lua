@@ -104,6 +104,8 @@ function BloodPactSettingsEditor:reloadSettings()
     if self.bloodPacts:length() > 0 then
         self:getDelegate():selectItemAtIndexPath(IndexPath.new(1, 1))
     end
+
+    self:layoutIfNeeded()
 end
 
 return BloodPactSettingsEditor

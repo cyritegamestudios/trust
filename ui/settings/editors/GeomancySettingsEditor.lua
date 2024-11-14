@@ -80,6 +80,8 @@ function GeomancySettingsEditor:reloadSettings()
     if self:getDataSource():numberOfItemsInSection(1) > 0 then
         self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
     end
+
+    self:layoutIfNeeded()
 end
 
 function GeomancySettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)

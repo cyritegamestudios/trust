@@ -100,6 +100,8 @@ function NukeSettingsEditor:reloadSettings()
     if self:getDataSource():numberOfItemsInSection(1) > 0 then
         self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
     end
+
+    self:layoutIfNeeded()
 end
 
 return NukeSettingsEditor

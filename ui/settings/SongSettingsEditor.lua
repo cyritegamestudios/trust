@@ -68,14 +68,6 @@ function SongSettingsEditor:destroy()
     CollectionView.destroy(self)
 end
 
-function SongSettingsEditor:layoutIfNeeded()
-    if not CollectionView.layoutIfNeeded(self) then
-        return false
-    end
-
-    self:setTitle("Edit songs on the player and party.")
-end
-
 function SongSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
     if textItem:getText() == 'Save' then
         self.trustSettings:saveSettings(true)
@@ -236,6 +228,8 @@ function SongSettingsEditor:reloadSettings()
     if self:getDataSource():numberOfItemsInSection(1) > 0 then
         self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
     end
+
+    self:layoutIfNeeded()
 end
 
 return SongSettingsEditor

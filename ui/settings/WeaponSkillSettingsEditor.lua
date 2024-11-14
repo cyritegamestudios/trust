@@ -201,6 +201,8 @@ function WeaponSkillSettingsEditor:reloadSettings()
     end
 
     self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
+
+    self:layoutIfNeeded()
 end
 
 return WeaponSkillSettingsEditor
