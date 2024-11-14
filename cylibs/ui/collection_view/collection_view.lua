@@ -98,9 +98,10 @@ function CollectionView.new(dataSource, layout, delegate, style, mediaPlayer, so
     self:getDisposeBag():add(self.delegate:didMoveCursorToItemAtIndexPath():addAction(function(cursorIndexPath)
         local cell = self:getDataSource():cellForItemAtIndexPath(cursorIndexPath)
         if cell then
-            if not self:hasFocus() or cell:hasFocus() then
-                return
-            end
+            --if not self:hasFocus() or cell:hasFocus() then
+            --    print(self:hasFocus())
+            --    return
+            --end
             if self.selectionBackground then
                 self.selectionBackground:setPosition(cell:getPosition().x - self.cursorImageItem:getSize().width - 7, cell:getPosition().y + (cell:getSize().height - self.cursorImageItem:getSize().height) / 2)
                 self.selectionBackground:setSize(self.cursorImageItem:getSize().width, self.cursorImageItem:getSize().height)
