@@ -55,6 +55,9 @@ function handle_cycle(field)
         state_var:cycle()
 
         local newVal = state_var.value
+        if newVal ~= oldVal then
+            on_state_changed():trigger(field, newVal)
+        end
 
         local descrip = state_var.description or field
 
