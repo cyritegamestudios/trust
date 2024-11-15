@@ -47,6 +47,7 @@ function ImageView:loadImage(imagePath)
     if self.imagePath == imagePath then
         return
     end
+
     self.imagePath = imagePath
 
     self.image:path(imagePath)
