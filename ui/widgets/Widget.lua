@@ -177,9 +177,6 @@ end
 
 function Widget:isCursorEnabled()
     return self:hasFocus()
-    --[[local cell = self:getDataSource():cellForItemAtIndexPath(self:getDelegate():getCursorIndexPath())
-    print(self:hasFocus(), cell and cell:hasFocus())
-    return self:hasFocus() or (cell and cell:hasFocus())]]
 end
 
 function Widget:onMouseEvent(type, x, y, delta)

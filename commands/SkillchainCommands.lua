@@ -300,7 +300,7 @@ end
 function SkillchainTrustCommands:handle_build(_, property_name, num_steps)
     local success
     local message
-    
+
     local valid_skillchains = skillchain_util.LightSkillchains:union(skillchain_util.DarknessSkillchains)
             :filter(function(s) return not L{ 'Light Lv.4', 'Darkness Lv.4'}:contains(s:get_name()) end)
             :map(function(s) return s:get_name() end)
