@@ -39,15 +39,7 @@ function BuffSettingsEditor.new(trustSettings, buffs, targets)
     self.targets = targets
     self.menuArgs = {}
 
-    self.allBuffs = spell_util.get_spells(function(spell)
-        local status = spell.status or buff_util.buff_for_spell(spell.id)
-        return status ~= nil and S(targets):intersection(S(spell.targets)):length() > 0
-    end)
-
     self:reloadSettings()
-
-    self:setNeedsLayout()
-    self:layoutIfNeeded()
 
     return self
 end
