@@ -64,7 +64,7 @@ function CollectionView.new(dataSource, layout, delegate, style, mediaPlayer, so
 
         self:getDisposeBag():addAny(L{ self.selectionBackground })
 
-        self.selectionBackground:setVisible(self:hasFocus())
+        self.selectionBackground:setVisible(false)
         self.selectionBackground:setNeedsLayout()
         self.selectionBackground:layoutIfNeeded()
 
@@ -86,33 +86,41 @@ function CollectionView.new(dataSource, layout, delegate, style, mediaPlayer, so
         if removedIndexPaths:contains(self:getDelegate():getCursorIndexPath()) then
             if self:getDataSource():numberOfItemsInSection(1) > 0 then
                 self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
-            else
-                if self.selectionBackground then
-                    self.selectionBackground:setVisible(false)
-                    self.selectionBackground:setNeedsLayout()
-                    self.selectionBackground:layoutIfNeeded()
-                end
             end
         end
+        self:moveCursorToIndexPath()
     end)
     self:getDisposeBag():add(self.delegate:didMoveCursorToItemAtIndexPath():addAction(function(cursorIndexPath)
-        local cell = self:getDataSource():cellForItemAtIndexPath(cursorIndexPath)
-        if cell then
-            --if not self:hasFocus() or cell:hasFocus() then
-            --    print(self:hasFocus())
-            --    return
-            --end
-            if self.selectionBackground then
-                self.selectionBackground:setPosition(cell:getPosition().x - self.cursorImageItem:getSize().width - 7, cell:getPosition().y + (cell:getSize().height - self.cursorImageItem:getSize().height) / 2)
-                self.selectionBackground:setSize(self.cursorImageItem:getSize().width, self.cursorImageItem:getSize().height)
-                self.selectionBackground:setVisible(self:hasFocus())
-                self.selectionBackground:setNeedsLayout()
-                self.selectionBackground:layoutIfNeeded()
-            end
-        end
+        self:moveCursorToIndexPath(cursorIndexPath)
     end), self.delegate:didMoveCursorToItemAtIndexPath())
 
     return self
+end
+
+---
+-- Moves the cursor to the current cursor index path.
+--
+--  @tparam IndexPath cursorIndexPath Cursor index path, or the current cursor index path if nil
+--
+function CollectionView:moveCursorToIndexPath(cursorIndexPath)
+    if not self.selectionBackground then
+        return
+    end
+    local isCursorVisible = false
+
+    cursorIndexPath = cursorIndexPath or self:getDelegate():getCursorIndexPath()
+    if cursorIndexPath and self:getDataSource():itemAtIndexPath(cursorIndexPath) then
+        local cell = self:getDataSource():cellForItemAtIndexPath(cursorIndexPath)
+        if cell then
+            self.selectionBackground:setPosition(cell:getPosition().x - self.cursorImageItem:getSize().width - 7, cell:getPosition().y + (cell:getSize().height - self.cursorImageItem:getSize().height) / 2)
+            self.selectionBackground:setSize(self.cursorImageItem:getSize().width, self.cursorImageItem:getSize().height)
+            isCursorVisible = self:hasFocus() and self:isCursorEnabled()
+        end
+    end
+
+    self.selectionBackground:setVisible(isCursorVisible)
+    self.selectionBackground:setNeedsLayout()
+    self.selectionBackground:layoutIfNeeded()
 end
 
 ---
@@ -261,6 +269,15 @@ function CollectionView:scrollBack(scrollBar)
 end
 
 ---
+-- Returns whether the cursor is enabled.
+--
+-- @treturn boolean Whether the cursor is enabled.
+--
+function CollectionView:isCursorEnabled()
+    return true
+end
+
+---
 -- Checks if layout updates are needed and triggers layout if necessary.
 -- This function is typically called before rendering to ensure that the View's layout is up to date.
 --
@@ -268,9 +285,9 @@ function CollectionView:layoutIfNeeded()
     ScrollView.layoutIfNeeded(self)
 
     self.layout:layoutSubviews(self)
-    if self.selectionBackground then
-        self.selectionBackground:setVisible(self:hasFocus())
-    end
+
+    self:moveCursorToIndexPath()
+
     return true
 end
 

@@ -38,6 +38,11 @@ function SkillchainTrustCommands.new(trust, weapon_skill_settings, action_queue)
     -- AutoAftermathMode
     self:add_command('am', function(_) return self:handle_toggle_mode('AutoAftermathMode', 'Auto', 'Off')  end, 'Prioritize maintaining aftermath on mythic weapons')
 
+    local valid_skillchains = skillchain_util.LightSkillchains:union(skillchain_util.DarknessSkillchains)
+             :filter(function(s) return not L{ 'Light Lv.4', 'Darkness Lv.4'}:contains(s:get_name()) end)
+             :map(function(s) return s:get_name() end)
+             :union(S{ 'LightLv4', 'DarknessLv4' })
+
     -- Find a skillchain
     self:add_command('set', self.handle_set_step, 'Sets a step of a skillchain', L{
         ConfigItem.new('step_num', 1, 5, 1, function(value) return value end, "Step Number"),
@@ -47,7 +52,7 @@ function SkillchainTrustCommands.new(trust, weapon_skill_settings, action_queue)
         PickerConfigItem.new('weapon_skill_name', ability_names[1], ability_names, nil, "Weapon Skill Name")
     })
     self:add_command('build', self.handle_build, 'Builds a skillchain with the current equipped weapon', L{
-        PickerConfigItem.new('skillchain_property', 'Light Lv.4', skillchain_util.all_skillchain_properties(), nil, "Skillchain Property"),
+        PickerConfigItem.new('skillchain_property', 'LightLv4', valid_skillchains, nil, "Skillchain Property"),
         ConfigItem.new('num_steps', 2, 6, 1, nil, "Number of Steps"),
     })
     self:add_command('default', self.handle_set_default, 'Sets the default weapon skill to use when no skillchains can be made', L{

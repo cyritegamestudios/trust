@@ -96,7 +96,7 @@ end
 -- @tparam list party_members Party members to remove status effect from
 -- @tparam number debuff_id Debuff id of status effect (see buffs.lua)
 function StatusRemover:remove_status_effect(party_members, debuff_id)
-    if state.AutoStatusRemovalMode.value == 'Off' or (os.time() - self.last_status_removal_time) < 3 then
+    if state.AutoStatusRemovalMode.value == 'Off' or (os.time() - self.last_status_removal_time) < 3 or party_members:length() == 0 then
         return
     end
     if state.AutoDetectAuraMode.value ~= 'Off' and self.aura_tracker:get_aura_probability(debuff_id) >= 75 then
