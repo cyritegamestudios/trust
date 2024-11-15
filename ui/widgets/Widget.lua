@@ -74,8 +74,8 @@ function Widget.new(frame, title, addonSettings, dataSource, layout, titleWidth,
     local shortcutSettings = self.addonSettings:getSettings().shortcuts.widgets[title:lower()]
     if shortcutSettings and shortcutSettings.enabled then
         Keyboard.input():registerKeybind(shortcutSettings.key, shortcutSettings.flags, function(_, _)
-            self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
             self:requestFocus()
+            self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
         end)
     end
 
@@ -173,6 +173,13 @@ function Widget:setHasFocus(hasFocus)
             windower.send_command('unbind %s':format(key))
         end
     end
+end
+
+function Widget:isCursorEnabled()
+    return self:hasFocus()
+    --[[local cell = self:getDataSource():cellForItemAtIndexPath(self:getDelegate():getCursorIndexPath())
+    print(self:hasFocus(), cell and cell:hasFocus())
+    return self:hasFocus() or (cell and cell:hasFocus())]]
 end
 
 function Widget:onMouseEvent(type, x, y, delta)

@@ -38,6 +38,7 @@ function View.new(frame)
     self.editing = false
     self.focusable = true
     self.focusLocked = false
+    self.focused = false
     self.resignFocusKeys = L{ 1, 205 }
     self.uuid = os.time()..'-'..math.random(100000)
     self.destroyed = false
