@@ -51,6 +51,7 @@ function ButtonCollectionViewCell:createButton(buttonItem, buttonState)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = ImageCollectionViewCell.new(item)
         cell:setItemSize(item:getSize().width)
+        cell:setClipsToBounds(false)
         return cell
     end)
 
