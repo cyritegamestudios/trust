@@ -3,11 +3,11 @@ return {
     Version = 2,
     Default = {
         SelfBuffs = L{
-            Spell.new("Utsusemi: San", L{}, L{}, nil, L{}),
-            Spell.new("Utsusemi: Ni", L{}, L{}, nil, L{}),
-            Spell.new("Utsusemi: Ichi", L{}, L{}, nil, L{}),
+            Spell.new("Utsusemi: San", L{}, L{}, nil, L{ItemCountCondition.new("Shihei", 1, ">=")}),
+            Spell.new("Utsusemi: Ni", L{}, L{}, nil,  L{ItemCountCondition.new("Shihei", 1, ">=")}),
+            Spell.new("Utsusemi: Ichi", L{}, L{}, nil,  L{ItemCountCondition.new("Shihei", 1, ">=")}),
             Spell.new("Kakka: Ichi", L{}, L{}, nil, L{}),
-            Spell.new("Myoshu: Ichi", L{}, L{}, nil, L{}),
+            Spell.new("Myoshu: Ichi", L{}, L{}, nil, L{})
         },
         PartyBuffs = L{
 
