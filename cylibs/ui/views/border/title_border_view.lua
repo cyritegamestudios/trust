@@ -141,20 +141,6 @@ function TitleBorderView:getImageItems(frame)
     return imageItems
 end
 
-function TitleBorderView:setEditing(editing)
-    CollectionView.setEditing(self, editing)
-
-    local cell = self:getDataSource():cellForItemAtIndexPath(IndexPath.new(1, 3))
-    if cell then
-        if editing then
-            cell:setVisible(false)
-        else
-            cell:setVisible(true)
-        end
-        cell:layoutIfNeeded()
-    end
-end
-
 function TitleBorderView:hitTest(x, y)
     return false
 end
