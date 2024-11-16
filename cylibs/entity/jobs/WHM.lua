@@ -23,7 +23,7 @@ WhiteMage.Afflatus.Misery = "AfflatusMisery"
 -- @tparam string afflatus_mode Afflatus Solace or Afflatus Misery
 -- @treturn WHM A White Mage
 function WhiteMage.new(cure_settings, afflatus_mode)
-    local self = setmetatable(Job.new(), WhiteMage)
+    local self = setmetatable(Job.new('WHM', L{ 'Dispelga', 'Impact' }), WhiteMage)
     self:set_cure_settings(cure_settings)
     self:set_afflatus_mode(afflatus_mode or self:get_afflatus_mode())
     return self

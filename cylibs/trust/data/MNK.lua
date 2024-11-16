@@ -3,12 +3,13 @@ local MonkTrust = setmetatable({}, {__index = Trust })
 MonkTrust.__index = MonkTrust
 
 local Buffer = require('cylibs/trust/roles/buffer')
+local Monk = require('cylibs/entity/jobs/MNK')
 
 function MonkTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local roles = S{
 		Buffer.new(action_queue, trust_settings.JobAbilities, nil, nil),
 	}
-	local self = setmetatable(Trust.new(action_queue, roles, trust_settings), MonkTrust)
+	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, Monk.new()), MonkTrust)
 
 	self.settings = settings
 	self.action_queue = action_queue

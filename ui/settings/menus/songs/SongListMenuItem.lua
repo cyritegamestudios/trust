@@ -10,7 +10,7 @@ local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local SongListMenuItem = setmetatable({}, {__index = MenuItem })
 SongListMenuItem.__index = SongListMenuItem
 
-function SongListMenuItem.new(trustSettings, trustSettingsMode)
+function SongListMenuItem.new(trust, trustSettings, trustSettingsMode)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
         ButtonItem.default('Jobs', 18),
@@ -26,9 +26,12 @@ function SongListMenuItem.new(trustSettings, trustSettingsMode)
 
         local songs = T(trustSettings:getSettings())[trustSettingsMode.value].SongSettings.Songs
 
-        local allSongs = spell_util.get_spells(function(spell)
-            return spell.type == 'BardSong' and S{'Self'}:intersection(S(spell.targets)):length() > 0
-        end):map(function(spell) return spell.en  end):sort()
+        local allSongs = trust:get_job():get_spells(function(spell_id)
+            local spell = res.spells[spell_id]
+            return spell and spell.type == 'BardSong' and S{'Self'}:intersection(S(spell.targets)):length() > 0
+        end):map(function(spell_id)
+            return res.spells[spell_id].en
+        end):sort()
 
         local songSettings = {
             Song1 = songs[1]:get_name(),

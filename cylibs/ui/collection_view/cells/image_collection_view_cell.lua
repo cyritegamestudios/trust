@@ -15,10 +15,11 @@ function ImageCollectionViewCell.new(item)
     self:addSubview(self.imageView)
 
     self:setSize(item:getSize().width, item:getSize().height)
+    self:setVisible(false)
 
     self:getDisposeBag():addAny(L{ self.imageView })
 
-    self.imageView:loadImage(item:getImagePath())
+    --self.imageView:loadImage(item:getImagePath())
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
@@ -33,7 +34,7 @@ function ImageCollectionViewCell:setItem(item)
     self.imageView.repeatY = item:getRepeat().y
     self.imageView.alpha = item:getAlpha()
 
-    self.imageView:loadImage(item:getImagePath())
+    --self.imageView:loadImage(item:getImagePath())
 end
 
 ---
@@ -50,6 +51,11 @@ function ImageCollectionViewCell:layoutIfNeeded()
 
         self.imageView:setNeedsLayout()
         self.imageView:layoutIfNeeded()
+    end
+
+    local isVisible = self:getAbsoluteVisibility() and self:isVisible()
+    if isVisible then
+        self.imageView:loadImage(self:getItem():getImagePath())
     end
 
     return true

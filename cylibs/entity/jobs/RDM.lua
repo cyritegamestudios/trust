@@ -14,7 +14,7 @@ local cure_util = require('cylibs/util/cure_util')
 -- @tparam T cure_settings Cure thresholds
 -- @treturn RDM A Red Mage
 function RedMage.new(cure_settings)
-    local self = setmetatable(Job.new(), RedMage)
+    local self = setmetatable(Job.new('RDM', L{ 'Dispelga', 'Impact' }), RedMage)
     self:set_cure_settings(cure_settings)
     return self
 end

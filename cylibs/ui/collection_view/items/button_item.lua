@@ -181,10 +181,10 @@ end
 -- @treturn boolean True if the button items are equal, false otherwise.
 --
 function ButtonItem:__eq(otherItem)
-    if not otherItem.__type == ButtonItem.__type then
+    if otherItem.__type ~= ButtonItem.__type then
         return false
     end
-    if self:getText() ~= otherItem:getText() then
+    if self:getTextItem():getText() ~= otherItem:getTextItem():getText() then
         return false
     end
     for key, imageItem in pairs(self.imageItems) do

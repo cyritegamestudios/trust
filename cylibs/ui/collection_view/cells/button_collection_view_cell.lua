@@ -32,10 +32,6 @@ function ButtonCollectionViewCell.new(buttonItem)
 
     self:addSubview(self.textView)
 
-    for state in L{ ButtonItem.State.Default, ButtonItem.State.Highlighted, ButtonItem.State.Selected }:it() do
-        self:createButton(buttonItem, state)
-    end
-
     self:setButtonState(ButtonItem.State.Default)
 
     self.disposeBag:addAny(L{ self.textView })
@@ -55,6 +51,7 @@ function ButtonCollectionViewCell:createButton(buttonItem, buttonState)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = ImageCollectionViewCell.new(item)
         cell:setItemSize(item:getSize().width)
+        cell:setClipsToBounds(false)
         return cell
     end)
 
@@ -127,7 +124,7 @@ function ButtonCollectionViewCell:setButtonState(buttonState)
     end
     self.buttonState = buttonState
 
-    local buttonView = self:backgroundViewForState(buttonState)
+    local buttonView = self:backgroundViewForState(buttonState) or self:createButton(self:getItem(), buttonState)
     if buttonView then
         self:setBackgroundImageView(nil)
         self:setBackgroundImageView(buttonView)

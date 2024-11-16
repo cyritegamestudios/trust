@@ -8,7 +8,7 @@ local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local EntrustSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 EntrustSettingsMenuItem.__index = EntrustSettingsMenuItem
 
-function EntrustSettingsMenuItem.new(trustSettings, entrustSpells)
+function EntrustSettingsMenuItem.new(trust, trustSettings, entrustSpells)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
@@ -20,6 +20,7 @@ function EntrustSettingsMenuItem.new(trustSettings, entrustSpells)
         return geomancyView
     end, "Entrust", "Customize indicolures to entrust on party members."), EntrustSettingsMenuItem)
 
+    self.trust = trust
     self.trustSettings = trustSettings
     self.entrustSpells = entrustSpells
     self.dispose_bag = DisposeBag.new()
@@ -45,9 +46,10 @@ function EntrustSettingsMenuItem:getAddMenuItem()
     local addSpellMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
     }, L{}, function(menuArgs)
-        local allSpells = spell_util.get_spells(function(spell)
-            return spell.skill == 44 and S{ 'Self' }:equals(S(spell.targets))
-        end):map(function(spell) return spell.en end)
+        local allSpells = self.trust:get_job():get_spells(function(spellId)
+            local spell = res.spells[spellId]
+            return spell and spell.skill == 44 and S{ 'Self' }:equals(S(spell.targets))
+        end):map(function(spellId) return res.spells[spellId].en end):sort()
 
         local imageItemForText = function(text)
             return AssetManager.imageItemForSpell(text)

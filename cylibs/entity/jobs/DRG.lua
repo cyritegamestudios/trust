@@ -11,8 +11,7 @@ Dragoon.__index = Dragoon
 -- Default initializer for a new Dragoon.
 -- @treturn DRG A Dragoon
 function Dragoon.new()
-    local self = setmetatable(Job.new(), Dragoon)
-
+    local self = setmetatable(Job.new('DRG'), Dragoon)
     return self
 end
 

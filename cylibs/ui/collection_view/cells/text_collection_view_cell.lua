@@ -57,56 +57,59 @@ function TextCollectionViewCell:layoutIfNeeded()
         return false
     end
 
-    local position = self:getAbsolutePosition()
+    local isVisible = self:getAbsoluteVisibility() and self:isVisible()
+    if isVisible then
+        local position = self:getAbsolutePosition()
 
-    local text = self:getItem():getText()
-    if self:getItem():shouldTruncateText() then
-        text = localization_util.truncate(text, math.floor(self:getSize().width / (self:getItem():getStyle():getFontSize() * 0.75)))
-    end
-    self.textView.text = text
+        local text = self:getItem():getText()
+        if self:getItem():shouldTruncateText() then
+            text = localization_util.truncate(text, math.floor(self:getSize().width / (self:getItem():getStyle():getFontSize() * 0.75)))
+        end
+        self.textView.text = text
 
-    local textWidth
-    if self:getItem():getSize() then
-        textWidth = self:getItem():getSize().width
-    else
-        textWidth = string.len(self:getItem():getText()) * self:getItem():getStyle():getFontSize()
-    end
-
-    if self:getItem():shouldAutoResize() then
-        if textWidth > self:getSize().width + 10 then
-            self.textView:size(self:getItem():getStyle():getFontSize() - 1)
+        local textWidth
+        if self:getItem():getSize() then
+            textWidth = self:getItem():getSize().width
         else
-            self.textView:size(self:getItem():getStyle():getFontSize())
+            textWidth = string.len(self:getItem():getText()) * self:getItem():getStyle():getFontSize()
         end
-    end
-    if self:getItem():shouldWordWrap() then
-        if textWidth > self:getSize().width + 12 then
-            local text = ""
-            local words = self:getItem():getText():split(" ")
-            for word in words:it() do
-                text = text..word.."\n "
+
+        if self:getItem():shouldAutoResize() then
+            if textWidth > self:getSize().width + 10 then
+                self.textView:size(self:getItem():getStyle():getFontSize() - 1)
+            else
+                self.textView:size(self:getItem():getStyle():getFontSize())
             end
-            self.textView.text = text
+        end
+        if self:getItem():shouldWordWrap() then
+            if textWidth > self:getSize().width + 12 then
+                local text = ""
+                local words = self:getItem():getText():split(" ")
+                for word in words:it() do
+                    text = text..word.."\n "
+                end
+                self.textView.text = text
+            end
+        end
+
+        local textPosX = position.x + self:getItem():getOffset().x
+        if self:getItem():getHorizontalAlignment() == Alignment.center() then
+            textPosX = textPosX + (self:getSize().width - textWidth) / 4
+        end
+
+        local textPosY = position.y + (self:getSize().height - self:getEstimatedSize() * (self.textView:size() / self:getItem():getStyle():getFontSize())) / 2 + self:getItem():getOffset().y
+        self.textView:pos(textPosX, textPosY)
+
+        self:applyTextStyle()
+
+        if self:getItem():getEnabled() then
+            self.textView:alpha(255)
+        else
+            self.textView:alpha(150)
         end
     end
 
-    local textPosX = position.x + self:getItem():getOffset().x
-    if self:getItem():getHorizontalAlignment() == Alignment.center() then
-        textPosX = textPosX + (self:getSize().width - textWidth) / 4
-    end
-
-    local textPosY = position.y + (self:getSize().height - self:getEstimatedSize() * (self.textView:size() / self:getItem():getStyle():getFontSize())) / 2 + self:getItem():getOffset().y
-    self.textView:pos(textPosX, textPosY)
-
-    self:applyTextStyle()
-
-    if self:getItem():getEnabled() then
-        self.textView:alpha(255)
-    else
-        self.textView:alpha(150)
-    end
-
-    self.textView:visible(self:getAbsoluteVisibility() and self:isVisible())
+    self.textView:visible(isVisible)
 
     return true
 end

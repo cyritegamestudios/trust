@@ -18,7 +18,7 @@ Puppetmaster.__index = Puppetmaster
 -- Default initializer for a new Puppetmaster.
 -- @treturn PUP A Puppetmaster
 function Puppetmaster.new()
-    local self = setmetatable(Job.new(), Puppetmaster)
+    local self = setmetatable(Job.new('PUP'), Puppetmaster)
     self.automaton_action_queue = ActionQueue.new(nil, true, 20, false, false)
     self.dispose_bag = DisposeBag.new()
 

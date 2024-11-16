@@ -21,7 +21,7 @@ local all_song_buff_ids = L{
 -- @tparam T trust_settings Trust settings
 -- @treturn BRD A Bard
 function Bard.new(trust_settings)
-    local self = setmetatable(Job.new(), Bard)
+    local self = setmetatable(Job.new('BRD', L{ 'Honor March', 'Aria of Passion', 'Dispelga' }), Bard)
     self:set_trust_settings(trust_settings)
     return self
 end

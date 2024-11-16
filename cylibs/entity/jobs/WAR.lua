@@ -11,7 +11,7 @@ Warrior.__index = Warrior
 -- Default initializer for a new Warrior.
 -- @treturn WAR A Warrior
 function Warrior.new()
-    local self = setmetatable(Job.new(), Warrior)
+    local self = setmetatable(Job.new('WAR'), Warrior)
 
     return self
 end

@@ -9,7 +9,7 @@ local SpellSettingsEditor = require('ui/settings/SpellSettingsEditor')
 local BuffSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 BuffSettingsMenuItem.__index = BuffSettingsMenuItem
 
-function BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsPrefix, settingsKey, targets, jobNameShort, descriptionText, showJobs)
+function BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, settingsPrefix, settingsKey, targets, jobNameShort, descriptionText, showJobs)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
@@ -19,6 +19,7 @@ function BuffSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsPref
         ButtonItem.default('Reset', 18),
     }, {}, nil, "Buffs", descriptionText), BuffSettingsMenuItem)
 
+    self.trust = trust
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
     self.settingsKey = settingsKey
@@ -90,11 +91,16 @@ function BuffSettingsMenuItem:getAddBuffMenuItem()
                 defaultJobNames = job_util.all_jobs()
             end
 
-            local jobId = res.jobs:with('ens', self.jobNameShort).id
-            local allBuffs = spell_util.get_spells(function(spell)
-                local status = buff_util.buff_for_spell(spell.id)
-                return spell.levels[jobId] ~= nil and status ~= nil and not buff_util.is_debuff(status.id) and spell.skill ~= 44 and targets:intersection(S(spell.targets)):length() > 0
-            end):map(function(spell) return spell.en end):sort()
+            local allBuffs = self.trust:get_job():get_spells(function(spellId)
+                local spell = res.spells[spellId]
+                if spell then
+                    local status = buff_util.buff_for_spell(spell.id)
+                    return status ~= nil and not buff_util.is_debuff(status.id) and spell.skill ~= 44 and targets:intersection(S(spell.targets)):length() > 0
+                end
+                return false
+            end):map(function(spellId)
+                return res.spells[spellId].en
+            end):sort()
 
             local chooseSpellsView = SpellPickerView.new(self.trustSettings, spellSettings, allBuffs, defaultJobNames, false)
             chooseSpellsView:setTitle("Choose buffs to add.")

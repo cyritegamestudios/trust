@@ -27,7 +27,7 @@ function ScrollView.new(frame, style)
     self.scrollBarSize = 8
     self.scrollDelta = 10
     self.scrollBars = L{}
-    self.scrollCooldown = 0.1
+    self.scrollCooldown = 0.05
     self.lastScrollTime = os.clock()
 
     self:addSubview(self.contentView)

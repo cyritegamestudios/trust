@@ -17,7 +17,7 @@ BlueMage.__index = BlueMage
 -- @tparam T cure_settings Cure thresholds
 -- @treturn BLU A Blue Mage
 function BlueMage.new(cure_settings)
-    local self = setmetatable(Job.new(), BlueMage)
+    local self = setmetatable(Job.new('BLU'), BlueMage)
 
     self.spells_action_queue = ActionQueue.new(nil, true, 20, false, false)
     self.dispose_bag = DisposeBag.new()
@@ -27,6 +27,25 @@ function BlueMage.new(cure_settings)
     self:set_cure_settings(cure_settings)
 
     return self
+end
+
+-------
+-- Returns a list of known spell ids.
+-- @tparam function filter Optional filter function
+-- @treturn list List of known spell ids
+function BlueMage:get_spells(filter)
+    filter = filter or function(_) return true end
+
+    return self.spell_list:getKnownSpellIds():filter(function(spell_id)
+        local spell = res.spells[spell_id]
+        if spell.blu_points then
+            local equipped_spell_ids = S(L(windower.ffxi.get_mjob_data().spells or {}):extend(L(windower.ffxi.get_sjob_data().spells or {})))
+            if not equipped_spell_ids:contains(spell.id) then
+                return false
+            end
+        end
+        return filter(spell_id)
+    end)
 end
 
 -------

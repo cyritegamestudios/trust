@@ -10,7 +10,7 @@ local SpellSettingsEditor = require('ui/settings/SpellSettingsEditor')
 local BufferSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 BufferSettingsMenuItem.__index = BufferSettingsMenuItem
 
-function BufferSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSettings, jobNameShort, settingsPrefix)
+function BufferSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, jobNameShort, settingsPrefix)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Self', 18),
         ButtonItem.default('Party', 18),
@@ -18,6 +18,7 @@ function BufferSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeS
         ButtonItem.default('Food', 18),
         ButtonItem.default('Modes', 18),
     }, {}, nil, "Buffs", "Choose buffs to use."), BufferSettingsMenuItem)
+    self.trust = trust
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
     self.trustModeSettings = trustModeSettings
@@ -45,12 +46,18 @@ function BufferSettingsMenuItem:reloadSettings()
 end
 
 function BufferSettingsMenuItem:getSelfBuffsMenuItem()
-    local selfBuffSettingsItem = BuffSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, self.settingsPrefix, 'SelfBuffs', S{'Self','Enemy'}, self.jobNameShort, "Edit buffs to use on the player.", false)
+    local selfBuffSettingsItem = BuffSettingsMenuItem.new(self.trust, self.trustSettings, self.trustSettingsMode, self.settingsPrefix, 'SelfBuffs', S{'Self','Enemy'}, self.jobNameShort, "Edit buffs to use on the player.", false)
+    selfBuffSettingsItem.enabled = function()
+        return not S{ 'BST', 'COR','DNC','DRG','MNK','PUP','SAM','THF','WAR' }:contains(self.trust:get_job().jobNameShort)
+    end
     return selfBuffSettingsItem
 end
 
 function BufferSettingsMenuItem:getPartyBuffsMenuItem()
-    local partyBuffSettingsItem = BuffSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, self.settingsPrefix, 'PartyBuffs', S{'Party'}, self.jobNameShort, "Edit buffs to use on party members.", true)
+    local partyBuffSettingsItem = BuffSettingsMenuItem.new(self.trust, self.trustSettings, self.trustSettingsMode, self.settingsPrefix, 'PartyBuffs', S{'Party'}, self.jobNameShort, "Edit buffs to use on party members.", true)
+    partyBuffSettingsItem.enabled = function()
+        return not S{ 'BST', 'COR','DNC','DRG','MNK','PUP','SAM','THF','WAR' }:contains(self.trust:get_job().jobNameShort)
+    end
     return partyBuffSettingsItem
 end
 

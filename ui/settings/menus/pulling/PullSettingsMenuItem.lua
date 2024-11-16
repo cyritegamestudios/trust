@@ -22,6 +22,7 @@ function PullSettingsMenuItem.new(abilities, trust, job_name_short, trust_settin
     }, nil, "Pulling", "Configure settings to pull monsters."), PullSettingsMenuItem)
 
     self.abilities = abilities
+    self.trust = trust
     self.puller = trust:role_with_type("puller")
     self.puller_settings = self.puller:get_pull_settings()
     self.job_name_short = job_name_short
@@ -43,7 +44,7 @@ end
 
 function PullSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Targets", self:getTargetsMenuItem())
-    self:setChildMenuItem("Actions", PullActionMenuItem.new(self.puller, self.trust_settings, self.trust_settings_mode))
+    self:setChildMenuItem("Actions", PullActionMenuItem.new(self.trust, self.trust_settings, self.trust_settings_mode))
     self:setChildMenuItem("Modes", self:getModesMenuItem())
     self:setChildMenuItem("Config", self:getConfigMenuItem())
 end

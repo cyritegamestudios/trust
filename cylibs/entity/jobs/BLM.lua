@@ -3,6 +3,8 @@
 -- @class module
 -- @name BlackMage
 
+local SpellList = require('cylibs/util/spell_list')
+
 local Job = require('cylibs/entity/jobs/job')
 local BlackMage = setmetatable({}, {__index = Job })
 BlackMage.__index = BlackMage
@@ -11,7 +13,7 @@ BlackMage.__index = BlackMage
 -- Default initializer for a new BlackMage.
 -- @treturn BlackMage A BlackMage
 function BlackMage.new()
-    local self = setmetatable(Job.new(), BlackMage)
+    local self = setmetatable(Job.new('BLM', L{ 'Dispelga', 'Impact' }), BlackMage)
     return self
 end
 

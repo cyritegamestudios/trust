@@ -17,7 +17,7 @@ local NukeSettingsEditor = setmetatable({}, {__index = FFXIWindow })
 NukeSettingsEditor.__index = NukeSettingsEditor
 
 
-function NukeSettingsEditor.new(trustSettings, settingsMode, helpUrl)
+function NukeSettingsEditor.new(trust, trustSettings, settingsMode, helpUrl)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = ImageTextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
@@ -37,10 +37,6 @@ function NukeSettingsEditor.new(trustSettings, settingsMode, helpUrl)
     self.settingsMode = settingsMode
     self.helpUrl = helpUrl
     self.menuArgs = {}
-
-    self.allSpells = spell_util.get_spells(function(spell)
-        return spell.type == 'BlackMagic'
-    end)
 
     self:reloadSettings()
 

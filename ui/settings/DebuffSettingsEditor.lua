@@ -1,33 +1,23 @@
 local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
-local BackgroundView = require('cylibs/ui/views/background/background_view')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
-local Color = require('cylibs/ui/views/color')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
-local Frame = require('cylibs/ui/views/frame')
 local ImageTextCollectionViewCell = require('cylibs/ui/collection_view/cells/image_text_collection_view_cell')
 local ImageTextItem = require('cylibs/ui/collection_view/items/image_text_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
-local ListView = require('cylibs/ui/list_view/list_view')
-local NavigationBar = require('cylibs/ui/navigation/navigation_bar')
-local Padding = require('cylibs/ui/style/padding')
-local PickerItem = require('cylibs/ui/picker/picker_item')
-local PickerView = require('cylibs/ui/picker/picker_view')
 local SpellSettingsEditor = require('ui/settings/SpellSettingsEditor')
 local spell_util = require('cylibs/util/spell_util')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
-local TrustSettingsLoader = require('TrustSettings')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
-local View = require('cylibs/ui/views/view')
 
 local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
 local DebuffSettingsEditor = setmetatable({}, {__index = FFXIWindow })
 DebuffSettingsEditor.__index = DebuffSettingsEditor
 
 
-function DebuffSettingsEditor.new(trustSettings, settingsMode, helpUrl)
+function DebuffSettingsEditor.new(trust, trustSettings, settingsMode, helpUrl)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = ImageTextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
@@ -42,18 +32,11 @@ function DebuffSettingsEditor.new(trustSettings, settingsMode, helpUrl)
     self.settingsMode = settingsMode
     self.helpUrl = helpUrl
 
-    self.allDebuffs = spell_util.get_spells(function(spell)
-        return spell.skill == 'Enfeebling Magic'
-    end)
-
     self:setAllowsCursorSelection(true)
-    self:setScrollDelta(20)
+    self:setScrollDelta(16)
     self:setScrollEnabled(true)
 
     self:reloadSettings()
-
-    self:setNeedsLayout()
-    self:layoutIfNeeded()
 
     if self:getDataSource():numberOfItemsInSection(1) > 0 then
         self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))

@@ -35,6 +35,7 @@ function SongSettingsMenuItem.new(addonSettings, trustSettings, trustSettingsMod
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
     self.trustModeSettings = trustModeSettings
+    self.trust = trust
     self.songSettings = T(trustSettings:getSettings())[trustSettingsMode.value].SongSettings
     self.songValidator = SongValidator.new(trust:role_with_type("singer"), action_queue)
     self.dispose_bag = DisposeBag.new()
@@ -48,12 +49,10 @@ function SongSettingsMenuItem:destroy()
     MenuItem.destroy(self)
 
     self.dispose_bag:destroy()
-
-    self.viewFactory = nil
 end
 
 function SongSettingsMenuItem:reloadSettings()
-    self:setChildMenuItem("Songs", SongListMenuItem.new(self.trustSettings, self.trustSettingsMode))
+    self:setChildMenuItem("Songs", SongListMenuItem.new(self.trust, self.trustSettings, self.trustSettingsMode))
     self:setChildMenuItem("Dummy", self:getEditDummySongsMenuItem())
     self:setChildMenuItem("Pianissimo", self:getPianissmoSongsMenuItem())
     self:setChildMenuItem("Config", self:getConfigMenuItem())
@@ -76,9 +75,10 @@ function SongSettingsMenuItem:getEditSongsMenuItem()
 
                 local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.Songs
 
-                local allSongs = spell_util.get_spells(function(spell)
-                    return spell.type == 'BardSong' and S{'Self'}:intersection(S(spell.targets)):length() > 0
-                end):map(function(spell) return spell.en  end):sort()
+                local allSongs = self.trust:get_job():get_spells(function(spellId)
+                    local spell = res.spells[spellId]
+                    return spell and spell.type == 'BardSong' and S{'Self'}:intersection(S(spell.targets)):length() > 0
+                end):map(function(spellId) return res.spells[spellId].en  end):sort()
 
                 local songSettings = {
                     Song1 = songs[1]:get_name(),
@@ -144,9 +144,10 @@ function SongSettingsMenuItem:getEditDummySongsMenuItem()
 
             local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.DummySongs
 
-            local allSongs = spell_util.get_spells(function(spell)
-                return spell.type == 'BardSong' and S{'Self'}:intersection(S(spell.targets)):length() > 0
-            end):map(function(spell) return spell.en  end):sort()
+            local allSongs = self.trust:get_job():get_spells(function(spellId)
+                local spell = res.spells[spellId]
+                return spell and spell.type == 'BardSong' and S{'Self'}:intersection(S(spell.targets)):length() > 0
+            end):map(function(spellId) return res.spells[spellId].en  end):sort()
 
             local songSettings = {
                 Song1 = songs[1]:get_name(),
@@ -207,9 +208,10 @@ function SongSettingsMenuItem:getPianissmoSongsMenuItem()
     local addPianissimoSongMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm'),
     }, {}, function(_, _)
-        local allSongs = spell_util.get_spells(function(spell)
-            return spell.type == 'BardSong' and S{'Self'}:intersection(S(spell.targets)):length() > 0
-        end):map(function(spell) return spell.en end)
+        local allSongs = self.trust:get_job():get_spells(function(spellId)
+            local spell = res.spells[spellId]
+            return spell and spell.type == 'BardSong' and S{'Self'}:intersection(S(spell.targets)):length() > 0
+        end):map(function(spellId) return res.spells[spellId].en  end):sort()
 
         local chooseSongsView = FFXIPickerView.withItems(allSongs, L{}, true, nil, imageItemForText)
 

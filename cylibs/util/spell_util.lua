@@ -77,11 +77,12 @@ end
 -- player's current level have been learned.
 -- @tparam number spell_id Spell id (see spells.lua)
 -- @treturn Boolean True if the player knows the given spell
-function spell_util.knows_spell(spell_id)
+function spell_util.knows_spell(spell_id, known_spells)
+    known_spells = known_spells or windower.ffxi.get_spells()
     -- Check if spell_id exists
     local spell = res.spells[spell_id]
     -- Check get_spells to get a list of all known spells, true if known, false or nil if not known
-    local spell_known = windower.ffxi.get_spells()[spell_id] or spells_whitelist:contains(spell_util.spell_name(spell_id))
+    local spell_known = known_spells[spell_id] or spells_whitelist:contains(spell_util.spell_name(spell_id))
     -- If both are true, check if player can cast
     if spell and spell_known then
         if spell.type == 'BlueMagic' then
@@ -208,9 +209,10 @@ end
 -- Returns the spell metadata for all spells matching the given filter.
 -- @treturn list List of SpellMetadata (see res/spells.lua).
 function spell_util.get_spells(filter)
-    filter = filter or function(_) return true  end
-    local all_spell_ids = L(T(windower.ffxi.get_spells()):keyset())
-            :filter(function(spellId) return res.spells[spellId] ~= nil and spell_util.knows_spell(spellId) end)
+    filter = filter or function(_) return true end
+    local known_spells = windower.ffxi.get_spells()
+    local all_spell_ids = L(T(known_spells):keyset())
+            :filter(function(spellId) return res.spells[spellId] ~= nil and spell_util.knows_spell(spellId, known_spells) end)
     local all_spells = all_spell_ids:map(function(spell_id) return res.spells[spell_id] end)
             :filter(function(spell) return filter(spell)  end)
     return all_spells

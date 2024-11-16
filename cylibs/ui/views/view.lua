@@ -27,8 +27,6 @@ function View.new(frame)
     self.visible = true
     self.userInteractionEnabled = false
     self.backgroundColor = Color.new(0, 0, 0, 0)
-    self.backgroundView = Image.new()
-    self.backgroundView:draggable(false)
     self.backgroundImageView = nil
     self.clipsToBounds = false
     self.frame = frame or Frame.new(0, 0, 0 , 0)
@@ -43,7 +41,7 @@ function View.new(frame)
     self.uuid = os.time()..'-'..math.random(100000)
     self.destroyed = false
     self.disposeBag = DisposeBag.new()
-    self.disposeBag:addAny(L{ self.backgroundView, self.backgroundImageView })
+    self.disposeBag:addAny(L{ self.backgroundImageView })
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
@@ -481,11 +479,15 @@ function View:layoutIfNeeded()
     local x = position.x
     local y = position.y
 
-    self.backgroundView:alpha(self.backgroundColor.alpha)
-    self.backgroundView:color(self.backgroundColor.red, self.backgroundColor.green, self.backgroundColor.blue)
-    self.backgroundView:pos(x, y)
-    self.backgroundView:size(self.frame.width, self.frame.height)
-    self.backgroundView:visible(self:isVisible())
+    self.hitBox = Frame.new(x, y, self.frame.width, self.frame.height)
+
+    if self.backgroundView then
+        self.backgroundView:alpha(self.backgroundColor.alpha)
+        self.backgroundView:color(self.backgroundColor.red, self.backgroundColor.green, self.backgroundColor.blue)
+        self.backgroundView:pos(x, y)
+        self.backgroundView:size(self.frame.width, self.frame.height)
+        self.backgroundView:visible(self:isVisible())
+    end
 
     if self.backgroundImageView then
         self.backgroundImageView:setSize(self.frame.width, self.frame.height)
@@ -517,8 +519,11 @@ end
 -- @treturn bool True if the coordinates are within the view's bounds, otherwise false.
 --
 function View:hitTest(x, y)
-    -- FIXME: add manual checking using absolute coordinates
-    return self.backgroundView:hover(x, y)
+    if self.backgroundView then
+        return self.backgroundView:hover(x, y)
+    end
+    return x >= self.hitBox.x and x <= self.hitBox.x + self.hitBox.width
+        and y >= self.hitBox.y and y <= self.hitBox.y + self.hitBox.height
 end
 
 ---

@@ -96,7 +96,6 @@ function ViewStack:present(view)
     end
     self.currentView:layoutIfNeeded()
     self.currentView:setVisible(true)
-    --self.currentView:layoutIfNeeded()
 end
 
 function ViewStack:dismiss()
