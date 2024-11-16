@@ -96,6 +96,7 @@ function BuffSettingsEditor:reloadSettings()
     local items = L{}
 
     local rowIndex = 1
+    
     for spell in self.buffs:it() do
         local imageItem = AssetManager.imageItemForSpell(spell:get_name())
         local textItem = TextItem.new(spell:get_spell().en, TextStyle.Default.PickerItem)

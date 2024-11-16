@@ -47,11 +47,17 @@ end
 
 function BufferSettingsMenuItem:getSelfBuffsMenuItem()
     local selfBuffSettingsItem = BuffSettingsMenuItem.new(self.trust, self.trustSettings, self.trustSettingsMode, self.settingsPrefix, 'SelfBuffs', S{'Self','Enemy'}, self.jobNameShort, "Edit buffs to use on the player.", false)
+    selfBuffSettingsItem.enabled = function()
+        return not S{ 'BST', 'COR','DNC','DRG','MNK','PUP','SAM','THF','WAR' }:contains(self.trust:get_job().jobNameShort)
+    end
     return selfBuffSettingsItem
 end
 
 function BufferSettingsMenuItem:getPartyBuffsMenuItem()
     local partyBuffSettingsItem = BuffSettingsMenuItem.new(self.trust, self.trustSettings, self.trustSettingsMode, self.settingsPrefix, 'PartyBuffs', S{'Party'}, self.jobNameShort, "Edit buffs to use on party members.", true)
+    partyBuffSettingsItem.enabled = function()
+        return not S{ 'BST', 'COR','DNC','DRG','MNK','PUP','SAM','THF','WAR' }:contains(self.trust:get_job().jobNameShort)
+    end
     return partyBuffSettingsItem
 end
 

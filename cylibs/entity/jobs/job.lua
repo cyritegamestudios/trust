@@ -13,6 +13,7 @@ Job.__index = Job
 -- @treturn Job A job
 function Job.new(jobNameShort, spellWhitelist)
     local self = setmetatable({}, Job)
+    self.jobNameShort = jobNameShort
     self.jobId = res.jobs:with('ens', jobNameShort).id
     self.spell_list = SpellList.new(self.jobId, self:getLevel(), spellWhitelist or L{})
     return self
