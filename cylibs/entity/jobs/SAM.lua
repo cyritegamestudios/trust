@@ -11,8 +11,7 @@ Samurai.__index = Samurai
 -- Default initializer for a new Samurai.
 -- @treturn SAM A Samurai
 function Samurai.new()
-    local self = setmetatable(Job.new(), Samurai)
-
+    local self = setmetatable(Job.new('SAM'), Samurai)
     return self
 end
 

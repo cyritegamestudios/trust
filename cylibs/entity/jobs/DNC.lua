@@ -15,7 +15,7 @@ local cure_util = require('cylibs/util/cure_util')
 -- @tparam T cure_settings Cure thresholds
 -- @treturn Dancer A Dancer
 function Dancer.new(cure_settings)
-    local self = setmetatable(Job.new(), Dancer)
+    local self = setmetatable(Job.new('DNC'), Dancer)
     self:set_cure_settings(cure_settings)
     return self
 end

@@ -10,7 +10,7 @@ local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local GeomancySettingsMenuItem = setmetatable({}, {__index = MenuItem })
 GeomancySettingsMenuItem.__index = GeomancySettingsMenuItem
 
-function GeomancySettingsMenuItem.new(trustSettings, trustModeSettings, geomancySettings, entrustSpells)
+function GeomancySettingsMenuItem.new(trust, trustSettings, trustModeSettings, geomancySettings, entrustSpells)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Geo', 18),
         ButtonItem.default('Indi', 18),
@@ -24,6 +24,7 @@ function GeomancySettingsMenuItem.new(trustSettings, trustModeSettings, geomancy
         return geomancyView
     end, "Geomancy", "Configure indicolure and geocolure settings."), GeomancySettingsMenuItem)
 
+    self.trust = trust
     self.trustSettings = trustSettings
     self.trustModeSettings = trustModeSettings
     self.geomancySettings = geomancySettings
@@ -44,7 +45,7 @@ end
 function GeomancySettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Geo", self:getGeoMenuItem())
     self:setChildMenuItem("Indi", self:getIndiMenuItem())
-    self:setChildMenuItem("Entrust", EntrustSettingsMenuItem.new(self.trustSettings, self.entrustSpells))
+    self:setChildMenuItem("Entrust", EntrustSettingsMenuItem.new(self.trust, self.trustSettings, self.entrustSpells))
     self:setChildMenuItem("Modes", self:getModesMenuItem())
 end
 
@@ -52,9 +53,10 @@ function GeomancySettingsMenuItem:getGeoMenuItem()
     local editSpellMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
     }, {}, function(_, _)
-        local allSpells = spell_util.get_spells(function(spell)
-            return spell.skill == 44 and S{ 'Party', 'Enemy'}:intersection(S(spell.targets)):length() > 0
-        end):map(function(spell) return spell.en end)
+        local allSpells = self.trust:get_job():get_spells(function(spellId)
+            local spell = res.spells[spellId]
+            return spell and spell.skill == 44 and S{ 'Party', 'Enemy'}:intersection(S(spell.targets)):length() > 0
+        end):map(function(spellId) return res.spells[spellId].en end):sort()
 
         local imageItemForText = function(text)
             return AssetManager.imageItemForSpell(text)
@@ -115,9 +117,10 @@ function GeomancySettingsMenuItem:getIndiMenuItem()
     local indicolureMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
     }, {}, function(menuArgs)
-        local allSpells = spell_util.get_spells(function(spell)
-            return spell.skill == 44 and S{ 'Self' }:equals(S(spell.targets))
-        end):map(function(spell) return spell.en end)
+        local allSpells = self.trust:get_job():get_spells(function(spellId)
+            local spell = res.spells[spellId]
+            return spell and spell.skill == 44 and S{ 'Self' }:equals(S(spell.targets))
+        end):map(function(spellId) return res.spells[spellId].en end):sort()
 
         local imageItemForText = function(text)
             return AssetManager.imageItemForSpell(text)

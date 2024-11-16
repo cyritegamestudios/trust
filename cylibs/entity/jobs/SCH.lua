@@ -19,7 +19,7 @@ local Grimoire = {
 -- @tparam T trust_settings Trust settings
 -- @treturn SCH A Scholar
 function Scholar.new(trust_settings)
-    local self = setmetatable(Job.new(), Scholar)
+    local self = setmetatable(Job.new('SCH', L{ 'Dispelga', 'Impact' }), Scholar)
     self:set_trust_settings(trust_settings)
     self.allow_sub_job = trust_settings.AllowSubJob
     if self.allow_sub_job == nil then

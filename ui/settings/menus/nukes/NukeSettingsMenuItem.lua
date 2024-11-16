@@ -22,11 +22,12 @@ function NukeSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trust
         ButtonItem.default('Modes', 18),
         ButtonItem.default('Help', 18),
     }, {}, function()
-        local nukeSettingsView = NukeSettingsEditor.new(trustSettings, trustSettingsMode, addonSettings:getSettings().help.wiki_base_url..'/Nuker')
+        local nukeSettingsView = NukeSettingsEditor.new(trust, trustSettings, trustSettingsMode, addonSettings:getSettings().help.wiki_base_url..'/Nuker')
         nukeSettingsView:setShouldRequestFocus(true)
         return nukeSettingsView
     end, "Nukes", "Choose which nukes to use when magic bursting or free nuking."), NukeSettingsMenuItem)
 
+    self.trust = trust
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
     self.trustModeSettings = trustModeSettings
@@ -61,10 +62,12 @@ function NukeSettingsMenuItem:getNukesMenuItem()
         function(args)
             local spellSettings = args['spells']
 
-            local jobId = res.jobs:with('ens', self.jobNameShort).id
-            local allSpells = spell_util.get_spells(function(spell)
-                return spell.levels[jobId] ~= nil and S{'BlackMagic','WhiteMagic','Ninjutsu'}:contains(spell.type) and S{ 'Enemy' }:intersection(S(spell.targets)):length() > 0
-            end):map(function(spell) return spell.en end):sort()
+            local allSpells = self.trust:get_job():get_spells(function(spell_id)
+                local spell = res.spells[spell_id]
+                return spell and S{ 'BlackMagic','WhiteMagic','Ninjutsu' }:contains(spell.type) and S{ 'Enemy' }:intersection(S(spell.targets)):length() > 0
+            end):map(function(spell_id)
+                return res.spells[spell_id].en
+            end):sort()
 
             local sortSpells = function(spells)
                 spell_util.sort_by_element(spells, true)

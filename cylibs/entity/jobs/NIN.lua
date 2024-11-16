@@ -11,8 +11,7 @@ Ninja.__index = Ninja
 -- Default initializer for a new Ninja.
 -- @treturn NIN A Ninja
 function Ninja.new()
-    local self = setmetatable(Job.new(), Ninja)
-
+    local self = setmetatable(Job.new('NIN'), Ninja)
     return self
 end
 

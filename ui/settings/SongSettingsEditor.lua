@@ -48,10 +48,6 @@ function SongSettingsEditor.new(trustSettings, settingsMode, helpUrl)
     self.settingsMode = settingsMode
     self.menuArgs = {}
 
-    self.allSongs = spell_util.get_spells(function(spell)
-        return spell.type == 'BardSong'
-    end)
-
     self:reloadSettings()
 
     self:setNeedsLayout()

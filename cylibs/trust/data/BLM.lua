@@ -22,7 +22,7 @@ function BlackMageTrust.new(settings, action_queue, battle_settings, trust_setti
 		Puller.new(action_queue, trust_settings.PullSettings.Targets, trust_settings.PullSettings.Abilities or L{ Spell.new('Burn') }),
 		Sleeper.new(action_queue, L{ Spell.new('Sleepga'), Spell.new('Sleepga II') }, 4)
 	}
-	local self = setmetatable(Trust.new(action_queue, roles, trust_settings), BlackMageTrust)
+	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), BlackMageTrust)
 	return self
 end
 

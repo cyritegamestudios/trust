@@ -12,7 +12,7 @@ Paladin.__index = Paladin
 -- @tparam T cure_settings Cure thresholds
 -- @treturn PLD A Paladin
 function Paladin.new(cure_settings)
-    local self = setmetatable(Job.new(), Paladin)
+    local self = setmetatable(Job.new('PLD'), Paladin)
     self.cure_settings = cure_settings
     return self
 end

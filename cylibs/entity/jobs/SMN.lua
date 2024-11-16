@@ -28,7 +28,7 @@ local avatar_to_blood_pacts = T{
 -- Default initializer for a new Summoner.
 -- @treturn SMN A Summoner
 function Summoner.new()
-    local self = setmetatable(Job.new(), Summoner)
+    local self = setmetatable(Job.new('SMN', L{ 'Dispelga', 'Impact' }), Summoner)
 
     return self
 end

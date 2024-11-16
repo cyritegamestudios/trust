@@ -13,13 +13,14 @@ local Spell = require('cylibs/battle/spell')
 local PullActionMenuItem = setmetatable({}, {__index = MenuItem })
 PullActionMenuItem.__index = PullActionMenuItem
 
-function PullActionMenuItem.new(puller, trustSettings, trustSettingsMode)
+function PullActionMenuItem.new(trust, trustSettings, trustSettingsMode)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
         ButtonItem.default('Conditions', 18),
     }, {}, nil, "Pulling", "Configure which actions to use to pull enemies."), PullActionMenuItem)
 
+    self.trust = trust
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
     self.dispose_bag = DisposeBag.new()
@@ -51,7 +52,12 @@ end
 
 function PullActionMenuItem:getPullAbilities()
     local sections = L{
-        spell_util.get_spells_with_targets(S{'Enemy'}):map(function(spell) return spell.en end),
+        self.trust:get_job():get_spells(function(spellId)
+            local spell = res.spells[spellId]
+            return spell and S{ 'Enemy' }:equals(S(spell.targets))
+        end):map(function(spellId)
+            return res.spells[spellId].en
+        end),
         player_util.get_job_abilities():map(function(jobAbilityId) return res.job_abilities[jobAbilityId] end):filter(function(jobAbility)
             return S{'Enemy'}:intersection(S(jobAbility.targets)):length() > 0
         end):map(function(jobAbility) return jobAbility.en end),

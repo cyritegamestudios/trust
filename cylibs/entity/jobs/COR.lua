@@ -112,7 +112,7 @@ rolls["Avenger's Roll"].Unlucky = 8
 -- Default initializer for a new Corsair.
 -- @treturn COR A Corsair
 function Corsair.new(action_queue, roll_mode)
-    local self = setmetatable(Job.new(), Corsair)
+    local self = setmetatable(Job.new('COR'), Corsair)
     self.action_queue = action_queue
     self.roll_mode = roll_mode
     return self

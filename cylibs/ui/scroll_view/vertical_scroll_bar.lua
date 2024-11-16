@@ -35,8 +35,10 @@ function VerticalScrollBar:layoutIfNeeded()
     --self.backgroundImageView:layoutIfNeeded()
 
     self.scrollUpButton:setPosition(0, -4)
+    self.scrollUpButton:setVisible(self:isVisible())
     self.scrollUpButton:layoutIfNeeded()
 
+    self.scrollDownButton:setVisible(self:isVisible())
     self.scrollDownButton:setPosition(0, self.frame.height)
     self.scrollDownButton:layoutIfNeeded()
 end

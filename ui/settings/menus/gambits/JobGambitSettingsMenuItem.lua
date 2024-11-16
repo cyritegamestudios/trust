@@ -10,12 +10,13 @@ local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 local JobGambitSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 JobGambitSettingsMenuItem.__index = JobGambitSettingsMenuItem
 
-function JobGambitSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSettings)
+function JobGambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Toggle', 18),
         ButtonItem.default('Modes', 18),
     }, {}, nil, "Gambits", "Toggle default behaviors.", false), JobGambitSettingsMenuItem)
 
+    self.trust = trust
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
     self.trustModeSettings = trustModeSettings

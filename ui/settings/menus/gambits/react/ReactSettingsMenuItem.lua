@@ -14,7 +14,7 @@ local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 local ReactSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 ReactSettingsMenuItem.__index = ReactSettingsMenuItem
 
-function ReactSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSettings)
+function ReactSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Add', 18),
         ButtonItem.default('Edit', 18),
@@ -22,6 +22,7 @@ function ReactSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSe
         ButtonItem.default('Modes', 18),
     }, {}, nil, "Reactions", "Add reactions to actions taken by enemies or party members."), ReactSettingsMenuItem)
 
+    self.trust = trust
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
     self.trustModeSettings = trustModeSettings
@@ -82,14 +83,18 @@ function ReactSettingsMenuItem:getAbilities(gambitTarget, flatten)
     }
     local targets = gambitTargetMap[gambitTarget]
     local sections = L{
-        spell_util.get_spells(function(spell)
-            local spellTargets = L(spell.targets)
-            if spell.type == 'Geomancy' and spellTargets:length() == 1 and spellTargets[1] == 'Self' then
-                spellTargets:append('Party')
+        self.trust:get_job():get_spells(function(spellId)
+            local spell = res.spells[spellId]
+            if spell then
+                local spellTargets = L(spell.targets)
+                if spell.type == 'Geomancy' and spellTargets:length() == 1 and spellTargets[1] == 'Self' then
+                    spellTargets:append('Party')
+                end
+                return spell.type ~= 'Trust' and S(spellTargets):intersection(targets):length() > 0
             end
-            return spell.type ~= 'Trust' and S(spellTargets):intersection(targets):length() > 0
-        end):map(function(spell)
-            return spell.en
+            return false
+        end):map(function(spellId)
+            return res.spells[spellId].en
         end):sort(),
         player_util.get_job_abilities():filter(function(jobAbilityId)
             local jobAbility = res.job_abilities[jobAbilityId]

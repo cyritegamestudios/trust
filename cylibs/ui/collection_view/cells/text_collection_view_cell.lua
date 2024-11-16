@@ -109,7 +109,7 @@ function TextCollectionViewCell:layoutIfNeeded()
         end
     end
 
-    self.textView:visible(self:getAbsoluteVisibility() and self:isVisible())
+    self.textView:visible(isVisible)
 
     return true
 end

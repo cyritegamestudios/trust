@@ -45,7 +45,7 @@ local familiar_info = {['FunguarFamiliar']="Funguar, Plantoid, Warrior",['Courie
 -- @tparam ActionQueue action_queue Action queue
 -- @treturn Beastmaster A Beastmaster
 function Beastmaster.new(action_queue)
-    local self = setmetatable(Job.new(), Beastmaster)
+    local self = setmetatable(Job.new('BST'), Beastmaster)
 
     self.action_queue = action_queue
 

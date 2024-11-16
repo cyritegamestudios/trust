@@ -366,11 +366,17 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
     }, {},
             function()
                 local jobId = res.jobs:with('ens', jobNameShort).id
-                local allDebuffs = spell_util.get_spells(function(spell)
-                    return spell.levels[jobId] ~= nil and spell.status ~= nil and L{32, 35, 36, 39, 40, 41, 42}:contains(spell.skill) and spell.targets:contains('Enemy')
-                end):map(function(spell) return spell.en end):sort()
+                --local profiler = require('cylibs/util/profile')
+                --profiler.start()
+                local allDebuffs = trust:get_job():get_spells(function(spell_id)
+                    local spell = res.spells[spell_id]
+                    return spell and spell.status ~= nil and L{ 32, 35, 36, 39, 40, 41, 42 }:contains(spell.skill) and spell.targets:contains('Enemy')
+                end):map(function(spell_id)
+                    return res.spells[spell_id].en
+                end):sort()
 
                 local chooseSpellsView = SpellPickerView.new(trustSettings, L(T(trustSettings:getSettings())[trustSettingsMode.value].Debuffs), allDebuffs, L{}, false)
+
                 return chooseSpellsView
             end, "Debuffs", "Add a new debuff.")
 
@@ -387,7 +393,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         Modes = debuffModesMenuItem,
     },
     function()
-        local debuffSettingsView = DebuffSettingsEditor.new(trustSettings, trustSettingsMode, self.addon_settings:getSettings().help.wiki_base_url..'/Debuffer')
+        local debuffSettingsView = DebuffSettingsEditor.new(trust, trustSettings, trustSettingsMode, self.addon_settings:getSettings().help.wiki_base_url..'/Debuffer')
         return debuffSettingsView
     end, "Debuffs", "Choose debuffs to use on enemies.")
 
@@ -405,7 +411,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
 
     if jobNameShort == 'GEO' then
         menuItems:append(ButtonItem.default('Geomancy', 18))
-        childMenuItems.Geomancy = GeomancySettingsMenuItem.new(trustSettings, self.trustModeSettings, trustSettings:getSettings()[trustSettingsMode.value].Geomancy, trustSettings:getSettings()[trustSettingsMode.value].PartyBuffs, function(view)
+        childMenuItems.Geomancy = GeomancySettingsMenuItem.new(trust, trustSettings, self.trustModeSettings, trustSettings:getSettings()[trustSettingsMode.value].Geomancy, trustSettings:getSettings()[trustSettingsMode.value].PartyBuffs, function(view)
             return setupView(view, viewSize)
         end)
     end
@@ -494,9 +500,9 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         ButtonItem.default(jobName, 18),
         ButtonItem.default('Reactions', 18),
     }, {
-        Custom = GambitSettingsMenuItem.new(trustSettings, trustSettingsMode, self.trustModeSettings),
-        [jobName] = JobGambitSettingsMenuItem.new(trustSettings, trustSettingsMode, self.trustModeSettings),
-        Reactions = ReactSettingsMenuItem.new(trustSettings, trustSettingsMode, self.trustModeSettings),
+        Custom = GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, self.trustModeSettings),
+        [jobName] = JobGambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, self.trustModeSettings),
+        Reactions = ReactSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, self.trustModeSettings),
     }, nil, "Gambits", "Configure Trust behavior.")
 
     local settingsMenuItem = MenuItem.new(menuItems, childMenuItems, nil, "Settings", "Configure Trust settings for skillchains, buffs, debuffs and more.")
@@ -542,13 +548,13 @@ end
 
 function TrustHud:getBufferMenuItem(trust, jobNameShort, trustSettings, trustSettingsMode, trustModeSettings)
     if jobNameShort ~= 'SCH' then
-        local bufferSettingsMenuItem = BufferSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSettings, jobNameShort)
+        local bufferSettingsMenuItem = BufferSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, jobNameShort)
         return bufferSettingsMenuItem
     else
         local childMenuItems = {}
 
-        childMenuItems["Light Arts"] = BufferSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSettings, jobNameShort, 'LightArts')
-        childMenuItems["Dark Arts"] = BufferSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSettings, jobNameShort, 'DarkArts')
+        childMenuItems["Light Arts"] = BufferSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, jobNameShort, 'LightArts')
+        childMenuItems["Dark Arts"] = BufferSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, jobNameShort, 'DarkArts')
 
         local artsSettingsMenuItem = MenuItem.new(L{
             ButtonItem.default('Light Arts', 18),

@@ -11,8 +11,7 @@ DarkKnight.__index = DarkKnight
 -- Default initializer for a new DarkKnight.
 -- @treturn DRK A DarkKnight
 function DarkKnight.new()
-    local self = setmetatable(Job.new(), DarkKnight)
-
+    local self = setmetatable(Job.new('DRK', L{ 'Impact' }), DarkKnight)
     return self
 end
 

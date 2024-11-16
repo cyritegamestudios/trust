@@ -22,7 +22,7 @@ local rune_list = L{
 -- Default initializer for a new RuneFencer.
 -- @treturn RuneFencer A RuneFencer
 function RuneFencer.new()
-    local self = setmetatable(Job.new(), RuneFencer)
+    local self = setmetatable(Job.new('RUN'), RuneFencer)
     return self
 end
 

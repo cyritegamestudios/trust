@@ -11,8 +11,7 @@ Geomancer.__index = Geomancer
 -- Default initializer for a new Geomancer.
 -- @treturn GEO A Geomancer
 function Geomancer.new()
-    local self = setmetatable(Job.new(), Geomancer)
-
+    local self = setmetatable(Job.new('GEO', L{ 'Dispelga', 'Impact' }), Geomancer)
     return self
 end
 
