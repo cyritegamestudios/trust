@@ -10,8 +10,8 @@ return {
             Spell.new("Enblizzard", L{}, L{}, nil, L{InBattleCondition.new(), MainJobCondition.new("RDM")}),
             Spell.new("Gain-INT", L{}, L{}, nil, L{NotCondition.new(L{ModeCondition.new("AutoMagicBurstMode", "Off")})}),
             Spell.new("Gain-STR", L{}, L{}, nil, L{ModeCondition.new("AutoMagicBurstMode", "Off")}),
-            Buff.new("Protect", L{}, L{}, nil, L{}),
-            Buff.new("Shell", L{}, L{}, nil, L{})
+            Buff.new("Protect", L{}, L{}, nil, L{MainJobCondition.new("RDM")}),
+            Buff.new("Shell", L{}, L{}, nil, L{MainJobCondition.new("RDM")})
         },
         GambitSettings = {
             Default = L{
