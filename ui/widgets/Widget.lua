@@ -152,6 +152,7 @@ function Widget:setEditing(editing)
     if self:isEditing() then
         self.editingOverlay = ColorView.new(Frame.new(0, 0, self:getContentView():getSize().width, self:getContentView():getSize().height), Color.white:withAlpha(25))
         self:getContentView():addSubview(self.editingOverlay)
+        self.editingOverlay:setNeedsLayout()
         self.editingOverlay:layoutIfNeeded()
     else
         if self.editingOverlay then
@@ -176,7 +177,7 @@ function Widget:setHasFocus(hasFocus)
 end
 
 function Widget:isCursorEnabled()
-    return self:hasFocus()
+    return self:hasFocus() and not self:isEditing()
 end
 
 function Widget:onMouseEvent(type, x, y, delta)

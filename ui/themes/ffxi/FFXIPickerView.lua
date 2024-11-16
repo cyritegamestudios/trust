@@ -28,7 +28,7 @@ function FFXIPickerView.new(pickerItems, allowsMultipleSelection, cursorImageIte
         backgroundView:setTitle(title, { width = 20, height = 14 })
     end
 
-    local self = setmetatable(PickerView.new(pickerItems, allowsMultipleSelection, cursorImageItem, mediaPlayer or defaultMediaPlayer, soundTheme or defaultSoundTheme), FFXIPickerView)
+    local self = setmetatable(PickerView.new(pickerItems, allowsMultipleSelection, mediaPlayer or defaultMediaPlayer, soundTheme or defaultSoundTheme), FFXIPickerView)
 
     self:setBackgroundImageView(backgroundView)
     self:setSize(viewSize.width, viewSize.height)

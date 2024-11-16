@@ -43,10 +43,9 @@ end
 --
 -- @tparam list pickerItems A list of PickerItems.
 -- @tparam boolean allowsMultipleSelection Indicates if multiple selection is allowed.
--- @tparam ImageItem cursorImageItem (optional) The cursor image item
 -- @treturn PickerView The created PickerView.
 --
-function PickerView.new(pickerItems, allowsMultipleSelection, cursorImageItem, mediaPlayer, soundTheme)
+function PickerView.new(pickerItems, allowsMultipleSelection, mediaPlayer, soundTheme)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell
         if item.__type == TextItem.__type then
@@ -145,14 +144,13 @@ end
 -- @tparam list texts A list of text strings.
 -- @tparam list selectedTexts A list of selected text strings.
 -- @tparam boolean allowsMultipleSelection Indicates if multiple selection is allowed.
--- @tparam ImageItem cursorImageItem (optional) The cursor image item
 -- @treturn PickerView The created PickerView.
 --
-function PickerView.withItems(texts, selectedTexts, allowsMultipleSelection, cursorImageItem)
+function PickerView.withItems(texts, selectedTexts, allowsMultipleSelection)
     local pickerItems = texts:map(function(text)
         return PickerItem.new(TextItem.new(text, TextStyle.Picker.Text), selectedTexts:contains(text))
     end)
-    return PickerView.new(L{ pickerItems }, allowsMultipleSelection, cursorImageItem)
+    return PickerView.new(L{ pickerItems }, allowsMultipleSelection)
 end
 
 ---
@@ -161,10 +159,9 @@ end
 -- @tparam list sections A list of list of text strings.
 -- @tparam list selectedTexts A list of selected text strings.
 -- @tparam boolean allowsMultipleSelection Indicates if multiple selection is allowed.
--- @tparam ImageItem cursorImageItem (optional) The cursor image item
 -- @treturn PickerView The created PickerView.
 --
-function PickerView.withSections(sections, selectedTexts, allowsMultipleSelection, cursorImageItem)
+function PickerView.withSections(sections, selectedTexts, allowsMultipleSelection)
     local itemsBySection = L{}
     for sectionTexts in sections:it() do
         local pickerItems = sectionTexts:map(function(text)
@@ -172,7 +169,7 @@ function PickerView.withSections(sections, selectedTexts, allowsMultipleSelectio
         end)
         itemsBySection:append(pickerItems)
     end
-    return PickerView.new(itemsBySection, allowsMultipleSelection, cursorImageItem)
+    return PickerView.new(itemsBySection, allowsMultipleSelection)
 end
 
 ---
