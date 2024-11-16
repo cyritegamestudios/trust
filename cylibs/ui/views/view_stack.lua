@@ -73,9 +73,6 @@ function ViewStack:destroy()
 end
 
 function ViewStack:present(view)
-    local profiler = require('cylibs/util/profile')
-    --profiler.start()
-
     self.stack:append(view)
 
     self:onStackSizeChanged():trigger(self:getNumViews())
@@ -99,10 +96,6 @@ function ViewStack:present(view)
     end
     self.currentView:layoutIfNeeded()
     self.currentView:setVisible(true)
-    --self.currentView:layoutIfNeeded()
-    --profiler.stop()
-    --print(profiler.report(4))
-    --profiler.reset()
 end
 
 function ViewStack:dismiss()

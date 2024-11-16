@@ -365,9 +365,6 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         ButtonItem.default('Clear', 18),
     }, {},
             function()
-                local jobId = res.jobs:with('ens', jobNameShort).id
-                --local profiler = require('cylibs/util/profile')
-                --profiler.start()
                 local allDebuffs = trust:get_job():get_spells(function(spell_id)
                     local spell = res.spells[spell_id]
                     return spell and spell.status ~= nil and L{ 32, 35, 36, 39, 40, 41, 42 }:contains(spell.skill) and spell.targets:contains('Enemy')
@@ -376,7 +373,6 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
                 end):sort()
 
                 local chooseSpellsView = SpellPickerView.new(trustSettings, L(T(trustSettings:getSettings())[trustSettingsMode.value].Debuffs), allDebuffs, L{}, false)
-
                 return chooseSpellsView
             end, "Debuffs", "Add a new debuff.")
 

@@ -205,8 +205,6 @@ function spell_util.can_cast_spells()
     return true
 end
 
-local cached = nil
-
 -------
 -- Returns the spell metadata for all spells matching the given filter.
 -- @treturn list List of SpellMetadata (see res/spells.lua).

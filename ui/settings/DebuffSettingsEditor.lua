@@ -32,11 +32,6 @@ function DebuffSettingsEditor.new(trust, trustSettings, settingsMode, helpUrl)
     self.settingsMode = settingsMode
     self.helpUrl = helpUrl
 
-    self.allDebuffs = trust:get_job():get_spells(function(spell_id)
-        local spell = res.spells[spell_id]
-        return spell and spell.skill == 'Enfeebling Magic'
-    end)
-
     self:setAllowsCursorSelection(true)
     self:setScrollDelta(16)
     self:setScrollEnabled(true)
