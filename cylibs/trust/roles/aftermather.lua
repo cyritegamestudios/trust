@@ -87,7 +87,7 @@ function Aftermather.new(action_queue, skillchainer)
     local self = setmetatable(Role.new(action_queue), Aftermather)
 
     self.skillchainer = skillchainer
-    self.aftermath_buff_ids = L{ 270, 271, 272, 273 }
+    self.aftermath_buff_ids = S{ 270, 271, 272, 273 }
     self.last_aftermath_check_time = os.time()
     self.dispose_bag = DisposeBag.new()
 
@@ -160,7 +160,7 @@ function Aftermather:tic(_, _)
 end
 
 function Aftermather:update_aftermath()
-    self:set_is_aftermath_active(buff_util.is_any_buff_active(self:get_target_aftermath_ids(), self:get_party():get_player():get_buff_ids()))
+    self:set_is_aftermath_active(buff_util.is_any_buff_active(self:get_target_aftermath_ids(self.aftermath_weapon_skill), self:get_party():get_player():get_buff_ids()))
 end
 
 function Aftermather:update_weapons()
@@ -222,15 +222,26 @@ function Aftermather:get_aftermath_tp()
     end
 end
 
-function Aftermather:get_target_aftermath_ids()
-    local mode_value = state.AutoAftermathMode.value
-    if mode_value == 'Auto' then
-        return S{ 272 }
-    elseif mode_value == '2000' then
-        return S{ 271, 272 }
+function Aftermather:get_target_aftermath_ids(aftermath_weapon_skill)
+    if self:is_relic_weapon_skill(aftermath_weapon_skill) then
+        return S{ 273 }
     else
-        return S{ 271, 272, 273 }
+        local mode_value = state.AutoAftermathMode.value
+        if mode_value == 'Auto' then
+            return S{ 272 }
+        elseif mode_value == '2000' then
+            return S{ 271, 272 }
+        else
+            return S{ 271, 272, 273 }
+        end
     end
+end
+
+function Aftermather:is_relic_weapon_skill(aftermath_weapon_skill)
+    if aftermath_weapon_skill == nil then
+        return false
+    end
+    return S{ 10, 26, 43, 57, 73, 89, 105, 121, 137, 153, 170, 185, 200, 216 }:contains(aftermath_weapon_skill:get_ability_id())
 end
 
 function Aftermather:allows_duplicates()
