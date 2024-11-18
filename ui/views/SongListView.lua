@@ -6,37 +6,41 @@ SongListEditor.__index = SongListEditor
 
 
 function SongListEditor.new(singer)
-    local partyMember = singer:get_party():get_player()
+    local partyMembers = job_util.all_jobs():map(function(jobNameShort)
+        local partyMember = PartyMember.new(res.jobs:with('ens', jobNameShort).id, jobNameShort)
+        partyMember.main_job_short = jobNameShort
+        return partyMember
+    end)
 
     local songSettings = {
-        PartyMember = partyMember:get_name(),
+        PartyMember = partyMembers[1],
     }
 
     local configItems = L{
     }
 
-    local mergedSongs = singer:get_merged_songs(partyMember)
+    local maxNumSongs = singer.brd_job.max_num_songs + 1
+    local mergedSongs = singer:get_merged_songs(partyMembers[1], maxNumSongs):reverse()
     local songItems = L{}
 
     local songIndex = 1
     for song in mergedSongs:it() do
         local tempIndex = songIndex
         songSettings['Song'..songIndex] = song:get_spell().en
-        local songItem = PickerConfigItem.new('Song'..songIndex, song:get_spell().en, L{ song:get_spell().en }, function(v) if v then return v else return 'None' end end, "Song "..songIndex)
+        local songItem = PickerConfigItem.new('Song'..songIndex, song:get_spell().en, L{ song:get_spell().en }, function(v) if v then return v else return 'Any' end end, "Song "..songIndex)
+        if tempIndex == maxNumSongs then
+            songItem.description = songItem.description.." (Clarion Call)"
+        end
         songItem.onReload = function(key, newValue, configItem)
             songSettings.PartyMember = newValue
             configItem.initialValue = newValue
-            local partyMember = singer:get_party():get_party_member_named(newValue)
-            if partyMember:get_main_job_short() == 'NON' then
-                addon_system_error("Song "..tempIndex.." may be incorrect because party member main job is unknown.")
-            end
-            return L{ singer:get_merged_songs(partyMember)[tempIndex] }:map(function(s) return s:get_spell().en end)
+            return L{ singer:get_merged_songs(newValue, maxNumSongs):reverse()[tempIndex] }:map(function(s) return s:get_spell().en end)
         end
         songItems:append(songItem)
         songIndex = songIndex + 1
     end
 
-    local partyMemberItem = PickerConfigItem.new('PartyMember', songSettings.PartyMember, singer:get_party():get_party_members(true):map(function(p) return p:get_name() end), nil, "Party Member")
+    local partyMemberItem = PickerConfigItem.new('PartyMember', songSettings.PartyMember, partyMembers, function(p) return res.jobs:with('ens', p:get_name()).en end, "Party Member Job")
     partyMemberItem.dependencies = songItems
 
     configItems:append(partyMemberItem)
@@ -46,6 +50,9 @@ function SongListEditor.new(singer)
     end
 
     local self = setmetatable(ConfigEditor.new(nil, songSettings, configItems), SongListEditor)
+
+    self:getDisposeBag():addAny(partyMembers)
+
     return self
 end
 
