@@ -9,6 +9,7 @@ local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local SongListMenuItem = require('ui/settings/menus/songs/SongListMenuItem')
+local SongListView = require('ui/views/SongListView')
 local SongSettingsEditor = require('ui/settings/SongSettingsEditor')
 local SongValidator = require('cylibs/entity/jobs/bard/song_validator')
 
@@ -368,9 +369,18 @@ function SongSettingsMenuItem:getConfigMenuItem()
 end
 
 function SongSettingsMenuItem:getDiagnosticsMenuItem()
-    return MenuItem.action(function()
-        self.songValidator:validate()
+    local diagnosticMenuItem = MenuItem.new(L{
+        ButtonItem.default('Test', 18),
+    }, {
+        Test = MenuItem.action(function()
+            self.songValidator:validate()
+        end, "Songs", "Run diagnostics to debug issues with songs.")
+    }, function(_, _)
+        local singer = self.trust:role_with_type("singer")
+        local songListView = SongListView.new(singer)
+        return songListView
     end, "Songs", "Run diagnostics to debug issues with songs.")
+    return diagnosticMenuItem
 end
 
 function SongSettingsMenuItem:getModesMenuItem()

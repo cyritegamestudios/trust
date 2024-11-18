@@ -129,7 +129,7 @@ function ConfigEditor.new(trustSettings, configSettings, configItems, infoView, 
         if (item.getCurrentValue and configItem.getInitialValue) and item:getCurrentValue() ~= configItem:getInitialValue() then
             for dependency in configItem:getDependencies():it() do
                 if dependency.onReload then
-                    local allValues = dependency.onReload(configItem:getKey(), item:getCurrentValue())
+                    local allValues = dependency.onReload(configItem:getKey(), item:getCurrentValue(), configItem)
                     dependency:setAllValues(allValues)
 
                     self:reloadConfigItem(dependency)
