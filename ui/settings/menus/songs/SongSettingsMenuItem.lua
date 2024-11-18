@@ -51,9 +51,6 @@ function SongSettingsMenuItem:destroy()
 end
 
 function SongSettingsMenuItem:reloadSettings()
-    --self:setChildMenuItem("Songs", SongListMenuItem.new(self.trust, self.trustSettings, self.trustSettingsMode))
-    --self:setChildMenuItem("Dummy", self:getEditDummySongsMenuItem())
-    --self:setChildMenuItem("Pianissimo", self:getPianissmoSongsMenuItem())
     self:setChildMenuItem("Edit", self:getEditSongsMenuItem())
     self:setChildMenuItem("Config", self:getConfigMenuItem())
     self:setChildMenuItem("Modes", self:getModesMenuItem())
@@ -81,10 +78,6 @@ function SongSettingsMenuItem:getEditDummySongsMenuItem()
         ButtonItem.default('Confirm', 18),
     }, {},
         function(_, infoView)
-            --local imageItemForText = function(text)
-            --    return AssetManager.imageItemForSpell(text)
-            --end
-
             local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.DummySongs
 
             local allSongs = self.trust:get_job():get_spells(function(spellId)
