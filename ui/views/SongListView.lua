@@ -16,8 +16,7 @@ function SongListEditor.new(singer)
         PartyMember = partyMembers[1],
     }
 
-    local configItems = L{
-    }
+    local configItems = L{}
 
     local maxNumSongs = singer.brd_job.max_num_songs + 1
     local mergedSongs = singer:get_merged_songs(partyMembers[1], maxNumSongs):reverse()
@@ -50,6 +49,12 @@ function SongListEditor.new(singer)
     end
 
     local self = setmetatable(ConfigEditor.new(nil, songSettings, configItems), SongListEditor)
+
+    self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
+        if indexPath.section > 1 then
+            addon_system_message("You cannot edit songs from this menu.")
+        end
+    end), self:getDelegate():didSelectItemAtIndexPath())
 
     self:getDisposeBag():addAny(partyMembers)
 

@@ -304,12 +304,17 @@ function SongSettingsMenuItem:getConfigMenuItem()
 end
 
 function SongSettingsMenuItem:getDiagnosticsMenuItem()
+    local debugMenuItem = MenuItem.action(function()
+        if not addon_enabled:getValue() then
+            addon_system_error("Trust must be enabled to perform this action.")
+            return
+        end
+        self.songValidator:validate()
+    end, "Songs", "Run diagnostics to debug issues with songs.")
     local diagnosticMenuItem = MenuItem.new(L{
         ButtonItem.default('Debug', 18),
     }, {
-        Debug = MenuItem.action(function()
-            self.songValidator:validate()
-        end, "Songs", "Run diagnostics to debug issues with songs.")
+        Debug = debugMenuItem
     }, function(_, _)
         local singer = self.trust:role_with_type("singer")
         local songListView = SongListView.new(singer)
