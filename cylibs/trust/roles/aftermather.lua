@@ -38,7 +38,7 @@ local aftermath_weapon_skills = {
     -- Aeonic
     ["Dojikiri Yasutsuna"] = 157,
     ["Godhands"] = 15,
-    ["Aeneas"] = 225,
+    ["Aeneas"] = 224,
     ["Sequence"] = 226,
     ["Lionheart"] = 60,
     ["Tri-edge"] = 77,

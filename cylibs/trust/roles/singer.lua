@@ -407,7 +407,7 @@ function Singer:get_self_merged_songs(party_members)
     end
 end
 
-function Singer:get_merged_songs(party_member)
+function Singer:get_merged_songs(party_member, max_num_songs)
     -- 1. Determine the singer's songs:
     --    a. If all party members have their merged songs, set songs to merged songs.
     --    b. If >= 1 party members are missing a song and the singer *does not* have all of their merged songs, set songs to main songs.
@@ -416,7 +416,7 @@ function Singer:get_merged_songs(party_member)
     --    a. If singer's songs are merged songs, use pianissimo.
     --    b. If singer's songs are main songs, do not use pianissimo.
     -- 3. If party member is missing a song, sing song with pianissimo.
-    local max_num_songs = self.song_tracker:get_max_num_songs(party_member:get_id())
+    local max_num_songs = max_num_songs or self.song_tracker:get_max_num_songs(party_member:get_id())
 
     logger.notice(self.__class, "get_merged_songs", "maximum number of songs for", party_member:get_name(), "is", max_num_songs)
 
