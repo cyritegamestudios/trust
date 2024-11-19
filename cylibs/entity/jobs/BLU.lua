@@ -39,13 +39,30 @@ function BlueMage:get_spells(filter)
     return self.spell_list:getKnownSpellIds():filter(function(spell_id)
         local spell = res.spells[spell_id]
         if spell.blu_points then
-            local equipped_spell_ids = S(L(windower.ffxi.get_mjob_data().spells or {}):extend(L(windower.ffxi.get_sjob_data().spells or {})))
+            local equipped_spell_ids = self:get_equipped_spells()
             if not equipped_spell_ids:contains(spell.id) then
                 return false
             end
         end
         return filter(spell_id)
     end)
+end
+
+-------
+-- Returns a set of equipped spell ids.
+-- @treturn set Set of equipped spell ids
+function BlueMage:get_equipped_spells()
+    local equipped_spell_ids = L{}
+
+    local spell_list = L{ windower.ffxi.get_mjob_data().spells, windower.ffxi.get_sjob_data().spells }:compact_map()
+    for spell_ids in spell_list:it() do
+        for _, spell_id in pairs(spell_ids) do
+            if spell_id then
+                equipped_spell_ids:append(spell_id)
+            end
+        end
+    end
+    return S(equipped_spell_ids)
 end
 
 -------
