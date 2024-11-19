@@ -750,6 +750,7 @@ return {
     [5860] = {id=5860,en="Glk. Sausage +2",},
     [5861] = {id=5861,en="Glk. Sausage +3",},
     [5862] = {id=5862,en="Glk. Sausage -1",},
+    [5888] = {id=5888,en="Maringna"},
     [5889] = {id=5889,en="Stuffed Pitaru",},
     [5890] = {id=5890,en="Poultry Pitaru",},
     [5891] = {id=5891,en="Seafood Pitaru",},

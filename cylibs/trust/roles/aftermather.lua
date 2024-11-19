@@ -1,5 +1,4 @@
 local DisposeBag = require('cylibs/events/dispose_bag')
-local renderer = require('cylibs/ui/views/render')
 
 local Aftermather = setmetatable({}, {__index = Role })
 Aftermather.__index = Aftermather
@@ -232,7 +231,7 @@ function Aftermather:get_target_aftermath_ids(aftermath_weapon_skill)
         elseif mode_value == '2000' then
             return S{ 271, 272 }
         else
-            return S{ 271, 272, 273 }
+            return S{ 270, 271, 272, 273 }
         end
     end
 end
