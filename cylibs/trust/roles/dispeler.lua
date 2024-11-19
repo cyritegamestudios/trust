@@ -1,9 +1,7 @@
 local buff_util = require('cylibs/util/buff_util')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local party_util = require('cylibs/util/party_util')
-local spell_util = require('cylibs/util/spell_util')
 local job_util = require('cylibs/util/job_util')
-local Monster = require('cylibs/battle/monster')
 local monster_util = require('cylibs/util/monster_util')
 local JobAbilityAction = require('cylibs/actions/job_ability')
 local StrategemAction = require('cylibs/actions/strategem')
@@ -14,7 +12,7 @@ local SpellAction = require('cylibs/actions/spell')
 local Dispeler = setmetatable({}, {__index = Role })
 Dispeler.__index = Dispeler
 
-state.AutoDispelMode = M{['description'] = 'Auto Dispel Mode', 'Auto', 'Off'}
+state.AutoDispelMode = M{['description'] = 'Dispel Enemies', 'Auto', 'Off'}
 state.AutoDispelMode:set_description('Auto', "Okay, I'll try to dispel monster buffs.")
 
 -------

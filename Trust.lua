@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '12.3.0'
+_addon.version = '12.3.2'
 _addon.release_notes = [[
 This update introduces new menus for Bard, autocomplete for Trust
 commands, new commands and important bug fixes for users running the
@@ -677,7 +677,8 @@ function handle_debug()
 	print('images', num_images_created)
 
 	print(L(windower.ffxi.get_player().buffs):map(function(buff_id)
-		return res.buffs:with('id', buff_id).en
+		return buff_id
+		--return res.buffs:with('id', buff_id).en
 	end))
 
 	local alliance = player.alliance
