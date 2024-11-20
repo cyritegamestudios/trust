@@ -1,10 +1,11 @@
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
+local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
-local FFXITextInputView = require('ui/themes/ffxi/FFXITextInputView')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local Puppetmaster = require('cylibs/entity/jobs/PUP')
+local TextInputConfigItem = require('ui/settings/editors/config/TextInputConfigItem')
 
 local AttachmentSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 AttachmentSettingsMenuItem.__index = AttachmentSettingsMenuItem
@@ -95,25 +96,33 @@ function AttachmentSettingsMenuItem:getCreateSetMenuItem()
             menu:showMenu(self)
         end)
     }, function(_)
-        local createSetView = FFXITextInputView.new('Set', "Attachment set name")
-        createSetView:setTitle("Choose a name for the attachment set.")
-        createSetView:setShouldRequestFocus(true)
-        createSetView:onTextChanged():addAction(function(_, newSetName)
-            if newSetName:length() > 1 then
-                local newSet = self.job:create_attachment_set()
-                if newSet then
-                    local attachmentSets = self.trustSettings:getSettings()[self.trustSettingsMode.value].AutomatonSettings.AttachmentSettings[self.settingsKeyName]
-                    attachmentSets[newSetName] = newSet
+        local configItems = L{
+            TextInputConfigItem.new('SetName', 'New Set', 'Set Name', function(_) return true  end)
+        }
 
-                    self.trustSettings:saveSettings(true)
-
-                    addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've saved a new attachment set called "..newSetName.."!")
-                end
-            else
-                addon_message(260, '('..windower.ffxi.get_player().name..') '.."That name is too short, pick something else?")
-            end
+        local attachmentSetConfigEditor = ConfigEditor.new(self.trustSettings, { SetName = '' }, configItems, nil, function(newSettings)
+            return newSettings.SetName and newSettings.SetName:length() > 3
         end)
-        return createSetView
+        attachmentSetConfigEditor:setShouldRequestFocus(true)
+
+        self.disposeBag:add(attachmentSetConfigEditor:onConfigChanged():addAction(function(newSettings, _)
+            local newSet = self.job:create_attachment_set()
+            if newSet then
+                local attachmentSets = self.trustSettings:getSettings()[self.trustSettingsMode.value].AutomatonSettings.AttachmentSettings[self.settingsKeyName]
+                attachmentSets[newSettings.SetName] = newSet
+
+                self.trustSettings:saveSettings(true)
+
+                addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've saved a new attachment set called "..newSettings.SetName.."!")
+            end
+            self.trustSettings:saveSettings(true)
+        end), attachmentSetConfigEditor:onConfigChanged())
+
+        self.disposeBag:add(attachmentSetConfigEditor:onConfigValidationError():addAction(function()
+            addon_system_error("Invalid attachment set name.")
+        end), attachmentSetConfigEditor:onConfigValidationError())
+
+        return attachmentSetConfigEditor
     end, "Attachments", "Save a new attachment set.")
     return createSetMenuItem
 end

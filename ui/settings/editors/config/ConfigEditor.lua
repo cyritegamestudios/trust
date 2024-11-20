@@ -23,7 +23,6 @@ local TextInputConfigItem = require('ui/settings/editors/config/TextInputConfigI
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
 local ToggleButtonCollectionViewCell = require('cylibs/ui/collection_view/cells/toggle_button_collection_view_cell')
-local ToggleButtonItem = require('cylibs/ui/collection_view/items/toggle_button_item')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 
 local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
