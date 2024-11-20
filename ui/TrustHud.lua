@@ -413,7 +413,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
 
     if jobNameShort == 'GEO' then
         menuItems:append(ButtonItem.default('Geomancy', 18))
-        childMenuItems.Geomancy = GeomancySettingsMenuItem.new(trust, trustSettings, self.trustModeSettings, trustSettings:getSettings()[trustSettingsMode.value].Geomancy, trustSettings:getSettings()[trustSettingsMode.value].PartyBuffs, function(view)
+        childMenuItems.Geomancy = GeomancySettingsMenuItem.new(trust, trustSettings, trustSettingsMode, self.trustModeSettings, trustSettings:getSettings()[trustSettingsMode.value].Geomancy, trustSettings:getSettings()[trustSettingsMode.value].PartyBuffs, function(view)
             return setupView(view, viewSize)
         end)
     end

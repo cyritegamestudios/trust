@@ -2,6 +2,7 @@ local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local GeomancySettingsEditor = require('ui/settings/editors/GeomancySettingsEditor')
+local localization_util = require('cylibs/util/localization_util')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 
@@ -13,17 +14,27 @@ function EntrustSettingsMenuItem.new(trust, trustSettings, entrustSpells)
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
         ButtonItem.default('Targets', 18),
-    }, {}, function(_)
-        local geomancyView = GeomancySettingsEditor.new(trustSettings, entrustSpells, L{})
-        geomancyView:setTitle("Indicolure spells to entrust on party members.")
-        geomancyView:setShouldRequestFocus(true)
-        return geomancyView
-    end, "Entrust", "Customize indicolures to entrust on party members."), EntrustSettingsMenuItem)
+    }, {}, nil, "Entrust", "Customize indicolures to entrust on party members."), EntrustSettingsMenuItem)
 
     self.trust = trust
     self.trustSettings = trustSettings
     self.entrustSpells = entrustSpells
     self.dispose_bag = DisposeBag.new()
+
+    self.contentViewConstructor = function(_, infoView)
+        local entrustSettingsEditor = FFXIPickerView.withItems(self.entrustSpells:map(function(s) return s:get_name() end), L{})
+
+        self.dispose_bag:add(entrustSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(cursorIndexPath)
+            local spell = self.entrustSpells[cursorIndexPath.row]
+            if spell then
+                infoView:setDescription("Use when: Ally job is "..localization_util.commas(spell:get_job_names(), "or"))
+            end
+        end), entrustSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath())
+
+        self.entrustSettingsEditor = entrustSettingsEditor
+
+        return entrustSettingsEditor
+    end
 
     self:reloadSettings()
 
@@ -38,7 +49,7 @@ end
 
 function EntrustSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Add", self:getAddMenuItem())
-    --self:setChildMenuItem("Remove", self:getRemoveMenuItem())
+    self:setChildMenuItem("Remove", self:getRemoveMenuItem())
     self:setChildMenuItem("Targets", self:getTargetsMenuItem())
 end
 
@@ -68,6 +79,21 @@ function EntrustSettingsMenuItem:getAddMenuItem()
         return chooseSpellsView
     end, "Entrust", "Add indicolures to entrust on party members.")
     return addSpellMenuItem
+end
+
+function EntrustSettingsMenuItem:getRemoveMenuItem()
+    return MenuItem.action(function()
+        local cursorIndexPath = self.entrustSettingsEditor:getDelegate():getCursorIndexPath()
+        if cursorIndexPath then
+            local item = self.entrustSettingsEditor:getDataSource():itemAtIndexPath(cursorIndexPath)
+            if item then
+                self.entrustSpells:remove(cursorIndexPath.row)
+                self.entrustSettingsEditor:getDataSource():removeItem(cursorIndexPath)
+
+                self.trustSettings:saveSettings(true)
+            end
+        end
+    end, "Gambits", "Remove the selected gambit.")
 end
 
 function EntrustSettingsMenuItem:getTargetsMenuItem()
