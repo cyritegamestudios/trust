@@ -3,6 +3,8 @@
 -- @class module
 -- @name Approach
 
+local ClaimedCondition = require('cylibs/conditions/claimed')
+local FollowAction = require('cylibs/actions/follow')
 local serializer_util = require('cylibs/util/serializer_util')
 local SwitchTargetAction = require('cylibs/actions/switch_target')
 
@@ -64,10 +66,17 @@ end
 -- Return the Action to use this job ability on a target.
 -- @treturn Action Action to cast the spell
 function Approach:to_action(target_index)
-    return SequenceAction.new(L{
-        RunToAction.new(target_index, 3, true),
-        SwitchTargetAction.new(target_index, 3)
-    }, self.__class..'_approach')
+    local actions = L{}
+
+    local target = windower.ffxi.get_mob_by_index(target_index)
+    if target and target.distance:sqrt() > 25 then
+       actions:append(RunToAction.new(target_index, 25))
+    end
+
+    actions:append(SwitchTargetAction.new(target_index, 3))
+    actions:append(FollowAction.new(target_index, L{ ClaimedCondition.new() }))
+
+    return SequenceAction.new(actions, self.__class..'_approach')
 end
 
 function Approach:serialize()

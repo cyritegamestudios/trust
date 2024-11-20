@@ -18,7 +18,11 @@ end
 function ClaimedCondition:is_satisfied(target_index)
     local target = windower.ffxi.get_mob_by_index(target_index)
     if target then
-        return self.claim_ids:contains(target.claim_id)
+        if self.claim_ids and self.claim_ids:length() > 0 then
+            return self.claim_ids:contains(target.claim_id)
+        else
+            return target.claim_id and target.claim_id ~= 0
+        end
     end
     return false
 end

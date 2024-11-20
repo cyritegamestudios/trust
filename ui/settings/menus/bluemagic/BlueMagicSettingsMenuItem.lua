@@ -71,14 +71,14 @@ function BlueMagicSettingsMenuItem:getEquipSetMenuItem()
         if self.selectedSet then
             self.job:equip_spells(self.selectedSet:getSpells())
         end
-    end, "Spells", "Equip the selected spell set.")
+    end, "Spells", "Equip the selected blue magic spell set.")
 end
 
 function BlueMagicSettingsMenuItem:getViewSetMenuItem()
     return MenuItem.new(L{}, {}, function(menuArgs, infoView)
         local spellListEditor = FFXIPickerView.withItems(self.selectedSet:getSpells(), L{}, true)
         return spellListEditor
-    end, "Spells", "View blue magic in the set.")
+    end, "Spells", "View blue magic spells in the set.")
 end
 
 function BlueMagicSettingsMenuItem:getCreateSetMenuItem()
