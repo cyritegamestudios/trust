@@ -13,7 +13,6 @@ local MagicBurster = require('cylibs/trust/roles/magic_burster')
 local ManaRestorer = require('cylibs/trust/roles/mana_restorer')
 local Nuker = require('cylibs/trust/roles/nuker')
 local Puller = require('cylibs/trust/roles/puller')
-local ScholarTrustCommands = require('cylibs/trust/commands/SCH') -- keep this for dependency script
 local StatusRemover = require('cylibs/trust/roles/status_remover')
 
 state.AutoArtsMode = M{['description'] = 'Auto Arts Mode', 'Off', 'LightArts', 'DarkArts'}
@@ -42,12 +41,6 @@ end
 
 function ScholarTrust:on_init()
     Trust.on_init(self)
-
-    self.dispose_bag:add(state.AutoArtsMode:on_state_change():addAction(function(_, new_value)
-        if state.AutoArtsMode.value ~= 'Off' then
-            self:switch_arts(new_value)
-        end
-    end), state.AutoArtsMode:on_state_change())
 
     self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
         self:get_job():set_trust_settings(new_trust_settings)
@@ -78,10 +71,6 @@ function ScholarTrust:on_init()
         for role in nuker_roles:it() do
             role:set_nuke_settings(new_trust_settings.NukeSettings)
         end
-
-        if state.AutoArtsMode.value ~= 'Off' then
-            self:switch_arts(state.AutoArtsMode.value)
-        end
     end)
 
     if self:get_job():is_light_arts_active() then
@@ -106,24 +95,10 @@ function ScholarTrust:on_init()
     end, 0.1)
 end
 
-function ScholarTrust:job_target_change(target_index)
-    Trust.job_target_change(self, target_index)
-
-    self.target_index = target_index
-end
-
 function ScholarTrust:tic(old_time, new_time)
     Trust.tic(self, old_time, new_time)
 
-    self:check_arts()
-
     self:check_gambits(self.gambits)
-end
-
-function ScholarTrust:check_arts()
-    if state.AutoArtsMode.value ~= 'Off' then
-        self:switch_arts(state.AutoArtsMode.value)
-    end
 end
 
 function ScholarTrust:switch_arts(new_arts_mode)
