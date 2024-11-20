@@ -1,10 +1,11 @@
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
+local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
-local FFXITextInputView = require('ui/themes/ffxi/FFXITextInputView')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local BlueMage = require('cylibs/entity/jobs/BLU')
+local TextInputConfigItem = require('ui/settings/editors/config/TextInputConfigItem')
 
 local BlueMagicSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 BlueMagicSettingsMenuItem.__index = BlueMagicSettingsMenuItem
@@ -88,26 +89,34 @@ function BlueMagicSettingsMenuItem:getCreateSetMenuItem()
             menu:showMenu(self)
         end)
     }, function(_)
-        local createSetView = FFXITextInputView.new('Set', "Spell set name")
-        createSetView:setTitle("Choose a name for the spell set.")
-        createSetView:setShouldRequestFocus(true)
-        createSetView:onTextChanged():addAction(function(_, newSetName)
-            if newSetName:length() > 1 then
-                local newSet = self.job:create_spell_set()
-                if newSet then
-                    local spellSets = self.trustSettings:getSettings()[self.trustSettingsMode.value].BlueMagicSettings.SpellSets
-                    spellSets[newSetName] = newSet
+        local configItems = L{
+            TextInputConfigItem.new('SetName', 'New Set', 'Set Name', function(_) return true  end)
+        }
 
-                    self.trustSettings:saveSettings(true)
-
-                    addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've saved a new spell set called "..newSetName.."!")
-                end
-            else
-                addon_message(260, '('..windower.ffxi.get_player().name..') '.."That name is too short, pick something else?")
-            end
+        local blueMagicSetConfigEditor = ConfigEditor.new(self.trustSettings, { SetName = '' }, configItems, nil, function(newSettings)
+            return newSettings.SetName and newSettings.SetName:length() > 3
         end)
-        return createSetView
-    end, "Spells", "Save a new spell set.")
+        blueMagicSetConfigEditor:setShouldRequestFocus(true)
+
+        self.disposeBag:add(blueMagicSetConfigEditor:onConfigChanged():addAction(function(newSettings, _)
+            local newSet = self.job:create_spell_set()
+            if newSet then
+                local spellSets = self.trustSettings:getSettings()[self.trustSettingsMode.value].BlueMagicSettings.SpellSets
+                spellSets[newSettings.SetName] = newSet
+
+                self.trustSettings:saveSettings(true)
+
+                addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've saved a new blue magic set called "..newSettings.SetName.."!")
+            end
+            self.trustSettings:saveSettings(true)
+        end), blueMagicSetConfigEditor:onConfigChanged())
+
+        self.disposeBag:add(blueMagicSetConfigEditor:onConfigValidationError():addAction(function()
+            addon_system_error("Invalid blue magic set name.")
+        end), blueMagicSetConfigEditor:onConfigValidationError())
+
+        return blueMagicSetConfigEditor
+    end, "Spells", "Save a new blue magic spell set.")
     return createSetMenuItem
 end
 
