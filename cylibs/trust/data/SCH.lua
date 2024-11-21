@@ -53,15 +53,12 @@ function ScholarTrust:on_init()
         local buffer = self:role_with_type("buffer")
         if buffer then
             if self.current_arts_mode == 'LightArts' then
-                --buffer:set_job_abilities(self:get_job():get_light_arts_job_abilities())
                 buffer:set_self_buffs(self:get_job():get_light_arts_self_buffs())
                 buffer:set_party_buffs(self:get_job():get_light_arts_party_buffs())
             elseif self.current_arts_mode == 'DarkArts' then
-                --buffer:set_job_abilities(self:get_job():get_dark_arts_job_abilities())
                 buffer:set_self_buffs(self:get_job():get_dark_arts_self_buffs())
                 buffer:set_party_buffs(self:get_job():get_dark_arts_party_buffs())
             else
-                --buffer:set_job_abilities(L{})
                 buffer:set_self_buffs(L{})
                 buffer:set_party_buffs(L{})
             end

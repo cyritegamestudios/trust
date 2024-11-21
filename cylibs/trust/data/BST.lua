@@ -1,7 +1,3 @@
-require('tables')
-require('lists')
-require('logger')
-
 Beastmaster = require('cylibs/entity/jobs/BST')
 
 local Trust = require('cylibs/trust/trust')
@@ -38,10 +34,9 @@ function BeastmasterTrust:on_init()
 		self:update_familiar(pet_util.get_pet().id, pet_util.get_pet().name)
 	end
 
-	self:get_player():on_pet_change():addAction(
-			function (_, pet_id, pet_name)
-				self:update_familiar(pet_id, pet_name)
-			end)
+	self:get_player():on_pet_change():addAction(function (_, pet_id, pet_name)
+		self:update_familiar(pet_id, pet_name)
+	end)
 
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
 		local buffer = self:role_with_type("buffer")

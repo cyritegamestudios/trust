@@ -97,7 +97,7 @@ function BuffSettingsMenuItem:getAllBuffs()
         L(self.trust:get_job():get_job_abilities(function(jobAbilityId)
             local jobAbility = res.job_abilities[jobAbilityId]
             if jobAbility then
-                return buff_util.buff_for_job_ability(jobAbility.id) ~= nil and S{'Self'}:intersection(S(jobAbility.targets)):length() > 0
+                return buff_util.buff_for_job_ability(jobAbility.id) ~= nil and self.targets:intersection(S(jobAbility.targets)):length() > 0
             end
             return false
         end):map(function(jobAbilityId)
