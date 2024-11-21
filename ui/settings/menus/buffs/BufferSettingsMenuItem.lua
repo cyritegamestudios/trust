@@ -51,7 +51,7 @@ end
 function BufferSettingsMenuItem:getPartyBuffsMenuItem()
     local partyBuffSettingsItem = BuffSettingsMenuItem.new(self.trust, self.trustSettings, self.trustSettingsMode, self.settingsPrefix, 'PartyBuffs', S{'Party'}, self.jobNameShort, "Edit buffs to use on party members.", true)
     partyBuffSettingsItem.enabled = function()
-        return not S{ 'BST', 'COR','DNC','DRG','MNK','PUP','SAM','THF','WAR' }:contains(self.trust:get_job().jobNameShort)
+        return not S{ 'BLU','BST','COR','DNC','DRG','DRK','GEO','MNK','PUP','SAM','THF','NIN','WAR' }:contains(self.trust:get_job().jobNameShort)
     end
     return partyBuffSettingsItem
 end
