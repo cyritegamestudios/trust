@@ -38,6 +38,8 @@ return L{
         Gambit.new("Self", L{ItemCountCondition.new("Shikanofuda", 10, "<"), ItemCountCondition.new("Toolbag (Shika)", 1, ">=")}, UseItem.new("Toolbag (Shika)", L{ItemCountCondition.new("Toolbag (Shika)", 1, ">=")}), "Self", L{"Items", "Ninjutsu"}),
         Gambit.new("Self", L{ItemCountCondition.new("Chonofuda", 10, "<"), ItemCountCondition.new("Toolbag (Cho)", 1, ">=")}, UseItem.new("Toolbag (Cho)", L{ItemCountCondition.new("Toolbag (Cho)", 1, ">=")}), "Self", L{"Items", "Ninjutsu"}),
         Gambit.new("Self", L{ItemCountCondition.new("Trump Card", 10, "<")}, UseItem.new("Trump Card Case", L{ItemCountCondition.new("Trump Card Case", 1, ">=")}), "Self", L{"Items", "Cards"}),
+        Gambit.new("Self", L{ItemCountCondition.new("Eminent Bolt", 10, "<"), ItemCountCondition.new("Em. Bolt Quiver", 1, ">=")}, UseItem.new("Em. Bul. Pouch", L{ItemCountCondition.new("Em. Bul. Pouch", 1, ">=")}), "Self", L{"Items", "Ammunition"}),
+        Gambit.new("Self", L{ItemCountCondition.new("Eminent Bullet", 10, "<"), ItemCountCondition.new("Em. Bul. Pouch", 1, ">=")}, UseItem.new("Em. Bul. Pouch", L{ItemCountCondition.new("Em. Bul. Pouch", 1, ">=")}), "Self", L{"Items", "Ammunition"}),
         Gambit.new("Self", L{ItemCountCondition.new("Sarama's Coffer", 1, ">=")}, UseItem.new("Sarama's Coffer", L{ItemCountCondition.new("Sarama's Coffer", 1, ">=")}), "Self", L{}),
     }),
     GambitCategory.new("Weaponskills", "Use weapon skills.", L{
