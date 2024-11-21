@@ -20,7 +20,6 @@ function BeastmasterTrust.new(settings, action_queue, battle_settings, trust_set
 
 	self.settings = settings
 	self.action_queue = action_queue
-	self.self_buffs = trust_settings.SelfBuffs
 
 	self.last_buff_time = os.time()
 
@@ -57,7 +56,6 @@ function BeastmasterTrust:tic(old_time, new_time)
 	Trust.tic(self, old_time, new_time)
 
 	self:check_pet()
-	self:check_buffs()
 
 	local target = self:get_target()
 	if state.AutoAssaultMode.value ~= 'Off' and pet_util.has_pet() and pet_util.get_pet().status == 0 and target and target:is_claimed() then
@@ -72,37 +70,6 @@ function BeastmasterTrust:check_pet()
 		return
 	end
 	self:get_job():bestial_loyalty()
-end
-
-function BeastmasterTrust:get_inactive_buffs()
-	if self.familiar == nil then
-		return L{}
-	end
-	return self.self_buffs:filter(function(buff)
-		return buff.Familiar == self.familiar:get_mob().name and not buff_util.is_buff_active(buff_util.buff_id(buff.Buff))
-	end)
-end
-
-function BeastmasterTrust:check_buffs()
-	if state.AutoBuffMode.value == 'Off' or (os.time() - self.last_buff_time) < 8
-			or self.familiar == nil or not self.familiar:is_engaged() then
-		return
-	end
-
-	for buff in self:get_inactive_buffs():it() do
-		local recast_id = res.job_abilities:with('en', buff.ReadyMove).recast_id
-		if windower.ffxi.get_ability_recasts()[recast_id] == 0 then
-			local actions = L{}
-
-			actions:append(ReadyMoveAction.new(0, 0, 0, buff.ReadyMove))
-			actions:append(WaitAction.new(0, 0, 0, 2))
-
-			self.action_queue:push_action(SequenceAction.new(actions, 'ready_move'), true)
-
-			self.last_buff_time = os.time()
-			return
-		end
-	end
 end
 
 function BeastmasterTrust:update_familiar(pet_id, pet_name)
