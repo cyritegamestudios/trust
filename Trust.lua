@@ -662,14 +662,6 @@ function handle_command(args)
 end
 
 function handle_debug()
-
-	local icon_extractor = require('cylibs/util/images/icon_extractor')
-	local icon_path = string.format('%sassets/temp/%s.bmp', windower.addon_path, 'fire')
-
-	--if not windower.file_exists(icon_path) then
-		icon_extractor.element_by_id(2, icon_path)
-	--end
-
 	local UrlRequest = require('cylibs/util/network/url_request')
 
 	local request = UrlRequest.new('GET', 'https://raw.githubusercontent.com/cyritegamestudios/trust/main/manifest.json', {})

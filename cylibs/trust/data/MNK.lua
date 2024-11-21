@@ -22,7 +22,7 @@ function MonkTrust:on_init()
 
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
 		local buffer = self:role_with_type("buffer")
-		buffer:set_job_abilities(new_trust_settings.SelfBuffs)
+		buffer:set_self_buffs(new_trust_settings.SelfBuffs)
 
 		local puller = self:role_with_type("puller")
 		if puller then
