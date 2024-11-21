@@ -36,6 +36,16 @@ function Job:get_spells(filter)
     end)
 end
 
+function Job:get_job_abilities(filter)
+    filter = filter or function(_) return true end
+    return player_util.get_job_abilities():filter(function(job_ability_id)
+        if not job_util.knows_job_ability(job_ability_id, res.jobs:with('ens', self.jobNameShort).id) then
+            return false
+        end
+        return filter(job_ability_id)
+    end)
+end
+
 -------
 -- Returns whether this job is the main job or sub job.
 -- @treturn boolean True if the job is the main job.

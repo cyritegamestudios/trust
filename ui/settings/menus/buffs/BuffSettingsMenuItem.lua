@@ -1,9 +1,12 @@
+local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local BuffSettingsEditor = require('ui/settings/BuffSettingsEditor')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConditionSettingsMenuItem = require('ui/settings/menus/conditions/ConditionSettingsMenuItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
+local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local SpellPickerView = require('ui/settings/pickers/SpellPickerView')
+local JobAbilityPickerItemMapper = require('ui/settings/pickers/mappers/JobAbilityPickerItemMapper')
+local SpellPickerItemMapper = require('ui/settings/pickers/mappers/SpellPickerItemMapper')
 local SpellSettingsEditor = require('ui/settings/SpellSettingsEditor')
 
 local BuffSettingsMenuItem = setmetatable({}, {__index = MenuItem })
@@ -23,6 +26,7 @@ function BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, setti
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
     self.settingsKey = settingsKey
+    self.targets = targets
     self.jobNameShort = jobNameShort
     self.showJobs = showJobs
     self.dispose_bag = DisposeBag.new()
@@ -36,11 +40,10 @@ function BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, setti
         end
         self.buffs = buffs
 
-        local buffSettingsView = BuffSettingsEditor.new(trustSettings, buffs, targets)
-        buffSettingsView:setShouldRequestFocus(true)
+        local buffSettingsEditor = BuffSettingsEditor.new(trustSettings, buffs, targets)
 
-        self.dispose_bag:add(buffSettingsView:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
-            local item = buffSettingsView:getDataSource():itemAtIndexPath(indexPath)
+        self.dispose_bag:add(buffSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
+            local item = buffSettingsEditor:getDataSource():itemAtIndexPath(indexPath)
             if item and not item:getTextItem():getEnabled() then
                 infoView:setDescription("Unavailable on current job or settings.")
             else
@@ -52,11 +55,11 @@ function BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, setti
                     infoView:setDescription("Use when: "..localization_util.commas(description))
                 end
             end
-        end, buffSettingsView:getDelegate():didMoveCursorToItemAtIndexPath()))
+        end, buffSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath()))
 
-        self.buffSettingsView = buffSettingsView
+        self.buffSettingsEditor = buffSettingsEditor
 
-        return buffSettingsView
+        return buffSettingsEditor
     end
 
     self:reloadSettings()
@@ -72,10 +75,36 @@ end
 
 function BuffSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Add", self:getAddBuffMenuItem())
+    self:setChildMenuItem("Remove", self:getRemoveBuffMenuItem())
     self:setChildMenuItem("Edit", self:getEditBuffMenuItem())
     self:setChildMenuItem("Toggle", self:getToggleBuffMenuItem())
     self:setChildMenuItem("Conditions", self:getConditionsMenuItem())
     self:setChildMenuItem("Reset", self:getResetMenuItem())
+end
+
+function BuffSettingsMenuItem:getAllBuffs()
+    local sections = L{
+        L(self.trust:get_job():get_spells(function(spellId)
+            local spell = res.spells[spellId]
+            if spell then
+                local status = buff_util.buff_for_spell(spell.id)
+                return status ~= nil and not buff_util.is_debuff(status.id) and spell.skill ~= 44 and self.targets:intersection(S(spell.targets)):length() > 0
+            end
+            return false
+        end):map(function(spellId)
+            return res.spells[spellId].en
+        end)):sort(),
+        L(self.trust:get_job():get_job_abilities(function(jobAbilityId)
+            local jobAbility = res.job_abilities[jobAbilityId]
+            if jobAbility then
+                return buff_util.buff_for_job_ability(jobAbility.id) ~= nil and S{'Self'}:intersection(S(jobAbility.targets)):length() > 0
+            end
+            return false
+        end):map(function(jobAbilityId)
+            return res.job_abilities[jobAbilityId].en
+        end)):sort()
+    }
+    return sections
 end
 
 function BuffSettingsMenuItem:getAddBuffMenuItem()
@@ -83,31 +112,67 @@ function BuffSettingsMenuItem:getAddBuffMenuItem()
         ButtonItem.default('Confirm', 18),
         ButtonItem.default('Clear', 18),
     }, {},
-    function(args)
-            local spellSettings = args['spells']
-            local targets = args['targets']
+    function(_, _)
+        local imageItemForAbility = function(abilityName, sectionIndex)
+            if sectionIndex == 1 then
+                return AssetManager.imageItemForSpell(abilityName)
+            elseif sectionIndex == 2 then
+                return AssetManager.imageItemForJobAbility(abilityName)
+            else
+                return nil
+            end
+        end
+
+        local chooseBuffView = FFXIPickerView.withSections(self:getAllBuffs(), L{}, true, nil, imageItemForAbility)
+        chooseBuffView:on_pick_items():addAction(function(pickerView, selectedItems)
+            pickerView:getDelegate():deselectAllItems()
+
             local defaultJobNames = L{}
-            if targets:contains('Party') then
+            if self.targets:contains('Party') then
                 defaultJobNames = job_util.all_jobs()
             end
 
-            local allBuffs = self.trust:get_job():get_spells(function(spellId)
-                local spell = res.spells[spellId]
-                if spell then
-                    local status = buff_util.buff_for_spell(spell.id)
-                    return status ~= nil and not buff_util.is_debuff(status.id) and spell.skill ~= 44 and targets:intersection(S(spell.targets)):length() > 0
-                end
-                return false
-            end):map(function(spellId)
-                return res.spells[spellId].en
-            end):sort()
+            local itemMappers = L{
+                SpellPickerItemMapper.new(defaultJobNames),
+                JobAbilityPickerItemMapper.new(),
+            }
 
-            local chooseSpellsView = SpellPickerView.new(self.trustSettings, spellSettings, allBuffs, defaultJobNames, false)
-            chooseSpellsView:setTitle("Choose buffs to add.")
-            chooseSpellsView:setScrollEnabled(true)
-        return chooseSpellsView
+            local buffs = selectedItems:map(function(pickerItem)
+                for mapper in itemMappers:it() do
+                    if mapper:canMap(pickerItem) then
+                        return mapper:map(pickerItem)
+                    end
+                end
+                return nil
+            end):compact_map()
+
+            for buff in buffs:it() do
+                self.buffs:append(buff)
+            end
+
+            self.trustSettings:saveSettings(true)
+
+            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my buffs!")
+        end)
+
+        return chooseBuffView
     end, "Buffs", "Add a new buff.")
     return addBuffMenuItem
+end
+
+function BuffSettingsMenuItem:getRemoveBuffMenuItem()
+    return MenuItem.action(function()
+        local cursorIndexPath = self.buffSettingsEditor:getDelegate():getCursorIndexPath()
+        if cursorIndexPath then
+            local item = self.buffSettingsEditor:getDataSource():itemAtIndexPath(cursorIndexPath)
+            if item then
+                self.buffs:remove(cursorIndexPath.row)
+                self.buffSettingsEditor:getDataSource():removeItem(cursorIndexPath)
+
+                self.trustSettings:saveSettings(true)
+            end
+        end
+    end, "Buffs", "Remove the selected buff.")
 end
 
 function BuffSettingsMenuItem:getEditBuffMenuItem()
@@ -115,13 +180,16 @@ function BuffSettingsMenuItem:getEditBuffMenuItem()
         ButtonItem.default('Save', 18),
         ButtonItem.default('Clear All', 18),
     }, {},
-    function(args)
-        local spell = args['spell']
-        if spell then
-            local editSpellView = SpellSettingsEditor.new(self.trustSettings, spell, not self.showJobs)
-            editSpellView:setTitle("Edit buff.")
-            editSpellView:setShouldRequestFocus(true)
-            return editSpellView
+    function(_)
+        local cursorIndexPath = self.buffSettingsEditor:getDelegate():getCursorIndexPath()
+        if cursorIndexPath then
+            local buff = self.buffs[cursorIndexPath.row]
+            if buff then
+                local editSpellView = SpellSettingsEditor.new(self.trustSettings, buff, not self.showJobs)
+                editSpellView:setTitle("Edit buff.")
+                editSpellView:setShouldRequestFocus(true)
+                return editSpellView
+            end
         end
         return nil
     end, "Buffs", "Edit buff settings.", false, function()
@@ -132,14 +200,14 @@ end
 
 function BuffSettingsMenuItem:getToggleBuffMenuItem()
     return MenuItem.action(function(menu)
-        local selectedIndexPath = self.buffSettingsView:getDelegate():getCursorIndexPath()
+        local selectedIndexPath = self.buffSettingsEditor:getDelegate():getCursorIndexPath()
         if selectedIndexPath then
-            local item = self.buffSettingsView:getDataSource():itemAtIndexPath(selectedIndexPath)
+            local item = self.buffSettingsEditor:getDataSource():itemAtIndexPath(selectedIndexPath)
             if item then
                 local buff = self.buffs[selectedIndexPath.row]
                 buff:setEnabled(not buff:isEnabled())
 
-                self.buffSettingsView:reloadBuffAtIndexPath(selectedIndexPath)
+                self.buffSettingsEditor:reloadBuffAtIndexPath(selectedIndexPath)
             end
         end
     end, "Gambits", "Temporarily enable or disable the selected spell until the addon reloads.")

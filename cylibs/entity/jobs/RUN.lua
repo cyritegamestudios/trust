@@ -75,7 +75,7 @@ function RuneFencer:get_wards_for_rune(rune)
     local result = L{}
     if L{ 'Lux', 'Tenebrae', 'Unda', 'Ignis', 'Gelus', 'Flabra', 'Tellus', 'Sulpor'}:contains(rune) then
         local buffs = L{}
-        for i = 1, self:get_max_num_runes() do
+        for _ = 1, self:get_max_num_runes() do
             buffs:append(rune)
         end
         local conditions = L{ HasBuffsCondition.new(buffs) }

@@ -14,7 +14,7 @@ local Sleeper = require('cylibs/trust/roles/sleeper')
 function BlackMageTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = BlackMage.new()
 	local roles = S{
-		Buffer.new(action_queue, trust_settings.JobAbilities, trust_settings.SelfBuffs),
+		Buffer.new(action_queue, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
 		Debuffer.new(action_queue, trust_settings.Debuffs),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{ 'Manawell' }, job),
 		ManaRestorer.new(action_queue, L{'Myrkr', 'Spirit Taker', 'Moonlight'}, L{}, 40),
@@ -31,9 +31,8 @@ function BlackMageTrust:on_init()
 
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
 		local buffer = self:role_with_type("buffer")
-		buffer:set_job_abilities(new_trust_settings.JobAbilities)
-		buffer:set_self_spells(new_trust_settings.SelfBuffs)
-		buffer:set_party_spells(new_trust_settings.PartyBuffs)
+		buffer:set_self_buffs(new_trust_settings.SelfBuffs)
+		buffer:set_party_buffs(new_trust_settings.PartyBuffs)
 
 		local debuffer = self:role_with_type("debuffer")
 		debuffer:set_debuff_spells(new_trust_settings.Debuffs)
