@@ -6,7 +6,9 @@ return {
             Spell.new("Phalanx", L{}, nil, nil, L{}),
             Spell.new("Crusade", L{}, nil, nil, L{}),
             Spell.new("Reprisal", L{}, nil, nil, L{}),
-            Spell.new("Protect V", L{}, nil, nil, L{})
+            Spell.new("Protect V", L{}, nil, nil, L{}),
+            JobAbility.new('Majesty', L{InBattleCondition.new()}),
+            JobAbility.new('Rampart', L{InBattleCondition.new()}),
         },
         CureSettings = {
             Thresholds = {
@@ -23,10 +25,6 @@ return {
                 }
             },
             MinNumAOETargets = 3
-        },
-        JobAbilities = L{
-            JobAbility.new('Majesty', L{InBattleCondition.new()}),
-            JobAbility.new('Rampart', L{InBattleCondition.new()})
         },
         PartyBuffs = L{
 

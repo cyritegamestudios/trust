@@ -11,9 +11,7 @@ return {
             Spell.new("Refresh", L{}, nil, nil, L{}),
             Spell.new("Regen IV", L{}, nil, nil, L{}),
             Spell.new("Shell V", L{}, nil, nil, L{}),
-            Spell.new("Phalanx", L{}, nil, nil, L{})
-        },
-        JobAbilities = L{
+            Spell.new("Phalanx", L{}, nil, nil, L{}),
             JobAbility.new('Swordplay', L{InBattleCondition.new()}),
         },
         PullSettings = {

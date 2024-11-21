@@ -3,6 +3,7 @@ return {
     Version = 2,
     Default = {
         SelfBuffs = L{
+            JobAbility.new("Composure", L{}, L{}),
             Buff.new("Haste", L{}, L{}, nil, L{}),
             Buff.new("Refresh", L{}, L{}, nil, L{}),
             Spell.new("Phalanx", L{}, L{}, nil, L{}),
@@ -21,9 +22,6 @@ return {
                 Gambit.new("Enemy", L{MeleeAccuracyCondition.new(75, "<="), MainJobCondition.new("RDM"), NumResistsCondition.new("Distract", "<", 3), NumResistsCondition.new("Distract II", "<", 3), NumResistsCondition.new("Distract III", "<", 3)}, Spell.new("Distract III", L{}, L{}), "Self", L{}),
                 Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("RDM")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"food"})
             }
-        },
-        JobAbilities = L{
-            JobAbility.new("Composure", L{}, L{})
         },
         CureSettings = {
             Thresholds = {

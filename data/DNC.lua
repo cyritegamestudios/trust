@@ -22,13 +22,10 @@ return {
             MinNumAOETargets = 3
         },
         SelfBuffs = L{
-
+            JobAbility.new('Haste Samba', L{InBattleCondition.new()}),
         },
         PartyBuffs = L{
 
-        },
-        JobAbilities = L{
-            JobAbility.new('Haste Samba', L{InBattleCondition.new()}),
         },
         PullSettings = {
             Abilities = L{

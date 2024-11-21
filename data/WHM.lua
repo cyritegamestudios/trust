@@ -3,6 +3,7 @@ return {
     Version = 2,
     Default = {
         SelfBuffs = L{
+            JobAbility.new('Afflatus Solace', L{}, L{}, nil),
             Buff.new("Haste", L{}, L{}, nil, L{}),
             Buff.new("Protectra", L{}, L{}, nil, L{}),
             Buff.new("Shellra", L{}, L{}, nil, L{}),
@@ -30,9 +31,6 @@ return {
             },
             MinNumAOETargets = 3,
             Overcure = false
-        },
-        JobAbilities = L{
-            JobAbility.new('Afflatus Solace', L{}, L{}, nil),
         },
         PartyBuffs = L{
             Buff.new("Haste", L{}, L{"WAR", "MNK", "THF", "PLD", "DRK", "SAM", "DRG", "NIN", "PUP", "COR", "DNC", "BLU", "RUN", "BLM", "BRD", "BST"}, nil, L{}),

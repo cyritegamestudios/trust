@@ -8,9 +8,6 @@ return {
         PartyBuffs = L{
 
         },
-        JobAbilities = L{
-
-        },
         PullSettings = {
             Abilities = L{
                 RangedAttack.new(),
