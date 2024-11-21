@@ -59,8 +59,8 @@ function BeastmasterTrust:tic(old_time, new_time)
 	self:check_pet()
 	self:check_buffs()
 
-	if state.AutoAssaultMode.value ~= 'Off' and pet_util.has_pet() and pet_util.get_pet().status == 0 and self.target_index
-			and windower.ffxi.get_mob_by_index(self.target_index) then
+	local target = self:get_target()
+	if state.AutoAssaultMode.value ~= 'Off' and pet_util.has_pet() and pet_util.get_pet().status == 0 and target and target:is_claimed() then
 		local fight_action = JobAbilityAction.new(0, 0, 0, 'Fight', self.target_index)
 		fight_action.priority = ActionPriority.highest
 		self.action_queue:push_action(fight_action, true)

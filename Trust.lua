@@ -670,7 +670,7 @@ function handle_debug()
 		icon_extractor.element_by_id(2, icon_path)
 	--end
 
-	--[[local UrlRequest = require('cylibs/util/network/url_request')
+	local UrlRequest = require('cylibs/util/network/url_request')
 
 	local request = UrlRequest.new('GET', 'https://raw.githubusercontent.com/cyritegamestudios/trust/main/manifest.json', {})
 
@@ -693,7 +693,7 @@ function handle_debug()
 	for i = 1, 3 do
 		local party = alliance:get_parties()[i]
 		logger.notice("Trust", "debug", "party", i, party:get_party_members(true):map(function(party_member) return party_member:get_name() end))
-	end]]
+	end
 end
 
 function handle_command_list(command_name)

@@ -22,7 +22,8 @@ return L{
         Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Reraise")})}, UseItem.new("Super Reraiser", L{ItemCountCondition.new("Super Reraiser", 1, ">=")}), "Self", L{"Items"})
     }),
     GambitCategory.new("Jug Pets", "Ready moves, blood pacts, etc.", L{
-        Gambit.new("Self", L{ReadyChargesCondition.new(2, ">="), HasPetCondition.new(L{}), InBattleCondition.new()}, JobAbility.new("Tegmina Buffet", L{}, L{}), "Self", L{})
+        Gambit.new("Self", L{ReadyChargesCondition.new(2, ">="), HasPetCondition.new(L{}), InBattleCondition.new()}, JobAbility.new("Tegmina Buffet", L{}, L{}), "Self", L{}, L{"JugPet"}),
+        Gambit.new("Self", L{NotCondition.new(L{HasBuffsCondition.new(L{"Counter Boost", "Magic Def. Boost"}, 1)}), InBattleCondition.new(), HasPetCondition.new(L{"VivaciousVickie"}), ModeCondition.new("AutoBuffMode", "Auto")}, JobAbility.new("Zealous Snort", L{}, L{}), "Self", L{"JugPet"}),
     }),
     GambitCategory.new("Spells", "Cast spells.", L{
         Gambit.new("Enemy", L{MaxManaPointsPercentCondition.new(40)}, Spell.new("Aspir", L{}, L{}, nil, L{}), "Self", L{"Spells"}),
