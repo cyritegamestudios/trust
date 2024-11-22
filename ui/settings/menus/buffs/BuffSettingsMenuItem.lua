@@ -64,6 +64,12 @@ function BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, setti
 
     self:reloadSettings()
 
+    self.dispose_bag:add(trustSettings:onSettingsChanged():addAction(function(_)
+        if self.buffSettingsEditor then
+            self.buffSettingsEditor:setShouldRequestFocus(self.buffs:length() > 0)
+        end
+    end), trustSettings:onSettingsChanged())
+
     return self
 end
 

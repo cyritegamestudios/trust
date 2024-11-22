@@ -55,7 +55,11 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
                     local description = self.selectedAbility:get_conditions():map(function(condition)
                         return condition:tostring()
                     end)
-                    infoView:setDescription("Use when: "..localization_util.commas(description))
+                    description = "Use when: "..localization_util.commas(description)
+                    if currentSettings.JobAbilities:length() > 0 then
+                        description = description..", Use with: "..localization_util.commas(currentSettings.JobAbilities:map(function(j) return j:get_name() end), 'and')
+                    end
+                    infoView:setDescription(description)
                 end
             end
         end, createSkillchainView:getDelegate():didSelectItemAtIndexPath()))
