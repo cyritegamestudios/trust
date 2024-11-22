@@ -100,18 +100,22 @@ function EntrustSettingsMenuItem:getTargetsMenuItem()
     local spellTargetsMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
     }, L{}, function(menuArgs)
-        local spell = menuArgs['spell']
+        local cursorIndexPath = self.entrustSettingsEditor:getDelegate():getCursorIndexPath()
+        if cursorIndexPath then
+            local spell = self.entrustSpells[cursorIndexPath.row]
 
-        local chooseSpellsView = FFXIPickerView.withItems(job_util.all_jobs(), spell:get_job_names() or L{}, true)
-        chooseSpellsView:setTitle("Choose jobs to target for "..spell:get_name()..".")
-        chooseSpellsView:setShouldRequestFocus(true)
-        chooseSpellsView:on_pick_items():addAction(function(_, selectedItems)
-            spell:set_job_names(selectedItems:map(function(item) return item:getText()  end))
+            local chooseSpellsView = FFXIPickerView.withItems(job_util.all_jobs(), spell:get_job_names() or L{}, true)
+            chooseSpellsView:setTitle("Choose jobs to target for "..spell:get_name()..".")
+            chooseSpellsView:setShouldRequestFocus(true)
+            chooseSpellsView:on_pick_items():addAction(function(_, selectedItems)
+                spell:set_job_names(selectedItems:map(function(item) return item:getText()  end))
 
-            self.trustSettings:saveSettings(true)
-            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated the jobs to entrust with "..spell:get_name()..".")
-        end)
-        return chooseSpellsView
+                self.trustSettings:saveSettings(true)
+                addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated the jobs to entrust with "..spell:get_name()..".")
+            end)
+            return chooseSpellsView
+        end
+        return nil
     end, "Entrust", "Choose which jobs to entrust with this indicolure.")
 
     return spellTargetsMenuItem
