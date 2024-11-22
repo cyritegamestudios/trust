@@ -99,7 +99,7 @@ end
 function EntrustSettingsMenuItem:getTargetsMenuItem()
     local spellTargetsMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
-    }, L{}, function(menuArgs)
+    }, L{}, function(_)
         local cursorIndexPath = self.entrustSettingsEditor:getDelegate():getCursorIndexPath()
         if cursorIndexPath then
             local spell = self.entrustSpells[cursorIndexPath.row]

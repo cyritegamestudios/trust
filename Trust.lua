@@ -662,6 +662,11 @@ function handle_command(args)
 end
 
 function handle_debug()
+	local cyrite = windower.ffxi.get_mob_by_name('Cyrite')
+
+	local condition = MaxDistanceCondition.new(21, cyrite.index)
+	print('check', Condition.check_conditions(L{condition}, cyrite.index, cyrite.distance:sqrt()))
+
 	local UrlRequest = require('cylibs/util/network/url_request')
 
 	local request = UrlRequest.new('GET', 'https://raw.githubusercontent.com/cyritegamestudios/trust/main/manifest.json', {})
