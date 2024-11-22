@@ -14,7 +14,6 @@ function BufferSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Self', 18),
         ButtonItem.default('Party', 18),
-        ButtonItem.default('Abilities', 18),
         ButtonItem.default('Food', 18),
         ButtonItem.default('Modes', 18),
     }, {}, nil, "Buffs", "Choose buffs to use."), BufferSettingsMenuItem)
@@ -40,23 +39,19 @@ end
 function BufferSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Self", self:getSelfBuffsMenuItem())
     self:setChildMenuItem("Party", self:getPartyBuffsMenuItem())
-    self:setChildMenuItem("Abilities", self:getJobAbilitiesMenuItem())
     self:setChildMenuItem("Food", self:getFoodMenuItem())
     self:setChildMenuItem("Modes", self:getModesMenuItem())
 end
 
 function BufferSettingsMenuItem:getSelfBuffsMenuItem()
     local selfBuffSettingsItem = BuffSettingsMenuItem.new(self.trust, self.trustSettings, self.trustSettingsMode, self.settingsPrefix, 'SelfBuffs', S{'Self','Enemy'}, self.jobNameShort, "Edit buffs to use on the player.", false)
-    selfBuffSettingsItem.enabled = function()
-        return not S{ 'BST', 'COR','DNC','DRG','MNK','PUP','SAM','THF','WAR' }:contains(self.trust:get_job().jobNameShort)
-    end
     return selfBuffSettingsItem
 end
 
 function BufferSettingsMenuItem:getPartyBuffsMenuItem()
     local partyBuffSettingsItem = BuffSettingsMenuItem.new(self.trust, self.trustSettings, self.trustSettingsMode, self.settingsPrefix, 'PartyBuffs', S{'Party'}, self.jobNameShort, "Edit buffs to use on party members.", true)
     partyBuffSettingsItem.enabled = function()
-        return not S{ 'BST', 'COR','DNC','DRG','MNK','PUP','SAM','THF','WAR' }:contains(self.trust:get_job().jobNameShort)
+        return not S{ 'BLU','BST','COR','DNC','DRG','DRK','GEO','MNK','PUP','SAM','THF','NIN','WAR' }:contains(self.trust:get_job().jobNameShort)
     end
     return partyBuffSettingsItem
 end

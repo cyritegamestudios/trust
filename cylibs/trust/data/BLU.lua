@@ -14,7 +14,7 @@ local StatusRemover = require('cylibs/trust/roles/status_remover')
 function BlueMageTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = BlueMage.new()
 	local roles = S{
-		Buffer.new(action_queue, S{}, trust_settings.SelfBuffs),
+		Buffer.new(action_queue, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
 		Dispeler.new(action_queue, L{ Spell.new('Blank Gaze') }, L{}, true),
 		Healer.new(action_queue, job),
 		ManaRestorer.new(action_queue, L{}, L{ Spell.new('Magic Hammer'), Spell.new('MP Drainkiss') }, 40),
@@ -36,9 +36,8 @@ function BlueMageTrust:on_init()
 
 		local buffer = self:role_with_type("buffer")
 		if buffer then
-			buffer:set_job_abilities(new_trust_settings.JobAbilities)
-			buffer:set_self_spells(new_trust_settings.SelfBuffs)
-			buffer:set_party_spells(new_trust_settings.PartyBuffs)
+			buffer:set_self_buffs(new_trust_settings.SelfBuffs)
+			buffer:set_party_buffs(new_trust_settings.PartyBuffs)
 		end
 
 		local puller = self:role_with_type("puller")
@@ -49,8 +48,8 @@ function BlueMageTrust:on_init()
 
 	WindowerEvents.BlueMagic.SpellsChanged:addAction(function()
 		local buffer = self:role_with_type("buffer")
-		buffer:set_self_spells(self:get_trust_settings().SelfBuffs)
-		buffer:set_party_spells(self:get_trust_settings().PartyBuffs)
+		buffer:set_self_buffs(self:get_trust_settings().SelfBuffs)
+		buffer:set_party_buffs(self:get_trust_settings().PartyBuffs)
 	end)
 end
 

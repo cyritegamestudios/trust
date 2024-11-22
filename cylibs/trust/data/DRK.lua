@@ -15,7 +15,7 @@ local Puller = require('cylibs/trust/roles/puller')
 
 function DarkKnightTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local roles = S{
-		Buffer.new(action_queue, trust_settings.JobAbilities, trust_settings.SelfBuffs),
+		Buffer.new(action_queue, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
 		Debuffer.new(action_queue,trust_settings.Debuffs or L{}),
 		Dispeler.new(action_queue, L{ Spell.new('Absorb-Attri') }, L{}, false),
 		ManaRestorer.new(action_queue, L{'Entropy'}, L{}, 40),
@@ -34,8 +34,7 @@ function DarkKnightTrust:on_init()
 
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
 		local buffer = self:role_with_type("buffer")
-		buffer:set_job_abilities(new_trust_settings.JobAbilities)
-		buffer:set_self_spells(new_trust_settings.SelfBuffs)
+		buffer:set_self_buffs(new_trust_settings.SelfBuffs)
 
 		local puller = self:role_with_type("puller")
 		if puller then

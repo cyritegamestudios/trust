@@ -9,7 +9,7 @@ local JobAbility = require('cylibs/battle/abilities/job_ability')
 
 function SamuraiTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local roles = S{
-		Buffer.new(action_queue, trust_settings.JobAbilities),
+		Buffer.new(action_queue, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, Samurai.new()), SamuraiTrust)
 
@@ -28,7 +28,7 @@ function SamuraiTrust:on_init()
 
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
 		local buffer = self:role_with_type("buffer")
-		buffer:set_job_abilities(new_trust_settings.JobAbilities)
+		buffer:set_self_buffs(new_trust_settings.SelfBuffs)
 
 		local puller = self:role_with_type("puller")
 		if puller then

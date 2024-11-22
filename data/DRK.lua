@@ -6,13 +6,11 @@ return {
             Spell.new("Endark II", L{}, L{}, nil, L{IdleCondition.new()}),
             Spell.new("Absorb-STR", L{}, L{}, "bt", L{}),
             Spell.new("Absorb-DEX", L{}, L{}, "bt", L{}),
+            JobAbility.new('Last Resort', L{InBattleCondition.new()}),
+            JobAbility.new('Scarlet Delirium', L{InBattleCondition.new()}),
         },
         PartyBuffs = L{
 
-        },
-        JobAbilities = L{
-            JobAbility.new('Last Resort', L{InBattleCondition.new()}),
-            JobAbility.new('Scarlet Delirium', L{InBattleCondition.new()}),
         },
         Debuffs = L {
 

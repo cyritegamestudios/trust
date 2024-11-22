@@ -13,7 +13,7 @@ state.AutoRuneMode = M{['description'] = 'Auto Rune Mode', 'Off', 'Tenebrae', 'L
 
 function RuneFencerTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local roles = S{
-		Buffer.new(action_queue, trust_settings.JobAbilities, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
+		Buffer.new(action_queue, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
 		Puller.new(action_queue, trust_settings.PullSettings.Targets, L{ Spell.new('Flash') }:compact_map()),
 		Tank.new(action_queue, L{}, L{ Spell.new('Sheep Song'), Spell.new('Geist Wall'), Spell.new('Flash') })
 	}
@@ -33,10 +33,10 @@ function RuneFencerTrust:on_init()
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
 		local buffer = self:role_with_type("buffer")
 
-		buffer:set_self_spells(new_trust_settings.SelfBuffs)
-		buffer:set_party_spells(new_trust_settings.PartyBuffs)
+		buffer:set_self_buffs(new_trust_settings.SelfBuffs)
+		buffer:set_party_buffs(new_trust_settings.PartyBuffs)
 
-		self:set_job_abilities(new_trust_settings.JobAbilities)
+		self:set_job_abilities(L{})
 
 		local puller = self:role_with_type("puller")
 		if puller then
@@ -45,7 +45,7 @@ function RuneFencerTrust:on_init()
 	end)
 
 	self.dispose_bag:add(state.AutoRuneMode:on_state_change():addAction(function(_, _)
-		self:set_job_abilities(self:get_trust_settings().JobAbilities)
+		self:set_job_abilities(L{})
 	end), state.AutoRuneMode:on_state_change())
 end
 

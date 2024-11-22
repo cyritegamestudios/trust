@@ -3,15 +3,12 @@ return {
     Version = 1,
     Default = {
         SelfBuffs = L{
-
-        },
-        PartyBuffs = L{
-
-        },
-        JobAbilities = L{
             JobAbility.new('Impetus', L{InBattleCondition.new()}),
             JobAbility.new('Footwork', L{InBattleCondition.new()}),
             JobAbility.new('Mantra', L{InBattleCondition.new()}),
+        },
+        PartyBuffs = L{
+
         },
         PullSettings = {
             Abilities = L{

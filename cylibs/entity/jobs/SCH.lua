@@ -155,13 +155,6 @@ function Scholar:is_addendum_black_active()
 end
 
 -------
--- Returns the list of job abilities to use while in Light Arts.
--- @treturn list List of job abilities
-function Scholar:get_light_arts_job_abilities()
-    return self.trust_settings.LightArts.JobAbilities or L{ 'Light Arts' }
-end
-
--------
 -- Returns the list of buffs to cast on party members while in Light Arts.
 -- @treturn list List of party buffs
 function Scholar:get_light_arts_party_buffs()
@@ -177,13 +170,6 @@ function Scholar:get_light_arts_self_buffs()
     else
         return S{}
     end
-end
-
--------
--- Returns the list of job abilities to use while in Dark Arts.
--- @treturn list List of job abilities
-function Scholar:get_dark_arts_job_abilities()
-    return self.trust_settings.DarkArts.JobAbilities or L{ 'Dark Arts' }
 end
 
 -------

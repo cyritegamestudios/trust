@@ -24,7 +24,7 @@ function WhiteMageTrust.new(settings, action_queue, battle_settings, trust_setti
 		Healer.new(action_queue, job),
 		StatusRemover.new(action_queue, job),
 		Barspeller.new(action_queue, job),
-		Buffer.new(action_queue, trust_settings.JobAbilities, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
+		Buffer.new(action_queue, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
 		Debuffer.new(action_queue, trust_settings.Debuffs),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		ManaRestorer.new(action_queue, L{'Mystic Boon', 'Dagan', 'Spirit Taker', 'Moonlight'}, L{}, 40),
@@ -49,9 +49,9 @@ function WhiteMageTrust:on_init()
 
 		local buffer = self:role_with_type("buffer")
 		if buffer then
-			buffer:set_job_abilities(new_trust_settings.JobAbilities)
-			buffer:set_self_spells(new_trust_settings.SelfBuffs)
-			buffer:set_party_spells(new_trust_settings.PartyBuffs)
+
+			buffer:set_self_buffs(new_trust_settings.SelfBuffs)
+			buffer:set_party_buffs(new_trust_settings.PartyBuffs)
 		end
 
 		local debuffer = self:role_with_type("debuffer")

@@ -73,8 +73,8 @@ function FFXIPickerView.withSections(sections, selectedTexts, allowsMultipleSele
         end)
         if sectionTexts:length() > 0 then
             itemsBySection:append(pickerItems)
-            sectionIndex = sectionIndex + 1
         end
+        sectionIndex = sectionIndex + 1
     end
     return FFXIPickerView.new(itemsBySection, allowsMultipleSelection, cursorImageItem)
 end

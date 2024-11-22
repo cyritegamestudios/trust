@@ -22,7 +22,8 @@ return L{
         Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Reraise")})}, UseItem.new("Super Reraiser", L{ItemCountCondition.new("Super Reraiser", 1, ">=")}), "Self", L{"Items"})
     }),
     GambitCategory.new("Jug Pets", "Ready moves, blood pacts, etc.", L{
-        Gambit.new("Self", L{ReadyChargesCondition.new(2, ">="), HasPetCondition.new(L{}), InBattleCondition.new()}, JobAbility.new("Tegmina Buffet", L{}, L{}), "Self", L{})
+        Gambit.new("Self", L{ReadyChargesCondition.new(2, ">="), HasPetCondition.new(L{}), InBattleCondition.new()}, JobAbility.new("Tegmina Buffet", L{}, L{}), "Self", L{}, L{"JugPet"}),
+        Gambit.new("Self", L{NotCondition.new(L{HasBuffsCondition.new(L{"Counter Boost", "Magic Def. Boost"}, 1)}), InBattleCondition.new(), HasPetCondition.new(L{"VivaciousVickie"}), ModeCondition.new("AutoBuffMode", "Auto")}, JobAbility.new("Zealous Snort", L{}, L{}), "Self", L{"JugPet"}),
     }),
     GambitCategory.new("Spells", "Cast spells.", L{
         Gambit.new("Enemy", L{MaxManaPointsPercentCondition.new(40)}, Spell.new("Aspir", L{}, L{}, nil, L{}), "Self", L{"Spells"}),
@@ -37,6 +38,8 @@ return L{
         Gambit.new("Self", L{ItemCountCondition.new("Shikanofuda", 10, "<"), ItemCountCondition.new("Toolbag (Shika)", 1, ">=")}, UseItem.new("Toolbag (Shika)", L{ItemCountCondition.new("Toolbag (Shika)", 1, ">=")}), "Self", L{"Items", "Ninjutsu"}),
         Gambit.new("Self", L{ItemCountCondition.new("Chonofuda", 10, "<"), ItemCountCondition.new("Toolbag (Cho)", 1, ">=")}, UseItem.new("Toolbag (Cho)", L{ItemCountCondition.new("Toolbag (Cho)", 1, ">=")}), "Self", L{"Items", "Ninjutsu"}),
         Gambit.new("Self", L{ItemCountCondition.new("Trump Card", 10, "<")}, UseItem.new("Trump Card Case", L{ItemCountCondition.new("Trump Card Case", 1, ">=")}), "Self", L{"Items", "Cards"}),
+        Gambit.new("Self", L{ItemCountCondition.new("Eminent Bolt", 10, "<"), ItemCountCondition.new("Em. Bolt Quiver", 1, ">=")}, UseItem.new("Em. Bul. Pouch", L{ItemCountCondition.new("Em. Bul. Pouch", 1, ">=")}), "Self", L{"Items", "Ammunition"}),
+        Gambit.new("Self", L{ItemCountCondition.new("Eminent Bullet", 10, "<"), ItemCountCondition.new("Em. Bul. Pouch", 1, ">=")}, UseItem.new("Em. Bul. Pouch", L{ItemCountCondition.new("Em. Bul. Pouch", 1, ">=")}), "Self", L{"Items", "Ammunition"}),
         Gambit.new("Self", L{ItemCountCondition.new("Sarama's Coffer", 1, ">=")}, UseItem.new("Sarama's Coffer", L{ItemCountCondition.new("Sarama's Coffer", 1, ">=")}), "Self", L{}),
     }),
     GambitCategory.new("Weaponskills", "Use weapon skills.", L{

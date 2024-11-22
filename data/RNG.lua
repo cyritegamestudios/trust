@@ -6,13 +6,10 @@ return {
             Delay = 1.5
         },
         SelfBuffs = L{
-
+            JobAbility.new('Velocity Shot', L{InBattleCondition.new()}),
         },
         PartyBuffs = L{
 
-        },
-        JobAbilities = L{
-            JobAbility.new('Velocity Shot', L{InBattleCondition.new()}),
         },
         PullSettings = {
             Abilities = L{

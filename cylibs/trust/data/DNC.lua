@@ -10,7 +10,7 @@ local Healer = require('cylibs/trust/roles/healer')
 function DancerTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = Dancer.new(trust_settings.CureSettings)
 	local roles = S{
-		Buffer.new(action_queue, trust_settings.JobAbilities),
+		Buffer.new(action_queue, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
 		Healer.new(action_queue, job),
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), DancerTrust)
@@ -36,7 +36,7 @@ function DancerTrust:on_init()
 
 		local buffer = self:role_with_type("buffer")
 		if buffer then
-			buffer:set_job_abilities(new_trust_settings.JobAbilities)
+			buffer:set_self_buffs(new_trust_settings.SelfBuffs)
 		end
 
 		local puller = self:role_with_type("puller")

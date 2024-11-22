@@ -3,13 +3,11 @@ return {
     Version = 2,
     Default = {
         LightArts = {
-            JobAbilities = L{
-                JobAbility.new('Light Arts', L{}, L{}, nil),
-            },
             PartyBuffs = L{
                 Spell.new("Adloquium", L{}, L{"WAR", "DRK", "DRG"}, nil, L{})
             },
             SelfBuffs = L{
+                JobAbility.new('Light Arts', L{}, L{}, nil),
                 Buff.new("Protect", L{"Accession"}, L{}, nil, L{StrategemCountCondition.new(1, ">="), MainJobCondition.new("SCH")}),
                 Buff.new("Shell", L{"Accession"}, L{}, nil, L{StrategemCountCondition.new(1, ">="), MainJobCondition.new("SCH")}),
                 Buff.new("Regen", L{"Accession", "Perpetuance"}, L{}, nil, L{StrategemCountCondition.new(2, ">="), MainJobCondition.new("SCH")}),
@@ -87,13 +85,11 @@ return {
             },
         },
         DarkArts = {
-            JobAbilities = L{
-                JobAbility.new('Dark Arts', L{}, L{}, nil),
-            },
             PartyBuffs = L{
 
             },
             SelfBuffs = L{
+                JobAbility.new('Dark Arts', L{}, L{}, nil),
                 Spell.new("Klimaform", L{}, nil, nil, L{})
             },
         }

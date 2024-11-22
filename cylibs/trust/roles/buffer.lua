@@ -11,12 +11,11 @@ local job_util = require('cylibs/util/job_util')
 local Buffer = setmetatable({}, {__index = Role })
 Buffer.__index = Buffer
 
-function Buffer.new(action_queue, job_abilities, self_spells, party_spells, state_var, buff_action_priority)
+function Buffer.new(action_queue, self_buffs, party_buffs, state_var, buff_action_priority)
     local self = setmetatable(Role.new(action_queue), Buffer)
 
-    self:set_job_abilities(job_abilities)
-    self:set_self_spells(self_spells)
-    self:set_party_spells(party_spells)
+    self:set_self_buffs(self_buffs)
+    self:set_party_buffs(party_buffs)
 
     self.state_var = state_var or state.AutoBuffMode
     self.buff_action_priority = buff_action_priority or ActionPriority.default
@@ -209,26 +208,30 @@ function Buffer:get_job_abilities()
     return self.job_abilities
 end
 
-function Buffer:set_job_abilities(job_abilities)
-    self.job_abilities = (job_abilities or L{}):filter(function(job_ability) return job_util.knows_job_ability(job_ability:get_job_ability_id()) == true  end)
-    self.job_abilities_enabled = true
-end
-
 function Buffer:get_self_spells()
     return self.self_spells
 end
 
-function Buffer:set_self_spells(self_spells)
-    self.self_spells = (self_spells or L{}):filter(function(spell) return spell ~= nil and spell_util.knows_spell(spell:get_spell().id) end)
+function Buffer:set_self_buffs(self_buffs)
+    local spells = self_buffs:filter(function(b) return b.__type ~= JobAbility.__type end)
+    self.self_spells = (spells or L{}):filter(function(spell) return spell ~= nil and spell_util.knows_spell(spell:get_spell().id) end)
     self.self_spells_enabled = true
+
+    local job_abilities = self_buffs:filter(function(b) return b.__type == JobAbility.__type end)
+    self:set_job_abilities(job_abilities)
+end
+
+function Buffer:set_job_abilities(job_abilities)
+    self.job_abilities = (job_abilities or L{}):filter(function(job_ability) return job_util.knows_job_ability(job_ability:get_job_ability_id()) == true  end)
+    self.job_abilities_enabled = true
 end
 
 function Buffer:get_party_spells()
     return self.party_spells
 end
 
-function Buffer:set_party_spells(party_spells)
-    self.party_spells = (party_spells or L{}):filter(function(spell) return spell ~= nil and spell_util.knows_spell(spell:get_spell().id)  end)
+function Buffer:set_party_buffs(party_buffs)
+    self.party_spells = (party_buffs or L{}):filter(function(spell) return spell ~= nil and spell_util.knows_spell(spell:get_spell().id)  end)
     self.party_spells_enabled = true
 end
 

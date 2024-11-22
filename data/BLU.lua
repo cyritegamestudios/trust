@@ -2,9 +2,6 @@
 return {
     Version = 2,
     Default = {
-        JobAbilities = L{
-
-        },
         SelfBuffs = L{
             Spell.new("Erratic Flutter", L{}, L{}, nil, L{SpellRecastReadyCondition.new(710)}),
             Spell.new("Cocoon", L{}, L{}, nil, L{SpellRecastReadyCondition.new(547)}),

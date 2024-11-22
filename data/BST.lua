@@ -3,18 +3,11 @@ return {
     Version = 1,
     Default = {
         SelfBuffs = L{
-            {
-                Familiar = "VivaciousVickie",
-                ReadyMove = "Zealous Snort",
-                Buff = "Counter Boost"
-            }
+            JobAbility.new('Killer Instinct', L{InBattleCondition.new()}),
+            JobAbility.new('Spur', L{InBattleCondition.new()}),
         },
         PartyBuffs = L{
 
-        },
-        JobAbilities = L{
-            JobAbility.new('Killer Instinct', L{InBattleCondition.new()}),
-            JobAbility.new('Spur', L{InBattleCondition.new()}),
         },
         PullSettings = {
             Abilities = L{
@@ -28,6 +21,9 @@ return {
             Distance = 20
         },
         GambitSettings = {
+            Default = L{
+                Gambit.new("Self", L{NotCondition.new(L{HasBuffsCondition.new(L{"Counter Boost", "Magic Def. Boost"}, 1)}), InBattleCondition.new(), HasPetCondition.new(L{"VivaciousVickie"}), ModeCondition.new("AutoBuffMode", "Auto")}, JobAbility.new("Zealous Snort", L{}, L{}), "Self", L{"JugPet"}),
+            },
             Gambits = L{
                 Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("BST")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"food"})
             }

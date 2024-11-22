@@ -5,9 +5,6 @@ return {
         SelfBuffs = L{
 
         },
-        JobAbilities = L{
-
-        },
         PartyBuffs = L{
             Spell.new("Indi-STR", L{"Entrust"}, L{"DRK", "SAM", "WAR", "MNK"}, nil, L{}),
             Spell.new("Indi-Fury", L{"Entrust"}, L{"RUN"}, nil, L{})

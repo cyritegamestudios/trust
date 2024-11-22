@@ -2,8 +2,6 @@
 return {
     Version = 2,
     Default = {
-        JobAbilities = L{
-        },
         SelfBuffs = L{
 
         },

@@ -7,7 +7,9 @@ return {
             Spell.new("Utsusemi: Ni", L{}, L{}, nil,  L{ItemCountCondition.new("Shihei", 1, ">=")}),
             Spell.new("Utsusemi: Ichi", L{}, L{}, nil,  L{ItemCountCondition.new("Shihei", 1, ">=")}),
             Spell.new("Kakka: Ichi", L{}, L{}, nil, L{}),
-            Spell.new("Myoshu: Ichi", L{}, L{}, nil, L{})
+            Spell.new("Myoshu: Ichi", L{}, L{}, nil, L{}),
+            JobAbility.new('Yonin', L{InBattleCondition.new()}),
+            JobAbility.new('Issekigan', L{InBattleCondition.new()}, L{}, nil),
         },
         PartyBuffs = L{
 
@@ -40,10 +42,6 @@ return {
             Blacklist = L{
 
             },
-        },
-        JobAbilities = L{
-            JobAbility.new('Yonin', L{InBattleCondition.new()}),
-            JobAbility.new('Issekigan', L{InBattleCondition.new()}, L{}, nil),
         },
         PullSettings = {
             Abilities = L{

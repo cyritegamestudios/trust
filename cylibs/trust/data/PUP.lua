@@ -32,7 +32,7 @@ state.AutoRepairMode:set_description('Auto', "Okay, I'll use repair when my auto
 
 function PuppetmasterTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local roles = S{
-		Buffer.new(action_queue, S{}, S{}),
+		Buffer.new(action_queue, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
 		Dispeler.new(action_queue, L{}, L{ JobAbility.new('Dark Maneuver', L{ HasAttachmentsCondition.new(L{ 'regulator', 'disruptor' }), NotCondition.new(L{ HasBuffCondition.new('Dark Maneuver', windower.ffxi.get_player().index) }, windower.ffxi.get_player().index) }, L{}, 'me') }, false),
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, Puppetmaster.new()), PuppetmasterTrust)

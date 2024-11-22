@@ -1,7 +1,3 @@
-require('tables')
-require('lists')
-require('logger')
-
 Beastmaster = require('cylibs/entity/jobs/BST')
 
 local Trust = require('cylibs/trust/trust')
@@ -18,13 +14,12 @@ state.AutoPetMode = M{['description'] = 'Auto Pet Mode', 'Off', 'Auto'}
 
 function BeastmasterTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local roles = S{
-		Buffer.new(action_queue, trust_settings.JobAbilities, nil, nil),
+		Buffer.new(action_queue, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, Beastmaster.new(action_queue)), BeastmasterTrust)
 
 	self.settings = settings
 	self.action_queue = action_queue
-	self.self_buffs = trust_settings.SelfBuffs
 
 	self.last_buff_time = os.time()
 
@@ -38,14 +33,13 @@ function BeastmasterTrust:on_init()
 		self:update_familiar(pet_util.get_pet().id, pet_util.get_pet().name)
 	end
 
-	self:get_player():on_pet_change():addAction(
-			function (_, pet_id, pet_name)
-				self:update_familiar(pet_id, pet_name)
-			end)
+	self:get_player():on_pet_change():addAction(function (_, pet_id, pet_name)
+		self:update_familiar(pet_id, pet_name)
+	end)
 
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
 		local buffer = self:role_with_type("buffer")
-		buffer:set_job_abilities(new_trust_settings.JobAbilities)
+		buffer:set_self_buffs(new_trust_settings.SelfBuffs)
 
 		local puller = self:role_with_type("puller")
 		if puller then
@@ -62,10 +56,9 @@ function BeastmasterTrust:tic(old_time, new_time)
 	Trust.tic(self, old_time, new_time)
 
 	self:check_pet()
-	self:check_buffs()
 
-	if state.AutoAssaultMode.value ~= 'Off' and pet_util.has_pet() and pet_util.get_pet().status == 0 and self.target_index
-			and windower.ffxi.get_mob_by_index(self.target_index) then
+	local target = self:get_target()
+	if state.AutoAssaultMode.value ~= 'Off' and pet_util.has_pet() and pet_util.get_pet().status == 0 and target and target:is_claimed() then
 		local fight_action = JobAbilityAction.new(0, 0, 0, 'Fight', self.target_index)
 		fight_action.priority = ActionPriority.highest
 		self.action_queue:push_action(fight_action, true)
@@ -77,37 +70,6 @@ function BeastmasterTrust:check_pet()
 		return
 	end
 	self:get_job():bestial_loyalty()
-end
-
-function BeastmasterTrust:get_inactive_buffs()
-	if self.familiar == nil then
-		return L{}
-	end
-	return self.self_buffs:filter(function(buff)
-		return buff.Familiar == self.familiar:get_mob().name and not buff_util.is_buff_active(buff_util.buff_id(buff.Buff))
-	end)
-end
-
-function BeastmasterTrust:check_buffs()
-	if state.AutoBuffMode.value == 'Off' or (os.time() - self.last_buff_time) < 8
-			or self.familiar == nil or not self.familiar:is_engaged() then
-		return
-	end
-
-	for buff in self:get_inactive_buffs():it() do
-		local recast_id = res.job_abilities:with('en', buff.ReadyMove).recast_id
-		if windower.ffxi.get_ability_recasts()[recast_id] == 0 then
-			local actions = L{}
-
-			actions:append(ReadyMoveAction.new(0, 0, 0, buff.ReadyMove))
-			actions:append(WaitAction.new(0, 0, 0, 2))
-
-			self.action_queue:push_action(SequenceAction.new(actions, 'ready_move'), true)
-
-			self.last_buff_time = os.time()
-			return
-		end
-	end
 end
 
 function BeastmasterTrust:update_familiar(pet_id, pet_name)

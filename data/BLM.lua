@@ -3,16 +3,13 @@ return {
     Version = 2,
     Default = {
         SelfBuffs = L{
-
+            JobAbility.new('Mana Wall', L{}, L{}, nil),
         },
         PartyBuffs = L{
 
         },
         Debuffs = L{
             Spell.new("Burn", L{}, nil, nil, L{})
-        },
-        JobAbilities = L{
-            JobAbility.new('Mana Wall', L{}, L{}, nil),
         },
         NukeSettings = {
             Delay = 2,
