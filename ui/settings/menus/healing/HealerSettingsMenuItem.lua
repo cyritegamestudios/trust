@@ -85,6 +85,7 @@ function HealerSettingsMenuItem:getConfigMenuItem()
                         local nextConfigItem = cureConfigEditor:getDataSource():itemAtIndexPath(IndexPath.new(cursorIndexPath.section + 1, 1))
                         description = description.." and <= "..nextConfigItem:getCurrentValue()
                     end
+                    description = description.."."
                     infoView:setDescription(description)
                 end
             else
