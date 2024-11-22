@@ -2,6 +2,7 @@ local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local ConfigItem = require('ui/settings/editors/config/ConfigItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
+local IndexPath = require('cylibs/ui/collection_view/index_path')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 local StatusRemovalPickerView = require('ui/settings/pickers/StatusRemovalPickerView')
@@ -51,7 +52,7 @@ function HealerSettingsMenuItem:getConfigMenuItem()
     local curesMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
         ButtonItem.default('Reset', 18),
-    }, L{}, function(menuArgs)
+    }, L{}, function(menuArgs, infoView)
         local cureSettings = self.trustSettings:getSettings()[self.trustSettingsMode.value].CureSettings
 
         local configItems = L{
@@ -59,12 +60,38 @@ function HealerSettingsMenuItem:getConfigMenuItem()
             ConfigItem.new('Emergency', 0, 100, 1, function(value) return value.." %" end, "Emergency Cure Threshold"),
         }
 
+        local cureAbilityConfigItems = L{}
         local settingsKeys = list.subtract(L(T(cureSettings.Thresholds):keyset()), L{'Default', 'Emergency'})
         for settingsKey in settingsKeys:it() do
-            configItems:append(ConfigItem.new(settingsKey, 0, 2000, 100, function(value) return value.."" end))
+            cureAbilityConfigItems:append(ConfigItem.new(settingsKey, 0, 2000, 100, function(value) return value.."" end))
         end
 
-        local cureConfigEditor = ConfigEditor.new(self.trustSettings, cureSettings.Thresholds, configItems)
+        cureAbilityConfigItems:sort(function(configItem1, configItem2)
+            return configItem1:getDescription() < configItem2:getDescription()
+        end)
+
+        local cureConfigEditor = ConfigEditor.new(self.trustSettings, cureSettings.Thresholds, configItems:extend(cureAbilityConfigItems))
+
+        self.dispose_bag:add(cureConfigEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(cursorIndexPath)
+            local configItem = cureConfigEditor:getDataSource():itemAtIndexPath(IndexPath.new(cursorIndexPath.section, 1))
+            if configItem then
+                if cursorIndexPath.section == 1 then
+                    infoView:setDescription("Cure when target HP is <= "..configItem:getCurrentValue().."% and AutoHealMode is set to Auto.")
+                elseif cursorIndexPath.section == 2 then
+                    infoView:setDescription("Cure when target HP is <= "..configItem:getCurrentValue().."% and AutoHealMode is set to Emergency.")
+                else
+                    local description = "Use when: HP missing is >= "..configItem:getCurrentValue()
+                    if not S{ 5, 8 }:contains(cursorIndexPath.section) then
+                        local nextConfigItem = cureConfigEditor:getDataSource():itemAtIndexPath(IndexPath.new(cursorIndexPath.section + 1, 1))
+                        description = description.." and <= "..nextConfigItem:getCurrentValue()
+                    end
+                    infoView:setDescription(description)
+                end
+            else
+                infoView:setDescription("Customize thresholds for cures.")
+            end
+        end))
+
         return cureConfigEditor
     end, "Cures", "Customize thresholds for cures.")
     return curesMenuItem
