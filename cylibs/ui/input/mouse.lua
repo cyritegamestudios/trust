@@ -46,7 +46,7 @@ function Mouse.new()
     self.events.mouse = windower.register_event('mouse', function(type, x, y, delta, blocked)
         local lastTime = self.lastMouseEvent[type] or 0
         if os.time() - lastTime < self:getCooldown(type) then
-            return
+            return true
         end
         self.lastMouseEvent[type] = os.time()
 

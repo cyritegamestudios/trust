@@ -22,7 +22,7 @@ function MaxDistanceCondition:is_satisfied(target_index)
         if target.index == windower.ffxi.get_player().index then
             return true
         else
-            return target.distance:sqrt() <= self.distance
+            return target.valid_target and target.distance:sqrt() <= self.distance
         end
     end
     return false
