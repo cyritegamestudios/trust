@@ -229,6 +229,11 @@ function Widget:hitTest(x, y)
     return true
 end
 
+function Widget:setTitle(title, titleWidth)
+    self:getBackgroundImageView():setTitle(title, { width = titleWidth, height = 14 })
+    self:layoutIfNeeded()
+end
+
 function Widget:__eq(otherItem)
     return self.title == otherItem.title
 end
