@@ -95,13 +95,6 @@ function Alliance:monitor()
             if alliance_member:get_mob() then
                 local party = self:get_party(alliance_member:get_name()) or self:get_parties()[alliance_member:get_party_index()]
                 if party then
-                    local party_index = 1
-                    for p in self:get_parties():it() do
-                        if p == party then
-                            break
-                        end
-                        party_index = party_index + 1
-                    end
                     party:add_party_member(alliance_member:get_id(), alliance_member:get_name())
                 end
             end
