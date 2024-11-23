@@ -211,7 +211,7 @@ function Puller:get_next_target()
             local target = windower.ffxi.get_mob_by_index(target_index)
             return target and target.claim_id and target.claim_id ~= 0
         end)
-        if self:get_target_names():length() > 0 then
+        if self:get_target_names():length() > 0 or state.AutoPullMode.value == 'All' then
             local target = ffxi_util.find_closest_mob(self:get_target_names(), L{}:extend(claimed_party_targets), self.blacklist, self.pull_settings.Distance or 20)
             if target and target.distance:sqrt() < (self.pull_settings.Distance or 20) then
                 logger.notice(self.__class, 'get_next_target', 'new mob')
