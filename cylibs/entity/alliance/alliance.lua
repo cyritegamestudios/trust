@@ -86,13 +86,22 @@ function Alliance:monitor()
 
     -- Add placeholders for alliance members until id can be mapped to name
     self.dispose_bag:add(WindowerEvents.AllianceMemberListUpdate:addAction(function(alliance_members_list)
+        self.should_check_parties = true
+
         self.alliance_members_list = T{}
 
         for alliance_member in alliance_members_list:it() do
             self.alliance_members_list[alliance_member.id] = alliance_member
             if alliance_member:get_mob() then
-                local party = self:get_parties()[alliance_member:get_party_index()]
+                local party = self:get_party(alliance_member:get_name()) or self:get_parties()[alliance_member:get_party_index()]
                 if party then
+                    local party_index = 1
+                    for p in self:get_parties():it() do
+                        if p == party then
+                            break
+                        end
+                        party_index = party_index + 1
+                    end
                     party:add_party_member(alliance_member:get_id(), alliance_member:get_name())
                 end
             end
@@ -141,6 +150,62 @@ function Alliance:monitor()
     end)
 
     WindowerEvents.replay_last_events(L{ WindowerEvents.AllianceMemberListUpdate })
+end
+
+function Alliance:tic(_, _)
+    self:check_parties()
+end
+
+-------
+-- Validates that each alliance member is in the right party, swapping between parties if there
+-- is a mismatch.
+function Alliance:check_parties()
+    if not self.should_check_parties then
+        return
+    end
+
+    local num_validated_party_members = 0
+    for alliance_member_id, alliance_member in pairs(self.alliance_members_list) do
+        local party = self:get_parties():firstWhere(function(p)
+            return p:has_party_member(alliance_member_id)
+        end)
+        if party then
+            local current_party_index = self:get_index_of_party(party)
+            if current_party_index ~= self:get_party_index(alliance_member:get_name()) then
+                if self:swap_parties(alliance_member, current_party_index, self:get_party_index(alliance_member:get_name())) then
+                    num_validated_party_members = num_validated_party_members + 1
+                end
+            else
+                num_validated_party_members = num_validated_party_members + 1
+            end
+        end
+    end
+    if num_validated_party_members == self.alliance_members_list:length() then
+        self.should_check_parties = false
+    end
+end
+
+-------
+-- Moves an alliance member from one party to another party.
+-- @tparam string alliance_member_name Name of alliance member
+-- @tparam number from_party_index Index of current party
+-- @tparam number to_party_index Index of new party
+function Alliance:swap_parties(alliance_member, from_party_index, to_party_index)
+    if not alliance_member:get_name() or from_party_index == nil or to_party_index == nil then
+        return false
+    end
+    logger.notice(self.__class, 'swap_parties', alliance_member:get_name(), from_party_index, to_party_index)
+
+    local from_party = self:get_parties()[from_party_index]
+    if from_party:has_party_member(alliance_member:get_id()) then
+        from_party:remove_party_member(alliance_member:get_id())
+    end
+
+    local to_party = self:get_parties()[to_party_index]
+    if not to_party:has_party_member(alliance_member:get_id()) then
+        to_party:add_party_member(alliance_member:get_id(), alliance_member:get_name())
+    end
+    return true
 end
 
 -------
@@ -200,6 +265,20 @@ function Alliance:get_party_index(alliance_member_name)
                 end
             end
         end
+    end
+    return party_index
+end
+
+-------
+-- Returns the index of the party in the alliance.
+-- @treturn number Index of Party (see party.lua)
+function Alliance:get_index_of_party(party)
+    local party_index = 1
+    for p in self:get_parties():it() do
+        if p == party then
+            return party_index
+        end
+        party_index = party_index + 1
     end
     return party_index
 end

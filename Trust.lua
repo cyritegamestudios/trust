@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '12.4.4'
+_addon.version = '12.4.5'
 _addon.release_notes = [[
 This update introduces new menus for Bard, autocomplete for Trust
 commands, new commands and important bug fixes for users running the
@@ -572,6 +572,8 @@ function handle_tic(old_time, new_time)
 		end
 	end
 
+	player.alliance:tic(old_time, new_time)
+
 	if not trust or not windower.ffxi.get_player() or not addon_enabled:getValue() or not player or not player.trust then return end
 
 	action_queue:set_enabled(addon_enabled:getValue())
@@ -662,7 +664,7 @@ function handle_command(args)
 end
 
 function handle_debug()
-	local UrlRequest = require('cylibs/util/network/url_request')
+	--[[local UrlRequest = require('cylibs/util/network/url_request')
 
 	local request = UrlRequest.new('GET', 'https://raw.githubusercontent.com/cyritegamestudios/trust/main/manifest.json', {})
 
@@ -671,6 +673,12 @@ function handle_debug()
 
 	if success then
 		table.vprint(body)
+	end]]
+
+	local party_index = 1
+	for party in player.alliance:get_parties():it() do
+		print('Party', party_index..":", party:get_party_members():map(function(p) return p:get_name() end))
+		party_index = party_index + 1
 	end
 
 	print(num_created)
