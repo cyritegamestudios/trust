@@ -73,8 +73,6 @@ function PathTrustCommands:handle_save_path(_, path_name)
         success = false
         message = "Invalid path name "..(path_name or 'nil')
     elseif self.path_recorder:is_recording() then
-        path_name = path_name..'_'..windower.ffxi.get_player().name
-
         self.path_recorder:stop_recording(path_name)
 
         success = true
@@ -96,7 +94,6 @@ function PathTrustCommands:handle_start_path(_, path_name, reverse)
         success = false
         message = "Invalid path name "..(path_name or 'nil')
     else
-        path_name = path_name..'_'..windower.ffxi.get_player().name
         local path = Path.from_file(self.path_recorder:get_output_folder()..path_name..'.lua')
         if path then
             if path:get_zone_id() ~= windower.ffxi.get_info().zone then
