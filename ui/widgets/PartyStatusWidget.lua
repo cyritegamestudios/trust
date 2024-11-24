@@ -14,6 +14,7 @@ local SoundTheme = require('cylibs/sounds/sound_theme')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
+local ValueRelay = require('cylibs/events/value_relay')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 local Widget = require('ui/widgets/Widget')
 
@@ -48,28 +49,22 @@ function PartyStatusWidget.new(frame, addonSettings, alliance, party, trust, med
     local self = setmetatable(Widget.new(frame, "Party", addonSettings, dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 4), 20), PartyStatusWidget)
 
     self.alliance = alliance
-    self.party_index = -1
+
+    self.party = ValueRelay.new(party)
+
+
+    self.party_index = ValueRelay.new(-1)
     self.party_member_names = L{}
     self.partyDisposeBag = DisposeBag.new()
 
     local assistTargetItem = ImageItem.new(windower.addon_path..'assets/icons/icon_assist_target.png', 6, 6)
     self.assistTargetIcon = ImageCollectionViewCell.new(assistTargetItem)
 
-    self:getContentView():addSubview(self.assistTargetIcon)
-
-    self:set_party_index(1)
-
     local leftArrowButtonItem = ImageItem.new(windower.addon_path..'assets/buttons/button_arrow_left.png', 14, 7)
     self.leftArrowButton = ImageCollectionViewCell.new(leftArrowButtonItem)
 
     local rightArrowButtonItem = ImageItem.new(windower.addon_path..'assets/buttons/button_arrow_right.png', 14, 7)
     self.rightArrowButton = ImageCollectionViewCell.new(rightArrowButtonItem)
-
-    for arrowButton in L{ self.leftArrowButton, self.rightArrowButton }:it() do
-        self:getContentView():addSubview(arrowButton)
-    end
-
-    self:updateButtons()
 
     self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
         self:getDelegate():deselectAllItems()
@@ -101,12 +96,42 @@ function PartyStatusWidget.new(frame, addonSettings, alliance, party, trust, med
         end
     end), self:getDelegate():didSelectItemAtIndexPath())
 
-    self:getDisposeBag():add(WindowerEvents.AllianceMemberListUpdate:addAction(function(a)
-        coroutine.schedule(function()
-            self:updateButtons()
-            self:set_party_member_names(self.party:get_party_members(self.party_index == 1):map(function(p) return p:get_name() end))
-        end, 0.1)
-    end), WindowerEvents.AllianceMemberListUpdate)
+    self:getDisposeBag():add(alliance:on_alliance_updated():addAction(function(_)
+        self:updateButtons()
+        self:set_party_member_names(self.party:get_party_members(self.party_index:getValue() == 1):map(function(p) return p:get_name() end))
+    end), alliance:on_alliance_updated())
+
+    self:getDisposeBag():add(self.party_index:onValueChanged():addAction(function(_, party_index)
+        self:set_party(self.alliance:get_parties()[party_index])
+
+        local is_primary_party = self.party_index:getValue() == 1
+        if is_primary_party then
+            self:setTitle("Party", 20)
+        else
+            self:setTitle("Alliance", 40)
+        end
+    end), self.party_index:onValueChanged())
+
+
+    self:getDisposeBag():add(party:on_party_assist_target_change():addAction(function(_, party_member)
+        self:setAssistTarget(party_member)
+    end), party:on_party_assist_target_change())
+
+    self.party_index:setValue(1)
+
+    return self
+end
+
+function PartyStatusWidget:set_party(party)
+    self.party = party
+
+    local is_primary_party = self.party_index:getValue() == 1
+
+    if is_primary_party then
+        self:setAssistTarget(self.party:get_assist_target())
+    else
+        self:setAssistTarget(nil)
+    end
 
     local on_position_change = function(p, x, y, z)
         if S(self.party_member_names):contains(p:get_name()) then
@@ -120,44 +145,23 @@ function PartyStatusWidget.new(frame, addonSettings, alliance, party, trust, med
         end
     end
 
-    for party in alliance:get_parties():it() do
-        self:getDisposeBag():add(party:on_party_member_added():addAction(function(party_member)
-            self:set_party_member_names(self.party:get_party_members(self.party_index == 1):map(function(p) return p:get_name() end))
+    self.partyDisposeBag:dispose()
+    self.partyDisposeBag:add(self.party:on_party_member_added():addAction(function(party_member)
+        if is_primary_party then
             self.partyDisposeBag:add(party_member:on_position_change():addAction(function(p, x, y, z)
                 on_position_change(p, x, y, z)
             end), party_member:on_position_change())
-        end), party:on_party_member_added())
-    end
+        end
+        self:set_party_member_names(self.party:get_party_members(is_primary_party):map(function(p) return p:get_name() end))
+    end), self.party:on_party_member_added())
 
-    self:getDisposeBag():add(party:on_party_assist_target_change():addAction(function(_, party_member)
-        self:setAssistTarget(party_member)
-    end), party:on_party_assist_target_change())
+    self.partyDisposeBag:add(self.party:on_party_member_added():addAction(function(party_member)
+        self:set_party_member_names(self.party:get_party_members(is_primary_party):map(function(p) return p:get_name() end))
+    end), self.party:on_party_member_added())
 
-    self:set_party_member_names(self.party:get_party_members(true):map(function(p) return p:get_name() end))
+    self:updateButtons()
 
-    for party_member in self.party:get_party_members(true):it() do
-        self.partyDisposeBag:add(party_member:on_position_change():addAction(function(p, x, y, z)
-            on_position_change(p, x, y, z)
-        end), party_member:on_position_change())
-    end
-
-    return self
-end
-
-function PartyStatusWidget:set_party_index(party_index)
-    if self.party_index == party_index then
-        return
-    end
-    self.party_index = party_index
-    self.party = self.alliance:get_parties()[self.party_index]
-
-    self:set_party_member_names(self.party:get_party_members(self.party_index == 1):map(function(p) return p:get_name() end))
-
-    if self.party_index == 1 then
-        self:setTitle("Party", 20)
-    else
-        self:setTitle("Alliance", 40)
-    end
+    self:set_party_member_names(self.party:get_party_members(is_primary_party):map(function(p) return p:get_name() end))
 end
 
 function PartyStatusWidget:set_party_member_names(party_member_names)
@@ -168,7 +172,7 @@ function PartyStatusWidget:set_party_member_names(party_member_names)
     self.party_member_names = party_member_names
 
     if self.party_member_names:length() == 0 and self.party_index ~= 1 then
-        self:set_party_index(1)
+        self.party_index:setValue(1)
         return
     end
 
@@ -214,6 +218,7 @@ function PartyStatusWidget:setAssistTarget(party_member)
         if indexPath then
             local cell = self:getDataSource():cellForItemAtIndexPath(indexPath)
             if cell then
+                self:getContentView():addSubview(self.assistTargetIcon)
                 self.assistTargetIcon:setVisible(true)
                 self.assistTargetIcon:setPosition(cell:getPosition().x - 3, cell:getPosition().y + cell:getSize().height - 6)
                 self.assistTargetIcon:layoutIfNeeded()
@@ -221,7 +226,7 @@ function PartyStatusWidget:setAssistTarget(party_member)
         end
     else
         self.assistTargetIcon:setVisible(false)
-        self.assistTargetIcon:layoutIfNeeded()
+        self.assistTargetIcon:removeFromSuperview()
     end
 end
 
@@ -249,17 +254,15 @@ function PartyStatusWidget:indexPathForPartyMember(party_member)
     return nil
 end
 
-function PartyStatusWidget:setExpanded(expanded)
-    if not Widget.setExpanded(self, expanded) then
-        return false
-    end
-end
-
 function PartyStatusWidget:updateButtons()
+    local num_valid_parties = self:get_num_valid_parties()
     for button in L{ self.leftArrowButton, self.rightArrowButton }:it() do
-        button:setVisible(self:get_num_valid_parties() > 1)
-        button:setNeedsLayout()
-        button:layoutIfNeeded()
+        if num_valid_parties > 1 then
+            self:getContentView():addSubview(button)
+        else
+            button:setVisible(false)
+            button:removeFromSuperview()
+        end
     end
 end
 
@@ -288,21 +291,21 @@ function PartyStatusWidget:onMouseEvent(type, x, y, delta)
     if type == Mouse.Event.Click or type == Mouse.Event.ClickRelease then
         if self.leftArrowButton:hitTest(x, y) then
             if type == Mouse.Event.ClickRelease then
-                local party_index = self.party_index - 1
+                local party_index = self.party_index:getValue() - 1
                 if party_index <= 0 then
                     party_index = self:get_num_valid_parties()
                 end
-                self:set_party_index(party_index)
+                self.party_index:setValue(party_index)
             end
             return true
         end
         if self.rightArrowButton:hitTest(x, y) then
             if type == Mouse.Event.ClickRelease then
-                local party_index = self.party_index + 1
+                local party_index = self.party_index:getValue() + 1
                 if party_index > self:get_num_valid_parties() then
                     party_index = 1
                 end
-                self:set_party_index(party_index)
+                self.party_index:setValue(party_index)
             end
             return true
         end

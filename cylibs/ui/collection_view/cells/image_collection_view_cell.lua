@@ -57,6 +57,7 @@ function ImageCollectionViewCell:layoutIfNeeded()
     if isVisible then
         self.imageView:loadImage(self:getItem():getImagePath())
     end
+    self.imageView:setVisible(isVisible)
 
     return true
 end
