@@ -245,6 +245,14 @@ function buff_util.debuffs_for_auras()
 end
 
 -------
+-- Returns the full metadata for the buff associated with the given spell or job ability.
+-- @tparam number ability_id Ability id (see spells.lua and jb_abilities.lua)
+-- @treturn BuffMetadata Full metadata for the buff (see buffs.lua)
+function buff_util.buff_for(ability_id)
+	return buff_util.buff_for_spell(ability_id) or buff_util.buff_for_job_ability(ability_id)
+end
+
+-------
 -- Returns the full metadata for the buff associated with the given spell.
 -- @tparam number spell_id Spell id (see spells.lua)
 -- @treturn BuffMetadata Full metadata for the buff (see buffs.lua)

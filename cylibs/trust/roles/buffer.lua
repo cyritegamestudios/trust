@@ -79,11 +79,14 @@ function Buffer:range_check(spell)
     end
 end
 
-function Buffer:conditions_check(spell, target)
+function Buffer:conditions_check(spell, buff, target)
     if target == nil then
         return false
     end
-    local conditions = L{ MaxDistanceCondition.new(spell:get_range(), target.index) }:extend(spell:get_conditions())
+    local conditions = L{
+        MaxDistanceCondition.new(spell:get_range(), target.index),
+        NotCondition.new(L{ HasBuffCondition.new(buff.name, target.index) })
+    }:extend(spell:get_conditions())
     for condition in conditions:it() do
         if not condition:is_satisfied(target.index) then
             return false
@@ -99,6 +102,22 @@ end
 
 function Buffer:check_buffs()
     local player_buff_ids = L(windower.ffxi.get_player().buffs)
+    --[[local player = self:get_party():get_player()
+
+    local all_abilities = self.job_abilities + self.self_spells
+
+    for ability in all_abilities:it() do
+        if ability:isEnabled() then
+            local buff = buff_util.buff_for(ability:get_ability_id())
+            if buff and not buff_util.conflicts_with_buffs(buff.id, player:get_buff_ids()) then
+                if self:conditions_check(ability, buff, player:get_mob()) then
+                    self.last_buff_time = os.time()
+                    self.action_queue:push_action(ability:to_action(player:get_mob().index, self:get_player(), ability:get_job_abilities()))
+                    return
+                end
+            end
+        end
+    end]]
 
     -- Job abilities
     if self.job_abilities_enabled then

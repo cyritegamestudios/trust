@@ -195,6 +195,11 @@ function PartyStatusWidget:set_party_member_names(party_member_names)
 end
 
 function PartyStatusWidget:is_enabled(party_member_name)
+    local is_primary_party = self.party_index:getValue() == 1
+    if not is_primary_party then
+        return true
+    end
+
     local party_member = self.party:get_party_member_named(party_member_name)
     if party_member then
         if not party_member:is_trust() and party_member:get_id() ~= windower.ffxi.get_player().id then
