@@ -44,6 +44,25 @@ function TextItem:setText(text)
 end
 
 ---
+-- Gets the localized text content of the item.
+--
+-- @treturn string The localized text content.
+--
+function TextItem:getLocalizedText()
+    return self.localizedText or self:getText()
+end
+
+---
+-- Sets the localized text for this TextItem.
+--
+-- @tparam string localizedText The new localized text to set.
+--
+function TextItem:setLocalizedText(localizedText)
+    self.localizedText = localizedText
+end
+
+
+---
 -- Returns the horizontal alignment for this TextItem.
 --
 -- @treturn Alignment The alignment.

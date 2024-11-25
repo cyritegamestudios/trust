@@ -198,8 +198,8 @@ function TrustStatusWidget:setJobs(mainJobName, subJobName)
     local rowIndex = 0
 
     local itemsToUpdate = L{
-        TextItem.new("Lv"..windower.ffxi.get_player().main_job_level.." "..mainJobName, TrustStatusWidget.TextSmall2),
-        TextItem.new("Lv"..(windower.ffxi.get_player().sub_job_level or 0).." "..subJobName, TrustStatusWidget.TextSmall)
+        TextItem.new("Lv"..windower.ffxi.get_player().main_job_level.." "..i18n.resource('jobs', 'en', mainJobName), TrustStatusWidget.TextSmall2),
+        TextItem.new("Lv"..(windower.ffxi.get_player().sub_job_level or 0).." "..i18n.resource('jobs', 'en', subJobName), TrustStatusWidget.TextSmall)
     }:map(function(item)
         rowIndex = rowIndex + 1
         return IndexedItem.new(item, IndexPath.new(1, rowIndex))

@@ -10,6 +10,7 @@ local job_util = require('cylibs/util/job_util')
 
 local Buffer = setmetatable({}, {__index = Role })
 Buffer.__index = Buffer
+Buffer.__class = "Buffer"
 
 function Buffer.new(action_queue, self_buffs, party_buffs, state_var, buff_action_priority)
     local self = setmetatable(Role.new(action_queue), Buffer)
@@ -125,7 +126,7 @@ function Buffer:check_buffs()
             local buff = buff_util.buff_for_job_ability(job_ability:get_job_ability_id())
             if buff and job_ability:isEnabled() and not buff_util.is_buff_active(buff.id, player_buff_ids)
                     and not buff_util.conflicts_with_buffs(buff.id, player_buff_ids) then
-                if job_util.can_use_job_ability(job_ability:get_job_ability_name()) and self:conditions_check(job_ability, windower.ffxi.get_player()) then
+                if job_util.can_use_job_ability(job_ability:get_job_ability_name()) and self:conditions_check(job_ability, buff, windower.ffxi.get_player()) then
                     self.last_buff_time = os.time()
                     self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, job_ability:get_job_ability_name()), true)
                     return
@@ -148,7 +149,7 @@ function Buffer:check_buffs()
                     and spell_util.can_cast_spell(spell:get_spell().id) then
                 if self:range_check(spell) then
                     local target = self:get_spell_target(spell)
-                    if target and self:conditions_check(spell, target) then
+                    if target and self:conditions_check(spell, buff, target) then
                         if self:cast_spell(spell, target.index) then
                             return
                         end
@@ -170,7 +171,7 @@ function Buffer:check_buffs()
                             and not (buff_util.conflicts_with_buffs(buff.id, party_member:get_buff_ids()))
                             and self:job_names_check(spell, party_member) and spell_util.can_cast_spell(spell:get_spell().id) then
                         local target = party_member:get_mob()
-                        if target and self:conditions_check(spell, target) then
+                        if target and self:conditions_check(spell, buff, target) then
                             if self:cast_spell(spell, target.index) then
                                 return
                             end

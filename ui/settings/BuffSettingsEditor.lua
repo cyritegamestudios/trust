@@ -32,6 +32,7 @@ function BuffSettingsEditor.new(trustSettings, buffs, targets)
     self.trustSettings = trustSettings
     self.buffs = buffs or L{}
     self.targets = targets
+    self.menuArgs = {}
 
     self:reloadSettings()
 
@@ -69,6 +70,7 @@ function BuffSettingsEditor:reloadSettings()
     for buff in self.buffs:it() do
         local imageItem = imageItemForBuff(buff:get_name())
         local textItem = TextItem.new(buff:get_name(), TextStyle.Default.PickerItem)
+        textItem:setLocalizedText(buff:get_localized_name())
         textItem:setEnabled(self:checkJob(buff) and buff:isEnabled())
         items:append(IndexedItem.new(ImageTextItem.new(imageItem, textItem), IndexPath.new(1, rowIndex)))
         rowIndex = rowIndex + 1
@@ -102,6 +104,10 @@ function BuffSettingsEditor:checkJob(buff)
         return condition.__class == MainJobCondition.__class
     end) or L{}
     return job_conditions:empty() or Condition.check_conditions(job_conditions, windower.ffxi.get_player().index)
+end
+
+function BuffSettingsEditor:getMenuArgs()
+    return self.menuArgs
 end
 
 return BuffSettingsEditor

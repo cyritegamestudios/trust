@@ -61,7 +61,7 @@ function TextCollectionViewCell:layoutIfNeeded()
     if isVisible then
         local position = self:getAbsolutePosition()
 
-        local text = self:getItem():getText()
+        local text = self:getItem():getLocalizedText()
         if self:getItem():shouldTruncateText() then
             text = localization_util.truncate(text, math.floor(self:getSize().width / (self:getItem():getStyle():getFontSize() * 0.75)))
         end
@@ -71,7 +71,7 @@ function TextCollectionViewCell:layoutIfNeeded()
         if self:getItem():getSize() then
             textWidth = self:getItem():getSize().width
         else
-            textWidth = string.len(self:getItem():getText()) * self:getItem():getStyle():getFontSize()
+            textWidth = string.len(self:getItem():getLocalizedText()) * self:getItem():getStyle():getFontSize()
         end
 
         if self:getItem():shouldAutoResize() then
@@ -84,7 +84,7 @@ function TextCollectionViewCell:layoutIfNeeded()
         if self:getItem():shouldWordWrap() then
             if textWidth > self:getSize().width + 12 then
                 local text = ""
-                local words = self:getItem():getText():split(" ")
+                local words = self:getItem():getLocalizedText():split(" ")
                 for word in words:it() do
                     text = text..word.."\n "
                 end

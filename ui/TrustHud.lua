@@ -320,8 +320,8 @@ function TrustHud:getMainMenuItem()
     end
     
     local mainMenuItem = MenuItem.new(L{
-        ButtonItem.default(player.main_job_name, 18),
-        ButtonItem.default(player.sub_job_name, 18),
+        ButtonItem.localized(player.main_job_name, i18n.resource('jobs', 'en', player.main_job_name)),
+        ButtonItem.localized(player.sub_job_name, i18n.resource('jobs', 'en', player.sub_job_name)),
         ButtonItem.default('Profiles', 18),
         ButtonItem.default('Commands', 18),
         ButtonItem.default('Config', 18),
@@ -385,7 +385,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
     local debuffSettingsItem = MenuItem.new(L{
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
-        ButtonItem.default('Modes', 18),
+        ButtonItem.localized('Modes', i18n.translate('Modes')),
         ButtonItem.default('Help', 18)
     }, {
         Add = chooseDebuffsItem,
@@ -401,7 +401,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
 
     -- Settings
     local menuItems = L{
-        ButtonItem.default('Modes', 18)
+        ButtonItem.localized("Modes", i18n.translate("Modes"))
     }
     local childMenuItems = {
         Modes = modesMenuItem,

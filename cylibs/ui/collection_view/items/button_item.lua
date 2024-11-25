@@ -1,4 +1,5 @@
 local Color = require('cylibs/ui/views/color')
+local i18n = require('cylibs/i18n/i18n')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local Frame = require('cylibs/ui/views/frame')
 local ResizableImageItem = require('cylibs/ui/collection_view/items/resizable_image_item')
@@ -64,6 +65,10 @@ function ButtonItem.new(textItem, defaultImageItem, highlightedImageItem, select
     return self
 end
 
+function ButtonItem.localized(buttonText, localizedText)
+    return ButtonItem.default(buttonText, 18, ButtonItem.DefaultStyle, localizedText)
+end
+
 ---
 -- Creates a default ButtonItem with specified text and height.
 --
@@ -71,7 +76,7 @@ end
 -- @tparam number buttonHeight The height of the button.
 -- @treturn ButtonItem The created ButtonItem with default properties.
 --
-function ButtonItem.default(buttonText, buttonHeight, textStyle)
+function ButtonItem.default(buttonText, buttonHeight, textStyle, localizedText)
     buttonHeight = 16
     textStyle = textStyle or ButtonItem.DefaultStyle
 
@@ -96,8 +101,11 @@ function ButtonItem.default(buttonText, buttonHeight, textStyle)
             centerImageItemHighlighted
     )
 
+    local textItem = TextItem.new(buttonText, textStyle)
+    textItem:setLocalizedText(localizedText)
+
     local buttonItem = ButtonItem.new(
-            TextItem.new(buttonText, textStyle),
+            textItem,
             defaultImageItem,
             highlightedImageItem,
             defaultImageItem

@@ -56,20 +56,25 @@ function FFXIPickerView.withItems(texts, selectedTexts, allowsMultipleSelection,
     return FFXIPickerView.new(L{ pickerItems }, allowsMultipleSelection, cursorImageItem, viewSize, title)
 end
 
-function FFXIPickerView.withSections(sections, selectedTexts, allowsMultipleSelection, cursorImageItem, imageForText)
+function FFXIPickerView.withSections(sections, selectedTexts, allowsMultipleSelection, cursorImageItem, imageForText, localizedTextForText)
     imageForText = imageForText or function(_)
         return nil
+    end
+    localizedTextForText = localizedTextForText or function(text)
+        return text
     end
 
     local itemsBySection = L{}
     local sectionIndex = 1
     for sectionTexts in sections:it() do
         local pickerItems = sectionTexts:map(function(text)
+            local textItem = TextItem.new(text, TextStyle.Picker.Text)
+            textItem:setLocalizedText(localizedTextForText(text))
             local imageItem = imageForText(text, sectionIndex)
             if imageItem then
-                return PickerItem.new(ImageTextItem.new(imageItem, TextItem.new(text, TextStyle.Picker.Text)), selectedTexts:contains(text))
+                return PickerItem.new(ImageTextItem.new(imageItem, textItem), selectedTexts:contains(text))
             end
-            return PickerItem.new(TextItem.new(text, TextStyle.Picker.Text), selectedTexts:contains(text))
+            return PickerItem.new(textItem, selectedTexts:contains(text))
         end)
         if sectionTexts:length() > 0 then
             itemsBySection:append(pickerItems)

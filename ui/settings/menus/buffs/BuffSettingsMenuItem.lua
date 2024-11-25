@@ -41,8 +41,13 @@ function BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, setti
         self.buffs = buffs
 
         local buffSettingsEditor = BuffSettingsEditor.new(trustSettings, buffs, targets)
+        self.buffSettingsEditor = buffSettingsEditor
 
         self.dispose_bag:add(buffSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
+            local buff = self.buffs[indexPath.row]
+
+            self.buffSettingsEditor.menuArgs['conditions'] = buff:get_conditions()
+
             local item = buffSettingsEditor:getDataSource():itemAtIndexPath(indexPath)
             if item and not item:getTextItem():getEnabled() then
                 infoView:setDescription("Unavailable on current job or settings.")
@@ -57,7 +62,7 @@ function BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, setti
             end
         end, buffSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath()))
 
-        self.buffSettingsEditor = buffSettingsEditor
+
 
         return buffSettingsEditor
     end
@@ -128,8 +133,16 @@ function BuffSettingsMenuItem:getAddBuffMenuItem()
                 return nil
             end
         end
+        local localizedTextForAbility = function(text)
+            if res.spells:with('en', text) then
+                return i18n.resource('spells', 'en', text)
+            elseif res.job_abilities:with('en', text) then
+                return i18n.resource('job_abilities', 'en', text)
+            end
+            return text
+        end
 
-        local chooseBuffView = FFXIPickerView.withSections(self:getAllBuffs(), L{}, true, nil, imageItemForAbility)
+        local chooseBuffView = FFXIPickerView.withSections(self:getAllBuffs(), L{}, true, nil, imageItemForAbility, localizedTextForAbility)
         chooseBuffView:on_pick_items():addAction(function(pickerView, selectedItems)
             pickerView:getDelegate():deselectAllItems()
 

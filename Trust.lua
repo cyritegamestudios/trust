@@ -88,6 +88,7 @@ state.AutoEnmityReductionMode:set_description('Auto', "Okay, I'll automatically 
 function load_user_files(main_job_id, sub_job_id)
 	local start_time = os.clock()
 
+	load_i18n_settings()
 	load_logger_settings()
 
 	addon_system_message("Loaded Trust v".._addon.version)
@@ -428,6 +429,16 @@ function load_ui()
 	hud = TrustHud.new(player, action_queue, addon_settings, trust_mode_settings, addon_enabled, 500, 500)
 	hud:setNeedsLayout()
 	hud:layoutIfNeeded()
+end
+
+function load_i18n_settings()
+	local locale = i18n.Locale.English
+
+	local language = windower.ffxi.get_info().language
+	if language == 'japanese' then
+		locale = i18n.Locale.Japanese
+	end
+	i18n.init(locale, 'translations/'..locale)
 end
 
 function load_logger_settings()

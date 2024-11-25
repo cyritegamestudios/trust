@@ -282,6 +282,10 @@ function Spell:get_name()
     return self.spell_name
 end
 
+function Spell:get_localized_name()
+    return i18n.resource('spells', 'en', self:get_name())
+end
+
 function Spell:serialize()
     local conditions_classes_to_serialize = Condition.defaultSerializableConditionClasses()
     local conditions_to_serialize = self.conditions:filter(function(condition)
