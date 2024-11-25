@@ -4,6 +4,7 @@ local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local ImageTextItem = require('cylibs/ui/collection_view/items/image_text_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
 
@@ -23,7 +24,13 @@ function BuffSettingsEditor.new(trustSettings, buffs, targets)
         end
     end
 
-    local self = setmetatable(FFXIPickerView.withItems(buffs:map(function(b) return b:get_name() end), L{}, false, nil, imageItemForBuff), BuffSettingsEditor)
+    local configItem = MultiPickerConfigItem.new("Buffs", L{}, buffs, function(buff)
+        return buff:get_localized_name()
+    end, "Buffs", nil, function(buff)
+        return imageItemForBuff(buff:get_name())
+    end)
+
+    local self = setmetatable(FFXIPickerView.withItems(L{ configItem }), BuffSettingsEditor)
 
     self:setAllowsCursorSelection(true)
     self:setScrollDelta(16)

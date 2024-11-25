@@ -12,7 +12,7 @@ PickerConfigItem.__type = "PickerConfigItem"
 -- @tparam function Formatter for current value.
 -- @treturn ConfigItem The newly created ConfigItem instance.
 --
-function PickerConfigItem.new(key, initialValue, allValues, textFormat, description, onReload)
+function PickerConfigItem.new(key, initialValue, allValues, textFormat, description, onReload, imageItem)
     local self = setmetatable({}, PickerConfigItem)
 
     self.key = key
@@ -23,6 +23,9 @@ function PickerConfigItem.new(key, initialValue, allValues, textFormat, descript
             return value:get_localized_name()
         end
         return tostring(value)
+    end
+    self.imageItem = imageItem or function(_)
+        return nil
     end
     self.description = description or key
     self.dependencies = L{}
@@ -77,6 +80,15 @@ end
 --
 function PickerConfigItem:getTextFormat()
     return self.textFormat
+end
+
+---
+-- Gets the image item factory.
+--
+-- @treturn function The image item factory.
+--
+function PickerConfigItem:getImageItem()
+    return self.imageItem
 end
 
 ---

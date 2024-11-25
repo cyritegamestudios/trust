@@ -15,8 +15,8 @@ end
 -- @tparam PickerItem pickerItem The PickerItem.
 -- @treturn boolean True if this mapper can map a picker item.
 --
-function JobAbilityPickerItemMapper:canMap(pickerItem)
-    return res.job_abilities:with('en', pickerItem:getText()) ~= nil
+function JobAbilityPickerItemMapper:canMap(value)
+    return S{ JobAbility.__type }:contains(value.__type)
 end
 
 ---
@@ -25,8 +25,8 @@ end
 -- @tparam PickerItem pickerItem The PickerItem.
 -- @treturn table The mapped picker item.
 --
-function JobAbilityPickerItemMapper:map(pickerItem)
-    return JobAbility.new(pickerItem:getText(), L{}, L{})
+function JobAbilityPickerItemMapper:map(value)
+    return JobAbility.new(value:get_name(), L{}, L{})
 end
 
 return JobAbilityPickerItemMapper

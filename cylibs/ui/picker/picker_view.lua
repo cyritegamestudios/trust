@@ -6,7 +6,9 @@ local ImageTextCollectionViewCell = require('cylibs/ui/collection_view/cells/ima
 local ImageTextItem = require('cylibs/ui/collection_view/items/image_text_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local Padding = require('cylibs/ui/style/padding')
+local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local PickerItem = require('cylibs/ui/picker/picker_item')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
@@ -45,7 +47,7 @@ end
 -- @tparam boolean allowsMultipleSelection Indicates if multiple selection is allowed.
 -- @treturn PickerView The created PickerView.
 --
-function PickerView.new(pickerItems, allowsMultipleSelection, mediaPlayer, soundTheme)
+function PickerView.new(configItems, allowsMultipleSelection, mediaPlayer, soundTheme)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell
         if item.__type == TextItem.__type then
@@ -61,7 +63,7 @@ function PickerView.new(pickerItems, allowsMultipleSelection, mediaPlayer, sound
 
     local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(0, Padding.new(8, 16, 8, 0)), nil, nil, mediaPlayer, soundTheme), PickerView)
 
-    self.pickerItems = pickerItems
+    self.configItems = configItems
     self.menuArgs = {}
 
     self:setAllowsMultipleSelection(allowsMultipleSelection)
@@ -92,28 +94,46 @@ function PickerView:reload()
     self:getDataSource():removeAllItems()
 
     local indexedItems = L{}
-    local selectedIndexedItems = L{}
+    local selectedIndexPaths = L{}
 
-    local sections = self.pickerItems
+    local configItems = self.configItems
 
     local sectionIndex = 1
-    for section in sections:it() do
+    for configItem in configItems:it() do
         local rowIndex = 1
-        for pickerItem in section:it() do
+        local itemsInSection = IndexedItem.fromItems(configItem:getAllValues():map(function(value)
+            local item = TextItem.new(value, TextStyle.Picker.Text)
+            item:setLocalizedText(configItem:getTextFormat()(value))
+
+            local imageItem = configItem:getImageItem()(value, sectionIndex)
+            if imageItem then
+                item = ImageTextItem.new(imageItem, item)
+            end
+            local isSelected = S(configItem:getInitialValues()):contains(value)
+            if isSelected then
+                selectedIndexPaths:append(IndexPath.new(sectionIndex, rowIndex))
+            end
+            rowIndex = rowIndex + 1
+            return item
+        end), sectionIndex)
+
+        indexedItems = indexedItems + itemsInSection
+
+        --[[for configItem in section:it() do
             local indexedItem = IndexedItem.new(pickerItem:getItem(), IndexPath.new(sectionIndex, rowIndex))
             indexedItems:append(indexedItem)
             if pickerItem:isSelected() then
                 selectedIndexedItems:append(indexedItem)
             end
             rowIndex = rowIndex + 1
-        end
+        end]]
         sectionIndex = sectionIndex + 1
     end
 
     self:getDataSource():addItems(indexedItems)
 
-    for indexedItem in selectedIndexedItems:it() do
-        self:getDelegate():selectItemAtIndexPath(indexedItem:getIndexPath())
+    for indexPath in selectedIndexPaths:it() do
+        self:getDelegate():selectItemAtIndexPath(indexPath)
     end
 
     self:setNeedsLayout()
@@ -125,6 +145,7 @@ function PickerView:reload()
 end
 
 function PickerView:setItems(texts, selectedTexts, shouldTruncateText)
+    error("FIX ME")
     selectedTexts = selectedTexts or L{}
     self.pickerItems = L{ texts:map(function(text)
         local textItem = TextItem.new(text, TextStyle.Picker.Text)
@@ -136,6 +157,11 @@ end
 
 function PickerView:getMenuArgs()
     return self.menuArgs
+end
+
+function PickerView:valueAtIndexPath(indexPath)
+    local configItem = self.configItems[indexPath.section]
+    return configItem:getAllValues()[indexPath.row]
 end
 
 ---
@@ -180,7 +206,7 @@ end
 function PickerView:onSelectMenuItemAtIndexPath(textItem, _)
     if L{ 'Confirm', 'Save', 'Search', 'Select' }:contains(textItem:getText()) then
         local selectedItems = L(self:getDelegate():getSelectedIndexPaths():map(function(indexPath)
-            return self:getDataSource():itemAtIndexPath(indexPath)
+            return self:valueAtIndexPath(indexPath)-- self:getDataSource():itemAtIndexPath(indexPath)
         end)):compact_map()
         if selectedItems:length() > 0 or self:getAllowsMultipleSelection() then
             self:on_pick_items():trigger(self, selectedItems, L(self:getDelegate():getSelectedIndexPaths()))

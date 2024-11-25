@@ -12,7 +12,7 @@ MultiPickerConfigItem.__type = "MultiPickerConfigItem"
 -- @tparam function Formatter for current value.
 -- @treturn ConfigItem The newly created MultiPickerConfigItem instance.
 --
-function MultiPickerConfigItem.new(key, initialValues, allValues, textFormat, description, onReload, imageItemForText)
+function MultiPickerConfigItem.new(key, initialValues, allValues, textFormat, description, onReload, imageItem)
     local self = setmetatable({}, MultiPickerConfigItem)
 
     self.key = key
@@ -20,6 +20,9 @@ function MultiPickerConfigItem.new(key, initialValues, allValues, textFormat, de
     self.allValues = allValues
     self.textFormat = textFormat or function(values)
         return localization_util.commas(values, 'or')
+    end
+    self.imageItem = imageItem or function(_)
+        return nil
     end
     self.description = description or key
     self.dependencies = L{}
@@ -83,6 +86,15 @@ end
 
 function MultiPickerConfigItem:getText()
     return self:getTextFormat()(self:getInitialValues())
+end
+
+---
+-- Gets the image item factory.
+--
+-- @treturn function The image item factory.
+--
+function MultiPickerConfigItem:getImageItem()
+    return self.imageItem
 end
 
 ---
