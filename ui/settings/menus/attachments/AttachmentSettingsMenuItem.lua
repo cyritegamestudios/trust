@@ -4,6 +4,7 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local MenuItem = require('cylibs/ui/menu/menu_item')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local Puppetmaster = require('cylibs/entity/jobs/PUP')
 local TextInputConfigItem = require('ui/settings/editors/config/TextInputConfigItem')
 
@@ -26,7 +27,11 @@ function AttachmentSettingsMenuItem.new(trustSettings, trustSettingsMode, settin
     self.contentViewConstructor = function(_, infoView)
         local attachmentSets = trustSettings:getSettings()[trustSettingsMode.value].AutomatonSettings.AttachmentSettings[settingsKeyName]
 
-        local attachmentSettingsEditor = FFXIPickerView.withItems(L(T(attachmentSets):keyset()):sort(), L{})
+        local configItem = MultiPickerConfigItem.new("AttachmentSets", L{}, L(T(attachmentSets):keyset()):sort(), function(attachmentSetName)
+            return tostring(attachmentSetName)
+        end)
+
+        local attachmentSettingsEditor = FFXIPickerView.withConfig(configItem)
         attachmentSettingsEditor:setAllowsCursorSelection(true)
 
         attachmentSettingsEditor:setNeedsLayout()
@@ -83,7 +88,10 @@ end
 
 function AttachmentSettingsMenuItem:getViewAttachmentsMenuItem()
     return MenuItem.new(L{}, {}, function(menuArgs, infoView)
-        local attachmentListEditor = FFXIPickerView.withItems(L{ self.selectedSet:getHeadName(), self.selectedSet:getFrameName() }:extend(self.selectedSet:getAttachments()), L{}, true)
+        local configItem = MultiPickerConfigItem.new("Attachments", L{}, L{ self.selectedSet:getHeadName(), self.selectedSet:getFrameName() } + self.selectedSet:getAttachments(), function(attachmentName)
+            return i18n.resource('items', 'en', attachmentName)
+        end)
+        local attachmentListEditor = FFXIPickerView.withConfig(configItem)
         return attachmentListEditor
     end, "Attachments", "View attachments in the set.")
 end

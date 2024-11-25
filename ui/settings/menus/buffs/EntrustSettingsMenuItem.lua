@@ -28,7 +28,7 @@ function EntrustSettingsMenuItem.new(trust, trustSettings, entrustSpells)
             return AssetManager.imageItemForSpell(spell:get_name())
         end)
 
-        local entrustSettingsEditor = FFXIPickerView.withItems(L{ configItem })
+        local entrustSettingsEditor = FFXIPickerView.withConfig(L{ configItem })
         entrustSettingsEditor:setAllowsCursorSelection(true)
 
         self.dispose_bag:add(entrustSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(cursorIndexPath)
@@ -75,7 +75,7 @@ function EntrustSettingsMenuItem:getAddMenuItem()
             return AssetManager.imageItemForSpell(spell:get_name())
         end)
 
-        local chooseSpellsView = FFXIPickerView.withItems(L{ configItem }, false)
+        local chooseSpellsView = FFXIPickerView.withConfig(L{ configItem }, false)
         chooseSpellsView:on_pick_items():addAction(function(_, selectedItems)
             local spell = Spell.new(selectedItems[1]:get_name(), L{ 'Entrust' }, job_util.all_jobs())
             self.entrustSpells:append(spell)
@@ -115,7 +115,7 @@ function EntrustSettingsMenuItem:getTargetsMenuItem()
                 return i18n.resource('jobs', 'ens', jobNameShort)
             end, "Targets")
 
-            local chooseSpellsView = FFXIPickerView.withItems(L{ configItem }, true)
+            local chooseSpellsView = FFXIPickerView.withConfig(L{ configItem }, true)
             chooseSpellsView:on_pick_items():addAction(function(_, selectedJobs)
                 spell:set_job_names(selectedJobs)
 

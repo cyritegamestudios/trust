@@ -109,7 +109,7 @@ function PickerView:reload()
             if imageItem then
                 item = ImageTextItem.new(imageItem, item)
             end
-            local isSelected = S(configItem:getInitialValues()):contains(value)
+            local isSelected = configItem:getInitialValues():contains(value)
             if isSelected then
                 selectedIndexPaths:append(IndexPath.new(sectionIndex, rowIndex))
             end

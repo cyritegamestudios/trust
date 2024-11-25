@@ -30,7 +30,7 @@ function BuffSettingsEditor.new(trustSettings, buffs, targets)
         return imageItemForBuff(buff:get_name())
     end)
 
-    local self = setmetatable(FFXIPickerView.withItems(L{ configItem }), BuffSettingsEditor)
+    local self = setmetatable(FFXIPickerView.withConfig(L{ configItem }), BuffSettingsEditor)
 
     self:setAllowsCursorSelection(true)
     self:setScrollDelta(16)

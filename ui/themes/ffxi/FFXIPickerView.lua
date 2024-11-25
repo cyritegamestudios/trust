@@ -40,6 +40,13 @@ function FFXIPickerView.new(configItems, allowsMultipleSelection, viewSize, titl
     return self
 end
 
+function FFXIPickerView.withConfig(configItems, allowsMultipleSelection)
+    if class(configItems) ~= 'List' then
+        configItems = L{ configItems }
+    end
+    return FFXIPickerView.new(configItems, allowsMultipleSelection)
+end
+
 function FFXIPickerView.withItems(configItems, allowsMultipleSelection, viewSize, shouldTruncateText, title)
     --[[imageForText = imageForText or function(_)
         return nil

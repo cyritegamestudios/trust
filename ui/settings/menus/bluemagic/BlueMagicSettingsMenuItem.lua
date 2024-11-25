@@ -4,6 +4,7 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local MenuItem = require('cylibs/ui/menu/menu_item')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local BlueMage = require('cylibs/entity/jobs/BLU')
 local TextInputConfigItem = require('ui/settings/editors/config/TextInputConfigItem')
 
@@ -25,7 +26,11 @@ function BlueMagicSettingsMenuItem.new(trustSettings, trustSettingsMode, isEdita
     self.contentViewConstructor = function(_, infoView)
         local spellSets = trustSettings:getSettings()[trustSettingsMode.value].BlueMagicSettings.SpellSets
 
-        local blueMagicSettingsEditor = FFXIPickerView.withItems(L(T(spellSets):keyset()):sort(), L{})
+        local configItem = MultiPickerConfigItem.new("BlueMagic", L{}, L(T(spellSets):keyset()):sort(), function(value)
+            return tostring(value)
+        end)
+
+        local blueMagicSettingsEditor = FFXIPickerView.withConfig(configItem)
         blueMagicSettingsEditor:setAllowsCursorSelection(true)
 
         blueMagicSettingsEditor:setNeedsLayout()
@@ -75,8 +80,11 @@ function BlueMagicSettingsMenuItem:getEquipSetMenuItem()
 end
 
 function BlueMagicSettingsMenuItem:getViewSetMenuItem()
-    return MenuItem.new(L{}, {}, function(menuArgs, infoView)
-        local spellListEditor = FFXIPickerView.withItems(self.selectedSet:getSpells(), L{}, true)
+    return MenuItem.new(L{}, {}, function(_, _)
+        local configItem = MultiPickerConfigItem.new("BlueMagic", L{}, self.selectedSet:getSpells(), function(spellName)
+            return Spell.new(spellName):get_localized_name()
+        end)
+        local spellListEditor = FFXIPickerView.withConfig(L{ configItem })
         return spellListEditor
     end, "Spells", "View blue magic spells in the set.")
 end

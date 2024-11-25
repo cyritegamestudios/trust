@@ -1,11 +1,11 @@
-local BooleanConfigItem = require('ui/settings/editors/config/BooleanConfigItem')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
+local DisposeBag = require('cylibs/events/dispose_bag')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
-local FFXITextInputView = require('ui/themes/ffxi/FFXITextInputView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local WidgetSettingsMenuItem = require('ui/settings/menus/widgets/WidgetSettingsMenuItem')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
+local TextInputConfigItem = require('ui/settings/editors/config/TextInputConfigItem')
 
 local RemoteCommandsSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 RemoteCommandsSettingsMenuItem.__index = RemoteCommandsSettingsMenuItem
@@ -18,23 +18,29 @@ function RemoteCommandsSettingsMenuItem.new(addonSettings)
     }, {}, nil, "Remote", "Allow other players to control your Trust."), RemoteCommandsSettingsMenuItem)
 
     self.contentViewConstructor = function(_, _)
-        local whitelistView = FFXIPickerView.withItems(L(addonSettings:getSettings().remote_commands.whitelist):sort() or L{}, L{})
-        whitelistView:setAllowsCursorSelection(true)
-        whitelistView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
-            local item = whitelistView:getDataSource():itemAtIndexPath(indexPath)
+        local configItem = MultiPickerConfigItem.new("Whitelist", L{}, L(addonSettings:getSettings().remote_commands.whitelist):sort() or L{}, function(playerName)
+            return playerName
+        end)
+
+        local whitelistSettingsEditor = FFXIPickerView.withConfig(L{ configItem })
+        whitelistSettingsEditor:setAllowsCursorSelection(true)
+
+        whitelistSettingsEditor:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
+            local item = whitelistSettingsEditor:getDataSource():itemAtIndexPath(indexPath)
             if item and item:getText() then
                 self.selectedPlayerName = item:getText()
             else
                 self.selectedPlayerName = nil
             end
         end)
-        if whitelistView:getDataSource():numberOfItemsInSection(1) > 0 then
-            whitelistView:getDelegate():selectItemAtIndexPath(IndexPath.new(1, 1))
+        if whitelistSettingsEditor:getDataSource():numberOfItemsInSection(1) > 0 then
+            whitelistSettingsEditor:getDelegate():selectItemAtIndexPath(IndexPath.new(1, 1))
         end
-        return whitelistView
+        return whitelistSettingsEditor
     end
 
     self.helpUrl = addonSettings:getSettings().help.wiki_base_url..'/Commands#remote-commands'
+    self.disposeBag = DisposeBag.new()
 
     self:reloadSettings(addonSettings)
 
@@ -69,21 +75,29 @@ function RemoteCommandsSettingsMenuItem:getAddPlayerMenuItem(addonSettings)
             menu:showMenu(self)
         end)
     }, function(_, _)
-        local playerNameView = FFXITextInputView.new('', "Player name")
-        playerNameView:setTitle("WARNING: this player will be able to control your Trust")
-        playerNameView:setShouldRequestFocus(true)
-        playerNameView:onTextChanged():addAction(function(_, playerName)
-            if playerName:length() > 3 then
-                local whitelist = addonSettings:getSettings().remote_commands.whitelist
-                if not whitelist:contains(playerName) then
-                    addonSettings:getSettings().remote_commands.whitelist:add(playerName)
-                    addonSettings:saveSettings(true)
-                    addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, "..playerName.." can control me now!")
-                    windower.add_to_chat(122, "---== WARNING ==---- Adding a player to the whitelist will allow them to control your Trust. Please use this carefully.")
-                end
-            end
+        local configItems = L{
+            TextInputConfigItem.new('PlayerName', 'Player Name', 'Player Name', function(_) return true  end)
+        }
+        local playerNameConfigEditor = ConfigEditor.new(nil, { PlayerName = '' }, configItems, nil, function(newSettings)
+            return newSettings.PlayerName and newSettings.PlayerName:length() > 3
         end)
-        return playerNameView
+
+        self.disposeBag:add(playerNameConfigEditor:onConfigChanged():addAction(function(newSettings, _)
+            local playerName = newSettings.PlayerName
+            local whitelist = addonSettings:getSettings().remote_commands.whitelist
+            if not whitelist:contains(playerName) then
+                addonSettings:getSettings().remote_commands.whitelist:add(playerName)
+                addonSettings:saveSettings(true)
+                addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, "..playerName.." can control me now!")
+                windower.add_to_chat(122, "---== WARNING ==---- Adding a player to the whitelist will allow them to control your Trust. Please use this carefully.")
+            end
+        end), playerNameConfigEditor:onConfigChanged())
+
+        self.disposeBag:add(playerNameConfigEditor:onConfigValidationError():addAction(function()
+            addon_system_error("Invalid player name.")
+        end), playerNameConfigEditor:onConfigValidationError())
+
+        return playerNameConfigEditor
     end, "Remote", "Add a new player to the whitelist.")
     return addPlayerMenuItem
 end

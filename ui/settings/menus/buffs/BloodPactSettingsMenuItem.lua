@@ -1,9 +1,9 @@
 local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
-local BloodPactSettingsEditor = require('ui/settings/editors/BloodPactSettingsEditor')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 
 local BloodPactSettingsMenuItem = setmetatable({}, {__index = MenuItem })
@@ -14,9 +14,16 @@ function BloodPactSettingsMenuItem.new(trustSettings, trust, bloodPacts, trustMo
         ButtonItem.default('Buffs', 18),
         ButtonItem.default('Modes', 18),
     }, {}, function(_)
-        local bloodPactsView = BloodPactSettingsEditor.new(trustSettings, bloodPacts)
-        bloodPactsView:setShouldRequestFocus(true)
-        return bloodPactsView
+        local configItem = MultiPickerConfigItem.new("BloodPacts", L{}, bloodPacts, function(bloodPact)
+            return bloodPact:get_localized_name()
+        end, "Blood Pacts", nil, function(bloodPact)
+            return AssetManager.imageItemForJobAbility(bloodPact:get_name())
+        end)
+
+        local bloodPactSettingsEditor = FFXIPickerView.withConfig(L{ configItem })
+        bloodPactSettingsEditor:setAllowsCursorSelection(true)
+
+        return bloodPactSettingsEditor
     end, "Summoner", "Configure Summoner settings."), BloodPactSettingsMenuItem)
 
     self.trustSettings = trustSettings
@@ -47,14 +54,15 @@ function BloodPactSettingsMenuItem:getBuffsMenuItem()
     }, L{}, function(_)
         local allBloodPacts = self.job:get_blood_pact_wards(function(bloodPact)
             return buff_util.buff_for_job_ability(bloodPact.id) ~= nil and not S(bloodPact.targets):contains('Enemy')
-        end):map(function(bloodPact) return bloodPact:get_name()  end)
+        end)
 
-        local imageItemForText = function(text)
-            return AssetManager.imageItemForJobAbility(text)
-        end
+        local configItem = MultiPickerConfigItem.new("BloodPacts", self.bloodPacts, allBloodPacts, function(bloodPact)
+            return bloodPact:get_localized_name()
+        end, "Blood Pacts", nil, function(bloodPact)
+            return AssetManager.imageItemForJobAbility(bloodPact:get_name())
+        end)
 
-        local chooseBloodPactView = FFXIPickerView.withItems(allBloodPacts, self.bloodPacts:map(function(bloodPact) return bloodPact:get_name()  end), true, nil, imageItemForText)
-        chooseBloodPactView:setTitle("Choose Blood Pact: Wards.")
+        local chooseBloodPactView = FFXIPickerView.withConfig(configItem, true)
         chooseBloodPactView:on_pick_items():addAction(function(_, selectedItems)
             self.bloodPacts:clear()
 
