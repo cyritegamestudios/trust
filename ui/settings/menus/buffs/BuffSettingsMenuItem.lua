@@ -62,8 +62,6 @@ function BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, setti
             end
         end, buffSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath()))
 
-
-
         return buffSettingsEditor
     end
 
@@ -133,16 +131,8 @@ function BuffSettingsMenuItem:getAddBuffMenuItem()
                 return nil
             end
         end
-        local localizedTextForAbility = function(text)
-            if res.spells:with('en', text) then
-                return i18n.resource('spells', 'en', text)
-            elseif res.job_abilities:with('en', text) then
-                return i18n.resource('job_abilities', 'en', text)
-            end
-            return text
-        end
 
-        local chooseBuffView = FFXIPickerView.withSections(self:getAllBuffs(), L{}, true, nil, imageItemForAbility, localizedTextForAbility)
+        local chooseBuffView = FFXIPickerView.withSections(self:getAllBuffs(), L{}, true, nil, imageItemForAbility)
         chooseBuffView:on_pick_items():addAction(function(pickerView, selectedItems)
             pickerView:getDelegate():deselectAllItems()
 

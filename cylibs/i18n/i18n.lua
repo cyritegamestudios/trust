@@ -34,6 +34,20 @@ function i18n.translate(key, args)
     return key
 end
 
+-------
+-- Sets the locale to be used when localization action commands (e.g. /ma <spell_name> <t>)
+-- @tparam string locale Locale (e.g. 'en', 'jp')
+function i18n.translate_any(text)
+    if res.spells:with('en', text) then
+        return i18n.resource('spells', 'en', text)
+    elseif res.job_abilities:with('en', text) then
+        return i18n.resource('job_abilities', 'en', text)
+    elseif res.weapon_skills:with('en', text) then
+        return i18n.resource('weapon_skills', 'en', text)
+    end
+    return text
+end
+
 function i18n.resource(resource_name, key, value)
     if S{ 'en', 'ens' }:contains(key) and locale == i18n.Locale.English then
         return value

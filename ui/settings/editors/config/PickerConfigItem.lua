@@ -19,6 +19,9 @@ function PickerConfigItem.new(key, initialValue, allValues, textFormat, descript
     self.initialValue = initialValue
     self.allValues = allValues
     self.textFormat = textFormat or function(value)
+        if type(value) == 'table' and value.get_localized_name then
+            return value:get_localized_name()
+        end
         return tostring(value)
     end
     self.description = description or key

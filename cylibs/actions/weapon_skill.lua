@@ -54,6 +54,10 @@ function WeaponSkillAction:get_weapon_skill_name()
 	return self.weapon_skill_name
 end
 
+function WeaponSkillAction:get_localized_name()
+	return i18n.resource('weapon_skills', 'en', self:get_name())
+end
+
 function WeaponSkillAction:get_target()
 	return windower.ffxi.get_mob_by_index(self.target_index)
 end
