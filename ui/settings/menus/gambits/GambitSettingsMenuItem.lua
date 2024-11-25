@@ -108,7 +108,6 @@ function GambitSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Move Down", self:getMoveDownGambitMenuItem())
     self:setChildMenuItem("Toggle", self:getToggleMenuItem())
     self:setChildMenuItem("Reset", self:getResetGambitsMenuItem())
-    --self:setChildMenuItem("Library", self:getGambitLibraryMenuItem())
     self:setChildMenuItem("Modes", self:getModesMenuItem())
 end
 

@@ -31,7 +31,9 @@ function AlterEgoSettingsMenuItem.new(truster, trustModeSettings, addonSettings)
             local alterEgoKey = "Trust"..i
             local alterEgoName = allSettings[i]
             alterEgoSettings[alterEgoKey] = alterEgoName
-            configItems:append(PickerConfigItem.new(alterEgoKey, alterEgoName, allAlterEgos, nil, "Alter Ego "..i))
+            configItems:append(PickerConfigItem.new(alterEgoKey, alterEgoName, allAlterEgos, function(alterEgoName)
+                return i18n.resource('spells', 'en', alterEgoName)
+            end, "Alter Ego "..i))
         end
 
         local alterEgoConfigEditor = ConfigEditor.new(addonSettings, alterEgoSettings, configItems)

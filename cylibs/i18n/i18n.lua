@@ -38,7 +38,9 @@ end
 -- Sets the locale to be used when localization action commands (e.g. /ma <spell_name> <t>)
 -- @tparam string locale Locale (e.g. 'en', 'jp')
 function i18n.translate_any(text)
-    if res.spells:with('en', text) then
+    if res.elements:with('en', text) then
+        return i18n.resource('elements', 'en', text)
+    elseif res.spells:with('en', text) then
         return i18n.resource('spells', 'en', text)
     elseif res.job_abilities:with('en', text) then
         return i18n.resource('job_abilities', 'en', text)
