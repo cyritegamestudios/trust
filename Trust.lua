@@ -362,6 +362,7 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_trust, acti
 	all_commands:sort()
 
 	local ChatAutoCompleter = require('cylibs/ui/input/autocomplete/chat_auto_completer')
+	local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 
 	command_widget:getDelegate():didHighlightItemAtIndexPath():addAction(function(indexPath)
 		local term = command_widget:getDataSource():itemAtIndexPath(indexPath)
@@ -396,7 +397,10 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_trust, acti
 		if terms:length() > 0 then
 			command_widget:setVisible(true)
 			command_widget:setContentOffset(0, 0)
-			command_widget:setItems(terms:map(function(term) return term:gsub("^//%s*trust ", "") end), L{}, true)
+			local configItem = MultiPickerConfigItem.new("Commands", L{}, terms:map(function(term) return term:gsub("^//%s*trust ", "") end), function(term)
+				return term
+			end)
+			command_widget:setConfigItems(L{ configItem })
 		else
 			if command_widget:isVisible() then
 				command_widget:setVisible(false)
@@ -432,7 +436,7 @@ function load_ui()
 end
 
 function load_i18n_settings()
-	local locale = i18n.Locale.English
+	local locale = i18n.Locale.Japanese
 
 	local language = windower.ffxi.get_info().language
 	if language == 'japanese' then

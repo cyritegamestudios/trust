@@ -6,6 +6,7 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local JobAbility = require('cylibs/battle/abilities/job_ability')
 local MenuItem = require('cylibs/ui/menu/menu_item')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local PullActionSettingsEditor = require('ui/settings/editors/pulling/PullActionSettingsEditor')
 local RangedAttack = require('cylibs/battle/ranged_attack')
 local Spell = require('cylibs/battle/spell')
@@ -56,12 +57,12 @@ function PullActionMenuItem:getPullAbilities()
             local spell = res.spells[spellId]
             return spell and S{ 'Enemy' }:equals(S(spell.targets))
         end):map(function(spellId)
-            return res.spells[spellId].en
+            return Spell.new(res.spells[spellId].en)
         end),
         player_util.get_job_abilities():map(function(jobAbilityId) return res.job_abilities[jobAbilityId] end):filter(function(jobAbility)
             return S{'Enemy'}:intersection(S(jobAbility.targets)):length() > 0
-        end):map(function(jobAbility) return jobAbility.en end),
-        L{ 'Approach', 'Ranged Attack' }
+        end):map(function(jobAbility) return JobAbility.new(jobAbility.en) end),
+        L{ Approach.new(), RangedAttack.new() }
     }
     return sections
 end
@@ -96,24 +97,39 @@ function PullActionMenuItem:getAddAbilityMenuItem()
                     end
                 end
 
-                local chooseSpellsView = FFXIPickerView.withSections(self:getPullAbilities(), L{}, true, nil, imageItemForAbility)
-                chooseSpellsView:on_pick_items():addAction(function(pickerView, selectedItems)
+                local allAbilities = self:getPullAbilities()
+
+                local configItems = L{
+                    MultiPickerConfigItem.new("Spells", L{}, allAbilities[1], function(spell)
+                        return spell:get_localized_name()
+                    end, "Spells", nil, function(spell)
+                        return AssetManager.imageItemForSpell(spell:get_name())
+                    end),
+                    MultiPickerConfigItem.new("JobAbilities", L{}, allAbilities[2], function(jobAbility)
+                        return jobAbility:get_localized_name()
+                    end, "Job Abilities", nil, function(jobAbility)
+                        return AssetManager.imageItemForJobAbility(jobAbility:get_name())
+                    end),
+                    MultiPickerConfigItem.new("Other", L{}, allAbilities[3], function(ability)
+                        return ability:get_localized_name()
+                    end),
+                }
+
+                local chooseAbilityView = FFXIPickerView.withConfig(configItems, true)
+                chooseAbilityView:on_pick_items():addAction(function(pickerView, selectedItems)
                     pickerView:getDelegate():deselectAllItems()
 
                     local selectedAbilities = self.trustSettings:getSettings()[self.trustSettingsMode.value].PullSettings.Abilities
-
-                    selectedItems = selectedItems:map(function(item) return item:getText() end)
                     for selectedItem in selectedItems:it() do
-                        selectedAbilities:append(self:getAbility(selectedItem))
+                        selectedAbilities:append(selectedItem)
                     end
-
 
                     self.trustSettings:saveSettings(true)
 
-                    addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll use "..localization_util.commas(selectedItems).." to pull!")
+                    addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll use "..localization_util.commas(selectedItems:map(function(s) return s:get_name() end)).." to pull!")
                 end)
 
-                return chooseSpellsView
+                return chooseAbilityView
             end, "Pulling", "Configure which actions to use to pull enemies.")
     return addAbilityMenuItem
 end

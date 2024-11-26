@@ -60,6 +60,10 @@ function RunTo:get_name()
     return 'Run To'
 end
 
+function RunTo:get_localized_name()
+    return self:get_name()
+end
+
 -------
 -- Return the Action to use this action on a target.
 -- @treturn Action Action to use ability

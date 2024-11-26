@@ -145,14 +145,9 @@ function PickerView:reload()
     end
 end
 
-function PickerView:setItems(texts, selectedTexts, shouldTruncateText)
-    error("FIX ME")
-    selectedTexts = selectedTexts or L{}
-    self.pickerItems = L{ texts:map(function(text)
-        local textItem = TextItem.new(text, TextStyle.Picker.Text)
-        textItem:setShouldTruncateText(shouldTruncateText)
-        return PickerItem.new(textItem, selectedTexts:contains(text))
-    end) }
+function PickerView:setConfigItems(configItems)
+    self.configItems = configItems
+
     self:reload()
 end
 
