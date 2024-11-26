@@ -104,7 +104,7 @@ function PickerView:reload()
         local itemsInSection = IndexedItem.fromItems(configItem:getAllValues():map(function(value)
             local item = TextItem.new(value, TextStyle.Picker.Text)
             item:setLocalizedText(configItem:getTextFormat()(value))
-            item:setShouldTruncateText(true)
+            item:setShouldTruncateText(i18n.current_locale() ~= i18n.Locale.Japanese)
 
             local imageItem = configItem:getImageItem()(value, sectionIndex)
             if imageItem then

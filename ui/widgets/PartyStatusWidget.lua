@@ -165,7 +165,7 @@ function PartyStatusWidget:set_party(party)
 end
 
 function PartyStatusWidget:set_party_member_names(party_member_names)
-    if self.party_member_names == party_member_names
+    if self.party_member_names:equals(party_member_names)
             or party_member_names:filter(function(p) return p:empty() end):length() > 0 then
         return
     end
