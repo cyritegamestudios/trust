@@ -48,46 +48,7 @@ function FFXIPickerView.withConfig(configItems, allowsMultipleSelection)
 end
 
 function FFXIPickerView.withItems(configItems, allowsMultipleSelection, viewSize, shouldTruncateText, title)
-    --[[imageForText = imageForText or function(_)
-        return nil
-    end
-
-    local pickerItems = texts:map(function(text)
-        local textItem = TextItem.new(text, TextStyle.Picker.Text)
-        textItem:setLocalizedText(i18n.translate_any(text))
-        local imageItem = imageForText(text)
-        if imageItem then
-            return PickerItem.new(ImageTextItem.new(imageItem, textItem), selectedTexts:contains(text))
-        end
-        textItem:setShouldTruncateText(shouldTruncateText)
-        return PickerItem.new(textItem, selectedTexts:contains(text))
-    end)]]
     return FFXIPickerView.new(configItems, allowsMultipleSelection, viewSize, title)
-end
-
-function FFXIPickerView.withSections(sections, selectedTexts, allowsMultipleSelection, cursorImageItem, imageForText)
-    imageForText = imageForText or function(_)
-        return nil
-    end
-
-    local itemsBySection = L{}
-    local sectionIndex = 1
-    for sectionTexts in sections:it() do
-        local pickerItems = sectionTexts:map(function(text)
-            local textItem = TextItem.new(text, TextStyle.Picker.Text)
-            textItem:setLocalizedText(i18n.translate_any(text))
-            local imageItem = imageForText(text, sectionIndex)
-            if imageItem then
-                return PickerItem.new(ImageTextItem.new(imageItem, textItem), selectedTexts:contains(text))
-            end
-            return PickerItem.new(textItem, selectedTexts:contains(text))
-        end)
-        if sectionTexts:length() > 0 then
-            itemsBySection:append(pickerItems)
-        end
-        sectionIndex = sectionIndex + 1
-    end
-    return FFXIPickerView.new(itemsBySection, allowsMultipleSelection, cursorImageItem)
 end
 
 function FFXIPickerView:shouldRequestFocus()

@@ -169,8 +169,4 @@ function TextCollectionViewCell:hitTest(x, y)
     return self.textView:hover(x, y)
 end
 
-function TextCollectionViewCell:setSize(width, height)
-    CollectionViewCell.setSize(self, width, height)
-end
-
 return TextCollectionViewCell

@@ -172,25 +172,6 @@ function PickerView.withItems(texts, selectedTexts, allowsMultipleSelection)
 end
 
 ---
--- Creates a new PickerView with multiple sections of text items.
---
--- @tparam list sections A list of list of text strings.
--- @tparam list selectedTexts A list of selected text strings.
--- @tparam boolean allowsMultipleSelection Indicates if multiple selection is allowed.
--- @treturn PickerView The created PickerView.
---
-function PickerView.withSections(sections, selectedTexts, allowsMultipleSelection)
-    local itemsBySection = L{}
-    for sectionTexts in sections:it() do
-        local pickerItems = sectionTexts:map(function(text)
-            return PickerItem.new(TextItem.new(text, TextStyle.Picker.Text), selectedTexts:contains(text))
-        end)
-        itemsBySection:append(pickerItems)
-    end
-    return PickerView.new(itemsBySection, allowsMultipleSelection)
-end
-
----
 -- Called when the confirm button is pressed.
 -- @tparam TextItem textItem Selected item.
 -- @tparam IndexPath indexPath Selected index path.
@@ -198,7 +179,7 @@ end
 function PickerView:onSelectMenuItemAtIndexPath(textItem, _)
     if L{ 'Confirm', 'Save', 'Search', 'Select' }:contains(textItem:getText()) then
         local selectedItems = L(self:getDelegate():getSelectedIndexPaths():map(function(indexPath)
-            return self:valueAtIndexPath(indexPath)-- self:getDataSource():itemAtIndexPath(indexPath)
+            return self:valueAtIndexPath(indexPath)
         end)):compact_map()
         if selectedItems:length() > 0 or self:getAllowsMultipleSelection() then
             self:on_pick_items():trigger(self, selectedItems, L(self:getDelegate():getSelectedIndexPaths()))

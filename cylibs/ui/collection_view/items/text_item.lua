@@ -182,6 +182,10 @@ function TextItem:getSettings()
     settings.flags.right = false
     settings.flags.draggable = false
 
+    if self:getText() == self:getLocalizedText() then
+        settings.text.font = "Arial"
+    end
+
     return settings
 end
 

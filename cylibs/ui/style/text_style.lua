@@ -70,7 +70,7 @@ end
 --
 function TextStyle:getFontName()
     if i18n.current_locale() == i18n.Locale.Japanese then
-        return "MS UI Gothic"
+        return "MS Gothic"
     end
     return self.fontName
 end
