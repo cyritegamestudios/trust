@@ -112,7 +112,9 @@ function JobAbilitiesSettingsMenuItem:getToggleAbilityMenuItem()
                 self.jobAbilitiesSettingsView:reloadBuffAtIndexPath(selectedIndexPath)
             end
         end
-    end, "Gambits", "Temporarily enable or disable the selected job ability until the addon reloads.")
+    end, "Job Abilities", "Temporarily enable or disable the selected job ability until the addon reloads.", false, function()
+        return self.buffs and self.buffs:length() > 0
+    end)
 end
 
 function JobAbilitiesSettingsMenuItem:getResetMenuItem()

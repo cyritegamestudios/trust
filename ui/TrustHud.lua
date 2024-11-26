@@ -624,7 +624,7 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
     local partyMenuItem = MenuItem.new(L{}, {},
     function()
         local truster =  trust:role_with_type("truster")
-        local partyMemberView = setupView(PartyMemberView.new(self.party, self.player.player, self.actionQueue, truster and truster.trusts or L{}), viewSize)
+        local partyMemberView = PartyMemberView.new(self.party, self.player.player, self.actionQueue, truster and truster.trusts or L{})
         partyMemberView:setShouldRequestFocus(false)
         return partyMemberView
     end, "Party", "View party status.")
@@ -632,6 +632,9 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
     local targetsMenuItem = PartyTargetsMenuItem.new(self.party, function(view)
         return setupView(view, viewSize)
     end)
+    targetsMenuItem.enabled = function()
+        return self.party:get_targets():length() > 0
+    end
 
     -- Bard
     local singerMenuItem = MenuItem.new(L{
@@ -647,7 +650,6 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
     -- Status
     local statusMenuButtons = L{
         ButtonItem.default('Party', 18),
-        --ButtonItem.default('Buffs', 18),
         ButtonItem.default('Targets', 18)
     }
     if jobNameShort == 'BRD' then

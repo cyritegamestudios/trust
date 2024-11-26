@@ -104,7 +104,7 @@ function PickerView:reload()
         local itemsInSection = IndexedItem.fromItems(configItem:getAllValues():map(function(value)
             local item = TextItem.new(value, TextStyle.Picker.Text)
             item:setLocalizedText(configItem:getTextFormat()(value))
-            --item:setShouldTruncateText(true)
+            item:setShouldTruncateText(true)
 
             local imageItem = configItem:getImageItem()(value, sectionIndex)
             if imageItem then
@@ -120,14 +120,6 @@ function PickerView:reload()
 
         indexedItems = indexedItems + itemsInSection
 
-        --[[for configItem in section:it() do
-            local indexedItem = IndexedItem.new(pickerItem:getItem(), IndexPath.new(sectionIndex, rowIndex))
-            indexedItems:append(indexedItem)
-            if pickerItem:isSelected() then
-                selectedIndexedItems:append(indexedItem)
-            end
-            rowIndex = rowIndex + 1
-        end]]
         sectionIndex = sectionIndex + 1
     end
 
