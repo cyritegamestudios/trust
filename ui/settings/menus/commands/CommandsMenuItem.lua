@@ -1,12 +1,8 @@
-local BooleanConfigItem = require('ui/settings/editors/config/BooleanConfigItem')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
-local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
-local FFXITextInputView = require('ui/themes/ffxi/FFXITextInputView')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local RemoteCommandsSettingsMenuItem = require('ui/settings/menus/RemoteCommandsSettingsMenuItem')
-local WidgetSettingsMenuItem = require('ui/settings/menus/widgets/WidgetSettingsMenuItem')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 
 local CommandsMenuItem = setmetatable({}, {__index = MenuItem })
 CommandsMenuItem.__index = CommandsMenuItem
@@ -98,8 +94,11 @@ function CommandsMenuItem:reloadSettings(commands)
                 infoView:setDescription(description)
             end
 
-            local commandList = FFXIPickerView.withItems(allCommands, allCommands[1], false, nil, nil, FFXIClassicStyle.WindowSize.Picker.Wide, true)
-            commandList:setAllowsCursorSelection(true)
+            local configItem = MultiPickerConfigItem.new("Commands", L{ allCommands[1] }, allCommands, function(command)
+                return tostring(command)
+            end)
+
+            local commandList = FFXIPickerView.withConfig(configItem)
             commandList:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
                 local item = allCommands[indexPath.row]
                 if item then

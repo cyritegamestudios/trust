@@ -8,7 +8,7 @@ local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local SkillSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 SkillSettingsMenuItem.__index = SkillSettingsMenuItem
 
-function SkillSettingsMenuItem.new(weaponSkillSettings, skillSettings, viewFactory)
+function SkillSettingsMenuItem.new(weaponSkillSettings, skillSettings)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
     }, {}, nil, skillSettings:get_name(), "Edit settings for "..skillSettings:get_name().."."), SkillSettingsMenuItem)
@@ -38,7 +38,6 @@ function SkillSettingsMenuItem.new(weaponSkillSettings, skillSettings, viewFacto
         local blacklistConfigItem = MultiPickerConfigItem.new('Blacklist', self.newSkillSettings.Blacklist, L{}:extend(allAbilities:map(function(a) return a:get_name() end)), nil, 'Blacklist', nil, imageItemForText)
         blacklistConfigItem:setPickerTitle('Blacklist')
         blacklistConfigItem:setPickerDescription('Choose one or more abilities to avoid when making skillchains.')
-
         local configItems = L{
             PickerConfigItem.new('DefaultAbility', self.newSkillSettings.DefaultAbility, allAbilities, function(ability)
                 return ability:get_localized_name()

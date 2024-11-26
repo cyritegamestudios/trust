@@ -3,6 +3,7 @@ local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local PartySkillchainSettingsMenuItem = require('ui/settings/menus/skillchains/PartySkillchainSettingsMenuItem')
 local SkillchainBuilder = require('cylibs/battle/skillchains/skillchain_builder')
 
@@ -81,16 +82,16 @@ function BuildSkillchainSettingsMenuItem:getConfirmMenuItem()
     local confirmMenuItem = MenuItem.new(L{
         --ButtonItem.default('Save', 18),
         ButtonItem.default('Select', 18),
-        ButtonItem.default('Previous', 18),
-        ButtonItem.default('Next', 18),
+        --ButtonItem.default('Previous', 18),
+        --ButtonItem.default('Next', 18),
     }, {
         Select = PartySkillchainSettingsMenuItem.new(self.weaponSkillSettings, self.weaponSkillSettingsMode, self.skillchainer),
-        Previous = MenuItem.action(function()
-            setPage(self.currentPage - 1)
-        end, "Skillchains", "See previous page."),
-        Next = MenuItem.action(function()
-            setPage(self.currentPage + 1)
-        end, "Skillchains", "See next page."),
+        --Previous = MenuItem.action(function()
+        --    setPage(self.currentPage - 1)
+        --end, "Skillchains", "See previous page."),
+        --Next = MenuItem.action(function()
+        --    setPage(self.currentPage + 1)
+        --end, "Skillchains", "See next page."),
     }, function(menuArgs, infoView)
         self.currentPage = 1
 
@@ -100,15 +101,19 @@ function BuildSkillchainSettingsMenuItem:getConfirmMenuItem()
         local skillchains = skillchain_builder:build(self.builderSettings.Property, self.builderSettings.NumSteps)
         self.skillchains = skillchains
 
-        self.currentSkillchains = L{}:extend(skillchains):slice(1, math.min(skillchains:length(), 18))
+        self.currentSkillchains = L{}:extend(skillchains):slice(1, math.min(skillchains:length(), 500))
         local pickerItems = L(self.currentSkillchains:map(function(abilities)
             local abilities = L(abilities:map(function(ability) return ability:get_name() end))
             return localization_util.join(abilities, '→')
         end))
 
-        local chooseSkillchainView = FFXIPickerView.withItems(pickerItems, L{}, false, nil, nil, FFXIClassicStyle.WindowSize.Editor.ConfigEditorLarge, true)
+        local configItem = MultiPickerConfigItem.new("Skillchains", L{}, pickerItems, function(pickerItem)
+            return pickerItem
+        end)
+
+        local chooseSkillchainView = FFXIPickerView.new(L{ configItem }, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditorLarge)
+        --local chooseSkillchainView = FFXIPickerView.withItems(pickerItems, L{}, false, nil, nil, FFXIClassicStyle.WindowSize.Editor.ConfigEditorLarge, true)
         chooseSkillchainView.menuArgs.Skillchain = self.currentSkillchains[1]
-        chooseSkillchainView:setTitle("Choose a skillchain.")
         chooseSkillchainView:setAllowsCursorSelection(true)
         chooseSkillchainView:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
             chooseSkillchainView.menuArgs.Skillchain = self.currentSkillchains[indexPath.row]

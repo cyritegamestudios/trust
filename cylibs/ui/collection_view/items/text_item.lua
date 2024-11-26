@@ -3,6 +3,7 @@ local Alignment = require('cylibs/ui/layout/alignment')
 local TextItem = {}
 TextItem.__index = TextItem
 TextItem.__type = "TextItem"
+TextItem.__class = "TextItem"
 
 ---
 -- Creates a new TextItem instance.

@@ -13,6 +13,7 @@ local IndexPath = require('cylibs/ui/collection_view/index_path')
 local job_util = require('cylibs/util/job_util')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 
 local GambitSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 GambitSettingsMenuItem.__index = GambitSettingsMenuItem
@@ -39,9 +40,11 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
     self.contentViewConstructor = function(_, infoView)
         local currentGambits = self.trustSettings:getSettings()[self.trustSettingsMode.value].GambitSettings.Gambits
 
-        local gambitSettingsEditor = FFXIPickerView.withItems(currentGambits:map(function(gambit)
+        local configItem = MultiPickerConfigItem.new("Gambits", L{}, currentGambits, function(gambit)
             return gambit:tostring()
-        end), L{}, false, nil, nil, FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge, true)
+        end)
+
+        local gambitSettingsEditor = FFXIPickerView.new(L{ configItem }, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge)
         gambitSettingsEditor:setAllowsCursorSelection(true)
 
         gambitSettingsEditor:setNeedsLayout()

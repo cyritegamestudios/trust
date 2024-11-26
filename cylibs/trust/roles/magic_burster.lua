@@ -4,7 +4,6 @@ MagicBurster.__index = MagicBurster
 MagicBurster.__class = "MagicBurster"
 
 local DisposeBag = require('cylibs/events/dispose_bag')
-local element_util = require('cylibs/util/element_util')
 local Nukes = require('cylibs/res/nukes')
 local Renderer = require('cylibs/ui/views/render')
 local skillchain_util = require('cylibs/util/skillchain_util')

@@ -308,7 +308,7 @@ function spell_util.sort_by_element(spells, descending)
         Lightning = L{},
         Water = L{},
         Light = L{},
-        Dark = L{}
+        Dark = L{},
     }
     for spell in spells:it() do
         local element_name = res.elements[spell:get_spell().element].en
@@ -323,7 +323,7 @@ function spell_util.sort_by_element(spells, descending)
         'Wind',
         'Water',
         'Earth',
-        'Light'
+        'Light',
     }
 
     local result = L{}

@@ -1,24 +1,25 @@
 local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
-local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
-local PickerView = require('cylibs/ui/picker/picker_view')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local JobAbilityPickerView = setmetatable({}, {__index = FFXIPickerView })
 JobAbilityPickerView.__index = JobAbilityPickerView
 
 function JobAbilityPickerView.new(trustSettings, jobAbilities, allJobAbilities, includeCurrentJobOnly)
-    local imageItemForText = function(text)
-        return AssetManager.imageItemForJobAbility(text)
-    end
-
     if includeCurrentJobOnly then
         allJobAbilities = allJobAbilities:filter(function(jobAbilityName)
             return job_util.knows_job_ability(res.job_abilities:with('en', jobAbilityName).id, res.jobs:with('ens', trustSettings.jobNameShort).id)
         end)
     end
 
-    local self = setmetatable(FFXIPickerView.withItems(allJobAbilities, L{}, true, nil, imageItemForText), JobAbilityPickerView)
+    local configItem = MultiPickerConfigItem.new("JobAbilities", L{}, allJobAbilities, function(jobAbilityName)
+        return i18n.resource('job_abilities', 'en', jobAbilityName)
+    end, "Job Abilities", nil, function(jobAbilityName)
+        return AssetManager.imageItemForJobAbility(jobAbilityName)
+    end)
+
+    local self = setmetatable(FFXIPickerView.withConfig(configItem, true), JobAbilityPickerView)
 
     self.trustSettings = trustSettings
     self.jobAbilities = jobAbilities

@@ -4,6 +4,7 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local ImportProfileMenuItem = require('ui/settings/menus/loading/ImportProfileMenuItem')
 local MenuItem = require('cylibs/ui/menu/menu_item')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local Profile = require('ui/settings/profiles/Profile')
 local TrustSetsConfigEditor = require('ui/settings/editors/TrustSetsConfigEditor')
 
@@ -25,9 +26,11 @@ function LoadSettingsMenuItem.new(addonSettings, trustModeSettings, jobSettings,
     }, nil, "Profiles", "Load, create and edit profiles."), LoadSettingsMenuItem)
 
     self.contentViewConstructor = function(_, _)
-        local loadSettingsView = FFXIPickerView.withItems(L(state.TrustMode:options()), state.TrustMode.value)
+        local configItem = MultiPickerConfigItem.new("Profiles", L{ state.TrustMode.value }, L(state.TrustMode:options()), function(profileName)
+            return profileName
+        end)
 
-        loadSettingsView:setShouldRequestFocus(true)
+        local loadSettingsView = FFXIPickerView.withConfig(configItem)
 
         self.disposeBag:add(loadSettingsView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
             local item = loadSettingsView:getDataSource():itemAtIndexPath(indexPath)
@@ -35,7 +38,8 @@ function LoadSettingsMenuItem.new(addonSettings, trustModeSettings, jobSettings,
                 local setName = item:getText()
                 self.selectedSetName = setName
                 if setName ~= state.TrustMode.value then
-                    handle_set('TrustMode', setName)
+                    state.TrustMode:set(setName)
+                    addon_system_message("Loaded profile "..setName..".")
                 end
             end
         end), loadSettingsView:getDelegate():didSelectItemAtIndexPath())

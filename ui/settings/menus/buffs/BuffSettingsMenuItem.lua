@@ -47,6 +47,8 @@ function BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, setti
         self.dispose_bag:add(buffSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
             local buff = self.buffs[indexPath.row]
 
+            self.selectedIndexPath = indexPath
+
             self.buffSettingsEditor.menuArgs['conditions'] = buff:get_conditions()
 
             local item = buffSettingsEditor:getDataSource():itemAtIndexPath(indexPath)
@@ -138,7 +140,7 @@ function BuffSettingsMenuItem:getAddBuffMenuItem()
             end),
         }
 
-        local chooseBuffView = FFXIPickerView.withItems(configItems, true)
+        local chooseBuffView = FFXIPickerView.withConfig(configItems, true)
         chooseBuffView:on_pick_items():addAction(function(pickerView, selectedBuffs)
             pickerView:getDelegate():deselectAllItems()
 
@@ -210,6 +212,15 @@ function BuffSettingsMenuItem:getEditBuffMenuItem()
     end, "Buffs", "Edit buff settings.", false, function()
                 return self.buffs and self.buffs:length() > 0
             end)
+    editBuffMenuItem.enabled = function()
+        if self.selectedIndexPath then
+            local buff = self.buffs[self.selectedIndexPath.row]
+            if buff and S{ Spell.__class, Buff.__class }:contains(class(buff)) then
+                return true
+            end
+        end
+        return false
+    end
     return editBuffMenuItem
 end
 

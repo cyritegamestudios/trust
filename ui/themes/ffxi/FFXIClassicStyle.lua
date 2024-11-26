@@ -44,6 +44,7 @@ FFXIClassicStyle.WindowSize.Editor.ConfigEditorLarge = Frame.new(0, 0, 500, 300)
 FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge = Frame.new(0, 0, 600, 300)
 FFXIClassicStyle.WindowSize.Picker = {}
 FFXIClassicStyle.WindowSize.Picker.Wide = Frame.new(0, 0, 250, 192)
+FFXIClassicStyle.WindowSize.Picker.ExtraLarge = Frame.new(0, 0, 275, 208)
 
 function FFXIClassicStyle.default()
     local self = setmetatable(CollectionViewStyle.new(

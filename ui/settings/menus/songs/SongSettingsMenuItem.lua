@@ -7,6 +7,7 @@ local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local SongListMenuItem = require('ui/settings/menus/songs/SongListMenuItem')
 local SongListView = require('ui/views/SongListView')
@@ -137,27 +138,26 @@ function SongSettingsMenuItem:getEditDummySongsMenuItem()
 end
 
 function SongSettingsMenuItem:getPianissmoSongsMenuItem()
-    local imageItemForText = function(text)
-        return AssetManager.imageItemForSpell(text)
-    end
-
     local addPianissimoSongMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm'),
     }, {}, function(_, _)
         local allSongs = self.trust:get_job():get_spells(function(spellId)
             local spell = res.spells[spellId]
             return spell and spell.type == 'BardSong' and S{'Self'}:intersection(S(spell.targets)):length() > 0
-        end):map(function(spellId) return res.spells[spellId].en  end):sort()
+        end):map(function(spellId) return Spell.new(res.spells[spellId].en) end)
 
-        local chooseSongsView = FFXIPickerView.withItems(allSongs, L{}, true, nil, imageItemForText)
+        local configItem = MultiPickerConfigItem.new("Pianissimo", L{}, allSongs, function(spell)
+            return spell:get_localized_name()
+        end, "Pianissimo", nil, function(spell)
+            return AssetManager.imageItemForSpell(spell:get_name())
+        end)
 
-        chooseSongsView:setTitle("Choose pianissimo songs.")
-        chooseSongsView:setShouldRequestFocus(true)
+        local chooseSongsView = FFXIPickerView.withConfig(configItem)
 
-        self.dispose_bag:add(chooseSongsView:on_pick_items():addAction(function(_, selectedItems)
-            if selectedItems:length() > 0 then
-                local newSongs = selectedItems:map(function(item)
-                    return Spell.new(item:getText(), L{ 'Pianissimo' }, L{})
+        self.dispose_bag:add(chooseSongsView:on_pick_items():addAction(function(_, selectedSongs)
+            if selectedSongs:length() > 0 then
+                local newSongs = selectedSongs:map(function(song)
+                    return Spell.new(song:get_name(), L{ 'Pianissimo' }, L{})
                 end):compact_map()
 
                 local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.PianissimoSongs
@@ -176,14 +176,14 @@ function SongSettingsMenuItem:getPianissmoSongsMenuItem()
     }, {}, function(_, _)
         local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.PianissimoSongs
 
-        local jobsPickerView = FFXIPickerView.withItems(job_util.all_jobs(), songs[self.selectedPianissimoSongIndex]:get_job_names(), true)
+        local configItem = MultiPickerConfigItem.new("Jobs", songs[self.selectedPianissimoSongIndex]:get_job_names(), job_util.all_jobs(), function(jobNameShort)
+            return i18n.resource('jobs', 'ens', jobNameShort)
+        end)
 
-        self.dispose_bag:add(jobsPickerView:on_pick_items():addAction(function(_, selectedItems)
-            if selectedItems:length() > 0 then
-                local newJobNames = selectedItems:map(function(item)
-                    return item:getText()
-                end):compact_map()
+        local jobsPickerView = FFXIPickerView.withConfig(configItem, true)
 
+        self.dispose_bag:add(jobsPickerView:on_pick_items():addAction(function(_, newJobNames)
+            if newJobNames:length() > 0 then
                 local song = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.PianissimoSongs[self.selectedPianissimoSongIndex]
 
                 local jobNames = song:get_job_names()
@@ -211,9 +211,13 @@ function SongSettingsMenuItem:getPianissmoSongsMenuItem()
     }, function(_, infoView)
         local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.PianissimoSongs
 
-        local pianissimoSongsView = FFXIPickerView.withItems(songs:map(function(song) return song:get_spell().en end), L{}, false, nil, imageItemForText)
+        local configItem = MultiPickerConfigItem.new("Pianissimo", L{}, songs, function(spell)
+            return spell:get_localized_name()
+        end, "Pianissimo", nil, function(spell)
+            return AssetManager.imageItemForSpell(spell:get_name())
+        end)
 
-        pianissimoSongsView:setShouldRequestFocus(true)
+        local pianissimoSongsView = FFXIPickerView.withConfig(configItem)
         pianissimoSongsView:setAllowsCursorSelection(true)
 
         self.dispose_bag:add(pianissimoSongsView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)

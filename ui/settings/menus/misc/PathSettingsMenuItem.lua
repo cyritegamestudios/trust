@@ -1,10 +1,12 @@
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
+local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local DisposeBag = require('cylibs/events/dispose_bag')
+local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
-local FFXITextInputView = require('ui/themes/ffxi/FFXITextInputView')
 local FileIO = require('files')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local PathRecorder = require('cylibs/paths/path_recorder')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
+local TextInputConfigItem = require('ui/settings/editors/config/TextInputConfigItem')
 
 local PathSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 PathSettingsMenuItem.__index = PathSettingsMenuItem
@@ -22,10 +24,11 @@ function PathSettingsMenuItem.new(pather)
     self.dispose_bag = DisposeBag.new()
 
     self.contentViewConstructor = function(_)
-        local pathSettingsEditor = FFXIPickerView.withItems(self:listFiles(), L{}, false, nil, nil, nil, true)
+        local configItem = MultiPickerConfigItem.new("Paths", L{}, self:listFiles(), function(fileName)
+            return fileName
+        end)
 
-        pathSettingsEditor:setTitle("Choose a path to replay.")
-        pathSettingsEditor:setShouldRequestFocus(true)
+        local pathSettingsEditor = FFXIPickerView.new(L{ configItem }, false, FFXIClassicStyle.WindowSize.Picker.ExtraLarge)
         pathSettingsEditor:setAllowsCursorSelection(true)
 
         self.dispose_bag:add(pathSettingsEditor:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
@@ -108,19 +111,24 @@ function PathSettingsMenuItem:getRenamePathMenuItem()
     local renamePathMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
     }, L{}, function(_)
-        local createSetView = FFXITextInputView.new("New path name", 'Path name')
-        createSetView:setTitle("Choose a name for the path.")
-        createSetView:setShouldRequestFocus(true)
-        createSetView:onTextChanged():addAction(function(_, newPathName)
-            if newPathName:length() > 3 then
-                self:renamePath(self.selectedPath, newPathName)
-
-                addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I renamed the path to "..newPathName.."!")
-            else
-                addon_message(260, '('..windower.ffxi.get_player().name..') '.."That name is too short, pick something else?")
-            end
+        local configItems = L{
+            TextInputConfigItem.new('PathName', 'New Path Name', 'Path Name', function(_) return true  end)
+        }
+        local pathNameConfigEditor = ConfigEditor.new(nil, { PathName = '' }, configItems, nil, function(newSettings)
+            return newSettings.PathName and newSettings.PathName:length() > 3
         end)
-        return createSetView
+
+        self.dispose_bag:add(pathNameConfigEditor:onConfigChanged():addAction(function(newSettings, _)
+            self:renamePath(self.selectedPath, newSettings.PathName)
+
+            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I renamed the path to "..newSettings.PathName.."!")
+        end), pathNameConfigEditor:onConfigChanged())
+
+        self.dispose_bag:add(pathNameConfigEditor:onConfigValidationError():addAction(function()
+            addon_system_error("Invalid path name.")
+        end), pathNameConfigEditor:onConfigValidationError())
+
+        return pathNameConfigEditor
     end, "Paths", "Rename the path.")
     return renamePathMenuItem
 end

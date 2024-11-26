@@ -22,6 +22,10 @@ function Element:get_name()
     return self.name
 end
 
+function Element:get_localized_name()
+    return i18n.resource('elements', 'en', self:get_name())
+end
+
 function Element:serialize()
     return "Element.new(" .. serializer_util.serialize_args(self:get_name()) .. ")"
 end

@@ -56,10 +56,6 @@ function BufferSettingsMenuItem:getPartyBuffsMenuItem()
     return partyBuffSettingsItem
 end
 
-function BufferSettingsMenuItem:getJobAbilitiesMenuItem()
-    return JobAbilitiesSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, self.settingsPrefix)
-end
-
 function BufferSettingsMenuItem:getFoodMenuItem()
     local foodSettingsMenuItem = FoodSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, self.trustModeSettings)
     return foodSettingsMenuItem

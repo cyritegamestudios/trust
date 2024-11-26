@@ -3,6 +3,7 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local IpcRelay = require('cylibs/messages/ipc/ipc_relay')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 
 local PartyMemberMenuItem = setmetatable({}, {__index = MenuItem })
 PartyMemberMenuItem.__index = PartyMemberMenuItem
@@ -68,7 +69,12 @@ function PartyMemberMenuItem:getCommandsMenuItem()
         ButtonItem.default('Send All'),
     }, {}, function(_, infoView)
         local allCommands = self.commands
-        local commandList = FFXIPickerView.withItems(allCommands:map(function(c) return c:get_display_name() end), L{}, false, nil, nil, nil, true)
+
+        local configItem = MultiPickerConfigItem.new("Commands", L{}, allCommands, function(command)
+            return command:get_display_name()
+        end)
+
+        local commandList = FFXIPickerView.withConfig(configItem)
         commandList:getDisposeBag():add(commandList:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
             self.selectedCommand = allCommands[indexPath.row]
             if self.selectedCommand then
@@ -124,11 +130,13 @@ function PartyMemberMenuItem:getConfigMenuItem(roles)
             local partyMemberNames = self.party:get_party_members(false):map(function(party_member)
                 return party_member:get_name()
             end)
-            local partyMemberPickerView = FFXIPickerView.withItems(partyMemberNames, role:get_party_member_blacklist() or L{}, true)
-            self.disposeBag:add(partyMemberPickerView:on_pick_items():addAction(function(_, selectedItems)
-                local newPartyMemberNames = selectedItems:map(function(item)
-                    return item:getText()
-                end)
+
+            local configItem = MultiPickerConfigItem.new("PartyMembers", role:get_party_member_blacklist() or L{}, partyMemberNames, function(partyMemberName)
+                return partyMemberName
+            end)
+
+            local partyMemberPickerView = FFXIPickerView.withConfig(configItem, true)
+            self.disposeBag:add(partyMemberPickerView:on_pick_items():addAction(function(_, newPartyMemberNames)
                 role:set_party_member_blacklist(newPartyMemberNames)
                 if newPartyMemberNames:length() > 0 then
                     self.party:add_to_chat(self.party:get_player(), "Alright, I'll ignore "..localization_util.commas(newPartyMemberNames, "and").." for the "..role:get_type().." role until the addon reloads!")
