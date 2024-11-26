@@ -216,7 +216,7 @@ function TrustHud:createWidgets(addon_settings, addon_enabled, action_queue, par
     local targetWidget = TargetWidget.new(Frame.new(0, 0, 125, 40), addon_settings, party, trust)
     self.widgetManager:addWidget(targetWidget, "target")
 
-    local partyStatusWidget = PartyStatusWidget.new(Frame.new(0, 0, 125, 55), addon_settings, party, trust, self.mediaPlayer, self.soundTheme)
+    local partyStatusWidget = PartyStatusWidget.new(Frame.new(0, 0, 125, 55), addon_settings, player.alliance, party, trust, self.mediaPlayer, self.soundTheme)
     self.widgetManager:addWidget(partyStatusWidget, "party")
 
     local pathWidget = PathWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), self, main_trust_settings, state.MainTrustSettingsMode, trust)
@@ -320,8 +320,8 @@ function TrustHud:getMainMenuItem()
     end
     
     local mainMenuItem = MenuItem.new(L{
-        ButtonItem.default(player.main_job_name, 18),
-        ButtonItem.default(player.sub_job_name, 18),
+        ButtonItem.localized(player.main_job_name, i18n.resource('jobs', 'en', player.main_job_name)),
+        ButtonItem.localized(player.sub_job_name, i18n.resource('jobs', 'en', player.sub_job_name)),
         ButtonItem.default('Profiles', 18),
         ButtonItem.default('Commands', 18),
         ButtonItem.default('Config', 18),
@@ -385,7 +385,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
     local debuffSettingsItem = MenuItem.new(L{
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
-        ButtonItem.default('Modes', 18),
+        ButtonItem.localized('Modes', i18n.translate('Modes')),
         ButtonItem.default('Help', 18)
     }, {
         Add = chooseDebuffsItem,
@@ -401,7 +401,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
 
     -- Settings
     local menuItems = L{
-        ButtonItem.default('Modes', 18)
+        ButtonItem.localized("Modes", i18n.translate("Modes"))
     }
     local childMenuItems = {
         Modes = modesMenuItem,
@@ -624,7 +624,7 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
     local partyMenuItem = MenuItem.new(L{}, {},
     function()
         local truster =  trust:role_with_type("truster")
-        local partyMemberView = setupView(PartyMemberView.new(self.party, self.player.player, self.actionQueue, truster and truster.trusts or L{}), viewSize)
+        local partyMemberView = PartyMemberView.new(self.party, self.player.player, self.actionQueue, truster and truster.trusts or L{})
         partyMemberView:setShouldRequestFocus(false)
         return partyMemberView
     end, "Party", "View party status.")
@@ -632,6 +632,9 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
     local targetsMenuItem = PartyTargetsMenuItem.new(self.party, function(view)
         return setupView(view, viewSize)
     end)
+    targetsMenuItem.enabled = function()
+        return self.party:get_targets():length() > 0
+    end
 
     -- Bard
     local singerMenuItem = MenuItem.new(L{
@@ -647,7 +650,6 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
     -- Status
     local statusMenuButtons = L{
         ButtonItem.default('Party', 18),
-        --ButtonItem.default('Buffs', 18),
         ButtonItem.default('Targets', 18)
     }
     if jobNameShort == 'BRD' then

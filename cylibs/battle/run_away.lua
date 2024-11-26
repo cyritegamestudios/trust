@@ -61,6 +61,13 @@ function RunAway:get_name()
 end
 
 -------
+-- Returns the localized name for the action.
+-- @treturn string Localized name
+function RunAway:get_localized_name()
+    return 'Run Away'
+end
+
+-------
 -- Return the Action to use this action on a target.
 -- @treturn Action Action to use ability
 function RunAway:to_action(target_index, _)

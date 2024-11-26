@@ -10,6 +10,7 @@ local job_util = require('cylibs/util/job_util')
 
 local Buffer = setmetatable({}, {__index = Role })
 Buffer.__index = Buffer
+Buffer.__class = "Buffer"
 
 function Buffer.new(action_queue, self_buffs, party_buffs, state_var, buff_action_priority)
     local self = setmetatable(Role.new(action_queue), Buffer)
@@ -79,11 +80,14 @@ function Buffer:range_check(spell)
     end
 end
 
-function Buffer:conditions_check(spell, target)
+function Buffer:conditions_check(spell, buff, target)
     if target == nil then
         return false
     end
-    local conditions = L{ MaxDistanceCondition.new(spell:get_range(), target.index) }:extend(spell:get_conditions())
+    local conditions = L{
+        MaxDistanceCondition.new(spell:get_range(), target.index),
+        NotCondition.new(L{ HasBuffCondition.new(buff.name, target.index) })
+    }:extend(spell:get_conditions())
     for condition in conditions:it() do
         if not condition:is_satisfied(target.index) then
             return false
@@ -99,6 +103,22 @@ end
 
 function Buffer:check_buffs()
     local player_buff_ids = L(windower.ffxi.get_player().buffs)
+    --[[local player = self:get_party():get_player()
+
+    local all_abilities = self.job_abilities + self.self_spells
+
+    for ability in all_abilities:it() do
+        if ability:isEnabled() then
+            local buff = buff_util.buff_for(ability:get_ability_id())
+            if buff and not buff_util.conflicts_with_buffs(buff.id, player:get_buff_ids()) then
+                if self:conditions_check(ability, buff, player:get_mob()) then
+                    self.last_buff_time = os.time()
+                    self.action_queue:push_action(ability:to_action(player:get_mob().index, self:get_player(), ability:get_job_abilities()))
+                    return
+                end
+            end
+        end
+    end]]
 
     -- Job abilities
     if self.job_abilities_enabled then
@@ -106,7 +126,7 @@ function Buffer:check_buffs()
             local buff = buff_util.buff_for_job_ability(job_ability:get_job_ability_id())
             if buff and job_ability:isEnabled() and not buff_util.is_buff_active(buff.id, player_buff_ids)
                     and not buff_util.conflicts_with_buffs(buff.id, player_buff_ids) then
-                if job_util.can_use_job_ability(job_ability:get_job_ability_name()) and self:conditions_check(job_ability, windower.ffxi.get_player()) then
+                if job_util.can_use_job_ability(job_ability:get_job_ability_name()) and self:conditions_check(job_ability, buff, windower.ffxi.get_player()) then
                     self.last_buff_time = os.time()
                     self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, job_ability:get_job_ability_name()), true)
                     return
@@ -129,7 +149,7 @@ function Buffer:check_buffs()
                     and spell_util.can_cast_spell(spell:get_spell().id) then
                 if self:range_check(spell) then
                     local target = self:get_spell_target(spell)
-                    if target and self:conditions_check(spell, target) then
+                    if target and self:conditions_check(spell, buff, target) then
                         if self:cast_spell(spell, target.index) then
                             return
                         end
@@ -151,7 +171,7 @@ function Buffer:check_buffs()
                             and not (buff_util.conflicts_with_buffs(buff.id, party_member:get_buff_ids()))
                             and self:job_names_check(spell, party_member) and spell_util.can_cast_spell(spell:get_spell().id) then
                         local target = party_member:get_mob()
-                        if target and self:conditions_check(spell, target) then
+                        if target and self:conditions_check(spell, buff, target) then
                             if self:cast_spell(spell, target.index) then
                                 return
                             end

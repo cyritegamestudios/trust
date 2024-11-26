@@ -3,6 +3,7 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local IpcRelay = require('cylibs/messages/ipc/ipc_relay')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 
 local PlayerMenuItem = setmetatable({}, {__index = MenuItem })
 PlayerMenuItem.__index = PlayerMenuItem
@@ -64,7 +65,12 @@ function PlayerMenuItem:getCommandsMenuItem()
         ButtonItem.default('Send All'),
     }, {}, function(_, infoView)
         local allCommands = self.commands
-        local commandList = FFXIPickerView.withItems(allCommands:map(function(c) return c:get_display_name() end), L{}, false, nil, nil, nil, true)
+
+        local configItem = MultiPickerConfigItem.new("Commands", L{}, allCommands, function(command)
+            return command:get_display_name()
+        end)
+
+        local commandList = FFXIPickerView.withConfig(configItem)
         commandList:getDisposeBag():add(commandList:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
             self.selectedCommand = allCommands[indexPath.row]
             if self.selectedCommand then

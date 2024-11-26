@@ -10,6 +10,7 @@ local IndexPath = require('cylibs/ui/collection_view/index_path')
 local job_util = require('cylibs/util/job_util')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 
 local ReactSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 ReactSettingsMenuItem.__index = ReactSettingsMenuItem
@@ -33,9 +34,11 @@ function ReactSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trus
             return g:getTags():contains('reaction') or g:getTags():contains('Reaction')
         end)
 
-        local gambitSettingsEditor = FFXIPickerView.withItems(currentGambits:map(function(gambit)
+        local configItem = MultiPickerConfigItem.new("Reactions", L{}, currentGambits, function(gambit)
             return gambit:tostring()
-        end), L{}, false, nil, nil, FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge, true)
+        end)
+
+        local gambitSettingsEditor = FFXIPickerView.new(L{ configItem }, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge)
         gambitSettingsEditor:setAllowsCursorSelection(true)
 
         gambitSettingsEditor:setNeedsLayout()

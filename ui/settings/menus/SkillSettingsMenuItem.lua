@@ -8,21 +8,21 @@ local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local SkillSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 SkillSettingsMenuItem.__index = SkillSettingsMenuItem
 
-function SkillSettingsMenuItem.new(weaponSkillSettings, skillSettings, viewFactory)
+function SkillSettingsMenuItem.new(weaponSkillSettings, skillSettings)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
     }, {}, nil, skillSettings:get_name(), "Edit settings for "..skillSettings:get_name().."."), SkillSettingsMenuItem)
 
-    local allAbilities = L(skillSettings:get_abilities(true):compact_map()):unique(function(ability) return ability:get_name() end):map(function(ability) return ability:get_name() end)
+    local allAbilities = L(skillSettings:get_abilities(true):compact_map()):unique(function(ability) return ability:get_name() end)--:map(function(ability) return ability:get_name() end)
 
-    local defaultAbilityName = allAbilities:last()
+    local defaultAbility = allAbilities:last()
     if skillSettings:get_default_ability() then
-        defaultAbilityName = skillSettings:get_default_ability():get_name()
+        defaultAbility = skillSettings:get_default_ability()
     end
 
     self.newSkillSettings = {
-        DefaultAbilityName = defaultAbilityName,
-        Blacklist = L{}:extend(skillSettings.blacklist)
+        DefaultAbility = defaultAbility,
+        Blacklist = L{}:extend(skillSettings.blacklist or L{})
     }
 
     local imageItemForText = function(text)
@@ -35,18 +35,22 @@ function SkillSettingsMenuItem.new(weaponSkillSettings, skillSettings, viewFacto
             blacklist:append(SkillchainAbility.None)
         end
 
-        local blacklistConfigItem = MultiPickerConfigItem.new('Blacklist', self.newSkillSettings.Blacklist, L{}:extend(allAbilities), nil, 'Blacklist', nil, imageItemForText)
+        local blacklistConfigItem = MultiPickerConfigItem.new('Blacklist', blacklist, L{}:extend(allAbilities:map(function(a) return a:get_name() end)), function(currentAbilities)
+            -- TODO: localize this
+            return localization_util.commas(currentAbilities, 'and')
+        end, 'Blacklist', nil, imageItemForText)
         blacklistConfigItem:setPickerTitle('Blacklist')
         blacklistConfigItem:setPickerDescription('Choose one or more abilities to avoid when making skillchains.')
-
         local configItems = L{
-            PickerConfigItem.new('DefaultAbilityName', self.newSkillSettings.DefaultAbilityName, allAbilities, nil, 'Spam Ability'),
+            PickerConfigItem.new('DefaultAbility', self.newSkillSettings.DefaultAbility, allAbilities, function(ability)
+                return ability:get_localized_name()
+            end, 'Spam Ability'),
             blacklistConfigItem,
         }
 
         local skillEditor = ConfigEditor.new(nil, self.newSkillSettings, configItems, nil, nil, showMenu)
         skillEditor:onConfigChanged():addAction(function(newSettings, oldSettings)
-            skillSettings:set_default_ability(newSettings.DefaultAbilityName)
+            skillSettings:set_default_ability(newSettings.DefaultAbility:get_name())
             skillSettings.blacklist = newSettings.Blacklist:filter(function(abilityName) return abilityName ~= SkillchainAbility.None end)
 
             weaponSkillSettings:saveSettings(true)

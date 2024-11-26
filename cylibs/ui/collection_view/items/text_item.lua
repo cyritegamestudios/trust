@@ -3,6 +3,7 @@ local Alignment = require('cylibs/ui/layout/alignment')
 local TextItem = {}
 TextItem.__index = TextItem
 TextItem.__type = "TextItem"
+TextItem.__class = "TextItem"
 
 ---
 -- Creates a new TextItem instance.
@@ -42,6 +43,25 @@ end
 function TextItem:setText(text)
     self.text = text
 end
+
+---
+-- Gets the localized text content of the item.
+--
+-- @treturn string The localized text content.
+--
+function TextItem:getLocalizedText()
+    return self.localizedText or self:getText()
+end
+
+---
+-- Sets the localized text for this TextItem.
+--
+-- @tparam string localizedText The new localized text to set.
+--
+function TextItem:setLocalizedText(localizedText)
+    self.localizedText = localizedText
+end
+
 
 ---
 -- Returns the horizontal alignment for this TextItem.
@@ -161,6 +181,10 @@ function TextItem:getSettings()
     settings.flags.italic = self.style:isItalic()
     settings.flags.right = false
     settings.flags.draggable = false
+
+    if self:getText() == self:getLocalizedText() then
+        settings.text.font = "Arial"
+    end
 
     return settings
 end

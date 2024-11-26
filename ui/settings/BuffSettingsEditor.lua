@@ -4,6 +4,7 @@ local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local ImageTextItem = require('cylibs/ui/collection_view/items/image_text_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
 
@@ -23,7 +24,13 @@ function BuffSettingsEditor.new(trustSettings, buffs, targets)
         end
     end
 
-    local self = setmetatable(FFXIPickerView.withItems(buffs:map(function(b) return b:get_name() end), L{}, false, nil, imageItemForBuff), BuffSettingsEditor)
+    local configItem = MultiPickerConfigItem.new("Buffs", L{}, buffs, function(buff)
+        return buff:get_localized_name()
+    end, "Buffs", nil, function(buff)
+        return imageItemForBuff(buff:get_name())
+    end)
+
+    local self = setmetatable(FFXIPickerView.withConfig(L{ configItem }), BuffSettingsEditor)
 
     self:setAllowsCursorSelection(true)
     self:setScrollDelta(16)
@@ -32,6 +39,7 @@ function BuffSettingsEditor.new(trustSettings, buffs, targets)
     self.trustSettings = trustSettings
     self.buffs = buffs or L{}
     self.targets = targets
+    self.menuArgs = {}
 
     self:reloadSettings()
 
@@ -69,6 +77,7 @@ function BuffSettingsEditor:reloadSettings()
     for buff in self.buffs:it() do
         local imageItem = imageItemForBuff(buff:get_name())
         local textItem = TextItem.new(buff:get_name(), TextStyle.Default.PickerItem)
+        textItem:setLocalizedText(buff:get_localized_name())
         textItem:setEnabled(self:checkJob(buff) and buff:isEnabled())
         items:append(IndexedItem.new(ImageTextItem.new(imageItem, textItem), IndexPath.new(1, rowIndex)))
         rowIndex = rowIndex + 1
@@ -102,6 +111,10 @@ function BuffSettingsEditor:checkJob(buff)
         return condition.__class == MainJobCondition.__class
     end) or L{}
     return job_conditions:empty() or Condition.check_conditions(job_conditions, windower.ffxi.get_player().index)
+end
+
+function BuffSettingsEditor:getMenuArgs()
+    return self.menuArgs
 end
 
 return BuffSettingsEditor

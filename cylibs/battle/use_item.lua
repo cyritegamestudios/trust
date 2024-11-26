@@ -64,6 +64,13 @@ function UseItem:get_name()
 end
 
 -------
+-- Returns the localized name for the action.
+-- @treturn string Localized name
+function UseItem:get_localized_name()
+    return 'Use Item'
+end
+
+-------
 -- Returns the display name.
 -- @treturn string Display name
 function UseItem:get_display_name()

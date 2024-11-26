@@ -2,13 +2,16 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local Keyboard = require('cylibs/ui/input/keyboard')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 
 local CommandWidget = setmetatable({}, {__index = FFXIPickerView })
 CommandWidget.__index = CommandWidget
 
 
 function CommandWidget.new()
-    local self = setmetatable(FFXIPickerView.withItems(L{}, L{}, false, nil, nil, FFXIClassicStyle.WindowSize.Picker.Wide, true), CommandWidget)
+    local configItem = MultiPickerConfigItem.new("Commands", L{}, L{})
+
+    local self = setmetatable(FFXIPickerView.new(L{ configItem }, true, FFXIClassicStyle.WindowSize.Picker.Wide), CommandWidget)
 
     self.disposeBag = DisposeBag.new()
     self.keybindDisposeBag = DisposeBag.new()

@@ -4,6 +4,7 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local MenuItem = require('cylibs/ui/menu/menu_item')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local Puppetmaster = require('cylibs/entity/jobs/PUP')
 
@@ -24,7 +25,11 @@ function ManeuverSettingsMenuItem.new(trustSettings, trustSettingsMode, settings
     self.contentViewConstructor = function(_, infoView)
         local maneuverSets = trustSettings:getSettings()[trustSettingsMode.value].AutomatonSettings.ManeuverSettings[settingsKeyName]
 
-        local maneuverSettingsEditor = FFXIPickerView.withItems(L(T(maneuverSets):keyset()):sort(), L{})
+        local configItem = MultiPickerConfigItem.new("ManeuverSets", L{}, L(T(maneuverSets):keyset()):sort(), function(maneuverSetName)
+            return tostring(maneuverSetName)
+        end)
+
+        local maneuverSettingsEditor = FFXIPickerView.withConfig(configItem, L{})
         maneuverSettingsEditor:setAllowsCursorSelection(true)
 
         maneuverSettingsEditor:setNeedsLayout()

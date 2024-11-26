@@ -1,13 +1,15 @@
+local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local ConfigItem = require('ui/settings/editors/config/ConfigItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
-local ElementPickerView = require('ui/settings/pickers/ElementPickerView')
+local element_util = require('cylibs/util/element_util')
+local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local JobAbilitiesSettingsMenuItem = require('ui/settings/menus/buffs/JobAbilitiesSettingsMenuItem')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local NukeSettingsEditor = require('ui/settings/NukeSettingsEditor')
-local SpellPickerView = require('ui/settings/pickers/SpellPickerView')
 local TextInputConfigItem = require('ui/settings/editors/config/TextInputConfigItem')
 
 local NukeSettingsMenuItem = setmetatable({}, {__index = MenuItem })
@@ -60,20 +62,40 @@ function NukeSettingsMenuItem:getNukesMenuItem()
         ButtonItem.default('Confirm', 18),
     }, {},
         function(args)
-            local spellSettings = args['spells']
+            local selectedSpells = args['spells']
 
             local allSpells = self.trust:get_job():get_spells(function(spell_id)
                 local spell = res.spells[spell_id]
-                return spell and S{ 'BlackMagic','WhiteMagic','Ninjutsu' }:contains(spell.type) and S{ 'Enemy' }:intersection(S(spell.targets)):length() > 0
+                return spell and S{ 'BlackMagic','WhiteMagic','Ninjutsu' }:contains(spell.type) and S{ 'Enemy' }:intersection(S(spell.targets)):length() > 0 and spell.element ~= 15
             end):map(function(spell_id)
-                return res.spells[spell_id].en
-            end):sort()
+                return Spell.new(res.spells[spell_id].en)
+            end):compact_map()
 
             local sortSpells = function(spells)
                 spell_util.sort_by_element(spells, true)
             end
 
-            local chooseSpellsView = SpellPickerView.new(self.trustSettings, spellSettings, allSpells, L{}, true, sortSpells)
+            local configItem = MultiPickerConfigItem.new("Nukes", selectedSpells, allSpells, function(spell)
+                return spell:get_localized_name()
+            end, "Nukes", nil, function(spell)
+                return AssetManager.imageItemForSpell(spell:get_name())
+            end)
+
+            local chooseSpellsView = FFXIPickerView.withConfig(configItem, true)
+
+            self.dispose_bag:add(chooseSpellsView:on_pick_items():addAction(function(_, newSpells)
+                selectedSpells:clear()
+
+                for spell in newSpells:it() do
+                    selectedSpells:append(Spell.new(spell:get_name()))
+                end
+
+                sortSpells(selectedSpells)
+
+                self.trustSettings:saveSettings(true)
+                addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my list of nukes!")
+            end), chooseSpellsView:on_pick_items())
+
             return chooseSpellsView
         end, "Nukes", "Choose which nukes to use when magic bursting or free nuking.")
     return chooseNukesMenuItem
@@ -89,15 +111,42 @@ end
 function NukeSettingsMenuItem:getBlacklistMenuItem()
     local nukeElementBlacklistMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
-        ButtonItem.default('Clear', 18),
+        ButtonItem.default('Clear All', 18),
     }, {},
         function()
             local nukeSettings = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].NukeSettings
             if not nukeSettings.Blacklist then
                 nukeSettings.Blacklist = L{}
             end
-            local blacklistPickerView = ElementPickerView.new(self.trustSettings, nukeSettings.Blacklist)
-            blacklistPickerView:setShouldRequestFocus(true)
+
+            local allElements = L{
+                element_util.Light,
+                element_util.Fire,
+                element_util.Lightning,
+                element_util.Wind,
+                element_util.Dark,
+                element_util.Earth,
+                element_util.Water,
+                element_util.Ice,
+            }
+
+            local configItem = MultiPickerConfigItem.new("Elements", nukeSettings.Blacklist, allElements, function(element)
+                return element:get_localized_name()
+            end, "Elements", nil, function(element)
+                return AssetManager.imageItemForElement(res.elements:with('en', element:get_name()).id)
+            end)
+
+            local blacklistPickerView = FFXIPickerView.withConfig(configItem, true)
+
+            blacklistPickerView:getDisposeBag():add(blacklistPickerView:on_pick_items():addAction(function(_, selectedElements)
+                nukeSettings.Blacklist:clear()
+                for element in selectedElements:it() do
+                    nukeSettings.Blacklist:append(Element.new(element:get_name()))
+                end
+                self.trustSettings:saveSettings(true)
+                addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I won't use nukes of these elements!")
+            end), blacklistPickerView:on_pick_items())
+
             return blacklistPickerView
         end, "Blacklist", "Choose elements to avoid when magic bursting or free nuking.")
     return nukeElementBlacklistMenuItem

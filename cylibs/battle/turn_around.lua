@@ -52,6 +52,13 @@ function TurnAround:get_name()
 end
 
 -------
+-- Returns the localized name for the action.
+-- @treturn string Localized name
+function TurnAround:get_localized_name()
+    return 'Turn Around'
+end
+
+-------
 -- Return the Action to use this action on a target.
 -- @treturn Action Action to use ability
 function TurnAround:to_action(target_index, _)

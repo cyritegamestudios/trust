@@ -7,7 +7,6 @@ local ImageTextItem = require('cylibs/ui/collection_view/items/image_text_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local SpellSettingsEditor = require('ui/settings/SpellSettingsEditor')
-local spell_util = require('cylibs/util/spell_util')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
@@ -116,8 +115,10 @@ function DebuffSettingsEditor:reloadSettings()
 
     local rowIndex = 1
     for spell in self.selfSpells:it() do
+        local textItem = TextItem.new(spell:get_spell().en, TextStyle.Default.PickerItem)
+        textItem:setLocalizedText(spell:get_localized_name())
         local imageItem = AssetManager.imageItemForSpell(spell:get_name())
-        items:append(IndexedItem.new(ImageTextItem.new(imageItem, TextItem.new(spell:get_spell().en, TextStyle.Default.PickerItem)), IndexPath.new(1, rowIndex)))
+        items:append(IndexedItem.new(ImageTextItem.new(imageItem, textItem), IndexPath.new(1, rowIndex)))
         rowIndex = rowIndex + 1
     end
 

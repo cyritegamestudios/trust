@@ -156,6 +156,10 @@ function JobAbility:get_name()
     return self.job_ability_name
 end
 
+function JobAbility:get_localized_name()
+    return i18n.resource('job_abilities', 'en', self:get_name())
+end
+
 function JobAbility:serialize()
     local conditions_classes_to_serialize = Condition.defaultSerializableConditionClasses()
     local conditions_to_serialize = self.conditions:filter(function(condition) return conditions_classes_to_serialize:contains(condition.__class)  end)

@@ -24,36 +24,36 @@ function SpellPickerItemMapper.new(defaultJobNames)
 end
 
 ---
--- Returns whether this PickerItemMapper can map a given picker item.
+-- Returns whether this mapper can map a given value.
 --
--- @tparam PickerItem pickerItem The PickerItem.
--- @treturn boolean True if this mapper can map a picker item.
+-- @tparam any value The value.
+-- @treturn boolean True if this mapper can map a value.
 --
-function SpellPickerItemMapper:canMap(pickerItem)
-    return res.spells:with('en', pickerItem:getText()) ~= nil
+function SpellPickerItemMapper:canMap(value)
+    return S{ Buff.__type, Spell.__type }:contains(value.__type)
 end
 
 ---
--- Gets the mapped picker item.
+-- Gets the mapped value.
 --
--- @tparam PickerItem pickerItem The PickerItem.
--- @treturn table The mapped picker item.
+-- @tparam any value The value.
+-- @treturn table The mapped value.
 --
-function SpellPickerItemMapper:map(pickerItem)
-    local spell = res.spells:with('en', pickerItem:getText())
+function SpellPickerItemMapper:map(value)
+    local spell = value:get_spell()
     local status = buff_util.buff_for_spell(spell.id)
     if status and not L{ 40, 41, 42, 43 }:contains(spell.skill) and not self.doNotConvertSpellIds:contains(spell.id) then
         if S(spell.targets):contains('Enemy') then
             if not self.selfBuffsWhitelist:contains(spell.en) then
-                return Debuff.new(spell_util.base_spell_name(pickerItem:getText()), L{}, L{})
+                return Debuff.new(spell_util.base_spell_name(spell:get_name()), L{}, L{})
             else
-                return Spell.new(pickerItem:getText(), L{}, L{}, 'bt')
+                return Spell.new(value:get_name(), L{}, L{}, 'bt')
             end
         else
-            return Buff.new(spell_util.base_spell_name(pickerItem:getText()), L{}, self.defaultJobNames)
+            return Buff.new(spell_util.base_spell_name(value:get_name()), L{}, self.defaultJobNames)
         end
     else
-        return Spell.new(pickerItem:getText(), L{}, L{})
+        return Spell.new(value:get_name(), L{}, L{})
     end
 end
 

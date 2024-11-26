@@ -3,7 +3,7 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local PartyTargetView = require('ui/views/PartyTargetView')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local TargetInfoView = require('cylibs/battle/monsters/ui/target_info_view')
 
 local PartyTargetsMenuItem = setmetatable({}, {__index = MenuItem })
@@ -26,9 +26,12 @@ function PartyTargetsMenuItem.new(party)
             selectedTargetNames:append(targetNames[1])
             self.selectedTargetIndex = 1
         end
-        local targetsView = FFXIPickerView.withItems(targetNames, selectedTargetNames, false, nil, nil, FFXIClassicStyle.WindowSize.Editor.ConfigEditor)
 
-        targetsView:setShouldRequestFocus(true)
+        local configItem = MultiPickerConfigItem.new("Targets", selectedTargetNames, targetNames, function(targetName)
+            return targetName
+        end)
+
+        local targetsView = FFXIPickerView.new(L{ configItem }, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditor)
         targetsView:setAllowsCursorSelection(true)
 
         self.disposeBag:add(targetsView:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)

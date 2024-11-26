@@ -32,8 +32,6 @@ end
 
 function Truster:on_add()
     Role.on_add(self)
-
-
 end
 
 function Truster:target_change(target_index)
@@ -123,7 +121,6 @@ function Truster:set_trusts(trusts)
     if missing_trusts:length() > 0 then
         addon_message(260, '('..windower.ffxi.get_player().name..') '.."I can't summon the following Alter Egos, which may affect my ability to pull: "..missing_trusts:tostring())
     end
-
     self.trusts = trusts:filter(function(trust_name) return spell_util.knows_spell(spell_util.spell_id(trust_name)) end)
 end
 

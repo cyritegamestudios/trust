@@ -15,17 +15,22 @@ Alliance.__index = Alliance
 Alliance.__class = "Alliance"
 
 -- Event called when a party is added to the alliance.
-function Party:on_party_added()
+function Alliance:on_party_added()
     return self.party_added
 end
 
 -- Event called when a party is removed from the alliance.
-function Party:on_party_removed()
+function Alliance:on_party_removed()
     return self.party_removed
 end
 
+-- Event called when the alliance is updated
+function Alliance:on_alliance_updated()
+    return self.alliance_updated
+end
+
 -- Event called when the alliance is dissolved.
-function Party:on_alliance_dissolved()
+function Alliance:on_alliance_dissolved()
     return self.alliance_dissolved
 end
 
@@ -44,6 +49,7 @@ function Alliance.new(party_chat)
 
     self.party_added = Event.newEvent()
     self.party_removed = Event.newEvent()
+    self.alliance_updated = Event.newEvent()
     self.alliance_dissolved = Event.newEvent()
 
     for _ = 1, 3 do
@@ -67,6 +73,7 @@ function Alliance:destroy()
 
     self:on_party_added():removeAllActions()
     self:on_party_removed():removeAllActions()
+    self:on_alliance_updated():removeAllActions()
     self:on_alliance_dissolved():removeAllActions()
 
     self.dispose_bag:destroy()
@@ -173,6 +180,9 @@ function Alliance:check_parties()
             end
         end
     end
+
+    self:on_alliance_updated():trigger(self)
+
     if num_validated_party_members == self.alliance_members_list:length() then
         self.should_check_parties = false
     end

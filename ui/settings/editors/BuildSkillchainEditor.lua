@@ -80,7 +80,9 @@ function BuildSkillchainEditor:reloadSettings()
 
     local combatSkillIds = L{1,2,3,4,5,6,7,8,9,10,11,12,25,26}
     local combatSkillItems = IndexedItem.fromItems(combatSkillIds:map(function(combatSkillId)
-        return TextItem.new(res.skills[combatSkillId].en, TextStyle.Default.TextSmall)
+        local textItem = TextItem.new(res.skills[combatSkillId].en, TextStyle.Default.TextSmall)
+        textItem:setLocalizedText(i18n.resource('skills', 'en', res.skills[combatSkillId].en))
+        return textItem
     end), 4)
 
     self:getDataSource():addItems(combatSkillItems)

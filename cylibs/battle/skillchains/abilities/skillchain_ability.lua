@@ -73,6 +73,16 @@ function SkillchainAbility:get_name()
 end
 
 -------
+-- Returns the localized name of the ability.
+-- @treturn string Localized name of ability (e.g. `Fire VI`, `Catastrophe`)
+function SkillchainAbility:get_localized_name()
+    if S{ SkillchainAbility.Auto, SkillchainAbility.Skip, SkillchainAbility.None }:contains(self:get_name()) then
+        return self:get_name()
+    end
+    return i18n.resource(self.resource, 'en', self:get_name())
+end
+
+-------
 -- Returns the id of the ability.
 -- @treturn number Id of ability
 function SkillchainAbility:get_ability_id()

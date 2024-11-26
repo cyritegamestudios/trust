@@ -94,7 +94,10 @@ function SkillchainSettingsEditor:reloadSettings()
         )
         self:getDataSource():setItemForSectionHeader(stepNum, sectionHeaderItem)
 
-        items:append(IndexedItem.new(TextItem.new(ability:get_name(), TextStyle.Default.TextSmall), indexPath))
+        local textItem = TextItem.new(ability:get_name(), TextStyle.Default.TextSmall)
+        textItem:setLocalizedText(ability:get_localized_name())
+
+        items:append(IndexedItem.new(textItem, indexPath))
     end
 
     self:getDataSource():addItems(items)

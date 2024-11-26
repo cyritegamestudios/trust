@@ -1,6 +1,9 @@
 require('cylibs/util/Modes')
 require('cylibs/util/States')
 
+-- i18n
+i18n = require('cylibs/i18n/i18n')
+
 -- Logging
 logger = require('cylibs/logger/logger')
 

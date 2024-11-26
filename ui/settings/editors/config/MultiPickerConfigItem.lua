@@ -12,7 +12,7 @@ MultiPickerConfigItem.__type = "MultiPickerConfigItem"
 -- @tparam function Formatter for current value.
 -- @treturn ConfigItem The newly created MultiPickerConfigItem instance.
 --
-function MultiPickerConfigItem.new(key, initialValues, allValues, textFormat, description, onReload, imageItemForText)
+function MultiPickerConfigItem.new(key, initialValues, allValues, textFormat, description, onReload, imageItem)
     local self = setmetatable({}, MultiPickerConfigItem)
 
     self.key = key
@@ -21,10 +21,12 @@ function MultiPickerConfigItem.new(key, initialValues, allValues, textFormat, de
     self.textFormat = textFormat or function(values)
         return localization_util.commas(values, 'or')
     end
+    self.imageItem = imageItem or function(_)
+        return nil
+    end
     self.description = description or key
     self.dependencies = L{}
     self.onReload = onReload
-    self.imageItemForText = imageItemForText
 
     return self
 end
@@ -86,6 +88,15 @@ function MultiPickerConfigItem:getText()
 end
 
 ---
+-- Gets the image item factory.
+--
+-- @treturn function The image item factory.
+--
+function MultiPickerConfigItem:getImageItem()
+    return self.imageItem
+end
+
+---
 -- Gets the description.
 --
 -- @treturn string The description.
@@ -121,14 +132,13 @@ function MultiPickerConfigItem:getMenuItem()
     return MenuItem.new(L{
         ButtonItem.default('Confirm')
     }, {}, function(_, _)
-        local pickerView = FFXIPickerView.withItems(self:getCurrentValues(), self:getAllValues(), true, nil, self.imageItemForText, nil, true)
+        local configItem = MultiPickerConfigItem.new("PickerItems", L{ self:getCurrentValues() }, self:getAllValues())
+        configItem.imageItem = self:getImageItem()
+
+        local pickerView = FFXIPickerView.withConfig(configItem, true)
         pickerView:setShouldRequestFocus(true)
         return pickerView
     end)
-end
-
-function MultiPickerConfigItem:getImageItemForText()
-    return self.imageItemForText
 end
 
 ---

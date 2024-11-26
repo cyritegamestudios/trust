@@ -108,14 +108,6 @@ function SpellSettingsEditor:destroy()
     CollectionView.destroy(self)
 end
 
-function SpellSettingsEditor:layoutIfNeeded()
-    if not CollectionView.layoutIfNeeded(self) then
-        return false
-    end
-
-    self:setTitle("Edit settings for "..self.spell:get_spell().en..'.')
-end
-
 function SpellSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
     if textItem:getText() == 'Save' then
         self:updateSpell()

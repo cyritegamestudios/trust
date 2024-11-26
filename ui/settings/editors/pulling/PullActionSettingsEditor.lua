@@ -92,8 +92,10 @@ function PullActionSettingsEditor:reloadSettings()
 
     local rowIndex = 1
     for ability in self.abilities:it() do
+        local textItem = TextItem.new(ability:get_name(), TextStyle.Default.PickerItem)
+        textItem:setLocalizedText(ability:get_localized_name())
         local imageItem = self:imageItemForAbility(ability)
-        items:append(IndexedItem.new(ImageTextItem.new(imageItem, TextItem.new(ability:get_name(), TextStyle.Default.PickerItem)), IndexPath.new(1, rowIndex)))
+        items:append(IndexedItem.new(ImageTextItem.new(imageItem, textItem), IndexPath.new(1, rowIndex)))
         rowIndex = rowIndex + 1
     end
 

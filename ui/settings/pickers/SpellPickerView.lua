@@ -3,6 +3,7 @@ local Buff = require('cylibs/battle/spells/buff')
 local Debuff = require('cylibs/battle/spells/debuff')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local PickerView = require('cylibs/ui/picker/picker_view')
 local Spell = require('cylibs/battle/spell')
 local spell_util = require('cylibs/util/spell_util')
@@ -17,11 +18,13 @@ function SpellPickerView.new(trustSettings, spells, allSpells, defaultJobNames, 
         selectedSpells = spells:map(function(spell) return spell:get_name() end)
     end
 
-    local imageItemForText = function(text)
-        return AssetManager.imageItemForSpell(text)
-    end
+    local configItem = MultiPickerConfigItem.new("Spells", selectedSpells, allSpells, function(spellName)
+        return i18n.resource('spells', 'en', spellName)
+    end, "Spells", nil, function(spellName)
+        return AssetManager.imageItemForSpell(spellName)
+    end)
 
-    local self = setmetatable(FFXIPickerView.withItems(allSpells, selectedSpells, true, nil, imageItemForText), SpellPickerView)
+    local self = setmetatable(FFXIPickerView.withConfig(configItem, true), SpellPickerView)
 
     self.trustSettings = trustSettings
     self.spells = spells

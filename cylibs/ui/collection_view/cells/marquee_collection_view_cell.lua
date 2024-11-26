@@ -125,7 +125,7 @@ function MarqueeCollectionViewCell:setAnimated(animated)
 end
 
 function MarqueeCollectionViewCell:updateText()
-    local text = self:getItem():getText()
+    local text = self:getItem():getLocalizedText()
     if text:length() > self.numCharacters then
         if text:length() >= self.currentIndex + self.numCharacters then
             local next = text:slice(self.currentIndex, math.min(self.currentIndex + self.numCharacters + 3, text:length()))

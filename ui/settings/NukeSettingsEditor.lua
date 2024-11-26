@@ -86,8 +86,10 @@ function NukeSettingsEditor:reloadSettings()
 
     local rowIndex = 1
     for spell in self.spells:it() do
+        local textItem = TextItem.new(spell:get_spell().en, TextStyle.Default.PickerItem)
+        textItem:setLocalizedText(spell:get_localized_name())
         local imageItem = AssetManager.imageItemForSpell(spell:get_name())
-        items:append(IndexedItem.new(ImageTextItem.new(imageItem, TextItem.new(spell:get_spell().en, TextStyle.Default.PickerItem)), IndexPath.new(1, rowIndex)))
+        items:append(IndexedItem.new(ImageTextItem.new(imageItem, textItem), IndexPath.new(1, rowIndex)))
         rowIndex = rowIndex + 1
     end
 

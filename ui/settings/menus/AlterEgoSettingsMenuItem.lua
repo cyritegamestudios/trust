@@ -19,7 +19,7 @@ function AlterEgoSettingsMenuItem.new(truster, trustModeSettings, addonSettings)
     self.addonSettings = addonSettings
     self.disposeBag = DisposeBag.new()
 
-    self.contentViewConstructor = function(_, _)
+    self.contentViewConstructor = function(_, infoView)
         local allSettings = L(addonSettings:getSettings().battle.trusts)
 
         local alterEgoSettings = T{}
@@ -31,10 +31,19 @@ function AlterEgoSettingsMenuItem.new(truster, trustModeSettings, addonSettings)
             local alterEgoKey = "Trust"..i
             local alterEgoName = allSettings[i]
             alterEgoSettings[alterEgoKey] = alterEgoName
-            configItems:append(PickerConfigItem.new(alterEgoKey, alterEgoName, allAlterEgos, nil, "Alter Ego "..i))
+            configItems:append(PickerConfigItem.new(alterEgoKey, alterEgoName, allAlterEgos, function(alterEgoName)
+                return i18n.resource('spells', 'en', alterEgoName)
+            end, "Alter Ego "..i))
         end
 
-        local alterEgoConfigEditor = ConfigEditor.new(addonSettings, alterEgoSettings, configItems)
+        local alterEgoConfigEditor = ConfigEditor.new(addonSettings, alterEgoSettings, configItems, infoView, function(newSettings)
+            local newAlterEgos = L{}
+            for i = 1, allSettings:length() do
+                local alterEgoKey = "Trust"..i
+                newAlterEgos:append(newSettings[alterEgoKey])
+            end
+            return S(newAlterEgos):length() == allSettings:length()
+        end)
 
         alterEgoConfigEditor:setTitle("Choose Alter Egos to call.")
         alterEgoConfigEditor:setShouldRequestFocus(true)
@@ -48,17 +57,17 @@ function AlterEgoSettingsMenuItem.new(truster, trustModeSettings, addonSettings)
                 alterEgoNames:append(alterEgoName)
             end
 
-            if S(alterEgoNames):length() == alterEgoNames:length() then
-                self.truster:set_trusts(alterEgoNames)
+            self.truster:set_trusts(alterEgoNames)
 
-                self.addonSettings:getSettings().battle.trusts = alterEgoNames
-                self.addonSettings:saveSettings(true)
+            self.addonSettings:getSettings().battle.trusts = alterEgoNames
+            self.addonSettings:saveSettings(true)
 
-                addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll call Alter Egos in this order!")
-            else
-                addon_message(260, '('..windower.ffxi.get_player().name..') '.."I can't summon the same Alter Ego twice!")
-            end
+            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll call Alter Egos in this order!")
         end), alterEgoConfigEditor:onConfigChanged())
+
+        self.disposeBag:add(alterEgoConfigEditor:onConfigValidationError():addAction(function(newSettings, _)
+            addon_message(260, '('..windower.ffxi.get_player().name..') '.."I can't summon the same Alter Ego twice!")
+        end), alterEgoConfigEditor:onConfigValidationError())
 
         return alterEgoConfigEditor
     end

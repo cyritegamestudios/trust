@@ -1,7 +1,9 @@
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local DisposeBag = require('cylibs/events/dispose_bag')
+local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 
 local ImportProfileMenuItem = setmetatable({}, {__index = MenuItem })
 ImportProfileMenuItem.__index = ImportProfileMenuItem
@@ -23,10 +25,11 @@ function ImportProfileMenuItem.new(trustModeSettings, jobSettings, weaponSkillSe
     self.dispose_bag = DisposeBag.new()
 
     self.contentViewConstructor = function(_)
-        local profileListPicker = FFXIPickerView.withItems(self:listFiles(), L{}, false, nil, nil, nil, true)
+        local configItem = MultiPickerConfigItem.new("Profiles", L{}, self:listFiles(), function(fileName)
+            return fileName
+        end)
 
-        profileListPicker:setTitle("Choose a profile to import.")
-        profileListPicker:setShouldRequestFocus(true)
+        local profileListPicker = FFXIPickerView.new(L{ configItem }, false, FFXIClassicStyle.WindowSize.Picker.ExtraLarge)
         profileListPicker:setAllowsCursorSelection(true)
 
         self.dispose_bag:add(profileListPicker:on_pick_items():addAction(function(_, selectedItems)

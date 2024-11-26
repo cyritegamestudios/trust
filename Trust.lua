@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '12.4.6'
+_addon.version = '12.5.0'
 _addon.release_notes = [[
 This update introduces new menus for Bard, autocomplete for Trust
 commands, new commands and important bug fixes for users running the
@@ -88,6 +88,7 @@ state.AutoEnmityReductionMode:set_description('Auto', "Okay, I'll automatically 
 function load_user_files(main_job_id, sub_job_id)
 	local start_time = os.clock()
 
+	load_i18n_settings()
 	load_logger_settings()
 
 	addon_system_message("Loaded Trust v".._addon.version)
@@ -361,6 +362,7 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_trust, acti
 	all_commands:sort()
 
 	local ChatAutoCompleter = require('cylibs/ui/input/autocomplete/chat_auto_completer')
+	local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 
 	command_widget:getDelegate():didHighlightItemAtIndexPath():addAction(function(indexPath)
 		local term = command_widget:getDataSource():itemAtIndexPath(indexPath)
@@ -395,7 +397,10 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_trust, acti
 		if terms:length() > 0 then
 			command_widget:setVisible(true)
 			command_widget:setContentOffset(0, 0)
-			command_widget:setItems(terms:map(function(term) return term:gsub("^//%s*trust ", "") end), L{}, true)
+			local configItem = MultiPickerConfigItem.new("Commands", L{}, terms:map(function(term) return term:gsub("^//%s*trust ", "") end), function(term)
+				return term
+			end)
+			command_widget:setConfigItems(L{ configItem })
 		else
 			if command_widget:isVisible() then
 				command_widget:setVisible(false)
@@ -428,6 +433,16 @@ function load_ui()
 	hud = TrustHud.new(player, action_queue, addon_settings, trust_mode_settings, addon_enabled, 500, 500)
 	hud:setNeedsLayout()
 	hud:layoutIfNeeded()
+end
+
+function load_i18n_settings()
+	local locale = i18n.Locale.English
+
+	local language = windower.ffxi.get_info().language
+	if language:lower() == 'japanese' then
+		locale = i18n.Locale.Japanese
+	end
+	i18n.init(locale, 'translations/'..locale)
 end
 
 function load_logger_settings()

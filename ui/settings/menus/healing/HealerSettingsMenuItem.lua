@@ -2,10 +2,11 @@ local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local ConfigItem = require('ui/settings/editors/config/ConfigItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
+local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
-local StatusRemovalPickerView = require('ui/settings/pickers/StatusRemovalPickerView')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 
 local HealerSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 HealerSettingsMenuItem.__index = HealerSettingsMenuItem
@@ -101,14 +102,23 @@ end
 function HealerSettingsMenuItem:getBlacklistMenuItem()
     local statusRemovalMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
-        ButtonItem.default('Clear', 18),
+        ButtonItem.default('Clear All', 18),
     }, {},
     function()
         local cureSettings = self.trustSettings:getSettings()[self.trustSettingsMode.value].CureSettings
 
-        local blacklistPickerView = StatusRemovalPickerView.new(self.trustSettings, cureSettings.StatusRemovals.Blacklist)
-        blacklistPickerView:setTitle('Choose status effects to ignore.')
-        blacklistPickerView:setShouldRequestFocus(true)
+        local configItem = MultiPickerConfigItem.new("StatusRemovalBlacklist", cureSettings.StatusRemovals.Blacklist, buff_util.get_all_debuffs():sort(), function(statusEffect)
+            return i18n.resource('buffs', 'en', statusEffect)
+        end)
+
+        local blacklistPickerView = FFXIPickerView.withConfig(configItem, true)
+
+        blacklistPickerView:getDisposeBag():add(blacklistPickerView:on_pick_items():addAction(function(_, selectedDebuffs)
+            cureSettings.StatusRemovals.Blacklist = selectedDebuffs
+            self.trustSettings:saveSettings(true)
+            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I won't remove these debuffs anymore!")
+        end), blacklistPickerView:on_pick_items())
+
         return blacklistPickerView
     end, "Blacklist", "Choose status ailments to ignore.")
     return statusRemovalMenuItem

@@ -1,4 +1,5 @@
 local Color = require('cylibs/ui/views/color')
+local i18n = require('cylibs/i18n/i18n')
 
 ---
 -- @module TextStyle
@@ -68,6 +69,9 @@ end
 -- @treturn string The font name.
 --
 function TextStyle:getFontName()
+    if i18n.current_locale() == i18n.Locale.Japanese then
+        return "MS Gothic"
+    end
     return self.fontName
 end
 

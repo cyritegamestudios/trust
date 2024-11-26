@@ -4,8 +4,9 @@ local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConditionSettingsMenuItem = require('ui/settings/menus/conditions/ConditionSettingsMenuItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
-local MenuItem = require('cylibs/ui/menu/menu_item')
 local JobAbilityPickerItemMapper = require('ui/settings/pickers/mappers/JobAbilityPickerItemMapper')
+local MenuItem = require('cylibs/ui/menu/menu_item')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local SpellPickerItemMapper = require('ui/settings/pickers/mappers/SpellPickerItemMapper')
 local SpellSettingsEditor = require('ui/settings/SpellSettingsEditor')
 
@@ -41,8 +42,15 @@ function BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, setti
         self.buffs = buffs
 
         local buffSettingsEditor = BuffSettingsEditor.new(trustSettings, buffs, targets)
+        self.buffSettingsEditor = buffSettingsEditor
 
         self.dispose_bag:add(buffSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
+            local buff = self.buffs[indexPath.row]
+
+            self.selectedIndexPath = indexPath
+
+            self.buffSettingsEditor.menuArgs['conditions'] = buff:get_conditions()
+
             local item = buffSettingsEditor:getDataSource():itemAtIndexPath(indexPath)
             if item and not item:getTextItem():getEnabled() then
                 infoView:setDescription("Unavailable on current job or settings.")
@@ -56,8 +64,6 @@ function BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, setti
                 end
             end
         end, buffSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath()))
-
-        self.buffSettingsEditor = buffSettingsEditor
 
         return buffSettingsEditor
     end
@@ -98,8 +104,8 @@ function BuffSettingsMenuItem:getAllBuffs()
             end
             return false
         end):map(function(spellId)
-            return res.spells[spellId].en
-        end)):sort(),
+            return Spell.new(res.spells[spellId].en)
+        end)),--:sort(),
         L(self.trust:get_job():get_job_abilities(function(jobAbilityId)
             local jobAbility = res.job_abilities[jobAbilityId]
             if jobAbility then
@@ -107,8 +113,8 @@ function BuffSettingsMenuItem:getAllBuffs()
             end
             return false
         end):map(function(jobAbilityId)
-            return res.job_abilities[jobAbilityId].en
-        end)):sort()
+            return JobAbility.new(res.job_abilities[jobAbilityId].en)
+        end)),--:sort()
     }
     return sections
 end
@@ -119,18 +125,23 @@ function BuffSettingsMenuItem:getAddBuffMenuItem()
         ButtonItem.default('Clear', 18),
     }, {},
     function(_, _)
-        local imageItemForAbility = function(abilityName, sectionIndex)
-            if sectionIndex == 1 then
-                return AssetManager.imageItemForSpell(abilityName)
-            elseif sectionIndex == 2 then
-                return AssetManager.imageItemForJobAbility(abilityName)
-            else
-                return nil
-            end
-        end
+        local allBuffs = self:getAllBuffs()
 
-        local chooseBuffView = FFXIPickerView.withSections(self:getAllBuffs(), L{}, true, nil, imageItemForAbility)
-        chooseBuffView:on_pick_items():addAction(function(pickerView, selectedItems)
+        local configItems = L{
+            MultiPickerConfigItem.new("Spells", L{}, allBuffs[1], function(buff)
+                return buff:get_localized_name()
+            end, "Spells", nil, function(buff)
+                return AssetManager.imageItemForSpell(buff:get_name())
+            end),
+            MultiPickerConfigItem.new("JobAbilities", L{}, allBuffs[2], function(buff)
+                return buff:get_localized_name()
+            end, "Job Abilities", nil, function(buff)
+                return AssetManager.imageItemForJobAbility(buff:get_name())
+            end),
+        }
+
+        local chooseBuffView = FFXIPickerView.withConfig(configItems, true)
+        chooseBuffView:on_pick_items():addAction(function(pickerView, selectedBuffs)
             pickerView:getDelegate():deselectAllItems()
 
             local defaultJobNames = L{}
@@ -143,10 +154,10 @@ function BuffSettingsMenuItem:getAddBuffMenuItem()
                 JobAbilityPickerItemMapper.new(),
             }
 
-            local buffs = selectedItems:map(function(pickerItem)
+            local buffs = selectedBuffs:map(function(buff)
                 for mapper in itemMappers:it() do
-                    if mapper:canMap(pickerItem) then
-                        return mapper:map(pickerItem)
+                    if mapper:canMap(buff) then
+                        return mapper:map(buff)
                     end
                 end
                 return nil
@@ -201,6 +212,15 @@ function BuffSettingsMenuItem:getEditBuffMenuItem()
     end, "Buffs", "Edit buff settings.", false, function()
                 return self.buffs and self.buffs:length() > 0
             end)
+    editBuffMenuItem.enabled = function()
+        if self.selectedIndexPath then
+            local buff = self.buffs[self.selectedIndexPath.row]
+            if buff and S{ Spell.__class, Buff.__class }:contains(class(buff)) then
+                return true
+            end
+        end
+        return false
+    end
     return editBuffMenuItem
 end
 

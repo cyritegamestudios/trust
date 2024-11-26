@@ -61,6 +61,13 @@ function RunTo:get_name()
 end
 
 -------
+-- Returns the localized name for the action.
+-- @treturn string Localized name
+function RunTo:get_localized_name()
+    return 'Run To'
+end
+
+-------
 -- Return the Action to use this action on a target.
 -- @treturn Action Action to use ability
 function RunTo:to_action(target_index, _)

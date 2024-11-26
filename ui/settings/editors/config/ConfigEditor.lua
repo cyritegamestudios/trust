@@ -251,7 +251,7 @@ function ConfigEditor:getCellItemForConfigItem(configItem)
     elseif configItem.__type == PickerConfigItem.__type then
         return PickerItem.new(configItem:getInitialValue(), configItem:getAllValues(), configItem:getTextFormat())
     elseif configItem.__type == MultiPickerConfigItem.__type then
-        local pickerItem = PickerItem.new(configItem:getInitialValues(), configItem:getAllValues(), configItem:getTextFormat(), true, configItem:getImageItemForText())
+        local pickerItem = PickerItem.new(configItem:getInitialValues(), configItem:getAllValues(), configItem:getTextFormat(), true, configItem:getImageItem())
         pickerItem:setShouldTruncateText(true)
         pickerItem:setPickerTitle(configItem:getPickerTitle())
         pickerItem:setPickerDescription(configItem:getPickerDescription())
