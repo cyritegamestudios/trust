@@ -52,6 +52,13 @@ function TurnToFace:get_name()
 end
 
 -------
+-- Returns the localized name for the action.
+-- @treturn string Localized name
+function TurnToFace:get_localized_name()
+    return 'Turn to Face'
+end
+
+-------
 -- Return the Action to use this action on a target.
 -- @treturn Action Action to use ability
 function TurnToFace:to_action(target_index, _)

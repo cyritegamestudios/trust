@@ -103,7 +103,7 @@ function BuildSkillchainSettingsMenuItem:getConfirmMenuItem()
 
         self.currentSkillchains = L{}:extend(skillchains):slice(1, math.min(skillchains:length(), 500))
         local pickerItems = L(self.currentSkillchains:map(function(abilities)
-            local abilities = L(abilities:map(function(ability) return ability:get_name() end))
+            local abilities = L(abilities:map(function(ability) return ability:get_localized_name() end))
             return localization_util.join(abilities, '→')
         end))
 
@@ -112,12 +112,11 @@ function BuildSkillchainSettingsMenuItem:getConfirmMenuItem()
         end)
 
         local chooseSkillchainView = FFXIPickerView.new(L{ configItem }, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditorLarge)
-        --local chooseSkillchainView = FFXIPickerView.withItems(pickerItems, L{}, false, nil, nil, FFXIClassicStyle.WindowSize.Editor.ConfigEditorLarge, true)
         chooseSkillchainView.menuArgs.Skillchain = self.currentSkillchains[1]
         chooseSkillchainView:setAllowsCursorSelection(true)
         chooseSkillchainView:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
             chooseSkillchainView.menuArgs.Skillchain = self.currentSkillchains[indexPath.row]
-            local abilities = L(self.currentSkillchains[indexPath.row]:map(function(ability) return ability:get_name() end))
+            local abilities = L(self.currentSkillchains[indexPath.row]:map(function(ability) return ability:get_localized_name() end))
             infoView:setDescription(localization_util.join(abilities, '→'))
         end)
         self.chooseSkillchainView = chooseSkillchainView

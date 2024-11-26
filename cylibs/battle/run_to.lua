@@ -60,8 +60,11 @@ function RunTo:get_name()
     return 'Run To'
 end
 
+-------
+-- Returns the localized name for the action.
+-- @treturn string Localized name
 function RunTo:get_localized_name()
-    return self:get_name()
+    return 'Run To'
 end
 
 -------

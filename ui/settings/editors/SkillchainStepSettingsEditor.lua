@@ -14,7 +14,7 @@ SkillchainStepSettingsEditor.__type = "SkillchainStepSettingsEditor"
 function SkillchainStepSettingsEditor.new(stepSettings, nextSteps)
     local configItems = L{
         PickerConfigItem.new('step', stepSettings.step, nextSteps, function(step)
-            local abilityName = step:get_ability():get_name()
+            local abilityName = step:get_ability():get_localized_name()
             if step:get_skillchain() then
                 abilityName = abilityName..' ('..step:get_skillchain()..')'
             end

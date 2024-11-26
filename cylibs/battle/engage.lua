@@ -53,8 +53,11 @@ function Engage:get_name()
     return 'Engage'
 end
 
+-------
+-- Returns the localized name for the action.
+-- @treturn string Localized name
 function Engage:get_localized_name()
-    return self:get_name()
+    return 'Engage'
 end
 
 -------

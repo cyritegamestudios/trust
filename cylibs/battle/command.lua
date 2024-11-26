@@ -55,6 +55,13 @@ function Command:get_name()
     return 'Command'
 end
 
+-------
+-- Returns the localized name for the action.
+-- @treturn string Localized name
+function Command:get_localized_name()
+    return 'Command'
+end
+
 function Command:get_display_name()
     return self.description or self.windower_command
 end

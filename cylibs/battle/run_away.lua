@@ -60,8 +60,11 @@ function RunAway:get_name()
     return 'Run Away'
 end
 
+-------
+-- Returns the localized name for the action.
+-- @treturn string Localized name
 function RunAway:get_localized_name()
-    return self:get_name()
+    return 'Run Away'
 end
 
 -------
