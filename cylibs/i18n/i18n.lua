@@ -23,6 +23,13 @@ function i18n.current_locale()
     return locale
 end
 
+function i18n.set_current_locale(new_locale)
+    if new_locale == locale then
+        return
+    end
+    locale = new_locale
+end
+
 -------
 -- Sets the locale to be used when localization action commands (e.g. /ma <spell_name> <t>)
 -- @tparam string locale Locale (e.g. 'en', 'jp')

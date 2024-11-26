@@ -1,8 +1,10 @@
 local BooleanConfigItem = require('ui/settings/editors/config/BooleanConfigItem')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
+local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXITextInputView = require('ui/themes/ffxi/FFXITextInputView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
+local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local RemoteCommandsSettingsMenuItem = require('ui/settings/menus/RemoteCommandsSettingsMenuItem')
 local WidgetSettingsMenuItem = require('ui/settings/menus/widgets/WidgetSettingsMenuItem')
 
@@ -18,6 +20,7 @@ function ConfigSettingsMenuItem.new(addonSettings, mediaPlayer)
         ButtonItem.default('Language', 18),
     }, {}, nil, "Config", "Configure addon settings."), ConfigSettingsMenuItem)
 
+    self.disposeBag = DisposeBag.new()
     self.mediaPlayer = mediaPlayer
 
     self:reloadSettings(addonSettings)
@@ -100,10 +103,29 @@ function ConfigSettingsMenuItem:getLanguageSettingsMenuItem(addonSettings)
             localization_util.set_should_use_client_locale(addonSettings:getSettings().locales.actions.use_client_locale)
         end),
     }, function(menuArgs)
-        local configItems = L{
-            BooleanConfigItem.new('use_client_locale', "Use client langauge for actions"),
+        local languageSettings = {
+            UseClientLocale = addonSettings:getSettings().locales.actions.use_client_locale,
+            Language = i18n.current_locale(),
         }
-        return ConfigEditor.new(addonSettings, addonSettings:getSettings().locales.actions, configItems)
+        local configItems = L{
+            PickerConfigItem.new('Language', i18n.current_locale(), L{ i18n.Locale.English, i18n.Locale.Japanese }, function(locale)
+                if locale == i18n.Locale.Japanese then
+                    return 'Japanese'
+                else
+                    return 'English'
+                end
+            end),
+            BooleanConfigItem.new('UseClientLocale', "Use client langauge for actions"),
+        }
+        local languageConfigEditor = ConfigEditor.new(addonSettings, languageSettings, configItems)
+
+        self.disposeBag:add(languageConfigEditor:onConfigChanged():addAction(function(newConfigSettings, _)
+            addonSettings:getSettings().locales.actions.use_client_locale = newConfigSettings.UseClientLocale
+            localization_util.set_should_use_client_locale(newConfigSettings.UseClientLocale)
+            i18n.set_current_locale(newConfigSettings.Language)
+        end), languageConfigEditor:onConfigChanged())
+
+        return languageConfigEditor
     end, "Language", "Configure language settings.")
     return languageMenuItem
 end
