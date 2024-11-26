@@ -22,7 +22,7 @@ function SkillSettingsMenuItem.new(weaponSkillSettings, skillSettings)
 
     self.newSkillSettings = {
         DefaultAbility = defaultAbility,
-        Blacklist = L{}:extend(skillSettings.blacklist)
+        Blacklist = L{}:extend(skillSettings.blacklist or L{})
     }
 
     local imageItemForText = function(text)
@@ -35,9 +35,9 @@ function SkillSettingsMenuItem.new(weaponSkillSettings, skillSettings)
             blacklist:append(SkillchainAbility.None)
         end
 
-        local blacklistConfigItem = MultiPickerConfigItem.new('Blacklist', self.newSkillSettings.Blacklist, L{}:extend(allAbilities:map(function(a) return a:get_name() end)), function(abilityName)
+        local blacklistConfigItem = MultiPickerConfigItem.new('Blacklist', blacklist, L{}:extend(allAbilities:map(function(a) return a:get_name() end)), function(currentAbilities)
             -- TODO: localize this
-            return abilityName
+            return localization_util.commas(currentAbilities, 'and')
         end, 'Blacklist', nil, imageItemForText)
         blacklistConfigItem:setPickerTitle('Blacklist')
         blacklistConfigItem:setPickerDescription('Choose one or more abilities to avoid when making skillchains.')

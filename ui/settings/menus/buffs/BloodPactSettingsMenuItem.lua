@@ -63,10 +63,10 @@ function BloodPactSettingsMenuItem:getBuffsMenuItem()
         end)
 
         local chooseBloodPactView = FFXIPickerView.withConfig(configItem, true)
-        chooseBloodPactView:on_pick_items():addAction(function(_, selectedItems)
+        chooseBloodPactView:on_pick_items():addAction(function(_, selectedBloodPacts)
             self.bloodPacts:clear()
 
-            local bloodPacts = selectedItems:map(function(item) return JobAbility.new(item:getText()) end):compact_map()
+            local bloodPacts = selectedBloodPacts:map(function(bloodPact) return JobAbility.new(bloodPact:get_name()) end):compact_map()
             for bloodPact in bloodPacts:it() do
                 self.bloodPacts:append(bloodPact)
             end
