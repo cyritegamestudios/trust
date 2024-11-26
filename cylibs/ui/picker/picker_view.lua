@@ -63,7 +63,9 @@ function PickerView.new(configItems, allowsMultipleSelection, mediaPlayer, sound
 
     local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(0, Padding.new(8, 16, 8, 0)), nil, nil, mediaPlayer, soundTheme), PickerView)
 
-    self.configItems = configItems
+    self.configItems = configItems:filter(function(configItem)
+        return configItem:getAllValues():length() > 0
+    end)
     self.menuArgs = {}
 
     self:setAllowsMultipleSelection(allowsMultipleSelection)
@@ -138,7 +140,9 @@ function PickerView:reload()
 end
 
 function PickerView:setConfigItems(configItems)
-    self.configItems = configItems
+    self.configItems = configItems:filter(function(configItem)
+        return configItem:getAllValues():length() > 0
+    end)
 
     self:reload()
 end

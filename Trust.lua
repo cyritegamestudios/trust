@@ -439,7 +439,7 @@ function load_i18n_settings()
 	local locale = i18n.Locale.English
 
 	local language = windower.ffxi.get_info().language
-	if language == 'japanese' then
+	if language:lower() == 'japanese' then
 		locale = i18n.Locale.Japanese
 	end
 	i18n.init(locale, 'translations/'..locale)
