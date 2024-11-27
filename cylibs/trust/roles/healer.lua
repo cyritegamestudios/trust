@@ -45,10 +45,10 @@ function Healer:on_add()
                 return
             end
             if hpp > 0 then
-                if hpp < 25 then
+                if hpp < 35 then
                     if p:get_mob() and p:get_mob().distance:sqrt() < 21 then
                         logger.notice(self.__class, 'on_hp_change', p:get_name(), hpp)
-                        self:check_party_hp(self:get_job():get_cure_threshold(true))
+                        self:check_party_hp(self:get_job():get_cure_threshold(true), true)
                     end
                 else
                     logger.notice(self.__class, 'on_hp_change', 'check_party_hp', hpp)
@@ -87,7 +87,7 @@ end
 -------
 -- Checks the hp of party members and cures if needed.
 -- @tparam number cure_threshold (optional) Cure threshold, defaults to self:get_cure_threshold()
-function Healer:check_party_hp(cure_threshold)
+function Healer:check_party_hp(cure_threshold, ignore_delay)
     cure_threshold = cure_threshold or self:get_cure_threshold()
 
     logger.notice(self.__class, 'check_party_hp', cure_threshold)
@@ -100,10 +100,10 @@ function Healer:check_party_hp(cure_threshold)
     party_members = self:get_cure_cluster(party_members)
 
     if #party_members >= self:get_job():get_aoe_threshold() then
-        self:cure_party_members(party_members)
+        self:cure_party_members(party_members, ignore_delay)
     else
         for party_member in party_members:it() do
-            self:cure_party_member(party_member)
+            self:cure_party_member(party_member, ignore_delay)
         end
     end
 end
@@ -150,9 +150,9 @@ end
 -- Cures a party member. Cures may take higher priority than other actions depending upon how much hp is missing.
 -- AutoHealMode must be set to Auto.
 -- @tparam PartyMember party_member Party member to cure
-function Healer:cure_party_member(party_member)
+function Healer:cure_party_member(party_member, ignore_delay)
     if state.AutoHealMode.value == 'Off'
-            or (os.time() - self.last_cure_time) < self.cure_delay
+            or ((os.time() - self.last_cure_time < self.cure_delay) and not ignore_delay)
             or not party_member:is_alive() then
         return
     end

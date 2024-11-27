@@ -1764,6 +1764,8 @@ return {
     [6693] = {id=6693,en="Impish Box",},
     [18156] = {id=18156,en="Horn Arrow",},
     [18159] = {id=18159,en="Demon Arrow",},
+    [19198] = {id=19198,en="Dweomer Bullet",},
+    [19199] = {id=19199,en="Oberon's Bullet",},
     [21295] = {id=21295,en="Beryllium Arrow"},
     [21296] = {id=21296,en="Chrono Bullet",},
     [21297] = {id=21297,en="Chrono Arrow",},
