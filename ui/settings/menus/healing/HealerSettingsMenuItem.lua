@@ -79,7 +79,7 @@ function HealerSettingsMenuItem:getConfigMenuItem()
                 if cursorIndexPath.section == 1 then
                     infoView:setDescription("Cure when target HP is <= "..configItem:getCurrentValue().."% and AutoHealMode is set to Auto.")
                 elseif cursorIndexPath.section == 2 then
-                    infoView:setDescription("Cure when target HP is <= "..configItem:getCurrentValue().."% and AutoHealMode is set to Emergency.")
+                    infoView:setDescription("Cure when target HP is <= "..configItem:getCurrentValue().."% and AutoHealMode is set to Emergency or to ignore cure cooldown when AutoHealMode is set to Auto.")
                 else
                     local description = "Use when: HP missing is >= "..configItem:getCurrentValue()
                     if not S{ 5, 8 }:contains(cursorIndexPath.section) then

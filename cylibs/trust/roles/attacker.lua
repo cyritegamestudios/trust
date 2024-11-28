@@ -37,8 +37,6 @@ end
 function Attacker:target_change(target_index)
     Role.target_change(self, target_index)
 
-    self.target_index = target_index
-
     if self.target_index == windower.ffxi.get_player().index then
         self.last_target_self = os.time()
     else
@@ -49,7 +47,7 @@ function Attacker:target_change(target_index)
 end
 
 function Attacker:tic(_, _)
-    if state.AutoEngageMode.value == 'Off' or self.target_index == nil then
+    if state.AutoEngageMode.value == 'Off' or self:get_target() == nil then
         return
     end
     self:check_engage()

@@ -45,10 +45,11 @@ function Healer:on_add()
                 return
             end
             if hpp > 0 then
-                if hpp < 35 then
+                local emergency_hpp = self:get_job():get_cure_threshold(true)
+                if hpp < emergency_hpp then
                     if p:get_mob() and p:get_mob().distance:sqrt() < 21 then
                         logger.notice(self.__class, 'on_hp_change', p:get_name(), hpp)
-                        self:check_party_hp(self:get_job():get_cure_threshold(true), true)
+                        self:check_party_hp(emergency_hpp, true)
                     end
                 else
                     logger.notice(self.__class, 'on_hp_change', 'check_party_hp', hpp)
@@ -156,7 +157,9 @@ function Healer:cure_party_member(party_member, ignore_delay)
             or not party_member:is_alive() then
         return
     end
-
+    if ignore_delay then
+        print('ignoring delay')
+    end
     logger.notice(self.__class, 'cure_party_member', party_member:get_name())
 
     local missing_hp = party_member:get_max_hp() - party_member:get_hp()
