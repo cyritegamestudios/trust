@@ -168,6 +168,10 @@ function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, 
         self:setJobs(mainJobName, subJobName)
     end), player:on_level_change())
 
+    self:getDisposeBag():add(i18n.onLocaleChanged():addAction(function(_)
+        self:setJobs(mainJobName, subJobName)
+    end), i18n.onLocaleChanged())
+
     if not addonEnabled:getValue() then
         self:setAction('OFF')
     end
@@ -200,7 +204,7 @@ function TrustStatusWidget:setJobs(mainJobName, subJobName)
     local mainJobTextItem = TextItem.new(mainJobName, TrustStatusWidget.TextSmall2)
     mainJobTextItem:setLocalizedText("Lv"..windower.ffxi.get_player().main_job_level.." "..i18n.resource('jobs', 'en', mainJobName))
 
-    local subJobTextItem = TextItem.new(subJobName, TrustStatusWidget.TextSmall2)
+    local subJobTextItem = TextItem.new(subJobName, TrustStatusWidget.TextSmall)
     subJobTextItem:setLocalizedText("Lv"..(windower.ffxi.get_player().sub_job_level or 0).." "..i18n.resource('jobs', 'en', subJobName))
 
     local itemsToUpdate = L{

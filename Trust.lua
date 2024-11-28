@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '12.5.0'
+_addon.version = '12.5.2'
 _addon.release_notes = [[
 This update introduces new menus for Bard, autocomplete for Trust
 commands, new commands and important bug fixes for users running the
@@ -207,15 +207,15 @@ function load_user_files(main_job_id, sub_job_id)
 
 	local skillchainer = Skillchainer.new(action_queue, weapon_skill_settings)
 
+	player.trust.main_job:add_role(Gambiter.new(action_queue, player.trust.main_job_settings.Default.GambitSettings, skillchainer))
+	player.trust.main_job:add_role(Targeter.new(action_queue))
 	player.trust.main_job:add_role(Attacker.new(action_queue))
 	player.trust.main_job:add_role(CombatMode.new(action_queue, addon_settings:getSettings().battle.melee_distance, addon_settings:getSettings().battle.range_distance, addon_enabled))
 	player.trust.main_job:add_role(Follower.new(action_queue, addon_settings:getSettings().follow.distance))
 	player.trust.main_job:add_role(Pather.new(action_queue, 'data/paths/'))
 	player.trust.main_job:add_role(skillchainer)
-	player.trust.main_job:add_role(Gambiter.new(action_queue, player.trust.main_job_settings.Default.GambitSettings, skillchainer))
 	player.trust.main_job:add_role(Spammer.new(action_queue, weapon_skill_settings))
 	player.trust.main_job:add_role(Cleaver.new(action_queue, weapon_skill_settings))
-	player.trust.main_job:add_role(Targeter.new(action_queue))
 	player.trust.main_job:add_role(Truster.new(action_queue, addon_settings:getSettings().battle.trusts))
 	player.trust.main_job:add_role(Aftermather.new(action_queue, player.trust.main_job:role_with_type("skillchainer")))
 	player.trust.main_job:add_role(Assistant.new(action_queue))
@@ -442,7 +442,18 @@ function load_i18n_settings()
 	if language:lower() == 'japanese' then
 		locale = i18n.Locale.Japanese
 	end
-	i18n.init(locale, 'translations/'..locale)
+
+	local translations_for_locale = {
+		[i18n.Locale.English] = 'translations/en',
+		[i18n.Locale.Japanese] = 'translations/ja',
+	}
+
+	local font_for_locale = {
+		[i18n.Locale.English] = addon_settings:getSettings().locales.font_names.english,
+		[i18n.Locale.Japanese] = addon_settings:getSettings().locales.font_names.japanese,
+	}
+
+	i18n.init(locale, translations_for_locale, font_for_locale)
 end
 
 function load_logger_settings()

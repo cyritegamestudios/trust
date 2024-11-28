@@ -28,7 +28,7 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
         ButtonItem.default('Copy', 18),
         ButtonItem.default('Toggle', 18),
         ButtonItem.default('Reset', 18),
-        ButtonItem.default('Modes', 18),
+        ButtonItem.localized('Modes', i18n.translate('Button_Modes')),
     }, {}, nil, "Gambits", "Add custom behaviors.", false), GambitSettingsMenuItem)  -- changed keep views to false
 
     self.trust = trust

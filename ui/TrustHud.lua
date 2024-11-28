@@ -115,13 +115,9 @@ function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, a
         end), mode:on_state_change())
     end
 
-    self:getDisposeBag():add(self.gameInfo:onMenuChange():addAction(function(_, isMenuOpen)
-        if isMenuOpen then
-            --if self.addon_settings:getSettings().hud.auto_hide then
-            --    self.trustMenu:closeAll()
-            --end
-        end
-    end), self.gameInfo:onMenuChange())
+    self:getDisposeBag():add(i18n.onLocaleChanged():addAction(function(_)
+        self:reloadMainMenuItem()
+    end), i18n.onLocaleChanged())
 
     self:registerShortcuts()
 
@@ -322,7 +318,7 @@ function TrustHud:getMainMenuItem()
     local mainMenuItem = MenuItem.new(L{
         ButtonItem.localized(player.main_job_name, i18n.resource('jobs', 'en', player.main_job_name)),
         ButtonItem.localized(player.sub_job_name, i18n.resource('jobs', 'en', player.sub_job_name)),
-        ButtonItem.default('Profiles', 18),
+        ButtonItem.localized('Profiles', i18n.translate('Button_Profiles')),
         ButtonItem.default('Commands', 18),
         ButtonItem.default('Config', 18),
     }, {
@@ -385,7 +381,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
     local debuffSettingsItem = MenuItem.new(L{
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
-        ButtonItem.localized('Modes', i18n.translate('Modes')),
+        ButtonItem.localized('Modes', i18n.translate('Button_Modes')),
         ButtonItem.default('Help', 18)
     }, {
         Add = chooseDebuffsItem,

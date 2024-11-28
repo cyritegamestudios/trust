@@ -12,7 +12,7 @@ function WeaponSkillSettingsMenuItem.new(weaponSkillSettings, weaponSkillSetting
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Skillchains', 18),
         ButtonItem.default('Abilities', 18),
-        ButtonItem.default('Modes', 18),
+        ButtonItem.localized('Modes', i18n.translate('Button_Modes')),
     }, {}, nil, "Weaponskills", "Configure weapon skill and skillchain settings."), WeaponSkillSettingsMenuItem)
 
     self.settings = T(weaponSkillSettings:getSettings())[weaponSkillSettingsMode.value]

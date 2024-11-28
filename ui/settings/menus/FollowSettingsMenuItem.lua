@@ -10,7 +10,7 @@ FollowSettingsMenuItem.__index = FollowSettingsMenuItem
 function FollowSettingsMenuItem.new(follower, trustModeSettings, addonSettings)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Config', 18),
-        ButtonItem.default('Modes', 18),
+        ButtonItem.localized('Modes', i18n.translate('Button_Modes')),
     }, {}, nil, "Following", "Configure follow settings."), FollowSettingsMenuItem)
 
     self.trustModeSettings = trustModeSettings

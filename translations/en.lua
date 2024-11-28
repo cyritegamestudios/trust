@@ -1,5 +1,6 @@
 -- Translation files for en
 
 return T{
-    [1] = {id=1,key="Modes",singular="Modes"},
-}, {"id", "key", "singular", "plural"}
+    ["Button_Modes"] = {singular="Modes"},
+    ["Button_Profiles"] = {singular="Profiles"},
+}, {"singular", "plural"}

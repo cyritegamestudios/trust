@@ -14,7 +14,7 @@ JobGambitSettingsMenuItem.__index = JobGambitSettingsMenuItem
 function JobGambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Toggle', 18),
-        ButtonItem.default('Modes', 18),
+        ButtonItem.localized('Modes', i18n.translate('Button_Modes')),
     }, {}, nil, "Gambits", "Toggle default behaviors.", false), JobGambitSettingsMenuItem)
 
     self.trust = trust

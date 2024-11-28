@@ -20,7 +20,7 @@ function ReactSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trus
         ButtonItem.default('Add', 18),
         ButtonItem.default('Edit', 18),
         ButtonItem.default('Remove', 18),
-        ButtonItem.default('Modes', 18),
+        ButtonItem.localized('Modes', i18n.translate('Button_Modes')),
     }, {}, nil, "Reactions", "Add reactions to actions taken by enemies or party members."), ReactSettingsMenuItem)
 
     self.trust = trust
