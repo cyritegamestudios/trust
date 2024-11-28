@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '12.5.1'
+_addon.version = '12.5.2'
 _addon.release_notes = [[
 This update introduces new menus for Bard, autocomplete for Trust
 commands, new commands and important bug fixes for users running the
@@ -436,19 +436,24 @@ function load_ui()
 end
 
 function load_i18n_settings()
-	local locale = i18n.Locale.English
+	local locale = i18n.Locale.Japanese
 
 	local language = windower.ffxi.get_info().language
 	if language:lower() == 'japanese' then
 		locale = i18n.Locale.Japanese
 	end
 
+	local translations_for_locale = {
+		[i18n.Locale.English] = 'translations/en',
+		[i18n.Locale.Japanese] = 'translations/ja',
+	}
+
 	local font_for_locale = {
 		[i18n.Locale.English] = addon_settings:getSettings().locales.font_names.english,
 		[i18n.Locale.Japanese] = addon_settings:getSettings().locales.font_names.japanese,
 	}
 
-	i18n.init(locale, 'translations/'..locale, font_for_locale)
+	i18n.init(locale, translations_for_locale, font_for_locale)
 end
 
 function load_logger_settings()

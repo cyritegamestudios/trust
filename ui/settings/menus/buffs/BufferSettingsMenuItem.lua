@@ -15,7 +15,7 @@ function BufferSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
         ButtonItem.default('Self', 18),
         ButtonItem.default('Party', 18),
         ButtonItem.default('Food', 18),
-        ButtonItem.default('Modes', 18),
+        ButtonItem.localized('Modes', i18n.translate('Button_Modes')),
     }, {}, nil, "Buffs", "Choose buffs to use."), BufferSettingsMenuItem)
     self.trust = trust
     self.trustSettings = trustSettings
