@@ -157,9 +157,6 @@ function Healer:cure_party_member(party_member, ignore_delay)
             or not party_member:is_alive() then
         return
     end
-    if ignore_delay then
-        print('ignoring delay')
-    end
     logger.notice(self.__class, 'cure_party_member', party_member:get_name())
 
     local missing_hp = party_member:get_max_hp() - party_member:get_hp()

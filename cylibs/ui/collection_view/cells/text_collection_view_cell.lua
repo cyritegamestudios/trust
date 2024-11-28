@@ -59,11 +59,6 @@ function TextCollectionViewCell:layoutIfNeeded()
 
     local isVisible = self:getAbsoluteVisibility() and self:isVisible()
     if isVisible then
-        --if self.textView:font() ~= self:getItem():getStyle():getFontName() then
-        --    print('updating font')
-        --    self.textView:font(self:getItem():getStyle():getFontName())
-        --end
-
         local position = self:getAbsolutePosition()
 
         local text = self:getItem():getLocalizedText()

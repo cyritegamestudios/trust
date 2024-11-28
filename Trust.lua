@@ -436,7 +436,7 @@ function load_ui()
 end
 
 function load_i18n_settings()
-	local locale = i18n.Locale.Japanese
+	local locale = i18n.Locale.English
 
 	local language = windower.ffxi.get_info().language
 	if language:lower() == 'japanese' then
