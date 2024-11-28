@@ -4,6 +4,7 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local ffxi_util = require('cylibs/util/ffxi_util')
 local RunToLocationAction = require('cylibs/actions/runtolocation')
 local SwitchTargetAction = require('cylibs/actions/switch_target')
+local Timer = require('cylibs/util/timers/timer')
 
 local Puller = setmetatable({}, {__index = Role })
 Puller.__index = Puller
@@ -34,8 +35,11 @@ function Puller.new(action_queue, target_names, pull_abilities, truster)
         Targets = target_names or L{},
     }
     self.truster = truster
+    self.target_timer = Timer.scheduledTimer(1, 0)
     self.last_pull_time = os.time() - 6
+
     self.dispose_bag = DisposeBag.new()
+    self.dispose_bag:addAny(L{ self.target_timer })
 
     return self
 end
@@ -73,12 +77,18 @@ function Puller:on_add()
         end), state.AutoTargetMode:on_state_change())
     end
 
+    self.dispose_bag:add(self.target_timer:onTimeChange():addAction(function(_)
+        self:check_target()
+    end, self.target_timer:onTimeChange()))
+
     self.dispose_bag:add(WindowerEvents.MobKO:addAction(function(mob_id, mob_name)
         if self:get_pull_target() and self:get_pull_target():get_id() == mob_id then
             self:set_pull_target(nil)
             self:return_to_camp()
         end
     end), WindowerEvents.MobKO)
+
+    self.target_timer:start()
 end
 
 function Puller:return_to_camp()
@@ -124,6 +134,10 @@ function Puller:tic(_, _)
 end
 
 function Puller:check_target()
+    if state.AutoPullMode.value == 'Off' then
+        return
+    end
+
     local next_target = self:get_pull_target()
     if not self:is_valid_target(next_target) then
         self:set_pull_target(nil)
