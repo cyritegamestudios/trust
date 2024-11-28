@@ -4,6 +4,7 @@ Targeter.__class = "Targeter"
 
 local DisposeBag = require('cylibs/events/dispose_bag')
 local SwitchTargetAction = require('cylibs/actions/switch_target')
+local Timer = require('cylibs/util/timers/timer')
 
 state.AutoTargetMode = M{['description'] = 'Auto Target Mode', 'Off', 'Auto', 'Mirror'}
 state.AutoTargetMode:set_description('Auto', "Okay, I'll automatically target a new monster after we defeat one.")
@@ -14,8 +15,11 @@ function Targeter.new(action_queue)
     local self = setmetatable(Role.new(action_queue), Targeter)
 
     self.action_queue = action_queue
+    self.target_timer = Timer.scheduledTimer(1, 0)
     self.last_checked_targets = os.time()
+
     self.dispose_bag = DisposeBag.new()
+    self.dispose_bag:addAny(L{ self.target_timer })
 
     return self
 end
@@ -54,6 +58,10 @@ function Targeter:on_add()
     self.dispose_bag:add(self:get_party():on_party_assist_target_change():addAction(function(_, assist_target)
         self:check_state_for_assist(assist_target)
     end), self:get_party():on_party_assist_target_change())
+
+    self.dispose_bag:add(self.target_timer:onTimeChange():addAction(function(_)
+        self:check_target()
+    end, self.target_timer:onTimeChange()))
 
     self.dispose_bag:add(WindowerEvents.MobKO:addAction(function(mob_id, mob_name)
         if self:get_target() and self:get_target():get_id() == mob_id then
@@ -97,7 +105,7 @@ function Targeter:tic(new_time, old_time)
 end
 
 function Targeter:check_target(override_current_target)
-    if state.AutoTargetMode.value == 'Off' or (not override_current_target and os.time() - self.last_checked_targets < 3) then
+    if state.AutoTargetMode.value == 'Off' or (not override_current_target and os.time() - self.last_checked_targets < 1) then
         return
     end
     self.last_checked_targets = os.time()
