@@ -3,4 +3,5 @@
 return T{
     ["Button_Modes"] = {singular="Modes"},
     ["Button_Profiles"] = {singular="Profiles"},
+    ["Button_Widget_Layout"] = {singular="Layout"},
 }, {"singular", "plural"}

@@ -11,7 +11,7 @@ local WidgetSettingsMenuItem = require('ui/settings/menus/widgets/WidgetSettings
 local ConfigSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 ConfigSettingsMenuItem.__index = ConfigSettingsMenuItem
 
-function ConfigSettingsMenuItem.new(addonSettings, mediaPlayer)
+function ConfigSettingsMenuItem.new(addonSettings, mediaPlayer, widgetManager)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Widgets', 18),
         ButtonItem.default('Logging', 18),
@@ -23,7 +23,7 @@ function ConfigSettingsMenuItem.new(addonSettings, mediaPlayer)
     self.disposeBag = DisposeBag.new()
     self.mediaPlayer = mediaPlayer
 
-    self:reloadSettings(addonSettings)
+    self:reloadSettings(addonSettings, widgetManager)
 
     return self
 end
@@ -32,8 +32,8 @@ function ConfigSettingsMenuItem:destroy()
     MenuItem.destroy(self)
 end
 
-function ConfigSettingsMenuItem:reloadSettings(addonSettings)
-    self:setChildMenuItem("Widgets", WidgetSettingsMenuItem.new(addonSettings))
+function ConfigSettingsMenuItem:reloadSettings(addonSettings, widgetManager)
+    self:setChildMenuItem("Widgets", WidgetSettingsMenuItem.new(addonSettings, widgetManager))
     self:setChildMenuItem("Logging", self:getLoggingMenuItem(addonSettings))
     self:setChildMenuItem("Remote", RemoteCommandsSettingsMenuItem.new(addonSettings))
     self:setChildMenuItem("Sounds", self:getSoundSettingsMenuItem(addonSettings))

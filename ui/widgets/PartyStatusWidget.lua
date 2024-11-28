@@ -278,6 +278,10 @@ function PartyStatusWidget:setPosition(x, y)
     self.rightArrowButton:setPosition(self:getSize().width, 3)
 end
 
+function PartyStatusWidget:getMaxHeight()
+    return 94
+end
+
 function PartyStatusWidget:hitTest(x, y)
     local success = Widget.hitTest(self, x, y)
     if success then
