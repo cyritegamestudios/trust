@@ -115,13 +115,9 @@ function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, a
         end), mode:on_state_change())
     end
 
-    self:getDisposeBag():add(self.gameInfo:onMenuChange():addAction(function(_, isMenuOpen)
-        if isMenuOpen then
-            --if self.addon_settings:getSettings().hud.auto_hide then
-            --    self.trustMenu:closeAll()
-            --end
-        end
-    end), self.gameInfo:onMenuChange())
+    self:getDisposeBag():add(i18n.onLocaleChanged():addAction(function(_)
+        self:reloadMainMenuItem()
+    end), i18n.onLocaleChanged())
 
     self:registerShortcuts()
 

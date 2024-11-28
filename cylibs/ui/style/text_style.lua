@@ -69,10 +69,7 @@ end
 -- @treturn string The font name.
 --
 function TextStyle:getFontName()
-    if i18n.current_locale() == i18n.Locale.Japanese then
-        return "MS Gothic"
-    end
-    return self.fontName
+    return i18n.font_for_locale(i18n.current_locale()) or self.fontName
 end
 
 ---

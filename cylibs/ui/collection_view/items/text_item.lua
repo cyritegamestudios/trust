@@ -186,6 +186,10 @@ function TextItem:getSettings()
         settings.text.font = "Arial"
     end
 
+    if i18n.current_locale() == i18n.Locale.Japanese then
+        settings.text.fonts = { "Meiryo", "Source Han Sans", "VL Gothic" }
+    end
+
     return settings
 end
 

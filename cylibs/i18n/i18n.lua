@@ -3,31 +3,51 @@
 -- @class module
 -- @name i18n
 
+local Event = require('cylibs/events/Luvent')
 local res = require('resources')
 
 local i18n = {}
 
 local locale = windower.ffxi.get_info().language
+local locale_changed = Event.newEvent()
 local translations = T{}
 
 i18n.Locale = {}
 i18n.Locale.English = 'en'
 i18n.Locale.Japanese = 'ja'
 
-function i18n.init(new_locale, translation_path)
+local fonts_for_locales = T{
+    [i18n.Locale.English] = "Arial",
+    [i18n.Locale.Japanese] = "MS Gothic",
+}
+
+-------
+-- Event called when the locale is changed.
+-- @tparam Luvent Event
+function i18n.onLocaleChanged()
+    return locale_changed
+end
+
+function i18n.init(new_locale, translation_path, font_map)
     locale = new_locale
     translations = require(translation_path)
+    fonts_for_locales = font_map
 end
 
 function i18n.current_locale()
     return locale
 end
 
+-------
+-- Sets the current locale.
+-- @tparam i18n.Locale locale Locale (e.g. 'en', 'jp')
 function i18n.set_current_locale(new_locale)
     if new_locale == locale then
         return
     end
     locale = new_locale
+
+    i18n.onLocaleChanged():trigger(new_locale)
 end
 
 -------
@@ -66,6 +86,15 @@ function i18n.resource(resource_name, key, value)
         return item[locale]
     end
     return 'Unknown'
+end
+
+-------
+-- Returns the font for the given locale.
+-- @tparam i18n.Locale locale Locale (e.g. 'en', 'jp')
+-- @treturn string Font name for the given locale
+function i18n.font_for_locale(locale)
+    local font_name = fonts_for_locales[locale]
+    return font_name or "Arial"
 end
 
 return i18n

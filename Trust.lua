@@ -442,7 +442,13 @@ function load_i18n_settings()
 	if language:lower() == 'japanese' then
 		locale = i18n.Locale.Japanese
 	end
-	i18n.init(locale, 'translations/'..locale)
+
+	local font_for_locale = {
+		[i18n.Locale.English] = addon_settings:getSettings().locales.font_names.english,
+		[i18n.Locale.Japanese] = addon_settings:getSettings().locales.font_names.japanese,
+	}
+
+	i18n.init(locale, 'translations/'..locale, font_for_locale)
 end
 
 function load_logger_settings()
