@@ -123,9 +123,9 @@ function WidgetSettingsMenuItem:getLayoutMenuItem()
                 if widget then
                     local xPos
                     if newSettings.Alignment == 'Left' then
-                        xPos = 4
+                        xPos = 16
                     else
-                        xPos = windower.get_windower_settings().ui_x_res - widget:getSize().width - 4
+                        xPos = windower.get_windower_settings().ui_x_res - widget:getSize().width - 16
                     end
 
                     widget:setPosition(xPos, yPos)
