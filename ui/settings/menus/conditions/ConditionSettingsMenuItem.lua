@@ -62,6 +62,7 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
         [SkillchainWindowCondition.__type] = "skillchain_window",
         [SkillchainStepCondition.__type] = "skillchain_step",
         [InTownCondition.__type] = "in_town",
+        [BeginCastCondition.__type] = "begin_cast",
     }
     self.conditionPickerItems = L(self.editableConditionClasses:keyset()):filter(function(c)
         local conditionClass = self:getFileForCondition(c)

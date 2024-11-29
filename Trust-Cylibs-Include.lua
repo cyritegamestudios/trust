@@ -46,6 +46,7 @@ Gambit = require('cylibs/gambits/gambit')
 
 -- Conditions
 Condition = require('cylibs/conditions/condition')
+BeginCastCondition = require('cylibs/conditions/begin_cast')
 CombatSkillsCondition = require('cylibs/conditions/combat_skills')
 InBattleCondition = require('cylibs/conditions/in_battle')
 IdleCondition = require('cylibs/conditions/idle')
