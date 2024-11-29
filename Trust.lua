@@ -823,8 +823,10 @@ function loaded()
 		user_events.job_change = windower.register_event('job change', handle_job_change)
 		user_events.zone_change = windower.register_event('zone change', handle_zone_change)
     end
-	
-	windower.send_command('bind %s trust menu':format(addon_settings:getSettings().menu_key))
+
+	coroutine.schedule(function()
+		windower.send_command('bind %s trust menu':format(addon_settings:getSettings().menu_key))
+	end, 0.2)
 end
 
 windower.register_event('addon command', addon_command)
