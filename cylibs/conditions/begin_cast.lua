@@ -1,5 +1,5 @@
 ---------------------------
--- Condition checking whether a target is readying a given ability.
+-- Condition checking whether a target begins casting a spell.
 -- @class module
 -- @name BeginCastCondition
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
@@ -30,7 +30,6 @@ function BeginCastCondition:get_config_items()
         return spell.name
     end)
     all_spell_names = L(S(all_spell_names))
-    all_spell_names = L{ 'Cure' } + L(all_spell_names)
     all_spell_names:sort()
     return L{
         PickerConfigItem.new('spell_name', self.spell_name, all_spell_names, function(spell_name)
