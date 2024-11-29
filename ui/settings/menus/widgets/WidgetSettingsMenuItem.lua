@@ -116,7 +116,7 @@ function WidgetSettingsMenuItem:getLayoutMenuItem()
         self.disposeBag:add(configEditor:onConfigChanged():addAction(function(newSettings, _)
             local widgetManager = self.widgetManager or hud.widgetManager
 
-            local yPos = windower.get_windower_settings().ui_y_res / 2 - 40
+            local yPos = windower.get_windower_settings().ui_y_res / 2 - 75
 
             for widgetName in L{ 'Trust', 'Party', 'Target' }:it() do
                 local widget = widgetManager:getWidget(widgetName)
