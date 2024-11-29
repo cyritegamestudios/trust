@@ -1,3 +1,4 @@
+local list_ext = require('cylibs/util/extensions/lists')
 local logger = require('cylibs/logger/logger')
 
 local GambitTarget = require('cylibs/gambits/gambit_target')
@@ -72,6 +73,36 @@ function Gambiter:on_add()
 
                 self:check_gambits(L{ target }, gambits, ability.en)
             end
+        end
+    end)
+
+    WindowerEvents.Spell.Begin:addAction(function(target_id, spell_id)
+        if spell_id == nil or self:get_party():get_party_member(target_id) == nil then
+            return
+        end
+
+        local valid_targets = L(BeginCastCondition.valid_targets():map(function(target_type)
+            return self:get_gambit_targets(target_type)
+        end)):flatten(false)
+        if not valid_targets:firstWhere(function(target)
+            return target:get_id() == target_id
+        end) then
+            return
+        end
+
+        local spell = res.spells[spell_id]
+        if spell then
+            logger.notice(self.__class, 'spell_begin', 'check_gambits', spell.en)
+            local gambits = self:get_all_gambits():filter(function(gambit)
+                for condition in gambit:getConditions():it() do
+                    if condition.__type == BeginCastCondition.__type then
+                        return true
+                    end
+                    return false
+                end
+            end)
+
+            self:check_gambits(L{ self:get_party():get_party_member(target_id) }, gambits, spell.en)
         end
     end)
 

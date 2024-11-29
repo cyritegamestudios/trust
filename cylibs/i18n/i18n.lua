@@ -59,6 +59,8 @@ function i18n.set_current_locale(new_locale)
     end
     locale = new_locale
 
+    translations[new_locale] = require(translations_for_locales[new_locale])
+
     i18n.onLocaleChanged():trigger(new_locale)
 end
 

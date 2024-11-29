@@ -68,6 +68,11 @@ function TrustScenarios:add_scenario(name)
             local scenario = Nyzul.new(self.action_queue, self.addon_settings, self.party, self.trust, hud.widgetManager)
             self.scenarios:append(scenario)
             self:start_scenario(scenario)
+        elseif name == 'sheol' then
+            local Sheol = require('scenarios/data/sheol/sheol')
+            local scenario = Sheol.new(self.action_queue, self.addon_settings, self.party, self.trust, hud.widgetManager)
+            self.scenarios:append(scenario)
+            self:start_scenario(scenario)
         end
     end
 end

@@ -132,6 +132,10 @@ function Widget:setPosition(x, y)
     end
 end
 
+function Widget:getMaxHeight()
+    return nil
+end
+
 function Widget:isExpanded()
     return self.expanded
 end

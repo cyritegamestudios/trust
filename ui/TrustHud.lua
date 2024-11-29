@@ -323,7 +323,7 @@ function TrustHud:getMainMenuItem()
         ButtonItem.default('Config', 18),
     }, {
         Profiles = LoadSettingsMenuItem.new(self.addon_settings, self.trustModeSettings, main_trust_settings, weapon_skill_settings, sub_trust_settings),
-        Config = ConfigSettingsMenuItem.new(self.addon_settings, self.mediaPlayer),
+        Config = ConfigSettingsMenuItem.new(self.addon_settings, self.mediaPlayer, self.widgetManager),
     }, nil, "Jobs")
 
     self.mainMenuItem = mainMenuItem
@@ -682,9 +682,6 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
         Debug = debugMenuItem,
     },
     nil, "Help", "Get help using Trust.")
-
-    -- Config
-    local configSettingsItem = ConfigSettingsMenuItem.new(self.addon_settings, self.mediaPlayer)
 
     -- Main
     local mainMenuItem = MenuItem.new(L{

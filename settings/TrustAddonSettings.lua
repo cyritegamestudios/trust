@@ -32,6 +32,7 @@ default.help.wiki_base_url = 'https://github.com/cyritegamestudios/trust/wiki'
 default.logging = {}
 default.logging.enabled = false
 default.logging.logtofile = false
+default.logging.filter_pattern = ''
 default.menu_key = '%^numpad+'
 default.autocomplete = {}
 default.autocomplete.visible = true

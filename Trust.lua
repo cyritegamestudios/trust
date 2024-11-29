@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '12.5.2'
+_addon.version = '12.5.3'
 _addon.release_notes = [[
 This update introduces new menus for Bard, autocomplete for Trust
 commands, new commands and important bug fixes for users running the
@@ -823,8 +823,10 @@ function loaded()
 		user_events.job_change = windower.register_event('job change', handle_job_change)
 		user_events.zone_change = windower.register_event('zone change', handle_zone_change)
     end
-	
-	windower.send_command('bind %s trust menu':format(addon_settings:getSettings().menu_key))
+
+	coroutine.schedule(function()
+		windower.send_command('bind %s trust menu':format(addon_settings:getSettings().menu_key))
+	end, 0.2)
 end
 
 windower.register_event('addon command', addon_command)

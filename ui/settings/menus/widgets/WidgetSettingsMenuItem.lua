@@ -6,20 +6,22 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local Keyboard = require('cylibs/ui/input/keyboard')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
+local WidgetManager = require('ui/widgets/WidgetManager')
 
 local WidgetSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 WidgetSettingsMenuItem.__index = WidgetSettingsMenuItem
 
-function WidgetSettingsMenuItem.new(addonSettings)
+function WidgetSettingsMenuItem.new(addonSettings, widgetManager)
     local widgetNames = L{ 'Trust', 'Party', 'Target', 'Pet' }
 
-    local buttonItems = widgetNames:map(function(widgetName)
+    local buttonItems = L{ ButtonItem.localized('Layout', i18n.translate("Button_Widget_Layout")) } + widgetNames:map(function(widgetName)
         return ButtonItem.default(widgetName, 18)
     end)
 
     local self = setmetatable(MenuItem.new(buttonItems, {}, nil, "Widgets", "Configure widget settings."), WidgetSettingsMenuItem)
 
     self.addonSettings = addonSettings
+    self.widgetManager = widgetManager
     self.widgetNames = widgetNames
     self.disposeBag = DisposeBag.new()
 
@@ -38,6 +40,7 @@ function WidgetSettingsMenuItem:reloadSettings()
     for widgetName in self.widgetNames:it() do
         self:setChildMenuItem(widgetName, self:getWidgetMenuItem(widgetName))
     end
+    self:setChildMenuItem("Layout", self:getLayoutMenuItem())
 end
 
 function WidgetSettingsMenuItem:getWidgetMenuItem(widgetName)
@@ -91,6 +94,55 @@ function WidgetSettingsMenuItem:getWidgetMenuItem(widgetName)
     end
 
     return widgetMenuItem
+end
+
+function WidgetSettingsMenuItem:getLayoutMenuItem()
+    local layoutMenuItem = MenuItem.new(L{
+        ButtonItem.default('Save')
+    }, {}, function(menuArgs)
+        local allAlignments = L{ 'Left', 'Right' }
+
+        local layoutSettings = {
+            Alignment = allAlignments[1]
+        }
+
+        local configItems = L{
+            PickerConfigItem.new('Alignment', layoutSettings.Alignment, allAlignments, function(alignment)
+                return alignment
+            end, "Alignment"),
+        }
+        local configEditor = ConfigEditor.new(nil, layoutSettings, configItems)
+
+        self.disposeBag:add(configEditor:onConfigChanged():addAction(function(newSettings, _)
+            local widgetManager = self.widgetManager or hud.widgetManager
+
+            local yPos = windower.get_windower_settings().ui_y_res / 2 - 75
+
+            for widgetName in L{ 'Trust', 'Party', 'Target' }:it() do
+                local widget = widgetManager:getWidget(widgetName)
+                if widget then
+                    local xPos
+                    if newSettings.Alignment == 'Left' then
+                        xPos = 16
+                    else
+                        xPos = windower.get_windower_settings().ui_x_res - widget:getSize().width - 16
+                    end
+
+                    widget:setPosition(xPos, yPos)
+                    widget:getSettings(self.addonSettings).x = xPos
+                    widget:getSettings(self.addonSettings).y = yPos
+
+                    yPos = yPos + (widget:getMaxHeight() or widget:getSize().height) + 5
+                end
+            end
+
+            self.addonSettings:saveSettings(true)
+
+        end), configEditor:onConfigChanged())
+
+        return configEditor
+    end, "Widgets", "Group and arrange widgets on the screen.")
+    return layoutMenuItem
 end
 
 return WidgetSettingsMenuItem

@@ -61,7 +61,7 @@ function WidgetManager:removeWidget(widgetName)
 end
 
 function WidgetManager:getWidget(widgetName)
-    return self.widgets[widgetName]
+    return self.widgets[widgetName] or self.widgets[widgetName:lower()]
 end
 
 function WidgetManager:getAllWidgets()

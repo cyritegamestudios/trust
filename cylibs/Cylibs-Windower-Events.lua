@@ -100,6 +100,13 @@ local incoming_event_dispatcher = {
             if res.monster_abilities[act.targets[1].actions[1].param] then
                 WindowerEvents.Ability.Ready:trigger(act.actor_id, act.targets[1].actions[1].param)
             end
+        elseif act.category == 8 then
+            if act.targets[1] and act.targets[1].actions[1] then
+                local spell_id = act.targets[1].actions[1].param
+                if res.spells[spell_id] then
+                    WindowerEvents.Spell.Begin:trigger(act.actor_id, spell_id)
+                end
+            end
         elseif act.category == 11 then
             if res.monster_abilities[act.param] then
                 WindowerEvents.Ability.Finish:trigger(act.actor_id, act.param)
