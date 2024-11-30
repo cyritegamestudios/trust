@@ -18,6 +18,7 @@ local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local FFXISoundTheme = require('sounds/FFXISoundTheme')
 local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
 local FollowSettingsMenuItem = require('ui/settings/menus/FollowSettingsMenuItem')
+local FoodSettingsMenuItem = require('ui/settings/menus/buffs/FoodSettingsMenuItem')
 local Frame = require('cylibs/ui/views/frame')
 local GambitSettingsMenuItem = require('ui/settings/menus/gambits/GambitSettingsMenuItem')
 local GameInfo = require('cylibs/util/ffxi/game_info')
@@ -476,6 +477,9 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         menuItems:append(ButtonItem.default('Following', 18))
         childMenuItems.Following = self:getMenuItemForRole(trust:role_with_type("follower"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode, trustModeSettings)
     end
+
+    menuItems:append(ButtonItem.default('Food', 18))
+    childMenuItems.Food = FoodSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSettings)
 
     if trust:role_with_type("truster") then
         menuItems:append(ButtonItem.default('Alter Egos', 18))
