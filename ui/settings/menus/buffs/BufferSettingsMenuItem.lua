@@ -1,8 +1,6 @@
 local BuffSettingsMenuItem = require('ui/settings/menus/buffs/BuffSettingsMenuItem')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local DisposeBag = require('cylibs/events/dispose_bag')
-local FoodSettingsMenuItem = require('ui/settings/menus/buffs/FoodSettingsMenuItem')
-local JobAbilitiesSettingsMenuItem = require('ui/settings/menus/buffs/JobAbilitiesSettingsMenuItem')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 local SpellSettingsEditor = require('ui/settings/SpellSettingsEditor')
@@ -14,7 +12,6 @@ function BufferSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Self', 18),
         ButtonItem.default('Party', 18),
-        ButtonItem.default('Food', 18),
         ButtonItem.localized('Modes', i18n.translate('Button_Modes')),
     }, {}, nil, "Buffs", "Choose buffs to use."), BufferSettingsMenuItem)
     self.trust = trust
@@ -39,7 +36,6 @@ end
 function BufferSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Self", self:getSelfBuffsMenuItem())
     self:setChildMenuItem("Party", self:getPartyBuffsMenuItem())
-    self:setChildMenuItem("Food", self:getFoodMenuItem())
     self:setChildMenuItem("Modes", self:getModesMenuItem())
 end
 
@@ -54,11 +50,6 @@ function BufferSettingsMenuItem:getPartyBuffsMenuItem()
         return not S{ 'BLU','BST','COR','DNC','DRG','DRK','GEO','MNK','PUP','SAM','THF','NIN','WAR' }:contains(self.trust:get_job().jobNameShort)
     end
     return partyBuffSettingsItem
-end
-
-function BufferSettingsMenuItem:getFoodMenuItem()
-    local foodSettingsMenuItem = FoodSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, self.trustModeSettings)
-    return foodSettingsMenuItem
 end
 
 function BufferSettingsMenuItem:getModesMenuItem()
