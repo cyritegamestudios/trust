@@ -102,7 +102,6 @@ function Alliance:monitor()
             if alliance_member:get_mob() then
                 local party = self:get_party(alliance_member:get_name()) --or self:get_parties()[alliance_member:get_party_index()]
                 if party then
-                    print('adding', alliance_member:get_name())
                     party:add_party_member(alliance_member:get_id(), alliance_member:get_name())
                 end
             end
