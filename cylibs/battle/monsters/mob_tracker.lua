@@ -162,7 +162,6 @@ end
 function MobTracker:prune_mobs()
     local mob_ids_to_remove = L{}
     for id, mob in pairs(self.mobs) do
-        print(mob:get_mob().claim_id)
         if not battle_util.is_valid_target(id) or mob:get_mob().claim_id == nil or not self.player_ids:contains(mob:get_mob().claim_id) or L{ 'Idle' }:contains(mob:get_status()) and mob:get_distance():sqrt() > 50 then
             mob_ids_to_remove:append(id)
         end

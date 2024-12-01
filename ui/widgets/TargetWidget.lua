@@ -126,7 +126,6 @@ function TargetWidget.new(frame, addonSettings, party, trust)
 
     self:getDisposeBag():add(party:on_party_target_change():addAction(function(_, target_index, _)
         self:setAction('')
-        print('target widget is now', target_index)
         self:setTarget(target_index)
     end, party:on_party_target_change()))
 

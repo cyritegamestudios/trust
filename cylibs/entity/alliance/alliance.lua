@@ -258,15 +258,12 @@ function Alliance:get_party_index(alliance_member_name)
             if party_member.name == alliance_member_name then
                 if string.match(key, "p[0-5]") then
                     party_index = 1
-                    --print(alliance_member_name, 'is', 'p1')
                     break
                 elseif string.match(key, "a[10-15]") then
-                    --print(alliance_member_name, 'is', 'p2')
                     party_index = 2
                     break
                 elseif string.match(key, "a[20-25]") then
                     party_index = 3
-                    --print(alliance_member_name, 'is', 'p3')
                     break
                 end
             end
@@ -296,6 +293,10 @@ function Alliance:get_parties()
     return self.parties
 end
 
+-------
+-- Returns whether the target is claimed by an alliance member.
+-- @tparam number target_index Target index
+-- @treturn Monster Monster targeted by the alliance, or nil if not alliance targeted
 function Alliance:get_target_by_index(target_index)
     for party in self:get_parties():it() do
         local target = party:get_target_by_index(target_index)
@@ -304,6 +305,22 @@ function Alliance:get_target_by_index(target_index)
         end
     end
     return nil
+end
+
+-------
+-- Returns whether the target is claimed by an alliance member.
+-- @tparam number target_index Target index
+-- @treturn boolean True if the target is claimed by an alliance member
+function Alliance:is_claimed(target_index)
+    local target = windower.ffxi.get_mob_by_index(target_index)
+    if target and target.claim_id then
+        for party in self:get_parties():it() do
+            if party:get_party_member(target.claim_id) then
+                return true
+            end
+        end
+    end
+    return false
 end
 
 return Alliance
