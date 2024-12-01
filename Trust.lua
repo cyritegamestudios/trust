@@ -690,6 +690,12 @@ function handle_command(args)
 end
 
 function handle_debug()
+	local mob = windower.ffxi.get_mob_by_id(203893)
+	if mob then
+		print(mob.name)
+	else
+		print('nil')
+	end
 	--[[local UrlRequest = require('cylibs/util/network/url_request')
 
 	local request = UrlRequest.new('GET', 'https://raw.githubusercontent.com/cyritegamestudios/trust/main/manifest.json', {})
