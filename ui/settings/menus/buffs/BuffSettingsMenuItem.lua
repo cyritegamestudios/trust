@@ -61,7 +61,7 @@ function BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, setti
                         return condition:tostring()
                     end)
                     description = "Use when: "..localization_util.commas(description)
-                    if buff:get_job_abilities():length() > 0 then
+                    if buff.get_job_abilities and buff:get_job_abilities():length() > 0 then
                         description = description..", Use with: "..localization_util.commas(buff:get_job_abilities(), 'and')
                     end
                     infoView:setDescription(description)
