@@ -80,6 +80,16 @@ function Buffer:range_check(spell)
     end
 end
 
+function Buffer:main_job_check(spell)
+    local main_job_condition = spell:get_conditions():firstWhere(function(condition)
+        return condition.__type == MainJobCondition.__type
+    end)
+    if main_job_condition then
+        return main_job_condition:is_satisfied(windower.ffxi.get_player().index)
+    end
+    return true
+end
+
 function Buffer:conditions_check(spell, buff, target)
     if target == nil then
         return false
@@ -88,10 +98,7 @@ function Buffer:conditions_check(spell, buff, target)
         MaxDistanceCondition.new(spell:get_range(), target.index),
         NotCondition.new(L{ HasBuffCondition.new(buff.name, target.index) })
     }:extend(spell:get_conditions()):filter(function(condition)
-        if condition.__type == MainJobCondition.__type then
-            return target.id == windower.ffxi.get_player().id
-        end
-        return true
+        return condition.__type ~= MainJobCondition.__type
     end)
     for condition in conditions:it() do
         if not condition:is_satisfied(target.index) then
@@ -126,7 +133,7 @@ function Buffer:check_buffs()
             local buff = buff_util.buff_for_job_ability(job_ability:get_job_ability_id())
             if buff and job_ability:isEnabled() and not buff_util.is_buff_active(buff.id, player_buff_ids)
                     and not buff_util.conflicts_with_buffs(buff.id, player_buff_ids) then
-                if job_util.can_use_job_ability(job_ability:get_job_ability_name()) and self:conditions_check(job_ability, buff, windower.ffxi.get_player()) then
+                if job_util.can_use_job_ability(job_ability:get_job_ability_name()) and self:main_job_check(job_ability) and self:conditions_check(job_ability, buff, windower.ffxi.get_player()) then
                     self.last_buff_time = os.time()
                     self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, job_ability:get_job_ability_name()), true)
                     return
@@ -149,7 +156,7 @@ function Buffer:check_buffs()
                     and spell_util.can_cast_spell(spell:get_spell().id) then
                 if self:range_check(spell) then
                     local target = self:get_spell_target(spell)
-                    if target and self:conditions_check(spell, buff, target) then
+                    if target and self:main_job_check(spell) and self:conditions_check(spell, buff, target) then
                         if self:cast_spell(spell, target.index) then
                             return
                         end
@@ -171,7 +178,7 @@ function Buffer:check_buffs()
                             and not (buff_util.conflicts_with_buffs(buff.id, party_member:get_buff_ids()))
                             and spell_util.can_cast_spell(spell:get_spell().id) then
                         local target = party_member:get_mob()
-                        if target and self:conditions_check(spell, buff, target) then
+                        if target and self:main_job_check(spell) and self:conditions_check(spell, buff, target) then
                             if self:cast_spell(spell, target.index) then
                                 return
                             end
