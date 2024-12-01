@@ -48,7 +48,7 @@ function MainJobCondition:tostring()
 end
 
 function MainJobCondition.description()
-    return "Main job is X."
+    return "Player main job is X."
 end
 
 function MainJobCondition.valid_targets()
