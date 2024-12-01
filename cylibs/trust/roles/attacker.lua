@@ -67,6 +67,7 @@ function Attacker:check_engage()
         if state.AutoEngageMode.value == 'Always' then
             self:attack_mob(target)
         elseif state.AutoEngageMode.value == 'Mirror' then
+            print(self:get_party():get_assist_target():get_name())
             if self:get_party():get_assist_target():get_status() == 'Engaged' then
                 self:attack_mob(target)
             end

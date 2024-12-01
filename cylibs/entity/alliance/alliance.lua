@@ -258,12 +258,15 @@ function Alliance:get_party_index(alliance_member_name)
             if party_member.name == alliance_member_name then
                 if string.match(key, "p[0-5]") then
                     party_index = 1
+                    --print(alliance_member_name, 'is', 'p1')
                     break
                 elseif string.match(key, "a[10-15]") then
+                    --print(alliance_member_name, 'is', 'p2')
                     party_index = 2
                     break
                 elseif string.match(key, "a[20-25]") then
                     party_index = 3
+                    --print(alliance_member_name, 'is', 'p3')
                     break
                 end
             end
@@ -291,6 +294,16 @@ end
 -- @treturn list List of Party (see party.lua)
 function Alliance:get_parties()
     return self.parties
+end
+
+function Alliance:get_target_by_index(target_index)
+    for party in self:get_parties():it() do
+        local target = party:get_target_by_index(target_index)
+        if target then
+            return target
+        end
+    end
+    return nil
 end
 
 return Alliance
