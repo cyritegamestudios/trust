@@ -279,16 +279,13 @@ function Party:set_assist_target(party_member)
     if party_member then
         self.assist_target_dispose_bag:add(party_member:on_target_change():addAction(function(p, new_target_index, old_target_index)
             logger.notice(self.__class, 'set_assist_target', 'on_target_change', p:get_name(), new_target_index)
-            print(p:get_name(), 'assist target', self:get_assist_target():is_valid())
             if self:get_assist_target() and self:get_assist_target():is_valid() and p:get_name() == self:get_assist_target():get_name() then
-                print('party is now targeting', new_target_index)
                 logger.notice(self.__class, 'set_assist_target', 'on_party_target_change', p:get_name(), new_target_index)
                 self:on_party_target_change():trigger(self, new_target_index, old_target_index)
             end
         end), party_member:on_target_change())
 
         local party_targets = self.target_tracker:get_targets():filter(function(m) return m:is_claimed() end)
-
         local initial_target_index = party_member:get_target_index() or party_targets:length() > 0 and party_targets[1]:get_mob().index
         if initial_target_index then
             self:on_party_target_change():trigger(self, initial_target_index, nil)
