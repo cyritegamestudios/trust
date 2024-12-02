@@ -77,7 +77,7 @@ function PartyStatusWidget.new(frame, addonSettings, alliance, party, trust, med
             local party_member = self.alliance:get_alliance_member_named(item:getText())
             if party_member then
                 if party_member:get_name() == windower.ffxi.get_player().name then
-                    local playerMenuItem = PlayerMenuItem.new(party_member, self.party, addonSettings:getSettings().remote_commands.whitelist, trust)
+                    local playerMenuItem = PlayerMenuItem.new(party_member, party, addonSettings:getSettings().remote_commands.whitelist, trust)
                     coroutine.schedule(function()
                         self:resignFocus()
                         hud:closeAllMenus()
@@ -86,7 +86,7 @@ function PartyStatusWidget.new(frame, addonSettings, alliance, party, trust, med
                 elseif party_member:is_trust() then
                     party:set_assist_target(party_member)
                 else
-                    local partyMemberMenuItem = PartyMemberMenuItem.new(party_member, self.party, addonSettings:getSettings().remote_commands.whitelist, trust)
+                    local partyMemberMenuItem = PartyMemberMenuItem.new(party_member, party, addonSettings:getSettings().remote_commands.whitelist, trust)
                     coroutine.schedule(function()
                         self:resignFocus()
                         hud:closeAllMenus()
@@ -191,8 +191,6 @@ function PartyStatusWidget:set_party(party, force_update)
 
     self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
 
-    --self:updateButtons()
-
     --[[local on_position_change = function(p, x, y, z)
         if S(self.party_member_names):contains(p:get_name()) then
             if p:get_id() == windower.ffxi.get_player().id then
@@ -218,10 +216,6 @@ function PartyStatusWidget:set_party(party, force_update)
     self.partyDisposeBag:add(self.party:on_party_member_added():addAction(function(party_member)
         self:set_party_member_names(self.party:get_party_members(is_primary_party):map(function(p) return p:get_name() end))
     end), self.party:on_party_member_added())]]
-
-
-
-    --self:set_party_member_names(self.party:get_party_members(is_primary_party):map(function(p) return p:get_name() end))
 end
 
 function PartyStatusWidget:is_enabled(party_member_name)
