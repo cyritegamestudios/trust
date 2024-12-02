@@ -125,6 +125,7 @@ function TargetWidget.new(frame, addonSettings, party, trust)
     end), self.actionQueue:on_action_end())
 
     self:getDisposeBag():add(party:on_party_target_change():addAction(function(_, target_index, _)
+        print('party target change')
         self:setAction('')
         self:setTarget(target_index)
     end, party:on_party_target_change()))

@@ -324,8 +324,8 @@ end
 -- Returns whether the target is claimed by an alliance member.
 -- @tparam number target_index Target index
 -- @treturn boolean True if the target is claimed by an alliance member
-function Alliance:is_claimed(target_index)
-    local target = windower.ffxi.get_mob_by_index(target_index)
+function Alliance:is_claimed(target_id)
+    local target = windower.ffxi.get_mob_by_id(target_id)
     if target and target.claim_id then
         for party in self:get_parties():it() do
             if party:get_party_member(target.claim_id) then

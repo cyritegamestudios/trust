@@ -61,7 +61,7 @@ end
 
 function Role:get_target()
     if self.target_index then
-        return self:get_party():get_target_by_index(self.target_index)
+        return self:get_alliance():get_target_by_index(self.target_index)
     end
     return nil
 end
