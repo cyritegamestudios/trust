@@ -32,12 +32,15 @@ function ImageTextCollectionViewCell:layoutIfNeeded()
         return false
     end
 
-    local xPos = self:getItem():getImageItem():getSize().width + self:getItem():getSpacing()
+    local xPos = self:getItem():getImageItem():getSize().width + self:getItem():getSpacing() + self:getItem():getOffset().x
     self.textView:setPosition(xPos, 0)
     self.textView:setSize(self:getSize().width - xPos, self:getSize().height)
     self.textView:setVisible(self:isVisible())
     self.textView:setNeedsLayout()
     self.textView:layoutIfNeeded()
+
+    self.imageView:setPosition(0, self:getItem():getOffset().y)
+    self.imageView:layoutIfNeeded()
 
     return true
 end

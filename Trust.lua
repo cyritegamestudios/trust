@@ -690,11 +690,10 @@ function handle_command(args)
 end
 
 function handle_debug()
-	local mob = windower.ffxi.get_mob_by_id(203893)
-	if mob then
-		print(mob.name)
-	else
-		print('nil')
+	for key, party_member in pairs(windower.ffxi.get_party()) do
+		if type(party_member) == 'table' then
+			print(key, party_member.name)
+		end
 	end
 	--[[local UrlRequest = require('cylibs/util/network/url_request')
 
