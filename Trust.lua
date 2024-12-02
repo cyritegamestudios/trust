@@ -695,6 +695,11 @@ function handle_debug()
 			print(key, party_member.name)
 		end
 	end
+
+	for party in player.alliance:get_parties():it() do
+		print('targets', party:get_targets())
+	end
+
 	--[[local UrlRequest = require('cylibs/util/network/url_request')
 
 	local request = UrlRequest.new('GET', 'https://raw.githubusercontent.com/cyritegamestudios/trust/main/manifest.json', {})
