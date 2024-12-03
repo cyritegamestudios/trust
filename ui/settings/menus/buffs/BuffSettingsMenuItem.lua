@@ -246,7 +246,7 @@ function BuffSettingsMenuItem:getEditBuffMenuItem()
             end
         end
         return nil
-    end, "Buffs", "Edit abilities to use with the buff.", false, function()
+    end, "Buffs", "Edit abilities to use with the selected buff.", false, function()
         return self.buffs and self.buffs:length() > 0
     end)
     editBuffMenuItem.enabled = function()

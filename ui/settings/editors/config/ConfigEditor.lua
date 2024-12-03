@@ -325,11 +325,10 @@ function ConfigEditor:onConfirmClick(skipSave)
     end
 
     if not self.validator(self.configSettings) then
-        print('no')
         self:onConfigValidationError():trigger()
         return
     end
-    print('confirm')
+
     self:onConfigConfirm():trigger(self.configSettings, originalSettings)
 
     if self.configSettings ~= originalSettings then
