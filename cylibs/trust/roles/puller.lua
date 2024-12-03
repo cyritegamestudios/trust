@@ -78,6 +78,9 @@ function Puller:on_add()
     end
 
     self.dispose_bag:add(self.target_timer:onTimeChange():addAction(function(_)
+        if not addon_enabled:getValue() then
+            return
+        end
         self:check_target()
     end, self.target_timer:onTimeChange()))
 
