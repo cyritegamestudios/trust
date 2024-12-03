@@ -77,7 +77,7 @@ function PartyStatusWidget.new(frame, addonSettings, alliance, party, trust, med
             local party_member = self.alliance:get_alliance_member_named(item:getText())
             if party_member then
                 if party_member:get_name() == windower.ffxi.get_player().name then
-                    local playerMenuItem = PlayerMenuItem.new(party_member, party, addonSettings:getSettings().remote_commands.whitelist, trust)
+                    local playerMenuItem = PlayerMenuItem.new(party_member, party, alliance, addonSettings:getSettings().remote_commands.whitelist, trust)
                     coroutine.schedule(function()
                         self:resignFocus()
                         hud:closeAllMenus()

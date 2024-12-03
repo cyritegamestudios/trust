@@ -251,6 +251,10 @@ function Healer:get_type()
     return "healer"
 end
 
+function Healer:get_localized_name()
+    return "Healing"
+end
+
 function Healer:get_job()
     return self.main_job
 end

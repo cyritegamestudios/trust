@@ -171,7 +171,7 @@ function Buffer:check_buffs()
     -- Spells (party buffs)
     if self.party_spells_enabled then
         for party_member in self:get_party():get_party_members(false, 21):it() do
-            if party_member:is_alive() then
+            if party_member:is_alive() and not S(self.party_member_blacklist):contains(party_member:get_name()) then
                 for spell in self.party_spells:it() do
                     local buff = buff_util.buff_for_spell(spell:get_spell().id)
                     if buff and spell:isEnabled() and not (party_member:has_buff(buff.id) or (party_member:is_trust() and self.buff_tracker:has_buff(party_member:get_mob().id, buff.id)))
@@ -291,6 +291,10 @@ end
 
 function Buffer:get_type()
     return "buffer"
+end
+
+function Buffer:get_localized_name()
+    return "Buffing"
 end
 
 function Buffer:tostring()

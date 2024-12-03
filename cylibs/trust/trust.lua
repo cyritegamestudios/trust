@@ -82,6 +82,18 @@ function Trust:destroy()
 end
 
 function Trust:on_init()
+	for party in self:get_alliance():get_parties():it() do
+		if party:get_player() == nil then
+			party:on_party_member_added():addAction(function(p)
+				for role in self.roles:it() do
+					if role.get_party_member_blacklist then
+						print('adding', p:get_name(), 'to blacklist for', role:get_type())
+						role:get_party_member_blacklist():append(p:get_name())
+					end
+				end
+			end)
+		end
+	end
 end
 
 function Trust:on_deinit()
