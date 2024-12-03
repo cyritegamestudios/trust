@@ -274,14 +274,13 @@ local incoming_event_dispatcher = {
         for i = 1, 18 do
             local id = packet['ID '..i]
             if id and id ~= 0 then
-                alliance_members:append(AllianceMember.new(id, packet['Index '..i], packet['Zone '..i], math.ceil(i / 6)))
+                alliance_members:append(AllianceMember.new(id, packet['Index '..i], packet['Zone '..i]))
             end
         end
 
         coroutine.schedule(function()
             WindowerEvents.AllianceMemberListUpdate:trigger(alliance_members)
 
-            -- NOTE: this might actually be incorrect if some parties are half full
             local alliance_index = 1
             for alliance_member in alliance_members:it() do
                 local party_member_info = party_util.get_party_member_info(alliance_member:get_id())
