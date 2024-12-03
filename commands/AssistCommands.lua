@@ -43,6 +43,8 @@ function AssistTrustCommands:handle_assist_player(party_member_name, mirror)
     local success
     local message
 
+    party_member_name = party_member_name:gsub("^%l", string.upper)
+
     local alliance_member = self.trust:get_alliance():get_alliance_member_named(party_member_name)
     if alliance_member then
         success = true

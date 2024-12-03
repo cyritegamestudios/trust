@@ -177,7 +177,7 @@ function PartyStatusWidget:set_party(party, force_update)
 
     local itemsToAdd = IndexedItem.fromItems(L(self.party:map(function(party_member_info)
         local item = TextItem.new(party_member_info.name, PartyStatusWidget.TextSmall)
-        item:setEnabled(self:is_enabled(party_member_info.name))
+        --item:setEnabled(self:is_enabled(party_member_info.name))
         if party_member_info.name == assist_target.name then
             item = ImageTextItem.new(ImageItem.new(windower.addon_path..'assets/icons/icon_assist_target.png', 6, 6), item, 0, Frame.new(-4, 8))
         end

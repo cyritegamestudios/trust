@@ -83,7 +83,7 @@ function Debuffer:check_debuffs()
     end
 
     local battle_target = self:get_target()
-    if battle_target and battle_target:is_claimed() then
+    if battle_target and battle_target:is_claimed_by(self:get_alliance()) then
         logger.notice(self.__class, 'check_debuffs', battle_target:get_name())
         for spell in self.debuff_spells:it() do
             local debuff = buff_util.debuff_for_spell(spell:get_spell().id)

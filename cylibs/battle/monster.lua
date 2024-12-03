@@ -351,6 +351,14 @@ function Monster:is_claimed()
 end
 
 -------
+-- Returns whether the monster is claimed by any member in an alliance.
+-- @tparam Alliance alliance The alliance
+-- @treturn boolean True if the monster is alliance claimed
+function Monster:is_claimed_by(alliance)
+    return alliance:is_claimed(self:get_id())
+end
+
+-------
 -- Returns the localized status of the monster.
 -- @treturn string Status of the monster (see res/statuses.lua)
 function Monster:get_status()
