@@ -92,6 +92,15 @@ function Trust:on_init()
 					end
 				end
 			end)
+			party:on_party_member_removed():addAction(function(p)
+				for role in self.roles:it() do
+					if role.get_party_member_blacklist then
+						role:set_party_member_blacklist(role:get_party_member_blacklist():filter(function(party_member_name)
+							return party_member_name ~= p:get_name()
+						end))
+					end
+				end
+			end)
 		end
 	end
 end

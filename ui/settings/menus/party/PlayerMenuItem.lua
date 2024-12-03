@@ -134,7 +134,7 @@ function PlayerMenuItem:getConfigMenuItem(roles)
 
             local roleConfigItem = MultiPickerConfigItem.new(key, roleSettings[key], allianceMemberNames, function(partyMemberNames)
                 if partyMemberNames:empty() then return
-                'All'
+                'None'
                 end
                 return localization_util.commas(partyMemberNames, 'and')
             end, role:get_localized_name())

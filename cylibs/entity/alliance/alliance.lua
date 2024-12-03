@@ -228,10 +228,10 @@ end
 -------
 -- Returns all members in the alliance.
 -- @treturn list List of all PartyMember in the alliance
-function Alliance:get_alliance_members(exclude_player)
+function Alliance:get_alliance_members(exclude_player, distance)
     local alliance_members = L{}
     for party in self.parties:it() do
-        alliance_members = alliance_members + party:get_party_members(not exclude_player)
+        alliance_members = alliance_members + party:get_party_members(not exclude_player, distance)
     end
     return alliance_members
 end
