@@ -236,7 +236,8 @@ function Singer:sing_song(song, target_index, should_nitro, allow_self_pianissim
         if should_nitro then
             self.song_tracker:set_all_expiring_soon()
             job_abilities = self:get_nitro_abilities()
-            extra_duration = extra_duration + 4
+            extra_duration = extra_duration + 5.5
+            actions:append(WaitAction.new(0, 0, 0, 1.5))
         end
 
         local job_abilities = job_abilities:extend(song:get_job_abilities():copy())
