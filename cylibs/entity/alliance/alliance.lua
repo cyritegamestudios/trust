@@ -99,10 +99,11 @@ function Alliance:monitor()
 
         for alliance_member in alliance_members_list:it() do
             self.alliance_members_list[alliance_member.id] = alliance_member
-            if alliance_member:get_mob() then
-                local party = self:get_party(alliance_member:get_name()) --or self:get_parties()[alliance_member:get_party_index()]
+            local alliance_member_name = alliance_member:get_name()
+            if alliance_member_name then
+                local party = self:get_party(alliance_member_name)
                 if party then
-                    party:add_party_member(alliance_member:get_id(), alliance_member:get_name())
+                    party:add_party_member(alliance_member:get_id(), alliance_member_name)
                 end
             end
         end
@@ -126,7 +127,7 @@ function Alliance:monitor()
     self.dispose_bag:add(WindowerEvents.CharacterUpdate:addAction(function(mob_id, name, hp, hpp, mp, mpp, tp, main_job_id, sub_job_id)
         local alliance_member = self.alliance_members_list[mob_id]
         if alliance_member then
-            local party = self:get_party(name) --or self:get_parties()[alliance_member:get_party_index()]
+            local party = self:get_party(name)
             if party and not party:has_party_member(mob_id) then
                 logger.notice(self.__class, "character update", "adding", name, "to party at index", self:get_party_index(name))
                 local party_member = party:add_party_member(mob_id, name)

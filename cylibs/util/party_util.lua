@@ -112,7 +112,6 @@ end
 function party_util.get_party_member(target_id, include_alliance)
     local party_members = party_util.get_party_members(include_alliance)
     for party_member in party_members:it() do
-        print('checking', party_member.name, party_member.id, target_id)
         if party_member.id == target_id then
             return party_member
         end
