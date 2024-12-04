@@ -95,7 +95,7 @@ end
 function Dispeler:dispel(target_index)
     logger.notice("Dispelling", self.battle_target:get_name())
 
-    if not party_util.party_claimed(self.battle_target:get_id()) then
+    if not self.battle_target:is_claimed_by(self:get_alliance()) then
         return
     end
 

@@ -133,8 +133,8 @@ end
 -- @tparam function Filter to use on party members (optional)
 -- @treturn list List of party members
 function Healer:get_valid_cure_targets(filter)
-    local party_members = self:get_party():get_party_members(true, 21):filter(function(party_member)
-        return self:is_valid_cure_target(party_member) and filter(party_member)
+    local party_members = self:get_alliance():get_alliance_members(false, 21):filter(function(alliance_member)
+        return self:is_valid_cure_target(alliance_member) and filter(alliance_member)
     end)
     return party_members
 end
@@ -249,6 +249,10 @@ end
 
 function Healer:get_type()
     return "healer"
+end
+
+function Healer:get_localized_name()
+    return "Healing"
 end
 
 function Healer:get_job()

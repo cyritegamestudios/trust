@@ -257,7 +257,15 @@ function ConfigEditor:getCellItemForConfigItem(configItem)
         pickerItem:setPickerDescription(configItem:getPickerDescription())
         pickerItem:setShowMenu(self.showMenu)
         pickerItem:setOnPickItems(function(newValue)
-            self.configSettings[configItem:getKey()] = newValue
+            if class(newValue) == 'List' then
+                self.configSettings[configItem:getKey()]:clear()
+                for value in newValue:it() do
+                    self.configSettings[configItem:getKey()]:append(value)
+                end
+            else
+                self.configSettings[configItem:getKey()] = newValue
+            end
+            addon_system_message("Your choices have been updated.")
         end)
         return pickerItem
     elseif configItem.__type == TextInputConfigItem.__type then

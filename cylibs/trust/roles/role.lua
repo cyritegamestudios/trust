@@ -35,6 +35,10 @@ function Role:get_type()
     return "role"
 end
 
+function Role:get_localized_name()
+    return self:get_type()
+end
+
 function Role:set_player(player)
     self.player = player
 end
@@ -61,7 +65,7 @@ end
 
 function Role:get_target()
     if self.target_index then
-        return self:get_party():get_target_by_index(self.target_index)
+        return self:get_alliance():get_target_by_index(self.target_index)
     end
     return nil
 end

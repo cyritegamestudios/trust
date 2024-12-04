@@ -99,10 +99,11 @@ function Alliance:monitor()
 
         for alliance_member in alliance_members_list:it() do
             self.alliance_members_list[alliance_member.id] = alliance_member
-            if alliance_member:get_mob() then
-                local party = self:get_party(alliance_member:get_name()) or self:get_parties()[alliance_member:get_party_index()]
+            local alliance_member_name = alliance_member:get_name()
+            if alliance_member_name then
+                local party = self:get_party(alliance_member_name)
                 if party then
-                    party:add_party_member(alliance_member:get_id(), alliance_member:get_name())
+                    party:add_party_member(alliance_member:get_id(), alliance_member_name)
                 end
             end
         end
@@ -126,7 +127,7 @@ function Alliance:monitor()
     self.dispose_bag:add(WindowerEvents.CharacterUpdate:addAction(function(mob_id, name, hp, hpp, mp, mpp, tp, main_job_id, sub_job_id)
         local alliance_member = self.alliance_members_list[mob_id]
         if alliance_member then
-            local party = self:get_party(name) or self:get_parties()[alliance_member:get_party_index()]
+            local party = self:get_party(name)
             if party and not party:has_party_member(mob_id) then
                 logger.notice(self.__class, "character update", "adding", name, "to party at index", self:get_party_index(name))
                 local party_member = party:add_party_member(mob_id, name)
@@ -160,7 +161,19 @@ end
 -- Validates that each alliance member is in the right party, swapping between parties if there
 -- is a mismatch.
 function Alliance:check_parties()
-    if not self.should_check_parties then
+    --if not self.should_check_parties then
+    --    return
+    --end
+
+    local should_check_parties = false
+    for key, _ in pairs(windower.ffxi.get_party()) do
+        if string.match(key, "a[10-15]") or string.match(key, "a[20-25]") then
+            should_check_parties = true
+            break
+        end
+    end
+
+    if not should_check_parties then
         return
     end
 
@@ -172,7 +185,7 @@ function Alliance:check_parties()
         if party then
             local current_party_index = self:get_index_of_party(party)
             if current_party_index ~= self:get_party_index(alliance_member:get_name()) then
-                if self:swap_parties(alliance_member, current_party_index, self:get_party_index(alliance_member:get_name())) then
+                if self:move_alliance_member(alliance_member, self:get_party_index(alliance_member:get_name())) then
                     num_validated_party_members = num_validated_party_members + 1
                 end
             else
@@ -193,15 +206,16 @@ end
 -- @tparam string alliance_member_name Name of alliance member
 -- @tparam number from_party_index Index of current party
 -- @tparam number to_party_index Index of new party
-function Alliance:swap_parties(alliance_member, from_party_index, to_party_index)
-    if not alliance_member:get_name() or from_party_index == nil or to_party_index == nil then
+function Alliance:move_alliance_member(alliance_member, to_party_index)
+    if not alliance_member:get_name() or to_party_index == nil then
         return false
     end
-    logger.notice(self.__class, 'swap_parties', alliance_member:get_name(), from_party_index, to_party_index)
+    logger.notice(self.__class, 'move_alliance_member', alliance_member:get_name(), to_party_index)
 
-    local from_party = self:get_parties()[from_party_index]
-    if from_party:has_party_member(alliance_member:get_id()) then
-        from_party:remove_party_member(alliance_member:get_id())
+    for party in self:get_parties():it() do
+        if party:has_party_member(alliance_member:get_id()) then
+            party:remove_party_member(alliance_member:get_id())
+        end
     end
 
     local to_party = self:get_parties()[to_party_index]
@@ -214,10 +228,10 @@ end
 -------
 -- Returns all members in the alliance.
 -- @treturn list List of all PartyMember in the alliance
-function Alliance:get_alliance_members()
+function Alliance:get_alliance_members(exclude_player, distance)
     local alliance_members = L{}
     for party in self.parties:it() do
-        alliance_members = alliance_members:extend(party:get_party_members(true))
+        alliance_members = alliance_members + party:get_party_members(not exclude_player, distance)
     end
     return alliance_members
 end
@@ -291,6 +305,36 @@ end
 -- @treturn list List of Party (see party.lua)
 function Alliance:get_parties()
     return self.parties
+end
+
+-------
+-- Returns whether the target is claimed by an alliance member.
+-- @tparam number target_index Target index
+-- @treturn Monster Monster targeted by the alliance, or nil if not alliance targeted
+function Alliance:get_target_by_index(target_index)
+    for party in self:get_parties():it() do
+        local target = party:get_target_by_index(target_index)
+        if target then
+            return target
+        end
+    end
+    return nil
+end
+
+-------
+-- Returns whether the target is claimed by an alliance member.
+-- @tparam number target_index Target index
+-- @treturn boolean True if the target is claimed by an alliance member
+function Alliance:is_claimed(target_id)
+    local target = windower.ffxi.get_mob_by_id(target_id)
+    if target and target.claim_id then
+        for party in self:get_parties():it() do
+            if party:get_party_member(target.claim_id) then
+                return true
+            end
+        end
+    end
+    return false
 end
 
 return Alliance

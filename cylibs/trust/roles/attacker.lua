@@ -57,7 +57,7 @@ function Attacker:check_engage()
     logger.notice(self.__class, 'check_engage')
 
     local target = windower.ffxi.get_mob_by_index(self.target_index)
-    if target == nil or not battle_util.is_valid_target(target.id) or not party_util.party_claimed(target.id) then
+    if target == nil or not battle_util.is_valid_target(target.id) or not self:get_alliance():is_claimed(target.id) then
         return
     end
 

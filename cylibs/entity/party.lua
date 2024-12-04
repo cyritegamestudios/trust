@@ -286,7 +286,6 @@ function Party:set_assist_target(party_member)
         end), party_member:on_target_change())
 
         local party_targets = self.target_tracker:get_targets():filter(function(m) return m:is_claimed() end)
-
         local initial_target_index = party_member:get_target_index() or party_targets:length() > 0 and party_targets[1]:get_mob().index
         if initial_target_index then
             self:on_party_target_change():trigger(self, initial_target_index, nil)

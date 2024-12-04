@@ -97,6 +97,7 @@ function TargetWidget.new(frame, addonSettings, party, trust)
     self.actionQueue = ActionQueue.new(nil, false, 5, false, true)
     self.actionDisposeBag = DisposeBag.new()
     self.party = party
+    self.alliance = player.alliance
     self.debuffsView = self:createDebuffsView()
     self.maxNumDebuffs = 7
     self.infoViewIconSize = 8
@@ -187,7 +188,7 @@ function TargetWidget:setTarget(target_index)
 
     local targetText = ""
     if target_index ~= nil then
-        local target = self.party:get_target_by_index(target_index)
+        local target = self.alliance:get_target_by_index(target_index)
         if target then
             self.targetDisposeBag:add(target.debuff_tracker:on_gain_debuff():addAction(function(_, debuff_id)
                 self:updateDebuffs()
@@ -239,7 +240,7 @@ function TargetWidget:setVisible(visible)
 end
 
 function TargetWidget:setExpanded(expanded)
-    local target = self.party:get_target_by_index(self.target_index)
+    local target = self.alliance:get_target_by_index(self.target_index)
     if not target then
         expanded = false
     end
@@ -283,7 +284,7 @@ function TargetWidget:setExpanded(expanded)
 end
 
 function TargetWidget:shouldExpand()
-    local target = self.party:get_target_by_index(self.target_index)
+    local target = self.alliance:get_target_by_index(self.target_index)
     if not target then
         return false
     end
@@ -309,7 +310,7 @@ function TargetWidget:createDebuffsView(target)
 end
 
 function TargetWidget:updateDebuffs()
-    local target = self.party:get_target_by_index(self.target_index)
+    local target = self.alliance:get_target_by_index(self.target_index)
     if not target then
         return
     end

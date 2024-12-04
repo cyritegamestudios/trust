@@ -3,12 +3,12 @@ return {
     Version = 2,
     Default = {
         SelfBuffs = L{
-            Spell.new("Erratic Flutter", L{}, L{}, nil, L{SpellRecastReadyCondition.new(710)}),
-            Spell.new("Cocoon", L{}, L{}, nil, L{SpellRecastReadyCondition.new(547)}),
-            Spell.new("Barrier Tusk", L{}, L{}, nil, L{SpellRecastReadyCondition.new(685)}),
-            Spell.new("Nat. Meditation", L{}, L{}, nil, L{SpellRecastReadyCondition.new(700)}),
-            Spell.new("Occultation", L{}, L{}, nil, L{SpellRecastReadyCondition.new(679)}),
-            Spell.new("Mighty Guard", L{"Unbridled Learning"}, L{}, nil, L{SpellRecastReadyCondition.new(750)}),
+            Spell.new("Erratic Flutter", L{}, L{}, nil, L{}),
+            Spell.new("Cocoon", L{}, L{}, nil, L{}),
+            Spell.new("Barrier Tusk", L{}, L{}, nil, L{}),
+            Spell.new("Nat. Meditation", L{}, L{}, nil, L{}),
+            Spell.new("Occultation", L{}, L{}, nil, L{}),
+            Spell.new("Mighty Guard", L{"Diffusion", "Unbridled Learning"}, L{}, nil, L{}),
         },
         PartyBuffs = L{
 

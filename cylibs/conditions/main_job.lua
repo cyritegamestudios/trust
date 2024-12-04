@@ -44,15 +44,15 @@ function MainJobCondition:get_config_items()
 end
 
 function MainJobCondition:tostring()
-    return "Main job is "..res.jobs:with('ens', self.job_name_short).en
+    return "Player main job is "..res.jobs:with('ens', self.job_name_short).en
 end
 
 function MainJobCondition.description()
-    return "Main job is X."
+    return "Player main job is X."
 end
 
 function MainJobCondition.valid_targets()
-    return S{ Condition.TargetType.Self, Condition.TargetType.Ally }
+    return S{ Condition.TargetType.Self }
 end
 
 function MainJobCondition:serialize()

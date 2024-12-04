@@ -1,16 +1,8 @@
-local ImageView = require('cylibs/ui/image_view')
-
-local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewCell = require('cylibs/ui/collection_view/collection_view_cell')
-local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
-local Color = require('cylibs/ui/views/color')
-local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_collection_view_cell')
-local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local Keyboard = require('cylibs/ui/input/keyboard')
 local list_ext = require('cylibs/util/extensions/lists')
 local Mouse = require('cylibs/ui/input/mouse')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
-local PickerItem = require('cylibs/ui/collection_view/items/picker_item')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
@@ -99,7 +91,11 @@ function PickerCollectionViewCell:showPickerView()
             ButtonItem.default('Confirm'),
             ButtonItem.default('Clear All'),
         }, {}, function(_, _)
-            local configItem = MultiPickerConfigItem.new("Items", L{ item:getCurrentValue() }, item:getAllValues(), function(value)
+            local initialValue = item:getCurrentValue()
+            if class(initialValue) ~= 'List' then
+                initialValue = L{ initialValue }
+            end
+            local configItem = MultiPickerConfigItem.new("Items", initialValue, item:getAllValues(), function(value)
                 return tostring(value)
             end, nil, nil, item:getImageItemForText())
 

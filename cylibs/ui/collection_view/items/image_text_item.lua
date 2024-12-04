@@ -9,12 +9,13 @@ ImageTextItem.__type = "ImageTextItem"
 -- @tparam TextItem textItem The text item.
 -- @treturn ImageTextItem The newly created ImageTextItem instance.
 --
-function ImageTextItem.new(imageItem, textItem, spacing)
+function ImageTextItem.new(imageItem, textItem, spacing, offset)
     local self = setmetatable({}, ImageTextItem)
 
     self.imageItem = imageItem
     self.textItem = textItem
     self.spacing = spacing or 4
+    self.offset = offset or { x = 0, y = 0 }
 
     return self
 end
@@ -66,6 +67,10 @@ end
 
 function ImageTextItem:getSpacing()
     return self.spacing
+end
+
+function ImageTextItem:getOffset()
+    return self.offset
 end
 
 ---

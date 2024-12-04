@@ -17,7 +17,7 @@ function BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, setti
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
-        ButtonItem.default('Edit', 18),
+        ButtonItem.default('Abilities', 18),
         ButtonItem.default('Conditions', 18),
         ButtonItem.default('Toggle', 18),
         ButtonItem.default('Reset', 18),
@@ -60,7 +60,11 @@ function BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, setti
                     local description = buff:get_conditions():map(function(condition)
                         return condition:tostring()
                     end)
-                    infoView:setDescription("Use when: "..localization_util.commas(description))
+                    description = "Use when: "..localization_util.commas(description)
+                    if buff.get_job_abilities and buff:get_job_abilities():length() > 0 then
+                        description = description..", Use with: "..localization_util.commas(buff:get_job_abilities(), 'and')
+                    end
+                    infoView:setDescription(description)
                 end
             end
         end, buffSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath()))
@@ -88,19 +92,20 @@ end
 function BuffSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Add", self:getAddBuffMenuItem())
     self:setChildMenuItem("Remove", self:getRemoveBuffMenuItem())
-    self:setChildMenuItem("Edit", self:getEditBuffMenuItem())
+    self:setChildMenuItem("Abilities", self:getEditBuffMenuItem())
     self:setChildMenuItem("Toggle", self:getToggleBuffMenuItem())
     self:setChildMenuItem("Conditions", self:getConditionsMenuItem())
     self:setChildMenuItem("Reset", self:getResetMenuItem())
 end
 
-function BuffSettingsMenuItem:getAllBuffs()
+function BuffSettingsMenuItem:getAllBuffs(targets)
+    local targets = targets or self.targets
     local sections = L{
         L(self.trust:get_job():get_spells(function(spellId)
             local spell = res.spells[spellId]
             if spell then
                 local status = buff_util.buff_for_spell(spell.id)
-                return status ~= nil and not buff_util.is_debuff(status.id) and spell.skill ~= 44 and self.targets:intersection(S(spell.targets)):length() > 0
+                return status ~= nil and not buff_util.is_debuff(status.id) and spell.skill ~= 44 and targets:intersection(S(spell.targets)):length() > 0
             end
             return false
         end):map(function(spellId)
@@ -109,7 +114,7 @@ function BuffSettingsMenuItem:getAllBuffs()
         L(self.trust:get_job():get_job_abilities(function(jobAbilityId)
             local jobAbility = res.job_abilities[jobAbilityId]
             if jobAbility then
-                return buff_util.buff_for_job_ability(jobAbility.id) ~= nil and self.targets:intersection(S(jobAbility.targets)):length() > 0
+                return buff_util.buff_for_job_ability(jobAbility.id) ~= nil and targets:intersection(S(jobAbility.targets)):length() > 0
             end
             return false
         end):map(function(jobAbilityId)
@@ -202,16 +207,48 @@ function BuffSettingsMenuItem:getEditBuffMenuItem()
         if cursorIndexPath then
             local buff = self.buffs[cursorIndexPath.row]
             if buff then
-                local editSpellView = SpellSettingsEditor.new(self.trustSettings, buff, not self.showJobs)
-                editSpellView:setTitle("Edit buff.")
-                editSpellView:setShouldRequestFocus(true)
-                return editSpellView
+                local allJobAbilities = self:getAllBuffs(S{'Self','Party'})[2]
+
+                local jobAbilityConfigItem = MultiPickerConfigItem.new("JobAbilities", (buff:get_job_abilities() or L{}):map(function(jobAbilityName)
+                    return JobAbility.new(jobAbilityName)
+                end), allJobAbilities, function(buff)
+                    return buff:get_localized_name()
+                end, "Job Abilities", nil, function(buff)
+                    return AssetManager.imageItemForJobAbility(buff:get_name())
+                end)
+
+                local chooseAbilitiesView = FFXIPickerView.withConfig(jobAbilityConfigItem, true)
+                chooseAbilitiesView:on_pick_items():addAction(function(pickerView, selectedJobAbilities)
+                    pickerView:getDelegate():deselectAllItems()
+
+                    local itemMappers = L{
+                        JobAbilityPickerItemMapper.new(),
+                    }
+
+                    local job_abilty_names = selectedJobAbilities:map(function(jobAbility)
+                        for mapper in itemMappers:it() do
+                            if mapper:canMap(jobAbility) then
+                                return mapper:map(jobAbility)
+                            end
+                        end
+                        return nil
+                    end):compact_map():map(function(jobAbility)
+                        return jobAbility:get_name()
+                    end)
+
+                    buff:set_job_abilities(job_abilty_names)
+
+                    self.trustSettings:saveSettings(true)
+
+                    addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated the list of job abilities I'll use with "..buff:get_name().."!")
+                end)
+                return chooseAbilitiesView
             end
         end
         return nil
-    end, "Buffs", "Edit buff settings.", false, function()
-                return self.buffs and self.buffs:length() > 0
-            end)
+    end, "Buffs", "Edit abilities to use with the selected buff.", false, function()
+        return self.buffs and self.buffs:length() > 0
+    end)
     editBuffMenuItem.enabled = function()
         if self.selectedIndexPath then
             local buff = self.buffs[self.selectedIndexPath.row]
