@@ -19,8 +19,6 @@ function ImageCollectionViewCell.new(item)
 
     self:getDisposeBag():addAny(L{ self.imageView })
 
-    --self.imageView:loadImage(item:getImagePath())
-
     self:setNeedsLayout()
     self:layoutIfNeeded()
 
@@ -33,8 +31,6 @@ function ImageCollectionViewCell:setItem(item)
     self.imageView.repeatX = item:getRepeat().x
     self.imageView.repeatY = item:getRepeat().y
     self.imageView.alpha = item:getAlpha()
-
-    --self.imageView:loadImage(item:getImagePath())
 end
 
 ---
@@ -49,7 +45,6 @@ function ImageCollectionViewCell:layoutIfNeeded()
     if self.imageView:getSize().width ~= self:getSize().width or self.imageView:getSize().height ~= self:getSize().height then
         self.imageView:setSize(self:getSize().width, self:getSize().height)
 
-        self.imageView:setNeedsLayout()
         self.imageView:layoutIfNeeded()
     end
 
