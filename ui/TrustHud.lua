@@ -207,50 +207,64 @@ function TrustHud:getViewStack()
 end
 
 function TrustHud:createWidgets(addon_settings, addon_enabled, action_queue, party, trust)
-    local trustStatusWidget = TrustStatusWidget.new(Frame.new(0, 0, 125, 69), addon_settings, addon_enabled, action_queue, player.main_job_name, player.sub_job_name, party:get_player())
-    self.widgetManager:addWidget(trustStatusWidget, "trust")
+    --local profile = require("cylibs/util/profile")
+    --profile.start()
+    -- execute code that will be profiled
 
-    local targetWidget = TargetWidget.new(Frame.new(0, 0, 125, 40), addon_settings, party, trust)
-    self.widgetManager:addWidget(targetWidget, "target")
+    local loadWidgets = coroutine.create(function()
+        local trustStatusWidget = TrustStatusWidget.new(Frame.new(0, 0, 125, 69), addon_settings, addon_enabled, action_queue, player.main_job_name, player.sub_job_name, party:get_player())
+        self.widgetManager:addWidget(trustStatusWidget, "trust")
 
-    local partyStatusWidget = PartyStatusWidget.new(Frame.new(0, 0, 125, 55), addon_settings, player.alliance, party, trust, self.mediaPlayer, self.soundTheme)
-    self.widgetManager:addWidget(partyStatusWidget, "party")
+        local targetWidget = TargetWidget.new(Frame.new(0, 0, 125, 40), addon_settings, party, trust)
+        self.widgetManager:addWidget(targetWidget, "target")
 
-    local pathWidget = PathWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), self, main_trust_settings, state.MainTrustSettingsMode, trust)
-    self.widgetManager:addWidget(pathWidget, "path")
+        local partyStatusWidget = PartyStatusWidget.new(Frame.new(0, 0, 125, 55), addon_settings, player.alliance, party, trust, self.mediaPlayer, self.soundTheme)
+        self.widgetManager:addWidget(partyStatusWidget, "party")
 
-    if player.main_job_name_short == 'PUP' then
-        local petStatusWidget = AutomatonStatusWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), self, main_trust_settings, state.MainTrustSettingsMode, self.trustModeSettings)
-        self.widgetManager:addWidget(petStatusWidget, "pet")
-    end
+        local pathWidget = PathWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), self, main_trust_settings, state.MainTrustSettingsMode, trust)
+        self.widgetManager:addWidget(pathWidget, "path")
 
-    if player.main_job_name_short == 'SMN' then
-        local petStatusWidget = AvatarStatusWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), self, main_trust_settings, state.MainTrustSettingsMode)
-        self.widgetManager:addWidget(petStatusWidget, "pet")
-    end
+        if player.main_job_name_short == 'PUP' then
+            local petStatusWidget = AutomatonStatusWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), self, main_trust_settings, state.MainTrustSettingsMode, self.trustModeSettings)
+            self.widgetManager:addWidget(petStatusWidget, "pet")
+        end
 
-    if player.main_job_name_short == 'BLM' then
-        local blackMageWidget = BlackMageWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), trust)
-        self.widgetManager:addWidget(blackMageWidget, "black_mage")
-    end
+        if player.main_job_name_short == 'SMN' then
+            local petStatusWidget = AvatarStatusWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), self, main_trust_settings, state.MainTrustSettingsMode)
+            self.widgetManager:addWidget(petStatusWidget, "pet")
+        end
 
-    if player.main_job_name_short == 'RUN' then
-        local RuneFencerWidget = require('ui/widgets/RuneFencerWidget')
-        local runeFencerWidget = RuneFencerWidget.new(Frame.new(0, 0, 125, 57), addon_settings, trust)
-        self.widgetManager:addWidget(runeFencerWidget, "rune_fencer")
-    end
+        if player.main_job_name_short == 'BLM' then
+            local blackMageWidget = BlackMageWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), trust)
+            self.widgetManager:addWidget(blackMageWidget, "black_mage")
+        end
 
-    --if player.main_job_name_short == 'SCH' then
-    --    local scholarWidget = ScholarWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), trust)
-    --    self.widgetManager:addWidget(scholarWidget, "scholar")
-    --end
+        if player.main_job_name_short == 'RUN' then
+            local RuneFencerWidget = require('ui/widgets/RuneFencerWidget')
+            local runeFencerWidget = RuneFencerWidget.new(Frame.new(0, 0, 125, 57), addon_settings, trust)
+            self.widgetManager:addWidget(runeFencerWidget, "rune_fencer")
+        end
 
-    for widget in self.widgetManager:getAllWidgets():it() do
-        self:addSubview(widget)
-    end
+        --if player.main_job_name_short == 'SCH' then
+        --    local scholarWidget = ScholarWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), trust)
+        --    self.widgetManager:addWidget(scholarWidget, "scholar")
+        --end
+
+        for widget in self.widgetManager:getAllWidgets():it() do
+            self:addSubview(widget)
+        end
+        coroutine.yield()
+    end)
+
+    coroutine.resume(loadWidgets)
+
 
     --local settingsWidget = SettingsWidget.new(Frame.new(0, 0, 125, 40), addon_settings, state.TrustMode, state.MainTrustSettingsMode)
     --self.widgetManager:addWidget(settingsWidget, "settings")
+
+   -- profile.stop()
+    -- report for the top 10 functions, sorted by execution time
+    --print(profile.report(8))
 end
 
 function TrustHud:toggleMenu()
