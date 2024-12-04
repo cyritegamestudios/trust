@@ -207,10 +207,6 @@ function TrustHud:getViewStack()
 end
 
 function TrustHud:createWidgets(addon_settings, addon_enabled, action_queue, party, trust)
-    --local profile = require("cylibs/util/profile")
-    --profile.start()
-    -- execute code that will be profiled
-
     local loadWidgets = coroutine.create(function()
         local trustStatusWidget = TrustStatusWidget.new(Frame.new(0, 0, 125, 69), addon_settings, addon_enabled, action_queue, player.main_job_name, player.sub_job_name, party:get_player())
         self.widgetManager:addWidget(trustStatusWidget, "trust")
@@ -257,14 +253,6 @@ function TrustHud:createWidgets(addon_settings, addon_enabled, action_queue, par
     end)
 
     coroutine.resume(loadWidgets)
-
-
-    --local settingsWidget = SettingsWidget.new(Frame.new(0, 0, 125, 40), addon_settings, state.TrustMode, state.MainTrustSettingsMode)
-    --self.widgetManager:addWidget(settingsWidget, "settings")
-
-   -- profile.stop()
-    -- report for the top 10 functions, sorted by execution time
-    --print(profile.report(8))
 end
 
 function TrustHud:toggleMenu()
