@@ -56,7 +56,7 @@ function ffxi_util.get_direction_to_point(p)
 	return direction
 end
 
---- Gets a list of all mobs within 25y that are valid, within a certain Z distance, unclaimed, and not excluded
+--- Gets a list of all mobs within 20y that are valid, within a certain Z distance, unclaimed, and not excluded
 -- @param target_mobs (optional) A list of mob names, if empty will get all mobs
 -- @param exclude_target_indices (optional) A list of indexes to exclude, commonly used to exclude party targets
 -- @param exclude_names (optional) A list of mob names to exclude
