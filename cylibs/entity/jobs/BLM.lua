@@ -3,8 +3,6 @@
 -- @class module
 -- @name BlackMage
 
-local SpellList = require('cylibs/util/spell_list')
-
 local Job = require('cylibs/entity/jobs/job')
 local BlackMage = setmetatable({}, {__index = Job })
 BlackMage.__index = BlackMage

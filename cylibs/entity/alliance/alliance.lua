@@ -3,11 +3,9 @@
 -- @class module
 -- @name Alliance
 
-local AllianceMember = require('cylibs/entity/alliance/alliance_member')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Entity = require('cylibs/entity/entity')
 local Event = require('cylibs/events/Luvent')
-local list_ext = require('cylibs/util/extensions/lists')
 local Party = require('cylibs/entity/party')
 
 local Alliance = setmetatable({}, {__index = Entity })
