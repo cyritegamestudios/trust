@@ -1,18 +1,11 @@
 local AlterEgoSettingsMenuItem = require('ui/settings/menus/AlterEgoSettingsMenuItem')
-local AutomatonSettingsMenuItem = require('ui/settings/menus/attachments/AutomatonSettingsMenuItem')
-local AvatarStatusWidget = require('ui/widgets/AvatarStatusWidget')
 local BackgroundView = require('cylibs/ui/views/background/background_view')
-local BlueMagicSettingsMenuItem = require('ui/settings/menus/bluemagic/BlueMagicSettingsMenuItem')
 local BooleanConfigItem = require('ui/settings/editors/config/BooleanConfigItem')
-local BufferSettingsMenuItem = require('ui/settings/menus/buffs/BufferSettingsMenuItem')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CommandsMenuItem = require('ui/settings/menus/commands/CommandsMenuItem')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local ConfigSettingsMenuItem = require('ui/settings/menus/ConfigSettingsMenuItem')
-local HealerSettingsMenuItem = require('ui/settings/menus/healing/HealerSettingsMenuItem')
-local DebuffSettingsEditor = require('ui/settings/DebuffSettingsEditor')
-local DebugView = require('cylibs/actions/ui/debug_view')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local FFXISoundTheme = require('sounds/FFXISoundTheme')
@@ -29,29 +22,18 @@ local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 local PullSettingsMenuItem = require('ui/settings/menus/pulling/PullSettingsMenuItem')
 local LoadSettingsMenuItem = require('ui/settings/menus/loading/LoadSettingsMenuItem')
-local NukeSettingsMenuItem = require('ui/settings/menus/nukes/NukeSettingsMenuItem')
-local PartyMemberView = require('cylibs/entity/party/ui/party_member_view')
 local PartyStatusWidget = require('ui/widgets/PartyStatusWidget')
 local PartyTargetsMenuItem = require('ui/settings/menus/PartyTargetsMenuItem')
 local PathSettingsMenuItem = require('ui/settings/menus/misc/PathSettingsMenuItem')
 local PathWidget = require('ui/widgets/PathWidget')
-local AutomatonStatusWidget = require('ui/widgets/AutomatonStatusWidget')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local ReactSettingsMenuItem = require('ui/settings/menus/gambits/react/ReactSettingsMenuItem')
-local BlackMageWidget = require('ui/widgets/BlackMageWidget')
-local ShooterSettingsMenuItem = require('ui/settings/menus/ShooterSettingsMenuItem')
-local SingerView = require('ui/views/SingerView')
-local SongSettingsMenuItem = require('ui/settings/menus/songs/SongSettingsMenuItem')
-local SpellPickerView = require('ui/settings/pickers/SpellPickerView')
 local TargetWidget = require('ui/widgets/TargetWidget')
 local TrustInfoBar = require('ui/TrustInfoBar')
 local TrustStatusWidget = require('ui/widgets/TrustStatusWidget')
 local Menu = require('cylibs/ui/menu/menu')
 local ViewStack = require('cylibs/ui/views/view_stack')
 local WeaponSkillSettingsMenuItem = require('ui/settings/menus/WeaponSkillSettingsMenuItem')
-local GeomancySettingsMenuItem = require('ui/settings/menus/buffs/GeomancySettingsMenuItem')
-local BloodPactSettingsMenuItem = require('ui/settings/menus/buffs/BloodPactSettingsMenuItem')
-local RollSettingsMenuItem = require('ui/settings/menus/rolls/RollSettingsMenuItem')
 local View = require('cylibs/ui/views/view')
 local WidgetManager = require('ui/widgets/WidgetManager')
 
@@ -221,16 +203,19 @@ function TrustHud:createWidgets(addon_settings, addon_enabled, action_queue, par
         self.widgetManager:addWidget(pathWidget, "path")
 
         if player.main_job_name_short == 'PUP' then
+            local AutomatonStatusWidget = require('ui/widgets/AutomatonStatusWidget')
             local petStatusWidget = AutomatonStatusWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), self, main_trust_settings, state.MainTrustSettingsMode, self.trustModeSettings)
             self.widgetManager:addWidget(petStatusWidget, "pet")
         end
 
         if player.main_job_name_short == 'SMN' then
+            local AvatarStatusWidget = require('ui/widgets/AvatarStatusWidget')
             local petStatusWidget = AvatarStatusWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), self, main_trust_settings, state.MainTrustSettingsMode)
             self.widgetManager:addWidget(petStatusWidget, "pet")
         end
 
         if player.main_job_name_short == 'BLM' then
+            local BlackMageWidget = require('ui/widgets/BlackMageWidget')
             local blackMageWidget = BlackMageWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), trust)
             self.widgetManager:addWidget(blackMageWidget, "black_mage")
         end
@@ -374,6 +359,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
                     return res.spells[spell_id].en
                 end):sort()
 
+                local SpellPickerView = require('ui/settings/pickers/SpellPickerView')
                 local chooseSpellsView = SpellPickerView.new(trustSettings, L(T(trustSettings:getSettings())[trustSettingsMode.value].Debuffs), allDebuffs, L{}, false)
                 return chooseSpellsView
             end, "Debuffs", "Add a new debuff.")
@@ -391,6 +377,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         Modes = debuffModesMenuItem,
     },
     function()
+        local DebuffSettingsEditor = require('ui/settings/DebuffSettingsEditor')
         local debuffSettingsView = DebuffSettingsEditor.new(trust, trustSettings, trustSettingsMode, self.addon_settings:getSettings().help.wiki_base_url..'/Debuffer')
         return debuffSettingsView
     end, "Debuffs", "Choose debuffs to use on enemies.")
@@ -409,6 +396,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
 
     if jobNameShort == 'GEO' then
         menuItems:append(ButtonItem.default('Geomancy', 18))
+        local GeomancySettingsMenuItem = require('ui/settings/menus/buffs/GeomancySettingsMenuItem')
         childMenuItems.Geomancy = GeomancySettingsMenuItem.new(trust, trustSettings, trustSettingsMode, self.trustModeSettings, trustSettings:getSettings()[trustSettingsMode.value].Geomancy, trustSettings:getSettings()[trustSettingsMode.value].PartyBuffs, function(view)
             return setupView(view, viewSize)
         end)
@@ -416,21 +404,25 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
 
     if jobNameShort == 'SMN' then
         menuItems:append(ButtonItem.default('Blood Pacts', 18))
+        local BloodPactSettingsMenuItem = require('ui/settings/menus/buffs/BloodPactSettingsMenuItem')
         childMenuItems['Blood Pacts'] = BloodPactSettingsMenuItem.new(trustSettings, trust, trustSettings:getSettings()[trustSettingsMode.value].PartyBuffs, self.trustModeSettings)
     end
 
     if jobNameShort == 'COR' then
         menuItems:append(ButtonItem.default('Rolls', 18))
+        local RollSettingsMenuItem = require('ui/settings/menus/rolls/RollSettingsMenuItem')
         childMenuItems['Rolls'] = RollSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSettings, trust)
     end
 
     if jobNameShort == 'PUP' then
         menuItems:append(ButtonItem.default('Automaton', 18))
+        local AutomatonSettingsMenuItem = require('ui/settings/menus/attachments/AutomatonSettingsMenuItem')
         childMenuItems['Automaton'] = AutomatonSettingsMenuItem.new(trustSettings, trustSettingsMode, self.trustModeSettings)
     end
 
     if jobNameShort == 'BLU' then
         menuItems:append(ButtonItem.default('Blue Magic', 18))
+        local BlueMagicSettingsMenuItem = require('ui/settings/menus/bluemagic/BlueMagicSettingsMenuItem')
         childMenuItems['Blue Magic'] = BlueMagicSettingsMenuItem.new(trustSettings, trustSettingsMode, true)
     end
 
@@ -548,6 +540,7 @@ function TrustHud:getMenuItemForRole(role, weaponSkillSettings, weaponSkillSetti
 end
 
 function TrustHud:getBufferMenuItem(trust, jobNameShort, trustSettings, trustSettingsMode, trustModeSettings)
+    local BufferSettingsMenuItem = require('ui/settings/menus/buffs/BufferSettingsMenuItem')
     if jobNameShort ~= 'SCH' then
         local bufferSettingsMenuItem = BufferSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, jobNameShort)
         return bufferSettingsMenuItem
@@ -567,6 +560,7 @@ function TrustHud:getBufferMenuItem(trust, jobNameShort, trustSettings, trustSet
 end
 
 function TrustHud:getHealerMenuItem(trust, trustSettings, trustSettingsMode, trustModeSettings)
+    local HealerSettingsMenuItem = require('ui/settings/menus/healing/HealerSettingsMenuItem')
     local healerSettingsMenuItem = HealerSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings)
     return healerSettingsMenuItem
 end
@@ -582,16 +576,19 @@ function TrustHud:getPullerMenuItem(trust, jobNameShort, trustSettings, trustSet
 end
 
 function TrustHud:getShooterMenuItem(trust, trustSettings, trustSettingsMode)
+    local ShooterSettingsMenuItem = require('ui/settings/menus/ShooterSettingsMenuItem')
     local shooterSettingsMenuItem = ShooterSettingsMenuItem.new(trustSettings, trustSettingsMode, self.trustModeSettings, trust:role_with_type("shooter"))
     return shooterSettingsMenuItem
 end
 
 function TrustHud:getSingerMenuItem(trust, trustSettings, trustSettingsMode, viewSize)
+    local SongSettingsMenuItem = require('ui/settings/menus/songs/SongSettingsMenuItem')
     local singerSettingsMenuItem = SongSettingsMenuItem.new(self.addon_settings, trustSettings, trustSettingsMode, self.trustModeSettings, trust)
     return singerSettingsMenuItem
 end
 
 function TrustHud:getNukerMenuItem(trust, trustSettings, trustSettingsMode, trustModeSettings, jobNameShort)
+    local NukeSettingsMenuItem = require('ui/settings/menus/nukes/NukeSettingsMenuItem')
     local nukerSettingsMenuItem = NukeSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, self.addon_settings, jobNameShort)
     return nukerSettingsMenuItem
 end
@@ -618,6 +615,7 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
         ButtonItem.default('Clear', 18)
     }, {},
     function()
+        local DebugView = require('cylibs/actions/ui/debug_view')
         local debugView = setupView(DebugView.new(self.actionQueue), viewSize)
         debugView:setShouldRequestFocus(false)
         return debugView
@@ -626,6 +624,7 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
     local partyMenuItem = MenuItem.new(L{}, {},
     function()
         local truster =  trust:role_with_type("truster")
+        local PartyMemberView = require('cylibs/entity/party/ui/party_member_view')
         local partyMemberView = PartyMemberView.new(self.party, self.player.player, self.actionQueue, truster and truster.trusts or L{})
         partyMemberView:setShouldRequestFocus(false)
         return partyMemberView
@@ -643,6 +642,7 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
         ButtonItem.default('Clear All', 18),
     }, {},
         function()
+            local SingerView = require('ui/views/SingerView')
             local singer = trust:role_with_type("singer")
             local singerView = setupView(SingerView.new(singer), viewSize)
             singerView:setShouldRequestFocus(true)

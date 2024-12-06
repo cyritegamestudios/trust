@@ -9,7 +9,7 @@ require('lists')
 
 local buffs_ext = require('cylibs/res/buffs')
 local res = require('resources')
-local list_ext = require('cylibs/util/extensions/lists')
+local list_ext = require('cylibs/util/extensions/lists') -- needed
 local job_abilities_ext = require('cylibs/res/job_abilities')
 local spells_ext = require('cylibs/res/spells')
 

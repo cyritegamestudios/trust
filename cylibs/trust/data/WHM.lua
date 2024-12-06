@@ -16,7 +16,6 @@ local Nuker = require('cylibs/trust/roles/nuker')
 local Buffer = require('cylibs/trust/roles/buffer')
 local Puller = require('cylibs/trust/roles/puller')
 local StatusRemover = require('cylibs/trust/roles/status_remover')
-local WhiteMageTrustCommands = require('cylibs/trust/commands/WHM') -- keep this for dependency script
 
 function WhiteMageTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = WhiteMage.new(trust_settings.CureSettings)

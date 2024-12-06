@@ -2,7 +2,6 @@ local Nuker = setmetatable({}, {__index = Role })
 Nuker.__index = Nuker
 
 local DisposeBag = require('cylibs/events/dispose_bag')
-local skillchain_util = require('cylibs/util/skillchain_util')
 local spell_util = require('cylibs/util/spell_util')
 
 state.AutoNukeMode = M{['description'] = 'Free Nuke', 'Off', 'Earth', 'Lightning', 'Water', 'Fire', 'Ice', 'Wind', 'Light', 'Dark', 'Cleave'}

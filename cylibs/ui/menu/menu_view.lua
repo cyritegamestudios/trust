@@ -6,7 +6,6 @@ local Frame = require('cylibs/ui/views/frame')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Event = require('cylibs/events/Luvent')
-local MediaPlayer = require('cylibs/sounds/media_player')
 local Padding = require('cylibs/ui/style/padding')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 

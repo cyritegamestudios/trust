@@ -1,7 +1,3 @@
-require('tables')
-require('lists')
-require('logger')
-
 Summoner = require('cylibs/entity/jobs/SMN')
 
 local SummonerTrust = setmetatable({}, {__index = Trust })

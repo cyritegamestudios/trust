@@ -1,10 +1,6 @@
 local cure_util = require('cylibs/util/cure_util')
 local DisposeBag = require('cylibs/events/dispose_bag')
-local CureAction = require('cylibs/actions/cure')
 local HealerTracker = require('cylibs/analytics/trackers/healer_tracker')
-local WaitAction = require('cylibs/actions/wait')
-local SequenceAction = require('cylibs/actions/sequence')
-local SpellAction = require('cylibs/actions/spell')
 
 local Healer = setmetatable({}, {__index = Role })
 Healer.__index = Healer

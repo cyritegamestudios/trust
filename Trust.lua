@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '12.5.6'
+_addon.version = '12.5.7'
 _addon.release_notes = [[
 This update introduces new menus for Bard, autocomplete for Trust
 commands, new commands and important bug fixes for users running the
@@ -231,6 +231,14 @@ function load_user_files(main_job_id, sub_job_id)
 	if player.sub_job_name_short ~= 'NON' then
 		player.trust.sub_job:add_role(Gambiter.new(action_queue, player.trust.sub_job_settings.Default.GambitSettings, skillchainer))
 	end
+
+	player.trust.main_job:on_trust_roles_changed():addAction(function(trust, roles_added, roles_removed)
+		TrustFactory.dedupe_roles(player.trust.main_job, player.trust.sub_job)
+	end)
+
+	player.trust.sub_job:on_trust_roles_changed():addAction(function(trust, roles_added, roles_removed)
+		TrustFactory.dedupe_roles(player.trust.main_job, player.trust.sub_job)
+	end)
 
 	target_change_time = os.time()
 

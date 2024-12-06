@@ -1,4 +1,3 @@
-local pet_util = require('cylibs/util/pet_util')
 local serializer_util = require('cylibs/util/serializer_util')
 local SkillchainAbility = require('cylibs/battle/skillchains/abilities/skillchain_ability')
 

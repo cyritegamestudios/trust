@@ -1,5 +1,3 @@
-local DisposeBag = require('cylibs/events/dispose_bag')
-
 local LayoutContainer = {}
 LayoutContainer.__index = LayoutContainer
 LayoutContainer.__type = "LayoutContainer"
