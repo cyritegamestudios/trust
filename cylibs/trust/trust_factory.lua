@@ -41,8 +41,6 @@ function TrustFactory.trust_contains_role(trust, r)
 	return false
 end
 
-
-
 return TrustFactory
 
 
