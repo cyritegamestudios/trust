@@ -1,6 +1,5 @@
 local buff_util = require('cylibs/util/buff_util')
 local DisposeBag = require('cylibs/events/dispose_bag')
-local party_util = require('cylibs/util/party_util')
 local job_util = require('cylibs/util/job_util')
 local monster_util = require('cylibs/util/monster_util')
 local JobAbilityAction = require('cylibs/actions/job_ability')

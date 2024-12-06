@@ -11,7 +11,6 @@ local RedMageTrust = setmetatable({}, {__index = Trust })
 RedMageTrust.__index = RedMageTrust
 
 local Debuff = require('cylibs/battle/spells/debuff')
-local buff_util = require('cylibs/util/buff_util')
 
 local Buffer = require('cylibs/trust/roles/buffer')
 local Debuffer = require('cylibs/trust/roles/debuffer')

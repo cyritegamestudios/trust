@@ -13,6 +13,11 @@ function Trust:on_trust_settings_changed()
 	return self.trust_settings_changed
 end
 
+-- Event called when trust roles are changed.
+function Trust:on_trust_roles_changed()
+	return self.trust_roles_changed
+end
+
 function Trust.new(action_queue, roles, trust_settings, job)
 	local self = setmetatable({
 		action_queue = action_queue;
@@ -24,6 +29,7 @@ function Trust.new(action_queue, roles, trust_settings, job)
 		role_blacklist = S{};
 		gambits = L{};
 		trust_settings_changed = Event.newEvent();
+		trust_roles_changed = Event.newEvent();
 		trust_modes_override = Event.newEvent();
 		trust_modes_reset = Event.newEvent();
 	}, Trust)
@@ -72,6 +78,7 @@ function Trust:destroy()
 	end
 
 	self.trust_settings_changed:removeAllActions()
+	self.trust_roles_changed:removeAllActions()
 	self.trust_modes_override:removeAllActions()
 	self.trust_modes_reset:removeAllActions()
 
@@ -126,6 +133,7 @@ function Trust:add_role(role)
 		end
 		self:on_role_added(role)
 	end
+	self:on_trust_roles_changed():trigger(self, L{ role })
 end
 
 function Trust:remove_role(role)

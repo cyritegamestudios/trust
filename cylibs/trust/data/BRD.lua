@@ -1,7 +1,3 @@
-require('tables')
-require('lists')
-require('logger')
-
 Bard = require('cylibs/entity/jobs/BRD')
 
 local Trust = require('cylibs/trust/trust')

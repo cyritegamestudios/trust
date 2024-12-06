@@ -232,6 +232,14 @@ function load_user_files(main_job_id, sub_job_id)
 		player.trust.sub_job:add_role(Gambiter.new(action_queue, player.trust.sub_job_settings.Default.GambitSettings, skillchainer))
 	end
 
+	player.trust.main_job:on_trust_roles_changed():addAction(function(trust, roles_added, roles_removed)
+		TrustFactory.dedupe_roles(player.trust.main_job, player.trust.sub_job)
+	end)
+
+	player.trust.sub_job:on_trust_roles_changed():addAction(function(trust, roles_added, roles_removed)
+		TrustFactory.dedupe_roles(player.trust.main_job, player.trust.sub_job)
+	end)
+
 	target_change_time = os.time()
 
 	default_trust_name = string.gsub(string.lower(player.main_job_name), "%s+", "")

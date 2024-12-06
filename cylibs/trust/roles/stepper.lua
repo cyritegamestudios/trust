@@ -1,7 +1,4 @@
 local DisposeBag = require('cylibs/events/dispose_bag')
-local StepTracker = require('cylibs/battle/trackers/step_tracker')
-local buff_util = require('cylibs/util/buff_util')
-local spell_util = require('cylibs/util/spell_util')
 
 local Stepper = setmetatable({}, {__index = Role })
 Stepper.__index = Stepper
