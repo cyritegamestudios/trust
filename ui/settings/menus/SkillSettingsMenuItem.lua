@@ -43,7 +43,7 @@ function SkillSettingsMenuItem.new(weaponSkillSettings, skillSettings)
         blacklistConfigItem:setPickerDescription('Choose one or more abilities to avoid when making skillchains.')
         local configItems = L{
             PickerConfigItem.new('DefaultAbility', self.newSkillSettings.DefaultAbility, allAbilities, function(ability)
-                return ability:get_localized_name()
+                return ability:get_name(), ability:get_localized_name()
             end, 'Spam Ability'),
             blacklistConfigItem,
         }

@@ -20,7 +20,12 @@ function PickerCollectionViewCell.new(item, textStyle)
 
     local self = setmetatable(CollectionViewCell.new(item), PickerCollectionViewCell)
 
-    local textItem = TextItem.new(item:getTextFormat()(item:getCurrentValue()), textStyle)
+    self.textStyle = textStyle
+
+    local text, localizedText = item:getTextFormat()(item:getCurrentValue())
+
+    local textItem = TextItem.new(text, textStyle)
+    textItem:setLocalizedText(localizedText)
     textItem:setShouldTruncateText(item:getShouldTruncateText())
 
     self.textView = TextCollectionViewCell.new(textItem)
@@ -59,7 +64,13 @@ end
 function PickerCollectionViewCell:setItem(item)
     CollectionViewCell.setItem(self, item)
 
-    self.textView:setItem(TextItem.new(item:getTextFormat()(item:getCurrentValue()), TextStyle.Picker.TextSmall))
+    local text, localizedText = item:getTextFormat()(item:getCurrentValue())
+
+    local textItem = TextItem.new(text, self.textStyle)
+    textItem:setLocalizedText(localizedText)
+    textItem:setShouldTruncateText(item:getShouldTruncateText())
+
+    self.textView:setItem(textItem)
 
     self:setNeedsLayout()
     self:layoutIfNeeded()

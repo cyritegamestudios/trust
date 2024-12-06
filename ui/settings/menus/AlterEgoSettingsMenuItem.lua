@@ -32,7 +32,7 @@ function AlterEgoSettingsMenuItem.new(truster, trustModeSettings, addonSettings)
             local alterEgoName = allSettings[i]
             alterEgoSettings[alterEgoKey] = alterEgoName
             configItems:append(PickerConfigItem.new(alterEgoKey, alterEgoName, allAlterEgos, function(alterEgoName)
-                return i18n.resource('spells', 'en', alterEgoName)
+                return alterEgoName, i18n.resource('spells', 'en', alterEgoName)
             end, "Alter Ego "..i))
         end
 
