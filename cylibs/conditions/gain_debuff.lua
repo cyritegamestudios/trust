@@ -38,7 +38,7 @@ function GainDebuffCondition:get_config_items()
 end
 
 function GainDebuffCondition:tostring()
-    return "Is now "..res.buffs:with('en', self.debuff_name).enl
+    return "Is now "..i18n.resource_long('buffs', 'en', self.debuff_name)
 end
 
 function GainDebuffCondition.description()

@@ -78,7 +78,7 @@ end
 
 function HasBuffsCondition:tostring()
     local buff_names = L((self.buff_names or L{}):map(function(buff_name)
-        return buff_name:gsub("^%l", string.upper)
+        return i18n.resource('buffs', 'en', buff_name)
     end))
     if buff_names:length() == self.num_required then
         return "Has "..localization_util.commas(buff_names)
