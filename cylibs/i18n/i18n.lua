@@ -77,7 +77,7 @@ end
 
 function i18n.resource(resource_name, key, value)
     if S{ 'en', 'ens' }:contains(key) and locale == i18n.Locale.English then
-        return value:length() > 0 and value:slice(0, 1):upper()..value:slice(2) or value
+        return value:length() > 1 and value:slice(0, 1):upper()..value:slice(2) or value
     end
     local item = res[resource_name]:with(key, value) or res[resource_name]:with(key, value:lower())
     if item then

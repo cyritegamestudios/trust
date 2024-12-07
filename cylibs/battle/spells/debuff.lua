@@ -33,17 +33,6 @@ function Debuff.new(spell_name, job_abilities, job_names, spell_prefix)
     end
 end
 
-function Debuff.spell(spell_name)
-    local spell = res.spells:with('en', spell_name)
-    if spell then
-        local self = setmetatable(Spell.new(spell.en, L{}), Debuff)
-        self.original_spell_name = spell_name
-        return self
-    else
-        return nil
-    end
-end
-
 function Debuff:get_localized_name()
     return i18n.resource('spells', 'en', self:get_name())
 end
