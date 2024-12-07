@@ -154,6 +154,10 @@ end
 function TextCollectionViewCell:setItem(item)
     CollectionViewCell.setItem(self, item)
 
+    if self.destroyed then
+        return
+    end
+
     self.textView:font(self:getItem():getSettings().text.font)
 
     self:setNeedsLayout()

@@ -107,7 +107,7 @@ function PickerCollectionViewCell:showPickerView()
                 initialValue = L{ initialValue }
             end
             local configItem = MultiPickerConfigItem.new("Items", initialValue, item:getAllValues(), function(value)
-                return tostring(value)
+                return tostring(value), tostring(value)
             end, nil, nil, item:getImageItemForText())
 
             local pickerView = FFXIPickerView.withConfig(configItem, true)

@@ -10,6 +10,7 @@ local Condition = require('cylibs/conditions/condition')
 local ConfigItem = require('ui/settings/editors/config/ConfigItem')
 local GroupConfigItem = require('ui/settings/editors/config/GroupConfigItem')
 local localization_util = require('cylibs/util/localization_util')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local HasBuffsCondition = setmetatable({}, { __index = Condition })
 HasBuffsCondition.__index = HasBuffsCondition
@@ -65,28 +66,36 @@ function HasBuffsCondition:get_config_items()
         return nil
     end):compact_map())
     all_buffs = L(all_buffs)
-    all_buffs:append('None')
     all_buffs:sort()
+
     return L{
+        MultiPickerConfigItem.new('buff_names', self.buff_names, all_buffs, function(buff_names)
+            local text = localization_util.commas(buff_names:map(function(buff_name) return buff_name:gsub("^%l", string.upper) end))
+            return text, text
+        end, "Buff Names"),
+        ConfigItem.new('num_required', 1, 3, 1, nil, "Number Required"),
+    }
+
+    --[[return L{
         GroupConfigItem.new('buff_names', L{
             PickerConfigItem.new('buff_name_1', self.buff_names[1] or 'None', all_buffs, function(buff_name)
-                return buff_name:gsub("^%l", string.upper)
+                return buff_name:gsub("^%l", string.upper), i18n.resource('buffs', 'en', 'buff_name')
             end, "Buff 1"),
             PickerConfigItem.new('buff_name_2', self.buff_names[2] or 'None', all_buffs, function(buff_name)
                 if buff_name then
-                    return buff_name:gsub("^%l", string.upper)
+                    return buff_name:gsub("^%l", string.upper), i18n.resource('buffs', 'en', 'buff_name')
                 end
-                return 'None'
+                return 'None', 'None'
             end, "Buff 2"),
             PickerConfigItem.new('buff_name_3', self.buff_names[3] or 'None', all_buffs, function(buff_name)
                 if buff_name then
-                    return buff_name:gsub("^%l", string.upper)
+                    return buff_name:gsub("^%l", string.upper), i18n.resource('buffs', 'en', 'buff_name')
                 end
-                return 'None'
+                return 'None', 'None'
             end, "Buff 3")
         }, nil, "Buff Names"),
         ConfigItem.new('num_required', 1, 3, 1, nil, "Number Required")
-    }
+    }]]
 end
 
 function HasBuffsCondition:tostring()
