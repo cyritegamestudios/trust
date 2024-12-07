@@ -255,6 +255,7 @@ function ConfigEditor:getCellItemForConfigItem(configItem)
         pickerItem:setShouldTruncateText(true)
         pickerItem:setPickerTitle(configItem:getPickerTitle())
         pickerItem:setPickerDescription(configItem:getPickerDescription())
+        pickerItem:setPickerTextFormat(configItem:getPickerTextFormat())
         pickerItem:setShowMenu(self.showMenu)
         pickerItem:setOnPickItems(function(newValue)
             if class(newValue) == 'List' then

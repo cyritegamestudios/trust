@@ -55,6 +55,9 @@ function CombatSkillsCondition:get_config_items()
     end, "Combat Skills")
     combatSkillsConfigItem:setPickerTitle("Skills")
     combatSkillsConfigItem:setPickerDescription("Choose one or more combat skills.")
+    combatSkillsConfigItem:setPickerTextFormat(function(combat_skill)
+        return i18n.resource('skills', 'en', combat_skill)
+    end)
     return L{
         combatSkillsConfigItem
     }

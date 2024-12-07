@@ -39,6 +39,9 @@ function JobCondition:get_config_items()
     end, "Target's Job")
     jobPickerConfigItem:setPickerTitle("Jobs")
     jobPickerConfigItem:setPickerDescription("Choose one or more jobs.")
+    jobPickerConfigItem:setPickerTextFormat(function(job_name_short)
+        return i18n.resource('jobs', 'ens', job_name_short)
+    end)
     return L{
         jobPickerConfigItem
     }
