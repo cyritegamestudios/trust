@@ -38,7 +38,7 @@ function FinishAbilityCondition:get_config_items()
     all_ability_names:sort()
     return L{
         PickerConfigItem.new('ability_name', self.ability_name, all_ability_names, function(ability_name)
-            return ability_name:gsub("^%l", string.upper)
+            return i18n.resource('monster_abilities', 'en', ability_name)
         end, "Ability") }
 end
 

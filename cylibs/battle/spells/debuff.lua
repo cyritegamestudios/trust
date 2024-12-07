@@ -45,7 +45,7 @@ function Debuff.spell(spell_name)
 end
 
 function Debuff:get_localized_name()
-    return i18n.resource('buffs', 'en', self:get_name())
+    return i18n.resource('spells', 'en', self:get_name())
 end
 
 function Debuff:serialize()

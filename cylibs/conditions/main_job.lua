@@ -38,7 +38,7 @@ function MainJobCondition:get_config_items()
     end
     return L{
         PickerConfigItem.new('job_name_short', self.job_name_short, all_job_name_shorts, function(job_name_short)
-            return res.jobs:with('ens', job_name_short).en
+            return i18n.resource('jobs', 'ens', job_name_short)
         end, "Main Job")
     }
 end

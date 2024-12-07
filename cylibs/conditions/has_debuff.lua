@@ -42,7 +42,7 @@ function HasDebuffCondition:get_config_items()
     return L{
         PickerConfigItem.new('debuff_name', self.debuff_name, all_debuffs, function(debuff_name)
             local status_ailment = StatusAilment.new(debuff_name)
-            return status_ailment:get_name():gsub("^%l", string.upper), status_ailment:get_localized_name()
+            return status_ailment:get_localized_name()
         end, "Status Ailment")
     }
 end

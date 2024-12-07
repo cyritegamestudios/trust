@@ -48,25 +48,9 @@ function HasBuffCondition:get_config_items()
     return L{
         PickerConfigItem.new('buff_name', self.buff_name, all_buffs, function(buff_name)
             local buff = StatusAilment.new(buff_name)
-            return buff:get_name():gsub("^%l", string.upper), buff:get_localized_name()
+            return buff:get_localized_name()
         end, "Buff Name")
     }
-
-    --[[local all_buffs = S(buff_util.get_all_buff_ids(true):map(function(buff_id)
-        local buff = res.buffs[buff_id]
-        if buff then
-            return buff.en
-        end
-        return nil
-    end):compact_map())
-    all_buffs = L(all_buffs)
-    all_buffs:sort()
-
-    return L{
-        PickerConfigItem.new('buff_name', self.buff_name, all_buffs, function(buff_name)
-            return buff_name:gsub("^%l", string.upper)
-        end, "Buff Name")
-    }]]
 end
 
 function HasBuffCondition:tostring()

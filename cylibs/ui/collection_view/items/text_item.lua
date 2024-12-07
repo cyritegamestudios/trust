@@ -182,9 +182,9 @@ function TextItem:getSettings()
     settings.flags.right = false
     settings.flags.draggable = false
 
-    if self:getText() == self:getLocalizedText() then
-        settings.text.font = "Arial"
-    end
+    --if self:getText() == self:getLocalizedText() then
+    --    settings.text.font = "Arial"
+    --end
 
     if i18n.current_locale() == i18n.Locale.Japanese then
         settings.text.fonts = { "Meiryo", "Source Han Sans", "VL Gothic" }
