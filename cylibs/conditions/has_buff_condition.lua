@@ -54,7 +54,7 @@ function HasBuffCondition:get_config_items()
 end
 
 function HasBuffCondition:tostring()
-    return "Is "..res.buffs:with('en', self.buff_name).enl:gsub("^%l", string.upper)
+    return "Is "..i18n.resource_long('buffs', 'en', self.buff_name)
 end
 
 function HasBuffCondition.description()

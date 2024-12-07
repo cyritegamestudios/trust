@@ -51,17 +51,22 @@ function CombatSkillsCondition:get_config_items()
         'Throwing'
     }
     local combatSkillsConfigItem = MultiPickerConfigItem.new('combat_skill_names', self.combat_skill_names, all_combat_skills, function(combat_skills)
-        return localization_util.commas(combat_skills:map(function(combat_skill) return i18n.resource('skills', 'en', combat_skill) end))
+        return localization_util.commas(combat_skills:map(function(combat_skill) return i18n.resource('skills', 'en', combat_skill) end), 'or')
     end, "Combat Skills")
     combatSkillsConfigItem:setPickerTitle("Skills")
     combatSkillsConfigItem:setPickerDescription("Choose one or more combat skills.")
+    combatSkillsConfigItem:setPickerTextFormat(function(combat_skill)
+        return i18n.resource('skills', 'en', combat_skill)
+    end)
     return L{
         combatSkillsConfigItem
     }
 end
 
 function CombatSkillsCondition:tostring()
-    return "Combat skills are "..localization_util.commas(self.combat_skill_names, 'or')
+    return "Combat skills are "..localization_util.commas(self.combat_skill_names:map(function(combat_skill_name)
+        return i18n.resource('skills', 'en', combat_skill_name)
+    end), 'or')
 end
 
 function CombatSkillsCondition.description()

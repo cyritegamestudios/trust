@@ -66,19 +66,24 @@ function HasBuffsCondition:get_config_items()
     end):compact_map())
     all_buffs = L(all_buffs)
     all_buffs:sort()
-
+    local buffPickerConfigItem = MultiPickerConfigItem.new('buff_names', self.buff_names, all_buffs, function(buff_names)
+        local text = localization_util.commas(buff_names:map(function(buff_name) return StatusAilment.new(buff_name):get_localized_name() end))
+        return text
+    end, "Buff Names")
+    buffPickerConfigItem:setPickerTitle("Buffs")
+    buffPickerConfigItem:setPickerDescription("Choose one or more buffs")
+    buffPickerConfigItem:setPickerTextFormat(function(buff_name)
+        return i18n.resource('buffs', 'en', buff_name)
+    end)
     return L{
-        MultiPickerConfigItem.new('buff_names', self.buff_names, all_buffs, function(buff_names)
-            local text = localization_util.commas(buff_names:map(function(buff_name) return StatusAilment.new(buff_name):get_localized_name() end))
-            return text
-        end, "Buff Names"),
+        buffPickerConfigItem,
         ConfigItem.new('num_required', 1, 10, 1, nil, "Number Required"),
     }
 end
 
 function HasBuffsCondition:tostring()
     local buff_names = L((self.buff_names or L{}):map(function(buff_name)
-        return buff_name:gsub("^%l", string.upper)
+        return i18n.resource('buffs', 'en', buff_name)
     end))
     if buff_names:length() == self.num_required then
         return "Has "..localization_util.commas(buff_names)

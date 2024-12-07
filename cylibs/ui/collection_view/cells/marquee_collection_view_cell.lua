@@ -1,4 +1,3 @@
-local Alignment = require('cylibs/ui/layout/alignment')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local texts = require('texts')
 local Timer = require('cylibs/util/timers/timer')

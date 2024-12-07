@@ -39,6 +39,9 @@ function JobCondition:get_config_items()
     end, "Target's Job")
     jobPickerConfigItem:setPickerTitle("Jobs")
     jobPickerConfigItem:setPickerDescription("Choose one or more jobs.")
+    jobPickerConfigItem:setPickerTextFormat(function(job_name_short)
+        return i18n.resource('jobs', 'ens', job_name_short)
+    end)
     return L{
         jobPickerConfigItem
     }
@@ -50,9 +53,13 @@ function JobCondition:tostring()
     else
         if self.job_name_shorts:length() > 15 then
             local excluded_job_name_shorts = list.diff(self.job_name_shorts, job_util.all_jobs())
-            return "Target is any job except "..localization_util.commas(excluded_job_name_shorts, 'or')
+            return "Target is any job except "..localization_util.commas(excluded_job_name_shorts:map(function(job_name_short)
+                return i18n.resource('jobs', 'ens', job_name_short)
+            end), 'or')
         end
-        return "Target job is "..localization_util.commas(self.job_name_shorts, 'or')
+        return "Target job is "..localization_util.commas(self.job_name_shorts:map(function(job_name_short)
+            return i18n.resource('jobs', 'ens', job_name_short)
+        end), 'or')
     end
 end
 

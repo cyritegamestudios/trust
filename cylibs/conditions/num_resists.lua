@@ -48,7 +48,7 @@ function NumResistsCondition:get_config_items()
 end
 
 function NumResistsCondition:tostring()
-    return self.spell_name.." resisted "..self.operator.." "..self.num_resists.." times"
+    return i18n.resource('spells', 'en', self.spell_name).." resisted "..self.operator.." "..self.num_resists.." times"
 end
 
 function NumResistsCondition.description()

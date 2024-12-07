@@ -63,10 +63,7 @@ function Gambit:tostring()
     if self.conditions:length() > 0 then
         conditionsDescription = localization_util.commas(self.conditions:map(function(condition) return condition:tostring()  end))
     end
-    local abilityName = self.ability:get_name()
-    if self.ability.get_display_name then
-        abilityName = self.ability:get_display_name()
-    end
+    local abilityName = self.ability:get_localized_name()
     return self.conditions_target..": "..conditionsDescription.. " → "..self.target..": "..abilityName
 end
 

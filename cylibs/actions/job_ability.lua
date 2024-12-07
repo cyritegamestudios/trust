@@ -114,7 +114,7 @@ function JobAbility:tostring()
     if target.name == windower.ffxi.get_player().name then
        return self:get_job_ability_name()
     end
-    return self:get_job_ability_name()..' → '..target.name
+    return i18n.resource('job_abilities', 'en', self:get_job_ability_name()) or self:get_job_ability_name()..' → '..target.name
 end
 
 function JobAbility:debug_string()

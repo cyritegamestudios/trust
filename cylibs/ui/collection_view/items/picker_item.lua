@@ -200,4 +200,24 @@ function PickerItem:getPickerDescription()
     return self.pickerDescription
 end
 
+---
+-- Sets the picker text format.
+--
+-- @tparam function pickerTextFormat Sets the picker text format.
+--
+function PickerItem:setPickerTextFormat(pickerTextFormat)
+    self.pickerTextFormat = pickerTextFormat
+end
+
+---
+-- Returns the picker text format.
+--
+-- @treturn function The picker text format.
+--
+function PickerItem:getPickerTextFormat()
+    return self.pickerTextFormat or function(value)
+        return tostring(value)
+    end
+end
+
 return PickerItem

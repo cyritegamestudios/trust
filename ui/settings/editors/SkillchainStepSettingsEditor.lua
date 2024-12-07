@@ -18,7 +18,7 @@ function SkillchainStepSettingsEditor.new(stepSettings, nextSteps)
             if step:get_skillchain() then
                 suffix = ' ('..step:get_skillchain()..')'
             end
-            return step:get_ability():get_name()..suffix, step:get_ability():get_localized_name()..suffix
+            return step:get_ability():get_localized_name()..suffix
         end, 'Ability')
     }
 

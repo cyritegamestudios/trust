@@ -148,9 +148,9 @@ function SpellAction:tostring()
 	local spell = res.spells[self:getspellid()]
 	local target = windower.ffxi.get_mob_by_index(self.target_index)
 	if target.name == windower.ffxi.get_player().name then
-		return spell.en
+		return i18n.resource('spells', 'en', spell.en)
 	end
-	return spell.en..' → '..target.name
+	return i18n.resource('spells', 'en', spell.en)..' → '..target.name
 end
 
 function SpellAction:debug_string()

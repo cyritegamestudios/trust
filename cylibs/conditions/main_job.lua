@@ -44,7 +44,7 @@ function MainJobCondition:get_config_items()
 end
 
 function MainJobCondition:tostring()
-    return "Player main job is "..res.jobs:with('ens', self.job_name_short).en
+    return "Player main job is "..i18n.resource('jobs', 'ens', self.job_name_short)
 end
 
 function MainJobCondition.description()

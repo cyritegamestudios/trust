@@ -75,7 +75,7 @@ function MultiPickerConfigItem:setAllValues(allValues)
 end
 
 ---
--- Gets the formatted text.
+-- Gets the formatted text for a list of items.
 --
 -- @treturn function The formatted text.
 --
@@ -175,6 +175,26 @@ end
 --
 function MultiPickerConfigItem:getPickerDescription()
     return self.pickerDescription
+end
+
+---
+-- Sets the picker text format.
+--
+-- @tparam function pickerTextFormat Sets the picker text format.
+--
+function MultiPickerConfigItem:setPickerTextFormat(pickerTextFormat)
+    self.pickerTextFormat = pickerTextFormat
+end
+
+---
+-- Returns the picker text format.
+--
+-- @treturn function The picker text format.
+--
+function MultiPickerConfigItem:getPickerTextFormat()
+    return self.pickerTextFormat or function(value)
+        return tostring(value)
+    end
 end
 
 return MultiPickerConfigItem
