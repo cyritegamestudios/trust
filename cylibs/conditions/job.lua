@@ -34,8 +34,13 @@ function JobCondition:get_config_items()
     for i = 1, 22 do
         all_job_name_shorts:append(res.jobs[i].ens)
     end
+    local jobPickerConfigItem = MultiPickerConfigItem.new('job_name_shorts', self.job_name_shorts, all_job_name_shorts, function(job_names)
+        return localization_util.commas(job_names:map(function(job_name_short) return i18n.resource('jobs', 'ens', job_name_short) end), 'or')
+    end, "Target's Job")
+    jobPickerConfigItem:setPickerTitle("Jobs")
+    jobPickerConfigItem:setPickerDescription("Choose one or more jobs.")
     return L{
-        MultiPickerConfigItem.new('job_name_shorts', self.job_name_shorts, all_job_name_shorts, nil, "Target's Job")
+        jobPickerConfigItem
     }
 end
 

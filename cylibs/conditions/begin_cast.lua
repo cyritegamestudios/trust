@@ -27,13 +27,13 @@ end
 
 function BeginCastCondition:get_config_items()
     local all_spell_names = res.spells:with_all('type', 'BlackMagic'):map(function(spell)
-        return spell.name
+        return spell.en
     end)
     all_spell_names = L(S(all_spell_names))
     all_spell_names:sort()
     return L{
         PickerConfigItem.new('spell_name', self.spell_name, all_spell_names, function(spell_name)
-            return spell_name:gsub("^%l", string.upper)
+            return Spell.new(spell_name):get_localized_name()
         end, "Spell") }
 end
 

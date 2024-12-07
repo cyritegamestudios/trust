@@ -45,15 +45,11 @@ function SkillchainPropertyCondition:get_config_items()
     all_skillchain_properties:append('None')
     all_skillchain_properties:sort()
 
-    local textFormat = function(skillchain)
-        if type(skillchain) == 'string' then
-            return skillchain
-        end
-        return skillchain:get_name()
-    end
-
+    local skillchainPickerConfigItem = MultiPickerConfigItem.new('allowed_skillchain_properties', self.allowed_skillchain_properties, all_skillchain_properties, nil, "Skillchain Properties")
+    skillchainPickerConfigItem:setPickerTitle("Properties")
+    skillchainPickerConfigItem:setPickerDescription("Choose one or more skillchain properties.")
     return L{
-        MultiPickerConfigItem.new('allowed_skillchain_properties', self.allowed_skillchain_properties, all_skillchain_properties, nil, "Skillchain Properties")
+        skillchainPickerConfigItem
     }
 end
 

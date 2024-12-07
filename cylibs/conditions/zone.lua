@@ -7,6 +7,7 @@ local serializer_util = require('cylibs/util/serializer_util')
 local Condition = require('cylibs/conditions/condition')
 local GroupConfigItem = require('ui/settings/editors/config/GroupConfigItem')
 local localization_util = require('cylibs/util/localization_util')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local ZoneCondition = setmetatable({}, { __index = Condition })
 ZoneCondition.__index = ZoneCondition
@@ -33,6 +34,19 @@ function ZoneCondition:get_config_items()
     end
     all_zone_ids:sort()
     all_zone_ids = all_zone_ids:map(function(zone_name) return res.zones:with('en', zone_name).id  end)
+
+    --[[local zonePickerConfigItem = MultiPickerConfigItem.new('zone_ids', self.zone_ids or L{ windower.ffxi.get_info().zone }, all_zone_ids, function(zone_ids)
+        local text = localization_util.commas(zone_ids:map(function(zone_id)
+            return i18n.resource('zones', 'id', zone_id)
+        end), 'or')
+        return text
+    end, "In zone")
+    zonePickerConfigItem:setPickerTitle("Zones")
+    zonePickerConfigItem:setPickerDescription("Choose one or more zones.")
+    return L{
+        zonePickerConfigItem
+    }]]
+
     return L{
         GroupConfigItem.new('zone_ids', L{
             PickerConfigItem.new('zone_id_1', self.zone_ids[1] or windower.ffxi.get_info().zone, all_zone_ids, function(zone_id)

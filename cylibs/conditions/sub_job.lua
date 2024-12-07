@@ -38,17 +38,17 @@ function SubJobCondition:get_config_items()
     end
     return L{
         PickerConfigItem.new('job_name_short', self.job_name_short, all_job_name_shorts, function(job_name_short)
-            return res.jobs:with('ens', job_name_short).en
+            return i18n.resource('jobs', 'ens', job_name_short)
         end, "Sub Job")
     }
 end
 
 function SubJobCondition:tostring()
-    return "Sub job is "..res.jobs:with('ens', self.job_name_short).en
+    return "Player sub job is "..res.jobs:with('ens', self.job_name_short).en
 end
 
 function SubJobCondition.description()
-    return "Sub job is X."
+    return "Player sub job is X."
 end
 
 function SubJobCondition.valid_targets()

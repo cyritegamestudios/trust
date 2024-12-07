@@ -33,6 +33,10 @@ function Debuff.new(spell_name, job_abilities, job_names, spell_prefix)
     end
 end
 
+function Debuff:get_localized_name()
+    return i18n.resource('spells', 'en', self:get_name())
+end
+
 function Debuff:serialize()
     return "Debuff.new(" .. serializer_util.serialize_args(self.original_spell_name, self.job_abilities, L{}, self.spell_prefix) .. ")"
 end
