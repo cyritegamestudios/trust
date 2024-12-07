@@ -29,7 +29,7 @@ function ManeuverSettingsMenuItem.new(trustSettings, trustSettingsMode, settings
             return tostring(maneuverSetName)
         end)
 
-        local maneuverSettingsEditor = FFXIPickerView.withConfig(configItem, L{})
+        local maneuverSettingsEditor = FFXIPickerView.withConfig(configItem)
         maneuverSettingsEditor:setAllowsCursorSelection(true)
 
         maneuverSettingsEditor:setNeedsLayout()
