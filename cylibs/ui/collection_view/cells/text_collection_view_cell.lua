@@ -154,6 +154,8 @@ end
 function TextCollectionViewCell:setItem(item)
     CollectionViewCell.setItem(self, item)
 
+    self.textView:font(self:getItem():getSettings().text.font)
+
     self:setNeedsLayout()
     self:layoutIfNeeded()
 end

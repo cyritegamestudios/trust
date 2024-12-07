@@ -7,6 +7,7 @@ local buff_util = require('cylibs/util/buff_util')
 local party_util = require('cylibs/util/party_util')
 local serializer_util = require('cylibs/util/serializer_util')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
+local StatusAilment = require('cylibs/battle/status_ailment')
 
 local Condition = require('cylibs/conditions/condition')
 local HasBuffCondition = setmetatable({}, { __index = Condition })
@@ -36,7 +37,22 @@ function HasBuffCondition:is_satisfied(target_index)
 end
 
 function HasBuffCondition:get_config_items()
-    local all_buffs = S(buff_util.get_all_buff_ids(true):map(function(buff_id)
+    local all_buffs = L(S(buff_util.get_all_buff_ids(true):map(function(buff_id)
+        local buff = res.buffs[buff_id]
+        if buff then
+            return buff.en
+        end
+        return nil
+    end))):compact_map():sort()
+
+    return L{
+        PickerConfigItem.new('buff_name', self.buff_name, all_buffs, function(buff_name)
+            local buff = StatusAilment.new(buff_name)
+            return buff:get_name():gsub("^%l", string.upper), buff:get_localized_name()
+        end, "Buff Name")
+    }
+
+    --[[local all_buffs = S(buff_util.get_all_buff_ids(true):map(function(buff_id)
         local buff = res.buffs[buff_id]
         if buff then
             return buff.en
@@ -50,7 +66,7 @@ function HasBuffCondition:get_config_items()
         PickerConfigItem.new('buff_name', self.buff_name, all_buffs, function(buff_name)
             return buff_name:gsub("^%l", string.upper)
         end, "Buff Name")
-    }
+    }]]
 end
 
 function HasBuffCondition:tostring()
