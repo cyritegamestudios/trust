@@ -22,10 +22,9 @@ function PickerCollectionViewCell.new(item, textStyle)
 
     self.textStyle = textStyle
 
-    local text, localizedText = item:getTextFormat()(item:getCurrentValue())
+    local text = item:getTextFormat()(item:getCurrentValue())
 
     local textItem = TextItem.new(text, textStyle)
-    textItem:setLocalizedText(localizedText or text)
     textItem:setShouldTruncateText(item:getShouldTruncateText())
 
     self.textView = TextCollectionViewCell.new(textItem)
@@ -64,10 +63,9 @@ end
 function PickerCollectionViewCell:setItem(item)
     CollectionViewCell.setItem(self, item)
 
-    local text, localizedText = item:getTextFormat()(item:getCurrentValue())
+    local text = item:getTextFormat()(item:getCurrentValue())
 
     local textItem = TextItem.new(text, self.textStyle)
-    textItem:setLocalizedText(localizedText or text)
     textItem:setShouldTruncateText(item:getShouldTruncateText())
 
     self.textView:setItem(textItem)
