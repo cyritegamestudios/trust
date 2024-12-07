@@ -53,7 +53,10 @@ function BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, setti
 
             local item = buffSettingsEditor:getDataSource():itemAtIndexPath(indexPath)
             if item and not item:getTextItem():getEnabled() then
-                infoView:setDescription("Unavailable on current job or settings.")
+                local failed_conditions = buff:get_conditions():filter(function(condition)
+                    return not condition:is_satisfied(condition:get_target_index() or windower.ffxi.get_player().index)
+                end):map(function(condition) return condition:tostring() end)
+                infoView:setDescription("Unavailable due to failed conditions: "..localization_util.commas(failed_conditions))
             else
                 local buff = buffs[indexPath.row]
                 if buff then
