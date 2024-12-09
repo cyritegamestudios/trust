@@ -119,7 +119,11 @@ end
 -- Return the Action to use this action on a target.
 -- @treturn Action Action to use ability
 function UseItem:to_action(target_index, _)
-    return CommandAction.new(0, 0, 0, '/item \"'..self.item_name..'\" <me>')
+    return BlockAction.new(function()
+        local UseItemCommand = require('cylibs/ui/input/chat/commands/use_item')
+        local command = UseItemCommand.new(self:get_item_name(), windower.ffxi.get_player().id)
+        command:run(true)
+    end, self.__class..'_'..self:get_item_name(), self:get_item_name())
 end
 
 function UseItem:serialize()
