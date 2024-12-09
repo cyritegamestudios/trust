@@ -1,5 +1,6 @@
 local JobAbilityCommand = require('cylibs/ui/input/chat/commands/job_ability')
 local SpellCommand = require('cylibs/ui/input/chat/commands/spell')
+local WeaponSkillCommand = require('cylibs/ui/input/chat/commands/weapon_skill')
 
 local ChatInput = {}
 ChatInput.__index = ChatInput
@@ -25,8 +26,15 @@ function ChatInput.new()
 
     self:registerHandler(L{ buildRegex("/ja"), buildRegex("/jobability") }, function(inputText, regex)
         local _, jobAbilityName, targetId = string.match(inputText, regex)
-        
+
         local command = JobAbilityCommand.new(jobAbilityName:gsub("\"", ""), targetId)
+        command:run()
+    end)
+
+    self:registerHandler(L{ buildRegex("/ws"), buildRegex("/weaponskill") }, function(inputText, regex)
+        local _, weaponSkillName, targetId = string.match(inputText, regex)
+
+        local command = WeaponSkillCommand.new(weaponSkillName:gsub("\"", ""), targetId)
         command:run()
     end)
 
@@ -45,7 +53,6 @@ function ChatInput.new()
                 return true
             end
         end
-        print('no match')
         return false
     end)
 

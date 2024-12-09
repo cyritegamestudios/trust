@@ -91,24 +91,6 @@ function SpellAction:perform()
 	spell:run(true)
 end
 
-function SpellAction:localize()
-	local target = windower.ffxi.get_mob_by_index(self.target_index)
-
-	local spell = res.spells[self.spell_id]
-	if spell then
-		local spell_name = spell.en
-		if localization_util.should_use_client_locale() then
-			spell_name = localization_util.encode(spell.name, windower.ffxi.get_info().language:lower())
-		end
-		if windower.ffxi.get_info().language:lower() == 'japanese' then
-			return "/ma %s ":format(spell_name)..target.id
-		else
-			return '/ma "%s" ':format(spell_name)..target.id
-		end
-	end
-	return ""
-end
-
 function SpellAction:getspellid()
 	return self.spell_id
 end

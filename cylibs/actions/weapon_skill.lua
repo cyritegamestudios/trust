@@ -1,4 +1,5 @@
 local HasWeaponSkillCondition = require('cylibs/conditions/has_weapon_skill')
+local WeaponSkillCommand = require('cylibs/ui/input/chat/commands/weapon_skill')
 
 local Action = require('cylibs/actions/action')
 local WeaponSkillAction = setmetatable({}, {__index = Action })
@@ -29,7 +30,10 @@ function WeaponSkillAction.new(weapon_skill_name, target_index)
 end
 
 function WeaponSkillAction:perform()
-	windower.chat.input(self:localize())
+	local target = windower.ffxi.get_mob_by_index(self.target_index)
+
+	local command = WeaponSkillCommand.new(self.weapon_skill_name, target.id)
+	command:run(true)
 
 	self:complete(true)
 end

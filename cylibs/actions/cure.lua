@@ -5,6 +5,7 @@
 
 local DisposeBag = require('cylibs/events/dispose_bag')
 
+local SpellCommand = require('cylibs/ui/input/chat/commands/spell')
 local spell_util = require('cylibs/util/spell_util')
 
 local Action = require('cylibs/actions/action')
@@ -89,25 +90,10 @@ function CureAction:perform()
                 end
             end), self.player:on_spell_interrupted())
 
-    windower.chat.input(self:localize(cure_spell:get_spell().id))
-end
-
-function CureAction:localize(spell_id)
     local target = self.party_member:get_mob()
 
-    local spell = res.spells[spell_id]
-    if spell then
-        local spell_name = spell.en
-        if localization_util.should_use_client_locale() then
-            spell_name = localization_util.encode(spell.name, windower.ffxi.get_info().language:lower())
-        end
-        if windower.ffxi.get_info().language:lower() == 'japanese' then
-            return "/ma %s ":format(spell_name)..target.id
-        else
-            return '/ma "%s" ':format(spell_name)..target.id
-        end
-    end
-    return ""
+    local spell = SpellCommand.new(spell_util.spell_name(cure_spell:get_spell().id), target.id)
+    spell:run(true)
 end
 
 function CureAction:getspellid()
