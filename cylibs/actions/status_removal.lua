@@ -5,6 +5,7 @@
 
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Event = require('cylibs/events/Luvent')
+local SpellCommand = require('cylibs/ui/input/chat/commands/spell')
 
 local Action = require('cylibs/actions/action')
 local StatusRemovalAction = setmetatable({}, {__index = Action })
@@ -96,9 +97,10 @@ function StatusRemovalAction:perform()
 				end
 			end), self.player:on_spell_interrupted())
 
-	local target = windower.ffxi.get_mob_by_index(self.target_index)
+	local target = windower.ffxi.get_mob_by_index(self.target_index or windower.ffxi.get_player().index)
 
-	windower.send_command('@input /ma "'..res.spells[self.spell_id].en..'" '..target.id)
+	local spell = SpellCommand.new(spell_util.spell_name(self.spell_id), target.id)
+	spell:run(true)
 end
 
 function StatusRemovalAction:getspellid()

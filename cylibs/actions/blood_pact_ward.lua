@@ -24,11 +24,6 @@ function BloodPactWard:can_perform()
 end
 
 function BloodPactWard:perform()
-    if self:is_cancelled() then
-        self:complete(false)
-        return
-    end
-
     local target = windower.ffxi.get_player()
 
     local command = JobAbilityCommand.new(self.blood_pact_name, target.id)

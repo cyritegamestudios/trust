@@ -3,14 +3,14 @@
 -- @class module
 -- @name RangedAttack
 
+local DisposeBag = require('cylibs/events/dispose_bag')
+local RangedAttackCommand = require('cylibs/ui/input/chat/commands/ranged_attack')
+
 local Action = require('cylibs/actions/action')
 local RangedAttack = setmetatable({}, {__index = Action })
 RangedAttack.__index = RangedAttack
 RangedAttack.__eq = RangedAttack.is_equal
 RangedAttack.__class = "RangedAttack"
-
-local DisposeBag = require('cylibs/events/dispose_bag')
-local packets = require('packets')
 
 function RangedAttack.new(target_index, player, ranged_attack_duration)
     local conditions = L{
@@ -45,19 +45,10 @@ function RangedAttack:perform()
         self:complete(false)
     end), self.player:on_ranged_attack_interrupted())
 
-    local target = windower.ffxi.get_mob_by_index(self.target_index)
-    if target.index == windower.ffxi.get_player().target_index then
-        windower.chat.input('/ra <t>')
-    else
-        local p = packets.new('outgoing', 0x01a, {
-            ["Target"] = target.id,
-            ["Target Index"] = target.index,
-            ["Category"] = 16,
-            ["Param"] = 0,
-            ["_unknown1"] = 0,
-        })
-        packets.inject(p)
-    end
+    local target = windower.ffxi.get_mob_by_index(self.target_index) or windower.ffxi.get_mob_by_target('bt')
+
+    local command = RangedAttackCommand.new('/ra', target.id)
+    command:run(true)
 end
 
 function RangedAttack:gettype()

@@ -1,4 +1,5 @@
 local JobAbilityCommand = require('cylibs/ui/input/chat/commands/job_ability')
+local RangedAttackCommand = require('cylibs/ui/input/chat/commands/ranged_attack')
 local SpellCommand = require('cylibs/ui/input/chat/commands/spell')
 local WeaponSkillCommand = require('cylibs/ui/input/chat/commands/weapon_skill')
 
@@ -13,8 +14,12 @@ function ChatInput.new()
     self.handlers = {}
     self.hasShownWarning = false
 
-    local buildRegex = function(prefix)
-        return "("..prefix..") (\"?["..i18n.get_regex_character_set()..":%p%s]+\"?) (%d+)"
+    local buildRegex = function(prefix, skip_ability)
+        if skip_ability then
+            return "("..prefix..") (%d+)"
+        else
+            return "("..prefix..") (\"?["..i18n.get_regex_character_set()..":%p%s]+\"?) (%d+)"
+        end
     end
 
     self:registerHandler(L{ buildRegex("/ma"), buildRegex("/magic") }, function(inputText, regex)
@@ -35,6 +40,13 @@ function ChatInput.new()
         local _, weaponSkillName, targetId = string.match(inputText, regex)
 
         local command = WeaponSkillCommand.new(weaponSkillName:gsub("\"", ""), targetId)
+        command:run()
+    end)
+
+    self:registerHandler(L{ buildRegex("/ra", true), buildRegex("/rangedattack", true), buildRegex("/shoot", true) }, function(inputText, regex)
+        local prefix, targetId = string.match(inputText, regex)
+
+        local command = RangedAttackCommand.new(prefix, targetId)
         command:run()
     end)
 

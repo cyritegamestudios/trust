@@ -38,22 +38,6 @@ function WeaponSkillAction:perform()
 	self:complete(true)
 end
 
-function WeaponSkillAction:localize()
-	local weapon_skill = res.weapon_skills:with('en', self.weapon_skill_name)
-	if weapon_skill then
-		local weapon_skill_name = weapon_skill.en
-		if localization_util.should_use_client_locale() then
-			weapon_skill_name = localization_util.encode(weapon_skill.name, windower.ffxi.get_info().language:lower())
-		end
-		if self.target_index == windower.ffxi.get_player().index then
-			return "/ws %s <me>":format(weapon_skill_name)
-		else
-			return "/ws %s <t>":format(weapon_skill_name)
-		end
-	end
-	return ""
-end
-
 function WeaponSkillAction:get_weapon_skill_name()
 	return self.weapon_skill_name
 end

@@ -10,8 +10,8 @@ JobAbility.__index = JobAbility
 JobAbility.__eq = JobAbility.is_equal
 JobAbility.__class = "JobAbility"
 
-function JobAbility.new(x, y, z, job_ability_name, target_index)
-    local conditions = L{
+function JobAbility.new(x, y, z, job_ability_name, target_index, conditions)
+    local conditions = (conditions or L{}) + L{
         NotCondition.new(L{InMogHouseCondition.new()}),
         NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'amnesia','Invisible'}, 1)}, windower.ffxi.get_player().index),
         JobAbilityRecastReadyCondition.new(job_ability_name)
