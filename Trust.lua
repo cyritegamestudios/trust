@@ -258,6 +258,7 @@ function load_user_files(main_job_id, sub_job_id)
 		addon_enabled:setValue(false)
 	end
 
+	register_chat_handlers()
 	check_files()
 
 	local end_time = os.clock()
@@ -575,6 +576,11 @@ function check_files()
 	end
 end
 
+function register_chat_handlers()
+	local ChatInput = require('cylibs/ui/input/chat_input')
+	chat_input = ChatInput.new()
+end
+
 -- Helpers
 
 function addon_message(color,str)
@@ -851,3 +857,4 @@ windower.register_event('addon command', addon_command)
 windower.register_event('load', loaded)
 windower.register_event('unload', unloaded)
 windower.register_event('logout', function() windower.send_command('lua unload trust')  end)
+
