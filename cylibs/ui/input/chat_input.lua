@@ -24,7 +24,7 @@ function ChatInput.new()
         command:run()
     end)
 
-    self:registerHandler(L{ buildRegex("/ja"), buildRegex("/jobability") }, function(inputText, regex)
+    self:registerHandler(L{ buildRegex("/ja"), buildRegex("/jobability"), buildRegex("/pet") }, function(inputText, regex)
         local _, jobAbilityName, targetId = string.match(inputText, regex)
 
         local command = JobAbilityCommand.new(jobAbilityName:gsub("\"", ""), targetId)

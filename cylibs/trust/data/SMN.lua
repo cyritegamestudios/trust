@@ -125,7 +125,7 @@ function SummonerTrust:check_buffs()
 			local actions = L{}
 
 			local avatar = self:get_job():get_avatar_name(buff:get_name())
-			if pet_util.pet_name() ~= avatar then
+			if avatar and pet_util.pet_name() ~= avatar then
 				if pet_util.pet_name() ~= nil then
 					actions:append(JobAbilityAction.new(0, 0, 0, 'Release'), true)
 					actions:append(WaitAction.new(0, 0, 0, 1))

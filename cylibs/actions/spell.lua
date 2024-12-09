@@ -13,6 +13,9 @@ local SpellAction = setmetatable({}, {__index = Action })
 SpellAction.__index = SpellAction
 
 function SpellAction.new(x, y, z, spell_id, target_index, player, conditions)
+	if spell_id == nil then
+		print(debug.traceback())
+	end
 	local conditions = (conditions or L{}):extend(L{
 		NotCondition.new(L{InMogHouseCondition.new()}),
 		MaxDistanceCondition.new(20),
