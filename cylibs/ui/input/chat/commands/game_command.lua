@@ -19,6 +19,14 @@ function GameCommand:getTargetInfo()
     return nil, nil
 end
 
+function GameCommand:getInputText(prefix, abilityName, targetId)
+    if i18n.current_locale() == i18n.Locale.Japanese then
+        return windower.to_shift_jis(string.format("%s %s %d", prefix, abilityName, targetId))
+    else
+        return string.format("%s \"%s\" %d", prefix, abilityName, targetId)
+    end
+end
+
 function GameCommand:run(sendInChat)
 end
 

@@ -12,16 +12,20 @@ function ChatInput.new()
     self.handlers = {}
     self.hasShownWarning = false
 
-    self:registerHandler(L{ "(/ma) (\"?[%a:%s]+\"?) (%d+)", "(/magic) (\"?[%a:%s]+\"?) (%d+)" }, function(inputText, regex)
+    local buildRegex = function(prefix)
+        return "("..prefix..") (\"?["..i18n.get_regex_character_set()..":%p%s]+\"?) (%d+)"
+    end
+
+    self:registerHandler(L{ buildRegex("/ma"), buildRegex("/magic") }, function(inputText, regex)
         local _, spellName, targetId = string.match(inputText, regex)
 
         local command = SpellCommand.new(spellName:gsub("\"", ""), targetId)
         command:run()
     end)
 
-    self:registerHandler(L{ "(/ja) (\"?[%a:%s]+\"?) (%d+)", "(/jobability) (\"?[%a:%s]+\"?) (%d+)" }, function(inputText, regex)
+    self:registerHandler(L{ buildRegex("/ja"), buildRegex("/jobability") }, function(inputText, regex)
         local _, jobAbilityName, targetId = string.match(inputText, regex)
-
+        
         local command = JobAbilityCommand.new(jobAbilityName:gsub("\"", ""), targetId)
         command:run()
     end)
@@ -41,6 +45,7 @@ function ChatInput.new()
                 return true
             end
         end
+        print('no match')
         return false
     end)
 

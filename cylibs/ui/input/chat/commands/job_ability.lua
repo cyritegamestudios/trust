@@ -8,8 +8,10 @@ function JobAbilityCommand.new(jobAbilityName, targetId)
     local jobAbility = res.job_abilities:with('en', jobAbilityName)
 
     local self = setmetatable(GameCommand.new(jobAbility.prefix, targetId), JobAbilityCommand)
+
     self.jobAbilityId = jobAbility.id
     self.jobAbilityName = jobAbilityName
+
     return self
 end
 
@@ -32,6 +34,11 @@ function JobAbilityCommand:run(sendInChat)
         p['Y Offset'] = 0
 
         packets.inject(p)
+    else
+        local jobAbility = res.job_abilities:with('en', self.jobAbilityName)
+
+        local inputText = self:getInputText(jobAbility.prefix, jobAbility.en, targetId)
+        windower.chat.input(inputText)
     end
 end
 

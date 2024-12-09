@@ -3,13 +3,9 @@
 -- @class module
 -- @name SpellAction
 
-require('vectors')
-require('math')
-require('logger')
-require('lists')
-
 local DisposeBag = require('cylibs/events/dispose_bag')
 local res = require('resources')
+local SpellCommand = require('cylibs/ui/input/chat/commands/spell')
 local ValidSpellTargetCondition = require('cylibs/conditions/valid_spell_target')
 
 local Action = require('cylibs/actions/action')
@@ -89,7 +85,10 @@ function SpellAction:perform()
 				end
 			end), self.player:on_unable_to_cast())
 
-	windower.chat.input(self:localize())
+	local target = windower.ffxi.get_mob_by_index(self.target_index or windower.ffxi.get_player().index)
+
+	local spell = SpellCommand.new(spell_util.spell_name(self.spell_id), target.id)
+	spell:run(true)
 end
 
 function SpellAction:localize()

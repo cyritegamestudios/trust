@@ -14,13 +14,17 @@ function SpellCommand.new(spellName, targetId)
 end
 
 function SpellCommand:run(sendInChat)
+    local targetId, targetIndex = self:getTargetInfo()
+    if targetId == nil or targetIndex == nil then
+        return
+    end
     if not sendInChat then
         local packets = require('packets')
 
         local p = packets.new('outgoing', 0x01A)
 
-        p['Target'] = windower.ffxi.get_player().id
-        p['Target Index'] = windower.ffxi.get_player().index
+        p['Target'] = targetId
+        p['Target Index'] = targetIndex
         p['Category'] = 0x03
         p['Param'] = self.spellId
         p['X Offset'] = 0
@@ -28,6 +32,11 @@ function SpellCommand:run(sendInChat)
         p['Y Offset'] = 0
 
         packets.inject(p)
+    else
+        local spell = res.spells:with('en', self.spellName)
+
+        local inputText = self:getInputText(spell.prefix, spell.en, targetId)
+        windower.chat.input(inputText)
     end
 end
 

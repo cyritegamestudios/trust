@@ -4,6 +4,7 @@
 -- @name JobAbility
 
 local Action = require('cylibs/actions/action')
+local JobAbilityCommand = require('cylibs/ui/input/chat/commands/job_ability')
 local JobAbility = setmetatable({}, {__index = Action })
 JobAbility.__index = JobAbility
 JobAbility.__eq = JobAbility.is_equal
@@ -35,7 +36,12 @@ end
 function JobAbility:perform()
     logger.notice(self.__class, 'perform', self.job_ability_name)
 
-    windower.chat.input(self:localize())
+    local target = windower.ffxi.get_mob_by_index(self.target_index or windower.ffxi.get_player().index)
+
+    local command = JobAbilityCommand.new(self.job_ability_name, target.id)
+    command:run(true)
+
+    --windower.chat.input(self:localize())
 
     coroutine.sleep(1)
 

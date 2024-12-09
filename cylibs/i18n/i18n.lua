@@ -114,4 +114,15 @@ function i18n.font_for_locale(locale)
     return font_name or "Arial"
 end
 
+-------
+-- Returns the character set for a regex in the current locale.
+-- @treturn string Character set for regex
+function i18n.get_regex_character_set()
+    if i18n.current_locale() == i18n.Locale.Japanese then
+        return "%a"
+    else
+        return "%a"
+    end
+end
+
 return i18n
