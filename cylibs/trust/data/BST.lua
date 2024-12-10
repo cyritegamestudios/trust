@@ -5,8 +5,6 @@ local BeastmasterTrust = setmetatable({}, {__index = Trust })
 BeastmasterTrust.__index = BeastmasterTrust
 
 local Familiar = require('cylibs/entity/familiar')
-local ReadyMoveAction = require('cylibs/actions/ready_move_action')
-
 local Buffer = require('cylibs/trust/roles/buffer')
 
 state.AutoAssaultMode = M{['description'] = 'Auto Assault Mode', 'Off', 'Auto'}

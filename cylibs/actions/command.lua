@@ -1,7 +1,3 @@
-require('coroutine')
-require('vectors')
-require('math')
-
 local Action = require('cylibs/actions/action')
 local CommandAction = setmetatable({}, { __index = Action })
 CommandAction.__index = CommandAction

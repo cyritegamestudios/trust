@@ -50,6 +50,9 @@ end
 -- @tparam Boolean engage If true, the player will also engage the target
 function battle_util.target_mob(target_index, engage)
     local mob = windower.ffxi.get_mob_by_index(target_index)
+    if mob == nil then
+        return
+    end
 
     if engage == nil or engage then
         local p = packets.new('outgoing', 0x01A)

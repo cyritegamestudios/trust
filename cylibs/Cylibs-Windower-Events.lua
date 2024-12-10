@@ -129,6 +129,13 @@ local incoming_event_dispatcher = {
                         WindowerEvents.GainDebuff:trigger(target.id, debuff.id)
                     end
                 end
+                -- Bio
+                if act.param and S{230, 231, 232, 233, 234}:contains(act.param) and S{252}:contains(action.message) then
+                    local debuff = buff_util.debuff_for_spell(act.param)
+                    if debuff then
+                        WindowerEvents.GainDebuff:trigger(target.id, debuff.id)
+                    end
+                end
             end
         end
     end,

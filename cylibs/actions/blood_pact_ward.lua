@@ -3,9 +3,7 @@
 -- @class module
 -- @name BloodPactWard
 
-require('coroutine')
-require('vectors')
-require('math')
+local JobAbilityCommand = require('cylibs/ui/input/chat/commands/job_ability')
 
 local Action = require('cylibs/actions/action')
 local BloodPactWard = setmetatable({}, {__index = Action })
@@ -26,12 +24,10 @@ function BloodPactWard:can_perform()
 end
 
 function BloodPactWard:perform()
-    if self:is_cancelled() then
-        self:complete(false)
-        return
-    end
+    local target = windower.ffxi.get_player()
 
-    windower.chat.input('/%s <me>':format(self.blood_pact_name))
+    local command = JobAbilityCommand.new(self.blood_pact_name, target.id)
+    command:run(true)
 
     coroutine.sleep(5)
 

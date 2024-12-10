@@ -162,5 +162,19 @@ function Player:update_combat_skills()
     self:on_combat_skills_change():trigger(self, self.combat_skill_ids)
 end
 
+-------
+-- Returns the main job short (e.g. BLU, RDM, WAR)
+-- @treturn string Main job short, or nil if unknown
+function Player:get_main_job_short()
+    return player.main_job_name_short
+end
+
+-------
+-- Returns the sub job short (e.g. BLU, RDM, WAR)
+-- @treturn string Sub job short, or nil if unknown
+function Player:get_sub_job_short()
+    return player.sub_job_name_short
+end
+
 return Player
 

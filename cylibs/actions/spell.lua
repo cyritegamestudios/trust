@@ -3,13 +3,9 @@
 -- @class module
 -- @name SpellAction
 
-require('vectors')
-require('math')
-require('logger')
-require('lists')
-
 local DisposeBag = require('cylibs/events/dispose_bag')
 local res = require('resources')
+local SpellCommand = require('cylibs/ui/input/chat/commands/spell')
 local ValidSpellTargetCondition = require('cylibs/conditions/valid_spell_target')
 
 local Action = require('cylibs/actions/action')
@@ -17,6 +13,9 @@ local SpellAction = setmetatable({}, {__index = Action })
 SpellAction.__index = SpellAction
 
 function SpellAction.new(x, y, z, spell_id, target_index, player, conditions)
+	if spell_id == nil then
+		print(debug.traceback())
+	end
 	local conditions = (conditions or L{}):extend(L{
 		NotCondition.new(L{InMogHouseCondition.new()}),
 		MaxDistanceCondition.new(20),
@@ -89,25 +88,10 @@ function SpellAction:perform()
 				end
 			end), self.player:on_unable_to_cast())
 
-	windower.chat.input(self:localize())
-end
+	local target = windower.ffxi.get_mob_by_index(self.target_index or windower.ffxi.get_player().index)
 
-function SpellAction:localize()
-	local target = windower.ffxi.get_mob_by_index(self.target_index)
-
-	local spell = res.spells[self.spell_id]
-	if spell then
-		local spell_name = spell.en
-		if localization_util.should_use_client_locale() then
-			spell_name = localization_util.encode(spell.name, windower.ffxi.get_info().language:lower())
-		end
-		if windower.ffxi.get_info().language:lower() == 'japanese' then
-			return "/ma %s ":format(spell_name)..target.id
-		else
-			return '/ma "%s" ':format(spell_name)..target.id
-		end
-	end
-	return ""
+	local spell = SpellCommand.new(spell_util.spell_name(self.spell_id), target.id)
+	spell:run(true)
 end
 
 function SpellAction:getspellid()
