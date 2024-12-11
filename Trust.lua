@@ -83,8 +83,6 @@ state.AutoBuffMode:set_description('Auto', "Okay, I'll automatically buff myself
 state.AutoEnmityReductionMode = M{['description'] = 'Auto Enmity Reduction Mode', 'Off', 'Auto'}
 state.AutoEnmityReductionMode:set_description('Auto', "Okay, I'll automatically try to reduce my enmity.")
 
-state.GearSwapMode = M{['description'] = 'Use GearSwap', 'Off', 'Enabled'}
-
 -- Main
 
 function load_user_files(main_job_id, sub_job_id)
