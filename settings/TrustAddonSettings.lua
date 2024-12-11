@@ -109,6 +109,8 @@ default.locales.actions.use_client_locale = false
 default.sounds = {}
 default.sounds.sound_effects = {}
 default.sounds.sound_effects.disabled = false
+default.gearswap = {}
+default.gearswap.enabled = true
 
 
 

@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '12.6.3'
+_addon.version = '12.6.4'
 _addon.release_notes = [[
 This update introduces new menus for Bard, autocomplete for Trust
 commands, new commands and important bug fixes for users running the
@@ -578,7 +578,7 @@ end
 
 function register_chat_handlers()
 	local ChatInput = require('cylibs/ui/input/chat_input')
-	chat_input = ChatInput.new()
+	chat_input = ChatInput.new(addon_settings)
 end
 
 -- Helpers

@@ -26,7 +26,7 @@ function Spammer:get_next_ability()
     end
 
     local all_abilities = L{}
-    for ability in self.abilities:it() do
+    for ability in self.abilities:filter(function(a) return not a:is_aoe() end):it() do
         all_abilities:append(ability)
     end
 
