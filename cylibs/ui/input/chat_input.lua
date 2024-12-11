@@ -51,22 +51,35 @@ function ChatInput.new(addonSettings)
         command:run()
     end)
 
+    self.events.incoming_text = windower.register_event('incoming text', function(original, modified)
+        if not original:startswith(">> ") then
+            return
+        end
+        local command = original:slice(4)
+        for regex, _ in pairs(self.handlers) do
+            local matches = string.match(command, regex)
+            if matches and matches:length() > 0 then
+                addon_system_error("---== WARNING ==---- GearSwap not detected. To use Trust without GearSwap, set Is GearSwap Enabled to OFF under Config > GearSwap.")
+                return false
+            end
+        end
+        return false
+    end)
+
     self.events.outgoing_text = windower.register_event('outgoing text',function(original, modified, blocked, ffxi, extra_stuff, extra2)
         -- ffxi = 1 (came from chat), ffxi = 3 (came from upstream addon)
         if blocked or ffxi ~= 1 then
             return
         end
-        if not addonSettings:getSettings()[("gearswap"):lower()].enabled then
+
+        if addonSettings:getSettings()[("gearswap"):lower()].enabled then
             return
         end
+
         for regex, handler in pairs(self.handlers) do
             local matches = string.match(original, regex)
             if matches and matches:length() > 0 then
                 handler(original, regex)
-                if not self.hasShownWarning then
-                    self.hasShownWarning = true
-                    addon_system_error("---== WARNING ==---- GearSwap is not loaded.")
-                end
                 return true
             end
         end
