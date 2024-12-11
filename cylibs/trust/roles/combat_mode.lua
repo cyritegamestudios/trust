@@ -29,7 +29,7 @@ function CombatMode.new(action_queue, melee_distance, range_distance, addon_enab
     local self = setmetatable(Role.new(action_queue), CombatMode)
 
     self.action_queue = action_queue
-    self.melee_distance = melee_distance
+    self.melee_distance = 2
     self.range_distance = range_distance
     self.addon_enabled = addon_enabled
     self.dispose_bag = DisposeBag.new()
@@ -110,10 +110,10 @@ function CombatMode:check_distance()
                     end
                 end
             else
-                if target.distance:sqrt() > self.melee_distance --[[+ self_mob.model_size + target.model_size - 0.1]] then
+                if target.distance:sqrt() > self.melee_distance + self_mob.model_size + target.model_size - 0.2 then
                     self.action_queue:push_action(BlockAction.new(function() player_util.face(target) end))
                     self.action_queue:push_action(
-                        RunToAction.new(target.index, self.melee_distance --[[+ self_mob.model_size + target.model_size - 0.1]]),
+                        RunToAction.new(target.index, self.melee_distance + self_mob.model_size + target.model_size - 0.2),
                         true)
                 else
                     self.action_queue:push_action(BlockAction.new(function() player_util.face(target) end))
