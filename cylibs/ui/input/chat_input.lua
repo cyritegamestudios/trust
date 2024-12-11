@@ -57,18 +57,14 @@ function ChatInput.new(addonSettings)
             return
         end
 
+        if addonSettings:getSettings()[("gearswap"):lower()].enabled then
+            return
+        end
+
         for regex, handler in pairs(self.handlers) do
             local matches = string.match(original, regex)
             if matches and matches:length() > 0 then
-                if addonSettings:getSettings()[("gearswap"):lower()].enabled then
-                    addon_system_error("---== WARNING ==---- GearSwap is not loaded. To use Trust without GearSwap, set Is GearSwap Enabled to OFF under Config > GearSwap.")
-                    return
-                end
                 handler(original, regex)
-                if not self.hasShownWarning then
-                    self.hasShownWarning = true
-                    addon_system_error("---== WARNING ==---- GearSwap is not loaded.")
-                end
                 return true
             end
         end
