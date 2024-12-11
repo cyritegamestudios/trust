@@ -8,9 +8,10 @@ ChatInput.__index = ChatInput
 ChatInput.__type = "ChatInput"
 ChatInput.__class = "ChatInput"
 
-function ChatInput.new()
+function ChatInput.new(addonSettings)
     local self = setmetatable({}, ChatInput)
 
+    self.events = {}
     self.handlers = {}
     self.hasShownWarning = false
 
@@ -50,8 +51,12 @@ function ChatInput.new()
         command:run()
     end)
 
-    self.events = windower.register_event('outgoing text',function(original, modified, blocked, ffxi, extra_stuff, extra2)
-        if blocked then
+    self.events.outgoing_text = windower.register_event('outgoing text',function(original, modified, blocked, ffxi, extra_stuff, extra2)
+        -- ffxi = 1 (came from chat), ffxi = 3 (came from upstream addon)
+        if blocked or ffxi ~= 1 then
+            return
+        end
+        if not addonSettings:getSettings()[("gearswap"):lower()].enabled then
             return
         end
         for regex, handler in pairs(self.handlers) do

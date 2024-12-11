@@ -14,10 +14,11 @@ ConfigSettingsMenuItem.__index = ConfigSettingsMenuItem
 function ConfigSettingsMenuItem.new(addonSettings, mediaPlayer, widgetManager)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Widgets', 18),
-        ButtonItem.default('Logging', 18),
+        ButtonItem.default('GearSwap', 18),
         ButtonItem.default('Remote', 18),
         ButtonItem.default('Sounds', 18),
         ButtonItem.default('Language', 18),
+        ButtonItem.default('Logging', 18),
     }, {}, nil, "Config", "Configure addon settings."), ConfigSettingsMenuItem)
 
     self.disposeBag = DisposeBag.new()
@@ -34,10 +35,24 @@ end
 
 function ConfigSettingsMenuItem:reloadSettings(addonSettings, widgetManager)
     self:setChildMenuItem("Widgets", WidgetSettingsMenuItem.new(addonSettings, widgetManager))
+    self:setChildMenuItem("GearSwap", self:getGearSwapMenuItem(addonSettings))
     self:setChildMenuItem("Logging", self:getLoggingMenuItem(addonSettings))
     self:setChildMenuItem("Remote", RemoteCommandsSettingsMenuItem.new(addonSettings))
     self:setChildMenuItem("Sounds", self:getSoundSettingsMenuItem(addonSettings))
     self:setChildMenuItem("Language", self:getLanguageSettingsMenuItem(addonSettings))
+end
+
+function ConfigSettingsMenuItem:getGearSwapMenuItem(addonSettings)
+    local gearSwapMenuItem = MenuItem.new(L{
+        ButtonItem.default('Save'),
+    }, {}, function(_, infoView)
+        local configItems = L{
+            BooleanConfigItem.new('enabled', "Is GearSwap Enabled"),
+        }
+        local gearSwapSettingsEditor = ConfigEditor.new(addonSettings, addonSettings:getSettings()[("gearswap"):lower()], configItems, infoView)
+        return gearSwapSettingsEditor
+    end, "GearSwap", "Configure GearSwap integration with Trust.")
+    return gearSwapMenuItem
 end
 
 function ConfigSettingsMenuItem:getLoggingMenuItem(addonSettings)
