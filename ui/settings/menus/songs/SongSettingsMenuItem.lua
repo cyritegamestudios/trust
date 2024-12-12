@@ -279,7 +279,12 @@ function SongSettingsMenuItem:getConfigMenuItem()
                     ConfigItem.new('SongDelay', 4, 8, 1, function(value) return value.."s" end, "Delay Between Songs")
                 }
 
-                local songConfigEditor = ConfigEditor.new(self.trustSettings, songSettings, configItems)
+                local songConfigEditor = ConfigEditor.new(self.trustSettings, songSettings, configItems, infoView, function(newSettings)
+                    if newSettings.NumSongs > 2 and not self.addonSettings:getSettings().gearswap.enabled then
+                        return false
+                    end
+                    return true
+                end)
 
                 songConfigEditor:setTitle('Configure general song settings.')
                 songConfigEditor:setShouldRequestFocus(true)
@@ -291,6 +296,10 @@ function SongSettingsMenuItem:getConfigMenuItem()
 
                     self.trustSettings:saveSettings(true)
                 end), songConfigEditor:onConfigChanged())
+
+                self.dispose_bag:add(songConfigEditor:onConfigValidationError():addAction(function()
+                    addon_system_error("Unable to sing more than 2 songs without GearSwap enabled.")
+                end), songConfigEditor:onConfigValidationError())
 
                 self.dispose_bag:add(songConfigEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
                     if indexPath.section == 1 then

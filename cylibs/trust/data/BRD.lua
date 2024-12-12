@@ -27,8 +27,8 @@ state.AutoNitroMode:set_description('Auto', "Okay, I'll use Nightingale and Trou
 state.AutoClarionCallMode = M{['description'] = 'Use Clarion Call', 'Off', 'Auto'}
 state.AutoClarionCallMode:set_description('Auto', "Okay, I'll use Clarion Call before Nightingale and Troubadour.")
 
-function BardTrust.new(settings, action_queue, battle_settings, trust_settings)
-	local job = Bard.new(trust_settings)
+function BardTrust.new(settings, action_queue, battle_settings, trust_settings, addon_settings)
+	local job = Bard.new(trust_settings, addon_settings)
 	local roles = S{
 		Debuffer.new(action_queue, trust_settings.Debuffs),
 		Singer.new(action_queue, trust_settings.SongSettings.DummySongs, trust_settings.SongSettings.Songs, trust_settings.SongSettings.PianissimoSongs, job, state.AutoSongMode, ActionPriority.medium),
