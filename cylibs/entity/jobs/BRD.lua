@@ -91,7 +91,6 @@ function Bard:get_max_num_songs(include_clarion_call, current_num_bard_songs)
     local max_num_songs = self.max_num_songs
     if not self.addon_settings:getSettings().gearswap.enabled then
         max_num_songs = 2
-        print('setting from', self.max_num_songs,'to', max_num_songs)
     end
     local current_num_bard_songs = current_num_bard_songs or self:get_song_buff_ids():length()
     local num_songs = math.min(math.max(current_num_bard_songs, max_num_songs), max_num_songs + 1)
