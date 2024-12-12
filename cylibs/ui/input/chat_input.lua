@@ -23,10 +23,6 @@ function ChatInput.new(addonSettings)
         end
     end
 
-    local testRegex = buildRegex('/ma')
-
-    local _, spellName, targetId = string.match("/ma \"Valor Minuet III\" 12345", testRegex)
-
     self:registerHandler(L{ buildRegex("/song"), buildRegex("/ma"), buildRegex("/magic") }, function(inputText, regex)
         local _, spellName, targetId = string.match(inputText, regex)
 
