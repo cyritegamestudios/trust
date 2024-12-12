@@ -10,7 +10,6 @@ local GambitSettingsEditor = require('ui/settings/editors/GambitSettingsEditor')
 local GambitTarget = require('cylibs/gambits/gambit_target')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
-local job_util = require('cylibs/util/job_util')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
@@ -129,7 +128,7 @@ function GambitSettingsMenuItem:getAbilities(gambitTarget, flatten)
                 if spell.type == 'Geomancy' and spellTargets:length() == 1 and spellTargets[1] == 'Self' then
                     spellTargets:append('Party')
                 end
-                return spell.type ~= 'Trust' and S(spellTargets):intersection(targets):length() > 0
+                return not S{ 'Trust', 'BardSong' }:contains(spell.type) and S(spellTargets):intersection(targets):length() > 0
             end
             return false
         end):map(function(spellId)
