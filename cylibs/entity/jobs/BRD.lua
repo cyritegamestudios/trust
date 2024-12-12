@@ -20,9 +20,10 @@ local all_song_buff_ids = L{
 -- Default initializer for a new Bard.
 -- @tparam T trust_settings Trust settings
 -- @treturn BRD A Bard
-function Bard.new(trust_settings)
+function Bard.new(trust_settings, addon_settings)
     local self = setmetatable(Job.new('BRD', L{ 'Honor March', 'Aria of Passion', 'Dispelga' }), Bard)
     self:set_trust_settings(trust_settings)
+    self.addon_settings = addon_settings
     return self
 end
 
@@ -87,10 +88,15 @@ end
 -- @tparam number current_num_bard_songs (optional) The number of song buffs currently active
 -- @treturn number Number of songs
 function Bard:get_max_num_songs(include_clarion_call, current_num_bard_songs)
+    local max_num_songs = self.max_num_songs
+    if not self.addon_settings:getSettings().gearswap.enabled then
+        max_num_songs = 2
+        print('setting from', self.max_num_songs,'to', max_num_songs)
+    end
     local current_num_bard_songs = current_num_bard_songs or self:get_song_buff_ids():length()
-    local num_songs = math.min(math.max(current_num_bard_songs, self.max_num_songs), self.max_num_songs + 1)
+    local num_songs = math.min(math.max(current_num_bard_songs, max_num_songs), max_num_songs + 1)
     if include_clarion_call or self:is_clarion_call_active() then
-        num_songs = math.max(num_songs, self.max_num_songs + 1)
+        num_songs = math.max(num_songs, max_num_songs + 1)
     end
     return num_songs
 end

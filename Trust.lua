@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '12.6.6'
+_addon.version = '12.6.7'
 _addon.release_notes = [[
 This update introduces new menus for Bard, autocomplete for Trust
 commands, new commands and important bug fixes for users running the
@@ -197,7 +197,7 @@ function load_user_files(main_job_id, sub_job_id)
 		player.trust.sub_job:set_trust_settings(player.trust.sub_job_settings[new_value])
 	end)
 
-	main_job_trust, sub_job_trust = TrustFactory.trusts(trust_for_job_short(player.main_job_name_short, addon_settings:getSettings(), player.trust.main_job_settings.Default, action_queue, player.player, player.alliance, player.party), trust_for_job_short(player.sub_job_name_short, addon_settings:getSettings(), player.trust.sub_job_settings.Default, action_queue, player.player, player.alliance, player.party))
+	main_job_trust, sub_job_trust = TrustFactory.trusts(trust_for_job_short(player.main_job_name_short, addon_settings:getSettings(), player.trust.main_job_settings.Default, addon_settings, action_queue, player.player, player.alliance, player.party), trust_for_job_short(player.sub_job_name_short, addon_settings:getSettings(), player.trust.sub_job_settings.Default, addon_settings, action_queue, player.player, player.alliance, player.party))
 
 	main_job_trust:init()
 	sub_job_trust:init()
@@ -473,7 +473,7 @@ function load_logger_settings()
 	logger.isEnabled = addon_settings:getSettings().logging.enabled
 end
 
-function trust_for_job_short(job_name_short, settings, trust_settings, action_queue, player, alliance, party)
+function trust_for_job_short(job_name_short, settings, trust_settings, addon_settings, action_queue, player, alliance, party)
 	if job_name_short == 'WHM' then
 		WhiteMageTrust = require('cylibs/trust/data/WHM')
 		trust = WhiteMageTrust.new(settings.WHM, action_queue, settings.battle, trust_settings)
@@ -515,7 +515,7 @@ function trust_for_job_short(job_name_short, settings, trust_settings, action_qu
 		trust = PaladinTrust.new(settings.PLD, action_queue, settings.battle, trust_settings)
 	elseif job_name_short == 'BRD' then
 		BardTrust = require('cylibs/trust/data/BRD')
-		trust = BardTrust.new(settings.BRD, action_queue, settings.battle, trust_settings)
+		trust = BardTrust.new(settings.BRD, action_queue, settings.battle, trust_settings, addon_settings)
 	elseif job_name_short == 'MNK' then
 		MonkTrust = require('cylibs/trust/data/MNK')
 		trust = MonkTrust.new(settings.MNK, action_queue, settings.battle, trust_settings)
