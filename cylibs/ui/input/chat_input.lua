@@ -23,7 +23,7 @@ function ChatInput.new(addonSettings)
         end
     end
 
-    self:registerHandler(L{ buildRegex("/ma"), buildRegex("/magic") }, function(inputText, regex)
+    self:registerHandler(L{ buildRegex("/song"), buildRegex("/ma"), buildRegex("/magic") }, function(inputText, regex)
         local _, spellName, targetId = string.match(inputText, regex)
 
         local command = SpellCommand.new(spellName:gsub("\"", ""), targetId)
