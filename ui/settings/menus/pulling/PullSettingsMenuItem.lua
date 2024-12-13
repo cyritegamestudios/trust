@@ -1,3 +1,4 @@
+local BooleanConfigItem = require('ui/settings/editors/config/BooleanConfigItem')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local ConfigItem = require('ui/settings/editors/config/ConfigItem')
@@ -140,21 +141,32 @@ end
 function PullSettingsMenuItem:getConfigMenuItem()
     return MenuItem.new(L{
         ButtonItem.default('Save')
-    }, L{}, function(_, _)
+    }, L{}, function(_, infoView)
         local allSettings = self.trust_settings:getSettings()[self.trust_settings_mode.value]
 
         local pullSettings = T{
             Distance = allSettings.PullSettings.Distance,
         }
+        local maxNumTargets = allSettings.PullSettings.MaxNumTargets or 1
+        if maxNumTargets > 1 then
+            pullSettings.RandomizeTarget = true
+        else
+            pullSettings.RandomizeTarget = false
+        end
 
         local configItems = L{
-            ConfigItem.new('Distance', 0, 50, 1, function(value) return value.." yalms" end, "Target Distance"),
+            ConfigItem.new('Distance', 0, 50, 1, function(value) return value.." yalms" end, "Detection Distance"),
+            BooleanConfigItem.new('RandomizeTarget', "Randomize Target"),
         }
-        local pullConfigEditor = ConfigEditor.new(self.trust_settings, pullSettings, configItems)
+        local pullConfigEditor = ConfigEditor.new(self.trust_settings, pullSettings, configItems, infoView)
 
         self.dispose_bag:add(pullConfigEditor:onConfigChanged():addAction(function(newSettings, _)
             allSettings.PullSettings.Distance = newSettings.Distance
-
+            if newSettings.RandomizeTarget then
+                allSettings.PullSettings.MaxNumTargets = 6
+            else
+                allSettings.PullSettings.MaxNumTargets = 1
+            end
             self.trust_settings:saveSettings(true)
         end), pullConfigEditor:onConfigChanged())
 

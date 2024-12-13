@@ -26,7 +26,8 @@ return {
                 "Locus Dire Bat",
                 "Locus Armet Beetle",
             },
-            Distance = 20
+            Distance = 20,
+            MaxNumMobs = 1,
         },
         GambitSettings = {
             Default = L{
