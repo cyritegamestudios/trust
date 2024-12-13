@@ -184,6 +184,10 @@ function Puller:check_pull()
     self:pull_target(next_target)
 end
 
+function Puller:get_random_target(targets)
+    return targets[math.random(math.min(math.max(1, targets:length()), self.pull_settings.MaxNumTargets or 1))]
+end
+
 function Puller:get_next_target()
     if state.AutoPullMode.value == 'Party' then
         -- Get all targets the party is tracking
@@ -204,7 +208,7 @@ function Puller:get_next_target()
             local next_targets = party_targets:filter(function(target)
                 return target and not party_target_indices:contains(target:get_mob().index)
             end)
-            local next_target = next_targets[math.random(math.min(math.max(1, next_targets:length()), 6))] or party_targets[math.random(math.min(math.max(1, party_targets:length()), 6))]
+            local next_target = self:get_random_target(next_targets) or self:get_random_target(party_targets)
             local monster = Monster.new(next_target:get_id())
             return monster
         end
@@ -224,7 +228,7 @@ function Puller:get_next_target()
             -- If we have any that fit this criteria, prioritize them
             if nearby_mobs:length() > 0 then
                 logger.notice(self.__class, 'get_next_target', 'aggroed mob')
-                local monster = Monster.new(nearby_mobs[math.random(math.min(math.max(1, nearby_mobs:length()), 6))].id)
+                local monster = Monster.new(self:get_random_target(nearby_mobs).id)
                 return monster
             end
 
@@ -240,10 +244,10 @@ function Puller:get_next_target()
             local target
             if targets:length() > 0 then
                 -- Filter targets for claimed targets first, then fall back to any target
-                filtered_targets = targets:filter(function(mob)
+                local filtered_targets = targets:filter(function(mob)
                     return (claimed_party_targets and not claimed_party_targets:contains(mob.index))
                 end)
-                target = filtered_targets[math.random(math.min(math.max(1, filtered_targets:length()), 6))] or targets[math.random(math.min(math.max(1, targets:length()), 6))]
+                target = self:get_random_target(filtered_targets) or self:get_random_target(targets)
             end
             -- Ensure target is populated and hasn't wandered since last instruction
             if target and target.distance:sqrt() < (self.pull_settings.Distance or 20) then
