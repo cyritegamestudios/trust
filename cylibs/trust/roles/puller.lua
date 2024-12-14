@@ -213,6 +213,13 @@ function Puller:get_next_target()
             return monster
         end
     else
+        if player.status == 'Engaged' then
+            local current_target = self:get_target()
+            if current_target and self:is_valid_target(current_target) then
+                return Monster.new(current_target:get_id())
+            end
+        end
+
         -- Ensure that we are either in all mode, or that target list is populated
         if self:get_target_names():length() > 0 or state.AutoPullMode.value == 'All' then
             -- First, check mobs that are aggroed and unclaimed
