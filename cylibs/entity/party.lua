@@ -309,18 +309,17 @@ function Party:get_assist_target()
 end
 
 -------
--- Returns the current .
--- @treturn PartyMember Assist target
+-- Returns the current party target.
+-- @treturn Monster Current party target, or nil if none.
 function Party:get_current_party_target()
     local assist_target = self:get_assist_target()
     if assist_target and assist_target:is_valid() and assist_target:get_target_index() then
         local current_target = self.target_tracker:get_mob(monster_util.id_for_index(assist_target:get_target_index()))
         if current_target then
             return current_target
-        else
-            print('nil party target')
         end
     end
+    return nil
 end
 
 -------

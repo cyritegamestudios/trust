@@ -215,7 +215,6 @@ function Puller:get_next_target()
     else
         -- Ensure that we are either in all mode, or that target list is populated
         if self:get_target_names():length() > 0 or state.AutoPullMode.value == 'All' then
-
             -- First, check if the player is already targeting a claimed mob
             local player = windower.ffxi.get_player()
             if player and player.target_index and player.target_index ~= 0 then

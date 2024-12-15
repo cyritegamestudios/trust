@@ -67,7 +67,7 @@ function Trust:init()
 			end)
 
 	local party_target = self.party:get_current_party_target()
-	if party_target then
+	if party_target and party_target:get_mob() then
 		self.target_index = party_target:get_mob().index
 		self:job_target_change(self.target_index, nil)
 	end

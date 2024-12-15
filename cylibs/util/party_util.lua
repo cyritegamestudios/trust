@@ -242,10 +242,7 @@ function party_util.party_targets(exclude_id, include_player)
     if include_player then
         local player = windower.ffxi.get_player()
         if player and player.target_index then
-            print('appending player target', player.target_index)
             target_indices:append(player.target_index)
-        else
-            print('no target index')
         end
     end
     return target_indices
