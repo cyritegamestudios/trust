@@ -135,6 +135,8 @@ function Party:add_party_member(party_member_id, party_member_name)
     self:on_party_member_added():trigger(party_member)
     self:on_party_members_changed():trigger(self:get_party_members(true))
 
+    self.target_tracker:add_mob_by_index(party_member:get_target_index())
+
     logger.notice(self.__class, "add_party_member", party_member:get_name(), party_member_id)
 
     return party_member
@@ -304,6 +306,21 @@ end
 -- @treturn PartyMember Assist target
 function Party:get_assist_target()
     return self.assist_target or self:get_party_member(windower.ffxi.get_player().id)
+end
+
+-------
+-- Returns the current .
+-- @treturn PartyMember Assist target
+function Party:get_current_party_target()
+    local assist_target = self:get_assist_target()
+    if assist_target and assist_target:is_valid() and assist_target:get_target_index() then
+        local current_target = self.target_tracker:get_mob(monster_util.id_for_index(assist_target:get_target_index()))
+        if current_target then
+            return current_target
+        else
+            print('nil party target')
+        end
+    end
 end
 
 -------

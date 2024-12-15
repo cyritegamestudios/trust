@@ -29,7 +29,7 @@ function Player.new(id)
     if ranged_weapon_id and ranged_weapon_id ~= 0 then
         self:set_ranged_weapon_id(ranged_weapon_id)
     end
-    
+
     self:set_target_index(windower.ffxi.get_player().target_index)
 
     self.events = {}

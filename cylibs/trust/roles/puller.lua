@@ -213,16 +213,19 @@ function Puller:get_next_target()
             return monster
         end
     else
-        if player.status == 'Engaged' then
-            local current_target = self:get_target()
-            if current_target and self:is_valid_target(current_target) then
-                return Monster.new(current_target:get_id())
-            end
-        end
-
         -- Ensure that we are either in all mode, or that target list is populated
         if self:get_target_names():length() > 0 or state.AutoPullMode.value == 'All' then
-            -- First, check mobs that are aggroed and unclaimed
+
+            -- First, check if the player is already targeting a claimed mob
+            local player = windower.ffxi.get_player()
+            if player and player.target_index and player.target_index ~= 0 then
+                local current_target = self:get_alliance():get_target_by_index(player.target_index)
+                if current_target and self:is_valid_target(current_target) then
+                    return Monster.new(current_target.id)
+                end
+            end
+
+            -- Next, check mobs that are aggroed and unclaimed
             local nearby_mobs = ffxi_util.find_closest_mobs(L{}, L{}, L{}, 10):filter(function(mob)
                 if res.statuses[mob.status].en == 'Engaged' then
                     if mob.claim_id == 0 then
@@ -240,8 +243,9 @@ function Puller:get_next_target()
             end
 
             -- Next, get list of claimed mobs, we want to prioritize unclaimed mobs first
-            local claimed_party_targets = party_util.party_targets():filter(function(target_index)
+            local claimed_party_targets = party_util.party_targets(nil, true):filter(function(target_index)
                 local target = windower.ffxi.get_mob_by_index(target_index)
+                print('targeting', target and target.claim_id and target.claim_id ~= 0)
                 return target and target.claim_id and target.claim_id ~= 0
             end)
 
