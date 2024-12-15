@@ -151,6 +151,7 @@ function LoadSettingsMenuItem:getShareSetMenuItem()
 
         local modeSettings = T(self.trustModeSettings:getSettings()[state.TrustMode.value]):copy()
         modeSettings['maintrustsettingsmode'] = setName
+        modeSettings['subtrustsettingsmode'] = setName
         modeSettings['weaponskillsettingsmode'] = setName
 
         local profile = Profile.new(
