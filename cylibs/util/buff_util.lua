@@ -70,6 +70,11 @@ local debuffs = T{
 	[393] = S{202}, -- sluggish daze
 	[394] = S{202}, -- sluggish daze
 	[395] = S{202}, -- sluggish daze
+	[700] = S{202}, -- sluggish daze
+	[701] = S{202}, -- sluggish daze
+	[702] = S{202}, -- sluggish daze
+	[703] = S{202}, -- sluggish daze
+	[704] = S{202}, -- sluggish daze
 	[404] = S{843,844,883}, --Magic Evasion Down
 	[597] = S{879}, --inundation
 }
@@ -165,10 +170,8 @@ end
 function buff_util.buff_id(buff_name)
 	local buff_names = L{ buff_name, string.lower(buff_name), buff_name:gsub("^%l", string.upper) }
 	for buff_name in buff_names:it() do
-		local buff = res.buffs:with('en', buff_name)
-		if buff == nil then
-			buff = res.buffs:with('enl', buff_name)
-		elseif buffs_ext:with('en', buff_name) then
+		local buff = res.buffs:with('en', buff_name) or res.buffs:with('enl', buff_name)
+		if buff == nil and buffs_ext:with('en', buff_name) then
 			buff = buffs_ext:with('en', buff_name)
 		end
 		if buff then

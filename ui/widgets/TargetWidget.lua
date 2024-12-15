@@ -317,6 +317,10 @@ function TargetWidget:updateDebuffs()
     local allDebuffIds = L(target.debuff_tracker:get_debuff_ids())
     for i = 1, self.maxNumDebuffs do
         local debuffId = allDebuffIds[i]
+        -- Sluggish Daze Lv.6-10
+        if S{700,701,702,703,704}:contains(debuffId) then
+            debuffId = 395 -- Sluggish Daze Lv.5
+        end
         if debuffId then
             itemsToUpdate:append(IndexedItem.new(ImageItem.new(windower.addon_path..'assets/buffs/'..debuffId..'.png', 14, 14), IndexPath.new(1, i)))
         else
