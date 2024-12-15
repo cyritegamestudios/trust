@@ -26,7 +26,8 @@ return {
                 "Locus Dire Bat",
                 "Locus Armet Beetle",
             },
-            Distance = 20
+            Distance = 20,
+            MaxNumMobs = 1,
         },
         GambitSettings = {
             Default = L{
@@ -36,6 +37,9 @@ return {
             Gambits = L{
                 Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("DRK")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"food"})
             }
+        },
+        GearSwapSettings = {
+            Enabled = true
         },
     }
 }

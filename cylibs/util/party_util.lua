@@ -230,13 +230,19 @@ end
 -- Returns a list of indices of all mobs currently targeted by party members. The mobs do not have to be claimed as
 -- long as the target_index field of a party member's MobMetadata is not nil.
 -- @treturn list A list of indices of all mobs currently targeted by party members.
-function party_util.party_targets(exclude_id)
+function party_util.party_targets(exclude_id, include_player)
     local target_indices = L{}
     for _, party_member in pairs(windower.ffxi.get_party()) do
         if type(party_member) == 'table' and party_member.mob and party_member.name ~= windower.ffxi.get_player().name then
             if party_member.mob.target_index and (exclude_id == nil or party_member.id ~= exclude_id) then
                 target_indices:append(party_member.mob.target_index)
             end
+        end
+    end
+    if include_player then
+        local player = windower.ffxi.get_player()
+        if player and player.target_index then
+            target_indices:append(player.target_index)
         end
     end
     return target_indices

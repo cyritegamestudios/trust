@@ -184,52 +184,81 @@ function Puller:check_pull()
     self:pull_target(next_target)
 end
 
+function Puller:get_random_target(targets)
+    return targets[math.random(math.min(math.max(1, targets:length()), self.pull_settings.MaxNumTargets or 1))]
+end
+
 function Puller:get_next_target()
     if state.AutoPullMode.value == 'Party' then
+        -- Get all targets the party is tracking
         local party_targets = self:get_party():get_targets(function(t)
+            -- Filter to distance 25, and engaged
             return t:get_distance():sqrt() < 25 and t:get_mob().status == 1
         end):sort(function(t1, t2)
+            -- Sort by distance
             return t1:get_distance() < t2:get_distance()
         end)
+        -- If the party is tracking any targets
         if party_targets:length() > 0 then
+            -- Get a list of all targets the party is targeting
             local party_target_indices = self:get_party():get_party_members(false):map(function(p)
                 return p:get_target_index()
             end):compact_map()
-            local next_target = party_targets:firstWhere(function(target)
+            -- Select next target, prefer targets not targeted by an ally
+            local next_targets = party_targets:filter(function(target)
                 return target and not party_target_indices:contains(target:get_mob().index)
-            end) or party_targets[1]
+            end)
+            local next_target = self:get_random_target(next_targets) or self:get_random_target(party_targets)
             local monster = Monster.new(next_target:get_id())
             return monster
         end
     else
-        -- First, check mobs that are aggroed and unclaimed or aggroed and claimed by a party member
-        local nearby_mobs = ffxi_util.find_closest_mobs(L{}, L{}, L{}, 10):filter(function(mob)
-            if res.statuses[mob.status].en == 'Engaged' then
-                if mob.claim_id == 0 then
-                    logger.notice(self.__class, 'get_next_target', 'engaged', 'unclaimed')
-                    return true
-                else
-                    if self:get_party():get_party_member(mob.claim_id) then
-                        logger.notice(self.__class, 'get_next_target', 'engaged', 'claimed')
+        -- Ensure that we are either in all mode, or that target list is populated
+        if self:get_target_names():length() > 0 or state.AutoPullMode.value == 'All' then
+            -- First, check if the player is already targeting a claimed mob
+            local player = windower.ffxi.get_player()
+            if player and player.target_index and player.target_index ~= 0 then
+                local current_target = self:get_alliance():get_target_by_index(player.target_index)
+                if current_target and self:is_valid_target(current_target) then
+                    return Monster.new(current_target.id)
+                end
+            end
+
+            -- Next, check mobs that are aggroed and unclaimed
+            local nearby_mobs = ffxi_util.find_closest_mobs(L{}, L{}, L{}, 10):filter(function(mob)
+                if res.statuses[mob.status].en == 'Engaged' then
+                    if mob.claim_id == 0 then
+                        logger.notice(self.__class, 'get_next_target', 'engaged', 'unclaimed')
                         return true
                     end
                 end
+                return false
+            end)
+            -- If we have any that fit this criteria, prioritize them
+            if nearby_mobs:length() > 0 then
+                logger.notice(self.__class, 'get_next_target', 'aggroed mob')
+                local monster = Monster.new(self:get_random_target(nearby_mobs).id)
+                return monster
             end
-            return false
-        end)
-        if nearby_mobs:length() > 0 then
-            logger.notice(self.__class, 'get_next_target', 'aggroed mob')
-            local monster = Monster.new(nearby_mobs[1].id)
-            return monster
-        end
 
-        -- Next, pull idle unclaimed mobs from the pull target whitelist
-        local claimed_party_targets = party_util.party_targets():filter(function(target_index)
-            local target = windower.ffxi.get_mob_by_index(target_index)
-            return target and target.claim_id and target.claim_id ~= 0
-        end)
-        if self:get_target_names():length() > 0 or state.AutoPullMode.value == 'All' then
-            local target = ffxi_util.find_closest_mob(self:get_target_names(), L{}:extend(claimed_party_targets), self.blacklist, self.pull_settings.Distance or 20)
+            -- Next, get list of claimed mobs, we want to prioritize unclaimed mobs first
+            local claimed_party_targets = party_util.party_targets(nil, true):filter(function(target_index)
+                local target = windower.ffxi.get_mob_by_index(target_index)
+                return target and target.claim_id and target.claim_id ~= 0
+            end)
+
+            -- Get all targets, if names is empty, find_closest_mobs handles that.
+            local targets = ffxi_util.find_closest_mobs(self:get_target_names(), L{}, self.blacklist, self.pull_settings.Distance or 20)
+            -- Select at random from 1 - min(length, 6)
+            local target
+            if targets:length() > 0 then
+                -- Filter targets for claimed targets first, then fall back to any target
+                local filtered_targets = targets:filter(function(mob)
+                    return (claimed_party_targets and not claimed_party_targets:contains(mob.index))
+                end)
+                target = self:get_random_target(filtered_targets) or self:get_random_target(targets)
+            end
+            -- Ensure target is populated and hasn't wandered since last instruction
             if target and target.distance:sqrt() < (self.pull_settings.Distance or 20) then
                 logger.notice(self.__class, 'get_next_target', 'new mob')
                 local monster = Monster.new(target.id)

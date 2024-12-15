@@ -65,6 +65,12 @@ function Trust:init()
 				self.target_index = new_target_index
 				self:job_target_change(new_target_index, old_target_index)
 			end)
+
+	local party_target = self.party:get_current_party_target()
+	if party_target and party_target:get_mob() then
+		self.target_index = party_target:get_mob().index
+		self:job_target_change(self.target_index, nil)
+	end
 end
 
 function Trust:destroy()

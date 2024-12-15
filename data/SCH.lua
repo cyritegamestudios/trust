@@ -92,6 +92,9 @@ return {
                 JobAbility.new('Dark Arts', L{}, L{}, nil),
                 Spell.new("Klimaform", L{}, nil, nil, L{})
             },
-        }
+        },
+        GearSwapSettings = {
+            Enabled = true
+        },
     }
 }
