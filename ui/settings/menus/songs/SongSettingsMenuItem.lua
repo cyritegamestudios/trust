@@ -280,7 +280,7 @@ function SongSettingsMenuItem:getConfigMenuItem()
                 }
 
                 local songConfigEditor = ConfigEditor.new(self.trustSettings, songSettings, configItems, infoView, function(newSettings)
-                    if newSettings.NumSongs > 2 and not self.addonSettings:getSettings().gearswap.enabled then
+                    if newSettings.NumSongs > 2 and not allSettings.GearSwapSettings.Enabled then
                         return false
                     end
                     return true

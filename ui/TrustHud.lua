@@ -311,7 +311,7 @@ function TrustHud:getMainMenuItem()
         ButtonItem.default('Config', 18),
     }, {
         Profiles = LoadSettingsMenuItem.new(self.addon_settings, self.trustModeSettings, main_trust_settings, weapon_skill_settings, sub_trust_settings),
-        Config = ConfigSettingsMenuItem.new(self.addon_settings, self.mediaPlayer, self.widgetManager),
+        Config = ConfigSettingsMenuItem.new(self.addon_settings, main_trust_settings, state.MainTrustSettingsMode, self.mediaPlayer, self.widgetManager),
     }, nil, "Jobs")
 
     self.mainMenuItem = mainMenuItem

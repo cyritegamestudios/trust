@@ -84,6 +84,9 @@ return {
                 "Locus Armet Beetle",
             },
             Distance = 20
-        }
+        },
+        GearSwapSettings = {
+            Enabled = true
+        },
     }
 }

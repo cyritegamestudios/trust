@@ -89,7 +89,7 @@ end
 -- @treturn number Number of songs
 function Bard:get_max_num_songs(include_clarion_call, current_num_bard_songs)
     local max_num_songs = self.max_num_songs
-    if not self.addon_settings:getSettings().gearswap.enabled then
+    if not self.gear_swap_enabled then
         max_num_songs = 2
     end
     local current_num_bard_songs = current_num_bard_songs or self:get_song_buff_ids():length()
@@ -165,6 +165,7 @@ function Bard:set_trust_settings(trust_settings)
     self.max_num_songs = trust_settings.SongSettings.NumSongs or 4
     self.song_duration = trust_settings.SongSettings.SongDuration or 240
     self.song_delay = trust_settings.SongSettings.SongDelay or 6
+    self.gear_swap_enabled = trust_settings.GearSwapSettings.Enabled
 end
 
 return Bard

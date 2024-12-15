@@ -244,7 +244,6 @@ function Puller:get_next_target()
             -- Next, get list of claimed mobs, we want to prioritize unclaimed mobs first
             local claimed_party_targets = party_util.party_targets(nil, true):filter(function(target_index)
                 local target = windower.ffxi.get_mob_by_index(target_index)
-                print('targeting', target and target.claim_id and target.claim_id ~= 0)
                 return target and target.claim_id and target.claim_id ~= 0
             end)
 

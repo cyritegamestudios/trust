@@ -29,5 +29,8 @@ return {
                 Gambit.new("Self", L{ModeCondition.new("AutoShootMode", "Auto")}, JobAbility.new("Velocity Shot", L{}, L{}), "Self", L{"Abilities"}),
             }
         },
+        GearSwapSettings = {
+            Enabled = true
+        },
     }
 }

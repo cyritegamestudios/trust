@@ -8,9 +8,11 @@ ChatInput.__index = ChatInput
 ChatInput.__type = "ChatInput"
 ChatInput.__class = "ChatInput"
 
-function ChatInput.new(addonSettings)
+function ChatInput.new(trustSettings, trustSettingsMode)
     local self = setmetatable({}, ChatInput)
 
+    self.trustSettings = trustSettings
+    self.trustSettingsMode = trustSettingsMode
     self.events = {}
     self.handlers = {}
     self.hasShownWarning = false
@@ -72,7 +74,8 @@ function ChatInput.new(addonSettings)
             return
         end
 
-        if addonSettings:getSettings()[("gearswap"):lower()].enabled then
+        local gearSwapSettings = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].GearSwapSettings
+        if gearSwapSettings.Enabled then
             return
         end
 
