@@ -121,7 +121,12 @@ function TargetWidget.new(frame, addonSettings, party, trust)
         self:setTarget(target_index)
     end, party:on_party_target_change()))
 
-    self:setTarget(nil)
+    local current_target = party:get_current_party_target()
+    if current_target then
+        self:setTarget(current_target:get_mob().index)
+    else
+        self:setTarget(nil)
+    end
     self:setAction(nil)
 
     local skillchainer = trust:role_with_type("skillchainer")
