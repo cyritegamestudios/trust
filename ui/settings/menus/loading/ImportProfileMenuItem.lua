@@ -34,7 +34,7 @@ function ImportProfileMenuItem.new(trustModeSettings, jobSettings, weaponSkillSe
 
         self.dispose_bag:add(profileListPicker:on_pick_items():addAction(function(_, selectedItems)
             if selectedItems:length() > 0 then
-                local fileName = selectedItems[1]:getText()
+                local fileName = selectedItems[1]
                 self:loadFile(fileName)
             end
         end), profileListPicker:on_pick_items())
@@ -73,11 +73,14 @@ function ImportProfileMenuItem:loadFile(fileName)
         local setName = profileSettings.SetName
 
         self.jobSettings:createSettings(setName, T(profileSettings.JobSettings))
-        self.weaponSkillSettings:createSettings(setName, profileSettings.WeaponSkillSettings)
-        self.trustModeSettings:saveSettings(setName, T(profileSettings.ModeSettings), true)
+
         if profileSettings.SubJobSettings then
             self.subJobSettings:createSettings(setName, T(profileSettings.SubJobSettings))
+            profileSettings.ModeSettings['subtrustsettingsmode'] = setName
         end
+
+        self.weaponSkillSettings:createSettings(setName, profileSettings.WeaponSkillSettings)
+        self.trustModeSettings:saveSettings(setName, T(profileSettings.ModeSettings), true)
 
         addon_system_message("Imported profile with name "..setName..".")
     end
