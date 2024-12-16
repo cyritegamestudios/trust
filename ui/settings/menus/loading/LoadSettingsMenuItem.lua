@@ -95,7 +95,7 @@ function LoadSettingsMenuItem:getCreateSetMenuItem()
             menu:showMenu(self)
         end, "Confirm", "Create a new profile.")
     }, function(_)
-        local createSetView = CreateProfileEditor.new(self.trustModeSettings, self.jobSettings, self.weaponSkillSettings)
+        local createSetView = CreateProfileEditor.new(self.trustModeSettings, self.jobSettings, self.subJobSettings, self.weaponSkillSettings)
         return createSetView
     end, "Profiles", "Create a new profile.")
     return createSetMenuItem

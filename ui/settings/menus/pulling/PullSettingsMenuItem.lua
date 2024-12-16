@@ -13,6 +13,13 @@ local PullActionMenuItem = require('ui/settings/menus/pulling/PullActionMenuItem
 local PullSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 PullSettingsMenuItem.__index = PullSettingsMenuItem
 
+function PullSettingsMenuItem.disabled(error_message)
+    return MenuItem.action(function() end, "Pulling", "Configure settings to pull monsters.", false, function()
+        addon_system_error(error_message)
+        return false
+    end)
+end
+
 function PullSettingsMenuItem.new(abilities, trust, job_name_short, trust_settings, trust_settings_mode, trust_mode_settings)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Targets', 18),
@@ -21,7 +28,9 @@ function PullSettingsMenuItem.new(abilities, trust, job_name_short, trust_settin
         ButtonItem.default('Config', 18),
     }, {
 
-    }, nil, "Pulling", "Configure settings to pull monsters."), PullSettingsMenuItem)
+    }, nil, "Pulling", "Configure settings to pull monsters.", false, function()
+        return trust:get_party():get_player():get_main_job() == job_name_short
+    end), PullSettingsMenuItem)
 
     self.abilities = abilities
     self.trust = trust

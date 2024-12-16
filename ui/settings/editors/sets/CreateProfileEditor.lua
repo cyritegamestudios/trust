@@ -10,13 +10,15 @@ CreateProfileEditor.__type = "CreateProfileEditor"
 CreateProfileEditor.SettingsKeys = {}
 CreateProfileEditor.SettingsKeys.SetName = 'set_name'
 CreateProfileEditor.SettingsKeys.JobSettings = 'create_job_settings'
+CreateProfileEditor.SettingsKeys.SubJobSettings = 'create_sub_job_settings'
 CreateProfileEditor.SettingsKeys.WeaponSkillSettings = 'create_weapon_skill_settings'
 
-function CreateProfileEditor.new(trustModeSettings, jobSettings, weaponSkillSettings, infoView)
+function CreateProfileEditor.new(trustModeSettings, jobSettings, subJobSettings, weaponSkillSettings, infoView)
     local newSetSettings = {}
 
     newSetSettings[CreateProfileEditor.SettingsKeys.SetName] = 'NewProfile'
     newSetSettings[CreateProfileEditor.SettingsKeys.JobSettings] = true
+    newSetSettings[CreateProfileEditor.SettingsKeys.SubJobSettings] = true
     newSetSettings[CreateProfileEditor.SettingsKeys.WeaponSkillSettings] = true
 
     local configItems = L{
@@ -24,6 +26,7 @@ function CreateProfileEditor.new(trustModeSettings, jobSettings, weaponSkillSett
             return true
         end),
         BooleanConfigItem.new(CreateProfileEditor.SettingsKeys.JobSettings, 'Create new job settings'),
+        BooleanConfigItem.new(CreateProfileEditor.SettingsKeys.SubJobSettings, 'Create new sub job settings'),
         BooleanConfigItem.new(CreateProfileEditor.SettingsKeys.WeaponSkillSettings, 'Create new weapon skill settings'),
     }
 
@@ -57,6 +60,12 @@ function CreateProfileEditor.new(trustModeSettings, jobSettings, weaponSkillSett
         if shouldCreateJobSettings then
             trust_modes['maintrustsettingsmode'] = setName
             jobSettings:createSettings(setName)
+        end
+
+        local shouldCreateSubJobSettings = newConfigSettings[CreateProfileEditor.SettingsKeys.SubJobSettings]
+        if shouldCreateSubJobSettings then
+            trust_modes['subtrustsettingsmode'] = setName
+            subJobSettings:createSettings(setName)
         end
 
         local shouldCreateWeaponSkillSettings = newConfigSettings[CreateProfileEditor.SettingsKeys.WeaponSkillSettings]
