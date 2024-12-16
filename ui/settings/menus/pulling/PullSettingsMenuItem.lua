@@ -28,9 +28,7 @@ function PullSettingsMenuItem.new(abilities, trust, job_name_short, trust_settin
         ButtonItem.default('Config', 18),
     }, {
 
-    }, nil, "Pulling", "Configure settings to pull monsters.", false, function()
-        return trust:get_party():get_player():get_main_job() == job_name_short
-    end), PullSettingsMenuItem)
+    }, nil, "Pulling", "Configure settings to pull monsters."), PullSettingsMenuItem)
 
     self.abilities = abilities
     self.trust = trust
