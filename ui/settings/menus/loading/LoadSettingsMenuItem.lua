@@ -62,6 +62,7 @@ function LoadSettingsMenuItem.new(addonSettings, trustModeSettings, jobSettings,
     self.addonSettings = addonSettings
     self.trustModeSettings = trustModeSettings
     self.jobSettings = jobSettings
+    self.subJobSettings = subJobSettings
     self.weaponSkillSettings = weaponSkillSettings
     self.weaponSkillSettings = weaponSkillSettings
     self.subJobSettings = subJobSettings
@@ -103,8 +104,8 @@ end
 function LoadSettingsMenuItem:getEditSetMenuItem()
     local editMenuItem = MenuItem.new(L{
         ButtonItem.default('Save', 18),
-    }, {}, function(_, _)
-        local loadSettingsView = TrustSetsConfigEditor.new(self.highlightedSetName or 'Default', self.trustModeSettings, self.jobSettings, self.weaponSkillSettings, nil)
+    }, {}, function(_, infoView)
+        local loadSettingsView = TrustSetsConfigEditor.new(self.highlightedSetName or 'Default', self.trustModeSettings, self.jobSettings, self.subJobSettings, self.weaponSkillSettings, infoView)
         loadSettingsView:setShouldRequestFocus(true)
         return loadSettingsView
     end, "Profiles", "Edit the selected profile.", true)
