@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '12.7.3'
+_addon.version = '12.7.4'
 _addon.release_notes = [[
 This update introduces new menus for Bard, autocomplete for Trust
 commands, new commands and important bug fixes for users running the
@@ -747,18 +747,8 @@ function handle_debug()
 	end
 end
 
-function handle_command_list(command_name)
-	addon_message(122, 'Addon Commands')
-
-	local command_descriptions = shortcuts:filter(function(command)
-		return command_name == nil or command:get_command_name() == command_name
-	end):map(function(command)
-		return command:description()
-	end)
-
-	for description in command_descriptions:it() do
-		windower.add_to_chat(122, description)
-	end
+function handle_command_list()
+	hud:openMenu(hud:getMainMenuItem():getChildMenuItem('Commands'))
 end
 
 -- Setup
