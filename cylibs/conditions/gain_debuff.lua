@@ -27,7 +27,10 @@ end
 
 function GainDebuffCondition:get_config_items()
     local all_debuffs = L(S(buff_util.get_all_debuff_ids():map(function(debuff_id)
-        return res.buffs[debuff_id].en
+        if res.buffs[debuff_id] then
+            return res.buffs[debuff_id].en
+        end
+        return nil
     end))):compact_map():sort()
     return L{
         PickerConfigItem.new('debuff_name', self.debuff_name, all_debuffs, function(debuff_name)
