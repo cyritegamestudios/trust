@@ -6,8 +6,8 @@ return {
 
         },
         PartyBuffs = L{
-            Spell.new("Indi-STR", L{"Entrust"}, L{}, nil, L{JobCondition.new("DRK", "SAM", "WAR", "MNK")}),
-            Spell.new("Indi-Fury", L{"Entrust"}, L{}, nil, L{JobCondition.new("RUN")})
+            Spell.new("Indi-STR", L{"Entrust"}, L{}, nil, L{JobCondition.new(L{"DRK", "SAM", "WAR", "MNK"})}),
+            Spell.new("Indi-Fury", L{"Entrust"}, L{}, nil, L{JobCondition.new(L{"RUN"})})
         },
         NukeSettings = {
             Delay = 4,

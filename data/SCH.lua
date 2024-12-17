@@ -4,7 +4,7 @@ return {
     Default = {
         LightArts = {
             PartyBuffs = L{
-                Spell.new("Adloquium", L{}, L{}, nil, L{JobCondition.new("WAR", "DRK", "DRG")})
+                Spell.new("Adloquium", L{}, L{}, nil, L{JobCondition.new(L{"WAR", "DRK", "DRG"})})
             },
             SelfBuffs = L{
                 JobAbility.new('Light Arts', L{}, L{}, nil),
