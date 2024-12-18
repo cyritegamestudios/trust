@@ -5,27 +5,27 @@ local DarkKnightTrust = setmetatable({}, {__index = Trust })
 DarkKnightTrust.__index = DarkKnightTrust
 
 local Spell = require('cylibs/battle/spell')
-local buff_util = require('cylibs/util/buff_util')
 
 local Buffer = require('cylibs/trust/roles/buffer')
 local Debuffer = require('cylibs/trust/roles/debuffer')
 local Dispeler = require('cylibs/trust/roles/dispeler')
+local MagicBurster = require('cylibs/trust/roles/magic_burster')
 local ManaRestorer = require('cylibs/trust/roles/mana_restorer')
+local Nuker = require('cylibs/trust/roles/nuker')
 local Puller = require('cylibs/trust/roles/puller')
 
 function DarkKnightTrust.new(settings, action_queue, battle_settings, trust_settings)
+	local job = DarkKnight.new()
 	local roles = S{
 		Buffer.new(action_queue, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
 		Debuffer.new(action_queue,trust_settings.Debuffs or L{}),
 		Dispeler.new(action_queue, L{ Spell.new('Absorb-Attri') }, L{}, false),
+		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		ManaRestorer.new(action_queue, L{'Entropy'}, L{}, 40),
+		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		Puller.new(action_queue, trust_settings.PullSettings.Targets, trust_settings.PullSettings.Abilities or L{ Spell.new('Absorb-STR'), Spell.new('Absorb-ACC'), Spell.new('Stone') }:compact_map()),
 	}
-	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, DarkKnight.new()), DarkKnightTrust)
-
-	self.settings = settings
-	self.action_queue = action_queue
-
+	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), DarkKnightTrust)
 	return self
 end
 
@@ -36,39 +36,22 @@ function DarkKnightTrust:on_init()
 		local buffer = self:role_with_type("buffer")
 		buffer:set_self_buffs(new_trust_settings.SelfBuffs)
 
+		local debuffer = self:role_with_type("debuffer")
+		debuffer:set_debuff_spells(new_trust_settings.Debuffs)
+
 		local puller = self:role_with_type("puller")
 		if puller then
 			puller:set_pull_settings(new_trust_settings.PullSettings)
+		end
+
+		local nuker_roles = self:roles_with_types(L{ "nuker", "magicburster" })
+		for role in nuker_roles:it() do
+			role:set_nuke_settings(new_trust_settings.NukeSettings)
 		end
 	end)
 end
 
 function DarkKnightTrust:on_deinit()
-end
-
-function DarkKnightTrust:job_target_change(target_index)
-	Trust.job_target_change(self, target_index)
-end
-
-function DarkKnightTrust:tic(old_time, new_time)
-	Trust.tic(self, old_time, new_time)
-end
-
-function DarkKnightTrust:job_magic_burst(target_id, spell)
-	Trust.job_magic_burst(self, target_id, spell)
-
-	if spell.en == 'Drain III' and not buff_util.is_buff_active(buff_util.buff_id('Max HP Boost')) then
-		local actions = L{
-			JobAbilityAction.new(0, 0, 0, 'Nether Void'),
-			WaitAction.new(0, 0, 0, 0.25),
-			JobAbilityAction.new(0, 0, 0, 'Dark Seal'),
-			WaitAction.new(0, 0, 0, 0.25),
-			JobAbilityAction.new(0, 0, 0, 'Third Eye'),
-			WaitAction.new(0, 0, 0, 0.25),
-			SpellAction.new(0, 0, 0, spell.id, self.target_index, self:get_player())
-		}
-		self.action_queue:push_action(SequenceAction.new(actions, 'mb_'..spell.id), true)
-	end
 end
 
 return DarkKnightTrust
