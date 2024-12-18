@@ -228,11 +228,6 @@ function Monster:handle_action_by_monster(act)
             self:handle_gain_buff(action.param)
         elseif action_message_util.is_spell_finish_message(action.message, act.param) then
             self:on_spell_finish():trigger(self, target.index, act.param)
-        elseif monster_abilities_ext:with('id', action.param) then
-            local buff = res.buffs:with('id', action.param)
-            if buff then
-                self:handle_gain_buff(buff.status)
-            end
         end
     end
 end
