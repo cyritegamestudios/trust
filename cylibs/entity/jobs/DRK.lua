@@ -27,4 +27,22 @@ function DarkKnight:buff_for_absorb_spell(spell_name)
     end
 end
 
+-------
+-- Returns all AOE spells.
+-- @treturn list List of AOE spell names
+function DarkKnight:get_aoe_spells()
+    return L{}
+end
+
+-------
+-- Returns a list of conditions for a spell.
+-- @tparam Spell spell The spell
+-- @treturn list List of conditions
+function DarkKnight:get_conditions_for_spell(spell)
+    if L{ 'Drain II', 'Drain III' }:contains(spell:get_spell().en) then
+        return spell:get_conditions() + L{NotCondition.new(L{HasBuffCondition.new("Max HP Boost", windower.ffxi.get_player().index)})}
+    end
+    return spell:get_conditions()
+end
+
 return DarkKnight

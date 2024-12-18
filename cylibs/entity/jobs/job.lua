@@ -36,6 +36,14 @@ function Job:get_spells(filter)
     end)
 end
 
+-------
+-- Returns a list of conditions for a spell.
+-- @tparam Spell spell The spell
+-- @treturn list List of conditions
+function Job:get_conditions_for_spell(spell)
+    return spell:get_conditions()
+end
+
 function Job:get_job_abilities(filter)
     filter = filter or function(_) return true end
     return player_util.get_job_abilities():filter(function(job_ability_id)

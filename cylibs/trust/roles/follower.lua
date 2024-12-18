@@ -16,10 +16,11 @@ state.AutoFollowMode = M{['description'] = 'Follow', 'Off', 'Always'}
 state.AutoFollowMode:set_description('Off', "Okay, I'll no longer follow anyone.")
 state.AutoFollowMode:set_description('Always', "Okay, I'll follow when not in battle.")
 
-function Follower.new(action_queue, follow_distance)
+function Follower.new(action_queue, follow_distance, addon_settings)
     local self = setmetatable(Role.new(action_queue), Follower)
 
     self.action_queue = action_queue
+    self.addon_settings = addon_settings
     self.walk_action_queue = ActionQueue.new(nil, false, 100, false, false)
     self.action_events = {}
     self.distance = follow_distance or 1
@@ -63,6 +64,10 @@ function Follower:on_add()
     self.dispose_bag:add(self:get_party():get_player():on_zone_change():addAction(function(p, zone_id, x, y, z, zone_line, zone_type)
         self:start_following()
     end), self:get_party():get_player():on_zone_change())
+
+    self.dispose_bag:add(self.addon_settings:onSettingsChanged():addAction(function(settings)
+        self.distance = settings.follow.distance or 1
+    end, self.addon_settings:onSettingsChanged()))
 
     self.action_events.status = windower.register_event('status change', function(new_status_id, old_status_id)
         self:on_player_status_change(new_status_id, old_status_id)

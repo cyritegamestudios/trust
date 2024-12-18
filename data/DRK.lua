@@ -29,6 +29,23 @@ return {
             Distance = 20,
             MaxNumMobs = 1,
         },
+        NukeSettings = {
+            Delay = 10,
+            MinManaPointsPercent = 20,
+            MinNumMobsToCleave = 2,
+            GearswapCommand = "gs c set MagicBurstMode Single",
+            Spells = L{
+                Spell.new("Drain III", L{}, L{}, nil, L{}),
+                Spell.new("Drain II", L{}, L{}, nil, L{}),
+            },
+            JobAbilities = L{
+                JobAbility.new("Nether Void"),
+                JobAbility.new("Dark Seal"),
+            },
+            Blacklist = L{
+
+            },
+        },
         GambitSettings = {
             Default = L{
                 Gambit.new("Enemy", L{MeleeAccuracyCondition.new(75, "<="), MainJobCondition.new("DRK")},  Spell.new("Absorb-ACC", L{}, L{}), "Self"),

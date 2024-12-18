@@ -191,7 +191,7 @@ function MagicBurster:get_spell(element)
         return true
     end)
     for spell in spells:it() do
-        local conditions = L{}:extend(spell:get_conditions()):extend(L{ MinManaPointsCondition.new(spell:get_mp_cost(), windower.ffxi.get_player().index) })
+        local conditions = self.job:get_conditions_for_spell(spell) + L{ MinManaPointsCondition.new(spell:get_mp_cost(), windower.ffxi.get_player().index) }
         if Condition.check_conditions(conditions, self.target_index) then
             return spell
         end
