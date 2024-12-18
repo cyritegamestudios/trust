@@ -185,6 +185,16 @@ function Monster:monitor()
             self:handle_action_on_monster(act)
         end
     end), WindowerEvents.Action)
+
+    self.dispose_bag:add(WindowerEvents.Ability.Finish:addAction(function(target_id, ability_id)
+        if not ability_id then
+            return
+        end
+        local ability = monster_abilities_ext[ability_id]
+        if ability then
+            self:handle_gain_buff(ability.status)
+        end
+    end), WindowerEvents.Ability.Finish)
 end
 
 function Monster:handle_action_by_monster(act)
@@ -221,7 +231,7 @@ function Monster:handle_action_by_monster(act)
         elseif monster_abilities_ext:with('id', action.param) then
             local buff = res.buffs:with('id', action.param)
             if buff then
-                self:handle_gain_buff(buff.id)
+                self:handle_gain_buff(buff.status)
             end
         end
     end
