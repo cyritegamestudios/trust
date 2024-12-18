@@ -175,7 +175,7 @@ end
 function ScholarTrustCommands:handle_storm(_, element, include_party)
     local success
     local message
-    print(tostring(include_party))
+
     include_party = include_party ~= nil and tostring(include_party) == "true"
 
     local storm = self.trust:get_job():get_storm(element:lower())

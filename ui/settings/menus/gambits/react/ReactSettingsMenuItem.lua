@@ -1,5 +1,6 @@
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConditionSettingsMenuItem = require('ui/settings/menus/conditions/ConditionSettingsMenuItem')
+local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
@@ -7,7 +8,6 @@ local Gambit = require('cylibs/gambits/gambit')
 local GambitSettingsEditor = require('ui/settings/editors/GambitSettingsEditor')
 local GambitTarget = require('cylibs/gambits/gambit_target')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
-local job_util = require('cylibs/util/job_util')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
@@ -81,7 +81,7 @@ end
 function ReactSettingsMenuItem:getAbilities(gambitTarget, flatten)
     local gambitTargetMap = T{
         [GambitTarget.TargetType.Self] = S{'Self'},
-        [GambitTarget.TargetType.Ally] = S{'Party'},
+        [GambitTarget.TargetType.Ally] = S{'Party', 'Corpse'},
         [GambitTarget.TargetType.Enemy] = S{'Enemy'}
     }
     local targets = gambitTargetMap[gambitTarget]
@@ -93,30 +93,33 @@ function ReactSettingsMenuItem:getAbilities(gambitTarget, flatten)
                 if spell.type == 'Geomancy' and spellTargets:length() == 1 and spellTargets[1] == 'Self' then
                     spellTargets:append('Party')
                 end
-                return spell.type ~= 'Trust' and S(spellTargets):intersection(targets):length() > 0
+                return not S{ 'Trust', 'BardSong' }:contains(spell.type) and S(spellTargets):intersection(targets):length() > 0
             end
             return false
         end):map(function(spellId)
-            return res.spells[spellId].en
-        end):sort(),
-        player_util.get_job_abilities():filter(function(jobAbilityId)
+            return Spell.new(res.spells[spellId].en)
+        end),
+        L(player_util.get_job_abilities()):filter(function(jobAbilityId)
             local jobAbility = res.job_abilities[jobAbilityId]
             return S(jobAbility.targets):intersection(targets):length() > 0
         end):map(function(jobAbilityId)
-            return res.job_abilities[jobAbilityId].en
-        end):sort(),
+            return JobAbility.new(res.job_abilities[jobAbilityId].en)
+        end),
         L(windower.ffxi.get_abilities().weapon_skills):filter(function(weaponSkillId)
             local weaponSkill = res.weapon_skills[weaponSkillId]
             return S(weaponSkill.targets):intersection(targets):length() > 0
         end):map(function(weaponSkillId)
-            return res.weapon_skills[weaponSkillId].en
-        end):sort(),
-        L{ 'Approach', 'Ranged Attack', 'Turn Around', 'Turn to Face', 'Run Away', 'Run To', 'Engage' }:filter(function(_)
+            return WeaponSkill.new(res.weapon_skills[weaponSkillId].en)
+        end),
+        L{ Approach.new(), RangedAttack.new(), TurnAround.new(), TurnToFace.new(), RunAway.new(), RunTo.new(), Engage.new() }:filter(function(_)
             return targets:contains('Enemy')
+        end),
+        L{ UseItem.new(), Command.new() }:filter(function(_)
+            return targets:contains('Self')
         end),
     }
     if flatten then
-        sections = sections:flatten()
+        sections = sections:flatten(false)
     end
     return sections
 end
@@ -124,9 +127,9 @@ end
 function ReactSettingsMenuItem:getAbilitiesByTargetType()
     local abilitiesByTargetType = T{}
 
-    abilitiesByTargetType[GambitTarget.TargetType.Self] = self:getAbilities(GambitTarget.TargetType.Self, true):map(function(abilityName) return job_util.getAbility(abilityName)  end):compact_map()
-    abilitiesByTargetType[GambitTarget.TargetType.Ally] = self:getAbilities(GambitTarget.TargetType.Ally, true):map(function(abilityName) return job_util.getAbility(abilityName)  end):compact_map()
-    abilitiesByTargetType[GambitTarget.TargetType.Enemy] = self:getAbilities(GambitTarget.TargetType.Enemy, true):map(function(abilityName) return job_util.getAbility(abilityName)  end):compact_map()
+    abilitiesByTargetType[GambitTarget.TargetType.Self] = self:getAbilities(GambitTarget.TargetType.Self, true):compact_map()
+    abilitiesByTargetType[GambitTarget.TargetType.Ally] = self:getAbilities(GambitTarget.TargetType.Ally, true):compact_map()
+    abilitiesByTargetType[GambitTarget.TargetType.Enemy] = self:getAbilities(GambitTarget.TargetType.Enemy, true):compact_map()
 
     return abilitiesByTargetType
 end
@@ -152,16 +155,47 @@ end
 function ReactSettingsMenuItem:getEditGambitMenuItem()
     local editGambitMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
+        ButtonItem.default('Edit', 18),
         ButtonItem.default('Conditions', 18),
-    }, {}, function(menuArgs, infoView)
+    }, {
+    }, function(menuArgs, infoView)
         local abilitiesByTargetType = self:getAbilitiesByTargetType()
-
         local gambitEditor = GambitSettingsEditor.new(self.selectedGambit, self.trustSettings, self.trustSettingsMode, abilitiesByTargetType)
         return gambitEditor
-    end, "Reactions", "Edit the selected reaction.", false, function()
+    end, "Gambits", "Edit the selected gambit.", false, function()
         return self.selectedGambit ~= nil
     end)
 
+    local editAbilityMenuItem = MenuItem.new(L{
+        ButtonItem.default('Confirm'),
+    }, {
+        Confirm = MenuItem.action(function(parent)
+            parent:showMenu(editGambitMenuItem)
+        end, "Gambits", "Edit ability.")
+    }, function(_, infoView)
+        if self.selectedGambit then
+            local configItems = L{}
+            if self.selectedGambit:getAbility().get_config_items then
+                configItems = self.selectedGambit:getAbility():get_config_items() or L{}
+            end
+            if not configItems:empty() then
+                local editAbilityEditor = ConfigEditor.new(nil, self.selectedGambit:getAbility(), configItems, infoView)
+
+                self.disposeBag:add(editAbilityEditor:onConfigChanged():addAction(function(newSettings, oldSettings)
+                    if self.selectedGambit:getAbility().on_config_changed then
+                        self.selectedGambit:getAbility():on_config_changed(oldSettings)
+                    end
+                end), editAbilityEditor:onConfigChanged())
+
+                return editAbilityEditor
+            end
+            return nil
+        end
+    end, "Gambits", "Edit ability.", false, function()
+        return self.selectedGambit:getAbility().get_config_items and self.selectedGambit:getAbility():get_config_items():length() > 0
+    end)
+
+    editGambitMenuItem:setChildMenuItem("Edit", editAbilityMenuItem)
     editGambitMenuItem:setChildMenuItem("Conditions", ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode))
 
     return editGambitMenuItem

@@ -78,7 +78,6 @@ function Dispeler:tic(_, _)
         return
     end
     self.last_check_buffs_time = os.time()
-
     self:check_buffs()
 end
 
@@ -165,6 +164,10 @@ end
 
 function Dispeler:get_type()
     return "dispeler"
+end
+
+function Dispeler:allows_duplicates()
+    return true
 end
 
 return Dispeler
