@@ -1,5 +1,6 @@
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
+local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
@@ -98,7 +99,7 @@ function CommandsMenuItem:reloadSettings(commands)
                 return tostring(command)
             end)
 
-            local commandList = FFXIPickerView.withConfig(configItem)
+            local commandList = FFXIPickerView.withConfig(configItem, false, FFXIClassicStyle.WindowSize.Picker.Wide)
             commandList:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
                 local item = allCommands[indexPath.row]
                 if item then
