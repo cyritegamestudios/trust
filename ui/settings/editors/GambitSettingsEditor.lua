@@ -41,7 +41,23 @@ function GambitSettingsEditor.new(gambit, trustSettings, trustSettingsMode, abil
         end
     end), self:getDelegate():didSelectItemAtIndexPath())
 
-    self:getDisposeBag():add(self:onConfigChanged():addAction(function(_, _)
+    self:getDisposeBag():add(self:onConfigChanged():addAction(function(newSettings, oldSettings)
+        if newSettings['conditions_target'] ~= oldSettings['conditions_target'] then
+            local removed_condition_names = L{}
+            local conditions = self.gambit:getConditions():filter(function(condition)
+                if condition.valid_targets():contains(newSettings['conditions_target']) then
+                    return true
+                end
+                removed_condition_names:append(condition.description():gsub("%.", ""))
+                return false
+            end)
+            newSettings.conditions = conditions
+
+            if removed_condition_names:length() > 0 then
+                addon_system_error("Invalid conditions for conditions target type "..newSettings['conditions_target']..": "..localization_util.commas(removed_condition_names)..".")
+                self:reloadSettings()
+            end
+        end
         self:reloadConfigItems()
     end), self:onConfigChanged())
 
@@ -62,7 +78,9 @@ function GambitSettingsEditor:reloadSettings()
         return TextItem.new(condition:tostring(), TextStyle.Default.TextSmall)
     end), 4)
 
-    self:getDataSource():addItems(conditionsItems)
+    if conditionsItems:length() > 0 then
+        self:getDataSource():addItems(conditionsItems)
+    end
 
     self:setNeedsLayout()
     self:layoutIfNeeded()

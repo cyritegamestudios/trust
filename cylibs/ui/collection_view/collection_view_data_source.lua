@@ -260,7 +260,7 @@ end
 function CollectionViewDataSource:getNextIndexPath(indexPath, wrap)
     if self:numberOfItemsInSection(indexPath.section) >= indexPath.row + 1 then
         return IndexPath.new(indexPath.section, indexPath.row + 1)
-    elseif self:numberOfSections() >= indexPath.section + 1 and self:numberOfItemsInSection(indexPath.section) >= 1 then
+    elseif self:numberOfSections() >= indexPath.section + 1 and self:numberOfItemsInSection(indexPath.section + 1) >= 1 then
         return IndexPath.new(indexPath.section + 1, 1)
     else
         if wrap then
