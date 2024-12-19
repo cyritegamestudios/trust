@@ -94,6 +94,7 @@ function Truster:check_trusts()
 end
 
 function Truster:call_trust(trust_name)
+
     local trust_spell = res.spells:with('en', trust_name)
     if trust_spell then
         logger.notice(self.__class, 'call_trust', trust_name)
