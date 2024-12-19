@@ -58,7 +58,9 @@ function GambitSettingsEditor.new(gambit, trustSettings, trustSettingsMode, abil
                 self:reloadSettings()
             end
         end
-        self:reloadConfigItems()
+        if newSettings ~= oldSettings then
+            self:reloadConfigItems()
+        end
     end), self:onConfigChanged())
 
     return self

@@ -191,6 +191,8 @@ function ConfigEditor:reloadConfigItem(configItem)
 end
 
 function ConfigEditor:reloadSettings()
+    local previousCursorIndexPath = self:getDelegate():getCursorIndexPath()
+
     self:getDataSource():removeAllItems()
 
     local items = L{}
@@ -228,7 +230,9 @@ function ConfigEditor:reloadSettings()
 
     self:getDataSource():addItems(items)
 
-    if self:getDataSource():numberOfItemsInSection(1) > 0 then
+    if previousCursorIndexPath and self:getDataSource():itemAtIndexPath(previousCursorIndexPath) then
+        self:getDelegate():setCursorIndexPath(previousCursorIndexPath)
+    elseif self:getDataSource():numberOfItemsInSection(1) > 0 then
         self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
     end
 end
