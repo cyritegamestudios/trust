@@ -49,6 +49,33 @@ function BlueMage:get_spells(filter)
 end
 
 -------
+-- Returns all AOE spells.
+-- @treturn list List of AOE spell names
+function BlueMage:get_aoe_spells()
+    return L{
+        'Searing Tempest', 'Blinding Fulgor', 'Spectral Floe', 'Scouring Spate',
+        'Anvil Lightning', 'Silent Storm', 'Entomb', 'Tenebral Crush',
+    }
+end
+
+-------
+-- Returns a list of conditions for a spell.
+-- @tparam Spell spell The spell
+-- @treturn list List of conditions
+function BlueMage:get_conditions_for_spell(spell)
+    local magicalSpells = S(self:get_spells(function(spell_id)
+        local spell = res.spells[spell_id]
+        return spell and S{ 'BlueMagic' }:contains(spell.type) and S{ 'Enemy' }:intersection(S(spell.targets)):length() > 0 and spell.element ~= 15
+    end):map(function(spell_id)
+        return res.spells[spell_id].en
+    end))
+    if magicalSpells:contains(spell:get_spell().en) then
+        return spell:get_conditions() + L{JobAbilityRecastReadyCondition.new('Burst Affinity')}
+    end
+    return spell:get_conditions()
+end
+
+-------
 -- Returns a set of equipped spell ids.
 -- @treturn set Set of equipped spell ids
 function BlueMage:get_equipped_spells()

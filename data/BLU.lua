@@ -50,6 +50,28 @@ return {
                 Default = BlueMagicSet.new(L{"White Wind", "Molting Plumage", "Thrashing Assault", "Fantod", "Erratic Flutter", "Tail Slap", "Paralyzing Triad", "Metallic Body", "Diffusion Ray", "Magic Fruit", "Embalming Earth", "Sudden Lunge", "Sinker Drill", "Cocoon", "Occultation", "Heavy Strike", "Nat. Meditation", "Empty Thrash", "Sickle Slash"})
             }
         },
+        NukeSettings = {
+            Delay = 10,
+            MinManaPointsPercent = 30,
+            MinNumMobsToCleave = 2,
+            GearswapCommand = "gs c set MagicBurstMode Single",
+            Spells = L{
+                Spell.new('Anvil Lightning'),
+                Spell.new('Spectral Floe'),
+                Spell.new('Searing Tempest'),
+                Spell.new('Silent Storm'),
+                Spell.new('Scouring Spate'),
+                Spell.new('Entomb'),
+                Spell.new('Tenebral Crush'),
+                Spell.new('Blinding Fulgor'),
+            },
+            JobAbilities = L{
+                JobAbility.new("Burst Affinity"),
+            },
+            Blacklist = L{
+
+            },
+        },
         GambitSettings = {
             Gambits = L{
                 Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("BLU")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"food"})
