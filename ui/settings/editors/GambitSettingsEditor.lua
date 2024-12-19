@@ -54,13 +54,11 @@ function GambitSettingsEditor.new(gambit, trustSettings, trustSettingsMode, abil
             newSettings.conditions = conditions
 
             if removed_condition_names:length() > 0 then
-                addon_system_error("Invalid conditions for conditions target type "..newSettings['conditions_target']..": "..localization_util.commas(removed_condition_names))
+                addon_system_error("Invalid conditions for conditions target type "..newSettings['conditions_target']..": "..localization_util.commas(removed_condition_names)..".")
                 self:reloadSettings()
             end
         end
-        if newSettings ~= oldSettings then
-            self:reloadConfigItems()
-        end
+        self:reloadConfigItems()
     end), self:onConfigChanged())
 
     return self
