@@ -384,8 +384,12 @@ end
 
 function buff_util.get_all_debuffs()
 	return L(T(debuffs):keyset()):map(function(debuff_id)
-		return res.buffs[debuff_id].en:gsub("^%l", string.upper)
-	end)
+		local debuff = res.buffs[debuff_id]
+		if debuff then
+			return debuff.en:gsub("^%l", string.upper)
+		end
+		return nil
+	end):compact_map()
 end
 
 function buff_util.get_all_debuff_spells()
