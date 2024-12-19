@@ -67,8 +67,11 @@ function ModesMenuItem:reloadSettings()
 end
 
 function ModesMenuItem:getInfoMenuItem()
+    local infoButton = ButtonItem.localized('Info', i18n.translate('Button_Info'))
+    infoButton:setEnabled(false)
+    
     local infoMenuItem = MenuItem.new(L{
-        ButtonItem.localized('Info', i18n.translate('Button_Info'))
+        infoButton
     }, {}, function(_, infoView)
         local modeSettings = {}
         local configItems = L{}
