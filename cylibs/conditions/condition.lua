@@ -15,6 +15,10 @@ Condition.Operator.GreaterThanOrEqualTo = ">="
 Condition.Operator.LessThan = "<"
 Condition.Operator.LessThanOrEqualTo = "<="
 
+Condition.LogicalOperator = {}
+Condition.LogicalOperator.And = "and"
+Condition.LogicalOperator.Or = "or"
+
 Condition.TargetType = {}
 Condition.TargetType.Self = "Self"
 Condition.TargetType.Ally = "Ally"

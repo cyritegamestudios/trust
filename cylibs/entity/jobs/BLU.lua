@@ -216,17 +216,12 @@ function BlueMage:set_cure_settings(cure_settings)
 end
 
 function BlueMage:create_spell_set()
-    local mjob_data = windower.ffxi.get_mjob_data()
-    if mjob_data == nil or mjob_data.spells == nil then
+    local equipped_spells = L(self:get_equipped_spells())
+    if equipped_spells:length() == 0 then
         return
     end
 
-    local spell_ids = L{}
-    for _, spell_id in pairs(mjob_data.spells) do
-        spell_ids:append(spell_id)
-    end
-
-    local spell_names = spell_ids:map(function(spell_id)
+    local spell_names = equipped_spells:map(function(spell_id)
         return res.spells[spell_id].en
     end)
 
