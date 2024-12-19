@@ -1,10 +1,15 @@
+local ConditionalCondition = require('cylibs/conditions/conditional')
+
 local Action = require('cylibs/actions/action')
 local EquipSpellAction = setmetatable({}, {__index = Action })
 EquipSpellAction.__index = EquipSpellAction
 
 function EquipSpellAction.new(spell_id, slot_index)
     local conditions = L{
-        MainJobCondition.new('BLU'),
+        ConditionalCondition.new(L{
+            MainJobCondition.new('BLU'),
+            SubJobCondition.new('BLU')
+        }, Condition.LogicalOperator.Or)
     }
 
     local self = setmetatable(Action.new(0, 0, 0, windower.ffxi.get_player().index, conditions), EquipSpellAction)
