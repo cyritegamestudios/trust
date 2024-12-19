@@ -30,7 +30,13 @@ function CreateProfileEditor.new(trustModeSettings, jobSettings, subJobSettings,
         BooleanConfigItem.new(CreateProfileEditor.SettingsKeys.WeaponSkillSettings, 'Create new weapon skill settings'),
     }
 
-    local self = setmetatable(ConfigEditor.new(nil, newSetSettings, configItems, nil, function(_) return true end), CreateProfileEditor)
+    local self = setmetatable(ConfigEditor.new(nil, newSetSettings, configItems, nil, function(newSettings)
+        local profileName = newSettings[CreateProfileEditor.SettingsKeys.SetName]
+        if profileName and profileName:match("^[a-zA-Z]+$") ~= nil then
+            return true
+        end
+        return false
+    end), CreateProfileEditor)
 
     self.newSetSettings = newSetSettings
     self.trustModeSettings = trustModeSettings
@@ -76,6 +82,10 @@ function CreateProfileEditor.new(trustModeSettings, jobSettings, subJobSettings,
 
         trustModeSettings:saveSettings(setName, trust_modes)
     end), self:onConfigChanged())
+
+    self:onConfigValidationError():addAction(function()
+        addon_system_error("Profile names can only contain the characters a-z and A-Z.")
+    end)
 
     return self
 end
