@@ -48,14 +48,19 @@ function VerticalFlowLayout:layoutSubviews(collectionView, indexPathFilter)
 
                 collectionView:getContentView():addSubview(sectionHeaderCell)
 
-                local cellSize = { width = collectionView:getSize().width, height = sectionHeaderItem:getSectionSize() }
+                if numberOfItems > 0 then
+                    local cellSize = { width = collectionView:getSize().width, height = sectionHeaderItem:getSectionSize() }
 
-                sectionHeaderCell:setPosition(self.padding.left, yOffset)
-                sectionHeaderCell:setSize(cellSize.width - self.padding.left - self.padding.right, cellSize.height)
-                sectionHeaderCell:setVisible(collectionView:getContentView():isVisible() and sectionHeaderCell:isVisible())
-                sectionHeaderCell:layoutIfNeeded()
+                    sectionHeaderCell:setPosition(self.padding.left, yOffset)
+                    sectionHeaderCell:setSize(cellSize.width - self.padding.left - self.padding.right, cellSize.height)
+                    sectionHeaderCell:setVisible(collectionView:getContentView():isVisible() and sectionHeaderCell:isVisible())
+                    sectionHeaderCell:layoutIfNeeded()
 
-                yOffset = yOffset + cellSize.height + 2
+                    yOffset = yOffset + cellSize.height + 2
+                else
+                    sectionHeaderCell:setVisible(false)
+                    sectionHeaderCell:layoutIfNeeded()
+                end
             end
         end
 
