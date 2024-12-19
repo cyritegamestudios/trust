@@ -5,6 +5,7 @@ return {
         ["autodispelmode"]="Off",
         ["subtrustsettingsmode"]="Default",
         ["automagicburstmode"]="Off",
+        ["magicbursttargetmode"]="All",
         ["autofollowmode"]="Always",
         ["autobuffmode"]="Auto",
         ["autohealmode"]="Off",

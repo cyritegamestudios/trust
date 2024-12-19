@@ -66,7 +66,7 @@ function NukeSettingsMenuItem:getNukesMenuItem()
 
             local allSpells = self.trust:get_job():get_spells(function(spell_id)
                 local spell = res.spells[spell_id]
-                return spell and S{ 'BlackMagic','WhiteMagic','Ninjutsu' }:contains(spell.type) and S{ 'Enemy' }:intersection(S(spell.targets)):length() > 0 and spell.element ~= 15
+                return spell and S{ 'BlackMagic', 'WhiteMagic', 'Ninjutsu', 'BlueMagic' }:contains(spell.type) and S{ 'Enemy' }:intersection(S(spell.targets)):length() > 0 and spell.element ~= 15
             end):map(function(spell_id)
                 return Spell.new(res.spells[spell_id].en)
             end):compact_map()
