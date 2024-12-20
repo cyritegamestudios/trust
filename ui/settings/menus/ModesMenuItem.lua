@@ -83,7 +83,11 @@ function ModesMenuItem:getInfoMenuItem()
             description = description:gsub("^Okay, ", "")
 
             modeSettings[modeValue] = description
-            configItems:append(PickerConfigItem.new(modeValue, description, L{ description }))
+
+            local pickerItem = PickerConfigItem.new(modeValue, description, L{ description })
+            pickerItem:setShouldTruncateText(true)
+
+            configItems:append(pickerItem)
         end
         local commandConfigEditor = ConfigEditor.new(nil, modeSettings, configItems)
         commandConfigEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(cursorIndexPath)

@@ -28,6 +28,7 @@ function PickerConfigItem.new(key, initialValue, allValues, textFormat, descript
         return nil
     end
     self.description = description or key
+    self.shouldTruncateText = false
     self.dependencies = L{}
     self.onReload = onReload
 
@@ -98,6 +99,24 @@ end
 --
 function PickerConfigItem:getDescription()
     return self.description
+end
+
+---
+-- Sets whether text should be truncated.
+--
+-- @tparam boolean shouldTruncateText Whether text should be truncated.
+--
+function PickerConfigItem:setShouldTruncateText(shouldTruncateText)
+    self.shouldTruncateText = shouldTruncateText
+end
+
+---
+-- Returns whether text should be truncated.
+--
+-- @treturn boolean True if text should be truncated.
+--
+function PickerConfigItem:getShouldTruncateText()
+    return self.shouldTruncateText
 end
 
 ---
