@@ -16,7 +16,7 @@ local avatar_to_blood_pacts = T{
     Titan = L{ 'Earthen Ward', 'Earthen Armor' },
     Ramuh = L{ 'Rolling Thunder', 'Lightning Armor' },
     Leviathan = L{ 'Soothing Current' },
-    Fenrir = L{ 'Ecliptic Growl', 'Ecliptic Howl', 'Heavanward Howl' },
+    Fenrir = L{ 'Ecliptic Growl', 'Ecliptic Howl', 'Heavenward Howl' },
     Diabolos = L{ 'Noctoshield', 'Dream Shroud' },
     Siren = L { 'Katabatic Blades', 'Chinook', "Wind's Blessing" },
     Atomos = L{},
@@ -29,7 +29,6 @@ local avatar_to_blood_pacts = T{
 -- @treturn SMN A Summoner
 function Summoner.new()
     local self = setmetatable(Job.new('SMN', L{ 'Dispelga', 'Impact' }), Summoner)
-
     return self
 end
 

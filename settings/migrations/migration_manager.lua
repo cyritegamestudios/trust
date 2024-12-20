@@ -14,6 +14,7 @@ local Migration_v13 = require('settings/migrations/migration_v13')
 local Migration_v14 = require('settings/migrations/migration_v14')
 local Migration_v15 = require('settings/migrations/migration_v15')
 local Migration_v16 = require('settings/migrations/migration_v16')
+local Migration_v17 = require('settings/migrations/migration_v17')
 local UpdateDefaultGambits = require('settings/migrations/update_default_gambits')
 
 local MigrationManager = {}
@@ -42,6 +43,7 @@ function MigrationManager.new(trustSettings, addonSettings, weaponSkillSettings)
         Migration_v14.new(),
         Migration_v15.new(),
         Migration_v16.new(),
+        Migration_v17.new(),
         UpdateDefaultGambits.new(),
     }
     return self

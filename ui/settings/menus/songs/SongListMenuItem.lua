@@ -15,7 +15,6 @@ function SongListMenuItem.new(trust, trustSettings, trustSettingsMode)
         ButtonItem.default('Jobs', 18),
     }, {}, nil, "Songs", "Choose 5 songs to sing."), SongListMenuItem)
 
-
     self.disposeBag = DisposeBag.new()
 
     self.contentViewConstructor = function(_, infoView)
@@ -117,6 +116,7 @@ end
 function SongListMenuItem:getEditJobsMenuItem()
     local editJobsMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
+        ButtonItem.default('Clear All', 18),
     }, {}, function(_, _)
         local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.Songs
 
@@ -133,6 +133,8 @@ function SongListMenuItem:getEditJobsMenuItem()
 
                 self.trustSettings:saveSettings(true)
                 addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll only keep this song on these jobs!")
+            else
+                addon_system_error("Choose one or more jobs.")
             end
         end), jobsPickerView:on_pick_items())
 
