@@ -4,13 +4,10 @@ MagicBurster.__index = MagicBurster
 MagicBurster.__class = "MagicBurster"
 
 local DisposeBag = require('cylibs/events/dispose_bag')
-local Nukes = require('cylibs/res/nukes')
 local Renderer = require('cylibs/ui/views/render')
-local skillchain_util = require('cylibs/util/skillchain_util')
-local spell_util = require('cylibs/util/spell_util')
 
-state.AutoMagicBurstMode = M{['description'] = 'Magic Burst', 'Off', 'Auto', 'Earth', 'Lightning', 'Water', 'Fire', 'Ice', 'Wind', 'Light', 'Dark'}
-state.AutoMagicBurstMode:set_description('Auto', "Okay, if you make skillchains I'll try to magic burst.")
+state.AutoMagicBurstMode = M{['description'] = 'Magic Burst', 'Off', 'Auto', 'Earth', 'Lightning', 'Water', 'Fire', 'Ice', 'Wind', 'Light', 'Dark', 'Mirror'}
+state.AutoMagicBurstMode:set_description('Auto', "Okay, I'll magic burst with any element.")
 state.AutoMagicBurstMode:set_description('Earth', "Okay, I'll only magic burst with earth spells.")
 state.AutoMagicBurstMode:set_description('Lightning', "Okay, I'll only magic burst with lightning spells.")
 state.AutoMagicBurstMode:set_description('Water', "Okay, I'll only magic burst with water spells.")
@@ -19,6 +16,7 @@ state.AutoMagicBurstMode:set_description('Ice', "Okay, I'll only magic burst wit
 state.AutoMagicBurstMode:set_description('Wind', "Okay, I'll only magic burst with wind spells.")
 state.AutoMagicBurstMode:set_description('Light', "Okay, I'll only magic burst with light spells.")
 state.AutoMagicBurstMode:set_description('Dark', "Okay, I'll only magic burst with dark spells.")
+state.AutoMagicBurstMode:set_description('Mirror', "Okay, I'll magic burst when the person I'm assisting magic bursts.")
 
 state.MagicBurstTargetMode = M{['description'] = 'Magic Burst Target Type', 'Single', 'All'}
 state.MagicBurstTargetMode:set_description('Single', "Okay, I'll only magic burst with single target spells.")
@@ -70,6 +68,23 @@ function MagicBurster:on_add()
             end
         end
     end), self.action_queue:on_action_end())
+
+    self.dispose_bag:add(WindowerEvents.Spell.Begin:addAction(function(mob_id, spell_id)
+        if state.AutoMagicBurstMode.value ~= 'Mirror' then
+            return
+        end
+        local assist_target = self:get_party():get_assist_target()
+        if assist_target and assist_target:get_id() == mob_id
+                and assist_target ~= self:get_party():get_player() then
+            local spell = res.spells[spell_id]
+            if spell and S{'Enemy'}:intersection(S(spell.targets)):length() > 0 then
+                local spell = self:get_spell(Element.new(res.elements[spell.element].en))
+                if spell then
+                    self:cast_spell(spell:get_name())
+                end
+            end
+        end
+    end), WindowerEvents.Spell.Begin)
 end
 
 function MagicBurster:target_change(target_index)
@@ -109,7 +124,7 @@ end
 -- Performs a magic burst on the given skillchain if possible.
 -- @tparam Skillchain skillchain Skillchain (e.g. Light, Fragmentation, Scission)
 function MagicBurster:check_magic_burst(skillchain)
-    if state.AutoMagicBurstMode.value == 'Off' or (os.time() - self.last_magic_burst_time) < self.magic_burst_cooldown or self.is_casting then
+    if S{ 'Off', 'Mirror' }:contains(state.AutoMagicBurstMode.value) or (os.time() - self.last_magic_burst_time) < self.magic_burst_cooldown or self.is_casting then
         return
     end
     local elements = L(skillchain:get_elements():filter(function(element)
