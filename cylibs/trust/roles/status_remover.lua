@@ -125,7 +125,7 @@ function StatusRemover:remove_status_effect(party_members, debuff_id)
         end
 
         local status_removal_action = status_removal_spell_or_ability:to_action(target:get_mob().index, self:get_player())
-        status_removal_action:add_condition(HasBuffCondition.new(buff_util.buff_name(debuff_id), target:get_mob().index))
+        status_removal_action:add_condition(HasDebuffCondition.new(buff_util.buff_name(debuff_id), target:get_mob().index))
 
         local actions = L{ status_removal_action, WaitAction.new(0, 0, 0, 1) }
 

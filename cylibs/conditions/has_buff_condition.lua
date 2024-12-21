@@ -30,7 +30,10 @@ function HasBuffCondition:is_satisfied(target_index)
         if monster then
             return monster:has_debuff(buff_id)
         else
-            return L(party_util.get_buffs(target.id)):contains(buff_id)
+            -- need to make sure all debuff ids are added to buff_util before using this
+            --local party_member = player.alliance:get_alliance_member_named(target.name)
+            --return S(party_member:get_buff_ids()):contains(buff_id)
+            return S(party_util.get_buffs(target.id)):contains(buff_id)
         end
     end
     return false
