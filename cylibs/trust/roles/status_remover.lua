@@ -109,12 +109,10 @@ end
 -- @tparam number debuff_id Debuff id of status effect (see buffs.lua)
 function StatusRemover:remove_status_effect(party_members, debuff_id)
     if state.AutoStatusRemovalMode.value == 'Off' or (os.time() - self.last_status_removal_time) < 3 or party_members:length() == 0 then
-        print('111')
         return
     end
     if state.AutoDetectAuraMode.value ~= 'Off' and self.aura_tracker:get_aura_probability(debuff_id) >= 75 then
         logger.notice(self.__class, 'remove_status_effect', 'detected aura', res.buffs[debuff_id].en)
-        print('222')
         return
     end
     local status_removal_spell_or_ability = self.main_job:get_status_removal_spell(debuff_id, party_members:length())
@@ -127,7 +125,7 @@ function StatusRemover:remove_status_effect(party_members, debuff_id)
         end
 
         local status_removal_action = status_removal_spell_or_ability:to_action(target:get_mob().index, self:get_player())
-        status_removal_action:add_condition(HasBuffCondition.new(buff_util.buff_name(debuff_id)))
+        status_removal_action:add_condition(HasBuffCondition.new(buff_util.buff_name(debuff_id), target:get_mob().index))
 
         local actions = L{ status_removal_action, WaitAction.new(0, 0, 0, 1) }
 

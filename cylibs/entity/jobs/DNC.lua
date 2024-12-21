@@ -83,7 +83,8 @@ function Dancer:get_status_removal_spell(debuff_id, _)
 
     local spell_id = cure_util.spell_id_for_debuff_id(debuff_id)
     if spell_id then
-        if spell_util.spell_name(spell_id) == 'Erase' and self:can_perform_waltz('Healing Waltz') then
+        local spell_name = spell_util.spell_name(spell_id)
+        if S{ 'Erase', 'Poisona', 'Paralyna', 'Blindna', 'Poisona', 'Viruna', 'Silena' }:contains(spell_name) and self:can_perform_waltz('Healing Waltz') then
             return JobAbility.new('Healing Waltz')
         end
     end
