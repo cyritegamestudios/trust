@@ -187,9 +187,9 @@ function TargetWidget:setTarget(target_index)
     if target_index ~= nil then
         local target = self.alliance:get_target_by_index(target_index)
         if target then
-            self.targetDisposeBag:add(target.debuff_tracker:on_gain_debuff():addAction(function(_, debuff_id)
+            self.targetDisposeBag:add(target:on_gain_debuff():addAction(function(_, debuff_id)
                 self:updateDebuffs()
-            end, target.debuff_tracker:on_gain_debuff()))
+            end, target:on_gain_debuff()))
 
             self.targetDisposeBag:add(target.debuff_tracker:on_lose_debuff():addAction(function(_, debuff_id)
                 self:updateDebuffs()
@@ -311,7 +311,6 @@ function TargetWidget:updateDebuffs()
     if not target then
         return
     end
-
     local itemsToUpdate = L{}
 
     local allDebuffIds = L(target.debuff_tracker:get_debuff_ids())
@@ -329,8 +328,6 @@ function TargetWidget:updateDebuffs()
     end
 
     self.debuffsView:getDataSource():updateItems(itemsToUpdate)
-    self.debuffsView:setNeedsLayout()
-    self.debuffsView:layoutIfNeeded()
 
     self.needsResize = true
 

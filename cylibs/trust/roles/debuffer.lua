@@ -78,7 +78,7 @@ function Debuffer:conditions_check(spell, target)
 end
 
 function Debuffer:check_debuffs()
-    if state.AutoDebuffMode.value == 'Off' or (os.time() - self.last_debuff_time) < 8 then
+    if state.AutoDebuffMode.value == 'Off' or (os.time() - self.last_debuff_time) < 3 then
         return
     end
 
