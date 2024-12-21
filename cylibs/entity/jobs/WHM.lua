@@ -110,7 +110,7 @@ end
 -- Returns the delay between cures.
 -- @treturn number Delay between cures in seconds
 function WhiteMage:get_cure_delay()
-    return self.cure_settings.Delay or 2
+    return 0--self.cure_settings.Delay or 2
 end
 
 -------
