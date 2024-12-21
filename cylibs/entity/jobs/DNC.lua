@@ -114,9 +114,14 @@ end
 
 -------
 -- Returns the delay between cures.
+-- @tparam boolean is_backup_healer Whether the player is the backup healer
 -- @treturn number Delay between cures in seconds
-function Dancer:get_cure_delay()
-    return self.cure_settings.Delay or 2
+function Dancer:get_cure_delay(is_backup_healer)
+    if is_backup_healer then
+        return self.cure_settings.Delay or 2
+    else
+        return 0
+    end
 end
 
 -------
