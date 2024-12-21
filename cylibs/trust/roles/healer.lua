@@ -45,7 +45,7 @@ function Healer:on_add()
                 if hpp < emergency_hpp then
                     if p:get_mob() and p:get_mob().distance:sqrt() < 21 then
                         logger.notice(self.__class, 'on_hp_change', p:get_name(), hpp)
-                        self:check_party_hp(emergency_hpp, true)
+                        self:check_party_hp(self:get_job():get_cure_threshold(false), true)
                     end
                 else
                     logger.notice(self.__class, 'on_hp_change', 'check_party_hp', hpp)
