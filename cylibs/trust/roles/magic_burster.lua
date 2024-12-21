@@ -77,7 +77,7 @@ function MagicBurster:on_add()
         if assist_target and assist_target:get_id() == mob_id
                 and assist_target ~= self:get_party():get_player() then
             local spell = res.spells[spell_id]
-            if spell and S{'Enemy'}:intersection(S(spell.targets)):length() > 0 then
+            if spell and S{'Enemy'}:intersection(S(spell.targets)):length() > 0 and S{'BlackMagic', 'BlueMagic'}:contains(spell.type) then
                 local spell = self:get_spell(Element.new(res.elements[spell.element].en))
                 if spell then
                     self:cast_spell(spell:get_name())
