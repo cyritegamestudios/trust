@@ -278,7 +278,7 @@ function PartyMember:set_debuff_ids(debuff_ids)
 
     local delta = list.diff(debuff_ids, self.debuff_ids)
     for debuff_id in delta:it() do
-        if debuff_ids:contains(buff_id) then
+        if debuff_ids:contains(debuff_id) then
             self:on_gain_debuff():trigger(self, debuff_id)
         else
             self:on_lose_debuff():trigger(self, debuff_id)

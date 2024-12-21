@@ -13,7 +13,7 @@ StatusRemovalAction.__index = StatusRemovalAction
 
 -- Called when a status removal has no effect
 function StatusRemovalAction:on_status_removal_no_effect()
-	return self.status_removal_no_effect
+	return WindowerEvents.StatusRemoval.NoEffect
 end
 
 -- Called when a status effect is removed successfully
@@ -40,7 +40,6 @@ function StatusRemovalAction.new(x, y, z, spell_id, target_index, debuff_id, pla
 	self.player = player
 	self.user_events = {}
 
-	self.status_removal_no_effect = Event.newEvent()
 	self.status_removed = Event.newEvent()
 
 	self:debug_log_create(self:gettype())
@@ -57,7 +56,6 @@ function StatusRemovalAction:destroy()
 
 	self.dispose_bag:destroy()
 
-	self.status_removal_no_effect:removeAllActions()
 	self.status_removed:removeAllActions()
 
 	self.player = nil
@@ -77,7 +75,7 @@ function StatusRemovalAction:perform()
 						for _,target in pairs(targets) do
 							for _,action in pairs(target.actions) do
 								if L{75, 283}:contains(action.message) then
-									self:on_status_removal_no_effect():trigger(self, self.spell_id, target.id, self.debuff_id)
+									self:on_status_removal_no_effect():trigger(self.spell_id, target.id, self.debuff_id)
 								else
 									self:on_status_removed():trigger(self, self.spell_id, target.id, self.debuff_id)
 								end

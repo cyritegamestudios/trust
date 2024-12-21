@@ -2,6 +2,7 @@ local buff_util = require('cylibs/util/buff_util')
 local cure_util = require('cylibs/util/cure_util')
 local spell_util = require('cylibs/util/spell_util')
 local Spell = require('cylibs/battle/spell')
+local StatusRemoval = require('cylibs/battle/healing/status_removal')
 
 local AfflatusMisery = {}
 AfflatusMisery.__index = AfflatusMisery
@@ -84,7 +85,7 @@ function AfflatusMisery:get_status_removal_spell(debuff_id, num_targets)
         if not L{ 'Erase', 'Esuna' }:contains(spell.en) and job_util.can_use_job_ability('Divine Caress') then
             job_ability_names:append('Divine Caress')
         end
-        return Spell.new(spell.en, job_ability_names)
+        return StatusRemoval.new(spell.en, job_ability_names, debuff_id)
     end
     return nil
 end

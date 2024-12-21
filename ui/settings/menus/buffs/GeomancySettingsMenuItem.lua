@@ -43,7 +43,20 @@ function GeomancySettingsMenuItem.new(trust, trustSettings, trustSettingsMode, t
             Target = allSettings.Geomancy.Geo:get_target(),
         }
 
-        local targetConfigItem = PickerConfigItem.new('Target', geomancySettings.Target, allSettings.Geomancy.Geo:get_valid_targets(), function(target)
+        local validTargetsForSpell = function(spell)
+            return spell:get_valid_targets():map(function(target)
+                if target == 'Self' then
+                    return 'me'
+                elseif target == 'Party' then
+                    return L{ 'p0', 'p1', 'p2', 'p3', 'p4', 'p5' }
+                elseif target == 'Enemy' then
+                    return 'bt'
+                end
+                return nil
+            end):compact_map():flatten(true)
+        end
+
+        local targetConfigItem = PickerConfigItem.new('Target', geomancySettings.Target, validTargetsForSpell(allSettings.Geomancy.Geo), function(target)
             local mob = windower.ffxi.get_mob_by_target(target)
             if mob then
                 return target.." ("..mob.name..")"
@@ -52,7 +65,7 @@ function GeomancySettingsMenuItem.new(trust, trustSettings, trustSettingsMode, t
         end, "Target")
 
         targetConfigItem.onReload = function(key, newValue, configItem)
-            return Spell.new(newValue):get_valid_targets()
+            validTargetsForSpell(Spell.new(newValue))
         end
 
         local geocolureConfigItem = PickerConfigItem.new('Geocolure', geomancySettings.Geocolure, allGeoSpells, nil, "Geocolure")

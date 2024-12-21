@@ -54,6 +54,8 @@ WindowerEvents.Ability.Finish = Event.newEvent()
 WindowerEvents.Spell = {}
 WindowerEvents.Spell.Begin = Event.newEvent()
 WindowerEvents.Spell.Finish = Event.newEvent()
+WindowerEvents.StatusRemoval = {}
+WindowerEvents.StatusRemoval.NoEffect = Event.newEvent()
 
 local main_weapon_id
 local ranged_weapon_id

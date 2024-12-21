@@ -43,7 +43,7 @@ function StatusRemover:on_add()
 
     self.dispose_bag:addAny(L{ self.aura_tracker })
 
-    for party_member in self:get_party():get_party_members(true):it() do
+    local monitor_party_member = function(party_member)
         self.dispose_bag:add(party_member:on_gain_debuff():addAction(
             function (p, debuff_id)
                 if party_member:get_mob() and party_member:get_mob().distance:sqrt() < 21 then
@@ -51,6 +51,18 @@ function StatusRemover:on_add()
                 end
             end), party_member:on_gain_debuff())
     end
+
+    self.dispose_bag:add(self:get_party():on_party_member_added():addAction(function(party_member)
+        monitor_party_member(party_member)
+    end), self:get_party():on_party_member_added())
+
+    for party_member in self:get_party():get_party_members(true):it() do
+        monitor_party_member(party_member)
+    end
+
+    self.dispose_bag:add(WindowerEvents.StatusRemoval.NoEffect:addAction(function(spell_id, target_id, debuff_id)
+        self.aura_tracker:record_status_effect_removal(spell_id, target_id, debuff_id)
+    end), WindowerEvents.StatusRemoval.NoEffect)
 end
 
 function StatusRemover:target_change(target_index)
@@ -97,49 +109,34 @@ end
 -- @tparam number debuff_id Debuff id of status effect (see buffs.lua)
 function StatusRemover:remove_status_effect(party_members, debuff_id)
     if state.AutoStatusRemovalMode.value == 'Off' or (os.time() - self.last_status_removal_time) < 3 or party_members:length() == 0 then
+        print('111')
         return
     end
     if state.AutoDetectAuraMode.value ~= 'Off' and self.aura_tracker:get_aura_probability(debuff_id) >= 75 then
         logger.notice(self.__class, 'remove_status_effect', 'detected aura', res.buffs[debuff_id].en)
+        print('222')
         return
     end
-    local status_removal_spell = self.main_job:get_status_removal_spell(debuff_id, party_members:length())
-    if status_removal_spell then
+    local status_removal_spell_or_ability = self.main_job:get_status_removal_spell(debuff_id, party_members:length())
+    if status_removal_spell_or_ability then
         self.last_status_removal_time = os.time()
 
-        if status_removal_spell:get_job_abilities():length() > 0 then
-            local job_ability_actions = L{}
-            for job_ability_name in status_removal_spell:get_job_abilities():it() do
-                job_ability_actions:append(JobAbilityAction.new(0, 0, 0, job_ability_name))
-                job_ability_actions:append(WaitAction.new(0, 0, 0, 1))
-            end
-            local job_ability_action =  SequenceAction.new(job_ability_actions, 'status_removal_'..party_members[1]:get_mob().id..'_'..debuff_id..'_job_abilities')
-            job_ability_action.priority = cure_util.get_status_removal_priority(debuff_id, party_members[1]:is_trust())
-
-            self.action_queue:push_action(job_ability_action, true)
+        local target = party_members[1]
+        if not status_removal_spell_or_ability:get_valid_targets():contains('Party') then
+            target = self:get_party():get_player()
         end
 
-        local actions = L{}
+        local status_removal_action = status_removal_spell_or_ability:to_action(target:get_mob().index, self:get_player())
+        status_removal_action:add_condition(HasBuffCondition.new(buff_util.buff_name(debuff_id)))
 
-        local spell_target = party_members[1]
-        if not status_removal_spell:get_spell().targets:contains('Party') then
-            spell_target = self:get_party():get_player()
-        end
+        local actions = L{ status_removal_action, WaitAction.new(0, 0, 0, 1) }
 
-        local spell_action = StatusRemovalAction.new(0, 0, 0, status_removal_spell:get_spell().id, spell_target:get_mob().index, debuff_id, self:get_player())
-        spell_action:on_status_removal_no_effect():addAction(function(_, spell_id, target_id, debuff_id)
-            self.aura_tracker:record_status_effect_removal(spell_id, target_id, debuff_id)
-        end)
-
-        actions:append(spell_action)
-        actions:append(WaitAction.new(0, 0, 0, 1))
-
-        local status_removal_action = SequenceAction.new(actions, 'healer_status_removal_'..spell_target:get_id()..'_'..debuff_id)
-        status_removal_action.priority = cure_util.get_status_removal_priority(debuff_id, spell_target:is_trust())
+        local status_removal_action = SequenceAction.new(actions, 'healer_status_removal_'..target:get_id()..'_'..debuff_id)
+        status_removal_action.priority = cure_util.get_status_removal_priority(debuff_id, target:is_trust())
 
         self.action_queue:push_action(status_removal_action, true)
 
-        logger.notice(self.__class, 'remove_status_effect', res.buffs[debuff_id].en, spell_target:get_name(), #party_members, status_removal_spell:get_spell().en)
+        logger.notice(self.__class, 'remove_status_effect', res.buffs[debuff_id].en, target:get_name(), #party_members, status_removal_spell_or_ability:get_name())
     else
         logger.notice(self.__class, 'remove_status_effect', res.buffs[debuff_id].en, 'no spell found')
     end
