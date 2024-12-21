@@ -118,7 +118,6 @@ local incoming_event_dispatcher = {
                 if action_message_util.is_gain_debuff_message(action.message) and act.param and not L{260, 360}:contains(act.param) then
                     local debuff = buff_util.debuff_for_spell(act.param)
                     if debuff then
-                        --print('target gains', debuff.en)
                         WindowerEvents.GainDebuff:trigger(target.id, debuff.id)
                     end
                 end

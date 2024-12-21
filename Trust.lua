@@ -578,8 +578,8 @@ function check_files()
 end
 
 function register_chat_handlers()
-	--local ChatInput = require('cylibs/ui/input/chat_input')
-	--chat_input = ChatInput.new(main_trust_settings, state.MainTrustSettingsMode)
+	local ChatInput = require('cylibs/ui/input/chat_input')
+	chat_input = ChatInput.new(main_trust_settings, state.MainTrustSettingsMode)
 end
 
 -- Helpers
