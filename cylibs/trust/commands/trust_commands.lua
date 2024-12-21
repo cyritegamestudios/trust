@@ -44,7 +44,7 @@ function TrustCommands:handle_command(...)
                 addon_message(207, self.__class..' '..message)
             end
         else
-            error(self.__class, message)
+            addon_system_error(message..".")
         end
         return true
     end

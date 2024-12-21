@@ -90,7 +90,6 @@ local incoming_event_dispatcher = {
     [0x028] = function(data)
         local act = windower.packets.parse_action(data)
         act.size = data:byte(5)
-        WindowerEvents.Action:trigger(act)
 
         if act.category == 4 then
             if act.param and res.spells[act.param] then
@@ -138,6 +137,10 @@ local incoming_event_dispatcher = {
                 end
             end
         end
+
+        -- NOTE: for some reason, if this triggers before individual events above there
+        -- is a delay between when the event is received and processed
+        WindowerEvents.Action:trigger(act)
     end,
 
     [0x029] = function(data)

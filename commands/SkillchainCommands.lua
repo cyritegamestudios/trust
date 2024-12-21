@@ -52,7 +52,7 @@ function SkillchainTrustCommands.new(trust, weapon_skill_settings, action_queue)
         PickerConfigItem.new('weapon_skill_name', ability_names[1], ability_names, nil, "Weapon Skill Name")
     })
     self:add_command('build', self.handle_build, 'Builds a skillchain with the current equipped weapon', L{
-        PickerConfigItem.new('skillchain_property', 'LightLv4', valid_skillchains, nil, "Skillchain Property"),
+        PickerConfigItem.new('skillchain_property', 'LightLv4', L(valid_skillchains), nil, "Skillchain Property"),
         ConfigItem.new('num_steps', 2, 6, 1, nil, "Number of Steps"),
     })
     self:add_command('default', self.handle_set_default, 'Sets the default weapon skill to use when no skillchains can be made', L{

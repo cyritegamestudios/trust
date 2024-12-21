@@ -147,7 +147,6 @@ function DebuffTracker:add_debuff(debuff_id)
                 self:remove_debuff(overwritten_debuff_id)
             end
         end
-
         self.debuff_ids:add(debuff_id)
         self:on_gain_debuff():trigger(self.mob_id, debuff_id)
     end

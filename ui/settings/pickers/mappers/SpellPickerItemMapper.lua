@@ -45,7 +45,7 @@ function SpellPickerItemMapper:map(value)
     if status and not L{ 40, 41, 42, 43 }:contains(spell.skill) and not self.doNotConvertSpellIds:contains(spell.id) then
         if S(spell.targets):contains('Enemy') then
             if not self.selfBuffsWhitelist:contains(spell.en) then
-                return Debuff.new(spell_util.base_spell_name(spell:get_name()), L{}, L{})
+                return Debuff.new(spell_util.base_spell_name(value:get_name()), L{}, L{})
             else
                 return Spell.new(value:get_name(), L{}, L{}, 'bt')
             end

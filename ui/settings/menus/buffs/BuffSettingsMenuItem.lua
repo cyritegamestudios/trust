@@ -276,7 +276,7 @@ function BuffSettingsMenuItem:getToggleBuffMenuItem()
                 self.buffSettingsEditor:reloadBuffAtIndexPath(selectedIndexPath)
             end
         end
-    end, "Gambits", "Temporarily enable or disable the selected spell until the addon reloads.")
+    end, "Buffs", "Temporarily enable or disable the selected buff until the addon reloads.")
 end
 
 function BuffSettingsMenuItem:getConditionsMenuItem()
