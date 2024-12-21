@@ -10,7 +10,8 @@ Waltz.__class = "Waltz"
 
 function Waltz.new(waltz_name, target_index)
     local conditions = L{
-        NotCondition.new(L{ HasBuffCondition.new('Saber Dance', windower.ffxi.get_player().index) }, windower.ffxi.get_player().index)
+        NotCondition.new(L{ HasBuffCondition.new('Saber Dance', windower.ffxi.get_player().index) }, windower.ffxi.get_player().index),
+        MinTacticalPointsCondition.new(res.job_abilities:with('en', waltz_name).tp_cost),
     }
     local self = setmetatable(JobAbility.new(0, 0, 0, waltz_name, target_index, conditions), Waltz)
     return self

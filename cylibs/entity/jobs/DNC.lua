@@ -78,10 +78,15 @@ end
 -- @tparam number debuff_id Debuff id (see buffs.lua)
 -- @tparam number num_targets Number of targets afflicted with the status effect
 -- @treturn Spell Status removal spell
-function Dancer:get_status_removal_spell(debuff_id, num_targets)
+function Dancer:get_status_removal_spell(debuff_id, _)
     if self.ignore_debuff_ids:contains(debuff_id) then return nil end
 
-    -- TODO
+    local spell_id = cure_util.spell_id_for_debuff_id(debuff_id)
+    if spell_id then
+        if spell_util.spell_name(spell_id) == 'Erase' and self:can_perform_waltz('Healing Waltz') then
+            return JobAbility.new('Healing Waltz')
+        end
+    end
 
     return nil
 end
@@ -137,6 +142,18 @@ end
 -- @treturn boolean True if the Dancer has at least one finishing move
 function Dancer:has_finishing_moves()
     return buff_util.is_any_buff_active(L{ 381, 382, 383, 384, 385, 588 })
+end
+
+-------
+-- Returns true if the Dancer can perform a waltz.
+-- @treturn boolean True if the Dancer can perform a waltz
+function Dancer:can_perform_waltz(waltz_name)
+    local conditions = L{
+        NotCondition.new(L{ HasBuffCondition.new('Saber Dance', windower.ffxi.get_player().index) }, windower.ffxi.get_player().index),
+        JobAbilityRecastReadyCondition.new(waltz_name),
+        MinTacticalPointsCondition.new(res.job_abilities:with('en', waltz_name).tp_cost),
+    }
+    return Condition.check_conditions(conditions, windower.ffxi.get_player().index)
 end
 
 return Dancer
