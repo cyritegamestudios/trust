@@ -173,6 +173,14 @@ function MagicBurster:cast_spell(spell)
         spell_action.priority = ActionPriority.high
         spell_action.identifier = self.action_identifier
 
+        if (PartyHasMainJobCondition.new("BLM"):is_satisfied() and not (player.main_job == "BLM")) then
+            -- If we have a BLM, we want them to go first, convert to a sequence action with a short wait
+            spell_action = SequenceAction.new(L{
+                WaitAction.new(0, 0, 0, 0.5),
+                spell_action,
+            })
+        end
+
         self.is_casting = true
 
         self.action_queue:push_action(spell_action, true)
