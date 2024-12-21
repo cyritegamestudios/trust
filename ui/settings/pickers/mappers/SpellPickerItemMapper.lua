@@ -50,7 +50,7 @@ function SpellPickerItemMapper:map(value)
                 return Spell.new(value:get_name(), L{}, L{}, 'bt')
             end
         else
-            return Buff.new(spell_util.base_spell_name(value:get_name()), L{}, self.defaultJobNames)
+            return Buff.new(spell_util.base_spell_name(value:get_name()), L{}, self.defaultJobNames, nil, L{ JobCondition.new(job_util.all_jobs()) })
         end
     else
         return Spell.new(value:get_name(), L{}, L{})
