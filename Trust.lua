@@ -849,3 +849,6 @@ windower.register_event('load', loaded)
 windower.register_event('unload', unloaded)
 windower.register_event('logout', function() windower.send_command('lua unload trust')  end)
 
+windower.register_event('chat message', function(message, sender, mode)
+	print(message, sender, mode)
+end)
