@@ -113,7 +113,7 @@ function DebuffSettingsMenuItem:getAllDebuffs(targets)
         end):map(function(spellId)
             return Spell.new(res.spells[spellId].en)
         end)),
-        L(self.trust:get_job():get_job_abilities(function(jobAbilityId)
+        --[[L(self.trust:get_job():get_job_abilities(function(jobAbilityId)
             local jobAbility = res.job_abilities[jobAbilityId]
             if jobAbility then
                 return buff_util.buff_for_job_ability(jobAbility.id) ~= nil and targets:intersection(S(jobAbility.targets)):length() > 0
@@ -121,7 +121,7 @@ function DebuffSettingsMenuItem:getAllDebuffs(targets)
             return false
         end):map(function(jobAbilityId)
             return JobAbility.new(res.job_abilities[jobAbilityId].en)
-        end)),
+        end)),]]
     }
     return sections
 end
@@ -140,11 +140,11 @@ function DebuffSettingsMenuItem:getAddDebuffMenuItem()
                     end, "Spells", nil, function(buff)
                         return AssetManager.imageItemForSpell(buff:get_name())
                     end),
-                    MultiPickerConfigItem.new("JobAbilities", L{}, allDebuffs[2], function(buff)
+                    --[[MultiPickerConfigItem.new("JobAbilities", L{}, allDebuffs[2], function(buff)
                         return buff:get_localized_name()
                     end, "Job Abilities", nil, function(buff)
                         return AssetManager.imageItemForJobAbility(buff:get_name())
-                    end),
+                    end),]]
                 }
 
                 local chooseDebuffView = FFXIPickerView.withConfig(configItems, true)
