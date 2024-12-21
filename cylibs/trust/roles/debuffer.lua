@@ -44,16 +44,16 @@ function Debuffer:target_change(target_index)
         self.last_debuff_time = os.time()
 
         self.dispose_bag:add(self:get_target():on_spell_finish():addAction(
-                function (m, target_index, spell_id)
-                    if self.target_index then
-                        local spell = res.spells:with('id', spell_id)
-                        if spell then
-                            if state.AutoSilenceMode.value ~= 'Off' then
-                                self:cast_spell(Spell.new('Silence'), self.target_index)
-                            end
+            function (m, target_index, spell_id)
+                if self.target_index then
+                    local spell = res.spells:with('id', spell_id)
+                    if spell then
+                        if state.AutoSilenceMode.value ~= 'Off' then
+                            self:cast_spell(Spell.new('Silence'), self.target_index)
                         end
                     end
-                end), self:get_target():on_spell_finish())
+                end
+            end), self:get_target():on_spell_finish())
     end
 end
 
@@ -69,8 +69,8 @@ function Debuffer:conditions_check(spell, target)
     if target == nil then
         return false
     end
-    for condition in spell:get_conditions():it() do
-        if not condition:is_satisfied(target.index) then
+    for condition in (spell:get_conditions() + L{ NumResistsCondition.new(spell:get_name(), Condition.Operator.LessThan, 4) }):it() do
+        if not condition:is_satisfied(target:get_mob().index) then
             return false
         end
     end
@@ -87,26 +87,24 @@ function Debuffer:check_debuffs()
         logger.notice(self.__class, 'check_debuffs', battle_target:get_name())
         for spell in self.debuff_spells:it() do
             local debuff = buff_util.debuff_for_spell(spell:get_spell().id)
-            if debuff and not battle_target:has_debuff(debuff.id) and not battle_target:get_resist_tracker():isImmune(spell:get_spell().id)
-                    and battle_target:get_resist_tracker():numResists(spell:get_spell().id) < 4 and self:conditions_check(spell, battle_target) then
-                self:cast_spell(spell, battle_target:get_mob().index)
-                return
+            if debuff and spell:isEnabled() and not battle_target:has_debuff(debuff.id) and not battle_target:get_resist_tracker():isImmune(spell:get_spell().id)
+                    and self:conditions_check(spell, battle_target) then
+                if self:cast_spell(spell, battle_target:get_mob().index) then
+                    return
+                end
             end
         end
     end
 end
 
 function Debuffer:cast_spell(spell, target_index)
+    local can_cast_spell = false
     if spell_util.can_cast_spell(spell:get_spell().id) then
-        if spell:get_consumable() and not player_util.has_item(spell:get_consumable()) then
-            return
-        end
-
         logger.notice(self.__class, 'cast_spell', spell:get_spell().en, target_index)
 
         local actions = L{}
 
-        local can_cast_spell = true
+        can_cast_spell = true
         for job_ability_name in spell:get_job_abilities():it() do
             local job_ability = res.job_abilities:with('en', job_ability_name)
             if job_ability and not buff_util.is_buff_active(job_ability.status) then
@@ -137,10 +135,9 @@ function Debuffer:cast_spell(spell, target_index)
             debuff_action.priority = ActionPriority.low
 
             self.action_queue:push_action(debuff_action, true)
-
-            return
         end
     end
+    return can_cast_spell
 end
 
 function Debuffer:set_debuff_spells(debuff_spells)

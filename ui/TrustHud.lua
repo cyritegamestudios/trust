@@ -347,40 +347,9 @@ end
 function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, weaponSkillSettings, weaponSkillSettingsMode, trustModeSettings, jobNameShort)
     local viewSize = Frame.new(0, 0, 500, 500)
 
-    local chooseDebuffsItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
-        ButtonItem.default('Clear', 18),
-    }, {},
-            function()
-                local allDebuffs = trust:get_job():get_spells(function(spell_id)
-                    local spell = res.spells[spell_id]
-                    return spell and spell.status ~= nil and L{ 32, 35, 36, 39, 40, 41, 42 }:contains(spell.skill) and spell.targets:contains('Enemy')
-                end):map(function(spell_id)
-                    return res.spells[spell_id].en
-                end):sort()
+    local DebuffSettingsMenuItem = require('ui/settings/menus/debuffs/DebuffSettingsMenuItem')
 
-                local SpellPickerView = require('ui/settings/pickers/SpellPickerView')
-                local chooseSpellsView = SpellPickerView.new(trustSettings, L(T(trustSettings:getSettings())[trustSettingsMode.value].Debuffs), allDebuffs, L{}, false)
-                return chooseSpellsView
-            end, "Debuffs", "Add a new debuff.")
-
-    local debuffModesMenuItem = ModesMenuItem.new(trustModeSettings, "Set modes for debuffs.",
-            L{'AutoDebuffMode', 'AutoDispelMode', 'AutoSilenceMode'})
-
-    local debuffSettingsItem = MenuItem.new(L{
-        ButtonItem.default('Add', 18),
-        ButtonItem.default('Remove', 18),
-        ButtonItem.localized('Modes', i18n.translate('Button_Modes')),
-        ButtonItem.default('Help', 18)
-    }, {
-        Add = chooseDebuffsItem,
-        Modes = debuffModesMenuItem,
-    },
-    function()
-        local DebuffSettingsEditor = require('ui/settings/DebuffSettingsEditor')
-        local debuffSettingsView = DebuffSettingsEditor.new(trust, trustSettings, trustSettingsMode, self.addon_settings:getSettings().help.wiki_base_url..'/Debuffer')
-        return debuffSettingsView
-    end, "Debuffs", "Choose debuffs to use on enemies.")
+    local debuffSettingsItem = DebuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, addon_settings)
 
     -- Modes
     local modesMenuItem = ModesMenuItem.new(self.trustModeSettings, "View and change Trust modes.", L(T(state):keyset()):sort(), true, "modes")

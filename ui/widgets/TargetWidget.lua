@@ -329,6 +329,8 @@ function TargetWidget:updateDebuffs()
     end
 
     self.debuffsView:getDataSource():updateItems(itemsToUpdate)
+    self.debuffsView:setNeedsLayout()
+    self.debuffsView:layoutIfNeeded()
 
     self.needsResize = true
 
