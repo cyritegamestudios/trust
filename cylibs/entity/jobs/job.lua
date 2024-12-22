@@ -37,6 +37,16 @@ function Job:get_spells(filter)
 end
 
 -------
+-- Returns whether a spell is known.
+-- @tparam number spell_id Spell id (see res/spells.lua)
+-- @treturn boolean True if the spell is known
+function Job:knows_spell(spell_id)
+    return self:get_spells(function(id)
+        return spell_id == id
+    end):length() > 0
+end
+
+-------
 -- Returns a list of conditions for a spell.
 -- @tparam Spell spell The spell
 -- @treturn list List of conditions

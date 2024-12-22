@@ -43,7 +43,6 @@ function HasDebuffCondition:get_config_items()
         end
         return nil
     end):compact_map()))
-
     return L{
         PickerConfigItem.new('debuff_name', self.debuff_name, all_debuffs, function(debuff_name)
             local status_ailment = StatusAilment.new(debuff_name)
