@@ -65,7 +65,7 @@ function GeomancySettingsMenuItem.new(trust, trustSettings, trustSettingsMode, t
         end, "Target")
 
         targetConfigItem.onReload = function(key, newValue, configItem)
-            validTargetsForSpell(Spell.new(newValue))
+            return validTargetsForSpell(Spell.new(newValue))
         end
 
         local geocolureConfigItem = PickerConfigItem.new('Geocolure', geomancySettings.Geocolure, allGeoSpells, nil, "Geocolure")

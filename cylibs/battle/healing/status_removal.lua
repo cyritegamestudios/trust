@@ -28,7 +28,7 @@ end
 -- Return the Action to cast this spell on a target. Optionally first uses job abilities where conditions are satisfied.
 -- @tparam number target_index Target for the spell
 -- @treturn Action Action to cast the spell
-function StatusRemoval:to_action(target_index, player, job_abilities, ignore_wait)
+function StatusRemoval:to_action(target_index, player, job_abilities)
     local actions = L{}
 
     local job_abilities = (job_abilities or self:get_job_abilities()):map(function(job_ability_name)

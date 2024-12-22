@@ -78,7 +78,7 @@ end
 -- @tparam number debuff_id Debuff id (see buffs.lua)
 -- @tparam number num_targets Number of targets afflicted with the status effect
 -- @treturn Spell Status removal spell
-function Dancer:get_status_removal_spell(debuff_id, party_members)
+function Dancer:get_status_removal_spell(debuff_id, _)
     if self.ignore_debuff_ids:contains(debuff_id) then return nil end
 
     local spell_id = cure_util.spell_id_for_debuff_id(debuff_id)
