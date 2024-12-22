@@ -56,6 +56,7 @@ function SongListMenuItem.new(trust, trustSettings, trustSettingsMode)
 
         self.disposeBag:add(songConfigEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
             self.selectedSongIndex = indexPath.section
+            
             local song = songs[self.selectedSongIndex]
             if song then
                 if song:get_job_names():length() > 0 then
@@ -90,6 +91,8 @@ function SongListMenuItem.new(trust, trustSettings, trustSettingsMode)
 
         songConfigEditor:setTitle("Choose 5 songs to sing.")
         songConfigEditor:setShouldRequestFocus(true)
+
+        self.selectedSongIndex = 1
 
         return songConfigEditor
     end
