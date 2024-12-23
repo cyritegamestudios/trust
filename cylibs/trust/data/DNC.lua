@@ -46,16 +46,15 @@ function DancerTrust:on_init()
 			puller:set_pull_settings(new_trust_settings.PullSettings)
 		end
 	end)
-end
 
-function DancerTrust:on_role_added(role)
-	if L{"skillchainer", "spammer"}:contains(role:get_type()) then
-		--role:set_job_abilities(L{ JobAbility.new('Building Flourish'), JobAbility.new('Climactic Flourish') })
-	end
-end
-
-function DancerTrust:job_target_change(target_index)
-	Trust.job_target_change(self, target_index)
+	self:get_party():get_player():on_gain_buff():addAction(function(_, buff_id)
+		local buff_name = buff_util.buff_name(buff_id)
+		if buff_name == 'Saber Dance' then
+			if state.AutoHealMode.value ~= 'Off' or state.AutoStatusRemovalMode.value ~= 'Off' then
+				addon_system_error("Unable to use waltzes while Saber Dance is active.")
+			end
+		end
+	end)
 end
 
 function DancerTrust:tic(old_time, new_time)
