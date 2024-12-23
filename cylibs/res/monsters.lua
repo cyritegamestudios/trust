@@ -101,4 +101,5 @@ return T{
     [2145] = {id=2145, model_id="2145", family="Gyve", type="Structure"},
     [2146] = {id=2146, model_id="2146", family="Gyve", type="Structure"},
     [2246] = {id=2246, model_id="2246", family="Coeurl", type="Beast"},
+    [2965] = {id=2965, model_id="2965", family="Crab", type="Aquan"},
 }, {"id", "model_id", "family", "type"}

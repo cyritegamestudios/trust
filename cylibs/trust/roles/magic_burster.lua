@@ -112,11 +112,11 @@ function MagicBurster:target_change(target_index)
 
     local target = self:get_target()
     if target then
-        self.target_dispose_bag:add(target:on_skillchain():addAction(function(t, step)
+        self.target_dispose_bag:add(target:on_skillchain():addAction(function(_, step)
             self:check_magic_burst(step:get_skillchain())
         end), target:on_skillchain())
 
-        self.target_dispose_bag:add(target:on_skillchain_ended():addAction(function(t)
+        self.target_dispose_bag:add(target:on_skillchain_ended():addAction(function(_)
             self.is_casting = false
         end), target:on_skillchain_ended())
     end
