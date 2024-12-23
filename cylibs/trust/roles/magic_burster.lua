@@ -4,13 +4,10 @@ MagicBurster.__index = MagicBurster
 MagicBurster.__class = "MagicBurster"
 
 local DisposeBag = require('cylibs/events/dispose_bag')
-local Nukes = require('cylibs/res/nukes')
-local Renderer = require('cylibs/ui/views/render')
-local skillchain_util = require('cylibs/util/skillchain_util')
-local spell_util = require('cylibs/util/spell_util')
+local Timer = require('cylibs/util/timers/timer')
 
-state.AutoMagicBurstMode = M{['description'] = 'Magic Burst', 'Off', 'Auto', 'Earth', 'Lightning', 'Water', 'Fire', 'Ice', 'Wind', 'Light', 'Dark'}
-state.AutoMagicBurstMode:set_description('Auto', "Okay, if you make skillchains I'll try to magic burst.")
+state.AutoMagicBurstMode = M{['description'] = 'Magic Burst', 'Off', 'Auto', 'Earth', 'Lightning', 'Water', 'Fire', 'Ice', 'Wind', 'Light', 'Dark', 'Mirror'}
+state.AutoMagicBurstMode:set_description('Auto', "Okay, I'll magic burst with any element.")
 state.AutoMagicBurstMode:set_description('Earth', "Okay, I'll only magic burst with earth spells.")
 state.AutoMagicBurstMode:set_description('Lightning', "Okay, I'll only magic burst with lightning spells.")
 state.AutoMagicBurstMode:set_description('Water', "Okay, I'll only magic burst with water spells.")
@@ -19,6 +16,7 @@ state.AutoMagicBurstMode:set_description('Ice', "Okay, I'll only magic burst wit
 state.AutoMagicBurstMode:set_description('Wind', "Okay, I'll only magic burst with wind spells.")
 state.AutoMagicBurstMode:set_description('Light', "Okay, I'll only magic burst with light spells.")
 state.AutoMagicBurstMode:set_description('Dark', "Okay, I'll only magic burst with dark spells.")
+state.AutoMagicBurstMode:set_description('Mirror', "Okay, I'll magic burst when the person I'm assisting magic bursts.")
 
 state.MagicBurstTargetMode = M{['description'] = 'Magic Burst Target Type', 'Single', 'All'}
 state.MagicBurstTargetMode:set_description('Single', "Okay, I'll only magic burst with single target spells.")
@@ -30,6 +28,7 @@ state.MagicBurstTargetMode:set_description('All', "Okay, I'll magic burst with b
 -- @tparam T nuke_settings Nuke settings (see data/JobNameShort.lua)
 -- @tparam fast_cast number Fast cast modifier (0.0 - 1.0)
 -- @tparam List default_job_ability_names List of job abilities to use with spells if none are specified in settings (e.g. Cascade, Ebullience)
+-- @tparam Job job Job
 -- @treturn Nuker A nuker role
 function MagicBurster.new(action_queue, nuke_settings, fast_cast, default_job_ability_names, job)
     local self = setmetatable(Role.new(action_queue), MagicBurster)
@@ -37,7 +36,6 @@ function MagicBurster.new(action_queue, nuke_settings, fast_cast, default_job_ab
     self.fast_cast = fast_cast or 0.8
     self.default_job_abilities = default_job_ability_names:map(function(job_ability_name) return JobAbility.new(job_ability_name) end) or L{}
     self.job = job
-    self.last_prerender_time = os.time()
     self.last_magic_burst_time = os.time()
     self.action_identifier = self.__class..'_cast_spell'
     self.target_dispose_bag = DisposeBag.new()
@@ -58,10 +56,6 @@ end
 function MagicBurster:on_add()
     Role.on_add(self)
 
-    self.dispose_bag:add(Renderer.shared():onPrerender():addAction(function()
-        self:on_prerender()
-    end), Renderer.shared():onPrerender())
-
     self.dispose_bag:add(self.action_queue:on_action_end():addAction(function(a, success)
         if a:getidentifier() == self.action_identifier or not self.action_queue:has_action(self.action_identifier) then
             self.is_casting = false
@@ -70,38 +64,61 @@ function MagicBurster:on_add()
             end
         end
     end), self.action_queue:on_action_end())
+
+    self.dispose_bag:add(WindowerEvents.Spell.Begin:addAction(function(mob_id, spell_id)
+        if state.AutoMagicBurstMode.value ~= 'Mirror' or self:get_target() == nil
+                or self:get_target():get_skillchain() == nil or self:get_target():get_skillchain():is_expired() then
+            return
+        end
+        local assist_target = self:get_party():get_assist_target()
+        if assist_target and assist_target:get_id() == mob_id
+                and assist_target ~= self:get_party():get_player() then
+            local spell = res.spells[spell_id]
+            if spell and S{'Enemy'}:intersection(S(spell.targets)):length() > 0 and S{'BlackMagic', 'BlueMagic'}:contains(spell.type) then
+                if self.job:knows_spell(spell.id) then
+                    self:cast_spell(Spell.new(spell.name))
+                else
+                    local spell = self:get_spell(Element.new(res.elements[spell.element].en))
+                    if spell then
+                        self:cast_spell(Spell.new(spell:get_name()))
+                    end
+                end
+            end
+        end
+    end), WindowerEvents.Spell.Begin)
+
+    self.timer = Timer.scheduledTimer(0.25, 0)
+
+    self.dispose_bag:add(self.timer:onTimeChange():addAction(function(_)
+        local target = self:get_target()
+        if target then
+            local step = target:get_skillchain()
+            if step and step:get_skillchain() and not step:is_expired() and step:get_time_remaining() > 1.5 then
+                self:check_magic_burst(step:get_skillchain())
+            end
+        end
+    end), self.timer:onTimeChange())
+    self.dispose_bag:addAny(L{ self.timer })
+
+    self.timer:start()
 end
 
 function MagicBurster:target_change(target_index)
     Role.target_change(self, target_index)
 
+    self.is_casting = false
+
     self.target_dispose_bag:dispose()
 
     local target = self:get_target()
     if target then
-        self.is_casting = false
-
-        self.target_dispose_bag:add(target:on_skillchain():addAction(function(t, step)
+        self.target_dispose_bag:add(target:on_skillchain():addAction(function(_, step)
             self:check_magic_burst(step:get_skillchain())
         end), target:on_skillchain())
 
-        self.target_dispose_bag:add(target:on_skillchain_ended():addAction(function(t)
+        self.target_dispose_bag:add(target:on_skillchain_ended():addAction(function(_)
+            self.is_casting = false
         end), target:on_skillchain_ended())
-    end
-end
-
-function MagicBurster:on_prerender()
-    if (os.time() - self.last_prerender_time) < 0.5 then
-        return
-    end
-    self.last_prerender_time = os.time()
-
-    local target = self:get_target()
-    if target then
-        local step = target:get_skillchain()
-        if step and step:get_skillchain() and not step:is_expired() and step:get_time_remaining() > 1.5 then
-            self:check_magic_burst(step:get_skillchain())
-        end
     end
 end
 
@@ -109,7 +126,7 @@ end
 -- Performs a magic burst on the given skillchain if possible.
 -- @tparam Skillchain skillchain Skillchain (e.g. Light, Fragmentation, Scission)
 function MagicBurster:check_magic_burst(skillchain)
-    if state.AutoMagicBurstMode.value == 'Off' or (os.time() - self.last_magic_burst_time) < self.magic_burst_cooldown or self.is_casting then
+    if S{ 'Off', 'Mirror' }:contains(state.AutoMagicBurstMode.value) or (os.time() - self.last_magic_burst_time) < self.magic_burst_cooldown or self.is_casting then
         return
     end
     local elements = L(skillchain:get_elements():filter(function(element)

@@ -4,6 +4,7 @@
 -- @name Scholar
 
 local cure_util = require('cylibs/util/cure_util')
+local StatusRemoval = require('cylibs/battle/healing/status_removal')
 
 local Job = require('cylibs/entity/jobs/job')
 local Scholar = setmetatable({}, {__index = Job })
@@ -75,9 +76,14 @@ end
 
 -------
 -- Returns the delay between cures.
+-- @tparam boolean is_backup_healer Whether the player is the backup healer
 -- @treturn number Delay between cures in seconds
-function Scholar:get_cure_delay()
-    return self.cure_settings.Delay or 2
+function Scholar:get_cure_delay(is_backup_healer)
+    if is_backup_healer then
+        return self.cure_settings.Delay or 2
+    else
+        return 0
+    end
 end
 
 -------
@@ -97,9 +103,9 @@ function Scholar:get_status_removal_spell(debuff_id, num_targets)
             job_abilities:append('Addendum: White')
         end
         if num_targets > 1 then
-            return Spell.new(res.spells:with('id', spell_id).en, job_abilities:extend(L{'Accession'}))
+            return StatusRemoval.new(res.spells:with('id', spell_id).en, job_abilities:extend(L{'Accession'}), debuff_id)
         else
-            return Spell.new(res.spells:with('id', spell_id).en, job_abilities)
+            return StatusRemoval.new(res.spells:with('id', spell_id).en, job_abilities, debuff_id)
         end
     end
     return nil

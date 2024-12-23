@@ -6,12 +6,14 @@ local Buffer = require('cylibs/trust/roles/buffer')
 local Dancer = require('cylibs/entity/jobs/DNC')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Healer = require('cylibs/trust/roles/healer')
+local StatusRemover = require('cylibs/trust/roles/status_remover')
 
 function DancerTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = Dancer.new(trust_settings.CureSettings)
 	local roles = S{
 		Buffer.new(action_queue, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
 		Healer.new(action_queue, job),
+		StatusRemover.new(action_queue, job),
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), DancerTrust)
 

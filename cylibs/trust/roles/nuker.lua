@@ -4,7 +4,7 @@ Nuker.__index = Nuker
 local DisposeBag = require('cylibs/events/dispose_bag')
 local spell_util = require('cylibs/util/spell_util')
 
-state.AutoNukeMode = M{['description'] = 'Free Nuke', 'Off', 'Earth', 'Lightning', 'Water', 'Fire', 'Ice', 'Wind', 'Light', 'Dark', 'Cleave'}
+state.AutoNukeMode = M{['description'] = 'Free Nuke', 'Off', 'Earth', 'Lightning', 'Water', 'Fire', 'Ice', 'Wind', 'Light', 'Dark', 'Cleave', 'Mirror'}
 state.AutoNukeMode:set_description('Earth', "Okay, I'll free nuke with earth spells.")
 state.AutoNukeMode:set_description('Lightning', "Okay, I'll free nuke with lightning spells.")
 state.AutoNukeMode:set_description('Water', "Okay, I'll free nuke with water spells.")
@@ -14,6 +14,7 @@ state.AutoNukeMode:set_description('Wind', "Okay, I'll free nuke with wind spell
 state.AutoNukeMode:set_description('Light', "Okay, I'll free nuke with light spells.")
 state.AutoNukeMode:set_description('Dark', "Okay, I'll free nuke with dark spells.")
 state.AutoNukeMode:set_description('Cleave', "Okay, I'll try to cleave monsters with spells of any element.")
+state.AutoNukeMode:set_description('Mirror', "Okay, I'll free nuke when the person I'm assisting nukes.")
 
 -------
 -- Default initializer for a nuker role.
@@ -44,6 +45,29 @@ end
 
 function Nuker:on_add()
     Role.on_add(self)
+
+    self.assist_dispose_bag = DisposeBag.new()
+
+    self.dispose_bag:add(WindowerEvents.Spell.Begin:addAction(function(mob_id, spell_id)
+        if state.AutoNukeMode.value ~= 'Mirror' then
+            return
+        end
+        local assist_target = self:get_party():get_assist_target()
+        if assist_target and assist_target:get_id() == mob_id
+                and assist_target ~= self:get_party():get_player() then
+            local spell = res.spells[spell_id]
+            if spell and S{'Enemy'}:intersection(S(spell.targets)):length() > 0 and S{'BlackMagic', 'BlueMagic'}:contains(spell.type) then
+                if self.job:knows_spell(spell.id) then
+                    self:cast_spell(spell:get_name())
+                else
+                    local spell = self:get_spell(Element.new(res.elements[spell.element].en))
+                    if spell then
+                        self:cast_spell(spell:get_name())
+                    end
+                end
+            end
+        end
+    end), WindowerEvents.Spell.Begin)
 end
 
 function Nuker:target_change(target_index)
@@ -51,7 +75,7 @@ function Nuker:target_change(target_index)
 end
 
 function Nuker:tic(_, _)
-    if L{'Off', 'Auto' }:contains(state.AutoNukeMode.value) or self.target_index == nil
+    if L{'Off', 'Auto', 'Mirror' }:contains(state.AutoNukeMode.value) or self.target_index == nil
             or (os.time() - self.last_nuke_time) < self.nuke_cooldown then
         return
     end

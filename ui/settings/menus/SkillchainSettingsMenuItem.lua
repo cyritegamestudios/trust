@@ -44,6 +44,10 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
         local createSkillchainView = SkillchainSettingsEditor.new(weaponSkillSettings, abilities)
         createSkillchainView:setShouldRequestFocus(true)
 
+        self.selectedAbility = abilities[1]
+
+        createSkillchainView.menuArgs['conditions'] = self.selectedAbility.conditions -- get_conditions() makes a copy
+
         self.disposeBag:add(createSkillchainView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
             self.selectedAbility = abilities[indexPath.section]
             self.selectedIndex = indexPath.section
@@ -131,12 +135,14 @@ function SkillchainSettingsMenuItem:getEditSkillchainStepMenuItem()
                 conditions = currentConditions
             }
 
-            local editSkillchainStepEditor = SkillchainStepSettingsEditor.new(stepSettings, nextSteps)
+            local editSkillchainStepEditor = SkillchainStepSettingsEditor.new(stepSettings, nextSteps, self.weaponSkillSettings, self.weaponSkillSettingsMode)
 
             self.disposeBag:add(editSkillchainStepEditor:onConfigChanged():addAction(function(newSettings, _)
                 local ability = self:getAbility(newSettings.step:get_ability():get_name())
                 if ability then
+                    self.selectedAbility = ability
                     ability.conditions = newSettings.conditions
+
                     currentSettings.Skillchain[newSettings.step:get_step()] = ability
                     self.weaponSkillSettings:saveSettings(true)
 

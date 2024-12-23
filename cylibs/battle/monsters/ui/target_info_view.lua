@@ -113,6 +113,16 @@ function TargetInfoView:reloadSettings()
 
     itemsToAdd:append(IndexedItem.new(TextItem.new(localization_util.commas(debuffNames, "and"), TextStyle.Default.TextSmall), IndexPath.new(4, 1)))
 
+    -- Target Model ID
+    local targetModelIdHeaderItem = SectionHeaderItem.new(
+            TextItem.new("Target Model ID", TextStyle.Default.SectionHeader),
+            ImageItem.new(windower.addon_path..'assets/icons/icon_bullet.png', 8, 8),
+            16
+    )
+    self:getDataSource():setItemForSectionHeader(5, targetModelIdHeaderItem)
+
+    itemsToAdd:append(IndexedItem.new(TextItem.new(self.target:get_mob().models[1] or 'Unknown', TextStyle.Default.TextSmall), IndexPath.new(5, 1)))
+
     self:getDataSource():addItems(itemsToAdd)
 
     self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))

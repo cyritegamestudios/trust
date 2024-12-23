@@ -156,16 +156,7 @@ end
 -- @treturn list Valid spell targets (e.g. bt, p1, p2)
 function Spell:get_valid_targets()
     local spell = self:get_spell()
-    return L(spell.targets):map(function(target)
-        if target == 'Self' then
-            return 'me'
-        elseif target == 'Party' then
-            return L{ 'p0', 'p1', 'p2', 'p3', 'p4', 'p5' }
-        elseif target == 'Enemy' then
-            return 'bt'
-        end
-        return nil
-    end):compact_map():flatten(true)
+    return L(spell.targets)
 end
 
 -------

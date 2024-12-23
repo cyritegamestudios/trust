@@ -70,7 +70,7 @@ function ElementalMagicSkillSettings:set_default_ability(ability_name)
 end
 
 function ElementalMagicSkillSettings:get_id()
-    return nil
+    return 36
 end
 
 function ElementalMagicSkillSettings:get_name()

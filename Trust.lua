@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '12.9.1'
+_addon.version = '12.9.4'
 _addon.release_notes = [[
 This update introduces new menus for Bard, autocomplete for Trust
 commands, new commands and important bug fixes for users running the
@@ -848,4 +848,3 @@ windower.register_event('addon command', addon_command)
 windower.register_event('load', loaded)
 windower.register_event('unload', unloaded)
 windower.register_event('logout', function() windower.send_command('lua unload trust')  end)
-

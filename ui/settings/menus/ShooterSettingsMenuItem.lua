@@ -36,7 +36,7 @@ function ShooterSettingsMenuItem:getConfigMenuItem()
         local shooterSettings = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].Shooter
 
         local configItems = L{
-            ConfigItem.new('Delay', 1.5, 10, 0.5, function(value) return value.."s" end, "Shoot Delay"),
+            ConfigItem.new('Delay', 0.0, 10, 0.5, function(value) return value.."s" end, "Shoot Delay"),
         }
         return ConfigEditor.new(self.trustSettings, shooterSettings, configItems)
     end, "Shooting", "Configure shooting settings.")

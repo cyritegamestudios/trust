@@ -49,6 +49,9 @@ function SequenceAction:destroy()
 end
 
 function SequenceAction:can_perform()
+	if not Action.can_perform(self) then
+		return
+	end
 	if not self.allows_partial_failure then
 		for action in self.queue:it() do
 			if not action:can_perform() then

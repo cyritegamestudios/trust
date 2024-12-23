@@ -11,18 +11,16 @@ local SkillchainStepSettingsEditor = setmetatable({}, {__index = ConfigEditor })
 SkillchainStepSettingsEditor.__index = SkillchainStepSettingsEditor
 SkillchainStepSettingsEditor.__type = "SkillchainStepSettingsEditor"
 
-function SkillchainStepSettingsEditor.new(stepSettings, nextSteps)
-    local configItems = L{
-        PickerConfigItem.new('step', stepSettings.step, nextSteps, function(step)
-            local suffix = ''
-            if step:get_skillchain() then
-                suffix = ' ('..step:get_skillchain()..')'
-            end
-            return step:get_ability():get_localized_name()..suffix
-        end, 'Ability')
-    }
+function SkillchainStepSettingsEditor.new(stepSettings, nextSteps, weaponSkillSettings, weaponSkillSettingsMode)
+    local abilityConfigItem = PickerConfigItem.new('step', stepSettings.step, nextSteps, function(step)
+        local suffix = ''
+        if step:get_skillchain() then
+            suffix = ' ('..step:get_skillchain()..')'
+        end
+        return step:get_ability():get_localized_name()..suffix
+    end, 'Ability')
 
-    local self = setmetatable(ConfigEditor.new(nil, stepSettings, configItems, nil, nil, nil), SkillchainStepSettingsEditor)
+    local self = setmetatable(ConfigEditor.new(nil, stepSettings, L{ abilityConfigItem }, nil, nil, nil), SkillchainStepSettingsEditor)
 
     self.stepSettings = stepSettings
     self.conditions = stepSettings.conditions
@@ -36,11 +34,33 @@ function SkillchainStepSettingsEditor.new(stepSettings, nextSteps)
     )
     self:getDataSource():setItemForSectionHeader(2, conditionsSectionHeaderItem)
 
+    self.disposeBag:add(self:onConfigItemChanged():addAction(function(configKey, newValue, oldValue)
+        --[[if configKey == 'step' then
+            local activeSkills = weaponSkillSettings:getSettings()[weaponSkillSettingsMode.value].Skills
+            for activeSkill in activeSkills:it() do
+                local ability = activeSkill:get_ability(newValue:get_ability():get_name())
+                if ability then
+                    self.conditions:clear()
+                    for condition in ability:get_conditions():it() do
+                        self.conditions:append(condition)
+                    end
+                end
+            end
+            self:reloadConditions()
+        end]]
+    end), self:onConfigItemChanged())
+
     return self
 end
 
 function SkillchainStepSettingsEditor:reloadSettings()
     ConfigEditor.reloadSettings(self)
+
+    self:reloadConditions()
+end
+
+function SkillchainStepSettingsEditor:reloadConditions()
+    self:getDataSource():removeItemsInSection(2)
 
     local conditionsItems = IndexedItem.fromItems(self.conditions:map(function(condition)
         return TextItem.new(condition:tostring(), TextStyle.Default.TextSmall)
@@ -67,6 +87,7 @@ end
 function SkillchainStepSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
     if textItem:getText() == 'Conditions' then
         self.menuArgs['conditions'] = self.conditions
+        self:onConfirmClick(true)
     end
 
     ConfigEditor.onSelectMenuItemAtIndexPath(self, textItem, indexPath)

@@ -7,6 +7,7 @@ local buff_util = require('cylibs/util/buff_util')
 local cure_util = require('cylibs/util/cure_util')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local EquipSpellAction = require('cylibs/actions/equip_spell')
+local StatusRemoval = require('cylibs/battle/healing/status_removal')
 
 local Job = require('cylibs/entity/jobs/job')
 local BlueMage = setmetatable({}, {__index = Job })
@@ -168,7 +169,7 @@ function BlueMage:get_status_removal_spell(debuff_id, num_targets)
     local spell_id = cure_util.spell_id_for_debuff_id(debuff_id)
     if spell_id then
         if spell_util.spell_name(spell_id) == 'Erase' then
-            return Spell.new('Winds of Promy.')
+            return StatusRemoval.new('Winds of Promy.', L{}, debuff_id)
         end
     end
     return nil

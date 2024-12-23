@@ -29,19 +29,20 @@ function HasDebuffCondition:is_satisfied(target_index)
         if monster then
             return monster:has_debuff(self.debuff_id)
         else
-            return L(party_util.get_buffs(target.id)):contains(self.debuff_id)
+            local party_member = player.alliance:get_alliance_member_named(target.name)
+            return S(party_member:get_debuff_ids()):contains(self.debuff_id)
         end
     end
     return false
 end
 
 function HasDebuffCondition:get_config_items()
-    local all_debuffs = L(S(buff_util.get_all_debuff_ids():map(function(debuff_id)
+    local all_debuffs = L(S(L(buff_util.get_all_debuff_ids()):map(function(debuff_id)
         if res.buffs[debuff_id] then
             return res.buffs[debuff_id].en
         end
         return nil
-    end))):compact_map():sort()
+    end):compact_map()))
     return L{
         PickerConfigItem.new('debuff_name', self.debuff_name, all_debuffs, function(debuff_name)
             local status_ailment = StatusAilment.new(debuff_name)
