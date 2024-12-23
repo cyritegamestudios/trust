@@ -70,7 +70,8 @@ function MagicBurster:on_add()
     end), self.action_queue:on_action_end())
 
     self.dispose_bag:add(WindowerEvents.Spell.Begin:addAction(function(mob_id, spell_id)
-        if state.AutoMagicBurstMode.value ~= 'Mirror' then
+        if state.AutoMagicBurstMode.value ~= 'Mirror' or self:get_target() == nil
+                or self:get_target():get_skillchain() == nil or self:get_target():get_skillchain():is_expired() then
             return
         end
         local assist_target = self:get_party():get_assist_target()
