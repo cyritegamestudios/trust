@@ -324,6 +324,7 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_trust, acti
 		MountCommands.new(main_job_trust, main_job_trust:role_with_type("follower").walk_action_queue),
 		NukeCommands.new(main_job_trust, main_trust_settings, action_queue),
 		PathCommands.new(main_job_trust, action_queue),
+		ProfileCommands.new(main_trust_settings, sub_trust_settings, trust_mode_settings, weapon_skill_settings),
 		PullCommands.new(main_job_trust, action_queue, main_job_trust:role_with_type("puller") or sub_job_trust:role_with_type("puller")),
 		ScenarioCommands.new(main_job_trust, action_queue, party, addon_settings),
 		SendAllCommands.new(main_job_trust, action_queue),

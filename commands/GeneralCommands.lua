@@ -1,3 +1,5 @@
+local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
+
 local TrustCommands = require('cylibs/trust/commands/trust_commands')
 local GeneralTrustCommands = setmetatable({}, {__index = TrustCommands })
 GeneralTrustCommands.__index = GeneralTrustCommands
@@ -25,7 +27,12 @@ function GeneralTrustCommands.new(trust, action_queue, addon_enabled, trust_mode
     self:add_command('set', self.handle_set_mode, 'Set a mode to a given value, // trust set mode_name mode_value')
     self:add_command('cycle', self.handle_cycle_mode, 'Cycle the value of a mode, // trust cycle mode_name')
     self:add_command('load', self.handle_load_set, 'Load a mode set, // trust load mode_set_name')
-    self:add_command('save', self.handle_save_set, 'Save changes to the current mode set or new set, // trust save mode_set_name (optional)')
+    --self:add_command('save', self.handle_save_set, 'Save changes to the current mode set or new set, // trust save mode_set_name (optional)')
+
+    self:add_command('save', self.handle_save_set, 'Save changes to the current profile or new profile', L{
+        PickerConfigItem.new('profile_name', state.TrustMode.value, L{ state.TrustMode.value }, nil, "Profile Name"),
+        PickerConfigItem.new('copy', "true", L{ "true", "false" }, nil, "Copy job, mode, weaponskill and sub job settings.")
+    })
 
     return self
 end
