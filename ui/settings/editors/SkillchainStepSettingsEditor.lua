@@ -12,17 +12,15 @@ SkillchainStepSettingsEditor.__index = SkillchainStepSettingsEditor
 SkillchainStepSettingsEditor.__type = "SkillchainStepSettingsEditor"
 
 function SkillchainStepSettingsEditor.new(stepSettings, nextSteps)
-    local configItems = L{
-        PickerConfigItem.new('step', stepSettings.step, nextSteps, function(step)
-            local suffix = ''
-            if step:get_skillchain() then
-                suffix = ' ('..step:get_skillchain()..')'
-            end
-            return step:get_ability():get_localized_name()..suffix
-        end, 'Ability')
-    }
+    local abilityConfigItem = PickerConfigItem.new('step', stepSettings.step, nextSteps, function(step)
+        local suffix = ''
+        if step:get_skillchain() then
+            suffix = ' ('..step:get_skillchain()..')'
+        end
+        return step:get_ability():get_localized_name()..suffix
+    end, 'Ability')
 
-    local self = setmetatable(ConfigEditor.new(nil, stepSettings, configItems, nil, nil, nil), SkillchainStepSettingsEditor)
+    local self = setmetatable(ConfigEditor.new(nil, stepSettings, L{ abilityConfigItem }, nil, nil, nil), SkillchainStepSettingsEditor)
 
     self.stepSettings = stepSettings
     self.conditions = stepSettings.conditions
@@ -35,6 +33,16 @@ function SkillchainStepSettingsEditor.new(stepSettings, nextSteps)
             16
     )
     self:getDataSource():setItemForSectionHeader(2, conditionsSectionHeaderItem)
+
+    self.disposeBag:add(self:onConfigChanged():addAction(function(newSettings, _)
+        self.stepSettings = {
+            step = newSettings.step,
+            conditions = newSettings.conditions,
+        }
+        abilityConfigItem.currentValue = newSettings.step
+
+        self:setConfigItems(L{ abilityConfigItem })
+    end), self:onConfigChanged())
 
     return self
 end
@@ -56,7 +64,7 @@ end
 
 function SkillchainStepSettingsEditor:setVisible(visible)
     ConfigEditor.setVisible(self, visible)
-
+    
     self:reloadSettings()
 end
 
@@ -67,6 +75,7 @@ end
 function SkillchainStepSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
     if textItem:getText() == 'Conditions' then
         self.menuArgs['conditions'] = self.conditions
+        self:onConfirmClick(true)
     end
 
     ConfigEditor.onSelectMenuItemAtIndexPath(self, textItem, indexPath)

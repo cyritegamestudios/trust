@@ -64,6 +64,7 @@ function MagicBurster:on_add()
         if a:getidentifier() == self.action_identifier or not self.action_queue:has_action(self.action_identifier) then
             self.is_casting = false
             if not success then
+
                 self.last_magic_burst_time = os.time() - self.magic_burst_cooldown
             end
         end
@@ -80,7 +81,7 @@ function MagicBurster:on_add()
             local spell = res.spells[spell_id]
             if spell and S{'Enemy'}:intersection(S(spell.targets)):length() > 0 and S{'BlackMagic', 'BlueMagic'}:contains(spell.type) then
                 if self.job:knows_spell(spell.id) then
-                    self:cast_spell(Spell.new(spell:get_name()))
+                    self:cast_spell(Spell.new(spell.name))
                 else
                     local spell = self:get_spell(Element.new(res.elements[spell.element].en))
                     if spell then
