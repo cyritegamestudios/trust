@@ -286,6 +286,8 @@ function ConfigEditor:setCellConfigItemOverride(cellConfigItemType, valueForCell
 end
 
 function ConfigEditor:onConfirmClick(skipSave)
+    self:resignFirstResponder()
+
     local originalSettings
     if self.configSettings.copy then
         originalSettings = self.configSettings:copy()
@@ -378,6 +380,17 @@ function ConfigEditor:setHasFocus(focus)
             end
         end
         self:getDelegate():deselectItemsInSections(sections)
+    end
+end
+
+function ConfigEditor:resignFirstResponder()
+    local cursorIndexPath = self:getDelegate():getCursorIndexPath()
+    if cursorIndexPath then
+        local cell = self:getDataSource():cellForItemAtIndexPath(cursorIndexPath)
+        if cell and cell:hasFocus() then
+            cell:setShouldResignFocus(true)
+            cell:resignFocus()
+        end
     end
 end
 
