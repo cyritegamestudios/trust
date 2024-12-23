@@ -135,7 +135,7 @@ function SkillchainSettingsMenuItem:getEditSkillchainStepMenuItem()
                 conditions = currentConditions
             }
 
-            local editSkillchainStepEditor = SkillchainStepSettingsEditor.new(stepSettings, nextSteps)
+            local editSkillchainStepEditor = SkillchainStepSettingsEditor.new(stepSettings, nextSteps, self.weaponSkillSettings, self.weaponSkillSettingsMode)
 
             self.disposeBag:add(editSkillchainStepEditor:onConfigChanged():addAction(function(newSettings, _)
                 local ability = self:getAbility(newSettings.step:get_ability():get_name())

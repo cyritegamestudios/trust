@@ -11,7 +11,7 @@ local SkillchainStepSettingsEditor = setmetatable({}, {__index = ConfigEditor })
 SkillchainStepSettingsEditor.__index = SkillchainStepSettingsEditor
 SkillchainStepSettingsEditor.__type = "SkillchainStepSettingsEditor"
 
-function SkillchainStepSettingsEditor.new(stepSettings, nextSteps)
+function SkillchainStepSettingsEditor.new(stepSettings, nextSteps, weaponSkillSettings, weaponSkillSettingsMode)
     local abilityConfigItem = PickerConfigItem.new('step', stepSettings.step, nextSteps, function(step)
         local suffix = ''
         if step:get_skillchain() then
@@ -34,21 +34,33 @@ function SkillchainStepSettingsEditor.new(stepSettings, nextSteps)
     )
     self:getDataSource():setItemForSectionHeader(2, conditionsSectionHeaderItem)
 
-    self.disposeBag:add(self:onConfigChanged():addAction(function(newSettings, _)
-        self.stepSettings = {
-            step = newSettings.step,
-            conditions = newSettings.conditions,
-        }
-        abilityConfigItem.currentValue = newSettings.step
-
-        self:setConfigItems(L{ abilityConfigItem })
-    end), self:onConfigChanged())
+    self.disposeBag:add(self:onConfigItemChanged():addAction(function(configKey, newValue, oldValue)
+        --[[if configKey == 'step' then
+            local activeSkills = weaponSkillSettings:getSettings()[weaponSkillSettingsMode.value].Skills
+            for activeSkill in activeSkills:it() do
+                local ability = activeSkill:get_ability(newValue:get_ability():get_name())
+                if ability then
+                    self.conditions:clear()
+                    for condition in ability:get_conditions():it() do
+                        self.conditions:append(condition)
+                    end
+                end
+            end
+            self:reloadConditions()
+        end]]
+    end), self:onConfigItemChanged())
 
     return self
 end
 
 function SkillchainStepSettingsEditor:reloadSettings()
     ConfigEditor.reloadSettings(self)
+
+    self:reloadConditions()
+end
+
+function SkillchainStepSettingsEditor:reloadConditions()
+    self:getDataSource():removeItemsInSection(2)
 
     local conditionsItems = IndexedItem.fromItems(self.conditions:map(function(condition)
         return TextItem.new(condition:tostring(), TextStyle.Default.TextSmall)
@@ -64,7 +76,7 @@ end
 
 function SkillchainStepSettingsEditor:setVisible(visible)
     ConfigEditor.setVisible(self, visible)
-    
+
     self:reloadSettings()
 end
 

@@ -34,6 +34,10 @@ function ConfigEditor:onConfigChanged()
     return self.configChanged
 end
 
+function ConfigEditor:onConfigItemChanged()
+    return self.configItemChanged
+end
+
 function ConfigEditor:onConfigConfirm()
     return self.configConfirm
 end
@@ -94,6 +98,7 @@ function ConfigEditor.new(trustSettings, configSettings, configItems, infoView, 
     end
     self.valueForCellConfigItem = {}
     self.configChanged = Event.newEvent()
+    self.configItemChanged = Event.newEvent()
     self.configValidationError = Event.newEvent()
     self.configConfirm = Event.newEvent()
 
@@ -125,13 +130,16 @@ function ConfigEditor.new(trustSettings, configSettings, configItems, infoView, 
         end
         local configItem = self.configItems[indexPath.section]
         local item = self:getDataSource():itemAtIndexPath(indexPath)
-        if (item.getCurrentValue and configItem.getInitialValue) and item:getCurrentValue() ~= configItem:getInitialValue() then
-            for dependency in configItem:getDependencies():it() do
-                if dependency.onReload then
-                    local allValues = dependency.onReload(configItem:getKey(), item:getCurrentValue(), configItem)
-                    dependency:setAllValues(allValues)
+        if (item.getCurrentValue and configItem.getInitialValue) then
+            self:onConfigItemChanged():trigger(configItem:getKey(), item:getCurrentValue(), configItem:getInitialValue())
+            if item:getCurrentValue() ~= configItem:getInitialValue() then
+                for dependency in configItem:getDependencies():it() do
+                    if dependency.onReload then
+                        local allValues = dependency.onReload(item:getKey(), item:getCurrentValue(), configItem)
+                        dependency:setAllValues(allValues)
 
-                    self:reloadConfigItem(dependency)
+                        self:reloadConfigItem(dependency)
+                    end
                 end
             end
         end
@@ -147,6 +155,7 @@ function ConfigEditor:destroy()
     FFXIWindow.destroy(self)
 
     self.configChanged:removeAllActions()
+    self.configItemChanged:removeAllActions()
     self.configValidationError:removeAllActions()
     self.configConfirm:removeAllActions()
 end
