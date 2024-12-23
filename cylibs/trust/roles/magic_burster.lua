@@ -4,7 +4,7 @@ MagicBurster.__index = MagicBurster
 MagicBurster.__class = "MagicBurster"
 
 local DisposeBag = require('cylibs/events/dispose_bag')
-local Renderer = require('cylibs/ui/views/render')
+local Timer = require('cylibs/util/timers/timer')
 
 state.AutoMagicBurstMode = M{['description'] = 'Magic Burst', 'Off', 'Auto', 'Earth', 'Lightning', 'Water', 'Fire', 'Ice', 'Wind', 'Light', 'Dark', 'Mirror'}
 state.AutoMagicBurstMode:set_description('Auto', "Okay, I'll magic burst with any element.")
@@ -28,6 +28,7 @@ state.MagicBurstTargetMode:set_description('All', "Okay, I'll magic burst with b
 -- @tparam T nuke_settings Nuke settings (see data/JobNameShort.lua)
 -- @tparam fast_cast number Fast cast modifier (0.0 - 1.0)
 -- @tparam List default_job_ability_names List of job abilities to use with spells if none are specified in settings (e.g. Cascade, Ebullience)
+-- @tparam Job job Job
 -- @treturn Nuker A nuker role
 function MagicBurster.new(action_queue, nuke_settings, fast_cast, default_job_ability_names, job)
     local self = setmetatable(Role.new(action_queue), MagicBurster)
@@ -35,7 +36,6 @@ function MagicBurster.new(action_queue, nuke_settings, fast_cast, default_job_ab
     self.fast_cast = fast_cast or 0.8
     self.default_job_abilities = default_job_ability_names:map(function(job_ability_name) return JobAbility.new(job_ability_name) end) or L{}
     self.job = job
-    self.last_prerender_time = os.time()
     self.last_magic_burst_time = os.time()
     self.action_identifier = self.__class..'_cast_spell'
     self.target_dispose_bag = DisposeBag.new()
@@ -56,15 +56,10 @@ end
 function MagicBurster:on_add()
     Role.on_add(self)
 
-    self.dispose_bag:add(Renderer.shared():onPrerender():addAction(function()
-        self:on_prerender()
-    end), Renderer.shared():onPrerender())
-
     self.dispose_bag:add(self.action_queue:on_action_end():addAction(function(a, success)
         if a:getidentifier() == self.action_identifier or not self.action_queue:has_action(self.action_identifier) then
             self.is_casting = false
             if not success then
-
                 self.last_magic_burst_time = os.time() - self.magic_burst_cooldown
             end
         end
@@ -91,38 +86,39 @@ function MagicBurster:on_add()
             end
         end
     end), WindowerEvents.Spell.Begin)
+
+    self.timer = Timer.scheduledTimer(0.25, 0)
+
+    self.dispose_bag:add(self.timer:onTimeChange():addAction(function(_)
+        local target = self:get_target()
+        if target then
+            local step = target:get_skillchain()
+            if step and step:get_skillchain() and not step:is_expired() and step:get_time_remaining() > 1.5 then
+                self:check_magic_burst(step:get_skillchain())
+            end
+        end
+    end), self.timer:onTimeChange())
+    self.dispose_bag:addAny(L{ self.timer })
+
+    self.timer:start()
 end
 
 function MagicBurster:target_change(target_index)
     Role.target_change(self, target_index)
 
+    self.is_casting = false
+
     self.target_dispose_bag:dispose()
 
     local target = self:get_target()
     if target then
-        self.is_casting = false
-
         self.target_dispose_bag:add(target:on_skillchain():addAction(function(t, step)
             self:check_magic_burst(step:get_skillchain())
         end), target:on_skillchain())
 
         self.target_dispose_bag:add(target:on_skillchain_ended():addAction(function(t)
+            self.is_casting = false
         end), target:on_skillchain_ended())
-    end
-end
-
-function MagicBurster:on_prerender()
-    if (os.time() - self.last_prerender_time) < 0.5 then
-        return
-    end
-    self.last_prerender_time = os.time()
-
-    local target = self:get_target()
-    if target then
-        local step = target:get_skillchain()
-        if step and step:get_skillchain() and not step:is_expired() and step:get_time_remaining() > 1.5 then
-            self:check_magic_burst(step:get_skillchain())
-        end
     end
 end
 
