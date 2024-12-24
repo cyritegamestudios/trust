@@ -202,5 +202,17 @@ function MobTracker:get_targets()
     return targets
 end
 
+-------
+-- Returns nearby mobs.
+-- @tparam function filter (optional) Function to filter mobs
+-- @treturn list List of mobs
+function MobTracker:get_nearby_mobs(filter)
+    filter = filter or function(_) return true end
+    local mobs = ffxi_util.find_closest_mobs(L{}, L{}, L{}):filter(function(mob)
+        return filter(mob)
+    end)
+    return mobs
+end
+
 return MobTracker
 

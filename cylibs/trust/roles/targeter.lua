@@ -3,7 +3,10 @@ Targeter.__index = Targeter
 Targeter.__class = "Targeter"
 
 local DisposeBag = require('cylibs/events/dispose_bag')
+local Engage = require('cylibs/actions/engage')
+local monster_util = require('cylibs/util/monster_util')
 local SwitchTargetAction = require('cylibs/actions/switch_target')
+local MobFilter = require('cylibs/battle/monsters/mob_filter')
 local Timer = require('cylibs/util/timers/timer')
 
 state.AutoTargetMode = M{['description'] = 'Auto Target Mode', 'Off', 'Auto', 'Mirror'}
@@ -15,6 +18,7 @@ function Targeter.new(action_queue)
     local self = setmetatable(Role.new(action_queue), Targeter)
 
     self.action_queue = action_queue
+    self.action_identifier = 'autotarget'
     self.target_timer = Timer.scheduledTimer(1, 0)
     self.last_checked_targets = os.time()
 
@@ -31,29 +35,44 @@ function Targeter:destroy()
 end
 
 function Targeter:check_state_for_assist(assist_target)
-    if not L{ 'Off', 'Mirror' }:contains(state.AutoTargetMode.value) and assist_target and assist_target.id ~= windower.ffxi.get_player().id then
+    if not L{ 'Off', 'Mirror' }:contains(state.AutoTargetMode.value) and assist_target and not assist_target:is_player() then
         state.AutoTargetMode:set('Off')
         self:get_party():add_to_chat(self:get_party():get_player(), "No need to auto target, I'll already target what "..assist_target:get_name().." targets!")
     end
 end
 
 function Targeter:on_add()
-    state.AutoTargetMode:on_state_change():addAction(function(_, new_value)
+    self.mob_filter = MobFilter.new(25, function(mob1, mob2)
+        local party_target_indices = S(self:get_party():get_party_members(true):map(function(p)
+            return p:get_target_index()
+        end))
+        if not party_target_indices:contains(mob1.index) and party_target_indices:contains(mob2.index) then
+            return true
+        elseif party_target_indices:contains(mob1.index) and not party_target_indices:contains(mob2.index) then
+            return false
+        elseif mob1.distance ~= mob2.distance then
+            return mob1.distance < mob2.distance
+        else
+            return mob1.index < mob2.index
+        end
+    end)
+
+    self.dispose_bag:addAny(L{ self.mob_filter })
+
+    self.dispose_bag:add(state.AutoTargetMode:on_state_change():addAction(function(_, new_value)
         if not L{ 'Off' }:contains(new_value) then
             windower.send_command('input /autotarget off')
             local assist_target = self:get_party():get_assist_target()
             self:check_state_for_assist(assist_target)
         end
-    end)
+    end), state.AutoTargetMode:on_state_change())
 
-    if state.AutoPullMode then
-        self.dispose_bag:add(state.AutoPullMode:on_state_change():addAction(function(_, new_value)
-            if new_value ~= 'Off' and state.AutoTargetMode.value ~= 'Off' then
-                state.AutoTargetMode:set('Off')
-                self:get_party():add_to_chat(self:get_party():get_player(), "No need to auto target, I'll already target what I'm pulling!")
-            end
-        end), state.AutoPullMode:on_state_change())
-    end
+    self.dispose_bag:add(state.AutoPullMode:on_state_change():addAction(function(_, new_value)
+        if new_value ~= 'Off' and state.AutoTargetMode.value ~= 'Off' then
+            state.AutoTargetMode:set('Off')
+            self:get_party():add_to_chat(self:get_party():get_player(), "No need to auto target, I'll already target what I'm pulling!")
+        end
+    end), state.AutoPullMode:on_state_change())
 
     self.dispose_bag:add(self:get_party():on_party_assist_target_change():addAction(function(_, assist_target)
         self:check_state_for_assist(assist_target)
@@ -68,17 +87,6 @@ function Targeter:on_add()
             self:check_target(true)
         end
     end), WindowerEvents.MobKO)
-end
-
-function Targeter:target_mob(target)
-    self.action_queue:clear()
-
-    local target_action = SwitchTargetAction.new(target.index, 5)
-    target_action.priority = ActionPriority.high
-
-    self.action_queue:push_action(target_action, true)
-
-    windower.send_command('input /echo Auto targeting '..target.name..'.')
 end
 
 function Targeter:target_change(target_index)
@@ -117,30 +125,57 @@ function Targeter:check_target(override_current_target)
 
     logger.notice(self.__class, 'check_target')
 
-    local targets = self:get_all_targets()
-    if targets:length() > 0 then
-        logger.notice(self.__class, 'check_target', 'found', targets[1].name, targets[1].distance:sqrt())
-        local next_target = targets:firstWhere(function(target)
-            return target and not party_util.party_targeted(target.id)
-        end) or targets[1]
-        self:target_mob(next_target)
+    local all_targets = self:get_all_targets()
+    if all_targets:length() > 0 then
+        local party_target_indices = S(self:get_party():get_party_members(true):map(function(p)
+            return p:get_target_index()
+        end))
+        local targets = all_targets:filter(function(mob)
+            return not party_target_indices:contains(mob.index)
+        end)
+        if targets:length() > 0 then
+            logger.notice(self.__class, 'check_target', 'found', 'untargeted', targets[1].name, targets[1].distance:sqrt())
+            self:target_mob(targets:random())
+        else
+            logger.notice(self.__class, 'check_target', 'found', 'targeted', all_targets[1].name, all_targets[1].distance:sqrt())
+            self:target_mob(all_targets[1])
+        end
     else
         logger.notice(self.__class, 'check_target', 'no targets')
         self:get_party():add_to_chat(self.party:get_player(), "There's nothing for me to auto target.", self.__class..'no_target', 20, true)
     end
 end
 
+function Targeter:target_mob(target)
+    if self.action_queue:has_action(self.action_identifier) then
+        return
+    end
+    self.action_queue:clear()
+
+    local target_action = Engage.new(target.index, 5)
+    target_action.priority = ActionPriority.high
+    target_action.identifier = self.action_identifier
+
+    self.action_queue:push_action(target_action, true)
+
+    windower.send_command('input /echo Auto targeting '..target.name..'.')
+end
+
 function Targeter:get_all_targets()
     if state.AutoTargetMode.value == 'Auto' then
-        local target = ffxi_util.find_closest_mob(L{}, L{}:extend(party_util.party_targets()))
-        if target and target.distance:sqrt() < 25 then
-            return L{ target }
-        end
+        return self.mob_filter:get_aggroed_mobs():filter(function(mob)
+            if self:get_target() then
+                return mob.id ~= self:get_target().id
+            end
+        end)
+    elseif state.AutoTargetMode.value == 'Party' then
+        return self.mob_filter:get_aggroed_mobs():filter(function(mob)
+            if self:get_target() then
+                return mob.id ~= self:get_target().id
+            end
+        end)
     end
-    local targets = self:get_party():get_targets(function(target)
-        return target:get_distance():sqrt() < 18 and target:get_mob().status == 1
-    end):map(function(target) return target:get_mob() end)
-    return targets
+    return L{}
 end
 
 function Targeter:should_auto_target()

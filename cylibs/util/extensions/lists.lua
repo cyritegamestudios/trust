@@ -153,3 +153,8 @@ function list.unique(l, getKey)
     end
     return result
 end
+
+function list.random(l)
+    local index = math.random(1, l:length())
+    return l[index]
+end
