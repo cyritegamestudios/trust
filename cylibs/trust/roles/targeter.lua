@@ -160,15 +160,12 @@ function Targeter:target_mob(target)
 end
 
 function Targeter:get_all_targets()
-    if state.AutoTargetMode.value == 'Auto' then
-        local targets = self.mob_filter:get_aggroed_mobs():filter(function(mob)
-            if self:get_target() then
-                return mob.id ~= self:get_target().id
-            end
-        end)
-        return targets
-    end
-    return L{}
+    local targets = self.mob_filter:get_aggroed_mobs():filter(function(mob)
+        if self:get_target() then
+            return mob.id ~= self:get_target().id
+        end
+    end)
+    return targets or L{}
 end
 
 function Targeter:should_auto_target()
