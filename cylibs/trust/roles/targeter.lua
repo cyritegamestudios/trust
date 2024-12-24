@@ -8,8 +8,7 @@ local MobFilter = require('cylibs/battle/monsters/mob_filter')
 local Timer = require('cylibs/util/timers/timer')
 
 state.AutoTargetMode = M{['description'] = 'Auto Target Mode', 'Off', 'Auto', 'Mirror'}
-state.AutoTargetMode:set_description('Auto', "Okay, I'll automatically target a new monster after we defeat one.")
-state.AutoTargetMode:set_description('Party', "Okay, I'll automatically target monsters on the party's hate list.")
+state.AutoTargetMode:set_description('Auto', "Okay, I'll automatically target aggroed monsters after we defeat one.")
 state.AutoTargetMode:set_description('Mirror', "Okay, I'll target what the person I'm assisting is fighting.")
 
 function Targeter.new(action_queue)
@@ -17,6 +16,7 @@ function Targeter.new(action_queue)
 
     self.action_queue = action_queue
     self.action_identifier = 'autotarget'
+    self.should_retry = false
     self.target_timer = Timer.scheduledTimer(1, 0)
     self.last_checked_targets = os.time()
 
@@ -161,26 +161,18 @@ end
 
 function Targeter:get_all_targets()
     if state.AutoTargetMode.value == 'Auto' then
-        return self.mob_filter:get_aggroed_mobs():filter(function(mob)
+        local targets = self.mob_filter:get_aggroed_mobs():filter(function(mob)
             if self:get_target() then
                 return mob.id ~= self:get_target().id
             end
         end)
-    elseif state.AutoTargetMode.value == 'Party' then
-        return self.mob_filter:get_aggroed_mobs():filter(function(mob)
-            if self:get_target() then
-                return mob.id ~= self:get_target().id
-            end
-        end)
+        return targets
     end
     return L{}
 end
 
 function Targeter:should_auto_target()
-    if state.AutoTargetMode.value == 'Party' then
-        return true
-    end
-    return false
+    return self.should_retry
 end
 
 function Targeter:allows_duplicates()
@@ -189,6 +181,10 @@ end
 
 function Targeter:get_type()
     return "targeter"
+end
+
+function Targeter:set_target_settings(target_settings)
+    self.should_retry = target_settings.Retry
 end
 
 return Targeter

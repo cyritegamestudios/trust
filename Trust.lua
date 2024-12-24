@@ -216,7 +216,7 @@ function load_user_files(main_job_id, sub_job_id)
 	end
 
 	player.trust.main_job:add_role(Gambiter.new(action_queue, player.trust.main_job_settings.Default.GambitSettings, skillchainer))
-	player.trust.main_job:add_role(Targeter.new(action_queue))
+	player.trust.main_job:add_role(Targeter.new(action_queue, main_trust_settings))
 	player.trust.main_job:add_role(Attacker.new(action_queue))
 	player.trust.main_job:add_role(CombatMode.new(action_queue, addon_settings:getSettings().battle.melee_distance, addon_settings:getSettings().battle.range_distance, addon_enabled))
 	player.trust.main_job:add_role(Follower.new(action_queue, addon_settings:getSettings().follow.distance, addon_settings))
@@ -331,6 +331,7 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_trust, acti
 		SendCommands.new(main_job_trust, action_queue),
 		SkillchainCommands.new(main_job_trust, weapon_skill_settings, action_queue),
 		SoundCommands.new(hud.mediaPlayer),
+		TargetCommands.new(main_trust_settings, state.MainTrustSettingsMode),
 		WarpCommands.new(main_job_trust:role_with_type("follower").walk_action_queue),
 		WidgetCommands.new(main_job_trust, action_queue, addon_settings, hud.widgetManager),
 	}:extend(get_job_commands(job_name_short, main_job_trust, action_queue, main_trust_settings))

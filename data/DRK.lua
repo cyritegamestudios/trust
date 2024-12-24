@@ -29,6 +29,9 @@ return {
             Distance = 20,
             MaxNumMobs = 1,
         },
+        TargetSettings = {
+            Retry = false,
+        },
         NukeSettings = {
             Delay = 10,
             MinManaPointsPercent = 20,
