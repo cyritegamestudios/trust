@@ -40,4 +40,41 @@ function Profile:getFilePath()
     end
 end
 
+function Profile.create(profileName, trustModeSettings, jobSettings, subJobSettings, weaponSkillSettings, shouldCreateJobSettings, shouldCreateSubJobSettings, shouldCreateWeaponSkillSettings)
+    local setName = profileName
+    if trustModeSettings:getSetNames():contains(setName) then
+        addon_system_error("A profile with this name already exists.")
+        return
+    elseif setName:length() < 2 or setName:find('%s') then
+        addon_system_error("Profile names cannot contain spaces and must be at least 2 characters.")
+        return
+    end
+
+    local trust_modes = {}
+    for state_name, _ in pairs(state) do
+        if state_name ~= 'TrustMode' then
+            trust_modes[state_name:lower()] = state[state_name].value
+        end
+    end
+
+    if shouldCreateJobSettings then
+        trust_modes['maintrustsettingsmode'] = setName
+        jobSettings:createSettings(setName)
+    end
+
+    if shouldCreateSubJobSettings then
+        trust_modes['subtrustsettingsmode'] = setName
+        subJobSettings:createSettings(setName)
+    end
+
+    if shouldCreateWeaponSkillSettings then
+        trust_modes['weaponskillsettingsmode'] = setName
+        weaponSkillSettings:createSettings(setName)
+    end
+
+    trustModeSettings:saveSettings(setName, trust_modes)
+
+    addon_system_message("Created a new profile "..setName..".")
+end
+
 return Profile

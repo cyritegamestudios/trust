@@ -67,17 +67,31 @@ function SwitchTargetAction:perform()
 end
 
 function SwitchTargetAction:target_mob(target)
-    local p = packets.new('outgoing', 0x01A)
+    if player.status == 'Engaged' then
+        local p = packets.new('outgoing', 0x01A)
 
-    p['Target'] = target.id
-    p['Target Index'] = target.index
-    p['Category'] = 0x0F -- Switch target
-    p['Param'] = 0
-    p['X Offset'] = 0
-    p['Z Offset'] = 0
-    p['Y Offset'] = 0
+        p['Target'] = target.id
+        p['Target Index'] = target.index
+        p['Category'] = 0x0F -- Switch target
+        p['Param'] = 0
+        p['X Offset'] = 0
+        p['Z Offset'] = 0
+        p['Y Offset'] = 0
 
-    packets.inject(p)
+        packets.inject(p)
+    else
+        local p = packets.new('outgoing', 0x01A)
+
+        p['Target'] = target.id
+        p['Target Index'] = target.index
+        p['Category'] = 0x02 -- Engage
+        p['Param'] = 0
+        p['X Offset'] = 0
+        p['Z Offset'] = 0
+        p['Y Offset'] = 0
+
+        packets.inject(p)
+    end
 end
 
 function SwitchTargetAction:gettype()

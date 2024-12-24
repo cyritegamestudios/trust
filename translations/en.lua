@@ -2,6 +2,7 @@
 
 return T{
     ["Button_Modes"] = {singular="Modes"},
+    ["Button_Targeting"] = {singular="Targeting"},
     ["Button_Profiles"] = {singular="Profiles"},
     ["Button_Info"] = {singular="Info"},
     ["Button_Confirm"] = {singular="Confirm"},

@@ -45,6 +45,9 @@ return {
             },
             Distance = 20
         },
+        TargetSettings = {
+            Retry = true
+        },
         BlueMagicSettings = {
             SpellSets = {
                 Default = BlueMagicSet.new(L{"White Wind", "Molting Plumage", "Thrashing Assault", "Fantod", "Erratic Flutter", "Tail Slap", "Paralyzing Triad", "Metallic Body", "Diffusion Ray", "Magic Fruit", "Embalming Earth", "Sudden Lunge", "Sinker Drill", "Cocoon", "Occultation", "Heavy Strike", "Nat. Meditation", "Empty Thrash", "Sickle Slash"})

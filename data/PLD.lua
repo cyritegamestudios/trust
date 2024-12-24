@@ -58,6 +58,9 @@ return {
             },
             Distance = 20
         },
+        TargetSettings = {
+            Retry = true
+        },
         GambitSettings = {
             Gambits = L{
                 Gambit.new("Ally", L{MaxHitPointsPercentCondition.new(80), InBattleCondition.new()}, JobAbility.new("Cover", L{}, L{}), "Ally", L{}),

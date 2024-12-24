@@ -20,6 +20,9 @@ return {
             },
             Distance = 20
         },
+        TargetSettings = {
+            Retry = false,
+        },
         GambitSettings = {
             Default = L{
                 Gambit.new("Self", L{MaxTacticalPointsCondition.new(1000), NotCondition.new(L{ModeCondition.new("AutoBuffMode", "Off")})}, JobAbility.new("Meditate", L{}, L{}), "Self")

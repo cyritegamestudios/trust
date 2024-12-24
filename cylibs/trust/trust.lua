@@ -50,6 +50,10 @@ function Trust:init()
 		if gambiter then
 			gambiter:set_gambit_settings(new_trust_settings.GambitSettings)
 		end
+		local targeter = self:role_with_type("targeter")
+		if targeter then
+			targeter:set_target_settings(new_trust_settings.TargetSettings)
+		end
 
 		self.gambits = new_trust_settings.GambitSettings.Default or L{}
 	end)

@@ -4,6 +4,8 @@
 -- @name FollowAction
 
 local alter_ego_util = require('cylibs/util/alter_ego_util')
+local DisposeBag = require('cylibs/events/dispose_bag')
+local Timer = require('cylibs/util/timers/timer')
 
 local Action = require('cylibs/actions/action')
 local FollowAction = setmetatable({}, {__index = Action })
@@ -15,40 +17,52 @@ function FollowAction.new(target_index, complete_conditions)
     }
     local self = setmetatable(Action.new(0, 0, 0, target_index, conditions), FollowAction)
     self.complete_conditions = complete_conditions or L{ MaxDistanceCondition.new(3, target_index) }
+    self.dispose_bag = DisposeBag.new()
     return self
+end
+
+function FollowAction:destroy()
+    self.dispose_bag:destroy()
+    windower.ffxi.follow()
+    Action.destroy(self)
 end
 
 function FollowAction:complete(success)
     windower.ffxi.follow()
+    self.timer:cancel()
     Action.complete(self, success)
 end
 
 function FollowAction:perform()
-    local target = windower.ffxi.get_mob_by_target('t')
-    if target then
-        self:check_follow(0)
-    else
-        self:complete(false)
-    end
+    self.start_time = os.time()
+
+    self.timer = Timer.scheduledTimer(0.1, 0.0)
+
+    self.dispose_bag:addAny(L{ self.timer })
+    self.dispose_bag:add(self.timer:onTimeChange():addAction(function(_)
+        if os.time() - self.start_time > self:get_max_duration() then
+            self:complete(false)
+        else
+            self:check_follow()
+        end
+    end), self.timer:onTimeChange())
+
+    self.timer:start()
 end
 
 function FollowAction:check_follow(retry_count)
     if Condition.check_conditions(self.complete_conditions, self.target_index) then
         windower.ffxi.follow()
         self:complete(true)
-    elseif retry_count > 100 then
+        return
+    end
+
+    if Condition.check_conditions(L{ MaxDistanceCondition.new(2) }, self.target_index) then
         windower.ffxi.follow()
-        self:complete(false)
     else
         if not self:is_following() then
             windower.send_command('input /follow <t>')
         end
-
-        local walk_time = 0.2
-
-        coroutine.schedule(function()
-            self:check_follow(retry_count + 1)
-        end, walk_time)
     end
 end
 
@@ -58,7 +72,7 @@ function FollowAction:is_following()
 end
 
 function FollowAction:gettype()
-    return "runtoaction"
+    return "followaction"
 end
 
 function FollowAction:getrawdata()

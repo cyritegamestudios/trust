@@ -24,6 +24,9 @@ return {
             },
             Distance = 20
         },
+        TargetSettings = {
+            Retry = true
+        },
         GambitSettings = {
             Default = L{
                 Gambit.new("Enemy", L{GainDebuffCondition.new("Dia")}, JobAbility.new("Light Shot", L{}, L{}), "Enemy"),

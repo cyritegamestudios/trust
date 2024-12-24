@@ -348,6 +348,14 @@ function Party:get_targets(filter)
 end
 
 -------
+-- Returns all party targets.
+-- @tparam function filter (optional) Function to filter targets
+-- @treturn list List of Monsters
+function Party:get_target_tracker()
+    return self.target_tracker
+end
+
+-------
 -- Sends a message to the party chat.
 -- @tparam PartyMember Message sender
 -- @tparam string Message

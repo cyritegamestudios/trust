@@ -32,6 +32,7 @@ local TargetWidget = require('ui/widgets/TargetWidget')
 local TrustInfoBar = require('ui/TrustInfoBar')
 local TrustStatusWidget = require('ui/widgets/TrustStatusWidget')
 local Menu = require('cylibs/ui/menu/menu')
+local TargetSettingsMenuItem = require('ui/settings/menus/TargetSettingsMenuItem')
 local ViewStack = require('cylibs/ui/views/view_stack')
 local WeaponSkillSettingsMenuItem = require('ui/settings/menus/WeaponSkillSettingsMenuItem')
 local View = require('cylibs/ui/views/view')
@@ -421,6 +422,11 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         childMenuItems.Pulling = self:getMenuItemForRole(trust:role_with_type("puller"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode, trustModeSettings)
     else
         childMenuItems.Pulling = PullSettingsMenuItem.disabled("Configure pull settings from the other job's menu.")
+    end
+
+    if trust:role_with_type("targeter") then
+        menuItems:append(ButtonItem.localized('Targeting', i18n.translate('Button_Targeting')))
+        childMenuItems.Targeting = TargetSettingsMenuItem.new(trustSettings, trustSettingsMode)
     end
 
     if trust:role_with_type("shooter") then

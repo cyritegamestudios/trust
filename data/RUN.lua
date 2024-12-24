@@ -25,6 +25,9 @@ return {
             },
             Distance = 20
         },
+        TargetSettings = {
+            Retry = true
+        },
         GambitSettings = {
             Default = L{
                 Gambit.new("Self", L{MaxHitPointsPercentCondition.new(30), HasRunesCondition.new(3)}, JobAbility.new("Vivacious Pulse", L{}, L{}), "Self", L{})

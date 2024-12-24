@@ -19,6 +19,9 @@ return {
             },
             Distance = 20
         },
+        TargetSettings = {
+            Retry = true
+        },
         AutomatonSettings = {
             ManeuverSettings = {
                 Default = {

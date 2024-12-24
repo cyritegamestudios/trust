@@ -39,6 +39,9 @@ return {
             },
             Distance = 20
         },
+        TargetSettings = {
+            Retry = true
+        },
         GambitSettings = {
             Default = L{
                 Gambit.new("Enemy", L{HasBuffCondition.new("Presto"), InBattleCondition.new()}, JobAbility.new("Box Step", L{}, L{}), "Self", L{}),
