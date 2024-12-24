@@ -4,8 +4,6 @@ Targeter.__class = "Targeter"
 
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Engage = require('cylibs/actions/engage')
-local monster_util = require('cylibs/util/monster_util')
-local SwitchTargetAction = require('cylibs/actions/switch_target')
 local MobFilter = require('cylibs/battle/monsters/mob_filter')
 local Timer = require('cylibs/util/timers/timer')
 
