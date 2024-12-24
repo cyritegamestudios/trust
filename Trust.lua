@@ -207,6 +207,14 @@ function load_user_files(main_job_id, sub_job_id)
 
 	local skillchainer = Skillchainer.new(action_queue, weapon_skill_settings)
 
+	if player.trust.main_job:role_with_type("puller") == nil and player.trust.sub_job:role_with_type("puller") == nil then
+		local pull_abilities = player.trust.main_job_settings.Default.PullSettings.Abilities
+		if pull_abilities == nil or pull_abilities:length() == 0 then
+			pull_abilities = L{ Approach.new() }
+		end
+		player.trust.main_job:add_role(Puller.new(action_queue, player.trust.main_job_settings.Default.PullSettings.Targets, pull_abilities))
+	end
+
 	player.trust.main_job:add_role(Gambiter.new(action_queue, player.trust.main_job_settings.Default.GambitSettings, skillchainer))
 	player.trust.main_job:add_role(Targeter.new(action_queue))
 	player.trust.main_job:add_role(Attacker.new(action_queue))
@@ -219,14 +227,6 @@ function load_user_files(main_job_id, sub_job_id)
 	player.trust.main_job:add_role(Truster.new(action_queue, addon_settings:getSettings().battle.trusts))
 	player.trust.main_job:add_role(Aftermather.new(action_queue, player.trust.main_job:role_with_type("skillchainer")))
 	player.trust.main_job:add_role(Assistant.new(action_queue))
-
-	if player.trust.main_job:role_with_type("puller") == nil and player.trust.sub_job:role_with_type("puller") == nil then
-		local pull_abilities = player.trust.main_job_settings.Default.PullSettings.Abilities
-		if pull_abilities == nil or pull_abilities:length() == 0 then
-			pull_abilities = L{ Approach.new() }
-		end
-		player.trust.main_job:add_role(Puller.new(action_queue, player.trust.main_job_settings.Default.PullSettings.Targets, pull_abilities))
-	end
 
 	if player.sub_job_name_short ~= 'NON' then
 		player.trust.sub_job:add_role(Gambiter.new(action_queue, player.trust.sub_job_settings.Default.GambitSettings, skillchainer))

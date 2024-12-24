@@ -150,7 +150,7 @@ function Targeter:target_mob(target)
     end
     self.action_queue:clear()
 
-    local target_action = Engage.new(target.index, 5)
+    local target_action = Engage.new(target.index)
     target_action.priority = ActionPriority.high
     target_action.identifier = self.action_identifier
 
