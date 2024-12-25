@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '12.9.5'
+_addon.version = '12.9.6'
 _addon.release_notes = [[
 This update introduces new menus for Bard, autocomplete for Trust
 commands, new commands and important bug fixes for users running the
@@ -207,8 +207,16 @@ function load_user_files(main_job_id, sub_job_id)
 
 	local skillchainer = Skillchainer.new(action_queue, weapon_skill_settings)
 
+	if player.trust.main_job:role_with_type("puller") == nil and player.trust.sub_job:role_with_type("puller") == nil then
+		local pull_abilities = player.trust.main_job_settings.Default.PullSettings.Abilities
+		if pull_abilities == nil or pull_abilities:length() == 0 then
+			pull_abilities = L{ Approach.new() }
+		end
+		player.trust.main_job:add_role(Puller.new(action_queue, player.trust.main_job_settings.Default.PullSettings.Targets, pull_abilities))
+	end
+
 	player.trust.main_job:add_role(Gambiter.new(action_queue, player.trust.main_job_settings.Default.GambitSettings, skillchainer))
-	player.trust.main_job:add_role(Targeter.new(action_queue))
+	player.trust.main_job:add_role(Targeter.new(action_queue, main_trust_settings))
 	player.trust.main_job:add_role(Attacker.new(action_queue))
 	player.trust.main_job:add_role(CombatMode.new(action_queue, addon_settings:getSettings().battle.melee_distance, addon_settings:getSettings().battle.range_distance, addon_enabled))
 	player.trust.main_job:add_role(Follower.new(action_queue, addon_settings:getSettings().follow.distance, addon_settings))
@@ -219,14 +227,6 @@ function load_user_files(main_job_id, sub_job_id)
 	player.trust.main_job:add_role(Truster.new(action_queue, addon_settings:getSettings().battle.trusts))
 	player.trust.main_job:add_role(Aftermather.new(action_queue, player.trust.main_job:role_with_type("skillchainer")))
 	player.trust.main_job:add_role(Assistant.new(action_queue))
-
-	if player.trust.main_job:role_with_type("puller") == nil and player.trust.sub_job:role_with_type("puller") == nil then
-		local pull_abilities = player.trust.main_job_settings.Default.PullSettings.Abilities
-		if pull_abilities == nil or pull_abilities:length() == 0 then
-			pull_abilities = L{ Approach.new() }
-		end
-		player.trust.main_job:add_role(Puller.new(action_queue, player.trust.main_job_settings.Default.PullSettings.Targets, pull_abilities))
-	end
 
 	if player.sub_job_name_short ~= 'NON' then
 		player.trust.sub_job:add_role(Gambiter.new(action_queue, player.trust.sub_job_settings.Default.GambitSettings, skillchainer))
@@ -324,12 +324,14 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_trust, acti
 		MountCommands.new(main_job_trust, main_job_trust:role_with_type("follower").walk_action_queue),
 		NukeCommands.new(main_job_trust, main_trust_settings, action_queue),
 		PathCommands.new(main_job_trust, action_queue),
+		ProfileCommands.new(main_trust_settings, sub_trust_settings, trust_mode_settings, weapon_skill_settings),
 		PullCommands.new(main_job_trust, action_queue, main_job_trust:role_with_type("puller") or sub_job_trust:role_with_type("puller")),
 		ScenarioCommands.new(main_job_trust, action_queue, party, addon_settings),
 		SendAllCommands.new(main_job_trust, action_queue),
 		SendCommands.new(main_job_trust, action_queue),
 		SkillchainCommands.new(main_job_trust, weapon_skill_settings, action_queue),
 		SoundCommands.new(hud.mediaPlayer),
+		TargetCommands.new(main_trust_settings, state.MainTrustSettingsMode),
 		WarpCommands.new(main_job_trust:role_with_type("follower").walk_action_queue),
 		WidgetCommands.new(main_job_trust, action_queue, addon_settings, hud.widgetManager),
 	}:extend(get_job_commands(job_name_short, main_job_trust, action_queue, main_trust_settings))

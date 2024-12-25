@@ -54,6 +54,10 @@ function Job:get_conditions_for_spell(spell)
     return spell:get_conditions()
 end
 
+-------
+-- Returns a list of known job abilities.
+-- @tparam function filter Optional filter function
+-- @treturn list List of known job ability ids
 function Job:get_job_abilities(filter)
     filter = filter or function(_) return true end
     return player_util.get_job_abilities():filter(function(job_ability_id)
@@ -65,17 +69,23 @@ function Job:get_job_abilities(filter)
 end
 
 -------
--- Returns whether this job is the main job or sub job.
--- @treturn boolean True if the job is the main job.
+-- Returns the job level.
+-- @treturn number Job level.
 function Job:getLevel()
     local player = windower.ffxi.get_player()
-
-    local isMainJob = player.main_job_id == self.jobId
-    if isMainJob then
+    if self:isMainJob() then
         return player.main_job_level
     else
         return player.sub_job_level
     end
+end
+
+-------
+-- Returns whether this job is the main job or sub job.
+-- @treturn boolean True if the job is the main job.
+function Job:isMainJob()
+    local player = windower.ffxi.get_player()
+    return player.main_job_id == self.jobId
 end
 
 return Job

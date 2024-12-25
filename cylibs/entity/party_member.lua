@@ -493,6 +493,13 @@ function PartyMember:is_trust()
 end
 
 -------
+-- Returns whether this party member is the player.
+-- @treturn Boolean True if the party member is the player, and false otherwise
+function PartyMember:is_player()
+    return self:get_id() == windower.ffxi.get_player().id
+end
+
+-------
 -- Sets the target index for the party member.
 -- @tparam number Index of the current target, or nil if none.
 function PartyMember:set_target_index(target_index)

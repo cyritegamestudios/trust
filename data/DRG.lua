@@ -19,6 +19,9 @@ return {
             },
             Distance = 20
         },
+        TargetSettings = {
+            Retry = true
+        },
         GambitSettings = {
             Default = L{
                 Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Spirit Surge")}), NotCondition.new(L{HasPetCondition.new()})}, JobAbility.new("Call Wyvern", L{}, L{}), "Self", L{}),
