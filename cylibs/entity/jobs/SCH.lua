@@ -4,6 +4,7 @@
 -- @name Scholar
 
 local cure_util = require('cylibs/util/cure_util')
+local SpellList = require('cylibs/util/spell_list')
 local StatusRemoval = require('cylibs/battle/healing/status_removal')
 
 local Job = require('cylibs/entity/jobs/job')
@@ -27,7 +28,24 @@ function Scholar.new(trust_settings)
         self.allow_sub_job = true
     end
     self.ignore_debuff_ids = self.cure_settings.StatusRemovals.Blacklist:map(function(debuff_name) return res.buffs:with('en', debuff_name).id end)
+    self.sub_job_spell_list = SpellList.new(windower.ffxi.get_player().sub_job_id, windower.ffxi.get_player().sub_job_level, L{})
     return self
+end
+
+-------
+-- Returns a list of known spell ids. For SCH only, sub job spells are returned as well.
+-- @tparam function filter Optional filter function
+-- @treturn list List of known spell ids
+function Scholar:get_spells(filter)
+    filter = filter or function(_) return true end
+    local spells = Job.get_spells(self, filter)
+    if self:isMainJob() then
+        self.sub_job_spell_list.jobLevel = windower.ffxi.get_player().sub_job_level
+        spells = spells + self.sub_job_spell_list:getKnownSpellIds():filter(function(spell_id)
+            return filter(spell_id)
+        end)
+    end
+    return spells
 end
 
 -------
