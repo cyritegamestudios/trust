@@ -25,7 +25,7 @@ function ChatInput.new(trustSettings, trustSettingsMode)
         end
     end
 
-    self:registerHandler(L{ buildRegex("/song"), buildRegex("/ma"), buildRegex("/magic") }, function(inputText, regex)
+    self:registerHandler(L{ buildRegex("/song"), buildRegex("/ma"), buildRegex("/magic"), buildRegex("/ninjutsu") }, function(inputText, regex)
         local _, spellName, targetId = string.match(inputText, regex)
 
         local command = SpellCommand.new(spellName:gsub("\"", ""), targetId)
