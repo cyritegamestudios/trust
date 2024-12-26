@@ -1,42 +1,79 @@
 local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
+local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local localization_util = require('cylibs/util/localization_util')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
-local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 
 local EntrustSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 EntrustSettingsMenuItem.__index = EntrustSettingsMenuItem
 
-function EntrustSettingsMenuItem.new(trust, trustSettings, entrustSpells)
+function EntrustSettingsMenuItem.new(trust, trustSettings, trustSettingsMode)
     local self = setmetatable(MenuItem.new(L{
-        ButtonItem.default('Add', 18),
-        ButtonItem.default('Remove', 18),
-        ButtonItem.default('Targets', 18),
+        ButtonItem.default('Confirm', 18),
     }, {}, nil, "Entrust", "Customize indicolures to entrust on party members."), EntrustSettingsMenuItem)
 
     self.trust = trust
     self.trustSettings = trustSettings
-    self.entrustSpells = entrustSpells
     self.dispose_bag = DisposeBag.new()
 
-    self.contentViewConstructor = function(_, infoView)
-        local configItem = MultiPickerConfigItem.new("Entrust", L{}, self.entrustSpells, function(spell)
+    self.contentViewConstructor = function(_, infoView, showMenu)
+        local allSettings = T(trustSettings:getSettings())[trustSettingsMode.value].Geomancy
+
+        local allSpells = self.trust:get_job():get_spells(function(spellId)
+            local spell = res.spells[spellId]
+            return spell and spell.skill == 44 and S{ 'Self' }:equals(S(spell.targets))
+        end):map(function(spellId) return Spell.new(res.spells[spellId].en) end)
+
+        local spellPickerConfigItem = PickerConfigItem.new("Spell", allSettings.Entrust, allSpells, function(spell)
             return spell:get_localized_name()
         end, "Entrust", nil, function(spell)
             return AssetManager.imageItemForSpell(spell:get_name())
         end)
 
-        local entrustSettingsEditor = FFXIPickerView.withConfig(L{ configItem })
-        entrustSettingsEditor:setAllowsCursorSelection(true)
+        local all_job_name_shorts = L{}
+        for i = 1, 22 do
+            all_job_name_shorts:append(res.jobs[i].ens)
+        end
+        local current_job_name_shorts = allSettings.Entrust:get_conditions():firstWhere(function(condition)
+            return condition.__type == JobCondition.__type
+        end).job_name_shorts
+        local jobPickerConfigItem = MultiPickerConfigItem.new('JobNames', current_job_name_shorts, all_job_name_shorts, function(job_names)
+            return localization_util.commas(job_names:map(function(job_name_short) return i18n.resource('jobs', 'ens', job_name_short) end), 'or')
+        end, "Target's Job")
+        jobPickerConfigItem:setPickerTitle("Jobs")
+        jobPickerConfigItem:setPickerDescription("Choose one or more jobs.")
+        jobPickerConfigItem:setAutoSave(true)
+        jobPickerConfigItem:setPickerTextFormat(function(job_name_short)
+            return i18n.resource('jobs', 'ens', job_name_short)
+        end)
 
-        self.dispose_bag:add(entrustSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(cursorIndexPath)
-            local spell = self.entrustSpells[cursorIndexPath.row]
-            if spell then
-                infoView:setDescription("Use when: Ally job is "..localization_util.commas(spell:get_job_names(), "or"))
-            end
-        end), entrustSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath())
+        local configItems = L{
+            spellPickerConfigItem,
+            jobPickerConfigItem
+        }
+
+        local entrustSettings = {
+            Spell = allSettings.Entrust,
+            JobNames = current_job_name_shorts,
+        }
+
+        local entrustSettingsEditor = ConfigEditor.new(trustSettings, entrustSettings, configItems, infoView, function(_) return true end, showMenu)
+        entrustSettingsEditor:setShouldRequestFocus(true)
+
+        self.dispose_bag:add(entrustSettingsEditor:onConfigChanged():addAction(function(newSettings, oldSettings)
+            allSettings.Entrust = Spell.new(newSettings.Spell:get_name(), L{ "Entrust" }, L{}, nil, L{ JobCondition.new(newSettings.JobNames) })
+
+            self.trustSettings:saveSettings(true)
+
+            trust:get_party():add_to_chat(trust:get_party():get_player(), "I'll use "..newSettings.Spell:get_name().." with entrust now!")
+        end), entrustSettingsEditor:onConfigChanged())
+
+        self.dispose_bag:add(entrustSettingsEditor:onConfigItemChanged():addAction(function(configKey, newValue, oldValue)
+
+        end), entrustSettingsEditor:onConfigItemChanged())
 
         self.entrustSettingsEditor = entrustSettingsEditor
 
@@ -52,82 +89,6 @@ function EntrustSettingsMenuItem:destroy()
     MenuItem.destroy(self)
 
     self.dispose_bag:destroy()
-end
-
-function EntrustSettingsMenuItem:reloadSettings()
-    self:setChildMenuItem("Add", self:getAddMenuItem())
-    self:setChildMenuItem("Remove", self:getRemoveMenuItem())
-    self:setChildMenuItem("Targets", self:getTargetsMenuItem())
-end
-
-function EntrustSettingsMenuItem:getAddMenuItem()
-    local addSpellMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
-    }, L{}, function(menuArgs)
-        local allSpells = self.trust:get_job():get_spells(function(spellId)
-            local spell = res.spells[spellId]
-            return spell and spell.skill == 44 and S{ 'Self' }:equals(S(spell.targets))
-        end):map(function(spellId) return Spell.new(res.spells[spellId].en) end)--:sort()
-
-        local configItem = MultiPickerConfigItem.new("Entrust", L{}, allSpells, function(spell)
-            return spell:get_localized_name()
-        end, "Entrust", nil, function(spell)
-            return AssetManager.imageItemForSpell(spell:get_name())
-        end)
-
-        local chooseSpellsView = FFXIPickerView.withConfig(L{ configItem }, false)
-        chooseSpellsView:on_pick_items():addAction(function(_, selectedItems)
-            local spell = Spell.new(selectedItems[1]:get_name(), L{ 'Entrust' }, job_util.all_jobs())
-            self.entrustSpells:append(spell)
-
-            self.trustSettings:saveSettings(true)
-            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll use "..spell:get_name().." now!")
-        end)
-        return chooseSpellsView
-    end, "Entrust", "Add indicolures to entrust on party members.")
-    return addSpellMenuItem
-end
-
-function EntrustSettingsMenuItem:getRemoveMenuItem()
-    return MenuItem.action(function()
-        local cursorIndexPath = self.entrustSettingsEditor:getDelegate():getCursorIndexPath()
-        if cursorIndexPath then
-            local item = self.entrustSettingsEditor:getDataSource():itemAtIndexPath(cursorIndexPath)
-            if item then
-                self.entrustSpells:remove(cursorIndexPath.row)
-                self.entrustSettingsEditor:getDataSource():removeItem(cursorIndexPath)
-
-                self.trustSettings:saveSettings(true)
-            end
-        end
-    end, "Gambits", "Remove the selected gambit.")
-end
-
-function EntrustSettingsMenuItem:getTargetsMenuItem()
-    local spellTargetsMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
-    }, L{}, function(_)
-        local cursorIndexPath = self.entrustSettingsEditor:getDelegate():getCursorIndexPath()
-        if cursorIndexPath then
-            local spell = self.entrustSpells[cursorIndexPath.row]
-
-            local configItem = MultiPickerConfigItem.new("Targets", spell:get_job_names(), job_util.all_jobs(), function(jobNameShort)
-                return i18n.resource('jobs', 'ens', jobNameShort)
-            end, "Targets")
-
-            local chooseSpellsView = FFXIPickerView.withConfig(L{ configItem }, true)
-            chooseSpellsView:on_pick_items():addAction(function(_, selectedJobs)
-                spell:set_job_names(selectedJobs)
-
-                self.trustSettings:saveSettings(true)
-                addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated the jobs to entrust with "..spell:get_name()..".")
-            end)
-            return chooseSpellsView
-        end
-        return nil
-    end, "Entrust", "Choose which jobs to entrust with this indicolure.")
-
-    return spellTargetsMenuItem
 end
 
 return EntrustSettingsMenuItem
