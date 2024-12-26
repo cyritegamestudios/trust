@@ -282,6 +282,9 @@ function ConfigEditor:getCellItemForConfigItem(configItem)
                 self.configSettings[configItem:getKey()] = newValue
             end
             addon_system_message("Your choices have been updated.")
+            if configItem:getAutoSave() then
+                self:onConfirmClick()
+            end
         end)
         return pickerItem
     elseif configItem.__type == TextInputConfigItem.__type then
@@ -303,6 +306,7 @@ function ConfigEditor:onConfirmClick(skipSave)
     else
         originalSettings = T(self.configSettings):copy(true)
     end
+
     for sectionIndex = 1, self:getDataSource():numberOfSections(), 1 do
         local configItem = self.configItems[sectionIndex]
         if configItem then

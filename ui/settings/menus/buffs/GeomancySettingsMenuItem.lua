@@ -18,6 +18,7 @@ function GeomancySettingsMenuItem.new(trust, trustSettings, trustSettingsMode, t
 
     self.trust = trust
     self.trustSettings = trustSettings
+    self.trustSettingsMode = trustSettingsMode
     self.trustModeSettings = trustModeSettings
     self.geomancySettings = geomancySettings
     self.entrustSpells = entrustSpells
@@ -102,7 +103,7 @@ function GeomancySettingsMenuItem:destroy()
 end
 
 function GeomancySettingsMenuItem:reloadSettings()
-    self:setChildMenuItem("Entrust", EntrustSettingsMenuItem.new(self.trust, self.trustSettings, self.entrustSpells))
+    self:setChildMenuItem("Entrust", EntrustSettingsMenuItem.new(self.trust, self.trustSettings, self.trustSettingsMode))
     self:setChildMenuItem("Modes", self:getModesMenuItem())
 end
 

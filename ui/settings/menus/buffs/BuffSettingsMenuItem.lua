@@ -60,10 +60,13 @@ function BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, setti
             else
                 local buff = buffs[indexPath.row]
                 if buff then
-                    local description = buff:get_conditions():map(function(condition)
-                        return condition:tostring()
-                    end)
-                    description = "Use when: "..localization_util.commas(description)
+                    local description = "Use when: Always"
+                    if buff:get_conditions():length() > 0 then
+                        description = buff:get_conditions():map(function(condition)
+                            return condition:tostring()
+                        end)
+                        description = "Use when: "..localization_util.commas(description)
+                    end
                     if buff.get_job_abilities and buff:get_job_abilities():length() > 0 then
                         description = description..", Use with: "..localization_util.commas(buff:get_job_abilities(), 'and')
                     end

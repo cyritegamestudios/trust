@@ -296,4 +296,12 @@ function Spell:__tostring()
     return self:description()
 end
 
+function Spell:copy()
+    local conditions = L{}
+    for condition in self:get_conditions():it() do
+        conditions:append(condition:copy())
+    end
+    return Spell.new(self.spell_name, self.job_abilities, self.job_names, self.target, conditions, self.consumable )
+end
+
 return Spell

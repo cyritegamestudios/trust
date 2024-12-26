@@ -24,7 +24,7 @@ state.AutoEntrustMode:set_description('Auto', "Okay, I'll entrust Indicolure spe
 function GeomancerTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = Geomancer.new()
 	local roles = S{
-		Buffer.new(action_queue, trust_settings.SelfBuffs, trust_settings.PartyBuffs, state.AutoEntrustMode),
+		Buffer.new(action_queue, trust_settings.SelfBuffs, L{ trust_settings.Geomancy.Entrust }, state.AutoEntrustMode),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{ 'Theurgic Focus' }, job),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		ManaRestorer.new(action_queue, L{"Spirit Taker", "Moonlight"}, L{}, 40)
@@ -66,7 +66,7 @@ function GeomancerTrust:on_init()
 
 		local buffer = self:role_with_type("buffer")
 		buffer:set_self_buffs(new_trust_settings.SelfBuffs)
-		buffer:set_party_buffs(new_trust_settings.PartyBuffs)
+		buffer:set_party_buffs(L{ new_trust_settings.Geomancy.Entrust })
 
 		local puller = self:role_with_type("puller")
 		if puller then

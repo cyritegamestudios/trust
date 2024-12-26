@@ -197,4 +197,12 @@ function MultiPickerConfigItem:getPickerTextFormat()
     end
 end
 
+function MultiPickerConfigItem:setAutoSave(autoSave)
+    self.autoSave = autoSave
+end
+
+function MultiPickerConfigItem:getAutoSave()
+    return self.autoSave
+end
+
 return MultiPickerConfigItem

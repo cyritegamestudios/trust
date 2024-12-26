@@ -126,7 +126,7 @@ function ConfigSettingsMenuItem:getLanguageSettingsMenuItem(addonSettings)
                     return 'English'
                 end
             end),
-            BooleanConfigItem.new('UseClientLocale', "Use client langauge for actions"),
+            BooleanConfigItem.new('UseClientLocale', "Use client language for actions"),
         }
         local languageConfigEditor = ConfigEditor.new(addonSettings, languageSettings, configItems)
 

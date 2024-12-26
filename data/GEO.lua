@@ -44,7 +44,8 @@ return {
         },
         Geomancy = {
             Indi = Spell.new("Indi-Fury", L{}, L{}, nil, L{}),
-            Geo = Spell.new("Geo-Frailty", L{}, L{}, "bt", L{})
+            Geo = Spell.new("Geo-Frailty", L{}, L{}, "bt", L{}),
+            Entrust = Spell.new("Indi-Haste", L{ 'Entrust' }, nil, nil, L{ JobCondition.new(job_util.all_jobs()) })
         },
         PullSettings = {
             Abilities = L{

@@ -308,7 +308,7 @@ end
 -- @treturn List of localized buff names (see buffs.lua)
 function Monster:get_buffs()
     return L(self.buff_ids:map(function(buff_id)
-        return res.buffs:with('id', buff_id).enl
+        return res.buffs[buff_id].enl
     end))
 end
 
