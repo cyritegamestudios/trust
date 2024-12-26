@@ -161,6 +161,11 @@ end
 -- @tparam string buff_id Buff id (see buffs.lua)
 -- @treturn string Buff name (see buffs.lua)
 function buff_util.buff_name(buff_id)
+	if res.buffs[buff_id] then
+		return res.buffs[buff_id].en
+	elseif buffs_ext[buff_id] then
+		return buffs_ext[buff_id].en
+	end
 	return res.buffs:with('id', buff_id).en
 end
 
