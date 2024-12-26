@@ -80,8 +80,6 @@ function EntrustSettingsMenuItem.new(trust, trustSettings, trustSettingsMode)
         return entrustSettingsEditor
     end
 
-    self:reloadSettings()
-
     return self
 end
 

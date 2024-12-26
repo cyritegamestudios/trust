@@ -21,7 +21,11 @@ function Migration_v19:perform(trustSettings, _, _)
     local modeNames = list.subtract(L(T(trustSettings:getSettings()):keyset()), L{'Version','Migrations'})
     local defaultSettings = T(trustSettings:getDefaultSettings().Default):clone()
     for modeName in modeNames:it() do
-        trustSettings:getSettings()[modeName].Geomancy.Entrust = defaultSettings.Geomancy.Entrust
+        if trustSettings:getSettings()[modeName].Geomancy == nil then
+            trustSettings:getSettings()[modeName].Geomancy = defaultSettings.Geomancy
+        else
+            trustSettings:getSettings()[modeName].Geomancy.Entrust = defaultSettings.Geomancy.Entrust
+        end
     end
 end
 
