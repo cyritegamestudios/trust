@@ -55,6 +55,12 @@ function Follower:on_add()
         ValidTargetCondition.new(),
     }
 
+    self.dispose_bag:add(state.AutoFollowMode:on_state_change():addAction(function(_, new_value)
+        if state.AutoFollowMode.value == 'Off' then
+            self:stop_following()
+        end
+    end), state.AutoTargetMode:on_state_change())
+
     self.dispose_bag:add(self:get_party():on_party_assist_target_change():addAction(function(_, assist_target)
         if self:get_follow_target() == nil and assist_target then
             self:follow_target_named(assist_target:get_name())

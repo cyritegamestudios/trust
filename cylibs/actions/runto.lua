@@ -53,6 +53,7 @@ end
 
 function RunToAction:run_to(distance, retry_count)
 	if self:is_cancelled() then
+		self:complete(false)
 		return
 	end
 	windower.ffxi.follow()
