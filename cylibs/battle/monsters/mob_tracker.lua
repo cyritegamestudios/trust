@@ -30,7 +30,7 @@ function MobTracker.new(on_party_member_added, on_party_member_removed)
     self.mob_ko = Event.newEvent()
 
     self.dispose_bag:add(on_party_member_added:addAction(function(t)
-        self.dispose_bag:add(t:on_target_change():addAction(function(_, new_target_index, _)
+        self.dispose_bag:add(t:on_target_change():addAction(function(_, new_target_index, old_target_index)
             self:add_mob_by_index(new_target_index)
             self:prune_mobs()
         end), t:on_target_change())
@@ -163,7 +163,7 @@ end
 function MobTracker:prune_mobs()
     local mob_ids_to_remove = L{}
     for id, mob in pairs(self.mobs) do
-        if not battle_util.is_valid_target(id) or (mob:get_mob().claim_id ~= nil and mob:get_mob().claim_id ~= 0 and not self.player_ids:contains(mob:get_mob().claim_id)) or L{ 'Idle' }:contains(mob:get_status()) and mob:get_distance():sqrt() > 50 then
+        if not battle_util.is_valid_target(id) or (mob:get_mob().claim_id ~= nil and mob:get_mob().claim_id ~= 0 and not self.player_ids:contains(mob:get_mob().claim_id)) or L{ 'Idle' }:contains(mob:get_status()) or mob:get_distance():sqrt() > 50 then
             mob_ids_to_remove:append(id)
         end
     end

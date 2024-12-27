@@ -17,7 +17,7 @@ end
 
 function ValidTargetCondition:is_satisfied(target_index)
     local target = windower.ffxi.get_mob_by_index(target_index)
-    if target == nil or self.blacklist_names:contains(target.name) then
+    if target == nil or self.blacklist_names:contains(target.name) or not target.valid_target then
         return false
     end
     return true

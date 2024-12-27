@@ -40,7 +40,7 @@ function Targeter:check_state_for_assist(assist_target)
 end
 
 function Targeter:on_add()
-    self.mob_filter = MobFilter.new(25, function(mob1, mob2)
+    self.mob_filter = MobFilter.new(self:get_alliance(), 25, function(mob1, mob2)
         local party_target_indices = S(self:get_party():get_party_members(true):map(function(p)
             return p:get_target_index()
         end))

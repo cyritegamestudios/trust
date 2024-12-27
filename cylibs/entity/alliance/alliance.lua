@@ -306,6 +306,15 @@ function Alliance:get_parties()
 end
 
 -------
+-- Returns the list of alliance member ids.
+-- @treturn list List of mob ids
+function Alliance:get_alliance_member_ids()
+    return self:get_alliance_members():map(function(alliance_member)
+        return alliance_member:get_id()
+    end)
+end
+
+-------
 -- Returns whether the target is claimed by an alliance member.
 -- @tparam number target_index Target index
 -- @treturn Monster Monster targeted by the alliance, or nil if not alliance targeted
