@@ -76,7 +76,7 @@ function MagicBurster:on_add()
             local spell = res.spells[spell_id]
             if spell and S{'Enemy'}:intersection(S(spell.targets)):length() > 0 and S{'BlackMagic', 'BlueMagic'}:contains(spell.type) then
                 if self.job:knows_spell(spell.id) then
-                    self:cast_spell(Spell.new(spell.name))
+                    self:cast_spell(Spell.new(spell.en))
                 else
                     local spell = self:get_spell(Element.new(res.elements[spell.element].en))
                     if spell then
