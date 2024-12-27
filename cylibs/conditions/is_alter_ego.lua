@@ -2,18 +2,15 @@
 -- Condition checking whether the target is an Alter Ego.
 -- @class module
 -- @name IsAlterEgoCondition
-local serializer_util = require('cylibs/util/serializer_util')
 
 local Condition = require('cylibs/conditions/condition')
-local BooleanConfigItem = require('ui/settings/editors/config/BooleanConfigItem')
 local IsAlterEgoCondition = setmetatable({}, { __index = Condition })
 IsAlterEgoCondition.__index = IsAlterEgoCondition
 IsAlterEgoCondition.__type = "IsAlterEgoCondition"
 IsAlterEgoCondition.__class = "IsAlterEgoCondition"
 
-function IsAlterEgoCondition.new(is_alter_ego)
+function IsAlterEgoCondition.new()
     local self = setmetatable(Condition.new(), IsAlterEgoCondition)
-    self.is_alter_ego = false
     return self
 end
 
@@ -32,9 +29,6 @@ function IsAlterEgoCondition:is_satisfied(target_index)
 end
 
 function IsAlterEgoCondition:get_config_items()
-    return L{
-        BooleanConfigItem.new('is_alter_ego', 'Is Alter Ego')
-    }
 end
 
 function IsAlterEgoCondition:tostring()
@@ -50,7 +44,7 @@ function IsAlterEgoCondition.valid_targets()
 end
 
 function IsAlterEgoCondition:serialize()
-    return "IsAlterEgoCondition.new(" .. serializer_util.serialize_args(self.is_alter_ego) .. ")"
+    return "IsAlterEgoCondition.new()"
 end
 
 return IsAlterEgoCondition

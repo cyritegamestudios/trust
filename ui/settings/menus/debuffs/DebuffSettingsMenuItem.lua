@@ -107,7 +107,7 @@ function DebuffSettingsMenuItem:getAllDebuffs(targets)
             local spell = res.spells[spellId]
             if spell then
                 local status = buff_util.buff_for_spell(spell.id)
-                return status ~= nil and buff_util.is_debuff(status.id) and S{ 32, 35, 36, 39, 40, 41, 42 }:contains(spell.skill) and targets:intersection(S(spell.targets)):length() > 0
+                return status ~= nil and buff_util.is_debuff(status.id) and S{ 32, 35, 36, 37, 39, 40, 41, 42 }:contains(spell.skill) and targets:intersection(S(spell.targets)):length() > 0
             end
             return false
         end):map(function(spellId)
