@@ -65,6 +65,7 @@ local debuffs = T{
 	[193] = S{463,471,376,377}, --lullabies
 	[194] = S{421,422,423}, --elegy
 	[217] = S{454,455,456,457,458,459,460,461,871,872,873,874,875,876,877,878}, --threnodies
+	[223] = S{472}, -- nocturne
 	[299] = S{}, --overload
 	[391] = S{202}, -- sluggish daze
 	[392] = S{202}, -- sluggish daze
