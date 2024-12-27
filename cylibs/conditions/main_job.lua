@@ -22,9 +22,9 @@ function MainJobCondition:is_satisfied(target_index)
     if target then
         local party = player.party
         if party then
-           local party_member = party:get_party_member(target.id)
-            if party_member then
-                return party_member:get_main_job_short() == self.job_name_short
+            local player = party:get_player()
+            if player then
+                return player:get_main_job_short() == self.job_name_short
             end
         end
     end

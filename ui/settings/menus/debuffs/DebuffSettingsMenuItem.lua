@@ -139,6 +139,12 @@ function DebuffSettingsMenuItem:getAddDebuffMenuItem()
                         return buff:get_localized_name()
                     end, "Spells", nil, function(buff)
                         return AssetManager.imageItemForSpell(buff:get_name())
+                    end, function(debuff)
+                        local description = debuff:get_localized_description()
+                        if description then
+                            return "Inflicts: "..description
+                        end
+                        return nil
                     end),
                     --[[MultiPickerConfigItem.new("JobAbilities", L{}, allDebuffs[2], function(buff)
                         return buff:get_localized_name()

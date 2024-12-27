@@ -277,6 +277,14 @@ function Spell:get_localized_name()
     return i18n.resource('spells', 'en', self:get_name())
 end
 
+function Spell:get_localized_description()
+    local buff = buff_util.buff_for_spell(self:get_spell().id)
+    if buff then
+        return i18n.resource('buffs', 'en', buff.en)
+    end
+    return nil
+end
+
 function Spell:serialize()
     local conditions_classes_to_serialize = Condition.defaultSerializableConditionClasses()
     local conditions_to_serialize = self.conditions:filter(function(condition)
