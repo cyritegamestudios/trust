@@ -120,6 +120,7 @@ function Condition.defaultSerializableConditionClasses()
         InTownCondition.__class,
         ZoneChangeCondition.__class,
         BeginCastCondition.__class,
+        HasCumulativeMagicEffectCondition.__class,
     }
 end
 
