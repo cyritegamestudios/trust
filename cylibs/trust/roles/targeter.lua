@@ -164,6 +164,7 @@ function Targeter:get_all_targets()
         if self:get_target() then
             return mob.id ~= self:get_target().id
         end
+        return true
     end)
     return targets or L{}
 end

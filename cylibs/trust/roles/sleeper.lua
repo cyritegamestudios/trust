@@ -1,3 +1,5 @@
+local DisposeBag = require('cylibs/events/dispose_bag')
+local MobFilter = require('cylibs/battle/monsters/mob_filter')
 local monster_util = require('cylibs/util/monster_util')
 local SleepTracker = require('cylibs/battle/sleep_tracker')
 local spell_util = require('cylibs/util/spell_util')
@@ -13,6 +15,7 @@ function Sleeper.new(action_queue, sleep_spells, min_mobs_to_sleep)
 
     self:set_sleep_spells(sleep_spells)
 
+    self.dispose_bag = DisposeBag.new()
     self.last_sleep_time = os.time()
     self.min_mobs_to_sleep = min_mobs_to_sleep or 2
 
@@ -22,49 +25,44 @@ end
 function Sleeper:destroy()
     Role.destroy(self)
 
+    self.dispose_bag:destroy()
+
     self.sleep_tracker:destroy()
 end
 
 function Sleeper:on_add()
     Role.on_add(self)
 
-    self.sleep_tracker = SleepTracker.new()
-    self.sleep_tracker:monitor()
-end
+    self.mob_filter = MobFilter.new(self:get_alliance(), 20)
 
-function Sleeper:target_change(target_index)
-    Role.target_change(self, target_index)
+    self.dispose_bag:addAny(L{ self.mob_filter })
 end
 
 function Sleeper:tic(new_time, old_time)
-    if state.AutoSleepMode.value == 'Off' or (os.time() - self.last_sleep_time) < 6 or self:get_player():is_moving() then
+    if state.AutoSleepMode.value == 'Off' or (os.time() - self.last_sleep_time) < 2 or self:get_player():is_moving() then
         return
     end
     self:check_sleep()
 end
 
 function Sleeper:check_sleep()
-    local mobs_to_sleep = L{}
+    local conditions = L{
+        NotCondition.new(L{ HasDebuffCondition.new('sleep') })
+    }
 
-    local nearby_mobs = windower.ffxi.get_mob_array()
-    for _, target in pairs(nearby_mobs) do
-        if target and target.hpp > 0 and target.distance:sqrt() <= 12 then
-            if monster_util.immune_to_debuff(target.name, 'sleep') then
-                self:get_party():add_to_chat(self:get_party():get_player(), "I can't sleep because the "..target.name.." is in the way.", "sleeper_immune_sleep", 15)
-                return
-            end
+    local targets = self.mob_filter:get_nearby_mobs(L{ MobFilter.Type.Aggroed, MobFilter.Type.Unclaimed }):filter(function(mob)
+        local monster = self:get_alliance():get_target_by_index(mob.index)
+        if monster then
+            return Condition.check_conditions(conditions, mob.index)
+                    and not monster_util.immune_to_debuff(mob.name, 'sleep')
         end
-        if target and target.hpp > 0 and L{0, 1}:contains(target.status) and target.distance:sqrt() <= 12 and target.valid_target and target.spawn_type == 16 then
-            if not self.sleep_tracker:is_sleeping(target.id) then
-                mobs_to_sleep:append(target)
-            end
-        end
-    end
+        return false
+    end)
 
-    if mobs_to_sleep:length() >= self.min_mobs_to_sleep then
+    if targets:length() >= self.min_mobs_to_sleep then
         for sleep_spell in self.sleep_spells:it() do
-            if not spell_util.is_spell_on_cooldown(sleep_spell:get_spell().id) then
-                self:cast_spell(sleep_spell, mobs_to_sleep[1].index)
+            if Condition.check_conditions(sleep_spell:get_conditions(), windower.ffxi.get_player().index) then
+                self:cast_spell(sleep_spell, targets[1].index)
                 return
             end
         end

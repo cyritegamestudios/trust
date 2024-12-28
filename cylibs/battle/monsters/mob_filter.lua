@@ -11,13 +11,6 @@ local ClaimedCondition = require('cylibs/conditions/claimed')
 local ConditionalCondition = require('cylibs/conditions/conditional')
 local UnclaimedCondition = require('cylibs/conditions/unclaimed')
 
-local DisposeBag = require('cylibs/events/dispose_bag')
-local Event = require('cylibs/events/Luvent')
-local logger = require('cylibs/logger/logger')
-local Monster = require('cylibs/battle/monster')
-local monster_util = require('cylibs/util/monster_util')
-local packets = require('packets')
-
 MobFilter.Type = {}
 MobFilter.Type.All = "All"
 MobFilter.Type.Aggroed = "Aggroed"
