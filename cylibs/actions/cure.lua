@@ -16,7 +16,7 @@ function CureAction.new(x, y, z, party_member, cure_threshold, mp_cost, healer_j
     local conditions = L{
         HitPointsPercentRangeCondition.new(1, cure_threshold, party_member:get_mob().index),
         MaxDistanceCondition.new(20),
-        NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'mute'}, 1)}, windower.ffxi.get_player().index),
+        NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'mute', 'stun'}, 1)}, windower.ffxi.get_player().index),
         MinManaPointsCondition.new(mp_cost, windower.ffxi.get_player().index),
         ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos()),
     }
