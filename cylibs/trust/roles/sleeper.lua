@@ -1,7 +1,6 @@
 local DisposeBag = require('cylibs/events/dispose_bag')
 local MobFilter = require('cylibs/battle/monsters/mob_filter')
 local monster_util = require('cylibs/util/monster_util')
-local SleepTracker = require('cylibs/battle/sleep_tracker')
 local spell_util = require('cylibs/util/spell_util')
 
 local Sleeper = setmetatable({}, {__index = Role })
@@ -26,8 +25,6 @@ function Sleeper:destroy()
     Role.destroy(self)
 
     self.dispose_bag:destroy()
-
-    self.sleep_tracker:destroy()
 end
 
 function Sleeper:on_add()
