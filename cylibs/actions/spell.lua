@@ -6,6 +6,7 @@
 local DisposeBag = require('cylibs/events/dispose_bag')
 local res = require('resources')
 local SpellCommand = require('cylibs/ui/input/chat/commands/spell')
+local StandingCondition = require('cylibs/conditions/is_standing')
 local ValidSpellTargetCondition = require('cylibs/conditions/valid_spell_target')
 
 local Action = require('cylibs/actions/action')
@@ -20,6 +21,7 @@ function SpellAction.new(x, y, z, spell_id, target_index, player, conditions)
 		MinManaPointsCondition.new(res.spells[spell_id].mp_cost or 0, windower.ffxi.get_player().index),
 		SpellRecastReadyCondition.new(spell_id),
 		ValidSpellTargetCondition.new(res.spells[spell_id].en, alter_ego_util.untargetable_alter_egos()),
+		StandingCondition.new(1, ">="),
 	})
 
 	if res.spells[spell_id].type == 'Trust' then
