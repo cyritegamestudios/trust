@@ -208,6 +208,10 @@ end
 function Spell:to_action(target_index, player, job_abilities)
     local actions = L{}
 
+    if player:is_moving() then
+        actions:append(WaitAction.new(0, 0, 0, 0.5))
+    end
+
     local job_abilities = (job_abilities or self:get_job_abilities()):map(function(job_ability_name)
         local conditions = L{}
 

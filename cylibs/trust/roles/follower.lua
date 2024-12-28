@@ -26,6 +26,7 @@ function Follower.new(action_queue, follow_distance, addon_settings)
     self.distance = follow_distance or 1
     self.maxfollowdistance = 35
     self.maxfollowpoints = 100
+    self.following = false
     self.max_zone_distance = 1
     self.zone_cooldown = 5
     self.last_position = vector.zero(3)
@@ -78,6 +79,14 @@ function Follower:on_add()
     self.action_events.status = windower.register_event('status change', function(new_status_id, old_status_id)
         self:on_player_status_change(new_status_id, old_status_id)
     end)
+
+    self.dispose_bag:add(self.action_queue:on_action_start():addAction(function(_, action)
+        self:stop_following()
+    end), self.action_queue:on_action_end())
+
+    self.dispose_bag:add(self.action_queue:on_action_end():addAction(function(a, success)
+        self:start_following()
+    end), self.action_queue:on_action_end())
 end
 
 -------
@@ -103,6 +112,8 @@ function Follower:start_following()
     self.walk_action_queue:clear()
     self.walk_action_queue:enable()
     windower.ffxi.run(false)
+
+    self:check_distance()
 end
 
 function Follower:stop_following()

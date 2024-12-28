@@ -143,7 +143,7 @@ function Buffer:check_buffs()
     end
 
     if self:get_player():is_moving() then
-        return
+       return
     end
 
     -- Spells (self buffs)
