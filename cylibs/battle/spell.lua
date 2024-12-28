@@ -209,6 +209,9 @@ function Spell:to_action(target_index, player, job_abilities)
     local actions = L{}
 
     if player:is_moving() then
+        actions:append(BlockAction.new(function()
+            windower.ffxi.run(false)
+        end), 'stop_moving')
         actions:append(WaitAction.new(0, 0, 0, 0.5))
     end
 
