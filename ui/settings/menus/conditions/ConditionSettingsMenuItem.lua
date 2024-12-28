@@ -64,6 +64,7 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
         [InTownCondition.__type] = "in_town",
         [BeginCastCondition.__type] = "begin_cast",
         [HasCumulativeMagicEffectCondition.__type] = "has_cumulative_magic_effect",
+        [StatusCondition.__type] = "status",
     }
     self.conditionPickerItems = L(self.editableConditionClasses:keyset()):filter(function(c)
         local conditionClass = self:getFileForCondition(c)

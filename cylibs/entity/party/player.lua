@@ -102,6 +102,17 @@ function Player:set_zone_id(zone_id, zone_line, zone_type)
 end
 
 -------
+-- Returns the localized status of the player.
+-- @treturn string Status of the player (see res/statuses.lua)
+function Player:get_status()
+    local mob = self:get_mob()
+    if mob then
+        return res.statuses[mob.status].en
+    end
+    return 'Idle'
+end
+
+-------
 -- Returns the item id of the main weapon equipped.
 -- @tparam number Item id of main weapon equipped (see res/items.lua)
 function Player:get_main_weapon_id()
