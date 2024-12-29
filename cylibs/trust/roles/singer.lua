@@ -256,6 +256,13 @@ function Singer:sing_song(song, target_index, should_nitro, allow_self_pianissim
         local conditions = L{}
         local extra_duration = 0
 
+        if self:get_player():is_moving() then
+            actions:append(BlockAction.new(function()
+                windower.ffxi.run(false)
+            end), 'stop_moving')
+            actions:append(WaitAction.new(0, 0, 0, 0.5))
+        end
+
         self.last_sing_time = self:get_last_tic_time()
 
         local job_abilities = L{}
