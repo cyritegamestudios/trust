@@ -87,6 +87,7 @@ function Player.new(id)
     self.pet_id = nil
     self.is_monitoring = false
     self.moving = false
+    self.idle_start_time = os.time()
     self.pet_id = nil
     self.last_position = V{0, 0, 0}
     
@@ -199,9 +200,9 @@ function Player:monitor()
                 local p = packets.parse('outgoing', original)
                 local current_position = ffxi_util.get_player_position()
                 if ffxi_util.distance(self.last_position, current_position) > 0.01 then
-                    self.moving = true
+                    self:set_moving(true)
                 else
-                    self.moving = false
+                    self:set_moving(false)
                 end
                 self.last_position = current_position
                 self:update_target(p['Target Index'])
@@ -264,6 +265,29 @@ end
 -- @treturn boolean True if the player is moving, false otherwise.
 function Player:is_moving()
     return self.moving
+end
+
+-------
+-- Sets whether a player is moving.
+-- @tparam number moving Whether the player is moving.
+function Player:set_moving(moving)
+    if self.moving == moving then
+        return
+    end
+    self.moving = moving
+    if self.moving then
+        self.idle_start_time = os.time()
+    end
+end
+
+-------
+-- Returns the amount of time the player has been idle (not moving).
+-- @treturn number Number of seconds.
+function Player:get_idle_duration()
+    if self:is_moving() then
+        return 0
+    end
+    return math.max(os.time() - self.idle_start_time, 0)
 end
 
 -------

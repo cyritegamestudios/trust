@@ -78,6 +78,8 @@ function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, a
     self.infoBar = TrustInfoBar.new(Frame.new(0, 0, windower.get_windower_settings().ui_x_res - 18, 27))
     self.infoBar:setVisible(false)
 
+    FFXIPickerView.setDefaultInfoView(self.infoBar)
+
     self.infoViewContainer:addSubview(self.infoBar)
 
     self.infoViewContainer:setNeedsLayout()

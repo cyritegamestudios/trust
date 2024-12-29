@@ -7,20 +7,18 @@ local MobFilter = {}
 MobFilter.__index = MobFilter
 MobFilter.__class = "MobFilter"
 
-local DisposeBag = require('cylibs/events/dispose_bag')
-local Event = require('cylibs/events/Luvent')
-local logger = require('cylibs/logger/logger')
-local Monster = require('cylibs/battle/monster')
-local monster_util = require('cylibs/util/monster_util')
-local packets = require('packets')
+local ClaimedCondition = require('cylibs/conditions/claimed')
+local ConditionalCondition = require('cylibs/conditions/conditional')
+local UnclaimedCondition = require('cylibs/conditions/unclaimed')
 
 MobFilter.Type = {}
 MobFilter.Type.All = "All"
 MobFilter.Type.Aggroed = "Aggroed"
 MobFilter.Type.Unclaimed = "Unclaimed"
 
-function MobFilter.new(max_distance, default_sort)
+function MobFilter.new(alliance, max_distance, default_sort)
     local self = setmetatable({}, MobFilter)
+    self.alliance = alliance
     self.max_distance = max_distance or 25
     self.default_sort = default_sort or function(mob1, mob2)
         return mob1.distance < mob2.distance
@@ -39,7 +37,23 @@ function MobFilter:get_nearby_mobs(filter_types)
     local filters = (filter_types or L{ MobFilter.Type.All }):map(function(filter_type)
         return self:get_filter_for_type(filter_type)
     end)
-    local mobs = ffxi_util.find_closest_mobs(L{}, L{}, L{}, self.max_distance):filter(function(mob)
+
+    local mobs = L{}
+    for _, mob in pairs(windower.ffxi.get_mob_array()) do
+        mobs:append(mob)
+    end
+
+    local conditions = L{
+        ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos()),
+        MinHitPointsPercentCondition.new(1),
+        MaxDistanceCondition.new(50),
+        ConditionalCondition.new(L{ ClaimedCondition.new(S{ self.alliance:get_alliance_member_ids() }), UnclaimedCondition.new() }, Condition.LogicalOperator.Or)
+    }
+
+    mobs = mobs:filter(function(mob)
+        if not Condition.check_conditions(conditions, mob.index) or mob.spawn_type ~= 16 then
+            return false
+        end
         for filter in filters:it() do
             if not filter(mob) then
                 return false
@@ -47,6 +61,7 @@ function MobFilter:get_nearby_mobs(filter_types)
         end
         return true
     end)
+
     return mobs:sort(self.default_sort)
 end
 

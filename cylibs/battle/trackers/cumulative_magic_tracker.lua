@@ -34,6 +34,10 @@ function CumulativeMagicEffect:get_spell_name()
     return res.spells[self.spell_id].en
 end
 
+function CumulativeMagicEffect:get_element()
+    return res.elements[res.spells[self.spell_id].element].en
+end
+
 function CumulativeMagicEffect:get_level()
     return self.level
 end

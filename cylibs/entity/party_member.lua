@@ -109,6 +109,7 @@ function PartyMember.new(id, name)
     self.is_monitoring = false
     self.last_zone_time = os.time()
     self.heartbeat_time = os.time()
+    self.status_change_time = os.time()
     self.dispose_bag = DisposeBag.new()
 
     self.target_change = Event.newEvent()
@@ -139,6 +140,7 @@ function PartyMember.new(id, name)
             self.target_index = party_member_info.mob.target_index
             self:set_position(party_member_info.mob.x, party_member_info.mob.y, party_member_info.mob.z)
             self:set_zone_id(windower.ffxi.get_info().zone)
+            self:set_status(party_member_info.mob.status or 0)
         end
     end
 
@@ -212,6 +214,12 @@ function PartyMember:monitor()
             self:set_target_index(target_index)
         end
     end), WindowerEvents.TargetIndexChanged)
+
+    self.dispose_bag:add(WindowerEvents.StatusChanged:addAction(function(mob_id, status_id)
+        if self:get_id() == mob_id then
+            self:set_status(status_id)
+        end
+    end), WindowerEvents.StatusChanged)
 
     self.dispose_bag:add(WindowerEvents.Equipment.MainWeaponChanged:addAction(function(mob_id, main_weapon_id)
         if self:get_id() == mob_id then
@@ -531,14 +539,28 @@ function PartyMember:get_target_index()
 end
 
 -------
+-- Returns the time in the current status.
+-- @treturn number Number of seconds
+function PartyMember:get_status_duration()
+    return math.max(os.time() - self.status_change_time, 0)
+end
+
+-------
 -- Returns the localized status of the party member.
 -- @treturn string Status of the party member (see res/statuses.lua)
 function PartyMember:get_status()
-    local mob = self:get_mob()
-    if mob then
-        return res.statuses[mob.status].en
+    return res.statuses[self:get_status()].en
+end
+
+-------
+-- Sets the party member's status.
+-- @tparam number status_id Status id (see res/statuses.lua)
+function PartyMember:set_status(status_id)
+    if self.status_id == status_id then
+        return
     end
-    return 'Idle'
+    self.status_id = status_id
+    self.status_change_time = os.time()
 end
 
 -------

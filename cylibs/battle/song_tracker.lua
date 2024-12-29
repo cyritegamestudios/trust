@@ -211,7 +211,7 @@ function SongTracker:check_song_expiration()
 
     for target_id, song_records in pairs(self.active_songs) do
         if song_records then
-            local target = windower.ffxi.get_mob_by_id(target_id)
+            local target = windower.ffxi.get_mob_by_id(target_id) or { name = 'Unknown'}
             for song_record in song_records:it() do
                 logger.notice(target.name.."'s", res.spells[song_record:get_song_id()].name, "has", song_record:get_expire_time() - os.time(), "seconds remaining")
                 if song_record:is_expired() then

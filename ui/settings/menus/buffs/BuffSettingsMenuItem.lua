@@ -8,7 +8,6 @@ local JobAbilityPickerItemMapper = require('ui/settings/pickers/mappers/JobAbili
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local SpellPickerItemMapper = require('ui/settings/pickers/mappers/SpellPickerItemMapper')
-local SpellSettingsEditor = require('ui/settings/SpellSettingsEditor')
 
 local BuffSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 BuffSettingsMenuItem.__index = BuffSettingsMenuItem
@@ -143,11 +142,23 @@ function BuffSettingsMenuItem:getAddBuffMenuItem()
                 return buff:get_localized_name()
             end, "Spells", nil, function(buff)
                 return AssetManager.imageItemForSpell(buff:get_name())
+            end, function(buff)
+                local description = buff:get_localized_description()
+                if description then
+                    return "Grants: "..description
+                end
+                return nil
             end),
             MultiPickerConfigItem.new("JobAbilities", L{}, allBuffs[2], function(buff)
                 return buff:get_localized_name()
             end, "Job Abilities", nil, function(buff)
                 return AssetManager.imageItemForJobAbility(buff:get_name())
+            end, function(buff)
+                local description = buff:get_localized_description()
+                if description then
+                    return "Grants: "..description
+                end
+                return nil
             end),
         }
 

@@ -12,7 +12,7 @@ MultiPickerConfigItem.__type = "MultiPickerConfigItem"
 -- @tparam function Formatter for current value.
 -- @treturn ConfigItem The newly created MultiPickerConfigItem instance.
 --
-function MultiPickerConfigItem.new(key, initialValues, allValues, textFormat, description, onReload, imageItem)
+function MultiPickerConfigItem.new(key, initialValues, allValues, textFormat, description, onReload, imageItem, itemDescription)
     local self = setmetatable({}, MultiPickerConfigItem)
 
     self.key = key
@@ -22,6 +22,9 @@ function MultiPickerConfigItem.new(key, initialValues, allValues, textFormat, de
         return localization_util.commas(values, 'or')
     end
     self.imageItem = imageItem or function(_)
+        return nil
+    end
+    self.itemDescription = itemDescription or function(_)
         return nil
     end
     self.description = description or key
@@ -103,6 +106,15 @@ end
 --
 function MultiPickerConfigItem:getDescription()
     return self.description
+end
+
+---
+-- Gets the item description.
+--
+-- @treturn string The item description.
+--
+function MultiPickerConfigItem:getItemDescription(value)
+    return self.itemDescription(value)
 end
 
 ---

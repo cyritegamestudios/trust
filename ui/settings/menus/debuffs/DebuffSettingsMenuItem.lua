@@ -107,7 +107,7 @@ function DebuffSettingsMenuItem:getAllDebuffs(targets)
             local spell = res.spells[spellId]
             if spell then
                 local status = buff_util.buff_for_spell(spell.id)
-                return status ~= nil and buff_util.is_debuff(status.id) and S{ 32, 35, 36, 39, 40, 41, 42 }:contains(spell.skill) and targets:intersection(S(spell.targets)):length() > 0
+                return status ~= nil and buff_util.is_debuff(status.id) and S{ 32, 35, 36, 37, 39, 40, 41, 42 }:contains(spell.skill) and targets:intersection(S(spell.targets)):length() > 0
             end
             return false
         end):map(function(spellId)
@@ -139,6 +139,12 @@ function DebuffSettingsMenuItem:getAddDebuffMenuItem()
                         return buff:get_localized_name()
                     end, "Spells", nil, function(buff)
                         return AssetManager.imageItemForSpell(buff:get_name())
+                    end, function(debuff)
+                        local description = debuff:get_localized_description()
+                        if description then
+                            return "Inflicts: "..description
+                        end
+                        return nil
                     end),
                     --[[MultiPickerConfigItem.new("JobAbilities", L{}, allDebuffs[2], function(buff)
                         return buff:get_localized_name()

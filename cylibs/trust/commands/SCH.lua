@@ -203,7 +203,8 @@ function ScholarTrustCommands:handle_storm(_, element, include_party)
 
             if include_party then
                 local party_storm = self.trust:get_job():get_storm(element:lower())
-                party_storm:set_job_names(L{'BLM','SCH','RDM','GEO'})
+                party_storm:add_condition(JobCondition.new(L{ 'BLM', 'RDM', 'GEO' }))
+                party_storm:add_condition(NotCondition.new(L{ IsAlterEgoCondition.new() }))
                 update_storm(party_storm, current_settings[arts_name].PartyBuffs)
             end
         end

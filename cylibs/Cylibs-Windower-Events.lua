@@ -56,6 +56,7 @@ WindowerEvents.Spell.Begin = Event.newEvent()
 WindowerEvents.Spell.Finish = Event.newEvent()
 WindowerEvents.StatusRemoval = {}
 WindowerEvents.StatusRemoval.NoEffect = Event.newEvent()
+WindowerEvents.StatusChanged = Event.newEvent()
 
 local main_weapon_id
 local ranged_weapon_id
@@ -244,6 +245,10 @@ local incoming_event_dispatcher = {
             end
             WindowerEvents.TargetIndexChanged:trigger(target_id, packet['Target Index'])
         end
+
+        if packet['Status'] then
+            WindowerEvents.StatusChanged:trigger(target_id, packet['Status'])
+        end
     end,
 
     -- 0x00E
@@ -316,6 +321,10 @@ local incoming_event_dispatcher = {
             if mob then
                 WindowerEvents.PetUpdate:trigger(windower.ffxi.get_player().id, mob.id, mob.index, mob.name, mob.hpp, mob.mpp, mob.tp)
             end
+        end
+
+        if packet['Status'] then
+            WindowerEvents.StatusChanged:trigger(windower.ffxi.get_player().id, packet['Status'])
         end
     end,
 

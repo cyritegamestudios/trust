@@ -25,6 +25,7 @@ end
 
 function RunToLocationAction:can_perform()
 	if self:is_cancelled() then
+		self:complete(false)
 		return false
 	end
 

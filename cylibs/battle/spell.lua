@@ -208,6 +208,13 @@ end
 function Spell:to_action(target_index, player, job_abilities)
     local actions = L{}
 
+    if player:is_moving() then
+        actions:append(BlockAction.new(function()
+            windower.ffxi.run(false)
+        end), 'stop_moving')
+        actions:append(WaitAction.new(0, 0, 0, 0.5))
+    end
+
     local job_abilities = (job_abilities or self:get_job_abilities()):map(function(job_ability_name)
         local conditions = L{}
 
@@ -275,6 +282,14 @@ end
 
 function Spell:get_localized_name()
     return i18n.resource('spells', 'en', self:get_name())
+end
+
+function Spell:get_localized_description()
+    local buff = buff_util.buff_for_spell(self:get_spell().id)
+    if buff then
+        return i18n.resource('buffs', 'en', buff.en)
+    end
+    return nil
 end
 
 function Spell:serialize()
