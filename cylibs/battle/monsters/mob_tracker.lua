@@ -19,6 +19,11 @@ function MobTracker:on_mob_ko()
     return self.mob_ko
 end
 
+-- Event called when targets are added or removed.
+function MobTracker:on_targets_changed()
+    return self.targets_changed
+end
+
 function MobTracker.new(on_party_member_added, on_party_member_removed)
     local self = setmetatable({
         player_ids = S{};
@@ -28,6 +33,7 @@ function MobTracker.new(on_party_member_added, on_party_member_removed)
     }, MobTracker)
 
     self.mob_ko = Event.newEvent()
+    self.targets_changed = Event.newEvent()
 
     self.dispose_bag:add(on_party_member_added:addAction(function(t)
         self.dispose_bag:add(t:on_target_change():addAction(function(_, new_target_index, _)
@@ -56,6 +62,7 @@ function MobTracker:destroy()
     self.mobs = {}
 
     self.mob_ko:removeAllActions()
+    self.targets_changed:removeAllActions()
 
     self.dispose_bag:destroy()
 end
@@ -133,6 +140,8 @@ function MobTracker:add_mob(target_id)
 
     self.mobs[target_id] = mob
 
+    self:on_targets_changed():trigger(self, L{ mob }, L{})
+
     logger.notice("Started tracking", mob:get_name(), mob:get_id(), target_id)
 end
 
@@ -154,6 +163,8 @@ function MobTracker:remove_mob(target_id)
     mob:destroy()
 
     self.mobs[target_id] = nil
+
+    self:on_targets_changed():trigger(self, L{}, L{ mob })
 
     logger.notice("Stopped tracking", mob:get_name(), mob:get_id())
 end

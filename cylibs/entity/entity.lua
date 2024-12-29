@@ -32,6 +32,13 @@ function Entity:get_id()
 end
 
 -------
+-- Returns the mob index.
+-- @treturn number Mob index
+function Entity:get_index()
+    return self:get_mob() and self:get_mob().index or 0
+end
+
+-------
 -- Returns the mob name
 -- @treturn string Mob name
 function Entity:get_name()
