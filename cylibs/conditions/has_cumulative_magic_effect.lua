@@ -1,7 +1,7 @@
 ---------------------------
--- Condition checking whether an enemy has a daze active.
+-- Condition checking whether an enemy has a cumulative magic effect.
 -- @class module
--- @name HasDazeCondition
+-- @name HasCumulativeMagicEffectCondition
 
 local ConfigItem = require('ui/settings/editors/config/ConfigItem')
 local serializer_util = require('cylibs/util/serializer_util')
@@ -24,7 +24,7 @@ end
 function HasCumulativeMagicEffectCondition:is_satisfied(target_index)
     local target = windower.ffxi.get_mob_by_index(target_index)
     if target then
-        local monster = player.party:get_target(target.id)
+        local monster = player.alliance:get_target_by_index(target_index)
         if monster then
             local cumulative_effect = monster:get_cumulative_effect()
             if cumulative_effect and cumulative_effect:get_element() == self.element_name then
@@ -52,7 +52,7 @@ function HasCumulativeMagicEffectCondition:get_config_items()
             return i18n.resource('elements', 'en', element_name)
         end, "Element"),
         PickerConfigItem.new('operator', self.operator, L{ Condition.Operator.GreaterThanOrEqualTo, Condition.Operator.Equals, Condition.Operator.GreaterThan, Condition.Operator.LessThan, Condition.Operator.LessThanOrEqualTo }, nil, "Operator"),
-        ConfigItem.new('level', 1, 10, 1, nil, "Level")
+        ConfigItem.new('level', 1, 5, 1, nil, "Level")
     }
 end
 

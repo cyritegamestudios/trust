@@ -42,7 +42,7 @@ function StatusCondition:get_config_items()
     end):compact_map()
     return L{
         PickerConfigItem.new('status_name', self.status_name, allStatuses, nil, "Status"),
-        ConfigItem.new('duration', 0, 30, 1, function(value) return value.."s" end, "Time in State"),
+        ConfigItem.new('duration', 0, 60, 1, function(value) return value.."s" end, "Time in Status"),
         PickerConfigItem.new('operator', self.operator, L{ Condition.Operator.GreaterThanOrEqualTo, Condition.Operator.Equals, Condition.Operator.GreaterThan, Condition.Operator.LessThan, Condition.Operator.LessThanOrEqualTo }, nil, "Operator")
     }
 end

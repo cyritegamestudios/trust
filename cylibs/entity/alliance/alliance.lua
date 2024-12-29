@@ -311,7 +311,7 @@ end
 function Alliance:get_alliance_member_ids()
     return self:get_alliance_members():map(function(alliance_member)
         return alliance_member:get_id()
-    end)
+    end):compact_map()
 end
 
 -------

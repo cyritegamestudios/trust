@@ -30,7 +30,7 @@ function MobTracker.new(on_party_member_added, on_party_member_removed)
     self.mob_ko = Event.newEvent()
 
     self.dispose_bag:add(on_party_member_added:addAction(function(t)
-        self.dispose_bag:add(t:on_target_change():addAction(function(_, new_target_index, old_target_index)
+        self.dispose_bag:add(t:on_target_change():addAction(function(_, new_target_index, _)
             self:add_mob_by_index(new_target_index)
             self:prune_mobs()
         end), t:on_target_change())

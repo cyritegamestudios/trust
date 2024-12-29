@@ -21,18 +21,15 @@ function IsStandingCondition.new(duration, operator)
 end
 
 function IsStandingCondition:is_satisfied(target_index)
-    local target = windower.ffxi.get_mob_by_index(target_index)
-    if target then
-        if player.player and not player.player:is_moving() then
-            return self:eval(player.player:get_idle_duration(), self.duration, self.operator)
-        end
+    if player.player and not player.player:is_moving() then
+        return self:eval(player.player:get_idle_duration(), self.duration, self.operator)
     end
     return false
 end
 
 function IsStandingCondition:get_config_items()
     return L{
-        ConfigItem.new('duration', 0, 30, 1, function(value) return value.."s" end, "Time Not Moving"),
+        ConfigItem.new('duration', 0, 60, 1, function(value) return value.."s" end, "Time Not Moving"),
         PickerConfigItem.new('operator', self.operator, L{ Condition.Operator.GreaterThanOrEqualTo, Condition.Operator.Equals, Condition.Operator.GreaterThan, Condition.Operator.LessThan, Condition.Operator.LessThanOrEqualTo }, nil, "Operator")
     }
 end
