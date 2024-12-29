@@ -549,7 +549,7 @@ end
 -- Returns the localized status of the party member.
 -- @treturn string Status of the party member (see res/statuses.lua)
 function PartyMember:get_status()
-    return res.statuses[self:get_status()].en
+    return res.statuses[self.status_id].en
 end
 
 -------
