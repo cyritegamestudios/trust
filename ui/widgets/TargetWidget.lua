@@ -116,6 +116,14 @@ function TargetWidget.new(frame, addonSettings, party, trust)
         self:setAction('')
     end), self.actionQueue:on_action_end())
 
+    self:getDisposeBag():add(party.target_tracker:on_targets_changed():addAction(function(t, targets_added, targets_removed)
+        if self.target_index and targets_added:map(function(t)
+            return t:get_index()
+        end):contains(self.target_index) then
+            self:setTarget(self.target_index)
+        end
+    end), party.target_tracker:on_targets_changed())
+
     self:getDisposeBag():add(party:on_party_target_change():addAction(function(_, target_index, _)
         self:setAction('')
         self:setTarget(target_index)
@@ -206,6 +214,10 @@ function TargetWidget:setTarget(target_index)
             end), target:on_tp_move_finish())
 
             self:updateDebuffs()
+        else
+            target = Monster.new(monster_util.id_for_index(target_index))
+
+            self.targetDisposeBag:addAny(L{ target })
         end
         targetText = localization_util.truncate(target and target.name or "", 18)
     end
