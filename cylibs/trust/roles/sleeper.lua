@@ -30,7 +30,11 @@ end
 function Sleeper:on_add()
     Role.on_add(self)
 
+<<<<<<< HEAD
     self.mob_filter = MobFilter.new(self:get_alliance(), 15)
+=======
+    self.mob_filter = MobFilter.new(self:get_alliance(), 20)
+>>>>>>> main
 
     self.dispose_bag:addAny(L{ self.mob_filter })
 end
