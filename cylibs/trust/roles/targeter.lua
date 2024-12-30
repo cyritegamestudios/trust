@@ -148,7 +148,9 @@ end
 
 function Targeter:target_mob(target)
     local conditions = L{ ConditionalCondition.new(L{ UnclaimedCondition.new(target.index), ClaimedCondition.new(self:get_alliance():get_alliance_member_ids()) }, Condition.LogicalOperator.Or) }
-    if not Condition.check_conditions(conditions, target.index) then
+    if target == nil or not Condition.check_conditions(conditions, target.index)
+            or (self:get_target() and self:get_target():get_index() == target.index and self:get_party():get_player():get_status() == 'Engaged') then
+        print('noooo', target == nil, not Condition.check_conditions(conditions, target.index), self:get_target() and self:get_target():get_index() == target.index and self:get_party():get_player():get_status() == 'Engaged')
         return
     end
 
