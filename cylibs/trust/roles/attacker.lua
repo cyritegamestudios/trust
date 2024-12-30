@@ -1,7 +1,9 @@
 local battle_util = require('cylibs/util/battle_util')
-local BlockAction = require('cylibs/actions/block')
+local ClaimedCondition = require('cylibs/conditions/claimed')
 local CommandAction = require('cylibs/actions/command')
+local ConditionalCondition = require('cylibs/conditions/conditional')
 local DisengageAction = require('cylibs/actions/disengage')
+local Engage = require('cylibs/battle/engage')
 
 local Attacker = setmetatable({}, {__index = Role })
 Attacker.__index = Attacker
@@ -65,7 +67,7 @@ function Attacker:check_engage()
         logger.notice(self.__class, 'check_engage', 'Idle')
         if state.AutoEngageMode.value == 'Always' then
             self:attack_mob(target)
-        elseif state.AutoEngageMode.value == 'Mirror' then
+        elseif state.AutoEngageMode.value == 'Mirror' and not self:get_party():get_assist_target():is_player() then
             if self:get_party():get_assist_target():get_status() == 'Engaged' then
                 self:attack_mob(target)
             end
@@ -74,7 +76,7 @@ function Attacker:check_engage()
         end
     elseif current_player_status == 'Engaged' then
         logger.notice(self.__class, 'check_engage', 'Engaged')
-        if state.AutoEngageMode.value == 'Mirror' then
+        if state.AutoEngageMode.value == 'Mirror' and not self:get_party():get_assist_target():is_player() then
             if self:get_party():get_assist_target():get_status() == 'Idle' then
                 self.action_queue:push_action(CommandAction.new(0, 0, 0, '/attackoff'), true)
             else
@@ -96,13 +98,19 @@ function Attacker:check_engage()
 end
 
 function Attacker:attack_mob(target)
+    local conditions = L{ ConditionalCondition.new(L{ UnclaimedCondition.new(target.index), ClaimedCondition.new(self:get_alliance():get_alliance_member_ids()) }, Condition.LogicalOperator.Or) }
+    if not Condition.check_conditions(conditions, target.index)
+            or (self:get_target() and self:get_target():get_index() == target.index and self:get_party():get_player():get_status() == 'Engaged') then
+        return
+    end
+
     if player.status == 'Engaged' and self:is_targeting_self() then
         local disengage_action = DisengageAction.new()
         disengage_action.priority = ActionPriority.high
 
         self.action_queue:push_action(disengage_action, true)
     else
-        local attack_action = BlockAction.new(function() battle_util.target_mob(target.index) end, "attacker_engage")
+        local attack_action = Engage.new(target.index):to_action(target.index)
         attack_action.priority = ActionPriority.high
 
         self.action_queue:push_action(attack_action, true)

@@ -2,6 +2,8 @@ local Targeter = setmetatable({}, {__index = Role })
 Targeter.__index = Targeter
 Targeter.__class = "Targeter"
 
+local ClaimedCondition = require('cylibs/conditions/claimed')
+local ConditionalCondition = require('cylibs/conditions/conditional')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Engage = require('cylibs/actions/engage')
 local MobFilter = require('cylibs/battle/monsters/mob_filter')
@@ -111,7 +113,7 @@ function Targeter:tic(new_time, old_time)
 end
 
 function Targeter:check_target(override_current_target)
-    if state.AutoTargetMode.value == 'Off' or (not override_current_target and os.time() - self.last_checked_targets < 1) then
+    if S{ 'Off', 'Mirror' }:contains(state.AutoTargetMode.value) or (not override_current_target and os.time() - self.last_checked_targets < 1) then
         return
     end
     self.last_checked_targets = os.time()
@@ -145,6 +147,11 @@ function Targeter:check_target(override_current_target)
 end
 
 function Targeter:target_mob(target)
+    local conditions = L{ ConditionalCondition.new(L{ UnclaimedCondition.new(target.index), ClaimedCondition.new(self:get_alliance():get_alliance_member_ids()) }, Condition.LogicalOperator.Or) }
+    if not Condition.check_conditions(conditions, target.index) then
+        return
+    end
+
     if self.action_queue:has_action(self.action_identifier) then
         return
     end
