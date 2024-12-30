@@ -20,9 +20,6 @@ end
 
 function ConditionalCondition:is_satisfied(target_index)
     local satisfied = false
-    if target_index == nil then
-        print(debug.traceback())
-    end
     local target = windower.ffxi.get_mob_by_index(target_index)
     if target then
         for condition in self.conditions:it() do
