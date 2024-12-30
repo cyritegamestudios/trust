@@ -31,7 +31,7 @@ function ConditionalCondition:is_satisfied(target_index)
             end
         end
     end
-    return true
+    return satisfied
 end
 
 function ConditionalCondition:tostring()
