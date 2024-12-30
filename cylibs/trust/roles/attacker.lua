@@ -93,11 +93,6 @@ function Attacker:check_engage()
     end
 end
 
-function Attacker:should_disengage()
-    local assist_target = self:get_party():get_assist_target()
-    return state.AutoEngageMode.value == 'Mirror' and not assist_target:is_player() and assist_target:get_status() == 'Idle'
-end
-
 function Attacker:can_engage(target)
     if target == nil then
         return false
@@ -124,6 +119,11 @@ function Attacker:engage(target)
     attack_action.priority = ActionPriority.high
 
     self.action_queue:push_action(attack_action, true)
+end
+
+function Attacker:should_disengage()
+    local assist_target = self:get_party():get_assist_target()
+    return state.AutoEngageMode.value == 'Mirror' and not assist_target:is_player() and assist_target:get_status() == 'Idle'
 end
 
 function Attacker:disengage()
