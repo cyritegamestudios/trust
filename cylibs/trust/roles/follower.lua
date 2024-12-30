@@ -113,6 +113,9 @@ function Follower:follow_target_named(target_name)
 end
 
 function Follower:start_following()
+    if S{ 'Dead', 'Engaged', 'Resting' }:contains(self:get_party():get_player():get_status()) then
+        return
+    end
     self.walk_action_queue:clear()
     self.walk_action_queue:enable()
     windower.ffxi.run(false)
