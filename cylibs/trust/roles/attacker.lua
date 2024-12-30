@@ -19,8 +19,9 @@ state.AutoEngageMode:set_description('Mirror', "Okay, I'll engage only if the pa
 function Attacker.new(action_queue)
     local self = setmetatable(Role.new(action_queue), Attacker)
     self.action_queue = action_queue
-    self.dispose_bag = DisposeBag.new()
     self.assist_target_dispose_bag = DisposeBag.new()
+    self.dispose_bag = DisposeBag.new()
+    self.dispose_bag:addAny(L{ self.assist_target_dispose_bag })
     return self
 end
 
@@ -28,7 +29,6 @@ function Attacker:destroy()
     Role.destroy(self)
 
     self.dispose_bag:destroy()
-    self.assist_target_dispose_bag:destroy()
 end
 
 function Attacker:on_add()
@@ -37,9 +37,7 @@ function Attacker:on_add()
 
         if not assist_target:is_player() then
             self.assist_target_dispose_bag:add(assist_target:on_status_change():addAction(function(_, _, _)
-                if not assist_target:is_player() then
-                    self:check_engage()
-                end
+                self:check_engage()
             end), assist_target:on_status_change())
         end
     end
