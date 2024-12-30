@@ -87,6 +87,10 @@ function Follower:on_add()
     self.dispose_bag:add(self.action_queue:on_action_end():addAction(function(a, success)
         self:start_following()
     end), self.action_queue:on_action_end())
+
+    self.action_events.zone_change = windower.register_event('zone change', function(_, _)
+        self.walk_action_queue:clear()
+    end)
 end
 
 -------

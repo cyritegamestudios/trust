@@ -84,7 +84,7 @@ function GeomancySettingsMenuItem.new(trust, trustSettings, trustSettingsMode, t
         self.dispose_bag:add(geomancyConfigEditor:onConfigChanged():addAction(function(newSettings, _)
             allSettings.Geomancy.Indi = Spell.new(newSettings.Indicolure)
             allSettings.Geomancy.Geo = Spell.new(newSettings.Geocolure, L{}, L{}, newSettings.Target),
-
+            
             self.trustSettings:saveSettings(true)
         end), geomancyConfigEditor:onConfigChanged())
 
