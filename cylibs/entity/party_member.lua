@@ -23,6 +23,11 @@ function PartyMember:on_target_change()
     return self.target_change
 end
 
+-- Event called when the party member's status changes.
+function PartyMember:on_status_change()
+    return self.status_change
+end
+
 -- Event called when a party member gains a debuff.
 function PartyMember:on_gain_debuff()
     return self.gain_debuff
@@ -125,6 +130,7 @@ function PartyMember.new(id, name)
     self.combat_skills_change = Event.newEvent()
     self.pet_change = Event.newEvent()
     self.spell_finish = Event.newEvent()
+    self.status_change = Event.newEvent()
 
     local party_member_info = party_util.get_party_member_info(id)
     if party_member_info then
@@ -176,6 +182,7 @@ function PartyMember:destroy()
     self.combat_skills_change:removeAllActions()
     self.pet_change:removeAllActions()
     self.spell_finish:removeAllActions()
+    self.status_change:removeAllActions()
 end
 
 -------
@@ -559,8 +566,12 @@ function PartyMember:set_status(status_id)
     if self.status_id == status_id then
         return
     end
+    local old_status_id = self.status_id
+
     self.status_id = status_id
     self.status_change_time = os.time()
+
+    self:on_status_change():trigger(self, res.statuses[self.status_id].en, (old_status_id and res.statuses[old_status_id].en) or 'Idle')
 end
 
 -------

@@ -20,6 +20,7 @@ function Attacker.new(action_queue)
     self.action_queue = action_queue
     self.action_events = {}
     self.dispose_bag = DisposeBag.new()
+    self.assist_target_dispose_bag = DisposeBag.new()
     return self
 end
 
@@ -27,6 +28,7 @@ function Attacker:destroy()
     Role.destroy(self)
 
     self.dispose_bag:destroy()
+    self.assist_target_dispose_bag:destroy()
 
     if self.action_events then
         for _,event in pairs(self.action_events) do
@@ -36,20 +38,21 @@ function Attacker:destroy()
 end
 
 function Attacker:on_add()
-    self.dispose_bag:add(WindowerEvents.StatusChanged:addAction(function(mob_id, status)
-        if state.AutoEngageMode.value ~= 'Mirror' then
-            return
+
+    self.dispose_bag:add(self:get_party():on_party_assist_target_change():addAction(function(_, assist_target)
+        self.assist_target_dispose_bag:dispose()
+
+        if not assist_target:is_player() then
+            self.assist_target_dispose_bag:add(assist_target:on_status_change():addAction(function(_, new_status, _)
+                if state.AutoEngageMode.value ~= 'Mirror' then
+                    return
+                end
+                if new_status ~= self:get_party():get_player():get_status() then
+                    self:check_engage()
+                end
+            end), assist_target:on_status_change())
         end
-        if windower.ffxi.get_mob_by_id(mob_id).name == 'Cyrite' then
-            print(windower.ffxi.get_mob_by_id(mob_id).name, status)
-        end
-        if mob_id == self:get_party():get_assist_target():get_id()
-                and status ~= self:get_party():get_player():get_status() then
-                --and status ~= self.last_status then
-            --self.last_status = t
-            self:check_engage()
-        end
-    end), WindowerEvents.StatusChanged)
+    end), self:get_party():on_party_assist_target_change())
 end
 
 function Attacker:target_change(target_index)
@@ -86,6 +89,7 @@ function Attacker:can_engage(target)
     return true
 end
 
+
 function Attacker:check_engage()
     logger.notice(self.__class, 'check_engage')
 
@@ -109,7 +113,6 @@ function Attacker:check_engage()
                 disengage_action.priority = ActionPriority.high
 
                 self.action_queue:push_action(disengage_action, true)
-                print('disengage', os.time())
             else
                 if self:get_party():get_assist_target():get_status() == 'Engaged' then
                     self:attack_mob(target)

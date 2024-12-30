@@ -251,8 +251,6 @@ local incoming_event_dispatcher = {
             local target = windower.ffxi.get_mob_by_id(target_id)
             if target then
                 WindowerEvents.StatusChanged:trigger(target_id, target.status)
-            else
-                print('status', packet['Index'] or 'no index', packet['Player'] or 'no index')
             end
         end
     end,
