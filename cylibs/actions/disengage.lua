@@ -39,6 +39,8 @@ function DisengageAction:perform()
     p['Y Offset'] = 0
 
     packets.inject(p)
+
+    self:complete(true)
 end
 
 function DisengageAction:gettype()

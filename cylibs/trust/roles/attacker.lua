@@ -40,8 +40,13 @@ function Attacker:on_add()
         if state.AutoEngageMode.value ~= 'Mirror' then
             return
         end
+        if windower.ffxi.get_mob_by_id(mob_id).name == 'Cyrite' then
+            print(windower.ffxi.get_mob_by_id(mob_id).name, status)
+        end
         if mob_id == self:get_party():get_assist_target():get_id()
-                and self:get_party():get_assist_target():get_status() ~= self:get_party():get_player():get_status() then
+                and status ~= self:get_party():get_player():get_status() then
+                --and status ~= self.last_status then
+            --self.last_status = t
             self:check_engage()
         end
     end), WindowerEvents.StatusChanged)
@@ -55,7 +60,6 @@ function Attacker:target_change(target_index)
     else
         self.last_target_self = nil
     end
-
     self:check_engage()
 end
 
@@ -72,11 +76,11 @@ function Attacker:can_engage(target)
     end
 
     local conditions = L{
-        ConditionalCondition.new(L{ UnclaimedCondition.new(target:get_index()), ClaimedCondition.new(self:get_alliance():get_alliance_member_ids()) }, Condition.LogicalOperator.Or),
+        ConditionalCondition.new(L{ UnclaimedCondition.new(target.index), ClaimedCondition.new(self:get_alliance():get_alliance_member_ids()) }, Condition.LogicalOperator.Or),
         ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos())
     }
 
-    if not Condition.check_conditions(conditions, target:get_index()) then
+    if not Condition.check_conditions(conditions, target.index) then
         return false
     end
     return true
@@ -85,10 +89,7 @@ end
 function Attacker:check_engage()
     logger.notice(self.__class, 'check_engage')
 
-    local target = self:get_target()
-    if not self:can_engage(target) then
-        return
-    end
+    local target = self.target_index and windower.ffxi.get_mob_by_index(self.target_index)
 
     local current_player_status = self:get_party():get_player():get_status()
     if current_player_status == 'Idle' then
@@ -104,7 +105,11 @@ function Attacker:check_engage()
         logger.notice(self.__class, 'check_engage', 'Engaged')
         if state.AutoEngageMode.value == 'Mirror' and not self:get_party():get_assist_target():is_player() then
             if self:get_party():get_assist_target():get_status() == 'Idle' then
-                self.action_queue:push_action(CommandAction.new(0, 0, 0, '/attackoff'), true)
+                local disengage_action = DisengageAction.new()
+                disengage_action.priority = ActionPriority.high
+
+                self.action_queue:push_action(disengage_action, true)
+                print('disengage', os.time())
             else
                 if self:get_party():get_assist_target():get_status() == 'Engaged' then
                     self:attack_mob(target)
@@ -114,8 +119,6 @@ function Attacker:check_engage()
             if target.index ~= windower.ffxi.get_player().target_index then
                 if state.AutoEngageMode.value == 'Always' then
                     self:attack_mob(target)
-                elseif state.AutoEngageMode.value == 'Assist' then
-                    self.action_queue:push_action(CommandAction.new(0, 0, 0, '/assist '..self:get_party():get_assist_target():get_name()), true)
                 end
                 self:get_party():add_to_chat(self:get_party():get_player(), "Alright, I'll fight the "..target.name.." with you now.", 30)
             end
@@ -124,9 +127,13 @@ function Attacker:check_engage()
 end
 
 function Attacker:attack_mob(target)
-    local conditions = L{ ConditionalCondition.new(L{ UnclaimedCondition.new(target:get_index()), ClaimedCondition.new(self:get_alliance():get_alliance_member_ids()) }, Condition.LogicalOperator.Or) }
-    if target == nil or not Condition.check_conditions(conditions, target:get_index())
-            or (windower.ffxi.get_player().target_index == target:get_index() and self:get_party():get_player():get_status() == 'Engaged') then
+    if not self:can_engage(target) then
+        return
+    end
+
+    local conditions = L{ ConditionalCondition.new(L{ UnclaimedCondition.new(target.index), ClaimedCondition.new(self:get_alliance():get_alliance_member_ids()) }, Condition.LogicalOperator.Or) }
+    if target == nil or not Condition.check_conditions(conditions, target.index)
+            or (windower.ffxi.get_player().target_index == target.index and self:get_party():get_player():get_status() == 'Engaged') then
         return
     end
 
@@ -136,7 +143,7 @@ function Attacker:attack_mob(target)
 
         self.action_queue:push_action(disengage_action, true)
     else
-        local attack_action = Engage.new(target:get_index()):to_action(target:get_index())
+        local attack_action = Engage.new(target.index):to_action(target.index)
         attack_action.priority = ActionPriority.high
 
         self.action_queue:push_action(attack_action, true)

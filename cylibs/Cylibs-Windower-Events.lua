@@ -249,7 +249,11 @@ local incoming_event_dispatcher = {
         -- packet['Status'] doesn't always match mob.status and packet['Update Status'] doesn't work for 0x00D
         if packet['Status'] then
             local target = windower.ffxi.get_mob_by_id(target_id)
-            WindowerEvents.StatusChanged:trigger(target_id, target.status)
+            if target then
+                WindowerEvents.StatusChanged:trigger(target_id, target.status)
+            else
+                print('status', packet['Index'] or 'no index', packet['Player'] or 'no index')
+            end
         end
     end,
 

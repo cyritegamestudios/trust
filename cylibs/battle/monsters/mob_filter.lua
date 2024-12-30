@@ -47,7 +47,7 @@ function MobFilter:get_nearby_mobs(filter_types)
         ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos()),
         MinHitPointsPercentCondition.new(1),
         MaxDistanceCondition.new(50),
-        ConditionalCondition.new(L{ ClaimedCondition.new(S{ self.alliance:get_alliance_member_ids() }), UnclaimedCondition.new() }, Condition.LogicalOperator.Or)
+        ConditionalCondition.new(L{ ClaimedCondition.new(L{ self.alliance:get_alliance_member_ids() }), UnclaimedCondition.new() }, Condition.LogicalOperator.Or)
     }
 
     mobs = mobs:filter(function(mob)

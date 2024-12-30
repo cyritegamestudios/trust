@@ -16,6 +16,9 @@ function Entity.new(id)
     local self = setmetatable({
         id = id;
     }, Entity)
+    if self.id == nil then
+        print(debug.traceback())
+    end
     local mob = windower.ffxi.get_mob_by_id(self.id)
     if mob then
         self.name = mob.name
