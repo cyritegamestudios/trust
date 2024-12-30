@@ -2,6 +2,7 @@ local ClaimedCondition = require('cylibs/conditions/claimed')
 local CommandAction = require('cylibs/actions/command')
 local ConditionalCondition = require('cylibs/conditions/conditional')
 local DisengageAction = require('cylibs/actions/disengage')
+local DisposeBag = require('cylibs/events/dispose_bag')
 local Engage = require('cylibs/battle/engage')
 local UnclaimedCondition = require('cylibs/conditions/unclaimed')
 
@@ -18,11 +19,14 @@ function Attacker.new(action_queue)
     local self = setmetatable(Role.new(action_queue), Attacker)
     self.action_queue = action_queue
     self.action_events = {}
+    self.dispose_bag = DisposeBag.new()
     return self
 end
 
 function Attacker:destroy()
     Role.destroy(self)
+
+    self.dispose_bag:destroy()
 
     if self.action_events then
         for _,event in pairs(self.action_events) do
@@ -32,6 +36,15 @@ function Attacker:destroy()
 end
 
 function Attacker:on_add()
+    self.dispose_bag:add(WindowerEvents.StatusChanged:addAction(function(mob_id, status)
+        if state.AutoEngageMode.value ~= 'Mirror' then
+            return
+        end
+        if mob_id == self:get_party():get_assist_target():get_id()
+                and self:get_party():get_assist_target():get_status() ~= self:get_party():get_player():get_status() then
+            self:check_engage()
+        end
+    end), WindowerEvents.StatusChanged)
 end
 
 function Attacker:target_change(target_index)
@@ -62,7 +75,7 @@ function Attacker:can_engage(target)
         ConditionalCondition.new(L{ UnclaimedCondition.new(target:get_index()), ClaimedCondition.new(self:get_alliance():get_alliance_member_ids()) }, Condition.LogicalOperator.Or),
         ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos())
     }
-    print(target:get_index())
+
     if not Condition.check_conditions(conditions, target:get_index()) then
         return false
     end
