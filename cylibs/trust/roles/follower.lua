@@ -87,6 +87,10 @@ function Follower:on_add()
     self.dispose_bag:add(self.action_queue:on_action_end():addAction(function(a, success)
         self:start_following()
     end), self.action_queue:on_action_end())
+
+    self.action_events.zone_change = windower.register_event('zone change', function(_, _)
+        self.walk_action_queue:clear()
+    end)
 end
 
 -------
@@ -109,6 +113,9 @@ function Follower:follow_target_named(target_name)
 end
 
 function Follower:start_following()
+    if S{ 'Dead', 'Engaged', 'Resting' }:contains(self:get_party():get_player():get_status()) then
+        return
+    end
     self.walk_action_queue:clear()
     self.walk_action_queue:enable()
     windower.ffxi.run(false)

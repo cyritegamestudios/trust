@@ -2,14 +2,15 @@ local Targeter = setmetatable({}, {__index = Role })
 Targeter.__index = Targeter
 Targeter.__class = "Targeter"
 
+local ClaimedCondition = require('cylibs/conditions/claimed')
+local ConditionalCondition = require('cylibs/conditions/conditional')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Engage = require('cylibs/actions/engage')
 local MobFilter = require('cylibs/battle/monsters/mob_filter')
 local Timer = require('cylibs/util/timers/timer')
 
-state.AutoTargetMode = M{['description'] = 'Auto Target Mode', 'Off', 'Auto', 'Mirror'}
+state.AutoTargetMode = M{['description'] = 'Auto Target Mode', 'Off', 'Auto'}
 state.AutoTargetMode:set_description('Auto', "Okay, I'll automatically target aggroed monsters after we defeat one.")
-state.AutoTargetMode:set_description('Mirror', "Okay, I'll target what the person I'm assisting is fighting.")
 
 function Targeter.new(action_queue)
     local self = setmetatable(Role.new(action_queue), Targeter)
@@ -33,7 +34,7 @@ function Targeter:destroy()
 end
 
 function Targeter:check_state_for_assist(assist_target)
-    if not L{ 'Off', 'Mirror' }:contains(state.AutoTargetMode.value) and assist_target and not assist_target:is_player() then
+    if not L{ 'Off' }:contains(state.AutoTargetMode.value) and assist_target and not assist_target:is_player() then
         state.AutoTargetMode:set('Off')
         self:get_party():add_to_chat(self:get_party():get_player(), "No need to auto target, I'll already target what "..assist_target:get_name().." targets!")
     end
@@ -87,21 +88,6 @@ function Targeter:on_add()
     end), WindowerEvents.MobKO)
 end
 
-function Targeter:target_change(target_index)
-    Role.target_change(self, target_index)
-
-    if state.AutoTargetMode.value == 'Mirror' then
-        local assist_target_index = self:get_party():get_assist_target():get_target_index()
-        if windower.ffxi.get_player().target_index ~= assist_target_index then
-            local target = self:get_party():get_target_by_index(assist_target_index)
-            if target and target:get_mob().status ~= 0 then
-                self:get_party():add_to_chat(self.party:get_player(), "I'm switching targets to the "..target:get_mob().name.." now.")
-                self:target_mob(target:get_mob())
-            end
-        end
-    end
-end
-
 function Targeter:tic(new_time, old_time)
     Role.tic(self, new_time, old_time)
 
@@ -111,7 +97,7 @@ function Targeter:tic(new_time, old_time)
 end
 
 function Targeter:check_target(override_current_target)
-    if state.AutoTargetMode.value == 'Off' or (not override_current_target and os.time() - self.last_checked_targets < 1) then
+    if S{ 'Off' }:contains(state.AutoTargetMode.value) or (not override_current_target and os.time() - self.last_checked_targets < 1) then
         return
     end
     self.last_checked_targets = os.time()
@@ -145,6 +131,12 @@ function Targeter:check_target(override_current_target)
 end
 
 function Targeter:target_mob(target)
+    local conditions = L{ ConditionalCondition.new(L{ UnclaimedCondition.new(target.index), ClaimedCondition.new(self:get_alliance():get_alliance_member_ids()) }, Condition.LogicalOperator.Or) }
+    if not Condition.check_conditions(conditions, target.index)
+            or (self:get_target() and self:get_target():get_index() == target.index and self:get_party():get_player():get_status() == 'Engaged') then
+        return
+    end
+
     if self.action_queue:has_action(self.action_identifier) then
         return
     end

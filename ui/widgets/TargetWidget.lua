@@ -192,7 +192,7 @@ function TargetWidget:setTarget(target_index)
     self.targetDisposeBag:dispose()
 
     local targetText = ""
-    if target_index ~= nil then
+    if target_index ~= nil and target_index ~= 0 then
         local target = self.alliance:get_target_by_index(target_index)
         if target then
             self.targetDisposeBag:add(target:on_gain_debuff():addAction(function(_, debuff_id)
