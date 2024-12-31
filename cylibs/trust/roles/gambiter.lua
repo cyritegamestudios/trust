@@ -9,11 +9,13 @@ state.AutoGambitMode = M{['description'] = 'Use Gambits', 'Auto', 'Off'}
 state.AutoGambitMode:set_description('Off', "Okay, I'll ignore any gambits you've set.")
 state.AutoGambitMode:set_description('Auto', "Okay, I'll customize my battle plan with gambits.")
 
-function Gambiter.new(action_queue, gambit_settings, skillchainer)
+function Gambiter.new(action_queue, gambit_settings, skillchainer, state_var, disable_react)
     local self = setmetatable(Role.new(action_queue), Gambiter)
 
     self.action_queue = action_queue
     self.skillchainer = skillchainer
+    self.state_var = state_var or state.AutoGambitMode
+    self.disable_react = disable_react
 
     self:set_gambit_settings(gambit_settings)
 
@@ -27,159 +29,161 @@ end
 function Gambiter:on_add()
     Role.on_add(self)
 
-    WindowerEvents.Ability.Ready:addAction(function(target_id, ability_id)
-        if not ability_id then
-            return
-        end
-        local target = self:get_target()
-        if target and target:get_id() == target_id then
-            local ability = res.monster_abilities[ability_id]
-            if ability then
-                logger.notice(self.__class, 'ability_ready', 'check_gambits', ability.en)
+    if not self.disable_react then
+        WindowerEvents.Ability.Ready:addAction(function(target_id, ability_id)
+            if not ability_id then
+                return
+            end
+            local target = self:get_target()
+            if target and target:get_id() == target_id then
+                local ability = res.monster_abilities[ability_id]
+                if ability then
+                    logger.notice(self.__class, 'ability_ready', 'check_gambits', ability.en)
 
+                    local gambits = self:get_all_gambits():filter(function(gambit)
+                        for condition in gambit:getConditions():it() do
+                            if condition.__type == ReadyAbilityCondition.__type then
+                                return true
+                            end
+                            return false
+                        end
+                    end)
+
+                    self:check_gambits(L{ target }, gambits, ability.en)
+                end
+            end
+        end)
+
+        WindowerEvents.Ability.Finish:addAction(function(target_id, ability_id)
+            if not ability_id then
+                return
+            end
+            local target = self:get_target()
+            if target and target:get_id() == target_id then
+                local ability = res.monster_abilities[ability_id]
+                if ability then
+                    logger.notice(self.__class, 'ability_finish', 'check_gambits', ability.en)
+
+                    local gambits = self:get_all_gambits():filter(function(gambit)
+                        for condition in gambit:getConditions():it() do
+                            if condition.__type == FinishAbilityCondition.__type then
+                                return true
+                            end
+                            return false
+                        end
+                    end)
+
+                    self:check_gambits(L{ target }, gambits, ability.en)
+                end
+            end
+        end)
+
+        WindowerEvents.Spell.Begin:addAction(function(target_id, spell_id)
+            if spell_id == nil or self:get_party():get_party_member(target_id) == nil then
+                return
+            end
+
+            local valid_targets = L(BeginCastCondition.valid_targets():map(function(target_type)
+                return self:get_gambit_targets(target_type)
+            end)):flatten(false)
+            if not valid_targets:firstWhere(function(target)
+                return target:get_id() == target_id
+            end) then
+                return
+            end
+
+            local spell = res.spells[spell_id]
+            if spell then
+                logger.notice(self.__class, 'spell_begin', 'check_gambits', spell.en)
                 local gambits = self:get_all_gambits():filter(function(gambit)
                     for condition in gambit:getConditions():it() do
-                        if condition.__type == ReadyAbilityCondition.__type then
+                        if condition.__type == BeginCastCondition.__type then
                             return true
                         end
                         return false
                     end
                 end)
 
-                self:check_gambits(L{ target }, gambits, ability.en)
+                self:check_gambits(L{ self:get_party():get_party_member(target_id) }, gambits, spell.en)
             end
-        end
-    end)
+        end)
 
-    WindowerEvents.Ability.Finish:addAction(function(target_id, ability_id)
-        if not ability_id then
-            return
-        end
-        local target = self:get_target()
-        if target and target:get_id() == target_id then
-            local ability = res.monster_abilities[ability_id]
-            if ability then
-                logger.notice(self.__class, 'ability_finish', 'check_gambits', ability.en)
+        WindowerEvents.GainDebuff:addAction(function(target_id, debuff_id)
+            local target = self:get_target()
+            if target and target:get_id() == target_id then
+                local debuff = res.buffs[debuff_id]
+                if debuff then
+                    logger.notice(self.__class, 'gain_debuff', 'check_gambits', debuff.en)
+
+                    local gambits = self:get_all_gambits():filter(function(gambit)
+                        for condition in gambit:getConditions():it() do
+                            if condition.__type == GainDebuffCondition.__type then
+                                return true
+                            end
+                            return false
+                        end
+                    end)
+
+                    self:check_gambits(L{ target }, gambits, debuff.en)
+                end
+            end
+        end)
+
+        WindowerEvents.PetUpdate:addAction(function(owner_id, pet_id, pet_index, pet_name, pet_hpp, pet_mpp, pet_tp)
+            local target = self:get_player()
+            if target and target:get_id() == owner_id then
+                logger.notice(self.__class, 'on_pet_update', 'check_gambits')
 
                 local gambits = self:get_all_gambits():filter(function(gambit)
                     for condition in gambit:getConditions():it() do
-                        if condition.__type == FinishAbilityCondition.__type then
+                        if condition.__type == PetTacticalPointsCondition.__type then
                             return true
                         end
                         return false
                     end
                 end)
 
-                self:check_gambits(L{ target }, gambits, ability.en)
+                self:check_gambits(L{ target }, gambits, pet_tp)
             end
-        end
-    end)
+        end)
 
-    WindowerEvents.Spell.Begin:addAction(function(target_id, spell_id)
-        if spell_id == nil or self:get_party():get_party_member(target_id) == nil then
-            return
-        end
-
-        local valid_targets = L(BeginCastCondition.valid_targets():map(function(target_type)
-            return self:get_gambit_targets(target_type)
-        end)):flatten(false)
-        if not valid_targets:firstWhere(function(target)
-            return target:get_id() == target_id
-        end) then
-            return
-        end
-
-        local spell = res.spells[spell_id]
-        if spell then
-            logger.notice(self.__class, 'spell_begin', 'check_gambits', spell.en)
-            local gambits = self:get_all_gambits():filter(function(gambit)
-                for condition in gambit:getConditions():it() do
-                    if condition.__type == BeginCastCondition.__type then
-                        return true
-                    end
-                    return false
-                end
-            end)
-
-            self:check_gambits(L{ self:get_party():get_party_member(target_id) }, gambits, spell.en)
-        end
-    end)
-
-    WindowerEvents.GainDebuff:addAction(function(target_id, debuff_id)
-        local target = self:get_target()
-        if target and target:get_id() == target_id then
-            local debuff = res.buffs[debuff_id]
-            if debuff then
-                logger.notice(self.__class, 'gain_debuff', 'check_gambits', debuff.en)
+        self.skillchainer:on_skillchain():addAction(function(target_id, skillchain_step)
+            local target = self:get_target()
+            if target and target:get_id() == target_id then
+                logger.notice(self.__class, 'on_skillchain', 'check_gambits', skillchain_step:get_skillchain():get_name())
 
                 local gambits = self:get_all_gambits():filter(function(gambit)
                     for condition in gambit:getConditions():it() do
-                        if condition.__type == GainDebuffCondition.__type then
+                        if condition.__type == SkillchainPropertyCondition.__type then
                             return true
                         end
                         return false
                     end
                 end)
 
-                self:check_gambits(L{ target }, gambits, debuff.en)
+                self:check_gambits(L{ target }, gambits, skillchain_step:get_skillchain():get_name())
             end
-        end
-    end)
+        end)
 
-    WindowerEvents.PetUpdate:addAction(function(owner_id, pet_id, pet_index, pet_name, pet_hpp, pet_mpp, pet_tp)
-        local target = self:get_player()
-        if target and target:get_id() == owner_id then
-            logger.notice(self.__class, 'on_pet_update', 'check_gambits')
+        -- Trust turns off when zoning, so even if this evaluates to true it never performs the gambit
+        self:get_party():get_player():on_zone_change():addAction(function(p, new_zone_id)
+            local target = self:get_player()
+            if target and target:get_id() == p:get_id() then
+                logger.notice(self.__class, 'on_zone_change', 'check_gambits')
 
-            local gambits = self:get_all_gambits():filter(function(gambit)
-                for condition in gambit:getConditions():it() do
-                    if condition.__type == PetTacticalPointsCondition.__type then
-                        return true
+                local gambits = self:get_all_gambits():filter(function(gambit)
+                    for condition in gambit:getConditions():it() do
+                        if condition.__type == ZoneChangeCondition.__type then
+                            return true
+                        end
+                        return false
                     end
-                    return false
-                end
-            end)
+                end)
 
-            self:check_gambits(L{ target }, gambits, pet_tp)
-        end
-    end)
-
-    self.skillchainer:on_skillchain():addAction(function(target_id, skillchain_step)
-        local target = self:get_target()
-        if target and target:get_id() == target_id then
-            logger.notice(self.__class, 'on_skillchain', 'check_gambits', skillchain_step:get_skillchain():get_name())
-
-            local gambits = self:get_all_gambits():filter(function(gambit)
-                for condition in gambit:getConditions():it() do
-                    if condition.__type == SkillchainPropertyCondition.__type then
-                        return true
-                    end
-                    return false
-                end
-            end)
-
-            self:check_gambits(L{ target }, gambits, skillchain_step:get_skillchain():get_name())
-        end
-    end)
-
-    -- Trust turns off when zoning, so even if this evaluates to true it never performs the gambit
-    self:get_party():get_player():on_zone_change():addAction(function(p, new_zone_id)
-        local target = self:get_player()
-        if target and target:get_id() == p:get_id() then
-            logger.notice(self.__class, 'on_zone_change', 'check_gambits')
-
-            local gambits = self:get_all_gambits():filter(function(gambit)
-                for condition in gambit:getConditions():it() do
-                    if condition.__type == ZoneChangeCondition.__type then
-                        return true
-                    end
-                    return false
-                end
-            end)
-
-            self:check_gambits(L{ target }, gambits, new_zone_id)
-        end
-    end)
+                self:check_gambits(L{ target }, gambits, new_zone_id)
+            end
+        end)
+    end
 end
 
 function Gambiter:target_change(target_index)
@@ -187,14 +191,14 @@ function Gambiter:target_change(target_index)
 end
 
 function Gambiter:tic(new_time, old_time)
-    if state.AutoGambitMode.value == 'Off' then
+    if self.state_var.value == 'Off' then
         return
     end
     self:check_gambits()
 end
 
 function Gambiter:check_gambits(targets, gambits, param)
-    if state.AutoGambitMode.value == 'Off' then
+    if self.state_var.value == 'Off' then
         return
     end
 

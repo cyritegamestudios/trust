@@ -179,6 +179,13 @@ function Spell:get_consumable()
 end
 
 -------
+-- Returns the buff/debuff for the spell.
+-- @treturn Buff/debuff metadata (see buffs.lua)
+function Spell:get_status()
+    return buff_util.buff_for_spell(self:get_spell().id)
+end
+
+-------
 -- Return the mana points required to cast this spell.
 -- @treturn number Mana points
 function Spell:get_mp_cost()
