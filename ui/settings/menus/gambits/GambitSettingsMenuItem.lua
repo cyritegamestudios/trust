@@ -3,6 +3,7 @@ local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConditionSettingsMenuItem = require('ui/settings/menus/conditions/ConditionSettingsMenuItem')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local DisposeBag = require('cylibs/events/dispose_bag')
+local Event = require('cylibs/events/Luvent')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local Gambit = require('cylibs/gambits/gambit')
@@ -19,6 +20,9 @@ local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerCon
 local GambitSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 GambitSettingsMenuItem.__index = GambitSettingsMenuItem
 
+function GambitSettingsMenuItem:onGambitChanged()
+    return self.gambitChanged
+end
 
 function GambitSettingsMenuItem.compact(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKey, abilityTargets, abilitiesForTargets, conditionTargets, modes)
     local imageItemForBuff = function(abilityName)
@@ -77,6 +81,7 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
     end
     self.conditionTargets = conditionTargets or L(Condition.TargetType.AllTargets)
     self.modes = modes or L{ state.AutoGambitMode.value }
+    self.gambitChanged = Event.newEvent()
     self.disposeBag = DisposeBag.new()
 
     self.contentViewConstructor = function(_, infoView)
@@ -137,6 +142,8 @@ end
 
 function GambitSettingsMenuItem:destroy()
     MenuItem.destroy(self)
+
+    self.gambitChanged:removeAllActions()
 
     self.disposeBag:destroy()
 end
@@ -259,6 +266,10 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
     }, function(menuArgs, infoView)
         local abilitiesByTargetType = self:getAbilitiesByTargetType()
         local gambitEditor = GambitSettingsEditor.new(self.selectedGambit, self.trustSettings, self.trustSettingsMode, abilitiesByTargetType, self.conditionTargets)
+        self.disposeBag:add(gambitEditor:onConfigChanged():addAction(function(newSettings, oldSettings)
+            self:onGambitChanged():trigger(newSettings, oldSettings)
+            gambitEditor:reloadSettings()
+        end), gambitEditor:onConfigChanged())
         return gambitEditor
     end, "Gambits", "Edit the selected gambit.", false, function()
         return self.selectedGambit ~= nil

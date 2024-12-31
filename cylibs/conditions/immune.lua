@@ -42,7 +42,7 @@ function IsImmuneCondition:get_config_items()
         return Spell.new(res.spells[spellId].en)
     end))
     return L{
-        PickerConfigItem.new('spell_name', self.spell_name, all_spells, function(spell)
+        PickerConfigItem.new('spell_name', Spell.new(self.spell_name), all_spells, function(spell)
             return spell:get_localized_name()
         end, "Spell Name")
     }

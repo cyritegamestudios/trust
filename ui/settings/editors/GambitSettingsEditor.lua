@@ -15,28 +15,27 @@ function GambitSettingsEditor.new(gambit, trustSettings, trustSettingsMode, abil
     local validTargets = L(GambitTarget.TargetType:keyset()):filter(function(targetType) return abilitiesByTargetType[targetType]:length() > 0 end)
     local validConditionTargets = conditionTargets or L(Condition.TargetType.AllTargets)
 
-    local configItems = L{
-        PickerConfigItem.new('target', gambit.target or GambitTarget.TargetType.Self, validTargets, nil, "Ability target"),
-        GambitSettingsEditor.configItemFromGambit(gambit, abilitiesByTargetType),
-        PickerConfigItem.new('conditions_target', gambit.conditions_target or validConditionTargets[1], validConditionTargets, nil, "Conditions target"),
-    }
+    local configItems = GambitSettingsEditor.configItems(gambit, abilitiesByTargetType, validTargets, validConditionTargets)
 
     local self = setmetatable(ConfigEditor.new(trustSettings, gambit, configItems), GambitSettingsEditor)
 
     self.gambit = gambit
     self.abilitiesByTargetType = abilitiesByTargetType
     self.validTargets = validTargets
+    self.validConditionTargets = validConditionTargets
     self.menuArgs = {}
+
+    local numSections = self:getDataSource():numberOfSections() + 1
 
     local conditionsSectionHeaderItem = SectionHeaderItem.new(
             TextItem.new("Conditions", TextStyle.Default.SectionHeader),
             ImageItem.new(windower.addon_path..'assets/icons/icon_bullet.png', 8, 8),
             16
     )
-    self:getDataSource():setItemForSectionHeader(4, conditionsSectionHeaderItem)
+    self:getDataSource():setItemForSectionHeader(numSections, conditionsSectionHeaderItem)
 
     self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
-        if indexPath.section == 4 then
+        if indexPath.section == numSections then
             self:getDelegate():deselectItemAtIndexPath(indexPath)
         end
     end), self:getDelegate():didSelectItemAtIndexPath())
@@ -76,7 +75,7 @@ function GambitSettingsEditor:reloadSettings()
 
     local conditionsItems = IndexedItem.fromItems(self.gambit:getConditions():map(function(condition)
         return TextItem.new(condition:tostring(), TextStyle.Default.TextSmall)
-    end), 4)
+    end), self.configItems:length() + 1)
 
     if conditionsItems:length() > 0 then
         self:getDataSource():addItems(conditionsItems)
@@ -86,19 +85,31 @@ function GambitSettingsEditor:reloadSettings()
     self:layoutIfNeeded()
 end
 
-function GambitSettingsEditor:reloadConfigItems()
-    local abilities = self.abilitiesByTargetType[self.gambit:getAbilityTarget()]
+function GambitSettingsEditor.configItems(gambit, abilitiesByTargetType, validTargets, validConditionTargets)
+    local abilities = abilitiesByTargetType[gambit:getAbilityTarget()]
     local currentAbility
-    if abilities:indexOf(self.gambit:getAbility()) ~= -1 then
-        currentAbility = self.gambit:getAbility()
+    if abilities:indexOf(gambit:getAbility()) ~= -1 then
+        currentAbility = gambit:getAbility()
     else
         currentAbility = abilities[1]
     end
-    local configItems = L{
-        PickerConfigItem.new('target', self.gambit.target or GambitTarget.TargetType.Self, self.validTargets, nil, "Ability target"),
-        GambitSettingsEditor.configItemFromGambit(self.gambit, self.abilitiesByTargetType),
-        PickerConfigItem.new('conditions_target', self.gambit.conditions_target or GambitTarget.TargetType.Self, L(GambitTarget.TargetType:keyset()), nil, "Conditions target"),
-    }
+
+    local configItems = L{}
+    if validTargets:length() > 1 then
+        configItems:append(PickerConfigItem.new('target', gambit.target or GambitTarget.TargetType.Self, validTargets, nil, "Ability target"))
+    end
+
+    configItems:append(GambitSettingsEditor.configItemFromGambit(gambit, abilitiesByTargetType))
+
+    if validConditionTargets:length() > 1 then
+        configItems:append(PickerConfigItem.new('conditions_target', gambit.conditions_target or validConditionTargets[1], validConditionTargets, nil, "Conditions target"))
+    end
+
+    return configItems
+end
+
+function GambitSettingsEditor:reloadConfigItems()
+    local configItems = GambitSettingsEditor.configItems(self.gambit, self.abilitiesByTargetType, self.validTargets, self.validConditionTargets)
     self:setConfigItems(configItems)
 end
 
@@ -127,7 +138,7 @@ function GambitSettingsEditor:setHasFocus(focus)
     if focus then
         -- TODO: validate in memory config items
         local selectedIndexPath = self:getDelegate():getCursorIndexPath()
-        if selectedIndexPath and selectedIndexPath.section == 1 then
+        if selectedIndexPath and selectedIndexPath.section == self:sectionForConfigKey('ability_target') then
             local item = self:getDataSource():itemAtIndexPath(selectedIndexPath)
             if item then
                 if item:getCurrentValue() ~= self.gambit:getAbilityTarget() then

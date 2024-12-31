@@ -20,17 +20,25 @@ end
 
 function Debuffer:set_debuff_settings(debuff_settings)
     for gambit in debuff_settings.Gambits:it() do
-        local conditions = L{
-            ClaimedCondition.new(),
-            NotCondition.new(L{ HasDebuffCondition.new(gambit:getAbility():get_status().en) }),
-            NotCondition.new(L{ ImmuneCondition.new(gambit:getAbility():get_name()) }),
-            NumResistsCondition.new(gambit:getAbility():get_name(), Condition.Operator.LessThan, 4),
-        }
+        gambit.conditions = gambit.conditions:filter(function(condition)
+            return condition:is_editable()
+        end)
+        local conditions = self:get_default_conditions(gambit)
         for condition in conditions:it() do
+            condition.editable = false
             gambit:addCondition(condition)
         end
     end
     self:set_gambit_settings(debuff_settings)
+end
+
+function Debuffer:get_default_conditions(gambit)
+    return L{
+        ClaimedCondition.new(),
+        NotCondition.new(L{ HasDebuffCondition.new(gambit:getAbility():get_status().en) }),
+        NotCondition.new(L{ ImmuneCondition.new(gambit:getAbility():get_name()) }),
+        NumResistsCondition.new(gambit:getAbility():get_name(), Condition.Operator.LessThan, 4),
+    }
 end
 
 function Debuffer:allows_duplicates()

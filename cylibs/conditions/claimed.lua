@@ -28,7 +28,11 @@ function ClaimedCondition:is_satisfied(target_index)
 end
 
 function ClaimedCondition:tostring()
-    return "ClaimedCondition"
+    local target_names = self.claim_ids:map(function(claim_id) return windower.ffxi.get_mob_by_id(claim_id) end):compact_map():map(function(mob) return mob.name end)
+    if target_names:length() > 0 then
+        return "Target is claimed by "..localization_util.commas(target_names, 'or')
+    end
+    return "Target is claimed"
 end
 
 function ClaimedCondition.description()

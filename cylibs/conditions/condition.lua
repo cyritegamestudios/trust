@@ -32,6 +32,7 @@ Condition.TargetType.AllTargets = S{ Condition.TargetType.Self, Condition.Target
 function Condition.new(target_index)
     local self = setmetatable({
         target_index = target_index;
+        editable = true;
     }, Condition)
 
     return self
@@ -77,7 +78,11 @@ function Condition:serialize()
 end
 
 function Condition:should_serialize()
-    return Condition.defaultSerializableConditionClasses():contains(self.__class)
+    return Condition.defaultSerializableConditionClasses():contains(self.__class) and self:is_editable()
+end
+
+function Condition:is_editable()
+    return self.editable
 end
 
 function Condition.defaultSerializableConditionClasses()

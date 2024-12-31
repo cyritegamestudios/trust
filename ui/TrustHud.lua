@@ -352,7 +352,8 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
     local viewSize = Frame.new(0, 0, 500, 500)
 
     --local DebuffSettingsMenuItem = require('ui/settings/menus/debuffs/DebuffSettingsMenuItem')
-
+    local ClaimedCondition = require('cylibs/conditions/claimed')
+    local ImmuneCondition = require('cylibs/conditions/immune')
     local SpellPickerItemMapper = require('ui/settings/pickers/mappers/SpellPickerItemMapper')
 
     local debuffItemMapper = SpellPickerItemMapper.new(L{})
@@ -382,7 +383,20 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
             end)),
         }
         return sections
-    end, S{ Condition.TargetType.Enemy }, L{'AutoDebuffMode', 'AutoDispelMode', 'AutoSilenceMode'})
+    end, L{ Condition.TargetType.Enemy }, L{'AutoDebuffMode', 'AutoDispelMode', 'AutoSilenceMode'})
+
+    self.disposeBag:add(debuffSettingsItem:onGambitChanged():addAction(function(newGambit, oldGambit)
+        if newGambit:getAbility() ~= oldGambit:getAbility() then
+            newGambit.conditions = newGambit.conditions:filter(function(condition)
+                return condition:is_editable()
+            end)
+            local conditions = trust:role_with_type("debuffer"):get_default_conditions(newGambit)
+            for condition in conditions:it() do
+                condition.editable = false
+                newGambit:addCondition(condition)
+            end
+        end
+    end), debuffSettingsItem:onGambitChanged())
 
     -- Modes
     local modesMenuItem = ModesMenuItem.new(self.trustModeSettings, "View and change Trust modes.", L(T(state):keyset()):sort(), true, "modes")

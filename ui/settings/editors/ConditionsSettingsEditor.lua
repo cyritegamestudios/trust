@@ -59,6 +59,7 @@ function ConditionsSettingsEditor:reloadSettings()
     for condition in self.conditions:it() do
         local textItem = TextItem.new(condition:tostring(), TextStyle.Default.TextSmall)
         textItem:setShouldTruncateText(true)
+        textItem:setEnabled(condition:is_editable())
         items:append(IndexedItem.new(textItem, IndexPath.new(1, rowIndex)))
         rowIndex = rowIndex + 1
     end
@@ -88,6 +89,10 @@ function ConditionsSettingsEditor:onRemoveConditionClick()
         local item = self:getDataSource():itemAtIndexPath(selectedIndexPath)
         if item then
             local condition = self.conditions[selectedIndexPath.row]
+            if not condition:is_editable() then
+                addon_system_error("This condition cannot be removed.")
+                return
+            end
             if condition and self.editableConditionClasses:contains(condition.__class) or condition.__class == NotCondition.__class then
                 self.conditions:remove(selectedIndexPath.row)
                 self:getDataSource():removeItem(selectedIndexPath)
