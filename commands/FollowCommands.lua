@@ -61,6 +61,8 @@ function FollowTrustCommands:handle_follow_party_member(party_member_name)
     local success
     local message
 
+    party_member_name = party_member_name:gsub("^%l", string.upper)
+
     if self:get_follower():is_valid_target(party_member_name) then
         handle_set('AutoFollowMode', 'Always')
         local error_message = self:get_follower():follow_target_named(party_member_name)
