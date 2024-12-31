@@ -1,3 +1,4 @@
+local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConditionSettingsMenuItem = require('ui/settings/menus/conditions/ConditionSettingsMenuItem')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
@@ -5,6 +6,7 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local Gambit = require('cylibs/gambits/gambit')
+local GambitEditorStyle = require('ui/settings/menus/gambits/GambitEditorStyle')
 local GambitLibraryMenuItem = require('ui/settings/menus/gambits/GambitLibraryMenuItem')
 local GambitSettingsEditor = require('ui/settings/editors/GambitSettingsEditor')
 local GambitTarget = require('cylibs/gambits/gambit_target')
@@ -18,7 +20,40 @@ local GambitSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 GambitSettingsMenuItem.__index = GambitSettingsMenuItem
 
 
-function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKey, abilityTargets, abilitiesForTargets, conditionTargets)
+function GambitSettingsMenuItem.compact(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKey, abilityTargets, abilitiesForTargets, conditionTargets)
+    local imageItemForBuff = function(abilityName)
+        if res.spells:with('en', abilityName) then
+            return AssetManager.imageItemForSpell(abilityName)
+        elseif res.job_abilities:with('en', abilityName) then
+            return AssetManager.imageItemForJobAbility(abilityName)
+        else
+            return nil
+        end
+    end
+
+    local configItemForGambits = function(gambits)
+        local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit)
+            return gambit:getAbility():get_localized_name()
+        end, "Gambits", nil, function(gambit)
+            return imageItemForBuff(gambit:getAbility():get_name())
+        end)
+        return configItem
+    end
+
+    local editorStyle = GambitEditorStyle.new(configItemForGambits)
+
+    local self = GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKey, abilityTargets, abilitiesForTargets, conditionTargets, editorStyle)
+    return self
+end
+
+function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKey, abilityTargets, abilitiesForTargets, conditionTargets, editorStyle)
+    editorStyle = editorStyle or GambitEditorStyle.new(function(gambits)
+        local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit)
+            return gambit:tostring()
+        end)
+        return configItem
+    end, FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge)
+
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Add', 18),
         ButtonItem.default('Edit', 18),
@@ -37,7 +72,6 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
     self.trustModeSettings = trustModeSettings
     self.settingsKey = settingsKey
     self.abilityTargets = abilityTargets or S(GambitTarget.TargetType:keyset())
-    self.abilityTargets = S{ GambitTarget.TargetType.Enemy }
     self.abilitiesForTargets = abilitiesForTargets or function(targets)
         return self:getAbilitiesForTargets(targets)
     end
@@ -47,11 +81,12 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
     self.contentViewConstructor = function(_, infoView)
         local currentGambits = self.trustSettings:getSettings()[self.trustSettingsMode.value][settingsKey].Gambits
 
-        local configItem = MultiPickerConfigItem.new("Gambits", L{}, currentGambits, function(gambit)
-            return gambit:tostring()
-        end)
+        --local configItem = MultiPickerConfigItem.new("Gambits", L{}, currentGambits, function(gambit)
+        --    return gambit:tostring()
+        --end)
+        local configItem = editorStyle:getConfigItem(currentGambits)
 
-        local gambitSettingsEditor = FFXIPickerView.new(L{ configItem }, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge)
+        local gambitSettingsEditor = FFXIPickerView.new(L{ configItem }, false, editorStyle:getViewSize())
         gambitSettingsEditor:setAllowsCursorSelection(true)
 
         gambitSettingsEditor:setNeedsLayout()

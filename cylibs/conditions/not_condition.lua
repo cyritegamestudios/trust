@@ -2,10 +2,7 @@
 -- Condition checking whether a list of conditions all return `false`.
 -- @class module
 -- @name NotCondition
-local ConfigItem = require('ui/settings/editors/config/ConfigItem')
-local GroupConfigItem = require('ui/settings/editors/config/GroupConfigItem')
 local localization_util = require('cylibs/util/localization_util')
-local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local serializer_util = require('cylibs/util/serializer_util')
 
 local Condition = require('cylibs/conditions/condition')
@@ -49,6 +46,28 @@ end
 
 function NotCondition:serialize()
     return "NotCondition.new(" .. serializer_util.serialize_args(self.conditions) .. ")"
+end
+
+function NotCondition:should_serialize()
+    for condition in self.conditions:it() do
+        if not condition:should_serialize() then
+            return false
+        end
+    end
+    return Condition.should_serialize(self)
+end
+
+function NotCondition:__eq(otherItem)
+    if otherItem.__class ~= NotCondition.__class then
+        return false
+    end
+    local otherConditions = otherItem.conditions
+    for condition in self.conditions:it() do
+        if not otherConditions:contains(condition) then
+            return false
+        end
+    end
+    return true
 end
 
 return NotCondition

@@ -14,6 +14,7 @@ local FollowSettingsMenuItem = require('ui/settings/menus/FollowSettingsMenuItem
 local FoodSettingsMenuItem = require('ui/settings/menus/buffs/FoodSettingsMenuItem')
 local Frame = require('cylibs/ui/views/frame')
 local GambitSettingsMenuItem = require('ui/settings/menus/gambits/GambitSettingsMenuItem')
+local GambitTarget = require('cylibs/gambits/gambit_target')
 local GameInfo = require('cylibs/util/ffxi/game_info')
 local JobGambitSettingsMenuItem = require('ui/settings/menus/gambits/JobGambitSettingsMenuItem')
 local Keyboard = require('cylibs/ui/input/keyboard')
@@ -350,9 +351,32 @@ end
 function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, weaponSkillSettings, weaponSkillSettingsMode, trustModeSettings, jobNameShort)
     local viewSize = Frame.new(0, 0, 500, 500)
 
-    local DebuffSettingsMenuItem = require('ui/settings/menus/debuffs/DebuffSettingsMenuItem')
+    --local DebuffSettingsMenuItem = require('ui/settings/menus/debuffs/DebuffSettingsMenuItem')
 
-    local debuffSettingsItem = DebuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, addon_settings)
+    local debuffSettingsItem = GambitSettingsMenuItem.compact(trust, trustSettings, trustSettingsMode, trustModeSettings, 'DebuffSettings', S{ GambitTarget.TargetType.Enemy }, function(targets)
+        local sections = L{
+            L(trust:get_job():get_spells(function(spellId)
+                local spell = res.spells[spellId]
+                if spell then
+                    local status = buff_util.buff_for_spell(spell.id)
+                    return status ~= nil and buff_util.is_debuff(status.id) and S{ 32, 35, 36, 37, 39, 40, 41, 42 }:contains(spell.skill) and targets:intersection(S(spell.targets)):length() > 0
+                end
+                return false
+            end):map(function(spellId)
+                return Spell.new(res.spells[spellId].en)
+            end)),
+            L(trust:get_job():get_job_abilities(function(jobAbilityId)
+                local jobAbility = res.job_abilities[jobAbilityId]
+                if jobAbility then
+                    return buff_util.buff_for_job_ability(jobAbility.id) ~= nil and targets:intersection(S(jobAbility.targets)):length() > 0
+                end
+                return false
+            end):map(function(jobAbilityId)
+                return JobAbility.new(res.job_abilities[jobAbilityId].en)
+            end)),
+        }
+        return sections
+    end, S{ Condition.TargetType.Enemy })
 
     -- Modes
     local modesMenuItem = ModesMenuItem.new(self.trustModeSettings, "View and change Trust modes.", L(T(state):keyset()):sort(), true, "modes")

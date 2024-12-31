@@ -76,6 +76,10 @@ function Condition:serialize()
     return "Condition.new(" .. serializer_util.serialize_args() .. ")"
 end
 
+function Condition:should_serialize()
+    return Condition.defaultSerializableConditionClasses():contains(self.__class)
+end
+
 function Condition.defaultSerializableConditionClasses()
     return L {
         IdleCondition.__class,

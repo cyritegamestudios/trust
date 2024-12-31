@@ -60,8 +60,13 @@ function IsImmuneCondition.valid_targets()
     return S{ Condition.TargetType.Enemy }
 end
 
-function IsImmuneCondition:serialize()
-    return "IsImmuneCondition.new(" .. serializer_util.serialize_args(self.spell_name) .. ")"
+--function IsImmuneCondition:serialize()
+--    return "IsImmuneCondition.new(" .. serializer_util.serialize_args(self.spell_name) .. ")"
+--end
+
+function IsImmuneCondition:__eq(otherItem)
+    return otherItem.__class == IsImmuneCondition.__class
+            and otherItem.spell_name == self.spell_name
 end
 
 return IsImmuneCondition

@@ -34,7 +34,7 @@ function RedMageTrust.new(settings, action_queue, battle_settings, trust_setting
 	local job = RedMage.new(trust_settings.CureSettings)
 	local roles = S{
 		Buffer.new(action_queue, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
-		Debuffer.new(action_queue, trust_settings.Debuffs),
+		Debuffer.new(action_queue, trust_settings.DebuffSettings),
 		Dispeler.new(action_queue, L{ Spell.new('Dispel') }, L{}, true),
 		Healer.new(action_queue, job),
 		Raiser.new(action_queue, job),
@@ -62,7 +62,7 @@ function RedMageTrust:on_init()
 		buffer:set_party_buffs(new_trust_settings.PartyBuffs)
 
 		local debuffer = self:role_with_type("debuffer")
-		debuffer:set_debuff_spells(new_trust_settings.Debuffs)
+		debuffer:set_debuff_settings(new_trust_settings.DebuffSettings)
 
 		local puller = self:role_with_type("puller")
 		if puller then
