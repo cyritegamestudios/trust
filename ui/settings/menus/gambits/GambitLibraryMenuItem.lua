@@ -8,22 +8,32 @@ local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerCon
 local GambitLibraryMenuItem = setmetatable({}, {__index = MenuItem })
 GambitLibraryMenuItem.__index = GambitLibraryMenuItem
 
-function GambitLibraryMenuItem.new(trustSettings, trustSettingsMode, parentMenuItem)
+function GambitLibraryMenuItem.new(trustSettings, trustSettingsMode, categoryFilter)
+    categoryFilter = categoryFilter or function(_) return true end
+
     local gambitCategories = GambitLibraryMenuItem.getGambitCategories()
 
-    local buttonItems = L(gambitCategories:map(function(category)
+    local categories = gambitCategories:filter(function(category)
+        return categoryFilter(category)
+    end)
+
+    local buttonItems = L(categories:map(function(category)
         return ButtonItem.default(category:getName(), 18)
     end))
 
     local self = setmetatable(MenuItem.new(buttonItems, {}, nil, "Gambits", "Browse pre-made gambits."), GambitLibraryMenuItem)
 
-    for category in gambitCategories:it() do
+    for category in categories:it() do
         self:setChildMenuItem(category:getName(), self:getGambitCategoryMenuItem(category))
     end
 
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
     self.disposeBag = DisposeBag.new()
+
+    self.enabled = function()
+        return categories:length() > 0
+    end
 
     return self
 end

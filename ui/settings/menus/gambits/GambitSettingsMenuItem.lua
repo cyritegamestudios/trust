@@ -24,7 +24,7 @@ function GambitSettingsMenuItem:onGambitChanged()
     return self.gambitChanged
 end
 
-function GambitSettingsMenuItem.compact(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKey, abilityTargets, abilitiesForTargets, conditionTargets, modes, abilityCategory, abilityCategoryPlural)
+function GambitSettingsMenuItem.compact(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKey, abilityTargets, abilitiesForTargets, conditionTargets, modes, abilityCategory, abilityCategoryPlural, libraryCategoryFilter)
     local imageItemForBuff = function(abilityName)
         if res.spells:with('en', abilityName) then
             return AssetManager.imageItemForSpell(abilityName)
@@ -38,7 +38,7 @@ function GambitSettingsMenuItem.compact(trust, trustSettings, trustSettingsMode,
     local configItemForGambits = function(gambits)
         local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit)
             return gambit:getAbility():get_localized_name()
-        end, "Gambits", nil, function(gambit)
+        end, abilityCategoryPlural, nil, function(gambit)
             return imageItemForBuff(gambit:getAbility():get_name())
         end)
         return configItem
@@ -46,11 +46,11 @@ function GambitSettingsMenuItem.compact(trust, trustSettings, trustSettingsMode,
 
     local editorStyle = GambitEditorStyle.new(configItemForGambits, nil, abilityCategory, abilityCategoryPlural)
 
-    local self = GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKey, abilityTargets, abilitiesForTargets, conditionTargets, editorStyle, modes)
+    local self = GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKey, abilityTargets, abilitiesForTargets, conditionTargets, editorStyle, modes, libraryCategoryFilter)
     return self
 end
 
-function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKey, abilityTargets, abilitiesForTargets, conditionTargets, editorStyle, modes)
+function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKey, abilityTargets, abilitiesForTargets, conditionTargets, editorStyle, modes, libraryCategoryFilter)
     editorStyle = editorStyle or GambitEditorStyle.new(function(gambits)
         local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit)
             return gambit:tostring()
@@ -68,7 +68,7 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
         ButtonItem.default('Toggle', 18),
         ButtonItem.default('Reset', 18),
         ButtonItem.localized('Modes', i18n.translate('Button_Modes')),
-    }, {}, nil, editorStyle:getDescription(true), "Add custom behaviors.", false), GambitSettingsMenuItem)  -- changed keep views to false
+    }, {}, nil, editorStyle:getDescription(true), "Configure "..editorStyle:getDescription(true)..".", false), GambitSettingsMenuItem)  -- changed keep views to false
 
     self.trust = trust
     self.trustSettings = trustSettings
@@ -80,8 +80,9 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
         return self:getAbilitiesForTargets(targets)
     end
     self.conditionTargets = conditionTargets or L(Condition.TargetType.AllTargets)
-    self.modes = modes or L{ state.AutoGambitMode.value }
     self.editorStyle = editorStyle
+    self.modes = modes or L{ state.AutoGambitMode.value }
+    self.libraryCategoryFilter = libraryCategoryFilter
     self.gambitChanged = Event.newEvent()
     self.disposeBag = DisposeBag.new()
 
@@ -253,7 +254,9 @@ function GambitSettingsMenuItem:getAddAbilityMenuItem()
     }, {
         New = blankGambitMenuItem,
         Browse = self:getGambitLibraryMenuItem()
-    }, nil, "Gambits", "Add a new "..self.editorStyle:getDescription()..".")
+    }, nil, self.editorStyle:getDescription(true), "Add a new "..self.editorStyle:getDescription()..".")
+
+
 
     return addGambitMenuItem
 end
@@ -445,11 +448,15 @@ function GambitSettingsMenuItem:getResetGambitsMenuItem()
 end
 
 function GambitSettingsMenuItem:getGambitLibraryMenuItem()
-    return GambitLibraryMenuItem.new(self.trustSettings, self.trustSettingsMode, self)
+    return GambitLibraryMenuItem.new(self.trustSettings, self.trustSettingsMode, self.libraryCategoryFilter)
 end
 
 function GambitSettingsMenuItem:getModesMenuItem()
     return ModesMenuItem.new(self.trustModeSettings, "Set modes for "..self.editorStyle:getDescription(true)..".", self.modes)
+end
+
+function GambitSettingsMenuItem:getDisposeBag()
+    return self.disposeBag
 end
 
 return GambitSettingsMenuItem
