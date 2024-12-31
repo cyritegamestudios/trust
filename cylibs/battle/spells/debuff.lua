@@ -41,4 +41,12 @@ function Debuff:serialize()
     return "Debuff.new(" .. serializer_util.serialize_args(self.original_spell_name, self.job_abilities, L{}, conditions_to_serialize) .. ")"
 end
 
+function Debuff:__eq(otherItem)
+    if otherItem.__type == self.__type and otherItem:get_name() == self:get_name()
+            and otherItem.original_spell_name == self.original_spell_name then
+        return true
+    end
+    return false
+end
+
 return Debuff

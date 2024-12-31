@@ -20,7 +20,7 @@ local GambitSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 GambitSettingsMenuItem.__index = GambitSettingsMenuItem
 
 
-function GambitSettingsMenuItem.compact(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKey, abilityTargets, abilitiesForTargets, conditionTargets)
+function GambitSettingsMenuItem.compact(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKey, abilityTargets, abilitiesForTargets, conditionTargets, modes)
     local imageItemForBuff = function(abilityName)
         if res.spells:with('en', abilityName) then
             return AssetManager.imageItemForSpell(abilityName)
@@ -42,11 +42,11 @@ function GambitSettingsMenuItem.compact(trust, trustSettings, trustSettingsMode,
 
     local editorStyle = GambitEditorStyle.new(configItemForGambits)
 
-    local self = GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKey, abilityTargets, abilitiesForTargets, conditionTargets, editorStyle)
+    local self = GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKey, abilityTargets, abilitiesForTargets, conditionTargets, editorStyle, modes)
     return self
 end
 
-function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKey, abilityTargets, abilitiesForTargets, conditionTargets, editorStyle)
+function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKey, abilityTargets, abilitiesForTargets, conditionTargets, editorStyle, modes)
     editorStyle = editorStyle or GambitEditorStyle.new(function(gambits)
         local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit)
             return gambit:tostring()
@@ -76,6 +76,7 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
         return self:getAbilitiesForTargets(targets)
     end
     self.conditionTargets = conditionTargets or L(Condition.TargetType.AllTargets)
+    self.modes = modes or L{ state.AutoGambitMode.value }
     self.disposeBag = DisposeBag.new()
 
     self.contentViewConstructor = function(_, infoView)
@@ -436,8 +437,7 @@ function GambitSettingsMenuItem:getGambitLibraryMenuItem()
 end
 
 function GambitSettingsMenuItem:getModesMenuItem()
-    return ModesMenuItem.new(self.trustModeSettings, "Set modes for gambits.",
-            L{'AutoGambitMode'})
+    return ModesMenuItem.new(self.trustModeSettings, "Set modes for gambits.", self.modes)
 end
 
 return GambitSettingsMenuItem

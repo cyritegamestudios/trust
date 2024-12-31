@@ -71,8 +71,10 @@ return {
 
             }
         },
-        Debuffs = L{
-            Debuff.new("Distract", L{}, L{})
+        DebuffSettings = {
+            Gambits = L{
+                Gambit.new("Enemy", L{}, Debuff.new("Dia", L{}, L{}, L{}), "Enemy", L{})
+            }
         },
         PullSettings = {
             Abilities = L{

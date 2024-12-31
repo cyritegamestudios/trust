@@ -190,8 +190,12 @@ function Gambiter:target_change(target_index)
     Role.target_change(self, target_index)
 end
 
+function Gambiter:get_cooldown()
+    return 0
+end
+
 function Gambiter:tic(new_time, old_time)
-    if self.state_var.value == 'Off' then
+    if self.state_var.value == 'Off' or (os.time() - self.last_gambit_time) < self:get_cooldown() then
         return
     end
     self:check_gambits()

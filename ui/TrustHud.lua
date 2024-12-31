@@ -353,6 +353,10 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
 
     --local DebuffSettingsMenuItem = require('ui/settings/menus/debuffs/DebuffSettingsMenuItem')
 
+    local SpellPickerItemMapper = require('ui/settings/pickers/mappers/SpellPickerItemMapper')
+
+    local debuffItemMapper = SpellPickerItemMapper.new(L{})
+
     local debuffSettingsItem = GambitSettingsMenuItem.compact(trust, trustSettings, trustSettingsMode, trustModeSettings, 'DebuffSettings', S{ GambitTarget.TargetType.Enemy }, function(targets)
         local sections = L{
             L(trust:get_job():get_spells(function(spellId)
@@ -363,8 +367,10 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
                 end
                 return false
             end):map(function(spellId)
-                return Spell.new(res.spells[spellId].en)
-            end)),
+                return debuffItemMapper:map(Spell.new(res.spells[spellId].en))
+            end)):unique(function(spell)
+                return spell:get_name()
+            end),
             L(trust:get_job():get_job_abilities(function(jobAbilityId)
                 local jobAbility = res.job_abilities[jobAbilityId]
                 if jobAbility then
@@ -376,7 +382,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
             end)),
         }
         return sections
-    end, S{ Condition.TargetType.Enemy })
+    end, S{ Condition.TargetType.Enemy }, L{'AutoDebuffMode', 'AutoDispelMode', 'AutoSilenceMode'})
 
     -- Modes
     local modesMenuItem = ModesMenuItem.new(self.trustModeSettings, "View and change Trust modes.", L(T(state):keyset()):sort(), true, "modes")
