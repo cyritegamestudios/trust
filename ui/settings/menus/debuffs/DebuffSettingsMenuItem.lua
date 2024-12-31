@@ -219,7 +219,7 @@ function DebuffSettingsMenuItem:getEditBuffMenuItem()
                         end, "Job Abilities", nil, function(buff)
                             return AssetManager.imageItemForJobAbility(buff:get_name())
                         end)
-                        
+
                         local chooseAbilitiesView = FFXIPickerView.withConfig(jobAbilityConfigItem, true)
                         chooseAbilitiesView:on_pick_items():addAction(function(pickerView, selectedJobAbilities)
                             pickerView:getDelegate():deselectAllItems()

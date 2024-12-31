@@ -11,13 +11,14 @@ local GambitSettingsEditor = setmetatable({}, {__index = ConfigEditor })
 GambitSettingsEditor.__index = GambitSettingsEditor
 GambitSettingsEditor.__type = "GambitSettingsEditor"
 
-function GambitSettingsEditor.new(gambit, trustSettings, trustSettingsMode, abilitiesByTargetType)
+function GambitSettingsEditor.new(gambit, trustSettings, trustSettingsMode, abilitiesByTargetType, conditionTargets)
     local validTargets = L(GambitTarget.TargetType:keyset()):filter(function(targetType) return abilitiesByTargetType[targetType]:length() > 0 end)
+    local validConditionTargets = conditionTargets or L(Condition.TargetType.AllTargets)
 
     local configItems = L{
         PickerConfigItem.new('target', gambit.target or GambitTarget.TargetType.Self, validTargets, nil, "Ability target"),
         GambitSettingsEditor.configItemFromGambit(gambit, abilitiesByTargetType),
-        PickerConfigItem.new('conditions_target', gambit.conditions_target or GambitTarget.TargetType.Self, L(GambitTarget.TargetType:keyset()), nil, "Conditions target"),
+        PickerConfigItem.new('conditions_target', gambit.conditions_target or validConditionTargets[1], validConditionTargets, nil, "Conditions target"),
     }
 
     local self = setmetatable(ConfigEditor.new(trustSettings, gambit, configItems), GambitSettingsEditor)

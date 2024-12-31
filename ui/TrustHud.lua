@@ -472,7 +472,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         ButtonItem.default(jobName, 18),
         ButtonItem.default('Reactions', 18),
     }, {
-        Custom = GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, self.trustModeSettings),
+        Custom = GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, self.trustModeSettings, 'GambitSettings'),
         [jobName] = JobGambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, self.trustModeSettings),
         Reactions = ReactSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, self.trustModeSettings),
     }, nil, "Gambits", "Configure Trust behavior.")
