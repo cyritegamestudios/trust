@@ -42,7 +42,6 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
         return self:getAbilitiesForTargets(targets)
     end
     self.conditionTargets = conditionTargets or L(Condition.TargetType.AllTargets)
-    self.conditionTargets = L{ Condition.TargetType.Enemy }
     self.disposeBag = DisposeBag.new()
 
     self.contentViewConstructor = function(_, infoView)
@@ -235,14 +234,14 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
         Confirm = MenuItem.action(function(parent)
             parent:showMenu(editGambitMenuItem)
         end, "Gambits", "Edit ability.")
-    }, function(_, infoView)
+    }, function(_, infoView, showMenu)
         if self.selectedGambit then
             local configItems = L{}
             if self.selectedGambit:getAbility().get_config_items then
-                configItems = self.selectedGambit:getAbility():get_config_items() or L{}
+                configItems = self.selectedGambit:getAbility():get_config_items(self.trust) or L{}
             end
             if not configItems:empty() then
-                local editAbilityEditor = ConfigEditor.new(nil, self.selectedGambit:getAbility(), configItems, infoView)
+                local editAbilityEditor = ConfigEditor.new(nil, self.selectedGambit:getAbility(), configItems, infoView, nil, showMenu)
 
                 self.disposeBag:add(editAbilityEditor:onConfigChanged():addAction(function(newSettings, oldSettings)
                     if self.selectedGambit:getAbility().on_config_changed then
