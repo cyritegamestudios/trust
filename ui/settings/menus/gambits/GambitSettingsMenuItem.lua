@@ -89,9 +89,6 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
     self.contentViewConstructor = function(_, infoView)
         local currentGambits = self.trustSettings:getSettings()[self.trustSettingsMode.value][settingsKey].Gambits
 
-        --local configItem = MultiPickerConfigItem.new("Gambits", L{}, currentGambits, function(gambit)
-        --    return gambit:tostring()
-        --end)
         local configItem = editorStyle:getConfigItem(currentGambits)
 
         local gambitSettingsEditor = FFXIPickerView.new(L{ configItem }, false, editorStyle:getViewSize())
@@ -104,7 +101,7 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
         for rowIndex = 1, gambitSettingsEditor:getDataSource():numberOfItemsInSection(1) do
             local indexPath = IndexPath.new(1, rowIndex)
             local item = gambitSettingsEditor:getDataSource():itemAtIndexPath(indexPath)
-            item:setEnabled(currentGambits[rowIndex]:isEnabled())
+            item:setEnabled(currentGambits[rowIndex]:isEnabled() and self:isValidGambit(currentGambits[rowIndex]))
             itemsToUpdate:append(IndexedItem.new(item, indexPath))
         end
 
@@ -124,7 +121,11 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
         self.disposeBag:add(gambitSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
             local selectedGambit = currentGambits[indexPath.row]
             if selectedGambit then
-                infoView:setDescription(selectedGambit:tostring())
+                if not self:isValidGambit(selectedGambit) then
+                    infoView:setDescription("Unavailable on current job.")
+                else
+                    infoView:setDescription(selectedGambit:tostring())
+                end
             end
         end), gambitSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath())
 
@@ -164,6 +165,16 @@ function GambitSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Toggle", self:getToggleMenuItem())
     self:setChildMenuItem("Reset", self:getResetGambitsMenuItem())
     self:setChildMenuItem("Modes", self:getModesMenuItem())
+end
+
+function GambitSettingsMenuItem:isValidGambit(gambit)
+    if not gambit:getAbility():is_valid() then
+        return false
+    end
+    local job_conditions = gambit:getAbility():get_conditions():filter(function(condition)
+        return condition.__class == MainJobCondition.__class
+    end) or L{}
+    return job_conditions:empty() or Condition.check_conditions(job_conditions, windower.ffxi.get_player().index)
 end
 
 function GambitSettingsMenuItem:getAbilitiesForTargets(targets)
@@ -355,7 +366,7 @@ function GambitSettingsMenuItem:getCopyGambitMenuItem()
 end
 
 function GambitSettingsMenuItem:getToggleMenuItem()
-    return MenuItem.action(function(menu)
+    local toggleMenuItem = MenuItem.action(function(menu)
         local selectedIndexPath = self.gambitSettingsEditor:getDelegate():getCursorIndexPath()
         if selectedIndexPath then
             local item = self.gambitSettingsEditor:getDataSource():itemAtIndexPath(selectedIndexPath)
@@ -368,6 +379,15 @@ function GambitSettingsMenuItem:getToggleMenuItem()
             end
         end
     end, self.editorStyle:getDescription(true), "Temporarily enable or disable the selected "..self.editorStyle:getDescription().." until the addon reloads.")
+
+    toggleMenuItem.enabled = function()
+        if self.selectedGambit then
+            return self:isValidGambit(self.selectedGambit)
+        end
+        return true
+    end
+
+    return toggleMenuItem
 end
 
 function GambitSettingsMenuItem:getMoveUpGambitMenuItem()

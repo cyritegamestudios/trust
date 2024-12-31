@@ -33,6 +33,10 @@ return {
                 }
             }
         },
+        DebuffSettings = {
+            Gambits = L{
+            }
+        },
         PullSettings = {
             Abilities = L{
                 Spell.new('Glutinous Dart', L{}, L{}),

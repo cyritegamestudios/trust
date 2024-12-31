@@ -12,8 +12,10 @@ return {
         PartyBuffs = L{
 
         },
-        Debuffs = L {
+        DebuffSettings = {
+            Gambits = L{
 
+            }
         },
         PullSettings = {
             Abilities = L{
