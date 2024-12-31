@@ -383,7 +383,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
             end)),
         }
         return sections
-    end, L{ Condition.TargetType.Enemy }, L{'AutoDebuffMode', 'AutoDispelMode', 'AutoSilenceMode'})
+    end, L{ Condition.TargetType.Enemy }, L{'AutoDebuffMode', 'AutoDispelMode', 'AutoSilenceMode'}, "Debuff", "Debuffs")
 
     self.disposeBag:add(debuffSettingsItem:onGambitChanged():addAction(function(newGambit, oldGambit)
         if newGambit:getAbility() ~= oldGambit:getAbility() then
