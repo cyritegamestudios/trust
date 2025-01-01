@@ -37,6 +37,7 @@ function DebuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
     end, L{ Condition.TargetType.Enemy }, L{'AutoDebuffMode', 'AutoDispelMode', 'AutoSilenceMode'}, "Debuff", "Debuffs", function(_)
         return false
     end)
+    debuffSettingsItem:setDefaultGambitTags(L{'Debuffs'})
 
     debuffSettingsItem:getDisposeBag():add(debuffSettingsItem:onGambitChanged():addAction(function(newGambit, oldGambit)
         if newGambit:getAbility() ~= oldGambit:getAbility() then

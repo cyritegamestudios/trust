@@ -51,4 +51,16 @@ function FFXIAssetManager.imageItemForElement(elementId)
     return ImageItem.new(windower.addon_path..'assets/icons/icon_light_small.png', 8, 8)
 end
 
+function FFXIAssetManager.imageItemForAbility(abilityName)
+    if res.spells:with('en', abilityName) then
+        return FFXIAssetManager.imageItemForSpell(abilityName)
+    elseif res.job_abilities:with('en', abilityName) then
+        return FFXIAssetManager.imageItemForJobAbility(abilityName)
+    elseif res.weapon_skills[abilityName] then
+        return FFXIAssetManager.imageItemForWeaponSkill(abilityName)
+    else
+        return nil
+    end
+end
+
 return FFXIAssetManager

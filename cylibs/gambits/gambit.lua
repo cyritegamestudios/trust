@@ -64,6 +64,16 @@ function Gambit:isEnabled()
     return self.enabled
 end
 
+function Gambit:isValid()
+    if not self:getAbility():is_valid() then
+        return false
+    end
+    local job_conditions = self:getAbility():get_conditions():filter(function(condition)
+        return condition.__class == MainJobCondition.__class
+    end) or L{}
+    return job_conditions:empty() or Condition.check_conditions(job_conditions, windower.ffxi.get_player().index)
+end
+
 function Gambit:tostring()
     local conditionsDescription = "Never"
     if self.conditions:length() > 0 then
