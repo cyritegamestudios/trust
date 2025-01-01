@@ -1,6 +1,9 @@
 -- Translation files for en
 
 return T{
+    ["AbilityTarget_Self"] = {singular="Self"},
+    ["AbilityTarget_Ally"] = {singular="Ally"},
+    ["AbilityTarget_Enemy"] = {singular="Enemy"},
     ["Button_Modes"] = {singular="Modes"},
     ["Button_Targeting"] = {singular="Targeting"},
     ["Button_Profiles"] = {singular="Profiles"},

@@ -242,32 +242,68 @@ function GambitSettingsMenuItem:getAbilitiesByTargetType()
 end
 
 function GambitSettingsMenuItem:getAddAbilityMenuItem()
-    local blankGambitMenuItem = MenuItem.action(function(menu)
-        local abilitiesByTargetType = self:getAbilitiesByTargetType()
-        local defaultTarget = L(self.abilityTargets)[1]
+    local imageItemForAbility = function(abilityName)
+        abilityName = abilityName:get_name()
+        if res.spells:with('en', abilityName) then
+            return AssetManager.imageItemForSpell(abilityName)
+        elseif res.job_abilities:with('en', abilityName) then
+            return AssetManager.imageItemForJobAbility(abilityName)
+        elseif res.weapon_skills:with('en', abilityName) then
+            return AssetManager.imageItemForWeaponSkill(abilityName)
+        end
+        return nil
+    end
 
-        local newGambit = Gambit.new(defaultTarget, L{}, abilitiesByTargetType[defaultTarget][1], defaultTarget)
+    local abilitiesByTargetType = self:getAbilitiesByTargetType()
 
-        local currentGambits = self.trustSettings:getSettings()[self.trustSettingsMode.value][self.settingsKey].Gambits
-        currentGambits:append(newGambit)
+    local newAbilityMenuItem = function(targetType)
+        local blankGambitMenuItem = MenuItem.new(L{
+            ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
+        }, {}, function(_, _, showMenu)
+            local abilityPickerItem = MultiPickerConfigItem.new('abilities', L{}, abilitiesByTargetType[targetType], function(ability)
+                return ability:get_localized_name()
+            end, "Choose an ability.", nil, imageItemForAbility)
 
-        self.trustSettings:saveSettings(true)
+            local abilityPickerView = FFXIPickerView.withConfig(abilityPickerItem)
 
-        menu:showMenu(self)
+            abilityPickerView:getDisposeBag():add(abilityPickerView:on_pick_items():addAction(function(_, selectedItems)
+                if selectedItems:length() > 0 then
+                    local newGambit = Gambit.new(targetType, L{}, selectedItems[1], targetType)
 
-        self.gambitSettingsEditor:getDelegate():selectItemAtIndexPath(IndexPath.new(1, currentGambits:length()))
+                    local currentGambits = self.trustSettings:getSettings()[self.trustSettingsMode.value][self.settingsKey].Gambits
+                    currentGambits:append(newGambit)
 
-    end, self.editorStyle:getDescription(true), "Add a new "..self.editorStyle:getDescription()..".")
+                    self.trustSettings:saveSettings(true)
+
+                    showMenu(self)
+
+                    self.gambitSettingsEditor:getDelegate():selectItemAtIndexPath(IndexPath.new(1, currentGambits:length()))
+                end
+            end), abilityPickerView:on_pick_items())
+
+            return abilityPickerView
+
+        end, self.editorStyle:getDescription(true), "Add a new "..targetType.." "..self.editorStyle:getDescription()..".")
+        return blankGambitMenuItem
+    end
+
+    local abilityTargetButtonItems = L(self.abilityTargets):map(function(targetType)
+        return ButtonItem.localized(targetType, i18n.translate('AbilityTarget_'..targetType))
+    end)
+
+    local abilityTargetMenuItem = MenuItem.new(abilityTargetButtonItems, {}, nil, self.editorStyle:getDescription(true), "Add a new "..self.editorStyle:getDescription()..".")
+
+    for targetType in L(self.abilityTargets):it() do
+        abilityTargetMenuItem:setChildMenuItem(targetType, newAbilityMenuItem(targetType))
+    end
 
     local addGambitMenuItem = MenuItem.new(L{
         ButtonItem.default('New', 18),
         ButtonItem.default('Browse', 18),
     }, {
-        New = blankGambitMenuItem,
+        New = abilityTargetMenuItem,
         Browse = self:getGambitLibraryMenuItem()
     }, nil, self.editorStyle:getDescription(true), "Add a new "..self.editorStyle:getDescription()..".")
-
-
 
     return addGambitMenuItem
 end
