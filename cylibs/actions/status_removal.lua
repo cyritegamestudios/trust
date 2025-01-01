@@ -5,6 +5,7 @@
 
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Event = require('cylibs/events/Luvent')
+local IsStandingCondition = require('cylibs/conditions/is_standing')
 local SpellCommand = require('cylibs/ui/input/chat/commands/spell')
 
 local Action = require('cylibs/actions/action')
@@ -23,6 +24,8 @@ end
 
 function StatusRemovalAction.new(x, y, z, spell_id, target_index, debuff_id, player)
 	local conditions = L{
+		IsStandingCondition.new(0.5, ">="),
+		NotCondition.new(L{ StatusCondition.new("Mount") }),
 		NotCondition.new(L{InMogHouseCondition.new()}),
 		MaxDistanceCondition.new(20),
 		NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'mute', 'stun'}, 1)}, windower.ffxi.get_player().index),

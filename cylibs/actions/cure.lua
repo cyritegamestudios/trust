@@ -5,6 +5,7 @@
 
 local DisposeBag = require('cylibs/events/dispose_bag')
 
+local IsStandingCondition = require('cylibs/conditions/is_standing')
 local SpellCommand = require('cylibs/ui/input/chat/commands/spell')
 local spell_util = require('cylibs/util/spell_util')
 
@@ -14,6 +15,8 @@ CureAction.__index = CureAction
 
 function CureAction.new(x, y, z, party_member, cure_threshold, mp_cost, healer_job, player, party)
     local conditions = L{
+        IsStandingCondition.new(0.5, ">="),
+        NotCondition.new(L{ StatusCondition.new("Mount") }),
         HitPointsPercentRangeCondition.new(1, cure_threshold, party_member:get_mob().index),
         MaxDistanceCondition.new(20),
         NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'mute', 'stun'}, 1)}, windower.ffxi.get_player().index),

@@ -4,6 +4,7 @@
 -- @name SpellAction
 
 local DisposeBag = require('cylibs/events/dispose_bag')
+local IsStandingCondition = require('cylibs/conditions/is_standing')
 local res = require('resources')
 local SpellCommand = require('cylibs/ui/input/chat/commands/spell')
 local ValidSpellTargetCondition = require('cylibs/conditions/valid_spell_target')
@@ -14,6 +15,8 @@ SpellAction.__index = SpellAction
 
 function SpellAction.new(x, y, z, spell_id, target_index, player, conditions)
 	local conditions = (conditions or L{}):extend(L{
+		IsStandingCondition.new(0.5, ">="),
+		NotCondition.new(L{ StatusCondition.new("Mount") }),
 		NotCondition.new(L{InMogHouseCondition.new()}),
 		MaxDistanceCondition.new(20),
 		NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'mute', 'Invisible', 'stun'}, 1)}, windower.ffxi.get_player().index),
