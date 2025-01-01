@@ -77,6 +77,10 @@ function Engage:serialize()
     return "Engage.new(" .. serializer_util.serialize_args(conditions_to_serialize) .. ")"
 end
 
+function Engage:is_valid()
+    return true
+end
+
 function Engage:__eq(otherItem)
     if otherItem.__type == self.__type then
         return true

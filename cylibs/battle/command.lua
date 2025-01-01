@@ -117,6 +117,10 @@ function Command:copy()
     return _copy(original)
 end
 
+function Command:is_valid()
+    return true
+end
+
 function Command:__eq(otherItem)
     if otherItem.__type == self.__type then
         return true

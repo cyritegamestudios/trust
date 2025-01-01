@@ -237,13 +237,8 @@ end
 
 -------
 -- Called when the ability is updated via get_config_items.
--- @tparam UseItem Old use item
+-- @tparam Spell Old spell
 function Spell:on_config_changed(old_spell)
-    --[[if old_use_item:get_item_name() ~= self:get_item_name() then
-        self.conditions = L{
-            ItemCountCondition.new(self:get_item_name(), 1, Condition.Operator.GreaterThanOrEqualTo)
-        }
-    end]]
 end
 
 -------

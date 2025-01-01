@@ -93,4 +93,8 @@ function RunAway:__eq(otherItem)
     return false
 end
 
+function RunAway:is_valid()
+    return true
+end
+
 return RunAway

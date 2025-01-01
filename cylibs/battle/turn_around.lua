@@ -76,4 +76,15 @@ function TurnAround:serialize()
     return "TurnAround.new(" .. serializer_util.serialize_args(conditions_to_serialize) .. ")"
 end
 
+function TurnAround:is_valid()
+    return true
+end
+
+function TurnAround:__eq(otherItem)
+    if otherItem.__type == self.__type then
+        return true
+    end
+    return false
+end
+
 return TurnAround

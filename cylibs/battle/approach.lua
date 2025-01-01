@@ -89,4 +89,15 @@ function Approach:serialize()
     return "Approach.new(" .. serializer_util.serialize_args(conditions_to_serialize) .. ")"
 end
 
+function Approach:is_valid()
+    return true
+end
+
+function Approach:__eq(otherItem)
+    if otherItem.__type == self.__type then
+        return true
+    end
+    return false
+end
+
 return Approach
