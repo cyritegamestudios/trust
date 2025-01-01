@@ -1783,5 +1783,6 @@ return {
     [21296] = {id=21296,en="Chrono Bullet"},
     [21297] = {id=21297,en="Chrono Arrow",},
     [21326] = {id=21326,en="Living Bullet",},
-
+    [22143] = {id=22143,en="Fomalhaut"},
+    [21485] = {id=21485,en="Fomalhaut"},
 }, {"en", "id"}

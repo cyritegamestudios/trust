@@ -15,6 +15,7 @@ function Gambiter.new(action_queue, gambit_settings, skillchainer, state_var, di
     self.action_queue = action_queue
     self.skillchainer = skillchainer
     self.state_var = state_var or state.AutoGambitMode
+    self.last_gambit_time = os.time() - self:get_cooldown()
     self.disable_react = disable_react
 
     self:set_gambit_settings(gambit_settings)
@@ -198,6 +199,8 @@ function Gambiter:tic(new_time, old_time)
     if self.state_var.value == 'Off' or (os.time() - self.last_gambit_time) < self:get_cooldown() then
         return
     end
+    self.last_gambit_time = os.time()
+
     self:check_gambits()
 end
 
