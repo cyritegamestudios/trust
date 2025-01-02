@@ -27,8 +27,6 @@ function Migration_v21:perform(trustSettings, _, _)
 
         local allBuffs = L{}
 
-        -- FIXME: need to move the existing conditions from the spell to the gambit
-
         if currentSettings.SelfBuffs then
             allBuffs = allBuffs + currentSettings.SelfBuffs:map(function(buff)
                 local gambit = Gambit.new(GambitTarget.TargetType.Self, buff.conditions, buff, "Self")
@@ -39,7 +37,11 @@ function Migration_v21:perform(trustSettings, _, _)
 
         if currentSettings.PartyBuffs then
             allBuffs = allBuffs + currentSettings.PartyBuffs:map(function(buff)
-                local gambit = Gambit.new(GambitTarget.TargetType.Ally, buff.conditions, buff, "Ally")
+                local gambitTarget = GambitTarget.TargetType.Ally
+                if trustSettings.jobNameShort == 'SMN' then
+                    gambitTarget = GambitTarget.TargetType.Self
+                end
+                local gambit = Gambit.new(gambitTarget, buff.conditions, buff, gambitTarget)
                 buff.conditions = L{}
                 return gambit
             end)

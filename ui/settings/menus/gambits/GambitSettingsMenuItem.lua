@@ -113,7 +113,7 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
             local selectedGambit = currentGambits[indexPath.row]
             if selectedGambit then
                 if not selectedGambit:isValid() then
-                    infoView:setDescription("Unavailable on current job.")
+                    infoView:setDescription("Unavailable on current job or settings.")
                 else
                     infoView:setDescription(selectedGambit:tostring())
                 end

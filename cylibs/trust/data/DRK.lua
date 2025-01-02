@@ -17,7 +17,7 @@ local Puller = require('cylibs/trust/roles/puller')
 function DarkKnightTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = DarkKnight.new()
 	local roles = S{
-		Buffer.new(action_queue, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
+		Buffer.new(action_queue, trust_settings.BuffSettings),
 		Debuffer.new(action_queue,trust_settings.DebuffSettings),
 		Dispeler.new(action_queue, L{ Spell.new('Absorb-Attri') }, L{}, false),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
@@ -33,9 +33,6 @@ function DarkKnightTrust:on_init()
 	Trust.on_init(self)
 
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
-		local buffer = self:role_with_type("buffer")
-		buffer:set_self_buffs(new_trust_settings.SelfBuffs)
-
 		local debuffer = self:role_with_type("debuffer")
 		debuffer:set_debuff_settings(new_trust_settings.DebuffSettings)
 

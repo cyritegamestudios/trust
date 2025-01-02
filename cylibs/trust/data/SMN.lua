@@ -8,12 +8,14 @@ local Avatar = require('cylibs/entity/avatar')
 local MagicBurster = require('cylibs/trust/roles/magic_burster')
 local ManaRestorer = require('cylibs/trust/roles/mana_restorer')
 local Summoner = require('cylibs/entity/jobs/SMN')
+local Warder = require('cylibs/trust/roles/warder')
 
 state.AutoAssaultMode = M{['description'] = 'Auto Assault Mode', 'Off', 'Auto'}
 state.AutoAvatarMode = M{['description'] = 'Avatar Mode', 'Off', 'Ifrit', 'Ramuh', 'Shiva', 'Garuda', 'Leviathan', 'Titan', 'Carbuncle', 'Diabolos', 'Fenrir', 'Siren', 'Cait Sith'}
 
 function SummonerTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local roles = S{
+		Warder.new(action_queue, trust_settings.BuffSettings),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, Summoner.new(), true),
 		ManaRestorer.new(action_queue, L{'Myrkr', 'Spirit Taker'}, L{}, 40),
 	}
@@ -22,7 +24,7 @@ function SummonerTrust.new(settings, action_queue, battle_settings, trust_settin
 
 	self.settings = settings
 	self.action_queue = action_queue
-	self.party_buffs = trust_settings.PartyBuffs or L{}
+	self.party_buffs = trust_settings.BuffSettings.Gambits or L{}
 	self.last_buff_time = os.time()
 	self.last_avatar_check_time = os.time()
 	self.is_auto_avatar_enabled = true
@@ -43,7 +45,7 @@ function SummonerTrust:on_init()
 			end)
 
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
-		self.party_buffs = new_trust_settings.PartyBuffs or L{}
+		self.party_buffs = new_trust_settings.BuffSettings.Gambits or L{}
 
 		local puller = self:role_with_type("puller")
 		if puller then
@@ -108,8 +110,8 @@ function SummonerTrust:check_avatar()
 end
 
 function SummonerTrust:get_inactive_buffs()
-	return self.party_buffs:filter(function(buff)
-		return not buff_util.is_buff_active(buff_util.buff_for_job_ability(buff:get_job_ability_id()).id)
+	return self.party_buffs:filter(function(gambit)
+		return not buff_util.is_buff_active(buff_util.buff_for_job_ability(gambit:getAbility():get_job_ability_id()).id)
 	end)
 end
 
@@ -119,7 +121,8 @@ function SummonerTrust:check_buffs()
 		return
 	end
 
-	for buff in self:get_inactive_buffs():it() do
+	for gambit in self:get_inactive_buffs():it() do
+		local buff = gambit:getAbility()
 		local recast_id = res.job_abilities:with('en', "Blood Pact: Ward").recast_id
 		if windower.ffxi.get_ability_recasts()[recast_id] == 0 then
 			local actions = L{}

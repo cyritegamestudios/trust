@@ -9,6 +9,12 @@ return {
         PartyBuffs = L{
 
         },
+        BuffSettings = {
+            Gambits = L{
+                Gambit.new("Self", L{InBattleCondition.new(), HasPetCondition.new()}, JobAbility.new('Killer Instinct', L{}), "Self"),
+                Gambit.new("Self", L{InBattleCondition.new(), HasPetCondition.new()}, JobAbility.new('Spur', L{}), "Self"),
+            }
+        },
         DebuffSettings = {
             Gambits = L{
             }

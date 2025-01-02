@@ -39,6 +39,17 @@ function Summoner:destroy()
 end
 
 -------
+-- Returns a list of known job abilities.
+-- @tparam function filter Optional filter function
+-- @treturn list List of known job ability ids
+function Summoner:get_job_abilities(filter)
+    filter = filter or function(_) return true end
+    local job_abilities = Job.get_job_abilities(self, filter)
+    job_abilities = (job_abilities + self:get_blood_pact_wards():map(function(buff) return buff:get_ability_id() end):filter(filter)):unique(function(job_ability_id) return job_ability_id end)
+    return job_abilities
+end
+
+-------
 -- Returns the Spell for the cure that should be used to restore the given amount of hp.
 -- @tparam number hp_missing Amount of hp missing
 -- @treturn Spell Cure spell

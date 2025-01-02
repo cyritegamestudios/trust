@@ -1,4 +1,6 @@
 local DisposeBag = require('cylibs/events/dispose_bag')
+local Gambit = require('cylibs/gambits/gambit')
+local GambitTarget = require('cylibs/gambits/gambit_target')
 local Geocolure = require('cylibs/entity/geocolure')
 local Nuker = require('cylibs/trust/roles/nuker')
 local Buffer = require('cylibs/trust/roles/buffer')
@@ -23,8 +25,11 @@ state.AutoEntrustMode:set_description('Auto', "Okay, I'll entrust Indicolure spe
 
 function GeomancerTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = Geomancer.new()
+	local entrust = trust_settings.Geomancy.Entrust:copy()
+	entrust.conditions = L{}
+	local entrustGambit = Gambit.new(GambitTarget.TargetType.Self, trust_settings.Geomancy.Entrust.conditions, entrust, "Ally")
 	local roles = S{
-		Buffer.new(action_queue, trust_settings.SelfBuffs, L{ trust_settings.Geomancy.Entrust }, state.AutoEntrustMode),
+		Buffer.new(action_queue, { Gambits = L{ entrustGambit } }, state.AutoEntrustMode),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{ 'Theurgic Focus' }, job),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		ManaRestorer.new(action_queue, L{"Spirit Taker", "Moonlight"}, L{}, 40)

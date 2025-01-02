@@ -19,7 +19,7 @@ state.AutoArtsMode = M{['description'] = 'Auto Arts Mode', 'Off', 'LightArts', '
 
 function ScholarTrust.new(settings, action_queue, battle_settings, trust_settings)
     local self = setmetatable(Trust.new(action_queue, S{
-        Buffer.new(action_queue, L{}, L{}),
+        Buffer.new(action_queue, trust_settings.BuffSettings),
         Debuffer.new(action_queue, trust_settings.DebuffSettings),
     }, trust_settings, Scholar.new(trust_settings)), ScholarTrust)
 

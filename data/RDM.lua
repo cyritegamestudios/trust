@@ -39,7 +39,6 @@ return {
             MinNumAOETargets = 3,
             Delay = 2
         },
-
         NukeSettings = {
             MinNumMobsToCleave = 2,
             MinManaPointsPercent = 40,

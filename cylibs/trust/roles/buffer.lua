@@ -1,13 +1,5 @@
 local BuffConflictsCondition = require('cylibs/conditions/buff_conflicts')
 local BuffTracker = require('cylibs/battle/buff_tracker')
-local res = require('resources')
-local buff_util = require('cylibs/util/buff_util')
-local spell_util = require('cylibs/util/spell_util')
-local JobAbilityAction = require('cylibs/actions/job_ability')
-local WaitAction = require('cylibs/actions/wait')
-local SequenceAction = require('cylibs/actions/sequence')
-local SpellAction = require('cylibs/actions/spell')
-local job_util = require('cylibs/util/job_util')
 
 local Gambiter = require('cylibs/trust/roles/gambiter')
 local Buffer = setmetatable({}, {__index = Gambiter })
@@ -45,11 +37,14 @@ function Buffer:set_buff_settings(buff_settings)
 end
 
 function Buffer:get_default_conditions(gambit)
-    return L{
-        MaxDistanceCondition.new(gambit:getAbility():get_range()),
+    local conditions = L{
         NotCondition.new(L{ HasBuffCondition.new(gambit:getAbility():get_status().en) }),
         NotCondition.new(L{ BuffConflictsCondition.new(gambit:getAbility():get_status().en)})
     }
+    if L(gambit:getAbility():get_valid_targets()) ~= L{ 'Self' } then
+        conditions:append(MaxDistanceCondition.new(gambit:getAbility():get_range()))
+    end
+    return conditions
 end
 
 function Buffer:allows_duplicates()

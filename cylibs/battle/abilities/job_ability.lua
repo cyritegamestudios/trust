@@ -143,19 +143,18 @@ end
 -- Return the Action to use this job ability on a target.
 -- @treturn Action Action to cast the spell
 function JobAbility:to_action(target_index)
-    local job_ability_action
+    local actions = L{}
     if string.find(self:get_job_ability_name(), 'Waltz') then
-        job_ability_action = WaltzAction.new(self:get_job_ability_name(), target_index or self:get_target())
+        actions:append(WaltzAction.new(self:get_job_ability_name(), target_index or self:get_target()))
     elseif string.find(self:get_job_ability_name(), 'Flourish') then
-        job_ability_action = FlourishAction.new(self:get_job_ability_name(), target_index or self:get_target())
+        actions:append(FlourishAction.new(self:get_job_ability_name(), target_index or self:get_target()))
+    elseif res.job_abilities[self:get_ability_id()].type == 'BloodPactWard' then
+        actions:append(JobAbilityAction.new(0, 0, 0, self:get_job_ability_name(), target_index or self:get_target()))
     else
-        job_ability_action = JobAbilityAction.new(0, 0, 0, self:get_job_ability_name(), target_index or self:get_target())
+        actions:append(JobAbilityAction.new(0, 0, 0, self:get_job_ability_name(), target_index or self:get_target()))
     end
+    actions:append(WaitAction.new(0, 0, 0, 2))
 
-    local actions = L{
-        job_ability_action,
-        WaitAction.new(0, 0, 0, 2),
-    }
     return SequenceAction.new(actions, 'job_ability_'..self:get_job_ability_name())
 end
 
