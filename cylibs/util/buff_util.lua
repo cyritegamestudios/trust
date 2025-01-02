@@ -309,6 +309,10 @@ end
 -- @tparam number job_ability_id Id in job_abilities.lua
 -- @treturn BuffMetadata Full metadata for the buff (see buffs.lua)
 function buff_util.buff_for_job_ability(job_ability_id)
+	-- NOTE: there is a bug in res/job_abilities.lua that says Wind's Blessing gives Magic Shield
+	if res.job_abilities[job_ability_id].en == "Wind's Blessing" then
+		return res.buffs:with('en', "Wind's Blessing")
+	end
 	local job_ability = res.job_abilities:with('id', job_ability_id)
 	if job_ability.status == nil then
 		job_ability = job_abilities_ext:with('id', job_ability_id)

@@ -713,6 +713,8 @@ function handle_debug()
 		end
 	end
 
+
+
 	for party in player.alliance:get_parties():it() do
 		print('targets', party:get_targets())
 	end
@@ -737,9 +739,9 @@ function handle_debug()
 	print(num_created)
 	print('images', num_images_created)
 
-	print(L(windower.ffxi.get_player().buffs):map(function(buff_id)
-		return buff_id
-		--return res.buffs:with('id', buff_id).en
+	print('player', L(windower.ffxi.get_player().buffs):map(function(buff_id)
+		--return buff_id
+		return res.buffs:with('id', buff_id).en
 	end))
 
 	local alliance = player.alliance
