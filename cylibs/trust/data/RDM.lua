@@ -12,6 +12,7 @@ RedMageTrust.__index = RedMageTrust
 
 local Debuff = require('cylibs/battle/spells/debuff')
 
+local Barspeller = require('cylibs/trust/roles/barspeller')
 local Buffer = require('cylibs/trust/roles/buffer')
 local Debuffer = require('cylibs/trust/roles/debuffer')
 local Dispeler = require('cylibs/trust/roles/dispeler')
@@ -34,6 +35,7 @@ function RedMageTrust.new(settings, action_queue, battle_settings, trust_setting
 	local job = RedMage.new(trust_settings.CureSettings)
 	local roles = S{
 		Buffer.new(action_queue, trust_settings.BuffSettings),
+		Barspeller.new(action_queue, job),
 		Debuffer.new(action_queue, trust_settings.DebuffSettings),
 		Dispeler.new(action_queue, L{ Spell.new('Dispel') }, L{}, true),
 		Healer.new(action_queue, job),

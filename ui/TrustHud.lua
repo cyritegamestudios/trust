@@ -521,8 +521,9 @@ end
 
 function TrustHud:getBufferMenuItem(trust, jobNameShort, trustSettings, trustSettingsMode, trustModeSettings)
     local BufferSettingsMenuItem = require('ui/settings/menus/buffs/BufferSettingsMenuItem')
+    local BuffSettingsMenuItem = require('ui/settings/menus/buffs/BuffSettingsMenuItem')
     if jobNameShort ~= 'SCH' then
-        local bufferSettingsMenuItem = BufferSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, jobNameShort)
+        local bufferSettingsMenuItem = BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings)
         return bufferSettingsMenuItem
     else
         local childMenuItems = {}

@@ -27,7 +27,9 @@ function Migration_v20:perform(trustSettings, _, _)
 
         currentSettings.DebuffSettings = {
             Gambits = currentSettings.Debuffs:map(function(debuff)
-                return Gambit.new(GambitTarget.TargetType.Enemy, L{}, debuff, "Enemy")
+                local gambit = Gambit.new(GambitTarget.TargetType.Enemy, debuff.conditions, debuff, "Enemy")
+                debuff.conditions = L{}
+                return gambit
             end)
         }
         currentSettings.Debuffs = nil
