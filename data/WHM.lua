@@ -56,7 +56,7 @@ return {
         },
         DebuffSettings = {
             Gambits = L{
-                Gambit.new("Enemy", L{}, Debuff.new("Dia", L{}, L{}, L{}), "Enemy", L{})
+                Gambit.new("Enemy", L{}, Debuff.new("Dia", L{}, L{}, L{}), "Enemy", L{"Debuffs"})
             }
         },
         PullSettings = {
