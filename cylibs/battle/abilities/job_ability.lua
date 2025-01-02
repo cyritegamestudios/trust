@@ -36,7 +36,7 @@ function JobAbility.new(job_ability_name, conditions, job_names, target)
         enabled = true;
     }, JobAbility)
 
-    if self:get_job_ability().type ~= 'Scholar' then
+    if not S{ 'Scholar', 'BloodPactWard' }:contains(self:get_job_ability().type) then
         self:add_condition(JobAbilityRecastReadyCondition.new(job_ability_name))
     end
 

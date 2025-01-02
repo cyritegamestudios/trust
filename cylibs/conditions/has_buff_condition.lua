@@ -35,9 +35,6 @@ function HasBuffCondition:is_satisfied(target_index)
             end
             return false
         else
-            if target.name == 'Wapiti' then
-                print(self.buff_name, S(party_util.get_buffs(target.id)), S(all_buff_ids):intersection(S(party_util.get_buffs(target.id))):length() > 0)
-            end
             -- need to make sure all debuff ids are added to buff_util before using this
             --local party_member = player.alliance:get_alliance_member_named(target.name)
             --return S(party_member:get_buff_ids()):contains(buff_id)
@@ -48,13 +45,13 @@ function HasBuffCondition:is_satisfied(target_index)
 end
 
 function HasBuffCondition:get_config_items()
-    local all_buffs = L(S(buff_util.get_all_buff_ids(true):map(function(buff_id)
+    local all_buffs = L(S(L(buff_util.get_all_buff_ids(true):map(function(buff_id)
         local buff = res.buffs[buff_id]
         if buff then
             return buff.en
         end
         return nil
-    end))):compact_map():sort()
+    end)):compact_map())):sort()
 
     return L{
         PickerConfigItem.new('buff_name', self.buff_name, all_buffs, function(buff_name)

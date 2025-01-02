@@ -18,7 +18,7 @@ function Warder:set_buff_settings(buff_settings)
     Buffer.set_buff_settings(self, buff_settings)
 
     -- Gambits are handled by Summoner trust
-    self:set_gambit_settings(L{})
+    --self:set_gambit_settings(L{})
 end
 
 function Warder:get_default_conditions(gambit)

@@ -3,6 +3,7 @@
 -- @class module
 -- @name Migration_v21
 
+local BloodPactWard = require('cylibs/battle/abilities/blood_pact_ward')
 local Gambit = require('cylibs/gambits/gambit')
 local GambitTarget = require('cylibs/gambits/gambit_target')
 
@@ -40,6 +41,7 @@ function Migration_v21:perform(trustSettings, _, _)
                 local gambitTarget = GambitTarget.TargetType.Ally
                 if trustSettings.jobNameShort == 'SMN' then
                     gambitTarget = GambitTarget.TargetType.Self
+                    buff = BloodPactWard.new(buff:get_name())
                 end
                 local gambit = Gambit.new(gambitTarget, buff.conditions, buff, gambitTarget)
                 buff.conditions = L{}
