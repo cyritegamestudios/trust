@@ -51,6 +51,10 @@ function WeaponSkill:serialize()
     return "WeaponSkill.new(" .. serializer_util.serialize_args(self:get_name(), conditions_to_serialize) .. ")"
 end
 
+function WeaponSkill:is_valid()
+    return true
+end
+
 function WeaponSkill:__eq(otherItem)
     if not L{ SkillchainAbility.__class, WeaponSkill.__class }:contains(otherItem.__class) then
         return false
