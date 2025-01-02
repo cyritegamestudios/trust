@@ -188,6 +188,16 @@ function buff_util.buff_id(buff_name)
 	return nil
 end
 
+function buff_util.all_buff_ids(buff_name)
+	local buff_ids = L{}
+	local buff_names = L{ buff_name, string.lower(buff_name), buff_name:gsub("^%l", string.upper) }
+	for buff_name in buff_names:it() do
+		local all_buffs = res.buffs:with_all('en', buff_name) + res.buffs:with_all('enl', buff_name) + buffs_ext:with_all('en', buff_name)
+		buff_ids = buff_ids + all_buffs:map(function(buff) return buff.id end)
+	end
+	return buff_ids
+end
+
 -------
 -- Filters the list of buff_ids and returns the full metadata for buffs only.
 -- @tparam list buff_ids List of buff ids (see buffs.lua)

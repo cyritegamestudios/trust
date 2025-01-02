@@ -2,11 +2,10 @@
 return {
     Version = 2,
     Default = {
-        SelfBuffs = L{
-            JobAbility.new('Mana Wall', L{}, L{}, nil),
-        },
-        PartyBuffs = L{
-
+        BuffSettings = {
+            Gambits = L{
+                Gambit.new("Self", L{}, JobAbility.new('Mana Wall', L{}, L{}, nil), "Self"),
+            }
         },
         DebuffSettings = {
             Gambits = L{

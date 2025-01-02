@@ -54,6 +54,10 @@ function Trust:init()
 		if targeter then
 			targeter:set_target_settings(new_trust_settings.TargetSettings)
 		end
+		local buffer = self:role_with_type("buffer")
+		if buffer then
+			buffer:set_buff_settings(new_trust_settings.BuffSettings)
+		end
 
 		self.gambits = new_trust_settings.GambitSettings.Default or L{}
 	end)

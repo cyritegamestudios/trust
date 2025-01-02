@@ -141,6 +141,9 @@ function Condition.check_conditions(conditions, param, ...)
             target_index = param
         end
         if not condition:is_satisfied(target_index, ...) then
+            if windower.ffxi.get_mob_by_index(target_index).name == 'Wapiti' then
+                print('failed', condition:tostring(), windower.ffxi.get_mob_by_index(target_index).name)
+            end
             logger.error(condition.__class, "Failed", condition:tostring())
             return false
         end

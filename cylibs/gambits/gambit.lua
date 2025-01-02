@@ -22,6 +22,13 @@ function Gambit:isSatisfied(target, param)
     if target == nil or target:get_mob() == nil then
         return false
     end
+    if target.name == 'Wapiti' then
+        print(self:getAbility():get_conditions():map(function(c) return c.__type  end))
+
+        print('checking', self:getAbility():get_name(), 'for', target.name, self.conditions:length() > 0, Condition.check_conditions(self.conditions, target:get_mob().index, param), Condition.check_conditions(self:getAbility():get_conditions(), windower.ffxi.get_player().index, param))
+
+        --local result = Condition.check_conditions(self.conditions, target:get_mob().index, param)
+    end
     return self.conditions:length() > 0 and Condition.check_conditions(self.conditions, target:get_mob().index, param)
         and Condition.check_conditions(self:getAbility():get_conditions(), windower.ffxi.get_player().index, param)
 end

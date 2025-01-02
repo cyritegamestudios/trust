@@ -131,7 +131,7 @@ function PartyMember.new(id, name)
     self.pet_change = Event.newEvent()
     self.spell_finish = Event.newEvent()
     self.status_change = Event.newEvent()
-
+    
     local party_member_info = party_util.get_party_member_info(id)
     if party_member_info then
         self.hp = party_member_info.hp or 0
