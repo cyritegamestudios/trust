@@ -20,7 +20,7 @@ state.AutoArtsMode = M{['description'] = 'Auto Arts Mode', 'Off', 'LightArts', '
 function ScholarTrust.new(settings, action_queue, battle_settings, trust_settings)
     local self = setmetatable(Trust.new(action_queue, S{
         Buffer.new(action_queue, L{}, L{}),
-        Debuffer.new(action_queue),
+        Debuffer.new(action_queue, trust_settings.DebuffSettings),
     }, trust_settings, Scholar.new(trust_settings)), ScholarTrust)
 
     self.settings = settings
@@ -63,6 +63,9 @@ function ScholarTrust:on_init()
                 buffer:set_party_buffs(L{})
             end
         end
+
+        local debuffer = self:role_with_type("debuffer")
+        debuffer:set_debuff_settings(new_trust_settings.DebuffSettings)
 
         local nuker_roles = self:roles_with_types(L{ "nuker", "magicburster" })
         for role in nuker_roles:it() do
@@ -122,7 +125,7 @@ function ScholarTrust:update_for_arts(new_arts_mode)
     if new_arts_mode == 'LightArts' then
         self.arts_roles = S{
             Buffer.new(self.action_queue, self:get_job():get_light_arts_self_buffs(), self:get_job():get_light_arts_party_buffs()),
-            Debuffer.new(self.action_queue),
+            Debuffer.new(self.action_queue, self:get_trust_settings().DebuffSettings),
             Healer.new(self.action_queue, self:get_job()),
             ManaRestorer.new(self.action_queue, L{'Myrkr', 'Spirit Taker'}, L{}, 40),
             Puller.new(self.action_queue, self:get_trust_settings().PullSettings.Targets, self:get_trust_settings().PullSettings.Abilities or L{ Spell.new('Stone') }:compact_map()),
@@ -131,7 +134,7 @@ function ScholarTrust:update_for_arts(new_arts_mode)
     elseif new_arts_mode == 'DarkArts' then
         self.arts_roles = S{
             Buffer.new(self.action_queue, self:get_job():get_dark_arts_self_buffs(), self:get_job():get_dark_arts_party_buffs()),
-            Debuffer.new(self.action_queue),
+            Debuffer.new(self.action_queue, self:get_trust_settings().DebuffSettings),
             Dispeler.new(self.action_queue, L{ Spell.new('Dispel', L{'Addendum: Black'}) }, L{}, true),
             MagicBurster.new(self.action_queue, self:get_trust_settings().NukeSettings, 0.8, L{ 'Ebullience' }, self:get_job()),
             ManaRestorer.new(self.action_queue, L{'Myrkr', 'Spirit Taker'}, L{}, 40),

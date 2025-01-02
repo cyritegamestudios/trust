@@ -24,7 +24,7 @@ function WhiteMageTrust.new(settings, action_queue, battle_settings, trust_setti
 		StatusRemover.new(action_queue, job),
 		Barspeller.new(action_queue, job),
 		Buffer.new(action_queue, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
-		Debuffer.new(action_queue, trust_settings.Debuffs),
+		Debuffer.new(action_queue, trust_settings.DebuffSettings),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		ManaRestorer.new(action_queue, L{'Mystic Boon', 'Dagan', 'Spirit Taker', 'Moonlight'}, L{}, 40),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
@@ -54,7 +54,7 @@ function WhiteMageTrust:on_init()
 		end
 
 		local debuffer = self:role_with_type("debuffer")
-		debuffer:set_debuff_spells(new_trust_settings.Debuffs)
+		debuffer:set_debuff_settings(new_trust_settings.DebuffSettings)
 
 		local puller = self:role_with_type("puller")
 		if puller then

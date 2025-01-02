@@ -30,7 +30,7 @@ state.AutoClarionCallMode:set_description('Auto', "Okay, I'll use Clarion Call b
 function BardTrust.new(settings, action_queue, battle_settings, trust_settings, addon_settings)
 	local job = Bard.new(trust_settings, addon_settings)
 	local roles = S{
-		Debuffer.new(action_queue, trust_settings.Debuffs),
+		Debuffer.new(action_queue, trust_settings.DebuffSettings),
 		Singer.new(action_queue, trust_settings.SongSettings.DummySongs, trust_settings.SongSettings.Songs, trust_settings.SongSettings.PianissimoSongs, job, state.AutoSongMode, ActionPriority.medium),
 		Dispeler.new(action_queue, L{ Spell.new('Magic Finale') }, L{}, true),
 		Puller.new(action_queue, trust_settings.PullSettings.Targets, L{ Spell.new('Carnage Elegy') }),
@@ -73,7 +73,7 @@ function BardTrust:on_init()
 		singer:set_pianissimo_songs(new_trust_settings.SongSettings.PianissimoSongs)
 
 		local debuffer = self:role_with_type("debuffer")
-		debuffer:set_debuff_spells(new_trust_settings.Debuffs)
+		debuffer:set_debuff_settings(new_trust_settings.DebuffSettings)
 
 		local puller = self:role_with_type("puller")
 		if puller then

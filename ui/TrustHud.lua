@@ -14,6 +14,7 @@ local FollowSettingsMenuItem = require('ui/settings/menus/FollowSettingsMenuItem
 local FoodSettingsMenuItem = require('ui/settings/menus/buffs/FoodSettingsMenuItem')
 local Frame = require('cylibs/ui/views/frame')
 local GambitSettingsMenuItem = require('ui/settings/menus/gambits/GambitSettingsMenuItem')
+local GambitTarget = require('cylibs/gambits/gambit_target')
 local GameInfo = require('cylibs/util/ffxi/game_info')
 local JobGambitSettingsMenuItem = require('ui/settings/menus/gambits/JobGambitSettingsMenuItem')
 local Keyboard = require('cylibs/ui/input/keyboard')
@@ -352,7 +353,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
 
     local DebuffSettingsMenuItem = require('ui/settings/menus/debuffs/DebuffSettingsMenuItem')
 
-    local debuffSettingsItem = DebuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, addon_settings)
+    local debuffSettingsItem = DebuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings)
 
     -- Modes
     local modesMenuItem = ModesMenuItem.new(self.trustModeSettings, "View and change Trust modes.", L(T(state):keyset()):sort(), true, "modes")
@@ -472,7 +473,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         ButtonItem.default(jobName, 18),
         ButtonItem.default('Reactions', 18),
     }, {
-        Custom = GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, self.trustModeSettings),
+        Custom = GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, self.trustModeSettings, 'GambitSettings'),
         [jobName] = JobGambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, self.trustModeSettings),
         Reactions = ReactSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, self.trustModeSettings),
     }, nil, "Gambits", "Configure Trust behavior.")

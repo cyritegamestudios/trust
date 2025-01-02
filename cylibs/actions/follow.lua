@@ -51,7 +51,7 @@ function FollowAction:perform()
 end
 
 function FollowAction:check_follow(retry_count)
-    if Condition.check_conditions(self.complete_conditions, self.target_index) then
+    if Condition.check_conditions(self.complete_conditions, self.target_index) or windower.ffxi.get_mob_by_target('t') == nil then
         windower.ffxi.follow()
         self:complete(true)
         return

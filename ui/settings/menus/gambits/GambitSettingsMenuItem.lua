@@ -1,10 +1,13 @@
+local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConditionSettingsMenuItem = require('ui/settings/menus/conditions/ConditionSettingsMenuItem')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local DisposeBag = require('cylibs/events/dispose_bag')
+local Event = require('cylibs/events/Luvent')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local Gambit = require('cylibs/gambits/gambit')
+local GambitEditorStyle = require('ui/settings/menus/gambits/GambitEditorStyle')
 local GambitLibraryMenuItem = require('ui/settings/menus/gambits/GambitLibraryMenuItem')
 local GambitSettingsEditor = require('ui/settings/editors/GambitSettingsEditor')
 local GambitTarget = require('cylibs/gambits/gambit_target')
@@ -17,7 +20,34 @@ local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerCon
 local GambitSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 GambitSettingsMenuItem.__index = GambitSettingsMenuItem
 
-function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings)
+function GambitSettingsMenuItem:onGambitChanged()
+    return self.gambitChanged
+end
+
+function GambitSettingsMenuItem.compact(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKey, abilityTargets, abilitiesForTargets, conditionTargets, modes, abilityCategory, abilityCategoryPlural, libraryCategoryFilter)
+    local configItemForGambits = function(gambits)
+        local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit)
+            return gambit:getAbility():get_localized_name()
+        end, abilityCategoryPlural, nil, function(gambit)
+            return AssetManager.imageItemForAbility(gambit:getAbility():get_name())
+        end)
+        return configItem
+    end
+
+    local editorStyle = GambitEditorStyle.new(configItemForGambits, nil, abilityCategory, abilityCategoryPlural)
+
+    local self = GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKey, abilityTargets, abilitiesForTargets, conditionTargets, editorStyle, modes, libraryCategoryFilter)
+    return self
+end
+
+function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKey, abilityTargets, abilitiesForTargets, conditionTargets, editorStyle, modes, libraryCategoryFilter)
+    editorStyle = editorStyle or GambitEditorStyle.new(function(gambits)
+        local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit)
+            return gambit:tostring()
+        end)
+        return configItem
+    end, FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge, "Gambit", "Gambits")
+
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Add', 18),
         ButtonItem.default('Edit', 18),
@@ -28,22 +58,31 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
         ButtonItem.default('Toggle', 18),
         ButtonItem.default('Reset', 18),
         ButtonItem.localized('Modes', i18n.translate('Button_Modes')),
-    }, {}, nil, "Gambits", "Add custom behaviors.", false), GambitSettingsMenuItem)  -- changed keep views to false
+    }, {}, nil, editorStyle:getDescription(true), "Configure "..editorStyle:getDescription(true)..".", false), GambitSettingsMenuItem)  -- changed keep views to false
 
     self.trust = trust
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
     self.trustModeSettings = trustModeSettings
+    self.settingsKey = settingsKey
+    self.abilityTargets = abilityTargets or S(GambitTarget.TargetType:keyset())
+    self.abilitiesForTargets = abilitiesForTargets or function(targets)
+        return self:getAbilitiesForTargets(targets)
+    end
+    self.conditionTargets = conditionTargets or L(Condition.TargetType.AllTargets)
+    self.editorConfig = editorStyle
+    self.modes = modes or L{ state.AutoGambitMode.value }
+    self.libraryCategoryFilter = libraryCategoryFilter
+    self.defaultGambitTags = L{}
+    self.gambitChanged = Event.newEvent()
     self.disposeBag = DisposeBag.new()
 
-    self.contentViewConstructor = function(_, infoView)
-        local currentGambits = self.trustSettings:getSettings()[self.trustSettingsMode.value].GambitSettings.Gambits
+    self.contentViewConstructor = function(_, infoView, _)
+        local currentGambits = self:getSettings().Gambits
 
-        local configItem = MultiPickerConfigItem.new("Gambits", L{}, currentGambits, function(gambit)
-            return gambit:tostring()
-        end)
+        local configItem = self.editorConfig:getConfigItem(currentGambits)
 
-        local gambitSettingsEditor = FFXIPickerView.new(L{ configItem }, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge)
+        local gambitSettingsEditor = FFXIPickerView.new(L{ configItem }, false, self.editorConfig:getViewSize())
         gambitSettingsEditor:setAllowsCursorSelection(true)
 
         gambitSettingsEditor:setNeedsLayout()
@@ -53,7 +92,7 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
         for rowIndex = 1, gambitSettingsEditor:getDataSource():numberOfItemsInSection(1) do
             local indexPath = IndexPath.new(1, rowIndex)
             local item = gambitSettingsEditor:getDataSource():itemAtIndexPath(indexPath)
-            item:setEnabled(currentGambits[rowIndex]:isEnabled())
+            item:setEnabled(currentGambits[rowIndex]:isEnabled() and currentGambits[rowIndex]:isValid())
             itemsToUpdate:append(IndexedItem.new(item, indexPath))
         end
 
@@ -73,7 +112,11 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
         self.disposeBag:add(gambitSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
             local selectedGambit = currentGambits[indexPath.row]
             if selectedGambit then
-                infoView:setDescription(selectedGambit:tostring())
+                if not selectedGambit:isValid() then
+                    infoView:setDescription("Unavailable on current job.")
+                else
+                    infoView:setDescription(selectedGambit:tostring())
+                end
             end
         end), gambitSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath())
 
@@ -94,7 +137,13 @@ end
 function GambitSettingsMenuItem:destroy()
     MenuItem.destroy(self)
 
+    self.gambitChanged:removeAllActions()
+
     self.disposeBag:destroy()
+end
+
+function GambitSettingsMenuItem:getSettings()
+    return self.trustSettings:getSettings()[self.trustSettingsMode.value][self.settingsKey]
 end
 
 function GambitSettingsMenuItem:getConfigKey()
@@ -113,6 +162,18 @@ function GambitSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Modes", self:getModesMenuItem())
 end
 
+function GambitSettingsMenuItem:getAbilitiesForTargets(targets)
+    return self.editorConfig:getAbilitiesForTargets(targets, self.trust)
+end
+
+---
+-- Gets a list of abilities for a gambit target.
+--
+-- @tparam GambitTarget.TargetType gambitTarget Gambit target
+-- @tparam boolean flatten If true, return as a single list
+--
+-- @treturn list List of abilities
+--
 function GambitSettingsMenuItem:getAbilities(gambitTarget, flatten)
     local gambitTargetMap = T{
         [GambitTarget.TargetType.Self] = S{'Self'},
@@ -120,39 +181,8 @@ function GambitSettingsMenuItem:getAbilities(gambitTarget, flatten)
         [GambitTarget.TargetType.Enemy] = S{'Enemy'}
     }
     local targets = gambitTargetMap[gambitTarget]
-    local sections = L{
-        self.trust:get_job():get_spells(function(spellId)
-            local spell = res.spells[spellId]
-            if spell then
-                local spellTargets = L(spell.targets)
-                if spell.type == 'Geomancy' and spellTargets:length() == 1 and spellTargets[1] == 'Self' then
-                    spellTargets:append('Party')
-                end
-                return not S{ 'Trust', 'BardSong' }:contains(spell.type) and S(spellTargets):intersection(targets):length() > 0
-            end
-            return false
-        end):map(function(spellId)
-            return Spell.new(res.spells[spellId].en)
-        end),
-        L(player_util.get_job_abilities()):filter(function(jobAbilityId)
-            local jobAbility = res.job_abilities[jobAbilityId]
-            return S(jobAbility.targets):intersection(targets):length() > 0
-        end):map(function(jobAbilityId)
-            return JobAbility.new(res.job_abilities[jobAbilityId].en)
-        end),
-        L(windower.ffxi.get_abilities().weapon_skills):filter(function(weaponSkillId)
-            local weaponSkill = res.weapon_skills[weaponSkillId]
-            return S(weaponSkill.targets):intersection(targets):length() > 0
-        end):map(function(weaponSkillId)
-            return WeaponSkill.new(res.weapon_skills[weaponSkillId].en)
-        end),
-        L{ Approach.new(), RangedAttack.new(), TurnAround.new(), TurnToFace.new(), RunAway.new(), RunTo.new(), Engage.new() }:filter(function(_)
-            return targets:contains('Enemy')
-        end),
-        L{ UseItem.new(), Command.new() }:filter(function(_)
-            return targets:contains('Self')
-        end),
-    }
+
+    local sections = self.abilitiesForTargets(targets)
     if flatten then
         sections = sections:flatten(false)
     end
@@ -161,38 +191,68 @@ end
 
 function GambitSettingsMenuItem:getAbilitiesByTargetType()
     local abilitiesByTargetType = T{}
-
-    abilitiesByTargetType[GambitTarget.TargetType.Self] = self:getAbilities(GambitTarget.TargetType.Self, true):compact_map()
-    abilitiesByTargetType[GambitTarget.TargetType.Ally] = self:getAbilities(GambitTarget.TargetType.Ally, true):compact_map()
-    abilitiesByTargetType[GambitTarget.TargetType.Enemy] = self:getAbilities(GambitTarget.TargetType.Enemy, true):compact_map()
-
+    for abilityTarget in L(GambitTarget.TargetType:keyset()):it() do
+        if self.abilityTargets:contains(abilityTarget) then
+            abilitiesByTargetType[abilityTarget] = self:getAbilities(abilityTarget, true):compact_map()
+        else
+            abilitiesByTargetType[abilityTarget] = L{}
+        end
+    end
     return abilitiesByTargetType
 end
 
 function GambitSettingsMenuItem:getAddAbilityMenuItem()
-    local blankGambitMenuItem = MenuItem.action(function(menu)
-        local abilitiesByTargetType = self:getAbilitiesByTargetType()
+    local newAbilityMenuItem = function(targetType)
+        local blankGambitMenuItem = MenuItem.new(L{
+            ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
+        }, {}, function(_, _, showMenu)
+            local abilitiesByTargetType = self:getAbilitiesByTargetType()
 
-        local newGambit = Gambit.new(GambitTarget.TargetType.Self, L{}, abilitiesByTargetType[GambitTarget.TargetType.Self][1], GambitTarget.TargetType.Self)
+            local abilityPickerItem = MultiPickerConfigItem.new('abilities', L{}, abilitiesByTargetType[targetType], function(ability)
+                return ability:get_localized_name()
+            end, "Choose an ability.", nil, function(ability)
+                return AssetManager.imageItemForAbility(ability:get_name())
+            end)
 
-        local currentGambits = self.trustSettings:getSettings()[self.trustSettingsMode.value].GambitSettings.Gambits
-        currentGambits:append(newGambit)
+            local abilityPickerView = FFXIPickerView.withConfig(abilityPickerItem)
 
-        self.trustSettings:saveSettings(true)
+            abilityPickerView:getDisposeBag():add(abilityPickerView:on_pick_items():addAction(function(_, selectedItems)
+                if selectedItems:length() > 0 then
+                    local newGambit = Gambit.new(targetType, L{}, selectedItems[1], targetType, self.defaultGambitTags)
 
-        menu:showMenu(self)
+                    local currentGambits = self:getSettings().Gambits
+                    currentGambits:append(newGambit)
 
-        self.gambitSettingsEditor:getDelegate():selectItemAtIndexPath(IndexPath.new(1, currentGambits:length()))
+                    self.trustSettings:saveSettings(true)
 
-    end, "Gambits", "Add a new Gambit.")
+                    showMenu(self)
+
+                    self.gambitSettingsEditor:getDelegate():selectItemAtIndexPath(IndexPath.new(1, currentGambits:length()))
+                end
+            end), abilityPickerView:on_pick_items())
+
+            return abilityPickerView
+        end, self:getTitleText(), "Add a new "..targetType.." "..self.editorConfig:getDescription()..".")
+        return blankGambitMenuItem
+    end
+
+    local abilityTargetButtonItems = L(self.abilityTargets):map(function(targetType)
+        return ButtonItem.localized(targetType, i18n.translate('AbilityTarget_'..targetType))
+    end)
+
+    local abilityTargetMenuItem = MenuItem.new(abilityTargetButtonItems, {}, nil, self:getTitleText(), "Add a new "..self.editorConfig:getDescription()..".")
+
+    for targetType in L(self.abilityTargets):it() do
+        abilityTargetMenuItem:setChildMenuItem(targetType, newAbilityMenuItem(targetType))
+    end
 
     local addGambitMenuItem = MenuItem.new(L{
         ButtonItem.default('New', 18),
         ButtonItem.default('Browse', 18),
     }, {
-        New = blankGambitMenuItem,
+        New = abilityTargetMenuItem,
         Browse = self:getGambitLibraryMenuItem()
-    }, nil, "Gambits", "Add a new gambit.")
+    }, nil, self:getTitleText(), "Add a new "..self.editorConfig:getDescription()..".")
 
     return addGambitMenuItem
 end
@@ -202,12 +262,18 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
         ButtonItem.default('Confirm', 18),
         ButtonItem.default('Edit', 18),
         ButtonItem.default('Conditions', 18),
-    }, {
-    }, function(menuArgs, infoView)
+    }, {}, function(_, _, _)
         local abilitiesByTargetType = self:getAbilitiesByTargetType()
-        local gambitEditor = GambitSettingsEditor.new(self.selectedGambit, self.trustSettings, self.trustSettingsMode, abilitiesByTargetType)
+
+        local gambitEditor = GambitSettingsEditor.new(self.selectedGambit, self.trustSettings, self.trustSettingsMode, abilitiesByTargetType, self.conditionTargets)
+
+        self.disposeBag:add(gambitEditor:onConfigChanged():addAction(function(newSettings, oldSettings)
+            self:onGambitChanged():trigger(newSettings, oldSettings)
+            gambitEditor:reloadSettings()
+        end), gambitEditor:onConfigChanged())
+
         return gambitEditor
-    end, "Gambits", "Edit the selected gambit.", false, function()
+    end, self:getTitleText(), "Edit the selected "..self.editorConfig:getDescription()..".", false, function()
         return self.selectedGambit ~= nil
     end)
 
@@ -216,28 +282,26 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
     }, {
         Confirm = MenuItem.action(function(parent)
             parent:showMenu(editGambitMenuItem)
-        end, "Gambits", "Edit ability.")
-    }, function(_, infoView)
-        if self.selectedGambit then
-            local configItems = L{}
-            if self.selectedGambit:getAbility().get_config_items then
-                configItems = self.selectedGambit:getAbility():get_config_items() or L{}
-            end
-            if not configItems:empty() then
-                local editAbilityEditor = ConfigEditor.new(nil, self.selectedGambit:getAbility(), configItems, infoView)
-
-                self.disposeBag:add(editAbilityEditor:onConfigChanged():addAction(function(newSettings, oldSettings)
-                    if self.selectedGambit:getAbility().on_config_changed then
-                        self.selectedGambit:getAbility():on_config_changed(oldSettings)
-                    end
-                end), editAbilityEditor:onConfigChanged())
-
-                return editAbilityEditor
-            end
-            return nil
+        end, self:getTitleText(), "Edit ability.")
+    }, function(_, infoView, showMenu)
+        local configItems = L{}
+        if self.selectedGambit:getAbility().get_config_items then
+            configItems = self.selectedGambit:getAbility():get_config_items(self.trust) or L{}
         end
-    end, "Gambits", "Edit ability.", false, function()
-        return self.selectedGambit:getAbility().get_config_items and self.selectedGambit:getAbility():get_config_items():length() > 0
+        if not configItems:empty() then
+            local editAbilityEditor = ConfigEditor.new(nil, self.selectedGambit:getAbility(), configItems, infoView, nil, showMenu)
+
+            self.disposeBag:add(editAbilityEditor:onConfigChanged():addAction(function(newSettings, oldSettings)
+                if self.selectedGambit:getAbility().on_config_changed then
+                    self.selectedGambit:getAbility():on_config_changed(oldSettings)
+                end
+            end), editAbilityEditor:onConfigChanged())
+
+            return editAbilityEditor
+        end
+        return nil
+    end, self:getTitleText(), "Edit ability.", false, function()
+        return self.selectedGambit ~= nil and self.selectedGambit:getAbility().get_config_items and self.selectedGambit:getAbility():get_config_items():length() > 0
     end)
 
     editGambitMenuItem:setChildMenuItem("Edit", editAbilityMenuItem)
@@ -253,11 +317,10 @@ function GambitSettingsMenuItem:getRemoveAbilityMenuItem()
             local item = self.gambitSettingsEditor:getDataSource():itemAtIndexPath(selectedIndexPath)
             if item then
                 local indexPath = selectedIndexPath
-                local currentGambits = self.trustSettings:getSettings()[self.trustSettingsMode.value].GambitSettings.Gambits
+                local currentGambits = self.trustSettings:getSettings()[self.trustSettingsMode.value][self.settingsKey].Gambits
                 currentGambits:remove(indexPath.row)
 
                 self.gambitSettingsEditor:getDataSource():removeItem(indexPath)
-                --self.gambitSettingsEditor:removeItem(item:getText(), indexPath.section)
 
                 self.selectedGambit = nil
                 self.trustSettings:saveSettings(true)
@@ -268,26 +331,32 @@ function GambitSettingsMenuItem:getRemoveAbilityMenuItem()
                 end
             end
         end
-    end, "Gambits", "Remove the selected gambit.")
+    end, self:getTitleText(), "Remove the selected "..self.editorConfig:getDescription()..".")
 end
 
 function GambitSettingsMenuItem:getCopyGambitMenuItem()
-    return MenuItem.action(function(menu)
+    local copyGambitMenuItem =  MenuItem.action(function(menu)
         if self.selectedGambit then
             local newGambit = self.selectedGambit:copy()
 
-            local currentGambits = self.trustSettings:getSettings()[self.trustSettingsMode.value].GambitSettings.Gambits
+            local currentGambits = self.trustSettings:getSettings()[self.trustSettingsMode.value][self.settingsKey].Gambits
             currentGambits:append(newGambit)
 
             self.trustSettings:saveSettings(true)
 
             menu:showMenu(self)
         end
-    end, "Gambits", "Copy the selected gambit.")
+    end, self:getTitleText(), "Copy the selected "..self.editorConfig:getDescription()..".")
+
+    copyGambitMenuItem.enabled = function()
+        return self.selectedGambit ~= nil
+    end
+
+    return copyGambitMenuItem
 end
 
 function GambitSettingsMenuItem:getToggleMenuItem()
-    return MenuItem.action(function(menu)
+    local toggleMenuItem = MenuItem.action(function(_)
         local selectedIndexPath = self.gambitSettingsEditor:getDelegate():getCursorIndexPath()
         if selectedIndexPath then
             local item = self.gambitSettingsEditor:getDataSource():itemAtIndexPath(selectedIndexPath)
@@ -295,16 +364,25 @@ function GambitSettingsMenuItem:getToggleMenuItem()
                 item:setEnabled(not item:getEnabled())
                 self.gambitSettingsEditor:getDataSource():updateItem(item, selectedIndexPath)
 
-                local currentGambits = self.trustSettings:getSettings()[self.trustSettingsMode.value].GambitSettings.Gambits
+                local currentGambits = self:getSettings().Gambits
                 currentGambits[selectedIndexPath.row]:setEnabled(not currentGambits[selectedIndexPath.row]:isEnabled())
             end
         end
-    end, "Gambits", "Temporarily enable or disable the selected gambit until the addon reloads.")
+    end, self:getTitleText(), "Temporarily enable or disable the selected "..self.editorConfig:getDescription().." until the addon reloads.")
+
+    toggleMenuItem.enabled = function()
+        if self.selectedGambit then
+            return self.selectedGambit:isValid()
+        end
+        return true
+    end
+
+    return toggleMenuItem
 end
 
 function GambitSettingsMenuItem:getMoveUpGambitMenuItem()
     return MenuItem.action(function(menu)
-        local currentGambits = self.trustSettings:getSettings()[self.trustSettingsMode.value].GambitSettings.Gambits
+        local currentGambits = self:getSettings().Gambits
 
         local selectedIndexPath = self.gambitSettingsEditor:getDelegate():getCursorIndexPath()
         if selectedIndexPath and selectedIndexPath.row > 1 then
@@ -322,21 +400,18 @@ function GambitSettingsMenuItem:getMoveUpGambitMenuItem()
 
                 self.trustSettings:saveSettings(true)
 
-                --menu:showMenu(self)
-
                 self.gambitSettingsEditor:getDelegate():selectItemAtIndexPath(IndexPath.new(selectedIndexPath.section, selectedIndexPath.row - 1))
             end
         end
-    end, "Gambits", "Move the selected gambit up. Gambits get evaluated in order.")
+    end, self:getTitleText(), "Move the selected "..self.editorConfig:getDescription().." up. "..self.editorConfig:getDescription(true).." get evaluated in order.")
 end
 
 function GambitSettingsMenuItem:getMoveDownGambitMenuItem()
-    return MenuItem.action(function(menu)
-        local currentGambits = self.trustSettings:getSettings()[self.trustSettingsMode.value].GambitSettings.Gambits
+    return MenuItem.action(function(_)
+        local currentGambits = self:getSettings().Gambits
 
         local selectedIndexPath = self.gambitSettingsEditor:getDelegate():getCursorIndexPath()
         if selectedIndexPath and selectedIndexPath.row < currentGambits:length() then
-
             local newIndexPath = self.gambitSettingsEditor:getDataSource():getNextIndexPath(selectedIndexPath)-- IndexPath.new(indexPath.section, indexPath.row + 1)
             local item1 = self.gambitSettingsEditor:getDataSource():itemAtIndexPath(selectedIndexPath)
             local item2 = self.gambitSettingsEditor:getDataSource():itemAtIndexPath(newIndexPath)
@@ -353,7 +428,7 @@ function GambitSettingsMenuItem:getMoveDownGambitMenuItem()
                 self.gambitSettingsEditor:getDelegate():selectItemAtIndexPath(IndexPath.new(selectedIndexPath.section, selectedIndexPath.row + 1))
             end
         end
-    end, "Gambits", "Move the selected gambit down. Gambits get evaluated in order.")
+    end, self:getTitleText(), "Move the selected "..self.editorConfig:getDescription().." down. "..self.editorConfig:getDescription(true).." get evaluated in order.")
 end
 
 function GambitSettingsMenuItem:getEditConditionsMenuItem()
@@ -362,9 +437,9 @@ end
 
 function GambitSettingsMenuItem:getResetGambitsMenuItem()
     return MenuItem.action(function(menu)
-        local defaultGambitSettings = self.trustSettings:getDefaultSettings().Default.GambitSettings
+        local defaultGambitSettings = self.trustSettings:getDefaultSettings().Default[self.settingsKey]
         if defaultGambitSettings and defaultGambitSettings.Gambits then
-            local currentGambitSettings = self.trustSettings:getSettings()[self.trustSettingsMode.value].GambitSettings
+            local currentGambitSettings = self:getSettings()
             currentGambitSettings.Gambits:clear()
             for gambit in defaultGambitSettings.Gambits:it() do
                 currentGambitSettings.Gambits:append(gambit:copy())
@@ -372,20 +447,27 @@ function GambitSettingsMenuItem:getResetGambitsMenuItem()
 
             self.trustSettings:saveSettings(true)
 
-            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've reset my gambits to their factory settings!")
+            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've reset my "..self.editorConfig:getDescription(true).." to their factory settings!")
 
             menu:showMenu(self)
         end
-    end, "Gambits", "Reset to default gambits.")
+    end, self:getTitleText(), "Reset to default "..self.editorConfig:getDescription(true)..".")
 end
 
 function GambitSettingsMenuItem:getGambitLibraryMenuItem()
-    return GambitLibraryMenuItem.new(self.trustSettings, self.trustSettingsMode, self)
+    return GambitLibraryMenuItem.new(self.trustSettings, self.trustSettingsMode, self.libraryCategoryFilter)
 end
 
 function GambitSettingsMenuItem:getModesMenuItem()
-    return ModesMenuItem.new(self.trustModeSettings, "Set modes for gambits.",
-            L{'AutoGambitMode'})
+    return ModesMenuItem.new(self.trustModeSettings, "Set modes for "..self.editorConfig:getDescription(true)..".", self.modes)
+end
+
+function GambitSettingsMenuItem:setDefaultGambitTags(tags)
+    self.defaultGambitTags = tags
+end
+
+function GambitSettingsMenuItem:getDisposeBag()
+    return self.disposeBag
 end
 
 return GambitSettingsMenuItem

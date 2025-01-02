@@ -75,4 +75,15 @@ function TurnToFace:serialize()
     return "TurnToFace.new(" .. serializer_util.serialize_args(conditions_to_serialize) .. ")"
 end
 
+function TurnToFace:is_valid()
+    return true
+end
+
+function TurnToFace:__eq(otherItem)
+    if otherItem.__type == self.__type then
+        return true
+    end
+    return false
+end
+
 return TurnToFace

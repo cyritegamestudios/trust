@@ -297,6 +297,17 @@ function ConfigEditor:setCellConfigItemOverride(cellConfigItemType, valueForCell
     self.valueForCellConfigItem[cellConfigItemType] = valueForCellConfigItem
 end
 
+function ConfigEditor:sectionForConfigKey(key)
+    local section = 1
+    for configItem in self.configItems:it() do
+        if configItem:getKey() == key then
+            return section
+        end
+        section = section + 1
+    end
+    return nil
+end
+
 function ConfigEditor:onConfirmClick(skipSave)
     self:resignFirstResponder()
 

@@ -212,7 +212,7 @@ function SkillchainAbility:to_action(target_index, player, job_abilities)
         actions:append(SpellAction.new(0, 0, 0, self:get_ability_id(), target_index, player))
     end
 
-    actions:append(WaitAction.new(0, 0, 0, 2))
+    actions:append(WaitAction.new(0, 0, 0, 3))
 
     return SequenceAction.new(actions, 'skillchain_ability_sc', false)
 end

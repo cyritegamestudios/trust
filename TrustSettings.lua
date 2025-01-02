@@ -213,10 +213,6 @@ function TrustSettings:runMigrations(settings, defaultSettings)
             settingsForMode.PullSettings.Distance = 20
             needsMigration = true
         end
-        if not settingsForMode.Debuffs then
-            settingsForMode.Debuffs = L{}
-            needsMigration = true
-        end
         if not settingsForMode.GambitSettings then
             settingsForMode.GambitSettings = {}
             settingsForMode.GambitSettings.Gambits = defaultSettings.Default.GambitSettings.Gambits

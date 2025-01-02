@@ -175,7 +175,7 @@ function ConditionSettingsMenuItem:getEditConditionMenuItem()
         ButtonItem.default('Confirm', 18),
     }, L{}, function(menuArgs, infoView, showMenu)
         local configItems
-        if self.selectedCondition and self.selectedCondition.get_config_items ~= nil then
+        if self.selectedCondition and self.selectedCondition.get_config_items ~= nil and self.selectedCondition:is_editable() then
             configItems = self.selectedCondition:get_config_items()
         end
         if configItems then
@@ -192,6 +192,9 @@ function ConditionSettingsMenuItem:getEditConditionMenuItem()
     end, "Conditions", "Edit the selected condition.", false, function()
         return self.selectedCondition ~= nil
     end)
+    editConditionMenuItem.enabled = function()
+        return self.selectedCondition and self.selectedCondition.get_config_items ~= nil and self.selectedCondition:is_editable()
+    end
     return editConditionMenuItem
 end
 
@@ -217,6 +220,9 @@ function ConditionSettingsMenuItem:getInvertConditionMenuItem()
     end, "Conditions", "Invert the selected condition logic.", false, function()
         return self.selectedCondition ~= nil
     end)
+    invertConditionMenuItem.enabled = function()
+        return self.selectedCondition and self.selectedCondition:is_editable()
+    end
     return invertConditionMenuItem
 end
 

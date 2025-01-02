@@ -155,6 +155,10 @@ function UseItem:copy()
     return _copy(original)
 end
 
+function UseItem:is_valid()
+    return true
+end
+
 function UseItem:__eq(otherItem)
     if otherItem.__type == self.__type and otherItem.item_name == self.item_name then
         return true

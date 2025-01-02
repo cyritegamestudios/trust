@@ -14,6 +14,10 @@ return {
             Spell.new("Phalanx", L{}, nil, nil, L{}),
             JobAbility.new('Swordplay', L{InBattleCondition.new()}),
         },
+        DebuffSettings = {
+            Gambits = L{
+            }
+        },
         PullSettings = {
             Abilities = L{
                 Spell.new('Flash', L{}, L{})

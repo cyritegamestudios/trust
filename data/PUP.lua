@@ -8,6 +8,10 @@ return {
         PartyBuffs = L{
 
         },
+        DebuffSettings = {
+            Gambits = L{
+            }
+        },
         PullSettings = {
             Abilities = L{
                 Approach.new()

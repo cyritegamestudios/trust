@@ -8,8 +8,10 @@ return {
         PartyBuffs = L{
 
         },
-        Debuffs = L{
-            Spell.new("Burn", L{}, nil, nil, L{})
+        DebuffSettings = {
+            Gambits = L{
+                Gambit.new("Enemy", L{}, Debuff.new("Burn", L{}, L{}, L{}), "Enemy", L{"Debuffs"})
+            }
         },
         NukeSettings = {
             Delay = 2,

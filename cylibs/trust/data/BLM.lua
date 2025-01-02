@@ -15,7 +15,7 @@ function BlackMageTrust.new(settings, action_queue, battle_settings, trust_setti
 	local job = BlackMage.new()
 	local roles = S{
 		Buffer.new(action_queue, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
-		Debuffer.new(action_queue, trust_settings.Debuffs),
+		Debuffer.new(action_queue, trust_settings.DebuffSettings),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{ 'Manawell' }, job),
 		ManaRestorer.new(action_queue, L{'Myrkr', 'Spirit Taker', 'Moonlight'}, L{}, 40),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
@@ -35,7 +35,7 @@ function BlackMageTrust:on_init()
 		buffer:set_party_buffs(new_trust_settings.PartyBuffs)
 
 		local debuffer = self:role_with_type("debuffer")
-		debuffer:set_debuff_spells(new_trust_settings.Debuffs)
+		debuffer:set_debuff_settings(new_trust_settings.DebuffSettings)
 
 		local puller = self:role_with_type("puller")
 		if puller then

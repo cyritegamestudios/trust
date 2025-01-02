@@ -94,4 +94,8 @@ function RunTo:__eq(otherItem)
     return false
 end
 
+function RunTo:is_valid()
+    return true
+end
+
 return RunTo

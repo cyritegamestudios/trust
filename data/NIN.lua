@@ -14,8 +14,9 @@ return {
         PartyBuffs = L{
 
         },
-        Debuffs = L{
-
+        DebuffSettings = {
+            Gambits = L{
+            }
         },
         NukeSettings = {
             Delay = 2,

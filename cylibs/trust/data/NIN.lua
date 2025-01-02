@@ -15,7 +15,7 @@ function NinjaTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = Ninja.new()
 	local roles = S{
 		Buffer.new(action_queue, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
-		Debuffer.new(action_queue, trust_settings.Debuffs or L{}),
+		Debuffer.new(action_queue, trust_settings.DebuffSettings),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{ 'Futae' }, job),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		Puller.new(action_queue, trust_settings.PullSettings.Targets, trust_settings.PullSettings.Abilities),
@@ -40,7 +40,7 @@ function NinjaTrust:on_init()
 		buffer:set_party_buffs(new_trust_settings.PartyBuffs)
 
 		local debuffer = self:role_with_type("debuffer")
-		debuffer:set_debuff_spells(new_trust_settings.Debuffs)
+		debuffer:set_debuff_settings(new_trust_settings.DebuffSettings)
 
 		local puller = self:role_with_type("puller")
 		if puller then

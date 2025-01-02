@@ -54,8 +54,10 @@ return {
 
             },
         },
-        Debuffs = L{
-            Spell.new("Dia II", L{}, nil, nil, L{})
+        DebuffSettings = {
+            Gambits = L{
+                Gambit.new("Enemy", L{}, Debuff.new("Dia", L{}, L{}, L{}), "Enemy", L{"Debuffs"})
+            }
         },
         PullSettings = {
             Abilities = L{

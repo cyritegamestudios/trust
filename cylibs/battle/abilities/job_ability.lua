@@ -72,6 +72,13 @@ function JobAbility:get_job_ability()
 end
 
 -------
+-- Returns the buff/debuff for the spell.
+-- @treturn Buff/debuff metadata (see buffs.lua)
+function JobAbility:get_status()
+    return buff_util.buff_for_job_ability(self:get_ability_id())
+end
+
+-------
 -- Adds a condition to the list of conditions.
 -- @tparam Condition condition Condition to add
 function JobAbility:add_condition(condition)

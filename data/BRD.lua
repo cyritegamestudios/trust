@@ -27,8 +27,10 @@ return {
                 Spell.new("Sheepfoe Mambo", L{}, L{"WAR", "WHM", "RDM", "PLD", "BRD", "SAM", "DRG", "BLU", "PUP", "SCH", "RUN", "MNK", "BLM", "THF", "BST", "RNG", "NIN", "SMN", "COR", "DNC", "GEO", "DRK"}, nil, L{})
             }
         },
-        Debuffs = L{
-            Spell.new("Carnage Elegy", L{}, nil, nil, L{})
+        DebuffSettings = {
+            Gambits = L{
+                Gambit.new("Enemy", L{}, Debuff.new("Carnage Elegy", L{}, L{}, L{}), "Enemy", L{"Debuffs"})
+            }
         },
         PullSettings = {
             Abilities = L{

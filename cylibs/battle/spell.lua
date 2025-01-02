@@ -7,6 +7,8 @@ require('tables')
 require('lists')
 require('logger')
 
+local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local serializer_util = require('cylibs/util/serializer_util')
 
 local res = require('resources')
@@ -179,6 +181,13 @@ function Spell:get_consumable()
 end
 
 -------
+-- Returns the buff/debuff for the spell.
+-- @treturn Buff/debuff metadata (see buffs.lua)
+function Spell:get_status()
+    return buff_util.buff_for_spell(self:get_spell().id)
+end
+
+-------
 -- Return the mana points required to cast this spell.
 -- @treturn number Mana points
 function Spell:get_mp_cost()
@@ -199,6 +208,37 @@ end
 -- @treturn list List of conditions
 function Spell:get_conditions()
     return self.conditions
+end
+
+-------
+-- Returns the config items that will be used when creating the config editor
+-- to edit this ability.
+-- @treturn list List of ConfigItem
+function Spell:get_config_items(trust)
+    local allJobAbilities = (trust and L(trust:get_job():get_job_abilities(function(jobAbilityId)
+        return true
+    end):map(function(jobAbilityId)
+        return res.job_abilities[jobAbilityId].en
+    end)) or L{}):sort()
+
+    local configItem = MultiPickerConfigItem.new("job_abilities", self.job_abilities, allJobAbilities, function(jobAbilityNames)
+        local summary = localization_util.commas(jobAbilityNames:map(function(jobAbilityName) return i18n.resource('job_abilities', 'en', jobAbilityName) end), 'or')
+        if summary:length() == 0 then
+            summary = "None"
+        end
+        return summary
+    end, "Job Abilities", nil, function(jobAbilityName)
+        return AssetManager.imageItemForJobAbility(jobAbilityName)
+    end)
+    configItem:setPickerTitle("Job Abilities")
+    configItem:setPickerDescription("Choose one or more job abilities to use with this spell.")
+    return L{ configItem }
+end
+
+-------
+-- Called when the ability is updated via get_config_items.
+-- @tparam Spell Old spell
+function Spell:on_config_changed(old_spell)
 end
 
 -------

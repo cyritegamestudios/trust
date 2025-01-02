@@ -45,6 +45,10 @@ return {
             Geo = Spell.new("Geo-Frailty", L{}, L{}, "bt", L{}),
             Entrust = Spell.new("Indi-Haste", L{ 'Entrust' }, nil, nil, L{ JobCondition.new(job_util.all_jobs()) })
         },
+        DebuffSettings = {
+            Gambits = L{
+            }
+        },
         PullSettings = {
             Abilities = L{
                 Spell.new("Stone", L{}, L{})

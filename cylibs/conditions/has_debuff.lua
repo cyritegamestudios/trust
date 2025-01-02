@@ -67,6 +67,11 @@ function HasDebuffCondition:serialize()
     return "HasDebuffCondition.new(" .. serializer_util.serialize_args(self.debuff_name) .. ")"
 end
 
+function HasDebuffCondition:__eq(otherItem)
+    return otherItem.__class == HasDebuffCondition.__class
+            and otherItem.debuff_name == self.debuff_name
+end
+
 return HasDebuffCondition
 
 

@@ -10,6 +10,10 @@ return {
         PartyBuffs = L{
 
         },
+        DebuffSettings = {
+            Gambits = L{
+            }
+        },
         PullSettings = {
             Abilities = L{
                 JobAbility.new("Chi Blast", L{}, L{}),
