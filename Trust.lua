@@ -707,18 +707,6 @@ function handle_command(args)
 end
 
 function handle_debug()
-	for key, party_member in pairs(windower.ffxi.get_party()) do
-		if type(party_member) == 'table' then
-			print(key, party_member.name)
-		end
-	end
-
-
-
-	for party in player.alliance:get_parties():it() do
-		print('targets', party:get_targets())
-	end
-
 	--[[local UrlRequest = require('cylibs/util/network/url_request')
 
 	local request = UrlRequest.new('GET', 'https://raw.githubusercontent.com/cyritegamestudios/trust/main/manifest.json', {})
@@ -731,6 +719,9 @@ function handle_debug()
 	end]]
 
 	print(buff_util.all_buff_ids('Last Resort'))
+
+	print('buffs', party_util.get_buffs(windower.ffxi.get_player().id), party_util.get_buffs(windower.ffxi.get_player().id):map(function(buff_id) return res.buffs[buff_id].en end))
+
 
 	local party_index = 1
 	for party in player.alliance:get_parties():it() do
