@@ -4,10 +4,10 @@ return {
     Default = {
         BuffSettings = {
             Gambits = L{
-                Gambit.new("Self", L{}, JobAbility.new("Afflatus Solace", L{}, L{}), "Self", L{"Buffs"}),
                 Gambit.new("Self", L{}, Buff.new("Haste", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
-                Gambit.new("Self", L{}, Buff.new("Protectra", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
                 Gambit.new("Self", L{}, Buff.new("Reraise", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, JobAbility.new("Afflatus Solace", L{}, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, Buff.new("Protectra", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
                 Gambit.new("Self", L{}, Buff.new("Shellra", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
                 Gambit.new("Self", L{}, Spell.new("Boost-STR", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
                 Gambit.new("Self", L{MainJobCondition.new("WHM")}, Spell.new("Auspice", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
