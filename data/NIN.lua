@@ -2,20 +2,20 @@
 return {
     Version = 2,
     Default = {
-        SelfBuffs = L{
-            Spell.new("Utsusemi: San", L{}, L{}, nil, L{ItemCountCondition.new("Shihei", 1, ">=")}),
-            Spell.new("Utsusemi: Ni", L{}, L{}, nil,  L{ItemCountCondition.new("Shihei", 1, ">=")}),
-            Spell.new("Utsusemi: Ichi", L{}, L{}, nil,  L{ItemCountCondition.new("Shihei", 1, ">=")}),
-            Spell.new("Kakka: Ichi", L{}, L{}, nil, L{}),
-            Spell.new("Myoshu: Ichi", L{}, L{}, nil, L{}),
-            JobAbility.new('Yonin', L{InBattleCondition.new()}),
-            JobAbility.new('Issekigan', L{InBattleCondition.new()}, L{}, nil),
-        },
-        PartyBuffs = L{
-
+        BuffSettings = {
+            Gambits = L{
+                Gambit.new("Self", L{ItemCountCondition.new("Shihei", 1, ">=")}, Spell.new("Utsusemi: San", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{ItemCountCondition.new("Shihei", 1, ">=")}, Spell.new("Utsusemi: Ni", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{ItemCountCondition.new("Shihei", 1, ">=")}, Spell.new("Utsusemi: Ichi", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{ItemCountCondition.new("Shikanofuda", 1, ">=")}, Spell.new("Kakka: Ichi", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{ItemCountCondition.new("Shikanofuda", 1, ">=")}, Spell.new("Myoshu: Ichi", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{StatusCondition.new("Engaged", 2, ">=")}, JobAbility.new("Yonin", L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{StatusCondition.new("Engaged", 2, ">=")}, JobAbility.new("Issekigan", L{}, L{}), "Self", L{"Buffs"})
+            }
         },
         DebuffSettings = {
             Gambits = L{
+                Gambit.new("Enemy", L{ItemCountCondition.new("Chonofuda", 1, ">=")}, Spell.new("Jubaku: Ni", L{}, L{}), "Enemy", L{"Debuffs"})
             }
         },
         NukeSettings = {

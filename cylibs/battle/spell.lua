@@ -277,6 +277,10 @@ function Spell:to_action(target_index, player, job_abilities)
         end
     end
 
+    if self:get_target() and windower.ffxi.get_mob_by_target(self:get_target()) then
+        target_index = windower.ffxi.get_mob_by_target(self:get_target()).index
+    end
+
     actions:append(SpellAction.new(0, 0, 0, self:get_spell().id, target_index, player))
     actions:append(WaitAction.new(0, 0, 0, 2))
 

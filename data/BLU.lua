@@ -2,16 +2,15 @@
 return {
     Version = 2,
     Default = {
-        SelfBuffs = L{
-            Spell.new("Erratic Flutter", L{}, L{}, nil, L{}),
-            Spell.new("Cocoon", L{}, L{}, nil, L{}),
-            Spell.new("Barrier Tusk", L{}, L{}, nil, L{}),
-            Spell.new("Nat. Meditation", L{}, L{}, nil, L{}),
-            Spell.new("Occultation", L{}, L{}, nil, L{}),
-            Spell.new("Mighty Guard", L{"Diffusion", "Unbridled Learning"}, L{}, nil, L{}),
-        },
-        PartyBuffs = L{
-
+        BuffSettings = {
+            Gambits = L{
+                Gambit.new("Self", L{}, Spell.new("Barrier Tusk", L{}, L{}, nil, L{}), "Self", L{}),
+                Gambit.new("Self", L{}, Buff.new("Cocoon", L{}, L{}, nil, L{}), "Self", L{}),
+                Gambit.new("Self", L{}, Spell.new("Erratic Flutter", L{}, L{}, nil, L{}), "Self", L{}),
+                Gambit.new("Self", L{}, Buff.new("Mighty Guard", L{"Unbridled Learning", "Diffusion"}, L{}, nil, L{}), "Self", L{}),
+                Gambit.new("Self", L{}, Spell.new("Nat. Meditation", L{}, L{}, nil, L{}), "Self", L{}),
+                Gambit.new("Self", L{}, Spell.new("Occultation", L{}, L{}, nil, L{}), "Self", L{})
+            }
         },
         CureSettings = {
             Thresholds = {

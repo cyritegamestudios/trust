@@ -730,6 +730,8 @@ function handle_debug()
 		table.vprint(body)
 	end]]
 
+	print(buff_util.all_buff_ids('Last Resort'))
+
 	local party_index = 1
 	for party in player.alliance:get_parties():it() do
 		print('Party', party_index..":", party:get_party_members():map(function(p) return p:get_name() end))

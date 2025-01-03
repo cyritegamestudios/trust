@@ -17,8 +17,12 @@ function BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trust
             L(trust:get_job():get_spells(function(spellId)
                 local spell = res.spells[spellId]
                 if spell then
+                    local valid_targets = S(spell.targets)
+                    if spell.en:contains('Absorb') then
+                        valid_targets = S{ 'Self' }
+                    end
                     local status = buff_util.buff_for_spell(spell.id)
-                    return status ~= nil and not buff_util.is_debuff(status.id) and spell.skill ~= 44 and targets:intersection(S(spell.targets)):length() > 0
+                    return status ~= nil and not buff_util.is_debuff(status.id) and spell.skill ~= 44 and targets:intersection(valid_targets):length() > 0
                 end
                 return false
             end):map(function(spellId)

@@ -21,11 +21,10 @@ return {
             },
             MinNumAOETargets = 3
         },
-        SelfBuffs = L{
-            JobAbility.new('Haste Samba', L{InBattleCondition.new()}),
-        },
-        PartyBuffs = L{
-
+        BuffSettings = {
+            Gambits = L{
+                Gambit.new("Self", L{InBattleCondition.new()}, JobAbility.new("Haste Samba", L{}, L{}), "Self", L{})
+            }
         },
         DebuffSettings = {
             Gambits = L{

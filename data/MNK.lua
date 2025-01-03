@@ -2,13 +2,12 @@
 return {
     Version = 1,
     Default = {
-        SelfBuffs = L{
-            JobAbility.new('Impetus', L{InBattleCondition.new()}),
-            JobAbility.new('Footwork', L{InBattleCondition.new()}),
-            JobAbility.new('Mantra', L{InBattleCondition.new()}),
-        },
-        PartyBuffs = L{
-
+        BuffSettings = {
+            Gambits = L{
+                Gambit.new("Self", L{StatusCondition.new("Engaged", 2, ">=")}, JobAbility.new("Impetus", L{}), "Self", L{}),
+                Gambit.new("Self", L{StatusCondition.new("Engaged", 2, ">=")}, JobAbility.new("Footwork", L{}), "Self", L{}),
+                Gambit.new("Self", L{StatusCondition.new("Engaged", 2, ">=")}, JobAbility.new("Mantra", L{}), "Self", L{})
+            }
         },
         DebuffSettings = {
             Gambits = L{

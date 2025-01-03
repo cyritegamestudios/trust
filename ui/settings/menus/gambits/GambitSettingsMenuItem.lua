@@ -146,6 +146,14 @@ function GambitSettingsMenuItem:destroy()
     self.disposeBag:destroy()
 end
 
+function GambitSettingsMenuItem:getDefaultSettings()
+    local defaultSettings = T(self.trustSettings:getDefaultSettings().Default):clone()
+    for settingsKey in self.settingsKeys:it() do
+        defaultSettings = defaultSettings[settingsKey]
+    end
+    return defaultSettings
+end
+
 function GambitSettingsMenuItem:getSettings(mode)
     mode = mode or self.trustSettingsMode.value
     local settings = self.trustSettings:getSettings()[mode]
@@ -447,10 +455,11 @@ end
 
 function GambitSettingsMenuItem:getResetGambitsMenuItem()
     return MenuItem.action(function(menu)
-        local defaultGambitSettings = self:getSettings('Default')
+        local defaultGambitSettings = self:getDefaultSettings()
         if defaultGambitSettings and defaultGambitSettings.Gambits then
             local currentGambitSettings = self:getSettings()
             currentGambitSettings.Gambits:clear()
+
             for gambit in defaultGambitSettings.Gambits:it() do
                 currentGambitSettings.Gambits:append(gambit:copy())
             end

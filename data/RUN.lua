@@ -4,12 +4,12 @@ return {
     Default = {
         BuffSettings = {
             Gambits = L{
-                Gambit.new("Self", L{}, Spell.new("Crusade", L{}, L{}, nil, L{}), "Self", L{}),
-                Gambit.new("Self", L{}, Spell.new("Phalanx", L{}, L{}, nil, L{}), "Self", L{}),
-                Gambit.new("Self", L{}, Buff.new("Refresh", L{}, L{}, nil, L{}), "Self", L{}),
-                Gambit.new("Self", L{}, Spell.new("Shell V", L{}, L{}, nil, L{}), "Self", L{}),
-                Gambit.new("Self", L{InBattleCondition.new()}, JobAbility.new("Swordplay", L{}), "Self", L{}),
-                Gambit.new("Self", L{InBattleCondition.new()}, Buff.new("Foil", L{}, L{}, nil, L{}), "Self", L{})
+                Gambit.new("Self", L{}, Spell.new("Crusade", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, Spell.new("Phalanx", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, Buff.new("Refresh", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, Spell.new("Shell V", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{InBattleCondition.new()}, JobAbility.new("Swordplay", L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{InBattleCondition.new()}, Buff.new("Foil", L{}, L{}, nil, L{}), "Self", L{"Buffs"})
             }
         },
         DebuffSettings = {

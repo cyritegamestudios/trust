@@ -23,9 +23,6 @@ function Buffer:destroy()
 end
 
 function Buffer:set_buff_settings(buff_settings)
-    if buff_settings == nil or buff_settings.Gambits == nil then
-        print(debug.traceback())
-    end
     for gambit in buff_settings.Gambits:it() do
         gambit.conditions = gambit.conditions:filter(function(condition)
             return condition:is_editable()
