@@ -215,4 +215,8 @@ return T{
     [532] = {id=532,en="Ecliptic Growl",status=123},
     [533] = {id=533,en="Ecliptic Howl",status=90},
     [538] = {id=538,en="Heavenward Howl",status=487},
+    [694] = {id=694,en="Bubble Curtain",status=152}, -- verify
+    [696] = {id=696,en="Scissor Guard",status=93}, -- verify
+    [760] = {id=760,en="Water Wall",status=93}, -- verify
+    [766] = {id=766,en="Zealous Snort",status=552}, -- verify
 }, {"id", "en", "status", "levels"}

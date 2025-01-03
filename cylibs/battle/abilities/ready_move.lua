@@ -18,6 +18,7 @@ ReadyMove.__class = "ReadyMove"
 -- @treturn ReadyMove A ready move
 function ReadyMove.new(ready_move_name, conditions)
     conditions = conditions or L{}
+    print(ready_move_name)
     local ready_move = res.job_abilities:with('en', ready_move_name)
     if ready_move == nil then
         return nil
