@@ -41,6 +41,7 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
         [HasBuffCondition.__type] = "has_buff_condition",
         [ZoneCondition.__type] = "zone",
         [MainJobCondition.__type] = "main_job",
+        [PartyHasMainJobCondition.__type] = "party_has_main_job",
         [JobCondition.__type] = "job",
         [ReadyAbilityCondition.__type] = "ready_ability",
         [FinishAbilityCondition.__type] = "finish_ability",
