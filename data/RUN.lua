@@ -16,6 +16,10 @@ return {
             Gambits = L{
             }
         },
+        DebuffSettings = {
+            Gambits = L{
+            }
+        },
         PullSettings = {
             Abilities = L{
                 Spell.new('Flash', L{}, L{})

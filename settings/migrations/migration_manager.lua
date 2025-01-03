@@ -19,6 +19,7 @@ local Migration_v18 = require('settings/migrations/migration_v18')
 local Migration_v19 = require('settings/migrations/migration_v19')
 local Migration_v20 = require('settings/migrations/migration_v20')
 local Migration_v21 = require('settings/migrations/migration_v21')
+
 local UpdateDefaultGambits = require('settings/migrations/update_default_gambits')
 
 local MigrationManager = {}

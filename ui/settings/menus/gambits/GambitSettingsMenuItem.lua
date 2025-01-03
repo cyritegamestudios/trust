@@ -68,6 +68,7 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
     self.trustModeSettings = trustModeSettings
+
     self.settingsKeys = settingsKeys
     self.abilityTargets = abilityTargets or S(GambitTarget.TargetType:keyset())
     self.abilitiesForTargets = abilitiesForTargets or function(targets)

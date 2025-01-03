@@ -12,6 +12,10 @@ return {
             Gambits = L{
             }
         },
+        DebuffSettings = {
+            Gambits = L{
+            }
+        },
         PullSettings = {
             Abilities = L{
                 RangedAttack.new()

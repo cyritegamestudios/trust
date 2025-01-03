@@ -16,6 +16,10 @@ return {
             Gambits = L{
             }
         },
+        DebuffSettings = {
+            Gambits = L{
+            }
+        },
         PullSettings = {
             Abilities = L{
                 JobAbility.new('Provoke', L{}, L{})
