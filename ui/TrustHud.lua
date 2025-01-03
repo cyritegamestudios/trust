@@ -526,10 +526,14 @@ function TrustHud:getBufferMenuItem(trust, jobNameShort, trustSettings, trustSet
         local bufferSettingsMenuItem = BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings)
         return bufferSettingsMenuItem
     else
+        -- FIXME: need to fix this for SCH to work with BuffSettingsMenuItem
         local childMenuItems = {}
 
-        childMenuItems["Light Arts"] = BufferSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, jobNameShort, 'LightArts')
-        childMenuItems["Dark Arts"] = BufferSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, jobNameShort, 'DarkArts')
+        childMenuItems["Light Arts"] = BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, L{ 'LightArts' })
+        childMenuItems["Dark Arts"] = BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, L{ 'DarkArts' })
+
+        --childMenuItems["Light Arts"] = BufferSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, jobNameShort, 'LightArts')
+        --childMenuItems["Dark Arts"] = BufferSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, jobNameShort, 'DarkArts')
 
         local artsSettingsMenuItem = MenuItem.new(L{
             ButtonItem.default('Light Arts', 18),

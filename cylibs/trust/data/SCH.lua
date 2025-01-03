@@ -19,7 +19,7 @@ state.AutoArtsMode = M{['description'] = 'Auto Arts Mode', 'Off', 'LightArts', '
 
 function ScholarTrust.new(settings, action_queue, battle_settings, trust_settings)
     local self = setmetatable(Trust.new(action_queue, S{
-        Buffer.new(action_queue, trust_settings.BuffSettings),
+        Buffer.new(action_queue, { Gambits = L{} }),
         Debuffer.new(action_queue, trust_settings.DebuffSettings),
     }, trust_settings, Scholar.new(trust_settings)), ScholarTrust)
 
@@ -53,14 +53,11 @@ function ScholarTrust:on_init()
         local buffer = self:role_with_type("buffer")
         if buffer then
             if self.current_arts_mode == 'LightArts' then
-                buffer:set_self_buffs(self:get_job():get_light_arts_self_buffs())
-                buffer:set_party_buffs(self:get_job():get_light_arts_party_buffs())
+                buffer:set_buff_settings(self:get_job():get_light_arts_buffs())
             elseif self.current_arts_mode == 'DarkArts' then
-                buffer:set_self_buffs(self:get_job():get_dark_arts_self_buffs())
-                buffer:set_party_buffs(self:get_job():get_dark_arts_party_buffs())
+                buffer:set_buff_settings(self:get_job():get_dark_arts_buffs())
             else
-                buffer:set_self_buffs(L{})
-                buffer:set_party_buffs(L{})
+                buffer:set_buff_settings({ Gambits = L{} })
             end
         end
 
@@ -124,7 +121,7 @@ function ScholarTrust:update_for_arts(new_arts_mode)
 
     if new_arts_mode == 'LightArts' then
         self.arts_roles = S{
-            Buffer.new(self.action_queue, self:get_job():get_light_arts_self_buffs(), self:get_job():get_light_arts_party_buffs()),
+            Buffer.new(self.action_queue, self:get_job():get_light_arts_buffs()),
             Debuffer.new(self.action_queue, self:get_trust_settings().DebuffSettings),
             Healer.new(self.action_queue, self:get_job()),
             ManaRestorer.new(self.action_queue, L{'Myrkr', 'Spirit Taker'}, L{}, 40),
@@ -133,7 +130,7 @@ function ScholarTrust:update_for_arts(new_arts_mode)
         }
     elseif new_arts_mode == 'DarkArts' then
         self.arts_roles = S{
-            Buffer.new(self.action_queue, self:get_job():get_dark_arts_self_buffs(), self:get_job():get_dark_arts_party_buffs()),
+            Buffer.new(self.action_queue, self:get_job():get_dark_arts_buffs()),
             Debuffer.new(self.action_queue, self:get_trust_settings().DebuffSettings),
             Dispeler.new(self.action_queue, L{ Spell.new('Dispel', L{'Addendum: Black'}) }, L{}, true),
             MagicBurster.new(self.action_queue, self:get_trust_settings().NukeSettings, 0.8, L{ 'Ebullience' }, self:get_job()),

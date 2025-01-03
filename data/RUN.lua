@@ -2,17 +2,15 @@
 return {
     Version = 1,
     Default = {
-        PartyBuffs = L{
-
-        },
-        SelfBuffs = L{
-            Spell.new("Temper", L{}, nil, nil, L{}),
-            Spell.new("Crusade", L{}, nil, nil, L{}),
-            Spell.new("Refresh", L{}, nil, nil, L{}),
-            Spell.new("Regen IV", L{}, nil, nil, L{}),
-            Spell.new("Shell V", L{}, nil, nil, L{}),
-            Spell.new("Phalanx", L{}, nil, nil, L{}),
-            JobAbility.new('Swordplay', L{InBattleCondition.new()}),
+        BuffSettings = {
+            Gambits = L{
+                Gambit.new("Self", L{}, Spell.new("Crusade", L{}, L{}, nil, L{}), "Self", L{}),
+                Gambit.new("Self", L{}, Spell.new("Phalanx", L{}, L{}, nil, L{}), "Self", L{}),
+                Gambit.new("Self", L{}, Buff.new("Refresh", L{}, L{}, nil, L{}), "Self", L{}),
+                Gambit.new("Self", L{}, Spell.new("Shell V", L{}, L{}, nil, L{}), "Self", L{}),
+                Gambit.new("Self", L{InBattleCondition.new()}, JobAbility.new("Swordplay", L{}), "Self", L{}),
+                Gambit.new("Self", L{InBattleCondition.new()}, Buff.new("Foil", L{}, L{}, nil, L{}), "Self", L{})
+            }
         },
         DebuffSettings = {
             Gambits = L{

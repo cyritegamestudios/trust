@@ -181,37 +181,16 @@ end
 -------
 -- Returns the list of buffs to cast on party members while in Light Arts.
 -- @treturn list List of party buffs
-function Scholar:get_light_arts_party_buffs()
-    return self.trust_settings.LightArts.PartyBuffs
+function Scholar:get_light_arts_buffs()
+    return self.trust_settings.LightArts.BuffSettings
 end
 
--------
--- Returns the list of buffs to cast on the player while in Light Arts.
--- @treturn list List of party buffs
-function Scholar:get_light_arts_self_buffs()
-    if player_util.get_player_main_job_name_short() == 'SCH' or self.allow_sub_job then
-        return self.trust_settings.LightArts.SelfBuffs
-    else
-        return S{}
-    end
-end
 
 -------
 -- Returns the list of buffs to cast on party members while in Dark Arts.
 -- @treturn list List of party buffs
-function Scholar:get_dark_arts_party_buffs()
-    return self.trust_settings.DarkArts.PartyBuffs
-end
-
--------
--- Returns the list of buffs to cast on the player while in Dark Arts.
--- @treturn list List of party buffs
-function Scholar:get_dark_arts_self_buffs()
-    if player_util.get_player_main_job_name_short() == 'SCH' or self.allow_sub_job then
-        return self.trust_settings.DarkArts.SelfBuffs
-    else
-        return S{}
-    end
+function Scholar:get_dark_arts_buffs()
+    return self.trust_settings.DarkArts.BuffSettings
 end
 
 -------

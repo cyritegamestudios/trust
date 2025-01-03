@@ -2,15 +2,14 @@
 return {
     Version = 2,
     Default = {
-        SelfBuffs = L{
-
-        },
-        PartyBuffs = L{
-            JobAbility.new("Reraise II", L{}),
-            JobAbility.new("Crimson Howl", L{}),
-            JobAbility.new("Hastega II", L{}),
-            JobAbility.new("Crystal Blessing", L{}),
-            JobAbility.new("Ecliptic Howl", L{}),
+        BuffSettings = {
+            Gambits = L{
+                Gambit.new("Self", L{}, BloodPactWard.new("Reraise II", L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, BloodPactWard.new("Crimson Howl", L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, BloodPactWard.new("Hastega II", L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, BloodPactWard.new("Crystal Blessing", L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, BloodPactWard.new("Ecliptic Howl", L{}), "Self", L{"Buffs"}),
+            }
         },
         NukeSettings = {
             Delay = 2,

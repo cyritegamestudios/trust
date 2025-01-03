@@ -6,13 +6,13 @@ local MenuItem = require('cylibs/ui/menu/menu_item')
 local BuffSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 BuffSettingsMenuItem.__index = BuffSettingsMenuItem
 
-function BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings)
+function BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKeys)
     local SpellPickerItemMapper = require('ui/settings/pickers/mappers/SpellPickerItemMapper')
 
     local buffItemMapper = SpellPickerItemMapper.new(L{})
     local jobAbilityItemMapper = JobAbilityPickerItemMapper.new()
 
-    local buffSettingsItem = GambitSettingsMenuItem.compact(trust, trustSettings, trustSettingsMode, trustModeSettings, 'BuffSettings', S{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Ally }, function(targets)
+    local buffSettingsItem = GambitSettingsMenuItem.compact(trust, trustSettings, trustSettingsMode, trustModeSettings, (settingsKeys and settingsKeys + L{ 'BuffSettings' }) or 'BuffSettings', S{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Ally }, function(targets)
         local sections = L{
             L(trust:get_job():get_spells(function(spellId)
                 local spell = res.spells[spellId]
