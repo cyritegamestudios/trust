@@ -40,10 +40,10 @@ return {
             },
             Gambits = L{
                 Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("RUN")}, UseItem.new("Miso Ramen", L{ItemCountCondition.new("Miso Ramen", 1, ">=")}), "Self", L{"food"}),
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffsCondition.new(L{"Valiance", "Vallation"}, 1)}), HasRunesCondition.new(3), MainJobCondition.new("RUN")}, JobAbility.new("Valiance", L{}, L{}), "Self", L{}),
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffsCondition.new(L{"Valiance", "Vallation"}, 1)}), HasRunesCondition.new(3), MainJobCondition.new("RUN")}, JobAbility.new("Vallation", L{}, L{}), "Self", L{}),
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffsCondition.new(L{"Valiance", "Vallation"}, 1)}), HasRunesCondition.new(2), NotCondition.new(L{MainJobCondition.new("RUN")})}, JobAbility.new("Valiance", L{}, L{}), "Self", L{}),
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffsCondition.new(L{"Valiance", "Vallation"}, 1)}), HasRunesCondition.new(2), NotCondition.new(L{MainJobCondition.new("RUN")})}, JobAbility.new("Vallation", L{}), "Self", L{})
+                Gambit.new("Self", L{NotCondition.new(L{HasBuffsCondition.new(L{"Valiance", "Vallation"}, 1)}), HasRunesCondition.new(3), MainJobCondition.new("RUN")}, JobAbility.new("Valiance", L{}, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{NotCondition.new(L{HasBuffsCondition.new(L{"Valiance", "Vallation"}, 1)}), HasRunesCondition.new(3), MainJobCondition.new("RUN")}, JobAbility.new("Vallation", L{}, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{NotCondition.new(L{HasBuffsCondition.new(L{"Valiance", "Vallation"}, 1)}), HasRunesCondition.new(2), NotCondition.new(L{MainJobCondition.new("RUN")})}, JobAbility.new("Valiance", L{}, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{NotCondition.new(L{HasBuffsCondition.new(L{"Valiance", "Vallation"}, 1)}), HasRunesCondition.new(2), NotCondition.new(L{MainJobCondition.new("RUN")})}, JobAbility.new("Vallation", L{}), "Self", L{"Buffs"})
             },
         },
         GearSwapSettings = {

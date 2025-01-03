@@ -4,9 +4,9 @@ return {
     Default = {
         BuffSettings = {
             Gambits = L{
-                Gambit.new("Self", L{StatusCondition.new("Engaged", 2, ">=")}, JobAbility.new("Impetus", L{}), "Self", L{}),
-                Gambit.new("Self", L{StatusCondition.new("Engaged", 2, ">=")}, JobAbility.new("Footwork", L{}), "Self", L{}),
-                Gambit.new("Self", L{StatusCondition.new("Engaged", 2, ">=")}, JobAbility.new("Mantra", L{}), "Self", L{})
+                Gambit.new("Self", L{StatusCondition.new("Engaged", 2, ">=")}, JobAbility.new("Impetus", L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{StatusCondition.new("Engaged", 2, ">=")}, JobAbility.new("Footwork", L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{StatusCondition.new("Engaged", 2, ">=")}, JobAbility.new("Mantra", L{}), "Self", L{"Buffs"})
             }
         },
         DebuffSettings = {

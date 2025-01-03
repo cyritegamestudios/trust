@@ -4,12 +4,12 @@ return {
     Default = {
         BuffSettings = {
             Gambits = L{
-                Gambit.new("Self", L{}, Spell.new("Barrier Tusk", L{}, L{}, nil, L{}), "Self", L{}),
-                Gambit.new("Self", L{}, Buff.new("Cocoon", L{}, L{}, nil, L{}), "Self", L{}),
-                Gambit.new("Self", L{}, Spell.new("Erratic Flutter", L{}, L{}, nil, L{}), "Self", L{}),
-                Gambit.new("Self", L{}, Buff.new("Mighty Guard", L{"Unbridled Learning", "Diffusion"}, L{}, nil, L{}), "Self", L{}),
-                Gambit.new("Self", L{}, Spell.new("Nat. Meditation", L{}, L{}, nil, L{}), "Self", L{}),
-                Gambit.new("Self", L{}, Spell.new("Occultation", L{}, L{}, nil, L{}), "Self", L{})
+                Gambit.new("Self", L{}, Spell.new("Barrier Tusk", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, Buff.new("Cocoon", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, Spell.new("Erratic Flutter", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, Buff.new("Mighty Guard", L{"Unbridled Learning", "Diffusion"}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, Spell.new("Nat. Meditation", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, Spell.new("Occultation", L{}, L{}, nil, L{}), "Self", L{"Buffs"})
             }
         },
         CureSettings = {

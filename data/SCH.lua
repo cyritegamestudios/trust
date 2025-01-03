@@ -5,14 +5,14 @@ return {
         LightArts = {
             BuffSettings = {
                 Gambits = L{
-                    Gambit.new("Self", L{}, Spell.new("Firestorm II", L{}, L{}, nil, L{}), "Self", L{}),
-                    Gambit.new("Self", L{StrategemCountCondition.new(1, ">="), MainJobCondition.new("SCH")}, Buff.new("Protect", L{"Accession"}, L{}, nil, L{StrategemCountCondition.new(1, ">=")}), "Self", L{}),
-                    Gambit.new("Self", L{StrategemCountCondition.new(2, ">="), MainJobCondition.new("SCH")}, Buff.new("Regen", L{"Accession", "Perpetuance"}, L{}, nil, L{StrategemCountCondition.new(2, ">=")}), "Self", L{}),
-                    Gambit.new("Self", L{}, Buff.new("Reraise", L{}, L{}, nil, L{}), "Self", L{}),
-                    Gambit.new("Self", L{StrategemCountCondition.new(1, ">="), MainJobCondition.new("SCH")}, Buff.new("Shell", L{"Accession"}, L{}, nil, L{StrategemCountCondition.new(1, ">=")}), "Self", L{}),
-                    Gambit.new("Self", L{StrategemCountCondition.new(1, ">=")}, Buff.new("Haste", L{"Perpetuance"}, L{}, nil, L{StrategemCountCondition.new(1, ">=")}), "Self", L{}),
-                    Gambit.new("Ally", L{JobCondition.new(L{"BLM", "RDM", "GEO"}), NotCondition.new(L{IsAlterEgoCondition.new()})}, Spell.new("Firestorm II", L{}, L{}, nil, L{}), "Ally", L{}),
-                    Gambit.new("Ally", L{JobCondition.new(L{"BLM"}), StrategemCountCondition.new(1, ">=")}, Buff.new("Haste", L{"Perpetuance"}, L{"BLM"}, nil, L{StrategemCountCondition.new(1, ">=")}), "Ally", L{})
+                    Gambit.new("Self", L{}, Spell.new("Firestorm II", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                    Gambit.new("Self", L{StrategemCountCondition.new(1, ">="), MainJobCondition.new("SCH")}, Buff.new("Protect", L{"Accession"}, L{}, nil, L{StrategemCountCondition.new(1, ">=")}), "Self", L{"Buffs"}),
+                    Gambit.new("Self", L{StrategemCountCondition.new(2, ">="), MainJobCondition.new("SCH")}, Buff.new("Regen", L{"Accession", "Perpetuance"}, L{}, nil, L{StrategemCountCondition.new(2, ">=")}), "Self", L{"Buffs"}),
+                    Gambit.new("Self", L{}, Buff.new("Reraise", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                    Gambit.new("Self", L{StrategemCountCondition.new(1, ">="), MainJobCondition.new("SCH")}, Buff.new("Shell", L{"Accession"}, L{}, nil, L{StrategemCountCondition.new(1, ">=")}), "Self", L{"Buffs"}),
+                    Gambit.new("Self", L{StrategemCountCondition.new(1, ">=")}, Buff.new("Haste", L{"Perpetuance"}, L{}, nil, L{StrategemCountCondition.new(1, ">=")}), "Self", L{"Buffs"}),
+                    Gambit.new("Ally", L{JobCondition.new(L{"BLM", "RDM", "GEO"}), NotCondition.new(L{IsAlterEgoCondition.new()})}, Spell.new("Firestorm II", L{}, L{}, nil, L{}), "Ally", L{"Buffs"}),
+                    Gambit.new("Ally", L{JobCondition.new(L{"BLM"}), StrategemCountCondition.new(1, ">=")}, Buff.new("Haste", L{"Perpetuance"}, L{"BLM"}, nil, L{StrategemCountCondition.new(1, ">=")}), "Ally", L{"Buffs"})
                 }
             }
         },
@@ -95,9 +95,9 @@ return {
         DarkArts = {
             BuffSettings = {
                 Gambits = L{
-                    Gambit.new("Self", L{}, Spell.new("Firestorm II", L{}, L{}, nil, L{}), "Self", L{}),
-                    Gambit.new("Self", L{StrategemCountCondition.new(1, ">=")}, Spell.new("Klimaform", L{}, L{}, nil, L{}), "Self", L{}),
-                    Gambit.new("Ally", L{JobCondition.new(L{"BLM", "RDM", "GEO"}), NotCondition.new(L{IsAlterEgoCondition.new()})}, Spell.new("Firestorm II", L{}, L{}, nil, L{}), "Ally", L{})
+                    Gambit.new("Self", L{}, Spell.new("Firestorm II", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                    Gambit.new("Self", L{StrategemCountCondition.new(1, ">=")}, Spell.new("Klimaform", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                    Gambit.new("Ally", L{JobCondition.new(L{"BLM", "RDM", "GEO"}), NotCondition.new(L{IsAlterEgoCondition.new()})}, Spell.new("Firestorm II", L{}, L{}, nil, L{}), "Ally", L{"Buffs"})
                 }
             }
         },

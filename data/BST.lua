@@ -4,8 +4,8 @@ return {
     Default = {
         BuffSettings = {
             Gambits = L{
-                Gambit.new("Self", L{InBattleCondition.new(), HasPetCondition.new()}, JobAbility.new('Killer Instinct', L{}), "Self"),
-                Gambit.new("Self", L{InBattleCondition.new(), HasPetCondition.new()}, JobAbility.new('Spur', L{}), "Self"),
+                Gambit.new("Self", L{InBattleCondition.new(), HasPetCondition.new()}, JobAbility.new('Killer Instinct', L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{InBattleCondition.new(), HasPetCondition.new()}, JobAbility.new('Spur', L{}), "Self", L{"Buffs"}),
             }
         },
         DebuffSettings = {

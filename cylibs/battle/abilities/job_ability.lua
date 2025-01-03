@@ -148,8 +148,6 @@ function JobAbility:to_action(target_index)
         actions:append(WaltzAction.new(self:get_job_ability_name(), target_index or self:get_target()))
     elseif string.find(self:get_job_ability_name(), 'Flourish') then
         actions:append(FlourishAction.new(self:get_job_ability_name(), target_index or self:get_target()))
-    elseif res.job_abilities[self:get_ability_id()].type == 'BloodPactWard' then
-        actions:append(JobAbilityAction.new(0, 0, 0, self:get_job_ability_name(), target_index or self:get_target()))
     else
         actions:append(JobAbilityAction.new(0, 0, 0, self:get_job_ability_name(), target_index or self:get_target()))
     end

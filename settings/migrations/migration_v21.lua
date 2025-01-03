@@ -30,7 +30,6 @@ function Migration_v21:perform(trustSettings, _, _)
     for modeName in modeNames:it() do
         local allSettings = L{ trustSettings:getSettings()[modeName] }
         if trustSettings.jobNameShort == 'SCH' then
-            print('here')
             allSettings = L{ trustSettings:getSettings()[modeName].LightArts, trustSettings:getSettings()[modeName].DarkArts }
         end
 

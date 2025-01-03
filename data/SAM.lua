@@ -5,7 +5,7 @@ return {
         BuffSettings = {
             Gambits = L{
                 Gambit.new("Self", L{CombatSkillsCondition.new(L{'Great Sword','Great Axe','Scythe','Polearm','Great Katana','Staff'})}, JobAbility.new("Hasso", L{}, L{}), "Self", L{"Buffs"}),
-                Gambit.new("Self", L{MinTacticalPointsCondition.new(1500), InBattleCondition.new()}, JobAbility.new("Sekkanoki", L{}), "Self", L{}),
+                Gambit.new("Self", L{MinTacticalPointsCondition.new(1500), InBattleCondition.new()}, JobAbility.new("Sekkanoki", L{}), "Self", L{"Buffs"}),
             }
         },
         DebuffSettings = {

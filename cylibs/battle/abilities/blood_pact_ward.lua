@@ -1,5 +1,5 @@
 ---------------------------
--- Wrapper around a blood pact ward.
+-- Wrapper around a Blood Pact: Ward.
 -- @class module
 -- @name BloodPact
 
@@ -12,12 +12,10 @@ BloodPactWard.__index = BloodPactWard
 BloodPactWard.__type = "BloodPactWard"
 
 -------
--- Default initializer for a new job ability.
--- @tparam string job_ability_name Localized name of the job ability
--- @tparam list conditions List of conditions that must be satisfied to use the job ability (optional)
--- @tparam list job_names List of job short names that this spell applies to (optional)
--- @tparam string target Job ability target (options: bt, p0...pn) (optional)
--- @treturn JobAbility A job ability
+-- Default initializer for a new Blood Pact: Ward.
+-- @tparam string job_ability_name Name of the blood pact
+-- @tparam list conditions List of conditions
+-- @treturn BloodPactWard A blood pact ward
 function BloodPactWard.new(blood_pact_name, conditions)
     local self = setmetatable(JobAbility.new(blood_pact_name, conditions), BloodPactWard)
     return self
@@ -29,7 +27,6 @@ end
 
 function BloodPactWard:is_valid()
     return true
-    --return job_util.knows_job_ability(self:get_job_ability_id())
 end
 
 function BloodPactWard:get_mp_cost()
@@ -48,7 +45,6 @@ function BloodPactWard:to_action(target_index, player)
     if target_index ~= windower.ffxi.get_player().index and self:get_valid_targets():contains('Ally') then
         target_index = windower.ffxi.get_player().index
     end
-
     local actions = L{}
 
     local avatar = self:get_avatar_name()

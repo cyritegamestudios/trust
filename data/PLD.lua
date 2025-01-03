@@ -4,12 +4,12 @@ return {
     Default = {
         BuffSettings = {
             Gambits = L{
-                Gambit.new("Self", L{}, Spell.new("Phalanx", L{}, L{}, nil, L{}), "Self", L{}),
-                Gambit.new("Self", L{}, Spell.new("Crusade", L{}, L{}, nil, L{}), "Self", L{}),
-                Gambit.new("Self", L{}, Spell.new("Reprisal", L{}, L{}, nil, L{}), "Self", L{}),
-                Gambit.new("Self", L{}, Spell.new("Protect V", L{}, L{}, nil, L{}), "Self", L{}),
-                Gambit.new("Self", L{}, JobAbility.new("Majesty", L{}), "Self", L{}),
-                Gambit.new("Self", L{StatusCondition.new("Engaged", 6, ">=")}, JobAbility.new("Rampart", L{}), "Self", L{})
+                Gambit.new("Self", L{}, Spell.new("Phalanx", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, Spell.new("Crusade", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, Spell.new("Reprisal", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, Spell.new("Protect V", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, JobAbility.new("Majesty", L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{StatusCondition.new("Engaged", 6, ">=")}, JobAbility.new("Rampart", L{}), "Self", L{"Buffs"})
             }
         },
         CureSettings = {

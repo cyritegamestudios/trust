@@ -23,7 +23,7 @@ return {
         },
         BuffSettings = {
             Gambits = L{
-                Gambit.new("Self", L{InBattleCondition.new()}, JobAbility.new("Haste Samba", L{}, L{}), "Self", L{})
+                Gambit.new("Self", L{InBattleCondition.new()}, JobAbility.new("Haste Samba", L{}, L{}), "Self", L{"Buffs"})
             }
         },
         DebuffSettings = {

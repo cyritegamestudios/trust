@@ -4,7 +4,7 @@ return {
     Default = {
         BuffSettings = {
             Gambits = L{
-                Gambit.new("Self", L{}, JobAbility.new('Mana Wall', L{}, L{}, nil), "Self"),
+                Gambit.new("Self", L{}, JobAbility.new('Mana Wall', L{}, L{}, nil), "Self", L{"Buffs"}),
             }
         },
         DebuffSettings = {
