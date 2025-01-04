@@ -1,12 +1,13 @@
 local GambitEditorStyle = {}
 GambitEditorStyle.__index = GambitEditorStyle
 
-function GambitEditorStyle.new(configItemForGambits, viewSize, abilityCategory, abilityCategoryPlural)
+function GambitEditorStyle.new(configItemForGambits, viewSize, abilityCategory, abilityCategoryPlural, itemDescription)
     local self = setmetatable({}, GambitEditorStyle)
     self.configItemForGambits = configItemForGambits
     self.viewSize = viewSize
     self.abilityCategory = abilityCategory or "Gambit"
     self.abilityCategoryPlural = abilityCategoryPlural or "Gambits"
+    self.itemDescription = itemDescription or function(_) return nil end
     return self
 end
 
@@ -29,6 +30,10 @@ function GambitEditorStyle:getDescription(plural, lower)
         description = description:lower()
     end
     return description
+end
+
+function GambitEditorStyle:getItemDescription(item)
+    return self.itemDescription(item)
 end
 
 function GambitEditorStyle:getAbilitiesForTargets(targets, trust)

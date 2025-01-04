@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '13.2.0'
+_addon.version = '13.2.1'
 _addon.release_notes = [[
 This update introduces new menus for Bard, autocomplete for Trust
 commands, new commands and important bug fixes for users running the
@@ -40,48 +40,7 @@ Japanese client.
 	]]
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 
-require('Trust-Include')
-
-addon_settings = TrustAddonSettings.new()
-addon_settings:loadSettings()
-
-localization_util.set_should_use_client_locale(addon_settings:getSettings().locales.actions.use_client_locale or false)
-
-addon_enabled = ValueRelay.new(false)
-addon_enabled:onValueChanged():addAction(function(_, isEnabled)
-	if isEnabled then
-		player.player:monitor()
-		action_queue:enable()
-	else
-		action_queue:disable()
-	end
-end)
-
-player = {}
-addon_load_time = os.time()
-should_check_version = true
-
-shortcuts = {}
-
--- States
-
-state.TrustMode = M{['description'] = 'Trust Mode', T{}}
-
-state.AutoEnableMode = M{['description'] = 'Auto Enable Mode', 'Off', 'Auto'}
-state.AutoEnableMode:set_description('Auto', "Okay, I'll automatically get to work after the addon loads.")
-
-state.AutoDisableMode = M{['description'] = 'Auto Disable Mode', 'Auto', 'Off'}
-state.AutoDisableMode:set_description('Auto', "Okay, I'll automatically disable Trust after zoning.")
-
-state.AutoUnloadOnDeathMode = M{['description'] = 'Auto Unload On Death Mode', 'Auto', 'Off'}
-state.AutoUnloadOnDeathMode:set_description('Off', "Okay, I'll pause Trust after getting knocked out but won't unload it. DO NOT USE WHILE AFK!")
-state.AutoUnloadOnDeathMode:set_description('Auto', "Okay, I'll automatically unload Trust after getting knocked out.")
-
-state.AutoBuffMode = M{['description'] = 'Buff Self and Party', 'Off', 'Auto'}
-state.AutoBuffMode:set_description('Auto', "Okay, I'll automatically buff myself and the party.")
-
-state.AutoEnmityReductionMode = M{['description'] = 'Auto Enmity Reduction Mode', 'Off', 'Auto'}
-state.AutoEnmityReductionMode:set_description('Auto', "Okay, I'll automatically try to reduce my enmity.")
+--require('Trust-Include')
 
 -- Main
 
@@ -750,15 +709,6 @@ end
 
 -- Setup
 
-local commands = T{}
-
-commands['command'] = handle_command
-commands['debug'] = handle_debug
-commands['tests'] = handle_tests
-commands['help'] = handle_help
-commands['commands'] = handle_command_list
-commands['version'] = function() addon_system_message("Trust v".._addon.version..".") end
-
 local function addon_command(cmd, ...)
     local cmd = cmd or 'help'
 	
@@ -826,7 +776,68 @@ function unloaded()
 	unload_chunk_event()
 end
 
+function load_dependendies()
+	return coroutine.create(function()
+		require('Trust-Include')
+		coroutine.yield()
+	end)
+end
+
 function loaded()
+	local success = coroutine.resume(load_dependendies())
+
+	addon_settings = TrustAddonSettings.new()
+	addon_settings:loadSettings()
+
+	localization_util.set_should_use_client_locale(addon_settings:getSettings().locales.actions.use_client_locale or false)
+
+	addon_enabled = ValueRelay.new(false)
+	addon_enabled:onValueChanged():addAction(function(_, isEnabled)
+		if isEnabled then
+			player.player:monitor()
+			action_queue:enable()
+		else
+			action_queue:disable()
+		end
+	end)
+
+
+	player = {}
+	addon_load_time = os.time()
+	should_check_version = true
+
+	shortcuts = {}
+
+	-- States
+
+	state.TrustMode = M{['description'] = 'Trust Mode', T{}}
+
+	state.AutoEnableMode = M{['description'] = 'Auto Enable Mode', 'Off', 'Auto'}
+	state.AutoEnableMode:set_description('Auto', "Okay, I'll automatically get to work after the addon loads.")
+
+	state.AutoDisableMode = M{['description'] = 'Auto Disable Mode', 'Auto', 'Off'}
+	state.AutoDisableMode:set_description('Auto', "Okay, I'll automatically disable Trust after zoning.")
+
+	state.AutoUnloadOnDeathMode = M{['description'] = 'Auto Unload On Death Mode', 'Auto', 'Off'}
+	state.AutoUnloadOnDeathMode:set_description('Off', "Okay, I'll pause Trust after getting knocked out but won't unload it. DO NOT USE WHILE AFK!")
+	state.AutoUnloadOnDeathMode:set_description('Auto', "Okay, I'll automatically unload Trust after getting knocked out.")
+
+	state.AutoBuffMode = M{['description'] = 'Buff Self and Party', 'Off', 'Auto'}
+	state.AutoBuffMode:set_description('Auto', "Okay, I'll automatically buff myself and the party.")
+
+	state.AutoEnmityReductionMode = M{['description'] = 'Auto Enmity Reduction Mode', 'Off', 'Auto'}
+	state.AutoEnmityReductionMode:set_description('Auto', "Okay, I'll automatically try to reduce my enmity.")
+
+
+	commands = T{}
+
+	commands['command'] = handle_command
+	commands['debug'] = handle_debug
+	commands['tests'] = handle_tests
+	commands['help'] = handle_help
+	commands['commands'] = handle_command_list
+	commands['version'] = function() addon_system_message("Trust v".._addon.version..".") end
+
     if not user_events then
 		load_chunk_event()
         user_events = {}

@@ -97,7 +97,6 @@ function Command:serialize()
 end
 
 function Command:copy()
-    print("copy")
     return Command.new(self.windower_command, self.conditions:copy(), self.description)
     --[[local original = self
     local lookup_table = {}

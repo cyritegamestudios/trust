@@ -24,7 +24,7 @@ function GambitSettingsMenuItem:onGambitChanged()
     return self.gambitChanged
 end
 
-function GambitSettingsMenuItem.compact(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKey, abilityTargets, abilitiesForTargets, conditionTargets, modes, abilityCategory, abilityCategoryPlural, libraryCategoryFilter)
+function GambitSettingsMenuItem.compact(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKey, abilityTargets, abilitiesForTargets, conditionTargets, modes, abilityCategory, abilityCategoryPlural, libraryCategoryFilter, itemDescription)
     local configItemForGambits = function(gambits)
         local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit)
             return gambit:getAbility():get_localized_name()
@@ -34,7 +34,7 @@ function GambitSettingsMenuItem.compact(trust, trustSettings, trustSettingsMode,
         return configItem
     end
 
-    local editorStyle = GambitEditorStyle.new(configItemForGambits, nil, abilityCategory, abilityCategoryPlural)
+    local editorStyle = GambitEditorStyle.new(configItemForGambits, nil, abilityCategory, abilityCategoryPlural, itemDescription)
 
     local self = GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKey, abilityTargets, abilitiesForTargets, conditionTargets, editorStyle, modes, libraryCategoryFilter)
     return self
@@ -229,6 +229,8 @@ function GambitSettingsMenuItem:getAddAbilityMenuItem()
                 return ability:get_localized_name()
             end, "Choose an ability.", nil, function(ability)
                 return AssetManager.imageItemForAbility(ability:get_name())
+            end, function(ability)
+                return self.editorConfig:getItemDescription(ability) or "Add a new "..targetType.." "..self.editorConfig:getDescription().."."
             end)
 
             local abilityPickerView = FFXIPickerView.withConfig(abilityPickerItem)
@@ -322,7 +324,7 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
     end)
 
     editGambitMenuItem:setChildMenuItem("Edit", editAbilityMenuItem)
-    editGambitMenuItem:setChildMenuItem("Conditions", ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode))
+    editGambitMenuItem:setChildMenuItem("Conditions", ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, self, S(self.conditionTargets)))
 
     return editGambitMenuItem
 end
@@ -448,10 +450,6 @@ function GambitSettingsMenuItem:getMoveDownGambitMenuItem()
             end
         end
     end, self:getTitleText(), "Move the selected "..self.editorConfig:getDescription().." down. "..self.editorConfig:getDescription(true).." get evaluated in order.")
-end
-
-function GambitSettingsMenuItem:getEditConditionsMenuItem()
-    return ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, self)
 end
 
 function GambitSettingsMenuItem:getResetGambitsMenuItem()
