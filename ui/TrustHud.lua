@@ -528,7 +528,7 @@ function TrustHud:getBufferMenuItem(trust, jobNameShort, trustSettings, trustSet
 
         childMenuItems["Light Arts"] = BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, L{ 'LightArts' })
         childMenuItems["Dark Arts"] = BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, L{ 'DarkArts' })
-        
+
         local artsSettingsMenuItem = MenuItem.new(L{
             ButtonItem.default('Light Arts', 18),
             ButtonItem.default('Dark Arts', 18),

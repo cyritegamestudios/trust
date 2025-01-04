@@ -362,6 +362,7 @@ function GambitSettingsMenuItem:getCopyGambitMenuItem()
             currentGambits:append(newGambit)
 
             self.trustSettings:saveSettings(true)
+            self.trustSettings:reloadSettings()
 
             menu:showMenu(self)
         end
