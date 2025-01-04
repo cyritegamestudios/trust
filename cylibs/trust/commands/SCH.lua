@@ -81,6 +81,8 @@ function ScholarTrustCommands:handle_skillchain(_, element)
     local success
     local message
 
+    element = windower.convert_auto_trans(element)
+
     local target_index = self.trust:get_target_index()
 
     local spell1, spell2 = self:get_spells(element)
@@ -94,7 +96,7 @@ function ScholarTrustCommands:handle_skillchain(_, element)
         success = true
         local actions = L{
             BlockAction.new(function()
-                self.trust:get_party():add_to_chat(self.trust:get_party():get_player(), "**[Starting]** Skillchain "..spell1.." > "..spell2.." = "..element)
+                self.trust:get_party():add_to_chat(self.trust:get_party():get_player(), "**[Starting]** Skillchain "..spell1.." > "..spell2.." = "..localization_util.translate(element))
             end, 'skillchain_start')
         }
         local spells = L{
@@ -131,7 +133,7 @@ function ScholarTrustCommands:handle_skillchain(_, element)
 
             self.action_queue:push_action(skillchain_action, true)
 
-            message = "Starting skillchain "..spell1.." > "..spell2.." = "..element
+            message = "Starting skillchain "..localization_util.translate(spell1).." > "..localization_util.translate(spell2).." = "..localization_util.translate(element)
         end
     end
 
@@ -142,6 +144,8 @@ end
 function ScholarTrustCommands:handle_accession(_, spell_name)
     local success
     local message
+
+    spell_name = windower.convert_auto_trans(spell_name)
 
     if not self:get_job():is_light_arts_active() then
         success = false
@@ -165,7 +169,9 @@ function ScholarTrustCommands:handle_accession(_, spell_name)
                 message = "Unable to use spell or insufficient strategems"
             else
                 success = true
-                message = "Using Accession + "..spell_name
+                message = "Using Accession + "..localization_util.translate(spell_name)
+
+                self.action_queue:push_action(accession_action)
             end
         end
     end
