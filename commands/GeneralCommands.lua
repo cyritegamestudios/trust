@@ -16,7 +16,9 @@ function GeneralTrustCommands.new(trust, action_queue, addon_enabled, trust_mode
 
     -- State
     self:add_command('start', self.handle_start, 'Start Trust')
+    self:add_command('startall', self.handle_start_all, 'Start Trust on all characters')
     self:add_command('stop', self.handle_stop, 'Stop Trust')
+    self:add_command('stopall', self.handle_stop_all, 'Stop Trust on all characters')
     self:add_command('toggle', self.handle_toggle, 'Toggle Trust On and Off')
     self:add_command('reload', self.handle_reload, 'Reload job settings files')
     self:add_command('status', self.handle_status, 'View Trust status')
@@ -65,23 +67,47 @@ function GeneralTrustCommands:handle_status()
 end
 
 -- // trust start
-function GeneralTrustCommands:handle_start(_)
+function GeneralTrustCommands:handle_start(_, include_party)
     local success = true
-    local message = "Trust started"
+    local message
 
     self.addon_enabled:setValue(true)
+
+    if include_party then
+        message = "Trust started on all characters"
+        IpcRelay.shared():send_message(CommandMessage.new('trust start'))
+    else
+        message = "Trust started"
+    end
 
     return success, message
 end
 
+-- // trust startall
+function GeneralTrustCommands:handle_start_all(_)
+    return self:handle_start(_, true)
+end
+
 -- // trust stop
-function GeneralTrustCommands:handle_stop(_)
+function GeneralTrustCommands:handle_stop(_, include_party)
     local success = true
-    local message = "Trust stopped"
+    local message
 
     self.addon_enabled:setValue(false)
 
+    if include_party then
+        message = "Trust stopped on all characters"
+        IpcRelay.shared():send_message(CommandMessage.new('trust stop'))
+    else
+        message = "Trust stopped"
+    end
+
     return success, message
+end
+
+-- // trust stopall
+function GeneralTrustCommands:handle_stop_all(_)
+    return self:handle_stop(_, true)
 end
 
 -- // trust toggle
