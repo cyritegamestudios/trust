@@ -2,57 +2,28 @@ _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
 _addon.version = '13.2.2'
-_addon.release_notes = [[
-This update introduces new menus for Bard, autocomplete for Trust
-commands, new commands and important bug fixes for users running the
-Japanese client.
-
-	• Pulling
-	    • By popular demand, pulling capabilities have been added
-	      to all jobs.
-	    • When neither the main nor sub job can pull, default pull actions
-	      like Approach and Ranged Attack will be used.
-	    • Pull actions can be customized under Settings > Pulling > Actions.
-
-	• Autocomplete
-	    • Added autocomplete for // trust commands.
-
-	• Bard
-	    • Added menu to customize Pianissimo songs under
-	      Settings > Songs > Edit > Pianissimo.
-	    • Added menu to select ally jobs.
-
-	• Commands
-	    • Added `// trust mb` and `// trust nuke` commands to cycle
-	      between magic burst and nuke modes
-	    • Added `// trust sch storm` commands to set storm element
-
-	• Bug Fixes
-	    • Fixed issue where Summoner would not dismiss Earth Spirit.
-	    • Fixed issue with JP clients when running GearSwap in Japanese.
-	    • Fixed issue where menu would not update on Scholar.
-	    • Fixed issue where Hasso would be used with 1-handed weapons.
-
-
-	• Press escape or enter to exit.
-
-
-	]]
+_addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
-
---require('Trust-Include')
 
 -- Main
 
 function load_user_files(main_job_id, sub_job_id)
 	local start_time = os.clock()
 
-	load_i18n_settings()
-	load_logger_settings()
-
 	addon_system_message("Loaded Trust v".._addon.version)
 
 	action_queue = ActionQueue.new(nil, true, 5, false, true)
+	player = {}
+
+	addon_enabled = ValueRelay.new(false)
+	addon_enabled:onValueChanged():addAction(function(_, isEnabled)
+		if isEnabled then
+			player.player:monitor()
+			action_queue:enable()
+		else
+			action_queue:disable()
+		end
+	end)
 
 	main_job_id = tonumber(main_job_id)
 
@@ -76,6 +47,7 @@ function load_user_files(main_job_id, sub_job_id)
 	player.player:monitor()
 
 	local party_chat = PartyChat.new(addon_settings:getSettings().chat.ipc_enabled)
+
 	player.alliance = Alliance.new(party_chat)
 	player.alliance:monitor()
 	player.party = player.alliance:get_parties()[1]
@@ -205,7 +177,7 @@ function load_user_files(main_job_id, sub_job_id)
 
 	load_trust_modes(player.main_job_name_short)
 	load_ui()
-	load_trust_commands(player.main_job_name_short, player.trust.main_job, player.trust.sub_job, action_queue, player.party, main_trust_settings)
+	load_trust_commands(player.main_job_name_short, player.trust.main_job, player.sub_job_name_short, player.trust.sub_job, action_queue, player.party, main_trust_settings, sub_trust_settings)
 
 	main_trust_settings:copySettings()
 	sub_trust_settings:copySettings()
@@ -271,7 +243,7 @@ function load_trust_modes(job_name_short)
 	player.trust.trust_name = job_name_short
 end
 
-function load_trust_commands(job_name_short, main_job_trust, sub_job_trust, action_queue, party, main_trust_settings)
+function load_trust_commands(job_name_short, main_job_trust, sub_job_name_short, sub_job_trust, action_queue, party, main_trust_settings, sub_trust_settings)
 	local common_commands = L{
 		AssistCommands.new(main_job_trust, action_queue),
 		AttackCommands.new(main_job_trust, action_queue),
@@ -293,7 +265,7 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_trust, acti
 		TargetCommands.new(main_trust_settings, state.MainTrustSettingsMode),
 		WarpCommands.new(main_job_trust:role_with_type("follower").walk_action_queue),
 		WidgetCommands.new(main_job_trust, action_queue, addon_settings, hud.widgetManager),
-	}:extend(get_job_commands(job_name_short, main_job_trust, action_queue, main_trust_settings))
+	}:extend(get_job_commands(job_name_short, main_job_trust, action_queue, main_trust_settings)):extend(get_job_commands(sub_job_name_short, sub_job_trust, action_queue, sub_trust_settings))
 
 	hud:setCommands(common_commands)
 
@@ -404,34 +376,6 @@ function load_ui()
 	hud = TrustHud.new(player, action_queue, addon_settings, trust_mode_settings, addon_enabled, 500, 500)
 	hud:setNeedsLayout()
 	hud:layoutIfNeeded()
-end
-
-function load_i18n_settings()
-	local locale = i18n.Locale.English
-
-	local language = windower.ffxi.get_info().language
-	if language:lower() == 'japanese' then
-		locale = i18n.Locale.Japanese
-	end
-
-	local translations_for_locale = {
-		[i18n.Locale.English] = 'translations/en',
-		[i18n.Locale.Japanese] = 'translations/ja',
-	}
-
-	local font_for_locale = {
-		[i18n.Locale.English] = addon_settings:getSettings().locales.font_names.english,
-		[i18n.Locale.Japanese] = addon_settings:getSettings().locales.font_names.japanese,
-	}
-
-	i18n.init(locale, translations_for_locale, font_for_locale)
-end
-
-function load_logger_settings()
-	_libs.logger.settings.logtofile = addon_settings:getSettings().logging.logtofile
-	_libs.logger.settings.defaultfile = 'logs/'..windower.ffxi.get_player().name..'_'..string.format("%s.log", os.date("%m-%d-%y"))
-
-	logger.isEnabled = addon_settings:getSettings().logging.enabled
 end
 
 function trust_for_job_short(job_name_short, settings, trust_settings, addon_settings, action_queue, player, alliance, party)
@@ -580,12 +524,8 @@ function handle_tic(old_time, new_time)
 
 	action_queue:set_enabled(addon_enabled:getValue())
 
-	--action_queue:set_mode(ActionQueue.Mode.Batch)
-
 	player.trust.main_job:tic(old_time, new_time)
 	player.trust.sub_job:tic(old_time, new_time)
-
-	--action_queue:set_mode(ActionQueue.Mode.Default)
 end
 
 function handle_status_change(new_status_id, old_status_id)
@@ -608,33 +548,13 @@ function handle_job_change(_, _, _, _)
 	handle_stop()
 	unloaded()
 	handle_unload()
-	--windower.send_command('lua r trust')
 end
 
-function handle_zone_change(new_zone_id, old_zone_id)
+function handle_zone_change(_, _)
 	action_queue:clear()
-	--player.party:set_assist_target(player.party:get_player())
 	if state.AutoDisableMode.value ~= 'Off' then
 		handle_stop()
 	end
-end
-
-function handle_create_trust(job_name_short)
-	main_trust_settings:copySettings()
-	sub_trust_settings:copySettings()
-end
-
-function handle_migrate_settings()
-	for job_name_short in job_util.all_jobs():it() do
-		if windower.file_exists(windower.addon_path..'data/'..job_name_short..'_'..windower.ffxi.get_player().name..'.lua') then
-			local legacy_trust_settings = TrustSettingsLoader.new(job_name_short)
-			local settings = legacy_trust_settings:loadSettings()
-			if settings then
-				TrustSettingsLoader.migrateSettings(job_name_short, settings, true)
-			end
-		end
-	end
-	addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, all of my settings have been upgraded to the latest and greatest!")
 end
 
 function handle_trust_status()
@@ -779,55 +699,30 @@ end
 function load_dependendies()
 	return coroutine.create(function()
 		require('Trust-Include')
-		coroutine.yield()
+		coroutine.yield(true)
 	end)
 end
 
 function loaded()
-	local success = coroutine.resume(load_dependendies())
-
-	addon_settings = TrustAddonSettings.new()
-	addon_settings:loadSettings()
-
-	localization_util.set_should_use_client_locale(addon_settings:getSettings().locales.actions.use_client_locale or false)
-
-	addon_enabled = ValueRelay.new(false)
-	addon_enabled:onValueChanged():addAction(function(_, isEnabled)
-		if isEnabled then
-			player.player:monitor()
-			action_queue:enable()
-		else
-			action_queue:disable()
-		end
-	end)
-
-
-	player = {}
 	addon_load_time = os.time()
+
+
+
 	should_check_version = true
 
 	shortcuts = {}
 
-	-- States
+	local Loading = require('loading/Trust-Init-Include')
 
-	state.TrustMode = M{['description'] = 'Trust Mode', T{}}
+	local ActionQueue = require('cylibs/actions/action_queue')
 
-	state.AutoEnableMode = M{['description'] = 'Auto Enable Mode', 'Off', 'Auto'}
-	state.AutoEnableMode:set_description('Auto', "Okay, I'll automatically get to work after the addon loads.")
+	local init_action_queue = ActionQueue.new()
 
-	state.AutoDisableMode = M{['description'] = 'Auto Disable Mode', 'Auto', 'Off'}
-	state.AutoDisableMode:set_description('Auto', "Okay, I'll automatically disable Trust after zoning.")
-
-	state.AutoUnloadOnDeathMode = M{['description'] = 'Auto Unload On Death Mode', 'Auto', 'Off'}
-	state.AutoUnloadOnDeathMode:set_description('Off', "Okay, I'll pause Trust after getting knocked out but won't unload it. DO NOT USE WHILE AFK!")
-	state.AutoUnloadOnDeathMode:set_description('Auto', "Okay, I'll automatically unload Trust after getting knocked out.")
-
-	state.AutoBuffMode = M{['description'] = 'Buff Self and Party', 'Off', 'Auto'}
-	state.AutoBuffMode:set_description('Auto', "Okay, I'll automatically buff myself and the party.")
-
-	state.AutoEnmityReductionMode = M{['description'] = 'Auto Enmity Reduction Mode', 'Off', 'Auto'}
-	state.AutoEnmityReductionMode:set_description('Auto', "Okay, I'll automatically try to reduce my enmity.")
-
+	init_action_queue:push_action(Loading.LoadDependenciesAction.new())
+	init_action_queue:push_action(Loading.LoadSettingsAction.new())
+	init_action_queue:push_action(Loading.Loadi18nAction.new())
+	init_action_queue:push_action(Loading.LoadGlobalsAction.new())
+	init_action_queue:push_action(Loading.LoadLoggerAction.new())
 
 	commands = T{}
 
@@ -841,7 +736,7 @@ function loaded()
     if not user_events then
 		load_chunk_event()
         user_events = {}
-		user_events.status = windower.register_event('time change', handle_tic)
+		user_events.tic = windower.register_event('time change', handle_tic)
 		user_events.status = windower.register_event('status change', handle_status_change)
 		user_events.job_change = windower.register_event('job change', handle_job_change)
 		user_events.zone_change = windower.register_event('zone change', handle_zone_change)
@@ -855,4 +750,4 @@ end
 windower.register_event('addon command', addon_command)
 windower.register_event('load', loaded)
 windower.register_event('unload', unloaded)
-windower.register_event('logout', function() windower.send_command('lua unload trust')  end)
+windower.register_event('logout', function() windower.send_command('lua unload trust') end)
