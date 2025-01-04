@@ -13,7 +13,7 @@ function load_user_files(main_job_id, sub_job_id)
 	addon_system_message("Loaded Trust v".._addon.version)
 
 	action_queue = ActionQueue.new(nil, true, 5, false, true)
-	player = {}
+
 
 	addon_enabled = ValueRelay.new(false)
 	addon_enabled:onValueChanged():addAction(function(_, isEnabled)
@@ -55,60 +55,6 @@ function load_user_files(main_job_id, sub_job_id)
 	player.party:set_assist_target(player.party:get_player())
 
 	handle_status_change(windower.ffxi.get_player().status, windower.ffxi.get_player().status)
-
-	state.MainTrustSettingsMode = M{['description'] = 'Main Trust Settings Mode', 'Default'}
-
-	main_trust_settings = TrustSettingsLoader.new(player.main_job_name_short)
-	main_trust_settings:onSettingsChanged():addAction(function(newSettings)
-		local oldValue = state.MainTrustSettingsMode.value
-		player.trust.main_job_settings = newSettings
-		local mode_names = list.subtract(L(T(newSettings):keyset()), L{'Migrations','Version'})
-		if not mode_names:equals(state.MainTrustSettingsMode:options()) then
-			state.MainTrustSettingsMode:options(T(mode_names):unpack())
-		end
-		if mode_names:contains(oldValue) then
-			state.MainTrustSettingsMode:set(oldValue)
-		else
-			state.MainTrustSettingsMode:set('Default')
-		end
-	end)
-
-	state.SubTrustSettingsMode = M{['description'] = 'Sub Trust Settings Mode', 'Default'}
-
-	sub_trust_settings = TrustSettingsLoader.new(player.sub_job_name_short)
-	sub_trust_settings:onSettingsChanged():addAction(function(newSettings)
-		local oldValue = state.SubTrustSettingsMode.value
-		player.trust.sub_job_settings = newSettings
-		local mode_names = list.subtract(L(T(newSettings):keyset()), L{'Migrations','Version'})
-		if not mode_names:equals(state.SubTrustSettingsMode:options()) then
-			state.SubTrustSettingsMode:options(T(mode_names):unpack())
-		end
-		if mode_names:contains(oldValue) then
-			state.SubTrustSettingsMode:set(oldValue)
-		else
-			state.SubTrustSettingsMode:set('Default')
-		end
-	end)
-
-	state.WeaponSkillSettingsMode = M{['description'] = 'Weapon Skill Settings Mode', 'Default'}
-
-	weapon_skill_settings = WeaponSkillSettings.new(player.main_job_name_short)
-	weapon_skill_settings:onSettingsChanged():addAction(function(newSettings)
-		local oldValue = state.WeaponSkillSettingsMode.value
-		player.trust.weapon_skill_settings = newSettings
-		local mode_names = list.subtract(L(T(newSettings):keyset()), L{'Migrations','Version'})
-		state.WeaponSkillSettingsMode:options(T(mode_names):unpack())
-		if mode_names:contains(oldValue) then
-			state.WeaponSkillSettingsMode:set(oldValue)
-		else
-			state.WeaponSkillSettingsMode:set('Default')
-		end
-	end)
-
-	player.trust = {}
-	player.trust.main_job_settings = main_trust_settings:loadSettings()
-	player.trust.sub_job_settings = sub_trust_settings:loadSettings()
-	player.trust.weapon_skill_settings = weapon_skill_settings:loadSettings(true)
 
 	local MigrationManager = require('settings/migrations/migration_manager')
 
@@ -706,10 +652,9 @@ end
 function loaded()
 	addon_load_time = os.time()
 
-
-
 	should_check_version = true
 
+	player = {}
 	shortcuts = {}
 
 	local Loading = require('loading/Trust-Init-Include')
@@ -719,7 +664,7 @@ function loaded()
 	local init_action_queue = ActionQueue.new()
 
 	init_action_queue:push_action(Loading.LoadDependenciesAction.new())
-	init_action_queue:push_action(Loading.LoadSettingsAction.new())
+	init_action_queue:push_action(Loading.LoadSettingsAction.new(res.jobs[windower.ffxi.get_player().main_job_id].ens, res.jobs[windower.ffxi.get_player().sub_job_id or 0].ens))
 	init_action_queue:push_action(Loading.Loadi18nAction.new())
 	init_action_queue:push_action(Loading.LoadGlobalsAction.new())
 	init_action_queue:push_action(Loading.LoadLoggerAction.new())

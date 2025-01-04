@@ -14,6 +14,8 @@ files = require('files')
 require('commands/Trust-Commands-Include')
 require('TrustHelp')
 
+MigrationManager = require('settings/migrations/migration_manager')
+
 TrustHud = require('ui/TrustHud')
 TrustRemoteCommands = require('TrustRemoteCommands')
 TrustUnitTests = require('TrustUnitTests')
