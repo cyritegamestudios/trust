@@ -36,6 +36,12 @@ function DebuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
         return sections
     end, L{ Condition.TargetType.Enemy }, L{'AutoDebuffMode', 'AutoDispelMode', 'AutoSilenceMode'}, "Debuff", "Debuffs", function(_)
         return false
+    end, function(ability)
+        local debuff = ability:get_status()
+        if debuff then
+            return "Inflicts: "..i18n.resource('buffs', 'en', debuff.en).."."
+        end
+        return nil
     end)
     debuffSettingsItem:setDefaultGambitTags(L{'Debuffs'})
 

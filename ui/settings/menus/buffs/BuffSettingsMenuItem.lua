@@ -43,6 +43,12 @@ function BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trust
         return sections
     end, L{ Condition.TargetType.Self, Condition.TargetType.Ally }, L{'AutoBarSpellMode', 'AutoBuffMode'}, "Buff", "Buffs", function(_)
         return false
+    end, function(ability)
+        local buff = ability:get_status()
+        if buff then
+            return "Grants: "..i18n.resource('buffs', 'en', buff.en).."."
+        end
+        return nil
     end)
     buffSettingsItem:setDefaultGambitTags(L{'Buffs'})
 
