@@ -297,7 +297,8 @@ end
 
 function TrustHud:setCommands(commands)
     if self.mainMenuItem then
-        self.mainMenuItem:setChildMenuItem('Commands', CommandsMenuItem.new(commands))
+        self.commandsMenuItem = CommandsMenuItem.new(commands)
+        self.mainMenuItem:setChildMenuItem('Commands', self.commandsMenuItem)
     end
 end
 
@@ -320,6 +321,10 @@ function TrustHud:getMainMenuItem()
     self.mainMenuItem = mainMenuItem
 
     self:reloadJobMenuItems()
+
+    if self.commandsMenuItem then
+        self.mainMenuItem:setChildMenuItem("Commands", self.commandsMenuItem)
+    end
 
     return self.mainMenuItem
 end
