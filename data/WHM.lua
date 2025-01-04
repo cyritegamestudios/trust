@@ -2,14 +2,19 @@
 return {
     Version = 2,
     Default = {
-        SelfBuffs = L{
-            JobAbility.new('Afflatus Solace', L{}, L{}, nil),
-            Buff.new("Haste", L{}, L{}, nil, L{}),
-            Buff.new("Protectra", L{}, L{}, nil, L{}),
-            Buff.new("Shellra", L{}, L{}, nil, L{}),
-            Buff.new("Boost-STR", L{}, L{}, nil, L{}),
-            Buff.new("Auspice", L{}, L{}, nil, L{}),
-            Buff.new("Reraise", L{}, L{}, nil, L{})
+        BuffSettings = {
+            Gambits = L{
+                Gambit.new("Self", L{}, Buff.new("Haste", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, Buff.new("Reraise", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, JobAbility.new("Afflatus Solace", L{}, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, Buff.new("Protectra", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, Buff.new("Shellra", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, Spell.new("Boost-STR", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{MainJobCondition.new("WHM")}, Spell.new("Auspice", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Ally", L{JobCondition.new(L{"WAR", "MNK", "THF", "PLD", "DRK", "SAM", "DRG", "NIN", "PUP", "COR", "DNC", "BLU", "RUN", "BLM", "BRD", "BST"})}, Buff.new("Haste", L{}, L{}, nil, L{}), "Ally", L{"Buffs"}),
+                Gambit.new("Ally", L{JobCondition.new(L{"WAR", "WHM", "RDM", "PLD", "BRD", "SAM", "DRG", "BLU", "PUP", "SCH", "RUN", "MNK", "BLM", "THF", "BST", "RNG", "NIN", "SMN", "COR", "DNC", "GEO", "DRK"})}, Buff.new("Shell", L{}, L{}, nil, L{}), "Ally", L{"Buffs"}),
+                Gambit.new("Ally", L{JobCondition.new(L{"WAR", "WHM", "RDM", "PLD", "BRD", "SAM", "DRG", "BLU", "PUP", "SCH", "RUN", "MNK", "BLM", "THF", "BST", "RNG", "NIN", "SMN", "COR", "DNC", "GEO", "DRK"})}, Buff.new("Protect", L{}, L{}, nil, L{}), "Ally", L{"Buffs"})
+            }
         },
         CureSettings = {
             Thresholds = {
@@ -31,11 +36,6 @@ return {
             },
             MinNumAOETargets = 3,
             Overcure = false
-        },
-        PartyBuffs = L{
-            Buff.new("Haste", L{}, L{}, nil, L{JobCondition.new(L{"WAR", "MNK", "THF", "PLD", "DRK", "SAM", "DRG", "NIN", "PUP", "COR", "DNC", "BLU", "RUN", "BLM", "BRD", "BST"})}),
-            Buff.new("Protect", L{}, L{}, nil, L{JobCondition.new(L{"WAR", "WHM", "RDM", "PLD", "BRD", "SAM", "DRG", "BLU", "PUP", "SCH", "RUN", "MNK", "BLM", "THF", "BST", "RNG", "NIN", "SMN", "COR", "DNC", "GEO", "DRK"})}),
-            Buff.new("Shell", L{}, L{}, nil, L{JobCondition.new(L{"WAR", "WHM", "RDM", "PLD", "BRD", "SAM", "DRG", "BLU", "PUP", "SCH", "RUN", "MNK", "BLM", "THF", "BST", "RNG", "NIN", "SMN", "COR", "DNC", "GEO", "DRK"})})
         },
         NukeSettings = {
             Delay = 10,

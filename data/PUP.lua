@@ -2,11 +2,13 @@
 return {
     Version = 2,
     Default = {
-        SelfBuffs = L{
-
+        BuffSettings = {
+            Gambits = L{
+            }
         },
-        PartyBuffs = L{
-
+        DebuffSettings = {
+            Gambits = L{
+            }
         },
         DebuffSettings = {
             Gambits = L{

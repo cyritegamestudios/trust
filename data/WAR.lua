@@ -2,16 +2,19 @@
 return {
     Version = 1,
     Default = {
-        SelfBuffs = L{
-            JobAbility.new('Berserk', L{InBattleCondition.new()}, L{}, nil),
-            JobAbility.new('Aggressor', L{InBattleCondition.new()}, L{}, nil),
-            JobAbility.new('Warcry', L{InBattleCondition.new()}, L{}, nil),
-            JobAbility.new('Restraint', L{InBattleCondition.new()}, L{}, nil),
-            JobAbility.new('Blood Rage', L{InBattleCondition.new()}, L{}, nil),
-            JobAbility.new('Retaliation', L{}, L{}, nil),
+        BuffSettings = {
+            Gambits = L{
+                Gambit.new("Self", L{StatusCondition.new("Engaged", 6, ">=")}, JobAbility.new("Berserk", L{}, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{StatusCondition.new("Engaged", 6, ">=")}, JobAbility.new("Aggressor", L{}, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{StatusCondition.new("Engaged", 6, ">=")}, JobAbility.new("Warcry", L{}, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{StatusCondition.new("Engaged", 6, ">=")}, JobAbility.new("Restraint", L{}, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{StatusCondition.new("Engaged", 6, ">=")}, JobAbility.new("Blood Rage", L{}, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, JobAbility.new("Retaliation", L{}, L{}), "Self", L{})
+            }
         },
-        PartyBuffs = L{
-
+        DebuffSettings = {
+            Gambits = L{
+            }
         },
         DebuffSettings = {
             Gambits = L{

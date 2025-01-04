@@ -1,4 +1,6 @@
 local DisposeBag = require('cylibs/events/dispose_bag')
+local Gambit = require('cylibs/gambits/gambit')
+local GambitTarget = require('cylibs/gambits/gambit_target')
 local Geocolure = require('cylibs/entity/geocolure')
 local Nuker = require('cylibs/trust/roles/nuker')
 local Buffer = require('cylibs/trust/roles/buffer')
@@ -23,8 +25,11 @@ state.AutoEntrustMode:set_description('Auto', "Okay, I'll entrust Indicolure spe
 
 function GeomancerTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = Geomancer.new()
+	local entrust = trust_settings.Geomancy.Entrust:copy()
+	entrust.conditions = L{}
+	local entrustGambit = Gambit.new(GambitTarget.TargetType.Ally, trust_settings.Geomancy.Entrust.conditions + L{ JobAbilityRecastReadyCondition.new('Entrust') }, entrust, "Ally")
 	local roles = S{
-		Buffer.new(action_queue, trust_settings.SelfBuffs, L{ trust_settings.Geomancy.Entrust }, state.AutoEntrustMode),
+		Buffer.new(action_queue, { Gambits = L{ entrustGambit } }, state.AutoEntrustMode),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{ 'Theurgic Focus' }, job),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		ManaRestorer.new(action_queue, L{"Spirit Taker", "Moonlight"}, L{}, 40)
@@ -65,8 +70,12 @@ function GeomancerTrust:on_init()
 		self.geo_spell = new_trust_settings.Geomancy.Geo
 
 		local buffer = self:role_with_type("buffer")
-		buffer:set_self_buffs(new_trust_settings.SelfBuffs)
-		buffer:set_party_buffs(L{ new_trust_settings.Geomancy.Entrust })
+
+		local entrust = new_trust_settings.Geomancy.Entrust:copy()
+		entrust.conditions = L{}
+
+		local entrustGambit = Gambit.new(GambitTarget.TargetType.Ally, new_trust_settings.Geomancy.Entrust.conditions + L{ JobAbilityRecastReadyCondition.new('Entrust') }, entrust, "Ally")
+		buffer:set_buff_settings({ Gambits = L{ entrustGambit } })
 
 		local puller = self:role_with_type("puller")
 		if puller then
@@ -139,7 +148,7 @@ function GeomancerTrust:check_geo()
 					actions:append(WaitAction.new(0, 0, 0, 1))
 				end
 				actions:append(SpellAction.new(0, 0, 0, self.geo_spell:get_spell().id, target.index, self:get_player()))
-				actions:append(WaitAction.new(0, 0, 0, 1))
+				actions:append(WaitAction.new(0, 0, 0, 2))
 
 				self.action_queue:push_action(SequenceAction.new(actions, self.geo_spell:get_spell().id), true)
 			end

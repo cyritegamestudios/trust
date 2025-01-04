@@ -3,17 +3,17 @@ return {
     Version = 2,
     Default = {
         LightArts = {
-            PartyBuffs = L{
-                Spell.new("Adloquium", L{}, L{}, nil, L{JobCondition.new(L{"WAR", "DRK", "DRG"})})
-            },
-            SelfBuffs = L{
-                JobAbility.new('Light Arts', L{}, L{}, nil),
-                Buff.new("Protect", L{"Accession"}, L{}, nil, L{StrategemCountCondition.new(1, ">="), MainJobCondition.new("SCH")}),
-                Buff.new("Shell", L{"Accession"}, L{}, nil, L{StrategemCountCondition.new(1, ">="), MainJobCondition.new("SCH")}),
-                Buff.new("Regen", L{"Accession", "Perpetuance"}, L{}, nil, L{StrategemCountCondition.new(2, ">="), MainJobCondition.new("SCH")}),
-                Spell.new("Phalanx", L{"Accession", "Perpetuance"}, nil, nil, L{StrategemCountCondition.new(2, ">="), MainJobCondition.new("SCH")}),
-                Buff.new("Aurorastorm", L{}, L{}, nil, L{NotCondition.new(L{MainJobCondition.new("SCH")})}),
-                Spell.new("Aurorastorm II", L{}, L{}, nil, L{}),
+            BuffSettings = {
+                Gambits = L{
+                    Gambit.new("Self", L{}, Spell.new("Firestorm II", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                    Gambit.new("Self", L{StrategemCountCondition.new(1, ">="), MainJobCondition.new("SCH")}, Buff.new("Protect", L{"Accession"}, L{}, nil, L{StrategemCountCondition.new(1, ">=")}), "Self", L{"Buffs"}),
+                    Gambit.new("Self", L{StrategemCountCondition.new(2, ">="), MainJobCondition.new("SCH")}, Buff.new("Regen", L{"Accession", "Perpetuance"}, L{}, nil, L{StrategemCountCondition.new(2, ">=")}), "Self", L{"Buffs"}),
+                    Gambit.new("Self", L{}, Buff.new("Reraise", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                    Gambit.new("Self", L{StrategemCountCondition.new(1, ">="), MainJobCondition.new("SCH")}, Buff.new("Shell", L{"Accession"}, L{}, nil, L{StrategemCountCondition.new(1, ">=")}), "Self", L{"Buffs"}),
+                    Gambit.new("Self", L{StrategemCountCondition.new(1, ">=")}, Buff.new("Haste", L{"Perpetuance"}, L{}, nil, L{StrategemCountCondition.new(1, ">=")}), "Self", L{"Buffs"}),
+                    Gambit.new("Ally", L{JobCondition.new(L{"BLM", "RDM", "GEO"}), NotCondition.new(L{IsAlterEgoCondition.new()})}, Spell.new("Firestorm II", L{}, L{}, nil, L{}), "Ally", L{"Buffs"}),
+                    Gambit.new("Ally", L{JobCondition.new(L{"BLM"}), StrategemCountCondition.new(1, ">=")}, Buff.new("Haste", L{"Perpetuance"}, L{"BLM"}, nil, L{StrategemCountCondition.new(1, ">=")}), "Ally", L{"Buffs"})
+                }
             }
         },
         StrategemCooldown = 33,
@@ -93,13 +93,13 @@ return {
             },
         },
         DarkArts = {
-            PartyBuffs = L{
-
-            },
-            SelfBuffs = L{
-                JobAbility.new('Dark Arts', L{}, L{}, nil),
-                Spell.new("Klimaform", L{}, nil, nil, L{})
-            },
+            BuffSettings = {
+                Gambits = L{
+                    Gambit.new("Self", L{}, Spell.new("Firestorm II", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                    Gambit.new("Self", L{StrategemCountCondition.new(1, ">=")}, Spell.new("Klimaform", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                    Gambit.new("Ally", L{JobCondition.new(L{"BLM", "RDM", "GEO"}), NotCondition.new(L{IsAlterEgoCondition.new()})}, Spell.new("Firestorm II", L{}, L{}, nil, L{}), "Ally", L{"Buffs"})
+                }
+            }
         },
         GearSwapSettings = {
             Enabled = true

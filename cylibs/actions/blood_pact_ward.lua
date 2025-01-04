@@ -9,9 +9,10 @@ local Action = require('cylibs/actions/action')
 local BloodPactWard = setmetatable({}, {__index = Action })
 BloodPactWard.__index = BloodPactWard
 
-function BloodPactWard.new(x, y, z, blood_pact_name)
+function BloodPactWard.new(x, y, z, blood_pact_name, target_index)
     local self = setmetatable(Action.new(x, y, z), BloodPactWard)
     self.blood_pact_name = blood_pact_name
+    self.target_index = target_index or windower.ffxi.get_player().index
     return self
 end
 
@@ -24,7 +25,11 @@ function BloodPactWard:can_perform()
 end
 
 function BloodPactWard:perform()
-    local target = windower.ffxi.get_player()
+    local target = windower.ffxi.get_mob_by_index(self.target_index)
+    if not target then
+        self:complete(false)
+        return
+    end
 
     local command = JobAbilityCommand.new(self.blood_pact_name, target.id)
     command:run(true)

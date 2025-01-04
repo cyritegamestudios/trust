@@ -12,6 +12,7 @@ RedMageTrust.__index = RedMageTrust
 
 local Debuff = require('cylibs/battle/spells/debuff')
 
+local Barspeller = require('cylibs/trust/roles/barspeller')
 local Buffer = require('cylibs/trust/roles/buffer')
 local Debuffer = require('cylibs/trust/roles/debuffer')
 local Dispeler = require('cylibs/trust/roles/dispeler')
@@ -33,7 +34,8 @@ state.AutoConvertMode:set_description('Auto', "Okay, I'll use Convert when my MP
 function RedMageTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = RedMage.new(trust_settings.CureSettings)
 	local roles = S{
-		Buffer.new(action_queue, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
+		Buffer.new(action_queue, trust_settings.BuffSettings),
+		Barspeller.new(action_queue, job),
 		Debuffer.new(action_queue, trust_settings.DebuffSettings),
 		Dispeler.new(action_queue, L{ Spell.new('Dispel') }, L{}, true),
 		Healer.new(action_queue, job),
@@ -56,10 +58,6 @@ function RedMageTrust:on_init()
 
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
 		self:get_job():set_cure_settings(new_trust_settings.CureSettings)
-
-		local buffer = self:role_with_type("buffer")
-		buffer:set_self_buffs(new_trust_settings.SelfBuffs)
-		buffer:set_party_buffs(new_trust_settings.PartyBuffs)
 
 		local debuffer = self:role_with_type("debuffer")
 		debuffer:set_debuff_settings(new_trust_settings.DebuffSettings)

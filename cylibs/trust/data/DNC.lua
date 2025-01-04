@@ -11,7 +11,7 @@ local StatusRemover = require('cylibs/trust/roles/status_remover')
 function DancerTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = Dancer.new(trust_settings.CureSettings)
 	local roles = S{
-		Buffer.new(action_queue, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
+		Buffer.new(action_queue, trust_settings.BuffSettings),
 		Healer.new(action_queue, job),
 		StatusRemover.new(action_queue, job),
 	}
@@ -35,11 +35,6 @@ function DancerTrust:on_init()
 
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
 		self:get_job():set_cure_settings(new_trust_settings.CureSettings)
-
-		local buffer = self:role_with_type("buffer")
-		if buffer then
-			buffer:set_self_buffs(new_trust_settings.SelfBuffs)
-		end
 
 		local puller = self:role_with_type("puller")
 		if puller then

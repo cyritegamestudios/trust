@@ -97,7 +97,9 @@ function Command:serialize()
 end
 
 function Command:copy()
-    local original = self
+    print("copy")
+    return Command.new(self.windower_command, self.conditions:copy(), self.description)
+    --[[local original = self
     local lookup_table = {}
 
     local function _copy(original)
@@ -114,7 +116,7 @@ function Command:copy()
         return setmetatable(new_table, getmetatable(original))
     end
 
-    return _copy(original)
+    return _copy(original)]]
 end
 
 function Command:is_valid()

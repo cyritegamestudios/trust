@@ -2,12 +2,15 @@
 return {
     Version = 1,
     Default = {
-        SelfBuffs = L{
-            JobAbility.new('Killer Instinct', L{InBattleCondition.new()}),
-            JobAbility.new('Spur', L{InBattleCondition.new()}),
+        BuffSettings = {
+            Gambits = L{
+                Gambit.new("Self", L{InBattleCondition.new(), HasPetCondition.new()}, JobAbility.new('Killer Instinct', L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{InBattleCondition.new(), HasPetCondition.new()}, JobAbility.new('Spur', L{}), "Self", L{"Buffs"}),
+            }
         },
-        PartyBuffs = L{
-
+        DebuffSettings = {
+            Gambits = L{
+            }
         },
         DebuffSettings = {
             Gambits = L{

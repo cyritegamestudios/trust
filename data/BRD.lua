@@ -2,9 +2,6 @@
 return {
     Version = 1,
     Default = {
-        SelfBuffs = L{
-
-        },
         SongSettings = {
             NumSongs = 4,
             SongDuration = 240,
@@ -30,6 +27,11 @@ return {
         DebuffSettings = {
             Gambits = L{
                 Gambit.new("Enemy", L{}, Debuff.new("Carnage Elegy", L{}, L{}, L{}), "Enemy", L{"Debuffs"})
+            }
+        },
+        BuffSettings = {
+            Gambits = L{
+
             }
         },
         PullSettings = {

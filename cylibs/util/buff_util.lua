@@ -188,6 +188,20 @@ function buff_util.buff_id(buff_name)
 	return nil
 end
 
+function buff_util.all_buff_ids(buff_name)
+	local buff_names = L{ buff_name, string.lower(buff_name) }
+
+	local buff_name_upper = buff_name:gsub("^%l", string.upper)
+	buff_names:append(buff_name_upper)
+
+	local buff_ids = L{}
+	for buff_name in buff_names:it() do
+		local all_buffs = (res.buffs:with_all('en', buff_name) or L{}) + (res.buffs:with_all('enl', buff_name) or L{}) + (buffs_ext:with_all('en', buff_name) or L{})
+		buff_ids = buff_ids + all_buffs:map(function(buff) return buff.id end)
+	end
+	return L(S(buff_ids))
+end
+
 -------
 -- Filters the list of buff_ids and returns the full metadata for buffs only.
 -- @tparam list buff_ids List of buff ids (see buffs.lua)
@@ -299,6 +313,10 @@ end
 -- @tparam number job_ability_id Id in job_abilities.lua
 -- @treturn BuffMetadata Full metadata for the buff (see buffs.lua)
 function buff_util.buff_for_job_ability(job_ability_id)
+	-- NOTE: there is a bug in res/job_abilities.lua that says Wind's Blessing gives Magic Shield
+	if res.job_abilities[job_ability_id].en == "Wind's Blessing" then
+		return res.buffs:with('en', "Wind's Blessing")
+	end
 	local job_ability = res.job_abilities:with('id', job_ability_id)
 	if job_ability.status == nil then
 		job_ability = job_abilities_ext:with('id', job_ability_id)

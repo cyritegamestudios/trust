@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '13.1.1'
+_addon.version = '13.2.0'
 _addon.release_notes = [[
 This update introduces new menus for Bard, autocomplete for Trust
 commands, new commands and important bug fixes for users running the
@@ -707,16 +707,6 @@ function handle_command(args)
 end
 
 function handle_debug()
-	for key, party_member in pairs(windower.ffxi.get_party()) do
-		if type(party_member) == 'table' then
-			print(key, party_member.name)
-		end
-	end
-
-	for party in player.alliance:get_parties():it() do
-		print('targets', party:get_targets())
-	end
-
 	--[[local UrlRequest = require('cylibs/util/network/url_request')
 
 	local request = UrlRequest.new('GET', 'https://raw.githubusercontent.com/cyritegamestudios/trust/main/manifest.json', {})
@@ -728,6 +718,11 @@ function handle_debug()
 		table.vprint(body)
 	end]]
 
+	print(buff_util.all_buff_ids('Last Resort'))
+
+	print('buffs', party_util.get_buffs(windower.ffxi.get_player().id), party_util.get_buffs(windower.ffxi.get_player().id):map(function(buff_id) return res.buffs[buff_id].en end))
+
+
 	local party_index = 1
 	for party in player.alliance:get_parties():it() do
 		print('Party', party_index..":", party:get_party_members():map(function(p) return p:get_name() end))
@@ -737,9 +732,9 @@ function handle_debug()
 	print(num_created)
 	print('images', num_images_created)
 
-	print(L(windower.ffxi.get_player().buffs):map(function(buff_id)
-		return buff_id
-		--return res.buffs:with('id', buff_id).en
+	print('player', L(windower.ffxi.get_player().buffs):map(function(buff_id)
+		--return buff_id
+		return res.buffs:with('id', buff_id).en
 	end))
 
 	local alliance = player.alliance

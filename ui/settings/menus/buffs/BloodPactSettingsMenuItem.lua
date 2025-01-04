@@ -11,20 +11,9 @@ BloodPactSettingsMenuItem.__index = BloodPactSettingsMenuItem
 
 function BloodPactSettingsMenuItem.new(trustSettings, trust, bloodPacts, trustModeSettings)
     local self = setmetatable(MenuItem.new(L{
-        ButtonItem.default('Buffs', 18),
+        --ButtonItem.default('Buffs', 18),
         ButtonItem.default('Modes', 18),
-    }, {}, function(_)
-        local configItem = MultiPickerConfigItem.new("BloodPacts", L{}, bloodPacts, function(bloodPact)
-            return bloodPact:get_localized_name()
-        end, "Blood Pacts", nil, function(bloodPact)
-            return AssetManager.imageItemForJobAbility(bloodPact:get_name())
-        end)
-
-        local bloodPactSettingsEditor = FFXIPickerView.withConfig(L{ configItem })
-        bloodPactSettingsEditor:setAllowsCursorSelection(true)
-
-        return bloodPactSettingsEditor
-    end, "Summoner", "Configure Summoner settings."), BloodPactSettingsMenuItem)
+    }, {}, nil, "Summoner", "Configure Summoner settings."), BloodPactSettingsMenuItem)
 
     self.trustSettings = trustSettings
     self.trustModeSettings = trustModeSettings
@@ -44,7 +33,7 @@ function BloodPactSettingsMenuItem:destroy()
 end
 
 function BloodPactSettingsMenuItem:reloadSettings()
-    self:setChildMenuItem("Buffs", self:getBuffsMenuItem())
+    --self:setChildMenuItem("Buffs", self:getBuffsMenuItem())
     self:setChildMenuItem("Modes", self:getModesMenuItem())
 end
 

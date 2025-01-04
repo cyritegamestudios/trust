@@ -40,13 +40,17 @@ function GambitSettingsMenuItem.compact(trust, trustSettings, trustSettingsMode,
     return self
 end
 
-function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKey, abilityTargets, abilitiesForTargets, conditionTargets, editorStyle, modes, libraryCategoryFilter)
+function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKeys, abilityTargets, abilitiesForTargets, conditionTargets, editorStyle, modes, libraryCategoryFilter)
     editorStyle = editorStyle or GambitEditorStyle.new(function(gambits)
         local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit)
             return gambit:tostring()
         end)
         return configItem
     end, FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge, "Gambit", "Gambits")
+
+    if class(settingsKeys) ~= 'List' then
+        settingsKeys = L{ settingsKeys }
+    end
 
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Add', 18),
@@ -64,7 +68,7 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
     self.trustModeSettings = trustModeSettings
-    self.settingsKey = settingsKey
+    self.settingsKeys = settingsKeys
     self.abilityTargets = abilityTargets or S(GambitTarget.TargetType:keyset())
     self.abilitiesForTargets = abilitiesForTargets or function(targets)
         return self:getAbilitiesForTargets(targets)
@@ -113,7 +117,7 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
             local selectedGambit = currentGambits[indexPath.row]
             if selectedGambit then
                 if not selectedGambit:isValid() then
-                    infoView:setDescription("Unavailable on current job.")
+                    infoView:setDescription("Unavailable on current job or settings.")
                 else
                     infoView:setDescription(selectedGambit:tostring())
                 end
@@ -142,8 +146,21 @@ function GambitSettingsMenuItem:destroy()
     self.disposeBag:destroy()
 end
 
-function GambitSettingsMenuItem:getSettings()
-    return self.trustSettings:getSettings()[self.trustSettingsMode.value][self.settingsKey]
+function GambitSettingsMenuItem:getDefaultSettings()
+    local defaultSettings = T(self.trustSettings:getDefaultSettings().Default):clone()
+    for settingsKey in self.settingsKeys:it() do
+        defaultSettings = defaultSettings[settingsKey]
+    end
+    return defaultSettings
+end
+
+function GambitSettingsMenuItem:getSettings(mode)
+    mode = mode or self.trustSettingsMode.value
+    local settings = self.trustSettings:getSettings()[mode]
+    for settingsKey in self.settingsKeys:it() do
+        settings = settings[settingsKey]
+    end
+    return settings
 end
 
 function GambitSettingsMenuItem:getConfigKey()
@@ -317,7 +334,8 @@ function GambitSettingsMenuItem:getRemoveAbilityMenuItem()
             local item = self.gambitSettingsEditor:getDataSource():itemAtIndexPath(selectedIndexPath)
             if item then
                 local indexPath = selectedIndexPath
-                local currentGambits = self.trustSettings:getSettings()[self.trustSettingsMode.value][self.settingsKey].Gambits
+
+                local currentGambits = self:getSettings().Gambits
                 currentGambits:remove(indexPath.row)
 
                 self.gambitSettingsEditor:getDataSource():removeItem(indexPath)
@@ -339,10 +357,11 @@ function GambitSettingsMenuItem:getCopyGambitMenuItem()
         if self.selectedGambit then
             local newGambit = self.selectedGambit:copy()
 
-            local currentGambits = self.trustSettings:getSettings()[self.trustSettingsMode.value][self.settingsKey].Gambits
+            local currentGambits = self:getSettings().Gambits
             currentGambits:append(newGambit)
 
             self.trustSettings:saveSettings(true)
+            self.trustSettings:reloadSettings()
 
             menu:showMenu(self)
         end
@@ -437,10 +456,11 @@ end
 
 function GambitSettingsMenuItem:getResetGambitsMenuItem()
     return MenuItem.action(function(menu)
-        local defaultGambitSettings = self.trustSettings:getDefaultSettings().Default[self.settingsKey]
+        local defaultGambitSettings = self:getDefaultSettings()
         if defaultGambitSettings and defaultGambitSettings.Gambits then
             local currentGambitSettings = self:getSettings()
             currentGambitSettings.Gambits:clear()
+
             for gambit in defaultGambitSettings.Gambits:it() do
                 currentGambitSettings.Gambits:append(gambit:copy())
             end

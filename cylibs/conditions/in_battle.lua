@@ -19,7 +19,11 @@ end
 function InBattleCondition:is_satisfied(target_index)
     local target = windower.ffxi.get_mob_by_index(target_index)
     if target then
-        return target.status == 1
+        if target == windower.ffxi.get_player().index then
+            return target.in_combat
+        else
+            return target.status == 1
+        end
     end
     return false
 end

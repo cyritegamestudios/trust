@@ -2,17 +2,19 @@
 return {
     Version = 1,
     Default = {
-        PartyBuffs = L{
-
+        BuffSettings = {
+            Gambits = L{
+                Gambit.new("Self", L{}, Spell.new("Crusade", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, Spell.new("Phalanx", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, Buff.new("Refresh", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, Spell.new("Shell V", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{InBattleCondition.new()}, JobAbility.new("Swordplay", L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{InBattleCondition.new()}, Buff.new("Foil", L{}, L{}, nil, L{}), "Self", L{"Buffs"})
+            }
         },
-        SelfBuffs = L{
-            Spell.new("Temper", L{}, nil, nil, L{}),
-            Spell.new("Crusade", L{}, nil, nil, L{}),
-            Spell.new("Refresh", L{}, nil, nil, L{}),
-            Spell.new("Regen IV", L{}, nil, nil, L{}),
-            Spell.new("Shell V", L{}, nil, nil, L{}),
-            Spell.new("Phalanx", L{}, nil, nil, L{}),
-            JobAbility.new('Swordplay', L{InBattleCondition.new()}),
+        DebuffSettings = {
+            Gambits = L{
+            }
         },
         DebuffSettings = {
             Gambits = L{
@@ -37,10 +39,12 @@ return {
                 Gambit.new("Self", L{MaxHitPointsPercentCondition.new(30), HasRunesCondition.new(3)}, JobAbility.new("Vivacious Pulse", L{}, L{}), "Self", L{})
             },
             Gambits = L{
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffsCondition.new(L{"Valiance", "Vallation"}, 1)}), HasRunesCondition.new(3)}, JobAbility.new("Valiance", L{}, L{}), "Self", L{}),
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffsCondition.new(L{"Valiance", "Vallation"}, 1)}), HasRunesCondition.new(3)}, JobAbility.new("Vallation", L{}, L{}), "Self", L{}),
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("RUN")}, UseItem.new("Miso Ramen", L{ItemCountCondition.new("Miso Ramen", 1, ">=")}), "Self", L{"food"})
-            }
+                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("RUN")}, UseItem.new("Miso Ramen", L{ItemCountCondition.new("Miso Ramen", 1, ">=")}), "Self", L{"food"}),
+                Gambit.new("Self", L{NotCondition.new(L{HasBuffsCondition.new(L{"Valiance", "Vallation"}, 1)}), HasRunesCondition.new(3), MainJobCondition.new("RUN")}, JobAbility.new("Valiance", L{}, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{NotCondition.new(L{HasBuffsCondition.new(L{"Valiance", "Vallation"}, 1)}), HasRunesCondition.new(3), MainJobCondition.new("RUN")}, JobAbility.new("Vallation", L{}, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{NotCondition.new(L{HasBuffsCondition.new(L{"Valiance", "Vallation"}, 1)}), HasRunesCondition.new(2), NotCondition.new(L{MainJobCondition.new("RUN")})}, JobAbility.new("Valiance", L{}, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{NotCondition.new(L{HasBuffsCondition.new(L{"Valiance", "Vallation"}, 1)}), HasRunesCondition.new(2), NotCondition.new(L{MainJobCondition.new("RUN")})}, JobAbility.new("Vallation", L{}), "Self", L{"Buffs"})
+            },
         },
         GearSwapSettings = {
             Enabled = true

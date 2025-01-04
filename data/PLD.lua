@@ -2,13 +2,15 @@
 return {
     Version = 2,
     Default = {
-        SelfBuffs = L{
-            Spell.new("Phalanx", L{}, nil, nil, L{}),
-            Spell.new("Crusade", L{}, nil, nil, L{}),
-            Spell.new("Reprisal", L{}, nil, nil, L{}),
-            Spell.new("Protect V", L{}, nil, nil, L{}),
-            JobAbility.new('Majesty', L{InBattleCondition.new()}),
-            JobAbility.new('Rampart', L{InBattleCondition.new()}),
+        BuffSettings = {
+            Gambits = L{
+                Gambit.new("Self", L{}, Spell.new("Phalanx", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, Spell.new("Crusade", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, Spell.new("Reprisal", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, Spell.new("Protect V", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, JobAbility.new("Majesty", L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{StatusCondition.new("Engaged", 6, ">=")}, JobAbility.new("Rampart", L{}), "Self", L{"Buffs"})
+            }
         },
         CureSettings = {
             Thresholds = {
@@ -25,9 +27,6 @@ return {
                 }
             },
             MinNumAOETargets = 3
-        },
-        PartyBuffs = L{
-
         },
         NukeSettings = {
             Delay = 10,

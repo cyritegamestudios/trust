@@ -1,3 +1,4 @@
+local BloodPactWard = require('cylibs/battle/abilities/blood_pact_ward')
 local JobAbility = require('cylibs/battle/abilities/job_ability')
 
 local PickerItemMapper = require('ui/settings/pickers/mappers/PickerItemMapper')
@@ -16,7 +17,7 @@ end
 -- @treturn boolean True if this mapper can map a picker item.
 --
 function JobAbilityPickerItemMapper:canMap(value)
-    return S{ JobAbility.__type }:contains(value.__type)
+    return S{ JobAbility.__type, BloodPactWard.__type }:contains(value.__type)
 end
 
 ---
@@ -26,6 +27,9 @@ end
 -- @treturn table The mapped picker item.
 --
 function JobAbilityPickerItemMapper:map(value)
+    if res.job_abilities[value:get_job_ability_id()].type == 'BloodPactWard' then
+        return BloodPactWard.new(value:get_name())
+    end
     return JobAbility.new(value:get_name(), L{}, L{})
 end
 

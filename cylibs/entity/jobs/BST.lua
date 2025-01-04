@@ -3,6 +3,8 @@
 -- @class module
 -- @name Beastmaster
 
+local ReadyMove = require('cylibs/battle/abilities/ready_move')
+
 local Job = require('cylibs/entity/jobs/job')
 local Beastmaster = setmetatable({}, {__index = Job })
 Beastmaster.__index = Beastmaster
@@ -56,6 +58,29 @@ end
 -- Destroy function for a Summoner.
 function Beastmaster:destroy()
     Job.destroy(self)
+end
+
+-------
+-- Returns a list of known job abilities.
+-- @tparam function filter Optional filter function
+-- @treturn list List of known job ability ids
+function Beastmaster:get_job_abilities(filter)
+    filter = filter or function(_) return true end
+    local job_abilities = Job.get_job_abilities(self, filter)
+    job_abilities = (job_abilities + self:get_ready_moves():map(function(ready_move) return ready_move:get_ability_id() end):filter(filter)):unique(function(job_ability_id) return job_ability_id end)
+    return job_abilities
+end
+
+-------
+-- Returns all ready moves matching the given filter.
+-- @tparam function filter Filter function for ready moves (optional)
+-- @treturn list List of JobAbility
+function Beastmaster:get_ready_moves(filter)
+    if filter == nil then
+        filter = function(_) return true  end
+    end
+    local all_ready_moves = L(res.job_abilities:with_all('type', 'Monster')):filter(filter):compact_map():map(function(ready_move) return JobAbility.new(ready_move.en)  end)
+    return all_ready_moves
 end
 
 -------

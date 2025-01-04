@@ -43,7 +43,6 @@ function Trust:init()
 	for role in self.roles:it() do
 		self:add_role(role)
 	end
-	self:on_init()
 
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
 		local gambiter = self:role_with_type("gambiter")
@@ -54,9 +53,18 @@ function Trust:init()
 		if targeter then
 			targeter:set_target_settings(new_trust_settings.TargetSettings)
 		end
+		local buffer = self:role_with_type("buffer")
+		if buffer then
+			if self.job.jobNameShort ~= 'SCH' then
+				buffer:set_buff_settings(new_trust_settings.BuffSettings)
+			end
+		end
 
 		self.gambits = new_trust_settings.GambitSettings.Default or L{}
 	end)
+
+	-- NOTE: this must come after so on_trust_settings_changed gets called in parent class first
+	self:on_init()
 
 	self.on_party_target_change_id = self.party:on_party_target_change():addAction(
 			function(_, new_target_index, old_target_index)

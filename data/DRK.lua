@@ -2,19 +2,17 @@
 return {
     Version = 1,
     Default = {
-        SelfBuffs = L{
-            Spell.new("Endark II", L{}, L{}, nil, L{StatusCondition.new('Idle', 0, ">=")}),
-            Spell.new("Absorb-STR", L{}, L{}, "bt", L{}),
-            Spell.new("Absorb-DEX", L{}, L{}, "bt", L{}),
-            JobAbility.new('Last Resort', L{StatusCondition.new('Engaged', 2, ">=")}),
-            JobAbility.new('Scarlet Delirium', L{StatusCondition.new('Engaged', 2, ">=")}),
-        },
-        PartyBuffs = L{
-
-        },
         DebuffSettings = {
             Gambits = L{
 
+            }
+        },
+        BuffSettings = {
+            Gambits = L{
+                Gambit.new("Self", L{StatusCondition.new("Engaged", 2, ">=")}, JobAbility.new("Last Resort", L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{StatusCondition.new("Engaged", 2, ">=")}, JobAbility.new("Scarlet Delirium", L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{StatusCondition.new("Idle", 2, ">=")}, Buff.new("Endark", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, Spell.new("Absorb-STR", L{}, L{}, "bt", L{}), "Self", L{"Buffs"})
             }
         },
         PullSettings = {

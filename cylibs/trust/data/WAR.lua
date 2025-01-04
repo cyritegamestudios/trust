@@ -11,7 +11,7 @@ local Tank = require('cylibs/trust/roles/tank')
 
 function WarriorTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local roles = S{
-		Buffer.new(action_queue, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
+		Buffer.new(action_queue, trust_settings.BuffSettings),
 		Puller.new(action_queue, trust_settings.PullSettings.Targets, L{ JobAbility.new('Provoke') }),
 		Tank.new(action_queue, L{ 'Provoke' }, L{})
 	}
@@ -27,9 +27,6 @@ function WarriorTrust:on_init()
 	Trust.on_init(self)
 
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
-		local buffer = self:role_with_type("buffer")
-		buffer:set_self_buffs(new_trust_settings.SelfBuffs)
-
 		local puller = self:role_with_type("puller")
 		if puller then
 			puller:set_pull_settings(new_trust_settings.PullSettings)

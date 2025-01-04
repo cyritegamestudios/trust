@@ -14,7 +14,6 @@ local FollowSettingsMenuItem = require('ui/settings/menus/FollowSettingsMenuItem
 local FoodSettingsMenuItem = require('ui/settings/menus/buffs/FoodSettingsMenuItem')
 local Frame = require('cylibs/ui/views/frame')
 local GambitSettingsMenuItem = require('ui/settings/menus/gambits/GambitSettingsMenuItem')
-local GambitTarget = require('cylibs/gambits/gambit_target')
 local GameInfo = require('cylibs/util/ffxi/game_info')
 local JobGambitSettingsMenuItem = require('ui/settings/menus/gambits/JobGambitSettingsMenuItem')
 local Keyboard = require('cylibs/ui/input/keyboard')
@@ -520,15 +519,15 @@ function TrustHud:getMenuItemForRole(role, weaponSkillSettings, weaponSkillSetti
 end
 
 function TrustHud:getBufferMenuItem(trust, jobNameShort, trustSettings, trustSettingsMode, trustModeSettings)
-    local BufferSettingsMenuItem = require('ui/settings/menus/buffs/BufferSettingsMenuItem')
+    local BuffSettingsMenuItem = require('ui/settings/menus/buffs/BuffSettingsMenuItem')
     if jobNameShort ~= 'SCH' then
-        local bufferSettingsMenuItem = BufferSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, jobNameShort)
+        local bufferSettingsMenuItem = BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings)
         return bufferSettingsMenuItem
     else
         local childMenuItems = {}
 
-        childMenuItems["Light Arts"] = BufferSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, jobNameShort, 'LightArts')
-        childMenuItems["Dark Arts"] = BufferSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, jobNameShort, 'DarkArts')
+        childMenuItems["Light Arts"] = BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, L{ 'LightArts' })
+        childMenuItems["Dark Arts"] = BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, L{ 'DarkArts' })
 
         local artsSettingsMenuItem = MenuItem.new(L{
             ButtonItem.default('Light Arts', 18),

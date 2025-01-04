@@ -10,7 +10,7 @@ local Shooter = require('cylibs/trust/roles/shooter')
 
 function RangerTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local roles = S{
-		Buffer.new(action_queue, trust_settings.SelfBuffs, trust_settings.PartyBuffs),
+		Buffer.new(action_queue, trust_settings.BuffSettings),
 		Puller.new(action_queue, trust_settings.PullSettings.Targets, L{ RangedAttack.new() }),
 		Shooter.new(action_queue, trust_settings.Shooter.Delay or 1.5),
 	}
@@ -26,9 +26,6 @@ function RangerTrust:on_init()
 	Trust.on_init(self)
 
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
-		local buffer = self:role_with_type("buffer")
-		buffer:set_self_buffs(new_trust_settings.SelfBuffs)
-
 		local shooter = self:role_with_type("shooter")
 		if shooter then
 			shooter:set_shoot_delay(new_trust_settings.Shooter.Delay)

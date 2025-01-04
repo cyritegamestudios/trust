@@ -2,17 +2,22 @@
 return {
     Version = 2,
     Default = {
-        SelfBuffs = L{
-            JobAbility.new("Composure", L{}, L{}),
-            Buff.new("Haste", L{}, L{}, nil, L{}),
-            Buff.new("Refresh", L{}, L{}, nil, L{}),
-            Spell.new("Phalanx", L{}, L{}, nil, L{}),
-            Buff.new("Temper", L{}, L{}, nil, L{InBattleCondition.new()}),
-            Spell.new("Enblizzard", L{}, L{}, nil, L{InBattleCondition.new(), MainJobCondition.new("RDM")}),
-            Spell.new("Gain-INT", L{}, L{}, nil, L{NotCondition.new(L{ModeCondition.new("AutoMagicBurstMode", "Off")})}),
-            Spell.new("Gain-STR", L{}, L{}, nil, L{ModeCondition.new("AutoMagicBurstMode", "Off")}),
-            Buff.new("Protect", L{}, L{}, nil, L{MainJobCondition.new("RDM")}),
-            Buff.new("Shell", L{}, L{}, nil, L{MainJobCondition.new("RDM")})
+        BuffSettings = {
+            Gambits = L{
+                Gambit.new("Self", L{}, JobAbility.new("Composure", L{}, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, Buff.new("Haste", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, Buff.new("Refresh", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, Spell.new("Phalanx", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{InBattleCondition.new()}, Buff.new("Temper", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{InBattleCondition.new(), MainJobCondition.new("RDM")}, Spell.new("Enblizzard", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{NotCondition.new(L{ModeCondition.new("AutoMagicBurstMode", "Off")})}, Spell.new("Gain-INT", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{ModeCondition.new("AutoMagicBurstMode", "Off")}, Spell.new("Gain-STR", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{MainJobCondition.new("RDM")}, Buff.new("Protect", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{MainJobCondition.new("RDM")}, Buff.new("Shell", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Ally", L{JobCondition.new(L{"WAR", "NIN", "BST", "GEO", "SCH", "DRK", "DRG", "PUP", "BLU", "BLM", "THF", "PLD", "BRD", "SAM", "MNK", "RUN", "COR", "DNC", "RNG"})}, Buff.new("Haste", L{}, L{}, nil, L{}), "Ally", L{"Buffs"}),
+                Gambit.new("Ally", L{JobCondition.new(L{"DRK", "PLD", "BLU", "BLM", "BRD", "GEO", "SMN", "WHM", "RUN"})}, Buff.new("Refresh", L{}, L{}, nil, L{}), "Ally", L{"Buffs"}),
+                Gambit.new("Ally", L{InBattleCondition.new(), JobCondition.new(L{"NIN", "DNC", "GEO", "DRK", "SAM", "COR", "RNG", "PLD", "BRD", "WAR", "PUP", "DRG", "MNK", "RUN", "THF", "BST", "BLU"})}, Spell.new("Phalanx II", L{}, L{}, nil, L{}), "Ally", L{"Buffs"}),
+            }
         },
         GambitSettings = {
             Default = L{
@@ -33,11 +38,6 @@ return {
             },
             MinNumAOETargets = 3,
             Delay = 2
-        },
-        PartyBuffs = L{
-            Buff.new("Haste", L{}, L{}, nil, L{JobCondition.new(L{"WAR", "NIN", "BST", "GEO", "SCH", "DRK", "DRG", "PUP", "BLU", "BLM", "THF", "PLD", "BRD", "SAM", "MNK", "RUN", "COR", "DNC", "RNG"})}),
-            Buff.new("Refresh", L{}, L{}, nil, L{JobCondition.new(L{"DRK", "PLD", "BLU", "BLM", "BRD", "GEO", "SMN", "WHM", "RUN"})}),
-            Spell.new("Phalanx II", L{}, L{}, nil, L{InBattleCondition.new(), JobCondition.new(L{"NIN", "DNC", "GEO", "DRK", "SAM", "COR", "RNG", "PLD", "BRD", "WAR", "PUP", "DRG", "MNK", "RUN", "THF", "BST", "BLU"})}),
         },
         NukeSettings = {
             MinNumMobsToCleave = 2,
