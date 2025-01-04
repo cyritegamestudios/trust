@@ -324,7 +324,7 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
     end)
 
     editGambitMenuItem:setChildMenuItem("Edit", editAbilityMenuItem)
-    editGambitMenuItem:setChildMenuItem("Conditions", ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode))
+    editGambitMenuItem:setChildMenuItem("Conditions", ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, self, S(self.conditionTargets)))
 
     return editGambitMenuItem
 end
@@ -450,10 +450,6 @@ function GambitSettingsMenuItem:getMoveDownGambitMenuItem()
             end
         end
     end, self:getTitleText(), "Move the selected "..self.editorConfig:getDescription().." down. "..self.editorConfig:getDescription(true).." get evaluated in order.")
-end
-
-function GambitSettingsMenuItem:getEditConditionsMenuItem()
-    return ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, self)
 end
 
 function GambitSettingsMenuItem:getResetGambitsMenuItem()

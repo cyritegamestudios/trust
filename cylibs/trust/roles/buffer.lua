@@ -7,7 +7,7 @@ Buffer.__index = Buffer
 Buffer.__class = "Buffer"
 
 function Buffer.new(action_queue, buff_settings, state_var, buff_action_priority)
-    local self = setmetatable(Gambiter.new(action_queue, {}, nil, state_var, true), Buffer)
+    local self = setmetatable(Gambiter.new(action_queue, {}, nil, state_var or state.AutoBuffMode, true), Buffer)
 
     self:set_buff_settings(buff_settings)
 
