@@ -71,22 +71,18 @@ function LoadSettingsAction:load_weapon_skill_settings()
 end
 
 function LoadSettingsAction:load_settings()
-    return coroutine.create(function()
-        addon_settings = TrustAddonSettings.new()
-        addon_settings:loadSettings()
-        coroutine.yield(true)
-    end)
+    addon_settings = TrustAddonSettings.new()
+    addon_settings:loadSettings()
 end
 
 function LoadSettingsAction:perform()
     player.trust = {}
 
-    local success = coroutine.resume(self:load_settings())
-
     --local profile = require('cylibs/util/profile')
 
     --profile.start()
 
+    self:load_settings()
     self:load_main_trust_settings()
     self:load_sub_trust_settings()
     self:load_weapon_skill_settings()
@@ -95,7 +91,7 @@ function LoadSettingsAction:perform()
 
     --profile.report(4)
 
-    self:complete(success)
+    self:complete(true)
 end
 
 function LoadSettingsAction:gettype()
