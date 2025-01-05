@@ -62,6 +62,12 @@ function Follower:on_add()
         end
     end), state.AutoTargetMode:on_state_change())
 
+    self.dispose_bag:add(self:get_party():get_player():on_status_change():addAction(function(_, new_status, old_status)
+        if new_status == 'Idle' and old_status == 'Engaged' then
+            self:start_following(true)
+        end
+    end), self:get_party():get_player():on_status_change())
+
     self.dispose_bag:add(self:get_party():on_party_assist_target_change():addAction(function(_, assist_target)
         if self:get_follow_target() == nil and assist_target then
             self:follow_target_named(assist_target:get_name())
@@ -112,8 +118,8 @@ function Follower:follow_target_named(target_name)
     self:get_party():add_to_chat(self:get_party():get_player(), "Okay, I'll follow "..target_name.." when I'm not in battle.")
 end
 
-function Follower:start_following()
-    if S{ 'Dead', 'Engaged', 'Resting' }:contains(self:get_party():get_player():get_status()) then
+function Follower:start_following(override)
+    if not override and S{ 'Dead', 'Engaged', 'Resting' }:contains(self:get_party():get_player():get_status()) then
         return
     end
     self.walk_action_queue:clear()

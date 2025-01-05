@@ -7,6 +7,7 @@ local buff_util = require('cylibs/util/buff_util')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local EquipAttachmentAction = require('cylibs/actions/equip_attachment')
 local job_util = require('cylibs/util/job_util')
+local pup_util = require('cylibs/util/pup_util')
 local zone_util = require('cylibs/util/zone_util')
 local attachments = require('cylibs/res/attachments')
 

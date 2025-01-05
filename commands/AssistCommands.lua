@@ -1,3 +1,4 @@
+local CommandMessage = require('cylibs/messages/command_message')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local TargetLock = require('cylibs/entity/party/target_lock')
 

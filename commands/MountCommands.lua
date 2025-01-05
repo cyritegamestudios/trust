@@ -1,3 +1,4 @@
+local CommandMessage = require('cylibs/messages/command_message')
 local DismountAction = require('cylibs/actions/dismount')
 local MountAction = require('cylibs/actions/mount')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')

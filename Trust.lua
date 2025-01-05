@@ -5,6 +5,8 @@ _addon.version = '13.2.2'
 _addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 
+cylibs = {}
+
 -- Main
 
 function load_user_files(main_job_id, sub_job_id)
@@ -13,7 +15,6 @@ function load_user_files(main_job_id, sub_job_id)
 	addon_system_message("Loaded Trust v".._addon.version)
 
 	action_queue = ActionQueue.new(nil, true, 5, false, true)
-
 
 	addon_enabled = ValueRelay.new(false)
 	addon_enabled:onValueChanged():addAction(function(_, isEnabled)
@@ -74,6 +75,7 @@ function load_user_files(main_job_id, sub_job_id)
 		player.trust.sub_job:set_trust_settings(player.trust.sub_job_settings[new_value])
 	end)
 
+	local TrustFactory = require('cylibs/trust/trust_factory')
 	main_job_trust, sub_job_trust = TrustFactory.trusts(trust_for_job_short(player.main_job_name_short, addon_settings:getSettings(), player.trust.main_job_settings.Default, addon_settings, action_queue, player.player, player.alliance, player.party), trust_for_job_short(player.sub_job_name_short, addon_settings:getSettings(), player.trust.sub_job_settings.Default, addon_settings, action_queue, player.player, player.alliance, player.party))
 
 	main_job_trust:init()
@@ -103,7 +105,6 @@ function load_user_files(main_job_id, sub_job_id)
 	player.trust.main_job:add_role(Cleaver.new(action_queue, weapon_skill_settings))
 	player.trust.main_job:add_role(Truster.new(action_queue, addon_settings:getSettings().battle.trusts))
 	player.trust.main_job:add_role(Aftermather.new(action_queue, player.trust.main_job:role_with_type("skillchainer")))
-	player.trust.main_job:add_role(Assistant.new(action_queue))
 
 	if player.sub_job_name_short ~= 'NON' then
 		player.trust.sub_job:add_role(Gambiter.new(action_queue, player.trust.sub_job_settings.Default.GambitSettings, skillchainer))
@@ -645,6 +646,7 @@ function load_chunk_event()
 
 	trust_remote_commands = TrustRemoteCommands.new(addon_settings:getSettings().remote_commands.whitelist, commands:keyset())
 
+	local CommandMessage = require('cylibs/messages/command_message')
 	IpcRelay.shared():on_message_received():addAction(function(ipc_message)
 		if ipc_message.__class == CommandMessage.__class then
 			local target_name = ipc_message:get_target_name()
@@ -679,13 +681,6 @@ function unloaded()
 	end
 	player.trust = nil
 	unload_chunk_event()
-end
-
-function load_dependendies()
-	return coroutine.create(function()
-		require('Trust-Include')
-		coroutine.yield(true)
-	end)
 end
 
 function loaded()

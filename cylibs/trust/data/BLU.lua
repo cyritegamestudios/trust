@@ -47,8 +47,7 @@ function BlueMageTrust:on_init()
 
 	WindowerEvents.BlueMagic.SpellsChanged:addAction(function()
 		local buffer = self:role_with_type("buffer")
-		buffer:set_self_buffs(self:get_trust_settings().SelfBuffs)
-		buffer:set_party_buffs(self:get_trust_settings().PartyBuffs)
+		buffer:set_buff_settings(self:get_trust_settings().BuffSettings)
 	end)
 end
 
