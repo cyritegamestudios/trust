@@ -532,6 +532,45 @@ function handle_command(args)
 end
 
 function handle_debug()
+	local ImportAction = require('cylibs/actions/import_action')
+
+	local coroutine = coroutine.create(function()
+		for i=1, 10 do
+			print(i)
+			coroutine.yield(i >= 10)
+		end
+	end)
+
+	temp = ActionQueue.new()
+
+	local paths = L{
+		'cylibs/actions/spell',
+		'cylibs/actions/wait',
+		'cylibs/actions/runto',
+		'cylibs/actions/runaway',
+		'cylibs/actions/runbehind',
+		'cylibs/actions/walk',
+		'cylibs/actions/command',
+		'cylibs/actions/blood_pact_rage',
+		'cylibs/actions/blood_pact_ward',
+		'cylibs/actions/job_ability',
+		'cylibs/actions/strategem',
+		'cylibs/actions/weapon_skill',
+		'cylibs/actions/sequence',
+		'cylibs/actions/block',
+		'cylibs/battle/approach',
+		'cylibs/battle/ranged_attack',
+		'cylibs/battle/run_away',
+		'cylibs/battle/run_to',
+		'cylibs/battle/turn_around',
+		'cylibs/battle/turn_to_face',
+		'cylibs/battle/command',
+		'cylibs/battle/use_item',
+		'cylibs/battle/engage'
+	}
+	temp:push_action(ImportAction.new(paths, 'test123', 'test123'))
+
+
 	--[[local UrlRequest = require('cylibs/util/network/url_request')
 
 	local request = UrlRequest.new('GET', 'https://raw.githubusercontent.com/cyritegamestudios/trust/main/manifest.json', {})
@@ -657,39 +696,70 @@ function loaded()
 	player = {}
 	shortcuts = {}
 
+	local res = require('resources')
+
+	local finalize_init = function()
+		commands = T{}
+
+		commands['command'] = handle_command
+		commands['debug'] = handle_debug
+		commands['help'] = handle_help
+		commands['commands'] = handle_command_list
+		commands['version'] = function() addon_system_message("Trust v".._addon.version..".") end
+
+		if not user_events then
+			load_chunk_event()
+			user_events = {}
+			user_events.tic = windower.register_event('time change', handle_tic)
+			user_events.status = windower.register_event('status change', handle_status_change)
+			user_events.job_change = windower.register_event('job change', handle_job_change)
+			user_events.zone_change = windower.register_event('zone change', handle_zone_change)
+		end
+
+		coroutine.schedule(function()
+			windower.send_command('bind %s trust menu':format(addon_settings:getSettings().menu_key))
+		end, 0.2)
+	end
+
 	local Loading = require('loading/Trust-Init-Include')
 
 	local ActionQueue = require('cylibs/actions/action_queue')
 
-	local init_action_queue = ActionQueue.new()
+	init_action_queue = ActionQueue.new()
 
-	init_action_queue:push_action(Loading.LoadDependenciesAction.new())
-	init_action_queue:push_action(Loading.LoadSettingsAction.new(res.jobs[windower.ffxi.get_player().main_job_id].ens, res.jobs[windower.ffxi.get_player().sub_job_id or 0].ens))
-	init_action_queue:push_action(Loading.Loadi18nAction.new())
-	init_action_queue:push_action(Loading.LoadGlobalsAction.new())
-	init_action_queue:push_action(Loading.LoadLoggerAction.new())
+	local import_paths = L{
+		'includes/Windower-Include',
+		'commands/Trust-Commands-Include',
+		'Trust-Include',
+		'includes/Trust-Cylibs-Include',
+		'includes/Trust-Cylibs-Actions-Include',
+		'includes/Trust-Cylibs-Conditions-Include',
+		'includes/Trust-Cylibs-Settings-Include',
+		'includes/Trust-Cylibs-Roles-Include',
+		'includes/Trust-Cylibs-Util-Include',
+	}
 
-	commands = T{}
+	local actions = L{
+		Loading.LoadDependenciesAction.new(import_paths),
+		Loading.LoadSettingsAction.new(res.jobs[windower.ffxi.get_player().main_job_id].ens, res.jobs[windower.ffxi.get_player().sub_job_id or 0].ens),
+		Loading.Loadi18nAction.new(),
+		Loading.LoadGlobalsAction.new(),
+		Loading.LoadLoggerAction.new()
+	}
 
-	commands['command'] = handle_command
-	commands['debug'] = handle_debug
-	commands['tests'] = handle_tests
-	commands['help'] = handle_help
-	commands['commands'] = handle_command_list
-	commands['version'] = function() addon_system_message("Trust v".._addon.version..".") end
+	local num_complete = 0
+	init_action_queue:on_action_end():addAction(function(action, success)
+		num_complete = num_complete + 1
+		if num_complete == actions:length() then
+			finalize_init()
+		end
+	end)
 
-    if not user_events then
-		load_chunk_event()
-        user_events = {}
-		user_events.tic = windower.register_event('time change', handle_tic)
-		user_events.status = windower.register_event('status change', handle_status_change)
-		user_events.job_change = windower.register_event('job change', handle_job_change)
-		user_events.zone_change = windower.register_event('zone change', handle_zone_change)
-    end
+	addon_system_message("Loading Trust...")
 
-	coroutine.schedule(function()
-		windower.send_command('bind %s trust menu':format(addon_settings:getSettings().menu_key))
-	end, 0.2)
+	for action in actions:it() do
+		init_action_queue:push_action(action)
+	end
 end
 
 windower.register_event('addon command', addon_command)

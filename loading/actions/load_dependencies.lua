@@ -1,23 +1,14 @@
-local Action = require('cylibs/actions/action')
-local LoadDependenciesAction = setmetatable({}, { __index = Action })
+local ImportAction = require('cylibs/actions/import_action')
+local LoadDependenciesAction = setmetatable({}, { __index = ImportAction })
 LoadDependenciesAction.__index = LoadDependenciesAction
 
 function LoadDependenciesAction.new()
-    local self = setmetatable(Action.new(0, 0, 0), LoadDependenciesAction)
+    local paths = L{
+
+    }
+
+    local self = setmetatable(ImportAction.new(paths), LoadDependenciesAction)
     return self
-end
-
-function LoadDependenciesAction:load_dependendies()
-    return coroutine.create(function()
-        require('Trust-Include')
-        coroutine.yield(true)
-    end)
-end
-
-function LoadDependenciesAction:perform()
-    local success = coroutine.resume(self:load_dependendies())
-
-    self:complete(success)
 end
 
 function LoadDependenciesAction:gettype()
