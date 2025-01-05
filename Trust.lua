@@ -520,99 +520,6 @@ function handle_trust_status()
 	end
 end
 
-function handle_command(args)
-	local actions = L{
-		SpellAction.new(0, 0, 0, spell_util.spell_id('Cure'), nil, player.player),
-		WaitAction.new(0, 0, 0, 2)
-	}
-
-	local action = SequenceAction.new(actions, 'test_action')
-	action.priority = ActionPriority.highest
-
-	action_queue:push_action(action, false)
-end
-
-function handle_debug()
-	local ImportAction = require('cylibs/actions/import_action')
-
-	local coroutine = coroutine.create(function()
-		for i=1, 10 do
-			print(i)
-			coroutine.yield(i >= 10)
-		end
-	end)
-
-	temp = ActionQueue.new()
-
-	local paths = L{
-		'cylibs/actions/spell',
-		'cylibs/actions/wait',
-		'cylibs/actions/runto',
-		'cylibs/actions/runaway',
-		'cylibs/actions/runbehind',
-		'cylibs/actions/walk',
-		'cylibs/actions/command',
-		'cylibs/actions/blood_pact_rage',
-		'cylibs/actions/blood_pact_ward',
-		'cylibs/actions/job_ability',
-		'cylibs/actions/strategem',
-		'cylibs/actions/weapon_skill',
-		'cylibs/actions/sequence',
-		'cylibs/actions/block',
-		'cylibs/battle/approach',
-		'cylibs/battle/ranged_attack',
-		'cylibs/battle/run_away',
-		'cylibs/battle/run_to',
-		'cylibs/battle/turn_around',
-		'cylibs/battle/turn_to_face',
-		'cylibs/battle/command',
-		'cylibs/battle/use_item',
-		'cylibs/battle/engage'
-	}
-	temp:push_action(ImportAction.new(paths, 'test123', 'test123'))
-
-
-	--[[local UrlRequest = require('cylibs/util/network/url_request')
-
-	local request = UrlRequest.new('GET', 'https://raw.githubusercontent.com/cyritegamestudios/trust/main/manifest.json', {})
-
-	local fetch = request:get()
-	local success, response, code, body, status = coroutine.resume(fetch)
-
-	if success then
-		table.vprint(body)
-	end]]
-
-	print(buff_util.all_buff_ids('Last Resort'))
-
-	print('buffs', party_util.get_buffs(windower.ffxi.get_player().id), party_util.get_buffs(windower.ffxi.get_player().id):map(function(buff_id) return res.buffs[buff_id].en end))
-
-
-	local party_index = 1
-	for party in player.alliance:get_parties():it() do
-		print('Party', party_index..":", party:get_party_members():map(function(p) return p:get_name() end))
-		party_index = party_index + 1
-	end
-
-	print(num_created)
-	print('images', num_images_created)
-
-	print('player', L(windower.ffxi.get_player().buffs):map(function(buff_id)
-		--return buff_id
-		return res.buffs:with('id', buff_id).en
-	end))
-
-	local alliance = player.alliance
-	for i = 1, 3 do
-		local party = alliance:get_parties()[i]
-		logger.notice("Trust", "debug", "party", i, party:get_party_members(true):map(function(party_member) return party_member:get_name() end))
-	end
-end
-
-function handle_command_list()
-	hud:openMenu(hud:getMainMenuItem():getChildMenuItem('Commands'))
-end
-
 -- Setup
 
 local function addon_command(cmd, ...)
@@ -623,16 +530,7 @@ local function addon_command(cmd, ...)
 		return
 	end
 
-    if commands[cmd] and not L{'set','cycle'}:contains(cmd) then
-		local msg = commands[cmd](unpack({...}))
-		if msg then
-			error(msg)
-		end
-	elseif L{player.main_job_name_short, player.main_job_name_short:lower()}:contains(cmd) and player.trust.main_job_commands then
-		player.trust.main_job_commands:handle_command(unpack({...}))
-	elseif L{player.sub_job_name_short, player.sub_job_name_short:lower()}:contains(cmd) and player.trust.sub_job_commands then
-		player.trust.sub_job_commands:handle_command(unpack({...}))
-	elseif shortcuts[cmd] then
+    if shortcuts[cmd] then
 		shortcuts[cmd]:handle_command(...)
 	elseif shortcuts['default']:is_valid_command(cmd, ...) then
 		shortcuts['default']:handle_command(cmd, ...)
@@ -695,12 +593,6 @@ function loaded()
 
 	local finalize_init = function()
 		commands = T{}
-
-		commands['command'] = handle_command
-		commands['debug'] = handle_debug
-		commands['help'] = handle_help
-		commands['commands'] = handle_command_list
-		commands['version'] = function() addon_system_message("Trust v".._addon.version..".") end
 
 		if not user_events then
 			load_chunk_event()
