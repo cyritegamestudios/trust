@@ -5,7 +5,7 @@ _addon.version = '13.2.2'
 _addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 
-cylibs = {}
+windower.trust = {}
 
 -- Main
 
@@ -123,6 +123,28 @@ function load_user_files(main_job_id, sub_job_id)
 	default_trust_name = string.gsub(string.lower(player.main_job_name), "%s+", "")
 
 	load_trust_modes(player.main_job_name_short)
+
+	windower.trust.settings = {}
+	windower.trust.settings.get_addon_settings = function()
+		return addon_settings
+	end
+	windower.trust.settings.get_mode_settings = function()
+		return trust_mode_settings
+	end
+	windower.trust.settings.get_job_settings = function(job_name_short)
+		for job_settings in L{ main_trust_settings, sub_trust_settings }:it() do
+			if job_settings.jobNameShort == job_name_short then
+				return job_settings
+			end
+		end
+		return nil
+	end
+
+	windower.trust.ui = {}
+	windower.trust.ui.get_hud = function()
+		return hud
+	end
+
 	load_ui()
 	load_trust_commands(player.main_job_name_short, player.trust.main_job, player.sub_job_name_short, player.trust.sub_job, action_queue, player.party, main_trust_settings, sub_trust_settings)
 
@@ -320,12 +342,23 @@ function get_job_commands(job_name_short, trust, action_queue, main_trust_settin
 end
 
 function load_ui()
+	local TrustWidgets = require('ui/TrustWidgets')
+
+	widgets = TrustWidgets.new(addon_settings, action_queue, addon_enabled, player.trust.main_job)
+	widgets:setNeedsLayout()
+	widgets:layoutIfNeeded()
+	widgets:setUserInteractionEnabled(true)
+
 	hud = TrustHud.new(player, action_queue, addon_settings, trust_mode_settings, addon_enabled, 500, 500)
+
+	hud:addSubview(widgets)
+
 	hud:setNeedsLayout()
 	hud:layoutIfNeeded()
 end
 
 function trust_for_job_short(job_name_short, settings, trust_settings, addon_settings, action_queue, player, alliance, party)
+	local trust
 	if job_name_short == 'WHM' then
 		WhiteMageTrust = require('cylibs/trust/data/WHM')
 		trust = WhiteMageTrust.new(settings.WHM, action_queue, settings.battle, trust_settings)
@@ -542,7 +575,7 @@ end
 function load_chunk_event()
 	load_user_files(windower.ffxi.get_player().main_job_id, windower.ffxi.get_player().sub_job_id or 0)
 
-	trust_remote_commands = TrustRemoteCommands.new(addon_settings:getSettings().remote_commands.whitelist, commands:keyset())
+	trust_remote_commands = TrustRemoteCommands.new(addon_settings:getSettings().remote_commands.whitelist)
 
 	local CommandMessage = require('cylibs/messages/command_message')
 	IpcRelay.shared():on_message_received():addAction(function(ipc_message)
@@ -592,8 +625,6 @@ function loaded()
 	local res = require('resources')
 
 	local finalize_init = function()
-		commands = T{}
-
 		if not user_events then
 			load_chunk_event()
 			user_events = {}
@@ -631,7 +662,8 @@ function loaded()
 		Loading.LoadSettingsAction.new(res.jobs[windower.ffxi.get_player().main_job_id].ens, res.jobs[windower.ffxi.get_player().sub_job_id or 0].ens),
 		Loading.Loadi18nAction.new(),
 		Loading.LoadGlobalsAction.new(),
-		Loading.LoadLoggerAction.new()
+		Loading.LoadLoggerAction.new(),
+		Loading.LoadThemeAction.new(),
 	}
 
 	local num_complete = 0

@@ -2,11 +2,9 @@ local AlterEgoSettingsMenuItem = require('ui/settings/menus/AlterEgoSettingsMenu
 local BackgroundView = require('cylibs/ui/views/background/background_view')
 local BooleanConfigItem = require('ui/settings/editors/config/BooleanConfigItem')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
-local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CommandsMenuItem = require('ui/settings/menus/commands/CommandsMenuItem')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local ConfigSettingsMenuItem = require('ui/settings/menus/ConfigSettingsMenuItem')
-local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local FFXISoundTheme = require('sounds/FFXISoundTheme')
 local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
@@ -22,21 +20,16 @@ local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 local PullSettingsMenuItem = require('ui/settings/menus/pulling/PullSettingsMenuItem')
 local LoadSettingsMenuItem = require('ui/settings/menus/loading/LoadSettingsMenuItem')
-local PartyStatusWidget = require('ui/widgets/PartyStatusWidget')
 local PartyTargetsMenuItem = require('ui/settings/menus/PartyTargetsMenuItem')
 local PathSettingsMenuItem = require('ui/settings/menus/misc/PathSettingsMenuItem')
-local PathWidget = require('ui/widgets/PathWidget')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local ReactSettingsMenuItem = require('ui/settings/menus/gambits/react/ReactSettingsMenuItem')
-local TargetWidget = require('ui/widgets/TargetWidget')
 local TrustInfoBar = require('ui/TrustInfoBar')
-local TrustStatusWidget = require('ui/widgets/TrustStatusWidget')
 local Menu = require('cylibs/ui/menu/menu')
 local TargetSettingsMenuItem = require('ui/settings/menus/TargetSettingsMenuItem')
 local ViewStack = require('cylibs/ui/views/view_stack')
 local WeaponSkillSettingsMenuItem = require('ui/settings/menus/WeaponSkillSettingsMenuItem')
 local View = require('cylibs/ui/views/view')
-local WidgetManager = require('ui/widgets/WidgetManager')
 
 local TrustHud = setmetatable({}, {__index = View })
 TrustHud.__index = TrustHud
@@ -48,8 +41,8 @@ end
 function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, addon_enabled, menu_width, menu_height)
     local self = setmetatable(View.new(), TrustHud)
 
-    CollectionView.setDefaultStyle(FFXIClassicStyle.default())
-    CollectionView.setDefaultBackgroundStyle(FFXIClassicStyle.background())
+    --CollectionView.setDefaultStyle(FFXIClassicStyle.default())
+    --CollectionView.setDefaultBackgroundStyle(FFXIClassicStyle.background())
 
     self.mediaPlayer = MediaPlayer.new(windower.addon_path..'sounds')
     self.mediaPlayer:setEnabled(not addon_settings:getSettings().sounds.sound_effects.disabled)
@@ -72,7 +65,6 @@ function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, a
     self.menuViewStack = ViewStack.new(Frame.new(windower.get_windower_settings().ui_x_res - 128, 52, 0, 0))
     self.menuViewStack.name = "menu stack"
     self.mainMenuItem = self:getMainMenuItem()
-    self.widgetManager = WidgetManager.new(addon_settings)
 
     self.infoViewContainer = View.new(Frame.new(17, 17, windower.get_windower_settings().ui_x_res - 18, 27))
     self.infoBar = TrustInfoBar.new(Frame.new(0, 0, windower.get_windower_settings().ui_x_res - 18, 27))
@@ -84,8 +76,6 @@ function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, a
 
     self.infoViewContainer:setNeedsLayout()
     self.infoViewContainer:layoutIfNeeded()
-
-    self:createWidgets(addon_settings, addon_enabled, action_queue, player.party, player.trust.main_job)
 
     self.trustMenu = Menu.new(self.viewStack, self.menuViewStack, self.infoBar, self.mediaPlayer, self.soundTheme)
 
@@ -120,7 +110,6 @@ function TrustHud:destroy()
             windower.unregister_event(event)
         end
     end
-    self.widgetManager:destroy()
     self.viewStack:dismissAll()
     self.viewStack:destroy()
     self.click:removeAllEvents()
@@ -189,58 +178,6 @@ end
 
 function TrustHud:getViewStack()
     return self.viewStack
-end
-
-function TrustHud:createWidgets(addon_settings, addon_enabled, action_queue, party, trust)
-    local loadWidgets = coroutine.create(function()
-        local trustStatusWidget = TrustStatusWidget.new(Frame.new(0, 0, 125, 69), addon_settings, addon_enabled, action_queue, player.main_job_name, player.sub_job_name, party:get_player(), self.mainMenuItem:getChildMenuItem("Profiles"))
-        self.widgetManager:addWidget(trustStatusWidget, "trust")
-
-        local targetWidget = TargetWidget.new(Frame.new(0, 0, 125, 40), addon_settings, party, trust)
-        self.widgetManager:addWidget(targetWidget, "target")
-
-        local partyStatusWidget = PartyStatusWidget.new(Frame.new(0, 0, 125, 55), addon_settings, player.alliance, party, trust, self.mediaPlayer, self.soundTheme)
-        self.widgetManager:addWidget(partyStatusWidget, "party")
-
-        local pathWidget = PathWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), self, main_trust_settings, state.MainTrustSettingsMode, trust)
-        self.widgetManager:addWidget(pathWidget, "path")
-
-        if player.main_job_name_short == 'PUP' then
-            local AutomatonStatusWidget = require('ui/widgets/AutomatonStatusWidget')
-            local petStatusWidget = AutomatonStatusWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), self, main_trust_settings, state.MainTrustSettingsMode, self.trustModeSettings)
-            self.widgetManager:addWidget(petStatusWidget, "pet")
-        end
-
-        if player.main_job_name_short == 'SMN' then
-            local AvatarStatusWidget = require('ui/widgets/AvatarStatusWidget')
-            local petStatusWidget = AvatarStatusWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), self, main_trust_settings, state.MainTrustSettingsMode)
-            self.widgetManager:addWidget(petStatusWidget, "pet")
-        end
-
-        if player.main_job_name_short == 'BLM' then
-            local BlackMageWidget = require('ui/widgets/BlackMageWidget')
-            local blackMageWidget = BlackMageWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), trust)
-            self.widgetManager:addWidget(blackMageWidget, "black_mage")
-        end
-
-        if player.main_job_name_short == 'RUN' then
-            local RuneFencerWidget = require('ui/widgets/RuneFencerWidget')
-            local runeFencerWidget = RuneFencerWidget.new(Frame.new(0, 0, 125, 57), addon_settings, trust)
-            self.widgetManager:addWidget(runeFencerWidget, "rune_fencer")
-        end
-
-        --if player.main_job_name_short == 'SCH' then
-        --    local scholarWidget = ScholarWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), trust)
-        --    self.widgetManager:addWidget(scholarWidget, "scholar")
-        --end
-
-        for widget in self.widgetManager:getAllWidgets():it() do
-            self:addSubview(widget)
-        end
-        coroutine.yield()
-    end)
-
-    coroutine.resume(loadWidgets)
 end
 
 function TrustHud:toggleMenu()

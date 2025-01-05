@@ -9,6 +9,7 @@ local MagicBurster = require('cylibs/trust/roles/magic_burster')
 local ManaRestorer = require('cylibs/trust/roles/mana_restorer')
 local Summoner = require('cylibs/entity/jobs/SMN')
 local Buffer = require('cylibs/trust/roles/buffer')
+local Frame = require('cylibs/ui/views/frame')
 
 state.AutoAssaultMode = M{['description'] = 'Auto Assault Mode', 'Off', 'Auto'}
 state.AutoAvatarMode = M{['description'] = 'Avatar Mode', 'Off', 'Ifrit', 'Ramuh', 'Shiva', 'Garuda', 'Leviathan', 'Titan', 'Carbuncle', 'Diabolos', 'Fenrir', 'Siren', 'Cait Sith'}
@@ -141,6 +142,19 @@ function SummonerTrust:update_avatar(pet_id, pet_name)
 	if skillchainer then
 		skillchainer:update_abilities()
 	end
+end
+
+function SummonerTrust:get_widget()
+	local AvatarStatusWidget = require('ui/widgets/AvatarStatusWidget')
+	local petStatusWidget = AvatarStatusWidget.new(
+			Frame.new(0, 0, 125, 57),
+			windower.trust.settings.get_addon_settings(),
+			self:get_party():get_player(),
+			windower.trust.ui.get_hud(),
+			windower.trust.settings.get_job_settings('SMN'),
+			state.MainTrustSettingsMode
+	)
+	return petStatusWidget, "pet"
 end
 
 return SummonerTrust

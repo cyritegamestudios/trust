@@ -4,8 +4,12 @@ LoadSettingsAction.__index = LoadSettingsAction
 
 function LoadSettingsAction.new(main_job_name_short, sub_job_name_short)
     local self = setmetatable(Action.new(0, 0, 0), LoadSettingsAction)
+
     self.main_job_name_short = main_job_name_short
     self.sub_job_name_short = sub_job_name_short
+
+    windower.trust.settings = {}
+
     return self
 end
 

@@ -1,6 +1,7 @@
 Puppetmaster = require('cylibs/entity/jobs/PUP')
 
 local DisposeBag = require('cylibs/events/dispose_bag')
+local Frame = require('cylibs/ui/views/frame')
 local JobAbilityAction = require('cylibs/actions/job_ability')
 local WaitAction = require('cylibs/actions/wait')
 local SequenceAction = require('cylibs/actions/sequence')
@@ -206,6 +207,20 @@ end
 
 function PuppetmasterTrust:set_maneuver_settings(maneuver_settings)
 	self.maneuver_settings = maneuver_settings
+end
+
+function PuppetmasterTrust:get_widget()
+	local AutomatonStatusWidget = require('ui/widgets/AutomatonStatusWidget')
+	local petStatusWidget = AutomatonStatusWidget.new(
+			Frame.new(0, 0, 125, 57),
+			windower.trust.settings.get_addon_settings(),
+			self:get_party():get_player(),
+			windower.trust.ui.get_hud(),
+			windower.trust.settings.get_job_settings('PUP'),
+			state.MainTrustSettingsMode,
+			windower.trust.settings.get_mode_settings()
+	)
+	return petStatusWidget, "pet"
 end
 
 return PuppetmasterTrust
