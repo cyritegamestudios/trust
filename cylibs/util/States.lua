@@ -40,11 +40,11 @@ end
 
 function handle_cycle(field)
     if modes_locked and not modes_whitelist:contains(field:lower()) then
-        addon_message(123, modes_locked_reason or "You cannot changes modes at this time.")
+        addon_system_error(modes_locked_reason or "You cannot changes modes at this time.")
         return
     end
     if field == nil then
-        addon_message(123,'Cycle parameter failure: field not specified.')
+        addon_system_error('Cycle parameter failure: field not specified.')
         return
     end
 
@@ -61,10 +61,10 @@ function handle_cycle(field)
 
         local descrip = state_var.description or field
 
-        addon_message(122,field..' is now '..state_var.current..'.')
+        addon_system_message(field..' is now '..state_var.current..'.')
         --handle_update({'auto'})
     else
-        addon_message(123,'Cycle: Unknown field ['..field..']')
+        addon_system_error('Cycle: Unknown field ['..field..']')
     end
 end
 
@@ -94,15 +94,15 @@ end
 
 function handle_set(field, value)
     if modes_locked and not modes_whitelist:contains(field:lower()) then
-        addon_message(123, modes_locked_reason or "You cannot changes modes at this time.")
+        addon_system_error(modes_locked_reason or "You cannot changes modes at this time.")
         return
     end
     if field == nil then
-        add_to_chat(123,'Set parameter failure: field not specified.')
+        addon_system_error('Set parameter failure: field not specified.')
         return
     end
     if value == nil then
-        add_to_chat(123,'Set parameter failure: value not specified.')
+        addon_system_error('Set parameter failure: value not specified.')
         return
     end
 
@@ -128,10 +128,10 @@ function handle_set(field, value)
         end
         msg = msg .. '.'
 
-        addon_message(122, msg)
+        addon_system_message(msg)
         --handle_update({'auto'})
     else
-        addon_message(123,'Set: Unknown field ['..field..']')
+        addon_system_error('Set: Unknown field ['..field..']')
     end
 
     -- handle string states: CombatForm, CombatWeapon, etc

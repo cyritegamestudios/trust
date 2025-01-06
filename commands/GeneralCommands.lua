@@ -1,3 +1,5 @@
+local CommandMessage = require('cylibs/messages/command_message')
+
 local TrustCommands = require('cylibs/trust/commands/trust_commands')
 local GeneralTrustCommands = setmetatable({}, {__index = TrustCommands })
 GeneralTrustCommands.__index = GeneralTrustCommands
@@ -14,9 +16,17 @@ function GeneralTrustCommands.new(trust, action_queue, addon_enabled, trust_mode
     self.sub_trust_settings = sub_trust_settings
     self.hud = hud
 
+    -- General
+    self:add_command('version', self.handle_version, 'Trust version')
+    self:add_command('help', self.handle_help, 'Learn more on the wiki')
+    self:add_command('commands', self.handle_command_list, 'See all Trust commands')
+    self:add_command('debug', self.handle_debug, 'Show debug info')
+
     -- State
     self:add_command('start', self.handle_start, 'Start Trust')
+    self:add_command('startall', self.handle_start_all, 'Start Trust on all characters')
     self:add_command('stop', self.handle_stop, 'Stop Trust')
+    self:add_command('stopall', self.handle_stop_all, 'Stop Trust on all characters')
     self:add_command('toggle', self.handle_toggle, 'Toggle Trust On and Off')
     self:add_command('reload', self.handle_reload, 'Reload job settings files')
     self:add_command('status', self.handle_status, 'View Trust status')
@@ -42,6 +52,43 @@ function GeneralTrustCommands:get_all_commands()
     return result
 end
 
+-- // trust version
+function GeneralTrustCommands:handle_version()
+    local success = true
+    local message
+
+    addon_system_message("Trust v".._addon.version..".")
+
+    return success, message
+end
+
+-- // trust help
+function GeneralTrustCommands:handle_help()
+    local success = true
+    local message
+
+    local jobNameShort = self.trust:get_job().jobNameShort
+    if jobNameShort then
+        local job = res.jobs:with('ens', jobNameShort)
+        local url_suffix = job.en:gsub(" ", "-")
+        windower.open_url(addon_settings:getSettings().help.wiki_base_url..'/'..url_suffix)
+    else
+        windower.open_url(addon_settings:getSettings().help.wiki_base_url)
+    end
+
+    return success, message
+end
+
+-- // trust version
+function GeneralTrustCommands:handle_command_list()
+    local success = true
+    local message
+
+    hud:openMenu(hud:getMainMenuItem():getChildMenuItem('Commands'))
+
+    return success, message
+end
+
 -- // trust status
 function GeneralTrustCommands:handle_status()
     local success = true
@@ -65,23 +112,47 @@ function GeneralTrustCommands:handle_status()
 end
 
 -- // trust start
-function GeneralTrustCommands:handle_start(_)
+function GeneralTrustCommands:handle_start(_, include_party)
     local success = true
-    local message = "Trust started"
+    local message
 
     self.addon_enabled:setValue(true)
+
+    if include_party then
+        message = "Trust started on all characters"
+        IpcRelay.shared():send_message(CommandMessage.new('trust start'))
+    else
+        message = "Trust started"
+    end
 
     return success, message
 end
 
+-- // trust startall
+function GeneralTrustCommands:handle_start_all(_)
+    return self:handle_start(_, true)
+end
+
 -- // trust stop
-function GeneralTrustCommands:handle_stop(_)
+function GeneralTrustCommands:handle_stop(_, include_party)
     local success = true
-    local message = "Trust stopped"
+    local message
 
     self.addon_enabled:setValue(false)
 
+    if include_party then
+        message = "Trust stopped on all characters"
+        IpcRelay.shared():send_message(CommandMessage.new('trust stop'))
+    else
+        message = "Trust stopped"
+    end
+
     return success, message
+end
+
+-- // trust stopall
+function GeneralTrustCommands:handle_stop_all(_)
+    return self:handle_stop(_, true)
 end
 
 -- // trust toggle
@@ -156,5 +227,83 @@ function GeneralTrustCommands:handle_save_set(_, mode_set_name)
     return success, message
 end
 
+
+-- // trust debug
+function GeneralTrustCommands:handle_debug()
+    local ImportAction = require('cylibs/actions/import_action')
+
+    local coroutine = coroutine.create(function()
+        for i=1, 10 do
+            print(i)
+            coroutine.yield(i >= 10)
+        end
+    end)
+
+    temp = ActionQueue.new()
+
+    local paths = L{
+        'cylibs/actions/spell',
+        'cylibs/actions/wait',
+        'cylibs/actions/runto',
+        'cylibs/actions/runaway',
+        'cylibs/actions/runbehind',
+        'cylibs/actions/walk',
+        'cylibs/actions/command',
+        'cylibs/actions/blood_pact_rage',
+        'cylibs/actions/blood_pact_ward',
+        'cylibs/actions/job_ability',
+        'cylibs/actions/strategem',
+        'cylibs/actions/weapon_skill',
+        'cylibs/actions/sequence',
+        'cylibs/actions/block',
+        'cylibs/battle/approach',
+        'cylibs/battle/ranged_attack',
+        'cylibs/battle/run_away',
+        'cylibs/battle/run_to',
+        'cylibs/battle/turn_around',
+        'cylibs/battle/turn_to_face',
+        'cylibs/battle/command',
+        'cylibs/battle/use_item',
+        'cylibs/battle/engage'
+    }
+    temp:push_action(ImportAction.new(paths, 'test123', 'test123'))
+
+
+    --[[local UrlRequest = require('cylibs/util/network/url_request')
+
+    local request = UrlRequest.new('GET', 'https://raw.githubusercontent.com/cyritegamestudios/trust/main/manifest.json', {})
+
+    local fetch = request:get()
+    local success, response, code, body, status = coroutine.resume(fetch)
+
+    if success then
+        table.vprint(body)
+    end]]
+
+    print(buff_util.all_buff_ids('Last Resort'))
+
+    print('buffs', party_util.get_buffs(windower.ffxi.get_player().id), party_util.get_buffs(windower.ffxi.get_player().id):map(function(buff_id) return res.buffs[buff_id].en end))
+
+
+    local party_index = 1
+    for party in player.alliance:get_parties():it() do
+        print('Party', party_index..":", party:get_party_members():map(function(p) return p:get_name() end))
+        party_index = party_index + 1
+    end
+
+    print(num_created)
+    print('images', num_images_created)
+
+    print('player', L(windower.ffxi.get_player().buffs):map(function(buff_id)
+        --return buff_id
+        return res.buffs:with('id', buff_id).en
+    end))
+
+    local alliance = player.alliance
+    for i = 1, 3 do
+        local party = alliance:get_parties()[i]
+        logger.notice("Trust", "debug", "party", i, party:get_party_members(true):map(function(party_member) return party_member:get_name() end))
+    end
+end
 
 return GeneralTrustCommands

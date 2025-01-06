@@ -1,3 +1,5 @@
+local CommandMessage = require('cylibs/messages/command_message')
+
 local TrustCommands = require('cylibs/trust/commands/trust_commands')
 local SendAllTrustCommands = setmetatable({}, {__index = TrustCommands })
 SendAllTrustCommands.__index = SendAllTrustCommands

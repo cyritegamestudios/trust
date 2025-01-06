@@ -138,10 +138,13 @@ function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, 
                     windower.send_command('trust menu')
                 end, 0.2)
             elseif indexPath.row == 3 then
-                local item = self:getDataSource():itemAtIndexPath(indexPath)
-                if item then
-                    handle_cycle('TrustMode')
-                end
+                coroutine.schedule(function()
+                    self:resignFocus()
+                    local profilesMenuItem = hud:getMainMenuItem():getChildMenuItem("Profiles")
+                    if profilesMenuItem then
+                        hud:openMenu(profilesMenuItem)
+                    end
+                end, 0.2)
             end
         elseif indexPath.section == 2 then
             windower.send_command('trust toggle')

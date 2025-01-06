@@ -1,42 +1,27 @@
-local AlterEgoSettingsMenuItem = require('ui/settings/menus/AlterEgoSettingsMenuItem')
+local GambitSettingsMenuItem = require('ui/settings/menus/gambits/GambitSettingsMenuItem')
+local JobGambitSettingsMenuItem = require('ui/settings/menus/gambits/JobGambitSettingsMenuItem')
+local ReactSettingsMenuItem = require('ui/settings/menus/gambits/react/ReactSettingsMenuItem')
+local TargetSettingsMenuItem = require('ui/settings/menus/TargetSettingsMenuItem')
+
 local BackgroundView = require('cylibs/ui/views/background/background_view')
 local BooleanConfigItem = require('ui/settings/editors/config/BooleanConfigItem')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
-local CollectionView = require('cylibs/ui/collection_view/collection_view')
-local CommandsMenuItem = require('ui/settings/menus/commands/CommandsMenuItem')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local ConfigSettingsMenuItem = require('ui/settings/menus/ConfigSettingsMenuItem')
-local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local FFXISoundTheme = require('sounds/FFXISoundTheme')
 local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
-local FollowSettingsMenuItem = require('ui/settings/menus/FollowSettingsMenuItem')
-local FoodSettingsMenuItem = require('ui/settings/menus/buffs/FoodSettingsMenuItem')
 local Frame = require('cylibs/ui/views/frame')
-local GambitSettingsMenuItem = require('ui/settings/menus/gambits/GambitSettingsMenuItem')
 local GameInfo = require('cylibs/util/ffxi/game_info')
-local JobGambitSettingsMenuItem = require('ui/settings/menus/gambits/JobGambitSettingsMenuItem')
 local Keyboard = require('cylibs/ui/input/keyboard')
 local MediaPlayer = require('cylibs/sounds/media_player')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
-local PullSettingsMenuItem = require('ui/settings/menus/pulling/PullSettingsMenuItem')
-local LoadSettingsMenuItem = require('ui/settings/menus/loading/LoadSettingsMenuItem')
-local PartyStatusWidget = require('ui/widgets/PartyStatusWidget')
-local PartyTargetsMenuItem = require('ui/settings/menus/PartyTargetsMenuItem')
-local PathSettingsMenuItem = require('ui/settings/menus/misc/PathSettingsMenuItem')
-local PathWidget = require('ui/widgets/PathWidget')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
-local ReactSettingsMenuItem = require('ui/settings/menus/gambits/react/ReactSettingsMenuItem')
-local TargetWidget = require('ui/widgets/TargetWidget')
 local TrustInfoBar = require('ui/TrustInfoBar')
-local TrustStatusWidget = require('ui/widgets/TrustStatusWidget')
 local Menu = require('cylibs/ui/menu/menu')
-local TargetSettingsMenuItem = require('ui/settings/menus/TargetSettingsMenuItem')
 local ViewStack = require('cylibs/ui/views/view_stack')
-local WeaponSkillSettingsMenuItem = require('ui/settings/menus/WeaponSkillSettingsMenuItem')
 local View = require('cylibs/ui/views/view')
-local WidgetManager = require('ui/widgets/WidgetManager')
 
 local TrustHud = setmetatable({}, {__index = View })
 TrustHud.__index = TrustHud
@@ -48,9 +33,6 @@ end
 function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, addon_enabled, menu_width, menu_height)
     local self = setmetatable(View.new(), TrustHud)
 
-    CollectionView.setDefaultStyle(FFXIClassicStyle.default())
-    CollectionView.setDefaultBackgroundStyle(FFXIClassicStyle.background())
-
     self.mediaPlayer = MediaPlayer.new(windower.addon_path..'sounds')
     self.mediaPlayer:setEnabled(not addon_settings:getSettings().sounds.sound_effects.disabled)
     self.soundTheme = FFXISoundTheme.default()
@@ -60,7 +42,6 @@ function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, a
     FFXIPickerView.setDefaultMediaPlayer(self.mediaPlayer)
     FFXIPickerView.setDefaultSoundTheme(self.soundTheme)
 
-    self.lastMenuToggle = os.time()
     self.menuSize = Frame.new(0, 0, menu_width, menu_height)
     self.viewStack = ViewStack.new(Frame.new(16, 48, 0, 0))
     self.actionQueue = action_queue
@@ -71,8 +52,7 @@ function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, a
     self.gameInfo = GameInfo.new()
     self.menuViewStack = ViewStack.new(Frame.new(windower.get_windower_settings().ui_x_res - 128, 52, 0, 0))
     self.menuViewStack.name = "menu stack"
-    self.mainMenuItem = self:getMainMenuItem()
-    self.widgetManager = WidgetManager.new(addon_settings)
+    --self.mainMenuItem = self:getMainMenuItem()
 
     self.infoViewContainer = View.new(Frame.new(17, 17, windower.get_windower_settings().ui_x_res - 18, 27))
     self.infoBar = TrustInfoBar.new(Frame.new(0, 0, windower.get_windower_settings().ui_x_res - 18, 27))
@@ -85,11 +65,8 @@ function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, a
     self.infoViewContainer:setNeedsLayout()
     self.infoViewContainer:layoutIfNeeded()
 
-    self:createWidgets(addon_settings, addon_enabled, action_queue, player.party, player.trust.main_job)
-
     self.trustMenu = Menu.new(self.viewStack, self.menuViewStack, self.infoBar, self.mediaPlayer, self.soundTheme)
 
-    self.tabbed_view = nil
     self.backgroundImageView = self:getBackgroundImageView()
 
     for mode in L{ state.MainTrustSettingsMode, state.SubTrustSettingsMode }:it() do
@@ -105,8 +82,6 @@ function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, a
         self:reloadMainMenuItem()
     end), i18n.onLocaleChanged())
 
-    self:registerShortcuts()
-
     -- To initialize it
     local Mouse = require('cylibs/ui/input/mouse')
     Mouse.input()
@@ -120,7 +95,6 @@ function TrustHud:destroy()
             windower.unregister_event(event)
         end
     end
-    self.widgetManager:destroy()
     self.viewStack:dismissAll()
     self.viewStack:destroy()
     self.click:removeAllEvents()
@@ -191,60 +165,12 @@ function TrustHud:getViewStack()
     return self.viewStack
 end
 
-function TrustHud:createWidgets(addon_settings, addon_enabled, action_queue, party, trust)
-    local loadWidgets = coroutine.create(function()
-        local trustStatusWidget = TrustStatusWidget.new(Frame.new(0, 0, 125, 69), addon_settings, addon_enabled, action_queue, player.main_job_name, player.sub_job_name, party:get_player())
-        self.widgetManager:addWidget(trustStatusWidget, "trust")
-
-        local targetWidget = TargetWidget.new(Frame.new(0, 0, 125, 40), addon_settings, party, trust)
-        self.widgetManager:addWidget(targetWidget, "target")
-
-        local partyStatusWidget = PartyStatusWidget.new(Frame.new(0, 0, 125, 55), addon_settings, player.alliance, party, trust, self.mediaPlayer, self.soundTheme)
-        self.widgetManager:addWidget(partyStatusWidget, "party")
-
-        local pathWidget = PathWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), self, main_trust_settings, state.MainTrustSettingsMode, trust)
-        self.widgetManager:addWidget(pathWidget, "path")
-
-        if player.main_job_name_short == 'PUP' then
-            local AutomatonStatusWidget = require('ui/widgets/AutomatonStatusWidget')
-            local petStatusWidget = AutomatonStatusWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), self, main_trust_settings, state.MainTrustSettingsMode, self.trustModeSettings)
-            self.widgetManager:addWidget(petStatusWidget, "pet")
-        end
-
-        if player.main_job_name_short == 'SMN' then
-            local AvatarStatusWidget = require('ui/widgets/AvatarStatusWidget')
-            local petStatusWidget = AvatarStatusWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), self, main_trust_settings, state.MainTrustSettingsMode)
-            self.widgetManager:addWidget(petStatusWidget, "pet")
-        end
-
-        if player.main_job_name_short == 'BLM' then
-            local BlackMageWidget = require('ui/widgets/BlackMageWidget')
-            local blackMageWidget = BlackMageWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), trust)
-            self.widgetManager:addWidget(blackMageWidget, "black_mage")
-        end
-
-        if player.main_job_name_short == 'RUN' then
-            local RuneFencerWidget = require('ui/widgets/RuneFencerWidget')
-            local runeFencerWidget = RuneFencerWidget.new(Frame.new(0, 0, 125, 57), addon_settings, trust)
-            self.widgetManager:addWidget(runeFencerWidget, "rune_fencer")
-        end
-
-        --if player.main_job_name_short == 'SCH' then
-        --    local scholarWidget = ScholarWidget.new(Frame.new(0, 0, 125, 57), addon_settings, party:get_player(), trust)
-        --    self.widgetManager:addWidget(scholarWidget, "scholar")
-        --end
-
-        for widget in self.widgetManager:getAllWidgets():it() do
-            self:addSubview(widget)
-        end
-        coroutine.yield()
-    end)
-
-    coroutine.resume(loadWidgets)
-end
-
 function TrustHud:toggleMenu()
     self.trustMenu:closeAll()
+
+    if self.mainMenuItem == nil then
+        self.mainMenuItem = self:getMainMenuItem()
+    end
 
     self.trustMenu:showMenu(self.mainMenuItem)
 end
@@ -268,6 +194,10 @@ function TrustHud:getBackgroundImageView()
 end
 
 function TrustHud:reloadJobMenuItems()
+    if self.mainMenuItem == nil then
+        return
+    end
+
     local oldMainJobItem = self.mainMenuItem:getChildMenuItem(player.main_job_name)
     if oldMainJobItem then
         oldMainJobItem:destroy()
@@ -296,16 +226,16 @@ function TrustHud:reloadJobMenuItems()
 end
 
 function TrustHud:setCommands(commands)
-    if self.mainMenuItem then
-        self.mainMenuItem:setChildMenuItem('Commands', CommandsMenuItem.new(commands))
-    end
+    self.commands = commands
 end
 
 function TrustHud:getMainMenuItem()
     if self.mainMenuItem then
         return self.mainMenuItem
     end
-    
+
+    local LoadSettingsMenuItem = require('ui/settings/menus/loading/LoadSettingsMenuItem')
+
     local mainMenuItem = MenuItem.new(L{
         ButtonItem.localized(player.main_job_name, i18n.resource('jobs', 'en', player.main_job_name)),
         ButtonItem.localized(player.sub_job_name, i18n.resource('jobs', 'en', player.sub_job_name)),
@@ -314,12 +244,17 @@ function TrustHud:getMainMenuItem()
         ButtonItem.default('Config', 18),
     }, {
         Profiles = LoadSettingsMenuItem.new(self.addon_settings, self.trustModeSettings, main_trust_settings, weapon_skill_settings, sub_trust_settings),
-        Config = ConfigSettingsMenuItem.new(self.addon_settings, main_trust_settings, state.MainTrustSettingsMode, self.mediaPlayer, self.widgetManager),
+        Config = ConfigSettingsMenuItem.new(self.addon_settings, main_trust_settings, state.MainTrustSettingsMode, self.mediaPlayer),
     }, nil, "Jobs")
 
     self.mainMenuItem = mainMenuItem
 
     self:reloadJobMenuItems()
+
+    local CommandsMenuItem = require('ui/settings/menus/commands/CommandsMenuItem')
+    self.mainMenuItem:setChildMenuItem('Commands', CommandsMenuItem.new(self.commands))
+
+    self:registerShortcuts()
 
     return self.mainMenuItem
 end
@@ -331,10 +266,8 @@ function TrustHud:reloadMainMenuItem()
     self.mainMenuItem:destroy()
     self.mainMenuItem = nil
 
-    self:getMainMenuItem()
-
     if showMenu then
-        self.trustMenu:showMenu(self.mainMenuItem)
+        self.trustMenu:showMenu(self:getMainMenuItem())
     end
 end
 
@@ -423,6 +356,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
     if trust:role_with_type("puller") then
         childMenuItems.Pulling = self:getMenuItemForRole(trust:role_with_type("puller"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode, trustModeSettings)
     else
+        local PullSettingsMenuItem = require('ui/settings/menus/pulling/PullSettingsMenuItem')
         childMenuItems.Pulling = PullSettingsMenuItem.disabled("Configure pull settings from the other job's menu.")
     end
 
@@ -452,6 +386,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
     end
 
     menuItems:append(ButtonItem.default('Food', 18))
+    local FoodSettingsMenuItem = require('ui/settings/menus/buffs/FoodSettingsMenuItem')
     childMenuItems.Food = FoodSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSettings)
 
     if trust:role_with_type("truster") then
@@ -545,11 +480,13 @@ function TrustHud:getHealerMenuItem(trust, trustSettings, trustSettingsMode, tru
 end
 
 function TrustHud:getSkillchainerMenuItem(weaponSkillSettings, weaponSkillSettingsMode, trustModeSettings, trust)
+    local WeaponSkillSettingsMenuItem = require('ui/settings/menus/WeaponSkillSettingsMenuItem')
     local weaponSkillsSettingsMenuItem = WeaponSkillSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettingsMode, trustModeSettings, trust)
     return weaponSkillsSettingsMenuItem
 end
 
 function TrustHud:getPullerMenuItem(trust, jobNameShort, trustSettings, trustSettingsMode, trustModeSettings)
+    local PullSettingsMenuItem = require('ui/settings/menus/pulling/PullSettingsMenuItem')
     local pullerSettingsMenuItem = PullSettingsMenuItem.new(L{}, trust, jobNameShort, trustSettings, trustSettingsMode, trustModeSettings)
     return pullerSettingsMenuItem
 end
@@ -573,14 +510,17 @@ function TrustHud:getNukerMenuItem(trust, trustSettings, trustSettingsMode, trus
 end
 
 function TrustHud:getFollowerMenuItem(role, trustModeSettings)
+    local FollowSettingsMenuItem = require('ui/settings/menus/FollowSettingsMenuItem')
     return FollowSettingsMenuItem.new(role, trustModeSettings, self.addon_settings)
 end
 
 function TrustHud:getPatherMenuItem(role, viewSize)
+    local PathSettingsMenuItem = require('ui/settings/menus/misc/PathSettingsMenuItem')
     return PathSettingsMenuItem.new(role)
 end
 
 function TrustHud:getTrusterMenuItem(role)
+    local AlterEgoSettingsMenuItem = require('ui/settings/menus/AlterEgoSettingsMenuItem')
     return AlterEgoSettingsMenuItem.new(role, self.trustModeSettings, self.addon_settings)
 end
 
@@ -609,6 +549,7 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
         return partyMemberView
     end, "Party", "View party status.")
 
+    local PartyTargetsMenuItem = require('ui/settings/menus/PartyTargetsMenuItem')
     local targetsMenuItem = PartyTargetsMenuItem.new(self.party, function(view)
         return setupView(view, viewSize)
     end)

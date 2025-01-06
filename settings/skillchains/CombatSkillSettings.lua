@@ -45,6 +45,8 @@ function CombatSkillSettings:get_abilities(include_blacklist, include_unknown)
                 return false
             end):map(function(weapon_skill_id)
                 return SkillchainAbility.new('weapon_skills', weapon_skill_id, L{ MinTacticalPointsCondition.new(1000) })
+            end):compact_map():unique(function(weapon_skill)
+                return weapon_skill:get_ability_id()
             end)
     return weapon_skills
 end

@@ -10,10 +10,9 @@ local native_commands_whitelist = S{
     'pcmd leader',
 }
 
-function TrustRemoteCommands.new(whitelist, handle_addon_command)
+function TrustRemoteCommands.new(whitelist)
     local self = setmetatable({
         whitelist = whitelist;
-        handle_addon_command = handle_addon_command;
         action_events = {}
     }, TrustRemoteCommands)
 

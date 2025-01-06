@@ -51,7 +51,7 @@ function ImageView:loadImage(imagePath)
     self.imagePath = imagePath
 
     self.image:path(imagePath)
-    self.image:show()
+    self.image:hide()
 end
 
 -- Handles the hover event for the ImageView.
@@ -62,7 +62,9 @@ function ImageView:hitTest(x, y)
 end
 
 function ImageView:layoutIfNeeded()
-    View.layoutIfNeeded(self)
+    if not View.layoutIfNeeded(self) then
+        return false
+    end
 
     local position = self:getAbsolutePosition()
 
@@ -72,10 +74,12 @@ function ImageView:layoutIfNeeded()
     end
 
     self.image:repeat_xy(self.repeatX, self.repeatY)
-    self.image:visible(isVisible)
     self.image:pos(position.x, position.y)
     self.image:size(self:getSize().width, self:getSize().height)
     self.image:alpha(self.alpha)
+    self.image:visible(isVisible)
+
+    return true
 end
 
 return ImageView

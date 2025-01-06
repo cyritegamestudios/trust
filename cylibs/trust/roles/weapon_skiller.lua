@@ -54,7 +54,7 @@ end
 
 function WeaponSkiller:check_abilities()
     if state.AutoSkillchainMode.value ~= self.mode_value or not self:get_player():is_engaged()
-            or self:get_target() == nil or os.time() - self.last_check_time < 1 then
+            or self:get_target() == nil or os.time() - self.last_check_time < self:get_delay() then
         return
     end
     self.last_check_time = os.time()
@@ -85,6 +85,9 @@ end
 -- Performs an ability.
 -- @tparam SkillchainAbility ability Ability to perform
 function WeaponSkiller:perform_ability(ability)
+    if self.action_queue:has_action(self.action_identifier) then
+        return
+    end
     local target = self:get_target()
     if not target then
         logger.notice(self.__class, 'perform_ability', ability:get_name(), 'no valid target')
@@ -120,6 +123,10 @@ function WeaponSkiller:update_abilities()
         end
     end
     self.abilities = abilities
+end
+
+function WeaponSkiller:get_delay()
+    return 1
 end
 
 function WeaponSkiller:set_current_settings(current_settings)

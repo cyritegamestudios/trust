@@ -298,6 +298,10 @@ function Trust:get_trust_settings()
 	return self.trust_settings
 end
 
+function Trust:get_widget()
+	return nil, nil
+end
+
 return Trust
 
 

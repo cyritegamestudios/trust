@@ -7,6 +7,7 @@ RuneFencerTrust.__index = RuneFencerTrust
 local Buffer = require('cylibs/trust/roles/buffer')
 local Puller = require('cylibs/trust/roles/puller')
 local Tank = require('cylibs/trust/roles/tank')
+local Frame = require('cylibs/ui/views/frame')
 
 state.AutoRuneMode = M{['description'] = 'Auto Rune Mode', 'Off', 'Tenebrae', 'Lux', 'Ignis', 'Gelus', 'Flabra', 'Tellus', 'Sulpor', 'Unda'}
 
@@ -61,6 +62,12 @@ function RuneFencerTrust:check_runes()
 			end
 		end
 	end
+end
+
+function RuneFencerTrust:get_widget()
+	local RuneFencerWidget = require('ui/widgets/RuneFencerWidget')
+	local runeFencerWidget = RuneFencerWidget.new(Frame.new(0, 0, 125, 57), windower.trust.settings.get_addon_settings(), self)
+	return runeFencerWidget, "rune_fencer"
 end
 
 return RuneFencerTrust

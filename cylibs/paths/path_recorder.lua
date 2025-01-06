@@ -59,6 +59,8 @@ function PathRecorder:start_recording()
     end), WindowerEvents.PositionChanged)
 
     logger.notice(self.__class, 'start_recording')
+
+    addon_system_message("Recording started. Use // trust path save path_name to save or // trust path record cancel to discard.")
 end
 
 function PathRecorder:stop_recording(path_name, discard)

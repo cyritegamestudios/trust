@@ -10,6 +10,7 @@ local ManaRestorer = require('cylibs/trust/roles/mana_restorer')
 local Nuker = require('cylibs/trust/roles/nuker')
 local Puller = require('cylibs/trust/roles/puller')
 local Sleeper = require('cylibs/trust/roles/sleeper')
+local Frame = require('cylibs/ui/views/frame')
 
 function BlackMageTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = BlackMage.new()
@@ -43,6 +44,12 @@ function BlackMageTrust:on_init()
 			role:set_nuke_settings(new_trust_settings.NukeSettings)
 		end
 	end)
+end
+
+function BlackMageTrust:get_widget()
+	local BlackMageWidget = require('ui/widgets/BlackMageWidget')
+	local blackMageWidget = BlackMageWidget.new(Frame.new(0, 0, 125, 57), windower.trust.settings.get_addon_settings(), self:get_party():get_player(), self)
+	return blackMageWidget, 'black_mage'
 end
 
 return BlackMageTrust

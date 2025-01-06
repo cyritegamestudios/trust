@@ -151,6 +151,7 @@ function PathSettingsMenuItem:getRecordPathMenuItem()
     return MenuItem.new(L{
         ButtonItem.default("Start", 18),
         ButtonItem.default("Save", 18),
+        ButtonItem.default("Discard", 18),
     }, L{
         Start = MenuItem.action(function()
             local party = self.pather:get_party()
@@ -158,7 +159,6 @@ function PathSettingsMenuItem:getRecordPathMenuItem()
                 party:add_to_chat(party:get_player(), "I'm in the middle of recording a path!")
             else
                 self.path_recorder:start_recording()
-                party:add_to_chat(party:get_player(), "Alright, I'll start remembering this path. I won't save it until you tell me to stop.")
             end
         end, "Start", "Start recording a new path."),
         Save = MenuItem.action(function()
@@ -171,7 +171,13 @@ function PathSettingsMenuItem:getRecordPathMenuItem()
             else
                 party:add_to_chat(party:get_player(), "I'm not currently recording a path.")
             end
-        end, "Save", "Save the path being recorded to file.")
+        end, "Save", "Save the path being recorded to file."),
+        Discard = MenuItem.action(function()
+            self.path_recorder:stop_recording()
+            addon_system_error("Discarded current path.")
+        end, "Discard", "Discard the path currently being recorded.", false, function()
+            return self.path_recorder:is_recording()
+        end)
     }, nil,"Record", "Record a new path.")
 end
 

@@ -54,6 +54,7 @@ function SkillSettingsMenuItem.new(weaponSkillSettings, skillSettings)
             skillSettings.blacklist = newSettings.Blacklist:filter(function(abilityName) return abilityName ~= SkillchainAbility.None end)
 
             weaponSkillSettings:saveSettings(true)
+            weaponSkillSettings:reloadSettings()
 
             addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my "..skillSettings:get_name().." settings!")
         end)

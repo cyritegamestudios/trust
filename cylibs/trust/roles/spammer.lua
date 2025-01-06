@@ -40,6 +40,10 @@ function Spammer:get_next_ability()
     return nil
 end
 
+function Spammer:get_delay()
+    return 0.25
+end
+
 function Spammer:set_conditions(conditions)
     self.conditions = conditions
 end
