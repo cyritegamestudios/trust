@@ -74,10 +74,10 @@ function ImageView:layoutIfNeeded()
     end
 
     self.image:repeat_xy(self.repeatX, self.repeatY)
-    self.image:visible(isVisible)
     self.image:pos(position.x, position.y)
     self.image:size(self:getSize().width, self:getSize().height)
     self.image:alpha(self.alpha)
+    self.image:visible(isVisible)
 
     return true
 end

@@ -83,7 +83,7 @@ TrustStatusWidget.Subheadline = TextStyle.new(
         Color.red
 )
 
-function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, mainJobName, subJobName, player, profilesMenuItem)
+function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, mainJobName, subJobName, player)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         if indexPath.section == 1 then
             local cell = TextCollectionViewCell.new(item)

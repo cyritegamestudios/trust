@@ -32,16 +32,12 @@ function TrustInfoBar.new(frame)
 
     local self = setmetatable(CollectionView.new(dataSource, HorizontalFlowLayout.new(4, Padding.new(0, 0, 0, 0)), nil, style), TrustInfoBar)
 
+    self:setVisible(false)
     self:setSize(0, frame.height)
     self:setUserInteractionEnabled(false)
     self:setScrollEnabled(false)
     self:setAllowsCursorSelection(false)
     self:setShouldRequestFocus(false)
-
-    self:getDataSource():addItems(L{
-        IndexedItem.new(TextItem.new("", TextStyle.Default.ButtonSmall), IndexPath.new(1, 1)),
-        IndexedItem.new(TextItem.new("", TextStyle.Default.ButtonSmall), IndexPath.new(1, 2)),
-    })
 
     return self
 end
