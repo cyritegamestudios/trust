@@ -86,7 +86,7 @@ function LoadSettingsAction:perform()
     self:load_main_trust_settings()
     self:load_sub_trust_settings()
     self:load_weapon_skill_settings()
-    
+
     self:complete(true)
 end
 
