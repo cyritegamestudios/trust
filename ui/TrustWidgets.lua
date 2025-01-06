@@ -24,7 +24,9 @@ end
 
 function TrustWidgets:init()
     local TrustStatusWidget = require('ui/widgets/TrustStatusWidget')
-    local trustStatusWidget = TrustStatusWidget.new(Frame.new(0, 0, 125, 69), self.addonSettings, self.addonEnabled, self.actionQueue, player.main_job_name, player.sub_job_name, self.trust:get_party():get_player()--[[, self.mainMenuItem:getChildMenuItem("Profiles")]])
+    local trustStatusWidget = TrustStatusWidget.new(Frame.new(0, 0, 125, 69), self.addonSettings, self.addonEnabled, self.actionQueue, player.main_job_name, player.sub_job_name, self.trust:get_party():get_player(), function()
+        --[[, self.mainMenuItem:getChildMenuItem("Profiles")]]
+    end)
     self.widgetManager:addWidget(trustStatusWidget, "trust")
 
     local TargetWidget = require('ui/widgets/TargetWidget')

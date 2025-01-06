@@ -51,7 +51,7 @@ function ImageView:loadImage(imagePath)
     self.imagePath = imagePath
 
     self.image:path(imagePath)
-    self.image:show()
+    self.image:hide()
 end
 
 -- Handles the hover event for the ImageView.

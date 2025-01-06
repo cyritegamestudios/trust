@@ -140,7 +140,10 @@ function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, 
             elseif indexPath.row == 3 then
                 coroutine.schedule(function()
                     self:resignFocus()
-                    hud:openMenu(profilesMenuItem)
+                    local profilesMenuItem = hud:getMainMenuItem():getChildMenuItem("Profiles")
+                    if profilesMenuItem then
+                        hud:openMenu(profilesMenuItem)
+                    end
                 end, 0.2)
             end
         elseif indexPath.section == 2 then
