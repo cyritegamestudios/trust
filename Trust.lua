@@ -145,6 +145,11 @@ function load_user_files(main_job_id, sub_job_id)
 		return hud
 	end
 
+	windower.trust.ui.widgets = {}
+	windower.trust.ui.get_widget = function(widget_name)
+		return widgets:getWidget(widget_name)
+	end
+
 	load_ui()
 	load_trust_commands(player.main_job_name_short, player.trust.main_job, player.sub_job_name_short, player.trust.sub_job, action_queue, player.party, main_trust_settings, sub_trust_settings)
 

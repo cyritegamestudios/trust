@@ -41,9 +41,6 @@ end
 function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, addon_enabled, menu_width, menu_height)
     local self = setmetatable(View.new(), TrustHud)
 
-    --CollectionView.setDefaultStyle(FFXIClassicStyle.default())
-    --CollectionView.setDefaultBackgroundStyle(FFXIClassicStyle.background())
-
     self.mediaPlayer = MediaPlayer.new(windower.addon_path..'sounds')
     self.mediaPlayer:setEnabled(not addon_settings:getSettings().sounds.sound_effects.disabled)
     self.soundTheme = FFXISoundTheme.default()
@@ -53,7 +50,6 @@ function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, a
     FFXIPickerView.setDefaultMediaPlayer(self.mediaPlayer)
     FFXIPickerView.setDefaultSoundTheme(self.soundTheme)
 
-    self.lastMenuToggle = os.time()
     self.menuSize = Frame.new(0, 0, menu_width, menu_height)
     self.viewStack = ViewStack.new(Frame.new(16, 48, 0, 0))
     self.actionQueue = action_queue
@@ -64,7 +60,7 @@ function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, a
     self.gameInfo = GameInfo.new()
     self.menuViewStack = ViewStack.new(Frame.new(windower.get_windower_settings().ui_x_res - 128, 52, 0, 0))
     self.menuViewStack.name = "menu stack"
-    self.mainMenuItem = self:getMainMenuItem()
+    --self.mainMenuItem = self:getMainMenuItem()
 
     self.infoViewContainer = View.new(Frame.new(17, 17, windower.get_windower_settings().ui_x_res - 18, 27))
     self.infoBar = TrustInfoBar.new(Frame.new(0, 0, windower.get_windower_settings().ui_x_res - 18, 27))
@@ -79,7 +75,6 @@ function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, a
 
     self.trustMenu = Menu.new(self.viewStack, self.menuViewStack, self.infoBar, self.mediaPlayer, self.soundTheme)
 
-    self.tabbed_view = nil
     self.backgroundImageView = self:getBackgroundImageView()
 
     for mode in L{ state.MainTrustSettingsMode, state.SubTrustSettingsMode }:it() do
@@ -94,8 +89,6 @@ function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, a
     self:getDisposeBag():add(i18n.onLocaleChanged():addAction(function(_)
         self:reloadMainMenuItem()
     end), i18n.onLocaleChanged())
-
-    self:registerShortcuts()
 
     -- To initialize it
     local Mouse = require('cylibs/ui/input/mouse')
@@ -183,6 +176,11 @@ end
 function TrustHud:toggleMenu()
     self.trustMenu:closeAll()
 
+    if self.mainMenuItem == nil then
+        print('creating')
+        self.mainMenuItem = self:getMainMenuItem()
+    end
+
     self.trustMenu:showMenu(self.mainMenuItem)
 end
 
@@ -205,6 +203,10 @@ function TrustHud:getBackgroundImageView()
 end
 
 function TrustHud:reloadJobMenuItems()
+    if self.mainMenuItem == nil then
+        return
+    end
+
     local oldMainJobItem = self.mainMenuItem:getChildMenuItem(player.main_job_name)
     if oldMainJobItem then
         oldMainJobItem:destroy()
@@ -233,17 +235,14 @@ function TrustHud:reloadJobMenuItems()
 end
 
 function TrustHud:setCommands(commands)
-    if self.mainMenuItem then
-        self.commandsMenuItem = CommandsMenuItem.new(commands)
-        self.mainMenuItem:setChildMenuItem('Commands', self.commandsMenuItem)
-    end
+    self.commands = commands
 end
 
 function TrustHud:getMainMenuItem()
     if self.mainMenuItem then
         return self.mainMenuItem
     end
-    
+
     local mainMenuItem = MenuItem.new(L{
         ButtonItem.localized(player.main_job_name, i18n.resource('jobs', 'en', player.main_job_name)),
         ButtonItem.localized(player.sub_job_name, i18n.resource('jobs', 'en', player.sub_job_name)),
@@ -252,16 +251,16 @@ function TrustHud:getMainMenuItem()
         ButtonItem.default('Config', 18),
     }, {
         Profiles = LoadSettingsMenuItem.new(self.addon_settings, self.trustModeSettings, main_trust_settings, weapon_skill_settings, sub_trust_settings),
-        Config = ConfigSettingsMenuItem.new(self.addon_settings, main_trust_settings, state.MainTrustSettingsMode, self.mediaPlayer, self.widgetManager),
+        Config = ConfigSettingsMenuItem.new(self.addon_settings, main_trust_settings, state.MainTrustSettingsMode, self.mediaPlayer),
     }, nil, "Jobs")
 
     self.mainMenuItem = mainMenuItem
 
     self:reloadJobMenuItems()
 
-    if self.commandsMenuItem then
-        self.mainMenuItem:setChildMenuItem("Commands", self.commandsMenuItem)
-    end
+    self.mainMenuItem:setChildMenuItem('Commands', CommandsMenuItem.new(self.commands))
+
+    self:registerShortcuts()
 
     return self.mainMenuItem
 end
@@ -273,10 +272,8 @@ function TrustHud:reloadMainMenuItem()
     self.mainMenuItem:destroy()
     self.mainMenuItem = nil
 
-    self:getMainMenuItem()
-
     if showMenu then
-        self.trustMenu:showMenu(self.mainMenuItem)
+        self.trustMenu:showMenu(self:getMainMenuItem())
     end
 end
 

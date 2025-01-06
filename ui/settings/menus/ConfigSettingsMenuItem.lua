@@ -11,7 +11,7 @@ local WidgetSettingsMenuItem = require('ui/settings/menus/widgets/WidgetSettings
 local ConfigSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 ConfigSettingsMenuItem.__index = ConfigSettingsMenuItem
 
-function ConfigSettingsMenuItem.new(addonSettings, trustSettings, trustSettingsMode, mediaPlayer, widgetManager)
+function ConfigSettingsMenuItem.new(addonSettings, trustSettings, trustSettingsMode, mediaPlayer)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Widgets', 18),
         ButtonItem.default('GearSwap', 18),
@@ -24,7 +24,7 @@ function ConfigSettingsMenuItem.new(addonSettings, trustSettings, trustSettingsM
     self.disposeBag = DisposeBag.new()
     self.mediaPlayer = mediaPlayer
 
-    self:reloadSettings(addonSettings, trustSettings, trustSettingsMode, widgetManager)
+    self:reloadSettings(addonSettings, trustSettings, trustSettingsMode)
 
     return self
 end
@@ -33,8 +33,8 @@ function ConfigSettingsMenuItem:destroy()
     MenuItem.destroy(self)
 end
 
-function ConfigSettingsMenuItem:reloadSettings(addonSettings, trustSettings, trustSettingsMode, widgetManager)
-    self:setChildMenuItem("Widgets", WidgetSettingsMenuItem.new(addonSettings, widgetManager))
+function ConfigSettingsMenuItem:reloadSettings(addonSettings, trustSettings, trustSettingsMode)
+    self:setChildMenuItem("Widgets", WidgetSettingsMenuItem.new(addonSettings))
     self:setChildMenuItem("GearSwap", self:getGearSwapMenuItem(trustSettings, trustSettingsMode))
     self:setChildMenuItem("Logging", self:getLoggingMenuItem(addonSettings))
     self:setChildMenuItem("Remote", RemoteCommandsSettingsMenuItem.new(addonSettings))

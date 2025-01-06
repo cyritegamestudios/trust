@@ -57,6 +57,10 @@ function TrustWidgets:addWidget(widget, widgetName)
     self:addSubview(widget)
 end
 
+function TrustWidgets:getWidget(widgetName)
+    return self.widgetManager:getWidget(widgetName)
+end
+
 function TrustWidgets:hitTest(x, y)
     for widget in self.widgetManager:getAllWidgets():it() do
         if widget:hitTest(x, y) then
