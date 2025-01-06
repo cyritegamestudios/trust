@@ -62,7 +62,9 @@ function ImageView:hitTest(x, y)
 end
 
 function ImageView:layoutIfNeeded()
-    View.layoutIfNeeded(self)
+    if not View.layoutIfNeeded(self) then
+        return false
+    end
 
     local position = self:getAbsolutePosition()
 
@@ -76,6 +78,8 @@ function ImageView:layoutIfNeeded()
     self.image:pos(position.x, position.y)
     self.image:size(self:getSize().width, self:getSize().height)
     self.image:alpha(self.alpha)
+
+    return true
 end
 
 return ImageView
