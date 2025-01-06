@@ -82,19 +82,11 @@ end
 function LoadSettingsAction:perform()
     player.trust = {}
 
-    --local profile = require('cylibs/util/profile')
-
-    --profile.start()
-
     self:load_settings()
     self:load_main_trust_settings()
     self:load_sub_trust_settings()
     self:load_weapon_skill_settings()
-
-    --profile.stop()
-
-    --profile.report(4)
-
+    
     self:complete(true)
 end
 
