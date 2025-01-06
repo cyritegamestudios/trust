@@ -542,22 +542,6 @@ function handle_zone_change(_, _)
 	end
 end
 
-function handle_trust_status()
-	local statuses = L{}
-	for key,var in pairs(state) do
-		statuses:append(key..': '..var.value)
-	end
-	statuses:sort()
-
-	for status in statuses:it() do
-		addon_message(207, status)
-	end
-
-	if player.party:get_assist_target() then
-		addon_message(209, 'Assisting '..player.party:get_assist_target():get_name())
-	end
-end
-
 -- Setup
 
 local function addon_command(cmd, ...)

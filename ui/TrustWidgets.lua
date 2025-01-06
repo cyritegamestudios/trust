@@ -45,10 +45,12 @@ function TrustWidgets:init()
 
     -- Job specific
     for trust in L{ self.trust }:it() do
-        local widget, widgetName = trust:get_widget()
-        if widget and widgetName then
-            self:addWidget(widget, widgetName)
-        end
+        coroutine.schedule(function()
+            local widget, widgetName = trust:get_widget()
+            if widget and widgetName then
+                self:addWidget(widget, widgetName)
+            end
+        end, 0.5)
     end
 end
 
