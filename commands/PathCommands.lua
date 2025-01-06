@@ -45,15 +45,15 @@ function PathTrustCommands:get_pather()
 end
 
 -- // trust path record
-function PathTrustCommands:handle_record_path()
+function PathTrustCommands:handle_record_path(_, cancel)
     local success
     local message
 
-    if self.path_recorder:is_recording() then
-        self.path_recorder:stop_recording()
-
+    if cancel then
         success = true
         message = "Discarded the current recording"
+
+        self.path_recorder:stop_recording()
     else
         self.path_recorder:start_recording()
 

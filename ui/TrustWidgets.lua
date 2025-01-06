@@ -24,9 +24,7 @@ end
 
 function TrustWidgets:init()
     local TrustStatusWidget = require('ui/widgets/TrustStatusWidget')
-    local trustStatusWidget = TrustStatusWidget.new(Frame.new(0, 0, 125, 69), self.addonSettings, self.addonEnabled, self.actionQueue, player.main_job_name, player.sub_job_name, self.trust:get_party():get_player(), function()
-        --[[, self.mainMenuItem:getChildMenuItem("Profiles")]]
-    end)
+    local trustStatusWidget = TrustStatusWidget.new(Frame.new(0, 0, 125, 69), self.addonSettings, self.addonEnabled, self.actionQueue, player.main_job_name, player.sub_job_name, self.trust:get_party():get_player())
     self.widgetManager:addWidget(trustStatusWidget, "trust")
 
     local TargetWidget = require('ui/widgets/TargetWidget')
@@ -37,15 +35,10 @@ function TrustWidgets:init()
     local partyStatusWidget = PartyStatusWidget.new(Frame.new(0, 0, 125, 55), self.addonSettings, self.trust:get_alliance(), self.trust:get_party(), self.trust, self.mediaPlayer, self.soundTheme)
     self.widgetManager:addWidget(partyStatusWidget, "party")
 
-    local PathWidget = require('ui/widgets/PathWidget')
-    local pathWidget = PathWidget.new(Frame.new(0, 0, 125, 57), self.addonSettings, self.trust:get_party():get_player(), self.trust)
-    self.widgetManager:addWidget(pathWidget, "path")
-
     for widget in self.widgetManager:getAllWidgets():it() do
         self:addSubview(widget)
     end
-
-    -- Job specific
+    
     for trust in L{ self.trust }:it() do
         coroutine.schedule(function()
             local widget, widgetName = trust:get_widget()
