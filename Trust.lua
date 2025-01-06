@@ -505,7 +505,7 @@ function handle_tic(old_time, new_time)
 
 	player.alliance:tic(old_time, new_time)
 
-	if not trust or not windower.ffxi.get_player() or not addon_enabled:getValue() or not player or not player.trust then return end
+	if not player.trust.main_job or not windower.ffxi.get_player() or not addon_enabled:getValue() or not player or not player.trust then return end
 
 	action_queue:set_enabled(addon_enabled:getValue())
 
