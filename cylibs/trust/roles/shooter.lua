@@ -95,6 +95,14 @@ function Shooter:ranged_attack()
 
     local actions = L{
         RangedAttackAction.new(target:get_mob().index, self:get_player()),
+        BlockAction.new(function()
+            -- Workaround for ensuring that we delay properly for WS or other stuff
+            -- TODO(Aldros): Check job settings for JAs, etc
+            local player = windower.ffxi.get_player()
+            if player.vitals.tp >= self.ranged_attack_max_tp then
+                coroutine.sleep(1)
+            end
+        end),
     }
     local ranged_attack_action = SequenceAction.new(actions, self.ranged_attack_action_identifier)
     ranged_attack_action.max_duration = 1.25 * self:get_average_shot_time()
