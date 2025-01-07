@@ -61,9 +61,6 @@ function job_util.knows_job_ability(job_ability_id, job_id)
     if all_job_abilities then
         for _,v in pairs(all_job_abilities) do
             if v == job_ability_id then
-                if res.job_abilities[job_ability_id].en == 'Ebullience' then
-                    print("yes")
-                end
                 can_use_job_ability = true
                 break
             end
