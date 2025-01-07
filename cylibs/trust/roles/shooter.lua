@@ -70,12 +70,13 @@ function Shooter:on_add()
         if self:get_target() == nil then
             return
         end
-        if L{ 'Auto', 'Manual' }:contains(state.AutoShootMode.value) and not self.is_shooting and (os.clock() - self.last_shoot_time) > self.ranged_attack_delay then
-            if windower.ffxi.get_player().vitals.tp < self.ranged_attack_max_tp or state.AutoSkillchainMode.value == 'Off' then
+        if L{ 'Auto', 'Manual' }:contains(state.AutoShootMode.value) and not self.is_shooting then
+            local player = windower.ffxi.get_player()
+            if player.vitals.tp < self.ranged_attack_max_tp or state.AutoSkillchainMode.value == 'Off' then
                 logger.notice(self.__class, 'onPrerender', 'restarting', os.clock() - self.last_shoot_time)
                 self:ranged_attack()
             end
-        elseif self.is_shooting and os.time() - self.last_shoot_time > 8 then
+        elseif self.is_shooting and os.time() - self.last_shoot_time > 4 then
             self.is_shooting = false
         end
     end), Renderer.shared():onPrerender())

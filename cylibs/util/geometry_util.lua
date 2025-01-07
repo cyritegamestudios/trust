@@ -94,6 +94,27 @@ function geometry_util.is_in_front(target)
 	return math.abs((target.facing - player.facing) - math.pi) < (math.pi / 12.0)
 end
 
+-------
+-- Determines the angle between the player's facing degree and the degree needed to
+-- face the target
+-- @tparam MobMetadata player Player for facing degree
+-- @tparam MobMetadata target Target mob to calculate facing for
+-- @treturn Angle The normalized angle between the player's facing degree and the target
+function geometry_util.get_angle_to_target(player, target)
+
+	local angle_to_point = math.deg(math.atan2(target.y - player.y, target.x - player.x))
+
+	local function normalize_angle(angle)
+		angle = angle % 360
+		if angle > 180 then
+			angle = angle - 360
+		end
+		return angle
+	end
+
+	return normalize_angle(angle_to_point - math.deg(-player.facing))
+end
+
 return geometry_util
 
 

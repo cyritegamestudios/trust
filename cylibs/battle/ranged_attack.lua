@@ -69,8 +69,7 @@ end
 -- @treturn Action Action to use ability
 function RangedAttack:to_action(target_index, player)
     return SequenceAction.new(L{
-        BlockAction.new(function() player_util.face(windower.ffxi.get_mob_by_index(target_index))  end, "face target"),
-        WaitAction.new(0, 0, 0, 0.5),
+        TurnToFace.new():to_action(target_index),
         RangedAttackAction.new(target_index, player)
     }, self.__class..'_ranged_attack')
 end

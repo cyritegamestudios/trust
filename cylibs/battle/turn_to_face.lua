@@ -63,7 +63,16 @@ end
 -- @treturn Action Action to use ability
 function TurnToFace:to_action(target_index, _)
     return SequenceAction.new(L{
-        BlockAction.new(function() player_util.face(windower.ffxi.get_mob_by_index(target_index)) end, "face target"),
+        BlockAction.new(function()
+            local player = windower.ffxi.get_mob_by_target('me')
+            local target = windower.ffxi.get_mob_by_index(target_index)
+            local angle = geometry_util.get_angle_to_target(player, target)
+            player_util.face(windower.ffxi.get_mob_by_index(target_index))
+            if math.abs(angle) > 30 then
+                -- Sleep for half a second to reposition
+                coroutine.sleep(0.5)
+            end
+        end, "face target"),
     }, self.__class..'_turn_to_face')
 end
 
