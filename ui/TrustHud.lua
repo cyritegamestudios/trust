@@ -263,8 +263,10 @@ function TrustHud:reloadMainMenuItem()
     local showMenu = self.trustMenu:isVisible()
 
     self.trustMenu:closeAll()
-    self.mainMenuItem:destroy()
-    self.mainMenuItem = nil
+    if self.mainMenuItem then
+        self.mainMenuItem:destroy()
+        self.mainMenuItem = nil
+    end
 
     if showMenu then
         self.trustMenu:showMenu(self:getMainMenuItem())

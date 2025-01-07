@@ -207,7 +207,11 @@ end
 -- Return the conditions to cast the spell.
 -- @treturn list List of conditions
 function Spell:get_conditions()
-    return self.conditions
+    local conditions = L{}
+    for job_ability_name in self:get_job_abilities():it() do
+        conditions:append(JobAbilityRecastReadyCondition.new(job_ability_name))
+    end
+    return conditions + self.conditions
 end
 
 -------
@@ -222,7 +226,7 @@ function Spell:get_config_items(trust)
     end)) or L{}):sort()
 
     local configItem = MultiPickerConfigItem.new("job_abilities", self.job_abilities, allJobAbilities, function(jobAbilityNames)
-        local summary = localization_util.commas(jobAbilityNames:map(function(jobAbilityName) return i18n.resource('job_abilities', 'en', jobAbilityName) end), 'or')
+        local summary = localization_util.commas(jobAbilityNames:map(function(jobAbilityName) return i18n.resource('job_abilities', 'en', jobAbilityName) end), 'and')
         if summary:length() == 0 then
             summary = "None"
         end

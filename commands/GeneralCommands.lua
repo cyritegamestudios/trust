@@ -230,43 +230,11 @@ end
 
 -- // trust debug
 function GeneralTrustCommands:handle_debug()
-    local ImportAction = require('cylibs/actions/import_action')
 
-    local coroutine = coroutine.create(function()
-        for i=1, 10 do
-            print(i)
-            coroutine.yield(i >= 10)
-        end
-    end)
+    local job_ability = JobAbility.new("Ebullience", L{SubJobCondition.new("SCH"), StrategemCountCondition.new(1, ">=")}, L{})
 
-    temp = ActionQueue.new()
 
-    local paths = L{
-        'cylibs/actions/spell',
-        'cylibs/actions/wait',
-        'cylibs/actions/runto',
-        'cylibs/actions/runaway',
-        'cylibs/actions/runbehind',
-        'cylibs/actions/walk',
-        'cylibs/actions/command',
-        'cylibs/actions/blood_pact_rage',
-        'cylibs/actions/blood_pact_ward',
-        'cylibs/actions/job_ability',
-        'cylibs/actions/strategem',
-        'cylibs/actions/weapon_skill',
-        'cylibs/actions/sequence',
-        'cylibs/actions/block',
-        'cylibs/battle/approach',
-        'cylibs/battle/ranged_attack',
-        'cylibs/battle/run_away',
-        'cylibs/battle/run_to',
-        'cylibs/battle/turn_around',
-        'cylibs/battle/turn_to_face',
-        'cylibs/battle/command',
-        'cylibs/battle/use_item',
-        'cylibs/battle/engage'
-    }
-    temp:push_action(ImportAction.new(paths, 'test123', 'test123'))
+    print('check', job_util.knows_job_ability(job_ability:get_ability_id()), job_util.can_use_job_ability(job_ability:get_job_ability_name()), Condition.check_conditions(job_ability:get_conditions(), windower.ffxi.get_player().index))
 
 
     --[[local UrlRequest = require('cylibs/util/network/url_request')
@@ -304,6 +272,8 @@ function GeneralTrustCommands:handle_debug()
         local party = alliance:get_parties()[i]
         logger.notice("Trust", "debug", "party", i, party:get_party_members(true):map(function(party_member) return party_member:get_name() end))
     end
+
+    return true, nil
 end
 
 return GeneralTrustCommands
