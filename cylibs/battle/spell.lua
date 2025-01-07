@@ -207,11 +207,7 @@ end
 -- Return the conditions to cast the spell.
 -- @treturn list List of conditions
 function Spell:get_conditions()
-    local conditions = L{}
-    for job_ability_name in self:get_job_abilities():it() do
-        conditions:append(JobAbilityRecastReadyCondition.new(job_ability_name))
-    end
-    return conditions + self.conditions
+    return self.conditions
 end
 
 -------

@@ -44,6 +44,11 @@ function Buffer:get_default_conditions(gambit)
     if L(gambit:getAbility():get_valid_targets()) ~= L{ 'Self' } then
         conditions:append(MaxDistanceCondition.new(gambit:getAbility():get_range()))
     end
+    if gambit:getAbility().get_job_abilities then
+        for job_ability_name in gambit:getAbility():get_job_abilities():it() do
+            conditions:append(JobAbilityRecastReadyCondition.new(job_ability_name))
+        end
+    end
     return conditions
 end
 
