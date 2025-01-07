@@ -82,7 +82,7 @@ function CombatMode:check_distance()
     local self_mob = windower.ffxi.get_mob_by_target('me')
     if target == nil or not battle_util.is_valid_target(target.id) then return end
 
-    if party_util.party_claimed(target.id) then
+    if party_util.party_claimed(target.id) or (state.AutoTargetMode.value == "Auto" and Condition.check_conditions(L{InBattleCondition.new()}, windower.ffxi.get_player().index)) then
         if L{'Ranged'}:contains(state.CombatMode.value) then
             if target.distance:sqrt() < self.range_distance then
                 self.action_queue:push_action(RunAwayAction.new(target.index, self.range_distance), true)

@@ -70,12 +70,13 @@ function Shooter:on_add()
         if self:get_target() == nil then
             return
         end
-        if L{ 'Auto', 'Manual' }:contains(state.AutoShootMode.value) and not self.is_shooting and (os.clock() - self.last_shoot_time) > self.ranged_attack_delay then
-            if windower.ffxi.get_player().vitals.tp < self.ranged_attack_max_tp or state.AutoSkillchainMode.value == 'Off' then
+        if L{ 'Auto', 'Manual' }:contains(state.AutoShootMode.value) and not self.is_shooting then
+            local player = windower.ffxi.get_player()
+            if player.vitals.tp < self.ranged_attack_max_tp or state.AutoSkillchainMode.value == 'Off' then
                 logger.notice(self.__class, 'onPrerender', 'restarting', os.clock() - self.last_shoot_time)
                 self:ranged_attack()
             end
-        elseif self.is_shooting and os.time() - self.last_shoot_time > 8 then
+        elseif self.is_shooting and os.time() - self.last_shoot_time > 4 then
             self.is_shooting = false
         end
     end), Renderer.shared():onPrerender())
@@ -94,6 +95,14 @@ function Shooter:ranged_attack()
 
     local actions = L{
         RangedAttackAction.new(target:get_mob().index, self:get_player()),
+        BlockAction.new(function()
+            -- Workaround for ensuring that we delay properly for WS or other stuff
+            -- TODO(Aldros): Check job settings for JAs, etc
+            local player = windower.ffxi.get_player()
+            if player.vitals.tp >= self.ranged_attack_max_tp then
+                coroutine.sleep(1)
+            end
+        end),
     }
     local ranged_attack_action = SequenceAction.new(actions, self.ranged_attack_action_identifier)
     ranged_attack_action.max_duration = 1.25 * self:get_average_shot_time()
