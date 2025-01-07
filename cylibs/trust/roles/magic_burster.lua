@@ -180,7 +180,7 @@ function MagicBurster:cast_spell(spell)
 
         local job_abilities
         local job_ability = L{}:extend(self.job_abilities):firstWhere(function(job_ability)
-            return job_util.can_use_job_ability(job_ability:get_job_ability_name()) and Condition.check_conditions(job_ability:get_conditions(), player.index)
+            return job_util.knows_job_ability(job_ability:get_ability_id()) and job_util.can_use_job_ability(job_ability:get_job_ability_name()) and Condition.check_conditions(job_ability:get_conditions(), player.index)
         end)
         if job_ability then
             job_abilities = L{ job_ability:get_job_ability_name() }

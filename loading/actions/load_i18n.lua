@@ -1,5 +1,3 @@
-local localization_util = require('cylibs/util/localization_util')
-
 local Action = require('cylibs/actions/action')
 local Loadi18nAction = setmetatable({}, { __index = Action })
 Loadi18nAction.__index = Loadi18nAction
@@ -17,6 +15,11 @@ function Loadi18nAction:load_i18n_settings()
         locale = i18n.Locale.Japanese
     end
 
+    local locale_override = addon_settings:getSettings().locales.default
+    if locale_override and S{ i18n.Locale.English, i18n.Locale.Japanese }:contains(locale_override) then
+        locale = locale_override
+    end
+
     local translations_for_locale = {
         [i18n.Locale.English] = 'translations/en',
         [i18n.Locale.Japanese] = 'translations/ja',
@@ -31,8 +34,6 @@ function Loadi18nAction:load_i18n_settings()
 end
 
 function Loadi18nAction:perform()
-    localization_util.set_should_use_client_locale(addon_settings:getSettings().locales.actions.use_client_locale or false)
-
     self:load_i18n_settings()
 
     self:complete(true)

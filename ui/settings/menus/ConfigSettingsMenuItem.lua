@@ -109,13 +109,18 @@ end
 function ConfigSettingsMenuItem:getLanguageSettingsMenuItem(addonSettings)
     local languageMenuItem = MenuItem.new(L{
         ButtonItem.default('Save'),
+        ButtonItem.default('Reset'),
     }, {
-        Save = MenuItem.action(function()
-            localization_util.set_should_use_client_locale(addonSettings:getSettings().locales.actions.use_client_locale)
+        Reset = MenuItem.action(function(parent)
+            addonSettings:getSettings().locales.default = ""
+            addonSettings:saveSettings(true)
+
+            i18n.set_current_locale(i18n.Locale.Default)
+
+            parent:showMenu(self)
         end),
     }, function(menuArgs)
         local languageSettings = {
-            UseClientLocale = addonSettings:getSettings().locales.actions.use_client_locale,
             Language = i18n.current_locale(),
         }
         local configItems = L{
@@ -126,13 +131,11 @@ function ConfigSettingsMenuItem:getLanguageSettingsMenuItem(addonSettings)
                     return 'English'
                 end
             end),
-            BooleanConfigItem.new('UseClientLocale', "Use client language for actions"),
         }
         local languageConfigEditor = ConfigEditor.new(addonSettings, languageSettings, configItems)
 
         self.disposeBag:add(languageConfigEditor:onConfigChanged():addAction(function(newConfigSettings, _)
-            addonSettings:getSettings().locales.actions.use_client_locale = newConfigSettings.UseClientLocale
-            localization_util.set_should_use_client_locale(newConfigSettings.UseClientLocale)
+            addonSettings:getSettings().locales.default = newConfigSettings.Language
             i18n.set_current_locale(newConfigSettings.Language)
         end), languageConfigEditor:onConfigChanged())
 

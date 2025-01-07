@@ -196,7 +196,7 @@ function Skillchainer:check_skillchain()
 
     local next_ability
     local step = self.skillchain_builder:get_current_step()
-    if step and not step:is_expired() then
+    if step and not step:is_expired() and not step:is_closed() then
         if step:is_window_open() then
             logger.notice(self.__class, 'check_skillchain', 'get_next_steps')
             if state.SkillchainDelayMode.value ~= 'Off' then

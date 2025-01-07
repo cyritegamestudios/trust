@@ -9,19 +9,6 @@ local localization_util = {}
 
 local translation_cache = {}
 
-local use_client_locale = false
-
--------
--- Sets the locale to be used when localization action commands (e.g. /ma <spell_name> <t>)
--- @tparam string locale Locale (e.g. 'en', 'jp')
-function localization_util.set_should_use_client_locale(should_use_client_locale)
-    use_client_locale = should_use_client_locale
-end
-
-function localization_util.should_use_client_locale()
-    return use_client_locale
-end
-
 -------
 -- Encodes the given text to be output into the chat log. Pass in the UTF-8 string
 -- and it will properly encode it for NA and JP clients. For JP clients, pass in the
