@@ -15,10 +15,10 @@ local translations = T{}
 translations.Current = T{}
 translations.English = T{}
 
-
 i18n.Locale = {}
 i18n.Locale.English = 'en'
 i18n.Locale.Japanese = 'ja'
+i18n.Locale.Default = i18n.Locale[locale]
 
 local fonts_for_locales = T{
     [i18n.Locale.English] = "Arial",
