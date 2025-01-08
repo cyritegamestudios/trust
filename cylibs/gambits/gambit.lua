@@ -19,7 +19,7 @@ function Gambit.new(target, conditions, ability, conditions_target, tags)
 end
 
 function Gambit:isSatisfied(target, param)
-    if target == nil or target:get_mob() == nil then
+    if target == nil or target:get_mob() == nil or self:getAbility() == nil then
         return false
     end
     return self.conditions:length() > 0 and Condition.check_conditions(self.conditions, target:get_mob().index, param)

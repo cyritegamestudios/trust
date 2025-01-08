@@ -1,5 +1,7 @@
 local ConditionalCondition = require('cylibs/conditions/conditional')
 local DisposeBag = require('cylibs/events/dispose_bag')
+local Gambit = require('cylibs/gambits/gambit')
+local GambitTarget = require('cylibs/gambits/gambit_target')
 local skillchain_util = require('cylibs/util/skillchain_util')
 
 local Gambiter = require('cylibs/trust/roles/gambiter')
@@ -78,13 +80,15 @@ function MagicBurster:on_add()
                 and assist_target ~= self:get_party():get_player() then
             local spell = res.spells[spell_id]
             if spell and S{'Enemy'}:intersection(S(spell.targets)):length() > 0 and S{'BlackMagic', 'BlueMagic'}:contains(spell.type) then
-                if self.job:knows_spell(spell.id) then
-                    self:cast_spell(Spell.new(spell.en))
-                else
-                    local spell = self:get_spell(Element.new(res.elements[spell.element].en))
-                    if spell then
-                        self:cast_spell(Spell.new(spell:get_name()))
-                    end
+                local gambit = Gambit.new(GambitTarget.TargetType.Enemy, L{}, Spell.new(spell.en), GambitTarget.TargetType.Enemy)
+                gambit.conditions = self:get_default_conditions(gambit)
+                if not gambit:isSatisfied(self:get_target()) then
+                    gambit = self.nuke_settings.Gambits:firstWhere(function(gambit)
+                        return gambit:getAbility():get_element() == spell.element and gambit:isSatisfied(self:get_target())
+                    end)
+                end
+                if gambit then
+                    self:check_gambits(L{ GambitTarget.TargetType.Enemy }, L{ gambit }, nil, true)
                 end
             end
         end
