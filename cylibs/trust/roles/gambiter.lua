@@ -205,7 +205,7 @@ function Gambiter:tic(new_time, old_time)
 end
 
 function Gambiter:check_gambits(targets, gambits, param, ignore_delay)
-    if self.state_var.value == 'Off' or (not ignore_delay and os.time() - self.last_gambit_time) < self:get_cooldown() then
+    if self.state_var.value == 'Off' or not ignore_delay and (os.time() - self.last_gambit_time) < self:get_cooldown() then
         return
     end
 

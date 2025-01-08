@@ -88,7 +88,7 @@ function MagicBurster:on_add()
                     end)
                 end
                 if gambit then
-                    self:check_gambits(L{ GambitTarget.TargetType.Enemy }, L{ gambit }, nil, true)
+                    self:check_gambits(self:get_gambit_targets(GambitTarget.TargetType.Enemy), L{ gambit }, nil, true)
                 end
             end
         end
