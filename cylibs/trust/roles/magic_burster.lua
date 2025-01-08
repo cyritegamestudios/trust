@@ -38,7 +38,6 @@ function MagicBurster.new(action_queue, nuke_settings, fast_cast, default_job_ab
 
     self.fast_cast = fast_cast or 0.8
     self.job = job
-    self.target_dispose_bag = DisposeBag.new()
     self.dispose_bag = DisposeBag.new()
 
     self:set_nuke_settings(nuke_settings)
@@ -103,12 +102,11 @@ function MagicBurster:set_nuke_settings(nuke_settings)
     self.magic_burst_cooldown = nuke_settings.Delay or 2
     self.magic_burst_mpp = nuke_settings.MinManaPointsPercent or 20
     self.element_blacklist = nuke_settings.Blacklist or L{}
-    self.job_abilities = nuke_settings.JobAbilities or self.default_job_ability_names or L{}
     self.gearswap_command = nuke_settings.GearswapCommand or 'gs c set MagicBurstMode Single'
 
     local element_id_blacklist = self.element_blacklist:map(function(element) return res.elements:with('en', element:get_name()).id end)
 
-    for gambit in nuke_settings.Gambits:it() do
+    for gambit in nuke_settings.Gambits:it() do\
         gambit.conditions = gambit.conditions:filter(function(condition)
             return condition:is_editable()
         end)
