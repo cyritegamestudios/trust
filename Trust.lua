@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '13.2.4'
+_addon.version = '13.2.5'
 _addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 
@@ -150,10 +150,6 @@ function load_user_files(main_job_id, sub_job_id)
 
 	load_ui()
 	load_trust_commands(player.main_job_name_short, player.trust.main_job, player.sub_job_name_short, player.trust.sub_job, action_queue, player.party, main_trust_settings, sub_trust_settings)
-
-	main_trust_settings:copySettings()
-	sub_trust_settings:copySettings()
-	weapon_skill_settings:copySettings()
 
 	if state.AutoEnableMode.value == 'Auto' then
 		addon_enabled:setValue(true)

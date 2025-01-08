@@ -59,6 +59,10 @@ function MigrationManager.new(trustSettings, addonSettings, weaponSkillSettings)
 end
 
 function MigrationManager:perform()
+    if self.trustSettings.isFirstLoad then
+        self.trustSettings:getSettings().Migrations = self:getAllMigrationCodes()
+    end
+
     local currentMigrations = S(self.trustSettings:getSettings().Migrations or L{})
 
     addon_system_message("Checking for updates on "..self.trustSettings.jobNameShort.."...")
@@ -88,6 +92,14 @@ function MigrationManager:perform()
             self.weaponSkillSettings:saveSettings(true)
         end
     end
+end
+
+function MigrationManager:getAllMigrationCodes()
+    return self.migrations:map(function(migration)
+        return migration:getMigrationCode()
+    end):filter(function(code)
+        return code ~= UpdateDefaultGambits.__class
+    end)
 end
 
 return MigrationManager

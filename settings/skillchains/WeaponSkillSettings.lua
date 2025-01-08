@@ -63,7 +63,7 @@ function WeaponSkillSettings:loadFile(filePath)
     end)
 end
 
-function WeaponSkillSettings:loadSettings(verbose)
+function WeaponSkillSettings:loadSettings()
     local filePath = self:getSettingsFilePath()
     if filePath then
         local success, jobSettings, err = coroutine.resume(self:loadFile(filePath))
