@@ -52,6 +52,7 @@ function TrustSettings.new(jobNameShort, playerName)
     self.settingsChanged = Event.newEvent()
     self.defaultSettings = {}
     self.settings = {}
+    self.isFirstLoad = false
     return self
 end
 
@@ -71,17 +72,18 @@ function TrustSettings:loadSettings()
     if filePath then
         local success, jobSettings, err = coroutine.resume(self:loadFile(filePath))
         if err then
-            error(err)
+            if not windower.file_exists(filePath) then
+                self.isFirstLoad = true
+                self:copySettings(true)
+                return self:loadSettings()
+            else
+                addon_system_error(err)
+            end
         else
             local success, defaultJobSettings, _ = coroutine.resume(self:loadFile(self:getSettingsFilePath(true)))
             self.defaultSettings = defaultJobSettings
             self.settings = jobSettings
             self.settingsVersion = self.settings.Version or -1
-            if not self:checkSettingsVersion() then
-                error("Trust has been upgraded! A new job settings file will be generated for", self.jobNameShort)
-                self:copySettings(true)
-                return self:loadSettings()
-            end
             self:runMigrations(self.settings, self.defaultSettings)
             self:onSettingsChanged():trigger(self.settings)
             return self.settings
@@ -98,12 +100,11 @@ end
 
 function TrustSettings:getSettingsFilePath(default_settings)
     local file_prefix = windower.addon_path..self.settingsFolder..self.jobNameShort
-    if windower.file_exists(file_prefix..'_'..self.playerName..'.lua') and not default_settings then
-        return file_prefix..'_'..self.playerName..'.lua'
-    elseif windower.file_exists(file_prefix..'.lua') then
+    if default_settings then
         return file_prefix..'.lua'
+    else
+        return file_prefix..'_'..self.playerName..'.lua'
     end
-    return nil
 end
 
 function TrustSettings:getSettingsVersion()
