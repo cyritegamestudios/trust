@@ -10,9 +10,6 @@ _raw = _raw or {}
 
 _libs.skillchain_util = skillchain_util
 
-
-
-
 skillchain_util.Transfixion = Skillchain.new("Transfixion", S{element_util.Light}, 1)
 skillchain_util.Liquefaction = Skillchain.new("Liquefaction", S{element_util.Fire}, 1)
 skillchain_util.Impaction = Skillchain.new("Impaction", S{element_util.Lightning}, 1)
@@ -234,6 +231,24 @@ function skillchain_util.all_skillchain_properties()
         'Induration', 'Scission', 'Reverberation', 'Compression',
         'Detonation', 'Impaction', 'Liquefaction', 'Transfixion',
     }
+end
+
+local skillchain_properties_for_element = {
+    Fire = L{ 'Light Lv.4', 'Light', 'Fusion', 'Liquefaction' },
+    Ice = L{ 'Darkness Lv.4', 'Darkness', 'Distortion', 'Induration' },
+    Wind = L{ 'Light Lv.4', 'Light', 'Fragmentation', 'Detonation' },
+    Earth = L{ 'Darkness Lv.4', 'Darkness', 'Gravitation', 'Scission' },
+    Lightning = L{ 'Light Lv.4', 'Light', 'Fragmentation', 'Impaction' },
+    Water = L{ 'Darkness Lv.4', 'Darkness', 'Distortion', 'Reverberation' },
+    Light = L{ 'Light Lv.4', 'Light', 'Fusion', 'Transfixion' },
+    Dark = L{ 'Darkness Lv.4', 'Darkness', 'Gravitation', 'Compression' }
+}
+
+function skillchain_util.get_skillchain_properties_for_element(element_id)
+    if res.elements[element_id] then
+        return skillchain_properties_for_element[res.elements[element_id].en]
+    end
+    return L{}
 end
 
 return skillchain_util
