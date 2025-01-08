@@ -41,6 +41,14 @@ end
 function BloodPactMagic:set_job_abilities(job_ability_names)
 end
 
+function BloodPactMagic:should_use_all_job_abilties()
+    return self.use_all_job_abilities
+end
+
+function BloodPactMagic:set_should_use_all_job_abilities(use_all_job_abilities)
+    self.use_all_job_abilities = use_all_job_abilities
+end
+
 function BloodPactMagic:serialize()
     local conditions_classes_to_serialize = L{
         InBattleCondition.__class,

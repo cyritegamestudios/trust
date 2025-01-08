@@ -32,7 +32,7 @@ state.MagicBurstTargetMode:set_description('All', "Okay, I'll magic burst with b
 -- @tparam fast_cast number Fast cast modifier (0.0 - 1.0)
 -- @tparam List default_job_ability_names List of job abilities to use with spells if none are specified in settings (e.g. Cascade, Ebullience)
 -- @tparam Job job Job
--- @treturn Nuker A nuker role
+-- @treturn MagicBurster A magic burster role
 function MagicBurster.new(action_queue, nuke_settings, fast_cast, default_job_ability_names, job)
     local self = setmetatable(Gambiter.new(action_queue, {}, nil, state.AutoMagicBurstMode, true), MagicBurster)
 
@@ -80,9 +80,11 @@ function MagicBurster:on_add()
             local spell = res.spells[spell_id]
             if spell and S{'Enemy'}:intersection(S(spell.targets)):length() > 0 and S{'BlackMagic', 'BlueMagic'}:contains(spell.type) then
                 local gambit = Gambit.new(GambitTarget.TargetType.Enemy, L{}, Spell.new(spell.en), GambitTarget.TargetType.Enemy)
-                gambit.conditions = self:get_default_conditions(gambit)
+                gambit.conditions = self:get_default_conditions(gambit, true)
                 if not gambit:isSatisfied(self:get_target()) then
-                    gambit = self.nuke_settings.Gambits:firstWhere(function(gambit)
+                    gambit = self.nuke_settings.Gambits:map(function(gambit)
+                        return Gambit.new(gambit:getAbilityTarget(), self:get_default_conditions(gambit, true), gambit:getAbility(), gambit:getConditionsTarget())
+                    end):firstWhere(function(gambit)
                         return gambit:getAbility():get_element() == spell.element and gambit:isSatisfied(self:get_target())
                     end)
                 end
@@ -106,7 +108,9 @@ function MagicBurster:set_nuke_settings(nuke_settings)
 
     local element_id_blacklist = self.element_blacklist:map(function(element) return res.elements:with('en', element:get_name()).id end)
 
-    for gambit in nuke_settings.Gambits:it() do\
+    for gambit in nuke_settings.Gambits:it() do
+        gambit:getAbility():set_should_use_all_job_abilities(false)
+
         gambit.conditions = gambit.conditions:filter(function(condition)
             return condition:is_editable()
         end)
@@ -120,14 +124,17 @@ function MagicBurster:set_nuke_settings(nuke_settings)
     self:set_gambit_settings(nuke_settings)
 end
 
-function MagicBurster:get_default_conditions(gambit)
+function MagicBurster:get_default_conditions(gambit, exclude_mode_conditions)
     local conditions = L{
-        ConditionalCondition.new(L{
+    }
+
+    if not exclude_mode_conditions then
+        conditions:append(ConditionalCondition.new(L{
             ModeCondition.new('AutoMagicBurstMode', res.elements[gambit:getAbility():get_element()].en),
             ModeCondition.new('AutoMagicBurstMode', 'Auto'),
-            ModeCondition.new('AutoMagicBurstMode', 'Mirror')
-        }, Condition.LogicalOperator.Or)
-    }
+        }, Condition.LogicalOperator.Or))
+        conditions:append(NotCondition.new(L{ ModeCondition.new('AutoMagicBurstMode', 'Mirror') }))
+    end
 
     if self.job:get_aoe_spells():contains(gambit:getAbility():get_name()) then
         conditions:append(ModeCondition.new('MagicBurstTargetMode', 'All'))

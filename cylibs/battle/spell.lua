@@ -8,6 +8,7 @@ require('lists')
 require('logger')
 
 local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
+local BooleanConfigItem = require('ui/settings/editors/config/BooleanConfigItem')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local serializer_util = require('cylibs/util/serializer_util')
 
@@ -37,6 +38,7 @@ function Spell.new(spell_name, job_abilities, job_names, target, conditions, con
         consumable = consumable;
         conditions = conditions or L{};
         enabled = true;
+        use_all_job_abilities = true;
     }, Spell)
 
     if S(res.spells:with('en', spell_name)):contains('Party') then
@@ -87,6 +89,14 @@ end
 --
 function Spell:set_job_abilities(job_ability_names)
     self.job_abilities = job_ability_names
+end
+
+function Spell:should_use_all_job_abilties()
+    return self.use_all_job_abilities
+end
+
+function Spell:set_should_use_all_job_abilities(use_all_job_abilities)
+    self.use_all_job_abilities = use_all_job_abilities
 end
 
 -------
@@ -232,7 +242,9 @@ function Spell:get_config_items(trust)
     end)
     configItem:setPickerTitle("Job Abilities")
     configItem:setPickerDescription("Choose one or more job abilities to use with this spell.")
-    return L{ configItem }
+    return L{
+        configItem,
+    }
 end
 
 -------
@@ -266,6 +278,9 @@ function Spell:to_action(target_index, player, job_abilities)
     end):filter(function(job_ability)
         return Condition.check_conditions(job_ability:get_conditions(), player:get_mob().index)
     end)
+    if not self:should_use_all_job_abilties() and job_abilities:length() > 0 then
+        job_abilities = L{ job_abilities[1] }
+    end
 
     for job_ability in job_abilities:it() do
         if job_ability.type == 'Scholar' then
@@ -341,7 +356,7 @@ function Spell:serialize()
     local conditions_to_serialize = self.conditions:filter(function(condition)
         return conditions_classes_to_serialize:contains(condition.__class)
     end)
-    return "Spell.new(" .. serializer_util.serialize_args(self.spell_name, self.job_abilities, self.job_names, self.target, conditions_to_serialize, self.consumable) .. ")"
+    return "Spell.new(" .. serializer_util.serialize_args(self.spell_name, self.job_abilities, self.job_names, self.target, conditions_to_serialize, self.consumable, self.use_all_job_abilities) .. ")"
 end
 
 function Spell:__eq(otherItem)
