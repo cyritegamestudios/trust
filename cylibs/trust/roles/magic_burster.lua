@@ -76,7 +76,7 @@ function MagicBurster:on_add()
             local spell = res.spells[spell_id]
             if spell and S{'Enemy'}:intersection(S(spell.targets)):length() > 0 and S{'BlackMagic', 'BlueMagic'}:contains(spell.type) then
                 if self.job:knows_spell(spell.id) then
-                    self:cast_spell(Spell.new(spell.name))
+                    self:cast_spell(Spell.new(spell.en))
                 else
                     local spell = self:get_spell(Element.new(res.elements[spell.element].en))
                     if spell then
@@ -246,7 +246,32 @@ function MagicBurster:set_nuke_settings(nuke_settings)
     self.element_blacklist = nuke_settings.Blacklist or L{}
     self.job_abilities = nuke_settings.JobAbilities or self.default_job_ability_names or L{}
     self.gearswap_command = nuke_settings.GearswapCommand or 'gs c set MagicBurstMode Single'
-    self:set_spells(nuke_settings.Spells)
+
+    for gambit in nuke_settings.Gambits:it() do
+        gambit.conditions = gambit.conditions:filter(function(condition)
+            return condition:is_editable()
+        end)
+        local conditions = self:get_default_conditions(gambit)
+        for condition in conditions:it() do
+            condition.editable = false
+            gambit:addCondition(condition)
+        end
+    end
+    self:set_spells(nuke_settings.Gambits:map(function(g) return g:getAbility() end))
+end
+
+function MagicBurster:get_default_conditions(gambit)
+    local conditions = L{
+    }
+    if L(gambit:getAbility():get_valid_targets()) ~= L{ 'Self' } then
+        conditions:append(MaxDistanceCondition.new(gambit:getAbility():get_range()))
+    end
+    if gambit:getAbility().get_job_abilities then
+        for job_ability_name in gambit:getAbility():get_job_abilities():it() do
+            conditions:append(JobAbilityRecastReadyCondition.new(job_ability_name))
+        end
+    end
+    return conditions
 end
 
 function MagicBurster:allows_duplicates()

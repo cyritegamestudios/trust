@@ -195,7 +195,32 @@ function Nuker:set_nuke_settings(nuke_settings)
     self.nuke_cooldown = nuke_settings.Delay or 2
     self.nuke_mpp = nuke_settings.MinManaPointsPercent or 20
     self.min_num_mobs_to_cleave = nuke_settings.MinNumMobsToCleave or 2
-    self:set_spells(nuke_settings.Spells)
+
+    for gambit in nuke_settings.Gambits:it() do
+        gambit.conditions = gambit.conditions:filter(function(condition)
+            return condition:is_editable()
+        end)
+        local conditions = self:get_default_conditions(gambit)
+        for condition in conditions:it() do
+            condition.editable = false
+            gambit:addCondition(condition)
+        end
+    end
+    self:set_spells(nuke_settings.Gambits:map(function(g) return g:getAbility() end))
+end
+
+function Nuker:get_default_conditions(gambit)
+    local conditions = L{
+    }
+    if L(gambit:getAbility():get_valid_targets()) ~= L{ 'Self' } then
+        conditions:append(MaxDistanceCondition.new(gambit:getAbility():get_range()))
+    end
+    if gambit:getAbility().get_job_abilities then
+        for job_ability_name in gambit:getAbility():get_job_abilities():it() do
+            conditions:append(JobAbilityRecastReadyCondition.new(job_ability_name))
+        end
+    end
+    return conditions
 end
 
 return Nuker
