@@ -30,18 +30,16 @@ function TrustHud:onEnabledClick()
     return self.enabledClick
 end
 
-function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, addon_enabled, menu_width, menu_height)
+function TrustHud.new(player, action_queue, addon_settings, trustModeSettings, addon_enabled, menu_width, menu_height, mediaPlayer, soundTheme)
     local self = setmetatable(View.new(), TrustHud)
 
-    self.mediaPlayer = MediaPlayer.new(windower.addon_path..'sounds')
-    self.mediaPlayer:setEnabled(not addon_settings:getSettings().sounds.sound_effects.disabled)
-    self.soundTheme = FFXISoundTheme.default()
+    FFXIWindow.setDefaultMediaPlayer(mediaPlayer)
+    FFXIWindow.setDefaultSoundTheme(soundTheme)
+    FFXIPickerView.setDefaultMediaPlayer(mediaPlayer)
+    FFXIPickerView.setDefaultSoundTheme(soundTheme)
 
-    FFXIWindow.setDefaultMediaPlayer(self.mediaPlayer)
-    FFXIWindow.setDefaultSoundTheme(self.soundTheme)
-    FFXIPickerView.setDefaultMediaPlayer(self.mediaPlayer)
-    FFXIPickerView.setDefaultSoundTheme(self.soundTheme)
-
+    self.mediaPlayer = mediaPlayer
+    self.soundTheme = soundTheme
     self.menuSize = Frame.new(0, 0, menu_width, menu_height)
     self.viewStack = ViewStack.new(Frame.new(16, 48, 0, 0))
     self.actionQueue = action_queue

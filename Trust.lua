@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '13.2.6'
+_addon.version = '13.2.7'
 _addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 
@@ -341,14 +341,22 @@ function get_job_commands(job_name_short, trust, action_queue, main_trust_settin
 end
 
 function load_ui()
+	local FFXISoundTheme = require('sounds/FFXISoundTheme')
+	local MediaPlayer = require('cylibs/sounds/media_player')
+
+	local mediaPlayer = MediaPlayer.new(windower.addon_path..'sounds')
+	mediaPlayer:setEnabled(not addon_settings:getSettings().sounds.sound_effects.disabled)
+
+	local soundTheme = FFXISoundTheme.default()
+
 	local TrustWidgets = require('ui/TrustWidgets')
 
-	widgets = TrustWidgets.new(addon_settings, action_queue, addon_enabled, player.trust.main_job)
+	widgets = TrustWidgets.new(addon_settings, action_queue, addon_enabled, player.trust.main_job, mediaPlayer, soundTheme)
 	widgets:setNeedsLayout()
 	widgets:layoutIfNeeded()
 	widgets:setUserInteractionEnabled(true)
 
-	hud = TrustHud.new(player, action_queue, addon_settings, trust_mode_settings, addon_enabled, 500, 500)
+	hud = TrustHud.new(player, action_queue, addon_settings, trust_mode_settings, addon_enabled, 500, 500, mediaPlayer, soundTheme)
 
 	hud:addSubview(widgets)
 
