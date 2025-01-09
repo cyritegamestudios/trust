@@ -324,7 +324,7 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
     end)
 
     editGambitMenuItem:setChildMenuItem("Edit", editAbilityMenuItem)
-    editGambitMenuItem:setChildMenuItem("Conditions", ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, self, S(self.conditionTargets)))
+    editGambitMenuItem:setChildMenuItem("Conditions", ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, nil, S(self.conditionTargets)))
 
     return editGambitMenuItem
 end
