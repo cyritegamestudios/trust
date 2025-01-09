@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '13.2.5'
+_addon.version = '13.2.6'
 _addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 
@@ -232,7 +232,7 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_name_short,
 		SoundCommands.new(hud.mediaPlayer),
 		TargetCommands.new(main_trust_settings, state.MainTrustSettingsMode),
 		WarpCommands.new(main_job_trust:role_with_type("follower").walk_action_queue),
-		WidgetCommands.new(main_job_trust, action_queue, addon_settings, hud.widgetManager),
+		WidgetCommands.new(main_job_trust, action_queue, addon_settings, widgets.widgetManager),
 	}:extend(get_job_commands(job_name_short, main_job_trust, action_queue, main_trust_settings)):extend(get_job_commands(sub_job_name_short, sub_job_trust, action_queue, sub_trust_settings))
 
 	hud:setCommands(common_commands)
