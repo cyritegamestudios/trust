@@ -155,8 +155,6 @@ function ConditionSettingsMenuItem:getInvertConditionMenuItem()
             --if self.trustSettings then
             --    self.trustSettings:saveSettings(true)
             --end
-
-            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've inverted the condition logic!")
         end
     end, "Conditions", "Invert the selected condition logic.", false, function()
         local selectedCondition = self:getSelectedCondition()

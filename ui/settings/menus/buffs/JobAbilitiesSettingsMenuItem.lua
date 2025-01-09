@@ -10,17 +10,26 @@ JobAbilitiesSettingsMenuItem.__index = JobAbilitiesSettingsMenuItem
 
 function JobAbilitiesSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsPrefix)
     local self = setmetatable(MenuItem.new(L{
+        ButtonItem.default('Confirm', 18),
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
         ButtonItem.default('Conditions', 18),
         ButtonItem.default('Toggle', 18),
         ButtonItem.default('Reset', 18),
-    }, {},
+    }, {
+        Confirm = MenuItem.action(function()
+            trustSettings:saveSettings(true)
+            addon_system_message("Your settings have been updated.")
+        end, "Job Abilities", "Save current settings to profile.")
+    },
     nil, "Job Abilities", "Choose job ability buffs."), JobAbilitiesSettingsMenuItem)
 
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
     self.settingsPrefix = settingsPrefix
+    self.conditionSettingsMenuItem = ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, nil, S{ Condition.TargetType.Self }, function()
+        return self.buffs and self.buffs:length() > 0
+    end)
     self.dispose_bag = DisposeBag.new()
 
     self.contentViewConstructor = function(_, infoView)
@@ -42,6 +51,8 @@ function JobAbilitiesSettingsMenuItem.new(trustSettings, trustSettingsMode, sett
             else
                 local jobAbility = jobAbilitiesSettingsView.jobAbilities[indexPath.row]
                 if jobAbility then
+                    self.conditionSettingsMenuItem:setConditions(jobAbility.conditions)
+
                     local description = jobAbility:get_conditions():map(function(condition)
                         return condition:tostring()
                     end)
@@ -69,9 +80,7 @@ end
 function JobAbilitiesSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Add", self:getAddAbilityMenuItem())
     self:setChildMenuItem("Toggle", self:getToggleAbilityMenuItem())
-    self:setChildMenuItem("Conditions", ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, nil, nil, function()
-        return self.buffs and self.buffs:length() > 0
-    end))
+    self:setChildMenuItem("Conditions", self.conditionSettingsMenuItem)
     self:setChildMenuItem("Reset", self:getResetMenuItem())
 end
 

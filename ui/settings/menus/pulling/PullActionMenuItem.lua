@@ -4,6 +4,7 @@ local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConditionSettingsMenuItem = require('ui/settings/menus/conditions/ConditionSettingsMenuItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+local IndexPath = require('cylibs/ui/collection_view/index_path')
 local JobAbility = require('cylibs/battle/abilities/job_ability')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
@@ -16,28 +17,45 @@ PullActionMenuItem.__index = PullActionMenuItem
 
 function PullActionMenuItem.new(trust, trustSettings, trustSettingsMode)
     local self = setmetatable(MenuItem.new(L{
+        ButtonItem.default('Confirm', 18),
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
         ButtonItem.default('Conditions', 18),
-    }, {}, nil, "Pulling", "Configure which actions to use to pull enemies."), PullActionMenuItem)
+    }, {
+        Confirm = MenuItem.action(function()
+            trustSettings:saveSettings(true)
+            addon_system_message("Your settings have been updated.")
+        end, "Pulling", "Save current settings to profile.")
+    }, nil, "Pulling", "Configure which actions to use to pull enemies."), PullActionMenuItem)
 
     self.trust = trust
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
+    self.conditionSettingsMenuItem = ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode)
+
     self.dispose_bag = DisposeBag.new()
 
     self.contentViewConstructor = function(_, infoView)
         local abilities = trustSettings:getSettings()[trustSettingsMode.value].PullSettings.Abilities
         local pullActionsView = PullActionSettingsEditor.new(trustSettings, abilities)
+        pullActionsView:setShouldRequestFocus(abilities:length() > 0)
         self.dispose_bag:add(pullActionsView:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
             local ability = abilities[indexPath.row]
             if ability then
+                self.conditionSettingsMenuItem:setConditions(ability.conditions)
+                self.conditionSettingsMenuItem:setTargetTypes(S{ Condition.TargetType.Enemy })
+
                 local description = ability:get_conditions():map(function(condition)
                     return condition:tostring()
                 end)
                 infoView:setDescription("Use when: "..localization_util.commas(description))
             end
         end, pullActionsView:getDelegate():didMoveCursorToItemAtIndexPath()))
+
+        if abilities:length() > 0 then
+            pullActionsView:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
+        end
+
         return pullActionsView
     end
 
@@ -48,7 +66,7 @@ end
 
 function PullActionMenuItem:reloadSettings()
     self:setChildMenuItem("Add", self:getAddAbilityMenuItem())
-    self:setChildMenuItem("Conditions", self:getConditionsMenuItem())
+    self:setChildMenuItem("Conditions", self.conditionSettingsMenuItem)
 end
 
 function PullActionMenuItem:getPullAbilities()
@@ -132,10 +150,6 @@ function PullActionMenuItem:getAddAbilityMenuItem()
                 return chooseAbilityView
             end, "Pulling", "Configure which actions to use to pull enemies.")
     return addAbilityMenuItem
-end
-
-function PullActionMenuItem:getConditionsMenuItem()
-    return ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode)
 end
 
 return PullActionMenuItem
