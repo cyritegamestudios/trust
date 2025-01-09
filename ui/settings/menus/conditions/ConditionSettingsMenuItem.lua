@@ -1,11 +1,11 @@
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
-local ConditionsSettingsEditor = require('ui/settings/editors/ConditionsSettingsEditor')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
+local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
-local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+local TextStyle = require('cylibs/ui/style/text_style')
 
 local ConditionSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 ConditionSettingsMenuItem.__index = ConditionSettingsMenuItem
@@ -19,10 +19,202 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
     }, {}, nil, "Conditions", "Edit conditions.", true, enabled), ConditionSettingsMenuItem)
 
     self.trustSettings = trustSettings
-    self.trustSettingsMode = trustSettingsMode
     self.targetTypes = targetTypes or Condition.TargetType.AllTargets
+    self.editableConditionClasses = self:getEditableConditionClasses()
     self.dispose_bag = DisposeBag.new()
-    self.editableConditionClasses = T{
+
+    self.contentViewConstructor = function(_, infoView)
+        self.conditionPickerItems = L(self.editableConditionClasses:keyset()):filter(function(c)
+            local conditionClass = self:getFileForCondition(c)
+            return L(self.targetTypes:intersection(conditionClass.valid_targets())):length() > 0
+        end):sort(function(c1, c2)
+            c1 = self:getFileForCondition(c1).description()
+            c2 = self:getFileForCondition(c2).description()
+            return c1 < c2
+        end)
+
+        local configItem = MultiPickerConfigItem.new("Conditions", self.conditions:length() > 0 and L{ self.conditions[1] } or L{}, self.conditions, function(condition)
+            return condition:tostring()
+        end, "Conditions", nil, nil, function(condition)
+            return condition:tostring()
+        end)
+
+        local editConditionsView = FFXIPickerView.withConfig(L{ configItem }, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditor, TextStyle.Default.TextSmall)
+        editConditionsView:setShouldRequestFocus(self.conditions:length() > 0)
+        editConditionsView:setAllowsCursorSelection(true)
+
+        self.editConditionsView = editConditionsView
+
+        return editConditionsView
+    end
+
+    self:reloadSettings(parentMenuItem or self)
+
+    return self
+end
+
+function ConditionSettingsMenuItem:destroy()
+    MenuItem.destroy(self)
+
+    self.dispose_bag:destroy()
+end
+
+function ConditionSettingsMenuItem:reloadSettings(parentMenuItem)
+    self:setChildMenuItem("Add", self:getAddConditionMenuItem(parentMenuItem))
+    self:setChildMenuItem("Remove", self:getRemoveConditionMenuItem())
+    self:setChildMenuItem("Edit", self:getEditConditionMenuItem())
+    self:setChildMenuItem("Invert", self:getInvertConditionMenuItem())
+end
+
+function ConditionSettingsMenuItem:getAddConditionMenuItem(parentMenuItem)
+    local addConditionsMenuItem = MenuItem.new(L{
+        ButtonItem.default('Confirm', 18),
+    }, {}, function(_, _, _)
+        local conditionClasses = L(self.editableConditionClasses:keyset())
+        conditionClasses:sort()
+
+        local configItem = MultiPickerConfigItem.new("Conditions", L{}, self.conditionPickerItems:map(function(conditionClass)
+            return self:getFileForCondition(conditionClass).description()
+        end), function(conditionName)
+            return conditionName
+        end)
+
+        local chooseConditionView = FFXIPickerView.new(L{ configItem }, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditor)
+        chooseConditionView:on_pick_items():addAction(function(_, _, selectedIndexPaths)
+            local conditionClass = self:getFileForCondition(self.conditionPickerItems[selectedIndexPaths[1].row])
+            local newCondition = conditionClass.new()
+
+            self.conditions:append(newCondition)
+
+            --self.trustSettings:saveSettings(true)
+
+            addon_system_message("You have unsaved changes.")
+        end)
+        return chooseConditionView
+    end, "Conditions", "Add a new condition.")
+    return addConditionsMenuItem
+end
+
+function ConditionSettingsMenuItem:getEditConditionMenuItem()
+    local editConditionMenuItem = MenuItem.new(L{
+        ButtonItem.default('Confirm', 18),
+    }, L{}, function(_, infoView, showMenu)
+        local selectedCondition = self:getSelectedCondition()
+        if selectedCondition.__type == NotCondition.__type then
+            selectedCondition = selectedCondition.conditions[1]
+        end
+        local conditionConfigEditor = ConfigEditor.new(self.trustSettings, selectedCondition, selectedCondition:get_config_items(), infoView, nil, showMenu)
+        return conditionConfigEditor
+    end, "Conditions", "Edit the selected condition.", false, function()
+        local selectedCondition = self:getSelectedCondition()
+        return selectedCondition and selectedCondition:get_config_items():length() > 0 and selectedCondition:is_editable()
+    end)
+    return editConditionMenuItem
+end
+
+function ConditionSettingsMenuItem:getRemoveConditionMenuItem()
+    return MenuItem.action(function()
+        local selectedIndexPath = self.editConditionsView:getDelegate():getCursorIndexPath()
+        if selectedIndexPath then
+            local item = self.editConditionsView:getDataSource():itemAtIndexPath(selectedIndexPath)
+            if item then
+                self.conditions:remove(selectedIndexPath.row)
+
+                self.editConditionsView:getDataSource():removeItem(selectedIndexPath)
+
+                addon_system_message("You have unsaved changes.")
+
+                --self.trustSettings:saveSettings(true)
+
+                --if self.gambitSettingsEditor:getDataSource():numberOfItemsInSection(1) > 0 then
+                --    self.selectedGambit = currentGambits[1]
+                --    self.gambitSettingsEditor:getDelegate():selectItemAtIndexPath(IndexPath.new(1, 1))
+                --end
+            end
+        end
+    end, "Conditions", "Remove the selected condition.", false, function()
+        local selectedCondition = self:getSelectedCondition()
+        return selectedCondition and selectedCondition:is_editable()
+    end)
+end
+
+function ConditionSettingsMenuItem:getInvertConditionMenuItem()
+    local invertConditionMenuItem = MenuItem.new(L{}, L{}, function(menuArgs, _)
+        local selectedCondition = self:getSelectedCondition()
+        if selectedCondition then
+            local editedCondition
+            if selectedCondition.__type == NotCondition.__type then
+                editedCondition = selectedCondition.conditions[1]
+            else
+                editedCondition = NotCondition.new(L{ selectedCondition })
+            end
+            self.conditions[self.editConditionsView:getDelegate():getCursorIndexPath().row] = editedCondition
+
+            self.editConditionsView:reload()
+
+            --if self.trustSettings then
+            --    self.trustSettings:saveSettings(true)
+            --end
+
+            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've inverted the condition logic!")
+        end
+    end, "Conditions", "Invert the selected condition logic.", false, function()
+        local selectedCondition = self:getSelectedCondition()
+        return selectedCondition and selectedCondition:is_editable()
+    end)
+    return invertConditionMenuItem
+end
+
+function ConditionSettingsMenuItem:getSelectedCondition()
+    local cursorIndexPath = self.editConditionsView:getDelegate():getCursorIndexPath()
+    if cursorIndexPath then
+        return self.conditions[cursorIndexPath.row]
+    end
+    return nil
+end
+
+---
+-- Gets the list of conditions.
+--
+-- @treturn list List of conditions.
+--
+function ConditionSettingsMenuItem:getConditions()
+    return self.conditions
+end
+
+---
+-- Sets the list of target types.
+--
+-- @tparam list List of target types.
+--
+function ConditionSettingsMenuItem:setTargetTypes(targetTypes)
+    self.targetTypes = targetTypes or Condition.TargetType.AllTargets
+end
+
+---
+-- Gets the list of target types.
+--
+-- @treturn list List of target types.
+--
+function ConditionSettingsMenuItem:getTargetTypes()
+    return self.targetTypes
+end
+
+---
+-- Sets the list of conditions.
+--
+-- @tparam list List of conditions.
+--
+function ConditionSettingsMenuItem:setConditions(conditions)
+    self.conditions = conditions
+end
+
+function ConditionSettingsMenuItem:getFileForCondition(conditionClass)
+    return require('cylibs/conditions/'..self.editableConditionClasses[conditionClass])
+end
+
+function ConditionSettingsMenuItem:getEditableConditionClasses()
+    return T{
         [IdleCondition.__type] = "idle",
         [InBattleCondition.__type] = "in_battle",
         [GainDebuffCondition.__type] = "gain_debuff",
@@ -66,164 +258,6 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
         [HasCumulativeMagicEffectCondition.__type] = "has_cumulative_magic_effect",
         [StatusCondition.__type] = "status",
     }
-    self.conditionPickerItems = L(self.editableConditionClasses:keyset()):filter(function(c)
-        local conditionClass = self:getFileForCondition(c)
-        return L(self.targetTypes:intersection(conditionClass.valid_targets())):length() > 0
-    end):sort(function(c1, c2)
-        c1 = self:getFileForCondition(c1).description()
-        c2 = self:getFileForCondition(c2).description()
-        return c1 < c2
-    end)
-
-    self.contentViewConstructor = function(menuArgs, infoView)
-        local conditions = menuArgs and menuArgs['conditions']
-        if not conditions then
-            conditions = self.conditions
-        end
-        self.conditions = conditions
-
-        local targetTypes = menuArgs and menuArgs['targetTypes']
-        if not targetTypes then
-            targetTypes = self.targetTypes
-        end
-        self.targetTypes = targetTypes or Condition.TargetType.AllTargets
-
-        self.conditionPickerItems = L(self.editableConditionClasses:keyset()):filter(function(c)
-            local conditionClass = self:getFileForCondition(c)
-            return L(self.targetTypes:intersection(conditionClass.valid_targets())):length() > 0
-        end):sort(function(c1, c2)
-            c1 = self:getFileForCondition(c1).description()
-            c2 = self:getFileForCondition(c2).description()
-            return c1 < c2
-        end)
-
-        local editConditionsView = ConditionsSettingsEditor.new(trustSettings, conditions, L(self.editableConditionClasses:keyset()))
-        editConditionsView:setTitle("Edit conditions.")
-        editConditionsView:setShouldRequestFocus(self.conditions:length() > 0)
-
-        self.dispose_bag:add(editConditionsView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
-            self.selectedCondition = self.conditions[indexPath.row]
-            self.selectedConditionIndex = indexPath.row
-            if self.selectedCondition then
-                infoView:setDescription(self.selectedCondition:tostring())
-            end
-        end, editConditionsView:getDelegate():didSelectItemAtIndexPath()))
-
-        self.editConditionsView = editConditionsView
-
-        return editConditionsView
-    end
-
-    self:reloadSettings(parentMenuItem or self)
-
-    return self
-end
-
-function ConditionSettingsMenuItem:destroy()
-    MenuItem.destroy(self)
-
-    self.dispose_bag:destroy()
-end
-
-function ConditionSettingsMenuItem:getFileForCondition(conditionClass)
-    return require('cylibs/conditions/'..self.editableConditionClasses[conditionClass])
-end
-
-function ConditionSettingsMenuItem:reloadSettings(parentMenuItem)
-    self:setChildMenuItem("Add", self:getAddConditionMenuItem(parentMenuItem))
-    self:setChildMenuItem("Edit", self:getEditConditionMenuItem())
-    self:setChildMenuItem("Invert", self:getInvertConditionMenuItem())
-end
-
-function ConditionSettingsMenuItem:getAddConditionMenuItem(parentMenuItem)
-    local addConditionsMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
-    }, {
-        Confirm = MenuItem.action(function(menu)
-            if parentMenuItem ~= nil then
-                menu:showMenu(parentMenuItem)
-            end
-        end, "Conditions", "Add a new condition.")
-    }, function(_, infoView)
-        local conditionClasses = L(self.editableConditionClasses:keyset())
-        conditionClasses:sort()
-
-        local configItem = MultiPickerConfigItem.new("Conditions", L{}, self.conditionPickerItems:map(function(conditionClass)
-            return self:getFileForCondition(conditionClass).description()
-        end), function(conditionName)
-            return conditionName
-        end)
-
-        local chooseConditionView = FFXIPickerView.new(L{ configItem }, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditor)
-        chooseConditionView:on_pick_items():addAction(function(_, _, selectedIndexPaths)
-            local conditionClass = self:getFileForCondition(self.conditionPickerItems[selectedIndexPaths[1].row])
-            local newCondition = conditionClass.new()
-
-            self.conditions:append(newCondition)
-
-            self.trustSettings:saveSettings(true)
-
-            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've added a new condition!")
-        end)
-        return chooseConditionView
-    end, "Conditions", "Add a new condition.")
-    return addConditionsMenuItem
-end
-
-function ConditionSettingsMenuItem:getEditConditionMenuItem()
-    local editConditionMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
-    }, L{}, function(menuArgs, infoView, showMenu)
-        local configItems
-        if self.selectedCondition and self.selectedCondition.get_config_items ~= nil and self.selectedCondition:is_editable() then
-            configItems = self.selectedCondition:get_config_items()
-        end
-        if configItems then
-            local condition = self.selectedCondition
-            if condition.__type == NotCondition.__type then
-                condition = condition.conditions[1]
-            end
-            local conditionConfigEditor = ConfigEditor.new(self.trustSettings, condition, configItems, infoView, nil, showMenu)
-            conditionConfigEditor:setShouldRequestFocus(true)
-            return conditionConfigEditor
-        else
-            addon_message(260, '('..windower.ffxi.get_player().name..') '.."This condition can't be configured!")
-        end
-    end, "Conditions", "Edit the selected condition.", false, function()
-        return self.selectedCondition ~= nil
-    end)
-    editConditionMenuItem.enabled = function()
-        return self.selectedCondition and self.selectedCondition.get_config_items ~= nil and self.selectedCondition:is_editable()
-    end
-    return editConditionMenuItem
-end
-
-function ConditionSettingsMenuItem:getInvertConditionMenuItem()
-    local invertConditionMenuItem = MenuItem.new(L{}, L{}, function(menuArgs, _)
-        if self.selectedCondition then
-            local editedCondition
-            if self.selectedCondition.__type == NotCondition.__type then
-                editedCondition = self.selectedCondition.conditions[1]
-            else
-                editedCondition = NotCondition.new(L{ self.selectedCondition })
-            end
-            self.conditions[self.selectedConditionIndex] = editedCondition
-
-            self.editConditionsView:reloadSettings()
-
-            if self.trustSettings then
-                self.trustSettings:saveSettings(true)
-            end
-
-            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've inverted the condition logic!")
-        end
-    end, "Conditions", "Invert the selected condition logic.", false, function()
-        return self.selectedCondition ~= nil
-    end)
-    invertConditionMenuItem.enabled = function()
-        return self.selectedCondition and self.selectedCondition:is_editable()
-    end
-    return invertConditionMenuItem
 end
 
 return ConditionSettingsMenuItem

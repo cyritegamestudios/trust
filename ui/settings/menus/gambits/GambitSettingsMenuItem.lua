@@ -77,6 +77,7 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
     self.editorConfig = editorStyle
     self.modes = modes or L{ state.AutoGambitMode.value }
     self.libraryCategoryFilter = libraryCategoryFilter
+    self.conditionSettingsMenuItem = ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, nil, S(self.conditionTargets))
     self.defaultGambitTags = L{}
     self.gambitChanged = Event.newEvent()
     self.disposeBag = DisposeBag.new()
@@ -109,8 +110,8 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
             local selectedGambit = currentGambits[indexPath.row]
             self.selectedGambit = selectedGambit
 
-            gambitSettingsEditor.menuArgs['conditions'] = selectedGambit.conditions
-            gambitSettingsEditor.menuArgs['targetTypes'] = S{ selectedGambit:getConditionsTarget() }
+            self.conditionSettingsMenuItem:setConditions(selectedGambit.conditions)
+            self.conditionSettingsMenuItem:setTargetTypes(S{ selectedGambit:getConditionsTarget() })
         end, gambitSettingsEditor:getDelegate():didSelectItemAtIndexPath()))
 
         self.disposeBag:add(gambitSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
@@ -324,7 +325,7 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
     end)
 
     editGambitMenuItem:setChildMenuItem("Edit", editAbilityMenuItem)
-    editGambitMenuItem:setChildMenuItem("Conditions", ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, nil, S(self.conditionTargets)))
+    editGambitMenuItem:setChildMenuItem("Conditions", self.conditionSettingsMenuItem)
 
     return editGambitMenuItem
 end

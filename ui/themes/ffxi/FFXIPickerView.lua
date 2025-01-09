@@ -19,7 +19,7 @@ function FFXIPickerView.setDefaultInfoView(infoView)
     defaultInfoView = infoView
 end
 
-function FFXIPickerView.new(configItems, allowsMultipleSelection, viewSize, title, mediaPlayer, soundTheme)
+function FFXIPickerView.new(configItems, allowsMultipleSelection, viewSize, title, mediaPlayer, soundTheme, textStyle)
     local style = CollectionView.defaultStyle()
     local viewSize = viewSize or style:getDefaultPickerSize()
 
@@ -28,7 +28,7 @@ function FFXIPickerView.new(configItems, allowsMultipleSelection, viewSize, titl
         backgroundView:setTitle(title, { width = 20, height = 14 })
     end
 
-    local self = setmetatable(PickerView.new(configItems, allowsMultipleSelection, mediaPlayer or defaultMediaPlayer, soundTheme or defaultSoundTheme), FFXIPickerView)
+    local self = setmetatable(PickerView.new(configItems, allowsMultipleSelection, mediaPlayer or defaultMediaPlayer, soundTheme or defaultSoundTheme, textStyle), FFXIPickerView)
 
     self:setBackgroundImageView(backgroundView)
     self:setSize(viewSize.width, viewSize.height)
@@ -62,15 +62,15 @@ end
 -- @tparam {width: number, height: number} viewSize (optional) View size.
 -- @treturn FFXIPickerView A new FFXIPickerView.
 --
-function FFXIPickerView.withConfig(configItems, allowsMultipleSelection, viewSize)
+function FFXIPickerView.withConfig(configItems, allowsMultipleSelection, viewSize, textStyle)
     if class(configItems) ~= 'List' then
         configItems = L{ configItems }
     end
-    return FFXIPickerView.new(configItems, allowsMultipleSelection, viewSize)
+    return FFXIPickerView.new(configItems, allowsMultipleSelection, viewSize, nil, nil, nil, textStyle)
 end
 
-function FFXIPickerView.withItems(configItems, allowsMultipleSelection, viewSize, shouldTruncateText, title)
-    return FFXIPickerView.new(configItems, allowsMultipleSelection, viewSize, title)
+function FFXIPickerView.withItems(configItems, allowsMultipleSelection, viewSize, shouldTruncateText, title, textStyle)
+    return FFXIPickerView.new(configItems, allowsMultipleSelection, viewSize, title, nil, nil, textStyle)
 end
 
 function FFXIPickerView:shouldRequestFocus()

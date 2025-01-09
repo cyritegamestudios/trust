@@ -33,6 +33,7 @@ function Condition.new(target_index)
     local self = setmetatable({
         target_index = target_index;
         editable = true;
+        inverted = false;
     }, Condition)
 
     return self
@@ -83,6 +84,14 @@ end
 
 function Condition:is_editable()
     return self.editable
+end
+
+function Condition:is_inverted()
+    return self.inverted
+end
+
+function Condition:get_config_items()
+    return L{}
 end
 
 function Condition.defaultSerializableConditionClasses()
@@ -140,7 +149,11 @@ function Condition.check_conditions(conditions, param, ...)
         if target_index == nil then
             target_index = param
         end
-        if not condition:is_satisfied(target_index, ...) then
+        local is_satisfied = condition:is_satisfied(target_index, ...)
+        if condition:is_inverted() then
+            is_satisfied = not is_satisfied
+        end
+        if not is_satisfied then
             logger.error(condition.__class, "Failed", condition:tostring())
             return false
         end
