@@ -142,6 +142,9 @@ function list.lastWhere(l, filter)
 end
 
 function list.unique(l, getKey)
+    if getKey == nil then
+        return L(S(l))
+    end
     local result = L{}
     local keys = {}
     for el in l:it() do

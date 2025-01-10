@@ -5,6 +5,14 @@ local Gambit = {}
 Gambit.__index = Gambit
 Gambit.__class = "Gambit"
 
+Gambit.Tags = {}
+Gambit.Tags.AllTags = L{
+    'Buffs',
+    'Debuffs',
+    'Food',
+    'Reaction',
+}
+
 function Gambit.new(target, conditions, ability, conditions_target, tags)
     local self = setmetatable({}, Gambit)
 

@@ -282,10 +282,10 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
         ButtonItem.default('Confirm', 18),
         ButtonItem.default('Edit', 18),
         ButtonItem.default('Conditions', 18),
-    }, {}, function(_, _, _)
+    }, {}, function(_, _, showMenu)
         local abilitiesByTargetType = self:getAbilitiesByTargetType()
 
-        local gambitEditor = GambitSettingsEditor.new(self.selectedGambit, self.trustSettings, self.trustSettingsMode, abilitiesByTargetType, self.conditionTargets)
+        local gambitEditor = GambitSettingsEditor.new(self.selectedGambit, self.trustSettings, self.trustSettingsMode, abilitiesByTargetType, self.conditionTargets, showMenu)
 
         self.disposeBag:add(gambitEditor:onConfigChanged():addAction(function(newSettings, oldSettings)
             self:onGambitChanged():trigger(newSettings, oldSettings)

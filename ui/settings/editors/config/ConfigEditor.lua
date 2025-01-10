@@ -9,6 +9,7 @@ local GroupConfigItem = require('ui/settings/editors/config/GroupConfigItem')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
+local MarqueeCollectionViewCell = require('cylibs/ui/collection_view/cells/marquee_collection_view_cell')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local PickerCollectionViewCell = require('cylibs/ui/collection_view/cells/picker_collection_view_cell')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
@@ -17,6 +18,7 @@ local SectionHeaderItem = require('cylibs/ui/collection_view/items/section_heade
 local SliderCollectionViewCell = require('cylibs/ui/collection_view/cells/slider_collection_view_cell')
 local SliderItem = require('cylibs/ui/collection_view/items/slider_item')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
+local TextConfigItem = require('ui/settings/editors/config/TextConfigItem')
 local TextFieldCollectionViewCell = require('cylibs/ui/collection_view/cells/text_field_collection_view_cell')
 local TextFieldItem = require('cylibs/ui/collection_view/items/text_field_item')
 local TextInputConfigItem = require('ui/settings/editors/config/TextInputConfigItem')
@@ -55,9 +57,9 @@ function ConfigEditor.new(trustSettings, configSettings, configItems, infoView, 
             cell:setItemSize(16)
             return cell
         elseif item.__type == TextItem.__type then
-            local cell = TextCollectionViewCell.new(item)
-            cell:setUserInteractionEnabled(true)
-            cell:setIsSelectable(true)
+            local cell = MarqueeCollectionViewCell.new(item, 0.9)
+            cell:setUserInteractionEnabled(false)
+            cell:setIsSelectable(false)
             cell:setItemSize(16)
             return cell
         elseif item.__type == FFXIToggleButtonItem.__type then
@@ -120,6 +122,9 @@ function ConfigEditor.new(trustSettings, configSettings, configItems, infoView, 
                 if item:allowsMultipleSelection() then
                     self:getDelegate():deselectItemAtIndexPath(indexPath)
                 end
+            end
+            if item.__type == TextItem.__type then
+                self:getDelegate():deselectItemAtIndexPath(indexPath)
             end
         end
     end), self:getDelegate():didSelectItemAtIndexPath())
@@ -265,8 +270,12 @@ function ConfigEditor:getCellItemForConfigItem(configItem)
         local pickerItem = PickerItem.new(configItem:getInitialValue(), configItem:getAllValues(), configItem:getTextFormat())
         pickerItem:setShouldTruncateText(configItem:getShouldTruncateText())
         return pickerItem
+    elseif configItem.__type == TextConfigItem.__type then
+        local textItem = TextItem.new(configItem:getText(), TextStyle.Default.TextSmall)
+        --textItem:setShouldTruncateText(true)
+        return textItem
     elseif configItem.__type == MultiPickerConfigItem.__type then
-        local pickerItem = PickerItem.new(configItem:getInitialValues(), configItem:getAllValues(), configItem:getTextFormat(), true, configItem:getImageItem())
+        local pickerItem = PickerItem.new(configItem:getInitialValues(), configItem:getAllValues(), configItem:getTextFormat(), configItem:isEnabled(), configItem:getImageItem())
         pickerItem:setShouldTruncateText(true)
         pickerItem:setPickerTitle(configItem:getPickerTitle())
         pickerItem:setPickerDescription(configItem:getPickerDescription())
