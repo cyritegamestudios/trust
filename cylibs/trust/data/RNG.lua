@@ -11,7 +11,7 @@ local Shooter = require('cylibs/trust/roles/shooter')
 function RangerTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local roles = S{
 		Buffer.new(action_queue, trust_settings.BuffSettings),
-		Puller.new(action_queue, trust_settings.PullSettings.Targets, L{ RangedAttack.new() }),
+		Puller.new(action_queue, trust_settings.PullSettings),
 		Shooter.new(action_queue, trust_settings.Shooter.Delay or 1.5),
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, Ranger.new()), RangerTrust)

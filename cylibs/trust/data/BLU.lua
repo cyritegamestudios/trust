@@ -22,7 +22,7 @@ function BlueMageTrust.new(settings, action_queue, battle_settings, trust_settin
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{ 'Burst Affinity' }, job),
 		ManaRestorer.new(action_queue, L{}, L{ Spell.new('Magic Hammer'), Spell.new('MP Drainkiss') }, 40),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
-		Puller.new(action_queue, trust_settings.PullSettings.Targets, L{ Spell.new('Glutinous Dart') }:compact_map())
+		Puller.new(action_queue, trust_settings.PullSettings)
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), BlueMageTrust)
 	return self

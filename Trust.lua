@@ -91,7 +91,7 @@ function load_user_files(main_job_id, sub_job_id)
 		if pull_abilities == nil or pull_abilities:length() == 0 then
 			pull_abilities = L{ Approach.new() }
 		end
-		player.trust.main_job:add_role(Puller.new(action_queue, player.trust.main_job_settings.Default.PullSettings.Targets, pull_abilities))
+		player.trust.main_job:add_role(Puller.new(action_queue, player.trust.main_job_settings.Default.PullSettings))
 	end
 
 	player.trust.main_job:add_role(Gambiter.new(action_queue, player.trust.main_job_settings.Default.GambitSettings, skillchainer))

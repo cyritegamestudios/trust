@@ -16,10 +16,10 @@ return {
             }
         },
         PullSettings = {
-            Abilities = L{
-                Spell.new('Absorb-STR', L{}, L{}),
-                Spell.new('Absorb-DEX', L{}, L{}),
-                Spell.new('Stone', L{}, L{})
+            Gambits = L{
+                Gambit.new("Enemy", L{}, Spell.new('Absorb-STR', L{}, L{}), "Enemy", L{"Pulling"}),
+                Gambit.new("Enemy", L{}, Spell.new('Absorb-DEX', L{}, L{}), "Enemy", L{"Pulling"}),
+                Gambit.new("Enemy", L{}, Spell.new('Stone', L{}, L{}), "Enemy", L{"Pulling"}),
             },
             Targets = L{
                 "Locus Ghost Crab",
@@ -27,7 +27,7 @@ return {
                 "Locus Armet Beetle",
             },
             Distance = 20,
-            MaxNumMobs = 1,
+            MaxNumTargets = 1,
         },
         TargetSettings = {
             Retry = false,

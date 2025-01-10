@@ -14,7 +14,7 @@ state.AutoRuneMode = M{['description'] = 'Auto Rune Mode', 'Off', 'Tenebrae', 'L
 function RuneFencerTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local roles = S{
 		Buffer.new(action_queue, trust_settings.BuffSettings),
-		Puller.new(action_queue, trust_settings.PullSettings.Targets, L{ Spell.new('Flash') }:compact_map()),
+		Puller.new(action_queue, trust_settings.PullSettings),
 		Tank.new(action_queue, L{}, L{ Spell.new('Sheep Song'), Spell.new('Geist Wall'), Spell.new('Flash') })
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, RuneFencer.new()), RuneFencerTrust)

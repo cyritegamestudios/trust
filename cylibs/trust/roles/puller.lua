@@ -2,6 +2,8 @@ local Approach = require('cylibs/battle/approach')
 local ClaimedCondition = require('cylibs/conditions/claimed')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local ffxi_util = require('cylibs/util/ffxi_util')
+local Gambit = require('cylibs/gambits/gambit')
+local GambitTarget = require('cylibs/gambits/gambit_target')
 local RunToLocationAction = require('cylibs/actions/runtolocation')
 local SwitchTargetAction = require('cylibs/actions/switch_target')
 local Timer = require('cylibs/util/timers/timer')
@@ -24,22 +26,15 @@ state.ApproachPullMode = M{['description'] = 'Force Pull with Approach', 'Off', 
 state.ApproachPullMode:set_description('Auto', "Okay, I'll pull by engaging and approaching instead.")
 
 
-function Puller.new(action_queue, target_names, pull_abilities, truster)
+function Puller.new(action_queue, pull_settings)
     local self = setmetatable(Role.new(action_queue), Puller)
 
-    self.action_queue = action_queue
-    self.target_names = target_names or L{}
-    self.pull_abilities = pull_abilities
-    self.pull_settings = {
-        Abilities = pull_abilities,
-        Targets = target_names or L{},
-    }
-    self.truster = truster
     self.target_timer = Timer.scheduledTimer(1, 0)
-    self.last_pull_time = os.time() - 6
-
+    self.last_pull_time = os.time() - self:get_cooldown()
     self.dispose_bag = DisposeBag.new()
     self.dispose_bag:addAny(L{ self.target_timer })
+
+    self:set_pull_settings(pull_settings)
 
     return self
 end
@@ -185,7 +180,7 @@ function Puller:check_pull()
 end
 
 function Puller:get_random_target(targets)
-    return targets[math.random(math.min(math.max(1, targets:length()), self.pull_settings.MaxNumTargets or 1))]
+    return targets[math.random(math.min(math.max(1, targets:length()), self.max_num_targets or 1))]
 end
 
 function Puller:get_next_target()
@@ -248,7 +243,7 @@ function Puller:get_next_target()
             end)
 
             -- Get all targets, if names is empty, find_closest_mobs handles that.
-            local targets = ffxi_util.find_closest_mobs(self:get_target_names(), L{}, self.blacklist, self.pull_settings.Distance or 20)
+            local targets = ffxi_util.find_closest_mobs(self:get_target_names(), L{}, self.blacklist, self.distance)
             -- Select at random from 1 - min(length, 6)
             local target
             if targets:length() > 0 then
@@ -259,7 +254,7 @@ function Puller:get_next_target()
                 target = self:get_random_target(filtered_targets) or self:get_random_target(targets)
             end
             -- Ensure target is populated and hasn't wandered since last instruction
-            if target and target.distance:sqrt() < (self.pull_settings.Distance or 20) then
+            if target and target.distance:sqrt() < self.distance then
                 logger.notice(self.__class, 'get_next_target', 'new mob')
                 local monster = Monster.new(target.id)
                 return monster
@@ -272,14 +267,12 @@ end
 function Puller:pull_target(target)
     logger.notice(self.__class, 'pull_target', target:get_name(), target:get_mob().index, state.AutoPullMode.value)
 
-    local ability = self:get_pull_abilities():firstWhere(function(ability)
-        local conditions = L{}:extend(ability:get_conditions())
-        conditions:append(MaxDistanceCondition.new(ability:get_range()))
-        return Condition.check_conditions(conditions, target:get_mob().index)
+    local gambit = self:get_pull_abilities():firstWhere(function(gambit)
+        return gambit:isSatisfied(target)
     end)
 
-    if ability then
-        local pull_action = ability:to_action(target:get_mob().index, self:get_player())
+    if gambit then
+        local pull_action = gambit:getAbility():to_action(target:get_mob().index, self:get_player())
         pull_action.priority = ActionPriority.highest
         pull_action.display_name = "Pulling → "..target.name
 
@@ -297,7 +290,7 @@ function Puller:is_valid_target(target)
         return false
     end
     local conditions = L{
-        MaxDistanceCondition.new(self.pull_settings.Distance or 20),
+        MaxDistanceCondition.new(self.distance),
         MinHitPointsPercentCondition.new(1),
         ClaimedCondition.new(L{ 0 }:extend(self:get_party():get_party_members(true):map(function(p) return p:get_id() end)))
     }
@@ -320,16 +313,39 @@ function Puller:get_pull_settings()
 end
 
 function Puller:set_pull_settings(pull_settings)
-    self.pull_settings = pull_settings
-    self.pull_abilities = pull_settings.Abilities or L{}
+    for gambit in pull_settings.Gambits:it() do
+        gambit.conditions = gambit.conditions:filter(function(condition)
+            return condition:is_editable()
+        end)
+        local conditions = self:get_default_conditions(gambit)
+        for condition in conditions:it() do
+            condition.editable = false
+            gambit:addCondition(condition)
+        end
+    end
+    self.pull_abilities = pull_settings.Gambits
+    self.distance = pull_settings.Distance
+    self.max_num_targets = pull_settings.MaxNumTargets or 6
+
     self:set_target_names(pull_settings.Targets or L{})
+end
+
+function Puller:get_default_conditions(gambit)
+    return L{
+        MaxDistanceCondition.new(self.distance or 20),
+        MinHitPointsPercentCondition.new(1),
+    }
 end
 
 function Puller:get_pull_abilities()
     if state.ApproachPullMode.value ~= 'Off' then
-        return L{ Approach.new() }
+        return L{ Gambit.new(GambitTarget.TargetType.Enemy, L{}, Approach.new(), GambitTarget.TargetType.Enemy) }
     end
     return self.pull_abilities
+end
+
+function Puller:get_cooldown()
+    return 6
 end
 
 function Puller:get_blacklist()
@@ -361,6 +377,10 @@ end
 
 function Puller:get_camp_position()
     return self.camp_position
+end
+
+function Puller:get_cooldown()
+    return 5
 end
 
 function Puller:allows_duplicates()

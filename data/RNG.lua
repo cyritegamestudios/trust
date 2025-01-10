@@ -20,15 +20,17 @@ return {
             }
         },
         PullSettings = {
-            Abilities = L{
-                RangedAttack.new()
+            Gambits = L{
+                Gambit.new("Enemy", L{}, RangedAttack.new(), "Enemy", L{"Pulling"}),
+                Gambit.new("Enemy", L{}, Approach.new(), "Enemy", L{"Pulling"}),
             },
             Targets = L{
                 "Locus Ghost Crab",
                 "Locus Dire Bat",
                 "Locus Armet Beetle",
             },
-            Distance = 20
+            Distance = 20,
+            MaxNumTargets = 1,
         },
         TargetSettings = {
             Retry = true

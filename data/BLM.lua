@@ -54,15 +54,16 @@ return {
             },
         },
         PullSettings = {
-            Abilities = L{
-                Spell.new('Burn', L{}, L{})
+            Gambits = L{
+                Gambit.new("Enemy", L{}, Spell.new("Burn", L{}, L{}, nil, L{}, nil, true), "Enemy", L{"Pulling"}),
             },
             Targets = L{
                 "Locus Ghost Crab",
                 "Locus Dire Bat",
                 "Locus Armet Beetle",
             },
-            Distance = 20
+            Distance = 20,
+            MaxNumTargets = 1,
         },
         TargetSettings = {
             Retry = true

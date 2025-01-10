@@ -18,7 +18,7 @@ function NinjaTrust.new(settings, action_queue, battle_settings, trust_settings)
 		Debuffer.new(action_queue, trust_settings.DebuffSettings),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{ 'Futae' }, job),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
-		Puller.new(action_queue, trust_settings.PullSettings.Targets, trust_settings.PullSettings.Abilities),
+		Puller.new(action_queue, trust_settings.PullSettings),
 
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), NinjaTrust)
