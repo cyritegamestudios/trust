@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '13.2.7'
+_addon.version = '13.2.8'
 _addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 
@@ -566,7 +566,7 @@ end
 function load_chunk_event()
 	load_user_files(windower.ffxi.get_player().main_job_id, windower.ffxi.get_player().sub_job_id or 0)
 
-	trust_remote_commands = TrustRemoteCommands.new(addon_settings:getSettings().remote_commands.whitelist)
+	trust_remote_commands = TrustRemoteCommands.new(addon_settings)
 
 	local CommandMessage = require('cylibs/messages/command_message')
 	IpcRelay.shared():on_message_received():addAction(function(ipc_message)
