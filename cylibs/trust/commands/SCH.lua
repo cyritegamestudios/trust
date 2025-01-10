@@ -198,30 +198,29 @@ function ScholarTrustCommands:handle_storm(_, element, include_party)
         message = "Setting storm to "..storm:getAbility():get_spell().en
 
         local current_settings = self:get_settings()
-        for arts_name in L{ 'LightArts', 'DarkArts' }:it() do
-            local update_storm = function(storm, gambits)
-                local new_buffs = L{ storm }
 
-                for gambit in gambits:it() do
-                    if not gambit:getAbility():get_name():contains('storm') or gambit:getAbilityTarget() ~= storm:getAbilityTarget() then
-                        new_buffs:append(gambit)
-                    end
+        local update_storm = function(storm, gambits)
+            local new_buffs = L{ storm }
+
+            for gambit in gambits:it() do
+                if not gambit:getAbility():get_name():contains('storm') or gambit:getAbilityTarget() ~= storm:getAbilityTarget() then
+                    new_buffs:append(gambit)
                 end
-
-                gambits:clear()
-                gambits = gambits:extend(new_buffs)
             end
 
-            update_storm(storm, current_settings[arts_name].BuffSettings.Gambits)
+            gambits:clear()
+            gambits = gambits:extend(new_buffs)
+        end
 
-            if include_party then
-                local party_storm = self.trust:get_job():get_storm(element:lower())
-                party_storm = Gambit.new(GambitTarget.TargetType.Ally, L{
-                    JobCondition.new(L{ 'BLM', 'RDM', 'GEO' }),
-                    NotCondition.new(L{ IsAlterEgoCondition.new() }),
-                }, party_storm, Condition.TargetType.Ally, L{"Buffs"})
-                update_storm(party_storm, current_settings[arts_name].BuffSettings.Gambits)
-            end
+        update_storm(storm, current_settings.BuffSettings.Gambits)
+
+        if include_party then
+            local party_storm = self.trust:get_job():get_storm(element:lower())
+            party_storm = Gambit.new(GambitTarget.TargetType.Ally, L{
+                JobCondition.new(L{ 'BLM', 'RDM', 'GEO' }),
+                NotCondition.new(L{ IsAlterEgoCondition.new() }),
+            }, party_storm, Condition.TargetType.Ally, L{"Buffs"})
+            update_storm(party_storm, current_settings.BuffSettings.Gambits)
         end
 
         if include_party then

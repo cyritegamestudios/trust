@@ -231,6 +231,8 @@ end
 -- // trust debug
 function GeneralTrustCommands:handle_debug()
 
+    print(spell_util.can_cast_spell(res.spells:with('en', 'Erase').id))
+
     local job_ability = JobAbility.new("Ebullience", L{SubJobCondition.new("SCH"), StrategemCountCondition.new(1, ">=")}, L{})
 
 

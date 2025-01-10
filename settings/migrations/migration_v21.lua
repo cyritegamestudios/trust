@@ -19,8 +19,8 @@ end
 
 function Migration_v21:shouldPerform(trustSettings, _, _)
     if trustSettings.jobNameShort == 'SCH' then
-        return trustSettings:getSettings().Default.LightArts.SelfBuffs ~= nil or trustSettings:getSettings().Default.LightArts.PartyBuffs ~= nil
-            or trustSettings:getSettings().Default.DarkArts.SelfBuffs ~= nil or trustSettings:getSettings().Default.DarkArts.PartyBuffs ~= nil
+        return trustSettings:getSettings().Default.LightArts and (trustSettings:getSettings().Default.LightArts.SelfBuffs ~= nil or trustSettings:getSettings().Default.LightArts.PartyBuffs ~= nil)
+            or trustSettings:getSettings().Default.DarkArts and (trustSettings:getSettings().Default.DarkArts.SelfBuffs ~= nil or trustSettings:getSettings().Default.DarkArts.PartyBuffs ~= nil)
     end
     return trustSettings:getSettings().Default.SelfBuffs ~= nil or trustSettings:getSettings().Default.PartyBuffs ~= nil
 end
@@ -30,7 +30,7 @@ function Migration_v21:perform(trustSettings, _, _)
     for modeName in modeNames:it() do
         local allSettings = L{ trustSettings:getSettings()[modeName] }
         if trustSettings.jobNameShort == 'SCH' then
-            allSettings = L{ trustSettings:getSettings()[modeName].LightArts, trustSettings:getSettings()[modeName].DarkArts }
+            allSettings = L{ trustSettings:getSettings()[modeName].LightArts, trustSettings:getSettings()[modeName].DarkArts }:compact_map()
         end
 
         for currentSettings in allSettings:it() do

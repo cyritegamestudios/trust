@@ -264,4 +264,26 @@ function Scholar:get_all_storm_names()
     }
 end
 
+-------
+-- Returns spells only available with Addendum: White.
+-- @treturn list List of spell names.
+function Scholar:get_addendum_white_spells()
+    return L{
+        'Poisona', 'Paralyna', 'Blindna', 'Silena', 'Cursna', 'Reraise',
+        'Erase', 'Viruna', 'Stona', 'Raise II', 'Reraise II', 'Raise III',
+        'Reraise III',
+    }
+end
+
+-------
+-- Returns spells only available with Addendum: Black.
+-- @treturn list List of spell names.
+function Scholar:get_addendum_black_spells()
+    return L{
+        'Sleep', 'Dispel', 'Sleep II', 'Stone IV', 'Water IV', 'Aero IV',
+        'Fire IV', 'Blizzard IV', 'Thunder IV', 'Stone V', 'Water V', 'Aero V',
+        'Break', 'Fire V', 'Blizzard V', 'Thunder V',
+    }
+end
+
 return Scholar

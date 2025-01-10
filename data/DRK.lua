@@ -37,9 +37,9 @@ return {
             MinManaPointsPercent = 20,
             MinNumMobsToCleave = 2,
             GearswapCommand = "gs c set MagicBurstMode Single",
-            Spells = L{
-                Spell.new("Drain III", L{}, L{}, nil, L{}),
-                Spell.new("Drain II", L{}, L{}, nil, L{}),
+            Gambits = L{
+                Gambit.new("Enemy", L{}, Spell.new("Drain III", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Drain II", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
             },
             JobAbilities = L{
                 JobAbility.new("Nether Void"),

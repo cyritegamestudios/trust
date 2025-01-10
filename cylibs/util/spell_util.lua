@@ -119,6 +119,7 @@ function spell_util.knows_spell(spell_id, known_spells)
             end
         else
             local player = windower.ffxi.get_player()
+
             -- Main job can cast spell
             local main_job_level = player.main_job_level
             -- Job point spell
@@ -126,13 +127,25 @@ function spell_util.knows_spell(spell_id, known_spells)
                 main_job_level = job_util.get_job_points(res.jobs[player.main_job_id]['ens'])
             end
             -- Main job can cast (including JP)
+            local main_job_knows_spell = false
             if spell.levels[player.main_job_id] and main_job_level >= spell.levels[player.main_job_id] then
-                return true
+                main_job_knows_spell = true
             end
             -- Sub job can cast
+            local sub_job_knows_spell = false
             if spell.levels[player.sub_job_id] and player.sub_job_level >= spell.levels[player.sub_job_id] then
-                return true
+                sub_job_knows_spell = true
             end
+
+            if player.main_job_id == 20 then
+                if spell_util.get_addendum_white_spells():contains(spell.en) and not buff_util.is_buff_active(401) then
+                    return sub_job_knows_spell
+                end
+                if spell_util.get_addendum_black_spells():contains(spell.en) and not buff_util.is_buff_active(402) then
+                    return sub_job_knows_spell
+                end
+            end
+            return main_job_knows_spell or sub_job_knows_spell
         end
     end
     return false
@@ -343,6 +356,28 @@ function spell_util.sort_by_element(spells, descending)
     spells = spells:extend(result)
 
     return result
+end
+
+-------
+-- Returns spells only available with Addendum: White.
+-- @treturn list List of spell names.
+function spell_util.get_addendum_white_spells()
+    return L{
+        'Poisona', 'Paralyna', 'Blindna', 'Silena', 'Cursna', 'Reraise',
+        'Erase', 'Viruna', 'Stona', 'Raise II', 'Reraise II', 'Raise III',
+        'Reraise III',
+    }
+end
+
+-------
+-- Returns spells only available with Addendum: Black.
+-- @treturn list List of spell names.
+function spell_util.get_addendum_black_spells()
+    return L{
+        'Sleep', 'Dispel', 'Sleep II', 'Stone IV', 'Water IV', 'Aero IV',
+        'Fire IV', 'Blizzard IV', 'Thunder IV', 'Stone V', 'Water V', 'Aero V',
+        'Break', 'Fire V', 'Blizzard V', 'Thunder V',
+    }
 end
 
 return spell_util
