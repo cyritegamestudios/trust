@@ -59,7 +59,7 @@ function FFXIAssetManager.imageItemForAbility(abilityName)
     elseif res.weapon_skills[abilityName] then
         return FFXIAssetManager.imageItemForWeaponSkill(abilityName)
     else
-        return nil
+        return ImageItem.new(windower.addon_path..'assets/icons/icon_job_ability_light.png', 16, 16)
     end
 end
 
