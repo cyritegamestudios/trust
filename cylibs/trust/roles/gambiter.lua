@@ -266,7 +266,7 @@ function Gambiter:perform_gambit(gambit, target)
     if action then
         self.last_gambit_time = os.time()
 
-        if gambit:getTags():contains('reaction') then
+        if gambit:getTags():contains('reaction') or gambit:getTags():contains('Reaction') then
             self.action_queue:clear()
         end
         action.priority = ActionPriority.highest
