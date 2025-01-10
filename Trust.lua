@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '13.2.5'
+_addon.version = '13.2.8'
 _addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 
@@ -232,7 +232,7 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_name_short,
 		SoundCommands.new(hud.mediaPlayer),
 		TargetCommands.new(main_trust_settings, state.MainTrustSettingsMode),
 		WarpCommands.new(main_job_trust:role_with_type("follower").walk_action_queue),
-		WidgetCommands.new(main_job_trust, action_queue, addon_settings, hud.widgetManager),
+		WidgetCommands.new(main_job_trust, action_queue, addon_settings, widgets.widgetManager),
 	}:extend(get_job_commands(job_name_short, main_job_trust, action_queue, main_trust_settings)):extend(get_job_commands(sub_job_name_short, sub_job_trust, action_queue, sub_trust_settings))
 
 	hud:setCommands(common_commands)
@@ -341,14 +341,22 @@ function get_job_commands(job_name_short, trust, action_queue, main_trust_settin
 end
 
 function load_ui()
+	local FFXISoundTheme = require('sounds/FFXISoundTheme')
+	local MediaPlayer = require('cylibs/sounds/media_player')
+
+	local mediaPlayer = MediaPlayer.new(windower.addon_path..'sounds')
+	mediaPlayer:setEnabled(not addon_settings:getSettings().sounds.sound_effects.disabled)
+
+	local soundTheme = FFXISoundTheme.default()
+
 	local TrustWidgets = require('ui/TrustWidgets')
 
-	widgets = TrustWidgets.new(addon_settings, action_queue, addon_enabled, player.trust.main_job)
+	widgets = TrustWidgets.new(addon_settings, action_queue, addon_enabled, player.trust.main_job, mediaPlayer, soundTheme)
 	widgets:setNeedsLayout()
 	widgets:layoutIfNeeded()
 	widgets:setUserInteractionEnabled(true)
 
-	hud = TrustHud.new(player, action_queue, addon_settings, trust_mode_settings, addon_enabled, 500, 500)
+	hud = TrustHud.new(player, action_queue, addon_settings, trust_mode_settings, addon_enabled, 500, 500, mediaPlayer, soundTheme)
 
 	hud:addSubview(widgets)
 
@@ -558,7 +566,7 @@ end
 function load_chunk_event()
 	load_user_files(windower.ffxi.get_player().main_job_id, windower.ffxi.get_player().sub_job_id or 0)
 
-	trust_remote_commands = TrustRemoteCommands.new(addon_settings:getSettings().remote_commands.whitelist)
+	trust_remote_commands = TrustRemoteCommands.new(addon_settings)
 
 	local CommandMessage = require('cylibs/messages/command_message')
 	IpcRelay.shared():on_message_received():addAction(function(ipc_message)

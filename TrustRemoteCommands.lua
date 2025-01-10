@@ -1,7 +1,9 @@
+local DisposeBag = require('cylibs/events/dispose_bag')
+
 local TrustRemoteCommands = {}
 TrustRemoteCommands.__index = TrustRemoteCommands
 
-local native_commands_whitelist = S{
+local default_native_commands = L{
     'refa all',
     'warp',
     'pcmd leave',
@@ -10,10 +12,14 @@ local native_commands_whitelist = S{
     'pcmd leader',
 }
 
-function TrustRemoteCommands.new(whitelist)
+local native_commands_whitelist = L{
+}
+
+function TrustRemoteCommands.new(addonSettings)
     local self = setmetatable({
-        whitelist = whitelist;
-        action_events = {}
+        addonSettings = addonSettings;
+        action_events = {};
+        disposeBag = DisposeBag.new()
     }, TrustRemoteCommands)
 
     self:on_init()
@@ -21,7 +27,30 @@ function TrustRemoteCommands.new(whitelist)
     return self
 end
 
+function TrustRemoteCommands:destroy()
+    self.disposeBag:destroy()
+end
+
 function TrustRemoteCommands:on_init()
+    local updateNativeCommands = function(settings)
+        native_commands_whitelist = S(default_native_commands)
+
+        self.whitelist = L(settings.remote_commands.whitelist)
+        for name in self.whitelist:it() do
+            native_commands_whitelist:add('pcmd add '..name)
+            native_commands_whitelist:add('pcmd kick '..name)
+            native_commands_whitelist:add('pcmd leader '..name)
+        end
+
+        native_commands_whitelist = S(native_commands_whitelist)
+    end
+
+    self.disposeBag:add(self.addonSettings:onSettingsChanged():addAction(function(settings)
+       updateNativeCommands(settings)
+    end), self.addonSettings:onSettingsChanged())
+
+    updateNativeCommands(self.addonSettings:getSettings())
+
     self.action_events.chat_message = windower.register_event('chat message', function(message, sender, mode, gm)
         if not gm and self.whitelist:contains(sender) then
             local args = string.split(message, ' ')
@@ -32,12 +61,6 @@ function TrustRemoteCommands:on_init()
             end
         end
     end)
-
-    for name in self.whitelist:it() do
-        native_commands_whitelist:add('pcmd add '..name)
-        native_commands_whitelist:add('pcmd kick '..name)
-        native_commands_whitelist:add('pcmd leader '..name)
-    end
 end
 
 function TrustRemoteCommands:destroy()
