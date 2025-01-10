@@ -390,14 +390,12 @@ function GambitSettingsMenuItem:getToggleMenuItem()
                 currentGambits[selectedIndexPath.row]:setEnabled(not currentGambits[selectedIndexPath.row]:isEnabled())
             end
         end
-    end, self:getTitleText(), "Temporarily enable or disable the selected "..self.editorConfig:getDescription().." until the addon reloads.")
-
-    toggleMenuItem.enabled = function()
+    end, self:getTitleText(), "Temporarily enable or disable the selected "..self.editorConfig:getDescription().." until the addon reloads.", false, function()
         if self.selectedGambit then
             return self.selectedGambit:isValid()
         end
-        return true
-    end
+        return false
+    end)
 
     return toggleMenuItem
 end
@@ -425,7 +423,9 @@ function GambitSettingsMenuItem:getMoveUpGambitMenuItem()
                 self.gambitSettingsEditor:getDelegate():selectItemAtIndexPath(IndexPath.new(selectedIndexPath.section, selectedIndexPath.row - 1))
             end
         end
-    end, self:getTitleText(), "Move the selected "..self.editorConfig:getDescription().." up. "..self.editorConfig:getDescription(true).." get evaluated in order.")
+    end, self:getTitleText(), "Move the selected "..self.editorConfig:getDescription().." up. "..self.editorConfig:getDescription(true).." get evaluated in order.",  false, function()
+        return self.selectedGambit ~= nil
+    end)
 end
 
 function GambitSettingsMenuItem:getMoveDownGambitMenuItem()
@@ -450,7 +450,9 @@ function GambitSettingsMenuItem:getMoveDownGambitMenuItem()
                 self.gambitSettingsEditor:getDelegate():selectItemAtIndexPath(IndexPath.new(selectedIndexPath.section, selectedIndexPath.row + 1))
             end
         end
-    end, self:getTitleText(), "Move the selected "..self.editorConfig:getDescription().." down. "..self.editorConfig:getDescription(true).." get evaluated in order.")
+    end, self:getTitleText(), "Move the selected "..self.editorConfig:getDescription().." down. "..self.editorConfig:getDescription(true).." get evaluated in order.", false, function()
+        return self.selectedGambit ~= nil
+    end)
 end
 
 function GambitSettingsMenuItem:getResetGambitsMenuItem()
