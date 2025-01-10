@@ -82,6 +82,22 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
     self.gambitChanged = Event.newEvent()
     self.disposeBag = DisposeBag.new()
 
+    local updateCurrentGambit = function(cursorIndexPath)
+        if cursorIndexPath == nil then
+            self.selectedGambit = nil
+            return
+        end
+        local currentGambits = self:getSettings().Gambits
+
+        local selectedGambit = currentGambits[cursorIndexPath.row]
+        self.selectedGambit = selectedGambit
+
+        if self.selectedGambit then
+            self.conditionSettingsMenuItem:setConditions(selectedGambit.conditions)
+            self.conditionSettingsMenuItem:setTargetTypes(S{ selectedGambit:getConditionsTarget() })
+        end
+    end
+
     self.contentViewConstructor = function(_, infoView, _)
         local currentGambits = self:getSettings().Gambits
 
@@ -106,12 +122,13 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
         gambitSettingsEditor:setNeedsLayout()
         gambitSettingsEditor:layoutIfNeeded()
 
-        self.disposeBag:add(gambitSettingsEditor:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
-            local selectedGambit = currentGambits[indexPath.row]
-            self.selectedGambit = selectedGambit
+        self.disposeBag:add(self.trustSettings:onSettingsChanged():addAction(function(settings)
+            local cursorIndexPath = self.gambitSettingsEditor:getDelegate():getCursorIndexPath()
+            updateCurrentGambit(cursorIndexPath)
+        end), self.trustSettings:onSettingsChanged())
 
-            self.conditionSettingsMenuItem:setConditions(selectedGambit.conditions)
-            self.conditionSettingsMenuItem:setTargetTypes(S{ selectedGambit:getConditionsTarget() })
+        self.disposeBag:add(gambitSettingsEditor:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
+            updateCurrentGambit(indexPath)
         end, gambitSettingsEditor:getDelegate():didSelectItemAtIndexPath()))
 
         self.disposeBag:add(gambitSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)

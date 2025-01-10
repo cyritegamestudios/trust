@@ -89,7 +89,7 @@ return {
             MaxNumTargets = 1,
         },
         TargetSettings = {
-            Retry = true
+            Retry = false
         },
         GearSwapSettings = {
             Enabled = true

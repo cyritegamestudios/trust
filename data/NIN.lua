@@ -58,7 +58,7 @@ return {
             MaxNumTargets = 1,
         },
         TargetSettings = {
-            Retry = true
+            Retry = false
         },
         GambitSettings = {
             Gambits = L{

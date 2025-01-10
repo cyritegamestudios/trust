@@ -332,7 +332,7 @@ end
 
 function Puller:get_default_conditions(gambit)
     return L{
-        MaxDistanceCondition.new(self.distance or 20),
+        MaxDistanceCondition.new(gambit:getAbility():get_range() or self.distance or 20),
         MinHitPointsPercentCondition.new(1),
     }
 end

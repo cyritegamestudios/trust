@@ -86,7 +86,7 @@ function ConditionSettingsMenuItem:getAddConditionMenuItem(parentMenuItem)
 
             self.conditions:append(newCondition)
 
-            --self.trustSettings:saveSettings(true)
+            self.trustSettings:saveSettings(true)
 
             addon_system_message("You have unsaved changes.")
         end)
@@ -124,7 +124,7 @@ function ConditionSettingsMenuItem:getRemoveConditionMenuItem()
 
                 addon_system_message("You have unsaved changes.")
 
-                --self.trustSettings:saveSettings(true)
+                self.trustSettings:saveSettings(true)
 
                 --if self.gambitSettingsEditor:getDataSource():numberOfItemsInSection(1) > 0 then
                 --    self.selectedGambit = currentGambits[1]
@@ -152,9 +152,7 @@ function ConditionSettingsMenuItem:getInvertConditionMenuItem()
 
             self.editConditionsView:reload()
 
-            --if self.trustSettings then
-            --    self.trustSettings:saveSettings(true)
-            --end
+            self.trustSettings:saveSettings(true)
         end
     end, "Conditions", "Invert the selected condition logic.", false, function()
         local selectedCondition = self:getSelectedCondition()
