@@ -24,10 +24,6 @@ function ThiefTrust:on_init()
 	Trust.on_init(self)
 
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
-		local puller = self:role_with_type("puller")
-		if puller then
-			puller:set_pull_settings(new_trust_settings.PullSettings)
-		end
 	end)
 end
 

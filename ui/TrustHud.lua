@@ -370,8 +370,8 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         childMenuItems.Shooting = self:getMenuItemForRole(trust:role_with_type("shooter"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode, trustModeSettings)
     end
 
-    if trust:role_with_type("nuker") then
-        childMenuItems.Nukes = self:getMenuItemForRole(trust:role_with_type("nuker"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode, trustModeSettings)
+    if trust:role_with_type("nuker") or trust:role_with_type("magicburster") then
+        childMenuItems.Nukes = self:getMenuItemForRole(trust:role_with_type("nuker") or trust:role_with_type("magicburster"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode, trustModeSettings)
         menuItems:append(ButtonItem.default('Nukes', 18))
     end
 
@@ -437,7 +437,7 @@ function TrustHud:getMenuItemForRole(role, weaponSkillSettings, weaponSkillSetti
     if role:get_type() == "singer" then
         return self:getSingerMenuItem(trust, trustSettings, trustSettingsMode, viewSize)
     end
-    if role:get_type() == "nuker" then
+    if role:get_type() == "nuker" or role:get_type() == "magicburster" then
         return self:getNukerMenuItem(trust, trustSettings, trustSettingsMode, trustModeSettings, jobNameShort)
     end
     if role:get_type() == "shooter" then

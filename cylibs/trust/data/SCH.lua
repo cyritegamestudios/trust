@@ -53,11 +53,6 @@ function ScholarTrust:on_init()
     self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
         self:get_job():set_trust_settings(new_trust_settings)
 
-        local puller = self:role_with_type("puller")
-        if puller then
-            puller:set_pull_settings(new_trust_settings.PullSettings)
-        end
-
         local debuffer = self:role_with_type("debuffer")
         debuffer:set_debuff_settings(new_trust_settings.DebuffSettings)
 

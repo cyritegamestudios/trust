@@ -62,11 +62,6 @@ function RedMageTrust:on_init()
 		local debuffer = self:role_with_type("debuffer")
 		debuffer:set_debuff_settings(new_trust_settings.DebuffSettings)
 
-		local puller = self:role_with_type("puller")
-		if puller then
-			puller:set_pull_settings(new_trust_settings.PullSettings)
-		end
-
 		local nuker_roles = self:roles_with_types(L{ "nuker", "magicburster" })
 		for role in nuker_roles:it() do
 			role:set_nuke_settings(new_trust_settings.NukeSettings)

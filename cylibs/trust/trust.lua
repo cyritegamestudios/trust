@@ -55,9 +55,12 @@ function Trust:init()
 		end
 		local buffer = self:role_with_type("buffer")
 		if buffer then
-			--if self.job.jobNameShort ~= 'SCH' then
-				buffer:set_buff_settings(new_trust_settings.BuffSettings)
-			--end
+			buffer:set_buff_settings(new_trust_settings.BuffSettings)
+		end
+
+		local puller = self:role_with_type("puller")
+		if puller then
+			puller:set_pull_settings(new_trust_settings.PullSettings)
 		end
 
 		self.gambits = new_trust_settings.GambitSettings.Default or L{}
