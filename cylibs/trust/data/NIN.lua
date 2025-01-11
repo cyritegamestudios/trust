@@ -14,7 +14,7 @@ local Puller = require('cylibs/trust/roles/puller')
 function NinjaTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = Ninja.new()
 	local roles = S{
-		Buffer.new(action_queue, trust_settings.BuffSettings),
+		Buffer.new(action_queue, trust_settings.BuffSettings, state.AutoBuffMode.value, job),
 		Debuffer.new(action_queue, trust_settings.DebuffSettings),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{ 'Futae' }, job),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),

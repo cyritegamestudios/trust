@@ -24,9 +24,6 @@ end
 function Role:tic(new_time, old_time)
 end
 
-function Role:check_debuffs()
-end
-
 function Role:allows_duplicates()
     return false
 end
@@ -61,6 +58,14 @@ end
 
 function Role:get_party()
     return self.party
+end
+
+function Role:set_job(job)
+    self.job = job
+end
+
+function Role:get_job()
+    return self.job
 end
 
 function Role:get_target()

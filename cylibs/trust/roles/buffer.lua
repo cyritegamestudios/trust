@@ -6,7 +6,7 @@ local Buffer = setmetatable({}, {__index = Gambiter })
 Buffer.__index = Buffer
 Buffer.__class = "Buffer"
 
-function Buffer.new(action_queue, buff_settings, state_var, buff_action_priority)
+function Buffer.new(action_queue, buff_settings, state_var)
     local self = setmetatable(Gambiter.new(action_queue, {}, nil, state_var or state.AutoBuffMode, true), Buffer)
 
     self:set_buff_settings(buff_settings)
@@ -22,6 +22,10 @@ function Buffer:destroy()
     self.buff_tracker:destroy()
 end
 
+function Buffer:on_add()
+    Role.on_add(self)
+end
+
 function Buffer:set_buff_settings(buff_settings)
     for gambit in buff_settings.Gambits:it() do
         gambit.conditions = gambit.conditions:filter(function(condition)
@@ -31,6 +35,9 @@ function Buffer:set_buff_settings(buff_settings)
         for condition in conditions:it() do
             condition.editable = false
             gambit:addCondition(condition)
+        end
+        if self:get_job() then
+            gambit.conditions = gambit.conditions + self:get_job():get_conditions_for_ability(gambit:getAbility())
         end
     end
     self:set_gambit_settings(buff_settings)

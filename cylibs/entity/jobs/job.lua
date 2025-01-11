@@ -47,11 +47,11 @@ function Job:knows_spell(spell_id)
 end
 
 -------
--- Returns a list of conditions for a spell.
--- @tparam Spell spell The spell
+-- Returns a list of conditions for an ability.
+-- @tparam Spell|JobAbility ability The ability
 -- @treturn list List of conditions
-function Job:get_conditions_for_spell(spell)
-    return spell:get_conditions()
+function Job:get_conditions_for_ability(ability)
+    return ability:get_conditions()
 end
 
 -------
