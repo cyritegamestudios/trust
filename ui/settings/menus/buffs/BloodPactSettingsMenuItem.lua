@@ -11,7 +11,6 @@ BloodPactSettingsMenuItem.__index = BloodPactSettingsMenuItem
 
 function BloodPactSettingsMenuItem.new(trustSettings, trust, bloodPacts, trustModeSettings)
     local self = setmetatable(MenuItem.new(L{
-        --ButtonItem.default('Buffs', 18),
         ButtonItem.default('Modes', 18),
     }, {}, nil, "Summoner", "Configure Summoner settings."), BloodPactSettingsMenuItem)
 

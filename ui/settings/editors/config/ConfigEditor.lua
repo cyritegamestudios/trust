@@ -58,8 +58,8 @@ function ConfigEditor.new(trustSettings, configSettings, configItems, infoView, 
             return cell
         elseif item.__type == TextItem.__type then
             local cell = MarqueeCollectionViewCell.new(item, 0.9)
-            cell:setUserInteractionEnabled(false)
-            cell:setIsSelectable(false)
+            cell:setUserInteractionEnabled(true)
+            cell:setIsSelectable(true)
             cell:setItemSize(16)
             return cell
         elseif item.__type == FFXIToggleButtonItem.__type then
@@ -124,7 +124,8 @@ function ConfigEditor.new(trustSettings, configSettings, configItems, infoView, 
                 end
             end
             if item.__type == TextItem.__type then
-                self:getDelegate():deselectItemAtIndexPath(indexPath)
+                -- NOTE: this breaks skillchain finder
+                --self:getDelegate():deselectItemAtIndexPath(indexPath)
             end
         end
     end), self:getDelegate():didSelectItemAtIndexPath())

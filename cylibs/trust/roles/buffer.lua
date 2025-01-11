@@ -62,7 +62,7 @@ function Buffer:get_type()
 end
 
 function Buffer:get_cooldown()
-    return 3
+    return 5
 end
 
 function Buffer:get_localized_name()
