@@ -19,8 +19,8 @@ return {
         },
         PullSettings = {
             Gambits = L{
-                Gambit.new("Enemy", L{}, JobAbility.new("Chi Blast", L{}, L{}), "Enemy", L{"Pulling"}),
                 Gambit.new("Enemy", L{}, Approach.new(), "Enemy", L{"Pulling"}),
+                Gambit.new("Enemy", L{}, JobAbility.new("Chi Blast", L{}, L{}), "Enemy", L{"Pulling"}),
             },
             Targets = L{
                 "Locus Ghost Crab",
