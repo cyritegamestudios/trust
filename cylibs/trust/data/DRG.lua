@@ -8,7 +8,7 @@ local Puller = require('cylibs/trust/roles/puller')
 
 function DragoonTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local roles = S{
-		Puller.new(action_queue, trust_settings.pull_settings),
+		Puller.new(action_queue, trust_settings.PullSettings),
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, Dragoon.new()), DragoonTrust)
 
