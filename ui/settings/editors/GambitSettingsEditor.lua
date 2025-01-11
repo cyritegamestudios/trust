@@ -1,19 +1,19 @@
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
+local Event = require('cylibs/events/Luvent')
 local Gambit = require('cylibs/gambits/gambit')
 local GambitTarget = require('cylibs/gambits/gambit_target')
-local ImageItem = require('cylibs/ui/collection_view/items/image_item')
-local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
-local SectionHeaderItem = require('cylibs/ui/collection_view/items/section_header_item')
-local TextItem = require('cylibs/ui/collection_view/items/text_item')
-local TextStyle = require('cylibs/ui/style/text_style')
 
 local TextConfigItem = require('ui/settings/editors/config/TextConfigItem')
 
 local GambitSettingsEditor = setmetatable({}, {__index = ConfigEditor })
 GambitSettingsEditor.__index = GambitSettingsEditor
 GambitSettingsEditor.__type = "GambitSettingsEditor"
+
+function GambitSettingsEditor:onGambitChanged()
+    return self.gambitChanged
+end
 
 function GambitSettingsEditor.new(gambit, trustSettings, trustSettingsMode, abilitiesByTargetType, conditionTargets, showMenu)
     local validTargets = L(GambitTarget.TargetType:keyset()):filter(function(targetType) return abilitiesByTargetType[targetType]:length() > 0 end)
@@ -28,15 +28,9 @@ function GambitSettingsEditor.new(gambit, trustSettings, trustSettingsMode, abil
     self.validTargets = validTargets
     self.validConditionTargets = validConditionTargets
     self.menuArgs = {}
+    self.gambitChanged = Event.newEvent()
 
     local numSections = self:getDataSource():numberOfSections() + 1
-
-    --[[local conditionsSectionHeaderItem = SectionHeaderItem.new(
-            TextItem.new("Conditions", TextStyle.Default.SectionHeader),
-            ImageItem.new(windower.addon_path..'assets/icons/icon_bullet.png', 8, 8),
-            16
-    )
-    self:getDataSource():setItemForSectionHeader(numSections, conditionsSectionHeaderItem)]]
 
     self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
         if indexPath.section == numSections then
@@ -45,7 +39,11 @@ function GambitSettingsEditor.new(gambit, trustSettings, trustSettingsMode, abil
     end), self:getDelegate():didSelectItemAtIndexPath())
 
     self:getDisposeBag():add(self:onConfigChanged():addAction(function(newSettings, oldSettings)
+        local shouldReload = false
+
         if newSettings['conditions_target'] ~= oldSettings['conditions_target'] then
+            shouldReload = true
+
             local removed_condition_names = L{}
             local conditions = self.gambit:getConditions():filter(function(condition)
                 if condition.valid_targets():contains(newSettings['conditions_target']) then
@@ -58,35 +56,45 @@ function GambitSettingsEditor.new(gambit, trustSettings, trustSettingsMode, abil
 
             if removed_condition_names:length() > 0 then
                 addon_system_error("Invalid conditions for conditions target type "..newSettings['conditions_target']..": "..localization_util.commas(removed_condition_names)..".")
-                self:reloadSettings()
             end
         end
-        self:reloadConfigItems()
+        if newSettings['target'] ~= oldSettings['target'] then
+            shouldReload = true
+
+            local removed_ability_name = newSettings['ability']:get_localized_name()
+
+            if not abilitiesByTargetType[newSettings['target']]:contains(newSettings['ability']) then
+                addon_system_error("Invalid ability "..removed_ability_name.." for ability target type "..newSettings['target']..".")
+            end
+            newSettings.ability = abilitiesByTargetType[newSettings['target']][1]:copy()
+        end
+
+        if newSettings['ability'] ~= oldSettings['ability'] then
+            shouldReload = true
+        end
+
+        self:onGambitChanged():trigger(newSettings, oldSettings)
+
+        if shouldReload then
+            self:reloadSettings()
+            self:reloadConfigItems()
+        end
     end), self:onConfigChanged())
 
     return self
 end
 
+
+
 function GambitSettingsEditor.configItemFromGambit(gambit, abilitiesByTargetType)
-    local abilityConfigItem = PickerConfigItem.new('ability', gambit:getAbility(), abilitiesByTargetType[gambit:getAbilityTarget()], function(ability)
+    local abilities = abilitiesByTargetType[gambit:getAbilityTarget()]
+    if not abilities:contains(gambit:getAbility()) then
+        abilities:append(gambit:getAbility())
+    end
+    local abilityConfigItem = PickerConfigItem.new('ability', gambit:getAbility(), abilities, function(ability)
         return ability:get_localized_name()
     end, "Ability")
     return abilityConfigItem
-end
-
-function GambitSettingsEditor:reloadSettings()
-    ConfigEditor.reloadSettings(self)
-
-    --[[local conditionsItems = IndexedItem.fromItems(self.gambit:getConditions():map(function(condition)
-        return TextItem.new(condition:tostring(), TextStyle.Default.TextSmall)
-    end), self.configItems:length() + 1)
-
-    if conditionsItems:length() > 0 then
-        self:getDataSource():addItems(conditionsItems)
-    end
-
-    self:setNeedsLayout()
-    self:layoutIfNeeded()]]
 end
 
 function GambitSettingsEditor.configItems(gambit, abilitiesByTargetType, validTargets, validConditionTargets)
@@ -116,13 +124,7 @@ function GambitSettingsEditor.configItems(gambit, abilitiesByTargetType, validTa
             end
             return 'Never'
         end, "Conditions")
-        --[[local conditionsConfigItem = MultiPickerConfigItem.new('conditions', gambit.conditions, gambit.conditions, function(conditions)
-            if conditions:length() > 0 then
-                return localization_util.commas(conditions:map(function(c) return c:tostring() end))
-            end
-            return 'Never'
-        end, "Conditions")
-        conditionsConfigItem:setEnabled(false)]]
+
         configItems:append(conditionsConfigItem)
     end
 

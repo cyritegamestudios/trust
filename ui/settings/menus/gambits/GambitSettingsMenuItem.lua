@@ -304,10 +304,9 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
 
         local gambitEditor = GambitSettingsEditor.new(self.selectedGambit, self.trustSettings, self.trustSettingsMode, abilitiesByTargetType, self.conditionTargets, showMenu)
 
-        self.disposeBag:add(gambitEditor:onConfigChanged():addAction(function(newSettings, oldSettings)
-            self:onGambitChanged():trigger(newSettings, oldSettings)
-            gambitEditor:reloadSettings()
-        end), gambitEditor:onConfigChanged())
+        gambitEditor:getDisposeBag():add(gambitEditor:onGambitChanged():addAction(function(newGambit, oldGambit)
+            self:onGambitChanged():trigger(newGambit, oldGambit)
+        end), gambitEditor:onGambitChanged())
 
         return gambitEditor
     end, self:getTitleText(), "Edit the selected "..self.editorConfig:getDescription()..".", false, function()

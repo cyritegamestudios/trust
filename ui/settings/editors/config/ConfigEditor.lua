@@ -360,6 +360,8 @@ function ConfigEditor:onConfirmClick(skipSave)
                         self.configSettings[configKey] = cellConfigItem:getCurrentValue()
                     elseif cellConfigItem.__type == TextFieldItem.__type then
                         self.configSettings[configKey] = cellConfigItem:getTextItem():getText()
+                    elseif cellConfigItem.__type == TextItem.__type then
+                        self.configSettings[configKey] = configItem:getInitialValues()
                     end
                 end
             end

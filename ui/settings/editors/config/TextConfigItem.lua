@@ -32,6 +32,10 @@ function TextConfigItem:getKey()
     return self.key
 end
 
+function TextConfigItem:getInitialValues()
+    return self.initialValues
+end
+
 ---
 -- Gets the formatted text for a list of items.
 --
