@@ -30,6 +30,7 @@ function MultiPickerConfigItem.new(key, initialValues, allValues, textFormat, de
     self.description = description or key
     self.dependencies = L{}
     self.onReload = onReload
+    self.enabled = true
 
     return self
 end
@@ -215,6 +216,14 @@ end
 
 function MultiPickerConfigItem:getAutoSave()
     return self.autoSave
+end
+
+function MultiPickerConfigItem:isEnabled()
+    return self.enabled
+end
+
+function MultiPickerConfigItem:setEnabled(enabled)
+    self.enabled = enabled
 end
 
 return MultiPickerConfigItem

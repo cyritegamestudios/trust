@@ -4,12 +4,15 @@ MonkTrust.__index = MonkTrust
 
 local Buffer = require('cylibs/trust/roles/buffer')
 local Monk = require('cylibs/entity/jobs/MNK')
+local Puller = require('cylibs/trust/roles/puller')
 
 function MonkTrust.new(settings, action_queue, battle_settings, trust_settings)
+	local job = Monk.new()
 	local roles = S{
-		Buffer.new(action_queue, trust_settings.BuffSettings),
+		Buffer.new(action_queue, trust_settings.BuffSettings, state.AutoBuffMode, job),
+		Puller.new(action_queue, trust_settings.PullSettings),
 	}
-	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, Monk.new()), MonkTrust)
+	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), MonkTrust)
 
 	self.settings = settings
 	self.action_queue = action_queue
@@ -21,10 +24,6 @@ function MonkTrust:on_init()
 	Trust.on_init(self)
 
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
-		local puller = self:role_with_type("puller")
-		if puller then
-			puller:set_pull_settings(new_trust_settings.PullSettings)
-		end
 	end)
 end
 

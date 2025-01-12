@@ -1,25 +1,26 @@
 local BuffConflictsCondition = require('cylibs/conditions/buff_conflicts')
-local BuffTracker = require('cylibs/battle/buff_tracker')
 
 local Gambiter = require('cylibs/trust/roles/gambiter')
 local Buffer = setmetatable({}, {__index = Gambiter })
 Buffer.__index = Buffer
 Buffer.__class = "Buffer"
 
-function Buffer.new(action_queue, buff_settings, state_var, buff_action_priority)
+function Buffer.new(action_queue, buff_settings, state_var, job)
     local self = setmetatable(Gambiter.new(action_queue, {}, nil, state_var or state.AutoBuffMode, true), Buffer)
 
-    self:set_buff_settings(buff_settings)
+    self.job = job
 
-    self.buff_tracker = BuffTracker.new()
+    self:set_buff_settings(buff_settings)
 
     return self
 end
 
 function Buffer:destroy()
     Role.destroy(self)
+end
 
-    self.buff_tracker:destroy()
+function Buffer:on_add()
+    Role.on_add(self)
 end
 
 function Buffer:set_buff_settings(buff_settings)
@@ -39,17 +40,13 @@ end
 function Buffer:get_default_conditions(gambit)
     local conditions = L{
         NotCondition.new(L{ HasBuffCondition.new(gambit:getAbility():get_status().en) }),
-        NotCondition.new(L{ BuffConflictsCondition.new(gambit:getAbility():get_status().en)})
+        NotCondition.new(L{ BuffConflictsCondition.new(gambit:getAbility():get_status().en)}),
+        MinHitPointsPercentCondition.new(1),
     }
     if L(gambit:getAbility():get_valid_targets()) ~= L{ 'Self' } then
         conditions:append(MaxDistanceCondition.new(gambit:getAbility():get_range()))
     end
-    if gambit:getAbility().get_job_abilities then
-        for job_ability_name in gambit:getAbility():get_job_abilities():it() do
-            conditions:append(JobAbilityRecastReadyCondition.new(job_ability_name))
-        end
-    end
-    return conditions
+    return conditions + self.job:get_conditions_for_ability(gambit:getAbility())
 end
 
 function Buffer:allows_duplicates()
@@ -61,7 +58,7 @@ function Buffer:get_type()
 end
 
 function Buffer:get_cooldown()
-    return 3
+    return 5
 end
 
 function Buffer:get_localized_name()

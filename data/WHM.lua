@@ -42,10 +42,10 @@ return {
             MinManaPointsPercent = 60,
             MinNumMobsToCleave = 2,
             GearswapCommand = "gs c set MagicBurstMode Single",
-            Spells = L{
-                Spell.new('Holy II'),
-                Spell.new('Holy'),
-                Spell.new('Banish III'),
+            Gambits = L{
+                Gambit.new("Enemy", L{}, Spell.new("Holy II", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Holy", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Banish III", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
             },
             JobAbilities = L{
 
@@ -60,25 +60,26 @@ return {
             }
         },
         PullSettings = {
-            Abilities = L{
-                Debuff.new('Dia', L{}, L{})
+            Gambits = L{
+                Gambit.new("Enemy", L{}, Debuff.new("Dia", L{}, L{}), "Enemy", L{"Pulling"}),
             },
             Targets = L{
                 "Locus Ghost Crab",
                 "Locus Dire Bat",
                 "Locus Armet Beetle",
             },
-            Distance = 20
+            Distance = 20,
+            MaxNumTargets = 1,
         },
         TargetSettings = {
-            Retry = true
+            Retry = false
         },
         GambitSettings = {
             Default = L{
                 Gambit.new("Ally", L{MaxManaPointsPercentCondition.new(20), MaxDistanceCondition.new(10), JobCondition.new(L{"SCH", "DRK", "WHM", "SMN", "GEO", "PLD", "BLM", "BLU", "RDM", "BRD", "RUN"})}, JobAbility.new("Devotion", L{}, L{}), "Ally", L{}),
             },
             Gambits = L{
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("WHM")}, UseItem.new("Tropical Crepe", L{ItemCountCondition.new("Tropical Crepe", 1, ">=")}), "Self", L{"food"})
+                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("WHM")}, UseItem.new("Tropical Crepe", L{ItemCountCondition.new("Tropical Crepe", 1, ">=")}), "Self", L{"Food"})
             }
         },
         GearSwapSettings = {

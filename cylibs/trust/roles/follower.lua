@@ -24,6 +24,7 @@ function Follower.new(action_queue, follow_distance, addon_settings)
     self.walk_action_queue = ActionQueue.new(nil, false, 100, false, false)
     self.action_events = {}
     self.distance = follow_distance or 1
+    self.auto_pause = addon_settings:getSettings().follow.auto_pause or false
     self.maxfollowdistance = 35
     self.maxfollowpoints = 100
     self.following = false
@@ -80,6 +81,7 @@ function Follower:on_add()
 
     self.dispose_bag:add(self.addon_settings:onSettingsChanged():addAction(function(settings)
         self.distance = settings.follow.distance or 1
+        self.auto_pause = settings.follow.auto_pause or false
     end, self.addon_settings:onSettingsChanged()))
 
     self.action_events.status = windower.register_event('status change', function(new_status_id, old_status_id)
@@ -87,11 +89,15 @@ function Follower:on_add()
     end)
 
     self.dispose_bag:add(self.action_queue:on_action_start():addAction(function(_, action)
-        self:stop_following()
+        if self.auto_pause then
+            self:stop_following()
+        end
     end), self.action_queue:on_action_end())
 
     self.dispose_bag:add(self.action_queue:on_action_end():addAction(function(a, success)
-        self:start_following()
+        if self.auto_pause then
+            self:start_following()
+        end
     end), self.action_queue:on_action_end())
 
     self.action_events.zone_change = windower.register_event('zone change', function(_, _)
@@ -129,8 +135,10 @@ function Follower:start_following(override)
     self:check_distance()
 end
 
-function Follower:stop_following()
-    self.walk_action_queue:clear()
+function Follower:stop_following(keep_queue)
+    if not keep_queue then
+        self.walk_action_queue:clear()
+    end
     self.walk_action_queue:disable()
     windower.ffxi.run(false)
 end
@@ -141,7 +149,7 @@ end
 -- @treturn boolean True if the target can be followed
 function Follower:is_valid_target(target_name)
     local target = self:get_alliance():get_alliance_member_named(target_name, true)
-    if target == nil or target:get_name() == windower.ffxi.get_player().name or target:get_zone_id() ~= windower.ffxi.get_info().zone then
+    if target == nil or target:get_mob() == nil or target:get_name() == windower.ffxi.get_player().name or target:get_zone_id() ~= windower.ffxi.get_info().zone then
         return false
     end
     if not IpcRelay.shared():is_connected(target_name) then

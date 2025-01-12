@@ -16,18 +16,20 @@ return {
             }
         },
         PullSettings = {
-            Abilities = L{
-                RangedAttack.new(),
+            Gambits = L{
+                Gambit.new("Enemy", L{}, Approach.new(), "Enemy", L{"Pulling"}),
+                Gambit.new("Enemy", L{}, RangedAttack.new(), "Enemy", L{"Pulling"}),
             },
             Targets = L{
                 "Locus Ghost Crab",
                 "Locus Dire Bat",
                 "Locus Armet Beetle",
             },
-            Distance = 20
+            Distance = 20,
+            MaxNumTargets = 1,
         },
         TargetSettings = {
-            Retry = true
+            Retry = false
         },
         GambitSettings = {
             Default = L{
@@ -44,7 +46,7 @@ return {
             },
             Gambits = L{
                 Gambit.new("Enemy", L{MinHitPointsPercentCondition.new(80)}, JobAbility.new("Angon", L{}, L{}), "Enemy"),
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("DRG")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"food"})
+                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("DRG")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"Food"})
             }
         },
         GearSwapSettings = {

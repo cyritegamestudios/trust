@@ -30,4 +30,22 @@ function BlackMage:get_aoe_spells()
     }
 end
 
+-------
+-- Returns a list of known job abilities.
+-- @tparam function filter Optional filter function
+-- @treturn list List of known job ability ids
+function BlackMage:get_job_abilities(filter)
+    local job_abilities = Job.get_job_abilities(self, filter)
+    if res.jobs[windower.ffxi.get_player().sub_job_id].ens == 'SCH' then
+        local sub_job_abilities = player_util.get_job_abilities():filter(function(job_ability_id)
+            if not job_util.knows_job_ability(job_ability_id, res.jobs:with('ens', 'SCH').id) then
+                return false
+            end
+            return filter(job_ability_id)
+        end)
+        job_abilities = (job_abilities + sub_job_abilities):unique()
+    end
+    return job_abilities
+end
+
 return BlackMage

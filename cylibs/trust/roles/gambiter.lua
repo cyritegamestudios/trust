@@ -17,6 +17,7 @@ function Gambiter.new(action_queue, gambit_settings, skillchainer, state_var, di
     self.state_var = state_var or state.AutoGambitMode
     self.last_gambit_time = os.time() - self:get_cooldown()
     self.disable_react = disable_react
+    self.action_identifier = self:get_type()..'_action'
 
     self:set_gambit_settings(gambit_settings)
 
@@ -196,20 +197,23 @@ function Gambiter:get_cooldown()
 end
 
 function Gambiter:tic(new_time, old_time)
-    if self.state_var.value == 'Off' or (os.time() - self.last_gambit_time) < self:get_cooldown() then
-        return
-    end
-    self.last_gambit_time = os.time()
-
-    self:check_gambits()
-end
-
-function Gambiter:check_gambits(targets, gambits, param)
     if self.state_var.value == 'Off' then
         return
     end
 
+    self:check_gambits()
+end
+
+function Gambiter:check_gambits(targets, gambits, param, ignore_delay)
+    if self.state_var.value == 'Off' or not ignore_delay and (os.time() - self.last_gambit_time) < self:get_cooldown() then
+        return
+    end
+
     logger.notice(self.__class, 'check_gambits')
+
+    if not self:allows_multiple_actions() and self.action_queue:has_action(self.action_identifier) then
+        return
+    end
 
     local gambits = (gambits or self:get_all_gambits()):filter(function(gambit) return gambit:isEnabled() end)
     for gambit in gambits:it() do
@@ -260,10 +264,15 @@ function Gambiter:perform_gambit(gambit, target)
 
     local action = gambit:getAbility():to_action(target:get_mob().index, self:get_player())
     if action then
-        if gambit:getTags():contains('reaction') then
+        self.last_gambit_time = os.time()
+
+        if gambit:getTags():contains('reaction') or gambit:getTags():contains('Reaction') then
             self.action_queue:clear()
         end
         action.priority = ActionPriority.highest
+        if not self:allows_multiple_actions() then
+            action.identifier = self.action_identifier
+        end
         self.action_queue:push_action(action, true)
     end
 end
@@ -274,6 +283,10 @@ end
 
 function Gambiter:get_type()
     return "gambiter"
+end
+
+function Gambiter:allows_multiple_actions()
+    return true
 end
 
 function Gambiter:set_gambit_settings(gambit_settings)

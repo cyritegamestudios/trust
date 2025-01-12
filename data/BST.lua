@@ -17,25 +17,26 @@ return {
             }
         },
         PullSettings = {
-            Abilities = L{
-                Approach.new()
+            Gambits = L{
+                Gambit.new("Enemy", L{}, Approach.new(), "Enemy", L{"Pulling"}),
             },
             Targets = L{
                 "Locus Ghost Crab",
                 "Locus Dire Bat",
                 "Locus Armet Beetle",
             },
-            Distance = 20
+            Distance = 20,
+            MaxNumTargets = 1,
         },
         TargetSettings = {
-            Retry = true
+            Retry = false
         },
         GambitSettings = {
             Default = L{
                 Gambit.new("Self", L{NotCondition.new(L{HasBuffsCondition.new(L{"Counter Boost", "Magic Def. Boost"}, 1)}), InBattleCondition.new(), HasPetCondition.new(L{"VivaciousVickie"}), ModeCondition.new("AutoBuffMode", "Auto")}, JobAbility.new("Zealous Snort", L{}, L{}), "Self", L{"JugPet"}),
             },
             Gambits = L{
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("BST")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"food"})
+                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("BST")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"Food"})
             }
         },
         GearSwapSettings = {

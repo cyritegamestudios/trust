@@ -10,18 +10,23 @@ local ManaRestorer = require('cylibs/trust/roles/mana_restorer')
 local Summoner = require('cylibs/entity/jobs/SMN')
 local Buffer = require('cylibs/trust/roles/buffer')
 local Frame = require('cylibs/ui/views/frame')
+local Puller = require('cylibs/trust/roles/puller')
+--local Nuker = require('cylibs/trust/roles/nuker')
 
 state.AutoAssaultMode = M{['description'] = 'Auto Assault Mode', 'Off', 'Auto'}
 state.AutoAvatarMode = M{['description'] = 'Avatar Mode', 'Off', 'Ifrit', 'Ramuh', 'Shiva', 'Garuda', 'Leviathan', 'Titan', 'Carbuncle', 'Diabolos', 'Fenrir', 'Siren', 'Cait Sith'}
 
 function SummonerTrust.new(settings, action_queue, battle_settings, trust_settings)
+	local job = Summoner.new()
 	local roles = S{
-		Buffer.new(action_queue, trust_settings.BuffSettings),
-		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, Summoner.new(), true),
+		Buffer.new(action_queue, trust_settings.BuffSettings, state.AutoBuffMode, job),
+		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job, true),
+		--Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		ManaRestorer.new(action_queue, L{'Myrkr', 'Spirit Taker'}, L{}, 40),
+		Puller.new(action_queue, trust_settings.PullSettings),
 	}
 
-	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, Summoner.new()), SummonerTrust)
+	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), SummonerTrust)
 
 	self.settings = settings
 	self.action_queue = action_queue
@@ -47,11 +52,6 @@ function SummonerTrust:on_init()
 
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
 		self.party_buffs = new_trust_settings.BuffSettings.Gambits or L{}
-
-		local puller = self:role_with_type("puller")
-		if puller then
-			puller:set_pull_settings(new_trust_settings.PullSettings)
-		end
 	end)
 end
 

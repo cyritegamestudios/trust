@@ -167,7 +167,7 @@ function buff_util.buff_name(buff_id)
 	elseif buffs_ext[buff_id] then
 		return buffs_ext[buff_id].en
 	end
-	return res.buffs:with('id', buff_id).en
+	return buff_id
 end
 
 -------

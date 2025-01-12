@@ -15,12 +15,12 @@ local Frame = require('cylibs/ui/views/frame')
 function BlackMageTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = BlackMage.new()
 	local roles = S{
-		Buffer.new(action_queue, trust_settings.BuffSettings),
-		Debuffer.new(action_queue, trust_settings.DebuffSettings),
-		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{ 'Manawell' }, job),
+		Buffer.new(action_queue, trust_settings.BuffSettings, state.AutoBuffMode, job),
+		Debuffer.new(action_queue, trust_settings.DebuffSettings, job),
+		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{ 'Manawell' }, job, false),
 		ManaRestorer.new(action_queue, L{'Myrkr', 'Spirit Taker', 'Moonlight'}, L{}, 40),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
-		Puller.new(action_queue, trust_settings.PullSettings.Targets, trust_settings.PullSettings.Abilities or L{ Spell.new('Burn') }),
+		Puller.new(action_queue, trust_settings.PullSettings),
 		Sleeper.new(action_queue, L{ Spell.new('Sleepga'), Spell.new('Sleepga II') }, 4)
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), BlackMageTrust)
@@ -33,11 +33,6 @@ function BlackMageTrust:on_init()
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
 		local debuffer = self:role_with_type("debuffer")
 		debuffer:set_debuff_settings(new_trust_settings.DebuffSettings)
-
-		local puller = self:role_with_type("puller")
-		if puller then
-			puller:set_pull_settings(new_trust_settings.PullSettings)
-		end
 
 		local nuker_roles = self:roles_with_types(L{ "nuker", "magicburster" })
 		for role in nuker_roles:it() do

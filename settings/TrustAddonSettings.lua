@@ -23,6 +23,7 @@ default.updater = {}
 default.updater.manifest_url = 'https://raw.githubusercontent.com/cyritegamestudios/trust/main/manifest.json'
 default.follow = {}
 default.follow.distance = 1
+default.follow.auto_pause = false
 default.flags = {}
 default.flags.show_death_warning = true
 default.flags.check_files = true

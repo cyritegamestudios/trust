@@ -17,6 +17,7 @@ Automaton = require('cylibs/entity/automaton')
 
 local Dispeler = require('cylibs/trust/roles/dispeler')
 local Buffer = require('cylibs/trust/roles/buffer')
+local Puller = require('cylibs/trust/roles/puller')
 
 state.AutoAssaultMode = M{['description'] = 'Deploy Pet in Battle', 'Off', 'Auto'}
 state.AutoAssaultMode:set_description('Auto', "Okay, my pet will fight with me!")
@@ -31,11 +32,13 @@ state.AutoRepairMode = M{['description'] = 'Use Repair', 'Auto', 'Off'}
 state.AutoRepairMode:set_description('Auto', "Okay, I'll use repair when my automaton's HP is low.")
 
 function PuppetmasterTrust.new(settings, action_queue, battle_settings, trust_settings)
+	local job = Puppetmaster.new()
 	local roles = S{
-		Buffer.new(action_queue, trust_settings.BuffSettings),
+		Buffer.new(action_queue, trust_settings.BuffSettings, state.AutoBuffMode, job),
+		Puller.new(action_queue, trust_settings.PullSettings),
 		Dispeler.new(action_queue, L{}, L{ JobAbility.new('Dark Maneuver', L{ HasAttachmentsCondition.new(L{ 'regulator', 'disruptor' }), NotCondition.new(L{ HasBuffCondition.new('Dark Maneuver', windower.ffxi.get_player().index) }, windower.ffxi.get_player().index) }, L{}, 'me') }, false),
 	}
-	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, Puppetmaster.new()), PuppetmasterTrust)
+	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), PuppetmasterTrust)
 
 	self.settings = settings
 	self.action_queue = action_queue
@@ -64,11 +67,6 @@ function PuppetmasterTrust:on_init()
 
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
 		self:get_job():set_maneuver_settings(new_trust_settings.AutomatonSettings.ManeuverSettings)
-
-		local puller = self:role_with_type("puller")
-		if puller then
-			puller:set_pull_settings(new_trust_settings.PullSettings)
-		end
 	end)
 
 	self.dispose_bag:add(self:get_player():on_pet_change():addAction(

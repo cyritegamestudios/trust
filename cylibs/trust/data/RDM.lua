@@ -34,15 +34,15 @@ state.AutoConvertMode:set_description('Auto', "Okay, I'll use Convert when my MP
 function RedMageTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = RedMage.new(trust_settings.CureSettings)
 	local roles = S{
-		Buffer.new(action_queue, trust_settings.BuffSettings),
+		Buffer.new(action_queue, trust_settings.BuffSettings, state.AutoBuffMode, job),
 		Barspeller.new(action_queue, job),
-		Debuffer.new(action_queue, trust_settings.DebuffSettings),
+		Debuffer.new(action_queue, trust_settings.DebuffSettings, job),
 		Dispeler.new(action_queue, L{ Spell.new('Dispel') }, L{}, true),
 		Healer.new(action_queue, job),
 		Raiser.new(action_queue, job),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
-		Puller.new(action_queue, trust_settings.PullSettings.Targets, trust_settings.PullSettings.Abilities or L{ Debuff.new('Dia') }:compact_map()),
+		Puller.new(action_queue, trust_settings.PullSettings),
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), RedMageTrust)
 
@@ -61,11 +61,6 @@ function RedMageTrust:on_init()
 
 		local debuffer = self:role_with_type("debuffer")
 		debuffer:set_debuff_settings(new_trust_settings.DebuffSettings)
-
-		local puller = self:role_with_type("puller")
-		if puller then
-			puller:set_pull_settings(new_trust_settings.PullSettings)
-		end
 
 		local nuker_roles = self:roles_with_types(L{ "nuker", "magicburster" })
 		for role in nuker_roles:it() do

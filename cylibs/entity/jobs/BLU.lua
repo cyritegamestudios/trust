@@ -272,4 +272,30 @@ function BlueMage:equip_spells(spell_names)
     self.spells_action_queue:push_action(equip_action, true)
 end
 
+-------
+-- Returns a list of spells only usable under the effects of Unbridled Learning
+-- or Unbridled Wisdom.
+-- @treturn list List of spell names
+function BlueMage:get_unbridled_spells()
+    return L{
+        'Thunderbolt', 'Harden Shell', 'Absolute Terror', 'Gates of Hades',
+        'Tourbillion', 'Pyric Bulwark', 'Bilgestorm', 'Bloodrake',
+        'Droning Whirlwind', 'Carcharian Verve', 'Blistering Roar',
+        'Uproot', 'Crashing Thunder', 'Polar Roar', 'Mighty Guard',
+        'Cruel Joke', 'Cesspool', 'Tearing Gust',
+    }
+end
+
+-------
+-- Returns a list of conditions for an ability.
+-- @tparam Spell|JobAbility ability The ability
+-- @treturn list List of conditions
+function BlueMage:get_conditions_for_ability(ability)
+    local conditions = Job.get_conditions_for_ability(self, ability)
+    if self:get_unbridled_spells():contains(ability:get_name()) then
+        conditions:append(JobAbilityRecastReadyCondition.new('Unbridled Learning'))
+    end
+    return conditions
+end
+
 return BlueMage

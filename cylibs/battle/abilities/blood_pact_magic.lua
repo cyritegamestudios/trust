@@ -41,6 +41,24 @@ end
 function BloodPactMagic:set_job_abilities(job_ability_names)
 end
 
+---
+-- Returns whether all job abilities are required to perform this action.
+--
+-- @treturn boolean Whether job abilities are required
+--
+function BloodPactMagic:requires_all_job_abilities()
+    return self.requires_job_abilities
+end
+
+---
+-- Sets whether job abilities are required.
+--
+-- @tparam boolean requires_job_abilities Whether job abilities are required
+--
+function BloodPactMagic:set_requires_all_job_abilities(requires_job_abilities)
+    self.requires_job_abilities = requires_job_abilities
+end
+
 function BloodPactMagic:serialize()
     local conditions_classes_to_serialize = L{
         InBattleCondition.__class,

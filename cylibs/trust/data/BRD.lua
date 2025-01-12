@@ -30,10 +30,10 @@ state.AutoClarionCallMode:set_description('Auto', "Okay, I'll use Clarion Call b
 function BardTrust.new(settings, action_queue, battle_settings, trust_settings, addon_settings)
 	local job = Bard.new(trust_settings, addon_settings)
 	local roles = S{
-		Debuffer.new(action_queue, trust_settings.DebuffSettings),
+		Debuffer.new(action_queue, trust_settings.DebuffSettings, job),
 		Singer.new(action_queue, trust_settings.SongSettings.DummySongs, trust_settings.SongSettings.Songs, trust_settings.SongSettings.PianissimoSongs, job, state.AutoSongMode, ActionPriority.medium),
 		Dispeler.new(action_queue, L{ Spell.new('Magic Finale') }, L{}, true),
-		Puller.new(action_queue, trust_settings.PullSettings.Targets, L{ Spell.new('Carnage Elegy') }),
+		Puller.new(action_queue, trust_settings.PullSettings),
 		Sleeper.new(action_queue, L{ Spell.new('Horde Lullaby'), Spell.new('Horde Lullaby II') }, 3)
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), BardTrust)
@@ -74,11 +74,6 @@ function BardTrust:on_init()
 
 		local debuffer = self:role_with_type("debuffer")
 		debuffer:set_debuff_settings(new_trust_settings.DebuffSettings)
-
-		local puller = self:role_with_type("puller")
-		if puller then
-			puller:set_pull_settings(new_trust_settings.PullSettings)
-		end
 	end)
 end
 

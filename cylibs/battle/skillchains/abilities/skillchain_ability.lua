@@ -50,6 +50,7 @@ function SkillchainAbility.auto()
     local self = setmetatable({
         ability_id = SkillchainAbility.Auto;
         name = "Auto";
+        conditions = L{};
     }, SkillchainAbility)
     return self
 end
@@ -58,6 +59,7 @@ function SkillchainAbility.none()
     local self = setmetatable({
         ability_id = SkillchainAbility.None;
         name = "None";
+        conditions = L{};
     }, SkillchainAbility)
     return self
 end

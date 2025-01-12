@@ -29,6 +29,12 @@ function SkillchainPropertyCondition.new(allowed_skillchain_properties)
 end
 
 function SkillchainPropertyCondition:is_satisfied(target_index, skillchain)
+    if skillchain == nil then
+        local target = player.alliance:get_target_by_index(target_index)
+        if target and target:get_skillchain() then
+            skillchain = target:get_skillchain():get_skillchain()
+        end
+    end
     if skillchain then
         if type(skillchain) ~= 'string' then
             skillchain = skillchain:get_name()

@@ -23,13 +23,13 @@ function WhiteMageTrust.new(settings, action_queue, battle_settings, trust_setti
 		Healer.new(action_queue, job),
 		StatusRemover.new(action_queue, job),
 		Barspeller.new(action_queue, job),
-		Buffer.new(action_queue, trust_settings.BuffSettings),
-		Debuffer.new(action_queue, trust_settings.DebuffSettings),
+		Buffer.new(action_queue, trust_settings.BuffSettings, state.AutoBuffMode, job),
+		Debuffer.new(action_queue, trust_settings.DebuffSettings, job),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		ManaRestorer.new(action_queue, L{'Mystic Boon', 'Dagan', 'Spirit Taker', 'Moonlight'}, L{}, 40),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		Raiser.new(action_queue, job),
-		Puller.new(action_queue, trust_settings.PullSettings.Targets, trust_settings.PullSettings.Abilities or L{ Debuff.new('Dia') }:compact_map()),
+		Puller.new(action_queue, trust_settings.PullSettings),
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), WhiteMageTrust)
 
@@ -48,11 +48,6 @@ function WhiteMageTrust:on_init()
 
 		local debuffer = self:role_with_type("debuffer")
 		debuffer:set_debuff_settings(new_trust_settings.DebuffSettings)
-
-		local puller = self:role_with_type("puller")
-		if puller then
-			puller:set_pull_settings(new_trust_settings.PullSettings)
-		end
 
 		local nuker_roles = self:roles_with_types(L{ "nuker", "magicburster" })
 		for role in nuker_roles:it() do

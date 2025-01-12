@@ -60,6 +60,14 @@ function localization_util.commas(list, join_word)
     return result
 end
 
+function localization_util.format(string, inverted)
+    if inverted then
+        return "Not "..string
+    else
+        return string
+    end
+end
+
 function localization_util.join(list, separator)
     if list:length() == 0 then
         return ""

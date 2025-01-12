@@ -12,8 +12,9 @@ state.AutoDebuffMode:set_description('Auto', "Okay, I'll debuff the monster.")
 state.AutoSilenceMode = M{['description'] = 'Silence Casters', 'Off', 'Auto'}
 state.AutoSilenceMode:set_description('Auto', "Okay, I'll try to silence monsters that cast spells.")
 
-function Debuffer.new(action_queue, debuff_settings)
+function Debuffer.new(action_queue, debuff_settings, job)
     local self = setmetatable(Gambiter.new(action_queue, {}, nil, state.AutoDebuffMode, true), Debuffer)
+    self.job = job
     self:set_debuff_settings(debuff_settings)
     return self
 end
@@ -33,12 +34,13 @@ function Debuffer:set_debuff_settings(debuff_settings)
 end
 
 function Debuffer:get_default_conditions(gambit)
-    return L{
+    local conditions = L{
         ClaimedCondition.new(),
         NotCondition.new(L{ HasDebuffCondition.new(gambit:getAbility():get_status().en) }),
         NotCondition.new(L{ ImmuneCondition.new(gambit:getAbility():get_name()) }),
         NumResistsCondition.new(gambit:getAbility():get_name(), Condition.Operator.LessThan, 4),
     }
+    return conditions + self.job:get_conditions_for_ability(gambit:getAbility())
 end
 
 function Debuffer:allows_duplicates()

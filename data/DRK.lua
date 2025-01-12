@@ -16,10 +16,10 @@ return {
             }
         },
         PullSettings = {
-            Abilities = L{
-                Spell.new('Absorb-STR', L{}, L{}),
-                Spell.new('Absorb-DEX', L{}, L{}),
-                Spell.new('Stone', L{}, L{})
+            Gambits = L{
+                Gambit.new("Enemy", L{}, Spell.new('Absorb-STR', L{}, L{}), "Enemy", L{"Pulling"}),
+                Gambit.new("Enemy", L{}, Spell.new('Absorb-DEX', L{}, L{}), "Enemy", L{"Pulling"}),
+                Gambit.new("Enemy", L{}, Spell.new('Stone', L{}, L{}), "Enemy", L{"Pulling"}),
             },
             Targets = L{
                 "Locus Ghost Crab",
@@ -27,7 +27,7 @@ return {
                 "Locus Armet Beetle",
             },
             Distance = 20,
-            MaxNumMobs = 1,
+            MaxNumTargets = 1,
         },
         TargetSettings = {
             Retry = false,
@@ -37,13 +37,11 @@ return {
             MinManaPointsPercent = 20,
             MinNumMobsToCleave = 2,
             GearswapCommand = "gs c set MagicBurstMode Single",
-            Spells = L{
-                Spell.new("Drain III", L{}, L{}, nil, L{}),
-                Spell.new("Drain II", L{}, L{}, nil, L{}),
+            Gambits = L{
+                Gambit.new("Enemy", L{NotCondition.new(L{HasBuffCondition.new("Max HP Boost")})}, Spell.new("Drain III", L{"Dark Seal", "Nether Void"}, L{}, nil, L{}, nil, false), "Enemy", L{"Nukes"}),
+                Gambit.new("Enemy", L{NotCondition.new(L{HasBuffCondition.new("Max HP Boost")})}, Spell.new("Drain II", L{"Dark Seal", "Nether Void"}, L{}, nil, L{}, nil, false), "Enemy", L{"Nukes"}),
             },
             JobAbilities = L{
-                JobAbility.new("Nether Void"),
-                JobAbility.new("Dark Seal"),
             },
             Blacklist = L{
 
@@ -55,7 +53,7 @@ return {
                 Gambit.new("Self", L{HasBuffCondition.new("Max HP Boost"), StatusCondition.new('Idle', 2, ">="), NotCondition.new(L{HasBuffCondition.new("Dread Spikes")})},  Spell.new("Dread Spikes", L{}, L{}), "Self"),
             },
             Gambits = L{
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("DRK")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"food"})
+                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("DRK")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"Food"})
             }
         },
         GearSwapSettings = {

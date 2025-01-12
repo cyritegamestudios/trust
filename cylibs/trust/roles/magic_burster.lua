@@ -1,10 +1,13 @@
-local Role = require('cylibs/trust/roles/role')
-local MagicBurster = setmetatable({}, {__index = Role })
+local ConditionalCondition = require('cylibs/conditions/conditional')
+local DisposeBag = require('cylibs/events/dispose_bag')
+local Gambit = require('cylibs/gambits/gambit')
+local GambitTarget = require('cylibs/gambits/gambit_target')
+local skillchain_util = require('cylibs/util/skillchain_util')
+
+local Gambiter = require('cylibs/trust/roles/gambiter')
+local MagicBurster = setmetatable({}, {__index = Gambiter })
 MagicBurster.__index = MagicBurster
 MagicBurster.__class = "MagicBurster"
-
-local DisposeBag = require('cylibs/events/dispose_bag')
-local Timer = require('cylibs/util/timers/timer')
 
 state.AutoMagicBurstMode = M{['description'] = 'Magic Burst', 'Off', 'Auto', 'Earth', 'Lightning', 'Water', 'Fire', 'Ice', 'Wind', 'Light', 'Dark', 'Mirror'}
 state.AutoMagicBurstMode:set_description('Auto', "Okay, I'll magic burst with any element.")
@@ -29,16 +32,13 @@ state.MagicBurstTargetMode:set_description('All', "Okay, I'll magic burst with b
 -- @tparam fast_cast number Fast cast modifier (0.0 - 1.0)
 -- @tparam List default_job_ability_names List of job abilities to use with spells if none are specified in settings (e.g. Cascade, Ebullience)
 -- @tparam Job job Job
--- @treturn Nuker A nuker role
-function MagicBurster.new(action_queue, nuke_settings, fast_cast, default_job_ability_names, job)
-    local self = setmetatable(Role.new(action_queue), MagicBurster)
+-- @treturn MagicBurster A magic burster role
+function MagicBurster.new(action_queue, nuke_settings, fast_cast, default_job_ability_names, job, requires_job_abilities)
+    local self = setmetatable(Gambiter.new(action_queue, {}, nil, state.AutoMagicBurstMode, true), MagicBurster)
 
     self.fast_cast = fast_cast or 0.8
-    self.default_job_abilities = default_job_ability_names:map(function(job_ability_name) return JobAbility.new(job_ability_name) end) or L{}
     self.job = job
-    self.last_magic_burst_time = os.time()
-    self.action_identifier = self.__class..'_cast_spell'
-    self.target_dispose_bag = DisposeBag.new()
+    self.requires_job_abilities = requires_job_abilities
     self.dispose_bag = DisposeBag.new()
 
     self:set_nuke_settings(nuke_settings)
@@ -47,23 +47,28 @@ function MagicBurster.new(action_queue, nuke_settings, fast_cast, default_job_ab
 end
 
 function MagicBurster:destroy()
-    Role.destroy(self)
+    Gambiter.destroy(self)
 
     self.dispose_bag:destroy()
-    self.target_dispose_bag:destroy()
 end
 
 function MagicBurster:on_add()
-    Role.on_add(self)
+    Gambiter.on_add(self)
 
-    self.dispose_bag:add(self.action_queue:on_action_end():addAction(function(a, success)
-        if a:getidentifier() == self.action_identifier or not self.action_queue:has_action(self.action_identifier) then
-            self.is_casting = false
-            if not success then
-                self.last_magic_burst_time = os.time() - self.magic_burst_cooldown
+    WindowerEvents.Skillchain.Begin:addAction(function(target_id, skillchain_step)
+        local target = self:get_target()
+        if target and target:get_id() == target_id then
+            self:check_gambits()
+        end
+    end)
+
+    self.dispose_bag:add(self.action_queue:on_action_start():addAction(function(_, a)
+        if a:getidentifier() == self.action_identifier then
+            if self.gearswap_command and self.gearswap_command:length() > 0 then
+                windower.send_command(self.gearswap_command)
             end
         end
-    end), self.action_queue:on_action_end())
+    end), self.action_queue:on_action_start())
 
     self.dispose_bag:add(WindowerEvents.Spell.Begin:addAction(function(mob_id, spell_id)
         if state.AutoMagicBurstMode.value ~= 'Mirror' or self:get_target() == nil
@@ -75,165 +80,21 @@ function MagicBurster:on_add()
                 and assist_target ~= self:get_party():get_player() then
             local spell = res.spells[spell_id]
             if spell and S{'Enemy'}:intersection(S(spell.targets)):length() > 0 and S{'BlackMagic', 'BlueMagic'}:contains(spell.type) then
-                if self.job:knows_spell(spell.id) then
-                    self:cast_spell(Spell.new(spell.name))
-                else
-                    local spell = self:get_spell(Element.new(res.elements[spell.element].en))
-                    if spell then
-                        self:cast_spell(Spell.new(spell:get_name()))
-                    end
+                local gambit = Gambit.new(GambitTarget.TargetType.Enemy, L{}, Spell.new(spell.en), GambitTarget.TargetType.Enemy)
+                gambit.conditions = self:get_default_conditions(gambit, true)
+                if not gambit:isSatisfied(self:get_target()) then
+                    gambit = self.nuke_settings.Gambits:map(function(gambit)
+                        return Gambit.new(gambit:getAbilityTarget(), self:get_default_conditions(gambit, true), gambit:getAbility(), gambit:getConditionsTarget())
+                    end):firstWhere(function(gambit)
+                        return gambit:getAbility():get_element() == spell.element and gambit:isSatisfied(self:get_target())
+                    end)
+                end
+                if gambit then
+                    self:check_gambits(self:get_gambit_targets(GambitTarget.TargetType.Enemy), L{ gambit }, nil, true)
                 end
             end
         end
     end), WindowerEvents.Spell.Begin)
-
-    self.timer = Timer.scheduledTimer(0.25, 0)
-
-    self.dispose_bag:add(self.timer:onTimeChange():addAction(function(_)
-        local target = self:get_target()
-        if target then
-            local step = target:get_skillchain()
-            if step and step:get_skillchain() and not step:is_expired() and step:get_time_remaining() > 1.5 then
-                self:check_magic_burst(step:get_skillchain())
-            end
-        end
-    end), self.timer:onTimeChange())
-    self.dispose_bag:addAny(L{ self.timer })
-
-    self.timer:start()
-end
-
-function MagicBurster:target_change(target_index)
-    Role.target_change(self, target_index)
-
-    self.is_casting = false
-
-    self.target_dispose_bag:dispose()
-
-    local target = self:get_target()
-    if target then
-        self.target_dispose_bag:add(target:on_skillchain():addAction(function(_, step)
-            self:check_magic_burst(step:get_skillchain())
-        end), target:on_skillchain())
-
-        self.target_dispose_bag:add(target:on_skillchain_ended():addAction(function(_)
-            self.is_casting = false
-        end), target:on_skillchain_ended())
-    end
-end
-
--------
--- Performs a magic burst on the given skillchain if possible.
--- @tparam Skillchain skillchain Skillchain (e.g. Light, Fragmentation, Scission)
-function MagicBurster:check_magic_burst(skillchain)
-    if S{ 'Off', 'Mirror' }:contains(state.AutoMagicBurstMode.value) or (os.time() - self.last_magic_burst_time) < self.magic_burst_cooldown or self.is_casting then
-        return
-    end
-    local elements = L(skillchain:get_elements():filter(function(element)
-        if state.AutoMagicBurstMode.value ~= 'Auto' then
-            return element:get_name() == state.AutoMagicBurstMode.value
-        end
-        return not self.element_blacklist:contains(element)
-    end)):sort(function(element1, element2)
-        return self:get_priority(element1) > self:get_priority(element2)
-    end)
-
-    for element in elements:it() do
-        local spell = self:get_spell(element)
-        if spell then
-            self:cast_spell(spell)
-            return
-        end
-    end
-end
-
--------
--- Returns the priority of a given element when magic bursting.
--- @tparam Element element Element (e.g. Lightning, Fire, Water)
--- @treturn number Priority of the element (1...8)
-function MagicBurster:get_priority(element)
-    local element_priority = L{
-        'Dark',
-        'Lightning',
-        'Ice',
-        'Fire',
-        'Wind',
-        'Water',
-        'Earth',
-        'Light'
-    }:reverse()
-    return element_priority:indexOf(element:get_name())
-end
-
-function MagicBurster:cast_spell(spell)
-    if not Condition.check_conditions(L{ MinManaPointsPercentCondition.new(self.magic_burst_mpp, windower.ffxi.get_player().index) }, self.target_index) then
-        return
-    end
-    if Condition.check_conditions(spell:get_conditions(), self.target_index) then
-        self.last_magic_burst_time = os.time()
-
-        if self.gearswap_command and self.gearswap_command:length() > 0 then
-            windower.send_command(self.gearswap_command)
-        end
-
-        local player = windower.ffxi.get_player()
-
-        local job_abilities
-        local job_ability = L{}:extend(self.job_abilities):firstWhere(function(job_ability)
-            return job_util.knows_job_ability(job_ability:get_ability_id()) and job_util.can_use_job_ability(job_ability:get_job_ability_name()) and Condition.check_conditions(job_ability:get_conditions(), player.index)
-        end)
-        if job_ability then
-            job_abilities = L{ job_ability:get_job_ability_name() }
-        end
-
-        local spell_action = spell:to_action(self.target_index, self:get_player(), job_abilities)
-        spell_action.priority = ActionPriority.high
-        spell_action.identifier = self.action_identifier
-
-        self.is_casting = true
-
-        self.action_queue:push_action(spell_action, true)
-    end
-end
-
--------
--- Gets the highest priority spell that can magic burst with the given element.
--- @tparam Element element Element (e.g. Lightning, Fire, Water)
--- @treturn Spell Spell to magic burst with, or nil if there are none
-function MagicBurster:get_spell(element)
-    local spells = self.element_to_spells[element:get_name()]:filter(function(spell)
-        if state.MagicBurstTargetMode.value == 'Single' then
-            return not self.job:get_aoe_spells():contains(spell:get_name())
-        end
-        return true
-    end)
-    for spell in spells:it() do
-        local conditions = self.job:get_conditions_for_spell(spell) + L{ MinManaPointsCondition.new(spell:get_mp_cost(), windower.ffxi.get_player().index) }
-        if Condition.check_conditions(conditions, self.target_index) then
-            return spell
-        end
-    end
-    return nil
-end
-
-function MagicBurster:set_spells(spells)
-    self.element_to_spells = {
-        Fire = L{},
-        Ice = L{},
-        Wind = L{},
-        Earth = L{},
-        Lightning = L{},
-        Water = L{},
-        Light = L{},
-        Dark = L{}
-    }
-    self.spells = (spells or L{}):filter(function(spell)
-        return spell ~= nil and spell:is_valid()
-    end)
-    for spell in self.spells:it() do
-        local element_name = res.elements[spell:get_element()].en
-        self.element_to_spells[element_name]:append(spell)
-    end
 end
 
 -------
@@ -244,12 +105,65 @@ function MagicBurster:set_nuke_settings(nuke_settings)
     self.magic_burst_cooldown = nuke_settings.Delay or 2
     self.magic_burst_mpp = nuke_settings.MinManaPointsPercent or 20
     self.element_blacklist = nuke_settings.Blacklist or L{}
-    self.job_abilities = nuke_settings.JobAbilities or self.default_job_ability_names or L{}
     self.gearswap_command = nuke_settings.GearswapCommand or 'gs c set MagicBurstMode Single'
-    self:set_spells(nuke_settings.Spells)
+
+    local element_id_blacklist = self.element_blacklist:map(function(element) return res.elements:with('en', element:get_name()).id end)
+
+    for gambit in nuke_settings.Gambits:it() do
+        gambit:getAbility():set_requires_all_job_abilities(self.requires_job_abilities)
+
+        gambit.conditions = gambit.conditions:filter(function(condition)
+            return condition:is_editable()
+        end)
+        local conditions = self:get_default_conditions(gambit)
+        for condition in conditions:it() do
+            condition.editable = false
+            gambit:addCondition(condition, true)
+        end
+
+        gambit:setEnabled(not element_id_blacklist:contains(gambit:getAbility():get_element()))
+    end
+    self:set_gambit_settings(nuke_settings)
+end
+
+function MagicBurster:get_default_conditions(gambit, exclude_mode_conditions)
+    local conditions = L{
+    }
+
+    if not exclude_mode_conditions then
+        conditions:append(ConditionalCondition.new(L{
+            ModeCondition.new('AutoMagicBurstMode', res.elements[gambit:getAbility():get_element()].en),
+            ModeCondition.new('AutoMagicBurstMode', 'Auto'),
+        }, Condition.LogicalOperator.Or))
+        conditions:append(NotCondition.new(L{ ModeCondition.new('AutoMagicBurstMode', 'Mirror') }))
+    end
+
+    if self.job:get_aoe_spells():contains(gambit:getAbility():get_name()) then
+        conditions:append(ModeCondition.new('MagicBurstTargetMode', 'All'))
+    end
+
+    conditions:append(SkillchainPropertyCondition.new(skillchain_util.get_skillchain_properties_for_element(gambit:getAbility():get_element())))
+
+    if L(gambit:getAbility():get_valid_targets()) ~= L{ 'Self' } then
+        conditions:append(MaxDistanceCondition.new(gambit:getAbility():get_range()))
+    end
+
+    conditions:append(SkillchainWindowCondition.new(1.25, ">="))
+    conditions:append(MinManaPointsCondition.new(gambit:getAbility():get_mp_cost(), windower.ffxi.get_player().index))
+    conditions:append(MinManaPointsPercentCondition.new(self.magic_burst_mpp, windower.ffxi.get_player().index))
+
+    return conditions + self.job:get_conditions_for_ability(gambit:getAbility())
+end
+
+function Gambiter:get_cooldown()
+    return self.magic_burst_cooldown or 0
 end
 
 function MagicBurster:allows_duplicates()
+    return false
+end
+
+function MagicBurster:allows_multiple_actions()
     return false
 end
 

@@ -6,15 +6,18 @@ BeastmasterTrust.__index = BeastmasterTrust
 
 local Familiar = require('cylibs/entity/familiar')
 local Buffer = require('cylibs/trust/roles/buffer')
+local Puller = require('cylibs/trust/roles/puller')
 
 state.AutoAssaultMode = M{['description'] = 'Auto Assault Mode', 'Off', 'Auto'}
 state.AutoPetMode = M{['description'] = 'Auto Pet Mode', 'Off', 'Auto'}
 
 function BeastmasterTrust.new(settings, action_queue, battle_settings, trust_settings)
+	local job = Beastmaster.new(action_queue)
 	local roles = S{
-		Buffer.new(action_queue, trust_settings.BuffSettings),
+		Buffer.new(action_queue, trust_settings.BuffSettings, state.AutoBuffMode, job),
+		Puller.new(action_queue, trust_settings.PullSettings),
 	}
-	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, Beastmaster.new(action_queue)), BeastmasterTrust)
+	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), BeastmasterTrust)
 
 	self.settings = settings
 	self.action_queue = action_queue
@@ -36,10 +39,6 @@ function BeastmasterTrust:on_init()
 	end)
 
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
-		local puller = self:role_with_type("puller")
-		if puller then
-			puller:set_pull_settings(new_trust_settings.PullSettings)
-		end
 	end)
 end
 

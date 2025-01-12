@@ -5,6 +5,15 @@ local Gambit = {}
 Gambit.__index = Gambit
 Gambit.__class = "Gambit"
 
+Gambit.Tags = {}
+Gambit.Tags.AllTags = L{
+    'Buffs',
+    'Debuffs',
+    'Food',
+    'Nukes',
+    'Reaction',
+}
+
 function Gambit.new(target, conditions, ability, conditions_target, tags)
     local self = setmetatable({}, Gambit)
 
@@ -19,7 +28,7 @@ function Gambit.new(target, conditions, ability, conditions_target, tags)
 end
 
 function Gambit:isSatisfied(target, param)
-    if target == nil or target:get_mob() == nil then
+    if target == nil or target:get_mob() == nil or self:getAbility() == nil then
         return false
     end
     return self.conditions:length() > 0 and Condition.check_conditions(self.conditions, target:get_mob().index, param)
@@ -100,7 +109,7 @@ function Gambit:copy()
     for condition in self:getConditions():it() do
         conditions:append(condition:copy())
     end
-    return Gambit.new(self:getAbilityTarget(), conditions, self:getAbility(), self:getConditionsTarget())
+    return Gambit.new(self:getAbilityTarget(), conditions, self:getAbility(), self:getConditionsTarget(), L(self:getTags()))
 end
 
 function Gambit:__eq(otherItem)

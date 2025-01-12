@@ -33,7 +33,6 @@ function PullSettingsMenuItem.new(abilities, trust, job_name_short, trust_settin
     self.abilities = abilities
     self.trust = trust
     self.puller = trust:role_with_type("puller")
-    self.puller_settings = self.puller:get_pull_settings()
     self.job_name_short = job_name_short
     self.trust_settings = trust_settings
     self.trust_settings_mode = trust_settings_mode

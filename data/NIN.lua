@@ -23,44 +23,45 @@ return {
             MinManaPointsPercent = 0,
             MinNumMobsToCleave = 2,
             GearswapCommand = "gs c set MagicBurstMode Single",
-            Spells = L{
-                Spell.new('Raiton: San'),
-                Spell.new('Raiton: Ni'),
-                Spell.new('Hyoton: San'),
-                Spell.new('Hyoton: Ni'),
-                Spell.new('Katon: San'),
-                Spell.new('Katon: Ni'),
-                Spell.new('Huton: San'),
-                Spell.new('Huton: Ni'),
-                Spell.new('Suiton: San'),
-                Spell.new('Suiton: Ni'),
-                Spell.new('Doton: San'),
-                Spell.new('Doton: Ni'),
+            Gambits = L{
+                Gambit.new("Enemy", L{}, Spell.new("Raiton: San", L{"Futae"}, L{}, nil, L{}, nil), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Raiton: Ni", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Hyoton: San", L{"Futae"}, L{}, nil, L{}, nil), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Hyoton: Ni", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Katon: San", L{"Futae"}, L{}, nil, L{}, nil), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Katon: Ni", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Huton: San", L{"Futae"}, L{}, nil, L{}, nil), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Huton: Ni", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Suiton: San", L{"Futae"}, L{}, nil, L{}, nil), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Suiton: Ni", L{}, L{}, nil, L{}, nil), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Doton: San", L{"Futae"}, L{}, nil, L{}, nil), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Doton: Ni", L{}, L{}, nil, L{}, nil), "Enemy", L{}),
             },
             JobAbilities = L{
-                JobAbility.new("Futae", L{}, L{}),
             },
             Blacklist = L{
 
             },
         },
         PullSettings = {
-            Abilities = L{
-                Spell.new("Jubaku: Ni", L{}, L{}),
+            Gambits = L{
+                Gambit.new("Enemy", L{ItemCountCondition.new("Chonofuda", 1, ">=")}, Spell.new("Jubaku: Ni", L{}, L{}), "Enemy", L{"Pulling"}),
+                Gambit.new("Enemy", L{}, Approach.new(), "Enemy", L{"Pulling"}),
             },
             Targets = L{
                 "Locus Ghost Crab",
                 "Locus Dire Bat",
                 "Locus Armet Beetle",
             },
-            Distance = 20
+            Distance = 20,
+            MaxNumTargets = 1,
         },
         TargetSettings = {
-            Retry = true
+            Retry = false
         },
         GambitSettings = {
             Gambits = L{
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("NIN")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"food"})
+                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("NIN")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"Food"})
             }
         },
         GearSwapSettings = {

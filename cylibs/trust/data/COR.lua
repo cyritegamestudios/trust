@@ -19,7 +19,7 @@ function CorsairTrust.new(settings, action_queue, battle_settings, trust_setting
 		Dispeler.new(action_queue, L{}, L{ JobAbility.new('Dark Shot') }, false),
 		Shooter.new(action_queue, trust_settings.Shooter.Delay or 1.5),
 		Roller.new(action_queue, job, trust_settings.Roll1, trust_settings.Roll2),
-		Puller.new(action_queue, trust_settings.PullSettings.Targets, L{ RangedAttack.new() })
+		Puller.new(action_queue, trust_settings.PullSettings)
 	}
 
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), CorsairTrust)
@@ -42,11 +42,6 @@ function CorsairTrust:on_init()
 		local shooter = self:role_with_type("shooter")
 		if shooter then
 			shooter:set_shoot_delay(new_trust_settings.Shooter.Delay)
-		end
-
-		local puller = self:role_with_type("puller")
-		if puller then
-			puller:set_pull_settings(new_trust_settings.PullSettings)
 		end
 	end)
 

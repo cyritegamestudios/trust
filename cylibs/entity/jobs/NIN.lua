@@ -3,6 +3,8 @@
 -- @class module
 -- @name Ninja
 
+local ConditionalCondition = require('cylibs/conditions/conditional')
+
 local Job = require('cylibs/entity/jobs/job')
 local Ninja = setmetatable({}, {__index = Job })
 Ninja.__index = Ninja
@@ -47,6 +49,59 @@ function Ninja:should_cancel_shadows(current_spell_id, new_spell_id)
         return L{ 338, 339 }:contains(new_spell_id)
     else
         return false
+    end
+end
+
+-------
+-- Returns a list of conditions for an ability.
+-- @tparam Spell|JobAbility ability The ability
+-- @treturn list List of conditions
+function Ninja:get_conditions_for_ability(ability)
+    local conditions = Job.get_conditions_for_ability(self, ability)
+    local tools = self:get_tools_for_spell(ability)
+    if tools:length() > 0 then
+        local item_conditions = tools:map(function(tool_name)
+            return ItemCountCondition.new(tool_name, 1, Condition.Operator.GreaterThanOrEqualTo)
+        end)
+        conditions:append(ConditionalCondition.new(item_conditions, Condition.LogicalOperator.Or))
+    end
+    return conditions
+end
+
+local Ninjutsu = {}
+
+Ninjutsu.Buffing = L{
+    'Tonko', 'Utsusemi', 'Monomi',
+    'Myoshu', 'Migawari', 'Gekka', 'Yain',
+    'Kakka'
+}
+Ninjutsu.Enfeebling = L{
+    'Kurayami', 'Hojo', 'Dokumori',
+    'Jubaku', 'Aisha', 'Yurin',
+}
+Ninjutsu.Elemental = L{
+    'Katon', 'Suiton', 'Raiton',
+    'Doton', 'Huton', 'Hyoton',
+}
+
+function Ninja:get_tools_for_spell(spell)
+    local match = function(list, term)
+        for el in list:it() do
+            local result = string.match(term, el)
+            if result then
+                return true
+            end
+        end
+        return false
+    end
+    if match(Ninjutsu.Buffing, spell:get_name()) then
+        return L{'Shikanofuda'}
+    elseif match(Ninjutsu.Enfeebling, spell:get_name()) then
+        return L{'Chonofuda'}
+    elseif match(Ninjutsu.Elemental, spell:get_name()) then
+        return L{'Inoshishinofuda'}
+    else
+        return L{}
     end
 end
 

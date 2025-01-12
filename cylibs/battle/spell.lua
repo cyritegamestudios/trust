@@ -12,7 +12,6 @@ local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerCon
 local serializer_util = require('cylibs/util/serializer_util')
 
 local res = require('resources')
-local StrategemCountCondition = require('cylibs/conditions/strategem_count')
 
 local Spell = {}
 Spell.__index = Spell
@@ -37,24 +36,17 @@ function Spell.new(spell_name, job_abilities, job_names, target, conditions, con
         consumable = consumable;
         conditions = conditions or L{};
         enabled = true;
+        requires_job_abilities = true;
     }, Spell)
 
     if S(res.spells:with('en', spell_name)):contains('Party') then
         job_names = job_names or job_util.all_jobs()
     end
 
-    self:add_condition(SpellRecastReadyCondition.new(res.spells:with('en', spell_name).id))
+    local recast_ready_condition = SpellRecastReadyCondition.new(res.spells:with('en', spell_name).id)
+    recast_ready_condition.editable = false
 
-    local strategem_count = self.job_abilities:filter(function(job_ability_name)
-        local job_ability = res.job_abilities:with('en', job_ability_name)
-        return job_ability.type == 'Scholar'
-    end):length()
-    if strategem_count > 0 then
-        local strategem_condition = (conditions or L{}):filter(function(condition) return condition.__type == StrategemCountCondition.__type end)
-        if strategem_condition:length() == 0 then
-            self:add_condition(StrategemCountCondition.new(strategem_count))
-        end
-    end
+    self:add_condition(recast_ready_condition)
 
     return self
 end
@@ -87,6 +79,24 @@ end
 --
 function Spell:set_job_abilities(job_ability_names)
     self.job_abilities = job_ability_names
+end
+
+---
+-- Returns whether all job abilities are required to perform this action.
+--
+-- @treturn boolean Whether job abilities are required
+--
+function Spell:requires_all_job_abilities()
+    return self.requires_job_abilities
+end
+
+---
+-- Sets whether job abilities are required.
+--
+-- @tparam boolean requires_job_abilities Whether job abilities are required
+--
+function Spell:set_requires_all_job_abilities(requires_job_abilities)
+    self.requires_job_abilities = requires_job_abilities
 end
 
 -------
@@ -232,7 +242,9 @@ function Spell:get_config_items(trust)
     end)
     configItem:setPickerTitle("Job Abilities")
     configItem:setPickerDescription("Choose one or more job abilities to use with this spell.")
-    return L{ configItem }
+    return L{
+        configItem,
+    }
 end
 
 -------
@@ -266,6 +278,9 @@ function Spell:to_action(target_index, player, job_abilities)
     end):filter(function(job_ability)
         return Condition.check_conditions(job_ability:get_conditions(), player:get_mob().index)
     end)
+    if not self:requires_all_job_abilities() and job_abilities:length() > 0 then
+        job_abilities = L{ job_abilities[1] }
+    end
 
     for job_ability in job_abilities:it() do
         if job_ability.type == 'Scholar' then

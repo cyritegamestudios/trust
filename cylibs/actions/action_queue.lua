@@ -83,10 +83,8 @@ function ActionQueue:perform_next_action()
 			windower.chat.input('// lua m')
 		end
 		self.current_action = next_action
-		if self.verbose then
-			self:on_action_start():trigger(self, next_action)
-		end
-		--print(tostring(self.identifier)..' '..next_action:gettype()..' '..(next_action:getidentifier() or 'nil')..' start')
+
+		self:on_action_start():trigger(self, next_action)
 
 		self.current_action:on_action_complete():addAction(function(a, success) self:handle_action_completed(a, success) end)
 		self.current_action:set_start_time(os.time())

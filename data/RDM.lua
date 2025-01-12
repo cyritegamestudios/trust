@@ -25,7 +25,7 @@ return {
             },
             Gambits = L{
                 Gambit.new("Enemy", L{MeleeAccuracyCondition.new(75, "<="), MainJobCondition.new("RDM"), NumResistsCondition.new("Distract", "<", 3), NumResistsCondition.new("Distract II", "<", 3), NumResistsCondition.new("Distract III", "<", 3)}, Spell.new("Distract III", L{}, L{}), "Self", L{}),
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("RDM")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"food"})
+                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("RDM")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"Food"})
             }
         },
         CureSettings = {
@@ -43,25 +43,25 @@ return {
             MinNumMobsToCleave = 2,
             MinManaPointsPercent = 40,
             GearswapCommand = "gs c set MagicBurstMode Single",
-            Spells = L{
-                Spell.new("Thunder V", L{}, nil, nil, L{}),
-                Spell.new("Thunder IV", L{}, nil, nil, L{}),
-                Spell.new("Thunder III", L{}, nil, nil, L{}),
-                Spell.new("Blizzard V", L{}, nil, nil, L{}),
-                Spell.new("Blizzard IV", L{}, nil, nil, L{}),
-                Spell.new("Blizzard III", L{}, nil, nil, L{}),
-                Spell.new("Fire V", L{}, nil, nil, L{}),
-                Spell.new("Fire IV", L{}, nil, nil, L{}),
-                Spell.new("Fire III", L{}, nil, nil, L{}),
-                Spell.new("Aero V", L{}, nil, nil, L{}),
-                Spell.new("Aero IV", L{}, nil, nil, L{}),
-                Spell.new("Aero III", L{}, nil, nil, L{}),
-                Spell.new("Water V", L{}, nil, nil, L{}),
-                Spell.new("Water IV", L{}, nil, nil, L{}),
-                Spell.new("Water III", L{}, nil, nil, L{}),
-                Spell.new("Stone V", L{}, nil, nil, L{}),
-                Spell.new("Stone IV", L{}, nil, nil, L{}),
-                Spell.new("Stone III", L{}, nil, nil, L{})
+            Gambits = L{
+                Gambit.new("Enemy", L{}, Spell.new("Thunder V", L{}, L{}, nil, L{}, nil, true), "Enemy", L{"Nukes"}),
+                Gambit.new("Enemy", L{}, Spell.new("Thunder IV", L{}, L{}, nil, L{}, nil, true), "Enemy", L{"Nukes"}),
+                Gambit.new("Enemy", L{}, Spell.new("Thunder III", L{}, L{}, nil, L{}, nil, true), "Enemy", L{"Nukes"}),
+                Gambit.new("Enemy", L{}, Spell.new("Blizzard V", L{}, L{}, nil, L{}, nil, true), "Enemy", L{"Nukes"}),
+                Gambit.new("Enemy", L{}, Spell.new("Blizzard IV", L{}, L{}, nil, L{}, nil, true), "Enemy", L{"Nukes"}),
+                Gambit.new("Enemy", L{}, Spell.new("Blizzard III", L{}, L{}, nil, L{}, nil, true), "Enemy", L{"Nukes"}),
+                Gambit.new("Enemy", L{}, Spell.new("Fire V", L{}, L{}, nil, L{}, nil, true), "Enemy", L{"Nukes"}),
+                Gambit.new("Enemy", L{}, Spell.new("Fire IV", L{}, L{}, nil, L{}, nil, true), "Enemy", L{"Nukes"}),
+                Gambit.new("Enemy", L{}, Spell.new("Fire III", L{}, L{}, nil, L{}, nil, true), "Enemy", L{"Nukes"}),
+                Gambit.new("Enemy", L{}, Spell.new("Aero V", L{}, L{}, nil, L{}, nil, true), "Enemy", L{"Nukes"}),
+                Gambit.new("Enemy", L{}, Spell.new("Aero IV", L{}, L{}, nil, L{}, nil, true), "Enemy", L{"Nukes"}),
+                Gambit.new("Enemy", L{}, Spell.new("Aero III", L{}, L{}, nil, L{}, nil, true), "Enemy", L{"Nukes"}),
+                Gambit.new("Enemy", L{}, Spell.new("Water V", L{}, L{}, nil, L{}, nil, true), "Enemy", L{"Nukes"}),
+                Gambit.new("Enemy", L{}, Spell.new("Water IV", L{}, L{}, nil, L{}, nil, true), "Enemy", L{"Nukes"}),
+                Gambit.new("Enemy", L{}, Spell.new("Water III", L{}, L{}, nil, L{}, nil, true), "Enemy", L{"Nukes"}),
+                Gambit.new("Enemy", L{}, Spell.new("Stone V", L{}, L{}, nil, L{}, nil, true), "Enemy", L{"Nukes"}),
+                Gambit.new("Enemy", L{}, Spell.new("Stone IV", L{}, L{}, nil, L{}, nil, true), "Enemy", L{"Nukes"}),
+                Gambit.new("Enemy", L{}, Spell.new("Stone III", L{}, L{}, nil, L{}, nil, true), "Enemy", L{"Nukes"}),
             },
             Delay = 4,
             JobAbilities = L{
@@ -77,18 +77,19 @@ return {
             }
         },
         PullSettings = {
-            Abilities = L{
-                Debuff.new("Dia", L{}, L{})
+            Gambits = L{
+                Gambit.new("Enemy", L{}, Debuff.new("Dia", L{}, L{}), "Enemy", L{"Pulling"}),
             },
             Targets = L{
                 "Locus Ghost Crab",
                 "Locus Dire Bat",
                 "Locus Armet Beetle",
             },
-            Distance = 20
+            Distance = 20,
+            MaxNumTargets = 1,
         },
         TargetSettings = {
-            Retry = true
+            Retry = false
         },
         GearSwapSettings = {
             Enabled = true

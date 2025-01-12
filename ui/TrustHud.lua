@@ -1,20 +1,16 @@
 local GambitSettingsMenuItem = require('ui/settings/menus/gambits/GambitSettingsMenuItem')
 local JobGambitSettingsMenuItem = require('ui/settings/menus/gambits/JobGambitSettingsMenuItem')
-local ReactSettingsMenuItem = require('ui/settings/menus/gambits/react/ReactSettingsMenuItem')
 local TargetSettingsMenuItem = require('ui/settings/menus/TargetSettingsMenuItem')
-
 local BackgroundView = require('cylibs/ui/views/background/background_view')
 local BooleanConfigItem = require('ui/settings/editors/config/BooleanConfigItem')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local ConfigSettingsMenuItem = require('ui/settings/menus/ConfigSettingsMenuItem')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
-local FFXISoundTheme = require('sounds/FFXISoundTheme')
 local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
 local Frame = require('cylibs/ui/views/frame')
 local GameInfo = require('cylibs/util/ffxi/game_info')
 local Keyboard = require('cylibs/ui/input/keyboard')
-local MediaPlayer = require('cylibs/sounds/media_player')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
@@ -370,8 +366,8 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         childMenuItems.Shooting = self:getMenuItemForRole(trust:role_with_type("shooter"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode, trustModeSettings)
     end
 
-    if trust:role_with_type("nuker") then
-        childMenuItems.Nukes = self:getMenuItemForRole(trust:role_with_type("nuker"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode, trustModeSettings)
+    if trust:role_with_type("nuker") or trust:role_with_type("magicburster") then
+        childMenuItems.Nukes = self:getMenuItemForRole(trust:role_with_type("nuker") or trust:role_with_type("magicburster"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode, trustModeSettings)
         menuItems:append(ButtonItem.default('Nukes', 18))
     end
 
@@ -409,7 +405,9 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
     }, {
         Custom = GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, self.trustModeSettings, 'GambitSettings'),
         [jobName] = JobGambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, self.trustModeSettings),
-        Reactions = ReactSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, self.trustModeSettings),
+        Reactions = MenuItem.action(function()
+            addon_system_message("Reactions have moved to the Gambits menu. Add the Reaction tag in the Gambit editor.")
+        end, "Reactions", "Add reactions to actions taken by enemies or party members."),
     }, nil, "Gambits", "Configure Trust behavior.")
 
     local settingsMenuItem = MenuItem.new(menuItems, childMenuItems, nil, "Settings", "Configure Trust settings for skillchains, buffs, debuffs and more.")
@@ -435,7 +433,7 @@ function TrustHud:getMenuItemForRole(role, weaponSkillSettings, weaponSkillSetti
     if role:get_type() == "singer" then
         return self:getSingerMenuItem(trust, trustSettings, trustSettingsMode, viewSize)
     end
-    if role:get_type() == "nuker" then
+    if role:get_type() == "nuker" or role:get_type() == "magicburster" then
         return self:getNukerMenuItem(trust, trustSettings, trustSettingsMode, trustModeSettings, jobNameShort)
     end
     if role:get_type() == "shooter" then
@@ -455,22 +453,8 @@ end
 
 function TrustHud:getBufferMenuItem(trust, jobNameShort, trustSettings, trustSettingsMode, trustModeSettings)
     local BuffSettingsMenuItem = require('ui/settings/menus/buffs/BuffSettingsMenuItem')
-    if jobNameShort ~= 'SCH' then
-        local bufferSettingsMenuItem = BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings)
-        return bufferSettingsMenuItem
-    else
-        local childMenuItems = {}
-
-        childMenuItems["Light Arts"] = BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, L{ 'LightArts' })
-        childMenuItems["Dark Arts"] = BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, L{ 'DarkArts' })
-
-        local artsSettingsMenuItem = MenuItem.new(L{
-            ButtonItem.default('Light Arts', 18),
-            ButtonItem.default('Dark Arts', 18),
-        }, childMenuItems, nil, "Buffs", "Choose buffs to use.")
-
-        return artsSettingsMenuItem
-    end
+    local bufferSettingsMenuItem = BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings)
+    return bufferSettingsMenuItem
 end
 
 function TrustHud:getHealerMenuItem(trust, trustSettings, trustSettingsMode, trustModeSettings)

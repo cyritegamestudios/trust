@@ -25,12 +25,14 @@ end
 function HasDebuffCondition:is_satisfied(target_index)
     local target = windower.ffxi.get_mob_by_index(self:get_target_index() or target_index)
     if target then
-        local monster = player.party:get_target(target.id)
+        local monster = player.alliance:get_target_by_index(target.index)
         if monster then
             return monster:has_debuff(self.debuff_id)
         else
             local party_member = player.alliance:get_alliance_member_named(target.name)
-            return S(party_member:get_debuff_ids()):contains(self.debuff_id)
+            if party_member then
+                return S(party_member:get_debuff_ids()):contains(self.debuff_id)
+            end
         end
     end
     return false

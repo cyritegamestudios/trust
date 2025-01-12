@@ -264,4 +264,49 @@ function Scholar:get_all_storm_names()
     }
 end
 
+-------
+-- Returns spells only available with Addendum: White.
+-- @treturn list List of spell names.
+function Scholar:get_addendum_white_spells()
+    return L{
+        'Poisona', 'Paralyna', 'Blindna', 'Silena', 'Cursna', 'Reraise',
+        'Erase', 'Viruna', 'Stona', 'Raise II', 'Reraise II', 'Raise III',
+        'Reraise III',
+    }
+end
+
+-------
+-- Returns spells only available with Addendum: Black.
+-- @treturn list List of spell names.
+function Scholar:get_addendum_black_spells()
+    return L{
+        'Sleep', 'Dispel', 'Sleep II', 'Stone IV', 'Water IV', 'Aero IV',
+        'Fire IV', 'Blizzard IV', 'Thunder IV', 'Stone V', 'Water V', 'Aero V',
+        'Break', 'Fire V', 'Blizzard V', 'Thunder V',
+    }
+end
+
+-------
+-- Returns a list of conditions for an ability.
+-- @tparam Spell|JobAbility ability The ability
+-- @treturn list List of conditions
+function Scholar:get_conditions_for_ability(ability)
+    local conditions = L{} + ability:get_conditions()
+    if ability.requires_all_job_abilities ~= nil and ability:requires_all_job_abilities() then
+        local strategem_count = 0
+        for job_ability_name in ability:get_job_abilities():it() do
+            local job_ability = JobAbility.new(job_ability_name)
+            if job_ability:get_job_ability().type == 'Scholar' then
+                strategem_count = strategem_count + 1
+            else
+                conditions = conditions + job_ability:get_conditions()
+            end
+        end
+        if strategem_count > 0 then
+            conditions:append(StrategemCountCondition.new(strategem_count, Condition.Operator.GreaterThanOrEqualTo))
+        end
+    end
+    return conditions
+end
+
 return Scholar

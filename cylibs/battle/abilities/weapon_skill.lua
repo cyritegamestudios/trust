@@ -55,6 +55,14 @@ function WeaponSkill:is_valid()
     return true
 end
 
+function WeaponSkill:copy()
+    local conditions = L{}
+    for condition in self:get_conditions():it() do
+        conditions:append(condition:copy())
+    end
+    return WeaponSkill.new(self:get_name(), conditions)
+end
+
 function WeaponSkill:__eq(otherItem)
     if not L{ SkillchainAbility.__class, WeaponSkill.__class }:contains(otherItem.__class) then
         return false

@@ -15,12 +15,12 @@ local Tank = require('cylibs/trust/roles/tank')
 function PaladinTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = Paladin.new(trust_settings.CureSettings)
 	local roles = S{
-		Buffer.new(action_queue, trust_settings.BuffSettings),
+		Buffer.new(action_queue, trust_settings.BuffSettings, state.AutoBuffMode, job),
 		Healer.new(action_queue, job),
 		Raiser.new(action_queue, job),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
-		Puller.new(action_queue, trust_settings.PullSettings.Targets, L{ Spell.new('Flash'), Spell.new('Banish') }:compact_map()),
+		Puller.new(action_queue, trust_settings.PullSettings),
 		Tank.new(action_queue, L{}, L{ Spell.new('Flash') })
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), PaladinTrust)
@@ -35,10 +35,6 @@ function PaladinTrust:on_init()
 	Trust.on_init(self)
 
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
-		local puller = self:role_with_type("puller")
-		if puller then
-			puller:set_pull_settings(new_trust_settings.PullSettings)
-		end
 	end)
 end
 

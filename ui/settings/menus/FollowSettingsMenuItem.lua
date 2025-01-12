@@ -1,3 +1,4 @@
+local BooleanConfigItem = require('ui/settings/editors/config/BooleanConfigItem')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local ConfigItem = require('ui/settings/editors/config/ConfigItem')
@@ -34,6 +35,7 @@ function FollowSettingsMenuItem:getConfigMenuItem()
     }, L{}, function(menuArgs)
         local configItems = L{
             ConfigItem.new('distance', 1, 18, 1, function(value) return value.." yalms" end, "Follow Distance"),
+            BooleanConfigItem.new('auto_pause', "Pause for Spells and Abilities")
         }
         return ConfigEditor.new(self.addonSettings, self.addonSettings:getSettings().follow, configItems)
     end, "Following", "Configure follow settings.")

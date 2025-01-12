@@ -7,7 +7,8 @@ return {
                 Gambit.new("Self", L{}, Spell.new("Barrier Tusk", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
                 Gambit.new("Self", L{}, Buff.new("Cocoon", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
                 Gambit.new("Self", L{}, Spell.new("Erratic Flutter", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
-                Gambit.new("Self", L{}, Buff.new("Mighty Guard", L{"Unbridled Learning", "Diffusion"}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, Buff.new("Mighty Guard", L{"Unbridled Learning", "Diffusion"}, L{}, nil, L{}), "Self", L{}),
+                Gambit.new("Self", L{}, Buff.new("Mighty Guard", L{"Unbridled Learning"}, L{}, nil, L{}), "Self", L{}),
                 Gambit.new("Self", L{}, Spell.new("Nat. Meditation", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
                 Gambit.new("Self", L{}, Spell.new("Occultation", L{}, L{}, nil, L{}), "Self", L{"Buffs"})
             }
@@ -37,19 +38,20 @@ return {
             }
         },
         PullSettings = {
-            Abilities = L{
-                Spell.new('Glutinous Dart', L{}, L{}),
-                Approach.new(),
+            Gambits = L{
+                Gambit.new("Enemy", L{}, Spell.new("Glutinous Dart", L{}, L{}, nil, L{}, nil, true), "Enemy", L{"Pulling"}),
+                Gambit.new("Enemy", L{}, Approach.new(), "Enemy", L{"Pulling"}),
             },
             Targets = L{
                 "Locus Ghost Crab",
                 "Locus Dire Bat",
                 "Locus Armet Beetle",
             },
-            Distance = 20
+            Distance = 20,
+            MaxNumTargets = 1,
         },
         TargetSettings = {
-            Retry = true
+            Retry = false
         },
         BlueMagicSettings = {
             SpellSets = {
@@ -61,18 +63,17 @@ return {
             MinManaPointsPercent = 30,
             MinNumMobsToCleave = 2,
             GearswapCommand = "gs c set MagicBurstMode Single",
-            Spells = L{
-                Spell.new('Anvil Lightning'),
-                Spell.new('Spectral Floe'),
-                Spell.new('Searing Tempest'),
-                Spell.new('Silent Storm'),
-                Spell.new('Scouring Spate'),
-                Spell.new('Entomb'),
-                Spell.new('Tenebral Crush'),
-                Spell.new('Blinding Fulgor'),
+            Gambits = L{
+                Gambit.new("Enemy", L{}, Spell.new("Anvil Lightning", L{"Burst Affinity"}, L{}, nil, L{}, nil, true), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Spectral Floe", L{"Burst Affinity"}, L{}, nil, L{}, nil, true), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Searing Tempest", L{"Burst Affinity"}, L{}, nil, L{}, nil, true), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Silent Storm", L{"Burst Affinity"}, L{}, nil, L{}, nil, true), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Scouring Spate", L{"Burst Affinity"}, L{}, nil, L{}, nil, true), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Entomb", L{"Burst Affinity"}, L{}, nil, L{}, nil, true), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Tenebral Crush", L{"Burst Affinity"}, L{}, nil, L{}, nil, true), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Blinding Fulgor", L{"Burst Affinity"}, L{}, nil, L{}, nil, true), "Enemy", L{}),
             },
             JobAbilities = L{
-                JobAbility.new("Burst Affinity"),
             },
             Blacklist = L{
 
@@ -80,7 +81,7 @@ return {
         },
         GambitSettings = {
             Gambits = L{
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("BLU")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"food"})
+                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("BLU")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"Food"})
             }
         },
         GearSwapSettings = {

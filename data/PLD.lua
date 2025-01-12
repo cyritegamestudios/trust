@@ -33,10 +33,10 @@ return {
             MinManaPointsPercent = 60,
             MinNumMobsToCleave = 2,
             GearswapCommand = "gs c set MagicBurstMode Single",
-            Spells = L{
-                Spell.new('Holy II'),
-                Spell.new('Holy'),
-                Spell.new('Banish II'),
+            Gambits = L{
+                Gambit.new("Enemy", L{}, Spell.new("Holy II", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Holy", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Banish II", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
             },
             JobAbilities = L{
 
@@ -50,19 +50,20 @@ return {
             }
         },
         PullSettings = {
-            Abilities = L{
-                Spell.new("Flash", L{}, L{}),
-                Spell.new("Banish", L{}, L{})
+            Gambits = L{
+                Gambit.new("Enemy", L{}, Spell.new("Flash", L{}, L{}), "Enemy", L{"Pulling"}),
+                Gambit.new("Enemy", L{}, Spell.new("Banish", L{}, L{}), "Enemy", L{"Pulling"}),
             },
             Targets = L{
                 "Locus Ghost Crab",
                 "Locus Dire Bat",
                 "Locus Armet Beetle",
             },
-            Distance = 20
+            Distance = 20,
+            MaxNumTargets = 1,
         },
         TargetSettings = {
-            Retry = true
+            Retry = false
         },
         GambitSettings = {
             Gambits = L{
@@ -70,7 +71,7 @@ return {
                 Gambit.new("Enemy", L{InBattleCondition.new()}, JobAbility.new("Shield Bash", L{}, L{}), "Self", L{}),
                 Gambit.new("Self", L{MinTacticalPointsCondition.new(2000), MaxManaPointsPercentCondition.new(30)}, JobAbility.new("Chivalry", L{}, L{}), "Self", L{}),
                 Gambit.new("Self", L{MaxHitPointsPercentCondition.new(25), InBattleCondition.new()}, JobAbility.new("Sentinel", L{}, L{}), "Self", L{}),
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("PLD")}, UseItem.new("Miso Ramen", L{ItemCountCondition.new("Miso Ramen", 1, ">=")}), "Self", L{"food"})
+                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("PLD")}, UseItem.new("Miso Ramen", L{ItemCountCondition.new("Miso Ramen", 1, ">=")}), "Self", L{"Food"})
             }
         },
         GearSwapSettings = {

@@ -118,6 +118,8 @@ function Skillchainer:on_add()
 
                 self:show_next_skillchain_info()
                 self:on_skillchain():trigger(mob_id, step)
+
+                WindowerEvents.Skillchain.Begin:trigger(mob_id, step)
             end
         end
     end)

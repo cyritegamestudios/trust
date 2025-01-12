@@ -55,9 +55,12 @@ function Trust:init()
 		end
 		local buffer = self:role_with_type("buffer")
 		if buffer then
-			if self.job.jobNameShort ~= 'SCH' then
-				buffer:set_buff_settings(new_trust_settings.BuffSettings)
-			end
+			buffer:set_buff_settings(new_trust_settings.BuffSettings, self:get_job())
+		end
+
+		local puller = self:role_with_type("puller")
+		if puller then
+			puller:set_pull_settings(new_trust_settings.PullSettings)
 		end
 
 		self.gambits = new_trust_settings.GambitSettings.Default or L{}
@@ -92,6 +95,7 @@ function Trust:destroy()
 			role:set_player(nil)
 			role:set_alliance(nil)
 			role:set_party(nil)
+			role:set_job(nil)
 		end
 	end
 
@@ -145,6 +149,7 @@ function Trust:add_role(role)
 		role:set_player(self.player)
 		role:set_alliance(self.alliance)
 		role:set_party(self.party)
+		role:set_job(self.job)
 		role:on_add()
 		if role.target_change then
 			role:target_change(self.target_index)
@@ -159,6 +164,7 @@ function Trust:remove_role(role)
 		role:destroy()
 		role:set_player(nil)
 		role:set_party(nil)
+		role:set_job(nil)
 	end
 	self.roles = self.roles:filter(function(r) return r:get_type() ~= role:get_type() end)
 end

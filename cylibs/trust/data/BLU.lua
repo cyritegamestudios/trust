@@ -16,13 +16,13 @@ local StatusRemover = require('cylibs/trust/roles/status_remover')
 function BlueMageTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = BlueMage.new()
 	local roles = S{
-		Buffer.new(action_queue, trust_settings.BuffSettings),
+		Buffer.new(action_queue, trust_settings.BuffSettings, state.AutoBuffMode, job),
 		Dispeler.new(action_queue, L{ Spell.new('Blank Gaze') }, L{}, true),
 		Healer.new(action_queue, job),
-		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{ 'Burst Affinity' }, job),
+		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{ 'Burst Affinity' }, job, true),
 		ManaRestorer.new(action_queue, L{}, L{ Spell.new('Magic Hammer'), Spell.new('MP Drainkiss') }, 40),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
-		Puller.new(action_queue, trust_settings.PullSettings.Targets, L{ Spell.new('Glutinous Dart') }:compact_map())
+		Puller.new(action_queue, trust_settings.PullSettings)
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), BlueMageTrust)
 	return self
@@ -33,11 +33,6 @@ function BlueMageTrust:on_init()
 
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
 		self:get_job():set_cure_settings(new_trust_settings.CureSettings)
-
-		local puller = self:role_with_type("puller")
-		if puller then
-			puller:set_pull_settings(new_trust_settings.PullSettings)
-		end
 
 		local nuker_roles = self:roles_with_types(L{ "nuker", "magicburster" })
 		for role in nuker_roles:it() do

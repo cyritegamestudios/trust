@@ -45,7 +45,7 @@ end
 -- @tparam boolean allowsMultipleSelection Indicates if multiple selection is allowed.
 -- @treturn PickerView The created PickerView.
 --
-function PickerView.new(configItems, allowsMultipleSelection, mediaPlayer, soundTheme)
+function PickerView.new(configItems, allowsMultipleSelection, mediaPlayer, soundTheme, textStyle)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell
         if item.__type == TextItem.__type then
@@ -65,6 +65,7 @@ function PickerView.new(configItems, allowsMultipleSelection, mediaPlayer, sound
         return configItem:getAllValues():length() > 0
     end)
     self.menuArgs = {}
+    self.textStyle = textStyle or TextStyle.Picker.Text
 
     self:setAllowsMultipleSelection(allowsMultipleSelection)
     self:setScrollDelta(16)
@@ -102,8 +103,13 @@ function PickerView:reload()
     for configItem in configItems:it() do
         local rowIndex = 1
         local itemsInSection = IndexedItem.fromItems(configItem:getAllValues():map(function(value)
-            local item = TextItem.new(value, TextStyle.Picker.Text)
-            item:setLocalizedText(configItem:getTextFormat()(value))
+            local item = TextItem.new(value, self.textStyle)
+
+            local text, isEnabled = configItem:getTextFormat()(value)
+            item:setLocalizedText(text)
+            if isEnabled ~= nil then
+                item:setEnabled(isEnabled) -- TODO: this should use itemDescription instead?
+            end
             item:setShouldTruncateText(i18n.current_locale() ~= i18n.Locale.Japanese)
 
             local imageItem = configItem:getImageItem()(value, sectionIndex)
@@ -164,7 +170,7 @@ end
 --
 function PickerView.withItems(texts, selectedTexts, allowsMultipleSelection)
     local pickerItems = texts:map(function(text)
-        return PickerItem.new(TextItem.new(text, TextStyle.Picker.Text), selectedTexts:contains(text))
+        return PickerItem.new(TextItem.new(text, self.textStyle), selectedTexts:contains(text))
     end)
     return PickerView.new(L{ pickerItems }, allowsMultipleSelection)
 end
@@ -193,7 +199,7 @@ end
 -- @tparam number section Section to add item to.
 --
 function PickerView:addItem(text, section)
-    local newItem = PickerItem.new(TextItem.new(text, TextStyle.Picker.Text), false)
+    local newItem = PickerItem.new(TextItem.new(text, self.textStyle), false)
     self.pickerItems[section]:append(newItem)
 
     self:reload()

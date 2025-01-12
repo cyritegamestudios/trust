@@ -77,9 +77,26 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
     self.editorConfig = editorStyle
     self.modes = modes or L{ state.AutoGambitMode.value }
     self.libraryCategoryFilter = libraryCategoryFilter
+    self.conditionSettingsMenuItem = ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, nil, S(self.conditionTargets))
     self.defaultGambitTags = L{}
     self.gambitChanged = Event.newEvent()
     self.disposeBag = DisposeBag.new()
+
+    local updateCurrentGambit = function(cursorIndexPath)
+        if cursorIndexPath == nil then
+            self.selectedGambit = nil
+            return
+        end
+        local currentGambits = self:getSettings().Gambits
+
+        local selectedGambit = currentGambits[cursorIndexPath.row]
+        self.selectedGambit = selectedGambit
+
+        if self.selectedGambit then
+            self.conditionSettingsMenuItem:setConditions(selectedGambit.conditions)
+            self.conditionSettingsMenuItem:setTargetTypes(S{ selectedGambit:getConditionsTarget() })
+        end
+    end
 
     self.contentViewConstructor = function(_, infoView, _)
         local currentGambits = self:getSettings().Gambits
@@ -105,12 +122,13 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
         gambitSettingsEditor:setNeedsLayout()
         gambitSettingsEditor:layoutIfNeeded()
 
-        self.disposeBag:add(gambitSettingsEditor:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
-            local selectedGambit = currentGambits[indexPath.row]
-            self.selectedGambit = selectedGambit
+        self.disposeBag:add(self.trustSettings:onSettingsChanged():addAction(function(settings)
+            local cursorIndexPath = self.gambitSettingsEditor:getDelegate():getCursorIndexPath()
+            updateCurrentGambit(cursorIndexPath)
+        end), self.trustSettings:onSettingsChanged())
 
-            gambitSettingsEditor.menuArgs['conditions'] = selectedGambit.conditions
-            gambitSettingsEditor.menuArgs['targetTypes'] = S{ selectedGambit:getConditionsTarget() }
+        self.disposeBag:add(gambitSettingsEditor:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
+            updateCurrentGambit(indexPath)
         end, gambitSettingsEditor:getDelegate():didSelectItemAtIndexPath()))
 
         self.disposeBag:add(gambitSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
@@ -281,15 +299,16 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
         ButtonItem.default('Confirm', 18),
         ButtonItem.default('Edit', 18),
         ButtonItem.default('Conditions', 18),
-    }, {}, function(_, _, _)
+    }, {}, function(_, _, showMenu)
         local abilitiesByTargetType = self:getAbilitiesByTargetType()
 
-        local gambitEditor = GambitSettingsEditor.new(self.selectedGambit, self.trustSettings, self.trustSettingsMode, abilitiesByTargetType, self.conditionTargets)
+        local gambitEditor = GambitSettingsEditor.new(self.selectedGambit, self.trustSettings, self.trustSettingsMode, abilitiesByTargetType, self.conditionTargets, showMenu)
 
-        self.disposeBag:add(gambitEditor:onConfigChanged():addAction(function(newSettings, oldSettings)
-            self:onGambitChanged():trigger(newSettings, oldSettings)
-            gambitEditor:reloadSettings()
-        end), gambitEditor:onConfigChanged())
+        gambitEditor:getDisposeBag():add(gambitEditor:onGambitChanged():addAction(function(newGambit, oldGambit)
+            self:onGambitChanged():trigger(newGambit, oldGambit)
+
+            self.conditionSettingsMenuItem:setConditions(newGambit:getConditions())
+        end), gambitEditor:onGambitChanged())
 
         return gambitEditor
     end, self:getTitleText(), "Edit the selected "..self.editorConfig:getDescription()..".", false, function()
@@ -300,7 +319,7 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
         ButtonItem.default('Confirm'),
     }, {
         Confirm = MenuItem.action(function(parent)
-            parent:showMenu(editGambitMenuItem)
+            --parent:showMenu(editGambitMenuItem)
         end, self:getTitleText(), "Edit ability.")
     }, function(_, infoView, showMenu)
         local configItems = L{}
@@ -308,9 +327,9 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
             configItems = self.selectedGambit:getAbility():get_config_items(self.trust) or L{}
         end
         if not configItems:empty() then
-            local editAbilityEditor = ConfigEditor.new(nil, self.selectedGambit:getAbility(), configItems, infoView, nil, showMenu)
+            local editAbilityEditor = ConfigEditor.new(self.trustSettings, self.selectedGambit:getAbility(), configItems, infoView, nil, showMenu)
 
-            self.disposeBag:add(editAbilityEditor:onConfigChanged():addAction(function(newSettings, oldSettings)
+            self.disposeBag:add(editAbilityEditor:onConfigConfirm():addAction(function(newSettings, oldSettings)
                 if self.selectedGambit:getAbility().on_config_changed then
                     self.selectedGambit:getAbility():on_config_changed(oldSettings)
                 end
@@ -324,7 +343,7 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
     end)
 
     editGambitMenuItem:setChildMenuItem("Edit", editAbilityMenuItem)
-    editGambitMenuItem:setChildMenuItem("Conditions", ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, self, S(self.conditionTargets)))
+    editGambitMenuItem:setChildMenuItem("Conditions", self.conditionSettingsMenuItem)
 
     return editGambitMenuItem
 end
@@ -389,14 +408,12 @@ function GambitSettingsMenuItem:getToggleMenuItem()
                 currentGambits[selectedIndexPath.row]:setEnabled(not currentGambits[selectedIndexPath.row]:isEnabled())
             end
         end
-    end, self:getTitleText(), "Temporarily enable or disable the selected "..self.editorConfig:getDescription().." until the addon reloads.")
-
-    toggleMenuItem.enabled = function()
+    end, self:getTitleText(), "Temporarily enable or disable the selected "..self.editorConfig:getDescription().." until the addon reloads.", false, function()
         if self.selectedGambit then
             return self.selectedGambit:isValid()
         end
-        return true
-    end
+        return false
+    end)
 
     return toggleMenuItem
 end
@@ -424,7 +441,9 @@ function GambitSettingsMenuItem:getMoveUpGambitMenuItem()
                 self.gambitSettingsEditor:getDelegate():selectItemAtIndexPath(IndexPath.new(selectedIndexPath.section, selectedIndexPath.row - 1))
             end
         end
-    end, self:getTitleText(), "Move the selected "..self.editorConfig:getDescription().." up. "..self.editorConfig:getDescription(true).." get evaluated in order.")
+    end, self:getTitleText(), "Move the selected "..self.editorConfig:getDescription().." up. "..self.editorConfig:getDescription(true).." get evaluated in order.",  false, function()
+        return self.selectedGambit ~= nil
+    end)
 end
 
 function GambitSettingsMenuItem:getMoveDownGambitMenuItem()
@@ -449,7 +468,9 @@ function GambitSettingsMenuItem:getMoveDownGambitMenuItem()
                 self.gambitSettingsEditor:getDelegate():selectItemAtIndexPath(IndexPath.new(selectedIndexPath.section, selectedIndexPath.row + 1))
             end
         end
-    end, self:getTitleText(), "Move the selected "..self.editorConfig:getDescription().." down. "..self.editorConfig:getDescription(true).." get evaluated in order.")
+    end, self:getTitleText(), "Move the selected "..self.editorConfig:getDescription().." down. "..self.editorConfig:getDescription(true).." get evaluated in order.", false, function()
+        return self.selectedGambit ~= nil
+    end)
 end
 
 function GambitSettingsMenuItem:getResetGambitsMenuItem()
