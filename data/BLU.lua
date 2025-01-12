@@ -7,7 +7,8 @@ return {
                 Gambit.new("Self", L{}, Spell.new("Barrier Tusk", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
                 Gambit.new("Self", L{}, Buff.new("Cocoon", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
                 Gambit.new("Self", L{}, Spell.new("Erratic Flutter", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
-                Gambit.new("Self", L{}, Buff.new("Mighty Guard", L{"Unbridled Learning", "Diffusion"}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{}, Buff.new("Mighty Guard", L{"Unbridled Learning", "Diffusion"}, L{}, nil, L{}), "Self", L{}),
+                Gambit.new("Self", L{}, Buff.new("Mighty Guard", L{"Unbridled Learning"}, L{}, nil, L{}), "Self", L{}),
                 Gambit.new("Self", L{}, Spell.new("Nat. Meditation", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
                 Gambit.new("Self", L{}, Spell.new("Occultation", L{}, L{}, nil, L{}), "Self", L{"Buffs"})
             }
@@ -63,14 +64,14 @@ return {
             MinNumMobsToCleave = 2,
             GearswapCommand = "gs c set MagicBurstMode Single",
             Gambits = L{
-                Gambit.new("Enemy", L{}, Spell.new("Anvil Lightning", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
-                Gambit.new("Enemy", L{}, Spell.new("Spectral Floe", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
-                Gambit.new("Enemy", L{}, Spell.new("Searing Tempest", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
-                Gambit.new("Enemy", L{}, Spell.new("Silent Storm", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
-                Gambit.new("Enemy", L{}, Spell.new("Scouring Spate", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
-                Gambit.new("Enemy", L{}, Spell.new("Entomb", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
-                Gambit.new("Enemy", L{}, Spell.new("Tenebral Crush", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
-                Gambit.new("Enemy", L{}, Spell.new("Blinding Fulgor", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Anvil Lightning", L{"Burst Affinity"}, L{}, nil, L{}, nil, true), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Spectral Floe", L{"Burst Affinity"}, L{}, nil, L{}, nil, true), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Searing Tempest", L{"Burst Affinity"}, L{}, nil, L{}, nil, true), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Silent Storm", L{"Burst Affinity"}, L{}, nil, L{}, nil, true), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Scouring Spate", L{"Burst Affinity"}, L{}, nil, L{}, nil, true), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Entomb", L{"Burst Affinity"}, L{}, nil, L{}, nil, true), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Tenebral Crush", L{"Burst Affinity"}, L{}, nil, L{}, nil, true), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Blinding Fulgor", L{"Burst Affinity"}, L{}, nil, L{}, nil, true), "Enemy", L{}),
             },
             JobAbilities = L{
                 JobAbility.new("Burst Affinity"),

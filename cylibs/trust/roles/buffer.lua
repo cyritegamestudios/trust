@@ -1,25 +1,22 @@
 local BuffConflictsCondition = require('cylibs/conditions/buff_conflicts')
-local BuffTracker = require('cylibs/battle/buff_tracker')
 
 local Gambiter = require('cylibs/trust/roles/gambiter')
 local Buffer = setmetatable({}, {__index = Gambiter })
 Buffer.__index = Buffer
 Buffer.__class = "Buffer"
 
-function Buffer.new(action_queue, buff_settings, state_var)
+function Buffer.new(action_queue, buff_settings, state_var, job)
     local self = setmetatable(Gambiter.new(action_queue, {}, nil, state_var or state.AutoBuffMode, true), Buffer)
 
-    self:set_buff_settings(buff_settings)
+    self.job = job
 
-    self.buff_tracker = BuffTracker.new()
+    self:set_buff_settings(buff_settings)
 
     return self
 end
 
 function Buffer:destroy()
     Role.destroy(self)
-
-    self.buff_tracker:destroy()
 end
 
 function Buffer:on_add()
@@ -31,13 +28,10 @@ function Buffer:set_buff_settings(buff_settings)
         gambit.conditions = gambit.conditions:filter(function(condition)
             return condition:is_editable()
         end)
-        local conditions = self:get_default_conditions(gambit)
+        local conditions = self:get_default_conditions(gambit) + self.job:get_conditions_for_ability(gambit:getAbility())
         for condition in conditions:it() do
             condition.editable = false
             gambit:addCondition(condition)
-        end
-        if self:get_job() then
-            gambit.conditions = gambit.conditions + self:get_job():get_conditions_for_ability(gambit:getAbility())
         end
     end
     self:set_gambit_settings(buff_settings)

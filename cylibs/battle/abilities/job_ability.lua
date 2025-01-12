@@ -40,6 +40,10 @@ function JobAbility.new(job_ability_name, conditions, job_names, target)
         self:add_condition(JobAbilityRecastReadyCondition.new(job_ability_name))
     end
 
+    if self:get_job_ability().type == 'Scholar' then
+        self:add_condition(StrategemCountCondition.new(1, Condition.Operator.GreaterThanOrEqualTo))
+    end
+
     return self
 end
 

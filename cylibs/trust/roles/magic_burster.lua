@@ -33,11 +33,12 @@ state.MagicBurstTargetMode:set_description('All', "Okay, I'll magic burst with b
 -- @tparam List default_job_ability_names List of job abilities to use with spells if none are specified in settings (e.g. Cascade, Ebullience)
 -- @tparam Job job Job
 -- @treturn MagicBurster A magic burster role
-function MagicBurster.new(action_queue, nuke_settings, fast_cast, default_job_ability_names, job)
+function MagicBurster.new(action_queue, nuke_settings, fast_cast, default_job_ability_names, job, requires_job_abilities)
     local self = setmetatable(Gambiter.new(action_queue, {}, nil, state.AutoMagicBurstMode, true), MagicBurster)
 
     self.fast_cast = fast_cast or 0.8
     self.job = job
+    self.requires_job_abilities = requires_job_abilities
     self.dispose_bag = DisposeBag.new()
 
     self:set_nuke_settings(nuke_settings)
@@ -109,16 +110,17 @@ function MagicBurster:set_nuke_settings(nuke_settings)
     local element_id_blacklist = self.element_blacklist:map(function(element) return res.elements:with('en', element:get_name()).id end)
 
     for gambit in nuke_settings.Gambits:it() do
-        gambit:getAbility():set_should_use_all_job_abilities(false)
+        gambit:getAbility():set_requires_all_job_abilities(self.requires_job_abilities)
 
         gambit.conditions = gambit.conditions:filter(function(condition)
             return condition:is_editable()
         end)
-        local conditions = self:get_default_conditions(gambit)
+        local conditions = self:get_default_conditions(gambit) + self.job:get_conditions_for_ability(gambit:getAbility())
         for condition in conditions:it() do
             condition.editable = false
             gambit:addCondition(condition)
         end
+
         gambit:setEnabled(not element_id_blacklist:contains(gambit:getAbility():get_element()))
     end
     self:set_gambit_settings(nuke_settings)

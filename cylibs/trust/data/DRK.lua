@@ -17,10 +17,10 @@ local Puller = require('cylibs/trust/roles/puller')
 function DarkKnightTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = DarkKnight.new()
 	local roles = S{
-		Buffer.new(action_queue, trust_settings.BuffSettings),
+		Buffer.new(action_queue, trust_settings.BuffSettings, state.AutoBuffMode, job),
 		Debuffer.new(action_queue,trust_settings.DebuffSettings),
 		Dispeler.new(action_queue, L{ Spell.new('Absorb-Attri') }, L{}, false),
-		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
+		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job, true),
 		ManaRestorer.new(action_queue, L{'Entropy'}, L{}, 40),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		Puller.new(action_queue, trust_settings.PullSettings),

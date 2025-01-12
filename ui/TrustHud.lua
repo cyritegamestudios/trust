@@ -1,20 +1,16 @@
 local GambitSettingsMenuItem = require('ui/settings/menus/gambits/GambitSettingsMenuItem')
 local JobGambitSettingsMenuItem = require('ui/settings/menus/gambits/JobGambitSettingsMenuItem')
-local ReactSettingsMenuItem = require('ui/settings/menus/gambits/react/ReactSettingsMenuItem')
 local TargetSettingsMenuItem = require('ui/settings/menus/TargetSettingsMenuItem')
-
 local BackgroundView = require('cylibs/ui/views/background/background_view')
 local BooleanConfigItem = require('ui/settings/editors/config/BooleanConfigItem')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local ConfigSettingsMenuItem = require('ui/settings/menus/ConfigSettingsMenuItem')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
-local FFXISoundTheme = require('sounds/FFXISoundTheme')
 local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
 local Frame = require('cylibs/ui/views/frame')
 local GameInfo = require('cylibs/util/ffxi/game_info')
 local Keyboard = require('cylibs/ui/input/keyboard')
-local MediaPlayer = require('cylibs/sounds/media_player')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
@@ -457,22 +453,8 @@ end
 
 function TrustHud:getBufferMenuItem(trust, jobNameShort, trustSettings, trustSettingsMode, trustModeSettings)
     local BuffSettingsMenuItem = require('ui/settings/menus/buffs/BuffSettingsMenuItem')
-    if true or jobNameShort ~= 'SCH' then
-        local bufferSettingsMenuItem = BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings)
-        return bufferSettingsMenuItem
-    else
-        local childMenuItems = {}
-
-        childMenuItems["Light Arts"] = BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, L{ 'LightArts' })
-        childMenuItems["Dark Arts"] = BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, L{ 'DarkArts' })
-
-        local artsSettingsMenuItem = MenuItem.new(L{
-            ButtonItem.default('Light Arts', 18),
-            ButtonItem.default('Dark Arts', 18),
-        }, childMenuItems, nil, "Buffs", "Choose buffs to use.")
-
-        return artsSettingsMenuItem
-    end
+    local bufferSettingsMenuItem = BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings)
+    return bufferSettingsMenuItem
 end
 
 function TrustHud:getHealerMenuItem(trust, trustSettings, trustSettingsMode, trustModeSettings)

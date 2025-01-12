@@ -16,7 +16,7 @@ local StatusRemover = require('cylibs/trust/roles/status_remover')
 function BlueMageTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = BlueMage.new()
 	local roles = S{
-		Buffer.new(action_queue, trust_settings.BuffSettings),
+		Buffer.new(action_queue, trust_settings.BuffSettings, state.AutoBuffMode, job),
 		Dispeler.new(action_queue, L{ Spell.new('Blank Gaze') }, L{}, true),
 		Healer.new(action_queue, job),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{ 'Burst Affinity' }, job),

@@ -8,11 +8,12 @@ local Buffer = require('cylibs/trust/roles/buffer')
 local Puller = require('cylibs/trust/roles/puller')
 
 function SamuraiTrust.new(settings, action_queue, battle_settings, trust_settings)
+	local job = Samurai.new()
 	local roles = S{
-		Buffer.new(action_queue, trust_settings.BuffSettings),
+		Buffer.new(action_queue, trust_settings.BuffSettings, state.AutoBuffMode, job),
 		Puller.new(action_queue, trust_settings.PullSettings),
 	}
-	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, Samurai.new()), SamuraiTrust)
+	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), SamuraiTrust)
 
 	self.settings = settings
 	self.action_queue = action_queue

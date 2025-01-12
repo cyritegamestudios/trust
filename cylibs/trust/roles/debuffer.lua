@@ -23,7 +23,9 @@ function Debuffer:set_debuff_settings(debuff_settings)
         gambit.conditions = gambit.conditions:filter(function(condition)
             return condition:is_editable()
         end)
-        local conditions = self:get_default_conditions(gambit)
+        local conditions = self:get_default_conditions(gambit):filter(function(condition)
+            return not gambit.conditions:contains(condition)
+        end)
         for condition in conditions:it() do
             condition.editable = false
             gambit:addCondition(condition)

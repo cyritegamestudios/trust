@@ -21,14 +21,14 @@ function ScholarTrust.new(settings, action_queue, battle_settings, trust_setting
     local job = Scholar.new(trust_settings)
 
     local self = setmetatable(Trust.new(action_queue, S{
-        Buffer.new(action_queue, trust_settings.BuffSettings),
+        Buffer.new(action_queue, trust_settings.BuffSettings, state.AutoBuffMode, job),
         Debuffer.new(action_queue, trust_settings.DebuffSettings),
         Healer.new(action_queue, job),
         ManaRestorer.new(action_queue, L{'Myrkr', 'Spirit Taker'}, L{}, 40),
         Puller.new(action_queue, trust_settings.PullSettings),
         StatusRemover.new(action_queue, job),
         Dispeler.new(action_queue, L{ Spell.new('Dispel', L{'Addendum: Black'}) }, L{}, true),
-        MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{ 'Ebullience' }, job),
+        MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{ 'Ebullience' }, job, false),
         Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
     }, trust_settings, job), ScholarTrust)
 

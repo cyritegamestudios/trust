@@ -34,7 +34,7 @@ state.AutoConvertMode:set_description('Auto', "Okay, I'll use Convert when my MP
 function RedMageTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = RedMage.new(trust_settings.CureSettings)
 	local roles = S{
-		Buffer.new(action_queue, trust_settings.BuffSettings),
+		Buffer.new(action_queue, trust_settings.BuffSettings, state.AutoBuffMode, job),
 		Barspeller.new(action_queue, job),
 		Debuffer.new(action_queue, trust_settings.DebuffSettings),
 		Dispeler.new(action_queue, L{ Spell.new('Dispel') }, L{}, true),

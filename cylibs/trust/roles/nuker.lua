@@ -197,10 +197,12 @@ function Nuker:set_nuke_settings(nuke_settings)
     self.min_num_mobs_to_cleave = nuke_settings.MinNumMobsToCleave or 2
 
     for gambit in nuke_settings.Gambits:it() do
+        gambit:getAbility():set_requires_all_job_abilities(false)
+
         gambit.conditions = gambit.conditions:filter(function(condition)
             return condition:is_editable()
         end)
-        local conditions = self:get_default_conditions(gambit)
+        local conditions = self:get_default_conditions(gambit) + self.job:get_conditions_for_ability(gambit:getAbility())
         for condition in conditions:it() do
             condition.editable = false
             gambit:addCondition(condition)
@@ -214,11 +216,6 @@ function Nuker:get_default_conditions(gambit)
     }
     if L(gambit:getAbility():get_valid_targets()) ~= L{ 'Self' } then
         conditions:append(MaxDistanceCondition.new(gambit:getAbility():get_range()))
-    end
-    if gambit:getAbility().get_job_abilities then
-        for job_ability_name in gambit:getAbility():get_job_abilities():it() do
-            conditions:append(JobAbilityRecastReadyCondition.new(job_ability_name))
-        end
     end
     return conditions
 end

@@ -19,7 +19,7 @@ state.AutoAvatarMode = M{['description'] = 'Avatar Mode', 'Off', 'Ifrit', 'Ramuh
 function SummonerTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = Summoner.new()
 	local roles = S{
-		Buffer.new(action_queue, trust_settings.BuffSettings),
+		Buffer.new(action_queue, trust_settings.BuffSettings, state.AutoBuffMode, job),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job, true),
 		--Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		ManaRestorer.new(action_queue, L{'Myrkr', 'Spirit Taker'}, L{}, 40),

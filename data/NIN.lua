@@ -24,21 +24,20 @@ return {
             MinNumMobsToCleave = 2,
             GearswapCommand = "gs c set MagicBurstMode Single",
             Gambits = L{
-                Gambit.new("Enemy", L{}, Spell.new("Raiton: San", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Raiton: San", L{"Futae"}, L{}, nil, L{}, nil, true), "Enemy", L{}),
                 Gambit.new("Enemy", L{}, Spell.new("Raiton: Ni", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
-                Gambit.new("Enemy", L{}, Spell.new("Hyoton: San", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Hyoton: San", L{"Futae"}, L{}, nil, L{}, nil, true), "Enemy", L{}),
                 Gambit.new("Enemy", L{}, Spell.new("Hyoton: Ni", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
-                Gambit.new("Enemy", L{}, Spell.new("Katon: San", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Katon: San", L{"Futae"}, L{}, nil, L{}, nil, true), "Enemy", L{}),
                 Gambit.new("Enemy", L{}, Spell.new("Katon: Ni", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
-                Gambit.new("Enemy", L{}, Spell.new("Huton: San", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Huton: San", L{"Futae"}, L{}, nil, L{}, nil, true), "Enemy", L{}),
                 Gambit.new("Enemy", L{}, Spell.new("Huton: Ni", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
-                Gambit.new("Enemy", L{}, Spell.new("Suiton: San", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Suiton: San", L{"Futae"}, L{}, nil, L{}, nil, true), "Enemy", L{}),
                 Gambit.new("Enemy", L{}, Spell.new("Suiton: Ni", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
-                Gambit.new("Enemy", L{}, Spell.new("Doton: San", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
+                Gambit.new("Enemy", L{}, Spell.new("Doton: San", L{"Futae"}, L{}, nil, L{}, nil, true), "Enemy", L{}),
                 Gambit.new("Enemy", L{}, Spell.new("Doton: Ni", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
             },
             JobAbilities = L{
-                JobAbility.new("Futae", L{}, L{}),
             },
             Blacklist = L{
 

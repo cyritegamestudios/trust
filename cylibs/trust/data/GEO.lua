@@ -30,7 +30,7 @@ function GeomancerTrust.new(settings, action_queue, battle_settings, trust_setti
 	entrust.conditions = L{}
 	local entrustGambit = Gambit.new(GambitTarget.TargetType.Ally, trust_settings.Geomancy.Entrust.conditions + L{ JobAbilityRecastReadyCondition.new('Entrust') }, entrust, "Ally")
 	local roles = S{
-		Buffer.new(action_queue, { Gambits = L{ entrustGambit } }, state.AutoEntrustMode),
+		Buffer.new(action_queue, { Gambits = L{ entrustGambit } }, state.AutoEntrustMode, job),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{ 'Theurgic Focus' }, job),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		ManaRestorer.new(action_queue, L{"Spirit Taker", "Moonlight"}, L{}, 40),

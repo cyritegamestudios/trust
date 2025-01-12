@@ -41,12 +41,22 @@ end
 function BloodPactMagic:set_job_abilities(job_ability_names)
 end
 
-function BloodPactMagic:should_use_all_job_abilties()
-    return self.use_all_job_abilities
+---
+-- Returns whether all job abilities are required to perform this action.
+--
+-- @treturn boolean Whether job abilities are required
+--
+function BloodPactMagic:requires_all_job_abilities()
+    return self.requires_job_abilities
 end
 
-function BloodPactMagic:set_should_use_all_job_abilities(use_all_job_abilities)
-    self.use_all_job_abilities = use_all_job_abilities
+---
+-- Sets whether job abilities are required.
+--
+-- @tparam boolean requires_job_abilities Whether job abilities are required
+--
+function BloodPactMagic:set_requires_all_job_abilities(requires_job_abilities)
+    self.requires_job_abilities = requires_job_abilities
 end
 
 function BloodPactMagic:serialize()

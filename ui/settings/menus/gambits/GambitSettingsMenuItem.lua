@@ -317,7 +317,7 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
         ButtonItem.default('Confirm'),
     }, {
         Confirm = MenuItem.action(function(parent)
-            parent:showMenu(editGambitMenuItem)
+            --parent:showMenu(editGambitMenuItem)
         end, self:getTitleText(), "Edit ability.")
     }, function(_, infoView, showMenu)
         local configItems = L{}
@@ -325,9 +325,9 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
             configItems = self.selectedGambit:getAbility():get_config_items(self.trust) or L{}
         end
         if not configItems:empty() then
-            local editAbilityEditor = ConfigEditor.new(nil, self.selectedGambit:getAbility(), configItems, infoView, nil, showMenu)
+            local editAbilityEditor = ConfigEditor.new(self.trustSettings, self.selectedGambit:getAbility(), configItems, infoView, nil, showMenu)
 
-            self.disposeBag:add(editAbilityEditor:onConfigChanged():addAction(function(newSettings, oldSettings)
+            self.disposeBag:add(editAbilityEditor:onConfigConfirm():addAction(function(newSettings, oldSettings)
                 if self.selectedGambit:getAbility().on_config_changed then
                     self.selectedGambit:getAbility():on_config_changed(oldSettings)
                 end

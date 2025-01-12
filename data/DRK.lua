@@ -38,8 +38,8 @@ return {
             MinNumMobsToCleave = 2,
             GearswapCommand = "gs c set MagicBurstMode Single",
             Gambits = L{
-                Gambit.new("Enemy", L{}, Spell.new("Drain III", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
-                Gambit.new("Enemy", L{}, Spell.new("Drain II", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
+                Gambit.new("Enemy", L{NotCondition.new(L{HasBuffCondition.new("Max HP Boost")})}, Spell.new("Drain III", L{"Dark Seal", "Nether Void"}, L{}, nil, L{}, nil, false), "Enemy", L{"Nukes"}),
+                Gambit.new("Enemy", L{NotCondition.new(L{HasBuffCondition.new("Max HP Boost")})}, Spell.new("Drain II", L{"Dark Seal", "Nether Void"}, L{}, nil, L{}, nil, false), "Enemy", L{"Nukes"}),
             },
             JobAbilities = L{
                 JobAbility.new("Nether Void"),

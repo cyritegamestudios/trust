@@ -15,7 +15,7 @@ local Tank = require('cylibs/trust/roles/tank')
 function PaladinTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = Paladin.new(trust_settings.CureSettings)
 	local roles = S{
-		Buffer.new(action_queue, trust_settings.BuffSettings),
+		Buffer.new(action_queue, trust_settings.BuffSettings, state.AutoBuffMode, job),
 		Healer.new(action_queue, job),
 		Raiser.new(action_queue, job),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),

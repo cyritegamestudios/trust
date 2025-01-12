@@ -32,12 +32,13 @@ state.AutoRepairMode = M{['description'] = 'Use Repair', 'Auto', 'Off'}
 state.AutoRepairMode:set_description('Auto', "Okay, I'll use repair when my automaton's HP is low.")
 
 function PuppetmasterTrust.new(settings, action_queue, battle_settings, trust_settings)
+	local job = Puppetmaster.new()
 	local roles = S{
-		Buffer.new(action_queue, trust_settings.BuffSettings),
+		Buffer.new(action_queue, trust_settings.BuffSettings, state.AutoBuffMode, job),
 		Puller.new(action_queue, trust_settings.PullSettings),
 		Dispeler.new(action_queue, L{}, L{ JobAbility.new('Dark Maneuver', L{ HasAttachmentsCondition.new(L{ 'regulator', 'disruptor' }), NotCondition.new(L{ HasBuffCondition.new('Dark Maneuver', windower.ffxi.get_player().index) }, windower.ffxi.get_player().index) }, L{}, 'me') }, false),
 	}
-	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, Puppetmaster.new()), PuppetmasterTrust)
+	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), PuppetmasterTrust)
 
 	self.settings = settings
 	self.action_queue = action_queue

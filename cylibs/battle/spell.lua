@@ -8,12 +8,10 @@ require('lists')
 require('logger')
 
 local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
-local BooleanConfigItem = require('ui/settings/editors/config/BooleanConfigItem')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local serializer_util = require('cylibs/util/serializer_util')
 
 local res = require('resources')
-local StrategemCountCondition = require('cylibs/conditions/strategem_count')
 
 local Spell = {}
 Spell.__index = Spell
@@ -38,7 +36,7 @@ function Spell.new(spell_name, job_abilities, job_names, target, conditions, con
         consumable = consumable;
         conditions = conditions or L{};
         enabled = true;
-        use_all_job_abilities = true;
+        requires_job_abilities = true;
     }, Spell)
 
     if S(res.spells:with('en', spell_name)):contains('Party') then
@@ -46,17 +44,6 @@ function Spell.new(spell_name, job_abilities, job_names, target, conditions, con
     end
 
     self:add_condition(SpellRecastReadyCondition.new(res.spells:with('en', spell_name).id))
-
-    local strategem_count = self.job_abilities:filter(function(job_ability_name)
-        local job_ability = res.job_abilities:with('en', job_ability_name)
-        return job_ability.type == 'Scholar'
-    end):length()
-    if strategem_count > 0 then
-        local strategem_condition = (conditions or L{}):filter(function(condition) return condition.__type == StrategemCountCondition.__type end)
-        if strategem_condition:length() == 0 then
-            self:add_condition(StrategemCountCondition.new(strategem_count))
-        end
-    end
 
     return self
 end
@@ -91,12 +78,22 @@ function Spell:set_job_abilities(job_ability_names)
     self.job_abilities = job_ability_names
 end
 
-function Spell:should_use_all_job_abilties()
-    return self.use_all_job_abilities
+---
+-- Returns whether all job abilities are required to perform this action.
+--
+-- @treturn boolean Whether job abilities are required
+--
+function Spell:requires_all_job_abilities()
+    return self.requires_job_abilities
 end
 
-function Spell:set_should_use_all_job_abilities(use_all_job_abilities)
-    self.use_all_job_abilities = use_all_job_abilities
+---
+-- Sets whether job abilities are required.
+--
+-- @tparam boolean requires_job_abilities Whether job abilities are required
+--
+function Spell:set_requires_all_job_abilities(requires_job_abilities)
+    self.requires_job_abilities = requires_job_abilities
 end
 
 -------
@@ -278,7 +275,7 @@ function Spell:to_action(target_index, player, job_abilities)
     end):filter(function(job_ability)
         return Condition.check_conditions(job_ability:get_conditions(), player:get_mob().index)
     end)
-    if not self:should_use_all_job_abilties() and job_abilities:length() > 0 then
+    if not self:requires_all_job_abilities() and job_abilities:length() > 0 then
         job_abilities = L{ job_abilities[1] }
     end
 
