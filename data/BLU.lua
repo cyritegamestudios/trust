@@ -74,7 +74,6 @@ return {
                 Gambit.new("Enemy", L{}, Spell.new("Blinding Fulgor", L{"Burst Affinity"}, L{}, nil, L{}, nil, true), "Enemy", L{}),
             },
             JobAbilities = L{
-                JobAbility.new("Burst Affinity"),
             },
             Blacklist = L{
 
