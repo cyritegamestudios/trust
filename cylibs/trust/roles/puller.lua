@@ -317,9 +317,7 @@ function Puller:set_pull_settings(pull_settings)
         gambit.conditions = gambit.conditions:filter(function(condition)
             return condition:is_editable()
         end)
-        local conditions = self:get_default_conditions(gambit):filter(function(condition)
-            return not gambit.conditions:contains(condition)
-        end)
+        local conditions = self:get_default_conditions(gambit) --+ self.job:get_conditions_for_ability(gambit:getAbility())
         for condition in conditions:it() do
             condition.editable = false
             gambit:addCondition(condition)
