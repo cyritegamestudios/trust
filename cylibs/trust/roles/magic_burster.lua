@@ -115,10 +115,10 @@ function MagicBurster:set_nuke_settings(nuke_settings)
         gambit.conditions = gambit.conditions:filter(function(condition)
             return condition:is_editable()
         end)
-        local conditions = self:get_default_conditions(gambit) + self.job:get_conditions_for_ability(gambit:getAbility())
+        local conditions = self:get_default_conditions(gambit)
         for condition in conditions:it() do
             condition.editable = false
-            gambit:addCondition(condition)
+            gambit:addCondition(condition, true)
         end
 
         gambit:setEnabled(not element_id_blacklist:contains(gambit:getAbility():get_element()))
@@ -152,7 +152,7 @@ function MagicBurster:get_default_conditions(gambit, exclude_mode_conditions)
     conditions:append(MinManaPointsCondition.new(gambit:getAbility():get_mp_cost(), windower.ffxi.get_player().index))
     conditions:append(MinManaPointsPercentCondition.new(self.magic_burst_mpp, windower.ffxi.get_player().index))
 
-    return conditions
+    return conditions + self.job:get_conditions_for_ability(gambit:getAbility())
 end
 
 function Gambiter:get_cooldown()

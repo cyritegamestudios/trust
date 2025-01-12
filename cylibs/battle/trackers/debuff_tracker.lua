@@ -138,7 +138,7 @@ end
 
 function DebuffTracker:add_debuff(debuff_id)
     if not self:has_debuff(debuff_id) and buff_util.is_debuff(debuff_id) then
-        logger.notice(self.__class, 'gain_debuff', monster_util.monster_name(self.mob_id), res.buffs[debuff_id] and res.buffs[debuff_id].en or debuff_id)
+        logger.notice(self.__class, 'gain_debuff', monster_util.monster_name(self.mob_id), buff_util.buff_name(debuff_id))
 
         local debuff = buffs_ext[debuff_id]
         if debuff then
@@ -154,7 +154,7 @@ end
 
 function DebuffTracker:remove_debuff(debuff_id)
     if self:has_debuff(debuff_id) then
-        logger.notice(self.__class, 'lose_debuff', monster_util.monster_name(self.mob_id), res.buffs[debuff_id].en)
+        logger.notice(self.__class, 'lose_debuff', monster_util.monster_name(self.mob_id), buff_util.buff_name(debuff_id))
 
         self.debuff_ids:remove(debuff_id)
         self:on_lose_debuff():trigger(self.mob_id, debuff_id)

@@ -51,7 +51,7 @@ end
 -- @tparam Spell|JobAbility ability The ability
 -- @treturn list List of conditions
 function Job:get_conditions_for_ability(ability)
-    local conditions = ability:get_conditions()
+    local conditions = L{} + ability:get_conditions()
     if ability.requires_all_job_abilities ~= nil and ability:requires_all_job_abilities() and ability.get_job_abilities ~= nil then
         for job_ability_name in ability:get_job_abilities():it() do
             conditions = conditions + JobAbility.new(job_ability_name):get_conditions()

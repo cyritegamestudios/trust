@@ -28,7 +28,7 @@ function Buffer:set_buff_settings(buff_settings)
         gambit.conditions = gambit.conditions:filter(function(condition)
             return condition:is_editable()
         end)
-        local conditions = self:get_default_conditions(gambit) + self.job:get_conditions_for_ability(gambit:getAbility())
+        local conditions = self:get_default_conditions(gambit)
         for condition in conditions:it() do
             condition.editable = false
             gambit:addCondition(condition)
@@ -46,12 +46,7 @@ function Buffer:get_default_conditions(gambit)
     if L(gambit:getAbility():get_valid_targets()) ~= L{ 'Self' } then
         conditions:append(MaxDistanceCondition.new(gambit:getAbility():get_range()))
     end
-    if gambit:getAbility().get_job_abilities then
-        for job_ability_name in gambit:getAbility():get_job_abilities():it() do
-            conditions:append(JobAbilityRecastReadyCondition.new(job_ability_name))
-        end
-    end
-    return conditions
+    return conditions + self.job:get_conditions_for_ability(gambit:getAbility())
 end
 
 function Buffer:allows_duplicates()

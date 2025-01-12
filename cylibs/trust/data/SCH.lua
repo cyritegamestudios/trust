@@ -22,7 +22,7 @@ function ScholarTrust.new(settings, action_queue, battle_settings, trust_setting
 
     local self = setmetatable(Trust.new(action_queue, S{
         Buffer.new(action_queue, trust_settings.BuffSettings, state.AutoBuffMode, job),
-        Debuffer.new(action_queue, trust_settings.DebuffSettings),
+        Debuffer.new(action_queue, trust_settings.DebuffSettings, job),
         Healer.new(action_queue, job),
         ManaRestorer.new(action_queue, L{'Myrkr', 'Spirit Taker'}, L{}, 40),
         Puller.new(action_queue, trust_settings.PullSettings),

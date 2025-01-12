@@ -74,7 +74,7 @@ function GambitSettingsEditor.new(gambit, trustSettings, trustSettingsMode, abil
         end
 
         self:onGambitChanged():trigger(newSettings, oldSettings)
-
+        
         if shouldReload then
             self:reloadSettings()
             self:reloadConfigItems()

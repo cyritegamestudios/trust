@@ -18,7 +18,7 @@ function DarkKnightTrust.new(settings, action_queue, battle_settings, trust_sett
 	local job = DarkKnight.new()
 	local roles = S{
 		Buffer.new(action_queue, trust_settings.BuffSettings, state.AutoBuffMode, job),
-		Debuffer.new(action_queue,trust_settings.DebuffSettings),
+		Debuffer.new(action_queue,trust_settings.DebuffSettings, job),
 		Dispeler.new(action_queue, L{ Spell.new('Absorb-Attri') }, L{}, false),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job, true),
 		ManaRestorer.new(action_queue, L{'Entropy'}, L{}, 40),

@@ -12,10 +12,6 @@ state.AutoGambitMode:set_description('Auto', "Okay, I'll customize my battle pla
 function Gambiter.new(action_queue, gambit_settings, skillchainer, state_var, disable_react)
     local self = setmetatable(Role.new(action_queue), Gambiter)
 
-    if type(state_var) == 'string' then
-        print(debug.traceback())
-    end
-
     self.action_queue = action_queue
     self.skillchainer = skillchainer
     self.state_var = state_var or state.AutoGambitMode

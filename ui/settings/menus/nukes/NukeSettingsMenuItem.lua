@@ -43,6 +43,19 @@ function NukeSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trust
     end), NukeSettingsMenuItem)
     self:setDefaultGambitTags(L{'Nukes'})
 
+    self:getDisposeBag():add(self:onGambitChanged():addAction(function(newGambit, oldGambit)
+        if newGambit:getAbility() ~= oldGambit:getAbility() then
+            newGambit.conditions = newGambit.conditions:filter(function(condition)
+                return condition:is_editable()
+            end)
+            local conditions = trust:role_with_type("magicburster"):get_default_conditions(newGambit)
+            for condition in conditions:it() do
+                condition.editable = false
+                newGambit:addCondition(condition)
+            end
+        end
+    end), self:onGambitChanged())
+
     self:setChildMenuItem("Config", self:getConfigMenuItem())
     self:setChildMenuItem("Blacklist", self:getBlacklistMenuItem())
 

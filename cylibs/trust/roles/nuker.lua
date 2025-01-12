@@ -202,7 +202,7 @@ function Nuker:set_nuke_settings(nuke_settings)
         gambit.conditions = gambit.conditions:filter(function(condition)
             return condition:is_editable()
         end)
-        local conditions = self:get_default_conditions(gambit) + self.job:get_conditions_for_ability(gambit:getAbility())
+        local conditions = self:get_default_conditions(gambit)
         for condition in conditions:it() do
             condition.editable = false
             gambit:addCondition(condition)
@@ -217,7 +217,7 @@ function Nuker:get_default_conditions(gambit)
     if L(gambit:getAbility():get_valid_targets()) ~= L{ 'Self' } then
         conditions:append(MaxDistanceCondition.new(gambit:getAbility():get_range()))
     end
-    return conditions
+    return conditions + self.job:get_conditions_for_ability(gambit:getAbility())
 end
 
 return Nuker

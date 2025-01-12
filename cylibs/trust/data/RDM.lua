@@ -36,7 +36,7 @@ function RedMageTrust.new(settings, action_queue, battle_settings, trust_setting
 	local roles = S{
 		Buffer.new(action_queue, trust_settings.BuffSettings, state.AutoBuffMode, job),
 		Barspeller.new(action_queue, job),
-		Debuffer.new(action_queue, trust_settings.DebuffSettings),
+		Debuffer.new(action_queue, trust_settings.DebuffSettings, job),
 		Dispeler.new(action_queue, L{ Spell.new('Dispel') }, L{}, true),
 		Healer.new(action_queue, job),
 		Raiser.new(action_queue, job),

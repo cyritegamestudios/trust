@@ -317,7 +317,7 @@ function Puller:set_pull_settings(pull_settings)
         gambit.conditions = gambit.conditions:filter(function(condition)
             return condition:is_editable()
         end)
-        local conditions = self:get_default_conditions(gambit) --+ self.job:get_conditions_for_ability(gambit:getAbility())
+        local conditions = self:get_default_conditions(gambit)
         for condition in conditions:it() do
             condition.editable = false
             gambit:addCondition(condition)
@@ -331,10 +331,11 @@ function Puller:set_pull_settings(pull_settings)
 end
 
 function Puller:get_default_conditions(gambit)
-    return L{
+    local conditions = L{
         MaxDistanceCondition.new(gambit:getAbility():get_range() or self.distance or 20),
         MinHitPointsPercentCondition.new(1),
     }
+    return conditions --+ self.job:get_conditions_for_ability(gambit:getAbility())
 end
 
 function Puller:get_pull_abilities()

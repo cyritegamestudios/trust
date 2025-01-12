@@ -291,7 +291,7 @@ end
 -- @tparam Spell|JobAbility ability The ability
 -- @treturn list List of conditions
 function BlueMage:get_conditions_for_ability(ability)
-    local conditions = ability:get_conditions()
+    local conditions = Job.get_conditions_for_ability(self, ability)
     if self:get_unbridled_spells():contains(ability:get_name()) then
         conditions:append(JobAbilityRecastReadyCondition.new('Unbridled Learning'))
     end

@@ -43,7 +43,10 @@ function Spell.new(spell_name, job_abilities, job_names, target, conditions, con
         job_names = job_names or job_util.all_jobs()
     end
 
-    self:add_condition(SpellRecastReadyCondition.new(res.spells:with('en', spell_name).id))
+    local recast_ready_condition = SpellRecastReadyCondition.new(res.spells:with('en', spell_name).id)
+    recast_ready_condition.editable = false
+
+    self:add_condition(recast_ready_condition)
 
     return self
 end
@@ -353,7 +356,7 @@ function Spell:serialize()
     local conditions_to_serialize = self.conditions:filter(function(condition)
         return conditions_classes_to_serialize:contains(condition.__class)
     end)
-    return "Spell.new(" .. serializer_util.serialize_args(self.spell_name, self.job_abilities, self.job_names, self.target, conditions_to_serialize, self.consumable, self.use_all_job_abilities) .. ")"
+    return "Spell.new(" .. serializer_util.serialize_args(self.spell_name, self.job_abilities, self.job_names, self.target, conditions_to_serialize, self.consumable) .. ")"
 end
 
 function Spell:__eq(otherItem)

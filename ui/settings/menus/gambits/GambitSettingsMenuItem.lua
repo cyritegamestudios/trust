@@ -306,6 +306,8 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
 
         gambitEditor:getDisposeBag():add(gambitEditor:onGambitChanged():addAction(function(newGambit, oldGambit)
             self:onGambitChanged():trigger(newGambit, oldGambit)
+
+            self.conditionSettingsMenuItem:setConditions(newGambit:getConditions())
         end), gambitEditor:onGambitChanged())
 
         return gambitEditor

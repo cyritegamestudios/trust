@@ -57,7 +57,7 @@ end
 -- @tparam Spell|JobAbility ability The ability
 -- @treturn list List of conditions
 function Ninja:get_conditions_for_ability(ability)
-    local conditions = ability:get_conditions()
+    local conditions = Job.get_conditions_for_ability(self, ability)
     local tools = self:get_tools_for_spell(ability)
     if tools:length() > 0 then
         local item_conditions = tools:map(function(tool_name)
