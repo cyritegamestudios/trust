@@ -62,7 +62,7 @@ return {
                 Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Avatar's Favor")}), HasPetCondition.new(L{'Carbuncle', 'Cait Sith', 'Ifrit', 'Shiva', 'Garuda', 'Titan', 'Ramuh', 'Leviathan', 'Fenrir', 'Diabolos', 'Siren'})}, JobAbility.new("Avatar's Favor", L{}), "Self", L{})
             },
             Gambits = L{
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("SMN")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"food"})
+                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("SMN")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"Food"})
             }
         },
         GearSwapSettings = {

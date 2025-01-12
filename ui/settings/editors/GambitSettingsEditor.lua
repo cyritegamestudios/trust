@@ -66,12 +66,15 @@ function GambitSettingsEditor.new(gambit, trustSettings, trustSettingsMode, abil
             if not abilitiesByTargetType[newSettings['target']]:contains(newSettings['ability']) then
                 addon_system_error("Invalid ability "..removed_ability_name.." for ability target type "..newSettings['target']..".")
             end
+
             newSettings.ability = abilitiesByTargetType[newSettings['target']][1]:copy()
         end
 
         if newSettings['ability'] ~= oldSettings['ability'] then
             shouldReload = true
         end
+
+        -- TODO: set tags here???
 
         self:onGambitChanged():trigger(newSettings, oldSettings)
         

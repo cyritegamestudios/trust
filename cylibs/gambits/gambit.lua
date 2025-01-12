@@ -10,6 +10,7 @@ Gambit.Tags.AllTags = L{
     'Buffs',
     'Debuffs',
     'Food',
+    'Nukes',
     'Reaction',
 }
 
@@ -108,7 +109,7 @@ function Gambit:copy()
     for condition in self:getConditions():it() do
         conditions:append(condition:copy())
     end
-    return Gambit.new(self:getAbilityTarget(), conditions, self:getAbility(), self:getConditionsTarget())
+    return Gambit.new(self:getAbilityTarget(), conditions, self:getAbility(), self:getConditionsTarget(), L(self:getTags()))
 end
 
 function Gambit:__eq(otherItem)

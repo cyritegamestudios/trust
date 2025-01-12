@@ -196,4 +196,12 @@ function JobAbility:__eq(otherItem)
     return false
 end
 
+function JobAbility:copy()
+    local conditions = L{}
+    for condition in self:get_conditions():it() do
+        conditions:append(condition:copy())
+    end
+    return JobAbility.new(self.job_ability_name, conditions, self.job_names + L{}, self.target)
+end
+
 return JobAbility
