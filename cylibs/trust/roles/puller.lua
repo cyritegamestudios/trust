@@ -345,10 +345,6 @@ function Puller:get_pull_abilities()
     return self.pull_abilities
 end
 
-function Puller:get_cooldown()
-    return 6
-end
-
 function Puller:get_blacklist()
     return self.blacklist
 end
