@@ -24,6 +24,7 @@ function Migration_v23:perform(trustSettings, _, _)
     local modeNames = list.subtract(L(T(trustSettings:getSettings()):keyset()), L{'Version','Migrations'})
     for modeName in modeNames:it() do
         local currentSettings = trustSettings:getSettings()[modeName].PullSettings
+        currentSettings.Gambits = L{}
         if currentSettings.Abilities then
             currentSettings.Gambits = currentSettings.Abilities:map(function(ability)
                 local gambit = Gambit.new(GambitTarget.TargetType.Enemy, ability.conditions, ability, GambitTarget.TargetType.Enemy, L{"Pulling"})
