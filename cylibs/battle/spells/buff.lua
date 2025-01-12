@@ -61,4 +61,11 @@ function Buff:serialize()
     return "Buff.new(" .. serializer_util.serialize_args(self.original_spell_name, self.job_abilities, self.job_names, self.spell_prefix, conditions_to_serialize) .. ")"
 end
 
+function Buff:__eq(otherItem)
+    if otherItem.__type == self.__type and otherItem:get_name() == self:get_name() then
+        return true
+    end
+    return false
+end
+
 return Buff
