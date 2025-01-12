@@ -34,9 +34,9 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
         end)
 
         local configItem = MultiPickerConfigItem.new("Conditions", self.conditions:length() > 0 and L{ self.conditions[1] } or L{}, self.conditions, function(condition)
-            return condition:tostring()
+            return condition:tostring(), condition:is_editable()
         end, "Conditions", nil, nil, function(condition)
-            return condition:tostring()
+            return condition:tostring(), condition:is_editable()
         end)
 
         local editConditionsView = FFXIPickerView.withConfig(L{ configItem }, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditor, TextStyle.Default.TextSmall)
