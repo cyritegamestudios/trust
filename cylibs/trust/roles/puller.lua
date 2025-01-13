@@ -340,7 +340,9 @@ end
 
 function Puller:get_pull_abilities()
     if state.ApproachPullMode.value ~= 'Off' then
-        return L{ Gambit.new(GambitTarget.TargetType.Enemy, L{}, Approach.new(), GambitTarget.TargetType.Enemy) }
+        local approach = Gambit.new("Enemy", L{}, Approach.new(L{MaxDistanceCondition.new(35)}), "Enemy", L{"Pulling"})
+        approach.conditions = self:get_default_conditions(approach)
+        return L{ approach }
     end
     return self.pull_abilities
 end
