@@ -58,6 +58,10 @@ function ElementalMagicSkillSettings:get_default_ability()
     return nil
 end
 
+function ElementalMagicSkillSettings:get_default_conditions(_)
+    return L{ JobAbilityRecastReadyCondition.new('Immanence') }
+end
+
 function ElementalMagicSkillSettings:set_default_ability(ability_name)
     local ability = self:get_ability(ability_name)
     if ability then

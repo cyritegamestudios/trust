@@ -124,6 +124,15 @@ function SkillchainAbility:get_conditions()
     return conditions
 end
 
+-------
+-- Adds a condition to the list of conditions.
+-- @tparam Condition condition Condition to add
+function SkillchainAbility:add_condition(condition)
+    if not self:get_conditions():contains(condition) then
+        self.conditions:append(condition)
+    end
+end
+
 -- Returns the amount of time this ability extends the skillchain window by.
 -- @treturn number Delay in seconds
 function SkillchainAbility:get_delay()
