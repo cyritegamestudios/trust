@@ -9,6 +9,7 @@ MobFilter.__class = "MobFilter"
 
 local ClaimedCondition = require('cylibs/conditions/claimed')
 local ConditionalCondition = require('cylibs/conditions/conditional')
+local MaxHeightDistanceCondition = require('cylibs/conditions/max_height_distance')
 local UnclaimedCondition = require('cylibs/conditions/unclaimed')
 
 MobFilter.Type = {}
@@ -47,6 +48,7 @@ function MobFilter:get_nearby_mobs(filter_types)
         ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos()),
         MinHitPointsPercentCondition.new(1),
         MaxDistanceCondition.new(50),
+        MaxHeightDistanceCondition.new(8, Condition.Operator.LessThanOrEqualTo),
         ConditionalCondition.new(L{ ClaimedCondition.new(self.alliance:get_alliance_member_ids()), UnclaimedCondition.new() }, Condition.LogicalOperator.Or)
     }
 
