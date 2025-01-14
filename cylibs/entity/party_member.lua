@@ -110,6 +110,7 @@ function PartyMember.new(id, name)
     self.debuff_ids = L{}
     self.buff_ids = L{}
     self.combat_skill_ids = S{}
+    self.status_id = 0
     self.battle_stat_tracker = BattleStatTracker.new(id)
     self.is_monitoring = false
     self.last_zone_time = os.time()
