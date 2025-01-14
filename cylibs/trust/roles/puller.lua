@@ -289,8 +289,12 @@ function Puller:is_valid_target(target)
     if not target or not target:get_mob() then
         return false
     end
+    local max_pull_ability_range = 0
+    for gambit in self:get_pull_abilities():it() do
+        max_pull_ability_range = math.max(max_pull_ability_range, gambit:getAbility():get_range())
+    end
     local conditions = L{
-        MaxDistanceCondition.new(self.distance),
+        MaxDistanceCondition.new(math.min(self.distance, max_pull_ability_range)),
         MinHitPointsPercentCondition.new(1),
         ClaimedCondition.new(L{ 0 }:extend(self:get_party():get_party_members(true):map(function(p) return p:get_id() end)))
     }

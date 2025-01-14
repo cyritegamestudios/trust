@@ -145,14 +145,14 @@ function spell_util.knows_spell(spell_id, known_spells)
                     return sub_job_knows_spell
                 end
             end
-            if not main_job_knows_spell and sub_job_knows_spell and player.sub_job_id == 20 then
+            --[[if not main_job_knows_spell and sub_job_knows_spell and player.sub_job_id == 20 then
                 if spell_util.get_addendum_white_spells():contains(spell.en) and not buff_util.is_buff_active(401) then
                     return false
                 end
                 if spell_util.get_addendum_black_spells():contains(spell.en) and not buff_util.is_buff_active(402) then
                     return false
                 end
-            end
+            end]]
             return main_job_knows_spell or sub_job_knows_spell
         end
     end

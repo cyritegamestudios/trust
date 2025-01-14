@@ -222,7 +222,7 @@ function Gambiter:check_gambits(targets, gambits, param, ignore_delay)
         return
     end
 
-    logger.notice(self.__class, 'check_gambits')
+    logger.notice(self.__class, 'check_gambits', self:get_type())
 
     if not self:allows_multiple_actions() and self.action_queue:has_action(self.action_identifier) then
         return
