@@ -1,4 +1,5 @@
 local logger = require('cylibs/logger/logger')
+local Timer = require('cylibs/util/timers/timer')
 
 local GambitTarget = require('cylibs/gambits/gambit_target')
 local Gambiter = setmetatable({}, {__index = Role })
@@ -15,6 +16,7 @@ function Gambiter.new(action_queue, gambit_settings, skillchainer, state_var, di
     self.action_queue = action_queue
     self.skillchainer = skillchainer
     self.state_var = state_var or state.AutoGambitMode
+    self.timer = Timer.scheduledTimer(1)
     self.last_gambit_time = os.time() - self:get_cooldown()
     self.disable_react = disable_react
     self.action_identifier = self:get_type()..'_action'
@@ -26,6 +28,8 @@ end
 
 function Gambiter:destroy()
     Role.destroy(self)
+
+    self.timer:destroy()
 end
 
 function Gambiter:on_add()
@@ -186,6 +190,15 @@ function Gambiter:on_add()
             end
         end)
     end
+
+    self.timer:onTimeChange():addAction(function(_)
+        if self.state_var.value == 'Off' then
+            return
+        end
+        self:check_gambits()
+    end)
+
+    self.timer:start()
 end
 
 function Gambiter:target_change(target_index)
@@ -197,11 +210,11 @@ function Gambiter:get_cooldown()
 end
 
 function Gambiter:tic(new_time, old_time)
-    if self.state_var.value == 'Off' then
-        return
-    end
+    --if self.state_var.value == 'Off' then
+    --    return
+    --end
 
-    self:check_gambits()
+    --self:check_gambits()
 end
 
 function Gambiter:check_gambits(targets, gambits, param, ignore_delay)
