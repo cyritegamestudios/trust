@@ -19,10 +19,6 @@ function Buffer:destroy()
     Gambiter.destroy(self)
 end
 
-function Buffer:on_add()
-    Gambiter.on_add(self)
-end
-
 function Buffer:set_buff_settings(buff_settings)
     for gambit in buff_settings.Gambits:it() do
         gambit.conditions = gambit.conditions:filter(function(condition)
