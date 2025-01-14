@@ -56,6 +56,10 @@ function BloodPactSkillSettings:get_default_ability()
     return nil
 end
 
+function BloodPactSkillSettings:get_default_conditions(ability)
+    return L{ JobAbilityRecastReadyCondition.new(ability:get_name()) }
+end
+
 function BloodPactSkillSettings:set_default_ability(ability_name)
     local ability = self:get_ability(ability_name)
     if ability then

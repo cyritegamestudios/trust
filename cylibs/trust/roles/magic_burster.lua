@@ -55,12 +55,12 @@ end
 function MagicBurster:on_add()
     Gambiter.on_add(self)
 
-    WindowerEvents.Skillchain.Begin:addAction(function(target_id, skillchain_step)
+    self.dispose_bag:add(WindowerEvents.Skillchain.Begin:addAction(function(target_id, skillchain_step)
         local target = self:get_target()
         if target and target:get_id() == target_id then
             self:check_gambits()
         end
-    end)
+    end), self.action_queue:on_action_start())
 
     self.dispose_bag:add(self.action_queue:on_action_start():addAction(function(_, a)
         if a:getidentifier() == self.action_identifier then

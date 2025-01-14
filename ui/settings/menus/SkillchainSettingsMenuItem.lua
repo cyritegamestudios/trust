@@ -140,10 +140,10 @@ function SkillchainSettingsMenuItem:getEditSkillchainStepMenuItem()
                     self.selectedAbility = ability
                     ability.conditions = newSettings.conditions
 
-                    self.conditionSettingsMenuItem:setConditions(ability.conditions)
-
                     currentSettings.Skillchain[newSettings.step:get_step()] = ability
                     self.weaponSkillSettings:saveSettings(true)
+
+                    self.conditionSettingsMenuItem:setConditions(ability.conditions)
 
                     addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my weapon skills!")
                 end

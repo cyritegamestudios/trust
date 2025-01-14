@@ -16,11 +16,7 @@ function Buffer.new(action_queue, buff_settings, state_var, job)
 end
 
 function Buffer:destroy()
-    Role.destroy(self)
-end
-
-function Buffer:on_add()
-    Role.on_add(self)
+    Gambiter.destroy(self)
 end
 
 function Buffer:set_buff_settings(buff_settings)
@@ -55,6 +51,7 @@ end
 
 function Buffer:get_type()
     return "buffer"
+
 end
 
 function Buffer:get_cooldown()

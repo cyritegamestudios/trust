@@ -55,6 +55,13 @@ function Buff:is_aoe()
     return spell_util.is_aoe_spell(spell_name) or #aoe_buff_prefixes:filter(function(buff_prefix) return spell_name:contains(buff_prefix) end) > 0
 end
 
+-------
+-- Returns whether or not the player knows this spell.
+-- @treturn Boolean True if the player knows this spell
+function Buff:is_valid()
+    return spell_util.knows_spell(self:get_spell().id)
+end
+
 function Buff:serialize()
     local conditions_classes_to_serialize = Condition.defaultSerializableConditionClasses()
     local conditions_to_serialize = self.conditions:filter(function(condition) return conditions_classes_to_serialize:contains(condition.__class)  end)

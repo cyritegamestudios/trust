@@ -69,6 +69,10 @@ function CombatSkillSettings:get_default_ability()
     return nil
 end
 
+function CombatSkillSettings:get_default_conditions(_)
+    return L{ MinTacticalPointsCondition.new(1000) }
+end
+
 function CombatSkillSettings:set_default_ability(ability_name)
     local ability = self:get_ability(ability_name)
     if ability then

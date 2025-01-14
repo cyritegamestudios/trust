@@ -306,6 +306,11 @@ function Scholar:get_conditions_for_ability(ability)
             conditions:append(StrategemCountCondition.new(strategem_count, Condition.Operator.GreaterThanOrEqualTo))
         end
     end
+    if self:get_addendum_white_spells():contains(ability:get_name()) then
+        conditions:append(HasBuffCondition.new('Addendum: White', windower.ffxi.get_player().index))
+    elseif self:get_addendum_black_spells():contains(ability:get_name()) then
+        conditions:append(HasBuffCondition.new('Addendum: Black', windower.ffxi.get_player().index))
+    end
     return conditions
 end
 

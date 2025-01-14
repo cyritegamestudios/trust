@@ -56,6 +56,10 @@ function ReadyMoveSkillSettings:get_default_ability()
     return nil
 end
 
+function ReadyMoveSkillSettings:get_default_conditions(ability)
+    return L{ ReadyChargesCondition.new(self:get_charges(ability:get_name()), Condition.Operator.GreaterThanOrEqualTo) }
+end
+
 function ReadyMoveSkillSettings:get_charges(readyMoveName)
     local jobAbility = res.job_abilities:with('en', readyMoveName)
     if jobAbility then

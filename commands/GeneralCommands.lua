@@ -231,6 +231,19 @@ end
 -- // trust debug
 function GeneralTrustCommands:handle_debug()
 
+    --local BlackMage = require('cylibs/entity/jobs/BLM')
+    --local job = BlackMage.new()
+    local Scholar = require('cylibs/entity/jobs/SCH')
+    local job = Scholar.new(sub_trust_settings)
+
+    local gambit = Gambit.new("Self", L{}, Buff.new("Reraise", L{}, L{}, nil, L{}), "Self", L{})
+    local conditions = job:get_conditions_for_ability(gambit:getAbility())
+    for condition in conditions:it() do
+        print(condition:tostring())
+    end
+
+    print(gambit:getAbility():get_name(), Condition.check_conditions(conditions), windower.ffxi.get_player().index)
+
     print(spell_util.can_cast_spell(res.spells:with('en', 'Erase').id))
 
     local job_ability = JobAbility.new("Ebullience", L{SubJobCondition.new("SCH"), StrategemCountCondition.new(1, ">=")}, L{})
