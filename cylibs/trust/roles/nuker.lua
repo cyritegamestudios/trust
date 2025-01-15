@@ -126,6 +126,7 @@ function Nuker:get_default_conditions(gambit, exclude_mode_conditions)
 
         if self.job:get_aoe_spells():contains(gambit:getAbility():get_name()) then
             conditions:append(ModeCondition.new('AutoNukeMode', 'Cleave'))
+            conditions:append(EnemiesNearbyCondition.new(self.min_num_mobs_to_cleave))
         else
             conditions:append(ModeCondition.new('AutoNukeMode', res.elements[gambit:getAbility():get_element()].en))
         end
