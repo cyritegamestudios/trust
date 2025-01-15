@@ -19,7 +19,6 @@ function Gambiter.new(action_queue, gambit_settings, skillchainer, state_var, di
     self.timer = Timer.scheduledTimer(1)
     self.last_gambit_time = os.time() - self:get_cooldown()
     self.disable_react = disable_react
-    self.action_identifier = self:get_type()..'_action'
 
     self:set_gambit_settings(gambit_settings)
 
@@ -284,7 +283,7 @@ function Gambiter:perform_gambit(gambit, target)
         end
         action.priority = ActionPriority.highest
         if not self:allows_multiple_actions() then
-            action.identifier = self.action_identifier
+            action.identifier = self:get_action_identifier()
         end
         self.action_queue:push_action(action, true)
     end
@@ -300,6 +299,10 @@ end
 
 function Gambiter:allows_multiple_actions()
     return true
+end
+
+function Gambiter:get_action_identifier()
+    return self:get_type()..'_action'
 end
 
 function Gambiter:set_gambit_settings(gambit_settings)

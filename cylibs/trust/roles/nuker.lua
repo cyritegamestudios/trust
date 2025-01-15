@@ -122,14 +122,12 @@ function Nuker:get_default_conditions(gambit, exclude_mode_conditions)
     }
 
     if not exclude_mode_conditions then
-        conditions:append(ConditionalCondition.new(L{
-            ModeCondition.new('AutoNukeMode', res.elements[gambit:getAbility():get_element()].en),
-            ModeCondition.new('AutoNukeMode', 'Cleave'),
-        }, Condition.LogicalOperator.Or))
         conditions:append(NotCondition.new(L{ ModeCondition.new('AutoNukeMode', 'Mirror') }))
 
         if self.job:get_aoe_spells():contains(gambit:getAbility():get_name()) then
             conditions:append(ModeCondition.new('AutoNukeMode', 'Cleave'))
+        else
+            conditions:append(ModeCondition.new('AutoNukeMode', res.elements[gambit:getAbility():get_element()].en))
         end
     end
 
