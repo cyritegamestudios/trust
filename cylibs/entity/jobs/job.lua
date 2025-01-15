@@ -75,6 +75,16 @@ function Job:get_job_abilities(filter)
 end
 
 -------
+-- Returns whether a job ability is known.
+-- @tparam number job_ability_id Job ability id (see res/job_abilities.lua)
+-- @treturn boolean True if the job ability is known
+function Job:knows_job_ability(job_ability_id)
+    return self:get_job_abilities(function(id)
+        return job_ability_id == id
+    end):length() > 0
+end
+
+-------
 -- Returns the job level.
 -- @treturn number Job level.
 function Job:getLevel()
