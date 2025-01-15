@@ -64,7 +64,6 @@ function MagicBurster:on_add()
 
     self.dispose_bag:add(self.action_queue:on_action_start():addAction(function(_, a)
         if a:getidentifier() == self.action_identifier then
-            print('magic bursting!', self.action_identifier, a:getidentifier())
             if self.gearswap_command and self.gearswap_command:length() > 0 then
                 windower.send_command(self.gearswap_command)
             end
