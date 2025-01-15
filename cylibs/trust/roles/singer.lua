@@ -211,6 +211,10 @@ function Singer:check_songs()
 end
 
 function Singer:get_next_song(party_member, dummy_songs, songs)
+    if party_member:get_mob() == nil then
+        return nil
+    end
+
     local song_target_id = party_member:get_mob().id
     local buff_ids = L(party_member:get_buff_ids())
 

@@ -44,7 +44,7 @@ function Trust:init()
 		self:add_role(role)
 	end
 
-	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
+	local on_trust_settings_changed = function(new_trust_settings)
 		local gambiter = self:role_with_type("gambiter")
 		if gambiter then
 			gambiter:set_gambit_settings(new_trust_settings.GambitSettings)
@@ -64,6 +64,19 @@ function Trust:init()
 		end
 
 		self.gambits = new_trust_settings.GambitSettings.Default or L{}
+	end
+
+	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
+		on_trust_settings_changed(new_trust_settings)
+	end)
+
+	-- NOTE: this is necessary because some gambits add conditions that reference the player's index,
+	-- which changes when you zone.
+	self:get_party():get_player():on_zone_change():addAction(function(p, new_zone_id)
+		if p:get_mob() == nil then
+			return
+		end
+		self:set_trust_settings(self.trust_settings)
 	end)
 
 	-- NOTE: this must come after so on_trust_settings_changed gets called in parent class first

@@ -155,7 +155,7 @@ function MagicBurster:get_default_conditions(gambit, exclude_mode_conditions)
     return conditions + self.job:get_conditions_for_ability(gambit:getAbility())
 end
 
-function Gambiter:get_cooldown()
+function MagicBurster:get_cooldown()
     return self.magic_burst_cooldown or 0
 end
 

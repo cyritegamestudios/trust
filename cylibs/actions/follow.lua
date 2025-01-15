@@ -29,7 +29,9 @@ end
 
 function FollowAction:complete(success)
     windower.ffxi.follow()
-    self.timer:cancel()
+    if self.timer then
+        self.timer:cancel()
+    end
     Action.complete(self, success)
 end
 
