@@ -519,12 +519,6 @@ end
 -- Sets the target index for the party member.
 -- @tparam number Index of the current target, or nil if none.
 function PartyMember:set_target_index(target_index)
-    if target_index then
-        local target = windower.ffxi.get_mob_by_target('t')
-        if target and target.index ~= target_index then
-            target_index = target.index
-        end
-    end
     if self.target_index ~= target_index then
         local old_target_index = self.target_index
         if target_index and target_index ~= 0 and battle_util.is_valid_monster_target(ffxi_util.mob_id_for_index(target_index)) then

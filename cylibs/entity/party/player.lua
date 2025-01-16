@@ -89,7 +89,8 @@ end
 -- Sets the target index of the player.
 -- @tparam number target_index Target index
 function Player:set_target_index(_)
-    PartyMember.set_target_index(self, windower.ffxi.get_player().target_index)
+    local target = windower.ffxi.get_mob_by_target('t')
+    PartyMember.set_target_index(self, target and target.index or windower.ffxi.get_player().target_index)
 end
 
 -------
