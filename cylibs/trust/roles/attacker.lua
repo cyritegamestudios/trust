@@ -64,14 +64,6 @@ function Attacker:tic(_, _)
     self:check_engage()
 end
 
-function Attacker:get_engage_target()
-    if state.AutoEngageMode.value == 'Off' then
-        return nil
-    else
-        return self:get_target() or (monster_util.id_for_index(self.target_index) and Monster.new(monster_util.id_for_index(self.target_index)))
-    end
-end
-
 function Attacker:check_engage()
     if state.AutoEngageMode.value == 'Off' then
         return
@@ -84,7 +76,9 @@ function Attacker:check_engage()
     else
         local engage_target = self:get_engage_target()
         if engage_target then
-            self:engage(engage_target)
+            if self:should_engage(engage_target) then
+                self:engage(engage_target)
+            end
         else
             self:disengage()
         end
@@ -108,8 +102,22 @@ function Attacker:can_engage(target)
     return true
 end
 
+function Attacker:should_engage(target)
+    if target == nil then
+        return false
+    end
+
+    local conditions = L{
+        AggroedCondition.new(),
+    }
+    if not Condition.check_conditions(conditions, target:get_index()) then
+        return false
+    end
+    return true
+end
+
 function Attacker:engage(target)
-    if not self:can_engage(target) or windower.ffxi.get_player().target_index == target:get_index() and self:get_party():get_player():get_status() == 'Engaged' then
+    if not self:can_engage(target) or (windower.ffxi.get_mob_by_target('t') and windower.ffxi.get_mob_by_target('t').index == target:get_index() and self:get_party():get_player():get_status() == 'Engaged') then
         return
     end
 
@@ -117,6 +125,14 @@ function Attacker:engage(target)
     attack_action.priority = ActionPriority.high
 
     self.action_queue:push_action(attack_action, true)
+end
+
+function Attacker:get_engage_target()
+    if state.AutoEngageMode.value == 'Off' then
+        return nil
+    else
+        return self:get_target() or (monster_util.id_for_index(self.target_index) and Monster.new(monster_util.id_for_index(self.target_index)))
+    end
 end
 
 function Attacker:should_disengage()
