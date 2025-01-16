@@ -65,6 +65,12 @@ function BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trust
         end
     end), buffSettingsItem:onGambitChanged())
 
+    buffSettingsItem:getDisposeBag():add(buffSettingsItem:onGambitCreated():addAction(function(newGambit)
+        if newGambit:getAbilityTarget() == GambitTarget.TargetType.Ally then
+            newGambit:addCondition(JobCondition.new(job_util.all_jobs()))
+        end
+    end), buffSettingsItem:onGambitCreated())
+
     return buffSettingsItem
 end
 
