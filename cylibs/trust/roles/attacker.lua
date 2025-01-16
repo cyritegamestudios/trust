@@ -135,19 +135,6 @@ function Attacker:disengage()
     self.action_queue:push_action(disengage_action, true)
 end
 
-function Attacker:is_targeting_self()
-    if self.last_target_self == nil then
-        return false
-    end
-    local current_target_index = windower.ffxi.get_player().target_index
-    if current_target_index then
-        if current_target_index == windower.ffxi.get_player().index and (os.time() - self.last_target_self) > 6 then
-            return true
-        end
-    end
-    return false
-end
-
 function Attacker:allows_duplicates()
     return false
 end
