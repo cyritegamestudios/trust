@@ -524,7 +524,6 @@ function PartyMember:set_target_index(target_index)
         if target_index and target_index ~= 0 and battle_util.is_valid_monster_target(ffxi_util.mob_id_for_index(target_index)) then
             local target = windower.ffxi.get_mob_by_index(target_index)
             if target then
-                --if target and party_util.party_claimed(target.id) then
                 self.target_index = target.index
                 if old_target_index ~= target.index then
                     self:on_target_change():trigger(self, self.target_index, old_target_index)

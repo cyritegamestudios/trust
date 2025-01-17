@@ -24,6 +24,10 @@ function GambitSettingsMenuItem:onGambitChanged()
     return self.gambitChanged
 end
 
+function GambitSettingsMenuItem:onGambitCreated()
+    return self.gambitCreated
+end
+
 function GambitSettingsMenuItem.compact(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKey, abilityTargets, abilitiesForTargets, conditionTargets, modes, abilityCategory, abilityCategoryPlural, libraryCategoryFilter, itemDescription)
     local configItemForGambits = function(gambits)
         local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit)
@@ -80,6 +84,7 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
     self.conditionSettingsMenuItem = ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, nil, S(self.conditionTargets))
     self.defaultGambitTags = L{}
     self.gambitChanged = Event.newEvent()
+    self.gambitCreated = Event.newEvent()
     self.disposeBag = DisposeBag.new()
 
     local updateCurrentGambit = function(cursorIndexPath)
@@ -160,6 +165,7 @@ function GambitSettingsMenuItem:destroy()
     MenuItem.destroy(self)
 
     self.gambitChanged:removeAllActions()
+    self.gambitCreated:removeAllActions()
 
     self.disposeBag:destroy()
 end
@@ -256,6 +262,8 @@ function GambitSettingsMenuItem:getAddAbilityMenuItem()
             abilityPickerView:getDisposeBag():add(abilityPickerView:on_pick_items():addAction(function(_, selectedItems)
                 if selectedItems:length() > 0 then
                     local newGambit = Gambit.new(targetType, L{}, selectedItems[1], targetType, self.defaultGambitTags)
+
+                    self:onGambitCreated():trigger(newGambit)
 
                     local currentGambits = self:getSettings().Gambits
                     currentGambits:append(newGambit)
