@@ -20,7 +20,7 @@ function SongSetsMenuItem.new(trustSettings, trustSettingsMode, trustModeSetting
         ButtonItem.default('Delete', 18),
         ButtonItem.default('Config', 18),
         ButtonItem.default('Modes', 18),
-    }, {}, nil, "Songs", "Choose or edit a song set."), SongSetsMenuItem)
+    }, {}, nil, "Song Sets", "Choose or edit a song set."), SongSetsMenuItem)
 
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
@@ -125,7 +125,7 @@ function SongSetsMenuItem:getCreateSetMenuItem()
         end), songSetConfigEditor:onConfigValidationError())
 
         return songSetConfigEditor
-    end, "Songs", "Save a new song set.")
+    end, "Song Sets", "Create a new song set.")
     return createSetMenuItem
 end
 
@@ -144,7 +144,7 @@ function SongSetsMenuItem:getDeleteSetMenuItem()
         self.trustSettings:saveSettings(true)
 
         menu:showMenu(self)
-    end, "Songs", "Delete the selected song set.", false, function()
+    end, "Song Sets", "Delete the selected song set.", false, function()
         return self.selectedSetName:getValue() ~= nil and self.selectedSetName:getValue() ~= 'Default'
     end)
 end

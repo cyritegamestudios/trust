@@ -17,7 +17,7 @@ SongSettingsMenuItem.__index = SongSettingsMenuItem
 
 function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSettings, songSetName, trust)
     local self = setmetatable(MenuItem.new(L{}, {},
-    nil, "Songs", "Choose songs to sing."), SongSettingsMenuItem)
+    nil, "Song Sets", "Edit songs in this set."), SongSettingsMenuItem)
 
     self.songSetName = songSetName
     self.contentViewConstructor = function(_, _, _, _)
@@ -128,7 +128,7 @@ function SongSettingsMenuItem:getEditDummySongsMenuItem()
             songConfigEditor:setShouldRequestFocus(true)
 
             return songConfigEditor
-        end, "Dummy", "Choose 3 dummy songs to sing.")
+        end, "Dummy", "Choose 3 dummy songs to sing (affects all song sets).")
     return editDummySongsMenuItem
 end
 

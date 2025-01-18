@@ -17,6 +17,15 @@ function BardTrustCommands.new(trust, action_queue)
     })
     self:add_command('clear', self.handle_clear_songs, 'Clears the list of tracked songs')
     self:add_command('validate', self.handle_validate_songs, 'Runs diagnostics to validate songs are working properly')
+    self:add_command('set', self.handle_set_song_set, 'Sets the current song set', L{
+        PickerConfigItem.new('set_name', state.SongSet.value, L(state.SongSet:options()), nil, "Song Set Name")
+    })
+
+    trust:on_trust_settings_changed():addAction(function(_, new_trust_settings)
+        self:add_command('set', self.handle_set_song_set, 'Sets the current song set', L{
+            PickerConfigItem.new('set_name', state.SongSet.value, L(state.SongSet:options()), nil, "Song Set Name")
+        })
+    end)
 
     return self
 end
@@ -50,6 +59,22 @@ function BardTrustCommands:handle_set_song_target(_, party_member_name)
         success = false
         message = "Invalid party member "..(party_member_name or 'nil')
     end
+    return success, message
+end
+
+function BardTrustCommands:handle_set_song_set(_, set_name)
+    local success
+    local message
+
+    if L(state.SongSet:options()):contains(set_name) then
+        state.SongSet:set(set_name)
+        success = true
+        message = nil
+    else
+        success = false
+        message = "Invalid song set name "..(set_name or 'nil').."."
+    end
+
     return success, message
 end
 
