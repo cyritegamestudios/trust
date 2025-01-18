@@ -10,7 +10,7 @@ local Dispeler = require('cylibs/trust/roles/dispeler')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Healer = require('cylibs/trust/roles/healer')
 local MagicBurster = require('cylibs/trust/roles/magic_burster')
-local ManaRestorer = require('cylibs/trust/roles/mana_restorer')
+local ManaRestorer = require('cylibs/trust/roles/mana_restorer') -- for AutoRestoreManaMode
 local Nuker = require('cylibs/trust/roles/nuker')
 local Puller = require('cylibs/trust/roles/puller')
 local StatusRemover = require('cylibs/trust/roles/status_remover')
@@ -24,7 +24,6 @@ function ScholarTrust.new(settings, action_queue, battle_settings, trust_setting
         Buffer.new(action_queue, trust_settings.BuffSettings, state.AutoBuffMode, job),
         Debuffer.new(action_queue, trust_settings.DebuffSettings, job),
         Healer.new(action_queue, job),
-        ManaRestorer.new(action_queue, L{'Myrkr', 'Spirit Taker'}, L{}, 40),
         Puller.new(action_queue, trust_settings.PullSettings),
         StatusRemover.new(action_queue, job),
         Dispeler.new(action_queue, L{ Spell.new('Dispel', L{'Addendum: Black'}) }, L{}, true),

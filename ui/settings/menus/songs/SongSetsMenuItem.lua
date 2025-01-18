@@ -1,3 +1,4 @@
+local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local ConfigItem = require('ui/settings/editors/config/ConfigItem')
@@ -36,12 +37,14 @@ function SongSetsMenuItem.new(trustSettings, trustSettingsMode, trustModeSetting
 
     self:setChildMenuItem("Edit", self.editSetMenuItem)
 
-    self.contentViewConstructor = function(_, infoView)
+    self.contentViewConstructor = function(_, _)
         local songSets = trustSettings:getSettings()[trustSettingsMode.value].SongSettings.SongSets
         local songSetNames = L(T(songSets):keyset()):sort()
 
         local configItem = MultiPickerConfigItem.new("SongSets", L{ state.SongSet.value }, songSetNames, function(value)
             return tostring(value)
+        end, "Song Sets", nil, function(_)
+            return AssetManager.imageItemForSpell("Mage's Ballad")
         end)
 
         local songListEditor = FFXIPickerView.withConfig(configItem)
