@@ -155,7 +155,7 @@ function SongSettingsMenuItem:getPianissmoSongsMenuItem()
                     return Spell.new(song:get_name(), L{ 'Pianissimo' }, L{})
                 end):compact_map()
 
-                local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.PianissimoSongs
+                local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.SongSets[self.songSetName].PianissimoSongs
                 songs = songs:extend(newSongs)
 
                 self.trustSettings:saveSettings(true)
@@ -169,7 +169,7 @@ function SongSettingsMenuItem:getPianissmoSongsMenuItem()
     local editJobsMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
     }, {}, function(_, _)
-        local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.PianissimoSongs
+        local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.SongSets[self.songSetName].PianissimoSongs
 
         local configItem = MultiPickerConfigItem.new("Jobs", songs[self.selectedPianissimoSongIndex]:get_job_names(), job_util.all_jobs(), function(jobNameShort)
             return i18n.resource('jobs', 'ens', jobNameShort)
@@ -179,7 +179,7 @@ function SongSettingsMenuItem:getPianissmoSongsMenuItem()
 
         self.dispose_bag:add(jobsPickerView:on_pick_items():addAction(function(_, newJobNames)
             if newJobNames:length() > 0 then
-                local song = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.PianissimoSongs[self.selectedPianissimoSongIndex]
+                local song = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.SongSets[self.songSetName].PianissimoSongs[self.selectedPianissimoSongIndex]
 
                 local jobNames = song:get_job_names()
                 jobNames:clear()
