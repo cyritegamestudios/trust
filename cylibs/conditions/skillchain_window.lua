@@ -20,7 +20,7 @@ function SkillchainWindowCondition.new(duration, operator)
 end
 
 function SkillchainWindowCondition:is_satisfied(target_index)
-    local target = player.alliance:get_target_by_index(target_index) or player.party:get_target_by_index(player.party:get_player():get_target_index())
+    local target = player.alliance:get_target_by_index(target_index) or player.alliance:get_target_by_index(player.party:get_player():get_target_index())
     if target and target:get_skillchain() then
         local skillchain = target:get_skillchain()
         if skillchain and not skillchain:is_expired() then
