@@ -4,14 +4,13 @@
 -- @name BlueMagicSet
 local serializer_util = require('cylibs/util/serializer_util')
 
-local Condition = require('cylibs/conditions/condition')
-local BlueMagicSet = setmetatable({}, { __index = Condition })
+local BlueMagicSet = {}
 BlueMagicSet.__index = BlueMagicSet
 BlueMagicSet.__type = "BlueMagicSet"
 BlueMagicSet.__class = "BlueMagicSet"
 
 function BlueMagicSet.new(spells)
-    local self = setmetatable(Condition.new(), BlueMagicSet)
+    local self = setmetatable({}, BlueMagicSet)
     self.spells = spells or L{}
     return self
 end

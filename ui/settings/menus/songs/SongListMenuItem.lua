@@ -9,16 +9,17 @@ local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local SongListMenuItem = setmetatable({}, {__index = MenuItem })
 SongListMenuItem.__index = SongListMenuItem
 
-function SongListMenuItem.new(trust, trustSettings, trustSettingsMode)
+function SongListMenuItem.new(trust, trustSettings, trustSettingsMode, songSetName)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
         ButtonItem.default('Jobs', 18),
     }, {}, nil, "Songs", "Choose 5 songs to sing."), SongListMenuItem)
 
+    self.songSetName = songSetName
     self.disposeBag = DisposeBag.new()
 
     self.contentViewConstructor = function(_, infoView)
-        local songs = T(trustSettings:getSettings())[trustSettingsMode.value].SongSettings.Songs
+        local songs = T(trustSettings:getSettings())[trustSettingsMode.value].SongSettings.SongSets[self.songSetName].Songs
 
         local allSongs = trust:get_job():get_spells(function(spell_id)
             local spell = res.spells[spell_id]
@@ -68,7 +69,7 @@ function SongListMenuItem.new(trust, trustSettings, trustSettingsMode)
         end), songConfigEditor:getDelegate():didMoveCursorToItemAtIndexPath())
 
         self.disposeBag:add(songConfigEditor:onConfigChanged():addAction(function(newSettings, oldSettings)
-            local songs = T(trustSettings:getSettings())[trustSettingsMode.value].SongSettings.Songs
+            local songs = T(trustSettings:getSettings())[trustSettingsMode.value].SongSettings.SongSets[self.songSetName].Songs
             for i = 1, 5 do
                 local newSongName = newSettings["Song"..i]
                 if songs[i]:get_name() ~= newSongName then
@@ -121,7 +122,7 @@ function SongListMenuItem:getEditJobsMenuItem()
         ButtonItem.default('Confirm', 18),
         ButtonItem.default('Clear All', 18),
     }, {}, function(_, _)
-        local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.Songs
+        local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.SongSets[self.songSetName].Songs
 
         local configItem = MultiPickerConfigItem.new("Jobs", songs[self.selectedSongIndex]:get_job_names(), job_util.all_jobs(), function(jobNameShort)
             return i18n.resource('jobs', 'ens', jobNameShort)
@@ -131,7 +132,7 @@ function SongListMenuItem:getEditJobsMenuItem()
 
         self.disposeBag:add(jobsPickerView:on_pick_items():addAction(function(_, newJobNames)
             if self.selectedSongIndex and newJobNames:length() > 0 then
-                local song = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.Songs[self.selectedSongIndex]
+                local song = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.SongSets[self.songSetName].Songs[self.selectedSongIndex]
                 song:set_job_names(newJobNames)
 
                 self.trustSettings:saveSettings(true)
@@ -144,6 +145,10 @@ function SongListMenuItem:getEditJobsMenuItem()
         return jobsPickerView
     end, "Songs", "Choose jobs to keep this song on.")
     return editJobsMenuItem
+end
+
+function SongListMenuItem:setSongSetName(songSetName)
+    self.songSetName = songSetName
 end
 
 return SongListMenuItem
