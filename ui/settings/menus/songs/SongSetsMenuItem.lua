@@ -100,11 +100,15 @@ function SongSetsMenuItem:getCreateSetMenuItem()
         end)
     }, function(_)
         local configItems = L{
-            TextInputConfigItem.new('SetName', 'New Set', 'Set Name', function(_) return true  end)
+            TextInputConfigItem.new('SetName', 'NewSet', 'Set Name', function(_) return true  end)
         }
 
         local songSetConfigEditor = ConfigEditor.new(self.trustSettings, { SetName = '' }, configItems, nil, function(newSettings)
-            return newSettings.SetName and newSettings.SetName:length() > 3
+            local setName = newSettings.SetName
+            if setName and setName:length() > 3 and setName:match("^[a-zA-Z]+$") ~= nil and not setName:find("%s") then
+                return true
+            end
+            return false
         end)
         songSetConfigEditor:setShouldRequestFocus(true)
 
@@ -121,7 +125,7 @@ function SongSetsMenuItem:getCreateSetMenuItem()
         end), songSetConfigEditor:onConfigChanged())
 
         self.disposeBag:add(songSetConfigEditor:onConfigValidationError():addAction(function()
-            addon_system_error("Invalid song set name.")
+            addon_system_error("Song set names cannot contain spaces and must be at least 3 characters.")
         end), songSetConfigEditor:onConfigValidationError())
 
         return songSetConfigEditor
