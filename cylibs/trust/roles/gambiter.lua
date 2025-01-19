@@ -221,9 +221,10 @@ function Gambiter:check_gambits(targets, gambits, param, ignore_delay)
         return
     end
 
-    logger.notice(self.__class, 'check_gambits', self:get_type())
+    logger.notice(self.__class, 'check_gambits', self:get_type(), self.state_var.value)
 
     if not self:allows_multiple_actions() and self.action_queue:has_action(self.action_identifier) then
+        logger.notice(self.__class, 'check_gambits', self:get_type(), 'duplicate')
         return
     end
 
@@ -246,6 +247,8 @@ function Gambiter:check_gambits(targets, gambits, param, ignore_delay)
             end
         end
     end
+
+    logger.notice(self.__class, 'check_gambits', self:get_type(), 'checked', gambits:length(), 'gambits')
 end
 
 function Gambiter:get_gambit_targets(gambit_target)

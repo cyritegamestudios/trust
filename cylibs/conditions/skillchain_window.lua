@@ -20,16 +20,12 @@ function SkillchainWindowCondition.new(duration, operator)
 end
 
 function SkillchainWindowCondition:is_satisfied(target_index)
-    local party = player.party
-    local player = player.party:get_player()
-    if player then
-        local enemy = party:get_target_by_index(player:get_target_index())
-        if enemy then
-            local skillchain = enemy:get_skillchain()
-            if skillchain and not skillchain:is_expired() then
-                local time_remaining_in_seconds = skillchain:get_time_remaining()
-                return self:eval(time_remaining_in_seconds, self.duration, self.operator)
-            end
+    local target = player.alliance:get_target_by_index(target_index) or player.alliance:get_target_by_index(player.party:get_player():get_target_index())
+    if target and target:get_skillchain() then
+        local skillchain = target:get_skillchain()
+        if skillchain and not skillchain:is_expired() then
+            local time_remaining_in_seconds = skillchain:get_time_remaining()
+            return self:eval(time_remaining_in_seconds, self.duration, self.operator)
         end
     end
     return false
