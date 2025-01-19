@@ -481,9 +481,9 @@ function TrustHud:getShooterMenuItem(trust, trustSettings, trustSettingsMode)
     return shooterSettingsMenuItem
 end
 
-function TrustHud:getSingerMenuItem(trust, trustSettings, trustSettingsMode, viewSize)
-    local SongSettingsMenuItem = require('ui/settings/menus/songs/SongSettingsMenuItem')
-    local singerSettingsMenuItem = SongSettingsMenuItem.new(self.addon_settings, trustSettings, trustSettingsMode, self.trustModeSettings, trust)
+function TrustHud:getSingerMenuItem(trust, trustSettings, trustSettingsMode)
+    local SongSetsMenuItem = require('ui/settings/menus/songs/SongSetsMenuItem')
+    local singerSettingsMenuItem = SongSetsMenuItem.new(trustSettings, trustSettingsMode, self.trustModeSettings, trust)
     return singerSettingsMenuItem
 end
 

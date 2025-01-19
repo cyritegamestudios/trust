@@ -1,34 +1,22 @@
-local BackgroundView = require('cylibs/ui/views/background/background_view')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
-local Color = require('cylibs/ui/views/color')
-local Frame = require('cylibs/ui/views/frame')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
-local ListView = require('cylibs/ui/list_view/list_view')
-local NavigationBar = require('cylibs/ui/navigation/navigation_bar')
-local Padding = require('cylibs/ui/style/padding')
-local PickerItem = require('cylibs/ui/picker/picker_item')
-local PickerView = require('cylibs/ui/picker/picker_view')
-local SpellSettingsEditor = require('ui/settings/SpellSettingsEditor')
 local SectionHeaderItem = require('cylibs/ui/collection_view/items/section_header_item')
 local spell_util = require('cylibs/util/spell_util')
-local TabbedView = require('cylibs/ui/tabs/tabbed_view')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
-local TrustSettingsLoader = require('TrustSettings')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
-local View = require('cylibs/ui/views/view')
 
 local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
 local SongSettingsEditor = setmetatable({}, {__index = FFXIWindow })
 SongSettingsEditor.__index = SongSettingsEditor
 
 
-function SongSettingsEditor.new(trustSettings, settingsMode, helpUrl)
+function SongSettingsEditor.new(trustSettings, settingsMode, songSetName, helpUrl)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = TextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
@@ -46,6 +34,7 @@ function SongSettingsEditor.new(trustSettings, settingsMode, helpUrl)
     self.helpUrl = helpUrl
     self.trustSettings = trustSettings
     self.settingsMode = settingsMode
+    self.songSetName = songSetName
     self.menuArgs = {}
 
     self:reloadSettings()
@@ -177,8 +166,8 @@ function SongSettingsEditor:reloadSettings()
     local items = L{}
 
     self.dummySongs = L(T(self.trustSettings:getSettings())[self.settingsMode.value].SongSettings.DummySongs)
-    self.songs = L(T(self.trustSettings:getSettings())[self.settingsMode.value].SongSettings.Songs)
-    self.pianissimoSongs = L(T(self.trustSettings:getSettings())[self.settingsMode.value].SongSettings.PianissimoSongs)
+    self.songs = L(T(self.trustSettings:getSettings())[self.settingsMode.value].SongSettings.SongSets[self.songSetName].Songs)
+    self.pianissimoSongs = L(T(self.trustSettings:getSettings())[self.settingsMode.value].SongSettings.SongSets[self.songSetName].PianissimoSongs)
 
     local dummySongsSectionHeaderItem = SectionHeaderItem.new(
         TextItem.new("Dummy Songs", TextStyle.Default.SectionHeader),

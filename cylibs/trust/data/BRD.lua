@@ -27,14 +27,16 @@ state.AutoNitroMode:set_description('Auto', "Okay, I'll use Nightingale and Trou
 state.AutoClarionCallMode = M{['description'] = 'Use Clarion Call', 'Off', 'Auto'}
 state.AutoClarionCallMode:set_description('Auto', "Okay, I'll use Clarion Call before Nightingale and Troubadour.")
 
+state.SongSet = M{['description'] = 'Song Set', 'Default'}
+
 function BardTrust.new(settings, action_queue, battle_settings, trust_settings, addon_settings)
 	local job = Bard.new(trust_settings, addon_settings)
 	local roles = S{
 		Debuffer.new(action_queue, trust_settings.DebuffSettings, job),
-		Singer.new(action_queue, trust_settings.SongSettings.DummySongs, trust_settings.SongSettings.Songs, trust_settings.SongSettings.PianissimoSongs, job, state.AutoSongMode, ActionPriority.medium),
+		Singer.new(action_queue, trust_settings.SongSettings.DummySongs, trust_settings.SongSettings.SongSets.Default.Songs, trust_settings.SongSettings.SongSets.Default.PianissimoSongs, job, state.AutoSongMode, ActionPriority.medium),
 		Dispeler.new(action_queue, L{ Spell.new('Magic Finale') }, L{}, true),
 		Puller.new(action_queue, trust_settings.PullSettings),
-		Sleeper.new(action_queue, L{ Spell.new('Horde Lullaby'), Spell.new('Horde Lullaby II') }, 3)
+		Sleeper.new(action_queue, L{ Spell.new('Horde Lullaby II'), Spell.new('Horde Lullaby') }, 3)
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), BardTrust)
 
@@ -66,14 +68,28 @@ function BardTrust:on_init()
 
 		self.num_songs = new_trust_settings.NumSongs
 
+		local mode_names = T(T(new_trust_settings.SongSettings.SongSets):keyset()):map(function(m)
+			return m
+		end)
+		state.SongSet:options(T(mode_names):unpack())
+
 		local singer = self:role_with_type("singer")
 
 		singer:set_dummy_songs(new_trust_settings.SongSettings.DummySongs)
-		singer:set_songs(new_trust_settings.SongSettings.Songs)
-		singer:set_pianissimo_songs(new_trust_settings.SongSettings.PianissimoSongs)
+		singer:set_songs(new_trust_settings.SongSettings.SongSets[state.SongSet.value].Songs)
+		singer:set_pianissimo_songs(new_trust_settings.SongSettings.SongSets[state.SongSet.value].PianissimoSongs)
 
 		local debuffer = self:role_with_type("debuffer")
 		debuffer:set_debuff_settings(new_trust_settings.DebuffSettings)
+	end)
+
+	state.SongSet:on_state_change():addAction(function(_, new_value)
+		local singer = self:role_with_type("singer")
+
+		singer:set_songs(self:get_trust_settings().SongSettings.SongSets[state.SongSet.value].Songs)
+		singer:set_pianissimo_songs(self:get_trust_settings().SongSettings.SongSets[state.SongSet.value].PianissimoSongs)
+
+		addon_system_message("Switched to song set "..state.SongSet.value..".")
 	end)
 end
 
