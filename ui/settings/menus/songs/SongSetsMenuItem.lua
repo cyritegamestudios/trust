@@ -64,6 +64,7 @@ function SongSetsMenuItem.new(trustSettings, trustSettingsMode, trustModeSetting
             local item = songListEditor:getDataSource():itemAtIndexPath(indexPath)
             if item then
                 state.SongSet:set(item:getText() or 'Default')
+                addon_system_error("---== WARNING ==---- switching song sets with existing songs may cause a sing loop.")
             end
         end), songListEditor:getDelegate():didSelectItemAtIndexPath())
 
