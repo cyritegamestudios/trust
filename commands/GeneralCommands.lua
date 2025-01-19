@@ -37,6 +37,8 @@ function GeneralTrustCommands.new(trust, action_queue, addon_enabled, trust_mode
     self:add_command('load', self.handle_load_set, 'Load a mode set, // trust load mode_set_name')
     self:add_command('save', self.handle_save_set, 'Save changes to the current mode set or new set, // trust save mode_set_name (optional)')
 
+    print(res.items[17583].targets)
+
     return self
 end
 
