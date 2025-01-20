@@ -89,7 +89,7 @@ function WeaponSkillSettings:loadSettings()
 end
 
 function WeaponSkillSettings:reloadSettings()
-    return self:loadSettings(false)
+    return self:loadSettings()
 end
 
 function WeaponSkillSettings:getSettingsFilePath(default_settings)
