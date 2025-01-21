@@ -188,6 +188,22 @@ function Gambiter:on_add()
                 self:check_gambits(L{ target }, gambits, new_zone_id)
             end
         end)
+
+        self:get_party():get_player():on_target_change():addAction(function(_, new_target_index, _)
+            local target = self:get_target()
+            if target and target:get_index() == new_target_index then
+                local gambits = self:get_all_gambits():filter(function(gambit)
+                    for condition in gambit:getConditions():it() do
+                        if condition.__type == TargetChangeCondition.__type then
+                            return true
+                        end
+                        return false
+                    end
+                end)
+                print('gambit stuff')
+                self:check_gambits(L{ target }, gambits)
+            end
+        end)
     end
 
     self.timer:onTimeChange():addAction(function(_)

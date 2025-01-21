@@ -11,14 +11,14 @@ state.AutoShootMode = M{['description'] = 'Auto Shoot Mode', 'Off', 'Auto', 'Man
 state.AutoShootMode:set_description('Auto', "Okay, I'll automatically shoot at the enemy.")
 state.AutoShootMode:set_description('Manual', "Okay, I'll keep shooting once started until I've got TP.")
 
-function Shooter.new(action_queue, shoot_delay)
+function Shooter.new(action_queue, shooter_settings)
     local self = setmetatable(Role.new(action_queue), Shooter)
+
+    self:set_shooter_settings(shooter_settings)
 
     self.ranged_attack_action_identifier = self.__class..'_ranged_attack'
     self.total_shot_time = 1.5
     self.num_shots = 1
-    self.ranged_attack_delay = shoot_delay or 1.3
-    self.ranged_attack_max_tp = 1000
     self.last_shot = os.clock()
     self.last_shoot_time = os.clock()
     self.dispose_bag = DisposeBag.new()
@@ -71,7 +71,7 @@ function Shooter:on_add()
             return
         end
         if L{ 'Auto', 'Manual' }:contains(state.AutoShootMode.value) and not self.is_shooting and (os.clock() - self.last_shoot_time) > self.ranged_attack_delay then
-            if windower.ffxi.get_player().vitals.tp < self.ranged_attack_max_tp or state.AutoSkillchainMode.value == 'Off' then
+            if windower.ffxi.get_player().vitals.tp < self.ranged_attack_max_tp then
                 logger.notice(self.__class, 'onPrerender', 'restarting', os.clock() - self.last_shoot_time)
                 self:ranged_attack()
             end
@@ -126,6 +126,11 @@ end
 
 function Shooter:get_type()
     return "shooter"
+end
+
+function Shooter:set_shooter_settings(shooter_settings)
+    self.ranged_attack_delay = shooter_settings.Delay or 0
+    self.ranged_attack_max_tp = shooter_settings.MaxTP or 1000
 end
 
 return Shooter

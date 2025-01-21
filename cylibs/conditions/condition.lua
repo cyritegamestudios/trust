@@ -140,6 +140,7 @@ function Condition.defaultSerializableConditionClasses()
         BeginCastCondition.__class,
         HasCumulativeMagicEffectCondition.__class,
         StatusCondition.__class,
+        TargetNameCondition.__class,
     }
 end
 

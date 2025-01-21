@@ -13,7 +13,7 @@ function RangerTrust.new(settings, action_queue, battle_settings, trust_settings
 	local roles = S{
 		Buffer.new(action_queue, trust_settings.BuffSettings, state.AutoBuffMode, job),
 		Puller.new(action_queue, trust_settings.PullSettings),
-		Shooter.new(action_queue, trust_settings.Shooter.Delay or 1.5),
+		Shooter.new(action_queue, trust_settings.Shooter),
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), RangerTrust)
 
@@ -29,7 +29,7 @@ function RangerTrust:on_init()
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
 		local shooter = self:role_with_type("shooter")
 		if shooter then
-			shooter:set_shoot_delay(new_trust_settings.Shooter.Delay)
+			shooter:set_shooter_settings(new_trust_settings.Shooter)
 		end
 	end)
 end
