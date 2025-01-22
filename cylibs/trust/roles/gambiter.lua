@@ -194,13 +194,13 @@ function Gambiter:on_add()
             if target and target:get_index() == new_target_index then
                 local gambits = self:get_all_gambits():filter(function(gambit)
                     for condition in gambit:getConditions():it() do
-                        if condition.__type == TargetChangeCondition.__type then
+                        if condition.__type == TargetNameCondition.__type then
                             return true
                         end
                         return false
                     end
                 end)
-                print('gambit stuff')
+                
                 self:check_gambits(L{ target }, gambits)
             end
         end)
