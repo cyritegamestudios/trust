@@ -92,7 +92,7 @@ function MigrationManager:perform()
         migrationStep = migrationStep + 1
     end
 
-    if migrationsToRun:length() > 0 then
+    if migrationsToRun:length() > 0 or self.trustSettings.isFirstLoad then
         self.trustSettings:getSettings().Migrations = L(currentMigrations)
         self.trustSettings:saveSettings(true)
 

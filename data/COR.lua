@@ -3,7 +3,8 @@ return {
     Version = 2,
     Default = {
         Shooter = {
-            Delay = 1.5
+            Delay = 1.5,
+            MaxTP = 1000,
         },
         Roll1 = Roll.new("Chaos Roll", true),
         Roll2 = Roll.new("Samurai Roll", false),

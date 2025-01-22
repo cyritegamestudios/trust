@@ -71,7 +71,7 @@ function LoadSettingsAction:load_weapon_skill_settings()
         end
     end)
 
-    player.trust.weapon_skill_settings = weapon_skill_settings:loadSettings(true)
+    player.trust.weapon_skill_settings = weapon_skill_settings:loadSettings()
 end
 
 function LoadSettingsAction:load_settings()
@@ -86,7 +86,7 @@ function LoadSettingsAction:perform()
     self:load_main_trust_settings()
     self:load_sub_trust_settings()
     self:load_weapon_skill_settings()
-    
+
     self:complete(true)
 end
 
