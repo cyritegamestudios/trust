@@ -42,3 +42,5 @@ end
 function ProfileSettings:getSettings()
     return self.trustSettings:getSettings()[self.trustSettingsMode.value]
 end
+
+return ProfileSettings
