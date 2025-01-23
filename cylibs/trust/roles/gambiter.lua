@@ -200,7 +200,7 @@ function Gambiter:on_add()
                         return false
                     end
                 end)
-                
+
                 self:check_gambits(L{ target }, gambits)
             end
         end)
@@ -239,7 +239,7 @@ function Gambiter:check_gambits(targets, gambits, param, ignore_delay)
 
     logger.notice(self.__class, 'check_gambits', self:get_type(), self.state_var.value)
 
-    if not self:allows_multiple_actions() and self.action_queue:has_action(self.action_identifier) then
+    if not self:allows_multiple_actions() and self.action_queue:has_action(self:get_action_identifier()) then
         logger.notice(self.__class, 'check_gambits', self:get_type(), 'duplicate')
         return
     end

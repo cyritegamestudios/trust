@@ -25,6 +25,14 @@ function ValueRelay.new(value)
 end
 
 ---
+-- Destroys the value relay.
+--
+--
+function ValueRelay:destroy()
+    self.valueChanged:removeAllActions()
+end
+
+---
 -- Retrieves the current relayed value.
 --
 -- @treturn any The current relayed value.
