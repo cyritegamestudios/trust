@@ -49,6 +49,10 @@ function Buffer:allows_duplicates()
     return true
 end
 
+function Buffer:allows_multiple_actions()
+    return false
+end
+
 function Buffer:get_type()
     return "buffer"
 
