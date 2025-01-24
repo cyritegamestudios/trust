@@ -54,15 +54,6 @@ function Items:get_table()
     return self.database:Table(self:get_table_name())
 end
 
-function Items:filter(filters, operator, fields)
-    local query = localization_util.com
-    for filter in filters:it() do
-        if Items.Filter[filter] then
-            query = query
-        end
-    end
-end
-
 function Items:where(query, fields)
     local table = self:get_table()
     local result = table():where(query, fields)

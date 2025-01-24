@@ -3,7 +3,6 @@
 -- @class module
 -- @name UseItem
 
-local inventory_util = require('cylibs/util/inventory_util')
 local serializer_util = require('cylibs/util/serializer_util')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 
