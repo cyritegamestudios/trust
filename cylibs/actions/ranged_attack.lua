@@ -11,6 +11,7 @@ local RangedAttack = setmetatable({}, {__index = Action })
 RangedAttack.__index = RangedAttack
 RangedAttack.__eq = RangedAttack.is_equal
 RangedAttack.__class = "RangedAttack"
+RangedAttack.__type = "RangedAttack"
 
 function RangedAttack.new(target_index, player, ranged_attack_duration)
     local conditions = L{
