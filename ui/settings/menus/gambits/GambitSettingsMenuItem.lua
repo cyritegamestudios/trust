@@ -316,6 +316,7 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
             self:onGambitChanged():trigger(newGambit, oldGambit)
 
             self.conditionSettingsMenuItem:setConditions(newGambit:getConditions())
+            self.conditionSettingsMenuItem:setTargetTypes(S{ newGambit:getConditionsTarget() })
         end), gambitEditor:onGambitChanged())
 
         return gambitEditor

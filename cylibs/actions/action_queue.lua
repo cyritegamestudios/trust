@@ -8,6 +8,7 @@ require('logger')
 require('vectors')
 require('queues')
 
+local DisposeBag = require('cylibs/events/dispose_bag')
 local Event = require('cylibs/events/Luvent')
 
 local Action = require('cylibs/actions/action')
@@ -39,6 +40,7 @@ function ActionQueue.new(completion, is_priority_queue, max_size, debugging_enab
 	local self = setmetatable({
 		current_action = nil;
 	}, ActionQueue)
+
 	self.queue = Q{}
 	self.is_priority_queue = is_priority_queue
 	self.max_size = max_size or 9999
@@ -48,9 +50,31 @@ function ActionQueue.new(completion, is_priority_queue, max_size, debugging_enab
 	self.verbose = verbose
 	self.identifier = os.time()
 	self.mode = ActionQueue.Mode.Default
+	self.dispose_bag = DisposeBag.new()
 	self.action_start = Event.newEvent()
 	self.action_end = Event.newEvent()
 	self.action_queued = Event.newEvent()
+
+	--[[self.dispose_bag:add(WindowerEvents.Action:addAction(function(action)
+		if action.actor_id ~= windower.ffxi.get_player().id then
+			return
+		end
+		if action.category == 2 then
+			self:push_action(WaitAction.new(0, 0, 0, 2))
+		elseif action.category == 3 then
+			print("forced delay")
+			self:push_action(WaitAction.new(0, 0, 0, 2))
+		elseif action.category == 4 then
+			self:push_action(WaitAction.new(0, 0, 0, 3))
+		elseif action.category == 6 then
+			print("forced delay")
+			self:push_action(WaitAction.new(0, 0, 0, 2))
+		elseif action.category == 8 then
+			if action.param == 28787 then
+				self:push_action(WaitAction.new(0, 0, 0, 3))
+			end
+		end
+	end), WindowerEvents.Action)]]
 
 	return self
 end
@@ -61,6 +85,8 @@ function ActionQueue:destroy()
 	self:on_action_start():removeAllActions()
 	self:on_action_end():removeAllActions()
 	self:on_action_queued():removeAllActions()
+
+	self.dispose_bag:destroy()
 end
 
 -- Performs the next action in the queue if the
