@@ -257,8 +257,9 @@ function GambitSettingsMenuItem:getAddAbilityMenuItem()
                 return self.editorConfig:getItemDescription(ability) or "Add a new "..targetType.." "..self.editorConfig:getDescription().."."
             end)
 
-            local abilityPickerView = FFXIPickerView.withConfig(abilityPickerItem)
+            local FFXIFastPickerView = require('ui/themes/ffxi/FFXIFastPickerView')
 
+            local abilityPickerView = FFXIFastPickerView.new(abilityPickerItem)
             abilityPickerView:getDisposeBag():add(abilityPickerView:on_pick_items():addAction(function(_, selectedItems)
                 if selectedItems:length() > 0 then
                     local newGambit = Gambit.new(targetType, L{}, selectedItems[1], targetType, self.defaultGambitTags)

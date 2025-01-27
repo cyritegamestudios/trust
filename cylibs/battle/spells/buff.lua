@@ -24,7 +24,7 @@ local aoe_buff_prefixes = L{
     'Protectra',
     'Shellra',
 }
-
+known_spells = windower.ffxi.get_spells()
 -------
 -- Default initializer for a new buff spell.
 -- @tparam number buff_id Buff id (see buffs.lua)
@@ -35,7 +35,7 @@ local aoe_buff_prefixes = L{
 -- @treturn Buff A buff
 function Buff.new(spell_name, job_abilities, job_names, spell_prefix, conditions)
     local spell = res.spells:with('en', spell_name)
-    spell = spell_util.highest_spell_for_buff_id(spell_util.buff_id_for_spell(spell.id), spell_name)
+    spell = spell_util.highest_spell(spell_name)
     if spell then
         local self = setmetatable(Spell.new(spell.en, job_abilities or L{}, job_names or L{}, nil, conditions, nil), Buff)
         self.original_spell_name = spell_name

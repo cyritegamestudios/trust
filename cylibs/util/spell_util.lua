@@ -182,6 +182,19 @@ function spell_util.highest_spell_for_buff_id(buff_id, prefix)
     return res.spells[highest_tier_spell_id]
 end
 
+function spell_util.highest_spell(base_spell_name, known_spells)
+    local spell = res.spells:with('en', base_spell_name)
+
+    local tiers = L{ "VI", "V", "IV", "III", "II" }
+    for tier in tiers:it() do
+        local spell_id = spell_util.spell_id(base_spell_name.." "..tier)
+        if spell_id and spell_util.knows_spell(spell_id) then
+            return res.spells[spell_id]
+        end
+    end
+    return spell
+end
+
 -------
 -- Returns whether the first spell overwrites the second spell.
 -- @tparam number spell1_id First spell id (see spells.lua)
