@@ -48,6 +48,14 @@ function FFXIFastPickerView.new(configItem)
 
     self:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(cursorIndexPath)
         self.highlightedItem = self.visibleItems[cursorIndexPath.row]
+
+        if self.configItem.getItemDescription then
+            local description = configItem:getItemDescription(self.highlightedItem)
+            if description then
+                defaultInfoView:setDescription(description)
+                return
+            end
+        end
     end)
 
     self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
