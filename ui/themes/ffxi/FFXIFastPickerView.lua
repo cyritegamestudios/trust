@@ -1,3 +1,4 @@
+local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
 local Event = require('cylibs/events/Luvent')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
@@ -6,6 +7,7 @@ local ImageTextItem = require('cylibs/ui/collection_view/items/image_text_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Keyboard = require('cylibs/ui/input/keyboard')
+local Mouse = require('cylibs/ui/input/mouse')
 local ScrollView = require('cylibs/ui/scroll_view/scroll_view')
 local SoundTheme = require('cylibs/sounds/sound_theme')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
@@ -179,6 +181,24 @@ function FFXIFastPickerView:onKeyboardEvent(key, pressed, flags, blocked)
         self.isScrolling = false
     end
     return L{ 200, 208 }:contains(key)
+end
+
+function FFXIFastPickerView:onMouseEvent(type, x, y, delta)
+    if not self:isVisible() then
+        return false
+    end
+    if CollectionView.onMouseEvent(self, type, x, y, delta) then
+        return true
+    end
+    if type == Mouse.Event.Wheel then
+        if delta < 0 then
+            self:setRange(self.range.startIndex + 1, self.range.endIndex + 1)
+        else
+            self:setRange(self.range.startIndex - 1, self.range.endIndex - 1)
+        end
+        return true
+    end
+    return false
 end
 
 ---
