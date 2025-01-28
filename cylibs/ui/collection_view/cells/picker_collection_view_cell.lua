@@ -116,7 +116,6 @@ function PickerCollectionViewCell:showPickerView()
 
                 self:getItem():getOnPickItems()(self:getItem():getCurrentValue())
             end)
-            pickerView:setShouldRequestFocus(true)
             return pickerView
         end, item:getPickerTitle() or "Choose", item:getPickerDescription() or "Choose one or more values.")
 
