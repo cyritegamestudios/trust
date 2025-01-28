@@ -5,11 +5,10 @@ local PickerItemMapper = require('ui/settings/pickers/mappers/PickerItemMapper')
 local SpellPickerItemMapper = setmetatable({}, {__index = PickerItemMapper })
 SpellPickerItemMapper.__index = SpellPickerItemMapper
 
-function SpellPickerItemMapper.new(defaultJobNames, trust)
+function SpellPickerItemMapper.new(defaultJobNames)
     local self = setmetatable(PickerItemMapper.new(), SpellPickerItemMapper)
 
     self.defaultJobNames = defaultJobNames
-    self.trust = trust
     self.selfBuffsWhitelist = S{
         'Absorb-ACC', 'Absorb-STR', 'Absorb-DEX',
         'Absorb-INT', 'Absorb-CHR', 'Absorb-AGI',

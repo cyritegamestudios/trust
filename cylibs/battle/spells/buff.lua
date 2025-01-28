@@ -24,7 +24,7 @@ local aoe_buff_prefixes = L{
     'Protectra',
     'Shellra',
 }
-known_spells = windower.ffxi.get_spells()
+
 -------
 -- Default initializer for a new buff spell.
 -- @tparam number buff_id Buff id (see buffs.lua)
