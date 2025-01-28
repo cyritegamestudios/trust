@@ -139,6 +139,22 @@ function FFXIFastPickerView:setRange(startIndex, endIndex)
     self:layoutIfNeeded()
 end
 
+function FFXIFastPickerView:layoutIfNeeded()
+    if not FFXIWindow.layoutIfNeeded(self) or self.contentView == nil then
+        return false
+    end
+
+    if self.verticalScrollBar then
+        self.verticalScrollBar:setVisible(self.configItem:getAllValues():length() > self.maxNumItems)
+    end
+
+    for scrollBar in self.scrollBars:it() do
+        scrollBar:layoutIfNeeded()
+    end
+
+    return true
+end
+
 function FFXIFastPickerView:onKeyboardEvent(key, pressed, flags, blocked)
     local blocked = blocked or ScrollView.onKeyboardEvent(self, key, pressed, flags, blocked)
     if not self:isVisible() or blocked or self.destroyed then
