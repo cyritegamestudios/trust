@@ -9,7 +9,7 @@ BuffSettingsMenuItem.__index = BuffSettingsMenuItem
 function BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKeys)
     local SpellPickerItemMapper = require('ui/settings/pickers/mappers/SpellPickerItemMapper')
 
-    local buffItemMapper = SpellPickerItemMapper.new(L{}, trust)
+    local buffItemMapper = SpellPickerItemMapper.new(L{})
     local jobAbilityItemMapper = JobAbilityPickerItemMapper.new()
 
     local buffSettingsItem = GambitSettingsMenuItem.compact(trust, trustSettings, trustSettingsMode, trustModeSettings, (settingsKeys and settingsKeys + L{ 'BuffSettings' }) or 'BuffSettings', S{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Ally }, function(targets)
