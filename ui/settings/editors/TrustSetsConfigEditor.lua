@@ -15,10 +15,15 @@ function TrustSetsConfigEditor.new(trustSetName, trustModeSettings, trustSetting
 
     local trustSet = trustModeSettings:getSettings()[trustSetName]
 
-    local configItems = L{
-        TextInputConfigItem.new('profile_name', trustSetName, "Profile Name", function(text)
+    local configItems = L{}
+
+    if trustSetName ~= 'Default' then
+        configItems:append(TextInputConfigItem.new('profile_name', trustSetName, "Profile Name", function(text)
             return true
-        end),
+        end))
+    end
+
+    configItems = configItems + L{
         PickerConfigItem.new('job_set_name', trustSet['maintrustsettingsmode'], trustSettings:getSetNames(), nil, "Job Settings"),
         PickerConfigItem.new('sub_job_set_name', trustSet['subtrustsettingsmode'], subJobTrustSettings:getSetNames(), nil, "Sub Job Settings"),
         PickerConfigItem.new('weapon_skill_set_name', trustSet['weaponskillsettingsmode'], weaponSkillSettings:getSetNames(), nil, "Weapon Skill Settings"),
@@ -40,11 +45,13 @@ function TrustSetsConfigEditor.new(trustSetName, trustModeSettings, trustSetting
         trustSet['weaponskillsettingsmode'] = newConfigSettings['weapon_skill_set_name']
 
         local newProfileName = newConfigSettings['profile_name']
-        if newProfileName ~= trustSetName then
-            trustModeSettings:saveSettings(newProfileName, trustSet, true)
-            trustModeSettings:deleteSettings(trustSetName)
-        else
-            trustModeSettings:saveSettings(trustSetName, trustSet, true)
+        if newProfileName then
+            if newProfileName ~= trustSetName then
+                trustModeSettings:saveSettings(newProfileName, trustSet, true)
+                trustModeSettings:deleteSettings(trustSetName)
+            else
+                trustModeSettings:saveSettings(trustSetName, trustSet, true)
+            end
         end
     end), self:onConfigChanged())
 

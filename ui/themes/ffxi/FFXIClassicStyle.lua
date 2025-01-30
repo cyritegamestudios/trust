@@ -43,6 +43,7 @@ FFXIClassicStyle.WindowSize.Editor.ConfigEditor = Frame.new(0, 0, 350, 300)
 FFXIClassicStyle.WindowSize.Editor.ConfigEditorLarge = Frame.new(0, 0, 500, 300)
 FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge = Frame.new(0, 0, 600, 300)
 FFXIClassicStyle.WindowSize.Picker = {}
+FFXIClassicStyle.WindowSize.Picker.Default = Frame.new(0, 0, 180, 192)
 FFXIClassicStyle.WindowSize.Picker.Wide = Frame.new(0, 0, 250, 192)
 FFXIClassicStyle.WindowSize.Picker.ExtraLarge = Frame.new(0, 0, 275, 208)
 

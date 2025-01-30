@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '13.4.3'
+_addon.version = '13.4.4'
 _addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 
@@ -14,7 +14,7 @@ function load_user_files(main_job_id, sub_job_id)
 
 	addon_system_message("Loaded Trust v".._addon.version)
 
-	action_queue = ActionQueue.new(nil, true, 5, false, true)
+	action_queue = ActionQueue.new(nil, true, 5, false, true, true)
 
 	addon_enabled = ValueRelay.new(false)
 	addon_enabled:onValueChanged():addAction(function(_, isEnabled)

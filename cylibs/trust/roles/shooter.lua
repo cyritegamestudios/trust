@@ -63,7 +63,6 @@ function Shooter:on_add()
     self:get_player():on_weapon_skill_finish():addAction(
             function (_, _)
                 self.last_shoot_time = os.clock()
-                self.action_queue:push_action(WaitAction.new(0, 0, 0, 2.0), true)
             end)
 
     self.dispose_bag:add(Renderer.shared():onPrerender():addAction(function()

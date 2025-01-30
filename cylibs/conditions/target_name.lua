@@ -67,7 +67,7 @@ function TargetNameCondition.valid_targets()
 end
 
 function TargetNameCondition:serialize()
-    return "TargetNameCondition.new(" .. serializer_util.serialize_args(self.name) .. ")"
+    return "TargetNameCondition.new(" .. serializer_util.serialize_args(self.name, self.on_change) .. ")"
 end
 
 return TargetNameCondition

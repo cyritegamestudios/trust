@@ -8,6 +8,7 @@ local party_util = require('cylibs/util/party_util')
 local player_util = require('cylibs/util/player_util')
 local flanking_util = require("cylibs/util/flanking_util")
 
+local Role = require('cylibs/trust/roles/role')
 local CombatMode = setmetatable({}, {__index = Role })
 CombatMode.__index = CombatMode
 

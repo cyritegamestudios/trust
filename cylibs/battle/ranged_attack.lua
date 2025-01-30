@@ -9,6 +9,7 @@ local RangedAttackAction = require('cylibs/actions/ranged_attack')
 local RangedAttack = {}
 RangedAttack.__index = RangedAttack
 RangedAttack.__class = "RangedAttack"
+RangedAttack.__type = "RangedAttack"
 
 -------
 -- Default initializer for a new ranged attack.

@@ -205,6 +205,11 @@ function TrustHud:reloadJobMenuItems()
     local mainJobItem = self:getMenuItems(player.trust.main_job, main_trust_settings, state.MainTrustSettingsMode, weapon_skill_settings, state.WeaponSkillSettingsMode, trust_mode_settings, player.main_job_name_short, player.main_job_name)
     local subJobItem = self:getMenuItems(player.trust.sub_job, sub_trust_settings, state.SubTrustSettingsMode, nil, nil, trust_mode_settings, player.sub_job_name_short, player.sub_job_name)
 
+    local statusMenuItem = self:getStatusMenuItem(player.trust.main_job)
+
+    mainJobItem:setChildMenuItem("Status", statusMenuItem)
+    subJobItem:setChildMenuItem("Status", statusMenuItem)
+
     if mainJobItem:getChildMenuItem('Settings'):getChildMenuItem('Pulling') == nil then
         local pullerMenuItem = subJobItem:getChildMenuItem('Settings'):getChildMenuItem('Pulling')
         if pullerMenuItem then
@@ -508,22 +513,11 @@ function TrustHud:getTrusterMenuItem(role)
     return AlterEgoSettingsMenuItem.new(role, self.trustModeSettings, self.addon_settings)
 end
 
-function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSkillSettings, weaponSkillSettingsMode, trustModeSettings, jobNameShort, jobName)
-    local viewSize = Frame.new(0, 0, 500, 500)
-
-    local settingsMenuItem = self:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, weaponSkillSettings, weaponSkillSettingsMode, trustModeSettings, jobNameShort)
-
-    -- Debug
-    local debugMenuItem = MenuItem.new(L{
-        ButtonItem.default('Clear', 18)
-    }, {},
-    function()
-        local DebugView = require('cylibs/actions/ui/debug_view')
-        local debugView = setupView(DebugView.new(self.actionQueue), viewSize)
-        debugView:setShouldRequestFocus(false)
-        return debugView
-    end, "Debug", "View debug info.")
-
+function TrustHud:getStatusMenuItem(trust)
+    local statusMenuButtons = L{
+        ButtonItem.default('Party', 18),
+        ButtonItem.default('Targets', 18)
+    }
     local partyMenuItem = MenuItem.new(L{}, {},
     function()
         local truster =  trust:role_with_type("truster")
@@ -535,38 +529,48 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
 
     local PartyTargetsMenuItem = require('ui/settings/menus/PartyTargetsMenuItem')
     local targetsMenuItem = PartyTargetsMenuItem.new(self.party, function(view)
-        return setupView(view, viewSize)
+        return view
     end)
     targetsMenuItem.enabled = function()
         return self.party:get_targets():length() > 0
     end
 
-    -- Bard
-    local singerMenuItem = MenuItem.new(L{
-        ButtonItem.default('Clear All', 18),
-    }, {},
-        function()
-            local SingerView = require('ui/views/SingerView')
-            local singer = trust:role_with_type("singer")
-            local singerView = setupView(SingerView.new(singer), viewSize)
-            singerView:setShouldRequestFocus(true)
-            return singerView
-        end, "Songs", "View current songs on the player and party.")
-
-    -- Status
-    local statusMenuButtons = L{
-        ButtonItem.default('Party', 18),
-        ButtonItem.default('Targets', 18)
-    }
-    if jobNameShort == 'BRD' then
-        statusMenuButtons:insert(2, ButtonItem.default('Songs', 18))
-    end
-
     local statusMenuItem = MenuItem.new(statusMenuButtons, {
         Party = partyMenuItem,
         Targets = targetsMenuItem,
-        Songs = singerMenuItem,
     }, nil, "Status", "View status of party members and enemies.")
+
+    if trust.job.jobNameShort == 'BRD' then
+        -- Bard
+        local singerMenuItem = MenuItem.new(L{
+            ButtonItem.default('Clear All', 18),
+        }, {},
+        function()
+            local SingerView = require('ui/views/SingerView')
+            local singer = trust:role_with_type("singer")
+            local singerView = SingerView.new(singer)
+            singerView:setShouldRequestFocus(true)
+            return singerView
+        end, "Songs", "View current songs on the player and party.")
+        statusMenuItem:setChildMenuItem("Songs", singerMenuItem)
+    end
+
+    return statusMenuItem
+end
+
+function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSkillSettings, weaponSkillSettingsMode, trustModeSettings, jobNameShort, jobName)
+    local settingsMenuItem = self:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, weaponSkillSettings, weaponSkillSettingsMode, trustModeSettings, jobNameShort)
+
+    -- Debug
+    local debugMenuItem = MenuItem.new(L{
+        ButtonItem.default('Clear', 18)
+    }, {},
+    function()
+        local DebugView = require('cylibs/actions/ui/debug_view')
+        local debugView = DebugView.new(self.actionQueue)
+        debugView:setShouldRequestFocus(false)
+        return debugView
+    end, "Debug", "View debug info.")
 
     -- Help
     local helpMenuItem = MenuItem.new(L{
@@ -601,7 +605,6 @@ function TrustHud:getMenuItems(trust, trustSettings, trustSettingsMode, weaponSk
         ButtonItem.default('Donate', 18),
         ButtonItem.default('Discord', 18),
     }, {
-        Status = statusMenuItem,
         Settings = settingsMenuItem,
         Help = helpMenuItem,
         Donate = MenuItem.action(function()

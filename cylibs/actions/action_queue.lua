@@ -8,7 +8,9 @@ require('logger')
 require('vectors')
 require('queues')
 
+local DisposeBag = require('cylibs/events/dispose_bag')
 local Event = require('cylibs/events/Luvent')
+local RangedAttackAction = require('cylibs/actions/ranged_attack')
 
 local Action = require('cylibs/actions/action')
 
@@ -35,10 +37,11 @@ function ActionQueue:on_action_queued()
 	return self.action_queued
 end
 
-function ActionQueue.new(completion, is_priority_queue, max_size, debugging_enabled, verbose)
+function ActionQueue.new(completion, is_priority_queue, max_size, debugging_enabled, verbose, calculate_forced_delay)
 	local self = setmetatable({
 		current_action = nil;
 	}, ActionQueue)
+
 	self.queue = Q{}
 	self.is_priority_queue = is_priority_queue
 	self.max_size = max_size or 9999
@@ -47,10 +50,35 @@ function ActionQueue.new(completion, is_priority_queue, max_size, debugging_enab
 	self.debugging_enabled = debugging_enabled
 	self.verbose = verbose
 	self.identifier = os.time()
+	self.forced_delay_time = os.clock()
 	self.mode = ActionQueue.Mode.Default
+	self.dispose_bag = DisposeBag.new()
 	self.action_start = Event.newEvent()
 	self.action_end = Event.newEvent()
 	self.action_queued = Event.newEvent()
+
+	if calculate_forced_delay then
+		local category_to_action_type = {
+			[2] = RangedAttackAction.__type,
+			[3] = WeaponSkillAction.__type,
+			[4] = SpellAction.__type,
+			[6] = JobAbilityAction.__type,
+			[8] = SpellAction.__type,
+		}
+		self.dispose_bag:add(WindowerEvents.Action:addAction(function(action)
+			if action.actor_id ~= windower.ffxi.get_player().id then
+				return
+			end
+			if L{ 2, 3, 6 }:contains(action.category) then
+				self.forced_delay_time = os.clock() + 2
+			elseif action.category == 4 or action.category == 8 and action.param == 28787 then
+				self.forced_delay_time = os.clock() + 3
+			end
+			if category_to_action_type[action.category] then
+				self.last_action_type = category_to_action_type[action.category]
+			end
+		end), WindowerEvents.Action)
+	end
 
 	return self
 end
@@ -61,6 +89,26 @@ function ActionQueue:destroy()
 	self:on_action_start():removeAllActions()
 	self:on_action_end():removeAllActions()
 	self:on_action_queued():removeAllActions()
+
+	self.dispose_bag:destroy()
+end
+
+function ActionQueue:get_forced_delay(action)
+	local forced_delay = self.forced_delay_time - os.clock()
+	if forced_delay > 0 then
+		local action_type = action.__type
+		if action_type == SequenceAction.__type and action.queue and action.queue:length() > 0 then
+			action_type = action.queue[1].__type
+		end
+		if L{ JobAbilityAction.__type, SpellAction.__type, WeaponSkillAction.__type }:contains(action_type) then
+			return forced_delay
+		elseif action_type == RangedAttackAction.__type then
+			--if self.last_action_type ~= RangedAttackAction.__type then
+			--	return forced_delay
+			--end
+		end
+	end
+	return 0
 end
 
 -- Performs the next action in the queue if the
@@ -77,6 +125,16 @@ function ActionQueue:perform_next_action()
 
 	local next_action = self.queue:pop()
 	if next_action ~= nil and next_action:can_perform() then
+		local forced_delay = self:get_forced_delay(next_action)
+		if forced_delay > 0 then
+			local display_name = next_action.display_name
+			next_action = SequenceAction.new(L{
+				WaitAction.new(0, 0, 0, forced_delay),
+				next_action,
+			}, next_action:getidentifier())
+			next_action.display_name = display_name
+		end
+
 		next_action:set_action_queue_id(self.identifier)
 		if self.debugging_enabled then
 			print(tostring(self.identifier)..' '..next_action:gettype()..' '..(next_action:getidentifier() or 'nil')..' start')

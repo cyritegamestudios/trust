@@ -12,6 +12,7 @@ local ValidSpellTargetCondition = require('cylibs/conditions/valid_spell_target'
 local Action = require('cylibs/actions/action')
 local SpellAction = setmetatable({}, {__index = Action })
 SpellAction.__index = SpellAction
+SpellAction.__type = "SpellAction"
 
 function SpellAction.new(x, y, z, spell_id, target_index, player, conditions)
 	local conditions = (conditions or L{}):extend(L{

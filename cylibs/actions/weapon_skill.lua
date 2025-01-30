@@ -4,6 +4,7 @@ local WeaponSkillCommand = require('cylibs/ui/input/chat/commands/weapon_skill')
 local Action = require('cylibs/actions/action')
 local WeaponSkillAction = setmetatable({}, {__index = Action })
 WeaponSkillAction.__index = WeaponSkillAction
+WeaponSkillAction.__type = "WeaponSkillAction"
 
 function WeaponSkillAction.new(weapon_skill_name, target_index)
 	local conditions = L{

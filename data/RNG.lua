@@ -3,7 +3,7 @@ return {
     Version = 2,
     Default = {
         Shooter = {
-            Delay = 1.5,
+            Delay = 0,
             MaxTP = 1000,
         },
         BuffSettings = {

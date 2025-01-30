@@ -18,11 +18,22 @@ function IndexPath.new(section, row)
 end
 
 ---
+-- String description of this IndexPath.
+-- @treturn string String description.
+--
+function IndexPath:__tostring()
+    return string.format("[Section: %d, Row: %d]", self.section, self.row)
+end
+
+---
 -- Compares two View instances for equality based on their UUIDs.
 -- @tparam any otherItem The other object to compare.
 -- @treturn bool True if the IndexPaths have the same section and row, false otherwise.
 --
 function IndexPath:__eq(otherItem)
+    if otherItem.__type ~= IndexPath.__type then
+        return false
+    end
     return self.section == otherItem.section and self.row == otherItem.row
 end
 

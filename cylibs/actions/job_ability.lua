@@ -10,6 +10,7 @@ local JobAbility = setmetatable({}, {__index = Action })
 JobAbility.__index = JobAbility
 JobAbility.__eq = JobAbility.is_equal
 JobAbility.__class = "JobAbility"
+JobAbility.__type = "JobAbility"
 
 function JobAbility.new(x, y, z, job_ability_name, target_index, conditions)
     local conditions = (conditions or L{}) + L{
