@@ -25,6 +25,7 @@ function SongSetsMenuItem.new(trustSettings, trustSettingsMode, trustModeSetting
 
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
+    self.trustModeSettings = trustModeSettings
     self.selectedSetName = ValueRelay.new('Default')
     self.disposeBag = DisposeBag.new()
 

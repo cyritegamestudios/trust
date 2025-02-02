@@ -9,7 +9,7 @@ function HealCommands.new()
     local self = setmetatable(TrustCommands.new(), HealCommands)
 
     -- AutoHealMode
-    self:add_command('default', self.handle_set_heal_mode, 'Remove status effects from self and party', L{
+    self:add_command('default', self.handle_set_heal_mode, 'Heal self and party', L{
         PickerConfigItem.new('mode_value', state.AutoHealMode.value, L(state.AutoHealMode:options()), nil, "Healing")
     })
 
@@ -53,7 +53,7 @@ function StatusRemovalCommands.new()
     local self = setmetatable(TrustCommands.new(), StatusRemovalCommands)
 
     -- AutoStatusRemovalMode
-    self:add_command('default', self.handle_set_status_mode, 'Set the heal mode', L{
+    self:add_command('default', self.handle_set_status_mode, 'Remove status effects from self and party', L{
         PickerConfigItem.new('mode_value', state.AutoStatusRemovalMode.value, L(state.AutoStatusRemovalMode:options()), nil, "Status Removals")
     })
 
