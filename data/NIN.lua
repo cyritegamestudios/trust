@@ -15,7 +15,7 @@ return {
         },
         DebuffSettings = {
             Gambits = L{
-                Gambit.new("Enemy", L{ItemCountCondition.new("Chonofuda", 1, ">=")}, Spell.new("Jubaku: Ni", L{}, L{}), "Enemy", L{"Debuffs"})
+                Gambit.new("Enemy", L{}, Spell.new("Jubaku: Ni", L{}, L{}), "Enemy", L{"Debuffs"})
             }
         },
         NukeSettings = {

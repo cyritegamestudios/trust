@@ -79,9 +79,24 @@ end
 -- @tparam number job_ability_id Job ability id (see res/job_abilities.lua)
 -- @treturn boolean True if the job ability is known
 function Job:knows_job_ability(job_ability_id)
+    if type(job_ability_id) == 'string' then
+        job_ability_id = job_util.job_ability_id(job_ability_id)
+    end
     return self:get_job_abilities(function(id)
         return job_ability_id == id
     end):length() > 0
+end
+
+-------
+-- Returns the cooldown for the given job ability, or 999 if the player doesn't
+-- know the job ability.
+-- @tparam number job_ability_id Job ability id (see res/job_abilities.lua)
+-- @treturn number Job ability cooldown in seconds, or 999 if unknown
+function Job:get_job_ability_cooldown(job_ability_id)
+    if type(job_ability_id) == 'string' then
+        job_ability_id = job_util.job_ability_id(job_ability_id)
+    end
+    return windower.ffxi.get_ability_recasts()[res.job_abilities[job_ability_id].recast_id]
 end
 
 -------

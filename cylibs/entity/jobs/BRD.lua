@@ -89,7 +89,7 @@ end
 -- @treturn number Number of songs
 function Bard:get_max_num_songs(include_clarion_call, current_num_bard_songs)
     local max_num_songs = self.max_num_songs
-    if not self.gear_swap_enabled then
+    if not self.gear_swap_enabled or self:getLevel() < 99 then
         max_num_songs = 2
     end
     local current_num_bard_songs = current_num_bard_songs or self:get_song_buff_ids():length()

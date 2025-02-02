@@ -21,7 +21,7 @@ function Singer:on_songs_end()
 end
 
 function Singer.new(action_queue, dummy_songs, songs, pianissimo_songs, brd_job, state_var, sing_action_priority)
-    local self = setmetatable(Role.new(action_queue), Singer)
+    local self = setmetatable(Role.new(action_queue, brd_job), Singer)
 
     self:set_dummy_songs(dummy_songs)
     self:set_songs(songs)
@@ -69,7 +69,7 @@ function Singer:validate_songs(dummy_songs, songs)
     end
 
     -- 3. There are 3 dummy songs and 5 songs
-    if dummy_songs:length() < 3 or songs:length() < 5 then
+    if self:get_job():get_max_num_songs() > 2 and (dummy_songs:length() < 3 or songs:length() < 5) then
         addon_system_error("You must choose 3 valid dummy songs and 5 songs.")
         return false
     end
@@ -211,7 +211,7 @@ function Singer:check_songs()
 end
 
 function Singer:get_next_song(party_member, dummy_songs, songs)
-    if party_member:get_mob() == nil then
+    if party_member:get_mob() == nil or party_member:get_mob().distance:sqrt() > 20  then
         return nil
     end
 
@@ -287,17 +287,19 @@ function Singer:sing_song(song, target_index, should_nitro, allow_self_pianissim
             end
         else
             if self.song_target:get_mob().index ~= target_index or allow_self_pianissimo then
-                if not job_util.can_use_job_ability('Pianissimo') then
-                    local pianissimo_recast = windower.ffxi.get_ability_recasts()[res.job_abilities:with('en', 'Pianissimo').recast_id]
-                    coroutine.schedule(function()
-                        self:check_songs()
-                    end, pianissimo_recast + 0.25)
-                    return false
+                if self:get_job():knows_job_ability('Pianissimo') then
+                    local pianissimo_recast = self:get_job():get_job_ability_cooldown('Pianissimo')
+                    if pianissimo_recast > 0 then
+                        coroutine.schedule(function()
+                            self:check_songs()
+                        end, pianissimo_recast + 0.25)
+                        return false
+                    end
+                    if not S(job_abilities):contains('Pianissimo') then
+                        job_abilities:append('Pianissimo')
+                    end
+                    conditions:append(HasBuffCondition.new('Pianissimo', windower.ffxi.get_player().index))
                 end
-                if not S(job_abilities):contains('Pianissimo') then
-                    job_abilities:append('Pianissimo')
-                end
-                conditions:append(HasBuffCondition.new('Pianissimo', windower.ffxi.get_player().index))
             end
         end
         for job_ability_name in job_abilities:it() do
