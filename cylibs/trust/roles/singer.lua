@@ -30,6 +30,7 @@ function Singer.new(action_queue, dummy_songs, songs, pianissimo_songs, brd_job,
     self.state_var = state_var or state.AutoSongMode
     self.sing_action_priority = sing_action_priority or ActionPriority.default
     self.is_singing = false
+    self.song_action_identifier = self.__class..'_sing_song'
     self.last_sing_time = os.time()
     self.brd_job = brd_job
     self.songs_begin = Event.newEvent()
@@ -157,7 +158,9 @@ function Singer:assert_num_songs(party_member)
 end
 
 function Singer:check_songs()
-    if self:get_player():is_moving() then
+    self.action_queue:cleanup()
+
+    if self:get_player():is_moving() or self.action_queue:has_action(self.song_action_identifier) then
         return
     end
 
@@ -220,9 +223,14 @@ function Singer:get_next_song(party_member, dummy_songs, songs)
 
     logger.notice(self.__class, "get_next_song", party_member:get_mob().name, songs:map(function(song) return song:get_spell().en end))
 
-    local current_num_songs = self.song_tracker:get_num_songs(song_target_id, buff_ids)
+    local current_num_songs = self.job:get_song_buff_ids(buff_ids):length()
+    local base_num_songs = 2
+    if self.job:is_clarion_call_active() then
+        base_num_songs = 3
+    end
+
     if current_num_songs < songs:length() then
-        if current_num_songs < 2 then
+        if current_num_songs < base_num_songs or self.song_tracker:has_any_song(song_target_id, dummy_songs:map(function(song) return song:get_spell().id end), buff_ids) then
             for song in songs:it() do
                 if not self.song_tracker:has_song(song_target_id, song:get_spell().id, buff_ids) then
                     return song
@@ -249,7 +257,7 @@ function Singer:get_next_song(party_member, dummy_songs, songs)
 end
 
 function Singer:sing_song(song, target_index, should_nitro, allow_self_pianissimo)
-    local action_identifier = 'singer_sing_song_'..song:get_spell().en
+    local action_identifier = self.song_action_identifier-- 'singer_sing_song_'..song:get_spell().en
 
     self.action_queue:cleanup()
 
