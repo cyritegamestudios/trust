@@ -15,7 +15,10 @@ TargetNameCondition.__type = "TargetNameCondition"
 function TargetNameCondition.new(name, on_change)
     local self = setmetatable(Condition.new(), TargetNameCondition)
     self.name = name or "Spiny Spipi"
-    self.on_change = on_change or true
+    self.on_change = on_change
+    if self.on_change == nil then
+        self.on_change = true
+    end
     return self
 end
 

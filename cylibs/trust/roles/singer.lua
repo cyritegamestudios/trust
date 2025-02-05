@@ -21,7 +21,7 @@ function Singer:on_songs_end()
 end
 
 function Singer.new(action_queue, dummy_songs, songs, pianissimo_songs, brd_job, state_var, sing_action_priority)
-    local self = setmetatable(Role.new(action_queue), Singer)
+    local self = setmetatable(Role.new(action_queue, brd_job), Singer)
 
     self:set_dummy_songs(dummy_songs)
     self:set_songs(songs)
@@ -30,6 +30,7 @@ function Singer.new(action_queue, dummy_songs, songs, pianissimo_songs, brd_job,
     self.state_var = state_var or state.AutoSongMode
     self.sing_action_priority = sing_action_priority or ActionPriority.default
     self.is_singing = false
+    self.song_action_identifier = self.__class..'_sing_song'
     self.last_sing_time = os.time()
     self.brd_job = brd_job
     self.songs_begin = Event.newEvent()
@@ -68,9 +69,9 @@ function Singer:validate_songs(dummy_songs, songs)
         return false
     end
 
-    -- 3. There are 3 dummy songs and 5 songs
-    if dummy_songs:length() < 3 or songs:length() < 5 then
-        addon_system_error("You must choose 3 valid dummy songs and 5 songs.")
+    -- 3. There is 1 dummy song and 5 songs
+    if self:get_job():get_max_num_songs() > 2 and (dummy_songs:length() < 1 or songs:length() < 5) then
+        addon_system_error("You must choose 1 valid dummy song and 5 songs.")
         return false
     end
 
@@ -97,6 +98,18 @@ function Singer:on_add()
             self.is_singing = false
         end
     end), self.state_var:on_state_change())
+
+    self.dispose_bag:add(addon_enabled:onValueChanged():addAction(function(_, isEnabled)
+        if not isEnabled then
+            self:set_is_singing(false)
+        end
+    end), addon_enabled:onValueChanged())
+
+    self.dispose_bag:add(self.action_queue:on_action_start():addAction(function(_, a)
+        if a:getidentifier() == self.song_action_identifier then
+            self:set_is_singing(true)
+        end
+    end), self.action_queue:on_action_start())
 
     self.dispose_bag:add(self.song_tracker:on_song_added():addAction(
         function (_, target_id, song_id, buff_id)
@@ -157,7 +170,9 @@ function Singer:assert_num_songs(party_member)
 end
 
 function Singer:check_songs()
-    if self:get_player():is_moving() then
+    self.action_queue:cleanup()
+
+    if self:get_player():is_moving() or self.action_queue:has_action(self.song_action_identifier) then
         return
     end
 
@@ -211,7 +226,7 @@ function Singer:check_songs()
 end
 
 function Singer:get_next_song(party_member, dummy_songs, songs)
-    if party_member:get_mob() == nil then
+    if party_member:get_mob() == nil or party_member:get_mob().distance:sqrt() > 20  then
         return nil
     end
 
@@ -220,9 +235,14 @@ function Singer:get_next_song(party_member, dummy_songs, songs)
 
     logger.notice(self.__class, "get_next_song", party_member:get_mob().name, songs:map(function(song) return song:get_spell().en end))
 
-    local current_num_songs = self.song_tracker:get_num_songs(song_target_id, buff_ids)
+    local current_num_songs = self.job:get_song_buff_ids(buff_ids):length()
+    local base_num_songs = 2
+    if self.job:is_clarion_call_active() then
+        base_num_songs = 3
+    end
+
     if current_num_songs < songs:length() then
-        if current_num_songs < 2 then
+        if current_num_songs < base_num_songs or self.song_tracker:has_any_song(song_target_id, dummy_songs:map(function(song) return song:get_spell().id end), buff_ids) then
             for song in songs:it() do
                 if not self.song_tracker:has_song(song_target_id, song:get_spell().id, buff_ids) then
                     return song
@@ -249,13 +269,11 @@ function Singer:get_next_song(party_member, dummy_songs, songs)
 end
 
 function Singer:sing_song(song, target_index, should_nitro, allow_self_pianissimo)
-    local action_identifier = 'singer_sing_song_'..song:get_spell().en
+    local action_identifier = self.song_action_identifier
 
     self.action_queue:cleanup()
 
     if spell_util.can_cast_spell(song:get_spell().id) and not self.action_queue:has_action(action_identifier) then
-        self:set_is_singing(true)
-
         local actions = L{}
         local conditions = L{}
         local extra_duration = 0
@@ -287,17 +305,19 @@ function Singer:sing_song(song, target_index, should_nitro, allow_self_pianissim
             end
         else
             if self.song_target:get_mob().index ~= target_index or allow_self_pianissimo then
-                if not job_util.can_use_job_ability('Pianissimo') then
-                    local pianissimo_recast = windower.ffxi.get_ability_recasts()[res.job_abilities:with('en', 'Pianissimo').recast_id]
-                    coroutine.schedule(function()
-                        self:check_songs()
-                    end, pianissimo_recast + 0.25)
-                    return false
+                if self:get_job():knows_job_ability('Pianissimo') then
+                    local pianissimo_recast = self:get_job():get_job_ability_cooldown('Pianissimo')
+                    if pianissimo_recast > 0 then
+                        coroutine.schedule(function()
+                            self:check_songs()
+                        end, pianissimo_recast + 0.25)
+                        return false
+                    end
+                    if not S(job_abilities):contains('Pianissimo') then
+                        job_abilities:append('Pianissimo')
+                    end
+                    conditions:append(HasBuffCondition.new('Pianissimo', windower.ffxi.get_player().index))
                 end
-                if not S(job_abilities):contains('Pianissimo') then
-                    job_abilities:append('Pianissimo')
-                end
-                conditions:append(HasBuffCondition.new('Pianissimo', windower.ffxi.get_player().index))
             end
         end
         for job_ability_name in job_abilities:it() do

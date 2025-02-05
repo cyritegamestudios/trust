@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '13.4.5'
+_addon.version = '13.4.6'
 _addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 
@@ -215,14 +215,16 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_name_short,
 	local common_commands = L{
 		AssistCommands.new(main_job_trust, action_queue),
 		AttackCommands.new(main_job_trust, action_queue),
-		BuffCommands.new(),
+		state.AutoBuffMode and BuffCommands.new(),
 		FollowCommands.new(main_job_trust, action_queue),
 		GeneralCommands.new(main_job_trust, action_queue, addon_enabled, trust_mode_settings, main_trust_settings, sub_trust_settings),
+		state.AutoHealMode and HealCommands.new(),
+		state.AutoStatusRemovalMode and StatusRemovalCommands.new(),
 		LoggingCommands.new(main_job_trust, action_queue),
-		MagicBurstCommands.new(main_job_trust, main_trust_settings, action_queue),
+		state.AutoMagicBurstMode and MagicBurstCommands.new(main_job_trust, main_trust_settings, action_queue),
 		MenuCommands.new(main_job_trust, action_queue, hud),
 		MountCommands.new(main_job_trust, main_job_trust:role_with_type("follower").walk_action_queue),
-		NukeCommands.new(main_job_trust, main_trust_settings, action_queue),
+		state.AutoNukeMode and NukeCommands.new(main_job_trust, main_trust_settings, action_queue),
 		PathCommands.new(main_job_trust, action_queue),
 		ProfileCommands.new(main_trust_settings, sub_trust_settings, trust_mode_settings, weapon_skill_settings),
 		PullCommands.new(main_job_trust, action_queue, main_job_trust:role_with_type("puller") or sub_job_trust:role_with_type("puller")),
@@ -234,7 +236,7 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_name_short,
 		TargetCommands.new(main_trust_settings, state.MainTrustSettingsMode),
 		WarpCommands.new(main_job_trust:role_with_type("follower").walk_action_queue),
 		WidgetCommands.new(main_job_trust, action_queue, addon_settings, widgets.widgetManager),
-	}:extend(get_job_commands(job_name_short, main_job_trust, action_queue, main_trust_settings)):extend(get_job_commands(sub_job_name_short, sub_job_trust, action_queue, sub_trust_settings))
+	}:compact_map():extend(get_job_commands(job_name_short, main_job_trust, action_queue, main_trust_settings)):extend(get_job_commands(sub_job_name_short, sub_job_trust, action_queue, sub_trust_settings))
 
 	hud:setCommands(common_commands)
 

@@ -20,11 +20,14 @@ function SongSetsMenuItem.new(trustSettings, trustSettingsMode, trustModeSetting
         ButtonItem.default('Edit', 18),
         ButtonItem.default('Delete', 18),
         ButtonItem.default('Config', 18),
+        ButtonItem.default('Preview', 18),
         ButtonItem.default('Modes', 18),
     }, {}, nil, "Song Sets", "Choose or edit a song set."), SongSetsMenuItem)
 
+    self.trust = trust
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
+    self.trustModeSettings = trustModeSettings
     self.selectedSetName = ValueRelay.new('Default')
     self.disposeBag = DisposeBag.new()
 
@@ -91,6 +94,7 @@ end
 function SongSetsMenuItem:reloadSettings()
     self:setChildMenuItem("Create", self:getCreateSetMenuItem())
     self:setChildMenuItem("Delete", self:getDeleteSetMenuItem())
+    self:setChildMenuItem("Preview", self:getPreviewSetMenuItem())
     self:setChildMenuItem("Config", self:getConfigMenuItem())
     self:setChildMenuItem("Modes", self:getModesMenuItem())
 end
@@ -157,6 +161,22 @@ function SongSetsMenuItem:getDeleteSetMenuItem()
     end)
 end
 
+function SongSetsMenuItem:getPreviewSetMenuItem()
+    local previewMenuItem = MenuItem.new(L{
+        ButtonItem.default('Help', 18),
+    }, {
+        Help = MenuItem.action(function()
+            windower.open_url(windower.trust.settings.get_addon_settings():getSettings().help.wiki_base_url..'/Singer')
+        end)
+    }, function(_, _)
+        local SongListView = require('ui/views/SongListView')
+        local singer = self.trust:role_with_type("singer")
+        local songListView = SongListView.new(singer)
+        return songListView
+    end, "Songs", "View the merged list of songs for each job.")
+    return previewMenuItem
+end
+
 function SongSetsMenuItem:getConfigMenuItem()
     local songConfigMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
@@ -215,7 +235,7 @@ end
 
 function SongSetsMenuItem:getModesMenuItem()
     return ModesMenuItem.new(self.trustModeSettings, "Set modes for singing.",
-            L{'AutoSongMode', 'AutoClarionCallMode', 'AutoNitroMode', 'AutoPianissimoMode'})
+            L{'AutoSongMode', 'AutoClarionCallMode', 'AutoNitroMode', 'AutoPianissimoMode', 'SongSet'})
 end
 
 function SongSetsMenuItem:getSelectedSetName()

@@ -1,3 +1,4 @@
+local ActionQueue = require('cylibs/actions/action_queue')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local SongValidator = require('cylibs/entity/jobs/bard/song_validator')
 
@@ -11,6 +12,8 @@ function BardTrustCommands.new(trust, action_queue)
 
     self.trust = trust
     self.action_queue = action_queue
+    self.debug_action_queue = ActionQueue.new(nil, true, 20, false, false)
+    self.debug_action_queue:enable()
 
     self:add_command('sing', self.handle_sing, 'Sings songs, optionally with nitro', L{
         PickerConfigItem.new('use_nitro', "true", L{ "true", "false" }, nil, "Use Nitro")
@@ -158,7 +161,7 @@ function BardTrustCommands:handle_validate_songs()
 
     self.action_queue:clear()
 
-    local song_validator = SongValidator.new(singer, self.action_queue)
+    local song_validator = SongValidator.new(singer, self.debug_action_queue)
     song_validator:validate()
 
     success = true
