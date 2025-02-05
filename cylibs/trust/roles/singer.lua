@@ -70,7 +70,7 @@ function Singer:validate_songs(dummy_songs, songs)
     end
 
     -- 3. There are 3 dummy songs and 5 songs
-    if self:get_job():get_max_num_songs() > 2 and (dummy_songs:length() < 3 or songs:length() < 5) then
+    if self:get_job():get_max_num_songs() > 2 and (dummy_songs:length() < 1 or songs:length() < 5) then
         addon_system_error("You must choose 3 valid dummy songs and 5 songs.")
         return false
     end
