@@ -99,6 +99,18 @@ function Singer:on_add()
         end
     end), self.state_var:on_state_change())
 
+    self.dispose_bag:add(addon_enabled:onValueChanged():addAction(function(_, isEnabled)
+        if not isEnabled then
+            self:set_is_singing(false)
+        end
+    end), addon_enabled:onValueChanged())
+
+    self.dispose_bag:add(self.action_queue:on_action_start():addAction(function(_, a)
+        if a:getidentifier() == self.song_action_identifier then
+            self:set_is_singing(true)
+        end
+    end), self.action_queue:on_action_start())
+
     self.dispose_bag:add(self.song_tracker:on_song_added():addAction(
         function (_, target_id, song_id, buff_id)
             if self.state_var.value == 'Off' then
@@ -262,7 +274,7 @@ function Singer:sing_song(song, target_index, should_nitro, allow_self_pianissim
     self.action_queue:cleanup()
 
     if spell_util.can_cast_spell(song:get_spell().id) and not self.action_queue:has_action(action_identifier) then
-        self:set_is_singing(true)
+        --self:set_is_singing(true)
 
         local actions = L{}
         local conditions = L{}
