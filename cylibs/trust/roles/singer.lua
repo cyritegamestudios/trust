@@ -69,9 +69,9 @@ function Singer:validate_songs(dummy_songs, songs)
         return false
     end
 
-    -- 3. There are 3 dummy songs and 5 songs
+    -- 3. There is 1 dummy song and 5 songs
     if self:get_job():get_max_num_songs() > 2 and (dummy_songs:length() < 1 or songs:length() < 5) then
-        addon_system_error("You must choose 3 valid dummy songs and 5 songs.")
+        addon_system_error("You must choose 1 valid dummy song and 5 songs.")
         return false
     end
 
@@ -269,13 +269,11 @@ function Singer:get_next_song(party_member, dummy_songs, songs)
 end
 
 function Singer:sing_song(song, target_index, should_nitro, allow_self_pianissimo)
-    local action_identifier = self.song_action_identifier-- 'singer_sing_song_'..song:get_spell().en
+    local action_identifier = self.song_action_identifier
 
     self.action_queue:cleanup()
 
     if spell_util.can_cast_spell(song:get_spell().id) and not self.action_queue:has_action(action_identifier) then
-        --self:set_is_singing(true)
-
         local actions = L{}
         local conditions = L{}
         local extra_duration = 0

@@ -61,15 +61,15 @@ function SongSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
         if selectedIndexPaths:length() > 0 then
             local indexPath = selectedIndexPaths[1]
             if indexPath.section == 1 then
-                self.menuArgs['help_text'] = "Choose 3 dummy songs."
+                self.menuArgs['help_text'] = "Choose 1 dummy song."
                 self.menuArgs['songs'] = self.dummySongs
                 self.menuArgs['validator'] = function(songNames)
                     local buffsForDummySongs = S(songNames:map(function(songName)
                         local spellId = spell_util.spell_id(songName)
                         return buff_util.buff_for_spell(spellId).id
                     end))
-                    if buffsForDummySongs:length() ~= 3 then
-                        return "You must choose 3 dummy songs."
+                    if buffsForDummySongs:length() ~= 1 then
+                        return "You must choose 1 dummy song."
                     end
                     local buffsForSongs = S(self.songs:map(function(spell) return buff_util.buff_for_spell(spell:get_spell().id).id  end))
                     if set.intersection(buffsForDummySongs, buffsForSongs):length() > 0 then

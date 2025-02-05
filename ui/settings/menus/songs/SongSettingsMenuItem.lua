@@ -326,8 +326,8 @@ function SongSettingsMenuItem:validateDummySongs(songNames)
         local spellId = spell_util.spell_id(songName)
         return buff_util.buff_for_spell(spellId).id
     end))
-    if songNames:length() ~= 3 then
-        return "You must choose 3 dummy songs."
+    if songNames:length() ~= 1 then
+        return "You must choose 1 dummy song."
     end
     local buffsForSongs = S(self.songSettings.Songs:map(function(spell) return buff_util.buff_for_spell(spell:get_spell().id).id  end))
     if set.intersection(buffsForDummySongs, buffsForSongs):length() > 0 then
