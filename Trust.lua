@@ -238,8 +238,6 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_name_short,
 		WidgetCommands.new(main_job_trust, action_queue, addon_settings, widgets.widgetManager),
 	}:compact_map():extend(get_job_commands(job_name_short, main_job_trust, action_queue, main_trust_settings)):extend(get_job_commands(sub_job_name_short, sub_job_trust, action_queue, sub_trust_settings))
 
-
-
 	hud:setCommands(common_commands)
 
 	local add_command = function(command)

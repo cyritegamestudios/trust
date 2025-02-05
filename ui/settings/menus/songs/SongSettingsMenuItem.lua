@@ -153,7 +153,6 @@ end
 function SongSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Pianissimo", self:getPianissmoSongsMenuItem())
     self:setChildMenuItem("Reset", self:getResetSongsMenuItem())
-    self:setChildMenuItem("Preview", self:getDiagnosticsMenuItem())
     self:setChildMenuItem("Help", MenuItem.action(function()
         windower.open_url(windower.trust.settings.get_addon_settings():getSettings().help.wiki_base_url..'/Singer')
     end))
@@ -308,14 +307,17 @@ function SongSettingsMenuItem:getDiagnosticsMenuItem()
         self.songValidator:validate()
     end, "Songs", "Run diagnostics to debug issues with songs.")
     local diagnosticMenuItem = MenuItem.new(L{
-        ButtonItem.default('Debug', 18),
+        ButtonItem.default('Help', 18),
     }, {
-        Debug = debugMenuItem
+        --Debug = debugMenuItem
+        Help = MenuItem.action(function()
+            windower.open_url(windower.trust.settings.get_addon_settings():getSettings().help.wiki_base_url..'/Singer')
+        end)
     }, function(_, _)
         local singer = self.trust:role_with_type("singer")
         local songListView = SongListView.new(singer)
         return songListView
-    end, "Songs", "View the merged list of songs for each job and run diagnostics.")
+    end, "Songs", "View the merged list of songs for each job.")
     return diagnosticMenuItem
 end
 
