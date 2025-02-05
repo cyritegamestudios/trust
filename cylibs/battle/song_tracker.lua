@@ -48,6 +48,7 @@ function SongTracker.new(player, party, dummy_songs, songs, pianissimo_songs, jo
         job = job;
         active_songs = {};
         expiring_duration = 60;
+        actual_song_duration = nil;
         last_expiration_check = os.time();
     }, SongTracker)
 
@@ -147,6 +148,34 @@ function SongTracker:monitor()
                     end
                 end
             end), self.player:on_spell_finish())
+
+    self.dispose_bag:add(WindowerEvents.BuffDurationChanged:addAction(function(_, buff_records)
+        if self.last_song_id then
+            local buff_id = res.buffs[res.spells[self.last_song_id].status].id
+
+            local buff_record = buff_records:sort(function(buff_record_1, buff_record_2)
+                return buff_record_1:get_time_remaining() > buff_record_2:get_time_remaining()
+            end):firstWhere(function(buff_record)
+                return buff_record:get_buff_id() == buff_id
+            end)
+            if buff_record then
+                self:update_song_duration(self.party:get_player().id, self.last_song_id, buff_record:get_time_remaining())
+
+                if not self.dummy_songs:map(function(dummy_song)
+                    return dummy_song:get_ability_id()
+                end):contains(self.last_song_id) then
+                    local song_duration = buff_record:get_time_remaining()
+                    if self.job:is_troubadour_active() then
+                        song_duration = song_duration / 2
+                        self.actual_song_duration = math.min(self.actual_song_duration or 999, song_duration)
+
+                        logger.notice(self.__class, 'actual_song_duration', 'update', self.actual_song_duration)
+                    end
+                end
+                self.last_song_id = nil
+            end
+        end
+    end), WindowerEvents.BuffDurationChanged)
 
     self.action_events.zone_change = windower.register_event('zone change', function()
         self:reset()
@@ -265,7 +294,7 @@ function SongTracker:set_expiring_soon(target_id, expiring_in)
     for song_record in active_songs:it() do
         local new_expire_time = math.min(song_record:get_expire_time(), os.time() + expiring_in)
         song_record:set_expire_time(new_expire_time)
-        logger.notice("Setting expiration time of", res.spells[song_record:get_song_id()].name, "to", new_expire_time)
+        logger.notice(self.__class, "Setting expiration time of", res.spells[song_record:get_song_id()].name, "to", new_expire_time)
     end
 end
 
@@ -273,7 +302,7 @@ end
 -- Sets all songs to expire soon for all party members.
 function SongTracker:set_all_expiring_soon()
     local player = self.party:get_player()
-    for party_member in list.extend(L{player}, self.party:get_party_members(false)):it() do
+    for party_member in (L{ player } + self.party:get_party_members(false)):it() do
         self:set_expiring_soon(party_member:get_id(), self.expiring_duration)
     end
 end
@@ -299,17 +328,17 @@ end
 -- @tparam number target_id Target id
 -- @tparam number song_id Song id (see spells.lua)
 -- @tparam number buff_id Buff id (see buffs.lua)
--- @tparam number song_duration (optional) Song duration, or job default if not specified
-function SongTracker:on_gain_song(target_id, song_id, buff_id, song_duration)
+function SongTracker:on_gain_song(target_id, song_id, buff_id)
     if self:has_song(target_id, song_id) then
         self:on_lose_song(target_id, song_id, buff_id)
     end
 
     local party_member = self.party:get_party_member(target_id)
-
+    local temp = self:get_song_duration(res.spells[song_id].en, self.actual_song_duration)
+    print("gain song", res.spells[song_id].en, temp)
     logger.notice("Current buffs for", party_member:get_name(), "are", tostring(L(party_util.get_buffs(target_id)):map(function(buff_id) return res.buffs[buff_id].en  end)))
 
-    local target_songs = (self.active_songs[target_id] or S{}):add(SongRecord.new(song_id, song_duration or self.job:get_song_duration(res.spells[song_id].en)))
+    local target_songs = (self.active_songs[target_id] or S{}):add(SongRecord.new(song_id, song_duration or self:get_song_duration(res.spells[song_id].en)))
     self.active_songs[target_id] = target_songs
 
     self:on_songs_changed():trigger(self, target_id, self.active_songs[target_id])
@@ -404,12 +433,17 @@ function SongTracker:update_song_duration(target_id, song_id, song_duration)
     if self.active_songs[target_id] then
         for song_record in self.active_songs[target_id]:it() do
             if song_record:get_song_id() == song_id then
+                print('updating', res.spells[song_id].en, song_duration)
                 logger.notice(self.__class, 'update_song_duration', res.spells[song_id].en, song_duration, 'old_duration', song_record:get_time_remaining())
                 song_record:set_song_duration(song_duration)
                 return
             end
         end
     end
+end
+
+function SongTracker:get_song_duration(song_name)
+    return self.job:get_song_duration(song_name, self.actual_song_duration)
 end
 
 -------

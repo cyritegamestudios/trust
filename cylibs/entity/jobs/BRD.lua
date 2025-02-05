@@ -114,15 +114,17 @@ end
 -------
 -- Returns the maximum duration of a song, taking into account whether troubadour is active.
 -- @tparam number song_name (optional) Name of the song (see res/spells.lua)
+-- @tparam number song_duration (optional) Base duration of song
 -- @treturn number Duration of song
-function Bard:get_song_duration(song_name)
+function Bard:get_song_duration(song_name, song_duration)
     local modifier = 1.0
     if song_name then
         if song_name == 'Honor March' then
             modifier = 1.0
         end
     end
-    local base_song_duration = self.song_duration * modifier
+    local base_song_duration = (song_duration or self.song_duration) * modifier
+    print(base_song_duration)
     if self:is_troubadour_active() then
         return base_song_duration * 2
     end

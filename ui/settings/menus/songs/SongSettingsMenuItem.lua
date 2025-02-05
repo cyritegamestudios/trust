@@ -7,9 +7,7 @@ local IndexPath = require('cylibs/ui/collection_view/index_path')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
-local SongListMenuItem = require('ui/settings/menus/songs/SongListMenuItem')
 local SongListView = require('ui/views/SongListView')
-local SongSettingsEditor = require('ui/settings/SongSettingsEditor')
 local SongValidator = require('cylibs/entity/jobs/bard/song_validator')
 
 local SongSettingsMenuItem = setmetatable({}, {__index = MenuItem })
@@ -20,10 +18,114 @@ function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
     nil, "Song Sets", "Edit songs in this set."), SongSettingsMenuItem)
 
     self.songSetName = songSetName
+<<<<<<< Updated upstream
     self.contentViewConstructor = function(_, _, _, _)
         local songSettingsView = SongSettingsEditor.new(trustSettings, trustSettingsMode, self.songSetName, windower.trust.settings.get_addon_settings():getSettings().help.wiki_base_url..'/Singer')
         songSettingsView:setShouldRequestFocus(true)
         return songSettingsView
+=======
+    self.selectedSongIndex = 1
+    self.disposeBag = DisposeBag.new()
+
+    self.contentViewConstructor = function(_, infoView)
+        local songs = T(trustSettings:getSettings())[trustSettingsMode.value].SongSettings.SongSets[self.songSetName].Songs
+        local dummySongs = T(trustSettings:getSettings())[trustSettingsMode.value].SongSettings.DummySongs
+
+        local allSongs = trust:get_job():get_spells(function(spell_id)
+            local spell = res.spells[spell_id]
+            return spell and spell.type == 'BardSong' and S{'Self'}:intersection(S(spell.targets)):length() > 0
+        end):map(function(spell_id)
+            return res.spells[spell_id].en
+        end):sort()
+
+        local songSettings = {
+            DummySong = dummySongs[1]:get_name(),
+            Song1 = songs[1]:get_name(),
+            Song2 = songs[2]:get_name(),
+            Song3 = songs[3]:get_name(),
+            Song4 = songs[4]:get_name(),
+            Song5 = songs[5]:get_name()
+        }
+
+        local configItems = L{
+            PickerConfigItem.new('DummySong', songSettings.DummySong, allSongs, nil, "Dummy Song"),
+            PickerConfigItem.new('Song1', songSettings.Song1, allSongs, nil, "Song 1 (Marcato)"),
+            PickerConfigItem.new('Song2', songSettings.Song2, allSongs, nil, "Song 2"),
+            PickerConfigItem.new('Song3', songSettings.Song3, allSongs, nil, "Song 3"),
+            PickerConfigItem.new('Song4', songSettings.Song4, allSongs, nil, "Song 4"),
+            PickerConfigItem.new('Song5', songSettings.Song5, allSongs, nil, "Song 5"),
+        }
+
+        local songConfigEditor = ConfigEditor.new(nil, songSettings, configItems, infoView, function(newSettings)
+            local newSongNames = L{}
+            for key, songName in pairs(newSettings) do
+                if key ~= 'DummySong' then
+                    newSongNames:append(songName)
+                end
+            end
+            if S(newSongNames):length() ~= 5 then
+                return false
+            end
+            local buffsForSongs = S(newSongNames:map(function(song_name)
+                return buff_util.buff_for_spell(spell_util.spell_id(song_name)).id
+            end))
+            if set.intersection(S{ buff_util.buff_for_spell(spell_util.spell_id(newSettings['DummySong'])).id }, buffsForSongs):length() > 0 then
+                return false
+            end
+            return true
+        end)
+
+        self.disposeBag:add(songConfigEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
+            self.selectedSongIndex = indexPath.section
+
+            local song = songs[self.selectedSongIndex]
+            if song then
+                if song:get_job_names():length() > 0 then
+                    infoView:setDescription("Use when: Ally job is "..localization_util.commas(song:get_job_names(), "or"))
+                else
+                    infoView:setDescription("Use when: Never (no jobs selected)")
+                end
+            end
+        end), songConfigEditor:getDelegate():didMoveCursorToItemAtIndexPath())
+
+        self.disposeBag:add(songConfigEditor:onConfigChanged():addAction(function(newSettings, oldSettings)
+            local songs = T(trustSettings:getSettings())[trustSettingsMode.value].SongSettings.SongSets[self.songSetName].Songs
+            for i = 1, 5 do
+                local newSongName = newSettings["Song"..i]
+                if songs[i]:get_name() ~= newSongName then
+                    local jobAbilities = L{}
+                    if i == 1 then
+                        jobAbilities = L{ "Marcato"}
+                    end
+                    songs[i] = Spell.new(newSongName, jobAbilities, job_util.all_jobs())
+                end
+            end
+
+            if newSettings["DummySong"] ~= oldSettings["DummySong"] then
+                addon_system_error("Please update your GearSwap, e.g. sets.Midcast['"..newSettings["DummySong"].."'] = set_combine(sets.Nyame, {range='Daurdabla', ammo=empty})")
+            end
+            local dummySongs = T(trustSettings:getSettings())[trustSettingsMode.value].SongSettings.DummySongs
+            dummySongs:clear()
+
+            local newSongName = newSettings["DummySong"]
+            dummySongs:append(Spell.new(newSongName, L{}, L{}))
+
+            trustSettings:saveSettings(true)
+
+            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my songs!")
+        end), songConfigEditor:onConfigChanged())
+
+        self.disposeBag:add(songConfigEditor:onConfigValidationError():addAction(function()
+            addon_system_error("You must choose 5 different songs and a dummy song with a different buff than all songs.")
+        end), songConfigEditor:onConfigValidationError())
+
+        songConfigEditor:setTitle("Choose 5 songs to sing.")
+        songConfigEditor:setShouldRequestFocus(true)
+
+        self.selectedSongIndex = 1
+
+        return songConfigEditor
+>>>>>>> Stashed changes
     end
 
     self.trustSettings = trustSettings

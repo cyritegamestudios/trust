@@ -74,6 +74,8 @@ function Singer:validate_songs(dummy_songs, songs)
         return false
     end
 
+    -- 4. Duration of remaining songs isn't too long
+
     return true
 end
 
@@ -383,38 +385,6 @@ function Singer:get_nitro_abilities()
     job_ability_names:append('Troubadour')
 
     return job_ability_names
-end
-
-function Singer:nitro()
-    local player = self:get_party():get_player()
-
-    self.song_tracker:set_all_expiring_soon()
-
-    local actions = L{
-        WaitAction.new(0, 0, 0, 1.5)
-    }
-
-    if state.AutoClarionCallMode.value == 'Auto' and self.brd_job:is_clarion_call_ready() then
-        local current_num_songs = self.song_tracker:get_num_songs(player:get_mob().id, L(player:get_buff_ids()))
-        if current_num_songs < self.brd_job:get_max_num_songs(true) then
-            actions:append(JobAbilityAction.new(0, 0, 0, 'Clarion Call'))
-            actions:append(WaitAction.new(0, 0, 0, 1.5))
-
-            logger.notice(self.__class, "nitro", "using Clarion Call")
-            logger.notice(self.__class, "nitro", "current songs for", player:get_mob().name, "are", self.song_tracker:get_songs(player:get_id(), L(player:get_buff_ids())):map(function(song_record) return res.spells[song_record:get_song_id()].en  end))
-        end
-    end
-
-    actions:append(JobAbilityAction.new(0, 0, 0, 'Nightingale'))
-    actions:append(WaitAction.new(0, 0, 0, 1.5))
-    actions:append(JobAbilityAction.new(0, 0, 0, 'Troubadour'))
-    actions:append(WaitAction.new(0, 0, 0, 1.5))
-
-    local nitro_action = SequenceAction.new(actions, 'nitro')
-    nitro_action.max_duration = 8
-    nitro_action.priority = ActionPriority.highest
-
-    self.action_queue:push_action(nitro_action, true)
 end
 
 function Singer:get_self_merged_songs(party_members)

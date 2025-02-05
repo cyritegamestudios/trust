@@ -142,7 +142,7 @@ function BardTrustCommands:handle_clear_songs()
     local message
 
     local singer = self.trust:role_with_type("singer")
-    singer.song_tracker:reset()
+    singer.song_tracker:set_all_expiring_soon()
 
     success = true
     message = "Song tracker has been cleared"
