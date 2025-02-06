@@ -156,7 +156,7 @@ function SongSettingsMenuItem:getPianissmoSongsMenuItem()
         end, "Pianissimo", nil, function(spell)
             return AssetManager.imageItemForSpell(spell:get_name())
         end)
-        
+
         local chooseSongsView = FFXIFastPickerView.new(configItem)
 
         self.disposeBag:add(chooseSongsView:on_pick_items():addAction(function(_, selectedSongs)
