@@ -98,7 +98,20 @@ end
 function CollectionViewDataSource:setItemForSectionHeader(section, sectionHeaderItem)
     self.sectionHeaderItems[section] = sectionHeaderItem
 
+    if sectionHeaderItem == nil then
+        local cachedCell = self.sectionCellCache[section]
+        if cachedCell then
+            cachedCell:destroy()
+            self.sectionCellCache[section] = nil
+        end
+    end
     -- TODO: reload all
+end
+
+function CollectionViewDataSource:removeAllSections()
+    for i=1, self:numberOfSections() do
+        self:setItemForSectionHeader(i, nil)
+    end
 end
 
 function CollectionViewDataSource:headerItemForSection(section)

@@ -158,6 +158,19 @@ function Bard:get_extra_song_instrument_ids()
     }
 end
 
+function Bard:validate_songs(song_names, dummy_song_name)
+    if S(song_names):length() ~= 5 then
+        return false, "You must pick 5 songs."
+    end
+    local buffsForSongs = S(song_names:map(function(song_name)
+        return buff_util.buff_for_spell(spell_util.spell_id(song_name)).id
+    end))
+    if set.intersection(S{ buff_util.buff_for_spell(spell_util.spell_id(dummy_song_name)).id }, buffsForSongs):length() > 0 then
+        return false, "Dummy song cannot give the same status effect as real songs."
+    end
+    return true, nil
+end
+
 -------
 -- Updates the songs settings based on trust settings.
 -- @tparam table Trust settings

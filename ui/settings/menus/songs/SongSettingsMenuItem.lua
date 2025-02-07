@@ -2,14 +2,13 @@ local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local DisposeBag = require('cylibs/events/dispose_bag')
+local FFXIFastPickerView = require('ui/themes/ffxi/FFXIFastPickerView')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
-local SongListMenuItem = require('ui/settings/menus/songs/SongListMenuItem')
 local SongListView = require('ui/views/SongListView')
-local SongSettingsEditor = require('ui/settings/SongSettingsEditor')
 local SongValidator = require('cylibs/entity/jobs/bard/song_validator')
 
 local SongSettingsMenuItem = setmetatable({}, {__index = MenuItem })
@@ -23,11 +22,6 @@ function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
     nil, "Song Sets", "Edit songs in this set."), SongSettingsMenuItem)
 
     self.songSetName = songSetName
-    --[[self.contentViewConstructor = function(_, _, _, _)
-        local songSettingsView = SongSettingsEditor.new(trustSettings, trustSettingsMode, self.songSetName, windower.trust.settings.get_addon_settings():getSettings().help.wiki_base_url..'/Singer')
-        songSettingsView:setShouldRequestFocus(true)
-        return songSettingsView
-    end]]
     self.selectedSongIndex = 1
     self.disposeBag = DisposeBag.new()
 
@@ -67,17 +61,10 @@ function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
                     newSongNames:append(songName)
                 end
             end
-            if S(newSongNames):length() ~= 5 then
-                return false
-            end
-            local buffsForSongs = S(newSongNames:map(function(song_name)
-                return buff_util.buff_for_spell(spell_util.spell_id(song_name)).id
-            end))
-            if set.intersection(S{ buff_util.buff_for_spell(spell_util.spell_id(newSettings['DummySong'])).id }, buffsForSongs):length() > 0 then
-                return false
-            end
-            return true
+            local is_valid, error_message = trust:get_job():validate_songs(newSongNames, newSettings['DummySong'])
+            return is_valid, error_message
         end)
+        songConfigEditor:setShouldRequestFocus(true)
 
         self.disposeBag:add(songConfigEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
             self.selectedSongIndex = indexPath.section
@@ -119,12 +106,10 @@ function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
             addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my songs!")
         end), songConfigEditor:onConfigChanged())
 
-        self.disposeBag:add(songConfigEditor:onConfigValidationError():addAction(function()
-            addon_system_error("You must choose 5 different songs and a dummy song with a different buff than all songs.")
+        self.disposeBag:add(songConfigEditor:onConfigValidationError():addAction(function(errorMessage)
+            errorMessage = errorMessage or "You must choose 5 different songs and a dummy song with a different buff than all songs."
+            addon_system_error(errorMessage)
         end), songConfigEditor:onConfigValidationError())
-
-        songConfigEditor:setTitle("Choose 5 songs to sing.")
-        songConfigEditor:setShouldRequestFocus(true)
 
         self.selectedSongIndex = 1
 
@@ -137,7 +122,6 @@ function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
     self.trust = trust
     self.songSettings = T(trustSettings:getSettings())[trustSettingsMode.value].SongSettings
     self.songValidator = SongValidator.new(trust:role_with_type("singer"), action_queue)
-    self.dispose_bag = DisposeBag.new()
 
     self:reloadSettings()
 
@@ -147,7 +131,7 @@ end
 function SongSettingsMenuItem:destroy()
     MenuItem.destroy(self)
 
-    self.dispose_bag:destroy()
+    self.disposeBag:destroy()
 end
 
 function SongSettingsMenuItem:reloadSettings()
@@ -173,9 +157,9 @@ function SongSettingsMenuItem:getPianissmoSongsMenuItem()
             return AssetManager.imageItemForSpell(spell:get_name())
         end)
 
-        local chooseSongsView = FFXIPickerView.withConfig(configItem)
+        local chooseSongsView = FFXIFastPickerView.new(configItem)
 
-        self.dispose_bag:add(chooseSongsView:on_pick_items():addAction(function(_, selectedSongs)
+        self.disposeBag:add(chooseSongsView:on_pick_items():addAction(function(_, selectedSongs)
             if selectedSongs:length() > 0 then
                 local newSongs = selectedSongs:map(function(song)
                     return Spell.new(song:get_name(), L{ 'Pianissimo' }, L{})
@@ -194,6 +178,7 @@ function SongSettingsMenuItem:getPianissmoSongsMenuItem()
 
     local editJobsMenuItem = MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
+        ButtonItem.default('Clear All'),
     }, {}, function(_, _)
         local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.SongSets[self.songSetName].PianissimoSongs
 
@@ -203,7 +188,7 @@ function SongSettingsMenuItem:getPianissmoSongsMenuItem()
 
         local jobsPickerView = FFXIPickerView.withConfig(configItem, true)
 
-        self.dispose_bag:add(jobsPickerView:on_pick_items():addAction(function(_, newJobNames)
+        self.disposeBag:add(jobsPickerView:on_pick_items():addAction(function(_, newJobNames)
             if newJobNames:length() > 0 then
                 local song = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.SongSets[self.songSetName].PianissimoSongs[self.selectedPianissimoSongIndex]
 
@@ -236,21 +221,19 @@ function SongSettingsMenuItem:getPianissmoSongsMenuItem()
             return spell:get_localized_name()
         end, "Pianissimo", nil, function(spell)
             return AssetManager.imageItemForSpell(spell:get_name())
+        end, function(song)
+            if song:get_job_names():length() > 0 then
+                return "Use when: Ally job is "..localization_util.commas(song:get_job_names(), "or")
+            else
+                return "Use when: Never (no jobs selected)"
+            end
         end)
 
         local pianissimoSongsView = FFXIPickerView.withConfig(configItem)
         pianissimoSongsView:setAllowsCursorSelection(true)
 
-        self.dispose_bag:add(pianissimoSongsView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
+        self.disposeBag:add(pianissimoSongsView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
             self.selectedPianissimoSongIndex = indexPath.row
-            local song = songs[self.selectedPianissimoSongIndex]
-            if song then
-                if song:get_job_names():length() > 0 then
-                    infoView:setDescription("Use when: Ally job is "..localization_util.commas(song:get_job_names(), "or"))
-                else
-                    infoView:setDescription("Use when: Never (no jobs selected)")
-                end
-            end
         end), pianissimoSongsView:getDelegate():didSelectItemAtIndexPath())
 
         if pianissimoSongsView:getDataSource():numberOfItemsInSection(1) > 0 then
@@ -321,31 +304,8 @@ function SongSettingsMenuItem:getDiagnosticsMenuItem()
     return diagnosticMenuItem
 end
 
-function SongSettingsMenuItem:validateDummySongs(songNames)
-    local buffsForDummySongs = S(songNames:map(function(songName)
-        local spellId = spell_util.spell_id(songName)
-        return buff_util.buff_for_spell(spellId).id
-    end))
-    if songNames:length() ~= 1 then
-        return "You must choose 1 dummy song."
-    end
-    local buffsForSongs = S(self.songSettings.Songs:map(function(spell) return buff_util.buff_for_spell(spell:get_spell().id).id  end))
-    if set.intersection(buffsForDummySongs, buffsForSongs):length() > 0 then
-        return "Dummy songs cannot give the same status effects as real songs."
-    end
-    return nil
-end
-
-function SongSettingsMenuItem:validateSongs(songNames)
-    if songNames:length() ~= 5 then
-        return "You must choose 5 songs."
-    end
-    return nil
-end
-
 function SongSettingsMenuItem:setSongSetName(songSetName)
     self.songSetName = songSetName
-    --self.songListMenuItem:setSongSetName(self.songSetName)
 end
 
 return SongSettingsMenuItem

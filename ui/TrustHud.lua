@@ -542,14 +542,11 @@ function TrustHud:getStatusMenuItem(trust)
 
     if trust.job.jobNameShort == 'BRD' then
         -- Bard
-        local singerMenuItem = MenuItem.new(L{
-            ButtonItem.default('Clear All', 18),
-        }, {},
+        local singerMenuItem = MenuItem.new(L{}, {},
         function()
-            local SingerView = require('ui/views/SingerView')
+            local SongStatusView = require('ui/views/SongStatusView')
             local singer = trust:role_with_type("singer")
-            local singerView = SingerView.new(singer)
-            singerView:setShouldRequestFocus(true)
+            local singerView = SongStatusView.new(singer)
             return singerView
         end, "Songs", "View current songs on the player and party.")
         statusMenuItem:setChildMenuItem("Songs", singerMenuItem)

@@ -368,8 +368,9 @@ function ConfigEditor:onConfirmClick(skipSave)
         end
     end
 
-    if not self.validator(self.configSettings) then
-        self:onConfigValidationError():trigger()
+    local isValid, errorMessage = self.validator(self.configSettings)
+    if not isValid then
+        self:onConfigValidationError():trigger(errorMessage)
         return
     end
 
