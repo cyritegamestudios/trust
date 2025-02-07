@@ -35,7 +35,7 @@ function SpellCommand:run(sendInChat)
     else
         local spell = res.spells:with('en', self.spellName)
 
-        local inputText = self:getInputText(spell.prefix, spell.en, targetId)
+        local inputText = self:getInputText(spell.prefix, spell.name, targetId)
         windower.chat.input(inputText)
     end
 end
