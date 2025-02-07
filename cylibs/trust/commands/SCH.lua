@@ -26,6 +26,10 @@ function ScholarTrustCommands.new(trust, action_queue, trust_settings)
         PickerConfigItem.new('include_party', "false", L{ "false", "true" }, nil, "Include Party")
     })
 
+    self:add_command('set', self.handle_set_skillchain, 'Set the skillchain using immanence', L{
+        PickerConfigItem.new('skillchain_property', skillchain_util.all_skillchain_properties()[1], skillchain_util.all_skillchain_properties(), nil, "Skillchain Property")
+    })
+
     return self
 end
 
@@ -66,7 +70,7 @@ function ScholarTrustCommands:get_spells(element)
     elseif element == "fragmentation" then
         return "Blizzard", "Water"
     elseif element == "fusion" then
-        return "Fire", "Thunder"
+        return "Fire", "Ionohelix"
     elseif element == "gravitation" then
         return "Aero", "Noctohelix"
     elseif element == "distortion" then
@@ -135,6 +139,29 @@ function ScholarTrustCommands:handle_skillchain(_, element)
 
             message = "Starting skillchain "..localization_util.translate(spell1).." > "..localization_util.translate(spell2).." = "..localization_util.translate(element)
         end
+    end
+
+    return success, message
+end
+
+-- // trust sch sc [liquefaction|scission|reverberation|detontation|induration|impaction|transfixion|compression|fragmentation|fusion|gravitation|distortion]
+function ScholarTrustCommands:handle_set_skillchain(_, element)
+    local success
+    local message
+
+    element = windower.convert_auto_trans(element)
+
+    local spell1, spell2 = self:get_spells(element)
+    if spell2 == nil or spell2 == nil then
+        success = false
+        message = "No spells found to make skillchain of element "..(element or 'nil')
+    else
+        success = true
+        message = "Setting skillchain to "..localization_util.translate(spell1).." > "..localization_util.translate(spell2)
+
+        windower.send_command('input // trust sc clear')
+        windower.send_command('input // trust sc set 1 '..spell1)
+        windower.send_command('input // trust sc set 2 '..spell2)
     end
 
     return success, message
@@ -242,6 +269,7 @@ function ScholarTrustCommands:get_all_commands()
     for skillchain_property in skillchain_util.all_skillchain_properties():it() do
         if not skillchain_property:contains('Light') and not skillchain_property:contains('Dark') then
             result:append('// trust sch sc '..skillchain_property:lower())
+            result:append('// trust sch set '..skillchain_property:lower())
         end
     end
 
