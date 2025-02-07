@@ -1762,7 +1762,7 @@ return {
     [6691] = {id=6691,en="Mapitoto Tunes",},
     [6692] = {id=6692,en="Exper. Fluid",},
     [6693] = {id=6693,en="Impish Box",},
-    [17343] = {id=17343,en="Bronze Bullet",}
+    [17343] = {id=17343,en="Bronze Bullet",},
     [18156] = {id=18156,en="Horn Arrow",},
     [18159] = {id=18159,en="Demon Arrow",},
     [19198] = {id=19198,en="Dweomer Bullet",},
