@@ -42,10 +42,12 @@ function SongStatusView.new(singer)
     local self = setmetatable(ConfigEditor.new(nil, songSettings, configItemsForPartyMember(partyMembers[1])), SongStatusView)
 
     self:getDisposeBag():add(self:onConfigItemChanged():addAction(function(key, value, configItem)
-        songSettings.PartyMember = value
-        self:getDataSource():removeAllSections()
-        self:setConfigItems(configItemsForPartyMember(value))
-        self:reloadSettings()
+        if key == 'PartyMember' then
+            songSettings.PartyMember = value
+            self:getDataSource():removeAllSections()
+            self:setConfigItems(configItemsForPartyMember(value))
+            self:reloadSettings()
+        end
     end), self:onConfigItemChanged())
 
     self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
