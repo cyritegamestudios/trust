@@ -243,12 +243,14 @@ function Singer:get_next_song(party_member, dummy_songs, songs)
 
     if current_num_songs < songs:length() then
         if current_num_songs < base_num_songs or self.song_tracker:has_any_song(song_target_id, dummy_songs:map(function(song) return song:get_spell().id end), buff_ids) then
+            logger.notice(self.__class, "get_next_song", party_member:get_mob().name, current_num_songs, base_num_songs, self.song_tracker:has_any_song(song_target_id, dummy_songs:map(function(song) return song:get_spell().id end), buff_ids))
             for song in songs:it() do
                 if not self.song_tracker:has_song(song_target_id, song:get_spell().id, buff_ids) then
                     return song
                 end
             end
         else
+            logger.notice(self.__class, "get_next_song", party_member:get_mob().name, current_num_songs, base_num_songs, 'dummy_song')
             for song in dummy_songs:it() do
                 if not self.song_tracker:has_song(song_target_id, song:get_spell().id, buff_ids) then
                     return song
