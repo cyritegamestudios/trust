@@ -144,7 +144,7 @@ function ScholarTrustCommands:handle_skillchain(_, element)
     return success, message
 end
 
--- // trust sch sc [liquefaction|scission|reverberation|detontation|induration|impaction|transfixion|compression|fragmentation|fusion|gravitation|distortion]
+-- // trust sch set [liquefaction|scission|reverberation|detontation|induration|impaction|transfixion|compression|fragmentation|fusion|gravitation|distortion]
 function ScholarTrustCommands:handle_set_skillchain(_, element)
     local success
     local message

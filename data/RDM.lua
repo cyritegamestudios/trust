@@ -21,7 +21,7 @@ return {
         },
         GambitSettings = {
             Default = L{
-                Gambit.new("Self", L{MaxManaPointsPercentCondition.new(80), NotCondition.new(L{HasBuffCondition.new("weakness")}), ModeCondition.new("AutoConvertMode", "Auto"), JobAbilityRecastReadyCondition.new('Convert')}, Spell.new("Cure IV", L{ 'Convert'}), "Self", L{})
+                Gambit.new("Self", L{MaxManaPointsPercentCondition.new(20), NotCondition.new(L{HasBuffCondition.new("weakness")}), ModeCondition.new("AutoConvertMode", "Auto"), JobAbilityRecastReadyCondition.new('Convert')}, Spell.new("Cure IV", L{ 'Convert'}), "Self", L{})
             },
             Gambits = L{
                 Gambit.new("Enemy", L{MeleeAccuracyCondition.new(75, "<="), MainJobCondition.new("RDM"), NumResistsCondition.new("Distract", "<", 3), NumResistsCondition.new("Distract II", "<", 3), NumResistsCondition.new("Distract III", "<", 3)}, Spell.new("Distract III", L{}, L{}), "Self", L{}),
