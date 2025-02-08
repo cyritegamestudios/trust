@@ -50,9 +50,10 @@ function inventory_util.get_item_count(item_id)
         end
     end
     local items = L(windower.ffxi.get_items('inventory'))
+    local item_count = 0
     for item in items:it() do
         if item.id == item_id then
-            return item.count
+            item_count = item_count + item.count
         end
     end
     return 0
