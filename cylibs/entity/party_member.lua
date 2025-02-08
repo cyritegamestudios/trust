@@ -88,6 +88,11 @@ function PartyMember:on_spell_finish()
     return self.spell_finish
 end
 
+-- Event called when a job ability is used.
+function PartyMember:on_job_ability_used()
+    return self.job_ability_used
+end
+
 -------
 -- Default initializer for a PartyMember.
 -- @tparam number id Mob id
@@ -132,6 +137,7 @@ function PartyMember.new(id, name)
     self.pet_change = Event.newEvent()
     self.spell_finish = Event.newEvent()
     self.status_change = Event.newEvent()
+    self.job_ability_used = Event.newEvent()
     
     local party_member_info = party_util.get_party_member_info(id)
     if party_member_info then
@@ -184,6 +190,7 @@ function PartyMember:destroy()
     self.pet_change:removeAllActions()
     self.spell_finish:removeAllActions()
     self.status_change:removeAllActions()
+    self.job_ability_used:removeAllActions()
 end
 
 -------
@@ -270,6 +277,8 @@ function PartyMember:monitor()
 
         if action.category == 4 then
             self:on_spell_finish():trigger(self, action.param, action.targets)
+        elseif action.category == 6 then
+            self:on_job_ability_used():trigger(self, action.param, action.targets)
         end
     end), WindowerEvents.Action)
 

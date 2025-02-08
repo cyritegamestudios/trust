@@ -54,7 +54,7 @@ function SwitchTargetAction:perform()
     self.retry_timer = Timer.scheduledTimer(0.5)
     self.retry_timer:onTimeChange():addAction(function(_)
         self.retry_count = self.retry_count + 1
-        if self.retry_count >= self.num_retries then
+        if self.retry_count >= self.num_retries or not self:is_valid_target() then
             self:complete(false)
             return
         end
@@ -64,6 +64,10 @@ function SwitchTargetAction:perform()
     self.dispose_bag:addAny(L{ self.retry_timer })
 
     self.retry_timer:start()
+end
+
+function SwitchTargetAction:is_valid_target()
+    return Condition.check_conditions(L{ ValidTargetCondition.new(), MinHitPointsPercentCondition.new(1) }, self.target_index)
 end
 
 function SwitchTargetAction:target_mob(target)

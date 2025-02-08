@@ -236,7 +236,7 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_name_short,
 		TargetCommands.new(main_trust_settings, state.MainTrustSettingsMode),
 		WarpCommands.new(main_job_trust:role_with_type("follower").walk_action_queue),
 		WidgetCommands.new(main_job_trust, action_queue, addon_settings, widgets.widgetManager),
-	}:compact_map():extend(get_job_commands(job_name_short, main_job_trust, action_queue, main_trust_settings)):extend(get_job_commands(sub_job_name_short, sub_job_trust, action_queue, sub_trust_settings))
+	}:compact_map():extend(get_job_commands(job_name_short, main_job_trust, action_queue, main_trust_settings, weapon_skill_settings)):extend(get_job_commands(sub_job_name_short, sub_job_trust, action_queue, sub_trust_settings, weapon_skill_settings))
 
 	hud:setCommands(common_commands)
 
@@ -328,16 +328,16 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_name_short,
 	end)
 end
 
-function get_job_commands(job_name_short, trust, action_queue, main_trust_settings, sub_trust_settings)
+function get_job_commands(job_name_short, trust, action_queue, main_trust_settings, weapon_skill_settings)
 	local root_paths = L{windower.windower_path..'addons/libs/', windower.addon_path}
 	for root_path in root_paths:it() do
 		local file_prefix = root_path..'cylibs/trust/commands/'..job_name_short
 		if windower.file_exists(file_prefix..'_'..windower.ffxi.get_player().name..'.lua') then
 			local TrustCommands = require('cylibs/trust/commands/'..job_name_short..'_'..windower.ffxi.get_player().name)
-			return L{ TrustCommands.new(trust, action_queue, main_trust_settings) }
+			return L{ TrustCommands.new(trust, action_queue, main_trust_settings, weapon_skill_settings) }
 		elseif windower.file_exists(file_prefix..'.lua') then
 			local TrustCommands = require('cylibs/trust/commands/'..job_name_short)
-			return L{ TrustCommands.new(trust, action_queue, main_trust_settings) }
+			return L{ TrustCommands.new(trust, action_queue, main_trust_settings, weapon_skill_settings) }
 		end
 	end
 	return L{}
