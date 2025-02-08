@@ -56,7 +56,7 @@ function inventory_util.get_item_count(item_id)
             item_count = item_count + item.count
         end
     end
-    return 0
+    return item_count
 end
 
 -------
