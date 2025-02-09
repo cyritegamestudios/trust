@@ -505,7 +505,7 @@ function GambitSettingsMenuItem:getResetGambitsMenuItem()
 end
 
 function GambitSettingsMenuItem:getGambitLibraryMenuItem()
-    return GambitLibraryMenuItem.new(self.trustSettings, self.trustSettingsMode, self.libraryCategoryFilter)
+    return GambitLibraryMenuItem.new(self.trustSettings, self.trustSettingsMode, self.libraryCategoryFilter, self.settingsKeys)
 end
 
 function GambitSettingsMenuItem:getModesMenuItem()
