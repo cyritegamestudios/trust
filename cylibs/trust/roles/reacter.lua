@@ -1,4 +1,5 @@
 local ActionQueue = require('cylibs/actions/action_queue')
+local GambitTarget = require('cylibs/gambits/gambit_target')
 
 local Reacter = setmetatable({}, {__index = Role })
 Reacter.__index = Reacter
@@ -8,9 +9,10 @@ state.AutoReactMode = M{['description'] = 'Use Reactions', 'Auto', 'Off'}
 state.AutoReactMode:set_description('Off', "Okay, I'll ignore any reactions you've set.")
 state.AutoReactMode:set_description('Auto', "Okay, I'll react to player, party and enemy actions.")
 
-function Reacter.new(gambit_settings, skillchainer, state_var)
-    local self = setmetatable(Role.new(ActionQueue.new(nil, false, 2, false, true)), Reacter)
+function Reacter.new(action_queue, gambit_settings, skillchainer, state_var)
+    local self = setmetatable(Role.new(action_queue), Reacter)
 
+    self.react_action_queue = ActionQueue.new(nil, false, 2, false, true)
     self.skillchainer = skillchainer
     self.state_var = state_var or state.AutoReactMode
 
@@ -20,7 +22,7 @@ function Reacter.new(gambit_settings, skillchainer, state_var)
 end
 
 function Reacter:destroy()
-    Reacter.destroy(self)
+    Role.destroy(self)
 end
 
 function Reacter:on_add()
@@ -260,17 +262,21 @@ function Reacter:perform_gambit(gambit, target)
 
     local action = gambit:getAbility():to_action(target:get_mob().index, self:get_player())
     if action then
-        self.last_gambit_time = os.time()
+        self.action_queue:clear()
 
-        if gambit:getTags():contains('reaction') or gambit:getTags():contains('Reaction') then
-            self.action_queue:clear()
-        end
         action.priority = ActionPriority.highest
-        if not self:allows_multiple_actions() then
-            action.identifier = self:get_action_identifier()
+        action.identifier = self:get_action_identifier()
+
+        if self:should_ignore_queue(gambit:getAbility()) then
+            self.react_action_queue:push_action(action, true)
+        else
+            self.action_queue:push_action(action, true)
         end
-        self.action_queue:push_action(action, true)
     end
+end
+
+function Reacter:should_ignore_queue(ability)
+    return L{ RunAway.__type, RunTo.__type, TurnAround.__type, TurnToFace.__type, Command.__type }:contains(ability.__type)
 end
 
 function Reacter:allows_duplicates()
@@ -289,17 +295,22 @@ function Reacter:get_cooldown()
     return 0
 end
 
+function Reacter:get_action_identifier()
+    return self:get_type()..'_action'
+end
+
 function Reacter:get_localized_name()
     return "Reactions"
 end
 
 function Reacter:set_gambit_settings(gambit_settings)
-    local gambits = (gambit_settings.Gambits or L{}):filter(function(gambit)
-        return gambit:getAbility() ~= nil and gambit:isReaction()
-    end) + (gambit_settings.Default or L{}):filter(function(gambit)
-        return gambit:getAbility() ~= nil and gambit:isReaction()
+    self.gambits = (gambit_settings.Gambits or L{}):filter(function(gambit)
+        return gambit:getAbility() ~= nil
     end)
-    self.gambits = gambits
+end
+
+function Reacter:get_all_gambits()
+    return self.gambits
 end
 
 function Reacter:tostring()

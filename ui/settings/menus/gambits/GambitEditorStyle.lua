@@ -1,5 +1,17 @@
+local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
+
 local GambitEditorStyle = {}
 GambitEditorStyle.__index = GambitEditorStyle
+
+function GambitEditorStyle.named(abilityCategory, abilityCategoryPlural)
+    local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
+    return GambitEditorStyle.new(function(gambits)
+        local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit)
+            return gambit:tostring()
+        end)
+        return configItem
+    end, FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge, abilityCategory, abilityCategoryPlural)
+end
 
 function GambitEditorStyle.new(configItemForGambits, viewSize, abilityCategory, abilityCategoryPlural, itemDescription)
     local self = setmetatable({}, GambitEditorStyle)
@@ -12,7 +24,7 @@ function GambitEditorStyle.new(configItemForGambits, viewSize, abilityCategory, 
 end
 
 function GambitEditorStyle:getConfigItem(gambits)
-    return self.configItemForGambits(gambits)
+    return self.configItemForGambits and self.configItemForGambits(gambits)
 end
 
 function GambitEditorStyle:getViewSize()

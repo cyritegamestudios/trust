@@ -28,6 +28,10 @@ return {
                 Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("RDM")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"Food"})
             }
         },
+        ReactionSettings = {
+            Gambits = L{
+            }
+        },
         CureSettings = {
             Thresholds = {
                 ["Cure IV"] = 1500,

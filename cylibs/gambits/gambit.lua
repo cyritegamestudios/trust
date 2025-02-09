@@ -11,7 +11,6 @@ Gambit.Tags.AllTags = L{
     'Debuffs',
     'Food',
     'Nukes',
-    'Reaction',
 }
 
 function Gambit.new(target, conditions, ability, conditions_target, tags)

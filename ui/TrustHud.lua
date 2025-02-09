@@ -13,6 +13,7 @@ local GameInfo = require('cylibs/util/ffxi/game_info')
 local Keyboard = require('cylibs/ui/input/keyboard')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
+local ReactionSettingsMenuItem = require('ui/settings/menus/gambits/react/ReactSettingsMenuItem')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local TrustInfoBar = require('ui/TrustInfoBar')
 local Menu = require('cylibs/ui/menu/menu')
@@ -410,9 +411,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
     }, {
         Custom = GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, self.trustModeSettings, 'GambitSettings'),
         [jobName] = JobGambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, self.trustModeSettings),
-        Reactions = MenuItem.action(function()
-            addon_system_message("Reactions have moved to the Gambits menu. Add the Reaction tag in the Gambit editor.")
-        end, "Reactions", "Add reactions to actions taken by enemies or party members."),
+        Reactions = ReactionSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, self.trustModeSettings),
     }, nil, "Gambits", "Configure Trust behavior.")
 
     local settingsMenuItem = MenuItem.new(menuItems, childMenuItems, nil, "Settings", "Configure Trust settings for skillchains, buffs, debuffs and more.")

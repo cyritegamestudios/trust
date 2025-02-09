@@ -51,7 +51,7 @@ function Trust:init()
 		end
 		local reacter = self:role_with_type("reacter")
 		if reacter then
-			reacter:set_gambit_settings(new_trust_settings.GambitSettings)
+			reacter:set_gambit_settings(new_trust_settings.ReactionSettings)
 		end
 		local targeter = self:role_with_type("targeter")
 		if targeter then

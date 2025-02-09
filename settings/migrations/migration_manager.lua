@@ -23,6 +23,7 @@ local Migration_v22 = require('settings/migrations/migration_v22')
 local Migration_v23 = require('settings/migrations/migration_v23')
 local Migration_v24 = require('settings/migrations/migration_v24')
 local Migration_v25 = require('settings/migrations/migration_v25')
+local Migration_v26 = require('settings/migrations/migration_v26')
 
 local UpdateDefaultGambits = require('settings/migrations/update_default_gambits')
 
@@ -61,6 +62,7 @@ function MigrationManager.new(trustSettings, addonSettings, weaponSkillSettings)
         Migration_v23.new(),
         Migration_v24.new(),
         Migration_v25.new(),
+        Migration_v26.new(),
         UpdateDefaultGambits.new(),
     }
     return self

@@ -47,6 +47,10 @@ return {
                 Gambit.new("Self", L{NotCondition.new(L{HasBuffsCondition.new(L{"Valiance", "Vallation"}, 1)}), HasRunesCondition.new(2), NotCondition.new(L{MainJobCondition.new("RUN")})}, JobAbility.new("Vallation", L{}), "Self", L{"Buffs"})
             },
         },
+        ReactionSettings = {
+            Gambits = L{
+            }
+        },
         GearSwapSettings = {
             Enabled = true
         },

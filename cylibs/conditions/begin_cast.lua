@@ -28,6 +28,8 @@ end
 function BeginCastCondition:get_config_items()
     local all_spell_names = res.spells:with_all('type', 'BlackMagic'):map(function(spell)
         return spell.en
+    end) + res.spells:with_all('type', 'WhiteMagic'):map(function(spell)
+        return spell.en
     end)
     all_spell_names = L(S(all_spell_names))
     all_spell_names:sort()
