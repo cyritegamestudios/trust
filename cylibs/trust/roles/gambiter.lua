@@ -50,10 +50,6 @@ function Gambiter:get_cooldown()
     return 0
 end
 
-function Gambiter:tic(new_time, old_time)
-    Role.tic(self, new_time, old_time)
-end
-
 function Gambiter:check_gambits(targets, gambits, param, ignore_delay)
     if self.state_var.value == 'Off' or not ignore_delay and (os.time() - self.last_gambit_time) < self:get_cooldown() then
         return
@@ -148,10 +144,10 @@ end
 
 function Gambiter:set_gambit_settings(gambit_settings)
     self.gambits = (gambit_settings.Gambits or L{}):filter(function(gambit)
-        return gambit:getAbility() ~= nil and not gambit:isReaction()
+        return gambit:getAbility() ~= nil
     end)
     self.job_gambits = (gambit_settings.Default or L{}):filter(function(gambit)
-        return gambit:getAbility() ~= nil and not gambit:isReaction()
+        return gambit:getAbility() ~= nil
     end)
 end
 

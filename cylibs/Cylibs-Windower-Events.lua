@@ -107,7 +107,6 @@ local incoming_event_dispatcher = {
             if act.targets[1] and act.targets[1].actions[1] then
                 local spell_id = act.targets[1].actions[1].param
                 if res.spells[spell_id] then
-                    local mob = windower.ffxi.get_mob_by_id(act.actor_id)
                     WindowerEvents.Spell.Begin:trigger(act.actor_id, spell_id)
                 end
             end

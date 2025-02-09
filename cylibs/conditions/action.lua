@@ -36,7 +36,7 @@ end
 
 function ActionCondition:is_satisfied(target_index, action)
     local target = windower.ffxi.get_mob_by_index(target_index)
-    if target then
+    if target and action then
         return categories[action.category] and categories[action.category] == self.category_name
     end
     return false

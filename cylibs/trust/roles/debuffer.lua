@@ -13,7 +13,7 @@ state.AutoSilenceMode = M{['description'] = 'Silence Casters', 'Off', 'Auto'}
 state.AutoSilenceMode:set_description('Auto', "Okay, I'll try to silence monsters that cast spells.")
 
 function Debuffer.new(action_queue, debuff_settings, job)
-    local self = setmetatable(Gambiter.new(action_queue, {}, state.AutoDebuffMode, true), Debuffer)
+    local self = setmetatable(Gambiter.new(action_queue, {}, state.AutoDebuffMode), Debuffer)
     self.job = job
     self:set_debuff_settings(debuff_settings)
     return self
