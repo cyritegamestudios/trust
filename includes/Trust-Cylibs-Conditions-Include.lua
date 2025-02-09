@@ -1,4 +1,5 @@
 Condition = require('cylibs/conditions/condition')
+ActionCondition = require('cylibs/conditions/action')
 BeginCastCondition = require('cylibs/conditions/begin_cast')
 CombatSkillsCondition = require('cylibs/conditions/combat_skills')
 InBattleCondition = require('cylibs/conditions/in_battle')

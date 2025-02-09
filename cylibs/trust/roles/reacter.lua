@@ -77,16 +77,18 @@ function Reacter:on_add()
     end)
 
     WindowerEvents.Spell.Begin:addAction(function(target_id, spell_id)
-        if spell_id == nil or self:get_party():get_party_member(target_id) == nil then
+        if spell_id == nil or (self:get_party():get_party_member(target_id) == nil and self:get_party():get_target(target_id) == nil) then
             return
         end
 
         local valid_targets = L(BeginCastCondition.valid_targets():map(function(target_type)
             return self:get_gambit_targets(target_type)
         end)):flatten(false)
-        if not valid_targets:firstWhere(function(target)
+
+        local target = valid_targets:firstWhere(function(target)
             return target:get_id() == target_id
-        end) then
+        end)
+        if target == nil then
             return
         end
 
@@ -101,8 +103,7 @@ function Reacter:on_add()
                     return false
                 end
             end)
-
-            self:check_gambits(L{ self:get_party():get_party_member(target_id) }, gambits, spell.en)
+            self:check_gambits(L{ target }, gambits, spell.en)
         end
     end)
 
@@ -143,6 +144,33 @@ function Reacter:on_add()
 
             self:check_gambits(L{ target }, gambits, pet_tp)
         end
+    end)
+
+    WindowerEvents.Action:addAction(function(action)
+        -- Melee attacks are too spammy
+        if action.category == 1 then
+            return
+        end
+
+        local valid_targets = L(ActionCondition.valid_targets():map(function(target_type)
+            return self:get_gambit_targets(target_type)
+        end)):flatten(false):filter(function(target)
+            return target:get_id() == action.actor_id
+        end)
+        if valid_targets:length() == 0 then
+            return
+        end
+
+        logger.notice(self.__class, 'action', 'check_gambits')
+        local gambits = self:get_all_gambits():filter(function(gambit)
+            for condition in gambit:getConditions():it() do
+                if condition.__type == ActionCondition.__type then
+                    return true
+                end
+                return false
+            end
+        end)
+        self:check_gambits(valid_targets, gambits, action)
     end)
 
     self.skillchainer:on_skillchain():addAction(function(target_id, skillchain_step)
