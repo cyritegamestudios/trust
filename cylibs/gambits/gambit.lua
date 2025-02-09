@@ -65,6 +65,10 @@ function Gambit:getTags()
     return S(self.tags)
 end
 
+function Gambit:isReaction()
+    return self:getTags():contains('reaction') or self:getTags():contains('Reaction')
+end
+
 function Gambit:setEnabled(enabled)
     self.enabled = enabled
 end

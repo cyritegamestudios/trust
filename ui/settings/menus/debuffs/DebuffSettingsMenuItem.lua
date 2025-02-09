@@ -42,7 +42,7 @@ function DebuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
             return "Inflicts: "..i18n.resource('buffs', 'en', debuff.en).."."
         end
         return nil
-    end)
+    end, S{ 'Reaction' })
     debuffSettingsItem:setDefaultGambitTags(L{'Debuffs'})
 
     debuffSettingsItem:getDisposeBag():add(debuffSettingsItem:onGambitChanged():addAction(function(newGambit, oldGambit)

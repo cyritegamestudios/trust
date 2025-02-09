@@ -326,10 +326,10 @@ end
 
 function Gambiter:set_gambit_settings(gambit_settings)
     self.gambits = (gambit_settings.Gambits or L{}):filter(function(gambit)
-        return gambit:getAbility() ~= nil
+        return gambit:getAbility() ~= nil and not gambit:isReaction()
     end)
     self.job_gambits = (gambit_settings.Default or L{}):filter(function(gambit)
-        return gambit:getAbility() ~= nil
+        return gambit:getAbility() ~= nil and not gambit:isReaction()
     end)
 end
 

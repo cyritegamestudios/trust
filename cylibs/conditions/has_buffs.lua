@@ -34,13 +34,20 @@ function HasBuffsCondition.from_party_member(buff_names, num_required, party_mem
 end
 
 function HasBuffsCondition:get_buff_count(buff_id, target_index)
-    local buff_ids = L{}
-    if target_index == nil or target_index == windower.ffxi.get_player().index then
-        buff_ids = L(windower.ffxi.get_player().buffs)
-    else
-        buff_ids = self.party_member:get_buff_ids()
+    local target = windower.ffxi.get_mob_by_index(self:get_target_index() or target_index)
+    if target then
+        local buff_ids = L{}
+        if target_index == nil or target_index == windower.ffxi.get_player().index then
+            buff_ids = L(windower.ffxi.get_player().buffs)
+        else
+            local party_member = player.alliance:get_alliance_member_named(target.name)
+            if party_member then
+                buff_ids = party_member:get_buff_ids()
+            end
+        end
+        return buff_util.buff_count(buff_id, buff_ids)
     end
-    return buff_util.buff_count(buff_id, buff_ids)
+    return 0
 end
 
 function HasBuffsCondition:is_satisfied(target_index)

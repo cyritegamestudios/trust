@@ -94,6 +94,7 @@ function load_user_files(main_job_id, sub_job_id)
 		player.trust.main_job:add_role(Puller.new(action_queue, player.trust.main_job_settings.Default.PullSettings))
 	end
 
+	player.trust.main_job:add_role(Reacter.new(player.trust.main_job_settings.Default.GambitSettings, skillchainer))
 	player.trust.main_job:add_role(Gambiter.new(action_queue, player.trust.main_job_settings.Default.GambitSettings, skillchainer))
 	player.trust.main_job:add_role(Targeter.new(action_queue, main_trust_settings))
 	player.trust.main_job:add_role(Attacker.new(action_queue))

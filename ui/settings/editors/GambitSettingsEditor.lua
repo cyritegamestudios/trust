@@ -15,11 +15,11 @@ function GambitSettingsEditor:onGambitChanged()
     return self.gambitChanged
 end
 
-function GambitSettingsEditor.new(gambit, trustSettings, trustSettingsMode, abilitiesByTargetType, conditionTargets, showMenu)
+function GambitSettingsEditor.new(gambit, trustSettings, trustSettingsMode, abilitiesByTargetType, conditionTargets, showMenu, validGambitTags)
     local validTargets = L(GambitTarget.TargetType:keyset()):filter(function(targetType) return abilitiesByTargetType[targetType]:length() > 0 end)
     local validConditionTargets = conditionTargets or L(Condition.TargetType.AllTargets)
 
-    local configItems = GambitSettingsEditor.configItems(gambit, abilitiesByTargetType, validTargets, validConditionTargets)
+    local configItems = GambitSettingsEditor.configItems(gambit, abilitiesByTargetType, validTargets, validConditionTargets, validGambitTags)
 
     local self = setmetatable(ConfigEditor.new(trustSettings, gambit, configItems, nil, function(_) return true end, showMenu), GambitSettingsEditor)
 
@@ -27,6 +27,7 @@ function GambitSettingsEditor.new(gambit, trustSettings, trustSettingsMode, abil
     self.abilitiesByTargetType = abilitiesByTargetType
     self.validTargets = validTargets
     self.validConditionTargets = validConditionTargets
+    self.validGambitTags = validGambitTags
     self.menuArgs = {}
     self.gambitChanged = Event.newEvent()
 
@@ -87,8 +88,6 @@ function GambitSettingsEditor.new(gambit, trustSettings, trustSettingsMode, abil
     return self
 end
 
-
-
 function GambitSettingsEditor.configItemFromGambit(gambit, abilitiesByTargetType)
     local abilities = abilitiesByTargetType[gambit:getAbilityTarget()]
     if not abilities:contains(gambit:getAbility()) then
@@ -100,7 +99,7 @@ function GambitSettingsEditor.configItemFromGambit(gambit, abilitiesByTargetType
     return abilityConfigItem
 end
 
-function GambitSettingsEditor.configItems(gambit, abilitiesByTargetType, validTargets, validConditionTargets)
+function GambitSettingsEditor.configItems(gambit, abilitiesByTargetType, validTargets, validConditionTargets, validGambitTags)
     local abilities = abilitiesByTargetType[gambit:getAbilityTarget()]
     local currentAbility
     if abilities:indexOf(gambit:getAbility()) ~= -1 then
@@ -131,7 +130,7 @@ function GambitSettingsEditor.configItems(gambit, abilitiesByTargetType, validTa
         configItems:append(conditionsConfigItem)
     end
 
-    configItems:append(MultiPickerConfigItem.new('tags', gambit.tags, L(gambit.tags + Gambit.Tags.AllTags):unique(), function(tags)
+    configItems:append(MultiPickerConfigItem.new('tags', gambit.tags, L(gambit.tags + validGambitTags):unique(), function(tags)
         if tags:length() > 0 then
             return localization_util.commas(tags)
         end
@@ -142,7 +141,7 @@ function GambitSettingsEditor.configItems(gambit, abilitiesByTargetType, validTa
 end
 
 function GambitSettingsEditor:reloadConfigItems()
-    local configItems = GambitSettingsEditor.configItems(self.gambit, self.abilitiesByTargetType, self.validTargets, self.validConditionTargets)
+    local configItems = GambitSettingsEditor.configItems(self.gambit, self.abilitiesByTargetType, self.validTargets, self.validConditionTargets, self.validGambitTags)
     self:setConfigItems(configItems)
 end
 

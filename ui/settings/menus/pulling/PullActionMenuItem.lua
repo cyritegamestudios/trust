@@ -48,7 +48,7 @@ function PullActionMenuItem.new(trust, trustSettings, trustSettingsMode, trustMo
         return false
     end, function(ability)
         return ability:get_localized_name()
-    end)
+    end, S{ 'Reaction' })
     pullActionSettingsItem:setDefaultGambitTags(L{'Pulling'})
 
     pullActionSettingsItem:getDisposeBag():add(pullActionSettingsItem:onGambitChanged():addAction(function(newGambit, oldGambit)
