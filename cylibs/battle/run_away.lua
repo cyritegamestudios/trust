@@ -68,6 +68,23 @@ function RunAway:get_localized_name()
 end
 
 -------
+-- Returns the display name.
+-- @treturn string Display name
+function RunAway:get_display_name()
+    return string.format("Run %d yalms from target", self.distance)
+end
+
+-------
+-- Returns the config items that will be used when creating the config editor
+-- to edit this ability.
+-- @treturn list List of ConfigItem
+function RunAway:get_config_items()
+    return L{
+        ConfigItem.new('distance', 3, 30, 1, function(value) return value.." yalms" end, "Distance from Target"),
+    }
+end
+
+-------
 -- Return the Action to use this action on a target.
 -- @treturn Action Action to use ability
 function RunAway:to_action(target_index, _)
@@ -83,6 +100,14 @@ function RunAway:serialize()
         return conditions_classes_to_serialize:contains(condition.__class)
     end)
     return "RunAway.new(" .. serializer_util.serialize_args(self.distance, conditions_to_serialize) .. ")"
+end
+
+function RunAway:copy()
+    local conditions = L{}
+    for condition in self:get_conditions():it() do
+        conditions:append(condition:copy())
+    end
+    return RunAway.new(self.distance, conditions)
 end
 
 function RunAway:__eq(otherItem)

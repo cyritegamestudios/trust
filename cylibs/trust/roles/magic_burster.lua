@@ -34,7 +34,7 @@ state.MagicBurstTargetMode:set_description('All', "Okay, I'll magic burst with b
 -- @tparam Job job Job
 -- @treturn MagicBurster A magic burster role
 function MagicBurster.new(action_queue, nuke_settings, fast_cast, default_job_ability_names, job, requires_job_abilities)
-    local self = setmetatable(Gambiter.new(action_queue, {}, nil, state.AutoMagicBurstMode, true), MagicBurster)
+    local self = setmetatable(Gambiter.new(action_queue, {}, state.AutoMagicBurstMode), MagicBurster)
 
     self.fast_cast = fast_cast or 0.8
     self.job = job

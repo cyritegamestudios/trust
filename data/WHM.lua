@@ -82,6 +82,10 @@ return {
                 Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("WHM")}, UseItem.new("Tropical Crepe", L{ItemCountCondition.new("Tropical Crepe", 1, ">=")}), "Self", L{"Food"})
             }
         },
+        ReactionSettings = {
+            Gambits = L{
+            }
+        },
         GearSwapSettings = {
             Enabled = true
         },

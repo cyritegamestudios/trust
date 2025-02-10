@@ -96,6 +96,7 @@ end
 
 function Condition.defaultSerializableConditionClasses()
     return L {
+        ActionCondition.__class,
         IdleCondition.__class,
         InBattleCondition.__class,
         GainDebuffCondition.__class,

@@ -40,7 +40,7 @@ function NukeSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trust
         --    return "Inflicts: "..i18n.resource('buffs', 'en', debuff.en).."."
         --end
         --return nil
-    end), NukeSettingsMenuItem)
+    end, S{ 'Reaction' }), NukeSettingsMenuItem)
     self:setDefaultGambitTags(L{'Nukes'})
 
     self:getDisposeBag():add(self:onGambitChanged():addAction(function(newGambit, oldGambit)

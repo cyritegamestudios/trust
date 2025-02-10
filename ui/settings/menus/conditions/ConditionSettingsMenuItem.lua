@@ -253,6 +253,7 @@ function ConditionSettingsMenuItem:getEditableConditionClasses()
         [BeginCastCondition.__type] = "begin_cast",
         [HasCumulativeMagicEffectCondition.__type] = "has_cumulative_magic_effect",
         [StatusCondition.__type] = "status",
+        [ActionCondition.__type] = "action",
     }
 end
 

@@ -27,7 +27,7 @@ state.AutoNitroMode:set_description('Auto', "Okay, I'll use Nightingale and Trou
 state.AutoClarionCallMode = M{['description'] = 'Use Clarion Call', 'Off', 'Auto'}
 state.AutoClarionCallMode:set_description('Auto', "Okay, I'll use Clarion Call before Nightingale and Troubadour.")
 
-state.SongSet = M{['description'] = 'Song Set', 'Default'}
+--state.SongSet = M{['description'] = 'Song Set', 'Default'}
 
 function BardTrust.new(settings, action_queue, battle_settings, trust_settings, addon_settings)
 	local job = Bard.new(trust_settings, addon_settings)
@@ -41,6 +41,7 @@ function BardTrust.new(settings, action_queue, battle_settings, trust_settings, 
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), BardTrust)
 
 	self.settings = settings
+	state.SongSet = M{['description'] = 'Song Set', T(trust_settings.SongSets):keyset()}
 	self.num_songs = trust_settings.NumSongs
 	self.action_queue = action_queue
 	self.song_modes_delta = ModeDelta.new(BardModes.Singing, "Changing modes while singing may prevent songs from being applied.", S{ 'AutoSongMode' })

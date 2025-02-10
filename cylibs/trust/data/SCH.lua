@@ -8,6 +8,7 @@ local Buffer = require('cylibs/trust/roles/buffer')
 local Debuffer = require('cylibs/trust/roles/debuffer')
 local Dispeler = require('cylibs/trust/roles/dispeler')
 local DisposeBag = require('cylibs/events/dispose_bag')
+local Frame = require('cylibs/ui/views/frame')
 local Healer = require('cylibs/trust/roles/healer')
 local MagicBurster = require('cylibs/trust/roles/magic_burster')
 local ManaRestorer = require('cylibs/trust/roles/mana_restorer') -- for AutoRestoreManaMode
@@ -95,6 +96,12 @@ function ScholarTrust:switch_arts(new_arts_mode)
 end
 
 function ScholarTrust:update_for_arts(new_arts_mode)
+end
+
+function ScholarTrust:get_widget()
+    local ScholarWidget = require('ui/widgets/ScholarWidget')
+    local scholarWidget = ScholarWidget.new(Frame.new(0, 0, 125, 57), windower.trust.settings.get_addon_settings(), self:get_party():get_player(), self)
+    return scholarWidget, 'scholar'
 end
 
 return ScholarTrust

@@ -8,11 +8,12 @@ local ScholarTrustCommands = setmetatable({}, {__index = TrustCommands })
 ScholarTrustCommands.__index = ScholarTrustCommands
 ScholarTrustCommands.__class = "ScholarTrustCommands"
 
-function ScholarTrustCommands.new(trust, action_queue, trust_settings)
+function ScholarTrustCommands.new(trust, action_queue, trust_settings, weapon_skill_settings)
     local self = setmetatable(TrustCommands.new(), ScholarTrustCommands)
 
     self.trust = trust
     self.trust_settings = trust_settings
+    self.weapon_skill_settings = weapon_skill_settings
     self.action_queue = action_queue
 
     self:add_command('sc', self.handle_skillchain, 'Make a skillchain using immanence', L{
@@ -150,18 +151,24 @@ function ScholarTrustCommands:handle_set_skillchain(_, element)
     local message
 
     element = windower.convert_auto_trans(element)
-
     local spell1, spell2 = self:get_spells(element)
-    if spell2 == nil or spell2 == nil then
+    if spell1 and spell2 then
+        local current_settings = self.weapon_skill_settings:getSettings()[state.WeaponSkillSettingsMode.value]
+        if current_settings then
+            for i = 1, current_settings.Skillchain:length() do
+                current_settings.Skillchain[i] = SkillchainAbility.skip()
+            end
+            current_settings.Skillchain[1] = ElementalMagic.new(spell1, L{ StrategemCountCondition.new(2, Condition.Operator.GreaterThanOrEqualTo) })
+            current_settings.Skillchain[2] = ElementalMagic.new(spell2, L{})
+
+            success = true
+            message = "Setting skillchain to "..localization_util.translate(spell1).." > "..localization_util.translate(spell2)
+
+            self.weapon_skill_settings:saveSettings(true)
+        end
+    else
         success = false
         message = "No spells found to make skillchain of element "..(element or 'nil')
-    else
-        success = true
-        message = "Setting skillchain to "..localization_util.translate(spell1).." > "..localization_util.translate(spell2)
-
-        windower.send_command('input // trust sc clear')
-        windower.send_command('input // trust sc set 1 '..spell1)
-        windower.send_command('input // trust sc set 2 '..spell2)
     end
 
     return success, message
