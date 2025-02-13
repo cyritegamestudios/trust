@@ -43,7 +43,6 @@ function SongSetsMenuItem.new(trustSettings, trustSettingsMode, trustModeSetting
     self.contentViewConstructor = function(_, _)
         local songSets = trustSettings:getSettings()[trustSettingsMode.value].SongSettings.SongSets
         local songSetNames = L(T(songSets):keyset()):sort()
-        print(state.SongSet.value, songSetNames)
 
         local configItem = MultiPickerConfigItem.new("SongSets", L{ state.SongSet.value }, songSetNames, function(value)
             return tostring(value)
