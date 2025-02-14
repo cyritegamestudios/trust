@@ -38,6 +38,7 @@ function GameCommand:getInputText(prefix, abilityName, targetId)
         if i18n.current_locale() == i18n.Locale.Japanese then
             return windower.to_shift_jis(string.format("%s %s %d", prefix, abilityName, targetId))
         else
+            -- FIXME: when JP user sets locale to english
             return string.format("%s \"%s\" %d", prefix, abilityName, targetId)
         end
     else
