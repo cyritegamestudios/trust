@@ -8,11 +8,12 @@ local ScholarTrustCommands = setmetatable({}, {__index = TrustCommands })
 ScholarTrustCommands.__index = ScholarTrustCommands
 ScholarTrustCommands.__class = "ScholarTrustCommands"
 
-function ScholarTrustCommands.new(trust, action_queue, trust_settings)
+function ScholarTrustCommands.new(trust, action_queue, trust_settings, weapon_skill_settings)
     local self = setmetatable(TrustCommands.new(), ScholarTrustCommands)
 
     self.trust = trust
     self.trust_settings = trust_settings
+    self.weapon_skill_settings = weapon_skill_settings
     self.action_queue = action_queue
 
     self:add_command('sc', self.handle_skillchain, 'Make a skillchain using immanence', L{
@@ -24,6 +25,10 @@ function ScholarTrustCommands.new(trust, action_queue, trust_settings)
     self:add_command('storm', self.handle_storm, 'Set storm element for self and party', L{
         PickerConfigItem.new('storm_element_name', storm_elements[1], storm_elements, function(v) return v:gsub("^%l", string.upper) end, "Storm Element"),
         PickerConfigItem.new('include_party', "false", L{ "false", "true" }, nil, "Include Party")
+    })
+
+    self:add_command('set', self.handle_set_skillchain, 'Set the skillchain using immanence', L{
+        PickerConfigItem.new('skillchain_property', skillchain_util.all_skillchain_properties()[1], skillchain_util.all_skillchain_properties(), nil, "Skillchain Property")
     })
 
     return self
@@ -58,7 +63,7 @@ function ScholarTrustCommands:get_spells(element)
     elseif element == "induration" then
         return "Water", "Blizzard"
     elseif element == "impaction" then
-        return "Water", "Thunder"
+        return "Water", "Ionohelix"
     elseif element == "transfixion" then
         return "Noctohelix", "Luminohelix"
     elseif element == "compression" then
@@ -66,7 +71,7 @@ function ScholarTrustCommands:get_spells(element)
     elseif element == "fragmentation" then
         return "Blizzard", "Water"
     elseif element == "fusion" then
-        return "Fire", "Thunder"
+        return "Fire", "Ionohelix"
     elseif element == "gravitation" then
         return "Aero", "Noctohelix"
     elseif element == "distortion" then
@@ -135,6 +140,35 @@ function ScholarTrustCommands:handle_skillchain(_, element)
 
             message = "Starting skillchain "..localization_util.translate(spell1).." > "..localization_util.translate(spell2).." = "..localization_util.translate(element)
         end
+    end
+
+    return success, message
+end
+
+-- // trust sch set [liquefaction|scission|reverberation|detontation|induration|impaction|transfixion|compression|fragmentation|fusion|gravitation|distortion]
+function ScholarTrustCommands:handle_set_skillchain(_, element)
+    local success
+    local message
+
+    element = windower.convert_auto_trans(element)
+    local spell1, spell2 = self:get_spells(element)
+    if spell1 and spell2 then
+        local current_settings = self.weapon_skill_settings:getSettings()[state.WeaponSkillSettingsMode.value]
+        if current_settings then
+            for i = 1, current_settings.Skillchain:length() do
+                current_settings.Skillchain[i] = SkillchainAbility.skip()
+            end
+            current_settings.Skillchain[1] = ElementalMagic.new(spell1, L{ StrategemCountCondition.new(2, Condition.Operator.GreaterThanOrEqualTo) })
+            current_settings.Skillchain[2] = ElementalMagic.new(spell2, L{})
+
+            success = true
+            message = "Setting skillchain to "..localization_util.translate(spell1).." > "..localization_util.translate(spell2)
+
+            self.weapon_skill_settings:saveSettings(true)
+        end
+    else
+        success = false
+        message = "No spells found to make skillchain of element "..(element or 'nil')
     end
 
     return success, message
@@ -242,6 +276,7 @@ function ScholarTrustCommands:get_all_commands()
     for skillchain_property in skillchain_util.all_skillchain_properties():it() do
         if not skillchain_property:contains('Light') and not skillchain_property:contains('Dark') then
             result:append('// trust sch sc '..skillchain_property:lower())
+            result:append('// trust sch set '..skillchain_property:lower())
         end
     end
 

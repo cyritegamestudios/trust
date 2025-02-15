@@ -37,7 +37,7 @@ function WeaponSkillCommand:run(sendInChat)
     else
         local weaponSkill = res.weapon_skills:with('en', self.weaponSkillName)
 
-        local inputText = self:getInputText(weaponSkill.prefix, weaponSkill.en, targetId)
+        local inputText = self:getInputText(weaponSkill.prefix, i18n.resource('weapon_skills', 'en', self.weaponSkillName, i18n.current_gearswap_locale()), targetId)
         windower.chat.input(inputText)
     end
 end

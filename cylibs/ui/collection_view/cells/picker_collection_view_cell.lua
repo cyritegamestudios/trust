@@ -97,7 +97,7 @@ function PickerCollectionViewCell:showPickerView()
     local item = self:getItem()
     if item:allowsMultipleSelection() then
         local menuItem = MenuItem.new(L{
-            ButtonItem.default('Confirm'),
+            ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
             ButtonItem.default('Clear All'),
         }, {}, function(_, _)
             local initialValue = item:getCurrentValue()
@@ -116,7 +116,6 @@ function PickerCollectionViewCell:showPickerView()
 
                 self:getItem():getOnPickItems()(self:getItem():getCurrentValue())
             end)
-            pickerView:setShouldRequestFocus(true)
             return pickerView
         end, item:getPickerTitle() or "Choose", item:getPickerDescription() or "Choose one or more values.")
 

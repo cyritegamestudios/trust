@@ -97,6 +97,8 @@ function JobAbilitiesSettingsEditor:setVisible(visible)
 end
 
 function JobAbilitiesSettingsEditor:reloadSettings()
+    local previousCursorIndexPath = self:getDelegate():getCursorIndexPath() or IndexPath.new(1, 1)
+
     self:getDataSource():removeAllItems()
 
     local items = L{}
@@ -121,7 +123,7 @@ function JobAbilitiesSettingsEditor:reloadSettings()
     self:getDataSource():addItems(items)
 
     if self.jobAbilities:length() > 0 then
-        self:getDelegate():selectItemAtIndexPath(IndexPath.new(1, 1))
+        self:getDelegate():selectItemAtIndexPath(IndexPath.new(1, math.min(previousCursorIndexPath.row, self.jobAbilities:length())))
     end
 
     self:layoutIfNeeded()

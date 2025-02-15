@@ -4,9 +4,6 @@ Keybind.__type = "Keybind"
 
 function Keybind.new(key, flags, enable_in_chat)
     local self = setmetatable({}, Keybind)
-    if key == nil then
-        print(debug.traceback())
-    end
     self.key = key
     self.flags = flags or 0
     self.enable_in_chat = enable_in_chat

@@ -17,7 +17,6 @@ local PickerItem = require('cylibs/ui/collection_view/items/picker_item')
 local SectionHeaderItem = require('cylibs/ui/collection_view/items/section_header_item')
 local SliderCollectionViewCell = require('cylibs/ui/collection_view/cells/slider_collection_view_cell')
 local SliderItem = require('cylibs/ui/collection_view/items/slider_item')
-local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextConfigItem = require('ui/settings/editors/config/TextConfigItem')
 local TextFieldCollectionViewCell = require('cylibs/ui/collection_view/cells/text_field_collection_view_cell')
 local TextFieldItem = require('cylibs/ui/collection_view/items/text_field_item')
@@ -369,8 +368,9 @@ function ConfigEditor:onConfirmClick(skipSave)
         end
     end
 
-    if not self.validator(self.configSettings) then
-        self:onConfigValidationError():trigger()
+    local isValid, errorMessage = self.validator(self.configSettings)
+    if not isValid then
+        self:onConfigValidationError():trigger(errorMessage)
         return
     end
 

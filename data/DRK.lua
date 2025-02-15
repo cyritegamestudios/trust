@@ -56,8 +56,13 @@ return {
                 Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("DRK")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"Food"})
             }
         },
+        ReactionSettings = {
+            Gambits = L{
+            }
+        },
         GearSwapSettings = {
-            Enabled = true
+            Enabled = true,
+            Language = "en"
         },
     }
 }

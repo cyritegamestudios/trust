@@ -51,7 +51,7 @@ end
 
 function HealerSettingsMenuItem:getConfigMenuItem()
     local curesMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
         ButtonItem.default('Reset', 18),
     }, L{}, function(menuArgs, infoView)
         local cureSettings = self.trustSettings:getSettings()[self.trustSettingsMode.value].CureSettings
@@ -101,7 +101,7 @@ end
 
 function HealerSettingsMenuItem:getBlacklistMenuItem()
     local statusRemovalMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
         ButtonItem.default('Clear All', 18),
     }, {},
     function()

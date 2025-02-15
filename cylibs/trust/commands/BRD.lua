@@ -1,3 +1,4 @@
+local ActionQueue = require('cylibs/actions/action_queue')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local SongValidator = require('cylibs/entity/jobs/bard/song_validator')
 
@@ -11,12 +12,23 @@ function BardTrustCommands.new(trust, action_queue)
 
     self.trust = trust
     self.action_queue = action_queue
+    self.debug_action_queue = ActionQueue.new(nil, true, 20, false, false)
+    self.debug_action_queue:enable()
 
     self:add_command('sing', self.handle_sing, 'Sings songs, optionally with nitro', L{
         PickerConfigItem.new('use_nitro', "true", L{ "true", "false" }, nil, "Use Nitro")
     })
     self:add_command('clear', self.handle_clear_songs, 'Clears the list of tracked songs')
     self:add_command('validate', self.handle_validate_songs, 'Runs diagnostics to validate songs are working properly')
+    self:add_command('set', self.handle_set_song_set, 'Sets the current song set', L{
+        PickerConfigItem.new('set_name', state.SongSet.value, L(state.SongSet:options()), nil, "Song Set Name")
+    })
+
+    trust:on_trust_settings_changed():addAction(function(_, new_trust_settings)
+        self:add_command('set', self.handle_set_song_set, 'Sets the current song set', L{
+            PickerConfigItem.new('set_name', state.SongSet.value, L(state.SongSet:options()), nil, "Song Set Name")
+        })
+    end)
 
     return self
 end
@@ -50,6 +62,22 @@ function BardTrustCommands:handle_set_song_target(_, party_member_name)
         success = false
         message = "Invalid party member "..(party_member_name or 'nil')
     end
+    return success, message
+end
+
+function BardTrustCommands:handle_set_song_set(_, set_name)
+    local success
+    local message
+
+    if L(state.SongSet:options()):contains(set_name) then
+        state.SongSet:set(set_name)
+        success = true
+        message = nil
+    else
+        success = false
+        message = "Invalid song set name "..(set_name or 'nil').."."
+    end
+
     return success, message
 end
 
@@ -133,7 +161,7 @@ function BardTrustCommands:handle_validate_songs()
 
     self.action_queue:clear()
 
-    local song_validator = SongValidator.new(singer, self.action_queue)
+    local song_validator = SongValidator.new(singer, self.debug_action_queue)
     song_validator:validate()
 
     success = true

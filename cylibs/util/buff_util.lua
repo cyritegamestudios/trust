@@ -234,13 +234,13 @@ end
 -- @tparam number spell_id Spell id (see spells.lua)
 -- @treturn BuffMetadata Full metadata for the debuff (see buffs.lua)
 function buff_util.debuff_for_spell(spell_id)
-	local spell = res.spells:with('id', spell_id)
+	local spell = res.spells[spell_id]
 	if spell then
 		if spell.status == nil then
-			spell = spells_ext:with('id', spell_id)
+			spell = spells_ext[spell_id]
 		end
 		if spell and spell.status then
-			return res.buffs:with('id', spell.status)
+			return res.buffs[spell.status]
 		end
 	end
 	return nil
@@ -275,14 +275,14 @@ end
 -- @treturn BuffMetadata Full metadata for the buff (see buffs.lua)
 function buff_util.buff_for_spell(spell_id)
 	if spell_id_to_buff[spell_id] then
-		return res.buffs:with('id', spell_id_to_buff[spell_id])
+		return res.buffs[spell_id_to_buff[spell_id]]
 	else
-		local spell = res.spells:with('id', spell_id)
+		local spell = res.spells[spell_id]
 		if spell.status == nil then
-			spell = spells_ext:with('id', spell_id)
+			spell = spells_ext[spell_id]
 		end
 		if spell ~= nil then
-			return res.buffs:with('id', spell.status)
+			return res.buffs[spell.status]
 		end
 		return nil
 	end

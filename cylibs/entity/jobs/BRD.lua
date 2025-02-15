@@ -89,7 +89,7 @@ end
 -- @treturn number Number of songs
 function Bard:get_max_num_songs(include_clarion_call, current_num_bard_songs)
     local max_num_songs = self.max_num_songs
-    if not self.gear_swap_enabled then
+    if not self.gear_swap_enabled or self:getLevel() < 99 then
         max_num_songs = 2
     end
     local current_num_bard_songs = current_num_bard_songs or self:get_song_buff_ids():length()
@@ -156,6 +156,19 @@ function Bard:get_extra_song_instrument_ids()
         22306, -- Loughnashade
         22307, -- Loughnashade
     }
+end
+
+function Bard:validate_songs(song_names, dummy_song_name)
+    if S(song_names):length() ~= 5 then
+        return false, "You must pick 5 songs."
+    end
+    local buffsForSongs = S(song_names:map(function(song_name)
+        return buff_util.buff_for_spell(spell_util.spell_id(song_name)).id
+    end))
+    if set.intersection(S{ buff_util.buff_for_spell(spell_util.spell_id(dummy_song_name)).id }, buffsForSongs):length() > 0 then
+        return false, "Dummy song cannot give the same status effect as real songs."
+    end
+    return true, nil
 end
 
 -------

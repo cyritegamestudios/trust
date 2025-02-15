@@ -49,6 +49,10 @@ function Trust:init()
 		if gambiter then
 			gambiter:set_gambit_settings(new_trust_settings.GambitSettings)
 		end
+		local reacter = self:role_with_type("reacter")
+		if reacter then
+			reacter:set_gambit_settings(new_trust_settings.ReactionSettings)
+		end
 		local targeter = self:role_with_type("targeter")
 		if targeter then
 			targeter:set_target_settings(new_trust_settings.TargetSettings)

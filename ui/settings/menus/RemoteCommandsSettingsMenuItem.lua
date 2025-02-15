@@ -69,7 +69,7 @@ end
 
 function RemoteCommandsSettingsMenuItem:getAddPlayerMenuItem(addonSettings)
     local addPlayerMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm'),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
     }, {
         Confirm = MenuItem.action(function(menu)
             menu:showMenu(self)

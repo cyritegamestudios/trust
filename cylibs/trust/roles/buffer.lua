@@ -6,7 +6,7 @@ Buffer.__index = Buffer
 Buffer.__class = "Buffer"
 
 function Buffer.new(action_queue, buff_settings, state_var, job)
-    local self = setmetatable(Gambiter.new(action_queue, {}, nil, state_var or state.AutoBuffMode, true), Buffer)
+    local self = setmetatable(Gambiter.new(action_queue, {}, state_var or state.AutoBuffMode), Buffer)
 
     self.job = job
 
@@ -47,6 +47,10 @@ end
 
 function Buffer:allows_duplicates()
     return true
+end
+
+function Buffer:allows_multiple_actions()
+    return false
 end
 
 function Buffer:get_type()

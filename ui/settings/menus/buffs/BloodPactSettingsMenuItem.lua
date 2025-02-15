@@ -38,7 +38,7 @@ end
 
 function BloodPactSettingsMenuItem:getBuffsMenuItem()
     local indicolureMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
     }, L{}, function(_)
         local allBloodPacts = self.job:get_blood_pact_wards(function(bloodPact)
             return buff_util.buff_for_job_ability(bloodPact.id) ~= nil and not S(bloodPact.targets):contains('Enemy')

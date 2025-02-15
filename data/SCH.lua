@@ -10,7 +10,7 @@ return {
                 Gambit.new("Self", L{StrategemCountCondition.new(2, ">="), MainJobCondition.new("SCH")}, Buff.new("Regen", L{"Accession", "Perpetuance"}, L{}, nil, L{StrategemCountCondition.new(2, ">=")}), "Self", L{"Buffs"}),
                 Gambit.new("Self", L{StrategemCountCondition.new(1, ">="), HasBuffsCondition.new(L{ 'Dark Arts', 'Addendum: Black' }, 1)}, Spell.new("Klimaform", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
                 Gambit.new("Self", L{HasBuffsCondition.new(L{ 'Light Arts', 'Addendum: White' }, 1)}, Spell.new("Aurorastorm II", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
-                Gambit.new("Ally", L{JobCondition.new(L{"BLM", "RDM", "GEO"}), NotCondition.new(L{IsAlterEgoCondition.new()})}, Spell.new("Thunderstorm II", L{}, L{}, nil, L{}), "Ally", L{"Buffs"})
+                Gambit.new("Ally", L{JobCondition.new(L{"BLM", "RDM", "GEO"}), NotCondition.new(L{IsAlterEgoCondition.new()})}, Spell.new("Thunderstorm II", L{}, L{}, nil, L{}), "Ally", L{"Buffs"}),
             }
         },
         StrategemCooldown = 33,
@@ -89,21 +89,21 @@ return {
                 Gambit.new("Self", L{ModeCondition.new("AutoArtsMode", "DarkArts"), NotCondition.new(L{HasBuffsCondition.new(L{"Dark Arts", "Addendum: Black"}, 1)})}, JobAbility.new("Dark Arts", L{}, L{}), "Self", L{}),
                 Gambit.new("Self", L{ModeCondition.new("AutoArtsMode", "LightArts"), NotCondition.new(L{HasBuffsCondition.new(L{"Light Arts", "Addendum: White"}, 1)})}, JobAbility.new("Light Arts", L{}, L{}), "Self", L{}),
                 Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Addendum: Black")}), HasBuffCondition.new("Dark Arts"), StrategemCountCondition.new(1, ">=")}, JobAbility.new("Addendum: Black", L{}, L{}), "Self", L{}),
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Addendum: White")}), HasBuffCondition.new("Light Arts"), StrategemCountCondition.new(1, ">=")}, JobAbility.new("Addendum: White", L{}, L{}), "Self", L{})
+                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Addendum: White")}), HasBuffCondition.new("Light Arts"), StrategemCountCondition.new(1, ">=")}, JobAbility.new("Addendum: White", L{}, L{}), "Self", L{}),
+                Gambit.new("Self", L{CombatSkillsCondition.new(L{"Staff"}), MaxManaPointsPercentCondition.new(40), MinTacticalPointsCondition.new(1000), ModeCondition.new("AutoRestoreManaMode", "Auto")}, WeaponSkill.new("Myrkr", L{MinTacticalPointsCondition.new(1000)}), "Self", L{"Weaponskill"}),
+                Gambit.new("Self", L{CombatSkillsCondition.new(L{"Staff"}), MaxManaPointsPercentCondition.new(40), MinTacticalPointsCondition.new(1000), StatusCondition.new("Engaged", 2, ">="), ModeCondition.new("AutoRestoreManaMode", "Auto")}, WeaponSkill.new("Spirit Taker", L{MinTacticalPointsCondition.new(1000)}), "Self", L{"Weaponskill"})
             },
             Gambits = L{
                 Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("SCH")}, UseItem.new("Tropical Crepe", L{ItemCountCondition.new("Tropical Crepe", 1, ">=")}), "Self", L{"Food"})
             },
         },
-        DarkArts = {
-            BuffSettings = {
-                Gambits = L{
-
-                }
+        ReactionSettings = {
+            Gambits = L{
             }
         },
         GearSwapSettings = {
-            Enabled = true
+            Enabled = true,
+            Language = "en"
         },
     }
 }

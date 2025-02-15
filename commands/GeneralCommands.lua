@@ -230,6 +230,33 @@ end
 
 -- // trust debug
 function GeneralTrustCommands:handle_debug()
+    local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
+    local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
+
+    local spells = L(player.trust.main_job:get_job():get_spells(function(spellId)
+        local spell = res.spells[spellId]
+        return spell and spell.element ~= 15
+    end):map(function(spellId)
+        return Spell.new(res.spells[spellId].en)
+    end)):unique(function(spell)
+        return spell:get_name()
+    end)
+
+    local abilityPickerItem = MultiPickerConfigItem.new('abilities', L{}, spells, function(ability)
+        return ability:get_localized_name()
+    end, "Choose an ability.", nil, function(ability)
+        return AssetManager.imageItemForAbility(ability:get_name())
+    end, function(ability)
+        return ability:get_localized_name()
+    end)
+
+    local FFXIFastPickerView = require('ui/themes/ffxi/FFXIFastPickerView')
+
+    local pickerView = FFXIFastPickerView.new(L{ abilityPickerItem })
+    pickerView:setVisible(true)
+    pickerView:setPosition(20, 50)
+    pickerView:setNeedsLayout()
+    pickerView:layoutIfNeeded()
 
     local Items = require('resources/items')
     local test = Items.new()

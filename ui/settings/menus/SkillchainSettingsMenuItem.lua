@@ -86,7 +86,7 @@ end
 
 function SkillchainSettingsMenuItem:getEditSkillchainStepMenuItem()
     local editSkillchainStepMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
         ButtonItem.default('Conditions', 18),
     }, {
         Conditions = self.conditionSettingsMenuItem,
@@ -158,10 +158,10 @@ end
 function SkillchainSettingsMenuItem:getAbilitiesMenuItem()
     local jobAbilitiesMenuItem = JobAbilitiesSettingsMenuItem.new(self.weaponSkillSettings, self.weaponSkillSettingsMode)
     jobAbilitiesMenuItem.titleText = "Skillchains"
-    jobAbilitiesMenuItem.descriptionText = "Choose abilities to use before a weapon skill during a skillchain."
-    jobAbilitiesMenuItem.enabled = function()
-        return self.selectedAbility and not S{ SkillchainAbility.Auto, SkillchainAbility.Skip }:contains(self.selectedAbility:get_name())
-    end
+    jobAbilitiesMenuItem.descriptionText = "Choose abilities to use before each step in the skillchain."
+    --jobAbilitiesMenuItem.enabled = function()
+    --    return self.selectedAbility and not S{ SkillchainAbility.Auto, SkillchainAbility.Skip }:contains(self.selectedAbility:get_name())
+    --end
     return jobAbilitiesMenuItem
 end
 

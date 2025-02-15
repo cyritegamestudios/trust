@@ -26,9 +26,14 @@ function BeginCastCondition:is_satisfied(target_index, spell_name)
 end
 
 function BeginCastCondition:get_config_items()
-    local all_spell_names = res.spells:with_all('type', 'BlackMagic'):map(function(spell)
-        return spell.en
-    end)
+    local all_spell_names = L{}
+
+    local spell_types = L{ 'BlackMagic', 'WhiteMagic' }
+    for type in spell_types:it() do
+        all_spell_names = all_spell_names + res.spells:with_all('type', type):map(function(spell)
+            return spell.en
+        end)
+    end
     all_spell_names = L(S(all_spell_names))
     all_spell_names:sort()
     return L{
@@ -46,7 +51,7 @@ function BeginCastCondition.description()
 end
 
 function BeginCastCondition.valid_targets()
-    return S{ Condition.TargetType.Ally }
+    return S{ Condition.TargetType.Ally, Condition.TargetType.Enemy }
 end
 
 function BeginCastCondition:serialize()

@@ -281,6 +281,8 @@ end
 -------
 -- Resets song records.
 function SongTracker:reset(target_id)
+    self.last_song_id = nil
+
     local reset_all = target_id == nil
     for t_id, target_songs in pairs(self.active_songs) do
         if reset_all or target_id == t_id then

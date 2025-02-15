@@ -3,7 +3,8 @@ return {
     Version = 2,
     Default = {
         Shooter = {
-            Delay = 1.5
+            Delay = 1.5,
+            MaxTP = 1000,
         },
         Roll1 = Roll.new("Chaos Roll", true),
         Roll2 = Roll.new("Samurai Roll", false),
@@ -43,8 +44,13 @@ return {
                 Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("COR")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"Food"})
             }
         },
+        ReactionSettings = {
+            Gambits = L{
+            }
+        },
         GearSwapSettings = {
-            Enabled = true
+            Enabled = true,
+            Language = "en"
         },
     }
 }

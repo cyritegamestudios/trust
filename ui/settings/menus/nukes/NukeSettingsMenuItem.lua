@@ -40,7 +40,7 @@ function NukeSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trust
         --    return "Inflicts: "..i18n.resource('buffs', 'en', debuff.en).."."
         --end
         --return nil
-    end), NukeSettingsMenuItem)
+    end, S{ 'Reaction' }), NukeSettingsMenuItem)
     self:setDefaultGambitTags(L{'Nukes'})
 
     self:getDisposeBag():add(self:onGambitChanged():addAction(function(newGambit, oldGambit)
@@ -64,7 +64,7 @@ end
 
 function NukeSettingsMenuItem:getBlacklistMenuItem()
     local nukeElementBlacklistMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
         ButtonItem.default('Clear All', 18),
     }, {},
             function()
@@ -108,7 +108,7 @@ end
 
 function NukeSettingsMenuItem:getConfigMenuItem()
     local nukeConfigMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
     }, {},
             function()
                 local allSettings = T(self.trustSettings:getSettings())[self.trustSettingsMode.value]

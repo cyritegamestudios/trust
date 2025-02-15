@@ -18,7 +18,7 @@ function ModesMenuItem.new(trustModeSettings, description, modeNames, showModeNa
     end)
 
     local self = setmetatable(MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
         ButtonItem.default('Save', 18),
         ButtonItem.localized('Info', i18n.translate('Button_Info')),
     }, {},

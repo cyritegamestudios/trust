@@ -37,7 +37,7 @@ function JobAbilityCommand:run(sendInChat)
     else
         local jobAbility = res.job_abilities:with('en', self.jobAbilityName)
 
-        local inputText = self:getInputText(jobAbility.prefix, jobAbility.en, targetId)
+        local inputText = self:getInputText(jobAbility.prefix, i18n.resource('job_abilities', 'en', self.jobAbilityName, i18n.current_gearswap_locale()), targetId)
         windower.chat.input(inputText)
     end
 end

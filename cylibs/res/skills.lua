@@ -180,6 +180,7 @@ skills.weapon_skills = {
     [187] = {en='Garland of Bliss',skillchain={'Fusion','Reverberation'}},
     [188] = {en='Omniscience',skillchain={'Gravitation','Transfixion'}},
     [189] = {en='Cataclysm',skillchain={'Compression','Reverberation'}},
+    [190] = {en="Myrkr",skillchain={}},
     [191] = {en='Shattersoul',skillchain={'Gravitation','Induration'},aeonic='Darkness',weapon='Khatvanga'},
     [192] = {en='Flaming Arrow',skillchain={'Liquefaction','Transfixion'}},
     [193] = {en='Piercing Arrow',skillchain={'Reverberation','Transfixion'}},

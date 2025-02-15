@@ -27,7 +27,7 @@ state.AutoNukeMode:set_description('Mirror', "Okay, I'll free nuke when the pers
 -- @tparam List job_ability_names List of job abilities to use with spells (e.g. Cascade, Ebullience)
 -- @treturn Nuker A nuker role
 function Nuker.new(action_queue, nuke_settings, fast_cast, job_ability_names, job)
-    local self = setmetatable(Gambiter.new(action_queue, {}, nil, state.AutoNukeMode, true), Nuker)
+    local self = setmetatable(Gambiter.new(action_queue, {}, state.AutoNukeMode), Nuker)
 
     self.fast_cast = fast_cast or 0.8
     self.job = job

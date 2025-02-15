@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '13.3.6'
+_addon.version = '13.5.7'
 _addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 
@@ -14,7 +14,7 @@ function load_user_files(main_job_id, sub_job_id)
 
 	addon_system_message("Loaded Trust v".._addon.version)
 
-	action_queue = ActionQueue.new(nil, true, 5, false, true)
+	action_queue = ActionQueue.new(nil, true, 5, false, true, true)
 
 	addon_enabled = ValueRelay.new(false)
 	addon_enabled:onValueChanged():addAction(function(_, isEnabled)
@@ -68,6 +68,7 @@ function load_user_files(main_job_id, sub_job_id)
 	end
 
 	state.MainTrustSettingsMode:on_state_change():addAction(function(_, new_value)
+		i18n.set_current_gearswap_locale(player.trust.main_job_settings[new_value].GearSwapSettings.Language or i18n.Locale.English)
 		player.trust.main_job:set_trust_settings(player.trust.main_job_settings[new_value])
 	end)
 
@@ -94,7 +95,8 @@ function load_user_files(main_job_id, sub_job_id)
 		player.trust.main_job:add_role(Puller.new(action_queue, player.trust.main_job_settings.Default.PullSettings))
 	end
 
-	player.trust.main_job:add_role(Gambiter.new(action_queue, player.trust.main_job_settings.Default.GambitSettings, skillchainer))
+	player.trust.main_job:add_role(Reacter.new(action_queue, player.trust.main_job_settings.Default.ReactionSettings, skillchainer))
+	player.trust.main_job:add_role(Gambiter.new(action_queue, player.trust.main_job_settings.Default.GambitSettings))
 	player.trust.main_job:add_role(Targeter.new(action_queue, main_trust_settings))
 	player.trust.main_job:add_role(Attacker.new(action_queue))
 	player.trust.main_job:add_role(CombatMode.new(action_queue, addon_settings:getSettings().battle.melee_distance, addon_settings:getSettings().battle.range_distance, addon_enabled))
@@ -107,7 +109,8 @@ function load_user_files(main_job_id, sub_job_id)
 	player.trust.main_job:add_role(Aftermather.new(action_queue, player.trust.main_job:role_with_type("skillchainer")))
 
 	if player.sub_job_name_short ~= 'NON' then
-		player.trust.sub_job:add_role(Gambiter.new(action_queue, player.trust.sub_job_settings.Default.GambitSettings, skillchainer))
+		player.trust.sub_job:add_role(Reacter.new(action_queue, player.trust.sub_job_settings.Default.ReactionSettings, skillchainer))
+		player.trust.sub_job:add_role(Gambiter.new(action_queue, player.trust.sub_job_settings.Default.GambitSettings))
 	end
 
 	player.trust.main_job:on_trust_roles_changed():addAction(function(trust, roles_added, roles_removed)
@@ -215,13 +218,16 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_name_short,
 	local common_commands = L{
 		AssistCommands.new(main_job_trust, action_queue),
 		AttackCommands.new(main_job_trust, action_queue),
+		state.AutoBuffMode and BuffCommands.new(),
 		FollowCommands.new(main_job_trust, action_queue),
 		GeneralCommands.new(main_job_trust, action_queue, addon_enabled, trust_mode_settings, main_trust_settings, sub_trust_settings),
+		state.AutoHealMode and HealCommands.new(),
+		state.AutoStatusRemovalMode and StatusRemovalCommands.new(),
 		LoggingCommands.new(main_job_trust, action_queue),
-		MagicBurstCommands.new(main_job_trust, main_trust_settings, action_queue),
+		state.AutoMagicBurstMode and MagicBurstCommands.new(main_job_trust, main_trust_settings, action_queue),
 		MenuCommands.new(main_job_trust, action_queue, hud),
 		MountCommands.new(main_job_trust, main_job_trust:role_with_type("follower").walk_action_queue),
-		NukeCommands.new(main_job_trust, main_trust_settings, action_queue),
+		state.AutoNukeMode and NukeCommands.new(main_job_trust, main_trust_settings, action_queue),
 		PathCommands.new(main_job_trust, action_queue),
 		ProfileCommands.new(main_trust_settings, sub_trust_settings, trust_mode_settings, weapon_skill_settings),
 		PullCommands.new(main_job_trust, action_queue, main_job_trust:role_with_type("puller") or sub_job_trust:role_with_type("puller")),
@@ -233,7 +239,7 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_name_short,
 		TargetCommands.new(main_trust_settings, state.MainTrustSettingsMode),
 		WarpCommands.new(main_job_trust:role_with_type("follower").walk_action_queue),
 		WidgetCommands.new(main_job_trust, action_queue, addon_settings, widgets.widgetManager),
-	}:extend(get_job_commands(job_name_short, main_job_trust, action_queue, main_trust_settings)):extend(get_job_commands(sub_job_name_short, sub_job_trust, action_queue, sub_trust_settings))
+	}:compact_map():extend(get_job_commands(job_name_short, main_job_trust, action_queue, main_trust_settings, weapon_skill_settings)):extend(get_job_commands(sub_job_name_short, sub_job_trust, action_queue, sub_trust_settings, weapon_skill_settings))
 
 	hud:setCommands(common_commands)
 
@@ -249,7 +255,8 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_name_short,
 
 	command_widget = CommandWidget.new()
 	command_widget:setPosition(16, windower.get_windower_settings().ui_y_res - 233)
-	command_widget:setUserInteractionEnabled(false)
+	command_widget:setUserInteractionEnabled(true)
+	command_widget:setAllowsMultipleSelection(false)
 	command_widget:setVisible(false)
 
 	local all_commands = L{}
@@ -325,16 +332,16 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_name_short,
 	end)
 end
 
-function get_job_commands(job_name_short, trust, action_queue, main_trust_settings, sub_trust_settings)
+function get_job_commands(job_name_short, trust, action_queue, main_trust_settings, weapon_skill_settings)
 	local root_paths = L{windower.windower_path..'addons/libs/', windower.addon_path}
 	for root_path in root_paths:it() do
 		local file_prefix = root_path..'cylibs/trust/commands/'..job_name_short
 		if windower.file_exists(file_prefix..'_'..windower.ffxi.get_player().name..'.lua') then
 			local TrustCommands = require('cylibs/trust/commands/'..job_name_short..'_'..windower.ffxi.get_player().name)
-			return L{ TrustCommands.new(trust, action_queue, main_trust_settings) }
+			return L{ TrustCommands.new(trust, action_queue, main_trust_settings, weapon_skill_settings) }
 		elseif windower.file_exists(file_prefix..'.lua') then
 			local TrustCommands = require('cylibs/trust/commands/'..job_name_short)
-			return L{ TrustCommands.new(trust, action_queue, main_trust_settings) }
+			return L{ TrustCommands.new(trust, action_queue, main_trust_settings, weapon_skill_settings) }
 		end
 	end
 	return L{}

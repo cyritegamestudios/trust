@@ -68,7 +68,7 @@ end
 
 function ConditionSettingsMenuItem:getAddConditionMenuItem(parentMenuItem)
     local addConditionsMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
     }, {}, function(_, _, _)
         local conditionClasses = L(self.editableConditionClasses:keyset())
         conditionClasses:sort()
@@ -97,7 +97,7 @@ end
 
 function ConditionSettingsMenuItem:getEditConditionMenuItem()
     local editConditionMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
     }, L{}, function(_, infoView, showMenu)
         local selectedCondition = self:getSelectedCondition()
         if selectedCondition.__type == NotCondition.__type then
@@ -253,6 +253,7 @@ function ConditionSettingsMenuItem:getEditableConditionClasses()
         [BeginCastCondition.__type] = "begin_cast",
         [HasCumulativeMagicEffectCondition.__type] = "has_cumulative_magic_effect",
         [StatusCondition.__type] = "status",
+        [ActionCondition.__type] = "action",
     }
 end
 

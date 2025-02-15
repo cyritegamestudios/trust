@@ -124,14 +124,22 @@ function TrustAddonSettings.new()
     return self
 end
 
+function TrustAddonSettings:loadFile()
+    return coroutine.create(function()
+        local settings = config.load(default)
+        coroutine.yield(settings)
+    end)
+end
+
 function TrustAddonSettings:loadSettings()
-    self.settings = config.load(default)
+    local _, settings = coroutine.resume(self:loadFile())
+    self.settings = settings
     self:onSettingsChanged():trigger(self.settings)
     return self.settings
 end
 
 function TrustAddonSettings:reloadSettings()
-    return self:loadSettings(false)
+    return self:loadSettings()
 end
 
 function TrustAddonSettings:saveSettings(saveToFile)

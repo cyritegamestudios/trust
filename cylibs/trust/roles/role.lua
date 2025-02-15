@@ -1,9 +1,10 @@
 local Role = {}
 Role.__index = Role
 
-function Role.new(action_queue)
+function Role.new(action_queue, job)
     local self = setmetatable({
         action_queue = action_queue;
+        job = job;
         target_index = nil;
         last_tic_time = os.time();
     }, Role)
