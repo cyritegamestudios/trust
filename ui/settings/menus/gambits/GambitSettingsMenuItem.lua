@@ -80,7 +80,7 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
     self.conditionTargets = conditionTargets or L(Condition.TargetType.AllTargets)
     self.gambitTagBlacklist = gambitTagBlacklist or S{}
     self.editorConfig = editorStyle
-    self.modes = modes or L{ state.AutoGambitMode.value }
+    self.modes = modes or L{ state.AutoGambitMode }
     self.libraryCategoryFilter = libraryCategoryFilter
     self.conditionSettingsMenuItem = ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, nil, S(self.conditionTargets))
     self.defaultGambitTags = L{}
