@@ -255,7 +255,8 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_name_short,
 
 	command_widget = CommandWidget.new()
 	command_widget:setPosition(16, windower.get_windower_settings().ui_y_res - 233)
-	command_widget:setUserInteractionEnabled(false)
+	command_widget:setUserInteractionEnabled(true)
+	command_widget:setAllowsMultipleSelection(false)
 	command_widget:setVisible(false)
 
 	local all_commands = L{}

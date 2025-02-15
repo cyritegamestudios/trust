@@ -66,6 +66,7 @@ function Mouse:handleMouseEvent(type, x, y, delta)
     if hud.viewStack.currentView then
         allViews:push(hud.viewStack.currentView)
     end
+    allViews:push(command_widget)
     while not allViews:empty() do
         currentView = allViews:pop()
         if currentView:hitTest(x, y) then
