@@ -80,7 +80,7 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
     self.conditionTargets = conditionTargets or L(Condition.TargetType.AllTargets)
     self.gambitTagBlacklist = gambitTagBlacklist or S{}
     self.editorConfig = editorStyle
-    self.modes = modes or L{ state.AutoGambitMode.value }
+    self.modes = modes or L{ 'AutoGambitMode' }
     self.libraryCategoryFilter = libraryCategoryFilter
     self.conditionSettingsMenuItem = ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, nil, S(self.conditionTargets))
     self.defaultGambitTags = L{}
@@ -306,7 +306,7 @@ end
 
 function GambitSettingsMenuItem:getEditGambitMenuItem()
     local editGambitMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
         ButtonItem.default('Edit', 18),
         ButtonItem.default('Conditions', 18),
     }, {}, function(_, _, showMenu)
@@ -327,7 +327,7 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
     end)
 
     local editAbilityMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm'),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
     }, {
         Confirm = MenuItem.action(function(parent)
             --parent:showMenu(editGambitMenuItem)

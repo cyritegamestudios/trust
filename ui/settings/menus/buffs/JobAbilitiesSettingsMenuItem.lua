@@ -10,7 +10,7 @@ JobAbilitiesSettingsMenuItem.__index = JobAbilitiesSettingsMenuItem
 
 function JobAbilitiesSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsPrefix)
     local self = setmetatable(MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
         ButtonItem.default('Conditions', 18),
@@ -86,7 +86,7 @@ end
 
 function JobAbilitiesSettingsMenuItem:getAddAbilityMenuItem()
     local chooseJobAbilitiesItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
         ButtonItem.default('Clear', 18),
     }, {},
     function()

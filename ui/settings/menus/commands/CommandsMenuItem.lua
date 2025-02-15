@@ -33,7 +33,7 @@ function CommandsMenuItem:reloadSettings(commands)
         local commandName = command:get_localized_command_name():gsub("^%l", string.upper)
 
         local configureMenuItem = MenuItem.new(L{
-            ButtonItem.default('Confirm', 18)
+            ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
         }, {}, function(_, infoView)
             if self.selectedCommand then
                 local args = string.split(self.selectedCommand, " ")
@@ -59,7 +59,7 @@ function CommandsMenuItem:reloadSettings(commands)
         end, commandName, "Configure command.")
 
         local commandMenuItem = MenuItem.new(L{
-            ButtonItem.default('Confirm', 18),
+            ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
         }, {
             Confirm = configureMenuItem
         }, nil, commandName, "Choose a command.")

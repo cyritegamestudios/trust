@@ -10,7 +10,7 @@ AlterEgoSettingsMenuItem.__index = AlterEgoSettingsMenuItem
 
 function AlterEgoSettingsMenuItem.new(truster, trustModeSettings, addonSettings)
     local self = setmetatable(MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
         ButtonItem.default('Modes', 18),
     }, {}, nil, "Alter Egos", "Choose Alter Egos to call."), AlterEgoSettingsMenuItem)
 
@@ -32,7 +32,7 @@ function AlterEgoSettingsMenuItem.new(truster, trustModeSettings, addonSettings)
             local alterEgoName = allSettings[i]
             alterEgoSettings[alterEgoKey] = alterEgoName
             configItems:append(PickerConfigItem.new(alterEgoKey, alterEgoName, allAlterEgos, function(alterEgoName)
-                return alterEgoName, i18n.resource('spells', 'en', alterEgoName)
+                return i18n.resource('spells', 'en', alterEgoName)
             end, "Alter Ego "..i))
         end
 

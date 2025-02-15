@@ -10,7 +10,7 @@ ImportProfileMenuItem.__index = ImportProfileMenuItem
 
 function ImportProfileMenuItem.new(trustModeSettings, jobSettings, weaponSkillSettings, subJobSettings)
     local self = setmetatable(MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
         ButtonItem.default('Discord', 18),
     }, {
         Discord = MenuItem.action(function(menu, infoView)

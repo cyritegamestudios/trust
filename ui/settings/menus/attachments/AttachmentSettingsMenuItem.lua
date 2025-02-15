@@ -98,7 +98,7 @@ end
 
 function AttachmentSettingsMenuItem:getCreateSetMenuItem()
     local createSetMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
     }, {
         Confirm = MenuItem.action(function(menu)
             menu:showMenu(self)

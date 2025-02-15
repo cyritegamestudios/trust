@@ -11,7 +11,7 @@ FoodSettingsMenuItem.__index = FoodSettingsMenuItem
 
 function FoodSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSettings)
     local self = setmetatable(MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
         ButtonItem.localized('Modes', i18n.translate('Button_Modes')),
     }, {}, function(_, infoView)
         local allGambits = trustSettings:getSettings()[trustSettingsMode.value].GambitSettings.Gambits

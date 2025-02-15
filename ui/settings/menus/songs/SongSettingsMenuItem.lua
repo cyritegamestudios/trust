@@ -17,6 +17,7 @@ SongSettingsMenuItem.__index = SongSettingsMenuItem
 function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSettings, songSetName, trust)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
+        ButtonItem.default('Jobs'),
         ButtonItem.default('Pianissimo')
     }, {},
     nil, "Song Sets", "Edit songs in this set."), SongSettingsMenuItem)
@@ -135,6 +136,7 @@ function SongSettingsMenuItem:destroy()
 end
 
 function SongSettingsMenuItem:reloadSettings()
+    self:setChildMenuItem("Jobs", self:getJobsMenuItem())
     self:setChildMenuItem("Pianissimo", self:getPianissmoSongsMenuItem())
     self:setChildMenuItem("Reset", self:getResetSongsMenuItem())
     self:setChildMenuItem("Help", MenuItem.action(function()
@@ -142,9 +144,48 @@ function SongSettingsMenuItem:reloadSettings()
     end))
 end
 
+function SongSettingsMenuItem:getJobsMenuItem()
+    local editJobsMenuItem = MenuItem.new(L{
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
+        ButtonItem.default('Clear All'),
+    }, {}, function(_, _)
+        local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.SongSets[self.songSetName].Songs
+
+        local configItem = MultiPickerConfigItem.new("Jobs", songs[self.selectedSongIndex-1]:get_job_names(), job_util.all_jobs(), function(jobNameShort)
+            return i18n.resource('jobs', 'ens', jobNameShort)
+        end)
+
+        local jobsPickerView = FFXIPickerView.withConfig(configItem, true)
+
+        self.disposeBag:add(jobsPickerView:on_pick_items():addAction(function(_, newJobNames)
+            if newJobNames:length() > 0 then
+                local song = songs[self.selectedSongIndex-1]
+
+                local jobNames = song:get_job_names()
+                jobNames:clear()
+
+                for jobName in newJobNames:it() do
+                    jobNames:append(jobName)
+                end
+
+                self.trustSettings:saveSettings(true)
+                addon_system_message("Updated jobs for "..song:get_localized_name()..".")
+            end
+        end), jobsPickerView:on_pick_items())
+
+        return jobsPickerView
+    end, "Songs", "Choose jobs to maintain this song on.")
+
+    editJobsMenuItem.enabled = function()
+        return self.selectedSongIndex > 1
+    end
+
+    return editJobsMenuItem
+end
+
 function SongSettingsMenuItem:getPianissmoSongsMenuItem()
     local addPianissimoSongMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm'),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
     }, {}, function(_, _)
         local allSongs = self.trust:get_job():get_spells(function(spellId)
             local spell = res.spells[spellId]
@@ -177,7 +218,7 @@ function SongSettingsMenuItem:getPianissmoSongsMenuItem()
     end, "Pianissimo", "Add a new pianissimo song.")
 
     local editJobsMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
         ButtonItem.default('Clear All'),
     }, {}, function(_, _)
         local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.SongSets[self.songSetName].PianissimoSongs

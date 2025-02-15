@@ -189,11 +189,15 @@ function Menu:onKeyboardEvent(key, pressed, flags, blocked)
             local currentView = self.contentViewStack:getCurrentView()
             if currentView and currentView:shouldRequestFocus() then
                 currentView:requestFocus()
+            else
+                self.menuView:pageLeft()
             end
         elseif keyName == 'Right' then
             local currentView = self.contentViewStack:getCurrentView()
             if currentView and currentView:hasFocus() then
                 currentView:resignFocus()
+            else
+                self.menuView:pageRight()
             end
         elseif keyName == 'Escape' then
             if self.menuItemStack:length() > 1 then

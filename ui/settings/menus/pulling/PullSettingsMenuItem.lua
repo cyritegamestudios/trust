@@ -59,7 +59,7 @@ end
 
 function PullSettingsMenuItem:getTargetsMenuItem()
     local chooseTargetsMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
         ButtonItem.default('Clear All', 18),
     }, {
         Clear = MenuItem.action(nil, "Targets", "Clear selected targets."),
