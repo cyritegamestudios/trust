@@ -3,6 +3,8 @@ local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
 local FFXIBackgroundView = require('ui/themes/ffxi/FFXIBackgroundView')
 local Frame = require('cylibs/ui/views/frame')
+local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_collection_view_cell')
+local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Event = require('cylibs/events/Luvent')
@@ -42,6 +44,16 @@ function MenuView.new(menuItem, viewStack, infoView, showMenu, mediaPlayer)
     self.infoView = infoView
     self.showMenu = showMenu
 
+    local leftArrowButtonItem = ImageItem.new(windower.addon_path..'assets/buttons/button_arrow_left.png', 14, 7)
+    self.leftArrowButton = ImageCollectionViewCell.new(leftArrowButtonItem)
+    self.leftArrowButton:setPosition(-16, 8)
+
+    local rightArrowButtonItem = ImageItem.new(windower.addon_path..'assets/buttons/button_arrow_right.png', 14, 7)
+    self.rightArrowButton = ImageCollectionViewCell.new(rightArrowButtonItem)
+    self.rightArrowButton:setPosition(112, 8)
+
+    self:setArrowsVisible(false)
+
     self:setVisible(false)
     self:setScrollEnabled(false)
     self:setItem(menuItem)
@@ -65,31 +77,57 @@ function MenuView:destroy()
     self.selectMenuItem:removeAllActions()
 end
 
+function MenuView:setArrowsVisible(visible)
+    for button in L{ self.leftArrowButton, self.rightArrowButton }:it() do
+        if visible then
+            self:getContentView():addSubview(button)
+
+            button:setVisible(true)
+            button:layoutIfNeeded()
+        else
+            button:setVisible(false)
+            button:removeFromSuperview()
+        end
+    end
+    self:getContentView():setNeedsLayout()
+    self:getContentView():layoutIfNeeded()
+end
+
 function MenuView:layoutIfNeeded()
     if not CollectionView.layoutIfNeeded(self) then
         return
     end
 end
 
-function MenuView:setItem(menuItem)
-    local menuArgs = {}
+function MenuView:getPageSize()
+    return 14
+end
 
-    local currentView = self.viewStack:getCurrentView()
-    if currentView then
-        menuArgs = currentView and type(currentView.getMenuArgs) == 'function' and currentView:getMenuArgs()
+function MenuView:getNumPages()
+    return self.pages:keyset():length()
+end
+
+function MenuView:createPages(buttonItems)
+    self.pages = T{}
+
+    local pageNum = 1
+
+    local index = 1
+    while index <= buttonItems:length() do
+        self.pages[pageNum] = buttonItems:slice(index, math.min(index + self:getPageSize(), buttonItems:length()))
+        index = index + self:getPageSize() + 1
+        pageNum = pageNum + 1
     end
+end
 
-    if not menuItem.keepViews then
-        while self.views:contains(self.viewStack:getCurrentView()) do
-            self.viewStack:dismiss()
-        end
-        self.views = L{}
+function MenuView:setPage(pageNum)
+    if self.currentPageNum == pageNum then
+        return
     end
+    self.currentPageNum = pageNum
 
-    self.menuItem = menuItem
-
-    local buttonItems = menuItem:getButtonItems()
-    if buttonItems:length() > 0 then
+    local buttonItems = self.pages[pageNum]
+    if buttonItems and buttonItems:length() > 0 then
         local buttonHeight = 16
         local menuHeight = buttonHeight * (buttonItems:length()) + 10
         local menuWidth = 112
@@ -99,7 +137,7 @@ function MenuView:setItem(menuItem)
             self:setBackgroundImageView(backgroundView)
         end
 
-        self:getBackgroundImageView():setTitle(menuItem:getTitleText() or "")
+        self:getBackgroundImageView():setTitle(self.menuItem:getTitleText() or "")
 
         self:getBackgroundImageView():setNeedsLayout()
         self:getBackgroundImageView():layoutIfNeeded()
@@ -124,12 +162,54 @@ function MenuView:setItem(menuItem)
 
         self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
     end
+end
+
+function MenuView:setItem(menuItem)
+    local menuArgs = {}
+
+    local currentView = self.viewStack:getCurrentView()
+    if currentView then
+        menuArgs = currentView and type(currentView.getMenuArgs) == 'function' and currentView:getMenuArgs()
+    end
+
+    if not menuItem.keepViews then
+        while self.views:contains(self.viewStack:getCurrentView()) do
+            self.viewStack:dismiss()
+        end
+        self.views = L{}
+    end
+
+    self.menuItem = menuItem
+    self.currentPageNum = nil
+
+    local buttonItems = menuItem:getButtonItems()
+    self:createPages(buttonItems)
+
+    self:setArrowsVisible(buttonItems:length() > 14)
+
+    self:setPage(1)
 
     local contentView = menuItem:getContentView(menuArgs, self.infoView, self.showMenu)
     if contentView then
         self.views:append(contentView)
         self.viewStack:present(contentView)
     end
+end
+
+function MenuView:pageLeft()
+    local nextPageNum = self.currentPageNum - 1
+    if nextPageNum <= 0 then
+        nextPageNum = self:getNumPages()
+    end
+    self:setPage(nextPageNum)
+end
+
+function MenuView:pageRight()
+    local nextPageNum = self.currentPageNum + 1
+    if nextPageNum > self:getNumPages() then
+        nextPageNum = 1
+    end
+    self:setPage(nextPageNum)
 end
 
 function MenuView:onMouseEvent(type, x, y, delta)
