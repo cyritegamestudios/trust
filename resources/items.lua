@@ -63,12 +63,17 @@ function Items:where(query, fields)
     return L{}
 end
 
+function Items:with(key, value, fields)
+    local result = self:where(string.format("%s == \"%s\"", key, value), fields)
+    return result and result:first()
+end
+
 function Items:named(item_name, fields)
     local result = self:where(string.format("en == \"%s\"", item_name), fields)
     return result and result:first()
 end
 
-function Items:items_with_category(category, fields)
+function Items:with_category(category, fields)
     local table = self:get_table()
     local result = table():where(string.format("category == \"%s\"", category), fields)
     if result.rows then

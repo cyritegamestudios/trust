@@ -7,8 +7,6 @@ _libs = _libs or {}
 
 require('lists')
 
-local res = require('resources')
-
 local pup_util = {}
 
 _raw = _raw or {}
@@ -21,7 +19,7 @@ _libs.pup_util = pup_util
 function pup_util.get_attachments()
     local current = L{}
     -- FIXME: this causes all of res.items to load into memory
-    local atts = res.items:category('Automaton')
+    local atts = windower.trust.resources.items:with_category("Automaton")
     local mjob_data = windower.ffxi.get_mjob_data()
     if not mjob_data then return current end
 
@@ -47,8 +45,8 @@ function pup_util.get_pet_mode()
 
     local pet = {}
 
-    pet.frame = res.items:with('id', mjob_data.frame).en
-    pet.head = res.items:with('id', mjob_data.head).en
+    pet.frame = windower.trust.resources.items:with('id', mjob_data.frame).en
+    pet.head = windower.trust.resources.items:with('id', mjob_data.head).en
 
     if pet.frame == 'Sharpshot Frame' then
         if pet.head == 'Valoredge Head' or pet.head == 'Harlequin Head' then
