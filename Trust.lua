@@ -155,7 +155,6 @@ function load_user_files(main_job_id, sub_job_id)
 	load_trust_commands(player.main_job_name_short, player.trust.main_job, player.sub_job_name_short, player.trust.sub_job, action_queue, player.party, main_trust_settings, sub_trust_settings)
 
 	if state.AutoEnableMode.value == 'Auto' then
-
 		addon_enabled:setValue(true)
 	else
 		addon_enabled:setValue(false)

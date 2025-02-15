@@ -258,11 +258,6 @@ function GeneralTrustCommands:handle_debug()
     pickerView:setNeedsLayout()
     pickerView:layoutIfNeeded()
 
-    local Items = require('resources/items')
-    local test = Items.new()
-    --print('result', L(test:get_item_by_name("Crystal")):length() or 'not found')
-    print('result', L(test:get_items_by_category('Usable')):length() or 'not found')
-
     --local BlackMage = require('cylibs/entity/jobs/BLM')
     --local job = BlackMage.new()
     local Scholar = require('cylibs/entity/jobs/SCH')
