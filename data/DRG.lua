@@ -54,7 +54,8 @@ return {
             }
         },
         GearSwapSettings = {
-            Enabled = true
+            Enabled = true,
+            Language = "en"
         },
     }
 }

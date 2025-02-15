@@ -47,10 +47,23 @@ function ConfigSettingsMenuItem:getGearSwapMenuItem(trustSettings, trustSettings
         ButtonItem.default('Save'),
     }, {}, function(_, infoView)
         local gearSwapSettings = trustSettings:getSettings()[trustSettingsMode.value].GearSwapSettings
+        gearSwapSettings.Language = gearSwapSettings.Language or i18n.Locale.English
         local configItems = L{
             BooleanConfigItem.new('Enabled', "Is GearSwap Enabled"),
+            PickerConfigItem.new('Language', i18n.current_gearswap_locale(), L{ i18n.Locale.English, i18n.Locale.Japanese }, function(locale)
+                if locale == i18n.Locale.Japanese then
+                    return 'Japanese'
+                else
+                    return 'English'
+                end
+            end),
         }
         local gearSwapSettingsEditor = ConfigEditor.new(trustSettings, gearSwapSettings, configItems, infoView)
+
+        self.disposeBag:add(gearSwapSettingsEditor:onConfigChanged():addAction(function(newConfigSettings, _)
+            i18n.set_current_gearswap_locale(newConfigSettings.Language)
+        end), gearSwapSettingsEditor:onConfigChanged())
+
         return gearSwapSettingsEditor
     end, "GearSwap", "Configure GearSwap integration with Trust.")
     return gearSwapMenuItem

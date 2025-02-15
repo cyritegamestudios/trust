@@ -20,6 +20,8 @@ i18n.Locale.English = 'en'
 i18n.Locale.Japanese = 'ja'
 i18n.Locale.Default = i18n.Locale[locale]
 
+local gearswap_locale = i18n.Locale.English
+
 local fonts_for_locales = T{
     [i18n.Locale.English] = "Arial",
     [i18n.Locale.Japanese] = "MS Gothic",
@@ -64,6 +66,20 @@ function i18n.set_current_locale(new_locale)
     i18n.onLocaleChanged():trigger(new_locale)
 end
 
+function i18n.current_gearswap_locale()
+    return gearswap_locale
+end
+
+-------
+-- Sets the current GearSwap locale.
+-- @tparam i18n.Locale locale Locale (e.g. 'en', 'jp')
+function i18n.set_current_gearswap_locale(new_locale)
+    if new_locale == gearswap_locale then
+        return
+    end
+    gearswap_locale = new_locale
+end
+
 -------
 -- Sets the locale to be used when localization action commands (e.g. /ma <spell_name> <t>)
 -- @tparam string locale Locale (e.g. 'en', 'jp')
@@ -75,7 +91,8 @@ function i18n.translate(key, args)
     return translations[i18n.Locale.English][key] and translations[i18n.Locale.English][key].singular or key
 end
 
-function i18n.resource(resource_name, key, value)
+function i18n.resource(resource_name, key, value, output_locale)
+    local locale = output_locale or locale
     if S{ 'en', 'ens' }:contains(key) and locale == i18n.Locale.English then
         return value:length() > 1 and value:slice(0, 1):upper()..value:slice(2) or value
     end
