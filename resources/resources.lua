@@ -3,6 +3,9 @@ local ORM = require('cylibs/util/database/orm')
 local Resources = {}
 Resources.__index = Resources
 
+windower.trust.resources = Resources.shared()
+windower.trust.res = Resources.shared()
+
 local instance
 
 ---
@@ -25,7 +28,7 @@ end
 function Resources.new()
     local self = setmetatable({}, Resources)
 
-    self.database = ORM.new(windower.addon_path..'data/resources/resources.db')
+    self.database = ORM.new(windower.addon_path..'resources/resources.db')
     self.events = {}
     self.events.unload = windower.register_event('unload', function()
         self:destroy()
