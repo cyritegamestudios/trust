@@ -86,7 +86,7 @@ end
 
 function SkillchainSettingsMenuItem:getEditSkillchainStepMenuItem()
     local editSkillchainStepMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
         ButtonItem.default('Conditions', 18),
     }, {
         Conditions = self.conditionSettingsMenuItem,

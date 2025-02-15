@@ -144,7 +144,7 @@ end
 
 function SongSettingsMenuItem:getPianissmoSongsMenuItem()
     local addPianissimoSongMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm'),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
     }, {}, function(_, _)
         local allSongs = self.trust:get_job():get_spells(function(spellId)
             local spell = res.spells[spellId]
@@ -177,7 +177,7 @@ function SongSettingsMenuItem:getPianissmoSongsMenuItem()
     end, "Pianissimo", "Add a new pianissimo song.")
 
     local editJobsMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
         ButtonItem.default('Clear All'),
     }, {}, function(_, _)
         local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.SongSets[self.songSetName].PianissimoSongs

@@ -12,7 +12,7 @@ EntrustSettingsMenuItem.__index = EntrustSettingsMenuItem
 
 function EntrustSettingsMenuItem.new(trust, trustSettings, trustSettingsMode)
     local self = setmetatable(MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
     }, {}, nil, "Entrust", "Choose an indicolure to entrust on party members."), EntrustSettingsMenuItem)
 
     self.trust = trust

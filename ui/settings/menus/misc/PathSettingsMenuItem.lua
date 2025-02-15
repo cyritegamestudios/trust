@@ -109,7 +109,7 @@ end
 
 function PathSettingsMenuItem:getRenamePathMenuItem()
     local renamePathMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
     }, L{}, function(_)
         local configItems = L{
             TextInputConfigItem.new('PathName', 'New Path Name', 'Path Name', function(_) return true  end)

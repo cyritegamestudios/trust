@@ -30,7 +30,7 @@ end
 
 function ShooterSettingsMenuItem:getConfigMenuItem()
     local configMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
         ButtonItem.default('Reset', 18),
     }, L{}, function(menuArgs)
         local shooterSettings = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].Shooter

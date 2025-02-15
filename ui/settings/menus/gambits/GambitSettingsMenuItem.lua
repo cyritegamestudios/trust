@@ -306,7 +306,7 @@ end
 
 function GambitSettingsMenuItem:getEditGambitMenuItem()
     local editGambitMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
         ButtonItem.default('Edit', 18),
         ButtonItem.default('Conditions', 18),
     }, {}, function(_, _, showMenu)
@@ -327,7 +327,7 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
     end)
 
     local editAbilityMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm'),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
     }, {
         Confirm = MenuItem.action(function(parent)
             --parent:showMenu(editGambitMenuItem)

@@ -13,7 +13,7 @@ ManeuverSettingsMenuItem.__index = ManeuverSettingsMenuItem
 
 function ManeuverSettingsMenuItem.new(trustSettings, trustSettingsMode, settingsKeyName, descriptionText)
     local self = setmetatable(MenuItem.new(L{
-        --ButtonItem.default('Confirm', 18),
+        --ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
     }, {}, nil, "Maneuvers", descriptionText, false), ManeuverSettingsMenuItem)
 
     self.trustSettings = trustSettings
@@ -78,7 +78,7 @@ end
 
 function ManeuverSettingsMenuItem:getEditSetMenuItem()
     local editSetMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
     }, {}, function(_)
         local configItems = L{}
         for element in L{ 'Fire', 'Earth', 'Water', 'Wind', 'Ice', 'Thunder', 'Light', 'Dark' }:it() do

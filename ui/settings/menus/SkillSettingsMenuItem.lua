@@ -10,7 +10,7 @@ SkillSettingsMenuItem.__index = SkillSettingsMenuItem
 
 function SkillSettingsMenuItem.new(weaponSkillSettings, skillSettings)
     local self = setmetatable(MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
     }, {}, nil, skillSettings:get_name(), "Edit settings for "..skillSettings:get_name().."."), SkillSettingsMenuItem)
 
     local allAbilities = L(skillSettings:get_abilities(true):compact_map()):unique(function(ability) return ability:get_name() end)--:map(function(ability) return ability:get_name() end)

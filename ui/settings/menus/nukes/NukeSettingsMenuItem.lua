@@ -64,7 +64,7 @@ end
 
 function NukeSettingsMenuItem:getBlacklistMenuItem()
     local nukeElementBlacklistMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
         ButtonItem.default('Clear All', 18),
     }, {},
             function()
@@ -108,7 +108,7 @@ end
 
 function NukeSettingsMenuItem:getConfigMenuItem()
     local nukeConfigMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
     }, {},
             function()
                 local allSettings = T(self.trustSettings:getSettings())[self.trustSettingsMode.value]

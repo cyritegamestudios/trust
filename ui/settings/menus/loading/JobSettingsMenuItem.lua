@@ -53,7 +53,7 @@ end
 
 function JobSettingsMenuItem:getCreateSetMenuItem()
     local createSetMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
     }, L{}, function(_)
         local createSetView = FFXITextInputView.new('Set', 'Job settings set name')
         createSetView:setTitle("Choose a name for the job settings set.")
@@ -82,7 +82,7 @@ end
 
 function JobSettingsMenuItem:getResetMenuItem()
     local resetMenuItem = MenuItem.new(L{
-        ButtonItem.default('Confirm'),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
     }, {
         Confirm = MenuItem.action(function()
             local defaultSettings = T(self.jobSettings:getDefaultSettings()):clone().Default

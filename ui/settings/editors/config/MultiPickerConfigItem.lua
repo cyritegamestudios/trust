@@ -143,7 +143,7 @@ function MultiPickerConfigItem:getMenuItem()
     local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
     local MenuItem = require('cylibs/ui/menu/menu_item')
     return MenuItem.new(L{
-        ButtonItem.default('Confirm')
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
     }, {}, function(_, _)
         local configItem = MultiPickerConfigItem.new("PickerItems", L{ self:getCurrentValues() }, self:getAllValues())
         configItem.imageItem = self:getImageItem()

@@ -11,7 +11,7 @@ GeomancySettingsMenuItem.__index = GeomancySettingsMenuItem
 
 function GeomancySettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, geomancySettings, entrustSpells)
     local self = setmetatable(MenuItem.new(L{
-        ButtonItem.default('Confirm', 18),
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
         ButtonItem.default('Entrust', 18),
         ButtonItem.default('Modes', 18),
     }, {}, nil, "Geomancy", "Configure indicolure and geocolure settings."), GeomancySettingsMenuItem)
