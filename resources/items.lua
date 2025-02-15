@@ -63,14 +63,9 @@ function Items:where(query, fields)
     return L{}
 end
 
-function Items:item_with_name(item_name)
-    local table = self:get_table()
-    local query = string.format("en LIKE '%%%s%%'", item_name)
-    local result = table():where(query)
-    if result.rows then
-        return L(result.rows)
-    end
-    return L{}
+function Items:named(item_name, fields)
+    local result = self:where(string.format("en == \"%s\"", item_name), fields)
+    return result and result:first()
 end
 
 function Items:items_with_category(category, fields)

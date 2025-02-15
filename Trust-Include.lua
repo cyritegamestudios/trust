@@ -1,5 +1,6 @@
 require('TrustHelp')
 
+Resources = require('resources/resources')
 MigrationManager = require('settings/migrations/migration_manager')
 
 TrustHud = require('ui/TrustHud')

@@ -30,14 +30,7 @@ function UseItemCommand:run(sendInChat)
 
         packets.inject(p)]]
     else
-        local inputText
-        if i18n.current_locale() == i18n.Locale.Japanese then
-            -- FIXME: this should be replaced with a database lookup
-            local item = res.items:with('en', self.itemName)
-            inputText = windower.to_shift_jis(string.format("/item %s <me>", item.ja))
-        else
-            inputText = string.format("/item \"%s\" <me>", self.itemName)
-        end
+        local inputText = self:getInputText("/item", i18n.resource('items', 'en', self.itemName, i18n.current_gearswap_locale()), targetId)
         windower.chat.input(inputText)
     end
 end

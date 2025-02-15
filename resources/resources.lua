@@ -3,9 +3,6 @@ local ORM = require('cylibs/util/database/orm')
 local Resources = {}
 Resources.__index = Resources
 
-windower.trust.resources = Resources.shared()
-windower.trust.res = Resources.shared()
-
 local instance
 
 ---
@@ -43,5 +40,8 @@ end
 function Resources:destroy()
     self.database:close()
 end
+
+windower.trust.resources = Resources.shared()
+windower.trust.res = Resources.shared()
 
 return Resources

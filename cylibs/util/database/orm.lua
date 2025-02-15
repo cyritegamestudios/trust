@@ -1,6 +1,8 @@
 -- Author: Aldros-FFXI
 -- Version: 1.0.0
 
+local localization_util = require('cylibs/util/localization_util')
+
 --- Import the sqlite3 library
 local sqlite3 = require("sqlite3")
 

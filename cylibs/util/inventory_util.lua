@@ -36,7 +36,7 @@ end
 -- @treturn number Number of items
 function inventory_util.get_item_count(item_id)
     if type(item_id) == 'string' then
-        local item = windower.trust.resources.items:item_with_name(item_id, L{ 'id' })
+        local item = windower.trust.resources.items:named(item_id, L{ 'id' })
         if item then
             item_id = item.id
         end
