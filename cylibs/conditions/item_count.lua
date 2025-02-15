@@ -22,7 +22,6 @@ function ItemCountCondition.new(item_name, item_count, operator)
 end
 
 function ItemCountCondition:is_satisfied(_)
-    print(inventory_util.get_item_count(self.item_name), self.item_name)
     return self:eval(inventory_util.get_item_count(self.item_name), self.item_count, self.operator)
 end
 
