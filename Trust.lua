@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '13.5.5'
+_addon.version = '13.5.6'
 _addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 
@@ -68,6 +68,7 @@ function load_user_files(main_job_id, sub_job_id)
 	end
 
 	state.MainTrustSettingsMode:on_state_change():addAction(function(_, new_value)
+		i18n.set_current_gearswap_locale(player.trust.main_job_settings[new_value].GearSwapSettings.Language or i18n.Locale.English)
 		player.trust.main_job:set_trust_settings(player.trust.main_job_settings[new_value])
 	end)
 

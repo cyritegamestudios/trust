@@ -35,13 +35,13 @@ end
 -- @treturn string Localized command
 function GameCommand:getInputText(prefix, abilityName, targetId)
     if abilityName then
-        if i18n.current_locale() == i18n.Locale.Japanese then
+        if i18n.current_gearswap_locale() == i18n.Locale.Japanese then
             return windower.to_shift_jis(string.format("%s %s %d", prefix, abilityName, targetId))
         else
             return string.format("%s \"%s\" %d", prefix, abilityName, targetId)
         end
     else
-        if i18n.current_locale() == i18n.Locale.Japanese then
+        if i18n.current_gearswap_locale() == i18n.Locale.Japanese then
             return windower.to_shift_jis(string.format("%s %d", prefix, targetId))
         else
             return string.format("%s %d", prefix, targetId)

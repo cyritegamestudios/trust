@@ -96,7 +96,8 @@ return {
             Retry = false
         },
         GearSwapSettings = {
-            Enabled = true
+            Enabled = true,
+            Language = "en"
         },
     }
 }
