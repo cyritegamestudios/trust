@@ -96,6 +96,12 @@ function SwitchTargetAction:target_mob(target)
 
         packets.inject(p)
     end
+
+    packets.inject(packets.new('incoming', 0x058, {
+        ['Player'] = windower.ffxi.get_player().id,
+        ['Target'] = target.id,
+        ['Player Index'] = windower.ffxi.get_player().id.index,
+    }))
 end
 
 function SwitchTargetAction:gettype()

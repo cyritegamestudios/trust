@@ -58,6 +58,12 @@ function EngageAction:perform()
         packets.inject(p)
     end
 
+    packets.inject(packets.new('incoming', 0x058, {
+        ['Player'] = windower.ffxi.get_player().id,
+        ['Target'] = target.id,
+        ['Player Index'] = windower.ffxi.get_player().index,
+    }))
+
     self.dispose_bag:add(WindowerEvents.TargetIndexChanged:addAction(function(mob_id, target_index)
         if windower.ffxi.get_player().id == mob_id then
             if self.target_index == target_index then
