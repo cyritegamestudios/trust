@@ -425,7 +425,6 @@ function Monster:description()
 end
 
 function Monster:__eq(otherItem)
-    print('equals')
     if otherItem == nil then
         return false
     end
