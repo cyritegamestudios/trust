@@ -58,7 +58,6 @@ function Widget.new(frame, title, addonSettings, dataSource, layout, titleWidth,
     self:getDisposeBag():add(addonSettings:onSettingsChanged():addAction(function(settings)
         local settings = self:getSettings(self.addonSettings)
 
-        self:setVisible(settings.visible)
         self:setPosition(settings.x, settings.y)
         self:layoutIfNeeded()
 
@@ -97,13 +96,6 @@ function Widget:getSettings(addonSettings)
 end
 
 function Widget:layoutIfNeeded()
-    local settings = self:getSettings(self.addonSettings)
-    if settings then
-        if not settings.visible then
-            self:setVisible(false)
-        end
-    end
-
     self:setSize(self.frame.width, self:getContentSize().height)
 
     if not CollectionView.layoutIfNeeded(self) then

@@ -3,10 +3,6 @@
 -- @class module
 -- @name BuffUtil
 
-_libs = _libs or {}
-
-require('lists')
-
 local buffs_ext = require('cylibs/res/buffs')
 local res = require('resources')
 local list_ext = require('cylibs/util/extensions/lists') -- needed
@@ -14,10 +10,6 @@ local job_abilities_ext = require('cylibs/res/job_abilities')
 local spells_ext = require('cylibs/res/spells')
 
 local buff_util = {}
-
-_raw = _raw or {}
-
-_libs.buff_util = buff_util
 
 local debuffs = T{
 	[2] = S{253,259,678}, --Sleep

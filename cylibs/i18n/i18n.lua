@@ -91,12 +91,21 @@ function i18n.translate(key, args)
     return translations[i18n.Locale.English][key] and translations[i18n.Locale.English][key].singular or key
 end
 
+function i18n.get_item(resource_name, key, value, fields)
+    local table = windower.trust.resources[resource_name]
+    if table then
+        return table:where(string.format("%s == \"%s\"", key, value), fields):first()
+    else
+        return res[resource_name]:with(key, value) or res[resource_name]:with(key, value:lower())
+    end
+end
+
 function i18n.resource(resource_name, key, value, output_locale)
     local locale = output_locale or locale
     if S{ 'en', 'ens' }:contains(key) and locale == i18n.Locale.English then
         return value:length() > 1 and value:slice(0, 1):upper()..value:slice(2) or value
     end
-    local item = res[resource_name]:with(key, value) or res[resource_name]:with(key, value:lower())
+    local item = i18n.get_item(resource_name, key, value, L{ locale })
     if item then
         local text = item[locale]
         if locale == i18n.Locale.English then

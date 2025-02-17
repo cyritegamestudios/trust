@@ -321,6 +321,13 @@ function Monster:has_debuff(debuff_id)
 end
 
 -------
+-- Returns the list of active debuff ids.
+-- @treturn list List of debuff ids (see res/buffs.lua)
+function Monster:get_debuff_ids()
+    return self.debuff_tracker:get_debuff_ids()
+end
+
+-------
 -- Returns the current cumulative magic effect.
 -- @treturn CumulativeMagicEffect Cumulative magic effect, or nil if none
 function Monster:get_cumulative_effect()
@@ -418,6 +425,7 @@ function Monster:description()
 end
 
 function Monster:__eq(otherItem)
+    print('equals')
     if otherItem == nil then
         return false
     end

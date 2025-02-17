@@ -34,17 +34,20 @@ end
 -- @tparam number targetId Target of the command
 -- @treturn string Localized command
 function GameCommand:getInputText(prefix, abilityName, targetId)
+    if targetId == windower.ffxi.get_player().id then
+        targetId = "<me>"
+    end
     if abilityName then
         if i18n.current_gearswap_locale() == i18n.Locale.Japanese then
-            return windower.to_shift_jis(string.format("%s %s %d", prefix, abilityName, targetId))
+            return windower.to_shift_jis(string.format("%s %s %s", prefix, abilityName, targetId))
         else
-            return string.format("%s \"%s\" %d", prefix, abilityName, targetId)
+            return string.format("%s \"%s\" %s", prefix, abilityName, targetId)
         end
     else
         if i18n.current_gearswap_locale() == i18n.Locale.Japanese then
-            return windower.to_shift_jis(string.format("%s %d", prefix, targetId))
+            return windower.to_shift_jis(string.format("%s %s", prefix, targetId))
         else
-            return string.format("%s %d", prefix, targetId)
+            return string.format("%s %s", prefix, targetId)
         end
     end
 end

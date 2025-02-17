@@ -151,12 +151,6 @@ function Automaton:get_mpp()
 end
 
 -------
--- Uses repair.
-function Automaton:repair()
-    self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, 'Repair'), true)
-end
-
--------
 -- Deactivates the automaton.
 function Automaton:deactivate()
     self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, 'Deactivate'), true)

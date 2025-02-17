@@ -4,6 +4,7 @@ local IpcRelay = require('cylibs/messages/ipc/ipc_relay')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
+local TargetInfoView = require('cylibs/battle/monsters/ui/target_info_view')
 
 local PartyMemberMenuItem = setmetatable({}, {__index = MenuItem })
 PartyMemberMenuItem.__index = PartyMemberMenuItem
@@ -26,6 +27,11 @@ function PartyMemberMenuItem.new(partyMember, party, whitelist, trust)
     self.party = party
     self.whitelist = whitelist or S{}
     self.trust = trust
+
+    self.contentViewConstructor = function(_, _, _)
+        local partyMemberInfoView = TargetInfoView.new(partyMember)
+        return partyMemberInfoView
+    end
 
     self.commands = L{
         Command.new('trust start', L{}, 'Start'),

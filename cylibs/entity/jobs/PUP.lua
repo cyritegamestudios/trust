@@ -43,24 +43,6 @@ function Puppetmaster:is_overloaded()
     return buff_util.is_buff_active(buff_util.buff_id('Overload'))
 end
 
--------
--- Returns whether or not the Puppetmaster can use repair.
--- @treturn Boolean True if the Puppetmaster can use repair, and false otherwise.
-function Puppetmaster:can_repair()
-    if not job_util.can_use_job_ability('Repair') then
-        return false
-    end
-    local item_id = windower.ffxi.get_items().equipment['ammo']
-    if item_id and item_id ~= 0 then
-        local automaton_oil_item_ids = L{ 18731, 18732, 18733, 19185 }
-        --local item = res.items:with('id', item_id)
-        if automaton_oil_item_ids:contains(item_id) then
-            return true
-        end
-    end
-    return false
-end
-
 ---
 -- Checks whether the Puppetmaster can use activate.
 --

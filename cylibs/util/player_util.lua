@@ -257,22 +257,6 @@ function player_util.get_ready_charges()
 	return currentCharges
 end
 
--- NOTE:  this currently causes all of the items data to constantly be in memory which
--- bloats the addon size. Figure out another way to do this with packets.
-function player_util.has_item(item_name, quantity)
-	quantity = quantity or 1
-	local item = res.items:with('en', item_name)
-	if item then
-		local items = windower.ffxi.get_items(0)
-		for _, item_info in ipairs(items) do
-			if item_info.id ~= 0 and item_info.id == item.id and item_info.count >= quantity then
-				return true
-			end
-		end
-	end
-	return false
-end
-
 function player_util.get_current_target()
 	local target_index = windower.ffxi.get_player().target_index
 	if target_index and target_index ~= 0 then
