@@ -1,4 +1,4 @@
----------------------------
+    ---------------------------
 -- Condition checking whether the target is idle.
 -- @class module
 -- @name IdleCondition

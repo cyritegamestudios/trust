@@ -1,4 +1,6 @@
 local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
+local CarouselCollectionViewCell = require('cylibs/ui/collection_view/cells/carousel_collection_view_cell')
+local CarouselItem = require('cylibs/ui/collection_view/items/carousel_item')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
@@ -23,11 +25,18 @@ TargetInfoView.__index = TargetInfoView
 
 function TargetInfoView.new(target)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
-        local cell = TextCollectionViewCell.new(item)
-        cell:setClipsToBounds(true)
-        cell:setItemSize(16)
-        cell:setIsSelectable(false)
-        return cell
+        if item.__type == CarouselItem.__type then
+            local cell = CarouselCollectionViewCell.new(item)
+            cell:setClipsToBounds(true)
+            cell:setItemSize(16)
+            return cell
+        else
+            local cell = TextCollectionViewCell.new(item)
+            cell:setClipsToBounds(true)
+            cell:setItemSize(16)
+            cell:setIsSelectable(false)
+            return cell
+        end
     end)
 
     local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, FFXIClassicStyle.Padding.ConfigEditor, 6), nil, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditor), TargetInfoView)
@@ -106,12 +115,31 @@ function TargetInfoView:reloadSettings()
     )
     self:getDataSource():setItemForSectionHeader(4, targetDebuffsHeaderItem)
 
-    local debuffNames = L(self.target.debuff_tracker:get_debuff_ids():map(function(debuff_id) return buff_util.buff_name(debuff_id) end)):compact_map()
-    if debuffNames:empty() then
-        debuffNames = L{ "None" }
+    local debuffItems = L(self.target:get_debuff_ids()):map(function(debuffId)
+        return ImageItem.new(windower.addon_path..'assets/buffs/'..debuffId..'.png', 16, 16)
+    end)
+    if debuffItems:length() > 0 then
+        itemsToAdd:append(IndexedItem.new(CarouselItem.new(debuffItems), IndexPath.new(4, 1)))
+    else
+        itemsToAdd:append(IndexedItem.new(TextItem.new('None', TextStyle.Default.TextSmall), IndexPath.new(4, 1)))
     end
 
-    itemsToAdd:append(IndexedItem.new(TextItem.new(localization_util.commas(debuffNames, "and"), TextStyle.Default.TextSmall), IndexPath.new(4, 1)))
+    -- Target Buffs
+    local targetBuffsHeaderItem = SectionHeaderItem.new(
+            TextItem.new("Buffs", TextStyle.Default.SectionHeader),
+            ImageItem.new(windower.addon_path..'assets/icons/icon_bullet.png', 8, 8),
+            16
+    )
+    self:getDataSource():setItemForSectionHeader(5, targetBuffsHeaderItem)
+
+    local buffItems = L(self.target:get_buff_ids()):map(function(buffId)
+        return ImageItem.new(windower.addon_path..'assets/buffs/'..buffId..'.png', 16, 16)
+    end)
+    if buffItems:length() > 0 then
+        itemsToAdd:append(IndexedItem.new(CarouselItem.new(buffItems), IndexPath.new(5, 1)))
+    else
+        itemsToAdd:append(IndexedItem.new(TextItem.new('None', TextStyle.Default.TextSmall), IndexPath.new(5, 1)))
+    end
 
     -- Target Model ID
     local targetModelIdHeaderItem = SectionHeaderItem.new(
@@ -119,9 +147,9 @@ function TargetInfoView:reloadSettings()
             ImageItem.new(windower.addon_path..'assets/icons/icon_bullet.png', 8, 8),
             16
     )
-    self:getDataSource():setItemForSectionHeader(5, targetModelIdHeaderItem)
+    self:getDataSource():setItemForSectionHeader(6, targetModelIdHeaderItem)
 
-    itemsToAdd:append(IndexedItem.new(TextItem.new(self.target:get_mob().models[1] or 'Unknown', TextStyle.Default.TextSmall), IndexPath.new(5, 1)))
+    itemsToAdd:append(IndexedItem.new(TextItem.new(self.target:get_mob().models[1] or 'Unknown', TextStyle.Default.TextSmall), IndexPath.new(6, 1)))
 
     self:getDataSource():addItems(itemsToAdd)
 

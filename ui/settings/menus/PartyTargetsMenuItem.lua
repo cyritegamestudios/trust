@@ -4,6 +4,7 @@ local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
+local SwitchTargetAction = require('cylibs/actions/switch_target')
 local TargetInfoView = require('cylibs/battle/monsters/ui/target_info_view')
 
 local PartyTargetsMenuItem = setmetatable({}, {__index = MenuItem })
@@ -61,11 +62,16 @@ end
 
 function PartyTargetsMenuItem:reloadSettings()
     self:setChildMenuItem("Info", self:getTargetInfoMenuItem())
+    self:setChildMenuItem("Target", MenuItem.action(function()
+        local switchTarget = SwitchTargetAction.new(self.targets[self.selectedTargetIndex]:get_mob().index, 3)
+        action_queue:push_action(switchTarget, true)
+    end, "Target", "Switch targets to the selected mob."))
 end
 
 function PartyTargetsMenuItem:getTargetInfoMenuItem()
     local targetInfoMenuItem = MenuItem.new(L{
         ButtonItem.default('Info', 18),
+        ButtonItem.default('Target', 18),
     }, {},
             function(args)
                 local target = self.targets[self.selectedTargetIndex]
