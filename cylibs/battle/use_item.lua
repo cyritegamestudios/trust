@@ -3,7 +3,6 @@
 -- @class module
 -- @name UseItem
 
-local inventory_util = require('cylibs/util/inventory_util')
 local serializer_util = require('cylibs/util/serializer_util')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 
@@ -96,11 +95,7 @@ end
 -- to edit this ability.
 -- @treturn list List of ConfigItem
 function UseItem:get_config_items()
-    local item_names = L{}
-    for _, item in pairs(inventory_util.all_items()) do
-        item_names:append(item.en)
-    end
-    item_names = L(S(item_names)):sort()
+    local item_names = L(windower.trust.resources.items:with_category("Usable", L{ "en" })):map(function(item) return item.en end):unique():sort()
     return L{ PickerConfigItem.new('item_name', self.item_name, item_names, nil, "Item Name") }
 end
 

@@ -50,7 +50,7 @@ function localization_util.commas(list, join_word)
     end
     local result = list[1]
     for i = 2, list:length() do
-        if i < list:length() then
+        if i < list:length() or join_word:length() == 0 then
             result = result..', '..list[i]
         else
             result = result..' '..join_word..' '..list[i]

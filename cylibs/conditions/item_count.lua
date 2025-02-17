@@ -26,11 +26,7 @@ function ItemCountCondition:is_satisfied(_)
 end
 
 function ItemCountCondition:get_config_items()
-    local item_names = L{}
-    for _, item in pairs(inventory_util.all_items()) do
-        item_names:append(item.en)
-    end
-    item_names = L(S(item_names)):sort()
+    local item_names = L(windower.trust.resources.items:where("category == 'Usable' OR stack > 1", L{ "en" })):map(function(item) return item.en end):unique():sort()
     return L{
         PickerConfigItem.new('item_name', self.item_name, item_names, nil, "Item Name"),
         PickerConfigItem.new('operator', self.operator, L{ Condition.Operator.GreaterThanOrEqualTo, Condition.Operator.Equals, Condition.Operator.GreaterThan, Condition.Operator.LessThan, Condition.Operator.LessThanOrEqualTo }, nil, "Operator"),
