@@ -2,9 +2,10 @@ local Action = require('cylibs/actions/action')
 local LoadSettingsAction = setmetatable({}, { __index = Action })
 LoadSettingsAction.__index = LoadSettingsAction
 
-function LoadSettingsAction.new(main_job_name_short, sub_job_name_short)
+function LoadSettingsAction.new(settings, main_job_name_short, sub_job_name_short)
     local self = setmetatable(Action.new(0, 0, 0), LoadSettingsAction)
 
+    self.settings = settings
     self.main_job_name_short = main_job_name_short
     self.sub_job_name_short = sub_job_name_short
 
@@ -81,6 +82,8 @@ end
 
 function LoadSettingsAction:perform()
     player.trust = {}
+
+    self.settings.users:upsert({ id = windower.ffxi.get_player().id, name = windower.ffxi.get_player().name })
 
     self:load_settings()
     self:load_main_trust_settings()

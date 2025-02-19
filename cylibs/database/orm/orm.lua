@@ -68,7 +68,7 @@ function ORM:Table(table_name, schema)
     end
     return self.models[table_name]
 end
-count = 0
+
 --- Model class under ORM
 ORM.Model = {}
 ORM.Model.__index = ORM.Model
@@ -103,7 +103,9 @@ function ORM.Model:save()
                 table.concat(values, ", ")
         )
         self.db:exec(insert_stmt)
-
+        if self.db:errmsg() then
+            print(self.db:errmsg())
+        end
         -- Update the row with default values from the database
         local row_id = self.db:last_insert_rowid()
         local query = string.format("SELECT * FROM %s WHERE rowid = %d", self.table_name, row_id)

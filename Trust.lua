@@ -655,9 +655,16 @@ function loaded()
 		'includes/Trust-Cylibs-Util-Include',
 	}
 
+	local Settings = require('settings/settings')
+
+	local settings = Settings.new()
+	windower.trust.get_settings = function()
+		return settings
+	end
+
 	local actions = L{
 		Loading.LoadDependenciesAction.new(import_paths),
-		Loading.LoadSettingsAction.new(res.jobs[windower.ffxi.get_player().main_job_id].ens, res.jobs[windower.ffxi.get_player().sub_job_id or 0].ens),
+		Loading.LoadSettingsAction.new(settings, res.jobs[windower.ffxi.get_player().main_job_id].ens, res.jobs[windower.ffxi.get_player().sub_job_id or 0].ens),
 		Loading.Loadi18nAction.new(),
 		Loading.LoadGlobalsAction.new(),
 		Loading.LoadLoggerAction.new(),

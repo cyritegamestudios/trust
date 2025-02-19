@@ -1,4 +1,4 @@
-local ORM = require('cylibs/util/database/orm')
+local ORM = require('cylibs/database/orm/orm')
 
 local Resources = {}
 Resources.__index = Resources

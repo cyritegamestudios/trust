@@ -26,6 +26,7 @@ function Widget.new(frame, title, addonSettings, dataSource, layout, titleWidth,
 
     local self = setmetatable(CollectionView.new(dataSource, layout, nil, widgetStyle), Widget)
 
+    self.defaultPosition = frame
     self.addonSettings = addonSettings
     self.expanded = true
     self.events = {}
@@ -92,7 +93,7 @@ function Widget:destroy()
 end
 
 function Widget:getSettings(addonSettings)
-    return nil
+    return windower.ffxi.get_settings().widgets:named(self.widgetName)
 end
 
 function Widget:layoutIfNeeded()
@@ -119,7 +120,7 @@ function Widget:setPosition(x, y)
     if settings then
         local xPos, yPos = settings.x, settings.y
         if xPos ~= x or yPos ~= y then
-            self.settingsChanged:trigger(self, settings)
+            --self.settingsChanged:trigger(self, settings)
         end
     end
 end
@@ -155,6 +156,7 @@ function Widget:setEditing(editing)
             self.editingOverlay:destroy()
             self.editingOverlay = false
         end
+        self.settingsChanged:trigger(self)
     end
     return true
 end
@@ -182,10 +184,7 @@ function Widget:onMouseEvent(type, x, y, delta)
     end
     if type == Mouse.Event.Click then
         if self:isExpanded() and self:hitTest(x, y) then
-            if not self:hasFocus() then
-                -- TODO: do I need to uncomment this?
-                self:requestFocus()
-            end
+
             local startPosition = self:getAbsolutePosition()
             self.dragging = { x = startPosition.x, y = startPosition.y, dragX = x, dragY = y }
 
@@ -208,8 +207,13 @@ function Widget:onMouseEvent(type, x, y, delta)
         if self.dragging then
             self.dragging = nil
             self:setEditing(false)
-            addon_system_message("Use // trust widget save to save positions for all widgets.")
             return true
+        else
+            if not self:hasFocus() then
+                -- TODO: do I need to uncomment this?
+                self:requestFocus()
+                return true
+            end
         end
     else
         self.dragging = nil
@@ -228,6 +232,10 @@ end
 function Widget:setTitle(title, titleWidth)
     self:getBackgroundImageView():setTitle(title, { width = titleWidth, height = 14 })
     self:layoutIfNeeded()
+end
+
+function Widget:getDefaultPosition()
+    return self.defaultPosition
 end
 
 function Widget:__eq(otherItem)

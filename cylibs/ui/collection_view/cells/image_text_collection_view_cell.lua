@@ -68,4 +68,15 @@ function ImageTextCollectionViewCell:setItem(item)
     self.textView:setItem(item:getTextItem())
 end
 
+---
+-- Checks if the specified coordinates are within the bounds of the view.
+--
+-- @tparam number x The x-coordinate to test.
+-- @tparam number y The y-coordinate to test.
+-- @treturn bool True if the coordinates are within the view's bounds, otherwise false.
+--
+function ImageTextCollectionViewCell:hitTest(x, y)
+    return self.textView:hitTest(x, y) or self.imageView:hitTest(x, y)
+end
+
 return ImageTextCollectionViewCell

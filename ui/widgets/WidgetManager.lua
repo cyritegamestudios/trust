@@ -4,10 +4,9 @@ local WidgetManager = {}
 WidgetManager.__index = WidgetManager
 WidgetManager.__class = "WidgetManager"
 
-function WidgetManager.new(addonSettings)
+function WidgetManager.new()
     local self = setmetatable({}, WidgetManager)
 
-    self.addonSettings = addonSettings
     self.widgets = {}
     self.widgetsToSave = S{}
     self.disposeBag = DisposeBag.new()
@@ -26,29 +25,28 @@ function WidgetManager:addWidget(widget, widgetName)
     if self:getWidget(widgetName) then
         return
     end
+    widget.widgetName = widgetName
 
-    local settings = widget:getSettings(self.addonSettings)
-    if settings.visible then
-        logger.notice(self.__class, 'addWidget', 'widgetName', settings.x, settings.y)
+    local settings = windower.trust.get_settings().widgets:query({ name = widgetName, user_id = windower.ffxi.get_player().id }):first()
 
-        self.widgets[widgetName] = widget
+    local xPos = settings and settings.x or widget:getDefaultPosition().x
+    local yPos = settings and settings.y or widget:getDefaultPosition().y
 
-        widget:setPosition(settings.x, settings.y)
-        widget:setVisible(true)
-        widget:layoutIfNeeded()
+    logger.notice(self.__class, 'addWidget', 'widgetName', xPos, yPos)
 
-        self.disposeBag:add(widget:onSettingsChanged():addAction(function(w)
-            if not self.widgetsToSave:contains(widget) then
-                logger.notice(self.__class, 'onSettingsChanged', w.title)
-                self.widgetsToSave:add(w)
-            end
-        end), widget:onSettingsChanged())
+    self.widgets[widgetName] = widget
 
-        self.disposeBag:addAny(L{ widget })
-    else
-        logger.notice(self.__class, 'addWidget', 'hide')
-        widget:destroy()
-    end
+    widget:setPosition(xPos, yPos)
+    widget:setVisible(true)
+    widget:layoutIfNeeded()
+
+    self.disposeBag:add(widget:onSettingsChanged():addAction(function(w)
+        windower.trust.get_settings().widgets:upsert({ name = w.widgetName, x = w:getPosition().x, y = w:getPosition().y, user_id = windower.ffxi.get_player().id }, w.widgetName)
+
+        addon_system_message("Widget settings saved.")
+    end), widget:onSettingsChanged())
+
+    self.disposeBag:addAny(L{ widget })
 end
 
 function WidgetManager:removeWidget(widgetName)
@@ -56,7 +54,6 @@ function WidgetManager:removeWidget(widgetName)
     if not widget then
         return
     end
-
     widget:destroy()
 end
 
@@ -70,23 +67,6 @@ function WidgetManager:getAllWidgets()
         widgets:append(widget)
     end
     return widgets
-end
-
-function WidgetManager:saveChanges()
-    if not self.widgetsToSave:empty() then
-        logger.notice(self.__class, 'saveChanges', 'saving batched changes', self.widgetsToSave:map(function(w) return w.title end))
-
-        for widget in self.widgetsToSave:it() do
-            local settings = widget:getSettings(self.addonSettings)
-            if settings then
-                settings.x = widget:getPosition().x
-                settings.y = widget:getPosition().y
-            end
-        end
-        self.widgetsToSave:clear()
-
-        self.addonSettings:saveSettings(true)
-    end
 end
 
 return WidgetManager
