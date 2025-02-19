@@ -3,14 +3,14 @@ local sqlite3 = require("sqlite3")
 local DatabaseTable = {}
 DatabaseTable.__index = DatabaseTable
 
-function DatabaseTable.new(database, table_name, schema)
+function DatabaseTable.new(database, table_name, schema, primary_key)
     local self = setmetatable({}, DatabaseTable)
 
     self.db = database
     self.table_name = table_name
     self.schema = schema
 
-    self:create_table()
+    self:create_table(primary_key)
 
     return self
 end
@@ -18,12 +18,22 @@ end
 function DatabaseTable:destroy()
 end
 
-function DatabaseTable:create_table()
+function DatabaseTable:create_table(primary_key)
     local columns = {}
+    local primary_key
     for name, type in pairs(self.schema) do
-        table.insert(columns, name .. " " .. type)
+        if name == "PRIMARY KEY" then
+            primary_key = type
+        else
+            table.insert(columns, name .. " " .. type)
+        end
     end
-    local query = string.format("CREATE TABLE IF NOT EXISTS %s (%s);", self.table_name, table.concat(columns, ", "))
+    local query
+    if primary_key then
+        query = string.format("CREATE TABLE IF NOT EXISTS %s (%s, PRIMARY KEY %s);", self.table_name, table.concat(columns, ", "), primary_key)
+    else
+        query = string.format("CREATE TABLE IF NOT EXISTS %s (%s);", self.table_name, table.concat(columns, ", "))
+    end
     self.db:exec(query)
 end
 

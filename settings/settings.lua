@@ -1,3 +1,4 @@
+local DatabaseTable = require('cylibs/database/table')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local sqlite3 = require("sqlite3")
 
@@ -19,11 +20,19 @@ function Settings.new()
         self:destroy()
     end)
 
-    local Users = require('settings/tables/users')
-    self.users = Users.new(self.database)
+    self.users = DatabaseTable.new(self.database, "users", {
+        id = "INTEGER PRIMARY KEY UNIQUE",
+        name = "VARCHAR(64)",
+    })
 
-    local Widgets = require('settings/tables/widgets')
-    self.widgets = Widgets.new(self.database)
+    self.widgets = DatabaseTable.new(self.database, "widgets", {
+        name = "VARCHAR(64)",
+        x = "INTEGER",
+        y = "INTEGER",
+        visible = "TINYINT(1) DEFAULT 1",
+        user_id = "INTEGER",
+        ["PRIMARY KEY"] = "(name, user_id)",
+    })
 
     self.dispose_bag:addAny(L{ self.users, self.widgets })
 
