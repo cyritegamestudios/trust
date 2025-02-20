@@ -83,7 +83,11 @@ end
 function LoadSettingsAction:perform()
     player.trust = {}
 
-    self.settings.users:upsert({ id = windower.ffxi.get_player().id, name = windower.ffxi.get_player().name })
+    local user = User({
+        id = windower.ffxi.get_player().id,
+        name = windower.ffxi.get_player().name,
+    })
+    user:save()
 
     self:load_settings()
     self:load_main_trust_settings()

@@ -1,215 +1,236 @@
--- Author: Aldros-FFXI
--- Version: 1.0.0
-
-local localization_util = require('cylibs/util/localization_util')
-
---- Import the sqlite3 library
 local sqlite3 = require("sqlite3")
 
---- ORM class
 local ORM = {}
 ORM.__index = ORM
 
---- Creates a new ORM instance
--- @param database Path to the SQLite database. This is relative to FFXI's exeuction directory.
--- @return A new ORM instance
-function ORM.new(database)
+function ORM.new(db_name)
     local self = setmetatable({}, ORM)
-    self.db = sqlite3.open(database)
-    if not self.db then
-        error("Failed to open database")
-    end
-    self.models = {}
+    self.db = sqlite3.open(db_name)
     return self
 end
 
---- Closes the ORM's database connection
-function ORM:close()
-    if self.db then
-        self.db:close()
-        self.db = nil
+function ORM:execute(sql, ...)
+    local stmt = self.db:prepare(sql)
+    if not stmt then
+        error("Failed to prepare statement: " .. sql)
     end
+    stmt:bind_values(...)
+    stmt:step()
+    stmt:finalize()
 end
 
---- Creates or retrieves a table model
--- @param table_name The name of the table
--- @param schema The schema for the table (optional)
--- @return A reference to the table's model
-function ORM:Table(table_name, schema)
-    if not self.models[table_name] then
-        if schema then
-            local schema_str = localization_util.commas(schema, "")
-            -- Create the table if it doesn't exist
-            local create_stmt = string.format("CREATE TABLE IF NOT EXISTS %s (%s)", table_name, schema_str)
-            self.db:exec(create_stmt)
-
-            -- Define the Model for this table
-            self.models[table_name] = function(...)
-                return self.Model.new(self.db, table_name, ...)
-            end
-        else
-            error("Schema required for new table")
-        end
-    elseif schema then
-        -- Check if the existing table schema differs
-        local check_stmt = string.format("PRAGMA table_info(%s)", table_name)
-        local existing_schema = {}
-        for row in self.db:nrows(check_stmt) do
-            if row.pk == 1 then
-                table.insert(existing_schema, row.name .. " " .. row.type .. " " .. "PRIMARY KEY")
-            else
-                table.insert(existing_schema, row.name .. " " .. row.type)
-            end
-        end
-        existing_schema = S(existing_schema)
-        if existing_schema ~= S(schema) then
-            print(string.format("Warning: Schema for table '%s' differs from the provided schema: %s", table_name, existing_schema:sdiff(S(schema))))
-        end
+function ORM:create_table(model)
+    local columns = {}
+    for col, col_type in pairs(model.schema) do
+        table.insert(columns, col .. " " .. col_type)
     end
-    return self.models[table_name]
-end
-
---- Model class under ORM
-ORM.Model = {}
-ORM.Model.__index = ORM.Model
-
---- Creates a new Model instance. This is an internal function and shouldn't be called directly.
--- Use ORM:Table() instead since that contains proper validation.
--- @param db The SQLite database connection
--- @param table_name The name of the table
--- @param ... Optional rows to initialize the model with
--- @return A new Model instance
-function ORM.Model.new(db, table_name, ...)
-    local self = setmetatable({}, ORM.Model)
-    self.db = db
-    self.table_name = table_name
-    self.rows = {...}
-    return self
-end
-
---- Saves the rows in the model to the database, updating any incomplete rows with default values from the database
--- @return The model instance
-function ORM.Model:save()
-    for _, row in ipairs(self.rows) do
-        local columns, values = {}, {}
-        for k, v in pairs(row) do
-            table.insert(columns, k)
-            table.insert(values, string.format("'%s'", v))
-        end
-        local insert_stmt = string.format(
-                "INSERT INTO %s (%s) VALUES (%s)",
-                self.table_name,
-                table.concat(columns, ", "),
-                table.concat(values, ", ")
-        )
-        self.db:exec(insert_stmt)
-        if self.db:errmsg() then
-            print(self.db:errmsg())
-        end
-        -- Update the row with default values from the database
-        local row_id = self.db:last_insert_rowid()
-        local query = string.format("SELECT * FROM %s WHERE rowid = %d", self.table_name, row_id)
-        for db_row in self.db:nrows(query) do
-            for k, v in pairs(db_row) do
-                row[k] = v
-            end
-        end
-    end
-    return self
-end
-
---- Queries the database and populates the model with matching rows.
--- Note: this is destructive to data previously in memory.
--- @param expr A SQL WHERE clause expression specifying the rows to retrieve
--- @return The model instance
-function ORM.Model:where(expr, columns)
-    columns = localization_util.commas(columns or L{ "*" }, "")
-    local rows = {}
-    local query = string.format("SELECT %s FROM %s WHERE %s", columns, self.table_name, expr)
-    for row in self.db:nrows(query) do
-        table.insert(rows, row)
-    end
-    self.rows = rows
-    return self
-end
-
---- Adds rows matching the expression to the existing model rows
--- Note: this adds the matching rows to the in-memory rows.
--- @param expr A SQL WHERE clause expression specifying the rows to retrieve
--- @return The model instance
-function ORM.Model:addwhere(expr)
-    local query = string.format("SELECT * FROM %s WHERE %s", self.table_name, expr)
-    for row in self.db:nrows(query) do
-        table.insert(self.rows, row)
-    end
-    return self
-end
-
---- Retrieves the first row from the model
--- @return A new model instance containing the first row
-function ORM.Model:first()
-    if #self.rows > 0 then
-        return ORM.Model.new(self.db, self.table_name, self.rows[1])
+    local sql
+    if model.primary_key then
+        sql = string.format("CREATE TABLE IF NOT EXISTS %s (%s, PRIMARY KEY %s);", model.table_name, table.concat(columns, ", "), model.primary_key)
     else
-        return ORM.Model.new(self.db, self.table_name)
+        sql = string.format("CREATE TABLE IF NOT EXISTS %s (%s);", model.table_name, table.concat(columns, ", "))
     end
+    self:execute(sql)
 end
 
---- Deletes the rows in the model from the database
--- Note: this does not delete them from the in-memory copy
--- @return The model instance
-function ORM.Model:delete()
-    for _, row in ipairs(self.rows) do
-        local conditions = {}
-        for k, v in pairs(row) do
-            table.insert(conditions, string.format("%s='%s'", k, v))
+function ORM:insert(table_name, data)
+    local columns, values, placeholders = {}, {}, {}
+    for col, val in pairs(data) do
+        table.insert(columns, col)
+        table.insert(values, val)
+        table.insert(placeholders, "?")
+    end
+    local sql = string.format("INSERT INTO %s (%s) VALUES (%s);", table_name, table.concat(columns, ", "), table.concat(placeholders, ", "))
+    self:execute(sql, table.unpack(values))
+end
+
+function ORM:select(table_name, conditions)
+    local sql = "SELECT * FROM " .. table_name
+    local where_clause = {}
+
+    if conditions then
+        for col, val in pairs(conditions) do
+            if type(val) == "string" then
+                val = "'" .. val:gsub("'", "''") .. "'" -- Escape single quotes in strings
+            end
+            table.insert(where_clause, col .. " = " .. val)
         end
-        local delete_stmt = string.format("DELETE FROM %s WHERE %s", self.table_name, table.concat(conditions, " AND "))
-        self.db:exec(delete_stmt)
+        sql = sql .. " WHERE " .. table.concat(where_clause, " AND ")
+    end
+    sql = sql .. ";"
+
+    local result = {}
+    for row in self.db:nrows(sql) do
+        setmetatable(row, { __index = ORM.Row })
+        row._table_name = table_name
+        row._db = self
+        table.insert(result, row)
+    end
+    return result
+end
+
+function ORM:update(table_name, data, conditions)
+    local set_clause, values = {}, {}
+    for col, val in pairs(data) do
+        table.insert(set_clause, col .. " = ?")
+        table.insert(values, val)
+    end
+    local sql = "UPDATE " .. table_name .. " SET " .. table.concat(set_clause, ", ")
+    if conditions then
+        local where_clause = {}
+        for col, val in pairs(conditions) do
+            table.insert(where_clause, col .. " = ?")
+            table.insert(values, val)
+        end
+        sql = sql .. " WHERE " .. table.concat(where_clause, " AND ")
+    end
+    sql = sql .. ";"
+    self:execute(sql, table.unpack(values))
+end
+
+function ORM:delete(table_name, conditions)
+    local sql = "DELETE FROM " .. table_name
+    local where_clause, values = {}, {}
+    if conditions then
+        for col, val in pairs(conditions) do
+            table.insert(where_clause, col .. " = ?")
+            table.insert(values, val)
+        end
+        sql = sql .. " WHERE " .. table.concat(where_clause, " AND ")
+    end
+    sql = sql .. ";"
+    self:execute(sql, table.unpack(values))
+end
+
+function ORM:close()
+    self.db:close()
+end
+
+-- Row Object with Save/Delete functionality
+ORM.Row = {}
+ORM.Row.__index = ORM.Row
+
+function ORM.Row:save()
+    local data, conditions = {}, {}
+    for k, v in pairs(self) do
+        if k ~= "_table_name" and k ~= "_db" then
+            if k == "id" then
+                conditions[k] = v
+            else
+                data[k] = v
+            end
+        end
+    end
+    self._db:update(self._table_name, data, conditions)
+end
+
+function ORM.Row:delete()
+    self._db:delete(self._table_name, { id = self.id })
+end
+
+local Model = {}
+Model.__index = Model
+
+function Model.new(table, data)
+    local self = setmetatable({}, Model)
+    self.table = table
+    for key, value in pairs(data or {}) do
+        self[key] = value
     end
     return self
 end
 
---- Checks and returns the sync status and values of each row
--- @return A table containing the sync status and row values
-function ORM.Model:sync_status()
-    local status = {}
-    for _, row in ipairs(self.rows) do
-        local is_synced = true
-        for k, v in pairs(row) do
-            local query = string.format("SELECT %s FROM %s WHERE %s='%s'", k, self.table_name, k, v)
-            local exists = false
-            for db_row in self.db:nrows(query) do
-                if db_row[k] ~= v then
-                    is_synced = false
-                end
-                exists = true
-                break
+function Model:save()
+    --[[local data, conditions = {}, {}
+    for k, v in pairs(self) do
+        if k ~= "table" then
+            if k == self.table.primary_key or k == "id" then
+                conditions[k] = v
             end
-            if not exists then
-                is_synced = false
-            end
+            data[k] = v
         end
-        table.insert(status, {synced = is_synced, row = row})
     end
-    return status
+    self.table:update(data, conditions)]]
+    local data, conditions = {}, {}
+
+    local primary_key = self.table.primary_key or "id"
+
+    -- Parse composite primary key string into a table
+    local primary_keys = {}
+    for key in string.gmatch(primary_key, "[%w_]+") do
+        table.insert(primary_keys, key)
+    end
+
+    -- Collect primary key values for conditions
+    for _, key in ipairs(primary_keys) do
+        conditions[key] = self[key]
+    end
+
+    -- Collect all column values except the table reference
+    for k, v in pairs(self) do
+        if k ~= "table" and k ~= "primary_key" then
+            data[k] = v
+        end
+    end
+
+    -- If all primary key fields exist, attempt an update, otherwise insert
+    local existing = self.table:where(conditions)
+
+    if #existing > 0 then
+        self.table:update(data, conditions)
+    else
+        self.table:insert(data)
+    end
 end
 
---- Converts the model rows to a string representation, using sync_status to show their synced status and values
--- @return A string representation of the model rows
-function ORM.Model:__tostring()
-    local output = {}
-    for _, entry in ipairs(self:sync_status()) do
-        local row = entry.row
-        local is_synced = entry.synced
-        local row_values = {}
-        for k, v in pairs(row) do
-            table.insert(row_values, string.format("%s='%s'", k, v))
-        end
-        table.insert(output, string.format("{%s} (Synced: %s)", table.concat(row_values, ", "), tostring(is_synced)))
+local Table = {}
+Table.__index = Table
+Table.__call = Model.new
+Table.__type = "Table"
+
+setmetatable(Table, {
+    __call = function(_, orm, config)
+        return Table.new(orm, config)
     end
-    return table.concat(output, "\n")
+})
+
+function Table.new(orm, config)
+    local self = setmetatable({}, Table)
+
+    self.orm = orm
+    self.table_name = config.table_name
+    self.schema = config.schema
+    self.primary_key = config.primary_key
+
+    self.orm:create_table(config)
+
+    return self
 end
 
---- Return as a module
-return ORM
+function Table:all()
+    return self.orm:select(self.table_name)
+end
+
+function Table:get(conditions)
+    local result = self.orm:select(self.table_name, conditions)
+    return #result > 0 and result[1] or nil
+end
+
+function Table:where(conditions)
+    return self.orm:select(self.table_name, conditions)
+end
+
+function Table:update(data, conditions)
+    self.orm:update(self.table_name, data, conditions)
+end
+
+function Table:insert(data)
+    self.orm:insert(self.table_name, data)
+end
+
+function Table:initialize(orm)
+    self.orm = orm
+    orm:create_table(self)
+end
+
+return { ORM = ORM, Table = Table }

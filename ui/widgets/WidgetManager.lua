@@ -27,7 +27,7 @@ function WidgetManager:addWidget(widget, widgetName)
     end
     widget.widgetName = widgetName
 
-    local settings = windower.trust.get_settings().widgets:query({ name = widgetName, user_id = windower.ffxi.get_player().id }):first()
+    local settings = Widget:get({ name = widgetName, user_id = windower.ffxi.get_player().id })
 
     local xPos = settings and settings.x or widget:getDefaultPosition().x
     local yPos = settings and settings.y or widget:getDefaultPosition().y
@@ -41,7 +41,13 @@ function WidgetManager:addWidget(widget, widgetName)
     widget:layoutIfNeeded()
 
     self.disposeBag:add(widget:onSettingsChanged():addAction(function(w)
-        windower.trust.get_settings().widgets:upsert({ name = w.widgetName, x = w:getPosition().x, y = w:getPosition().y, user_id = windower.ffxi.get_player().id }, w.widgetName)
+        local widget = Widget({
+            name = w.widgetName,
+            x = w:getPosition().x,
+            y = w:getPosition().y,
+            user_id = windower.ffxi.get_player().id
+        })
+        widget:save()
 
         addon_system_message("Widget settings saved.")
     end), widget:onSettingsChanged())
