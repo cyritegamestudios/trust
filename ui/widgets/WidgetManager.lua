@@ -36,6 +36,7 @@ function WidgetManager:addWidget(widget, widgetName)
 
     self.widgets[widgetName] = widget
 
+
     widget:setPosition(xPos, yPos)
     widget:setVisible(true)
     widget:layoutIfNeeded()

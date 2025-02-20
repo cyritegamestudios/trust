@@ -1,12 +1,20 @@
 local sqlite3 = require("sqlite3")
 
+local Model = {}
+Model.__index = Model
+
 local ORM = {}
 ORM.__index = ORM
 
 function ORM.new(db_name)
     local self = setmetatable({}, ORM)
     self.db = sqlite3.open(db_name)
+    self.tables = {}
     return self
+end
+
+function ORM:destroy()
+    self.db:close()
 end
 
 function ORM:execute(sql, ...)
@@ -44,7 +52,7 @@ function ORM:insert(table_name, data)
     self:execute(sql, table.unpack(values))
 end
 
-function ORM:select(table_name, conditions)
+function ORM:select(table_name, conditions, raw_rows)
     local sql = "SELECT * FROM " .. table_name
     local where_clause = {}
 
@@ -59,12 +67,14 @@ function ORM:select(table_name, conditions)
     end
     sql = sql .. ";"
 
-    local result = {}
+    local result = L{}
     for row in self.db:nrows(sql) do
-        setmetatable(row, { __index = ORM.Row })
-        row._table_name = table_name
-        row._db = self
-        table.insert(result, row)
+        result:append(row)
+    end
+    if not raw_rows then
+        result = result:map(function(row)
+            return Model.new(self.tables[table_name], row)
+        end)
     end
     return result
 end
@@ -127,9 +137,6 @@ end
 function ORM.Row:delete()
     self._db:delete(self._table_name, { id = self.id })
 end
-
-local Model = {}
-Model.__index = Model
 
 function Model.new(table, data)
     local self = setmetatable({}, Model)
@@ -202,7 +209,9 @@ function Table.new(orm, config)
     self.schema = config.schema
     self.primary_key = config.primary_key
 
-    self.orm:create_table(config)
+    self.orm:create_table(table_name, config)
+
+    self.orm.tables[self.table_name] = self
 
     return self
 end
@@ -211,8 +220,8 @@ function Table:all()
     return self.orm:select(self.table_name)
 end
 
-function Table:get(conditions)
-    local result = self.orm:select(self.table_name, conditions)
+function Table:get(conditions, raw_rows)
+    local result = self.orm:select(self.table_name, conditions, raw_rows)
     return #result > 0 and result[1] or nil
 end
 
@@ -226,6 +235,10 @@ end
 
 function Table:insert(data)
     self.orm:insert(self.table_name, data)
+end
+
+function Table:delete(conditions)
+    self.orm:delete(self.table_name, conditions)
 end
 
 function Table:initialize(orm)
