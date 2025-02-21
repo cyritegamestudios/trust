@@ -6,16 +6,15 @@ local TrustWidgets = setmetatable({}, {__index = View })
 TrustWidgets.__index = TrustWidgets
 
 
-function TrustWidgets.new(addonSettings, actionQueue, addonEnabled, trust, mediaPlayer, soundTheme)
+function TrustWidgets.new(actionQueue, addonEnabled, trust, mediaPlayer, soundTheme)
     local self = setmetatable(View.new(), TrustWidgets)
 
-    self.addonSettings = addonSettings
     self.actionQueue = actionQueue
     self.addonEnabled = addonEnabled
     self.mediaPlayer = mediaPlayer
     self.soundTheme = soundTheme
     self.trust = trust
-    self.widgetManager = WidgetManager.new(addonSettings)
+    self.widgetManager = WidgetManager.new()
 
     self:init()
 

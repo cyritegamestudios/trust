@@ -357,7 +357,7 @@ function load_ui()
 
 	local TrustWidgets = require('ui/TrustWidgets')
 
-	widgets = TrustWidgets.new(addon_settings, action_queue, addon_enabled, player.trust.main_job, mediaPlayer, soundTheme)
+	widgets = TrustWidgets.new(action_queue, addon_enabled, player.trust.main_job, mediaPlayer, soundTheme)
 	widgets:setNeedsLayout()
 	widgets:layoutIfNeeded()
 	widgets:setUserInteractionEnabled(true)
