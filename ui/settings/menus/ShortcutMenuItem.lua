@@ -30,7 +30,16 @@ function ShortcutMenuItem.new(shortcutId, shortcutName)
             BooleanConfigItem.new('enabled', "Enable Shortcut"),
         }
 
-        local shortcutsEditor = ConfigEditor.fromModel(shortcut, configItems)
+        local shortcutsEditor = ConfigEditor.fromModel(shortcut, configItems, nil, function(newSettings)
+            local existingShortcut = Shortcut:get({ key = newSettings.key, flags = newSettings.flags })
+
+            local isError = existingShortcut and existingShortcut.id ~= shortcutId
+            if isError then
+                return false, "This shortcut is already in use."
+            else
+                return true
+            end
+        end)
 
         self.disposeBag:add(shortcutsEditor:onConfigChanged():addAction(function(newSettings, oldSettings)
             local shortcut = Shortcut({
@@ -49,6 +58,10 @@ function ShortcutMenuItem.new(shortcutId, shortcutName)
             end
         end), shortcutsEditor:onConfigChanged())
 
+        self.disposeBag:add(shortcutsEditor:onConfigValidationError():addAction(function(errorMessage)
+            addon_system_error(errorMessage)
+        end), shortcutsEditor:onConfigValidationError())
+
         return shortcutsEditor
     end
 
@@ -64,7 +77,7 @@ end
 function ShortcutMenuItem:getShortcut()
     return Shortcut:get({ id = self.shortcutId }) or Shortcut({
         id = self.shortcutId,
-        key = "T",
+        key = "A",
         flags = 1,
         enabled = false
     })

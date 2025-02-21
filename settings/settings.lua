@@ -28,8 +28,8 @@ function Settings.new()
         table_name = "shortcuts",
         schema = {
             id = "VARCHAR(64) PRIMARY KEY UNIQUE",
-            key = "VARCHAR(8) DEFAULT A",
-            flags = "INTEGER DEFAULT 0",
+            key = "VARCHAR(8) DEFAULT A UNIQUE",
+            flags = "INTEGER DEFAULT 1",
             enabled = "TINYINT(1) DEFAULT 1",
         }
     })
