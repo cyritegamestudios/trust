@@ -179,7 +179,7 @@ end
 -- @treturn boolean True if the button is enabled
 --
 function ButtonItem:getEnabled()
-    return self.enabled
+    return self.enabled and self.enabled ~= 0
 end
 
 ---

@@ -436,10 +436,6 @@ function ConfigEditor:onSelectMenuItemAtIndexPath(textItem, indexPath)
 end
 
 function ConfigEditor:shouldDeselectOnLoseFocus(section)
-    if self.configItems[section] and self.configItems[section].__type == BooleanConfigItem.__type then
-        print('nope')
-        return false
-    end
     return true
 end
 
