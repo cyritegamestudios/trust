@@ -9,15 +9,10 @@ function Role.new(action_queue, job)
         last_tic_time = os.time();
     }, Role)
 
-    self:create_settings()
-
     return self
 end
 
 function Role:destroy()
-end
-
-function Role:create_settings()
 end
 
 function Role:on_add()

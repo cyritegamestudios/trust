@@ -1,4 +1,3 @@
-local DatabaseTable = require('cylibs/database/table')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local ORM = require('cylibs/database/orm/orm')
 local Database = ORM.ORM

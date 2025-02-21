@@ -71,13 +71,11 @@ function TrustAddonSettings:onSettingsChanged()
     return self.settingsChanged
 end
 
-function TrustAddonSettings.new(database)
+function TrustAddonSettings.new()
     local self = setmetatable({}, TrustAddonSettings)
 
     self.settingsChanged = Event.newEvent()
     self.settings = {}
-
-
 
     return self
 end
