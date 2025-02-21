@@ -210,7 +210,7 @@ end
 function PuppetmasterTrust:get_widget()
 	local AutomatonStatusWidget = require('ui/widgets/AutomatonStatusWidget')
 	local petStatusWidget = AutomatonStatusWidget.new(
-			Frame.new(132, 324, 125, 57),
+			Frame.new(168, 324, 125, 57),
 			self:get_party():get_player(),
 			windower.trust.ui.get_hud(),
 			windower.trust.settings.get_job_settings('PUP'),
