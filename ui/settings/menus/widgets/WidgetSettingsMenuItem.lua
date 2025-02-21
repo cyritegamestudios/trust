@@ -10,7 +10,7 @@ local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local WidgetSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 WidgetSettingsMenuItem.__index = WidgetSettingsMenuItem
 
-function WidgetSettingsMenuItem.new(addonSettings)
+function WidgetSettingsMenuItem.new()
     local widgetNames = L{ 'Trust', 'Party', 'Target', 'Pet', 'Job' }
 
     local buttonItems = L{ ButtonItem.localized('Layout', i18n.translate("Button_Widget_Layout")) } + widgetNames:map(function(widgetName)
@@ -19,7 +19,6 @@ function WidgetSettingsMenuItem.new(addonSettings)
 
     local self = setmetatable(MenuItem.new(buttonItems, {}, nil, "Widgets", "Configure widget settings."), WidgetSettingsMenuItem)
 
-    self.addonSettings = addonSettings
     self.widgetNames = widgetNames
     self.disposeBag = DisposeBag.new()
 
@@ -48,7 +47,6 @@ function WidgetSettingsMenuItem:getWidgetMenuItem(widgetName)
         local configItems = L{
             ConfigItem.new('x', 0, windower.get_windower_settings().ui_x_res, 1, function(value) return value.."" end, "X"),
             ConfigItem.new('y', 0, windower.get_windower_settings().ui_y_res, 1, function(value) return value.."" end, "Y"),
-            --BooleanConfigItem.new('detailed', "Show Detailed View"),
         }
         local configEditor = ConfigEditor.fromModel(Widget:get({
             name = widgetName:lower(), user_id = windower.ffxi.get_player().id
@@ -128,15 +126,11 @@ function WidgetSettingsMenuItem:getLayoutMenuItem()
                     end
 
                     widget:setPosition(xPos, yPos)
-                    widget:getSettings(self.addonSettings).x = xPos
-                    widget:getSettings(self.addonSettings).y = yPos
+                    widget:layoutIfNeeded()
 
                     yPos = yPos + (widget:getMaxHeight() or widget:getSize().height) + 5
                 end
             end
-
-            self.addonSettings:saveSettings(true)
-
         end), configEditor:onConfigChanged())
 
         return configEditor

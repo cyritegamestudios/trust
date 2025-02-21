@@ -57,11 +57,8 @@ function Widget.new(frame, title, addonSettings, dataSource, layout, titleWidth,
     self:layoutIfNeeded()
 
     local shortcutSettings = Shortcut:get({ id = title:lower() })
-    if shortcutSettings and shortcutSettings.key ~= Keyboard.Keys.None then
-        Keyboard.input():registerKeybind(shortcutSettings.key, shortcutSettings.flags, function(_, _)
-            self:requestFocus()
-            self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
-        end)
+    if shortcutSettings then
+        self:setShortcut(shortcutSettings.key, shortcutSettings.flags)
     end
 
     return self
@@ -82,10 +79,12 @@ function Widget:getSettings(addonSettings)
 end
 
 function Widget:setShortcut(key, flags)
-    Keyboard.input():registerKeybind(key, flags, function(_, _)
-        self:requestFocus()
-        self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
-    end)
+    if key ~= Keyboard.Keys.None then
+        Keyboard.input():registerKeybind(key, flags, function(_, _)
+            self:requestFocus()
+            self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
+        end)
+    end
 end
 
 function Widget:layoutIfNeeded()

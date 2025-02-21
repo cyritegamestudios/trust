@@ -26,10 +26,7 @@ function WidgetManager:addWidget(widget, widgetName)
         return
     end
     widget.widgetName = widgetName
-
-    --Shortcut:insert({
-    --    name = widgetName
-    --})
+    
     local shortcut = Shortcut({
         id = widgetName
     })

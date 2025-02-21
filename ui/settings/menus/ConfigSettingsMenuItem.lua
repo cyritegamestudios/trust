@@ -34,7 +34,7 @@ function ConfigSettingsMenuItem:destroy()
 end
 
 function ConfigSettingsMenuItem:reloadSettings(addonSettings, trustSettings, trustSettingsMode)
-    self:setChildMenuItem("Widgets", WidgetSettingsMenuItem.new(addonSettings))
+    self:setChildMenuItem("Widgets", WidgetSettingsMenuItem.new())
     self:setChildMenuItem("GearSwap", self:getGearSwapMenuItem(trustSettings, trustSettingsMode))
     self:setChildMenuItem("Logging", self:getLoggingMenuItem(addonSettings))
     self:setChildMenuItem("Remote", RemoteCommandsSettingsMenuItem.new(addonSettings))
