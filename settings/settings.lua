@@ -56,17 +56,6 @@ function Settings.new()
         }
     })
 
-    _G.GeneralSettings = Table(self.database, {
-        table_name = "general",
-        schema = {
-            id = "INTEGER",
-            follow_distance = "INTEGER DEFAULT 1",
-            follow_auto_pause = "TINYINT(1) DEFAULT 0",
-            menu_key = "VARCHAR(8) DEFAULT '%^numpad+'",
-            sounds_enabled = "TINYINT(1) DEFAULT 1",
-        }
-    })
-
     self.dispose_bag:addAny(L{ self.users, self.widgets })
 
     return self
