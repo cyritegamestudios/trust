@@ -83,6 +83,12 @@ function Roller:on_add()
             self:set_is_rolling(false)
         end
     end), state.AutoRollMode:on_state_change())
+
+    self.dispose_bag:add(addon_enabled:onValueChanged():addAction(function(_, isEnabled)
+        if not isEnabled then
+            self:set_is_rolling(false)
+        end
+    end), addon_enabled:onValueChanged())
 end
 
 function Roller:on_roll_used(roll_id, targets)

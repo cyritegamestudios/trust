@@ -1,7 +1,9 @@
+local Keyboard = require('cylibs/ui/input/keyboard')
 local ToggleButtonItem = require('cylibs/ui/collection_view/items/toggle_button_item')
 local CollectionViewCell = require('cylibs/ui/collection_view/collection_view_cell')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_collection_view_cell')
+local Mouse = require('cylibs/ui/input/mouse')
 
 local ToggleButtonCollectionViewCell = setmetatable({}, {__index = CollectionViewCell })
 ToggleButtonCollectionViewCell.__index = ToggleButtonCollectionViewCell
@@ -23,15 +25,6 @@ function ToggleButtonCollectionViewCell.new(buttonItem)
     end
 
     self:addSubview(self.buttonView)
-
-    if self:getItem():getEnabled() then
-        self:setSelected(true)
-    else
-        self:setSelected(false)
-    end
-
-    self:setNeedsLayout()
-    self:layoutIfNeeded()
 
     return self
 end
@@ -72,26 +65,84 @@ function ToggleButtonCollectionViewCell:setButtonState(buttonState)
     end
 end
 
+function ToggleButtonCollectionViewCell:setItem(item)
+    CollectionViewCell.setItem(self, item)
+
+    if item:getEnabled() then
+        self:setButtonState(ToggleButtonItem.State.Enabled)
+    else
+        self:setButtonState(ToggleButtonItem.State.Disabled)
+    end
+
+    self:setNeedsLayout()
+    self:layoutIfNeeded()
+end
+
 ---
 -- Sets the selection state of the cell.
 -- @tparam boolean selected The new selection state.
 --
 function ToggleButtonCollectionViewCell:setSelected(selected)
-    if selected == self.selected then
+    if not CollectionViewCell.setSelected(self, selected) then
         return false
     end
 
     if selected then
-        self:getItem():setEnabled(true)
-        self:setButtonState(ToggleButtonItem.State.Enabled)
+        self:requestFocus()
     else
-        self:getItem():setEnabled(false)
-        self:setButtonState(ToggleButtonItem.State.Disabled)
+        self:resignFocus()
     end
 
-    CollectionViewCell.setSelected(self, selected)
-
     return true
+end
+
+function ToggleButtonCollectionViewCell:onKeyboardEvent(key, pressed, flags, blocked)
+    local blocked = blocked or CollectionViewCell.onKeyboardEvent(self, key, pressed, flags, blocked)
+    if blocked then
+        return true
+    end
+    if pressed then
+        local key = Keyboard.input():getKey(key)
+        if key then
+            if L{ 'Left', 'Right' }:contains(key) then
+                local enabled = not self:getItem():getEnabled()
+                self:getItem():setEnabled(enabled)
+                self:setItem(self:getItem())
+                return true
+            elseif key == 'Escape' then
+                self:setShouldResignFocus(true)
+                self:resignFocus()
+            end
+        end
+    end
+    return false
+end
+
+function ToggleButtonCollectionViewCell:onMouseEvent(type, x, y, delta)
+    if type == Mouse.Event.ClickRelease then
+        if self:hasFocus() then
+            self:setShouldResignFocus(true)
+            self:resignFocus()
+            self:setSelected(false)
+            return true
+        end
+    elseif type == Mouse.Event.Wheel then
+        if self:hasFocus() then
+            self:onKeyboardEvent(205, true, 0, false)
+            return true
+        end
+    end
+    return false
+end
+
+function ToggleButtonCollectionViewCell:setHasFocus(hasFocus)
+    CollectionViewCell.setHasFocus(self, hasFocus)
+
+    self:layoutIfNeeded()
+
+    if self:hasFocus() then
+        self:setShouldResignFocus(false)
+    end
 end
 
 return ToggleButtonCollectionViewCell

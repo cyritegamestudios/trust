@@ -83,7 +83,7 @@ TrustStatusWidget.Subheadline = TextStyle.new(
         Color.red
 )
 
-function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, mainJobName, subJobName, player)
+function TrustStatusWidget.new(frame, addonEnabled, actionQueue, mainJobName, subJobName, player)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         if indexPath.section == 1 then
             local cell = TextCollectionViewCell.new(item)
@@ -103,9 +103,8 @@ function TrustStatusWidget.new(frame, addonSettings, addonEnabled, actionQueue, 
         end
     end)
 
-    local self = setmetatable(Widget.new(frame, "Trust", addonSettings, dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 3), 20), TrustStatusWidget)
+    local self = setmetatable(Widget.new(frame, "Trust", dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 3), 20), TrustStatusWidget)
 
-    self.addonSettings = addonSettings
     self.mainJobName = mainJobName
     self.subJobName = subJobName
 
@@ -195,10 +194,6 @@ function TrustStatusWidget:destroy()
     for _,event in pairs(self.events) do
         windower.unregister_event(event)
     end
-end
-
-function TrustStatusWidget:getSettings(addonSettings)
-    return addonSettings:getSettings().trust_widget
 end
 
 function TrustStatusWidget:setJobs(mainJobName, subJobName)

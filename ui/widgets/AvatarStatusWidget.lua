@@ -57,7 +57,7 @@ AvatarStatusWidget.Subheadline = TextStyle.new(
         Color.red
 )
 
-function AvatarStatusWidget.new(frame, addonSettings, player, trustHud, trustSettings, trustSettingsMode)
+function AvatarStatusWidget.new(frame, player, trustHud, trustSettings, trustSettingsMode)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         if indexPath.section == 1 then
             local cell = TextCollectionViewCell.new(item)
@@ -68,9 +68,8 @@ function AvatarStatusWidget.new(frame, addonSettings, player, trustHud, trustSet
         end
     end)
 
-    local self = setmetatable(Widget.new(frame, "Pet", addonSettings, dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 3), 10, true), AvatarStatusWidget)
+    local self = setmetatable(Widget.new(frame, "Pet", dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 3), 10, true), AvatarStatusWidget)
 
-    self.addonSettings = addonSettings
     self.id = player:get_id()
     self.actionDisposeBag = DisposeBag.new()
 

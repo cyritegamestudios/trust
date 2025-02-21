@@ -18,7 +18,7 @@ function Widget:onSettingsChanged()
     return self.settingsChanged
 end
 
-function Widget.new(frame, title, addonSettings, dataSource, layout, titleWidth, hideCursor)
+function Widget.new(frame, title, dataSource, layout, titleWidth, hideCursor)
     local widgetStyle = FFXIClassicStyle.default()
     if hideCursor then
         widgetStyle.cursorItem = nil
@@ -26,7 +26,6 @@ function Widget.new(frame, title, addonSettings, dataSource, layout, titleWidth,
 
     local self = setmetatable(CollectionView.new(dataSource, layout, nil, widgetStyle), Widget)
 
-    self.addonSettings = addonSettings
     self.expanded = true
     self.events = {}
     self.settingsChanged = Event.newEvent()
@@ -37,6 +36,7 @@ function Widget.new(frame, title, addonSettings, dataSource, layout, titleWidth,
     self:setScrollEnabled(false)
     self:setUserInteractionEnabled(true)
 
+    self:setPosition(frame.x, frame.y)
     self:setSize(frame.width, frame.height)
 
     local backgroundView = FFXIBackgroundView.new(frame)
@@ -55,27 +55,9 @@ function Widget.new(frame, title, addonSettings, dataSource, layout, titleWidth,
     self:setNeedsLayout()
     self:layoutIfNeeded()
 
-    self:getDisposeBag():add(addonSettings:onSettingsChanged():addAction(function(settings)
-        local settings = self:getSettings(self.addonSettings)
-
-        self:setPosition(settings.x, settings.y)
-        self:layoutIfNeeded()
-
-        local shortcutSettings = self.addonSettings:getSettings().shortcuts.widgets[title:lower()]
-        if shortcutSettings and shortcutSettings.enabled then
-            Keyboard.input():registerKeybind(shortcutSettings.key, shortcutSettings.flags, function(_, _)
-                self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
-                self:requestFocus()
-            end)
-        end
-    end), addonSettings:onSettingsChanged())
-
-    local shortcutSettings = self.addonSettings:getSettings().shortcuts.widgets[title:lower()]
-    if shortcutSettings and shortcutSettings.enabled then
-        Keyboard.input():registerKeybind(shortcutSettings.key, shortcutSettings.flags, function(_, _)
-            self:requestFocus()
-            self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
-        end)
+    local shortcutSettings = Shortcut:get({ id = title:lower() })
+    if shortcutSettings then
+        self:setShortcut(shortcutSettings.key, shortcutSettings.flags)
     end
 
     return self
@@ -91,8 +73,30 @@ function Widget:destroy()
     end
 end
 
-function Widget:getSettings(addonSettings)
-    return nil
+function Widget:createSettings()
+    WidgetSettings:insert({
+        name = self.widgetName,
+        user_id = windower.ffxi.get_player().id,
+        x = self.frame.x,
+        y = self.frame.y,
+    })
+end
+
+function Widget:getSettings()
+    local settings = WidgetSettings:get({
+        name = self.widgetName,
+        user_id = windower.ffxi.get_player().id
+    })
+    return settings
+end
+
+function Widget:setShortcut(key, flags)
+    if key ~= Keyboard.Keys.None then
+        Keyboard.input():registerKeybind(key, flags, function(_, _)
+            self:requestFocus()
+            self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
+        end)
+    end
 end
 
 function Widget:layoutIfNeeded()
@@ -100,27 +104,6 @@ function Widget:layoutIfNeeded()
 
     if not CollectionView.layoutIfNeeded(self) then
         return
-    end
-end
-
----
--- Sets the position of the view.
---
--- @tparam number x The x-coordinate to set.
--- @tparam number y The y-coordinate to set.
---
-function Widget:setPosition(x, y)
-    if self.frame.x == x and self.frame.y == y then
-        return
-    end
-    CollectionView.setPosition(self, x, y)
-
-    local settings = self:getSettings(self.addonSettings)
-    if settings then
-        local xPos, yPos = settings.x, settings.y
-        if xPos ~= x or yPos ~= y then
-            self.settingsChanged:trigger(self, settings)
-        end
     end
 end
 
@@ -155,6 +138,7 @@ function Widget:setEditing(editing)
             self.editingOverlay:destroy()
             self.editingOverlay = false
         end
+        self.settingsChanged:trigger(self)
     end
     return true
 end
@@ -182,10 +166,7 @@ function Widget:onMouseEvent(type, x, y, delta)
     end
     if type == Mouse.Event.Click then
         if self:isExpanded() and self:hitTest(x, y) then
-            if not self:hasFocus() then
-                -- TODO: do I need to uncomment this?
-                self:requestFocus()
-            end
+
             local startPosition = self:getAbsolutePosition()
             self.dragging = { x = startPosition.x, y = startPosition.y, dragX = x, dragY = y }
 
@@ -208,8 +189,13 @@ function Widget:onMouseEvent(type, x, y, delta)
         if self.dragging then
             self.dragging = nil
             self:setEditing(false)
-            addon_system_message("Use // trust widget save to save positions for all widgets.")
             return true
+        else
+            if not self:hasFocus() then
+                -- TODO: do I need to uncomment this?
+                self:requestFocus()
+                return true
+            end
         end
     else
         self.dragging = nil

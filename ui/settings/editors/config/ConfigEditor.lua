@@ -26,6 +26,34 @@ local TextStyle = require('cylibs/ui/style/text_style')
 local ToggleButtonCollectionViewCell = require('cylibs/ui/collection_view/cells/toggle_button_collection_view_cell')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 
+local ModelSettings = {}
+ModelSettings.__index = ModelSettings
+
+function ModelSettings.new(model)
+    local self = setmetatable({}, ModelSettings)
+    self.model = model
+    for k, v in pairs(self.model) do
+        if k ~= "table" and k ~= "primary_key" then
+            self[k] = v
+        end
+    end
+    return self
+end
+
+function ModelSettings:saveSettings()
+    for k, v in pairs(self) do
+        if k ~= "model" then
+            self.model[k] = v
+        end
+
+    end
+    self.model:save()
+end
+
+function ModelSettings:copy()
+    return ModelSettings.new(self.model)
+end
+
 local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
 local ConfigEditor = setmetatable({}, {__index = FFXIWindow })
 ConfigEditor.__index = ConfigEditor
@@ -47,6 +75,12 @@ function ConfigEditor:onConfigValidationError()
     return self.configValidationError
 end
 
+function ConfigEditor.fromModel(model, configItems, infoView, validator, showMenu, viewSize)
+    local modelSettings = ModelSettings.new(model)
+
+    local self = ConfigEditor.new(modelSettings, modelSettings, configItems, infoView, validator, showMenu, viewSize)
+    return self
+end
 
 function ConfigEditor.new(trustSettings, configSettings, configItems, infoView, validator, showMenu, viewSize)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)

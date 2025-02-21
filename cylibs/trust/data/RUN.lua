@@ -63,8 +63,8 @@ end
 
 function RuneFencerTrust:get_widget()
 	local RuneFencerWidget = require('ui/widgets/RuneFencerWidget')
-	local runeFencerWidget = RuneFencerWidget.new(Frame.new(0, 0, 125, 57), windower.trust.settings.get_addon_settings(), self)
-	return runeFencerWidget, "rune_fencer"
+	local runeFencerWidget = RuneFencerWidget.new(Frame.new(40, 294, 125, 57), self)
+	return runeFencerWidget, "job"
 end
 
 return RuneFencerTrust

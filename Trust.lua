@@ -238,7 +238,6 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_name_short,
 		SoundCommands.new(hud.mediaPlayer),
 		TargetCommands.new(main_trust_settings, state.MainTrustSettingsMode, party, action_queue),
 		WarpCommands.new(main_job_trust:role_with_type("follower").walk_action_queue),
-		WidgetCommands.new(main_job_trust, action_queue, addon_settings, widgets.widgetManager),
 	}:compact_map():extend(get_job_commands(job_name_short, main_job_trust, action_queue, main_trust_settings, weapon_skill_settings)):extend(get_job_commands(sub_job_name_short, sub_job_trust, action_queue, sub_trust_settings, weapon_skill_settings))
 
 	hud:setCommands(common_commands)
@@ -358,7 +357,7 @@ function load_ui()
 
 	local TrustWidgets = require('ui/TrustWidgets')
 
-	widgets = TrustWidgets.new(addon_settings, action_queue, addon_enabled, player.trust.main_job, mediaPlayer, soundTheme)
+	widgets = TrustWidgets.new(action_queue, addon_enabled, player.trust.main_job, mediaPlayer, soundTheme)
 	widgets:setNeedsLayout()
 	widgets:layoutIfNeeded()
 	widgets:setUserInteractionEnabled(true)
@@ -655,9 +654,16 @@ function loaded()
 		'includes/Trust-Cylibs-Util-Include',
 	}
 
+	local Settings = require('settings/settings')
+
+	local settings = Settings.new()
+	windower.trust.get_settings = function()
+		return settings
+	end
+
 	local actions = L{
 		Loading.LoadDependenciesAction.new(import_paths),
-		Loading.LoadSettingsAction.new(res.jobs[windower.ffxi.get_player().main_job_id].ens, res.jobs[windower.ffxi.get_player().sub_job_id or 0].ens),
+		Loading.LoadSettingsAction.new(settings, res.jobs[windower.ffxi.get_player().main_job_id].ens, res.jobs[windower.ffxi.get_player().sub_job_id or 0].ens),
 		Loading.Loadi18nAction.new(),
 		Loading.LoadGlobalsAction.new(),
 		Loading.LoadLoggerAction.new(),

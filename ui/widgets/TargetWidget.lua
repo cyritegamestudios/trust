@@ -58,7 +58,7 @@ TargetWidget.Subheadline = TextStyle.new(
     Color.red
 )
 
-function TargetWidget.new(frame, addonSettings, party, trust)
+function TargetWidget.new(frame, party, trust)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         if indexPath.row == 1 then
             local cell = TextCollectionViewCell.new(item)
@@ -83,9 +83,8 @@ function TargetWidget.new(frame, addonSettings, party, trust)
         end
     end)
 
-    local self = setmetatable(Widget.new(frame, "Target", addonSettings, dataSource, VerticalFlowLayout.new(2, Padding.new(8, 4, 0, 0), 4), 30), TargetWidget)
+    local self = setmetatable(Widget.new(frame, "Target", dataSource, VerticalFlowLayout.new(2, Padding.new(8, 4, 0, 0), 4), 30), TargetWidget)
 
-    self.addonSettings = addonSettings
     self.actionQueue = ActionQueue.new(nil, false, 5, false, true)
     self.actionDisposeBag = DisposeBag.new()
     self.party = party
@@ -179,10 +178,6 @@ function TargetWidget.new(frame, addonSettings, party, trust)
     end), skillchainer:on_skillchain_ended())
 
     return self
-end
-
-function TargetWidget:getSettings(addonSettings)
-    return addonSettings:getSettings().target_widget
 end
 
 function TargetWidget:setTarget(target_index)

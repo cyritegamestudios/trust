@@ -61,7 +61,7 @@ BlackMageWidget.Subheadline = TextStyle.new(
         Color.red
 )
 
-function BlackMageWidget.new(frame, addonSettings, player, trust, trustHud, trustSettings, trustSettingsMode)
+function BlackMageWidget.new(frame, player, trust, trustHud, trustSettings, trustSettingsMode)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         if item.__type == TextItem.__type then
             local cell = TextCollectionViewCell.new(item, BlackMageWidget.TextSmall3)
@@ -72,7 +72,7 @@ function BlackMageWidget.new(frame, addonSettings, player, trust, trustHud, trus
         end
     end)
 
-    local self = setmetatable(Widget.new(frame, "Black Mage", addonSettings, dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 3), 75, true), BlackMageWidget)
+    local self = setmetatable(Widget.new(frame, "Black Mage", dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 3), 75, true, 'job'), BlackMageWidget)
 
     self.addonSettings = addonSettings
     self.id = player:get_id()

@@ -37,45 +37,8 @@ default.logging.filter_pattern = ''
 default.menu_key = '%^numpad+'
 default.autocomplete = {}
 default.autocomplete.visible = true
-default.party_widget = {}
-default.party_widget.x = 4
-default.party_widget.y = 397
-default.party_widget.visible = true
 default.remote_commands = {}
 default.remote_commands.whitelist = S{}
-default.settings_widget = {}
-default.settings_widget.x = 8
-default.settings_widget.y = 140
-default.settings_widget.visible = true
-default.target_widget = {}
-default.target_widget.x = 4
-default.target_widget.y = 496
-default.target_widget.visible = true
-default.target_widget.detailed = true
-default.trust_widget = {}
-default.trust_widget.x = 4
-default.trust_widget.y = 324
-default.trust_widget.visible = true
-default.pet_widget = {}
-default.pet_widget.x = 4
-default.pet_widget.y = 244
-default.pet_widget.visible = true
-default.path_widget = {}
-default.path_widget.x = 18
-default.path_widget.y = 500
-default.path_widget.visible = true
-default.scholar_widget = {}
-default.scholar_widget.x = 4
-default.scholar_widget.y = 244
-default.scholar_widget.visible = true
-default.black_mage_widget = {}
-default.black_mage_widget.x = 4
-default.black_mage_widget.y = 244
-default.black_mage_widget.visible = true
-default.rune_fencer_widget = {}
-default.rune_fencer_widget.x = 4
-default.rune_fencer_widget.y = 244
-default.rune_fencer_widget.visible = true
 default.verbose = true
 default.version = '1.0.0'
 default.shortcuts = {}
@@ -92,15 +55,6 @@ default.shortcuts.menus.skillchains = {}
 default.shortcuts.menus.skillchains.enabled = false
 default.shortcuts.menus.skillchains.key = "S"
 default.shortcuts.menus.skillchains.flags = 1
-default.shortcuts.widgets = {}
-default.shortcuts.widgets.trust = {}
-default.shortcuts.widgets.trust.enabled = false
-default.shortcuts.widgets.trust.key = "T"
-default.shortcuts.widgets.trust.flags = 1
-default.shortcuts.widgets.party = {}
-default.shortcuts.widgets.party.enabled = false
-default.shortcuts.widgets.party.key = "P"
-default.shortcuts.widgets.party.flags = 1
 default.locales = {}
 default.locales.font_names = {}
 default.locales.font_names.english = "Arial"
@@ -119,8 +73,10 @@ end
 
 function TrustAddonSettings.new()
     local self = setmetatable({}, TrustAddonSettings)
+
     self.settingsChanged = Event.newEvent()
     self.settings = {}
+
     return self
 end
 
