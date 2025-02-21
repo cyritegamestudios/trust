@@ -46,7 +46,7 @@ function CommandsMenuItem:reloadSettings(commands)
                 commandConfigEditor:onConfigConfirm():addAction(function(newSettings, _)
                     local commandToRun = self.selectedCommand
                     for arg in commandArgs:it() do
-                        commandToRun = commandToRun..' '..newSettings[arg.key]
+                        commandToRun = commandToRun..' '..tostring(newSettings[arg.key])
                     end
                     coroutine.schedule(function()
                         hud:closeAllMenus()
