@@ -43,7 +43,8 @@ function TrustWidgets:init()
         coroutine.schedule(function()
             local widget, widgetName = trust:get_widget()
             if widget and widgetName then
-                self:addWidget(widget, widgetName)
+                widget:setPosition(4, 294)
+                self:addWidget(widget, 'job')
             end
         end, 0.5)
     end

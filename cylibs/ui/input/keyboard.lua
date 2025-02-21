@@ -7,6 +7,7 @@ local Keyboard = {}
 Keyboard.__index = Keyboard
 
 Keyboard.Keys = {}
+Keyboard.Keys.None = "None"
 Keyboard.Flags = {}
 Keyboard.Flags.Shift = 1
 Keyboard.Flags.Command = 2

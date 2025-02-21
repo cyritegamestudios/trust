@@ -238,7 +238,6 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_name_short,
 		SoundCommands.new(hud.mediaPlayer),
 		TargetCommands.new(main_trust_settings, state.MainTrustSettingsMode, party, action_queue),
 		WarpCommands.new(main_job_trust:role_with_type("follower").walk_action_queue),
-		WidgetCommands.new(main_job_trust, action_queue, addon_settings, widgets.widgetManager),
 	}:compact_map():extend(get_job_commands(job_name_short, main_job_trust, action_queue, main_trust_settings, weapon_skill_settings)):extend(get_job_commands(sub_job_name_short, sub_job_trust, action_queue, sub_trust_settings, weapon_skill_settings))
 
 	hud:setCommands(common_commands)
@@ -362,6 +361,10 @@ function load_ui()
 	widgets:setNeedsLayout()
 	widgets:layoutIfNeeded()
 	widgets:setUserInteractionEnabled(true)
+
+	windower.trust.get_widget = function(widgetName)
+		return widgets.widgetManager:getWidget(widgetName)
+	end
 
 	hud = TrustHud.new(player, action_queue, addon_settings, trust_mode_settings, addon_enabled, 500, 500, mediaPlayer, soundTheme)
 

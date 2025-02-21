@@ -56,23 +56,8 @@ function Widget.new(frame, title, addonSettings, dataSource, layout, titleWidth,
     self:setNeedsLayout()
     self:layoutIfNeeded()
 
-    self:getDisposeBag():add(addonSettings:onSettingsChanged():addAction(function(settings)
-        local settings = self:getSettings(self.addonSettings)
-
-        self:setPosition(settings.x, settings.y)
-        self:layoutIfNeeded()
-
-        local shortcutSettings = self.addonSettings:getSettings().shortcuts.widgets[title:lower()]
-        if shortcutSettings and shortcutSettings.enabled then
-            Keyboard.input():registerKeybind(shortcutSettings.key, shortcutSettings.flags, function(_, _)
-                self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
-                self:requestFocus()
-            end)
-        end
-    end), addonSettings:onSettingsChanged())
-
-    local shortcutSettings = self.addonSettings:getSettings().shortcuts.widgets[title:lower()]
-    if shortcutSettings and shortcutSettings.enabled then
+    local shortcutSettings = Shortcut:get({ id = title:lower() })
+    if shortcutSettings and shortcutSettings.key ~= Keyboard.Keys.None then
         Keyboard.input():registerKeybind(shortcutSettings.key, shortcutSettings.flags, function(_, _)
             self:requestFocus()
             self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
@@ -96,32 +81,18 @@ function Widget:getSettings(addonSettings)
     return windower.ffxi.get_settings().widgets:named(self.widgetName)
 end
 
+function Widget:setShortcut(key, flags)
+    Keyboard.input():registerKeybind(key, flags, function(_, _)
+        self:requestFocus()
+        self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
+    end)
+end
+
 function Widget:layoutIfNeeded()
     self:setSize(self.frame.width, self:getContentSize().height)
 
     if not CollectionView.layoutIfNeeded(self) then
         return
-    end
-end
-
----
--- Sets the position of the view.
---
--- @tparam number x The x-coordinate to set.
--- @tparam number y The y-coordinate to set.
---
-function Widget:setPosition(x, y)
-    if self.frame.x == x and self.frame.y == y then
-        return
-    end
-    CollectionView.setPosition(self, x, y)
-
-    local settings = self:getSettings(self.addonSettings)
-    if settings then
-        local xPos, yPos = settings.x, settings.y
-        if xPos ~= x or yPos ~= y then
-            --self.settingsChanged:trigger(self, settings)
-        end
     end
 end
 

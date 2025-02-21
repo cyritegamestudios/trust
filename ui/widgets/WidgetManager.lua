@@ -27,15 +27,32 @@ function WidgetManager:addWidget(widget, widgetName)
     end
     widget.widgetName = widgetName
 
-    local settings = Widget:get({ name = widgetName, user_id = windower.ffxi.get_player().id })
+    --Shortcut:insert({
+    --    name = widgetName
+    --})
+    local shortcut = Shortcut({
+        id = widgetName
+    })
+    shortcut:save()
 
-    local xPos = settings and settings.x or widget:getDefaultPosition().x
-    local yPos = settings and settings.y or widget:getDefaultPosition().y
+    local settings = Widget:get({
+        name = widgetName,
+        user_id = windower.ffxi.get_player().id
+    }) or Widget({
+        name = widgetName,
+        user_id = windower.ffxi.get_player().id,
+        x = widget:getDefaultPosition().x,
+        y = widget:getDefaultPosition().y,
+        shortcut_id = widgetName
+    })
+    settings:save()
+
+    local xPos = settings.x
+    local yPos = settings.y
 
     logger.notice(self.__class, 'addWidget', 'widgetName', xPos, yPos)
 
     self.widgets[widgetName] = widget
-
 
     widget:setPosition(xPos, yPos)
     widget:setVisible(true)

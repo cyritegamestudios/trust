@@ -24,6 +24,15 @@ function Settings.new()
         self:destroy()
     end)
 
+    _G.Shortcut = Table(self.database, {
+        table_name = "shortcuts",
+        schema = {
+            id = "VARCHAR(64) PRIMARY KEY UNIQUE",
+            key = "VARCHAR(8) DEFAULT None",
+            flags = "INTEGER DEFAULT 0",
+        }
+    })
+
     _G.User = Table(self.database, {
         table_name = "users",
         schema = {
@@ -35,12 +44,15 @@ function Settings.new()
     _G.Widget = Table(self.database, {
         table_name = "widgets",
         primary_key = "(name, user_id)",
+        foreign_keys = {
+        },
         schema = {
             name = "VARCHAR(64)",
             x = "INTEGER",
             y = "INTEGER",
             visible = "TINYINT(1) DEFAULT 1",
             user_id = "INTEGER",
+            shortcut_id = "VARCHAR(64) REFERENCES shortcuts (name)",
         }
     })
 

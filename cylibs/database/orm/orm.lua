@@ -1,3 +1,4 @@
+local Event = require('cylibs/events/Luvent')
 local sqlite3 = require("sqlite3")
 
 local Model = {}
@@ -38,6 +39,10 @@ function ORM:create_table(model)
     else
         sql = string.format("CREATE TABLE IF NOT EXISTS %s (%s);", model.table_name, table.concat(columns, ", "))
     end
+    --if model.foreign_keys then
+    --    sql = sql..' '..string.format("%s", table.concat(model.foreign_keys, "\n"))
+    --end
+    --sql = sql..";"
     self:execute(sql)
 end
 
@@ -66,7 +71,6 @@ function ORM:select(table_name, conditions, raw_rows)
         sql = sql .. " WHERE " .. table.concat(where_clause, " AND ")
     end
     sql = sql .. ";"
-
     local result = L{}
     for row in self.db:nrows(sql) do
         result:append(row)
@@ -190,6 +194,10 @@ function Model:save()
     end
 end
 
+function Model:saveSettings()
+    self:save()
+end
+
 local Table = {}
 Table.__index = Table
 Table.__call = Model.new
@@ -201,6 +209,10 @@ setmetatable(Table, {
     end
 })
 
+function Table:on_row_updated()
+    return self.row_updated
+end
+
 function Table.new(orm, config)
     local self = setmetatable({}, Table)
 
@@ -208,8 +220,9 @@ function Table.new(orm, config)
     self.table_name = config.table_name
     self.schema = config.schema
     self.primary_key = config.primary_key
+    self.row_updated = Event.newEvent()
 
-    self.orm:create_table(table_name, config)
+    self.orm:create_table(config)
 
     self.orm.tables[self.table_name] = self
 

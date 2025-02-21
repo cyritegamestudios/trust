@@ -11,7 +11,7 @@ local WidgetSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 WidgetSettingsMenuItem.__index = WidgetSettingsMenuItem
 
 function WidgetSettingsMenuItem.new(addonSettings)
-    local widgetNames = L{ 'Trust', 'Party', 'Target', 'Pet' }
+    local widgetNames = L{ 'Trust', 'Party', 'Target', 'Pet', 'Job' }
 
     local buttonItems = L{ ButtonItem.localized('Layout', i18n.translate("Button_Widget_Layout")) } + widgetNames:map(function(widgetName)
         return ButtonItem.default(widgetName, 18)
@@ -48,23 +48,28 @@ function WidgetSettingsMenuItem:getWidgetMenuItem(widgetName)
         local configItems = L{
             ConfigItem.new('x', 0, windower.get_windower_settings().ui_x_res, 1, function(value) return value.."" end, "X"),
             ConfigItem.new('y', 0, windower.get_windower_settings().ui_y_res, 1, function(value) return value.."" end, "Y"),
-            BooleanConfigItem.new('detailed', "Show Detailed View"),
+            --BooleanConfigItem.new('detailed', "Show Detailed View"),
         }
-        local configEditor = ConfigEditor.new(self.addonSettings, self.addonSettings:getSettings()[(widgetName.."_widget"):lower()], configItems)
+        local configEditor = ConfigEditor.fromModel(Widget:get({
+            name = widgetName:lower(), user_id = windower.ffxi.get_player().id
+        }), configItems)
+        self.disposeBag:add(configEditor:onConfigChanged():addAction(function(newSettings, oldSettings)
+            local widget = windower.trust.get_widget(widgetName)
+            widget:setPosition(newSettings.x, newSettings.y)
+            widget:layoutIfNeeded()
+        end), configEditor:onConfigChanged())
         return configEditor
     end, "Widgets", "Configure the "..widgetName.." widget. UI does not update until saved.")
 
-    local shortcutSettings = self.addonSettings:getSettings().shortcuts.widgets[widgetName:lower()]
+    local shortcutSettings = Shortcut:get({ id = widgetName:lower() })
     if shortcutSettings then
         local shortcutsMenuItem = MenuItem.new(L{
             ButtonItem.default('Save', 18),
         }, {},
                 function(_, _)
-                    local shortcutSettings = self.addonSettings:getSettings().shortcuts.widgets[widgetName:lower()]
-
                     local configItems = L{
                         BooleanConfigItem.new('enabled', "Keyboard Shortcut"),
-                        PickerConfigItem.new('key', shortcutSettings.key or Keyboard.allKeys()[1], Keyboard.allKeys(), function(keyName)
+                        PickerConfigItem.new('key', shortcutSettings.key or Keyboard.allKeys()[1], L{ "None" } + Keyboard.allKeys(), function(keyName)
                             return keyName
                         end, "Key"),
                         PickerConfigItem.new('flags', shortcutSettings.flags or Keyboard.allFlags()[1], Keyboard.allFlags(), function(flag)
@@ -72,16 +77,15 @@ function WidgetSettingsMenuItem:getWidgetMenuItem(widgetName)
                         end, "Secondary Key"),
                     }
 
-                    local shortcutsEditor = ConfigEditor.new(self.addonSettings, shortcutSettings, configItems)
+                    local shortcutsEditor = ConfigEditor.fromModel(shortcutSettings, configItems)
 
                     self.disposeBag:add(shortcutsEditor:onConfigChanged():addAction(function(newSettings, oldSettings)
                         if oldSettings.key and oldSettings.flags then
                             Keyboard.input():unregisterKeybind(oldSettings.key, oldSettings.flags)
                         end
-                        if newSettings.enabled and newSettings.key and newSettings.flags then
-                            Keyboard.input():registerKeybind(newSettings.key, newSettings.flags, function(keybind, pressed)
-                                self:openMenu(self)
-                            end)
+                        if newSettings.key ~= Keyboard.Keys.None and newSettings.key and newSettings.flags then
+                            local widget = windower.trust.get_widget(newSettings.id)
+                            widget:setShortcut(newSettings.key, newSettings.flags)
                         end
                     end), shortcutsEditor:onConfigChanged())
 
