@@ -134,13 +134,17 @@ end
 -- @tparam function handler Handler
 --
 function Keyboard:registerKeybind(keyName, flags, handler)
-    local keybind = Keybind.new(keyName, flags)
-    self.keybinds[keybind:tostring()] = handler
+    if keyName and keyName ~= Keyboard.Keys.None and flags ~= nil then
+        local keybind = Keybind.new(keyName, flags)
+        self.keybinds[keybind:tostring()] = handler
+    end
 end
 
 function Keyboard:unregisterKeybind(keyName, flags)
-    local keybind = Keybind.new(keyName, flags)
-    self.keybinds[keybind:tostring()] = nil
+    if keyName and flags ~= nil then
+        local keybind = Keybind.new(keyName, flags)
+        self.keybinds[keybind:tostring()] = nil
+    end
 end
 
 function Keyboard:hasKeybind(key, flags)

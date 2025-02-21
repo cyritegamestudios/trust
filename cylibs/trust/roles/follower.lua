@@ -32,8 +32,7 @@ function Follower.new(action_queue, follow_distance, addon_settings)
     self.zone_cooldown = 5
     self.last_position = vector.zero(3)
     -- self.last_zone_time = os.time() - self.zone_cooldown
-    self.follow_target_dispose_bag = DisposeBag.new()'
-    '
+    self.follow_target_dispose_bag = DisposeBag.new()
     self.dispose_bag = DisposeBag.new()
 
     return self

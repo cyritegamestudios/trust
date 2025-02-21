@@ -74,16 +74,11 @@ function Widget:destroy()
 end
 
 function Widget:createSettings()
-    Shortcut:insert({
-        id = self.widgetName
-    })
-
     WidgetSettings:insert({
         name = self.widgetName,
         user_id = windower.ffxi.get_player().id,
         x = self.frame.x,
         y = self.frame.y,
-        shortcut_id = self.widgetName
     })
 end
 

@@ -362,10 +362,6 @@ function load_ui()
 	widgets:layoutIfNeeded()
 	widgets:setUserInteractionEnabled(true)
 
-	windower.trust.get_widget = function(widgetName)
-		return widgets.widgetManager:getWidget(widgetName)
-	end
-
 	hud = TrustHud.new(player, action_queue, addon_settings, trust_mode_settings, addon_enabled, 500, 500, mediaPlayer, soundTheme)
 
 	hud:addSubview(widgets)

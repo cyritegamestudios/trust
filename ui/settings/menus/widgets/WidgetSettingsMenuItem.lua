@@ -6,6 +6,7 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local Keyboard = require('cylibs/ui/input/keyboard')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
+local ShortcutMenuItem = require('ui/settings/menus/ShortcutMenuItem')
 
 local WidgetSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 WidgetSettingsMenuItem.__index = WidgetSettingsMenuItem
@@ -43,54 +44,25 @@ end
 function WidgetSettingsMenuItem:getWidgetMenuItem(widgetName)
     local widgetMenuItem = MenuItem.new(L{
         ButtonItem.default('Save')
-    }, {}, function(menuArgs)
+    }, {}, function(_, _, _)
+        local widgetName = widgetName:lower()
+
         local configItems = L{
             ConfigItem.new('x', 0, windower.get_windower_settings().ui_x_res, 1, function(value) return value.."" end, "X"),
             ConfigItem.new('y', 0, windower.get_windower_settings().ui_y_res, 1, function(value) return value.."" end, "Y"),
         }
         local configEditor = ConfigEditor.fromModel(WidgetSettings:get({
-            name = widgetName:lower(), user_id = windower.ffxi.get_player().id
+            name = widgetName, user_id = windower.ffxi.get_player().id
         }), configItems)
-        self.disposeBag:add(configEditor:onConfigChanged():addAction(function(newSettings, oldSettings)
-            local widget = windower.trust.get_widget(widgetName)
+        self.disposeBag:add(configEditor:onConfigChanged():addAction(function(newSettings, _)
+            local widget = windower.trust.ui.get_widget(widgetName)
             widget:setPosition(newSettings.x, newSettings.y)
             widget:layoutIfNeeded()
         end), configEditor:onConfigChanged())
         return configEditor
     end, "Widgets", "Configure the "..widgetName.." widget. UI does not update until saved.")
 
-    local shortcutSettings = Shortcut:get({ id = widgetName:lower() })
-    if shortcutSettings then
-        local shortcutsMenuItem = MenuItem.new(L{
-            ButtonItem.default('Save', 18),
-        }, {},
-                function(_, _)
-                    local configItems = L{
-                        BooleanConfigItem.new('enabled', "Keyboard Shortcut"),
-                        PickerConfigItem.new('key', shortcutSettings.key or Keyboard.allKeys()[1], L{ "None" } + Keyboard.allKeys(), function(keyName)
-                            return keyName
-                        end, "Key"),
-                        PickerConfigItem.new('flags', shortcutSettings.flags or Keyboard.allFlags()[1], Keyboard.allFlags(), function(flag)
-                            return Keyboard.input():getFlag(flag)
-                        end, "Secondary Key"),
-                    }
-
-                    local shortcutsEditor = ConfigEditor.fromModel(shortcutSettings, configItems)
-
-                    self.disposeBag:add(shortcutsEditor:onConfigChanged():addAction(function(newSettings, oldSettings)
-                        if oldSettings.key and oldSettings.flags then
-                            Keyboard.input():unregisterKeybind(oldSettings.key, oldSettings.flags)
-                        end
-                        if newSettings.key ~= Keyboard.Keys.None and newSettings.key and newSettings.flags then
-                            local widget = windower.trust.get_widget(newSettings.id)
-                            widget:setShortcut(newSettings.key, newSettings.flags)
-                        end
-                    end), shortcutsEditor:onConfigChanged())
-
-                    return shortcutsEditor
-                end, widgetMenuItem:getTitleText(), "Configure keyboard shortcuts to show this menu.")
-        widgetMenuItem:setChildMenuItem('Shortcuts', shortcutsMenuItem)
-    end
+    widgetMenuItem:setChildMenuItem('Shortcuts', ShortcutMenuItem.new(widgetName:lower(), widgetName.." widget"))
 
     return widgetMenuItem
 end
@@ -98,7 +70,7 @@ end
 function WidgetSettingsMenuItem:getLayoutMenuItem()
     local layoutMenuItem = MenuItem.new(L{
         ButtonItem.default('Save')
-    }, {}, function(menuArgs)
+    }, {}, function(_, _, _)
         local allAlignments = L{ 'Left', 'Right' }
 
         local layoutSettings = {
