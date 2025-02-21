@@ -52,7 +52,7 @@ function Settings.new()
             y = "INTEGER",
             visible = "TINYINT(1) DEFAULT 1",
             user_id = "INTEGER",
-            shortcut_id = "VARCHAR(64) REFERENCES shortcuts (name)",
+            shortcut_id = "VARCHAR(64) REFERENCES shortcuts (id)",
         }
     })
 
