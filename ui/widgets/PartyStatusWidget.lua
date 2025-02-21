@@ -40,7 +40,7 @@ PartyStatusWidget.TextSmall = TextStyle.new(
         true
 )
 
-function PartyStatusWidget.new(frame, addonSettings, alliance, party, trust, mediaPlayer, soundTheme)
+function PartyStatusWidget.new(frame, alliance, party, trust, mediaPlayer, soundTheme)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         if item.__type == TextItem.__type then
             local cell = TextCollectionViewCell.new(item)
@@ -55,7 +55,7 @@ function PartyStatusWidget.new(frame, addonSettings, alliance, party, trust, med
         end
     end)
 
-    local self = setmetatable(Widget.new(frame, "Party", addonSettings, dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 4), 20), PartyStatusWidget)
+    local self = setmetatable(Widget.new(frame, "Party", dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 4), 20), PartyStatusWidget)
 
     self.alliance = alliance
 
@@ -258,11 +258,6 @@ function PartyStatusWidget:get_num_valid_parties()
     return self.parties:filter(function(party)
         return party:length() > 0
     end):length()
-end
-
-
-function PartyStatusWidget:getSettings(addonSettings)
-    return addonSettings:getSettings().party_widget
 end
 
 function PartyStatusWidget:setPosition(x, y)

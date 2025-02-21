@@ -43,8 +43,8 @@ end
 
 function BlackMageTrust:get_widget()
 	local BlackMageWidget = require('ui/widgets/BlackMageWidget')
-	local blackMageWidget = BlackMageWidget.new(Frame.new(0, 0, 125, 57), windower.trust.settings.get_addon_settings(), self:get_party():get_player(), self)
-	return blackMageWidget, 'black_mage'
+	local blackMageWidget = BlackMageWidget.new(Frame.new(4, 294, 125, 57), self:get_party():get_player(), self)
+	return blackMageWidget, 'job'
 end
 
 return BlackMageTrust

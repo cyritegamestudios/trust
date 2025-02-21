@@ -18,7 +18,7 @@ function Widget:onSettingsChanged()
     return self.settingsChanged
 end
 
-function Widget.new(frame, title, addonSettings, dataSource, layout, titleWidth, hideCursor)
+function Widget.new(frame, title, dataSource, layout, titleWidth, hideCursor)
     local widgetStyle = FFXIClassicStyle.default()
     if hideCursor then
         widgetStyle.cursorItem = nil
@@ -26,8 +26,6 @@ function Widget.new(frame, title, addonSettings, dataSource, layout, titleWidth,
 
     local self = setmetatable(CollectionView.new(dataSource, layout, nil, widgetStyle), Widget)
 
-    self.defaultPosition = frame
-    self.addonSettings = addonSettings
     self.expanded = true
     self.events = {}
     self.settingsChanged = Event.newEvent()
@@ -38,6 +36,7 @@ function Widget.new(frame, title, addonSettings, dataSource, layout, titleWidth,
     self:setScrollEnabled(false)
     self:setUserInteractionEnabled(true)
 
+    self:setPosition(frame.x, frame.y)
     self:setSize(frame.width, frame.height)
 
     local backgroundView = FFXIBackgroundView.new(frame)
@@ -74,8 +73,26 @@ function Widget:destroy()
     end
 end
 
-function Widget:getSettings(addonSettings)
-    return windower.ffxi.get_settings().widgets:named(self.widgetName)
+function Widget:createSettings()
+    Shortcut:insert({
+        id = self.widgetName
+    })
+
+    WidgetSettings:insert({
+        name = self.widgetName,
+        user_id = windower.ffxi.get_player().id,
+        x = self.frame.x,
+        y = self.frame.y,
+        shortcut_id = self.widgetName
+    })
+end
+
+function Widget:getSettings()
+    local settings = WidgetSettings:get({
+        name = self.widgetName,
+        user_id = windower.ffxi.get_player().id
+    })
+    return settings
 end
 
 function Widget:setShortcut(key, flags)
@@ -202,10 +219,6 @@ end
 function Widget:setTitle(title, titleWidth)
     self:getBackgroundImageView():setTitle(title, { width = titleWidth, height = 14 })
     self:layoutIfNeeded()
-end
-
-function Widget:getDefaultPosition()
-    return self.defaultPosition
 end
 
 function Widget:__eq(otherItem)

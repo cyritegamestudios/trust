@@ -41,7 +41,7 @@ function Settings.new()
         }
     })
 
-    _G.Widget = Table(self.database, {
+    _G.WidgetSettings = Table(self.database, {
         table_name = "widgets",
         primary_key = "(name, user_id)",
         foreign_keys = {
@@ -53,6 +53,17 @@ function Settings.new()
             visible = "TINYINT(1) DEFAULT 1",
             user_id = "INTEGER",
             shortcut_id = "VARCHAR(64) REFERENCES shortcuts (name)",
+        }
+    })
+
+    _G.GeneralSettings = Table(self.database, {
+        table_name = "general",
+        schema = {
+            id = "INTEGER",
+            follow_distance = "INTEGER DEFAULT 1",
+            follow_auto_pause = "TINYINT(1) DEFAULT 0",
+            menu_key = "VARCHAR(8) DEFAULT '%^numpad+'",
+            sounds_enabled = "TINYINT(1) DEFAULT 1",
         }
     })
 

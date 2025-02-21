@@ -147,8 +147,7 @@ end
 function SummonerTrust:get_widget()
 	local AvatarStatusWidget = require('ui/widgets/AvatarStatusWidget')
 	local petStatusWidget = AvatarStatusWidget.new(
-			Frame.new(0, 0, 125, 57),
-			windower.trust.settings.get_addon_settings(),
+			Frame.new(132, 324, 125, 57),
 			self:get_party():get_player(),
 			windower.trust.ui.get_hud(),
 			windower.trust.settings.get_job_settings('SMN'),

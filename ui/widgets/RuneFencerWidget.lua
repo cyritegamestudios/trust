@@ -59,7 +59,7 @@ RuneFencerWidget.Subheadline = TextStyle.new(
         Color.red
 )
 
-function RuneFencerWidget.new(frame, addonSettings, trust)
+function RuneFencerWidget.new(frame, trust)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         if indexPath.row == 1 then
             local cell = TextCollectionViewCell.new(item)
@@ -73,9 +73,8 @@ function RuneFencerWidget.new(frame, addonSettings, trust)
         end
     end)
 
-    local self = setmetatable(Widget.new(frame, "Rune Fencer", addonSettings, dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 3), 90, true), RuneFencerWidget)
+    local self = setmetatable(Widget.new(frame, "Rune Fencer", dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 3), 90, true), RuneFencerWidget)
 
-    self.addonSettings = addonSettings
     self.trust = trust
     self.actionDisposeBag = DisposeBag.new()
 

@@ -92,7 +92,7 @@ PetStatusWidget.Subheadline = TextStyle.new(
         Color.red
 )
 
-function PetStatusWidget.new(frame, addonSettings, player)
+function PetStatusWidget.new(frame, player)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         if indexPath.section == 1 then
             local cell = TextCollectionViewCell.new(item)
@@ -102,7 +102,7 @@ function PetStatusWidget.new(frame, addonSettings, player)
         end
     end)
 
-    local self = setmetatable(Widget.new(frame, "Pet", addonSettings, dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 3), 20), PetStatusWidget)
+    local self = setmetatable(Widget.new(frame, "Pet", dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 3), 20), PetStatusWidget)
 
     self.addonSettings = addonSettings
     self.id = player:get_id()

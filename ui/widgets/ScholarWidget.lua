@@ -30,7 +30,7 @@ ScholarWidget.TextSmall3 = TextStyle.new(
         false
 )
 
-function ScholarWidget.new(frame, addonSettings, player, trust)
+function ScholarWidget.new(frame, player, trust)
     local dataSource = CollectionViewDataSource.new(function(item, _)
         if item.__type == ImageTextItem.__type then
             local cell = ImageTextCollectionViewCell.new(item)
@@ -41,9 +41,8 @@ function ScholarWidget.new(frame, addonSettings, player, trust)
         end
     end)
 
-    local self = setmetatable(Widget.new(frame, "Scholar", addonSettings, dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 3), 40, true), ScholarWidget)
+    local self = setmetatable(Widget.new(frame, "Scholar", dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 3), 40, true, 'job'), ScholarWidget)
 
-    self.addonSettings = addonSettings
     self.trust = trust
     self.strategemTimer = Timer.scheduledTimer(5)
 
@@ -67,10 +66,6 @@ function ScholarWidget.new(frame, addonSettings, player, trust)
     self.strategemTimer:start()
 
     return self
-end
-
-function ScholarWidget:getSettings(addonSettings)
-    return addonSettings:getSettings().scholar_widget
 end
 
 function ScholarWidget:updateStrategemCount()

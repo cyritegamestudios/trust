@@ -58,7 +58,7 @@ PathWidget.Subheadline = TextStyle.new(
 
 PathWidget.hasMp = true
 
-function PathWidget.new(frame, addonSettings, player, trust)
+function PathWidget.new(frame, player, trust)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = TextCollectionViewCell.new(item)
         cell:setItemSize(14)
@@ -66,7 +66,7 @@ function PathWidget.new(frame, addonSettings, player, trust)
         return cell
     end)
 
-    local self = setmetatable(Widget.new(frame, "Path", addonSettings, dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 3), 10, true), PathWidget)
+    local self = setmetatable(Widget.new(frame, "Path", dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 3), 10, true), PathWidget)
 
     self.id = player:get_id()
     self.pather = trust:role_with_type("pather")

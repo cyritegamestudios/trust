@@ -8,7 +8,6 @@ function WidgetManager.new()
     local self = setmetatable({}, WidgetManager)
 
     self.widgets = {}
-    self.widgetsToSave = S{}
     self.disposeBag = DisposeBag.new()
 
     return self
@@ -18,31 +17,14 @@ function WidgetManager:destroy()
     self.disposeBag:destroy()
 end
 
-function WidgetManager:onInit()
-end
-
 function WidgetManager:addWidget(widget, widgetName)
     if self:getWidget(widgetName) then
         return
     end
     widget.widgetName = widgetName
-    
-    local shortcut = Shortcut({
-        id = widgetName
-    })
-    shortcut:save()
+    widget:createSettings()
 
-    local settings = Widget:get({
-        name = widgetName,
-        user_id = windower.ffxi.get_player().id
-    }) or Widget({
-        name = widgetName,
-        user_id = windower.ffxi.get_player().id,
-        x = widget:getDefaultPosition().x,
-        y = widget:getDefaultPosition().y,
-        shortcut_id = widgetName
-    })
-    settings:save()
+    local settings = widget:getSettings()
 
     local xPos = settings.x
     local yPos = settings.y
@@ -56,13 +38,9 @@ function WidgetManager:addWidget(widget, widgetName)
     widget:layoutIfNeeded()
 
     self.disposeBag:add(widget:onSettingsChanged():addAction(function(w)
-        local widget = Widget({
-            name = w.widgetName,
-            x = w:getPosition().x,
-            y = w:getPosition().y,
-            user_id = windower.ffxi.get_player().id
-        })
-        widget:save()
+        settings.x = w:getPosition().x
+        settings.y = w:getPosition().y
+        settings:save()
 
         addon_system_message("Widget settings saved.")
     end), widget:onSettingsChanged())

@@ -48,7 +48,7 @@ function WidgetSettingsMenuItem:getWidgetMenuItem(widgetName)
             ConfigItem.new('x', 0, windower.get_windower_settings().ui_x_res, 1, function(value) return value.."" end, "X"),
             ConfigItem.new('y', 0, windower.get_windower_settings().ui_y_res, 1, function(value) return value.."" end, "Y"),
         }
-        local configEditor = ConfigEditor.fromModel(Widget:get({
+        local configEditor = ConfigEditor.fromModel(WidgetSettings:get({
             name = widgetName:lower(), user_id = windower.ffxi.get_player().id
         }), configItems)
         self.disposeBag:add(configEditor:onConfigChanged():addAction(function(newSettings, oldSettings)
@@ -125,7 +125,9 @@ function WidgetSettingsMenuItem:getLayoutMenuItem()
                         xPos = windower.get_windower_settings().ui_x_res - widget:getSize().width - 16
                     end
 
+                    widget:setEditing(true)
                     widget:setPosition(xPos, yPos)
+                    widget:setEditing(false)
                     widget:layoutIfNeeded()
 
                     yPos = yPos + (widget:getMaxHeight() or widget:getSize().height) + 5
