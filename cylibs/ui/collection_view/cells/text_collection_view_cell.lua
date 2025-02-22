@@ -142,10 +142,6 @@ function TextCollectionViewCell:setTextColor(color)
     self.textView:color(color.red, color.green, color.blue)
 end
 
-function TextCollectionViewCell:setBold(isBold)
-    self.textView:bold(isBold)
-end
-
 function TextCollectionViewCell:setAlpha(alpha)
     self.textView:alpha(alpha)
 end

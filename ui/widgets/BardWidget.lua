@@ -9,7 +9,6 @@ local SongSetsMenuItem = require('ui/settings/menus/songs/SongSetsMenuItem')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
-local Timer = require('cylibs/util/timers/timer')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 local Widget = require('ui/widgets/Widget')
 
@@ -28,21 +27,6 @@ BardWidget.TextSmall3 = TextStyle.new(
         0,
         Color.clear,
         false,
-        Color.yellow,
-        false
-)
-
-BardWidget.TextSinging = TextStyle.new(
-        Color.clear,
-        Color.clear,
-        "Arial",
-        8,
-        Color.yellow,
-        Color.yellow,
-        0,
-        0,
-        Color.clear,
-        true,
         Color.yellow,
         false
 )
@@ -68,10 +52,6 @@ function BardWidget.new(frame, trust, trustHud, trustSettings, trustSettingsMode
     self.trust = trust
 
     local singer = trust:role_with_type("singer")
-
-    --local text_item = TextItem.new(string.format(state.SongSet.value), BardWidget.TextSmall3)
-    --text_item:setOffset(0, 2)
-    --self:getDataSource():addItem(ImageTextItem.new(ImageItem.new(windower.addon_path..'assets/icons/icon_singing_light.png', 14, 14), text_item), IndexPath.new(1, 1))
 
     self:setSongSet(state.SongSet.value, singer:get_is_singing())
 
@@ -101,7 +81,7 @@ function BardWidget.new(frame, trust, trustHud, trustSettings, trustSettingsMode
     return self
 end
 
-function BardWidget:setSongSet(songSetName, isSinging)
+function BardWidget:setSongSet(_, isSinging)
     local text_item = TextItem.new(string.format(state.SongSet.value), BardWidget.TextSmall3)
     text_item:setOffset(0, 2)
 
