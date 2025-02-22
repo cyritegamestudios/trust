@@ -6,16 +6,15 @@ local TrustWidgets = setmetatable({}, {__index = View })
 TrustWidgets.__index = TrustWidgets
 
 
-function TrustWidgets.new(addonSettings, actionQueue, addonEnabled, trust, mediaPlayer, soundTheme)
+function TrustWidgets.new(actionQueue, addonEnabled, trust, mediaPlayer, soundTheme)
     local self = setmetatable(View.new(), TrustWidgets)
 
-    self.addonSettings = addonSettings
     self.actionQueue = actionQueue
     self.addonEnabled = addonEnabled
     self.mediaPlayer = mediaPlayer
     self.soundTheme = soundTheme
     self.trust = trust
-    self.widgetManager = WidgetManager.new(addonSettings)
+    self.widgetManager = WidgetManager.new()
 
     self:init()
 
@@ -24,15 +23,15 @@ end
 
 function TrustWidgets:init()
     local TrustStatusWidget = require('ui/widgets/TrustStatusWidget')
-    local trustStatusWidget = TrustStatusWidget.new(Frame.new(0, 0, 125, 69), self.addonSettings, self.addonEnabled, self.actionQueue, player.main_job_name, player.sub_job_name, self.trust:get_party():get_player())
+    local trustStatusWidget = TrustStatusWidget.new(Frame.new(40, 324, 125, 69), self.addonEnabled, self.actionQueue, player.main_job_name, player.sub_job_name, self.trust:get_party():get_player())
     self.widgetManager:addWidget(trustStatusWidget, "trust")
 
     local TargetWidget = require('ui/widgets/TargetWidget')
-    local targetWidget = TargetWidget.new(Frame.new(0, 0, 125, 40), self.addonSettings, self.trust:get_party(), self.trust)
+    local targetWidget = TargetWidget.new(Frame.new(40, 496, 125, 40), self.trust:get_party(), self.trust)
     self.widgetManager:addWidget(targetWidget, "target")
 
     local PartyStatusWidget = require('ui/widgets/PartyStatusWidget')
-    local partyStatusWidget = PartyStatusWidget.new(Frame.new(0, 0, 125, 55), self.addonSettings, self.trust:get_alliance(), self.trust:get_party(), self.trust, self.mediaPlayer, self.soundTheme)
+    local partyStatusWidget = PartyStatusWidget.new(Frame.new(40, 397, 125, 55), self.trust:get_alliance(), self.trust:get_party(), self.trust, self.mediaPlayer, self.soundTheme)
     self.widgetManager:addWidget(partyStatusWidget, "party")
 
     for widget in self.widgetManager:getAllWidgets():it() do

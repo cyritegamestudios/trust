@@ -178,6 +178,7 @@ function PickerCollectionViewCell:onMouseEvent(type, x, y, delta)
         if self:hasFocus() then
             self:setShouldResignFocus(true)
             self:resignFocus()
+            self:setSelected(false)
             return true
         end
     elseif type == Mouse.Event.Wheel then
@@ -188,7 +189,6 @@ function PickerCollectionViewCell:onMouseEvent(type, x, y, delta)
     end
     return false
 end
-
 
 function PickerCollectionViewCell:setHasFocus(hasFocus)
     if self:getItem():allowsMultipleSelection() then

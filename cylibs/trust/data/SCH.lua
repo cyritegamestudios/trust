@@ -100,8 +100,8 @@ end
 
 function ScholarTrust:get_widget()
     local ScholarWidget = require('ui/widgets/ScholarWidget')
-    local scholarWidget = ScholarWidget.new(Frame.new(0, 0, 125, 57), windower.trust.settings.get_addon_settings(), self:get_party():get_player(), self)
-    return scholarWidget, 'scholar'
+    local scholarWidget = ScholarWidget.new(Frame.new(40, 294, 125, 57), self:get_party():get_player(), self)
+    return scholarWidget, 'job'
 end
 
 return ScholarTrust

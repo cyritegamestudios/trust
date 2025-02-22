@@ -230,90 +230,17 @@ end
 
 -- // trust debug
 function GeneralTrustCommands:handle_debug()
-    local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
-    local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 
-    local spells = L(player.trust.main_job:get_job():get_spells(function(spellId)
-        local spell = res.spells[spellId]
-        return spell and spell.element ~= 15
-    end):map(function(spellId)
-        return Spell.new(res.spells[spellId].en)
-    end)):unique(function(spell)
-        return spell:get_name()
-    end)
+    local ORM = require('cylibs/database/orm/orm')
+    local Database = ORM.ORM
+    local Table = ORM.Table
 
-    local abilityPickerItem = MultiPickerConfigItem.new('abilities', L{}, spells, function(ability)
-        return ability:get_localized_name()
-    end, "Choose an ability.", nil, function(ability)
-        return AssetManager.imageItemForAbility(ability:get_name())
-    end, function(ability)
-        return ability:get_localized_name()
-    end)
-
-    local FFXIFastPickerView = require('ui/themes/ffxi/FFXIFastPickerView')
-
-    local pickerView = FFXIFastPickerView.new(L{ abilityPickerItem })
-    pickerView:setVisible(true)
-    pickerView:setPosition(20, 50)
-    pickerView:setNeedsLayout()
-    pickerView:layoutIfNeeded()
-
-    --local BlackMage = require('cylibs/entity/jobs/BLM')
-    --local job = BlackMage.new()
-    local Scholar = require('cylibs/entity/jobs/SCH')
-    local job = Scholar.new(sub_trust_settings)
-
-    local gambit = Gambit.new("Self", L{}, Buff.new("Reraise", L{}, L{}, nil, L{}), "Self", L{})
-    local conditions = job:get_conditions_for_ability(gambit:getAbility())
-    for condition in conditions:it() do
-        print(condition:tostring())
-    end
-
-    print(gambit:getAbility():get_name(), Condition.check_conditions(conditions), windower.ffxi.get_player().index)
-
-    print(spell_util.can_cast_spell(res.spells:with('en', 'Erase').id))
-
-    local job_ability = JobAbility.new("Ebullience", L{SubJobCondition.new("SCH"), StrategemCountCondition.new(1, ">=")}, L{})
+    User:delete({ id = 1234 })
 
 
-    print('check', job_util.knows_job_ability(job_ability:get_ability_id()), job_util.can_use_job_ability(job_ability:get_job_ability_name()), Condition.check_conditions(job_ability:get_conditions(), windower.ffxi.get_player().index))
 
 
-    --[[local UrlRequest = require('cylibs/util/network/url_request')
 
-    local request = UrlRequest.new('GET', 'https://raw.githubusercontent.com/cyritegamestudios/trust/main/manifest.json', {})
-
-    local fetch = request:get()
-    local success, response, code, body, status = coroutine.resume(fetch)
-
-    if success then
-        table.vprint(body)
-    end]]
-
-    print(buff_util.all_buff_ids('Last Resort'))
-
-    print('buffs', party_util.get_buffs(windower.ffxi.get_player().id), party_util.get_buffs(windower.ffxi.get_player().id):map(function(buff_id) return res.buffs[buff_id].en end))
-
-
-    local party_index = 1
-    for party in player.alliance:get_parties():it() do
-        print('Party', party_index..":", party:get_party_members():map(function(p) return p:get_name() end))
-        party_index = party_index + 1
-    end
-
-    print(num_created)
-    print('images', num_images_created)
-
-    print('player', L(windower.ffxi.get_player().buffs):map(function(buff_id)
-        --return buff_id
-        return res.buffs:with('id', buff_id).en
-    end))
-
-    local alliance = player.alliance
-    for i = 1, 3 do
-        local party = alliance:get_parties()[i]
-        logger.notice("Trust", "debug", "party", i, party:get_party_members(true):map(function(party_member) return party_member:get_name() end))
-    end
 
     return true, nil
 end

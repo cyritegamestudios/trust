@@ -1,7 +1,7 @@
 -- Require the SQLite module
 --local sqlite3 = require("sqlite3")
 
-require('lsqlite3')
+require('cylibs/util/database/lsqlite3')
 
 -- Function to parse the Lua file and extract the item metadata
 local function parse_lua_file(file_path)

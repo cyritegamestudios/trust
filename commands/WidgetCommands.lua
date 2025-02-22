@@ -26,8 +26,6 @@ function WidgetCommands:handle_save_settings()
     local success = true
     local message = "Widget settings saved to addons/Trust/data/settings.xml"
 
-    self.widgetManager:saveChanges()
-
     return success, message
 end
 
