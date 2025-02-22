@@ -34,7 +34,8 @@ function WidgetManager:addWidget(widget, widgetName)
     self.widgets[widgetName] = widget
 
     widget:setPosition(xPos, yPos)
-    --widget:setVisible(true)
+    widget:setVisible(true)
+
     widget:layoutIfNeeded()
 
     self.disposeBag:add(widget:onSettingsChanged():addAction(function(w)
