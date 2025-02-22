@@ -81,6 +81,7 @@ end
 function ImageItem:__eq(otherItem)
     return self.imagePath == otherItem:getImagePath() and self.frame == otherItem.frame
         and self.repeatX == otherItem:getRepeat().x and self.repeatY == otherItem:getRepeat().y
+        and self:getAlpha() == otherItem:getAlpha()
 end
 
 return ImageItem
