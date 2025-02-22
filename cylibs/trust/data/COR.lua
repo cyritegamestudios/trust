@@ -7,6 +7,7 @@ CorsairTrust.__index = CorsairTrust
 local CorsairModes = require('cylibs/trust/data/modes/COR')
 local Dispeler = require('cylibs/trust/roles/dispeler')
 local DisposeBag = require('cylibs/events/dispose_bag')
+local Frame = require('cylibs/ui/views/frame')
 local ModeDelta = require('cylibs/modes/mode_delta')
 local Puller = require('cylibs/trust/roles/puller')
 local RangedAttack = require('cylibs/battle/ranged_attack')
@@ -70,6 +71,19 @@ end
 
 function CorsairTrust:tic(old_time, new_time)
 	Trust.tic(self, old_time, new_time)
+end
+
+function CorsairTrust:get_widget()
+	local CorsairWidget = require('ui/widgets/CorsairWidget')
+	local corsairWidget = CorsairWidget.new(
+			Frame.new(40, 294, 125, 57),
+			self,
+			windower.trust.ui.get_hud(),
+			windower.trust.settings.get_job_settings('COR'),
+			state.MainTrustSettingsMode,
+			windower.trust.settings.get_mode_settings()
+	)
+	return corsairWidget, 'job'
 end
 
 return CorsairTrust
