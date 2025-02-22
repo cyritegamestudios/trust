@@ -8,6 +8,7 @@ local BardModes = require('cylibs/trust/data/modes/BRD')
 local BardTrustCommands = require('cylibs/trust/commands/BRD') -- keep this for dependency script
 local Debuffer = require('cylibs/trust/roles/debuffer')
 local Dispeler = require('cylibs/trust/roles/dispeler')
+local Frame = require('cylibs/ui/views/frame')
 local ModeDelta = require('cylibs/modes/mode_delta')
 local Puller = require('cylibs/trust/roles/puller')
 local Singer = require('cylibs/trust/roles/singer')
@@ -107,6 +108,12 @@ end
 
 function BardTrust:tic(old_time, new_time)
 	Trust.tic(self, old_time, new_time)
+end
+
+function BardTrust:get_widget()
+    local BardWidget = require('ui/widgets/BardWidget')
+    local bardWidget = BardWidget.new(Frame.new(40, 294, 125, 57), self)
+    return bardWidget, 'job'
 end
 
 return BardTrust

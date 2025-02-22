@@ -187,6 +187,7 @@ function PartyStatusWidget:set_party(party, force_update)
     self:getDataSource():addItems(itemsToAdd)
 
     self:setSize(self:getSize().width, self:getContentSize().height)
+    self:setVisible(true)
     self:layoutIfNeeded()
 
     self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))

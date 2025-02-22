@@ -32,7 +32,7 @@ function Widget.new(frame, title, dataSource, layout, titleWidth, hideCursor)
     self.title = title
     self.resignFocusKeys = L{ 1 }
 
-    self:setVisible(false)
+    self:setVisible(true)
     self:setScrollEnabled(false)
     self:setUserInteractionEnabled(true)
 
