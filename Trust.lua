@@ -654,12 +654,12 @@ function loaded()
 		'includes/Trust-Cylibs-Util-Include',
 	}
 
-	local Settings = require('settings/settings')
+	--[[local Settings = require('settings/settings')
 
 	local settings = Settings.new()
 	windower.trust.get_settings = function()
-		return settings
-	end
+		return Settings.instance
+	end]]
 
 	local actions = L{
 		Loading.LoadDependenciesAction.new(import_paths),

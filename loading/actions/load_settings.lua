@@ -83,6 +83,8 @@ end
 function LoadSettingsAction:perform()
     player.trust = {}
 
+    local User = require('settings/settings').User
+
     local user = User({
         id = windower.ffxi.get_player().id,
         name = windower.ffxi.get_player().name,

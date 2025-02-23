@@ -8,6 +8,8 @@ local FFXIBackgroundView = require('ui/themes/ffxi/FFXIBackgroundView')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Keyboard = require('cylibs/ui/input/keyboard')
 local Mouse = require('cylibs/ui/input/mouse')
+local WidgetSettings = require('settings/settings').Widget
+local Shortcut = require('settings/settings').Shortcut
 
 local Widget = setmetatable({}, {__index = CollectionView })
 Widget.__index = Widget
