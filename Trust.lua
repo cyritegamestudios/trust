@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '13.6.8'
+_addon.version = '13.6.9'
 _addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 
@@ -630,6 +630,8 @@ function loaded()
 			user_events.job_change = windower.register_event('job change', handle_job_change)
 			user_events.zone_change = windower.register_event('zone change', handle_zone_change)
 		end
+
+		updater:connect()
 
 		coroutine.schedule(function()
 			windower.send_command('bind %s trust menu':format(addon_settings:getSettings().menu_key))
