@@ -108,10 +108,6 @@ function RuneFencerWidget:destroy()
     Widget.destroy(self)
 end
 
-function RuneFencerWidget:getSettings(addonSettings)
-    return addonSettings:getSettings().rune_fencer_widget
-end
-
 function RuneFencerWidget:setRune(rune)
     local elementId, resistance = self.trust:get_job():get_resistance_for_rune(rune)
     if elementId ~= 15 then

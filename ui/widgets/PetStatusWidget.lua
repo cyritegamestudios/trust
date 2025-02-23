@@ -141,10 +141,6 @@ function PetStatusWidget:destroy()
     Widget.destroy(self)
 end
 
-function PetStatusWidget:getSettings(addonSettings)
-    return addonSettings:getSettings().pet_widget
-end
-
 function PetStatusWidget:setVisible(visible)
     if windower.ffxi.get_mob_by_target('pet') == nil then
         visible = false

@@ -108,10 +108,6 @@ function BlackMageWidget.new(frame, player, trust, trustHud, trustSettings, trus
     return self
 end
 
-function BlackMageWidget:getSettings(addonSettings)
-    return addonSettings:getSettings().black_mage_widget
-end
-
 function BlackMageWidget:setEffect(cumulativeEffect)
     self.actionDisposeBag:dispose()
 
