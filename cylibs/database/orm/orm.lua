@@ -57,18 +57,27 @@ function ORM:insert(table_name, data)
     self:execute(sql, table.unpack(values))
 end
 
-function ORM:select(table_name, conditions, raw_rows)
-    local sql = "SELECT * FROM " .. table_name
+function ORM:select(table_name, conditions, fields, raw_rows)
+    local columns = "*"
+    if fields and fields:length() > 0 then
+        columns = table.concat(fields)
+    end
+
+    local sql = string.format("SELECT %s FROM %s", columns, table_name)
     local where_clause = {}
 
     if conditions then
-        for col, val in pairs(conditions) do
-            if type(val) == "string" then
-                val = "'" .. val:gsub("'", "''") .. "'" -- Escape single quotes in strings
+        if type(conditions) == 'string' then
+            sql = sql .. " WHERE "..conditions
+        else
+            for col, val in pairs(conditions) do
+                if type(val) == "string" then
+                    val = "'" .. val:gsub("'", "''") .. "'" -- Escape single quotes in strings
+                end
+                table.insert(where_clause, col .. " = " .. val)
             end
-            table.insert(where_clause, col .. " = " .. val)
+            sql = sql .. " WHERE " .. table.concat(where_clause, " AND ")
         end
-        sql = sql .. " WHERE " .. table.concat(where_clause, " AND ")
     end
     sql = sql .. ";"
     local result = L{}
@@ -237,13 +246,13 @@ function Table:all()
     return self.orm:select(self.table_name)
 end
 
-function Table:get(conditions, raw_rows)
-    local result = self.orm:select(self.table_name, conditions, raw_rows)
+function Table:get(conditions, fields, raw_rows)
+    local result = self.orm:select(self.table_name, conditions, fields, raw_rows)
     return #result > 0 and result[1] or nil
 end
 
-function Table:where(conditions)
-    return self.orm:select(self.table_name, conditions)
+function Table:where(conditions, fields, raw_rows)
+    return self.orm:select(self.table_name, conditions, fields, raw_rows)
 end
 
 function Table:update(data, conditions)

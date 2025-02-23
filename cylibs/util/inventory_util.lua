@@ -6,6 +6,7 @@
 local inventory_util = {}
 
 local food_cache = T(require('cylibs/res/food'))
+local Item = require('resources/resources').Item
 
 -------
 -- Returns abridged metadata for food items.
@@ -36,7 +37,7 @@ end
 -- @treturn number Number of items
 function inventory_util.get_item_count(item_id)
     if type(item_id) == 'string' then
-        local item = windower.trust.resources.items:named(item_id, L{ 'id' })
+        local item = Item:get({ en = item_id })
         if item then
             item_id = item.id
         end
