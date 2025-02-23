@@ -55,10 +55,6 @@ function SettingsWidget.new(frame, addonSettings, trustMode, trustSettingsMode)
     return self
 end
 
-function SettingsWidget:getSettings(addonSettings)
-    return addonSettings:getSettings().settings_widget
-end
-
 function SettingsWidget:reloadSettings()
     self:getDataSource():removeAllItems()
 

@@ -137,10 +137,6 @@ function PathWidget:destroy()
     Widget.destroy(self)
 end
 
-function PathWidget:getSettings(addonSettings)
-    return addonSettings:getSettings().path_widget
-end
-
 function PathWidget:setVisible(visible)
     if not (self.pather:get_path_recorder():is_recording() or self.pather:is_enabled()) then
         visible = false
