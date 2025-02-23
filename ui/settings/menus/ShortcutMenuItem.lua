@@ -5,6 +5,7 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local Keyboard = require('cylibs/ui/input/keyboard')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
+local Shortcut = require('settings/settings').Shortcut
 
 local ShortcutMenuItem = setmetatable({}, {__index = MenuItem })
 ShortcutMenuItem.__index = ShortcutMenuItem

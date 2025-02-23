@@ -226,6 +226,10 @@ function Table.new(orm, config)
 
     self.orm.tables[self.table_name] = self
 
+    if config.migrations ~= nil then
+        config.migrations(self)
+    end
+
     return self
 end
 
@@ -257,6 +261,27 @@ end
 function Table:initialize(orm)
     self.orm = orm
     orm:create_table(self)
+end
+
+function Table:column_exists(column_name)
+    local query = string.format("PRAGMA table_info(%s);", self.table_name)
+    for row in self.orm.db:nrows(query) do
+        if row.name == column_name then
+            return true
+        end
+    end
+    return false
+end
+
+function Table:add_column(column_name, column_type, default)
+    if self:column_exists(column_name) then
+        return
+    end
+    local stmt = string.format("ALTER TABLE %s ADD COLUMN %s %s", self.table_name, column_name, column_type)
+    if default then
+        stmt = string.format("%s DEFAULT %s", stmt, default)
+    end
+    self.orm:execute(stmt..";")
 end
 
 return { ORM = ORM, Table = Table }

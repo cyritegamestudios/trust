@@ -21,7 +21,7 @@ function ModeDelta:apply(hideHelpText)
         return
     end
     self.isApplied = true
-    --set_modes_locked(true, self.errorMessage, self.whitelist)
+    set_modes_locked(true, self.errorMessage, self.whitelist)
     for stateName, value in pairs(self.newModes) do
         local stateVar = get_state(stateName)
         if stateVar then
@@ -41,7 +41,7 @@ function ModeDelta:remove(hideHelpText)
         return
     end
     self.isApplied = false
-    --set_modes_locked(false)
+    set_modes_locked(false)
     for stateName, _ in pairs(self.oldModes) do
         local stateVar = get_state(stateName)
         if stateVar and self.oldModes[stateName] then
