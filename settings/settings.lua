@@ -39,7 +39,8 @@ function Settings.new()
             schema = {
                 id = "INTEGER PRIMARY KEY UNIQUE",
                 name = "VARCHAR(64)",
-            }
+                is_whitelisted = "TINYINT(1) DEFAULT 1",
+            },
         }),
         Widget = Table(self.database, {
             table_name = "widgets",
@@ -50,8 +51,14 @@ function Settings.new()
                 name = "VARCHAR(64)",
                 x = "INTEGER",
                 y = "INTEGER",
-                visible = "TINYINT(1) DEFAULT 1",
+                visible = "TINYINT(1) DEFAULT 0",
                 user_id = "INTEGER",
+            }
+        }),
+        Whitelist = Table(self.database, {
+            table_name = "whitelist",
+            schema = {
+                id = "VARCHAR(64) PRIMARY KEY UNIQUE",
             }
         }),
     }
@@ -76,5 +83,6 @@ end
 return {
     Shortcut = Settings.shared().tables.Shortcut,
     User = Settings.shared().tables.User,
-    Widget = Settings.shared().tables.Widget
+    Widget = Settings.shared().tables.Widget,
+    Whitelist = Settings.shared().tables.Whitelist,
 }

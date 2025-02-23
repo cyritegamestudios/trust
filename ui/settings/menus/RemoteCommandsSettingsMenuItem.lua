@@ -6,6 +6,7 @@ local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local TextInputConfigItem = require('ui/settings/editors/config/TextInputConfigItem')
+local Whitelist = require('settings/settings').Whitelist
 
 local RemoteCommandsSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 RemoteCommandsSettingsMenuItem.__index = RemoteCommandsSettingsMenuItem
@@ -18,7 +19,7 @@ function RemoteCommandsSettingsMenuItem.new(addonSettings)
     }, {}, nil, "Remote", "Allow other players to control your Trust."), RemoteCommandsSettingsMenuItem)
 
     self.contentViewConstructor = function(_, _)
-        local configItem = MultiPickerConfigItem.new("Whitelist", L{}, L(addonSettings:getSettings().remote_commands.whitelist):sort() or L{}, function(playerName)
+        local configItem = MultiPickerConfigItem.new("Whitelist", L{}, self:getWhitelist():sort() or L{}, function(playerName)
             return playerName
         end)
 
@@ -51,12 +52,15 @@ function RemoteCommandsSettingsMenuItem:destroy()
     MenuItem.destroy(self)
 end
 
+function RemoteCommandsSettingsMenuItem:getWhitelist()
+    return Whitelist:all():map(function(user) return user.id end)
+end
+
 function RemoteCommandsSettingsMenuItem:reloadSettings(addonSettings)
     self:setChildMenuItem("Add", self:getAddPlayerMenuItem(addonSettings))
     self:setChildMenuItem("Remove", MenuItem.action(function(menu)
         if self.selectedPlayerName then
-            addonSettings:getSettings().remote_commands.whitelist:remove(self.selectedPlayerName)
-            addonSettings:saveSettings(true)
+            Whitelist:delete({ id = self.selectedPlayerName })
             addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, "..self.selectedPlayerName.." can no longer tell me what to do!")
             self.selectedPlayerName = nil
             menu:showMenu(self)
@@ -74,27 +78,33 @@ function RemoteCommandsSettingsMenuItem:getAddPlayerMenuItem(addonSettings)
         Confirm = MenuItem.action(function(menu)
             menu:showMenu(self)
         end)
-    }, function(_, _)
+    }, function(_, _, showMenu)
         local configItems = L{
             TextInputConfigItem.new('PlayerName', 'Player Name', 'Player Name', function(_) return true  end)
         }
+
         local playerNameConfigEditor = ConfigEditor.new(nil, { PlayerName = '' }, configItems, nil, function(newSettings)
-            return newSettings.PlayerName and newSettings.PlayerName:length() > 3
-        end)
+            if newSettings.PlayerName == nil or newSettings.PlayerName:length() <= 3 then
+                return false, "Invalid player name."
+            end
+            if self:getWhitelist():contains(newSettings.playerName) then
+                return false, string.format("%s is already on the whitelist.", newSettings.playerName)
+            end
+            return true
+        end, showMenu)
 
         self.disposeBag:add(playerNameConfigEditor:onConfigChanged():addAction(function(newSettings, _)
             local playerName = newSettings.PlayerName
-            local whitelist = addonSettings:getSettings().remote_commands.whitelist
-            if not whitelist:contains(playerName) then
-                addonSettings:getSettings().remote_commands.whitelist:add(playerName)
-                addonSettings:saveSettings(true)
-                addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, "..playerName.." can control me now!")
-                windower.add_to_chat(122, "---== WARNING ==---- Adding a player to the whitelist will allow them to control your Trust. Please use this carefully.")
-            end
+            local user = Whitelist({
+                id = playerName,
+            })
+            user:save()
+            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, "..playerName.." can control me now!")
+            windower.add_to_chat(122, "---== WARNING ==---- Adding a player to the whitelist will allow them to control your Trust. Please use this carefully.")
         end), playerNameConfigEditor:onConfigChanged())
 
-        self.disposeBag:add(playerNameConfigEditor:onConfigValidationError():addAction(function()
-            addon_system_error("Invalid player name.")
+        self.disposeBag:add(playerNameConfigEditor:onConfigValidationError():addAction(function(errorMessage)
+            addon_system_error(errorMessage)
         end), playerNameConfigEditor:onConfigValidationError())
 
         return playerNameConfigEditor
