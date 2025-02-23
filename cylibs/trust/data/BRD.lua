@@ -45,7 +45,7 @@ function BardTrust.new(settings, action_queue, battle_settings, trust_settings, 
 	state.SongSet:options(L(T(trust_settings.SongSettings.SongSets):keyset()):unpack())
 	self.num_songs = trust_settings.NumSongs
 	self.action_queue = action_queue
-	self.song_modes_delta = ModeDelta.new(BardModes.Singing, "Changing modes while singing may prevent songs from being applied.", S{ 'AutoSongMode' })
+	self.song_modes_delta = ModeDelta.new(BardModes.Singing, "Unable to change modes while singing. Use // trust stop to stop singing.", S{ 'AutoSongMode' })
 
 	return self
 end
