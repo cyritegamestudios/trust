@@ -77,7 +77,7 @@ function PartyStatusWidget.new(frame, alliance, party, trust, mediaPlayer, sound
             local party_member = self.alliance:get_alliance_member_named(item:getText())
             if party_member then
                 if party_member:get_name() == windower.ffxi.get_player().name then
-                    local playerMenuItem = PlayerMenuItem.new(party_member, party, alliance, addonSettings:getSettings().remote_commands.whitelist, trust)
+                    local playerMenuItem = PlayerMenuItem.new(party_member, party, alliance, trust)
                     coroutine.schedule(function()
                         self:resignFocus()
                         hud:closeAllMenus()
@@ -86,7 +86,7 @@ function PartyStatusWidget.new(frame, alliance, party, trust, mediaPlayer, sound
                 elseif party_member:is_trust() then
                     party:set_assist_target(party_member)
                 else
-                    local partyMemberMenuItem = PartyMemberMenuItem.new(party_member, party, addonSettings:getSettings().remote_commands.whitelist, trust)
+                    local partyMemberMenuItem = PartyMemberMenuItem.new(party_member, party, trust)
                     coroutine.schedule(function()
                         self:resignFocus()
                         hud:closeAllMenus()
