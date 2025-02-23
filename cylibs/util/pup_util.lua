@@ -7,6 +7,8 @@ _libs = _libs or {}
 
 require('lists')
 
+local Item = require('resources/resources').Item
+
 local pup_util = {}
 
 _raw = _raw or {}
@@ -18,7 +20,7 @@ _libs.pup_util = pup_util
 -- @treturn list Localized names for the player's attachments (e.g. Strobe, Attuner, etc.)
 function pup_util.get_attachments()
     local current = L{}
-    local atts = windower.trust.resources.items:with_category("Automaton")
+    local atts = Item:where({ category = "Automaton" }, true)
     local mjob_data = windower.ffxi.get_mjob_data()
     if not mjob_data then return current end
 
@@ -44,8 +46,8 @@ function pup_util.get_pet_mode()
 
     local pet = {}
 
-    pet.frame = windower.trust.resources.items:with('id', mjob_data.frame).en
-    pet.head = windower.trust.resources.items:with('id', mjob_data.head).en
+    pet.frame = Item:get({ id = mjob_data.frame }).en
+    pet.head = Item:get({ id = mjob_data.head }).en
 
     if pet.frame == 'Sharpshot Frame' then
         if pet.head == 'Valoredge Head' or pet.head == 'Harlequin Head' then

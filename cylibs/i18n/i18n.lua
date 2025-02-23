@@ -5,6 +5,7 @@
 
 local Event = require('cylibs/events/Luvent')
 local res = require('resources')
+local Resources = require('resources/resources').Resources
 
 local i18n = {}
 
@@ -92,9 +93,9 @@ function i18n.translate(key, args)
 end
 
 function i18n.get_item(resource_name, key, value, fields)
-    local table = windower.trust.resources[resource_name]
+    local table = Resources:get_table(resource_name)
     if table then
-        return table:where(string.format("%s == \"%s\"", key, value), fields):first()
+        return table:get({ [key] = value }, fields)
     else
         return res[resource_name]:with(key, value) or res[resource_name]:with(key, value:lower())
     end
