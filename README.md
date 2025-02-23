@@ -23,9 +23,9 @@ You will need the latest version of [Trust](https://github.com/cyritegamestudios
 ### Recommended
 1. Download and launch the Trust [installer](https://github.com/cyritegamestudios/trust/blob/main/Setup/TrustInstaller.zip). If you running Trust v10.0.8+, the installer should be in your `addons/trust/Setup` folder already. **Please move it to your Desktop. If you run the installer from within the Trust folder it will not work.**
 2. If a Windows security popup appears, click "More Info" and "Run Anyway".
-3. Follow the instructions in the installer.
-4. To update, launch the installer again.
-5. If you'd like to get early access to updates, click the dropdown in the top right and select **Alpha**.
+3. **Unload Trust from all characters (// lua unload trust).**
+4. Follow the instructions in the installer.
+5. To update, launch the installer again.
 
 ![image](https://github.com/user-attachments/assets/06b59159-b92e-483e-8f3e-7d9b5c32026d)
 
