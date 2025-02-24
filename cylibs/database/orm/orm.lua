@@ -22,7 +22,7 @@ function ORM.copy_file(source_path, target_path)
     end
     local dest_file = io.open(target_path, "wb")  -- "wb" for write in binary mode
     if not dest_file then
-        addon_system_error(string.format("Failed to open %s.", dest_file))
+        addon_system_error(string.format("Failed to open %s.", target_path))
         src_file:close()
         return
     end

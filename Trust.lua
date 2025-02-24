@@ -626,9 +626,16 @@ function loaded()
 	player = {}
 	shortcuts = {}
 
-	if not windower.dir_exists(windower.trust.get_temp_dir()) then
-		windower.create_dir(windower.trust.get_temp_dir())
-		windower.create_dir(windower.trust.get_temp_dir(windower.ffxi.get_player().name))
+	require('lists')
+
+	local temp_dirs = L{
+		windower.trust.get_temp_dir(),
+		windower.trust.get_temp_dir(windower.ffxi.get_player().name),
+	}
+	for dir in temp_dirs:it() do
+		if not windower.dir_exists(dir) then
+			windower.create_dir(dir)
+		end
 	end
 
 	local res = require('resources')
