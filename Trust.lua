@@ -6,9 +6,9 @@ _addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 
 windower.trust = {}
-windower.trust.get_temp_dir = function(player_name)
+windower.trust.get_temp_dir = function(file_name)
 	if player_name then
-		return string.format("%s/temp/%s", windower.addon_path..'data', windower.ffxi.get_player().name)
+		return string.format("%s/temp/%s", windower.addon_path..'data', file_name)
 	else
 		return string.format("%s/temp", windower.addon_path..'data')
 	end
