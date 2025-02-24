@@ -18,7 +18,6 @@ function Settings.new()
 
     self.database = Database.new(windower.addon_path..'data', 'settings.db')
     self.tables = {}
-    self.dispose_bag = DisposeBag.new()
     self.events = {}
     self.events.unload = windower.register_event('unload', function()
         self:destroy()
@@ -67,8 +66,7 @@ function Settings.new()
 end
 
 function Settings:destroy()
-    self.database:close()
-    self.dispose_bag:destroy()
+    self.database:destroy()
 end
 
 local instance = Settings.new()
