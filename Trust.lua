@@ -1,11 +1,18 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '13.7.0'
+_addon.version = '13.7.1'
 _addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 
 windower.trust = {}
+windower.trust.get_temp_dir = function(file_name)
+	if file_name then
+		return string.format("%s/temp/%s", windower.addon_path..'data', file_name)
+	else
+		return string.format("%s/temp", windower.addon_path..'data')
+	end
+end
 
 -- Main
 
@@ -618,6 +625,18 @@ function loaded()
 
 	player = {}
 	shortcuts = {}
+
+	require('lists')
+
+	local temp_dirs = L{
+		windower.trust.get_temp_dir(),
+		windower.trust.get_temp_dir(windower.ffxi.get_player().name),
+	}
+	for dir in temp_dirs:it() do
+		if not windower.dir_exists(dir) then
+			windower.create_dir(dir)
+		end
+	end
 
 	local res = require('resources')
 

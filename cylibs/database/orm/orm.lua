@@ -1,4 +1,5 @@
 local Event = require('cylibs/events/Luvent')
+local FileIO = require('files')
 local sqlite3 = require("sqlite3")
 
 local Model = {}
@@ -7,15 +8,70 @@ Model.__index = Model
 local ORM = {}
 ORM.__index = ORM
 
-function ORM.new(db_name)
+function ORM.copy_file(source_path, target_path)
+    -- Open the source file for reading
+    local src_file = io.open(source_path, "rb")  -- "rb" for read in binary mode
+    if not src_file then
+        addon_system_error(string.format("Failed to open %s.", src_file))
+        return
+    end
+
+    -- Open the destination file for writing
+    if not windower.file_exists(target_path) then
+        FileIO.create_path(target_path)
+    end
+    local dest_file = io.open(target_path, "wb")  -- "wb" for write in binary mode
+    if not dest_file then
+        addon_system_error(string.format("Failed to open %s.", target_path))
+        src_file:close()
+        return
+    end
+
+    -- Define a buffer size (in bytes) for reading in chunks
+    local buffer_size = 1024 * 1024  -- 1 MB per chunk
+    local bytes_read = string.rep("\0", buffer_size)  -- Initialize a buffer
+
+    -- Read from the source file and write to the destination file in chunks
+    while true do
+        bytes_read = src_file:read(buffer_size)  -- Read a chunk
+        if not bytes_read then
+            break  -- End of file reached
+        end
+        dest_file:write(bytes_read)  -- Write the chunk to the destination
+    end
+
+    -- Close the files
+    src_file:close()
+    dest_file:close()
+end
+
+function ORM.new(parent_path, db_name, readonly)
     local self = setmetatable({}, ORM)
-    self.db = sqlite3.open(db_name)
+
+    local db_path = string.format("%s/%s", parent_path, db_name)
+    if readonly then
+        local temp_dir = windower.trust.get_temp_dir(windower.ffxi.get_player().name)
+
+        local target_file_path = string.format("%s/%s", temp_dir, db_name)
+        local source_file_path = db_path
+
+        ORM.copy_file(source_file_path, target_file_path)
+
+        db_path = target_file_path
+
+        self.temp_file_path = db_path
+    end
+    self.db = sqlite3.open(db_path)
     self.tables = {}
     return self
 end
 
 function ORM:destroy()
     self.db:close()
+
+    if self.temp_file_path then
+        os.remove(self.temp_file_path)
+    end
 end
 
 function ORM:execute(sql, ...)

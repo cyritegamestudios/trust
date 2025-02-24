@@ -27,7 +27,7 @@ end
 function Resources.new()
     local self = setmetatable({}, Resources)
 
-    self.database = Database.new(windower.addon_path..'resources/resources.db')
+    self.database = Database.new(windower.addon_path..'resources', 'resources.db', true)
     self.events = {}
     self.events.unload = windower.register_event('unload', function()
         self:destroy()
@@ -71,7 +71,7 @@ function Resources.new()
 end
 
 function Resources:destroy()
-    self.database:close()
+    self.database:destroy()
 end
 
 function Resources:get_table(resource_name)
