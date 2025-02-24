@@ -1,6 +1,8 @@
 # General
 settings*.xml
 settings.db
+temp/
+temp/*
 
 # Job Settings Files
 WAR_*.lua

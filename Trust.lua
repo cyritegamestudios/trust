@@ -6,6 +6,13 @@ _addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 
 windower.trust = {}
+windower.trust.get_temp_dir = function(player_name)
+	if player_name then
+		return string.format("%s/temp/%s", windower.addon_path..'data', windower.ffxi.get_player().name)
+	else
+		return string.format("%s/temp", windower.addon_path..'data')
+	end
+end
 
 -- Main
 
@@ -618,6 +625,11 @@ function loaded()
 
 	player = {}
 	shortcuts = {}
+
+	if not windower.dir_exists(windower.trust.get_temp_dir()) then
+		windower.create_dir(windower.trust.get_temp_dir())
+		windower.create_dir(windower.trust.get_temp_dir(windower.ffxi.get_player().name))
+	end
 
 	local res = require('resources')
 

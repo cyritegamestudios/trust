@@ -16,7 +16,7 @@ Settings.__index = Settings
 function Settings.new()
     local self = setmetatable({}, Settings)
 
-    self.database = Database.new(windower.addon_path..'data/settings.db')
+    self.database = Database.new(windower.addon_path..'data', 'settings.db')
     self.tables = {}
     self.dispose_bag = DisposeBag.new()
     self.events = {}
