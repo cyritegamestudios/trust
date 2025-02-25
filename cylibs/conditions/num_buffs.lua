@@ -43,7 +43,7 @@ function NumBuffsCondition:get_config_items()
 end
 
 function NumBuffsCondition:tostring()
-    return string.format("Has %d buffs", self.num_buffs)
+    return string.format("Has %s %d buffs", self.operator, self.num_buffs)
 end
 
 function NumBuffsCondition.description()
