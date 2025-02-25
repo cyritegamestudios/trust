@@ -16,6 +16,7 @@ function Gambiter.new(action_queue, gambit_settings, state_var)
     self.action_queue = action_queue
     self.state_var = state_var or state.AutoGambitMode
     self.timer = Timer.scheduledTimer(1)
+    self.enabled = true
     self.last_gambit_time = os.time() - self:get_cooldown()
 
     self:set_gambit_settings(gambit_settings)
@@ -33,7 +34,7 @@ function Gambiter:on_add()
     Role.on_add(self)
 
     self.timer:onTimeChange():addAction(function(_)
-        if self.state_var.value == 'Off' then
+        if not self:is_enabled() then
             return
         end
         self:check_gambits()
@@ -153,6 +154,14 @@ end
 
 function Gambiter:get_all_gambits()
     return L{}:extend(self.gambits):extend(self.job_gambits)
+end
+
+function Gambiter:is_enabled()
+    return self.state_var.value ~= 'Off' and self.enabled
+end
+
+function Gambiter:set_enabled(enabled)
+    self.enabled = enabled
 end
 
 function Gambiter:tostring()

@@ -22,8 +22,6 @@ state.AutoDispelMode:set_description('Auto', "Okay, I'll try to dispel monster b
 function Dispeler.new(action_queue, spells, job_abilities, should_retry)
     local self = setmetatable(Gambiter.new(action_queue, {}, state.AutoDispelMode), Dispeler)
 
-    self.should_retry = should_retry
-
     local gambit_settings = {
         Gambits = (spells + job_abilities):map(function(ability)
             return Gambit.new(GambitTarget.TargetType.Enemy, L{
@@ -32,11 +30,8 @@ function Dispeler.new(action_queue, spells, job_abilities, should_retry)
             }, ability, Condition.TargetType.Enemy)
         end)
     }
-    if should_retry then
-        self:set_gambit_settings(gambit_settings)
-    else
-        self.dispel_gambits = gambit_settings.Gambits
-    end
+    self:set_gambit_settings(gambit_settings)
+    self:set_enabled(should_retry)
 
     self.dispose_bag = DisposeBag.new()
 
@@ -58,7 +53,7 @@ function Dispeler:on_add()
         end
         local ability = monster_abilities_ext[ability_id]
         if ability then
-            self:check_gambits(nil, self.dispel_gambits)
+            self:check_gambits(nil, self.gambits)
         end
     end), WindowerEvents.Ability.Finish)
 
@@ -70,10 +65,9 @@ function Dispeler:on_add()
             if action_message_util.is_finish_action_category(act.category) then
                 local action = act.targets[1].actions[1]
                 if action_message_util.is_monster_gain_buff(action.message, action.param) then
-                    self:check_gambits(nil, self.dispel_gambits)
+                    self:check_gambits(nil, self.gambits)
                 end
             end
-
         end
     end), WindowerEvents.Action)
 end
