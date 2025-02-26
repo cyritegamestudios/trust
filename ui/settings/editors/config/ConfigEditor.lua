@@ -102,7 +102,9 @@ function ConfigEditor.new(trustSettings, configSettings, configItems, infoView, 
             cell:setItemSize(16)
             return cell
         elseif item.__type == PickerItem.__type then
-            local cell = PickerCollectionViewCell.new(item)
+            local textStyle = TextStyle.ConfigEditor.TextSmall
+            textStyle.highlightBold = true
+            local cell = PickerCollectionViewCell.new(item, textStyle)
             cell:setUserInteractionEnabled(true)
             cell:setIsSelectable(true)
             cell:setItemSize(16)

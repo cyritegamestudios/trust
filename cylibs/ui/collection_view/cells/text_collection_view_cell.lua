@@ -40,7 +40,7 @@ function TextCollectionViewCell:applyTextStyle()
         self.textView:bold(true)
     elseif self:isHighlighted() then
         self:setTextColor(style:getHighlightColor())
-        self.textView:bold(style:isBold())
+        self.textView:bold(style:isBold() or style:isHighlightBold())
     else
         self:setTextColor(style:getFontColor())
         self.textView:bold(style:isBold())
