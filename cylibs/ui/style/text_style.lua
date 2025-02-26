@@ -41,6 +41,7 @@ function TextStyle.new(selectedBackgroundColor, defaultBackgroundColor, fontName
     self.bold = bold
     self.selectedColor = selectedColor or self.fontColor
     self.italic = italic
+    self.highlightBold = false
 
     return self
 end
@@ -151,6 +152,15 @@ end
 --
 function TextStyle:isBold()
     return self.bold
+end
+
+---
+-- Gets the value of highlightBold.
+--
+-- @treturn boolean Value of highlightBold.
+--
+function TextStyle:isHighlightBold()
+    return self.highlightBold
 end
 
 ---
@@ -328,7 +338,23 @@ TextStyle.Picker = {
             "Arial",
             10,
             Color.white,
-            Color.lightGrey,
+            Color.pink,
+            0,
+            0,
+            Color.clear,
+            false,
+            Color.yellow
+    ),
+}
+
+TextStyle.ConfigEditor = {
+    TextSmall = TextStyle.new(
+            Color.clear,
+            Color.clear,
+            "Arial",
+            10,
+            Color.white,
+            Color.pink,
             0,
             0,
             Color.clear,
