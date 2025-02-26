@@ -32,6 +32,7 @@ function ShortcutMenuItem.new(shortcutId, shortcutDescription, allowCommand, com
             BooleanConfigItem.new('enabled', "Enable Shortcut"),
         }
         if allowCommand then
+            shortcut.command = shortcut.command or ''
             configItems:append(TextInputConfigItem.new('command', shortcut.command or '', 'Command', function(_)
                 return true
             end))
@@ -69,7 +70,7 @@ function ShortcutMenuItem.new(shortcutId, shortcutDescription, allowCommand, com
             shortcut:save()
 
             Keyboard.input():unregisterKeybind(oldSettings.key, oldSettings.flags)
-            
+
             if newSettings.key ~= Keyboard.Keys.None and newSettings.key and newSettings.enabled then
                 local widget = windower.trust.ui.get_widget(newSettings.id)
                 if widget then

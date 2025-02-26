@@ -101,8 +101,10 @@ function TrustHud:destroy()
 end
 
 function TrustHud:getMenuItem(configKey)
-    -- main menu item might not be initialized
     if configKey then
+        if self.mainMenuItem == nil then
+            self.mainMenuItem = self:getMainMenuItem()
+        end
         local stack = L{ self.mainMenuItem:getChildMenuItem(player.main_job_name) }
         while stack:length() > 0 do
             local menuItem = stack:remove(1)
@@ -113,55 +115,6 @@ function TrustHud:getMenuItem(configKey)
         end
     end
     return nil
-end
-
-function TrustHud:registerShortcuts()
-    local stack = L{ self.mainMenuItem:getChildMenuItem(player.main_job_name) }
-    while stack:length() > 0 do
-        local menuItem = stack:remove(1)
-        if menuItem:getConfigKey() then
-            local shortcutsMenuItem = MenuItem.new(L{
-                ButtonItem.default('Save', 18),
-            }, {},
-                function(_, _)
-                    local shortcutSettings = self.addon_settings:getSettings().shortcuts.menus[menuItem:getConfigKey()]
-
-                    local configItems = L{
-                        BooleanConfigItem.new('enabled', "Keyboard Shortcut"),
-                        PickerConfigItem.new('key', shortcutSettings.key or Keyboard.allKeys()[1], Keyboard.allKeys(), function(keyName)
-                            return keyName
-                        end, "Key"),
-                        PickerConfigItem.new('flags', shortcutSettings.flags or Keyboard.allFlags()[1], Keyboard.allFlags(), function(flag)
-                            return Keyboard.input():getFlag(flag)
-                        end, "Secondary Key"),
-                    }
-
-                    local shortcutsEditor = ConfigEditor.new(self.addon_settings, shortcutSettings, configItems)
-
-                    self.disposeBag:add(shortcutsEditor:onConfigChanged():addAction(function(newSettings, oldSettings)
-                        if oldSettings.key and oldSettings.flags then
-                            Keyboard.input():unregisterKeybind(oldSettings.key, oldSettings.flags)
-                        end
-                        if newSettings.enabled and newSettings.key and newSettings.flags then
-                            Keyboard.input():registerKeybind(newSettings.key, newSettings.flags, function(keybind, pressed)
-                                self:openMenu(menuItem)
-                            end)
-                        end
-                    end), shortcutsEditor:onConfigChanged())
-
-                    return shortcutsEditor
-                end, menuItem:getTitleText(), "Configure keyboard shortcuts to show this menu.")
-            menuItem:setChildMenuItem('Shortcuts', shortcutsMenuItem)
-
-            local shortcutSettings = self.addon_settings:getSettings().shortcuts.menus[menuItem:getConfigKey()]
-            if shortcutSettings and shortcutSettings.enabled and shortcutSettings.key and shortcutSettings.flags then
-                Keyboard.input():registerKeybind(shortcutSettings.key, shortcutSettings.flags, function(keybind, pressed)
-                    self:openMenu(menuItem)
-                end)
-            end
-        end
-        stack = stack:extend(menuItem:getChildMenuItems())
-    end
 end
 
 function TrustHud:layoutIfNeeded()
@@ -268,8 +221,6 @@ function TrustHud:getMainMenuItem()
 
     local CommandsMenuItem = require('ui/settings/menus/commands/CommandsMenuItem')
     self.mainMenuItem:setChildMenuItem('Commands', CommandsMenuItem.new(self.commands))
-
-    --self:registerShortcuts()
 
     return self.mainMenuItem
 end
@@ -419,12 +370,16 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
     local jobName = res.jobs:with('ens', jobNameShort).en
 
     menuItems:append(ButtonItem.default('Gambits', 18))
+
+    local customGambitsMenuItem = GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, self.trustModeSettings, 'GambitSettings')
+    customGambitsMenuItem:setConfigKey("gambits")
+
     childMenuItems.Gambits = MenuItem.new(L{
         ButtonItem.default('Custom', 18),
         ButtonItem.default(jobName, 18),
         ButtonItem.default('Reactions', 18),
     }, {
-        Custom = GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, self.trustModeSettings, 'GambitSettings'),
+        Custom = customGambitsMenuItem,
         [jobName] = JobGambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, self.trustModeSettings),
         Reactions = ReactionSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, self.trustModeSettings),
     }, nil, "Gambits", "Configure Trust behavior.")
