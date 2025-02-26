@@ -80,7 +80,7 @@ end
 
 function Keyboard:setupKeybinds()
     local shortcuts = Shortcut:all():filter(function(shortcut)
-        return shortcut.command and shortcut.command:contains("//")
+        return shortcut.enabled == 1 and shortcut.command and shortcut.command:contains("//")
     end)
     for shortcut in shortcuts:it() do
         self:registerKeybind(shortcut.key, shortcut.flags, function(_, _)
