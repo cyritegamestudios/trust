@@ -100,6 +100,21 @@ function TrustHud:destroy()
     end
 end
 
+function TrustHud:getMenuItem(configKey)
+    -- main menu item might not be initialized
+    if configKey then
+        local stack = L{ self.mainMenuItem:getChildMenuItem(player.main_job_name) }
+        while stack:length() > 0 do
+            local menuItem = stack:remove(1)
+            if menuItem:getConfigKey() == configKey then
+                return menuItem
+            end
+            stack = stack + menuItem:getChildMenuItems()
+        end
+    end
+    return nil
+end
+
 function TrustHud:registerShortcuts()
     local stack = L{ self.mainMenuItem:getChildMenuItem(player.main_job_name) }
     while stack:length() > 0 do
@@ -254,7 +269,7 @@ function TrustHud:getMainMenuItem()
     local CommandsMenuItem = require('ui/settings/menus/commands/CommandsMenuItem')
     self.mainMenuItem:setChildMenuItem('Commands', CommandsMenuItem.new(self.commands))
 
-    self:registerShortcuts()
+    --self:registerShortcuts()
 
     return self.mainMenuItem
 end

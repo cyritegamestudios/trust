@@ -32,6 +32,7 @@ function Settings.new()
                 flags = "INTEGER DEFAULT 1",
                 enabled = "TINYINT(1) DEFAULT 1",
                 command = "VARCHAR(64)",
+                description = "VARCHAR(64)"
             },
             migrations = function(table)
                 table:add_column("command", "VARCHAR(64)")

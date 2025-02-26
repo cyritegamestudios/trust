@@ -11,7 +11,7 @@ local TextInputConfigItem = require('ui/settings/editors/config/TextInputConfigI
 local ShortcutMenuItem = setmetatable({}, {__index = MenuItem })
 ShortcutMenuItem.__index = ShortcutMenuItem
 
-function ShortcutMenuItem.new(shortcutId, shortcutDescription, allowCommand)
+function ShortcutMenuItem.new(shortcutId, shortcutDescription, allowCommand, command)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Save')
     }, {}, nil, "Shortcuts", "Add a shortcut."), ShortcutMenuItem)
@@ -53,26 +53,31 @@ function ShortcutMenuItem.new(shortcutId, shortcutDescription, allowCommand)
         end)
 
         self.disposeBag:add(shortcutsEditor:onConfigChanged():addAction(function(newSettings, oldSettings)
+            local shortcutCommand = newSettings.command
+            if not allowCommand then
+                shortcutCommand = command
+            end
+
             local shortcut = Shortcut({
                 id = self.shortcutId,
                 key = newSettings.key,
                 flags = newSettings.flags,
                 enabled = newSettings.enabled,
-                command = newSettings.command,
+                command = shortcutCommand,
                 description = shortcutDescription,
             })
             shortcut:save()
 
             Keyboard.input():unregisterKeybind(oldSettings.key, oldSettings.flags)
-
-            if newSettings.key ~= Keyboard.Keys.None and newSettings.key and newSettings.flags and newSettings.enabled then
+            
+            if newSettings.key ~= Keyboard.Keys.None and newSettings.key and newSettings.enabled then
                 local widget = windower.trust.ui.get_widget(newSettings.id)
                 if widget then
                     widget:setShortcut(newSettings.key, newSettings.flags)
                 else
-                    if newSettings.command and newSettings.command:length() > 0 then
+                    if shortcutCommand and shortcutCommand:length() > 0 then
                         Keyboard.input():registerKeybind(newSettings.key, newSettings.flags, function(_, _)
-                            windower.chat.input(newSettings.command)
+                            windower.chat.input(shortcutCommand)
                         end)
                     end
                 end
@@ -101,7 +106,8 @@ function ShortcutMenuItem:getShortcut()
         key = "A",
         flags = 1,
         enabled = false,
-        command = '',
+        command = nil,
+        description = nil,
     })
 end
 

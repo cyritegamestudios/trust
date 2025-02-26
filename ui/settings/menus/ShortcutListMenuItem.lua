@@ -1,6 +1,7 @@
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+local Keyboard = require('cylibs/ui/input/keyboard')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local Shortcut = require('settings/settings').Shortcut
@@ -55,12 +56,13 @@ function ShortcutListMenuItem:getShortcuts()
     return L(Shortcut:all() or L{})
 end
 
-function ShortcutListMenuItem:reloadSettings(addonSettings)
+function ShortcutListMenuItem:reloadSettings()
     self:setChildMenuItem("Add", ShortcutMenuItem.new(nil, 'shortcut', true))
     self:setChildMenuItem("Remove", MenuItem.action(function(menu)
         if self.selectedShortcutId then
             local shortcut = Shortcut:get({ id = self.selectedShortcutId })
             if shortcut then
+                Keyboard.input():unregisterKeybind(shortcut.key, shortcut.flags)
                 addon_system_message(string.format("Shortcut for %s removed.", shortcut.command or shortcut.description or ''))
                 Shortcut:delete({ id = self.selectedShortcutId })
                 self.selectedShortcutId = nil
