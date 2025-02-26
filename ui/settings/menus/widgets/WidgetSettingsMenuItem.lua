@@ -62,7 +62,7 @@ function WidgetSettingsMenuItem:getWidgetMenuItem(widgetName)
         return configEditor
     end, "Widgets", "Configure the "..widgetName.." widget. UI does not update until saved.")
 
-    widgetMenuItem:setChildMenuItem('Shortcuts', ShortcutMenuItem.new(widgetName:lower(), widgetName.." widget"))
+    widgetMenuItem:setChildMenuItem('Shortcuts', ShortcutMenuItem.new(widgetName:lower(), string.format("Focus on %s widget", widgetName)))
 
     return widgetMenuItem
 end

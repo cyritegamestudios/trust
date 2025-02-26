@@ -6,16 +6,17 @@ local Keyboard = require('cylibs/ui/input/keyboard')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local Shortcut = require('settings/settings').Shortcut
+local TextInputConfigItem = require('ui/settings/editors/config/TextInputConfigItem')
 
 local ShortcutMenuItem = setmetatable({}, {__index = MenuItem })
 ShortcutMenuItem.__index = ShortcutMenuItem
 
-function ShortcutMenuItem.new(shortcutId, shortcutName)
+function ShortcutMenuItem.new(shortcutId, shortcutDescription, allowCommand)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Save')
-    }, {}, nil, "Shortcuts", "Add a shortcut for the "..shortcutName.."."), ShortcutMenuItem)
+    }, {}, nil, "Shortcuts", "Add a shortcut."), ShortcutMenuItem)
 
-    self.shortcutId = shortcutId
+    self.shortcutId = shortcutId or string.format('shortcut_%d', os.time())
     self.disposeBag = DisposeBag.new()
 
     self.contentViewConstructor = function(_, _, _)
@@ -30,8 +31,17 @@ function ShortcutMenuItem.new(shortcutId, shortcutName)
             end, "Secondary Key"),
             BooleanConfigItem.new('enabled', "Enable Shortcut"),
         }
+        if allowCommand then
+            configItems:append(TextInputConfigItem.new('command', shortcut.command or '', 'Command', function(_)
+                return true
+            end))
+        end
 
         local shortcutsEditor = ConfigEditor.fromModel(shortcut, configItems, nil, function(newSettings)
+            if allowCommand and newSettings.command == nil or not newSettings.command:contains("//") then
+                return false, "Command must start with //."
+            end
+
             local existingShortcut = Shortcut:get({ key = newSettings.key, flags = newSettings.flags })
 
             local isError = existingShortcut and existingShortcut.id ~= shortcutId
@@ -44,10 +54,12 @@ function ShortcutMenuItem.new(shortcutId, shortcutName)
 
         self.disposeBag:add(shortcutsEditor:onConfigChanged():addAction(function(newSettings, oldSettings)
             local shortcut = Shortcut({
-                id = shortcutId,
+                id = self.shortcutId,
                 key = newSettings.key,
                 flags = newSettings.flags,
                 enabled = newSettings.enabled,
+                command = newSettings.command,
+                description = shortcutDescription,
             })
             shortcut:save()
 
@@ -55,7 +67,15 @@ function ShortcutMenuItem.new(shortcutId, shortcutName)
 
             if newSettings.key ~= Keyboard.Keys.None and newSettings.key and newSettings.flags and newSettings.enabled then
                 local widget = windower.trust.ui.get_widget(newSettings.id)
-                widget:setShortcut(newSettings.key, newSettings.flags)
+                if widget then
+                    widget:setShortcut(newSettings.key, newSettings.flags)
+                else
+                    if newSettings.command and newSettings.command:length() > 0 then
+                        Keyboard.input():registerKeybind(newSettings.key, newSettings.flags, function(_, _)
+                            windower.chat.input(newSettings.command)
+                        end)
+                    end
+                end
             end
         end), shortcutsEditor:onConfigChanged())
 
@@ -80,7 +100,8 @@ function ShortcutMenuItem:getShortcut()
         id = self.shortcutId,
         key = "A",
         flags = 1,
-        enabled = false
+        enabled = false,
+        command = '',
     })
 end
 

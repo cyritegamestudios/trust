@@ -31,7 +31,12 @@ function Settings.new()
                 key = "VARCHAR(8) DEFAULT A UNIQUE",
                 flags = "INTEGER DEFAULT 1",
                 enabled = "TINYINT(1) DEFAULT 1",
+                command = "VARCHAR(64)",
             },
+            migrations = function(table)
+                table:add_column("command", "VARCHAR(64)")
+                table:add_column("description", "VARCHAR(64)")
+            end
         }),
         User = Table(self.database, {
             table_name = "users",
