@@ -71,6 +71,8 @@ function BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trust
         end
     end), buffSettingsItem:onGambitCreated())
 
+    buffSettingsItem:setConfigKey("buffs")
+
     return buffSettingsItem
 end
 

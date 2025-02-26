@@ -59,6 +59,8 @@ function NukeSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trust
     self:setChildMenuItem("Config", self:getConfigMenuItem())
     self:setChildMenuItem("Blacklist", self:getBlacklistMenuItem())
 
+    self:setConfigKey("nukes")
+
     return self
 end
 
