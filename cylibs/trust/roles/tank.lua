@@ -51,7 +51,7 @@ function Tank:check_enmity()
     for enmity_spell in self.spells:it() do
         if spell_util.can_cast_spell(enmity_spell:get_spell().id) then
             self.enmity_last_checked = os.time()
-            print('tank stuff')
+            
             local actions = L{
                 SpellAction.new(0, 0, 0, enmity_spell:get_spell().id, target:get_mob().index, self:get_player()),
             }
