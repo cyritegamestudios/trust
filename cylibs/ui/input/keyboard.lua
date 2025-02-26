@@ -1,6 +1,7 @@
 local Event = require('cylibs/events/Luvent')
 local FocusManager = require('cylibs/ui/focus/focus_manager')
 local Keybind = require('cylibs/ui/input/keybind')
+local Shortcut = require('settings/settings').Shortcut
 local ValueRelay = require('cylibs/events/value_relay')
 
 local Keyboard = {}
@@ -58,7 +59,7 @@ function Keyboard.new()
 
         self:on_key_pressed():trigger(key, pressed, flags, blocked)
 
-        if not blocked and self:isValidKeybind(key, flags) and FocusManager.shared():getFocusable() == nil then
+        if not blocked and self:isValidKeybind(key, flags) and pressed and FocusManager.shared():getFocusable() == nil then
             local keybind = Keybind.new(self:getKey(key), flags)
             self:getKeybindHandler(key, flags)(keybind, pressed)
             return true
@@ -72,7 +73,20 @@ function Keyboard.new()
         return blocked
     end)
 
+    self:setupKeybinds()
+
     return self
+end
+
+function Keyboard:setupKeybinds()
+    local shortcuts = Shortcut:all():filter(function(shortcut)
+        return shortcut.enabled == 1 and shortcut.command and shortcut.command:contains("//")
+    end)
+    for shortcut in shortcuts:it() do
+        self:registerKeybind(shortcut.key, shortcut.flags, function(_, _)
+            windower.chat.input(shortcut.command)
+        end)
+    end
 end
 
 function Keyboard:destroy()

@@ -4,6 +4,7 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesView = require('ui/settings/editors/config/ModeConfigEditor')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
+local ShortcutMenuItem = require('ui/settings/menus/ShortcutMenuItem')
 
 local ModesMenuItem = setmetatable({}, {__index = MenuItem })
 ModesMenuItem.__index = ModesMenuItem
@@ -64,6 +65,10 @@ function ModesMenuItem:reloadSettings()
         end, "Modes", "Change modes and save changes to the current profile."))
     end
     self:setChildMenuItem("Info", self:getInfoMenuItem())
+
+    if self:getConfigKey() then
+        self:setChildMenuItem("Shortcuts", ShortcutMenuItem.new(string.format("shortcut_%s", self:getConfigKey()), "Open the modes editor.", false, string.format("// trust menu %s", self:getConfigKey())))
+    end
 end
 
 function ModesMenuItem:getInfoMenuItem()

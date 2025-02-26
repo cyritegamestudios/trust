@@ -20,12 +20,17 @@ function MenuTrustCommands:get_command_name()
 end
 
 -- // trust menu
-function MenuTrustCommands:handle_toggle_menu(_)
+function MenuTrustCommands:handle_toggle_menu(configKey)
     local success = true
     local message
 
     coroutine.schedule(function()
-        self.hud:toggleMenu()
+        local menuItem = self.hud:getMenuItem(configKey)
+        if menuItem then
+            self.hud:openMenu(menuItem)
+        else
+            self.hud:toggleMenu()
+        end
     end, 0.2)
 
     return success, message

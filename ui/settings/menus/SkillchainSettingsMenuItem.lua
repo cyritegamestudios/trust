@@ -4,6 +4,7 @@ local ConditionSettingsMenuItem = require('ui/settings/menus/conditions/Conditio
 local DisposeBag = require('cylibs/events/dispose_bag')
 local JobAbilitiesSettingsMenuItem = require('ui/settings/menus/buffs/JobAbilitiesSettingsMenuItem')
 local MenuItem = require('cylibs/ui/menu/menu_item')
+local ShortcutMenuItem = require('ui/settings/menus/ShortcutMenuItem')
 local SkillchainAbility = require('cylibs/battle/skillchains/abilities/skillchain_ability')
 local SkillchainBuilder = require('cylibs/battle/skillchains/skillchain_builder')
 local SkillchainSettingsEditor = require('ui/settings/SkillchainSettingsEditor')
@@ -82,6 +83,7 @@ function SkillchainSettingsMenuItem:reloadSettings()
     self:setChildMenuItem('Edit', self:getEditSkillchainStepMenuItem())
     self:setChildMenuItem('Abilities', self:getAbilitiesMenuItem())
     self:setChildMenuItem('Clear All', MenuItem.action(nil, "Skillchains", "Automatically determine weapon skills to use for all steps."))
+    self:setChildMenuItem("Shortcuts", ShortcutMenuItem.new(string.format("shortcut_%s", self:getConfigKey()), "Open the skillchain editor.", false, string.format("// trust menu %s", self:getConfigKey())))
 end
 
 function SkillchainSettingsMenuItem:getEditSkillchainStepMenuItem()

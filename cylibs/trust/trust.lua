@@ -61,7 +61,6 @@ function Trust:init()
 		if buffer then
 			buffer:set_buff_settings(new_trust_settings.BuffSettings, self:get_job())
 		end
-
 		local puller = self:role_with_type("puller")
 		if puller then
 			puller:set_pull_settings(new_trust_settings.PullSettings)

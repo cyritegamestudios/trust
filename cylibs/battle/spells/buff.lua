@@ -47,6 +47,20 @@ function Buff.new(spell_name, job_abilities, job_names, spell_prefix, conditions
     end
 end
 
+function Buff:reload()
+    self:set_name(self.original_spell_name)
+end
+
+function Buff:set_name(spell_name)
+    local spell = res.spells:with('en', spell_name)
+    spell = spell_util.highest_spell(spell_name)
+    if spell then
+        Spell.set_name(self, spell.en)
+    else
+        Spell.set_name(self, spell_name)
+    end
+end
+
 -------
 -- Returns whether or not this spell is AOE (e.g. Protectra).
 -- @treturn Boolean True if the spell is AOE and false otherwise.

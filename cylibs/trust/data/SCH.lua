@@ -71,9 +71,9 @@ function ScholarTrust:on_init()
     self.dispose_bag:add(self:get_party():get_player():on_gain_buff():addAction(function(_, buff_id)
         local buff_name = buff_util.buff_name(buff_id)
         if L{'Light Arts', 'Addendum: White'}:contains(buff_name) then
-            self:switch_arts('LightArts')
+            self:switch_arts(buff_name)
         elseif L{'Dark Arts', 'Addendum: Black'}:contains(buff_name) then
-            self:switch_arts('DarkArts')
+            self:switch_arts(buff_name)
         end
     end, self:get_party():get_player():on_gain_buff()))
 end
@@ -95,7 +95,8 @@ function ScholarTrust:switch_arts(new_arts_mode)
     self:update_for_arts(self.current_arts_mode)
 end
 
-function ScholarTrust:update_for_arts(new_arts_mode)
+function ScholarTrust:update_for_arts(_)
+    self:set_trust_settings(self.trust_settings)
 end
 
 function ScholarTrust:get_widget()

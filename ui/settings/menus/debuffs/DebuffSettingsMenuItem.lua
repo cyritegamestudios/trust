@@ -58,6 +58,8 @@ function DebuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
         end
     end), debuffSettingsItem:onGambitChanged())
 
+    debuffSettingsItem:setConfigKey("debuffs")
+
     return debuffSettingsItem
 end
 

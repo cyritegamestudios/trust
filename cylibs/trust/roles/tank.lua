@@ -41,23 +41,25 @@ function Tank:tic(_, _)
 end
 
 function Tank:check_enmity()
-    local target = windower.ffxi.get_mob_by_index(self.target_index)
+    local target = self:get_target()
 
-    if state.AutoTankMode.value == 'Off' or os.time() - self.enmity_last_checked < self.enmity_action_delay or not party_util.party_claimed(target.id) then
+    if state.AutoTankMode.value == 'Off' or os.time() - self.enmity_last_checked < self.enmity_action_delay or target == nil or target:get_mob() == nil
+            or not party_util.party_claimed(target:get_id()) then
         return
     end
 
     for enmity_spell in self.spells:it() do
         if spell_util.can_cast_spell(enmity_spell:get_spell().id) then
             self.enmity_last_checked = os.time()
-
+            
             local actions = L{
-                SpellAction.new(0, 0, 0, enmity_spell:get_spell().id, self.target_index, self:get_player()),
+                SpellAction.new(0, 0, 0, enmity_spell:get_spell().id, target:get_mob().index, self:get_player()),
             }
 
             if spell_util.can_cast_spell(spell_util.spell_id('Foil')) then
                 actions:append(WaitAction.new(0, 0, 0, 2))
                 actions:append(SpellAction.new(0, 0, 0, spell_util.spell_id('Foil'), nil, self:get_player()))
+
             end
 
             local spell_action = SequenceAction.new(actions, 'tank_enmity')
