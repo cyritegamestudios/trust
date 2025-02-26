@@ -59,6 +59,7 @@ function Tank:check_enmity()
             if spell_util.can_cast_spell(spell_util.spell_id('Foil')) then
                 actions:append(WaitAction.new(0, 0, 0, 2))
                 actions:append(SpellAction.new(0, 0, 0, spell_util.spell_id('Foil'), nil, self:get_player()))
+
             end
 
             local spell_action = SequenceAction.new(actions, 'tank_enmity')

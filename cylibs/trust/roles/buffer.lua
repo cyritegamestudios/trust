@@ -21,6 +21,9 @@ end
 
 function Buffer:set_buff_settings(buff_settings)
     for gambit in buff_settings.Gambits:it() do
+        if gambit:getAbility().__type == Buff.__type then
+            gambit:getAbility():reload()
+        end
         gambit.conditions = gambit.conditions:filter(function(condition)
             return condition:is_editable()
         end)

@@ -339,6 +339,22 @@ function Spell:get_name()
     return self.spell_name
 end
 
+function Spell:set_name(spell_name)
+    if self.spell_name == spell_name then
+        return
+    end
+    self.spell_name = spell_name
+
+    self.conditions = self.conditions:filter(function(condition)
+        return condition:is_editable()
+    end)
+
+    local recast_ready_condition = SpellRecastReadyCondition.new(res.spells:with('en', spell_name).id)
+    recast_ready_condition.editable = false
+
+    self:add_condition(recast_ready_condition)
+end
+
 function Spell:get_localized_name()
     return i18n.resource('spells', 'en', self:get_name())
 end
