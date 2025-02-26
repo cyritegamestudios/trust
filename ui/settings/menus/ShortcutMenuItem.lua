@@ -38,7 +38,7 @@ function ShortcutMenuItem.new(shortcutId, shortcutDescription, allowCommand)
         end
 
         local shortcutsEditor = ConfigEditor.fromModel(shortcut, configItems, nil, function(newSettings)
-            if allowCommand and newSettings.command == nil or not newSettings.command:contains("//") then
+            if allowCommand and (newSettings.command == nil or not newSettings.command:contains("//")) then
                 return false, "Command must start with //."
             end
 
