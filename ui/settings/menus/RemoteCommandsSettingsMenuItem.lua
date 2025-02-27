@@ -11,7 +11,7 @@ local Whitelist = require('settings/settings').Whitelist
 local RemoteCommandsSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 RemoteCommandsSettingsMenuItem.__index = RemoteCommandsSettingsMenuItem
 
-function RemoteCommandsSettingsMenuItem.new(addonSettings)
+function RemoteCommandsSettingsMenuItem.new()
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
@@ -40,10 +40,10 @@ function RemoteCommandsSettingsMenuItem.new(addonSettings)
         return whitelistSettingsEditor
     end
 
-    self.helpUrl = addonSettings:getSettings().help.wiki_base_url..'/Commands#remote-commands'
+    self.helpUrl = 'https://github.com/cyritegamestudios/trust/wiki/Commands#remote-commands'
     self.disposeBag = DisposeBag.new()
 
-    self:reloadSettings(addonSettings)
+    self:reloadSettings()
 
     return self
 end
@@ -56,8 +56,8 @@ function RemoteCommandsSettingsMenuItem:getWhitelist()
     return Whitelist:all():map(function(user) return user.id end)
 end
 
-function RemoteCommandsSettingsMenuItem:reloadSettings(addonSettings)
-    self:setChildMenuItem("Add", self:getAddPlayerMenuItem(addonSettings))
+function RemoteCommandsSettingsMenuItem:reloadSettings()
+    self:setChildMenuItem("Add", self:getAddPlayerMenuItem())
     self:setChildMenuItem("Remove", MenuItem.action(function(menu)
         if self.selectedPlayerName then
             Whitelist:delete({ id = self.selectedPlayerName })
@@ -71,7 +71,7 @@ function RemoteCommandsSettingsMenuItem:reloadSettings(addonSettings)
     end))
 end
 
-function RemoteCommandsSettingsMenuItem:getAddPlayerMenuItem(addonSettings)
+function RemoteCommandsSettingsMenuItem:getAddPlayerMenuItem()
     local addPlayerMenuItem = MenuItem.new(L{
         ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
     }, {

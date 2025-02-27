@@ -4,6 +4,7 @@ local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
+local RemoteCommandsSettingsMenuItem = require('ui/settings/menus/RemoteCommandsSettingsMenuItem')
 
 local CommandsMenuItem = setmetatable({}, {__index = MenuItem })
 CommandsMenuItem.__index = CommandsMenuItem
@@ -15,7 +16,7 @@ function CommandsMenuItem.new(commands)
 
     local buttonItems = commands:map(function(command)
         return ButtonItem.default(command:get_localized_command_name():gsub("^%l", string.upper), 18)
-    end)
+    end) + L{ ButtonItem.default('Remote', 18) }
 
     local self = setmetatable(MenuItem.new(buttonItems, {}, nil, "Commands", "Trust addon commands."), CommandsMenuItem)
 
@@ -114,6 +115,7 @@ function CommandsMenuItem:reloadSettings(commands)
 
         self:setChildMenuItem(commandName, commandMenuItem)
     end
+    self:setChildMenuItem("Remote", RemoteCommandsSettingsMenuItem.new())
 end
 
 return CommandsMenuItem

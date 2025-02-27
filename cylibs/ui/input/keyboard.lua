@@ -44,7 +44,8 @@ function Keyboard.new()
         [0x01] = "Escape", [0x2A] = "LShift",
         [0x0C] = "Minus",
         [0x1D] = "LControl", [0x9D] = "RControl",
-        [0x33] = ",", [0x34] = ".", [0x35] = "/", [0x28] = "\""
+        [0x33] = ",", [0x34] = ".", [0x35] = "/", [0x28] = "\"",
+        [0x04A] = "Numpad-", [0x4E] = "Numpad+", [0xB5] = "Numpad/",
     }
 
     self.keybinds = T{}
@@ -132,7 +133,8 @@ function Keyboard.allKeys()
     return L{
         "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
         "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
-        "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ",", ".","/"
+        "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ",", ".","/",
+        "Numpad-", "Numpad+", "Numpad/",
     }
 end
 
