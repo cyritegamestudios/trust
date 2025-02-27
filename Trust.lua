@@ -619,6 +619,15 @@ function unloaded()
 end
 
 function loaded()
+	addon_system_message("Loading Trust...")
+
+	if windower.ffxi.get_player() == nil then
+		addon_system_error("Player not loaded, retrying in 5 seconds...")
+		coroutine.schedule(function()
+			loaded()
+		end, 5)
+	end
+
 	addon_load_time = os.time()
 
 	should_check_version = true
@@ -688,8 +697,6 @@ function loaded()
 			finalize_init()
 		end
 	end)
-
-	addon_system_message("Loading Trust...")
 
 	for action in actions:it() do
 		init_action_queue:push_action(action)
