@@ -224,6 +224,8 @@ function GeneralTrustCommands:handle_save_set(_, mode_set_name)
 
     trust_mode_settings:saveSettings(mode_set_name or state.TrustMode.value)
 
+    addon_system_message(string.format("Saved profile %s.", mode_set_name or state.TrustMode.value))
+
     return success, message
 end
 

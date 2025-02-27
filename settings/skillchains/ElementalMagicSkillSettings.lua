@@ -32,7 +32,7 @@ end
 -- Returns the list of skillchain abilities included in this settings. Omits abilities on the blacklist but does
 -- not check conditions for whether an ability can be performed.
 -- @treturn list A list of SkillchainAbility
-function ElementalMagicSkillSettings:get_abilities()
+function ElementalMagicSkillSettings:get_abilities(include_blacklist)
     if self.known_spells == nil then
         self.known_spells = spell_util.get_spells(function(spell)
             return skills.spells[spell.id] ~= nil and spell.type == 'BlackMagic'
@@ -44,7 +44,7 @@ function ElementalMagicSkillSettings:get_abilities()
             function(spell_id)
                 local spell_name = spell_util.spell_name(spell_id)
                 if spell_name then
-                    return not self.blacklist:contains(spell_util.spell_name(spell_id))
+                    return include_blacklist or not self.blacklist:contains(spell_util.spell_name(spell_id))
                 end
                 return false
             end):map(

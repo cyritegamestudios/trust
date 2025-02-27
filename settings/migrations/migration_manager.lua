@@ -1,30 +1,4 @@
-local Migration_v1 = require('settings/migrations/migration_v1')
-local Migration_v2 = require('settings/migrations/migration_v2')
-local Migration_v3 = require('settings/migrations/migration_v3')
-local Migration_v4 = require('settings/migrations/migration_v4')
-local Migration_v5 = require('settings/migrations/migration_v5')
-local Migration_v6 = require('settings/migrations/migration_v6')
-local Migration_v7 = require('settings/migrations/migration_v7')
-local Migration_v8 = require('settings/migrations/migration_v8')
-local Migration_v9 = require('settings/migrations/migration_v9')
-local Migration_v10 = require('settings/migrations/migration_v10')
-local Migration_v11 = require('settings/migrations/migration_v11')
-local Migration_v12 = require('settings/migrations/migration_v12')
-local Migration_v13 = require('settings/migrations/migration_v13')
-local Migration_v14 = require('settings/migrations/migration_v14')
-local Migration_v15 = require('settings/migrations/migration_v15')
-local Migration_v16 = require('settings/migrations/migration_v16')
-local Migration_v17 = require('settings/migrations/migration_v17')
-local Migration_v18 = require('settings/migrations/migration_v18')
-local Migration_v19 = require('settings/migrations/migration_v19')
-local Migration_v20 = require('settings/migrations/migration_v20')
-local Migration_v21 = require('settings/migrations/migration_v21')
-local Migration_v22 = require('settings/migrations/migration_v22')
-local Migration_v23 = require('settings/migrations/migration_v23')
-local Migration_v24 = require('settings/migrations/migration_v24')
-local Migration_v25 = require('settings/migrations/migration_v25')
-local Migration_v26 = require('settings/migrations/migration_v26')
-local Migration_v27 = require('settings/migrations/migration_v27')
+local M = require('settings/migrations/Migrations-Include')
 
 local UpdateDefaultGambits = require('settings/migrations/update_default_gambits')
 
@@ -38,33 +12,33 @@ function MigrationManager.new(trustSettings, addonSettings, weaponSkillSettings)
     self.addonSettings = addonSettings
     self.weaponSkillSettings = weaponSkillSettings
     self.migrations = L{
-        Migration_v1.new(),
-        Migration_v2.new(),
-        Migration_v3.new(),
-        Migration_v4.new(),
-        Migration_v5.new(),
-        Migration_v6.new(),
-        Migration_v7.new(),
-        Migration_v8.new(),
-        Migration_v9.new(),
-        Migration_v10.new(),
-        Migration_v11.new(),
-        Migration_v12.new(),
-        Migration_v13.new(),
-        Migration_v14.new(),
-        Migration_v15.new(),
-        Migration_v16.new(),
-        Migration_v17.new(),
-        Migration_v18.new(),
-        Migration_v19.new(),
-        Migration_v20.new(),
-        Migration_v21.new(),
-        Migration_v22.new(),
-        Migration_v23.new(),
-        Migration_v24.new(),
-        Migration_v25.new(),
-        Migration_v26.new(),
-        Migration_v27.new(),
+        M.Migration_v1.new(),
+        M.Migration_v2.new(),
+        M.Migration_v3.new(),
+        M.Migration_v4.new(),
+        M.Migration_v5.new(),
+        M.Migration_v6.new(),
+        M.Migration_v7.new(),
+        M.Migration_v8.new(),
+        M.Migration_v9.new(),
+        M.Migration_v10.new(),
+        M.Migration_v11.new(),
+        M.Migration_v12.new(),
+        M.Migration_v13.new(),
+        M.Migration_v14.new(),
+        M.Migration_v15.new(),
+        M.Migration_v16.new(),
+        M.Migration_v17.new(),
+        M.Migration_v18.new(),
+        M.Migration_v19.new(),
+        M.Migration_v20.new(),
+        M.Migration_v21.new(),
+        M.Migration_v22.new(),
+        M.Migration_v23.new(),
+        M.Migration_v24.new(),
+        M.Migration_v25.new(),
+        M.Migration_v26.new(),
+        M.Migration_v27.new(),
         UpdateDefaultGambits.new(),
     }
     return self
