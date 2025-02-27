@@ -621,7 +621,7 @@ end
 function loaded()
 	addon_system_message("Loading Trust...")
 
-	if windower.ffxi.get_player() == nil then
+	if windower.ffxi.get_player() == nil or windower.ffxi.get_mob_by_id(windower.ffxi.get_player().id) == nil then
 		addon_system_error("Player not loaded, retrying in 5 seconds...")
 		coroutine.schedule(function()
 			loaded()
