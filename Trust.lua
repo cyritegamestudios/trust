@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '13.7.6'
+_addon.version = '13.7.7'
 _addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 
@@ -626,6 +626,7 @@ function loaded()
 		coroutine.schedule(function()
 			loaded()
 		end, 5)
+		return
 	end
 
 	addon_load_time = os.time()
