@@ -1,7 +1,5 @@
 local Event = require('cylibs/events/Luvent')
-local JSON = require('cylibs/util/jsonencode')
 local FileIO = require('files')
-local WeaponSkillSettings = require('settings/skillchains/WeaponSkillSettings')
 
 local serializer_util = require('cylibs/util/serializer_util')
 
