@@ -12,6 +12,7 @@ local ManaRestorer = require('cylibs/trust/roles/mana_restorer')
 local Nuker = require('cylibs/trust/roles/nuker')
 local Puller = require('cylibs/trust/roles/puller')
 local StatusRemover = require('cylibs/trust/roles/status_remover')
+local Tank = require('cylibs/trust/roles/tank')
 
 function BlueMageTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = BlueMage.new()
@@ -22,7 +23,8 @@ function BlueMageTrust.new(settings, action_queue, battle_settings, trust_settin
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{ 'Burst Affinity' }, job, true),
 		ManaRestorer.new(action_queue, L{}, L{ Spell.new('Magic Hammer'), Spell.new('MP Drainkiss') }, 40),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
-		Puller.new(action_queue, trust_settings.PullSettings)
+		Puller.new(action_queue, trust_settings.PullSettings),
+		Tank.new(action_queue, L{}, L{ Spell.new('Geist Wall'), Spell.new('Sheep Song') }),
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), BlueMageTrust)
 	return self

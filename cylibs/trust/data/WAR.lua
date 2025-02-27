@@ -12,7 +12,7 @@ function WarriorTrust.new(settings, action_queue, battle_settings, trust_setting
 	local job = Warrior.new()
 	local roles = S{
 		Puller.new(action_queue, trust_settings.PullSettings),
-		Tank.new(action_queue, L{ 'Provoke' }, L{}),
+		Tank.new(action_queue, L{ JobAbility.new('Provoke') }, L{}),
 		Buffer.new(action_queue, trust_settings.BuffSettings, state.AutoBuffMode, job),
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), WarriorTrust)
