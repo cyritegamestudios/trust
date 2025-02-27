@@ -113,7 +113,7 @@ function TrustModeSettings:saveSettings(setName, trust_modes, skip_set_mode)
         if not trust_modes_file:exists() then
             addon_message(207, 'Created trust modes override '..file_path)
         else
-            addon_message(207, 'Updated trust modes for '..setName..' '..file_path)
+            --addon_message(207, 'Updated trust modes for '..setName..' '..file_path)
         end
         self.settings[setName] = trust_modes
 
