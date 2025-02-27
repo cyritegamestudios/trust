@@ -68,7 +68,7 @@ function TextFieldCollectionViewCell:onKeyboardEvent(key, pressed, flags, blocke
 end
 
 function TextFieldCollectionViewCell:getKeyBlacklist()
-    return S{ 'Left', 'Right', 'Escape', 'LShift', 'RRhift' }
+    return S{ 'Left', 'Right', 'Escape', 'LShift', 'RRhift', 'Enter' }
 end
 
 function TextFieldCollectionViewCell:setCursorVisible(cursorVisible)
