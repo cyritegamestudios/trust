@@ -131,6 +131,10 @@ function Targeter:check_target(override_current_target)
 end
 
 function Targeter:target_mob(target)
+    if state.AutoTargetMode.value == 'Off' then
+        return
+    end
+
     local conditions = L{ ConditionalCondition.new(L{ UnclaimedCondition.new(target.index), ClaimedCondition.new(self:get_alliance():get_alliance_member_ids()) }, Condition.LogicalOperator.Or) }
     if not Condition.check_conditions(conditions, target.index)
             or (self:get_target() and self:get_target():get_index() == target.index and self:get_party():get_player():get_status() == 'Engaged') then
