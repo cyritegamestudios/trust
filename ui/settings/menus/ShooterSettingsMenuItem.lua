@@ -10,7 +10,7 @@ ShooterSettingsMenuItem.__index = ShooterSettingsMenuItem
 function ShooterSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSettings, shooter)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Config', 18),
-        ButtonItem.default('Modes', 18),
+        ButtonItem.localized("Modes", i18n.translate("Modes")),
     }, {}, nil, "Shooting", "Configure shooting settings."), ShooterSettingsMenuItem)
 
     self.trustSettings = trustSettings

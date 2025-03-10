@@ -11,7 +11,7 @@ function AutomatonSettingsMenuItem.new(trustSettings, trustSettingsMode, trustMo
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Attachments', 18),
         ButtonItem.default('Maneuvers', 18),
-        ButtonItem.default('Modes', 18),
+        ButtonItem.localized("Modes", i18n.translate("Modes")),
     }, {}, nil, "Automaton", "Configure automaton settings."), AutomatonSettingsMenuItem)
 
     self.trustSettings = trustSettings

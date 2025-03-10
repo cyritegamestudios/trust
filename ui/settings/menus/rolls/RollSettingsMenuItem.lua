@@ -11,7 +11,7 @@ RollSettingsMenuItem.__index = RollSettingsMenuItem
 function RollSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSettings, trust)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
-        ButtonItem.default('Modes', 18),
+        ButtonItem.localized("Modes", i18n.translate("Modes")),
     }, {
     }, nil, "Rolls", "Configure settings for Phantom Roll."), RollSettingsMenuItem)
 

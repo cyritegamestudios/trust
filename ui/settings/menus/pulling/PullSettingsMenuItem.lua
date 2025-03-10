@@ -24,7 +24,7 @@ function PullSettingsMenuItem.new(abilities, trust, job_name_short, trust_settin
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Targets', 18),
         ButtonItem.default('Actions', 18),
-        ButtonItem.default('Modes', 18),
+        ButtonItem.localized("Modes", i18n.translate("Modes")),
         ButtonItem.default('Config', 18),
     }, {
 
