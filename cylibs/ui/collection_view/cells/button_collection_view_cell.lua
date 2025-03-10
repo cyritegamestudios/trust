@@ -107,7 +107,7 @@ function ButtonCollectionViewCell:layoutIfNeeded()
     else
         self.textView:setAlpha(150)
     end
-    self.textView:setPosition(10, self.textView:getPosition().y)
+    self.textView:setPosition(7, self.textView:getPosition().y)
     self.textView:setSize(self:getSize().width, self:getSize().height)
     self.textView:layoutIfNeeded()
 
