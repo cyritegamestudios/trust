@@ -21,7 +21,7 @@ function SongSetsMenuItem.new(trustSettings, trustSettingsMode, trustModeSetting
         ButtonItem.default('Delete', 18),
         ButtonItem.default('Config', 18),
         ButtonItem.default('Preview', 18),
-        ButtonItem.default('Modes', 18),
+        ButtonItem.localized("Modes", i18n.translate("Modes")),
     }, {}, nil, "Song Sets", "Choose or edit a song set."), SongSetsMenuItem)
 
     self.trust = trust

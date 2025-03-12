@@ -10,7 +10,7 @@ TargetSettingsMenuItem.__index = TargetSettingsMenuItem
 function TargetSettingsMenuItem.new(trustSettings, trustSettingsMode)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
-        ButtonItem.default('Modes', 18),
+        ButtonItem.localized("Modes", i18n.translate("Modes")),
     }, {
 
     }, nil, "Targeting", "Configure targeting behavior."), TargetSettingsMenuItem)

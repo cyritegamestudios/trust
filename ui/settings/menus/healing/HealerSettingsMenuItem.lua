@@ -18,7 +18,7 @@ function HealerSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
     if trust:role_with_type("statusremover") then
         menuItems:append(ButtonItem.default('Blacklist', 18))
     end
-    menuItems:append(ButtonItem.default('Modes', 18))
+    menuItems:append(ButtonItem.localized("Modes", i18n.translate("Modes")))
 
     local self = setmetatable(MenuItem.new(menuItems, {}, nil, "Healing", "Configure healing and status removal settings."), HealerSettingsMenuItem)
 

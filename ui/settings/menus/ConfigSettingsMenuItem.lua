@@ -153,6 +153,7 @@ function ConfigSettingsMenuItem:getLanguageSettingsMenuItem(addonSettings)
         self.disposeBag:add(languageConfigEditor:onConfigChanged():addAction(function(newConfigSettings, _)
             addonSettings:getSettings().locales.default = newConfigSettings.Language
             i18n.set_current_locale(newConfigSettings.Language)
+            windower.send_command('input // lua r trust')
         end), languageConfigEditor:onConfigChanged())
 
         return languageConfigEditor

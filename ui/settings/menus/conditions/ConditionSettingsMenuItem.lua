@@ -88,7 +88,7 @@ function ConditionSettingsMenuItem:getAddConditionMenuItem(parentMenuItem)
 
             self.trustSettings:saveSettings(true)
 
-            addon_system_message("You have unsaved changes.")
+            --addon_system_message("You have unsaved changes.")
         end)
         return chooseConditionView
     end, "Conditions", "Add a new condition.")
@@ -122,7 +122,7 @@ function ConditionSettingsMenuItem:getRemoveConditionMenuItem()
 
                 self.editConditionsView:getDataSource():removeItem(selectedIndexPath)
 
-                addon_system_message("You have unsaved changes.")
+                --addon_system_message("You have unsaved changes.")
 
                 self.trustSettings:saveSettings(true)
 

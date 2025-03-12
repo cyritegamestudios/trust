@@ -260,7 +260,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
 
     -- Settings
     local menuItems = L{
-        ButtonItem.localized("Modes", i18n.translate("Modes"))
+        ButtonItem.localized('Modes', i18n.translate('Button_Modes')),
     }
     local childMenuItems = {
         Modes = modesMenuItem,
@@ -301,13 +301,13 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
 
     -- Add menu items only if the Trust has the appropriate role
     if trust:role_with_type("buffer") then
-        menuItems:append(ButtonItem.default('Buffs', 18))
+        menuItems:append(ButtonItem.localized('Buffs', i18n.translate('Button_Buffs')))
         childMenuItems.Buffs = self:getMenuItemForRole(trust:role_with_type("buffer"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode, trustModeSettings)
     end
 
     local debuffer = trust:role_with_type("debuffer")
     if debuffer then
-        menuItems:append(ButtonItem.default('Debuffs', 18))
+        menuItems:append(ButtonItem.localized('Debuffs', i18n.translate('Button_Debuffs')))
     end
 
     if trust:role_with_type("singer") then
@@ -320,7 +320,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         childMenuItems.Healing = self:getMenuItemForRole(trust:role_with_type("healer"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode, trustModeSettings)
     end
 
-    menuItems:append(ButtonItem.default('Pulling', 18))
+    menuItems:append(ButtonItem.localized('Pulling', i18n.translate('Button_Pulling')))
     if trust:role_with_type("puller") then
         childMenuItems.Pulling = self:getMenuItemForRole(trust:role_with_type("puller"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode, trustModeSettings)
     else
@@ -340,36 +340,36 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
 
     if trust:role_with_type("nuker") or trust:role_with_type("magicburster") then
         childMenuItems.Nukes = self:getMenuItemForRole(trust:role_with_type("nuker") or trust:role_with_type("magicburster"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode, trustModeSettings)
-        menuItems:append(ButtonItem.default('Nukes', 18))
+        menuItems:append(ButtonItem.localized('Nukes', i18n.translate('Button_Nukes')))
     end
 
     if trust:role_with_type("skillchainer") then
-        menuItems:append(ButtonItem.default('Weaponskills', 18))
+        menuItems:append(ButtonItem.localized('Weaponskills', i18n.translate('Button_Weaponskills')))
         childMenuItems.Weaponskills = self:getMenuItemForRole(trust:role_with_type("skillchainer"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode, trustModeSettings)
     end
 
     if trust:role_with_type("follower") then
-        menuItems:append(ButtonItem.default('Following', 18))
+        menuItems:append(ButtonItem.localized('Following', i18n.translate('Button_Following')))
         childMenuItems.Following = self:getMenuItemForRole(trust:role_with_type("follower"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode, trustModeSettings)
     end
 
-    menuItems:append(ButtonItem.default('Food', 18))
+    menuItems:append(ButtonItem.localized('Food', i18n.translate('Button_Food')))
     local FoodSettingsMenuItem = require('ui/settings/menus/buffs/FoodSettingsMenuItem')
     childMenuItems.Food = FoodSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSettings)
 
     if trust:role_with_type("truster") then
-        menuItems:append(ButtonItem.default('Alter Egos', 18))
+        menuItems:append(ButtonItem.localized('Alter Egos', i18n.translate('Button_Alter_Egos')))
         childMenuItems['Alter Egos'] = self:getMenuItemForRole(trust:role_with_type("truster"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize)
     end
 
     if trust:role_with_type("pather") then
-        menuItems:append(ButtonItem.default('Paths', 18))
+        menuItems:append(ButtonItem.localized('Paths', i18n.translate('Button_Paths')))
         childMenuItems.Paths = self:getMenuItemForRole(trust:role_with_type("pather"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize)
     end
 
     local jobName = res.jobs:with('ens', jobNameShort).en
 
-    menuItems:append(ButtonItem.default('Gambits', 18))
+    menuItems:append(ButtonItem.localized('Gambits', i18n.translate('Button_Gambits')))
 
     local customGambitsMenuItem = GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, self.trustModeSettings, 'GambitSettings')
     customGambitsMenuItem:setConfigKey("gambits")

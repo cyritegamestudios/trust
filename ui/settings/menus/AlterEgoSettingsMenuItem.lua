@@ -11,7 +11,7 @@ AlterEgoSettingsMenuItem.__index = AlterEgoSettingsMenuItem
 function AlterEgoSettingsMenuItem.new(truster, trustModeSettings, addonSettings)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
-        ButtonItem.default('Modes', 18),
+        ButtonItem.localized("Modes", i18n.translate("Modes")),
     }, {}, nil, "Alter Egos", "Choose Alter Egos to call."), AlterEgoSettingsMenuItem)
 
     self.truster = truster
