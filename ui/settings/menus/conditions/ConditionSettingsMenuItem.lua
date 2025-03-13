@@ -67,32 +67,49 @@ function ConditionSettingsMenuItem:reloadSettings(parentMenuItem)
 end
 
 function ConditionSettingsMenuItem:getAddConditionMenuItem(parentMenuItem)
-    local addConditionsMenuItem = MenuItem.new(L{
-        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
-    }, {}, function(_, _, _)
-        local conditionClasses = L(self.editableConditionClasses:keyset())
-        conditionClasses:sort()
+    local targetTypes = L(self.targetTypes)
 
-        local configItem = MultiPickerConfigItem.new("Conditions", L{}, self.conditionPickerItems:map(function(conditionClass)
-            return self:getFileForCondition(conditionClass).description()
-        end), function(conditionName)
-            return conditionName
-        end)
+    local targetButtonItems = targetTypes:map(function(targetType)
+        return ButtonItem.default(targetType, 18)
+    end)
 
-        local chooseConditionView = FFXIPickerView.new(L{ configItem }, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditor)
-        chooseConditionView:on_pick_items():addAction(function(_, _, selectedIndexPaths)
-            local conditionClass = self:getFileForCondition(self.conditionPickerItems[selectedIndexPaths[1].row])
-            local newCondition = conditionClass.new()
+    local getAddConditionMenuItem = function(targetType)
+        local addConditionsMenuItem = MenuItem.new(L{
+            ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
+        }, {}, function(_, _, _)
+            local conditionPickerItems = self:getConditionItemsForTarget(targetType)
 
-            self.conditions:append(newCondition)
+            local configItem = MultiPickerConfigItem.new("Conditions", L{}, conditionPickerItems:map(function(conditionClass)
+                return self:getFileForCondition(conditionClass).description()
+            end), function(conditionName)
+                return conditionName
+            end)
 
-            self.trustSettings:saveSettings(true)
+            local chooseConditionView = FFXIPickerView.new(L{ configItem }, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditor)
+            chooseConditionView:on_pick_items():addAction(function(_, _, selectedIndexPaths)
+                local conditionClass = self:getFileForCondition(conditionPickerItems[selectedIndexPaths[1].row])
+                local newCondition = conditionClass.new()
 
-            --addon_system_message("You have unsaved changes.")
-        end)
-        return chooseConditionView
-    end, "Conditions", "Add a new condition.")
-    return addConditionsMenuItem
+                self.conditions:append(newCondition)
+
+                self.trustSettings:saveSettings(true)
+
+                addon_system_message(string.format("Added condition: %s %s.", targetType, newCondition:tostring()))
+            end)
+            return chooseConditionView
+        end, "Conditions", string.format("Add a new condition for %s.", targetType))
+        return addConditionsMenuItem
+    end
+
+    if targetTypes:length() > 1 then
+        local targetsMenuItem = MenuItem.new(targetButtonItems, {}, nil, "Conditions", "Add a new condition.")
+        for targetType in targetTypes:it() do
+            targetsMenuItem:setChildMenuItem(targetType, getAddConditionMenuItem(targetType))
+        end
+        return targetsMenuItem
+    else
+        return getAddConditionMenuItem(targetTypes[1])
+    end
 end
 
 function ConditionSettingsMenuItem:getEditConditionMenuItem()
@@ -185,6 +202,7 @@ end
 --
 function ConditionSettingsMenuItem:setTargetTypes(targetTypes)
     self.targetTypes = targetTypes or Condition.TargetType.AllTargets
+    self:setChildMenuItem("Add", self:getAddConditionMenuItem(self))
 end
 
 ---
@@ -255,6 +273,18 @@ function ConditionSettingsMenuItem:getEditableConditionClasses()
         [StatusCondition.__type] = "status",
         [ActionCondition.__type] = "action",
     }
+end
+
+function ConditionSettingsMenuItem:getConditionItemsForTarget(targetType)
+    local conditionPickerItems = L(self.editableConditionClasses:keyset()):filter(function(c)
+        local conditionClass = self:getFileForCondition(c)
+        return L(S{ targetType }:intersection(conditionClass.valid_targets())):length() > 0
+    end):sort(function(c1, c2)
+        c1 = self:getFileForCondition(c1).description()
+        c2 = self:getFileForCondition(c2).description()
+        return c1 < c2
+    end)
+    return conditionPickerItems
 end
 
 return ConditionSettingsMenuItem
