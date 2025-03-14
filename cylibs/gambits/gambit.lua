@@ -26,11 +26,16 @@ function Gambit.new(target, conditions, ability, conditions_target, tags)
     return self
 end
 
-function Gambit:isSatisfied(target, param)
-    if target == nil or target:get_mob() == nil or self:getAbility() == nil then
+function Gambit:isSatisfied(target_by_type, param)
+    if self:getAbility() == nil then
         return false
     end
-    return self.conditions:length() > 0 and Condition.check_conditions(self.conditions, target:get_mob().index, param)
+
+    local satisfied_conditions = self.conditions:filter(function(condition)
+        local target = target_by_type(condition:get_target_type() or self:getConditionsTarget())
+        return target and target:get_mob() and Condition.check_conditions(L{ condition }, target:get_mob().index, param)
+    end)
+    return satisfied_conditions:length() == self.conditions:length()
         and Condition.check_conditions(self:getAbility():get_conditions(), windower.ffxi.get_player().index, param)
 end
 

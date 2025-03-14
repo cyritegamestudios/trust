@@ -34,6 +34,7 @@ function Condition.new(target_index)
         target_index = target_index;
         editable = true;
         inverted = false;
+        target_type = nil;
     }, Condition)
 
     return self
@@ -68,6 +69,10 @@ end
 
 function Condition:get_target_index()
     return self.target_index
+end
+
+function Condition:get_target_type()
+    return self.target_type
 end
 
 function Condition:tostring()
