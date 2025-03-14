@@ -78,7 +78,7 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
     self.abilitiesForTargets = abilitiesForTargets or function(targets)
         return self:getAbilitiesForTargets(targets)
     end
-    self.conditionTargets = conditionTargets or L(Condition.TargetType.AllTargets)
+    self.conditionTargets = --[[conditionTargets or]] L(Condition.TargetType.AllTargets)
     self.gambitTagBlacklist = gambitTagBlacklist or S{}
     self.editorConfig = editorStyle
     self.modes = modes or L{ 'AutoGambitMode' }
@@ -101,7 +101,7 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
 
         if self.selectedGambit then
             self.conditionSettingsMenuItem:setConditions(selectedGambit.conditions)
-            self.conditionSettingsMenuItem:setTargetTypes(S{ selectedGambit:getConditionsTarget() })
+            --self.conditionSettingsMenuItem:setTargetTypes(S{ selectedGambit:getConditionsTarget() })
         end
     end
 

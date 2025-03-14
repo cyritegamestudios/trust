@@ -115,9 +115,9 @@ function GambitSettingsEditor.configItems(gambit, abilitiesByTargetType, validTa
 
     configItems:append(GambitSettingsEditor.configItemFromGambit(gambit, abilitiesByTargetType))
 
-    if validConditionTargets:length() > 1 then
-        configItems:append(PickerConfigItem.new('conditions_target', gambit.conditions_target or validConditionTargets[1], validConditionTargets, nil, "Conditions target"))
-    end
+    --if validConditionTargets:length() > 1 then
+    --    configItems:append(PickerConfigItem.new('conditions_target', gambit.conditions_target or validConditionTargets[1], validConditionTargets, nil, "Conditions target"))
+    --end
 
     if gambit.conditions:length() > 0 then
         local conditionsConfigItem = TextConfigItem.new('conditions', gambit.conditions, function(conditions)

@@ -19,7 +19,8 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
     }, {}, nil, "Conditions", "Edit conditions.", true, enabled), ConditionSettingsMenuItem)
 
     self.trustSettings = trustSettings
-    self.targetTypes = targetTypes or Condition.TargetType.AllTargets
+    --self.targetTypes = targetTypes or Condition.TargetType.AllTargets
+    self.targetTypes = Condition.TargetType.AllTargets
     self.editableConditionClasses = self:getEditableConditionClasses()
     self.dispose_bag = DisposeBag.new()
 
@@ -34,9 +35,17 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
         end)
 
         local configItem = MultiPickerConfigItem.new("Conditions", self.conditions:length() > 0 and L{ self.conditions[1] } or L{}, self.conditions, function(condition)
-            return condition:tostring(), condition:is_editable()
+            local description = condition:tostring()
+            if condition:get_target_type() then
+                description = string.format("%s: %s", condition:get_target_type(), description)
+            end
+            return description, condition:is_editable()
         end, "Conditions", nil, nil, function(condition)
-            return condition:tostring(), condition:is_editable()
+            local description = condition:tostring()
+            if condition:get_target_type() then
+                description = string.format("%s: %s", condition:get_target_type(), description)
+            end
+            return description, condition:is_editable()
         end)
 
         local editConditionsView = FFXIPickerView.withConfig(L{ configItem }, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditor, TextStyle.Default.TextSmall)
@@ -89,6 +98,7 @@ function ConditionSettingsMenuItem:getAddConditionMenuItem(parentMenuItem)
             chooseConditionView:on_pick_items():addAction(function(_, _, selectedIndexPaths)
                 local conditionClass = self:getFileForCondition(conditionPickerItems[selectedIndexPaths[1].row])
                 local newCondition = conditionClass.new()
+                newCondition:set_target_type(targetType)
 
                 self.conditions:append(newCondition)
 

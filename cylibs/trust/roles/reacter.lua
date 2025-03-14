@@ -1,5 +1,6 @@
 local ActionQueue = require('cylibs/actions/action_queue')
 local GambitTarget = require('cylibs/gambits/gambit_target')
+local GambitTargetGroup = require('cylibs/gambits/gambit_target_group')
 
 local Reacter = setmetatable({}, {__index = Role })
 Reacter.__index = Reacter
@@ -47,7 +48,7 @@ function Reacter:on_add()
                     end
                 end)
 
-                self:check_gambits(L{ target }, gambits, ability.en)
+                self:check_gambits(gambits, ability.en)
             end
         end
     end)
@@ -71,7 +72,7 @@ function Reacter:on_add()
                     end
                 end)
 
-                self:check_gambits(L{ target }, gambits, ability.en)
+                self:check_gambits(gambits, ability.en)
             end
         end
     end)
@@ -103,7 +104,7 @@ function Reacter:on_add()
                     return false
                 end
             end)
-            self:check_gambits(L{ target }, gambits, spell.en)
+            self:check_gambits(gambits, spell.en)
         end
     end)
 
@@ -123,7 +124,7 @@ function Reacter:on_add()
                     end
                 end)
 
-                self:check_gambits(L{ target }, gambits, debuff.en)
+                self:check_gambits(gambits, debuff.en)
             end
         end
     end)
@@ -142,7 +143,7 @@ function Reacter:on_add()
                 end
             end)
 
-            self:check_gambits(L{ target }, gambits, pet_tp)
+            self:check_gambits(gambits, pet_tp)
         end
     end)
 
@@ -187,7 +188,7 @@ function Reacter:on_add()
                 end
             end)
 
-            self:check_gambits(L{ target }, gambits, skillchain_step:get_skillchain():get_name())
+            self:check_gambits(gambits, skillchain_step:get_skillchain():get_name())
         end
     end)
 
@@ -206,7 +207,7 @@ function Reacter:on_add()
                 end
             end)
 
-            self:check_gambits(L{ target }, gambits, new_zone_id)
+            self:check_gambits(gambits, new_zone_id)
         end
     end)
 
@@ -222,12 +223,12 @@ function Reacter:on_add()
                 end
             end)
 
-            self:check_gambits(L{ target }, gambits)
+            self:check_gambits(gambits)
         end
     end)
 end
 
-function Reacter:check_gambits(targets, gambits, param)
+function Reacter:check_gambits(gambits, param)
     if self.state_var.value == 'Off' then
         return
     end
@@ -239,21 +240,18 @@ function Reacter:check_gambits(targets, gambits, param)
         return
     end
 
+    local gambit_target_group = GambitTargetGroup.new(self:get_gambit_targets())
+
     local gambits = (gambits or self:get_all_gambits()):filter(function(gambit) return gambit:isEnabled() end)
     for gambit in gambits:it() do
-        local targets = targets or self:get_gambit_targets(gambit:getConditionsTarget()) or L{}
-        for target in targets:it() do
-            if gambit:isSatisfied(target, param) then
-                if gambit:getAbilityTarget() == gambit:getConditionsTarget() then
-                    self:perform_gambit(gambit, target)
-                    return
-                else
-                    local ability_targets = self:get_gambit_targets(gambit:getAbilityTarget())
-                    if ability_targets:length() > 0 then
-                        self:perform_gambit(gambit, ability_targets[1])
-                        return
-                    end
-                end
+        for targets_by_type in gambit_target_group:it() do
+            local get_target_by_type = function(target_type)
+                return targets_by_type[target_type]
+            end
+            if gambit:isSatisfied(get_target_by_type, param) then
+                local target = get_target_by_type(gambit:getAbilityTarget())
+                --print('satisfied for', target:get_mob().name)
+                self:perform_gambit(gambit, target)
                 break
             end
         end

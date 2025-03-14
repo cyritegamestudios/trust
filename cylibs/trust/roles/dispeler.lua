@@ -53,7 +53,7 @@ function Dispeler:on_add()
         end
         local ability = monster_abilities_ext[ability_id]
         if ability then
-            self:check_gambits(nil, self.gambits)
+            self:check_gambits(self.gambits)
         end
     end), WindowerEvents.Ability.Finish)
 
@@ -65,7 +65,7 @@ function Dispeler:on_add()
             if action_message_util.is_finish_action_category(act.category) then
                 local action = act.targets[1].actions[1]
                 if action_message_util.is_monster_gain_buff(action.message, action.param) then
-                    self:check_gambits(nil, self.gambits)
+                    self:check_gambits(self.gambits)
                 end
             end
         end

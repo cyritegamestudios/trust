@@ -71,6 +71,10 @@ function Condition:get_target_index()
     return self.target_index
 end
 
+function Condition:set_target_type(target_type)
+    self.target_type = target_type
+end
+
 function Condition:get_target_type()
     return self.target_type
 end
