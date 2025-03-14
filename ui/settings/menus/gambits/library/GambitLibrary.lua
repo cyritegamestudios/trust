@@ -5,6 +5,8 @@ return L{
         Gambit.new("Self", L{MaxTacticalPointsCondition.new(900), HasBuffsCondition.new(L{"Finishing Move 4", "Finishing Move 5", "Finishing Move (6+)"}, 1)}, JobAbility.new("Reverse Flourish", L{}, L{}), "Self", L{"Abilities"}),
         Gambit.new("Self", L{ModeCondition.new("AutoShootMode", "Auto")}, JobAbility.new("Double Shot", L{}, L{}), "Self", L{"Abilities"}),
         Gambit.new("Self", L{ModeCondition.new("AutoShootMode", "Auto")}, JobAbility.new("Velocity Shot", L{}, L{}), "Self", L{"Abilities"}),
+        Gambit.new("Enemy", L{SkillchainPropertyCondition.new(L{"Light Lv.4", "Light"})}, JobAbility.new("Lunge", L{}), "Enemy", L{"Abilities"}),
+        Gambit.new("Enemy", L{SkillchainPropertyCondition.new(L{"Light Lv.4", "Light"})}, JobAbility.new("Swipe", L{}), "Enemy", L{"Abilities"}),
     }),
     GambitCategory.new("Enemies", "React to enemies.", L{
         Gambit.new("Enemy", L{ReadyAbilityCondition.new("Dancing Fullers")}, RunAway.new(12, L{}), "Enemy", L{"Enemies","Reaction"}),
