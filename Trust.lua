@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '13.8.1'
+_addon.version = '13.8.2'
 _addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 
@@ -84,7 +84,10 @@ function load_user_files(main_job_id, sub_job_id)
 	end)
 
 	local TrustFactory = require('cylibs/trust/trust_factory')
-	main_job_trust, sub_job_trust = TrustFactory.trusts(trust_for_job_short(player.main_job_name_short, addon_settings:getSettings(), player.trust.main_job_settings.Default, addon_settings, action_queue, player.player, player.alliance, player.party), trust_for_job_short(player.sub_job_name_short, addon_settings:getSettings(), player.trust.sub_job_settings.Default, addon_settings, action_queue, player.player, player.alliance, player.party))
+	main_job_trust, sub_job_trust = TrustFactory.trusts(
+			trust_for_job_short(player.main_job_name_short, addon_settings:getSettings(), player.trust.main_job_settings.Default, addon_settings, action_queue, player.player, player.alliance, player.party),
+			trust_for_job_short(player.sub_job_name_short, addon_settings:getSettings(), player.trust.sub_job_settings.Default, addon_settings, action_queue, player.player, player.alliance, player.party)
+	)
 
 	main_job_trust:init()
 	sub_job_trust:init()

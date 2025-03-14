@@ -44,7 +44,7 @@ function ItemCountCondition:serialize()
 end
 
 function ItemCountCondition:tostring()
-    return "Has "..' '..self.operator..' '..self.item_count..' '..self.item_name
+    return "Has"..' '..self.operator..' '..self.item_count..' '..self.item_name
 end
 
 function ItemCountCondition.description()

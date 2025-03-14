@@ -78,7 +78,6 @@ function AutomatonStatusWidget.new(frame, player, trustHud, trustSettings, trust
 
     local self = setmetatable(Widget.new(frame, "Pet", dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 3), 10, true), AutomatonStatusWidget)
 
-    self.addonSettings = addonSettings
     self.id = player:get_id()
     self.actionDisposeBag = DisposeBag.new()
 

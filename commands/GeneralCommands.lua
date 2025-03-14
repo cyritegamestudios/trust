@@ -233,16 +233,8 @@ end
 -- // trust debug
 function GeneralTrustCommands:handle_debug()
 
-    local ORM = require('cylibs/database/orm/orm')
-    local Database = ORM.ORM
-    local Table = ORM.Table
-
-    User:delete({ id = 1234 })
-
-
-
-
-
+    local inventory_util = require('cylibs/util/inventory_util')
+    print(inventory_util.get_item_count(5824))
 
     return true, nil
 end
