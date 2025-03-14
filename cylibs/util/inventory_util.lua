@@ -42,11 +42,16 @@ function inventory_util.get_item_count(item_id)
             item_id = item.id
         end
     end
-    local items = L(windower.ffxi.get_items('inventory'))
     local item_count = 0
-    for item in items:it() do
-        if item.id == item_id then
-            item_count = item_count + item.count
+    for bag in L{ 'inventory', 'temporary' }:it() do
+        local items = L(windower.ffxi.get_items(bag))
+        for item in items:it() do
+            if item.id == item_id then
+                item_count = item_count + item.count
+            end
+        end
+        if item_count > 0 then
+            return item_count
         end
     end
     return item_count
