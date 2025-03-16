@@ -66,24 +66,32 @@ function Gambiter:check_gambits(gambits, param, ignore_delay)
 
     local gambits = (gambits or self:get_all_gambits()):filter(function(gambit) return gambit:isEnabled() end)
     for gambit in gambits:it() do
-        local target_types = L{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Enemy }
-        if gambit:hasConditionTarget(GambitTarget.TargetType.Ally) then
-            target_types:append(GambitTarget.TargetType.Ally)
-        end
-        local gambit_target_group = GambitTargetGroup.new(self:get_gambit_targets(target_types))
-        for targets_by_type in gambit_target_group:it() do
-            local get_target_by_type = function(target_type)
-                return targets_by_type[target_type]
-            end
-            if gambit:isSatisfied(get_target_by_type, param) then
-                local target = get_target_by_type(gambit:getAbilityTarget())
-                self:perform_gambit(gambit, target)
-                break
-            end
+        local success, target = self:is_gambit_satisfied(gambit, param)
+        if success then
+            self:perform_gambit(gambit, target)
+            break
         end
     end
 
     logger.notice(self.__class, 'check_gambits', self:get_type(), 'checked', gambits:length(), 'gambits')
+end
+
+function Gambiter:is_gambit_satisfied(gambit, param)
+    local target_types = L{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Enemy }
+    if gambit:hasConditionTarget(GambitTarget.TargetType.Ally) then
+        target_types:append(GambitTarget.TargetType.Ally)
+    end
+    local gambit_target_group = GambitTargetGroup.new(self:get_gambit_targets(target_types))
+    for targets_by_type in gambit_target_group:it() do
+        local get_target_by_type = function(target_type)
+            return targets_by_type[target_type]
+        end
+        if gambit:isSatisfied(get_target_by_type, param) then
+            local target = get_target_by_type(gambit:getAbilityTarget())
+            return true, target
+        end
+    end
+    return false, nil
 end
 
 function Gambiter:get_gambit_targets(gambit_target_types)

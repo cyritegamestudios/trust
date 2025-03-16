@@ -59,11 +59,11 @@ function Nuker:on_add()
             if spell and S{'Enemy'}:intersection(S(spell.targets)):length() > 0 and S{'BlackMagic', 'BlueMagic'}:contains(spell.type) then
                 local gambit = Gambit.new(GambitTarget.TargetType.Enemy, L{}, Spell.new(spell.en), GambitTarget.TargetType.Enemy)
                 gambit.conditions = self:get_default_conditions(gambit, true)
-                if not gambit:isSatisfied(self:get_target()) then
+                if not self:is_gambit_satisfied(gambit) then
                     gambit = self.nuke_settings.Gambits:map(function(gambit)
                         return Gambit.new(gambit:getAbilityTarget(), self:get_default_conditions(gambit, true), gambit:getAbility(), gambit:getConditionsTarget())
                     end):firstWhere(function(gambit)
-                        return gambit:getAbility():get_element() == spell.element and gambit:isSatisfied(self:get_target())
+                        return gambit:getAbility():get_element() == spell.element and self:is_gambit_satisfied(gambit)
                     end)
                 end
                 if gambit then

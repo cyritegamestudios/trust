@@ -267,6 +267,7 @@ end
 function Puller:pull_target(target)
     logger.notice(self.__class, 'pull_target', target:get_name(), target:get_mob().index, state.AutoPullMode.value)
 
+    -- TODO: refactor this to subclass gambiter so I can use is_gambit_satisfied
     local get_target_by_type = function(target_type)
         if target_type == GambitTarget.TargetType.Enemy then
             return target
