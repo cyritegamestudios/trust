@@ -6,6 +6,7 @@ GambitTargetGroup.__index = GambitTargetGroup
 function GambitTargetGroup.new(targets_by_type)
     local self = setmetatable({}, GambitTargetGroup)
     self.targets_by_type = targets_by_type
+    self.targets_by_type[GambitTarget.TargetType.Ally] = self.targets_by_type[GambitTarget.TargetType.Ally] or L{}
     return self
 end
 

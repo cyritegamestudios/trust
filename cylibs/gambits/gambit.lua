@@ -1,3 +1,4 @@
+local GambitCondition = require('cylibs/gambits/gambit_condition')
 local localization_util = require('cylibs/util/localization_util')
 local serializer_util = require('cylibs/util/serializer_util')
 
@@ -15,9 +16,13 @@ Gambit.Tags.AllTags = L{
 
 function Gambit.new(target, conditions, ability, conditions_target, tags)
     local self = setmetatable({}, Gambit)
-
     self.target = target
-    self.conditions = conditions or L{}
+    self.conditions = (conditions or L{}):map(function(condition)
+        if condition.__type ~= GambitCondition.__type then
+            return GambitCondition.new(condition, conditions_target)
+        end
+        return condition
+    end)
     self.ability = ability
     self.conditions_target = conditions_target
     self.tags = tags or L{}
@@ -32,8 +37,8 @@ function Gambit:isSatisfied(target_by_type, param)
     end
 
     local satisfied_conditions = self.conditions:filter(function(condition)
-        local target = target_by_type(condition:get_target_type() or self:getConditionsTarget())
-        return target and target:get_mob() and Condition.check_conditions(L{ condition }, target:get_mob().index, param)
+        local target = target_by_type(condition:getTargetType())
+        return condition:isSatisfied(target, param)
     end)
     return satisfied_conditions:length() == self.conditions:length()
         and Condition.check_conditions(self:getAbility():get_conditions(), windower.ffxi.get_player().index, param)
@@ -48,9 +53,15 @@ function Gambit:getAbilityTarget()
 end
 
 function Gambit:addCondition(condition)
-    if not self:getConditions():contains(condition) then
-        self.conditions:append(condition)
+    if condition.__type ~= GambitCondition.__type then
+        condition = GambitCondition.new(condition, self:getConditionsTarget())
     end
+    for c in self.conditions:it() do
+        if c:getCondition() == condition:getCondition() then
+            return
+        end
+    end
+    self.conditions:append(condition)
 end
 
 function Gambit:getConditions()
@@ -59,6 +70,18 @@ end
 
 function Gambit:getConditionsTarget()
     return self.conditions_target
+end
+
+function Gambit:hasConditionTarget(targetType)
+    if targetType == self:getConditionsTarget() then
+        return true
+    end
+    for condition in self.conditions:it() do
+        if condition:getTargetType() == targetType then
+            return true
+        end
+    end
+    return false
 end
 
 function Gambit:addTag(tag)
@@ -107,9 +130,11 @@ function Gambit:serialize()
     local conditions_to_serialize = self.conditions:filter(function(condition)
         return condition:should_serialize()
     end)
-    local conditions = serializer_util.serialize(conditions_to_serialize, 0)
+    --local conditions = conditions_to_serialize:map(function(condition)
+    --    return condition:serialize()
+    --end)
     local tags = serializer_util.serialize(self.tags or L{}, 0)
-    return "Gambit.new(" .. serializer_util.serialize(self.target) .. ", " .. conditions .. ", " .. self.ability:serialize() .. ", " .. serializer_util.serialize(self.conditions_target) .. ", " .. tags .. ")"
+    return "Gambit.new(" .. serializer_util.serialize(self.target) .. ", " .. serializer_util.serialize(conditions_to_serialize, 0) .. ", " .. self.ability:serialize() .. ", " .. serializer_util.serialize(self.conditions_target) .. ", " .. tags .. ")"
 end
 
 function Gambit:copy()

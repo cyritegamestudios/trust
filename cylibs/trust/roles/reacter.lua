@@ -47,6 +47,9 @@ function Reacter:on_add()
                         return false
                     end
                 end)
+                if gambits:length() == 0 then
+                    return
+                end
 
                 self:check_gambits(gambits, ability.en)
             end
@@ -71,6 +74,9 @@ function Reacter:on_add()
                         return false
                     end
                 end)
+                if gambits:length() == 0 then
+                    return
+                end
 
                 self:check_gambits(gambits, ability.en)
             end
@@ -104,6 +110,9 @@ function Reacter:on_add()
                     return false
                 end
             end)
+            if gambits:length() == 0 then
+                return
+            end
             self:check_gambits(gambits, spell.en)
         end
     end)
@@ -171,7 +180,11 @@ function Reacter:on_add()
                 return false
             end
         end)
-        self:check_gambits(valid_targets, gambits, action)
+        if gambits:length() == 0 then
+            return
+        end
+
+        self:check_gambits(gambits, action) -- FIXME: this is probably spamming now that i got rid of valid_targets
     end)
 
     self.skillchainer:on_skillchain():addAction(function(target_id, skillchain_step)
@@ -187,6 +200,9 @@ function Reacter:on_add()
                     return false
                 end
             end)
+            if gambits:length() == 0 then
+                return
+            end
 
             self:check_gambits(gambits, skillchain_step:get_skillchain():get_name())
         end
@@ -206,6 +222,9 @@ function Reacter:on_add()
                     return false
                 end
             end)
+            if gambits:length() == 0 then
+                return
+            end
 
             self:check_gambits(gambits, new_zone_id)
         end
@@ -222,6 +241,9 @@ function Reacter:on_add()
                     return false
                 end
             end)
+            if gambits:length() == 0 then
+                return
+            end
 
             self:check_gambits(gambits)
         end
@@ -229,7 +251,7 @@ function Reacter:on_add()
 end
 
 function Reacter:check_gambits(gambits, param)
-    if self.state_var.value == 'Off' then
+    if self.state_var.value == 'Off' or gambits:length() == 0 then
         return
     end
 
@@ -242,7 +264,11 @@ function Reacter:check_gambits(gambits, param)
 
     local gambit_target_group = GambitTargetGroup.new(self:get_gambit_targets())
 
-    local gambits = (gambits or self:get_all_gambits()):filter(function(gambit) return gambit:isEnabled() end)
+    -- FIXME: gambits have nil value here
+    local gambits = (gambits or self:get_all_gambits()):filter(function(gambit)
+        print(gambit.__class, gambit)
+        return gambit:isEnabled()
+    end)
     for gambit in gambits:it() do
         for targets_by_type in gambit_target_group:it() do
             local get_target_by_type = function(target_type)

@@ -267,8 +267,15 @@ end
 function Puller:pull_target(target)
     logger.notice(self.__class, 'pull_target', target:get_name(), target:get_mob().index, state.AutoPullMode.value)
 
+    local get_target_by_type = function(target_type)
+        if target_type == GambitTarget.TargetType.Enemy then
+            return target
+        end
+        return nil
+    end
+
     local gambit = self:get_pull_abilities():firstWhere(function(gambit)
-        return gambit:isSatisfied(target)
+        return gambit:isSatisfied(get_target_by_type)
     end)
 
     if gambit then
