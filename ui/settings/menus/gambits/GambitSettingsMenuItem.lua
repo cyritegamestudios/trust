@@ -271,16 +271,12 @@ function GambitSettingsMenuItem:getAddAbilityMenuItem()
                     self:onGambitCreated():trigger(newGambit)
 
                     local currentGambits = self:getSettings().Gambits
-                    print(currentGambits:length())
                     currentGambits:append(newGambit)
-                    print('saving', currentGambits:length())
 
                     self.trustSettings:saveSettings(true)
                     local currentGambits = self:getSettings().Gambits
-                    print(currentGambits:length())
-                    print('adding', newGambit:getAbility():get_name())
+
                     showMenu(self)
-                    print('sdf', currentGambits:length())
                     self.gambitSettingsEditor:getDelegate():selectItemAtIndexPath(IndexPath.new(1, currentGambits:length()))
                 end
             end), abilityPickerView:on_pick_items())

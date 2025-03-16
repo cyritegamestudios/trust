@@ -122,13 +122,13 @@ function Nuker:get_default_conditions(gambit, exclude_mode_conditions)
     }
 
     if not exclude_mode_conditions then
-        conditions:append(NotCondition.new(L{ ModeCondition.new('AutoNukeMode', 'Mirror') }))
+        conditions:append(GambitCondition.new(NotCondition.new(L{ ModeCondition.new('AutoNukeMode', 'Mirror') }), GambitTarget.TargetType.Self))
 
         if self.job:get_aoe_spells():contains(gambit:getAbility():get_name()) then
-            conditions:append(ModeCondition.new('AutoNukeMode', 'Cleave'))
+            conditions:append(GambitCondition.new(ModeCondition.new('AutoNukeMode', 'Cleave')), GambitTarget.TargetType.Self)
             conditions:append(EnemiesNearbyCondition.new(self.min_num_mobs_to_cleave))
         else
-            conditions:append(ModeCondition.new('AutoNukeMode', res.elements[gambit:getAbility():get_element()].en))
+            conditions:append(GambitCondition.new(ModeCondition.new('AutoNukeMode', res.elements[gambit:getAbility():get_element()].en), GambitTarget.TargetType.Self))
         end
     end
 
@@ -136,10 +136,14 @@ function Nuker:get_default_conditions(gambit, exclude_mode_conditions)
         conditions:append(MaxDistanceCondition.new(gambit:getAbility():get_range()))
     end
 
-    conditions:append(MinManaPointsCondition.new(gambit:getAbility():get_mp_cost(), windower.ffxi.get_player().index))
-    conditions:append(MinManaPointsPercentCondition.new(self.nuke_mpp, windower.ffxi.get_player().index))
+    local ability_conditions = (L{
+        MinManaPointsCondition.new(gambit:getAbility():get_mp_cost(), windower.ffxi.get_player().index),
+        MinManaPointsPercentCondition.new(self.magic_burst_mpp, windower.ffxi.get_player().index),
+    } + self.job:get_conditions_for_ability(gambit:getAbility()))
 
-    return conditions + self.job:get_conditions_for_ability(gambit:getAbility())
+    return conditions + ability_conditions:map(function(condition)
+        return GambitCondition.new(condition, GambitTarget.TargetType.Self)
+    end)
 end
 
 return Nuker
