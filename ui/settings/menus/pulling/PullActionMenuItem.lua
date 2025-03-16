@@ -58,7 +58,7 @@ function PullActionMenuItem.new(trust, trustSettings, trustSettingsMode, trustMo
             end)
             local conditions = trust:role_with_type("puller"):get_default_conditions(newGambit)
             for condition in conditions:it() do
-                condition.editable = false
+                condition:set_editable(false)
                 newGambit:addCondition(condition)
             end
         end

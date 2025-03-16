@@ -29,7 +29,7 @@ function Buffer:set_buff_settings(buff_settings)
         end)
         local conditions = self:get_default_conditions(gambit)
         for condition in conditions:it() do
-            condition.editable = false
+            condition:set_editable(false)
             gambit:addCondition(condition)
         end
     end

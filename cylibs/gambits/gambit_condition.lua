@@ -26,6 +26,10 @@ function GambitCondition:isSatisfied(target, param)
     return target and target:get_mob() and Condition.check_conditions(L{ self.condition }, target:get_mob().index, param)
 end
 
+function GambitCondition:set_editable(editable)
+    self.condition.editable = editable
+end
+
 function GambitCondition:is_editable()
     return self.condition:is_editable()
 end

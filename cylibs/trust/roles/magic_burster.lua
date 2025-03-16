@@ -117,8 +117,8 @@ function MagicBurster:set_nuke_settings(nuke_settings)
         end)
         local conditions = self:get_default_conditions(gambit)
         for condition in conditions:it() do
-            condition.editable = false
-            gambit:addCondition(condition, true)
+            condition:set_editable(false)
+            gambit:addCondition(condition)
         end
 
         gambit:setEnabled(not element_id_blacklist:contains(gambit:getAbility():get_element()))

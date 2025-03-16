@@ -44,7 +44,7 @@ function Spell.new(spell_name, job_abilities, job_names, target, conditions, con
     end
 
     local recast_ready_condition = SpellRecastReadyCondition.new(res.spells:with('en', spell_name).id)
-    recast_ready_condition.editable = false
+    recast_ready_condition:set_editable(false)
 
     self:add_condition(recast_ready_condition)
 
@@ -350,7 +350,7 @@ function Spell:set_name(spell_name)
     end)
 
     local recast_ready_condition = SpellRecastReadyCondition.new(res.spells:with('en', spell_name).id)
-    recast_ready_condition.editable = false
+    recast_ready_condition:set_editable(false)
 
     self:add_condition(recast_ready_condition)
 end

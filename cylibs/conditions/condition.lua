@@ -82,6 +82,10 @@ function Condition:should_serialize()
     return Condition.defaultSerializableConditionClasses():contains(self.__class) and self:is_editable()
 end
 
+function Condition:set_editable(editable)
+    self.editable = editable
+end
+
 function Condition:is_editable()
     return self.editable
 end
