@@ -167,7 +167,9 @@ function GambitConditionSettingsMenuItem:getInvertConditionMenuItem()
             else
                 editedCondition = NotCondition.new(L{ selectedCondition })
             end
-            self.conditions[self.editConditionsView:getDelegate():getCursorIndexPath().row] = GambitCondition.new(editedCondition, self:getSelectedCondition():getTargetType())
+            self:getSelectedCondition().condition = editedCondition
+            --self:getSelectedCondition().targetType = self:getS
+            --self.conditions[self.editConditionsView:getDelegate():getCursorIndexPath().row] = GambitCondition.new(editedCondition, self:getSelectedCondition():getTargetType())
 
             self.editConditionsView:reload()
 

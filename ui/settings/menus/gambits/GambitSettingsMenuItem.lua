@@ -322,7 +322,7 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
 
             self.conditionSettingsMenuItem:setConditions(newGambit:getConditions())
             --self.conditionSettingsMenuItem:setConditions(newGambit:getConditions():map(function(condition) return condition:getCondition() end)) -- FIXME
-            self.conditionSettingsMenuItem:setTargetTypes(S{ newGambit:getConditionsTarget() })
+            --self.conditionSettingsMenuItem:setTargetTypes(S{ newGambit:getConditionsTarget() })
         end), gambitEditor:onGambitChanged())
 
         return gambitEditor
