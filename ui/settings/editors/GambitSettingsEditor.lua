@@ -42,23 +42,6 @@ function GambitSettingsEditor.new(gambit, trustSettings, trustSettingsMode, abil
     self:getDisposeBag():add(self:onConfigChanged():addAction(function(newSettings, oldSettings)
         local shouldReload = false
 
-        if newSettings['conditions_target'] ~= oldSettings['conditions_target'] then
-            shouldReload = true
-
-            local removed_condition_names = L{}
-            local conditions = self.gambit:getConditions():filter(function(condition)
-                if condition.valid_targets():contains(newSettings['conditions_target']) then
-                    return true
-                end
-                removed_condition_names:append(condition.description():gsub("%.", ""))
-                return false
-            end)
-            newSettings.conditions = conditions
-
-            if removed_condition_names:length() > 0 then
-                addon_system_error("Invalid conditions for conditions target type "..newSettings['conditions_target']..": "..localization_util.commas(removed_condition_names)..".")
-            end
-        end
         if newSettings['target'] ~= oldSettings['target'] then
             shouldReload = true
 
@@ -78,7 +61,7 @@ function GambitSettingsEditor.new(gambit, trustSettings, trustSettingsMode, abil
         -- TODO: set tags here???
 
         self:onGambitChanged():trigger(newSettings, oldSettings)
-        
+
         if shouldReload then
             self:reloadSettings()
             self:reloadConfigItems()
@@ -115,14 +98,10 @@ function GambitSettingsEditor.configItems(gambit, abilitiesByTargetType, validTa
 
     configItems:append(GambitSettingsEditor.configItemFromGambit(gambit, abilitiesByTargetType))
 
-    --if validConditionTargets:length() > 1 then
-    --    configItems:append(PickerConfigItem.new('conditions_target', gambit.conditions_target or validConditionTargets[1], validConditionTargets, nil, "Conditions target"))
-    --end
-
     if gambit.conditions:length() > 0 then
         local conditionsConfigItem = TextConfigItem.new('conditions', gambit.conditions, function(conditions)
             if conditions:length() > 0 then
-                return localization_util.commas(conditions:map(function(c) return c:tostring() end))
+                return gambit:getConditionsDescription()
             end
             return 'Never'
         end, "Conditions")

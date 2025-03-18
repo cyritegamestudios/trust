@@ -1,4 +1,5 @@
 local GambitCondition = require('cylibs/gambits/gambit_condition')
+local GambitTarget = require('cylibs/gambits/gambit_target')
 local localization_util = require('cylibs/util/localization_util')
 local serializer_util = require('cylibs/util/serializer_util')
 
@@ -114,16 +115,33 @@ function Gambit:isValid()
     return job_conditions:empty() or Condition.check_conditions(job_conditions, windower.ffxi.get_player().index)
 end
 
+function Gambit:getConditionsDescription()
+    local conditions_by_type = {}
+    for type in L{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Ally, GambitTarget.TargetType.Enemy }:it() do
+        conditions_by_type[type] = L{}
+    end
+    for condition in self:getConditions():it() do
+        conditions_by_type[condition:getTargetType() or self:getConditionsTarget()]:append(condition)
+    end
+    local descriptions = L{}
+    for type, conditions in pairs(conditions_by_type) do
+        if conditions:length() > 0 then
+            descriptions:append(string.format("%s: %s", type, localization_util.commas(conditions:map(function(c) return c:tostring() end))))
+        end
+    end
+    return localization_util.commas(descriptions)
+end
+
 function Gambit:tostring()
     local conditionsDescription = "Never"
     if self.conditions:length() > 0 then
-        conditionsDescription = localization_util.commas(self.conditions:map(function(condition) return condition:tostring()  end))
+        conditionsDescription = self:getConditionsDescription()
     end
     local abilityName = self.ability:get_localized_name()
     if self.ability.get_display_name then
         abilityName = self.ability:get_display_name()
     end
-    return self.conditions_target..": "..conditionsDescription.. " → "..self.target..": "..abilityName
+    return string.format("%s → %s: %s", conditionsDescription, self.target, abilityName)
 end
 
 function Gambit:serialize()
