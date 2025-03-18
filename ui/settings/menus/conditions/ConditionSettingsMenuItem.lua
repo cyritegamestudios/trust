@@ -19,8 +19,7 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
     }, {}, nil, "Conditions", "Edit conditions.", true, enabled), ConditionSettingsMenuItem)
 
     self.trustSettings = trustSettings
-    --self.targetTypes = targetTypes or Condition.TargetType.AllTargets
-    self.targetTypes = Condition.TargetType.AllTargets
+    self.targetTypes = targetTypes or Condition.TargetType.AllTargets
     self.editableConditionClasses = self:getEditableConditionClasses()
     self.dispose_bag = DisposeBag.new()
 
