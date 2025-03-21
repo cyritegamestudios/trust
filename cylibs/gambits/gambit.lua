@@ -148,9 +148,6 @@ function Gambit:serialize()
     local conditions_to_serialize = self.conditions:filter(function(condition)
         return condition:should_serialize()
     end)
-    --local conditions = conditions_to_serialize:map(function(condition)
-    --    return condition:serialize()
-    --end)
     local tags = serializer_util.serialize(self.tags or L{}, 0)
     return "Gambit.new(" .. serializer_util.serialize(self.target) .. ", " .. serializer_util.serialize(conditions_to_serialize, 0) .. ", " .. self.ability:serialize() .. ", " .. serializer_util.serialize(self.conditions_target) .. ", " .. tags .. ")"
 end

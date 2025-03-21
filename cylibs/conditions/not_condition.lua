@@ -14,9 +14,6 @@ NotCondition.__class = "NotCondition"
 function NotCondition.new(conditions, target_index)
     local self = setmetatable(Condition.new(target_index), NotCondition)
     self.conditions = conditions or L{}
-    if conditions:contains("Self") then
-        print(debug.traceback())
-    end
     return self
 end
 
@@ -24,9 +21,6 @@ function NotCondition:is_satisfied(target_index)
     local target = windower.ffxi.get_mob_by_index(target_index)
     if target then
         for condition in self.conditions:it() do
-            if condition == "Self" then
-                print(self.conditions)
-            end
             if condition:is_satisfied(target_index) then
                 return false
             end

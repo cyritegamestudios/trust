@@ -27,7 +27,7 @@ function GambitCondition:isSatisfied(target, param)
 end
 
 function GambitCondition:set_editable(editable)
-    self.condition.editable = editable
+    self.condition:set_editable(editable)
 end
 
 function GambitCondition:is_editable()
