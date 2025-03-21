@@ -7,19 +7,19 @@ local MenuItem = require('cylibs/ui/menu/menu_item')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local TextStyle = require('cylibs/ui/style/text_style')
 
-local ConditionSettingsMenuItem = setmetatable({}, {__index = MenuItem })
-ConditionSettingsMenuItem.__index = ConditionSettingsMenuItem
+local GambitConditionSettingsMenuItem = setmetatable({}, {__index = MenuItem })
+GambitConditionSettingsMenuItem.__index = GambitConditionSettingsMenuItem
 
-function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentMenuItem, targetTypes, enabled)
+function GambitConditionSettingsMenuItem.new(trustSettings, parentMenuItem, enabled)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
         ButtonItem.default('Invert', 18),
         ButtonItem.default('Edit', 18),
-    }, {}, nil, "Conditions", "Edit conditions.", true, enabled), ConditionSettingsMenuItem)
+    }, {}, nil, "Conditions", "Edit conditions.", true, enabled), GambitConditionSettingsMenuItem)
 
     self.trustSettings = trustSettings
-    self.targetTypes = targetTypes or Condition.TargetType.AllTargets
+    self.targetTypes = Condition.TargetType.AllTargets
     self.editableConditionClasses = self:getEditableConditionClasses()
     self.dispose_bag = DisposeBag.new()
 
@@ -34,7 +34,7 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
         end)
 
         local configItem = MultiPickerConfigItem.new("Conditions", self.conditions:length() > 0 and L{ self.conditions[1] } or L{}, self.conditions, function(condition)
-            local description = condition:tostring()
+            local description = string.format("%s: %s", condition:getTargetType(), condition:tostring())
             return description, condition:is_editable()
         end, "Conditions", nil, nil, function(condition)
             local description = condition:tostring()
@@ -55,20 +55,20 @@ function ConditionSettingsMenuItem.new(trustSettings, trustSettingsMode, parentM
     return self
 end
 
-function ConditionSettingsMenuItem:destroy()
+function GambitConditionSettingsMenuItem:destroy()
     MenuItem.destroy(self)
 
     self.dispose_bag:destroy()
 end
 
-function ConditionSettingsMenuItem:reloadSettings(parentMenuItem)
+function GambitConditionSettingsMenuItem:reloadSettings(parentMenuItem)
     self:setChildMenuItem("Add", self:getAddConditionMenuItem(parentMenuItem))
     self:setChildMenuItem("Remove", self:getRemoveConditionMenuItem())
     self:setChildMenuItem("Edit", self:getEditConditionMenuItem())
     self:setChildMenuItem("Invert", self:getInvertConditionMenuItem())
 end
 
-function ConditionSettingsMenuItem:getAddConditionMenuItem(parentMenuItem)
+function GambitConditionSettingsMenuItem:getAddConditionMenuItem(parentMenuItem)
     local targetTypes = L(self.targetTypes)
 
     local targetButtonItems = targetTypes:map(function(targetType)
@@ -92,7 +92,7 @@ function ConditionSettingsMenuItem:getAddConditionMenuItem(parentMenuItem)
                 local conditionClass = self:getFileForCondition(conditionPickerItems[selectedIndexPaths[1].row])
                 local newCondition = conditionClass.new()
 
-                self.conditions:append(newCondition)
+                self.conditions:append(GambitCondition.new(newCondition, targetType))
 
                 self.trustSettings:saveSettings(true)
 
@@ -114,24 +114,24 @@ function ConditionSettingsMenuItem:getAddConditionMenuItem(parentMenuItem)
     end
 end
 
-function ConditionSettingsMenuItem:getEditConditionMenuItem()
+function GambitConditionSettingsMenuItem:getEditConditionMenuItem()
     local editConditionMenuItem = MenuItem.new(L{
         ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
     }, L{}, function(_, infoView, showMenu)
-        local selectedCondition = self:getSelectedCondition()
+        local selectedCondition = self:getSelectedCondition():getCondition()
         if selectedCondition.__type == NotCondition.__type then
             selectedCondition = selectedCondition.conditions[1]
         end
         local conditionConfigEditor = ConfigEditor.new(self.trustSettings, selectedCondition, selectedCondition:get_config_items(), infoView, nil, showMenu)
         return conditionConfigEditor
     end, "Conditions", "Edit the selected condition.", false, function()
-        local selectedCondition = self:getSelectedCondition()
+        local selectedCondition = self:getSelectedCondition():getCondition()
         return selectedCondition and selectedCondition:get_config_items():length() > 0 and selectedCondition:is_editable()
     end)
     return editConditionMenuItem
 end
 
-function ConditionSettingsMenuItem:getRemoveConditionMenuItem()
+function GambitConditionSettingsMenuItem:getRemoveConditionMenuItem()
     return MenuItem.action(function()
         local selectedIndexPath = self.editConditionsView:getDelegate():getCursorIndexPath()
         if selectedIndexPath then
@@ -157,9 +157,9 @@ function ConditionSettingsMenuItem:getRemoveConditionMenuItem()
     end)
 end
 
-function ConditionSettingsMenuItem:getInvertConditionMenuItem()
+function GambitConditionSettingsMenuItem:getInvertConditionMenuItem()
     local invertConditionMenuItem = MenuItem.new(L{}, L{}, function(menuArgs, _)
-        local selectedCondition = self:getSelectedCondition()
+        local selectedCondition = self:getSelectedCondition():getCondition()
         if selectedCondition then
             local editedCondition
             if selectedCondition.__type == NotCondition.__type then
@@ -167,7 +167,9 @@ function ConditionSettingsMenuItem:getInvertConditionMenuItem()
             else
                 editedCondition = NotCondition.new(L{ selectedCondition })
             end
-            self.conditions[self.editConditionsView:getDelegate():getCursorIndexPath().row] = editedCondition
+            self:getSelectedCondition().condition = editedCondition
+            --self:getSelectedCondition().targetType = self:getS
+            --self.conditions[self.editConditionsView:getDelegate():getCursorIndexPath().row] = GambitCondition.new(editedCondition, self:getSelectedCondition():getTargetType())
 
             self.editConditionsView:reload()
 
@@ -180,7 +182,7 @@ function ConditionSettingsMenuItem:getInvertConditionMenuItem()
     return invertConditionMenuItem
 end
 
-function ConditionSettingsMenuItem:getSelectedCondition()
+function GambitConditionSettingsMenuItem:getSelectedCondition()
     local cursorIndexPath = self.editConditionsView:getDelegate():getCursorIndexPath()
     if cursorIndexPath then
         return self.conditions[cursorIndexPath.row]
@@ -193,7 +195,7 @@ end
 --
 -- @treturn list List of conditions.
 --
-function ConditionSettingsMenuItem:getConditions()
+function GambitConditionSettingsMenuItem:getConditions()
     return self.conditions
 end
 
@@ -202,7 +204,7 @@ end
 --
 -- @tparam list List of target types.
 --
-function ConditionSettingsMenuItem:setTargetTypes(targetTypes)
+function GambitConditionSettingsMenuItem:setTargetTypes(targetTypes)
     self.targetTypes = targetTypes or Condition.TargetType.AllTargets
     self:setChildMenuItem("Add", self:getAddConditionMenuItem(self))
 end
@@ -212,7 +214,7 @@ end
 --
 -- @treturn list List of target types.
 --
-function ConditionSettingsMenuItem:getTargetTypes()
+function GambitConditionSettingsMenuItem:getTargetTypes()
     return self.targetTypes
 end
 
@@ -221,15 +223,15 @@ end
 --
 -- @tparam list List of conditions.
 --
-function ConditionSettingsMenuItem:setConditions(conditions)
+function GambitConditionSettingsMenuItem:setConditions(conditions)
     self.conditions = conditions
 end
 
-function ConditionSettingsMenuItem:getFileForCondition(conditionClass)
+function GambitConditionSettingsMenuItem:getFileForCondition(conditionClass)
     return require('cylibs/conditions/'..self.editableConditionClasses[conditionClass])
 end
 
-function ConditionSettingsMenuItem:getEditableConditionClasses()
+function GambitConditionSettingsMenuItem:getEditableConditionClasses()
     return T{
         [IdleCondition.__type] = "idle",
         [InBattleCondition.__type] = "in_battle",
@@ -277,7 +279,7 @@ function ConditionSettingsMenuItem:getEditableConditionClasses()
     }
 end
 
-function ConditionSettingsMenuItem:getConditionItemsForTarget(targetType)
+function GambitConditionSettingsMenuItem:getConditionItemsForTarget(targetType)
     local conditionPickerItems = L(self.editableConditionClasses:keyset()):filter(function(c)
         local conditionClass = self:getFileForCondition(c)
         return L(S{ targetType }:intersection(conditionClass.valid_targets())):length() > 0
@@ -289,4 +291,4 @@ function ConditionSettingsMenuItem:getConditionItemsForTarget(targetType)
     return conditionPickerItems
 end
 
-return ConditionSettingsMenuItem
+return GambitConditionSettingsMenuItem

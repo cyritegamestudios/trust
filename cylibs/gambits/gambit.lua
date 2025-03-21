@@ -1,3 +1,5 @@
+local GambitCondition = require('cylibs/gambits/gambit_condition')
+local GambitTarget = require('cylibs/gambits/gambit_target')
 local localization_util = require('cylibs/util/localization_util')
 local serializer_util = require('cylibs/util/serializer_util')
 
@@ -15,9 +17,13 @@ Gambit.Tags.AllTags = L{
 
 function Gambit.new(target, conditions, ability, conditions_target, tags)
     local self = setmetatable({}, Gambit)
-
     self.target = target
-    self.conditions = conditions or L{}
+    self.conditions = (conditions or L{}):map(function(condition)
+        if condition.__type ~= GambitCondition.__type then
+            return GambitCondition.new(condition, conditions_target)
+        end
+        return condition
+    end)
     self.ability = ability
     self.conditions_target = conditions_target
     self.tags = tags or L{}
@@ -26,11 +32,16 @@ function Gambit.new(target, conditions, ability, conditions_target, tags)
     return self
 end
 
-function Gambit:isSatisfied(target, param)
-    if target == nil or target:get_mob() == nil or self:getAbility() == nil then
+function Gambit:isSatisfied(target_by_type, param)
+    if self:getAbility() == nil then
         return false
     end
-    return self.conditions:length() > 0 and Condition.check_conditions(self.conditions, target:get_mob().index, param)
+
+    local satisfied_conditions = self.conditions:filter(function(condition)
+        local target = target_by_type(condition:getTargetType())
+        return condition:isSatisfied(target, param)
+    end)
+    return satisfied_conditions:length() == self.conditions:length()
         and Condition.check_conditions(self:getAbility():get_conditions(), windower.ffxi.get_player().index, param)
 end
 
@@ -43,9 +54,15 @@ function Gambit:getAbilityTarget()
 end
 
 function Gambit:addCondition(condition)
-    if not self:getConditions():contains(condition) then
-        self.conditions:append(condition)
+    if condition.__type ~= GambitCondition.__type then
+        condition = GambitCondition.new(condition, self:getConditionsTarget())
     end
+    for c in self.conditions:it() do
+        if c:getCondition() == condition:getCondition() then
+            return
+        end
+    end
+    self.conditions:append(condition)
 end
 
 function Gambit:getConditions()
@@ -54,6 +71,18 @@ end
 
 function Gambit:getConditionsTarget()
     return self.conditions_target
+end
+
+function Gambit:hasConditionTarget(targetType)
+    if targetType == self:getConditionsTarget() then
+        return true
+    end
+    for condition in self.conditions:it() do
+        if condition:getTargetType() == targetType then
+            return true
+        end
+    end
+    return false
 end
 
 function Gambit:addTag(tag)
@@ -86,25 +115,41 @@ function Gambit:isValid()
     return job_conditions:empty() or Condition.check_conditions(job_conditions, windower.ffxi.get_player().index)
 end
 
+function Gambit:getConditionsDescription()
+    local conditions_by_type = {}
+    for type in L{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Ally, GambitTarget.TargetType.Enemy }:it() do
+        conditions_by_type[type] = L{}
+    end
+    for condition in self:getConditions():it() do
+        conditions_by_type[condition:getTargetType() or self:getConditionsTarget()]:append(condition)
+    end
+    local descriptions = L{}
+    for type, conditions in pairs(conditions_by_type) do
+        if conditions:length() > 0 then
+            descriptions:append(string.format("%s: %s", type, localization_util.commas(conditions:map(function(c) return c:tostring() end))))
+        end
+    end
+    return localization_util.commas(descriptions)
+end
+
 function Gambit:tostring()
     local conditionsDescription = "Never"
     if self.conditions:length() > 0 then
-        conditionsDescription = localization_util.commas(self.conditions:map(function(condition) return condition:tostring()  end))
+        conditionsDescription = self:getConditionsDescription()
     end
     local abilityName = self.ability:get_localized_name()
     if self.ability.get_display_name then
         abilityName = self.ability:get_display_name()
     end
-    return self.conditions_target..": "..conditionsDescription.. " → "..self.target..": "..abilityName
+    return string.format("%s → %s: %s", conditionsDescription, self.target, abilityName)
 end
 
 function Gambit:serialize()
     local conditions_to_serialize = self.conditions:filter(function(condition)
         return condition:should_serialize()
     end)
-    local conditions = serializer_util.serialize(conditions_to_serialize, 0)
     local tags = serializer_util.serialize(self.tags or L{}, 0)
-    return "Gambit.new(" .. serializer_util.serialize(self.target) .. ", " .. conditions .. ", " .. self.ability:serialize() .. ", " .. serializer_util.serialize(self.conditions_target) .. ", " .. tags .. ")"
+    return "Gambit.new(" .. serializer_util.serialize(self.target) .. ", " .. serializer_util.serialize(conditions_to_serialize, 0) .. ", " .. self.ability:serialize() .. ", " .. serializer_util.serialize(self.conditions_target) .. ", " .. tags .. ")"
 end
 
 function Gambit:copy()

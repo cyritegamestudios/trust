@@ -18,6 +18,8 @@ local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local ShortcutMenuItem = require('ui/settings/menus/ShortcutMenuItem')
 
+local GambitConditionSettingsMenuItem = require('ui/settings/menus/gambits/GambitConditionSettingsMenuItem')
+
 local GambitSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 GambitSettingsMenuItem.__index = GambitSettingsMenuItem
 
@@ -78,12 +80,12 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
     self.abilitiesForTargets = abilitiesForTargets or function(targets)
         return self:getAbilitiesForTargets(targets)
     end
-    self.conditionTargets = conditionTargets or L(Condition.TargetType.AllTargets)
+    self.conditionTargets = --[[conditionTargets or]] L(Condition.TargetType.AllTargets)
     self.gambitTagBlacklist = gambitTagBlacklist or S{}
     self.editorConfig = editorStyle
     self.modes = modes or L{ 'AutoGambitMode' }
     self.libraryCategoryFilter = libraryCategoryFilter
-    self.conditionSettingsMenuItem = ConditionSettingsMenuItem.new(self.trustSettings, self.trustSettingsMode, nil, S(self.conditionTargets))
+    self.conditionSettingsMenuItem = GambitConditionSettingsMenuItem.new(self.trustSettings)
     self.defaultGambitTags = L{}
     self.gambitChanged = Event.newEvent()
     self.gambitCreated = Event.newEvent()
@@ -101,7 +103,8 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
 
         if self.selectedGambit then
             self.conditionSettingsMenuItem:setConditions(selectedGambit.conditions)
-            self.conditionSettingsMenuItem:setTargetTypes(S{ selectedGambit:getConditionsTarget() })
+            --self.conditionSettingsMenuItem:setConditions(selectedGambit.conditions:map(function(condition) return condition:getCondition() end)) -- FIXME: condition menu item remove and add doesn't work
+            --self.conditionSettingsMenuItem:setTargetTypes(S{ selectedGambit:getConditionsTarget() })
         end
     end
 
@@ -271,9 +274,9 @@ function GambitSettingsMenuItem:getAddAbilityMenuItem()
                     currentGambits:append(newGambit)
 
                     self.trustSettings:saveSettings(true)
+                    local currentGambits = self:getSettings().Gambits
 
                     showMenu(self)
-
                     self.gambitSettingsEditor:getDelegate():selectItemAtIndexPath(IndexPath.new(1, currentGambits:length()))
                 end
             end), abilityPickerView:on_pick_items())
@@ -318,7 +321,8 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
             self:onGambitChanged():trigger(newGambit, oldGambit)
 
             self.conditionSettingsMenuItem:setConditions(newGambit:getConditions())
-            self.conditionSettingsMenuItem:setTargetTypes(S{ newGambit:getConditionsTarget() })
+            --self.conditionSettingsMenuItem:setConditions(newGambit:getConditions():map(function(condition) return condition:getCondition() end)) -- FIXME
+            --self.conditionSettingsMenuItem:setTargetTypes(S{ newGambit:getConditionsTarget() })
         end), gambitEditor:onGambitChanged())
 
         return gambitEditor

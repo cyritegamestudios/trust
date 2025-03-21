@@ -1,4 +1,5 @@
 local ClaimedCondition = require('cylibs/conditions/claimed')
+local GambitTarget = require('cylibs/gambits/gambit_target')
 local ImmuneCondition = require('cylibs/conditions/immune')
 
 local Gambiter = require('cylibs/trust/roles/gambiter')
@@ -26,7 +27,7 @@ function Debuffer:set_debuff_settings(debuff_settings)
         end)
         local conditions = self:get_default_conditions(gambit)
         for condition in conditions:it() do
-            condition.editable = false
+            condition:set_editable(false)
             gambit:addCondition(condition)
         end
     end
@@ -40,7 +41,9 @@ function Debuffer:get_default_conditions(gambit)
         NotCondition.new(L{ ImmuneCondition.new(gambit:getAbility():get_name()) }),
         NumResistsCondition.new(gambit:getAbility():get_name(), Condition.Operator.LessThan, 4),
     }
-    return conditions + self.job:get_conditions_for_ability(gambit:getAbility())
+    return conditions + self.job:get_conditions_for_ability(gambit:getAbility()):map(function(condition)
+        return GambitCondition.new(condition, GambitTarget.TargetType.Self)
+    end)
 end
 
 function Debuffer:allows_duplicates()

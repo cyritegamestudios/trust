@@ -59,15 +59,15 @@ function Nuker:on_add()
             if spell and S{'Enemy'}:intersection(S(spell.targets)):length() > 0 and S{'BlackMagic', 'BlueMagic'}:contains(spell.type) then
                 local gambit = Gambit.new(GambitTarget.TargetType.Enemy, L{}, Spell.new(spell.en), GambitTarget.TargetType.Enemy)
                 gambit.conditions = self:get_default_conditions(gambit, true)
-                if not gambit:isSatisfied(self:get_target()) then
+                if not self:is_gambit_satisfied(gambit) then
                     gambit = self.nuke_settings.Gambits:map(function(gambit)
                         return Gambit.new(gambit:getAbilityTarget(), self:get_default_conditions(gambit, true), gambit:getAbility(), gambit:getConditionsTarget())
                     end):firstWhere(function(gambit)
-                        return gambit:getAbility():get_element() == spell.element and gambit:isSatisfied(self:get_target())
+                        return gambit:getAbility():get_element() == spell.element and self:is_gambit_satisfied(gambit)
                     end)
                 end
                 if gambit then
-                    self:check_gambits(self:get_gambit_targets(GambitTarget.TargetType.Enemy), L{ gambit }, nil, true)
+                    self:check_gambits(L{ gambit }, nil, true)
                 end
             end
         end
@@ -110,7 +110,7 @@ function Nuker:set_nuke_settings(nuke_settings)
         end)
         local conditions = self:get_default_conditions(gambit)
         for condition in conditions:it() do
-            condition.editable = false
+            condition:set_editable(false)
             gambit:addCondition(condition)
         end
     end
@@ -122,13 +122,13 @@ function Nuker:get_default_conditions(gambit, exclude_mode_conditions)
     }
 
     if not exclude_mode_conditions then
-        conditions:append(NotCondition.new(L{ ModeCondition.new('AutoNukeMode', 'Mirror') }))
+        conditions:append(GambitCondition.new(NotCondition.new(L{ ModeCondition.new('AutoNukeMode', 'Mirror') }), GambitTarget.TargetType.Self))
 
         if self.job:get_aoe_spells():contains(gambit:getAbility():get_name()) then
-            conditions:append(ModeCondition.new('AutoNukeMode', 'Cleave'))
+            conditions:append(GambitCondition.new(ModeCondition.new('AutoNukeMode', 'Cleave')), GambitTarget.TargetType.Self)
             conditions:append(EnemiesNearbyCondition.new(self.min_num_mobs_to_cleave))
         else
-            conditions:append(ModeCondition.new('AutoNukeMode', res.elements[gambit:getAbility():get_element()].en))
+            conditions:append(GambitCondition.new(ModeCondition.new('AutoNukeMode', res.elements[gambit:getAbility():get_element()].en), GambitTarget.TargetType.Self))
         end
     end
 
@@ -136,10 +136,14 @@ function Nuker:get_default_conditions(gambit, exclude_mode_conditions)
         conditions:append(MaxDistanceCondition.new(gambit:getAbility():get_range()))
     end
 
-    conditions:append(MinManaPointsCondition.new(gambit:getAbility():get_mp_cost(), windower.ffxi.get_player().index))
-    conditions:append(MinManaPointsPercentCondition.new(self.nuke_mpp, windower.ffxi.get_player().index))
+    local ability_conditions = (L{
+        MinManaPointsCondition.new(gambit:getAbility():get_mp_cost(), windower.ffxi.get_player().index),
+        MinManaPointsPercentCondition.new(self.magic_burst_mpp, windower.ffxi.get_player().index),
+    } + self.job:get_conditions_for_ability(gambit:getAbility()))
 
-    return conditions + self.job:get_conditions_for_ability(gambit:getAbility())
+    return conditions + ability_conditions:map(function(condition)
+        return GambitCondition.new(condition, GambitTarget.TargetType.Self)
+    end)
 end
 
 return Nuker

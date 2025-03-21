@@ -1,5 +1,6 @@
 local ActionQueue = require('cylibs/actions/action_queue')
 local GambitTarget = require('cylibs/gambits/gambit_target')
+local GambitTargetGroup = require('cylibs/gambits/gambit_target_group')
 
 local Reacter = setmetatable({}, {__index = Role })
 Reacter.__index = Reacter
@@ -29,121 +30,100 @@ function Reacter:on_add()
     Role.on_add(self)
 
     WindowerEvents.Ability.Ready:addAction(function(target_id, ability_id)
-        if not ability_id then
+        local has_valid_target = self:get_gambit_targets(L(ReadyAbilityCondition.valid_targets()), true):firstWhere(function(target)
+            return target:get_id() == target_id
+        end)
+        if not has_valid_target then
             return
         end
-        local target = self:get_target()
-        if target and target:get_id() == target_id then
-            local ability = res.monster_abilities[ability_id]
-            if ability then
-                logger.notice(self.__class, 'ability_ready', 'check_gambits', ability.en)
 
-                local gambits = self:get_all_gambits():filter(function(gambit)
-                    for condition in gambit:getConditions():it() do
-                        if condition.__type == ReadyAbilityCondition.__type then
-                            return true
-                        end
-                        return false
-                    end
-                end)
+        local ability = res.monster_abilities[ability_id]
+        if ability then
+            logger.notice(self.__class, 'ability_ready', 'check_gambits', ability.en)
 
-                self:check_gambits(L{ target }, gambits, ability.en)
+            local gambits = self:get_reactions_of_type(ReadyAbilityCondition.__type)
+            if gambits:length() == 0 then
+                return
             end
+            self:check_gambits(gambits, ability.en)
         end
     end)
 
     WindowerEvents.Ability.Finish:addAction(function(target_id, ability_id)
-        if not ability_id then
+        local has_valid_target = self:get_gambit_targets(L(FinishAbilityCondition.valid_targets()), true):firstWhere(function(target)
+            return target:get_id() == target_id
+        end)
+        if not has_valid_target then
             return
         end
-        local target = self:get_target()
-        if target and target:get_id() == target_id then
-            local ability = res.monster_abilities[ability_id]
-            if ability then
-                logger.notice(self.__class, 'ability_finish', 'check_gambits', ability.en)
 
-                local gambits = self:get_all_gambits():filter(function(gambit)
-                    for condition in gambit:getConditions():it() do
-                        if condition.__type == FinishAbilityCondition.__type then
-                            return true
-                        end
-                        return false
-                    end
-                end)
+        local ability = res.monster_abilities[ability_id]
+        if ability then
+            logger.notice(self.__class, 'ability_finish', 'check_gambits', ability.en)
 
-                self:check_gambits(L{ target }, gambits, ability.en)
+            local gambits = self:get_reactions_of_type(FinishAbilityCondition.__type)
+            if gambits:length() == 0 then
+                return
             end
+            self:check_gambits(gambits, ability.en)
         end
     end)
 
     WindowerEvents.Spell.Begin:addAction(function(target_id, spell_id)
-        if spell_id == nil or (self:get_party():get_party_member(target_id) == nil and self:get_party():get_target(target_id) == nil) then
-            return
-        end
-
-        local valid_targets = L(BeginCastCondition.valid_targets():map(function(target_type)
-            return self:get_gambit_targets(target_type)
-        end)):flatten(false)
-
-        local target = valid_targets:firstWhere(function(target)
+        local has_valid_target = self:get_gambit_targets(L(BeginCastCondition.valid_targets()), true):firstWhere(function(target)
             return target:get_id() == target_id
         end)
-        if target == nil then
+        if not has_valid_target then
             return
         end
 
         local spell = res.spells[spell_id]
         if spell then
             logger.notice(self.__class, 'spell_begin', 'check_gambits', spell.en)
-            local gambits = self:get_all_gambits():filter(function(gambit)
-                for condition in gambit:getConditions():it() do
-                    if condition.__type == BeginCastCondition.__type then
-                        return true
-                    end
-                    return false
-                end
-            end)
-            self:check_gambits(L{ target }, gambits, spell.en)
+
+            local gambits = self:get_reactions_of_type(BeginCastCondition.__type)
+            if gambits:length() == 0 then
+                return
+            end
+            self:check_gambits(gambits, spell.en)
         end
     end)
 
     WindowerEvents.GainDebuff:addAction(function(target_id, debuff_id)
-        local target = self:get_target()
-        if target and target:get_id() == target_id then
-            local debuff = res.buffs[debuff_id]
-            if debuff then
-                logger.notice(self.__class, 'gain_debuff', 'check_gambits', debuff.en)
+        local has_valid_target = self:get_gambit_targets(L(GainDebuffCondition.valid_targets()), true):firstWhere(function(target)
+            return target:get_id() == target_id
+        end)
+        if not has_valid_target then
+            return
+        end
 
-                local gambits = self:get_all_gambits():filter(function(gambit)
-                    for condition in gambit:getConditions():it() do
-                        if condition.__type == GainDebuffCondition.__type then
-                            return true
-                        end
-                        return false
-                    end
-                end)
+        local debuff = res.buffs[debuff_id]
+        if debuff then
+            logger.notice(self.__class, 'gain_debuff', 'check_gambits', debuff.en)
 
-                self:check_gambits(L{ target }, gambits, debuff.en)
+            local gambits = self:get_reactions_of_type(GainDebuffCondition.__type)
+            if gambits:length() == 0 then
+                return
             end
+            self:check_gambits(gambits, debuff.en)
         end
     end)
 
     WindowerEvents.PetUpdate:addAction(function(owner_id, pet_id, pet_index, pet_name, pet_hpp, pet_mpp, pet_tp)
-        local target = self:get_player()
-        if target and target:get_id() == owner_id then
-            logger.notice(self.__class, 'on_pet_update', 'check_gambits')
-
-            local gambits = self:get_all_gambits():filter(function(gambit)
-                for condition in gambit:getConditions():it() do
-                    if condition.__type == PetTacticalPointsCondition.__type then
-                        return true
-                    end
-                    return false
-                end
-            end)
-
-            self:check_gambits(L{ target }, gambits, pet_tp)
+        local has_valid_target = self:get_gambit_targets(L(PetTacticalPointsCondition.valid_targets()), true):firstWhere(function(target)
+            return target:get_id() == owner_id
+        end)
+        if not has_valid_target then
+            return
         end
+
+        logger.notice(self.__class, 'on_pet_update', 'check_gambits')
+
+        local gambits = self:get_reactions_of_type(PetTacticalPointsCondition.__type)
+        if gambits:length() == 0 then
+            return
+        end
+        self:check_gambits(gambits, pet_tp)
     end)
 
     WindowerEvents.Action:addAction(function(action)
@@ -152,83 +132,77 @@ function Reacter:on_add()
             return
         end
 
-        local valid_targets = L(ActionCondition.valid_targets():map(function(target_type)
-            return self:get_gambit_targets(target_type)
-        end)):flatten(false):filter(function(target)
+        local has_valid_target = self:get_gambit_targets(L(ActionCondition.valid_targets()), true):firstWhere(function(target)
             return target:get_id() == action.actor_id
         end)
-        if valid_targets:length() == 0 then
+        if not has_valid_target then
             return
         end
 
         logger.notice(self.__class, 'action', 'check_gambits')
-        local gambits = self:get_all_gambits():filter(function(gambit)
-            for condition in gambit:getConditions():it() do
-                if condition.__type == ActionCondition.__type then
-                    return true
-                end
-                return false
-            end
-        end)
-        self:check_gambits(valid_targets, gambits, action)
+
+        local gambits = self:get_reactions_of_type(ActionCondition.__type)
+        if gambits:length() == 0 then
+            return
+        end
+        self:check_gambits(gambits, action)
     end)
 
     self.skillchainer:on_skillchain():addAction(function(target_id, skillchain_step)
-        local target = self:get_target()
-        if target and target:get_id() == target_id then
-            logger.notice(self.__class, 'on_skillchain', 'check_gambits', skillchain_step:get_skillchain():get_name())
-
-            local gambits = self:get_all_gambits():filter(function(gambit)
-                for condition in gambit:getConditions():it() do
-                    if condition.__type == SkillchainPropertyCondition.__type then
-                        return true
-                    end
-                    return false
-                end
-            end)
-
-            self:check_gambits(L{ target }, gambits, skillchain_step:get_skillchain():get_name())
+        local has_valid_target = self:get_gambit_targets(L(SkillchainPropertyCondition.valid_targets()), true):firstWhere(function(target)
+            return target:get_id() == target_id
+        end)
+        if not has_valid_target then
+            return
         end
+
+        logger.notice(self.__class, 'on_skillchain', 'check_gambits', skillchain_step:get_skillchain():get_name())
+
+        local gambits = self:get_reactions_of_type(SkillchainPropertyCondition.__type)
+        if gambits:length() == 0 then
+            return
+        end
+        self:check_gambits(gambits, skillchain_step:get_skillchain():get_name())
     end)
 
     -- Trust turns off when zoning, so even if this evaluates to true it never performs the gambit
     self:get_party():get_player():on_zone_change():addAction(function(p, new_zone_id)
-        local target = self:get_player()
-        if target and target:get_id() == p:get_id() then
-            logger.notice(self.__class, 'on_zone_change', 'check_gambits')
-
-            local gambits = self:get_all_gambits():filter(function(gambit)
-                for condition in gambit:getConditions():it() do
-                    if condition.__type == ZoneChangeCondition.__type then
-                        return true
-                    end
-                    return false
-                end
-            end)
-
-            self:check_gambits(L{ target }, gambits, new_zone_id)
+        local has_valid_target = self:get_gambit_targets(L(ZoneChangeCondition.valid_targets()), true):firstWhere(function(target)
+            return target:get_id() == p:get_id()
+        end)
+        if not has_valid_target then
+            return
         end
+
+        logger.notice(self.__class, 'on_zone_change', 'check_gambits')
+
+        local gambits = self:get_reactions_of_type(ZoneChangeCondition.__type)
+        if gambits:length() == 0 then
+            return
+        end
+        self:check_gambits(gambits, new_zone_id)
     end)
 
     self:get_party():get_player():on_target_change():addAction(function(_, new_target_index, _)
-        local target = self:get_target()
-        if target and target:get_index() == new_target_index then
-            local gambits = self:get_all_gambits():filter(function(gambit)
-                for condition in gambit:getConditions():it() do
-                    if condition.__type == TargetNameCondition.__type then
-                        return true
-                    end
-                    return false
-                end
-            end)
-
-            self:check_gambits(L{ target }, gambits)
+        local has_valid_target = self:get_gambit_targets(L(TargetNameCondition.valid_targets()), true):firstWhere(function(target)
+            return target:get_index() == new_target_index
+        end)
+        if not has_valid_target then
+            return
         end
+
+        logger.notice(self.__class, 'on_target_change', 'check_gambits')
+
+        local gambits = self:get_reactions_of_type(TargetNameCondition.__type)
+        if gambits:length() == 0 then
+            return
+        end
+        self:check_gambits(gambits)
     end)
 end
 
-function Reacter:check_gambits(targets, gambits, param)
-    if self.state_var.value == 'Off' then
+function Reacter:check_gambits(gambits, param)
+    if self.state_var.value == 'Off' or gambits:length() == 0 then
         return
     end
 
@@ -239,21 +213,20 @@ function Reacter:check_gambits(targets, gambits, param)
         return
     end
 
-    local gambits = (gambits or self:get_all_gambits()):filter(function(gambit) return gambit:isEnabled() end)
+    local gambit_target_group = GambitTargetGroup.new(self:get_gambit_targets())
+
+    -- FIXME: gambits have nil value here
+    local gambits = (gambits or self:get_all_gambits()):filter(function(gambit)
+        return gambit:isEnabled()
+    end)
     for gambit in gambits:it() do
-        local targets = targets or self:get_gambit_targets(gambit:getConditionsTarget()) or L{}
-        for target in targets:it() do
-            if gambit:isSatisfied(target, param) then
-                if gambit:getAbilityTarget() == gambit:getConditionsTarget() then
-                    self:perform_gambit(gambit, target)
-                    return
-                else
-                    local ability_targets = self:get_gambit_targets(gambit:getAbilityTarget())
-                    if ability_targets:length() > 0 then
-                        self:perform_gambit(gambit, ability_targets[1])
-                        return
-                    end
-                end
+        for targets_by_type in gambit_target_group:it() do
+            local get_target_by_type = function(target_type)
+                return targets_by_type[target_type]
+            end
+            if gambit:isSatisfied(get_target_by_type, param) then
+                local target = get_target_by_type(gambit:getAbilityTarget())
+                self:perform_gambit(gambit, target)
                 break
             end
         end
@@ -262,23 +235,39 @@ function Reacter:check_gambits(targets, gambits, param)
     logger.notice(self.__class, 'check_gambits', self:get_type(), 'checked', gambits:length(), 'gambits')
 end
 
-function Reacter:get_gambit_targets(gambit_target)
-    local targets = L{}
-    local target_group
-    if gambit_target == GambitTarget.TargetType.Self then
-        target_group = self:get_player()
-    elseif gambit_target == GambitTarget.TargetType.Ally then
-        target_group = self:get_party()
-    elseif gambit_target == GambitTarget.TargetType.Enemy then
-        target_group = self:get_target()
+function Reacter:get_gambit_targets(gambit_target_types, flatten)
+    gambit_target_types = gambit_target_types or L(Condition.TargetType.AllTargets)
+    if class(gambit_target_types) ~= 'List' then
+        gambit_target_types = L{ gambit_target_types }
     end
-    if target_group then
-        targets = L{ target_group }
-        if target_group.__class == Party.__class then
-            targets = target_group:get_party_members(false, 21)
+    local targets_by_type = {}
+    for gambit_target_type in gambit_target_types:it() do
+        local target_group
+        if gambit_target_type == GambitTarget.TargetType.Self then
+            target_group = self:get_player()
+        elseif gambit_target_type == GambitTarget.TargetType.Ally then
+            target_group = self:get_party()
+        elseif gambit_target_type == GambitTarget.TargetType.Enemy then
+            target_group = self:get_target()
+        end
+        if target_group then
+            local targets = L{}
+            if target_group.__class == Party.__class then
+                targets = targets + target_group:get_party_members(false, 21)
+            else
+                targets = targets + L{ target_group }
+            end
+            targets_by_type[gambit_target_type] = targets
         end
     end
-    return targets
+    if flatten then
+        local all_targets = L{}
+        for _, targets in pairs(targets_by_type) do
+            all_targets = all_targets + targets
+        end
+        return all_targets
+    end
+    return targets_by_type
 end
 
 function Reacter:perform_gambit(gambit, target)
@@ -287,6 +276,7 @@ function Reacter:perform_gambit(gambit, target)
     end
 
     logger.notice(self.__class, 'perform_gambit', gambit:tostring(), target:get_mob().name)
+    
 
     local action = gambit:getAbility():to_action(target:get_mob().index, self:get_player())
     if action then
@@ -339,6 +329,18 @@ end
 
 function Reacter:get_all_gambits()
     return self.gambits
+end
+
+function Reacter:get_reactions_of_type(condition_type)
+    local gambits = self:get_all_gambits():filter(function(gambit)
+        for condition in gambit:getConditions():it() do
+            if condition:getCondition().__type == condition_type then
+                return true
+            end
+            return false
+        end
+    end)
+    return gambits
 end
 
 function Reacter:tostring()

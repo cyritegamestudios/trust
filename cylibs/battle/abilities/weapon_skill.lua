@@ -28,7 +28,7 @@ function WeaponSkill.new(weapon_skill_name, conditions)
     end)
     if matches:length() == 0 then
         local tp_condition = MinTacticalPointsCondition.new(1000)
-        tp_condition.editable = false
+        tp_condition:set_editable(false)
         conditions:append(tp_condition)
     end
     local skillchain_ability = SkillchainAbility.new('weapon_skills', weapon_skill.id, conditions)

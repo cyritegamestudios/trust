@@ -392,7 +392,7 @@ function Skillchainer:set_current_settings(current_settings)
         end)
         local conditions = self:get_default_conditions(Gambit.new(GambitTarget.TargetType.Enemy, L{}, ability, GambitTarget.TargetType.Self))
         for condition in conditions:it() do
-            condition.editable = false
+            condition:set_editable(false)
             ability:add_condition(condition)
         end
     end

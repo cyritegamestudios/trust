@@ -50,7 +50,7 @@ function NukeSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trust
             end)
             local conditions = trust:role_with_type("magicburster"):get_default_conditions(newGambit)
             for condition in conditions:it() do
-                condition.editable = false
+                condition:set_editable(false)
                 newGambit:addCondition(condition)
             end
         end

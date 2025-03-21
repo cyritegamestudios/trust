@@ -262,7 +262,7 @@ end
 function Trust:check_gambits(gambits)
 	local gambiter = self:role_with_type("gambiter")
 	if gambiter then
-		gambiter:check_gambits(nil, gambits)
+		gambiter:check_gambits(gambits)
 	end
 end
 

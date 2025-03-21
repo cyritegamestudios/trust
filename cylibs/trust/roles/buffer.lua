@@ -1,4 +1,5 @@
 local BuffConflictsCondition = require('cylibs/conditions/buff_conflicts')
+local GambitTarget = require('cylibs/gambits/gambit_target')
 
 local Gambiter = require('cylibs/trust/roles/gambiter')
 local Buffer = setmetatable({}, {__index = Gambiter })
@@ -29,7 +30,7 @@ function Buffer:set_buff_settings(buff_settings)
         end)
         local conditions = self:get_default_conditions(gambit)
         for condition in conditions:it() do
-            condition.editable = false
+            condition:set_editable(false)
             gambit:addCondition(condition)
         end
     end
@@ -42,10 +43,12 @@ function Buffer:get_default_conditions(gambit)
         NotCondition.new(L{ BuffConflictsCondition.new(gambit:getAbility():get_status().en)}),
         MinHitPointsPercentCondition.new(1),
     }
-    if L(gambit:getAbility():get_valid_targets()) ~= L{ 'Self' } then
+    if gambit:getAbilityTarget() ~= GambitTarget.TargetType.Self then
         conditions:append(MaxDistanceCondition.new(gambit:getAbility():get_range()))
     end
-    return conditions + self.job:get_conditions_for_ability(gambit:getAbility())
+    return conditions + self.job:get_conditions_for_ability(gambit:getAbility()):map(function(condition)
+        return GambitCondition.new(condition, GambitTarget.TargetType.Self)
+    end)
 end
 
 function Buffer:allows_duplicates()

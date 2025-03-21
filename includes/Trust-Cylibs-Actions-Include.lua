@@ -26,3 +26,4 @@ UseItem = require('cylibs/battle/use_item')
 Engage = require('cylibs/battle/engage')
 
 Gambit = require('cylibs/gambits/gambit')
+GambitCondition = require('cylibs/gambits/gambit_condition')

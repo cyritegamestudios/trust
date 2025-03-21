@@ -139,6 +139,10 @@ local incoming_event_dispatcher = {
                         WindowerEvents.GainDebuff:trigger(target.id, debuff.id)
                     end
                 end
+                -- Helix
+                if act.param and S{278, 279, 280, 281, 282, 283, 284, 285, 885, 886, 887, 888, 889, 890, 891, 892}:contains(act.param) and S{2, 252}:contains(action.message) then
+                    WindowerEvents.GainDebuff:trigger(target.id, 186)
+                end
             end
         end
 

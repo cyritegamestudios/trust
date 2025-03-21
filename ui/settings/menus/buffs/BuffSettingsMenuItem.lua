@@ -57,9 +57,10 @@ function BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trust
             newGambit.conditions = newGambit.conditions:filter(function(condition)
                 return condition:is_editable()
             end)
+            newGambit.conditions_target = newGambit:getAbilityTarget() -- FIXME: update conditions target in other gambit settings menu items
             local conditions = trust:role_with_type("buffer"):get_default_conditions(newGambit)
             for condition in conditions:it() do
-                condition.editable = false
+                condition:set_editable(false)
                 newGambit:addCondition(condition)
             end
         end

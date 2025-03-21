@@ -82,15 +82,15 @@ function MagicBurster:on_add()
             if spell and S{'Enemy'}:intersection(S(spell.targets)):length() > 0 and S{'BlackMagic', 'BlueMagic'}:contains(spell.type) then
                 local gambit = Gambit.new(GambitTarget.TargetType.Enemy, L{}, Spell.new(spell.en), GambitTarget.TargetType.Enemy)
                 gambit.conditions = self:get_default_conditions(gambit, true)
-                if not gambit:isSatisfied(self:get_target()) then
+                if not self:is_gambit_satisfied(gambit) then
                     gambit = self.nuke_settings.Gambits:map(function(gambit)
                         return Gambit.new(gambit:getAbilityTarget(), self:get_default_conditions(gambit, true), gambit:getAbility(), gambit:getConditionsTarget())
                     end):firstWhere(function(gambit)
-                        return gambit:getAbility():get_element() == spell.element and gambit:isSatisfied(self:get_target())
+                        return gambit:getAbility():get_element() == spell.element and self:is_gambit_satisfied(gambit)
                     end)
                 end
                 if gambit then
-                    self:check_gambits(self:get_gambit_targets(GambitTarget.TargetType.Enemy), L{ gambit }, nil, true)
+                    self:check_gambits(L{ gambit }, nil, true)
                 end
             end
         end
@@ -117,8 +117,8 @@ function MagicBurster:set_nuke_settings(nuke_settings)
         end)
         local conditions = self:get_default_conditions(gambit)
         for condition in conditions:it() do
-            condition.editable = false
-            gambit:addCondition(condition, true)
+            condition:set_editable(false)
+            gambit:addCondition(condition)
         end
 
         gambit:setEnabled(not element_id_blacklist:contains(gambit:getAbility():get_element()))
@@ -131,15 +131,15 @@ function MagicBurster:get_default_conditions(gambit, exclude_mode_conditions)
     }
 
     if not exclude_mode_conditions then
-        conditions:append(ConditionalCondition.new(L{
+        conditions:append(GambitCondition.new(ConditionalCondition.new(L{
             ModeCondition.new('AutoMagicBurstMode', res.elements[gambit:getAbility():get_element()].en),
             ModeCondition.new('AutoMagicBurstMode', 'Auto'),
-        }, Condition.LogicalOperator.Or))
-        conditions:append(NotCondition.new(L{ ModeCondition.new('AutoMagicBurstMode', 'Mirror') }))
+        }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Self))
+        conditions:append(GambitCondition.new(NotCondition.new(L{ ModeCondition.new('AutoMagicBurstMode', 'Mirror') }), GambitTarget.TargetType.Self))
     end
 
     if self.job:get_aoe_spells():contains(gambit:getAbility():get_name()) then
-        conditions:append(ModeCondition.new('MagicBurstTargetMode', 'All'))
+        conditions:append(GambitCondition.new(ModeCondition.new('MagicBurstTargetMode', 'All'), GambitTarget.TargetType.Self))
     end
 
     conditions:append(SkillchainPropertyCondition.new(skillchain_util.get_skillchain_properties_for_element(gambit:getAbility():get_element())))
@@ -149,10 +149,15 @@ function MagicBurster:get_default_conditions(gambit, exclude_mode_conditions)
     end
 
     conditions:append(SkillchainWindowCondition.new(1.25, ">="))
-    conditions:append(MinManaPointsCondition.new(gambit:getAbility():get_mp_cost(), windower.ffxi.get_player().index))
-    conditions:append(MinManaPointsPercentCondition.new(self.magic_burst_mpp, windower.ffxi.get_player().index))
 
-    return conditions + self.job:get_conditions_for_ability(gambit:getAbility())
+    local ability_conditions = (L{
+        MinManaPointsCondition.new(gambit:getAbility():get_mp_cost(), windower.ffxi.get_player().index),
+        MinManaPointsPercentCondition.new(self.magic_burst_mpp, windower.ffxi.get_player().index),
+    } + self.job:get_conditions_for_ability(gambit:getAbility()))
+
+    return conditions + ability_conditions:map(function(condition)
+        return GambitCondition.new(condition, GambitTarget.TargetType.Self)
+    end)
 end
 
 function MagicBurster:get_cooldown()
