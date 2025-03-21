@@ -276,6 +276,7 @@ function Reacter:perform_gambit(gambit, target)
     end
 
     logger.notice(self.__class, 'perform_gambit', gambit:tostring(), target:get_mob().name)
+    
 
     local action = gambit:getAbility():to_action(target:get_mob().index, self:get_player())
     if action then
