@@ -122,7 +122,7 @@ function SkillchainSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPat
             local item = self:getDataSource():itemAtIndexPath(cursorIndexPath)
             if item then
                 local indexPath = cursorIndexPath
-                self.ability_gambits[indexPath.section] = Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"skillchain"})
+                self.ability_gambits[indexPath.section] = Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"})
                 self.weaponSkillSettings:saveSettings(true)
                 addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll figure out what to use on my own for Step "..indexPath.section.."!")
 

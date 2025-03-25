@@ -20,6 +20,7 @@ function WeaponSkillSettingsMenuItem.new(weaponSkillSettings, weaponSkillSetting
     self.weaponSkillSettings = weaponSkillSettings
     self.weaponSkillSettingsMode = weaponSkillSettingsMode
     self.trustModeSettings = trustModeSettings
+    self.trust = trust
     self.dispose_bag = DisposeBag.new()
 
     local getActiveSkills = function(player)
@@ -53,7 +54,7 @@ function WeaponSkillSettingsMenuItem:destroy()
 end
 
 function WeaponSkillSettingsMenuItem:reloadSettings(activeSkills)
-    self:setChildMenuItem("Skillchains", SkillchainSettingsMenuItem.new(self.weaponSkillSettings, self.weaponSkillSettingsMode, self.skillchainer))
+    self:setChildMenuItem("Skillchains", SkillchainSettingsMenuItem.new(self.weaponSkillSettings, self.weaponSkillSettingsMode, self.skillchainer, self.trust))
     self:setChildMenuItem("Abilities", self:getAbilitiesMenuItem(activeSkills))
     self:setChildMenuItem("Modes", self:getModesMenuItem(activeSkills))
 end

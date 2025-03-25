@@ -1047,7 +1047,7 @@ function Migration_v28:perform(_, _, weaponSkillSettings)
             if ability.__type == Gambit.__type then
                 return ability
             else
-                local gambit = Gambit.new("Enemy", ability.conditions, ability, "Self", L{"skillchain"})
+                local gambit = Gambit.new("Enemy", ability.conditions, ability, "Self", L{"Skillchain"})
                 ability.conditions = L{}
                 return gambit
             end

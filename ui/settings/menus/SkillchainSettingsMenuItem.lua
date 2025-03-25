@@ -1,28 +1,24 @@
 local BuildSkillchainSettingsMenuItem = require('ui/settings/menus/skillchains/BuildSkillchainSettingsMenuItem')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
-local ConditionSettingsMenuItem = require('ui/settings/menus/conditions/ConditionSettingsMenuItem')
+local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local GambitConditionSettingsMenuItem = require('ui/settings/menus/gambits/GambitConditionSettingsMenuItem')
 local GambitSettingsEditor = require('ui/settings/editors/GambitSettingsEditor')
 local GambitTarget = require('cylibs/gambits/gambit_target')
-local JobAbilitiesSettingsMenuItem = require('ui/settings/menus/buffs/JobAbilitiesSettingsMenuItem')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local ShortcutMenuItem = require('ui/settings/menus/ShortcutMenuItem')
 local SkillchainAbility = require('cylibs/battle/skillchains/abilities/skillchain_ability')
 local SkillchainBuilder = require('cylibs/battle/skillchains/skillchain_builder')
 local SkillchainSettingsEditor = require('ui/settings/SkillchainSettingsEditor')
 local SkillchainStep = require('cylibs/battle/skillchains/skillchain_step')
-local SkillchainStepSettingsEditor = require('ui/settings/editors/SkillchainStepSettingsEditor')
 
 local SkillchainSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 SkillchainSettingsMenuItem.__index = SkillchainSettingsMenuItem
 
-function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettingsMode, skillchainer)
+function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettingsMode, skillchainer, trust)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Edit', 18),
         --ButtonItem.default('Conditions', 18),
-        ButtonItem.default('Abilities', 18),
         ButtonItem.default('Skip', 18),
         ButtonItem.default('Clear', 18),
         ButtonItem.default('Clear All', 18),
@@ -38,6 +34,7 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
     self.weaponSkillSettingsMode = weaponSkillSettingsMode
     self.skillchainBuilder = SkillchainBuilder.new(skillchainer.skillchain_builder.abilities)
     self.skillchainer = skillchainer
+    self.trust = trust
     self.conditionSettingsMenuItem =  GambitConditionSettingsMenuItem.new(self.weaponSkillSettings)
     self.disposeBag = DisposeBag.new()
 
@@ -64,10 +61,11 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
                     infoView:setDescription("Edit which weapon skill to use for the selected step.")
                 else
                     local description = "Use when: "..self.selectedAbility:getConditionsDescription()
-                    if currentSettings.JobAbilities:length() > 0 then
-                        description = description..", Use with: "..localization_util.commas(currentSettings.JobAbilities:map(function(j) return j:get_name() end), 'and')
+                    if self.selectedAbility:getAbility():get_job_abilities():length() > 0 then
+                        description = description..", Use with: "..localization_util.commas(self.selectedAbility:getAbility():get_job_abilities(), 'and')
                     end
                     infoView:setDescription(description)
+
                 end
             end
         end, createSkillchainView:getDelegate():didSelectItemAtIndexPath()))
@@ -82,7 +80,6 @@ end
 
 function SkillchainSettingsMenuItem:reloadSettings()
     self:setChildMenuItem('Edit', self:getEditSkillchainStepMenuItem())
-    self:setChildMenuItem('Abilities', self:getAbilitiesMenuItem())
     self:setChildMenuItem('Clear All', MenuItem.action(nil, "Skillchains", "Automatically determine weapon skills to use for all steps."))
     self:setChildMenuItem("Shortcuts", ShortcutMenuItem.new(string.format("shortcut_%s", self:getConfigKey()), "Open the skillchain editor.", false, string.format("// trust menu %s", self:getConfigKey())))
 end
@@ -127,9 +124,10 @@ function SkillchainSettingsMenuItem:getNextSteps(stepNum)
         return step:get_ability():get_localized_name()..suffix
     end, 'Ability')
     return abilityConfigItem]]
-    local temp = nextSteps:map(function(step) return step:get_ability()  end)
+    --local temp = nextSteps:map(function(step) return step:get_ability()  end)
 
-    return temp
+    --return temp
+    return nextSteps
 end
 
 function SkillchainSettingsMenuItem:getEditSkillchainStepMenuItem() -- FIXME: use GambitSettingsMenuItem:getEditGambitMenuItem() instead
@@ -205,22 +203,22 @@ function SkillchainSettingsMenuItem:getEditSkillchainStepMenuItem() -- FIXME: us
 
     local editGambitMenuItem = MenuItem.new(L{
         ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
-        --ButtonItem.default('Edit', 18),
+        ButtonItem.default('Edit', 18),
         ButtonItem.default('Conditions', 18),
     }, {}, function(_, _, showMenu)
+        local nextSteps = self:getNextSteps(self.selectedIndex)
         local abilitiesByTargetType = {
-            [GambitTarget.TargetType.Enemy] = self:getNextSteps(self.selectedIndex) + L{ SkillchainAbility.auto(), SkillchainAbility.skip() }
+            [GambitTarget.TargetType.Enemy] = nextSteps:map(function(step) return step:get_ability() end) + L{ SkillchainAbility.auto(), SkillchainAbility.skip() }
         }
 
-
-        -- 1. when SkillchainAbility gets serialized it returns nil. Need to map back to WeaponSkill (DONE, needs testing)
-        -- 2. I tried updating CombatSkillSettings to return a WeaponSkill instead which seems to work--will need to do that for other skill types (DONE, needs testing)
-        -- 3. Conditions don't currently update proper reference (DONE, needs testing)
-        -- 4. Conditions are getting serialized on the WeaponSkill itself. Should filter out non-editable ones like spell? (DONE, needs testing)
-        -- 5. Not currently displaying what skillchain the weapon skill makes. Maybe add as param to weapon skill?
-        -- 6. Need to add option for Skip and Auto (DONE, needs testing)
-        -- 7. Need to update default conditions on onGambitChanged similar to buffer and BuffSettingsMenuItem
-        local gambitEditor = GambitSettingsEditor.new(self.selectedAbility, self.weaponSkillSettings, self.weaponSkillSettingsMode, abilitiesByTargetType, self.conditionTargets, showMenu, Gambit.Tags.AllTags)
+        local gambitEditor = GambitSettingsEditor.new(self.selectedAbility, self.weaponSkillSettings, self.weaponSkillSettingsMode, abilitiesByTargetType, self.conditionTargets, showMenu, Gambit.Tags.AllTags, function(ability)
+            local suffix = ''
+            local step = nextSteps:firstWhere(function(step) return step:get_ability():get_name() == ability:get_name() end)
+            if step and step:get_skillchain() then
+                suffix = ' ('..step:get_skillchain()..')'
+            end
+            return ability:get_localized_name()..suffix
+        end)
 
         gambitEditor:getDisposeBag():add(gambitEditor:onGambitChanged():addAction(function(newGambit, oldGambit)
             --self:onGambitChanged():trigger(newGambit, oldGambit)
@@ -247,7 +245,7 @@ function SkillchainSettingsMenuItem:getEditSkillchainStepMenuItem() -- FIXME: us
         return self.selectedIndex ~= nil
     end)
 
-    --[[local editAbilityMenuItem = MenuItem.new(L{
+    local editAbilityMenuItem = MenuItem.new(L{
         ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
     }, {
         Confirm = MenuItem.action(function(parent)
@@ -255,15 +253,15 @@ function SkillchainSettingsMenuItem:getEditSkillchainStepMenuItem() -- FIXME: us
         end, self:getTitleText(), "Edit ability.")
     }, function(_, infoView, showMenu)
         local configItems = L{}
-        if self.selectedGambit:getAbility().get_config_items then
-            configItems = self.selectedGambit:getAbility():get_config_items(self.trust) or L{}
+        if self.selectedAbility:getAbility().get_config_items then
+            configItems = self.selectedAbility:getAbility():get_config_items(self.trust) or L{}
         end
         if not configItems:empty() then
-            local editAbilityEditor = ConfigEditor.new(self.trustSettings, self.selectedGambit:getAbility(), configItems, infoView, nil, showMenu)
+            local editAbilityEditor = ConfigEditor.new(self.trustSettings, self.selectedAbility:getAbility(), configItems, infoView, nil, showMenu)
 
             self.disposeBag:add(editAbilityEditor:onConfigConfirm():addAction(function(newSettings, oldSettings)
-                if self.selectedGambit:getAbility().on_config_changed then
-                    self.selectedGambit:getAbility():on_config_changed(oldSettings)
+                if self.selectedAbility:getAbility().on_config_changed then
+                    self.selectedAbility:getAbility():on_config_changed(oldSettings)
                 end
             end), editAbilityEditor:onConfigChanged())
 
@@ -271,23 +269,13 @@ function SkillchainSettingsMenuItem:getEditSkillchainStepMenuItem() -- FIXME: us
         end
         return nil
     end, self:getTitleText(), "Edit ability.", false, function()
-        return self.selectedGambit ~= nil and self.selectedGambit:getAbility().get_config_items and self.selectedGambit:getAbility():get_config_items():length() > 0
+        return self.selectedAbility ~= nil and self.selectedAbility:getAbility().get_config_items and self.selectedAbility:getAbility():get_config_items():length() > 0
     end)
 
-    editGambitMenuItem:setChildMenuItem("Edit", editAbilityMenuItem)]]
+    editGambitMenuItem:setChildMenuItem("Edit", editAbilityMenuItem)
     editGambitMenuItem:setChildMenuItem("Conditions", self.conditionSettingsMenuItem)
 
     return editGambitMenuItem
-end
-
-function SkillchainSettingsMenuItem:getAbilitiesMenuItem()
-    local jobAbilitiesMenuItem = JobAbilitiesSettingsMenuItem.new(self.weaponSkillSettings, self.weaponSkillSettingsMode)
-    jobAbilitiesMenuItem.titleText = "Skillchains"
-    jobAbilitiesMenuItem.descriptionText = "Choose abilities to use before each step in the skillchain."
-    --jobAbilitiesMenuItem.enabled = function()
-    --    return self.selectedAbility and not S{ SkillchainAbility.Auto, SkillchainAbility.Skip }:contains(self.selectedAbility:get_name())
-    --end
-    return jobAbilitiesMenuItem
 end
 
 function SkillchainSettingsMenuItem:getAbility(abilityName)

@@ -3,6 +3,8 @@
 -- @class module
 -- @name WeaponSkill
 
+local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local res = require('resources')
 local serializer_util = require('cylibs/util/serializer_util')
 
@@ -16,8 +18,9 @@ WeaponSkill.__class = "WeaponSkill"
 -- Default initializer for a new weapon skill.
 -- @tparam string weapon_skill_name Localized name of the weapon skill (see res/weapon_skills.lua)
 -- @tparam list conditions (optional) List of conditions that must be met to use this ability
+-- @tparam list job_abilities List of job abilities to use, if any
 -- @treturn WeaponSkill A weapon skill
-function WeaponSkill.new(weapon_skill_name, conditions)
+function WeaponSkill.new(weapon_skill_name, conditions, job_abilities)
     conditions = conditions or L{}
     local weapon_skill = res.weapon_skills:with('en', weapon_skill_name)
     if weapon_skill == nil then
@@ -31,12 +34,39 @@ function WeaponSkill.new(weapon_skill_name, conditions)
         tp_condition:set_editable(false)
         conditions:append(tp_condition)
     end
-    local skillchain_ability = SkillchainAbility.new('weapon_skills', weapon_skill.id, conditions)
+    local skillchain_ability = SkillchainAbility.new('weapon_skills', weapon_skill.id, conditions, job_abilities)
     if skillchain_ability == nil then
         return nil
     end
     local self = setmetatable(skillchain_ability, WeaponSkill)
     return self
+end
+
+-------
+-- Returns the config items that will be used when creating the config editor
+-- to edit this ability.
+-- @treturn list List of ConfigItem
+function WeaponSkill:get_config_items(trust)
+    local allJobAbilities = (trust and L(trust:get_job():get_job_abilities(function(jobAbilityId)
+        return true
+    end):map(function(jobAbilityId)
+        return res.job_abilities[jobAbilityId].en
+    end)) or L{}):sort()
+
+    local configItem = MultiPickerConfigItem.new("job_abilities", self.job_abilities, allJobAbilities, function(jobAbilityNames)
+        local summary = localization_util.commas(jobAbilityNames:map(function(jobAbilityName) return i18n.resource('job_abilities', 'en', jobAbilityName) end), 'and')
+        if summary:length() == 0 then
+            summary = "None"
+        end
+        return summary
+    end, "Job Abilities", nil, function(jobAbilityName)
+        return AssetManager.imageItemForJobAbility(jobAbilityName)
+    end)
+    configItem:setPickerTitle("Job Abilities")
+    configItem:setPickerDescription("Choose one or more job abilities to use with this weapon skill.")
+    return L{
+        configItem,
+    }
 end
 
 --[[function WeaponSkill:to_action(target_index, _)
@@ -50,7 +80,7 @@ function WeaponSkill:serialize(exclude_conditions)
     local conditions_to_serialize = not exclude_conditions and self.conditions:filter(function(condition)
         return conditions_classes_to_serialize:contains(condition.__class)
     end) or L{}
-    return "WeaponSkill.new(" .. serializer_util.serialize_args(self:get_name(), conditions_to_serialize) .. ")"
+    return "WeaponSkill.new(" .. serializer_util.serialize_args(self:get_name(), conditions_to_serialize, self.job_abilities) .. ")"
 end
 
 function WeaponSkill:is_valid()

@@ -3,12 +3,12 @@ return {
     Version = 1,
     Default = {
         Skillchain = L{
-            Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"skillchain"}),
-            Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"skillchain"}),
-            Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"skillchain"}),
-            Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"skillchain"}),
-            Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"skillchain"}),
-            Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"skillchain"}),
+            Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
+            Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
+            Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
+            Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
+            Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
+            Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
         },
         Skills = L{
             CombatSkillSettings.new('Great Axe', L{}),
