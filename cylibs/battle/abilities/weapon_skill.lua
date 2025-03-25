@@ -45,11 +45,11 @@ end
     return action
 end]]
 
-function WeaponSkill:serialize()
+function WeaponSkill:serialize(exclude_conditions)
     local conditions_classes_to_serialize = Condition.defaultSerializableConditionClasses()
-    local conditions_to_serialize = self.conditions:filter(function(condition)
+    local conditions_to_serialize = not exclude_conditions and self.conditions:filter(function(condition)
         return conditions_classes_to_serialize:contains(condition.__class)
-    end)
+    end) or L{}
     return "WeaponSkill.new(" .. serializer_util.serialize_args(self:get_name(), conditions_to_serialize) .. ")"
 end
 

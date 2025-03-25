@@ -25,6 +25,7 @@ function ElementalMagic.new(spell_name, conditions)
     end
     local immanence_ready = JobAbilityRecastReadyCondition.new('Immanence')
     if not conditions:contains(immanence_ready) then
+        immanence_ready:set_editable(false)
         conditions:append(immanence_ready)
     end
     local self = setmetatable(SkillchainAbility.new('spells', spell.id, conditions), ElementalMagic)

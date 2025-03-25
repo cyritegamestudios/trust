@@ -16,7 +16,7 @@ function GambitSettingsEditor:onGambitChanged()
 end
 
 function GambitSettingsEditor.new(gambit, trustSettings, trustSettingsMode, abilitiesByTargetType, conditionTargets, showMenu, validGambitTags)
-    local validTargets = L(GambitTarget.TargetType:keyset()):filter(function(targetType) return abilitiesByTargetType[targetType]:length() > 0 end)
+    local validTargets = L(GambitTarget.TargetType:keyset()):filter(function(targetType) return abilitiesByTargetType[targetType] and abilitiesByTargetType[targetType]:length() > 0 end)
     local validConditionTargets = conditionTargets or L(Condition.TargetType.AllTargets)
 
     local configItems = GambitSettingsEditor.configItems(gambit, abilitiesByTargetType, validTargets, validConditionTargets, validGambitTags)
@@ -76,6 +76,7 @@ function GambitSettingsEditor.configItemFromGambit(gambit, abilitiesByTargetType
     if not abilities:contains(gambit:getAbility()) then
         abilities:append(gambit:getAbility())
     end
+
     local abilityConfigItem = PickerConfigItem.new('ability', gambit:getAbility(), abilities, function(ability)
         return ability:get_localized_name()
     end, "Ability")

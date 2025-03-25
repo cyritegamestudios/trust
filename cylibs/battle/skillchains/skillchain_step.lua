@@ -93,6 +93,15 @@ end
 
 -- Returns a string representation of the skillchain.
 -- @treturn string String representation of the skillchain
+function SkillchainStep:get_name()
+    if self:get_skillchain() then
+        return string.format("%s (%s)", self:get_ability():get_localized_name(), self:get_skillchain())
+    end
+    return self:get_ability():get_localized_name()
+end
+
+-- Returns a string representation of the skillchain.
+-- @treturn string String representation of the skillchain
 function SkillchainStep:__tostring()
     if self:get_skillchain() then
         return "Step "..self:get_step()..": "..tostring(self:get_skillchain())

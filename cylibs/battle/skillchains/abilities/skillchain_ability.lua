@@ -9,6 +9,7 @@ local WeaponSkillAction = require('cylibs/actions/weapon_skill')
 local SkillchainAbility = {}
 SkillchainAbility.__index = SkillchainAbility
 SkillchainAbility.__class = "SkillchainAbility"
+SkillchainAbility.__type = "SkillchainAbility"
 
 SkillchainAbility.Auto = "Auto"
 SkillchainAbility.Skip = "Skip"

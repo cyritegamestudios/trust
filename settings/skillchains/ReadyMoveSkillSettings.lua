@@ -37,7 +37,8 @@ function ReadyMoveSkillSettings:get_abilities()
                 return not self.blacklist:contains(ready_move.en) and job_util.knows_job_ability(ready_move.id)
             end):map(
             function(ready_move)
-                return SkillchainAbility.new('job_abilities', ready_move.id, L{ ReadyChargesCondition.new(self:get_charges(ready_move.en), Condition.Operator.GreaterThanOrEqualTo) })
+                return self:get_ability(ready_move.en)
+                --return SkillchainAbility.new('job_abilities', ready_move.id, L{ ReadyChargesCondition.new(self:get_charges(ready_move.en), Condition.Operator.GreaterThanOrEqualTo) })
             end):compact_map():reverse()
     return ready_moves
 end

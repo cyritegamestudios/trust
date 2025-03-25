@@ -271,6 +271,8 @@ function Puller:pull_target(target)
     local get_target_by_type = function(target_type)
         if target_type == GambitTarget.TargetType.Enemy then
             return target
+        elseif target_type == GambitTarget.TargetType.Self then
+            return self:get_player()
         end
         return nil
     end

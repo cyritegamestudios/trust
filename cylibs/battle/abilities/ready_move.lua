@@ -22,8 +22,20 @@ function ReadyMove.new(ready_move_name, conditions)
     if ready_move == nil then
         return nil
     end
+    local ready_move_ready = ReadyChargesCondition.new(ReadyMove.get_charges(ready_move.en), Condition.Operator.GreaterThanOrEqualTo)
+    if not conditions:contains(ready_move_ready) then
+        conditions:append(ready_move_ready)
+    end
     local self = setmetatable(SkillchainAbility.new('job_abilities', ready_move.id, conditions), ReadyMove)
     return self
+end
+
+function ReadyMove.get_charges(readyMoveName)
+    local jobAbility = res.job_abilities:with('en', readyMoveName)
+    if jobAbility then
+        return jobAbility.mp_cost
+    end
+    return 3
 end
 
 function ReadyMove:serialize()

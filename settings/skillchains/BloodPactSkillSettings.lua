@@ -36,7 +36,8 @@ function BloodPactSkillSettings:get_abilities()
                 return not self.blacklist:contains(blood_pact.en) and job_util.knows_job_ability(blood_pact.id)
             end):map(
             function(blood_pact)
-                return SkillchainAbility.new('job_abilities', blood_pact.id, L{ JobAbilityRecastReadyCondition.new(blood_pact.en) })
+                return self:get_ability(blood_pact.en)
+                --return SkillchainAbility.new('job_abilities', blood_pact.id, L{ JobAbilityRecastReadyCondition.new(blood_pact.en) })
             end):reverse()
 
     return blood_pacts
