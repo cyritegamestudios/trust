@@ -80,8 +80,13 @@ function GambitSettingsEditor.configItemFromGambit(gambit, abilitiesByTargetType
         abilities:append(gambit:getAbility())
     end
 
+    local abilityDescription = abilityDescription or function(ability)
+        return ability:get_localized_name()
+    end
+
     local abilityConfigItem = PickerConfigItem.new('ability', gambit:getAbility(), abilities, function(ability)
         return abilityDescription(ability)
+
     end, "Ability")
     return abilityConfigItem
 end
