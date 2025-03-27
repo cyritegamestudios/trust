@@ -66,7 +66,6 @@ function ElementalMagicSkillSettings:get_default_ability()
 end
 
 function ElementalMagicSkillSettings:get_default_conditions(spell_id)
-    print(spell_id)
     return L{ JobAbilityRecastReadyCondition.new('Immanence'), SpellRecastReadyCondition.new(spell_id) }:map(function(condition)
         condition:set_editable(false)
         return condition

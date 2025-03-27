@@ -198,7 +198,12 @@ function SkillchainAbility:to_action(target_index, player, job_abilities)
         end
     end
 
-    job_abilities = L{}:extend(job_abilities or L{}):extend(self.job_abilities)
+    job_abilities = L{}:extend(job_abilities or L{}):extend(self.job_abilities):map(function(job_ability)
+        if type(job_ability) == 'string' then
+            return JobAbility.new(job_ability)
+        end
+        return job_ability
+    end)
     for job_ability in job_abilities:it() do
         if job_util.can_use_job_ability(job_ability:get_name())
                 and Condition.check_conditions(job_ability:get_conditions(), windower.ffxi.get_player().index) then

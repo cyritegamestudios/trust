@@ -128,6 +128,7 @@ function ActionQueue:perform_next_action()
 		local forced_delay = self:get_forced_delay(next_action)
 		if forced_delay > 0 then
 			local display_name = next_action.display_name
+			print('inserting forced delay', forced_delay, next_action:getidentifier())
 			next_action = SequenceAction.new(L{
 				WaitAction.new(0, 0, 0, forced_delay),
 				next_action,

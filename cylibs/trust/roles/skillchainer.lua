@@ -65,7 +65,6 @@ function Skillchainer.new(action_queue, weapon_skill_settings)
     self.num_skillchain_steps = 3
     self.action_identifier = self.__class..'_perform_skillchain'
     self.active_skills = L{}
-    self.job_abilities = L{}
     self.skillchain_builder = SkillchainBuilder.new()
     self.last_check_skillchain_time = os.time() - 1
 
@@ -316,7 +315,7 @@ function Skillchainer:perform_ability(ability)
         return false
     end
 
-    local ability_action = ability:to_action(target:get_mob().index, self:get_player(), self.job_abilities)
+    local ability_action = ability:to_action(target:get_mob().index, self:get_player())
     if ability_action then
         ability_action.identifier = self.action_identifier
         ability_action.max_duration = 10
@@ -379,10 +378,6 @@ function Skillchainer:get_active_skills()
     return self.active_skills
 end
 
-function Skillchainer:set_job_abilities(job_abilities)
-    self.job_abilities = (job_abilities or L{}):filter(function(job_ability) return job_util.knows_job_ability(job_ability:get_job_ability_id()) end)
-end
-
 function Skillchainer:set_current_settings(current_settings)
     self.current_settings = current_settings
 
@@ -397,8 +392,6 @@ function Skillchainer:set_current_settings(current_settings)
             gambit:addCondition(condition)
         end
     end
-
-    self:set_job_abilities(current_settings.JobAbilities or L{})
 
     self:update_abilities()
 end
