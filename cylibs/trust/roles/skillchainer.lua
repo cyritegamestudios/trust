@@ -407,7 +407,7 @@ function Skillchainer:get_default_conditions(gambit)
     local conditions = L{}
     for skill in self.current_settings.Skills:it() do
         if skill:get_ability(gambit:getAbility():get_name()) then
-            conditions = conditions + skill:get_default_conditions()
+            conditions = conditions + skill:get_default_conditions(gambit:getAbility():get_name())
         end
     end
     return conditions
