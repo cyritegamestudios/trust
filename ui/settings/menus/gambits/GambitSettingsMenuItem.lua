@@ -1,6 +1,5 @@
 local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
-local ConditionSettingsMenuItem = require('ui/settings/menus/conditions/ConditionSettingsMenuItem')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Event = require('cylibs/events/Luvent')

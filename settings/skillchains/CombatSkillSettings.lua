@@ -44,7 +44,7 @@ function CombatSkillSettings:get_abilities(include_blacklist, include_unknown)
                 end
                 return false
             end):map(function(weapon_skill_id)
-                return SkillchainAbility.new('weapon_skills', weapon_skill_id, L{ MinTacticalPointsCondition.new(1000) })
+                return WeaponSkill.new(res.weapon_skills[weapon_skill_id].en, self:get_default_conditions())
             end):compact_map():unique(function(weapon_skill)
                 return weapon_skill:get_ability_id()
             end)
@@ -52,25 +52,25 @@ function CombatSkillSettings:get_abilities(include_blacklist, include_unknown)
 end
 
 function CombatSkillSettings:get_ability(ability_name)
-    local matches = self:get_abilities(true):compact_map():filter(function(a) return a:get_name() == ability_name end)
-    if matches:length() > 0 then
-        return WeaponSkill.new(ability_name)
+    local isValidAbility = self:get_abilities(true):compact_map():firstWhere(function(a) return a:get_name() == ability_name end)
+    if isValidAbility then
+        return WeaponSkill.new(ability_name, self:get_default_conditions())
     end
     return nil
 end
 
 function CombatSkillSettings:get_default_ability()
-    if self.defaultWeaponSkillId then
-        local ability = SkillchainAbility.new('weapon_skills', self.defaultWeaponSkillId, L{ MinTacticalPointsCondition.new(1000) })
-        if ability then
-            return ability
-        end
+    if self.defaultWeaponSkillName then
+        return self:get_ability(self.defaultWeaponSkillName)
     end
     return nil
 end
 
 function CombatSkillSettings:get_default_conditions(_)
-    return L{ MinTacticalPointsCondition.new(1000) }
+    return L{ MinTacticalPointsCondition.new(1000) }:map(function(condition)
+        condition:set_editable(false)
+        return condition
+    end)
 end
 
 function CombatSkillSettings:set_default_ability(ability_name)

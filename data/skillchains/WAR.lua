@@ -3,14 +3,12 @@ return {
     Version = 1,
     Default = {
         Skillchain = L{
-            SkillchainAbility.auto(),
-            SkillchainAbility.auto(),
-            SkillchainAbility.auto(),
-            SkillchainAbility.auto(),
-            SkillchainAbility.auto(),
-            SkillchainAbility.auto(),
-        },
-        Blacklist = L{
+            Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
+            Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
+            Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
+            Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
+            Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
+            Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
         },
         Skills = L{
             CombatSkillSettings.new('Great Axe', L{}),
@@ -25,9 +23,6 @@ return {
             CombatSkillSettings.new('Hand-to-Hand', L{}),
             CombatSkillSettings.new('Archery', L{}),
             CombatSkillSettings.new('Marksmanship', L{}),
-        },
-        JobAbilities = L{
-
         },
     }
 }

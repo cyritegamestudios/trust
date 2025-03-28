@@ -49,14 +49,14 @@ function ElementalMagicSkillSettings:get_abilities(include_blacklist)
                 return false
             end):map(
             function(spell_id)
-                return SkillchainAbility.new('spells', spell_id, L{ JobAbilityRecastReadyCondition.new('Immanence') })
+                return self:get_ability(res.spells[spell_id].en)
             end)
     return spells
 end
 
 function ElementalMagicSkillSettings:get_default_ability()
     if self.defaultSpellId then
-        local ability = SkillchainAbility.new('spells', self.defaultSpellId, L{ JobAbilityRecastReadyCondition.new('Immanence') })
+        local ability = SkillchainAbility.new('spells', self.defaultSpellId, self:get_default_conditions(self.defaultSpellName))
         if ability then
             return ability
         end
@@ -64,8 +64,11 @@ function ElementalMagicSkillSettings:get_default_ability()
     return nil
 end
 
-function ElementalMagicSkillSettings:get_default_conditions(_)
-    return L{ JobAbilityRecastReadyCondition.new('Immanence') }
+function ElementalMagicSkillSettings:get_default_conditions(spell_name)
+    return L{ JobAbilityRecastReadyCondition.new('Immanence'), SpellRecastReadyCondition.new(res.spells:with('en', spell_name).id) }:map(function(condition)
+        condition:set_editable(false)
+        return condition
+    end)
 end
 
 function ElementalMagicSkillSettings:set_default_ability(ability_name)

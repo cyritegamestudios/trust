@@ -271,6 +271,8 @@ function Puller:pull_target(target)
     local get_target_by_type = function(target_type)
         if target_type == GambitTarget.TargetType.Enemy then
             return target
+        elseif target_type == GambitTarget.TargetType.Self then
+            return self:get_player()
         end
         return nil
     end
@@ -353,7 +355,9 @@ end
 function Puller:get_pull_abilities()
     if state.ApproachPullMode.value ~= 'Off' then
         local approach = Gambit.new(GambitTarget.TargetType.Enemy, L{}, Approach.new(L{MaxDistanceCondition.new(35)}), GambitTarget.TargetType.Enemy, L{"Pulling"})
-        approach.conditions = self:get_default_conditions(approach)
+        approach.conditions = self:get_default_conditions(approach):map(function(condition)
+            return GambitCondition.new(condition, GambitTarget.TargetType.Enemy)
+        end)
         return L{ approach }
     end
     return self.pull_abilities

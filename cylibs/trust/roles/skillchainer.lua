@@ -1,4 +1,5 @@
-local Skillchainer = setmetatable({}, {__index = Role })
+local Gambiter = require('cylibs/trust/roles/gambiter')
+local Skillchainer = setmetatable({}, {__index = Gambiter })
 Skillchainer.__index = Skillchainer
 Skillchainer.__class = "Skillchainer"
 
@@ -57,14 +58,13 @@ function Skillchainer:on_abilities_changed()
 end
 
 function Skillchainer.new(action_queue, weapon_skill_settings)
-    local self = setmetatable(Role.new(action_queue), Skillchainer)
+    local self = setmetatable(Gambiter.new(action_queue, { Gambits = L{} }, state.AutoSkillchainMode), Skillchainer)
 
-    self.ability_for_step = L{}
+    self.gambit_for_step = L{}
     self.weapon_skill_settings = weapon_skill_settings
     self.num_skillchain_steps = 3
     self.action_identifier = self.__class..'_perform_skillchain'
     self.active_skills = L{}
-    self.job_abilities = L{}
     self.skillchain_builder = SkillchainBuilder.new()
     self.last_check_skillchain_time = os.time() - 1
 
@@ -228,10 +228,10 @@ function Skillchainer:validate_step(current_step)
     if current_step == nil then
         return true
     end
-    local ability = self.ability_for_step[current_step:get_step()]
-    if ability and not L{ SkillchainAbility.Auto, SkillchainAbility.Skip }:contains(ability:get_name()) then
+    local gambit = self.gambit_for_step[current_step:get_step()]
+    if gambit and not L{ SkillchainAbility.Auto, SkillchainAbility.Skip }:contains(gambit:getAbility():get_name()) then
         local previous_ability = current_step:get_ability()
-        if previous_ability and previous_ability:get_skillchain_properties():length() > 0 and previous_ability:get_name() ~= ability:get_name() then
+        if previous_ability and previous_ability:get_skillchain_properties():length() > 0 and previous_ability:get_name() ~= gambit:getAbility():get_name() then
             self:get_party():add_to_chat(self:get_party():get_player(), "I wasn't expecting "..localization_util.translate(previous_ability:get_name())..". I'm going to start the skillchain over.", self.__class..'_previous_ability', 8)
             return false
         end
@@ -247,13 +247,13 @@ function Skillchainer:get_next_ability(current_step)
     if current_step then
         step_num = current_step:get_step() + 1
     end
-    local ability = self.ability_for_step[step_num]
-    if ability and ability:get_name() ~= SkillchainAbility.Auto then
-        if ability:get_name() == SkillchainAbility.Skip then
+    local gambit = self.gambit_for_step[step_num]
+    if gambit and gambit:getAbility():get_name() ~= SkillchainAbility.Auto then
+        if gambit:getAbility():get_name() == SkillchainAbility.Skip then
             return nil
         end
-        if Condition.check_conditions(ability:get_conditions(), self:get_party():get_player():get_mob().index) then
-            return ability
+        if self:is_gambit_satisfied(gambit) then
+            return gambit:getAbility()
         end
     else
         if current_step == nil then
@@ -275,8 +275,8 @@ function Skillchainer:get_next_ability(current_step)
 end
 
 function Skillchainer:get_starter_ability(num_steps)
-    if self.skillchain_builder:has_ability(self.ability_for_step[1]:get_name()) then
-        return self.ability_for_step[1]
+    if self.skillchain_builder:has_ability(self.gambit_for_step[1]:getAbility():get_name()) then
+        return self.gambit_for_step[1]
     end
     local default_skillchains = self:get_default_skillchains()
     for skillchain in default_skillchains:it() do
@@ -315,7 +315,7 @@ function Skillchainer:perform_ability(ability)
         return false
     end
 
-    local ability_action = ability:to_action(target:get_mob().index, self:get_player(), self.job_abilities)
+    local ability_action = ability:to_action(target:get_mob().index, self:get_player())
     if ability_action then
         ability_action.identifier = self.action_identifier
         ability_action.max_duration = 10
@@ -378,26 +378,20 @@ function Skillchainer:get_active_skills()
     return self.active_skills
 end
 
-function Skillchainer:set_job_abilities(job_abilities)
-    self.job_abilities = (job_abilities or L{}):filter(function(job_ability) return job_util.knows_job_ability(job_ability:get_job_ability_id()) end)
-end
-
 function Skillchainer:set_current_settings(current_settings)
     self.current_settings = current_settings
 
-    self.ability_for_step = current_settings.Skillchain
-    for ability in self.ability_for_step:it() do
-        ability.conditions = (ability.conditions or L{}):filter(function(condition)
+    self.gambit_for_step = current_settings.Skillchain
+    for gambit in self.gambit_for_step:it() do
+        gambit.conditions = (gambit.conditions or L{}):filter(function(condition)
             return condition:is_editable()
         end)
-        local conditions = self:get_default_conditions(Gambit.new(GambitTarget.TargetType.Enemy, L{}, ability, GambitTarget.TargetType.Self))
+        local conditions = self:get_default_conditions(gambit)
         for condition in conditions:it() do
             condition:set_editable(false)
-            ability:add_condition(condition)
+            gambit:addCondition(condition)
         end
     end
-
-    self:set_job_abilities(current_settings.JobAbilities)
 
     self:update_abilities()
 end
@@ -406,7 +400,7 @@ function Skillchainer:get_default_conditions(gambit)
     local conditions = L{}
     for skill in self.current_settings.Skills:it() do
         if skill:get_ability(gambit:getAbility():get_name()) then
-            conditions = conditions + skill:get_default_conditions()
+            conditions = conditions + skill:get_default_conditions(gambit:getAbility():get_name())
         end
     end
     return conditions

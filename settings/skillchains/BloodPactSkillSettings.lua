@@ -1,3 +1,4 @@
+local skills = require('cylibs/res/skills')
 local serializer_util = require('cylibs/util/serializer_util')
 local SkillchainAbility = require('cylibs/battle/skillchains/abilities/skillchain_ability')
 
@@ -33,31 +34,30 @@ end
 function BloodPactSkillSettings:get_abilities()
     local blood_pacts = self.all_blood_pacts:filter(
             function(blood_pact)
-                return not self.blacklist:contains(blood_pact.en) and job_util.knows_job_ability(blood_pact.id)
+                return not self.blacklist:contains(blood_pact.en) and job_util.knows_job_ability(blood_pact.id) and skills.job_abilities[blood_pact.id] ~= nil
             end):map(
             function(blood_pact)
-                return SkillchainAbility.new('job_abilities', blood_pact.id, L{ JobAbilityRecastReadyCondition.new(blood_pact.en) })
+                return self:get_ability(blood_pact.en)
             end):reverse()
-
     return blood_pacts
 end
 
 function BloodPactSkillSettings:get_ability(ability_name)
-    return BloodPactRage.new(ability_name)
+    return BloodPactRage.new(ability_name, self:get_default_conditions(ability_name))
 end
 
 function BloodPactSkillSettings:get_default_ability()
-    if self.defaultWeaponSkillId then
-        local ability = SkillchainAbility.new('job_abilities', self.defaultWeaponSkillId, L{ JobAbilityRecastReadyCondition.new(self.defaultWeaponSkillName) })
-        if ability then
-            return ability
-        end
+    if self.defaultWeaponSkillName then
+        return self:get_ability(self.defaultWeaponSkillName)
     end
     return nil
 end
 
-function BloodPactSkillSettings:get_default_conditions(ability)
-    return L{ JobAbilityRecastReadyCondition.new(ability:get_name()) }
+function BloodPactSkillSettings:get_default_conditions(ability_name)
+    return L{ JobAbilityRecastReadyCondition.new(ability_name) }:map(function(condition)
+        condition:set_editable(false)
+        return condition
+    end)
 end
 
 function BloodPactSkillSettings:set_default_ability(ability_name)

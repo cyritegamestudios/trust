@@ -69,11 +69,19 @@ function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
 
         self.disposeBag:add(songConfigEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
             self.selectedSongIndex = indexPath.section
-
-            local song = songs[self.selectedSongIndex]
+            local song
+            if self.selectedSongIndex > 1 then
+                song = songs[self.selectedSongIndex - 1]
+            else
+                song = dummySongs[1]
+            end
             if song then
                 if song:get_job_names():length() > 0 then
-                    infoView:setDescription("Use when: Ally job is "..localization_util.commas(song:get_job_names(), "or"))
+                    if song:get_job_names():equals(job_util.all_jobs()) then
+                        infoView:setDescription("Use when: Ally job is any job")
+                    else
+                        infoView:setDescription("Use when: Ally job is "..localization_util.commas(song:get_job_names():sort(), "or"))
+                    end
                 else
                     infoView:setDescription("Use when: Never (no jobs selected)")
                 end

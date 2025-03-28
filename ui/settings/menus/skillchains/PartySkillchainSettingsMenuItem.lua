@@ -1,5 +1,6 @@
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
+local GambitTarget = require('cylibs/gambits/gambit_target')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 
@@ -82,12 +83,12 @@ function PartySkillchainSettingsMenuItem:reloadSettings()
                 local partyMemberName = self.skillchainSettings['Step '..i..': '..self.skillchainSettings.Skillchain[i]:get_name()]
                 if partyMemberName == windower.ffxi.get_player().name then
                     local ability = abilityForCombatSkillSettings(self.skillchainSettings.Skillchain[i]:get_name()) or SkillchainAbility.auto()
-                    currentSettings.Skillchain[i] = ability
+                    currentSettings.Skillchain[i] = Gambit.new(GambitTarget.TargetType.Enemy, L{}, ability, Condition.TargetType.Self, L{"Skillchain"})
                     for partyMember in partyMembers:it() do
                         windower.send_command('trust send '..partyMember:get_name()..' trust sc set '..i..' '..'Skip')
                     end
                 else
-                    currentSettings.Skillchain[i] = SkillchainAbility.skip()
+                    currentSettings.Skillchain[i] = Gambit.new(GambitTarget.TargetType.Enemy, L{}, SkillchainAbility.skip(), Condition.TargetType.Self, L{"Skillchain"})
                     windower.send_command('trust send '..partyMemberName..' trust sc set '..i..' '..self.skillchainSettings.Skillchain[i]:get_name())
                     for partyMember in partyMembers:it() do
                         if partyMember:get_name() ~= partyMemberName then
@@ -96,7 +97,7 @@ function PartySkillchainSettingsMenuItem:reloadSettings()
                     end
                 end
             else
-                currentSettings.Skillchain[i] = SkillchainAbility.skip()
+                currentSettings.Skillchain[i] = Gambit.new(GambitTarget.TargetType.Enemy, L{}, SkillchainAbility.skip(), Condition.TargetType.Self, L{"Skillchain"})
                 for partyMember in partyMembers:it() do
                     windower.send_command('trust send '..partyMember:get_name()..' trust sc set '..i..' '..'Skip')
                 end

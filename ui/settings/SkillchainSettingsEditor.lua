@@ -17,7 +17,7 @@ local SkillchainSettingsEditor = setmetatable({}, {__index = FFXIWindow })
 SkillchainSettingsEditor.__index = SkillchainSettingsEditor
 
 
-function SkillchainSettingsEditor.new(weaponSkillSettings, abilities)
+function SkillchainSettingsEditor.new(weaponSkillSettings, ability_gambits)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         local cell = TextCollectionViewCell.new(item)
         cell:setClipsToBounds(true)
@@ -32,7 +32,7 @@ function SkillchainSettingsEditor.new(weaponSkillSettings, abilities)
     self:setScrollDelta(16)
 
     self.weaponSkillSettings = weaponSkillSettings
-    self.abilities = abilities
+    self.ability_gambits = ability_gambits
     self.menuArgs = {}
 
     self:reloadSettings()
@@ -41,7 +41,7 @@ function SkillchainSettingsEditor.new(weaponSkillSettings, abilities)
     self:layoutIfNeeded()
 
     self:getDisposeBag():add(state.WeaponSkillSettingsMode:on_state_change():addAction(function(_, new_value)
-        self.abilities = self.weaponSkillSettings:getSettings()[new_value].Skillchain
+        self.ability_gambits = self.weaponSkillSettings:getSettings()[new_value].Skillchain
         self:reloadSettings()
     end), state.WeaponSkillSettingsMode:on_state_change())
 
@@ -70,19 +70,21 @@ end
 function SkillchainSettingsEditor:reloadSettings()
     self:getDataSource():removeAllItems()
 
-    local skillchain_builder = SkillchainBuilder.new(self.abilities:filter(function(ability) return not L{ SkillchainAbility.Auto, SkillchainAbility.Skip }:contains(ability:get_name()) end))
+    local skillchain_builder = SkillchainBuilder.new(self.ability_gambits:filter(function(gambit)
+        return not L{ SkillchainAbility.Auto, SkillchainAbility.Skip }:contains(gambit:getAbility():get_name())
+    end):map(function(gambit) return gambit:getAbility() end))
 
     local items = L{}
 
     for stepNum = 1, 6 do
-        local ability = self.abilities[stepNum]
+        local ability = self.ability_gambits[stepNum]:getAbility()
         if not ability then
             ability = SkillchainAbility.auto()
         end
         local indexPath = IndexPath.new(stepNum, 1)
         local headerText = 'Step '..stepNum
         if stepNum > 1 then
-            local skillchain = skillchain_builder:reduce_skillchain(self.abilities:slice(1, stepNum))
+            local skillchain = skillchain_builder:reduce_skillchain(self.ability_gambits:slice(1, stepNum):map(function(gambit) return gambit:getAbility() end))
             if skillchain then
                 headerText = headerText..' ('..skillchain:get_name()..')'
             end
@@ -120,7 +122,7 @@ function SkillchainSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPat
             local item = self:getDataSource():itemAtIndexPath(cursorIndexPath)
             if item then
                 local indexPath = cursorIndexPath
-                self.abilities[indexPath.section] = SkillchainAbility.auto()
+                self.ability_gambits[indexPath.section] = Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"})
                 self.weaponSkillSettings:saveSettings(true)
                 addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll figure out what to use on my own for Step "..indexPath.section.."!")
 
@@ -133,7 +135,7 @@ function SkillchainSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPat
             local item = self:getDataSource():itemAtIndexPath(cursorIndexPath)
             if item then
                 local indexPath = cursorIndexPath
-                self.abilities[indexPath.section] = SkillchainAbility.skip()
+                self.ability_gambits[indexPath.section] = Gambit.new("Enemy", L{}, SkillchainAbility.skip(), "Self", L{"Skillchain"})
                 self.weaponSkillSettings:saveSettings(true)
                 addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll let a party member take care of Step "..indexPath.section.."!")
 
@@ -141,9 +143,9 @@ function SkillchainSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPat
             end
         end
     elseif textItem:getText() == 'Clear All' then
-        self.abilities:clear()
+        self.ability_gambits:clear()
         for _ = 1, 6 do
-            self.abilities:append(SkillchainAbility.auto())
+            self.ability_gambits:append(Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}))
         end
         self.weaponSkillSettings:saveSettings(true)
         addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, back to the drawing board!")

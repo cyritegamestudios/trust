@@ -25,7 +25,7 @@ function PetHitPointsPercentCondition:is_satisfied(target_index)
         local pet_index = target.pet_index
         if pet_index and pet_index ~= 0 then
             local pet = windower.ffxi.get_mob_by_index(pet_index)
-            return Condition:eval(pet.hpp, self.hpp, self.operator)
+            return pet and Condition:eval(pet.hpp, self.hpp, self.operator)
         end
     end
     return false

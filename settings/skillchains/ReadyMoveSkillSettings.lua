@@ -37,18 +37,18 @@ function ReadyMoveSkillSettings:get_abilities()
                 return not self.blacklist:contains(ready_move.en) and job_util.knows_job_ability(ready_move.id)
             end):map(
             function(ready_move)
-                return SkillchainAbility.new('job_abilities', ready_move.id, L{ ReadyChargesCondition.new(self:get_charges(ready_move.en), Condition.Operator.GreaterThanOrEqualTo) })
+                return self:get_ability(ready_move.en)
             end):compact_map():reverse()
     return ready_moves
 end
 
 function ReadyMoveSkillSettings:get_ability(ability_name)
-    return ReadyMove.new(ability_name)
+    return ReadyMove.new(ability_name, self:get_default_conditions(ability_name))
 end
 
 function ReadyMoveSkillSettings:get_default_ability()
-    if self.defaultWeaponSkillId then
-        local ability = SkillchainAbility.new('job_abilities', self.defaultWeaponSkillId, L{ ReadyChargesCondition.new(self:get_charges(self.defaultWeaponSkillName), Condition.Operator.GreaterThanOrEqualTo) })
+    if self.defaultWeaponSkillId and self.defaultWeaponSkillName then
+        local ability = SkillchainAbility.new('job_abilities', self.defaultWeaponSkillId, self:get_default_conditions(self.defaultWeaponSkillName))
         if ability then
             return ability
         end
@@ -56,8 +56,11 @@ function ReadyMoveSkillSettings:get_default_ability()
     return nil
 end
 
-function ReadyMoveSkillSettings:get_default_conditions(ability)
-    return L{ ReadyChargesCondition.new(self:get_charges(ability:get_name()), Condition.Operator.GreaterThanOrEqualTo) }
+function ReadyMoveSkillSettings:get_default_conditions(ability_name)
+    return L{ ReadyChargesCondition.new(self:get_charges(ability_name), Condition.Operator.GreaterThanOrEqualTo) }:map(function(condition)
+        condition:set_editable(false)
+        return condition
+    end)
 end
 
 function ReadyMoveSkillSettings:get_charges(readyMoveName)
