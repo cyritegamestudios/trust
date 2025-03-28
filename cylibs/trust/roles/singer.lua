@@ -191,7 +191,7 @@ function Singer:check_songs()
     end
 
     if not self:validate_party() then
-        self:get_party():add_to_chat(self:get_party():get_player(), "I only sing alone! There can't be any other bards in my party.", self.__class..'_validate_party', 10)
+        self:get_party():add_to_chat(self:get_party():get_player(), "I only sing alone! There can't be any other bards in my party.", self.__class..'_validate_party', 30)
         return
     end
 
