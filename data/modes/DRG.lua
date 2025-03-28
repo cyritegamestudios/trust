@@ -6,6 +6,7 @@ return {
         ["subtrustsettingsmode"]="Default",
         ["autofollowmode"]="Always",
         ["autobuffmode"]="Auto",
+        ["autopetmode"]="Auto",
         ["automagicburstmode"]="Off",
         ["autoaftermathmode"]="Off",
         ["autoskillchainmode"]="Auto",

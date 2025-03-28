@@ -117,7 +117,7 @@ function CombatMode:check_distance()
                         RunToAction.new(target.index, self.melee_distance + self_mob.model_size + target.model_size - 0.2),
                         true)
                 else
-                    self.action_queue:push_action(BlockAction.new(function() player_util.face(target) end))
+                    self:face_target(target)
                 end
             end
         elseif L{'Mirror'}:contains(state.CombatMode.value) then
