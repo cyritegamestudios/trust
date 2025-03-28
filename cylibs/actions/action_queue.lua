@@ -104,7 +104,6 @@ function ActionQueue:get_forced_delay(action)
 			return forced_delay
 		elseif action_type == RangedAttackAction.__type then
 			--if self.last_action_type ~= RangedAttackAction.__type then
-
 			--	return forced_delay
 			--end
 		end

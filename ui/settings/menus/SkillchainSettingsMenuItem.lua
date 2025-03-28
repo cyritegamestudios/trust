@@ -65,7 +65,6 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
                         description = description..", Use with: "..localization_util.commas(self.selectedAbility:getAbility():get_job_abilities(), 'and')
                     end
                     infoView:setDescription(description)
-
                 end
             end
         end, createSkillchainView:getDelegate():didSelectItemAtIndexPath()))
@@ -92,9 +91,6 @@ function SkillchainSettingsMenuItem:getNextSteps(stepNum)
     local abilities = abilityGambits:map(function(gambit) return gambit:getAbility() end)
     local previousAbilities = abilities:slice(1, math.max(stepNum - 1, 1)):map(
         function(ability)
-            --if ability.__class ~= SkillchainAbility.__class then
-            --    return SkillchainAbility.new(ability.resource, ability:get_ability_id())
-            --end
             return ability
         end)
 
@@ -112,95 +108,10 @@ function SkillchainSettingsMenuItem:getNextSteps(stepNum)
         nextSteps = L{}:extend(L(self.skillchainBuilder.abilities)):map(function(ability) return SkillchainStep.new(stepNum, ability) end)
     end
 
-    --[[local currentStep = nextSteps:firstWhere(function(step)
-        return step:get_ability():get_name() == self.selectedAbility:get_name()
-    end) or nextSteps[1]
-
-    local abilityConfigItem = PickerConfigItem.new('step', currentStep, nextSteps, function(step)
-        local suffix = ''
-        if step:get_skillchain() then
-            suffix = ' ('..step:get_skillchain()..')'
-        end
-        return step:get_ability():get_localized_name()..suffix
-    end, 'Ability')
-    return abilityConfigItem]]
-    --local temp = nextSteps:map(function(step) return step:get_ability()  end)
-
-    --return temp
     return nextSteps
 end
 
 function SkillchainSettingsMenuItem:getEditSkillchainStepMenuItem() -- FIXME: use GambitSettingsMenuItem:getEditGambitMenuItem() instead
-    --[[local editSkillchainStepMenuItem = MenuItem.new(L{
-        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
-        ButtonItem.default('Conditions', 18),
-    }, {
-        Conditions = self.conditionSettingsMenuItem,
-    },
-        function(args, infoView, showMenu)
-            local currentSettings = T(self.weaponSkillSettings:getSettings())[self.weaponSkillSettingsMode.value]
-
-            local abilities = currentSettings.Skillchain
-            local stepNum = self.selectedIndex
-
-            local currentAbilities = abilities:slice(1, math.max(stepNum - 1, 1)):map(
-                function(ability)
-                    if ability.__class ~= SkillchainAbility.__class then
-                        return SkillchainAbility.new(ability.resource, ability:get_ability_id())
-                    end
-                    return ability
-                end)
-
-            local currentSkillchain = self.skillchainBuilder:reduce_skillchain(currentAbilities)
-
-            self.skillchainBuilder:set_current_step(SkillchainStep.new(stepNum - 1, abilities[stepNum - 1], currentSkillchain))
-
-            local nextSteps = L{}
-            if currentSkillchain or stepNum == 2 then
-                nextSteps = self.skillchainBuilder:get_next_steps():filter(function(step)
-                    return step:get_skillchain() ~= nil
-                end)
-            end
-            if nextSteps:empty() then
-                nextSteps = L{}:extend(L(self.skillchainBuilder.abilities)):map(function(ability) return SkillchainStep.new(stepNum, ability) end)
-            end
-
-            local currentStep = nextSteps:firstWhere(function(step)
-                return step:get_ability():get_name() == self.selectedAbility:get_name()
-            end) or nextSteps[1]
-
-            local currentConditions = abilities[stepNum].conditions or L{}
-            if currentConditions:empty() then
-                currentConditions = self:getAbility(currentStep:get_ability():get_name()):get_conditions()
-            end
-
-            local stepSettings = {
-                step = currentStep,
-                conditions = currentConditions
-            }
-
-            local editSkillchainStepEditor = SkillchainStepSettingsEditor.new(stepSettings, nextSteps, self.weaponSkillSettings, self.weaponSkillSettingsMode)
-
-            self.disposeBag:add(editSkillchainStepEditor:onConfigChanged():addAction(function(newSettings, _)
-                local ability = self:getAbility(newSettings.step:get_ability():get_name())
-                if ability then
-                    self.selectedAbility = ability
-                    ability.conditions = newSettings.conditions
-
-                    currentSettings.Skillchain[newSettings.step:get_step()] = ability
-                    self.weaponSkillSettings:saveSettings(true)
-
-                    self.conditionSettingsMenuItem:setConditions(ability.conditions)
-
-                    addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my weapon skills!")
-                end
-            end), editSkillchainStepEditor:onConfigChanged())
-
-            return editSkillchainStepEditor
-        end, "Skillchains", "Edit which weapon skill to use for the selected step.")
-
-    return editSkillchainStepMenuItem]]
-
     local editGambitMenuItem = MenuItem.new(L{
         ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
         ButtonItem.default('Edit', 18),
@@ -235,8 +146,6 @@ function SkillchainSettingsMenuItem:getEditSkillchainStepMenuItem() -- FIXME: us
             end
 
             self.conditionSettingsMenuItem:setConditions(newGambit.conditions)
-            --self.conditionSettingsMenuItem:setConditions(newGambit:getConditions():map(function(condition) return condition:getCondition() end)) -- FIXME
-            --self.conditionSettingsMenuItem:setTargetTypes(S{ newGambit:getConditionsTarget() })
         end), gambitEditor:onGambitChanged())
 
 

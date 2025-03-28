@@ -50,7 +50,6 @@ function ElementalMagicSkillSettings:get_abilities(include_blacklist)
             end):map(
             function(spell_id)
                 return self:get_ability(res.spells[spell_id].en)
-                --return SkillchainAbility.new('spells', spell_id, L{ JobAbilityRecastReadyCondition.new('Immanence') })
             end)
     return spells
 end

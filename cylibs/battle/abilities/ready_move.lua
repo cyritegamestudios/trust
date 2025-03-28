@@ -24,6 +24,7 @@ function ReadyMove.new(ready_move_name, conditions)
     end
     local ready_move_ready = ReadyChargesCondition.new(ReadyMove.get_charges(ready_move.en), Condition.Operator.GreaterThanOrEqualTo)
     if not conditions:contains(ready_move_ready) then
+        ready_move_ready:set_editable(false)
         conditions:append(ready_move_ready)
     end
     local self = setmetatable(SkillchainAbility.new('job_abilities', ready_move.id, conditions), ReadyMove)
