@@ -78,6 +78,20 @@ function Singer:validate_songs(dummy_songs, songs)
     return true
 end
 
+function Singer:validate_party()
+    for party_member in self:get_party():get_party_members():it() do
+        if party_member:is_trust() then
+            if L{ 'Joachim', 'Ulmia' }:contains(party_member:get_name()) then
+                return false
+            end
+        else
+            if party_member:get_main_job_short() == 'BRD' or party_member:get_sub_job_short() == 'BRD' then
+                return false
+            end
+        end
+    end
+    return true
+end
 
 function Singer:destroy()
     Role.destroy(self)
@@ -173,6 +187,11 @@ function Singer:check_songs()
     self.action_queue:cleanup()
 
     if self:get_player():is_moving() or self.action_queue:has_action(self.song_action_identifier) then
+        return
+    end
+
+    if not self:validate_party() then
+        self:get_party():add_to_chat(self:get_party():get_player(), "I only sing alone! There can't be any other bards in my party.", self.__class..'_validate_party', 10)
         return
     end
 
