@@ -156,10 +156,10 @@ function ScholarTrustCommands:handle_set_skillchain(_, element)
         local current_settings = self.weapon_skill_settings:getSettings()[state.WeaponSkillSettingsMode.value]
         if current_settings then
             for i = 1, current_settings.Skillchain:length() do
-                current_settings.Skillchain[i] = SkillchainAbility.skip()
+                current_settings.Skillchain[i] = Gambit.new(GambitTarget.TargetType.Enemy, L{}, SkillchainAbility.skip(), Condition.TargetType.Self)
             end
-            current_settings.Skillchain[1] = ElementalMagic.new(spell1, L{ StrategemCountCondition.new(2, Condition.Operator.GreaterThanOrEqualTo) })
-            current_settings.Skillchain[2] = ElementalMagic.new(spell2, L{})
+            current_settings.Skillchain[1] = Gambit.new(GambitTarget.TargetType.Enemy, L{ StrategemCountCondition.new(2, Condition.Operator.GreaterThanOrEqualTo) }, ElementalMagic.new(spell1), Condition.TargetType.Self)
+            current_settings.Skillchain[2] = Gambit.new(GambitTarget.TargetType.Enemy, L{ StrategemCountCondition.new(1, Condition.Operator.GreaterThanOrEqualTo) }, ElementalMagic.new(spell2), Condition.TargetType.Self)
 
             success = true
             message = "Setting skillchain to "..localization_util.translate(spell1).." > "..localization_util.translate(spell2)

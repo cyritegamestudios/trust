@@ -57,7 +57,7 @@ end
 
 function ElementalMagicSkillSettings:get_default_ability()
     if self.defaultSpellId then
-        local ability = SkillchainAbility.new('spells', self.defaultSpellId, self:get_default_conditions(self.defaultSpellId))
+        local ability = SkillchainAbility.new('spells', self.defaultSpellId, self:get_default_conditions(self.defaultSpellName))
         if ability then
             return ability
         end
@@ -65,8 +65,8 @@ function ElementalMagicSkillSettings:get_default_ability()
     return nil
 end
 
-function ElementalMagicSkillSettings:get_default_conditions(spell_id)
-    return L{ JobAbilityRecastReadyCondition.new('Immanence'), SpellRecastReadyCondition.new(spell_id) }:map(function(condition)
+function ElementalMagicSkillSettings:get_default_conditions(spell_name)
+    return L{ JobAbilityRecastReadyCondition.new('Immanence'), SpellRecastReadyCondition.new(res.spells:with('en', spell_name).id) }:map(function(condition)
         condition:set_editable(false)
         return condition
     end)

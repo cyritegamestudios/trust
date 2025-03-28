@@ -135,7 +135,7 @@ function SkillchainSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPat
             local item = self:getDataSource():itemAtIndexPath(cursorIndexPath)
             if item then
                 local indexPath = cursorIndexPath
-                self.ability_gambits[indexPath.section] = Gambit.new("Enemy", L{}, SkillchainAbility.skip(), "Self", L{"skillchain"})
+                self.ability_gambits[indexPath.section] = Gambit.new("Enemy", L{}, SkillchainAbility.skip(), "Self", L{"Skillchain"})
                 self.weaponSkillSettings:saveSettings(true)
                 addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll let a party member take care of Step "..indexPath.section.."!")
 
@@ -145,7 +145,7 @@ function SkillchainSettingsEditor:onSelectMenuItemAtIndexPath(textItem, indexPat
     elseif textItem:getText() == 'Clear All' then
         self.ability_gambits:clear()
         for _ = 1, 6 do
-            self.ability_gambits:append(Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"skillchain"}))
+            self.ability_gambits:append(Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}))
         end
         self.weaponSkillSettings:saveSettings(true)
         addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, back to the drawing board!")
