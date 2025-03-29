@@ -76,11 +76,12 @@ function ModesMenuItem:getInfoMenuItem()
     infoButton:setEnabled(false)
     
     local infoMenuItem = MenuItem.new(L{
-        infoButton
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
     }, {}, function(_, infoView)
         local modeSettings = {}
         local configItems = L{}
-        for modeValue in L(state[self.selectedModeName]:options()):it() do
+        local modeValues = L(state[self.selectedModeName]:options())
+        for modeValue in modeValues:it() do
             local description = state[self.selectedModeName]:get_description(modeValue)
             if not description then
                 description = "No description available."
@@ -96,8 +97,15 @@ function ModesMenuItem:getInfoMenuItem()
         end
         local commandConfigEditor = ConfigEditor.new(nil, modeSettings, configItems)
         commandConfigEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(cursorIndexPath)
+            self.selectedModeValueIndex = cursorIndexPath.section
             local configItem = configItems[cursorIndexPath.section]
             infoView:setDescription(configItem:getInitialValue())
+        end)
+        commandConfigEditor:onConfigConfirm():addAction(function(_, _)
+            if self.selectedModeValueIndex then
+                local modeValue = configItems[self.selectedModeValueIndex]:getKey()
+                handle_set(self.selectedModeName, modeValue)
+            end
         end)
         return commandConfigEditor
     end, "Modes", "View details about the selected mode.", false, function()
