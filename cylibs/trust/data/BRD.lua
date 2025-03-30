@@ -113,7 +113,7 @@ end
 function BardTrust:get_widget()
     local BardWidget = require('ui/widgets/BardWidget')
     local bardWidget = BardWidget.new(
-			Frame.new(40, 294, 125, 57),
+			Frame.new(40, 285, 125, 57),
 			self,
 			windower.trust.ui.get_hud(),
 			windower.trust.settings.get_job_settings('BRD'),

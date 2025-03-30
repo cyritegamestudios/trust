@@ -34,7 +34,7 @@ return {
         },
         GambitSettings = {
             Default = L{
-                Gambit.new("Self", L{GambitCondition.new(MaxTacticalPointsCondition.new(1000), "Self"), GambitCondition.new(NotCondition.new(L{ModeCondition.new("AutoBuffMode", "Off")}), "Self")}, JobAbility.new("Meditate", L{}, L{}), "Self")
+                Gambit.new("Self", L{GambitCondition.new(MaxTacticalPointsCondition.new(1000), "Self"), GambitCondition.new(ModeCondition.new("AutoBuffMode", "Auto"), "Self")}, JobAbility.new("Meditate", L{}, L{}), "Self")
             },
             Gambits = L{
                 Gambit.new("Self", L{GambitCondition.new(ModeCondition.new("AutoFoodMode", "Auto"), "Self"), GambitCondition.new(NotCondition.new(L{HasBuffCondition.new("Food")}), "Self"), GambitCondition.new(MainJobCondition.new("SAM"), "Self")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"food"}),

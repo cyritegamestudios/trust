@@ -110,4 +110,17 @@ function Summoner:get_avatar_name(blood_pact_name)
     return nil
 end
 
+-------
+-- Returns a list of conditions for an ability.
+-- @tparam Spell|JobAbility ability The ability
+-- @treturn list List of conditions
+function Summoner:get_conditions_for_ability(ability)
+    local conditions = Job.get_conditions_for_ability(self, ability)
+    if res.spells[ability:get_ability_id()] and res.spells[ability:get_ability_id()].type == 'SummonerPact'
+            or res.job_abilities[ability:get_ability_id()] and res.job_abilities[ability:get_ability_id()].type == 'BloodPactWard' then
+        conditions:append(NotCondition.new(L{InTownCondition.new()}))
+    end
+    return conditions
+end
+
 return Summoner

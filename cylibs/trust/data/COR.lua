@@ -76,7 +76,7 @@ end
 function CorsairTrust:get_widget()
 	local CorsairWidget = require('ui/widgets/CorsairWidget')
 	local corsairWidget = CorsairWidget.new(
-			Frame.new(40, 294, 125, 57),
+			Frame.new(40, 285, 125, 57),
 			self,
 			windower.trust.ui.get_hud(),
 			windower.trust.settings.get_job_settings('COR'),

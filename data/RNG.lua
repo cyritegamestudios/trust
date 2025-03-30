@@ -9,7 +9,7 @@ return {
         BuffSettings = {
             Gambits = L{
                 Gambit.new("Self", L{GambitCondition.new(ModeCondition.new("AutoShootMode", "Auto"), "Self"), GambitCondition.new(StatusCondition.new("Engaged", 6, ">="), "Self")}, JobAbility.new("Velocity Shot", L{}, L{}), "Self", L{"Buffs"}),
-                Gambit.new("Self", L{GambitCondition.new(ModeCondition.new("AutoShootMode", "Auto"), "Self"), GambitConditionn.new(StatusCondition.new("Engaged", 6, ">="), "Self")}, JobAbility.new("Double Shot", L{}, L{}), "Self", L{"Buffs"})
+                Gambit.new("Self", L{GambitCondition.new(ModeCondition.new("AutoShootMode", "Auto"), "Self"), GambitCondition.new(StatusCondition.new("Engaged", 6, ">="), "Self")}, JobAbility.new("Double Shot", L{}, L{}), "Self", L{"Buffs"})
             }
         },
         DebuffSettings = {
@@ -37,6 +37,9 @@ return {
             Retry = false
         },
         GambitSettings = {
+            Default = L{
+
+            },
             Gambits = L{
                 Gambit.new("Self", L{GambitCondition.new(ModeCondition.new("AutoFoodMode", "Auto"), "Self"), GambitCondition.new(NotCondition.new(L{HasBuffCondition.new("Food")}), "Self"), GambitCondition.new(MainJobCondition.new("RNG"), "Self")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"food"}),
             }
