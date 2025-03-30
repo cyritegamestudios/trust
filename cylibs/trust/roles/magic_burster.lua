@@ -10,20 +10,20 @@ MagicBurster.__index = MagicBurster
 MagicBurster.__class = "MagicBurster"
 
 state.AutoMagicBurstMode = M{['description'] = 'Magic Burst', 'Off', 'Auto', 'Earth', 'Lightning', 'Water', 'Fire', 'Ice', 'Wind', 'Light', 'Dark', 'Mirror'}
-state.AutoMagicBurstMode:set_description('Auto', "Okay, I'll magic burst with any element.")
-state.AutoMagicBurstMode:set_description('Earth', "Okay, I'll only magic burst with earth spells.")
-state.AutoMagicBurstMode:set_description('Lightning', "Okay, I'll only magic burst with lightning spells.")
-state.AutoMagicBurstMode:set_description('Water', "Okay, I'll only magic burst with water spells.")
-state.AutoMagicBurstMode:set_description('Fire', "Okay, I'll only magic burst with fire spells.")
-state.AutoMagicBurstMode:set_description('Ice', "Okay, I'll only magic burst with ice spells.")
-state.AutoMagicBurstMode:set_description('Wind', "Okay, I'll only magic burst with wind spells.")
-state.AutoMagicBurstMode:set_description('Light', "Okay, I'll only magic burst with light spells.")
-state.AutoMagicBurstMode:set_description('Dark', "Okay, I'll only magic burst with dark spells.")
-state.AutoMagicBurstMode:set_description('Mirror', "Okay, I'll magic burst when the person I'm assisting magic bursts.")
+state.AutoMagicBurstMode:set_description('Auto', "Magic burst with any element.")
+state.AutoMagicBurstMode:set_description('Earth', "Magic burst only with earth spells.")
+state.AutoMagicBurstMode:set_description('Lightning', "Magic burst only with lightning spells.")
+state.AutoMagicBurstMode:set_description('Water', "Magic burst only with water spells.")
+state.AutoMagicBurstMode:set_description('Fire', "Magic burst only with fire spells.")
+state.AutoMagicBurstMode:set_description('Ice', "Magic burst only with ice spells.")
+state.AutoMagicBurstMode:set_description('Wind', "Magic burst only with wind spells.")
+state.AutoMagicBurstMode:set_description('Light', "Magic burst only with light spells.")
+state.AutoMagicBurstMode:set_description('Dark', "Magic burst only with dark spells.")
+state.AutoMagicBurstMode:set_description('Mirror', "Magic burst when the party member you're assisting magic bursts.")
 
 state.MagicBurstTargetMode = M{['description'] = 'Magic Burst Target Type', 'Single', 'All'}
-state.MagicBurstTargetMode:set_description('Single', "Okay, I'll only magic burst with single target spells.")
-state.MagicBurstTargetMode:set_description('All', "Okay, I'll magic burst with both single target and AOE spells.")
+state.MagicBurstTargetMode:set_description('Single', "Magic burst only with single target spells.")
+state.MagicBurstTargetMode:set_description('All', "Magic burst with both single target and AOE spells.")
 
 -------
 -- Default initializer for a magic burster role.

@@ -10,7 +10,7 @@ local MobFilter = require('cylibs/battle/monsters/mob_filter')
 local Timer = require('cylibs/util/timers/timer')
 
 state.AutoTargetMode = M{['description'] = 'Auto Target Mode', 'Off', 'Auto'}
-state.AutoTargetMode:set_description('Auto', "Okay, I'll automatically target aggroed monsters after we defeat one.")
+state.AutoTargetMode:set_description('Auto', "Automatically target mobs after the current mob dies.")
 
 function Targeter.new(action_queue)
     local self = setmetatable(Role.new(action_queue), Targeter)

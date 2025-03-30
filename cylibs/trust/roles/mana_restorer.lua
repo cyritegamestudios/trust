@@ -6,7 +6,7 @@ ManaRestorer.__index = ManaRestorer
 ManaRestorer.__class = "ManaRestorer"
 
 state.AutoRestoreManaMode = M{['description'] = 'Auto Restore Mana Mode', 'Auto', 'Off'}
-state.AutoRestoreManaMode:set_description('Auto', "Okay, I'll try to recover MP when I'm low.")
+state.AutoRestoreManaMode:set_description('Auto', "Use weapon skills to recover MP when low.")
 
 function ManaRestorer.new(action_queue, weapon_skill_names, spells, mpp_threshold)
     local self = setmetatable(Role.new(action_queue), ManaRestorer)

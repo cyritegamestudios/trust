@@ -13,18 +13,18 @@ local CombatMode = setmetatable({}, {__index = Role })
 CombatMode.__index = CombatMode
 
 state.AutoFaceMobMode = M{['description'] = 'Auto Face Mob Mode', 'Auto', 'Away', 'Off'}
-state.AutoFaceMobMode:set_description('Auto', "Okay, I'll make sure to look the monster straight in the eyes.")
-state.AutoFaceMobMode:set_description('Away', "Okay, I'll avoid looking at the monster.")
+state.AutoFaceMobMode:set_description('Auto', "Automatically turn to face the mob.")
+state.AutoFaceMobMode:set_description('Away', "Automatically face away from the mob.")
 
 state.CombatMode = M{['description'] = 'Combat Mode', 'Off', 'Melee', 'Ranged', 'Mirror'}
-state.CombatMode:set_description('Melee', "Okay, I'll fight on the front lines.")
-state.CombatMode:set_description('Ranged', "Okay, I'll stand back in battle.")
-state.CombatMode:set_description('Mirror', "Okay, I'll stand where the party member I'm assisting is standing.")
+state.CombatMode:set_description('Melee', "Maintain a 3' distance from the target.")
+state.CombatMode:set_description('Ranged', "Maintain a 21' distance from the target.")
+state.CombatMode:set_description('Mirror', "Mirror the position of the party member you are assisting.")
 
 state.FlankMode = M{['description'] = 'Flanking Mode', 'Off', 'Back', 'Left', 'Right'}
-state.FlankMode:set_description('Back', "Ok, I'll flank from the back in battle.")
-state.FlankMode:set_description('Left', "Ok, I'll flank from the left in battle.")
-state.FlankMode:set_description('Right', "Ok, I'll flank from the right in battle.")
+state.FlankMode:set_description('Back', "Stand behind the mob.")
+state.FlankMode:set_description('Left', "Stand on the left side of the mob.")
+state.FlankMode:set_description('Right', "Stand on the right side of the mob.")
 
 function CombatMode.new(action_queue, melee_distance, range_distance, addon_enabled)
     local self = setmetatable(Role.new(action_queue), CombatMode)

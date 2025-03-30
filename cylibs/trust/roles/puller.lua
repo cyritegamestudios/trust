@@ -13,17 +13,15 @@ Puller.__index = Puller
 Puller.__class = "Puller"
 
 state.AutoPullMode = M{['description'] = 'Pull Monsters to Fight', 'Off', 'Auto','Party','All'}
-state.AutoPullMode:set_description('Off', "Okay, I won't pull monsters for the party.")
-state.AutoPullMode:set_description('Auto', "Okay, I'll automatically pull monsters for the party.")
-state.AutoPullMode:set_description('Party', "Okay, I'll pull monsters the party is fighting.")
-state.AutoPullMode:set_description('All', "Okay, I'll pull any monster that's nearby.")
+state.AutoPullMode:set_description('Auto', "Pull monsters for the party from the target list.")
+state.AutoPullMode:set_description('Party', "Pull any monster aggressive to the party.")
+state.AutoPullMode:set_description('All', "Pull any monster that's nearby.")
 
 state.AutoCampMode = M{['description'] = 'Return to Camp after Battle', 'Off', 'Auto'}
-state.AutoCampMode:set_description('Off', "Okay, I won't return to camp after battle.")
-state.AutoCampMode:set_description('Auto', "Okay, I'll return to camp after battle (set camp with // trust pull camp).")
+state.AutoCampMode:set_description('Auto', "Return to camp after battle (set with // trust pull camp).")
 
 state.ApproachPullMode = M{['description'] = 'Force Pull with Approach', 'Off', 'Auto'}
-state.ApproachPullMode:set_description('Auto', "Okay, I'll pull by engaging and approaching instead.")
+state.ApproachPullMode:set_description('Auto', "Pull by engaging and approaching.")
 
 
 function Puller.new(action_queue, pull_settings)

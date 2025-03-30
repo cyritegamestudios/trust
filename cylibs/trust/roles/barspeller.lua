@@ -4,7 +4,7 @@ local Barspeller = setmetatable({}, {__index = Role })
 Barspeller.__index = Barspeller
 
 state.AutoBarSpellMode = M{['description'] = 'Auto Barspell Mode', 'Manual', 'Off'}
-state.AutoBarSpellMode:set_description('Manual', "Okay, I'll make sure to remember the last barspell you tell me to cast.")
+state.AutoBarSpellMode:set_description('Manual', "Automatically recast the last barspell and barstatus that was used.")
 --state.AutoBarSpellMode:set_description('Auto', "Okay, I'll try to figure out which barspell to cast on my own.")
 
 -------

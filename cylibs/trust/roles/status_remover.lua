@@ -10,10 +10,10 @@ StatusRemover.__index = StatusRemover
 StatusRemover.__class = "StatusRemover"
 
 state.AutoStatusRemovalMode = M{['description'] = 'Remove Status Ailments', 'Auto', 'Off'}
-state.AutoStatusRemovalMode:set_description('Auto', "Okay, I'll remove status effects.")
+state.AutoStatusRemovalMode:set_description('Auto', "Remove status effects from self and party members.")
 
 state.AutoDetectAuraMode = M{['description'] = 'Detect Auras', 'Off', 'Auto'}
-state.AutoDetectAuraMode:set_description('Auto', "Okay, I'll try not to remove status effects caused by auras.")
+state.AutoDetectAuraMode:set_description('Auto', "Avoid removing status effects caused by auras.")
 
 -------
 -- Default initializer for a status remover.

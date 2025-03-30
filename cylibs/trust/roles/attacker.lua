@@ -12,9 +12,9 @@ Attacker.__index = Attacker
 Attacker.__class = "Attacker"
 
 state.AutoEngageMode = M{['description'] = 'Auto Engage Mode', 'Off', 'Always', 'Mirror'}
-state.AutoEngageMode:set_description('Off', "Okay, I won't engage or target mobs our party is fighting.")
-state.AutoEngageMode:set_description('Always', "Okay, I'll automatically engage when our party is fighting.")
-state.AutoEngageMode:set_description('Mirror', "Okay, I'll engage only if the party member I'm assisting does.")
+state.AutoEngageMode:set_description('Off', "Manually engage and disengage.")
+state.AutoEngageMode:set_description('Always', "Automatically engage when targeting a claimed mob.")
+state.AutoEngageMode:set_description('Mirror', "Mirror the engage status of the party member you are assisting.")
 
 function Attacker.new(action_queue)
     local self = setmetatable(Role.new(action_queue), Attacker)

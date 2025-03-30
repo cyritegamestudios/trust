@@ -5,9 +5,9 @@ local Roller = setmetatable({}, {__index = Role })
 Roller.__index = Roller
 
 state.AutoRollMode = M{['description'] = 'Use Phantom Roll', 'Manual', 'Auto', 'Safe', 'Off'}
-state.AutoRollMode:set_description('Manual', "Okay, you do the first roll and I'll double up on my own.")
-state.AutoRollMode:set_description('Auto', "Okay, I'll roll on my own and chase 11s or lucky rolls.")
-state.AutoRollMode:set_description('Safe', "Okay, I'll roll on my own and try not to bust.")
+state.AutoRollMode:set_description('Manual', "Automatically double up after manually using a roll.")
+state.AutoRollMode:set_description('Auto', "Automatically roll until an 11 or lucky roll.")
+state.AutoRollMode:set_description('Safe', "Automatically roll and prioritize not busting over an 11 or lucky roll.")
 
 -- Event called when rolls begin
 function Roller:on_rolls_begin()

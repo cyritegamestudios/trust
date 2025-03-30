@@ -15,18 +15,18 @@ local Singer = require('cylibs/trust/roles/singer')
 local Sleeper = require('cylibs/trust/roles/sleeper')
 
 state.AutoSongMode = M{['description'] = 'Sing Songs', 'Off', 'Auto', 'Dummy'}
-state.AutoSongMode:set_description('Auto', "Okay, I'll keep songs on the party.")
-state.AutoSongMode:set_description('Dummy', "Okay, I'll only sing dummy songs.")
+state.AutoSongMode:set_description('Auto', "Automatically sing songs on the party.")
+state.AutoSongMode:set_description('Dummy', "Only sing dummy songs.")
 
 state.AutoPianissimoMode = M{['description'] = 'Pianissimo Type', 'Merged', 'Override'}
-state.AutoPianissimoMode:set_description('Merged', "Okay, I'll make sure to keep all songs on everyone.")
-state.AutoPianissimoMode:set_description('Override', "Okay, I'll only focus on Pianissimo songs.")
+state.AutoPianissimoMode:set_description('Merged', "Maintain the full list of songs on everyone.")
+state.AutoPianissimoMode:set_description('Override', "Only focus on Pianissimo songs.")
 
 state.AutoNitroMode = M{['description'] = 'Use Nitro', 'Auto', 'Off'}
-state.AutoNitroMode:set_description('Auto', "Okay, I'll use Nightingale and Troubadour before singing songs.")
+state.AutoNitroMode:set_description('Auto', "Use Nightingale and Troubadour before singing songs.")
 
 state.AutoClarionCallMode = M{['description'] = 'Use Clarion Call', 'Off', 'Auto'}
-state.AutoClarionCallMode:set_description('Auto', "Okay, I'll use Clarion Call before Nightingale and Troubadour.")
+state.AutoClarionCallMode:set_description('Auto', "Use Clarion Call before Nightingale and Troubadour.")
 
 state.SongSet = M{['description'] = 'Song Set', 'Default'}
 

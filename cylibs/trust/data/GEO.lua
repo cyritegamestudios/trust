@@ -16,13 +16,13 @@ local GeomancerTrust = setmetatable({}, {__index = Trust })
 GeomancerTrust.__index = GeomancerTrust
 
 state.AutoGeoMode = M{['description'] = 'Use geocolures', 'Off', 'Auto'}
-state.AutoGeoMode:set_description('Auto', "Okay, I'll use Geocolure spells on party members and enemies.")
+state.AutoGeoMode:set_description('Auto', "Use Geocolure spells.")
 
 state.AutoIndiMode = M{['description'] = 'Use indicolures', 'Auto', 'Off'}
-state.AutoIndiMode:set_description('Auto', "Okay, I'll use Indicolure spells on myself and party members.")
+state.AutoIndiMode:set_description('Auto', "Use Indicolure spells.")
 
 state.AutoEntrustMode = M{['description'] = 'Use entrust', 'Auto', 'Off'}
-state.AutoEntrustMode:set_description('Auto', "Okay, I'll entrust Indicolure spells on party members.")
+state.AutoEntrustMode:set_description('Auto', "Entrust Indicolure spells on party members.")
 
 function GeomancerTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = Geomancer.new()

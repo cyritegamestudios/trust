@@ -10,7 +10,7 @@ local Dispeler = setmetatable({}, {__index = Gambiter })
 Dispeler.__index = Dispeler
 
 state.AutoDispelMode = M{['description'] = 'Dispel Enemies', 'Auto', 'Off'}
-state.AutoDispelMode:set_description('Auto', "Okay, I'll try to dispel monster buffs.")
+state.AutoDispelMode:set_description('Auto', "Dispel buffs on a mob.")
 
 -------
 -- Default initializer for a dispeler role.

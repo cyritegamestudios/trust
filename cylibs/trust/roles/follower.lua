@@ -13,8 +13,7 @@ local WaitAction = require('cylibs/actions/wait')
 local zone_util = require('cylibs/util/zone_util')
 
 state.AutoFollowMode = M{['description'] = 'Follow', 'Off', 'Always'}
-state.AutoFollowMode:set_description('Off', "Okay, I'll no longer follow anyone.")
-state.AutoFollowMode:set_description('Always', "Okay, I'll follow when not in battle.")
+state.AutoFollowMode:set_description('Always', "Follow the party member set with // trust follow when not in battle.")
 
 function Follower.new(action_queue, follow_distance, addon_settings)
     local self = setmetatable(Role.new(action_queue), Follower)

@@ -6,7 +6,7 @@ local cure_util = require('cylibs/util/cure_util')
 local DisposeBag = require('cylibs/events/dispose_bag')
 
 state.AutoRaiseMode = M{['description'] = 'Auto Raise Mode', 'Off', 'Auto'}
-state.AutoRaiseMode:set_description('Auto', "Okay, I'll try to raise party members who have fallen in battle.")
+state.AutoRaiseMode:set_description('Auto', "Raise party members who have fallen in battle.")
 
 function Raiser.new(action_queue, job)
     local self = setmetatable(Role.new(action_queue), Raiser)

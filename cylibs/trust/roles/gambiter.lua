@@ -8,8 +8,7 @@ Gambiter.__index = Gambiter
 Gambiter.__class = "Gambiter"
 
 state.AutoGambitMode = M{['description'] = 'Use Gambits', 'Auto', 'Off'}
-state.AutoGambitMode:set_description('Off', "Okay, I'll ignore any gambits you've set.")
-state.AutoGambitMode:set_description('Auto', "Okay, I'll customize my battle plan with gambits.")
+state.AutoGambitMode:set_description('Auto', "Automatically use gambits.")
 
 function Gambiter.new(action_queue, gambit_settings, state_var)
     local self = setmetatable(Role.new(action_queue), Gambiter)

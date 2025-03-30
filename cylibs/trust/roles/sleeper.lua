@@ -7,7 +7,7 @@ local Sleeper = setmetatable({}, {__index = Role })
 Sleeper.__index = Sleeper
 
 state.AutoSleepMode = M{['description'] = 'Auto Sleep Mode', 'Off', 'Auto'}
-state.AutoSleepMode:set_description('Auto', "Okay, I'll automatically try to sleep large groups of monsters.")
+state.AutoSleepMode:set_description('Auto', "Automatically try to sleep large groups of monsters.")
 
 function Sleeper.new(action_queue, sleep_spells, min_mobs_to_sleep)
     local self = setmetatable(Role.new(action_queue), Sleeper)

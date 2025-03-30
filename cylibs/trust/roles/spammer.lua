@@ -3,7 +3,7 @@ local Spammer = setmetatable({}, {__index = WeaponSkiller })
 Spammer.__index = Spammer
 Spammer.__class = "Spammer"
 
-state.AutoSkillchainMode:set_description('Spam', "Okay, I'll use the same weapon skill as soon as I get TP.")
+state.AutoSkillchainMode:set_description('Spam', "Spam weapon skills set with // trust sc spam.")
 
 function Spammer.new(action_queue, weapon_skill_settings)
     local self = setmetatable(WeaponSkiller.new(action_queue, weapon_skill_settings, 'Spam'), Spammer)

@@ -8,16 +8,16 @@ local Gambit = require('cylibs/gambits/gambit')
 local GambitTarget = require('cylibs/gambits/gambit_target')
 
 state.AutoNukeMode = M{['description'] = 'Free Nuke', 'Off', 'Earth', 'Lightning', 'Water', 'Fire', 'Ice', 'Wind', 'Light', 'Dark', 'Cleave', 'Mirror'}
-state.AutoNukeMode:set_description('Earth', "Okay, I'll free nuke with earth spells.")
-state.AutoNukeMode:set_description('Lightning', "Okay, I'll free nuke with lightning spells.")
-state.AutoNukeMode:set_description('Water', "Okay, I'll free nuke with water spells.")
-state.AutoNukeMode:set_description('Fire', "Okay, I'll free nuke with fire spells.")
-state.AutoNukeMode:set_description('Ice', "Okay, I'll free nuke with ice spells.")
-state.AutoNukeMode:set_description('Wind', "Okay, I'll free nuke with wind spells.")
-state.AutoNukeMode:set_description('Light', "Okay, I'll free nuke with light spells.")
-state.AutoNukeMode:set_description('Dark', "Okay, I'll free nuke with dark spells.")
-state.AutoNukeMode:set_description('Cleave', "Okay, I'll try to cleave monsters with spells of any element.")
-state.AutoNukeMode:set_description('Mirror', "Okay, I'll free nuke when the person I'm assisting nukes.")
+state.AutoNukeMode:set_description('Earth', "Free nuke with earth spells.")
+state.AutoNukeMode:set_description('Lightning', "Free nuke with lightning spells.")
+state.AutoNukeMode:set_description('Water', "Free nuke with water spells.")
+state.AutoNukeMode:set_description('Fire', "Free nuke with fire spells.")
+state.AutoNukeMode:set_description('Ice', "Free nuke with ice spells.")
+state.AutoNukeMode:set_description('Wind', "Free nuke with wind spells.")
+state.AutoNukeMode:set_description('Light', "Free nuke with light spells.")
+state.AutoNukeMode:set_description('Dark', "Free nuke with dark spells.")
+state.AutoNukeMode:set_description('Cleave', "Cleave monsters with spells of any element.")
+state.AutoNukeMode:set_description('Mirror', "Mirror the nukes of the party member you are assisting.")
 
 -------
 -- Default initializer for a nuker role.

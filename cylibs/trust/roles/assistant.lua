@@ -5,7 +5,7 @@ Assistant.__index = Assistant
 Assistant.__class = "Assistant"
 
 state.AutoAssistantMode = M{['description'] = 'Assistant Mode', 'Off', 'Auto'}
-state.AutoAssistantMode:set_description('Auto', "Okay, I'll share information on the monsters we're fighting.")
+state.AutoAssistantMode:set_description('Auto', "See extra information on the current mob.")
 
 function Assistant.new(action_queue, watch_list)
     local self = setmetatable(Role.new(action_queue), Assistant)

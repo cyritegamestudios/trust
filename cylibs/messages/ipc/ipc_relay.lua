@@ -15,9 +15,9 @@ IpcRelay.__index = IpcRelay
 IpcRelay.__class = "IpcRelay"
 
 state.IpcMode = M{['description'] = 'Send IPC Messages', 'All', 'Off', 'Send', 'Receive'}
-state.IpcMode:set_description('All', "Okay, I'll send and receive IPC messages.")
-state.IpcMode:set_description('Send', "Okay, I'll only send IPC messages.")
-state.IpcMode:set_description('Receive', "Okay, I'll only receive IPC messages.")
+state.IpcMode:set_description('All', "Send and receive IPC messages (recommended).")
+state.IpcMode:set_description('Send', "Only send IPC messages.")
+state.IpcMode:set_description('Receive', "Only receive IPC messages.")
 
 -- Event called when an ipc message is received
 function IpcRelay:on_message_received()

@@ -7,7 +7,7 @@ local Tank = setmetatable({}, {__index = Gambiter })
 Tank.__index = Tank
 
 state.AutoTankMode = M{['description'] = 'Auto Tank Mode', 'Off', 'Auto'}
-state.AutoTankMode:set_description('Auto', "Okay, I'll tank for the party.")
+state.AutoTankMode:set_description('Auto', "Use job abilities and spells to maintain hate on the mob.")
 
 function Tank.new(action_queue, job_abilities, spells)
     local self = setmetatable(Gambiter.new(action_queue, {}, state.AutoTankMode), Tank)

@@ -7,8 +7,7 @@ Reacter.__index = Reacter
 Reacter.__class = "Reacter"
 
 state.AutoReactMode = M{['description'] = 'Use Reactions', 'Auto', 'Off'}
-state.AutoReactMode:set_description('Off', "Okay, I'll ignore any reactions you've set.")
-state.AutoReactMode:set_description('Auto', "Okay, I'll react to player, party and enemy actions.")
+state.AutoReactMode:set_description('Auto', "Enable reactions.")
 
 function Reacter.new(action_queue, gambit_settings, skillchainer, state_var)
     local self = setmetatable(Role.new(action_queue), Reacter)

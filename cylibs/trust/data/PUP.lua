@@ -20,16 +20,16 @@ local Buffer = require('cylibs/trust/roles/buffer')
 local Puller = require('cylibs/trust/roles/puller')
 
 state.AutoAssaultMode = M{['description'] = 'Deploy Pet in Battle', 'Off', 'Auto'}
-state.AutoAssaultMode:set_description('Auto', "Okay, my pet will fight with me!")
+state.AutoAssaultMode:set_description('Auto', "Automatically deploy automaton in battle.")
 
 state.AutoManeuverMode = M{['description'] = 'Use Maneuvers', 'Off', 'Auto'}
-state.AutoManeuverMode:set_description('Auto', "Okay, I'll automatically use maneuvers.")
+state.AutoManeuverMode:set_description('Auto', "Automatically use maneuvers.")
 
 state.AutoPetMode = M{['description'] = 'Call Pet', 'Off', 'Auto'}
-state.AutoPetMode:set_description('Auto', "Okay, I'll automatically call a pet.")
+state.AutoPetMode:set_description('Auto', "Automatically use Activate and Deus ex Machina.")
 
 state.AutoRepairMode = M{['description'] = 'Use Repair', 'Auto', 'Off'}
-state.AutoRepairMode:set_description('Auto', "Okay, I'll use repair when my automaton's HP is low.")
+state.AutoRepairMode:set_description('Auto', "Use repair when the automaton's HP is low.")
 
 function PuppetmasterTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = Puppetmaster.new()

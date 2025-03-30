@@ -101,6 +101,9 @@ function ModesMenuItem:getInfoMenuItem()
             local configItem = configItems[cursorIndexPath.section]
             infoView:setDescription(configItem:getInitialValue())
         end)
+        commandConfigEditor:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
+            commandConfigEditor:getDelegate():deselectItemAtIndexPath(indexPath)
+        end)
         commandConfigEditor:onConfigConfirm():addAction(function(_, _)
             if self.selectedModeValueIndex then
                 local modeValue = configItems[self.selectedModeValueIndex]:getKey()
