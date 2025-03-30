@@ -4,9 +4,9 @@ return {
     Default = {
         BuffSettings = {
             Gambits = L{
-                Gambit.new("Self", L{StatusCondition.new("Engaged", 2, ">=")}, JobAbility.new("Impetus", L{}), "Self", L{"Buffs"}),
-                Gambit.new("Self", L{StatusCondition.new("Engaged", 2, ">=")}, JobAbility.new("Footwork", L{}), "Self", L{"Buffs"}),
-                Gambit.new("Self", L{StatusCondition.new("Engaged", 2, ">=")}, JobAbility.new("Mantra", L{}), "Self", L{"Buffs"})
+                Gambit.new("Self", L{GambitCondition.new(StatusCondition.new("Engaged", 2, ">="), "Self")}, JobAbility.new("Impetus", L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{GambitCondition.new(StatusCondition.new("Engaged", 2, ">="), "Self")}, JobAbility.new("Footwork", L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{GambitCondition.new(StatusCondition.new("Engaged", 2, ">="), "Self")}, JobAbility.new("Mantra", L{}), "Self", L{"Buffs"})
             }
         },
         DebuffSettings = {
@@ -35,11 +35,11 @@ return {
         },
         GambitSettings = {
             Default = L{
-                Gambit.new("Self", L{MeleeAccuracyCondition.new(75, "<=")}, JobAbility.new('Focus', L{}), "Self"),
-                Gambit.new("Self", L{MaxHitPointsPercentCondition.new(25)}, JobAbility.new("Chakra", L{}, L{}), "Self")
+                Gambit.new("Self", L{GambitCondition.new(MeleeAccuracyCondition.new(75, "<="), "Self")}, JobAbility.new('Focus', L{}), "Self"),
+                Gambit.new("Self", L{GambitCondition.new(MaxHitPointsPercentCondition.new(25), "Self")}, JobAbility.new("Chakra", L{}, L{}), "Self")
             },
             Gambits = L{
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("MNK")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"Food"})
+                Gambit.new("Self", L{GambitCondition.new(ModeCondition.new("AutoFoodMode", "Auto"), "Self"), GambitCondition.new(NotCondition.new(L{HasBuffCondition.new("Food")}), "Self"), GambitCondition.new(MainJobCondition.new("MNK"), "Self")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"food"}),
             }
         },
         ReactionSettings = {

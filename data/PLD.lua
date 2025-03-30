@@ -9,7 +9,7 @@ return {
                 Gambit.new("Self", L{}, Spell.new("Reprisal", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
                 Gambit.new("Self", L{}, Spell.new("Protect V", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
                 Gambit.new("Self", L{}, JobAbility.new("Majesty", L{}), "Self", L{"Buffs"}),
-                Gambit.new("Self", L{StatusCondition.new("Engaged", 6, ">=")}, JobAbility.new("Rampart", L{}), "Self", L{"Buffs"})
+                Gambit.new("Self", L{GambitCondition.new(StatusCondition.new("Engaged", 6, ">="), "Self")}, JobAbility.new("Rampart", L{}), "Self", L{"Buffs"})
             }
         },
         CureSettings = {
@@ -38,9 +38,6 @@ return {
                 Gambit.new("Enemy", L{}, Spell.new("Holy", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
                 Gambit.new("Enemy", L{}, Spell.new("Banish II", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
             },
-            JobAbilities = L{
-
-            },
             Blacklist = L{
 
             },
@@ -67,11 +64,11 @@ return {
         },
         GambitSettings = {
             Gambits = L{
-                Gambit.new("Ally", L{MaxHitPointsPercentCondition.new(80), InBattleCondition.new()}, JobAbility.new("Cover", L{}, L{}), "Ally", L{}),
-                Gambit.new("Enemy", L{InBattleCondition.new()}, JobAbility.new("Shield Bash", L{}, L{}), "Self", L{}),
-                Gambit.new("Self", L{MinTacticalPointsCondition.new(2000), MaxManaPointsPercentCondition.new(30)}, JobAbility.new("Chivalry", L{}, L{}), "Self", L{}),
-                Gambit.new("Self", L{MaxHitPointsPercentCondition.new(25), InBattleCondition.new()}, JobAbility.new("Sentinel", L{}, L{}), "Self", L{}),
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("PLD")}, UseItem.new("Miso Ramen", L{ItemCountCondition.new("Miso Ramen", 1, ">=")}), "Self", L{"Food"})
+                Gambit.new("Ally", L{GambitCondition.new(MaxHitPointsPercentCondition.new(80), "Ally"), GambitCondition.new(InBattleCondition.new(), "Self")}, JobAbility.new("Cover", L{}, L{}), "Ally", L{}),
+                Gambit.new("Enemy", L{GambitCondition.new(InBattleCondition.new(), "Self")}, JobAbility.new("Shield Bash", L{}, L{}), "Self", L{}),
+                Gambit.new("Self", L{GambitCondition.new(MinTacticalPointsCondition.new(2000), "Self"), GambitCondition.new(MaxManaPointsPercentCondition.new(30), "Self")}, JobAbility.new("Chivalry", L{}, L{}), "Self", L{}),
+                Gambit.new("Self", L{GambitCondition.new(MaxHitPointsPercentCondition.new(25), "Self"), GambitCondition.new(InBattleCondition.new(), "Self")}, JobAbility.new("Sentinel", L{}, L{}), "Self", L{}),
+                Gambit.new("Self", L{GambitCondition.new(ModeCondition.new("AutoFoodMode", "Auto"), "Self"), GambitCondition.new(NotCondition.new(L{HasBuffCondition.new("Food")}), "Self"), GambitCondition.new(MainJobCondition.new("PLD"), "Self")}, UseItem.new("Miso Ramen", L{ItemCountCondition.new("Miso Ramen", 1, ">=")}), "Self", L{"food"}),
             }
         },
         ReactionSettings = {

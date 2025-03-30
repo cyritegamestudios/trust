@@ -10,10 +10,10 @@ return {
                 Gambit.new("Self", L{}, Buff.new("Protectra", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
                 Gambit.new("Self", L{}, Buff.new("Shellra", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
                 Gambit.new("Self", L{}, Spell.new("Boost-STR", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
-                Gambit.new("Self", L{MainJobCondition.new("WHM")}, Spell.new("Auspice", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
-                Gambit.new("Ally", L{JobCondition.new(L{"WAR", "MNK", "THF", "PLD", "DRK", "SAM", "DRG", "NIN", "PUP", "COR", "DNC", "BLU", "RUN", "BLM", "BRD", "BST"})}, Buff.new("Haste", L{}, L{}, nil, L{}), "Ally", L{"Buffs"}),
-                Gambit.new("Ally", L{JobCondition.new(L{"WAR", "WHM", "RDM", "PLD", "BRD", "SAM", "DRG", "BLU", "PUP", "SCH", "RUN", "MNK", "BLM", "THF", "BST", "RNG", "NIN", "SMN", "COR", "DNC", "GEO", "DRK"})}, Buff.new("Shell", L{}, L{}, nil, L{}), "Ally", L{"Buffs"}),
-                Gambit.new("Ally", L{JobCondition.new(L{"WAR", "WHM", "RDM", "PLD", "BRD", "SAM", "DRG", "BLU", "PUP", "SCH", "RUN", "MNK", "BLM", "THF", "BST", "RNG", "NIN", "SMN", "COR", "DNC", "GEO", "DRK"})}, Buff.new("Protect", L{}, L{}, nil, L{}), "Ally", L{"Buffs"})
+                Gambit.new("Self", L{GambitCondition.new(MainJobCondition.new("WHM"), "Self")}, Spell.new("Auspice", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Ally", L{GambitCondition.new(JobCondition.new(L{"WAR", "MNK", "THF", "PLD", "DRK", "SAM", "DRG", "NIN", "PUP", "COR", "DNC", "BLU", "RUN", "BLM", "BRD", "BST"}), "Ally")}, Buff.new("Haste", L{}, L{}, nil, L{}), "Ally", L{"Buffs"}),
+                Gambit.new("Ally", L{GambitCondition.new(JobCondition.new(L{"WAR", "WHM", "RDM", "PLD", "BRD", "SAM", "DRG", "BLU", "PUP", "SCH", "RUN", "MNK", "BLM", "THF", "BST", "RNG", "NIN", "SMN", "COR", "DNC", "GEO", "DRK"}), "Ally")}, Buff.new("Shell", L{}, L{}, nil, L{}), "Ally", L{"Buffs"}),
+                Gambit.new("Ally", L{GambitCondition.new(JobCondition.new(L{"WAR", "WHM", "RDM", "PLD", "BRD", "SAM", "DRG", "BLU", "PUP", "SCH", "RUN", "MNK", "BLM", "THF", "BST", "RNG", "NIN", "SMN", "COR", "DNC", "GEO", "DRK"}), "Ally")}, Buff.new("Protect", L{}, L{}, nil, L{}), "Ally", L{"Buffs"})
             }
         },
         CureSettings = {
@@ -46,9 +46,6 @@ return {
                 Gambit.new("Enemy", L{}, Spell.new("Holy II", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
                 Gambit.new("Enemy", L{}, Spell.new("Holy", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
                 Gambit.new("Enemy", L{}, Spell.new("Banish III", L{}, L{}, nil, L{}, nil, true), "Enemy", L{}),
-            },
-            JobAbilities = L{
-
             },
             Blacklist = L{
 
@@ -83,7 +80,7 @@ return {
                 Gambit.new("Self", L{GambitCondition.new(CombatSkillsCondition.new(L{"Staff"}), "Self"), GambitCondition.new(MaxManaPointsPercentCondition.new(40), "Self"), GambitCondition.new(MinTacticalPointsCondition.new(1000), "Self"), GambitCondition.new(StatusCondition.new("Engaged", 2, ">="), "Self"), GambitCondition.new(ModeCondition.new("AutoRestoreManaMode", "Auto"), "Self")}, WeaponSkill.new("Spirit Taker", L{}), "Self", L{"Weaponskill"}),
             },
             Gambits = L{
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("WHM")}, UseItem.new("Tropical Crepe", L{ItemCountCondition.new("Tropical Crepe", 1, ">=")}), "Self", L{"Food"})
+                Gambit.new("Self", L{GambitCondition.new(ModeCondition.new("AutoFoodMode", "Auto"), "Self"), GambitCondition.new(NotCondition.new(L{HasBuffCondition.new("Food")}), "Self"), GambitCondition.new(MainJobCondition.new("WHM"), "Self")}, UseItem.new("Tropical Crepe", L{ItemCountCondition.new("Tropical Crepe", 1, ">=")}), "Self", L{"food"}),
             }
         },
         ReactionSettings = {

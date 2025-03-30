@@ -18,7 +18,6 @@ function MigrationManager.new(trustSettings, addonSettings, weaponSkillSettings)
         M.Migration_v4.new(),
         M.Migration_v5.new(),
         M.Migration_v6.new(),
-        M.Migration_v7.new(),
         M.Migration_v8.new(),
         M.Migration_v9.new(),
         M.Migration_v10.new(),

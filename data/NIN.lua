@@ -9,8 +9,8 @@ return {
                 Gambit.new("Self", L{}, Spell.new("Utsusemi: Ichi", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
                 Gambit.new("Self", L{}, Spell.new("Kakka: Ichi", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
                 Gambit.new("Self", L{}, Spell.new("Myoshu: Ichi", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
-                Gambit.new("Self", L{StatusCondition.new("Engaged", 2, ">=")}, JobAbility.new("Yonin", L{}), "Self", L{"Buffs"}),
-                Gambit.new("Self", L{StatusCondition.new("Engaged", 2, ">=")}, JobAbility.new("Issekigan", L{}, L{}), "Self", L{"Buffs"})
+                Gambit.new("Self", L{GambitCondition.new(StatusCondition.new("Engaged", 2, ">="), "Self")}, JobAbility.new("Yonin", L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{GambitCondition.new(StatusCondition.new("Engaged", 2, ">="), "Self")}, JobAbility.new("Issekigan", L{}, L{}), "Self", L{"Buffs"})
             }
         },
         DebuffSettings = {
@@ -37,15 +37,13 @@ return {
                 Gambit.new("Enemy", L{}, Spell.new("Doton: San", L{"Futae"}, L{}, nil, L{}, nil), "Enemy", L{}),
                 Gambit.new("Enemy", L{}, Spell.new("Doton: Ni", L{}, L{}, nil, L{}, nil), "Enemy", L{}),
             },
-            JobAbilities = L{
-            },
             Blacklist = L{
 
             },
         },
         PullSettings = {
             Gambits = L{
-                Gambit.new("Enemy", L{ItemCountCondition.new("Chonofuda", 1, ">=")}, Spell.new("Jubaku: Ni", L{}, L{}), "Enemy", L{"Pulling"}),
+                Gambit.new("Enemy", L{GambitCondition.new(ItemCountCondition.new("Chonofuda", 1, ">="), "Self")}, Spell.new("Jubaku: Ni", L{}, L{}), "Enemy", L{"Pulling"}),
                 Gambit.new("Enemy", L{}, Approach.new(), "Enemy", L{"Pulling"}),
             },
             Targets = L{
@@ -61,7 +59,7 @@ return {
         },
         GambitSettings = {
             Gambits = L{
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("NIN")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"Food"})
+                Gambit.new("Self", L{GambitCondition.new(ModeCondition.new("AutoFoodMode", "Auto"), "Self"), GambitCondition.new(NotCondition.new(L{HasBuffCondition.new("Food")}), "Self"), GambitCondition.new(MainJobCondition.new("NIN"), "Self")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"food"}),
             }
         },
         ReactionSettings = {

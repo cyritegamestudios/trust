@@ -4,8 +4,8 @@ return {
     Default = {
         BuffSettings = {
             Gambits = L{
-                Gambit.new("Self", L{CombatSkillsCondition.new(L{'Great Sword','Great Axe','Scythe','Polearm','Great Katana','Staff'})}, JobAbility.new("Hasso", L{}, L{}), "Self", L{"Buffs"}),
-                Gambit.new("Self", L{MinTacticalPointsCondition.new(1500), InBattleCondition.new()}, JobAbility.new("Sekkanoki", L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{GambitCondition.new(CombatSkillsCondition.new(L{'Great Sword','Great Axe','Scythe','Polearm','Great Katana','Staff'}), "Self")}, JobAbility.new("Hasso", L{}, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{GambitCondition.new(MinTacticalPointsCondition.new(1500), "Self"), GambitCondition.new(InBattleCondition.new(), "Self")}, JobAbility.new("Sekkanoki", L{}), "Self", L{"Buffs"}),
             }
         },
         DebuffSettings = {
@@ -34,10 +34,10 @@ return {
         },
         GambitSettings = {
             Default = L{
-                Gambit.new("Self", L{MaxTacticalPointsCondition.new(1000), NotCondition.new(L{ModeCondition.new("AutoBuffMode", "Off")})}, JobAbility.new("Meditate", L{}, L{}), "Self")
+                Gambit.new("Self", L{GambitCondition.new(MaxTacticalPointsCondition.new(1000), "Self"), GambitCondition.new(NotCondition.new(L{ModeCondition.new("AutoBuffMode", "Off")}), "Self")}, JobAbility.new("Meditate", L{}, L{}), "Self")
             },
             Gambits = L{
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("SAM")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"Food"})
+                Gambit.new("Self", L{GambitCondition.new(ModeCondition.new("AutoFoodMode", "Auto"), "Self"), GambitCondition.new(NotCondition.new(L{HasBuffCondition.new("Food")}), "Self"), GambitCondition.new(MainJobCondition.new("SAM"), "Self")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"food"}),
             },
         },
         ReactionSettings = {

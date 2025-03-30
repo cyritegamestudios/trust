@@ -8,24 +8,24 @@ return {
                 Gambit.new("Self", L{}, Buff.new("Haste", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
                 Gambit.new("Self", L{}, Buff.new("Refresh", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
                 Gambit.new("Self", L{}, Spell.new("Phalanx", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
-                Gambit.new("Self", L{InBattleCondition.new()}, Buff.new("Temper", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
-                Gambit.new("Self", L{InBattleCondition.new(), MainJobCondition.new("RDM")}, Spell.new("Enblizzard", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
-                Gambit.new("Self", L{NotCondition.new(L{ModeCondition.new("AutoMagicBurstMode", "Off")})}, Spell.new("Gain-INT", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
-                Gambit.new("Self", L{ModeCondition.new("AutoMagicBurstMode", "Off")}, Spell.new("Gain-STR", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
-                Gambit.new("Self", L{MainJobCondition.new("RDM")}, Buff.new("Protect", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
-                Gambit.new("Self", L{MainJobCondition.new("RDM")}, Buff.new("Shell", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
-                Gambit.new("Ally", L{JobCondition.new(L{"WAR", "NIN", "BST", "GEO", "SCH", "DRK", "DRG", "PUP", "BLU", "BLM", "THF", "PLD", "BRD", "SAM", "MNK", "RUN", "COR", "DNC", "RNG"})}, Buff.new("Haste", L{}, L{}, nil, L{}), "Ally", L{"Buffs"}),
-                Gambit.new("Ally", L{JobCondition.new(L{"DRK", "PLD", "BLU", "BLM", "BRD", "GEO", "SMN", "WHM", "RUN"})}, Buff.new("Refresh", L{}, L{}, nil, L{}), "Ally", L{"Buffs"}),
-                Gambit.new("Ally", L{InBattleCondition.new(), JobCondition.new(L{"NIN", "DNC", "GEO", "DRK", "SAM", "COR", "RNG", "PLD", "BRD", "WAR", "PUP", "DRG", "MNK", "RUN", "THF", "BST", "BLU"})}, Spell.new("Phalanx II", L{}, L{}, nil, L{}), "Ally", L{"Buffs"}),
+                Gambit.new("Self", L{GambitCondition.new(InBattleCondition.new(), "Self")}, Buff.new("Temper", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{GambitCondition.new(InBattleCondition.new(), "Self"), GambitCondition.new(MainJobCondition.new("RDM"), "Self")}, Spell.new("Enblizzard", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{GambitCondition.new(NotCondition.new(L{ModeCondition.new("AutoMagicBurstMode", "Off")}), "Self")}, Spell.new("Gain-INT", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{GambitCondition.new(ModeCondition.new("AutoMagicBurstMode", "Off"), "Self")}, Spell.new("Gain-STR", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{GambitCondition.new(MainJobCondition.new("RDM"), "Self")}, Buff.new("Protect", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{GambitCondition.new(MainJobCondition.new("RDM"), "Self")}, Buff.new("Shell", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Ally", L{GambitCondition.new(JobCondition.new(L{"WAR", "NIN", "BST", "GEO", "SCH", "DRK", "DRG", "PUP", "BLU", "BLM", "THF", "PLD", "BRD", "SAM", "MNK", "RUN", "COR", "DNC", "RNG"}), "Ally")}, Buff.new("Haste", L{}, L{}, nil, L{}), "Ally", L{"Buffs"}),
+                Gambit.new("Ally", L{GambitCondition.new(JobCondition.new(L{"DRK", "PLD", "BLU", "BLM", "BRD", "GEO", "SMN", "WHM", "RUN"}), "Ally")}, Buff.new("Refresh", L{}, L{}, nil, L{}), "Ally", L{"Buffs"}),
+                Gambit.new("Ally", L{GambitCondition.new(InBattleCondition.new(), "Ally"), GambitCondition.new(JobCondition.new(L{"NIN", "DNC", "GEO", "DRK", "SAM", "COR", "RNG", "PLD", "BRD", "WAR", "PUP", "DRG", "MNK", "RUN", "THF", "BST", "BLU"}), "Ally")}, Spell.new("Phalanx II", L{}, L{}, nil, L{}), "Ally", L{"Buffs"}),
             }
         },
         GambitSettings = {
             Default = L{
-                Gambit.new("Self", L{MaxManaPointsPercentCondition.new(20), NotCondition.new(L{HasBuffCondition.new("weakness")}), ModeCondition.new("AutoConvertMode", "Auto"), JobAbilityRecastReadyCondition.new('Convert')}, Spell.new("Cure IV", L{ 'Convert'}), "Self", L{})
+                Gambit.new("Self", L{GambitCondition.new(MaxManaPointsPercentCondition.new(20), "Self"), GambitCondition.new(NotCondition.new(L{HasBuffCondition.new("weakness")}), ModeCondition.new("AutoConvertMode", "Auto"), JobAbilityRecastReadyCondition.new('Convert'), "Self")}, Spell.new("Cure IV", L{ 'Convert'}), "Self", L{})
             },
             Gambits = L{
-                Gambit.new("Enemy", L{MeleeAccuracyCondition.new(75, "<="), MainJobCondition.new("RDM"), NumResistsCondition.new("Distract", "<", 3), NumResistsCondition.new("Distract II", "<", 3), NumResistsCondition.new("Distract III", "<", 3)}, Spell.new("Distract III", L{}, L{}), "Self", L{}),
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("RDM")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"Food"})
+                Gambit.new("Enemy", L{GambitCondition.new(MeleeAccuracyCondition.new(75, "<="), "Self"), GambitCondition.new(MainJobCondition.new("RDM"), "Self"), GambitCondition.new(NumResistsCondition.new("Distract", "<", 3), "Enemy"), GambitCondition.new(NumResistsCondition.new("Distract II", "<", 3), "Enemy"), GambitCondition.new(NumResistsCondition.new("Distract III", "<", 3), "Enemy")}, Spell.new("Distract III", L{}, L{}), "Self", L{}),
+                Gambit.new("Self", L{GambitCondition.new(ModeCondition.new("AutoFoodMode", "Auto"), "Self"), GambitCondition.new(NotCondition.new(L{HasBuffCondition.new("Food")}), "Self"), GambitCondition.new(MainJobCondition.new("RDM"), "Self")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"food"}),
             }
         },
         ReactionSettings = {
@@ -68,9 +68,6 @@ return {
                 Gambit.new("Enemy", L{}, Spell.new("Stone III", L{}, L{}, nil, L{}, nil, true), "Enemy", L{"Nukes"}),
             },
             Delay = 4,
-            JobAbilities = L{
-
-            },
             Blacklist = L{
 
             }

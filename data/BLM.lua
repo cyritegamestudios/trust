@@ -44,10 +44,6 @@ return {
                 Gambit.new("Enemy", L{}, Spell.new("Stone IV", L{}, L{}, nil, L{}, nil, true), "Enemy", L{"Nukes"}),
                 Gambit.new("Enemy", L{}, Spell.new("Comet", L{"Manawell"}, L{}, nil, L{}, nil, true), "Enemy", L{"Nukes"}),
             },
-            JobAbilities = L{
-                JobAbility.new("Ebullience", L{SubJobCondition.new('SCH'), StrategemCountCondition.new(1, ">=")}, L{}),
-                JobAbility.new("Cascade", L{MinManaPointsPercentCondition.new(40), MinTacticalPointsCondition.new(1000)}, L{})
-            },
             Blacklist = L{
 
             },
@@ -74,7 +70,7 @@ return {
                 Gambit.new("Self", L{GambitCondition.new(CombatSkillsCondition.new(L{"Club"}), "Self"), GambitCondition.new(MaxManaPointsPercentCondition.new(40), "Self"), GambitCondition.new(MinTacticalPointsCondition.new(1000), "Self"), GambitCondition.new(StatusCondition.new("Engaged", 2, ">="), "Self"), GambitCondition.new(ModeCondition.new("AutoRestoreManaMode", "Auto"), "Self")}, WeaponSkill.new("Moonlight", L{}), "Self", L{"Weaponskill"}),
             },
             Gambits = L{
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("BLM")}, UseItem.new("Tropical Crepe", L{ItemCountCondition.new("Tropical Crepe", 1, ">=")}), "Self", L{"Food"})
+                Gambit.new("Self", L{GambitCondition.new(ModeCondition.new("AutoFoodMode", "Auto"), "Self"), GambitCondition.new(NotCondition.new(L{HasBuffCondition.new("Food")}), "Self"), GambitCondition.new(MainJobCondition.new("BLM"), "Self")}, UseItem.new("Tropical Crepe", L{ItemCountCondition.new("Tropical Crepe", 1, ">=")}), "Self", L{"food"}),
             }
         },
         ReactionSettings = {
