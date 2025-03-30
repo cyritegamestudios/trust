@@ -164,6 +164,7 @@ skills.weapon_skills = {
     [170] = {en='Randgrith',skillchain={'Light','Fragmentation'}},
     [171] = {en='Mystic Boon',skillchain={}},
     [172] = {en='Flash Nova',skillchain={'Induration','Reverberation'}},
+    [173] = {en="Dagan",skillchain={}},
     [174] = {en='Realmrazer',skillchain={'Fusion','Impaction'},aeonic='Light',weapon='Tishtrya'},
     [175] = {en='Exudation',skillchain={'Darkness','Fragmentation'}},
     [176] = {en='Heavy Swing',skillchain={'Impaction'}},

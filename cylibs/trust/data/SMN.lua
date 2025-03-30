@@ -6,7 +6,7 @@ SummonerTrust.__index = SummonerTrust
 local Avatar = require('cylibs/entity/avatar')
 
 local MagicBurster = require('cylibs/trust/roles/magic_burster')
-local ManaRestorer = require('cylibs/trust/roles/mana_restorer')
+local ManaRestorer = require('cylibs/trust/roles/mana_restorer') -- for AutoRestoreManaMode
 local Summoner = require('cylibs/entity/jobs/SMN')
 local Buffer = require('cylibs/trust/roles/buffer')
 local Frame = require('cylibs/ui/views/frame')
@@ -22,7 +22,6 @@ function SummonerTrust.new(settings, action_queue, battle_settings, trust_settin
 		Buffer.new(action_queue, trust_settings.BuffSettings, state.AutoBuffMode, job),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job, true),
 		--Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
-		ManaRestorer.new(action_queue, L{'Myrkr', 'Spirit Taker'}, L{}, 40),
 		Puller.new(action_queue, trust_settings.PullSettings),
 	}
 
