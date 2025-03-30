@@ -6,7 +6,7 @@ local BlackMage = require('cylibs/entity/jobs/BLM')
 local Buffer = require('cylibs/trust/roles/buffer')
 local Debuffer = require('cylibs/trust/roles/debuffer')
 local MagicBurster = require('cylibs/trust/roles/magic_burster')
-local ManaRestorer = require('cylibs/trust/roles/mana_restorer')
+local ManaRestorer = require('cylibs/trust/roles/mana_restorer') -- for AutoRestoreManaMode
 local Nuker = require('cylibs/trust/roles/nuker')
 local Puller = require('cylibs/trust/roles/puller')
 local Sleeper = require('cylibs/trust/roles/sleeper')
@@ -18,7 +18,6 @@ function BlackMageTrust.new(settings, action_queue, battle_settings, trust_setti
 		Buffer.new(action_queue, trust_settings.BuffSettings, state.AutoBuffMode, job),
 		Debuffer.new(action_queue, trust_settings.DebuffSettings, job),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{ 'Manawell' }, job, false),
-		ManaRestorer.new(action_queue, L{'Myrkr', 'Spirit Taker', 'Moonlight'}, L{}, 40),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		Puller.new(action_queue, trust_settings.PullSettings),
 		Sleeper.new(action_queue, L{ Spell.new('Sleepga'), Spell.new('Sleepga II') }, 4)
@@ -43,7 +42,7 @@ end
 
 function BlackMageTrust:get_widget()
 	local BlackMageWidget = require('ui/widgets/BlackMageWidget')
-	local blackMageWidget = BlackMageWidget.new(Frame.new(40, 294, 125, 57), self:get_party():get_player(), self)
+	local blackMageWidget = BlackMageWidget.new(Frame.new(40, 285, 125, 57), self:get_party():get_player(), self)
 	return blackMageWidget, 'job'
 end
 

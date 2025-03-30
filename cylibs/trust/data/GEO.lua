@@ -5,7 +5,7 @@ local Geocolure = require('cylibs/entity/geocolure')
 local Nuker = require('cylibs/trust/roles/nuker')
 local Buffer = require('cylibs/trust/roles/buffer')
 local MagicBurster = require('cylibs/trust/roles/magic_burster')
-local ManaRestorer = require('cylibs/trust/roles/mana_restorer')
+local ManaRestorer = require('cylibs/trust/roles/mana_restorer') -- for AutoRestoreManaMode
 local Puller = require('cylibs/trust/roles/puller')
 local zone_util = require('cylibs/util/zone_util')
 
@@ -16,13 +16,13 @@ local GeomancerTrust = setmetatable({}, {__index = Trust })
 GeomancerTrust.__index = GeomancerTrust
 
 state.AutoGeoMode = M{['description'] = 'Use geocolures', 'Off', 'Auto'}
-state.AutoGeoMode:set_description('Auto', "Okay, I'll use Geocolure spells on party members and enemies.")
+state.AutoGeoMode:set_description('Auto', "Use Geocolure spells.")
 
 state.AutoIndiMode = M{['description'] = 'Use indicolures', 'Auto', 'Off'}
-state.AutoIndiMode:set_description('Auto', "Okay, I'll use Indicolure spells on myself and party members.")
+state.AutoIndiMode:set_description('Auto', "Use Indicolure spells.")
 
 state.AutoEntrustMode = M{['description'] = 'Use entrust', 'Auto', 'Off'}
-state.AutoEntrustMode:set_description('Auto', "Okay, I'll entrust Indicolure spells on party members.")
+state.AutoEntrustMode:set_description('Auto', "Entrust Indicolure spells on party members.")
 
 function GeomancerTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = Geomancer.new()
@@ -33,7 +33,6 @@ function GeomancerTrust.new(settings, action_queue, battle_settings, trust_setti
 		Buffer.new(action_queue, { Gambits = L{ entrustGambit } }, state.AutoEntrustMode, job),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{ 'Theurgic Focus' }, job),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
-		ManaRestorer.new(action_queue, L{"Spirit Taker", "Moonlight"}, L{}, 40),
 		Puller.new(action_queue, trust_settings.PullSettings),
 	}
 

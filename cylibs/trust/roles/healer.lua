@@ -7,8 +7,8 @@ Healer.__index = Healer
 Healer.__class = "Healer"
 
 state.AutoHealMode = M{['description'] = 'Heal Player and Party', 'Auto', 'Emergency', 'Off'}
-state.AutoHealMode:set_description('Auto', "You can count on me to heal the party.")
-state.AutoHealMode:set_description('Emergency', "Okay, I'll only heal when you're in a pinch.")
+state.AutoHealMode:set_description('Auto', "Heal the party using the Default cure threshold.")
+state.AutoHealMode:set_description('Emergency', "Heal the party using the Emergency cure threshold.")
 
 -------
 -- Default initializer for a healer.

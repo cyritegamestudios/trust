@@ -15,21 +15,19 @@ local SkillchainTracker = require('cylibs/battle/skillchains/skillchain_tracker'
 local skillchain_util = require('cylibs/util/skillchain_util')
 
 state.AutoSkillchainMode = M{['description'] = 'Create Skillchains', 'Off', 'Auto', 'Cleave', 'Spam'}
-state.AutoSkillchainMode:set_description('Off', "Okay, I won't use weapon skills or make skillchains.")
-state.AutoSkillchainMode:set_description('Auto', "Okay, I'll try to make skillchains.")
+state.AutoSkillchainMode:set_description('Auto', "Automatically skillchain with self and party members.")
 
 state.SkillchainPropertyMode = M{['description'] = 'Skillchain Properties', 'Off', 'Light', 'Darkness'}
-state.SkillchainPropertyMode:set_description('Off', "Okay, I'll try to make skillchains of all properties.")
-state.SkillchainPropertyMode:set_description('Light', "Okay, I'll only make Light skillchains unless I have instructions to use certain weapon skills.")
-state.SkillchainPropertyMode:set_description('Darkness', "Okay, I'll only make Darkness skillchains unless I have instructions to use certain weapon skills.")
+state.SkillchainPropertyMode:set_description('Off', "Make skillchains of any property.")
+state.SkillchainPropertyMode:set_description('Light', "Only make light skillchains unless specific weapon skills are set.")
+state.SkillchainPropertyMode:set_description('Darkness', "Only make Darkness skillchains unless specific weapon skills are set.")
 
 state.SkillchainDelayMode = M{['description'] = 'Prioritze Magic Bursts', 'Off', 'Maximum'}
-state.SkillchainDelayMode:set_description('Off', "Okay, I'll use the next weapon skill as soon as the skillchain window opens.")
-state.SkillchainDelayMode:set_description('Maximum', "Okay, I'll delay using weapon skills to let my party magic burst.")
+state.SkillchainDelayMode:set_description('Off', "Use the next weapon skill as soon as the skillchain window opens.")
+state.SkillchainDelayMode:set_description('Maximum', "Delay using weapon skills to let party members magic burst.")
 
 state.SkillchainAssistantMode = M{['description'] = 'Show Skillchain Assistant', 'Auto', 'Off'}
-state.SkillchainAssistantMode:set_description('Auto', "Okay, I'll suggest weapon skills you can use to continue the skillchain.")
-state.SkillchainAssistantMode:set_description('Off', "Okay, I'll keep my suggestions to myself!")
+state.SkillchainAssistantMode:set_description('Auto', "Suggest weapon skills that can continue skillchains.")
 
 
 -- Event called when the player readies a weaponskill. Triggers before the weaponskill command is sent.

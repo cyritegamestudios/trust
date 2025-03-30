@@ -8,8 +8,8 @@ return {
                 Gambit.new("Self", L{}, Spell.new("Phalanx", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
                 Gambit.new("Self", L{}, Buff.new("Refresh", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
                 Gambit.new("Self", L{}, Spell.new("Shell V", L{}, L{}, nil, L{}), "Self", L{"Buffs"}),
-                Gambit.new("Self", L{InBattleCondition.new()}, JobAbility.new("Swordplay", L{}), "Self", L{"Buffs"}),
-                Gambit.new("Self", L{InBattleCondition.new()}, Buff.new("Foil", L{}, L{}, nil, L{}), "Self", L{"Buffs"})
+                Gambit.new("Self", L{GambitCondition.new(InBattleCondition.new(), "Self")}, JobAbility.new("Swordplay", L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{GambitCondition.new(InBattleCondition.new(), "Self")}, Buff.new("Foil", L{}, L{}, nil, L{}), "Self", L{"Buffs"})
             }
         },
         DebuffSettings = {
@@ -37,14 +37,14 @@ return {
         },
         GambitSettings = {
             Default = L{
-                Gambit.new("Self", L{MaxHitPointsPercentCondition.new(30), HasRunesCondition.new(3)}, JobAbility.new("Vivacious Pulse", L{}, L{}), "Self", L{})
+                Gambit.new("Self", L{GambitCondition.new(MaxHitPointsPercentCondition.new(30), "Self"), GambitCondition.new(HasRunesCondition.new(3), "Self")}, JobAbility.new("Vivacious Pulse", L{}, L{}), "Self", L{})
             },
             Gambits = L{
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("RUN")}, UseItem.new("Miso Ramen", L{ItemCountCondition.new("Miso Ramen", 1, ">=")}), "Self", L{"Food"}),
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffsCondition.new(L{"Valiance", "Vallation"}, 1)}), HasRunesCondition.new(3), MainJobCondition.new("RUN")}, JobAbility.new("Valiance", L{}, L{}), "Self", L{"Buffs"}),
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffsCondition.new(L{"Valiance", "Vallation"}, 1)}), HasRunesCondition.new(3), MainJobCondition.new("RUN")}, JobAbility.new("Vallation", L{}, L{}), "Self", L{"Buffs"}),
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffsCondition.new(L{"Valiance", "Vallation"}, 1)}), HasRunesCondition.new(2), NotCondition.new(L{MainJobCondition.new("RUN")})}, JobAbility.new("Valiance", L{}, L{}), "Self", L{"Buffs"}),
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffsCondition.new(L{"Valiance", "Vallation"}, 1)}), HasRunesCondition.new(2), NotCondition.new(L{MainJobCondition.new("RUN")})}, JobAbility.new("Vallation", L{}), "Self", L{"Buffs"})
+                Gambit.new("Self", L{GambitCondition.new(ModeCondition.new("AutoFoodMode", "Auto"), "Self"), GambitCondition.new(NotCondition.new(L{HasBuffCondition.new("Food")}), "Self"), GambitCondition.new(MainJobCondition.new("RUN"), "Self")}, UseItem.new("Miso Ramen", L{ItemCountCondition.new("Miso Ramen", 1, ">=")}), "Self", L{"food"}),
+                Gambit.new("Self", L{GambitCondition.new(NotCondition.new(L{HasBuffsCondition.new(L{"Valiance", "Vallation"}, 1)}), "Self"), GambitCondition.new(HasRunesCondition.new(3), "Self"), GambitCondition.new(MainJobCondition.new("RUN"), "Self")}, JobAbility.new("Valiance", L{}, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{GambitCondition.new(NotCondition.new(L{HasBuffsCondition.new(L{"Valiance", "Vallation"}, 1)}), "Self"), GambitCondition.new(HasRunesCondition.new(3), "Self"), GambitCondition.new(MainJobCondition.new("RUN"), "Self")}, JobAbility.new("Vallation", L{}, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{GambitCondition.new(NotCondition.new(L{HasBuffsCondition.new(L{"Valiance", "Vallation"}, 1)}), "Self"), GambitCondition.new(HasRunesCondition.new(2), "Self"), GambitCondition.new(NotCondition.new(L{MainJobCondition.new("RUN")}), "Self")}, JobAbility.new("Valiance", L{}, L{}), "Self", L{"Buffs"}),
+                Gambit.new("Self", L{GambitCondition.new(NotCondition.new(L{HasBuffsCondition.new(L{"Valiance", "Vallation"}, 1)}), "Self"), GambitCondition.new(HasRunesCondition.new(2), "Self"), GambitCondition.new(NotCondition.new(L{MainJobCondition.new("RUN")}), "Self")}, JobAbility.new("Vallation", L{}, L{}), "Self", L{"Buffs"}),
             },
         },
         ReactionSettings = {

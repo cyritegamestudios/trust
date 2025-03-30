@@ -101,7 +101,7 @@ end
 
 function ScholarTrust:get_widget()
     local ScholarWidget = require('ui/widgets/ScholarWidget')
-    local scholarWidget = ScholarWidget.new(Frame.new(40, 294, 125, 57), self:get_party():get_player(), self)
+    local scholarWidget = ScholarWidget.new(Frame.new(40, 285, 125, 57), self:get_party():get_player(), self)
     return scholarWidget, 'job'
 end
 

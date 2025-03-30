@@ -18,7 +18,7 @@ function FoodSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
 
         local foodGambit = allGambits:firstWhere(function(gambit) return gambit:getTags():contains('food') end)
         if not foodGambit then
-            foodGambit = Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new(trustSettings.jobNameShort)}, UseItem.new('Grape Daifuku', L{ItemCountCondition.new('Grape Daifuku', 1, ">=")}), "Self", L{"food"})
+            foodGambit = Gambit.new("Self", L{GambitCondition.new(NotCondition.new(L{HasBuffCondition.new("Food")}), "Self"), GambitCondition.new(ModeCondition.new("AutoFoodMode", "Auto"), "Self"), GambitCondition.new(MainJobCondition.new(trustSettings.jobNameShort), "Self")}, UseItem.new('Grape Daifuku', L{ItemCountCondition.new('Grape Daifuku', 1, ">=")}), "Self", L{"food"})
             allGambits:append(foodGambit)
         end
 

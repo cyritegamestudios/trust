@@ -31,9 +31,6 @@ return {
                 Gambit.new("Enemy", L{}, BloodPactMagic.new('Level ? Holy'), "Enemy", L{}),
                 Gambit.new("Enemy", L{}, BloodPactMagic.new('Tornado II'), "Enemy", L{}),
             },
-            JobAbilities = L{
-
-            },
             Blacklist = L{
 
             },
@@ -59,10 +56,12 @@ return {
         },
         GambitSettings = {
             Default = L{
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Avatar's Favor")}), HasPetCondition.new(L{'Carbuncle', 'Cait Sith', 'Ifrit', 'Shiva', 'Garuda', 'Titan', 'Ramuh', 'Leviathan', 'Fenrir', 'Diabolos', 'Siren'})}, JobAbility.new("Avatar's Favor", L{}), "Self", L{})
+                Gambit.new("Self", L{GambitCondition.new(NotCondition.new(L{HasBuffCondition.new("Avatar's Favor")}), "Self"), GambitCondition.new(HasPetCondition.new(L{'Carbuncle', 'Cait Sith', 'Ifrit', 'Shiva', 'Garuda', 'Titan', 'Ramuh', 'Leviathan', 'Fenrir', 'Diabolos', 'Siren'}), "Self")}, JobAbility.new("Avatar's Favor", L{}), "Self", L{}),
+                Gambit.new("Self", L{GambitCondition.new(CombatSkillsCondition.new(L{"Staff"}), "Self"), GambitCondition.new(MaxManaPointsPercentCondition.new(40), "Self"), GambitCondition.new(MinTacticalPointsCondition.new(1000), "Self"), GambitCondition.new(ModeCondition.new("AutoRestoreManaMode", "Auto"), "Self")}, WeaponSkill.new("Myrkr", L{}), "Self", L{"Weaponskill"}),
+                Gambit.new("Self", L{GambitCondition.new(CombatSkillsCondition.new(L{"Staff"}), "Self"), GambitCondition.new(MaxManaPointsPercentCondition.new(40), "Self"), GambitCondition.new(MinTacticalPointsCondition.new(1000), "Self"), GambitCondition.new(StatusCondition.new("Engaged", 2, ">="), "Self"), GambitCondition.new(ModeCondition.new("AutoRestoreManaMode", "Auto"), "Self")}, WeaponSkill.new("Spirit Taker", L{}), "Self", L{"Weaponskill"}),
             },
             Gambits = L{
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("SMN")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"Food"})
+                Gambit.new("Self", L{GambitCondition.new(ModeCondition.new("AutoFoodMode", "Auto"), "Self"), GambitCondition.new(NotCondition.new(L{HasBuffCondition.new("Food")}), "Self"), GambitCondition.new(MainJobCondition.new("SMN"), "Self")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"food"}),
             }
         },
         ReactionSettings = {

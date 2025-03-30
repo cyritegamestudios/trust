@@ -47,6 +47,7 @@ return L{
     }),
     GambitCategory.new("Weaponskills", "Use weapon skills.", L{
         Gambit.new("Enemy", L{NotCondition.new(L{HasDebuffCondition.new("Defense Down")}), InBattleCondition.new()}, WeaponSkill.new("Armor Break", L{MinTacticalPointsCondition.new(1000)}), "Enemy", L{"Weaponskills"}),
-        Gambit.new("Enemy", L{NotCondition.new(L{HasDebuffCondition.new("Defense Down")}), InBattleCondition.new()}, WeaponSkill.new("Full Break", L{MinTacticalPointsCondition.new(1000)}), "Enemy", L{"Weaponskills"})
+        Gambit.new("Enemy", L{NotCondition.new(L{HasDebuffCondition.new("Defense Down")}), InBattleCondition.new()}, WeaponSkill.new("Full Break", L{MinTacticalPointsCondition.new(1000)}), "Enemy", L{"Weaponskills"}),
+        Gambit.new("Self", L{GambitCondition.new(MaxManaPointsPercentCondition.new(40), "Self"), GambitCondition.new(CombatSkillsCondition.new(L{"Staff"}), "Self"), GambitCondition.new(ModeCondition.new("AutoRestoreManaMode", "Auto"), "Self"), GambitCondition.new(MinTacticalPointsCondition.new(1000), "Self")}, WeaponSkill.new("Myrkr", L{}, L{}), "Self", L{"Weaponskill"}),
     }),
 }

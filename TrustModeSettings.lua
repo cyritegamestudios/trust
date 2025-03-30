@@ -164,7 +164,7 @@ function TrustModeSettings:copySettings()
         local defaultSettings = FileIO.new('data/modes/'..self.jobNameShort..'.lua')
         playerSettings:write(defaultSettings:read())
 
-        addon_message(207, 'Copied mode settings to '..filePath)
+        --addon_message(207, 'Copied mode settings to '..filePath)
     end
 end
 

@@ -5,10 +5,10 @@ Aftermather.__index = Aftermather
 Aftermather.__class = "Aftermather"
 
 state.AutoAftermathMode = M{['description'] = 'Aftermath Mode', 'Off', 'Auto', '2000', '1000'}
-state.AutoAftermathMode:set_description('Off', "Okay, I won't try to keep aftermath up.")
-state.AutoAftermathMode:set_description('Auto', "Okay, I'll try to keep Aftermath: Lv.3 up.")
-state.AutoAftermathMode:set_description('2000', "Okay, I'll try to keep Aftermath: Lv.2 up.")
-state.AutoAftermathMode:set_description('1000', "Okay, I'll try to keep Aftermath: Lv.1 up.")
+state.AutoAftermathMode:set_description('Off', "Do not maintain aftermath.")
+state.AutoAftermathMode:set_description('Auto', "Maintain Aftermath: Lv.3.")
+state.AutoAftermathMode:set_description('2000', "Maintain Aftermath: Lv.2.")
+state.AutoAftermathMode:set_description('1000', "Maintain Aftermath: Lv.1.")
 
 local aftermath_weapon_skills = {
     -- Mythic

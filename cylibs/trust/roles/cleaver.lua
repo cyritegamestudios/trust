@@ -3,7 +3,7 @@ local Cleaver = setmetatable({}, {__index = WeaponSkiller })
 Cleaver.__index = Cleaver
 Cleaver.__class = "Cleaver"
 
-state.AutoSkillchainMode:set_description('Cleave', "Okay, I'll try to kill monsters with AOE weapon skills.")
+state.AutoSkillchainMode:set_description('Cleave', "Cleave monsters with AOE weapon skills.")
 
 function Cleaver.new(action_queue, weapon_skill_settings)
     local self = setmetatable(WeaponSkiller.new(action_queue, weapon_skill_settings, 'Cleave'), Cleaver)

@@ -6,6 +6,7 @@ local serializer_util = require('cylibs/util/serializer_util')
 local Gambit = {}
 Gambit.__index = Gambit
 Gambit.__class = "Gambit"
+Gambit.__type = "Gambit"
 
 Gambit.Tags = {}
 Gambit.Tags.AllTags = L{

@@ -139,7 +139,7 @@ function WeaponSkillSettings:copySettings(override)
         local defaultSettings = FileIO.new(self.settingsFolder..self.jobNameShort..'.lua')
         playerSettings:write(defaultSettings:read())
 
-        addon_message(207, 'Copied default weapon skill settings to '..filePath)
+        --addon_message(207, 'Copied default weapon skill settings to '..filePath)
     end
 end
 

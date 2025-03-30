@@ -5,7 +5,7 @@ Stepper.__index = Stepper
 Stepper.__class = "Stepper"
 
 state.AutoStepMode = M{['description'] = 'Auto Step Mode', 'Off', 'Auto'}
-state.AutoStepMode:set_description('Auto', "Okay, I'll debuff the monster with steps.")
+state.AutoStepMode:set_description('Auto', "Use steps to debuff the mob.")
 
 
 function Stepper.new(action_queue, steps)

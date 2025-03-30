@@ -8,10 +8,10 @@ Debuffer.__index = Debuffer
 Debuffer.__class = "Debuffer"
 
 state.AutoDebuffMode = M{['description'] = 'Debuff Enemies', 'Off', 'Auto'}
-state.AutoDebuffMode:set_description('Auto', "Okay, I'll debuff the monster.")
+state.AutoDebuffMode:set_description('Auto', "Automatically debuff a mob.")
 
 state.AutoSilenceMode = M{['description'] = 'Silence Casters', 'Off', 'Auto'}
-state.AutoSilenceMode:set_description('Auto', "Okay, I'll try to silence monsters that cast spells.")
+state.AutoSilenceMode:set_description('Auto', "Automatically silence mobs after they cast a spell.")
 
 function Debuffer.new(action_queue, debuff_settings, job)
     local self = setmetatable(Gambiter.new(action_queue, {}, state.AutoDebuffMode), Debuffer)

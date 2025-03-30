@@ -23,7 +23,7 @@ return {
         },
         BuffSettings = {
             Gambits = L{
-                Gambit.new("Self", L{InBattleCondition.new()}, JobAbility.new("Haste Samba", L{}, L{}), "Self", L{"Buffs"})
+                Gambit.new("Self", L{GambitCondition.new(InBattleCondition.new(), "Self")}, JobAbility.new("Haste Samba", L{}, L{}), "Self", L{"Buffs"})
             }
         },
         DebuffSettings = {
@@ -53,12 +53,13 @@ return {
         },
         GambitSettings = {
             Default = L{
-                Gambit.new("Enemy", L{HasBuffCondition.new("Presto"), InBattleCondition.new()}, JobAbility.new("Box Step", L{}, L{}), "Self", L{}),
-                Gambit.new("Self", L{HasDazeCondition.new("Sluggish Daze", 5, "<"), InBattleCondition.new()}, JobAbility.new("Presto", L{}, L{}), "Enemy", L{}),
-                Gambit.new("Self", L{MaxTacticalPointsCondition.new(900), HasBuffsCondition.new(L{"Finishing Move 4", "Finishing Move 5", "Finishing Move (6+)"}, 1)}, JobAbility.new("Reverse Flourish", L{}, L{}), "Self", L{}),
+                Gambit.new("Enemy", L{GambitCondition.new(HasBuffCondition.new("Presto"), "Self"), GambitCondition.new(InBattleCondition.new(), "Self")}, JobAbility.new("Box Step", L{}, L{}), "Self", L{}),
+                Gambit.new("Self", L{GambitCondition.new(HasDazeCondition.new("Sluggish Daze", 5, "<"), "Enemy"), GambitCondition.new(InBattleCondition.new(), "Self")}, JobAbility.new("Presto", L{}, L{}), "Enemy", L{}),
+                Gambit.new("Self", L{GambitCondition.new(NotCondition.new(L{HasBuffCondition.new("Finishing Move (6+)")}), "Self")}, JobAbility.new("No Foot Rise", L{}), "Self", L{}),
+                Gambit.new("Self", L{GambitCondition.new(MaxTacticalPointsCondition.new(900), "Self"), GambitCondition.new(HasBuffsCondition.new(L{"Finishing Move 4", "Finishing Move 5", "Finishing Move (6+)"}, 1), "Self")}, JobAbility.new("Reverse Flourish", L{}, L{}), "Self", L{}),
             },
             Gambits = L{
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("DNC")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"Food"})
+                Gambit.new("Self", L{GambitCondition.new(ModeCondition.new("AutoFoodMode", "Auto"), "Self"), GambitCondition.new(NotCondition.new(L{HasBuffCondition.new("Food")}), "Self"), GambitCondition.new(MainJobCondition.new("DNC"), "Self")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"food"}),
             }
         },
         ReactionSettings = {

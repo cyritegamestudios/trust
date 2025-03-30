@@ -139,7 +139,7 @@ function TrustSettings:copySettings(override)
         local defaultSettings = FileIO.new(self.settingsFolder..self.jobNameShort..'.lua')
         playerSettings:write(defaultSettings:read())
 
-        addon_message(207, 'Copied default settings to '..filePath)
+        --addon_message(207, 'Copied default settings to '..filePath)
     end
 end
 

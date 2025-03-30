@@ -8,8 +8,8 @@ Shooter.__class = "Shooter"
 local RangedAttackAction = require('cylibs/actions/ranged_attack')
 
 state.AutoShootMode = M{['description'] = 'Auto Shoot Mode', 'Off', 'Auto', 'Manual'}
-state.AutoShootMode:set_description('Auto', "Okay, I'll automatically shoot at the enemy.")
-state.AutoShootMode:set_description('Manual', "Okay, I'll keep shooting once started until I've got TP.")
+state.AutoShootMode:set_description('Auto', "Automatically use ranged attacks.")
+state.AutoShootMode:set_description('Manual', "Automatically use ranged attacks only after manually performing a ranged attack.")
 
 function Shooter.new(action_queue, shooter_settings)
     local self = setmetatable(Role.new(action_queue), Shooter)

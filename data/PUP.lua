@@ -76,13 +76,13 @@ return {
         },
         GambitSettings = {
             Default = L{
-                Gambit.new("Self", L{NotCondition.new(L{HasPetCondition.new(L{})}), ModeCondition.new("AutoPetMode", "Auto"), NotCondition.new(L{InTownCondition.new()})}, JobAbility.new("Activate", L{}, L{}), "Self"),
-                Gambit.new("Self", L{NotCondition.new(L{HasPetCondition.new(L{})}), ModeCondition.new("AutoPetMode", "Auto"), NotCondition.new(L{InTownCondition.new()})}, JobAbility.new("Deus Ex Automata", L{}, L{}), "Self"),
-                Gambit.new("Self", L{HasPetCondition.new(L{}), PetHitPointsPercentCondition.new(20, "<="), ModeCondition.new("AutoRepairMode", "Auto")}, JobAbility.new("Repair", L{}, L{}), "Self"),
-                Gambit.new("Self", L{HasBuffCondition.new("Overload")}, JobAbility.new("Cooldown", L{}, L{}), "Self"),
+                Gambit.new("Self", L{GambitCondition.new(NotCondition.new(L{HasPetCondition.new(L{})}), "Self"), GambitCondition.new(ModeCondition.new("AutoPetMode", "Auto"), "Self"), GambitCondition.new(NotCondition.new(L{InTownCondition.new()}), "Self")}, JobAbility.new("Activate", L{}, L{}), "Self"),
+                Gambit.new("Self", L{GambitCondition.new(NotCondition.new(L{HasPetCondition.new(L{})}), "Self"), GambitCondition.new(ModeCondition.new("AutoPetMode", "Auto"), "Self"), GambitCondition.new(NotCondition.new(L{InTownCondition.new()}), "Self")}, JobAbility.new("Deus Ex Automata", L{}, L{}), "Self"),
+                Gambit.new("Self", L{GambitCondition.new(HasPetCondition.new(L{}), "Self"), GambitCondition.new(PetHitPointsPercentCondition.new(20, "<="), "Self"), GambitCondition.new(ModeCondition.new("AutoRepairMode", "Auto"), "Self")}, JobAbility.new("Repair", L{}, L{}), "Self"),
+                Gambit.new("Self", L{GambitCondition.new(HasBuffCondition.new("Overload"), "Self")}, JobAbility.new("Cooldown", L{}, L{}), "Self"),
             },
             Gambits = L{
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("PUP")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"Food"})
+                Gambit.new("Self", L{GambitCondition.new(ModeCondition.new("AutoFoodMode", "Auto"), "Self"), GambitCondition.new(NotCondition.new(L{HasBuffCondition.new("Food")}), "Self"), GambitCondition.new(MainJobCondition.new("PUP"), "Self")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"food"}),
             }
         },
         ReactionSettings = {

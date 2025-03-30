@@ -34,14 +34,14 @@ return {
         },
         GambitSettings = {
             Default = L{
-                Gambit.new("Enemy", L{GainDebuffCondition.new("Dia")}, JobAbility.new("Light Shot", L{}, L{}), "Enemy"),
-                Gambit.new("Enemy", L{GainDebuffCondition.new("silence")}, JobAbility.new("Wind Shot", L{}, L{}), "Enemy"),
-                Gambit.new("Enemy", L{GainDebuffCondition.new("slow")}, JobAbility.new("Earth Shot", L{}, L{}), "Enemy"),
-                Gambit.new("Enemy", L{GainDebuffCondition.new("paralysis")}, JobAbility.new("Ice Shot", L{}, L{}), "Enemy"),
-                Gambit.new("Self", L{ModeCondition.new("AutoShootMode", "Auto")}, JobAbility.new("Triple Shot", L{}, L{}), "Self")
+                Gambit.new("Enemy", L{GambitCondition.new(GainDebuffCondition.new("Dia"), "Enemy")}, JobAbility.new("Light Shot", L{}, L{}), "Enemy"),
+                Gambit.new("Enemy", L{GambitCondition.new(GainDebuffCondition.new("silence"), "Enemy")}, JobAbility.new("Wind Shot", L{}, L{}), "Enemy"),
+                Gambit.new("Enemy", L{GambitCondition.new(GainDebuffCondition.new("slow"), "Enemy")}, JobAbility.new("Earth Shot", L{}, L{}), "Enemy"),
+                Gambit.new("Enemy", L{GambitCondition.new(GainDebuffCondition.new("paralysis"), "Enemy")}, JobAbility.new("Ice Shot", L{}, L{}), "Enemy"),
+                Gambit.new("Self", L{GambitCondition.new(ModeCondition.new("AutoShootMode", "Auto"), "Self")}, JobAbility.new("Triple Shot", L{}, L{}), "Self")
             },
             Gambits = L{
-                Gambit.new("Self", L{NotCondition.new(L{HasBuffCondition.new("Food")}), ModeCondition.new("AutoFoodMode", "Auto"), MainJobCondition.new("COR")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"Food"})
+                Gambit.new("Self", L{GambitCondition.new(ModeCondition.new("AutoFoodMode", "Auto"), "Self"), GambitCondition.new(NotCondition.new(L{HasBuffCondition.new("Food")}), "Self"), GambitCondition.new(MainJobCondition.new("COR"), "Self")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"food"}),
             }
         },
         ReactionSettings = {

@@ -153,20 +153,18 @@ end
 -- Return the Action to use this job ability on a target.
 -- @treturn Action Action to cast the spell
 function JobAbility:to_action(target_index)
-    --local actions = L{}
+    local job_ability_action
     if string.find(self:get_job_ability_name(), 'Waltz') then
-        --actions:append(WaltzAction.new(self:get_job_ability_name(), target_index or self:get_target()))
-        return WaltzAction.new(self:get_job_ability_name(), target_index or self:get_target())
+        job_ability_action = WaltzAction.new(self:get_job_ability_name(), target_index or self:get_target())
     elseif string.find(self:get_job_ability_name(), 'Flourish') then
-        --actions:append(FlourishAction.new(self:get_job_ability_name(), target_index or self:get_target()))
-        return FlourishAction.new(self:get_job_ability_name(), target_index or self:get_target())
+        job_ability_action = FlourishAction.new(self:get_job_ability_name(), target_index or self:get_target())
     else
-        --actions:append(JobAbilityAction.new(0, 0, 0, self:get_job_ability_name(), target_index or self:get_target()))
-        return JobAbilityAction.new(0, 0, 0, self:get_job_ability_name(), target_index or self:get_target())
+        job_ability_action = JobAbilityAction.new(0, 0, 0, self:get_job_ability_name(), target_index or self:get_target())
     end
-    --actions:append(WaitAction.new(0, 0, 0, 2))
-
-    --return SequenceAction.new(actions, 'job_ability_'..self:get_job_ability_name())
+    if job_ability_action then
+        job_ability_action.identifier = 'job_ability_'..self:get_name()
+    end
+    return job_ability_action
 end
 
 function JobAbility:get_name()
