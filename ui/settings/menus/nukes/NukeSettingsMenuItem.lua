@@ -32,7 +32,7 @@ function NukeSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trust
             end),
         }
         return sections
-    end, L{ Condition.TargetType.Enemy }, L{'AutoMagicBurstMode', 'AutoNukeMode', 'MagicBurstTargetMode'}, "Nuke", "Nukes", function(_)
+    end, L{ Condition.TargetType.Self, Condition.TargetType.Ally, Condition.TargetType.Enemy }, L{'AutoMagicBurstMode', 'AutoNukeMode', 'MagicBurstTargetMode'}, "Nuke", "Nukes", function(_)
         return false
     end, function(ability)
         --local debuff = ability:get_status()

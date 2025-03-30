@@ -41,7 +41,7 @@ function BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trust
             end)),
         }
         return sections
-    end, L{ Condition.TargetType.Self, Condition.TargetType.Ally }, L{'AutoBarSpellMode', 'AutoBuffMode'}, "Buff", "Buffs", function(_)
+    end, L{ Condition.TargetType.Self, Condition.TargetType.Ally, Condition.TargetType.Enemy }, L{'AutoBarSpellMode', 'AutoBuffMode'}, "Buff", "Buffs", function(_)
         return false
     end, function(ability)
         local buff = ability:get_status()
