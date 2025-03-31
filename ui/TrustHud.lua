@@ -417,7 +417,7 @@ function TrustHud:getMenuItemForRole(role, weaponSkillSettings, weaponSkillSetti
         return self:getFollowerMenuItem(role, trustModeSettings)
     end
     if role:get_type() == "pather" then
-        return self:getPatherMenuItem(role, viewSize)
+        return self:getPatherMenuItem(role, trust:role_with_type("follower"), viewSize)
     end
     if role:get_type() == "truster" then
         return self:getTrusterMenuItem(role)
@@ -472,9 +472,9 @@ function TrustHud:getFollowerMenuItem(role, trustModeSettings)
     return FollowSettingsMenuItem.new(role, trustModeSettings, self.addon_settings)
 end
 
-function TrustHud:getPatherMenuItem(role, viewSize)
+function TrustHud:getPatherMenuItem(role, follower)
     local PathSettingsMenuItem = require('ui/settings/menus/misc/PathSettingsMenuItem')
-    return PathSettingsMenuItem.new(role)
+    return PathSettingsMenuItem.new(role, follower)
 end
 
 function TrustHud:getTrusterMenuItem(role)

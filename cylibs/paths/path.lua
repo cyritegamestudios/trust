@@ -4,13 +4,14 @@ local Path = {}
 Path.__index = Path
 Path.__class = Path
 
-function Path.new(zone_id, actions, auto_reverse, reverse_delay)
+function Path.new(zone_id, actions, auto_reverse, reverse_delay, path_name)
 	local self = setmetatable({}, Path)
 
 	self.zone_id = zone_id
 	self.actions = actions
 	self.auto_reverse = auto_reverse
 	self.reverse_delay = reverse_delay
+	self.path_name = path_name
 
 	return self
 end
@@ -26,7 +27,7 @@ function Path.from_file(file_path)
 			return nil
 		end
 		local path = load_path()
-		return Path.new(path.zone_id, path.actions, path.auto_reverse, path.reverse_delay)
+		return Path.new(path.zone_id, path.actions, path.auto_reverse, path.reverse_delay, file_path)
 	else
 		return nil
 	end
@@ -59,6 +60,10 @@ end
 
 function Path:get_actions()
 	return self.actions
+end
+
+function Path:get_path_name()
+	return self.path_name
 end
 
 function Path:serialize()
