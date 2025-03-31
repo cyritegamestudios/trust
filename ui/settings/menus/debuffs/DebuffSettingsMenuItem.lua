@@ -34,7 +34,7 @@ function DebuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
             end)),
         }
         return sections
-    end, L{ Condition.TargetType.Enemy }, L{'AutoDebuffMode', 'AutoDispelMode', 'AutoSilenceMode'}, "Debuff", "Debuffs", function(_)
+    end, L{ Condition.TargetType.Self, Condition.TargetType.Ally, Condition.TargetType.Enemy }, L{'AutoDebuffMode', 'AutoDispelMode', 'AutoSilenceMode'}, "Debuff", "Debuffs", function(_)
         return false
     end, function(ability)
         local debuff = ability:get_status()

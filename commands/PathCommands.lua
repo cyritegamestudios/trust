@@ -124,7 +124,7 @@ function PathTrustCommands:handle_stop_path()
     local success
     local message
 
-    self:get_pather():stop()
+    self:get_pather():stop(true)
 
     success = true
     message = 'Stopped the current path'

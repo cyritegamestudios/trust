@@ -44,7 +44,7 @@ function PullActionMenuItem.new(trust, trustSettings, trustSettingsMode, trustMo
             L{ Approach.new(), RangedAttack.new() },
         }
         return sections
-    end, L{ Condition.TargetType.Enemy }, L{'ApproachPullMode'}, "Ability", "Abilities", function(_)
+    end, L{ Condition.TargetType.Enemy, Condition.TargetType.Self }, L{'ApproachPullMode'}, "Ability", "Abilities", function(_)
         return false
     end, function(ability)
         return ability:get_localized_name()

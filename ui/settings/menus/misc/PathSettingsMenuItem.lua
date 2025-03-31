@@ -11,7 +11,7 @@ local TextInputConfigItem = require('ui/settings/editors/config/TextInputConfigI
 local PathSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 PathSettingsMenuItem.__index = PathSettingsMenuItem
 
-function PathSettingsMenuItem.new(pather)
+function PathSettingsMenuItem.new(pather, follower)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Replay', 18),
         ButtonItem.default('Stop', 18),
@@ -20,6 +20,7 @@ function PathSettingsMenuItem.new(pather)
     }, {}, nil, "Paths", "Start, stop or record a new path."), PathSettingsMenuItem)
 
     self.pather = pather
+    self.follower = follower
     self.path_recorder = self.pather:get_path_recorder()
     self.dispose_bag = DisposeBag.new()
 
@@ -89,11 +90,7 @@ end
 
 function PathSettingsMenuItem:getStopPathMenuItem()
     return MenuItem.action(function()
-        if self.pather:is_enabled() then
-            self.pather:stop()
-        else
-            self.pather:get_party():add_to_chat(self.pather:get_party():get_player(), "I'm already standing still!")
-        end
+        self.pather:stop(true)
     end, "Paths", "Cancel any active path.")
 end
 

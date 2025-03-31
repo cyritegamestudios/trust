@@ -79,12 +79,13 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
     self.abilitiesForTargets = abilitiesForTargets or function(targets)
         return self:getAbilitiesForTargets(targets)
     end
-    self.conditionTargets = --[[conditionTargets or]] L(Condition.TargetType.AllTargets)
+    self.conditionTargets = conditionTargets or L(Condition.TargetType.AllTargets)
     self.gambitTagBlacklist = gambitTagBlacklist or S{}
     self.editorConfig = editorStyle
     self.modes = modes or L{ 'AutoGambitMode' }
     self.libraryCategoryFilter = libraryCategoryFilter
     self.conditionSettingsMenuItem = GambitConditionSettingsMenuItem.new(self.trustSettings)
+    self.conditionSettingsMenuItem:setTargetTypes(S(self.conditionTargets))
     self.defaultGambitTags = L{}
     self.gambitChanged = Event.newEvent()
     self.gambitCreated = Event.newEvent()

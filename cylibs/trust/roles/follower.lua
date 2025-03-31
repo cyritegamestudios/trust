@@ -4,6 +4,7 @@ Follower.__class = "Follower"
 
 local BlockAction = require('cylibs/actions/block')
 local DisposeBag = require('cylibs/events/dispose_bag')
+local Event = require('cylibs/events/Luvent')
 local logger = require('cylibs/logger/logger')
 local player_util = require('cylibs/util/player_util')
 local res = require('resources')
@@ -12,14 +13,20 @@ local SequenceAction = require('cylibs/actions/sequence')
 local WaitAction = require('cylibs/actions/wait')
 local zone_util = require('cylibs/util/zone_util')
 
-state.AutoFollowMode = M{['description'] = 'Follow', 'Off', 'Always'}
+state.AutoFollowMode = M{['description'] = 'Follow', 'Off', 'Always', 'Path'}
 state.AutoFollowMode:set_description('Always', "Follow the party member set with // trust follow when not in battle.")
 
-function Follower.new(action_queue, follow_distance, addon_settings)
+-- Event called when the follow target changes
+function Follower:on_follow_target_changed()
+    return self.follow_target_changed
+end
+
+function Follower.new(action_queue, follow_distance, addon_settings, state_var)
     local self = setmetatable(Role.new(action_queue), Follower)
 
     self.action_queue = action_queue
     self.addon_settings = addon_settings
+    self.state_var = state_var or state.AutoFollowMode
     self.walk_action_queue = ActionQueue.new(nil, false, 100, false, false)
     self.action_events = {}
     self.distance = follow_distance or 1
@@ -31,6 +38,7 @@ function Follower.new(action_queue, follow_distance, addon_settings)
     self.zone_cooldown = 5
     self.last_position = vector.zero(3)
     -- self.last_zone_time = os.time() - self.zone_cooldown
+    self.follow_target_changed = Event.newEvent()
     self.follow_target_dispose_bag = DisposeBag.new()
     self.dispose_bag = DisposeBag.new()
 
@@ -47,17 +55,14 @@ function Follower:destroy()
     end
     self.dispose_bag:destroy()
 
+    self.follow_target_changed:removeAllActions()
+
     self:stop_following()
 end
 
 function Follower:on_add()
-    self.conditions = L{
-        MaxDistanceCondition.new(self.maxfollowdistance),
-        ValidTargetCondition.new(),
-    }
-
-    self.dispose_bag:add(state.AutoFollowMode:on_state_change():addAction(function(_, new_value)
-        if state.AutoFollowMode.value == 'Off' then
+    self.dispose_bag:add(self.state_var:on_state_change():addAction(function(_, new_value)
+        if self.state_var.value == 'Off' then
             self:stop_following()
         end
     end), state.AutoTargetMode:on_state_change())
@@ -152,7 +157,7 @@ function Follower:is_valid_target(target_name)
         return false
     end
     if not IpcRelay.shared():is_connected(target_name) then
-        for condition in self.conditions:it() do
+        for condition in self:get_conditions():it() do
             if not condition:is_satisfied(target:get_mob().index) then
                 return false
             end
@@ -162,18 +167,16 @@ function Follower:is_valid_target(target_name)
 end
 
 function Follower:check_distance()
-    if state.AutoFollowMode.value == 'Off' then
+    if self.state_var.value == 'Off' then
         return
     end
     local follow_target = self:get_follow_target()
-    if follow_target == nil or not self:is_valid_target(follow_target:get_name()) then
+    if follow_target == nil or state.AutoFollowMode.value == 'Always' and not self:is_valid_target(follow_target:get_name()) then
         if follow_target then
             self:get_party():add_to_chat(self.party:get_player(), "I can't find you. Whatever happened to no Trust left behind?", 'follower_follow_failure', 30)
         end
         return
     end
-
-    local follow_target = self:get_follow_target()
 
     local x = follow_target:get_position()[1]
     local y = follow_target:get_position()[2]
@@ -182,8 +185,8 @@ function Follower:check_distance()
     local player = windower.ffxi.get_mob_by_id(windower.ffxi.get_player().id)
     if player then
         local distance = player_util.distance(player_util.get_player_position(), follow_target:get_position())
-        if distance < self.maxfollowdistance and (math.abs(z - player.z) > 1 or distance > self.distance) then
-            self.walk_action_queue:push_action(RunToLocation.new(x, y, z, self.distance))
+        if distance < self.maxfollowdistance and (math.abs(z - player.z) > 1 or distance > self:get_distance()) then
+            self.walk_action_queue:push_action(RunToLocation.new(x, y, z, self:get_distance()))
         end
     end
 end
@@ -196,7 +199,7 @@ function Follower:on_player_status_change(new_status_id, old_status_id)
         return
     end
 
-    if state.AutoFollowMode.value == 'Always' then
+    if self.state_var.value == 'Always' then
         if player.status == 'Idle' then
             self:start_following()
         end
@@ -214,8 +217,30 @@ function Follower:get_type()
     return "follower"
 end
 
+function Follower:get_distance()
+    if state.AutoFollowMode.value == 'Path' then
+        return 1
+    else
+        return self.distance
+    end
+end
+
+function Follower:get_conditions()
+    if state.AutoFollowMode.value == 'Path' then
+        return L{}
+    else
+        return L{
+            MaxDistanceCondition.new(self.maxfollowdistance),
+            ValidTargetCondition.new(),
+        }
+    end
+end
+
 function Follower:set_follow_target(target)
     self:stop_following()
+
+    -- Before moving this line check pather
+    self:on_follow_target_changed():trigger(self, self.follow_target, target)
 
     self.follow_target = target
     self.follow_target_dispose_bag:destroy()
@@ -229,6 +254,8 @@ function Follower:set_follow_target(target)
                 self:zone(zone_id, x, y, z, zone_line, zone_type)
             end
         end), self.follow_target:on_zone_change())
+    else
+        self.state_var:set('Off')
     end
 end
 
