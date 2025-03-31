@@ -27,7 +27,11 @@ function ReadyMove.new(ready_move_name, conditions)
         ready_move_ready:set_editable(false)
         conditions:append(ready_move_ready)
     end
-    local self = setmetatable(SkillchainAbility.new('job_abilities', ready_move.id, conditions), ReadyMove)
+    local skillchain_ability = SkillchainAbility.new('job_abilities', ready_move.id, conditions)
+    if skillchain_ability == nil then
+        return nil
+    end
+    local self = setmetatable(skillchain_ability, ReadyMove)
     return self
 end
 
