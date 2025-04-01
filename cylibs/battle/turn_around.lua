@@ -62,9 +62,12 @@ end
 -- Return the Action to use this action on a target.
 -- @treturn Action Action to use ability
 function TurnAround:to_action(target_index, _)
+    local target = windower.ffxi.get_mob_by_index(target_index)
     return SequenceAction.new(L{
-        BlockAction.new(function() player_util.face_away(windower.ffxi.get_mob_by_index(target_index)) end, "face away from target"),
-        WaitAction.new(0, 0, 0, 1.5),
+        BlockAction.new(function()
+            handle_set('AutoFaceMobMode', 'Away')
+            player_util.face_away(target)
+        end, "set_face_away", self:get_localized_name()),
     }, self.__class..'_turn_around')
 end
 
