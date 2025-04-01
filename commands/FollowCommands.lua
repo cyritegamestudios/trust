@@ -77,7 +77,7 @@ function FollowTrustCommands:handle_follow_party_member(party_member_name)
         end
     else
         success = false
-        message = party_member_name..' is not a valid party member'
+        message = party_member_name..' is not a valid party member or is not in range'
     end
 
     return success, message

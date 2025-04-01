@@ -88,7 +88,6 @@ function CombatMode:check_distance()
             if target.distance:sqrt() < self.range_distance then
                 self.action_queue:push_action(RunAwayAction.new(target.index, self.range_distance), true)
             elseif target.distance:sqrt() > (self.range_distance + 0.5) then
-                player_util.face(target)
                 self.action_queue:push_action(BlockAction.new(function() player_util.face(target)  end))
                 self.action_queue:push_action(RunToAction.new(target.index, self.range_distance), true)
             else

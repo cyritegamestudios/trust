@@ -40,7 +40,9 @@ function Reacter:on_add()
         if ability then
             logger.notice(self.__class, 'ability_ready', 'check_gambits', ability.en)
 
-            local gambits = self:get_reactions_of_type(ReadyAbilityCondition.__type)
+            local gambits = self:get_reactions_of_type(ReadyAbilityCondition.__type, function(condition)
+                return condition.ability_name == ability.en
+            end)
             if gambits:length() == 0 then
                 return
             end
@@ -60,7 +62,9 @@ function Reacter:on_add()
         if ability then
             logger.notice(self.__class, 'ability_finish', 'check_gambits', ability.en)
 
-            local gambits = self:get_reactions_of_type(FinishAbilityCondition.__type)
+            local gambits = self:get_reactions_of_type(FinishAbilityCondition.__type, function(condition)
+                return condition.ability_name == ability.en
+            end)
             if gambits:length() == 0 then
                 return
             end
@@ -282,7 +286,9 @@ function Reacter:perform_gambit(gambit, target)
         self.action_queue:clear()
 
         action.priority = ActionPriority.highest
-        action.identifier = self:get_action_identifier()
+        --action.identifier = self:get_action_identifier()
+
+        addon_system_error("Reaction: "..action:tostring())
 
         if self:should_ignore_queue(gambit:getAbility()) then
             self.react_action_queue:push_action(action, true)
@@ -301,7 +307,7 @@ function Reacter:allows_duplicates()
 end
 
 function Reacter:allows_multiple_actions()
-    return false
+    return true
 end
 
 function Reacter:get_type()
@@ -330,10 +336,11 @@ function Reacter:get_all_gambits()
     return self.gambits
 end
 
-function Reacter:get_reactions_of_type(condition_type)
+function Reacter:get_reactions_of_type(condition_type, filter)
+    filter = filter or function(_) return true end
     local gambits = self:get_all_gambits():filter(function(gambit)
         for condition in gambit:getConditions():it() do
-            if condition:getCondition().__type == condition_type then
+            if condition:getCondition().__type == condition_type and filter(condition:getCondition()) then
                 return true
             end
             return false

@@ -62,8 +62,12 @@ end
 -- Return the Action to use this action on a target.
 -- @treturn Action Action to use ability
 function TurnToFace:to_action(target_index, _)
+    local target = windower.ffxi.get_mob_by_index(target_index)
     return SequenceAction.new(L{
-        BlockAction.new(function() player_util.face(windower.ffxi.get_mob_by_index(target_index)) end, "face target"),
+        BlockAction.new(function()
+            handle_set('AutoFaceMobMode', 'Auto')
+            player_util.face(target)
+        end, "set_face", self:get_localized_name()),
     }, self.__class..'_turn_to_face')
 end
 
