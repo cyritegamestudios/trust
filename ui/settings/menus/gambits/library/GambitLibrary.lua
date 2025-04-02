@@ -14,6 +14,8 @@ return L{
         Gambit.new("Enemy", L{ReadyAbilityCondition.new("Just Desserts")}, Spell.new("Stun", L{}, L{}, nil, L{}), "Enemy", L{"Enemies","Reaction"}),
         Gambit.new("Enemy", L{ActionCondition.new("Casting start")}, Spell.new("Silence", L{}, L{}, nil, L{}), "Enemy", L{"Enemies","Reaction"}),
         Gambit.new("Enemy", L{ActionCondition.new("Casting start")}, Spell.new("Stun", L{}, L{}, nil, L{}), "Enemy", L{"Enemies","Reaction"}),
+        Gambit.new("Enemy", L{GambitCondition.new(ReadyAbilityCondition.new("Pain Sync"), "Enemy")}, TurnAround.new(L{}), "Enemy", L{"Enemies","Reaction"}),
+        Gambit.new("Enemy", L{GambitCondition.new(FinishAbilityCondition.new("Pain Sync"), "Enemy")}, TurnToFace.new(L{}), "Enemy", L{"Enemies","Reaction"})
     }),
     GambitCategory.new("Items", "Use items.", L{
         Gambit.new("Self", L{HasDebuffCondition.new("silence")}, UseItem.new("Echo Drops", L{ItemCountCondition.new("Echo Drops", 1, ">=")}), "Self", L{"Items", "Status Ailments"}),

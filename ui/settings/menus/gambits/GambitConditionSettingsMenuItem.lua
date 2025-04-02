@@ -10,7 +10,11 @@ local TextStyle = require('cylibs/ui/style/text_style')
 local GambitConditionSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 GambitConditionSettingsMenuItem.__index = GambitConditionSettingsMenuItem
 
-function GambitConditionSettingsMenuItem.new(trustSettings, parentMenuItem, enabled)
+function GambitConditionSettingsMenuItem.new(trustSettings, parentMenuItem, enabled, conditionTypeFilter)
+    conditionTypeFilter = conditionTypeFilter or function(_)
+        return true
+    end
+
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
@@ -21,6 +25,12 @@ function GambitConditionSettingsMenuItem.new(trustSettings, parentMenuItem, enab
     self.trustSettings = trustSettings
     self.targetTypes = Condition.TargetType.AllTargets
     self.editableConditionClasses = self:getEditableConditionClasses()
+    for key, value in pairs(self.editableConditionClasses) do
+        if not conditionTypeFilter(key) then
+            self.editableConditionClasses:delete(value)
+        end
+    end
+
     self.dispose_bag = DisposeBag.new()
 
     self.contentViewConstructor = function(_, infoView)
