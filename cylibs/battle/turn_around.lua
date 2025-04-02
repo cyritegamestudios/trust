@@ -4,6 +4,7 @@
 -- @name TurnAround
 
 local serializer_util = require('cylibs/util/serializer_util')
+local TurnAction = require('cylibs/actions/turn')
 
 local TurnAround = {}
 TurnAround.__index = TurnAround
@@ -62,12 +63,9 @@ end
 -- Return the Action to use this action on a target.
 -- @treturn Action Action to use ability
 function TurnAround:to_action(target_index, _)
-    local target = windower.ffxi.get_mob_by_index(target_index)
     return SequenceAction.new(L{
-        BlockAction.new(function()
-            handle_set('AutoFaceMobMode', 'Away')
-            player_util.face_away(target)
-        end, "set_face_away", self:get_localized_name()),
+        TurnAction.new(target_index, true),
+        WaitAction.new(0, 0, 0, 2),
     }, self.__class..'_turn_around')
 end
 

@@ -24,6 +24,7 @@ TurnToFace = require('cylibs/battle/turn_to_face')
 Command = require('cylibs/battle/command')
 UseItem = require('cylibs/battle/use_item')
 Engage = require('cylibs/battle/engage')
+SetMode = require('cylibs/gambits/abilities/set_mode')
 
 Gambit = require('cylibs/gambits/gambit')
 GambitCondition = require('cylibs/gambits/gambit_condition')

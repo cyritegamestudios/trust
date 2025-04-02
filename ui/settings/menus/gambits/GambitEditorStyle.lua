@@ -78,7 +78,7 @@ function GambitEditorStyle:getAbilitiesForTargets(targets, trust)
         L{ Approach.new(), RangedAttack.new(), TurnAround.new(), TurnToFace.new(), RunAway.new(), RunTo.new(), Engage.new() }:filter(function(_)
             return targets:contains('Enemy')
         end),
-        L{ UseItem.new(), Command.new() }:filter(function(_)
+        L{ UseItem.new(), SetMode.new(), Command.new() }:filter(function(_)
             return targets:contains('Self')
         end),
     }
