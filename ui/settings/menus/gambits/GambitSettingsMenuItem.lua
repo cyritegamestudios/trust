@@ -345,7 +345,6 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
             local editAbilityEditor = ConfigEditor.new(self.trustSettings, self.selectedGambit:getAbility(), configItems, infoView, nil, showMenu)
 
             self.disposeBag:add(editAbilityEditor:onConfigConfirm():addAction(function(newSettings, oldSettings)
-                print('config changed')
                 if self.selectedGambit:getAbility().on_config_changed then
                     self.selectedGambit:getAbility():on_config_changed(oldSettings)
                 end
