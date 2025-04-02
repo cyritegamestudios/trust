@@ -11,15 +11,16 @@ function NukeTrustCommands.new(trust, trust_settings, action_queue)
     self.action_queue = action_queue
 
     -- AutoNukeMode
-    self:add_command('earth', function(_) return self:handle_toggle_mode('AutoNukeMode', 'Earth', 'Off')  end, 'Free nuke with earth spells')
-    self:add_command('lightning', function(_) return self:handle_toggle_mode('AutoNukeMode', 'Lightning', 'Off')  end, 'Free nuke with lightning spells')
-    self:add_command('water', function(_) return self:handle_toggle_mode('AutoNukeMode', 'Water', 'Off')  end, 'Free nuke with water spells')
-    self:add_command('fire', function(_) return self:handle_toggle_mode('AutoNukeMode', 'Fire', 'Off')  end, 'Free nuke with fire spells')
-    self:add_command('ice', function(_) return self:handle_toggle_mode('AutoNukeMode', 'Ice', 'Off')  end, 'Free nuke with ice spells')
-    self:add_command('wind', function(_) return self:handle_toggle_mode('AutoNukeMode', 'Wind', 'Off')  end, 'Free nuke with wind spells')
-    self:add_command('light', function(_) return self:handle_toggle_mode('AutoNukeMode', 'Light', 'Off')  end, 'Free nuke with light spells')
-    self:add_command('dark', function(_) return self:handle_toggle_mode('AutoNukeMode', 'Dark', 'Off')  end, 'Free nuke with dark spells')
-    self:add_command('cleave', function(_) return self:handle_toggle_mode('AutoNukeMode', 'Cleave', 'Off')  end, 'Cleave enemies with AOE spells')
+    self:add_command('off', function(_) return self:handle_set_mode('AutoNukeMode', 'Off')  end, 'Disable free nuking')
+    self:add_command('earth', function(_) return self:handle_set_mode('AutoNukeMode', 'Earth')  end, 'Free nuke with earth spells')
+    self:add_command('lightning', function(_) return self:handle_set_mode('AutoNukeMode', 'Lightning')  end, 'Free nuke with lightning spells')
+    self:add_command('water', function(_) return self:handle_set_mode('AutoNukeMode', 'Water')  end, 'Free nuke with water spells')
+    self:add_command('fire', function(_) return self:handle_set_mode('AutoNukeMode', 'Fire')  end, 'Free nuke with fire spells')
+    self:add_command('ice', function(_) return self:handle_set_mode('AutoNukeMode', 'Ice')  end, 'Free nuke with ice spells')
+    self:add_command('wind', function(_) return self:handle_set_mode('AutoNukeMode', 'Wind')  end, 'Free nuke with wind spells')
+    self:add_command('light', function(_) return self:handle_set_mode('AutoNukeMode', 'Light')  end, 'Free nuke with light spells')
+    self:add_command('dark', function(_) return self:handle_set_mode('AutoNukeMode', 'Dark')  end, 'Free nuke with dark spells')
+    self:add_command('cleave', function(_) return self:handle_set_mode('AutoNukeMode', 'Cleave')  end, 'Cleave enemies with AOE spells')
 
     return self
 end
@@ -43,6 +44,15 @@ function NukeTrustCommands:handle_toggle_mode(mode_var_name, on_value, off_value
     else
         handle_set(mode_var_name, on_value)
     end
+
+    return success, message
+end
+
+function NukeTrustCommands:handle_set_mode(mode_name, mode_value)
+    local success = true
+    local message
+
+    handle_set(mode_name, mode_value)
 
     return success, message
 end

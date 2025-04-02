@@ -51,6 +51,29 @@ function TrustCommands:handle_command(...)
     return false
 end
 
+function TrustCommands:handle_toggle_mode(mode_var_name, on_value, off_value)
+    local success = true
+    local message
+
+    local mode_var = get_state(mode_var_name)
+    if mode_var.value == on_value then
+        handle_set(mode_var_name, off_value)
+    else
+        handle_set(mode_var_name, on_value)
+    end
+
+    return success, message
+end
+
+function TrustCommands:handle_set_mode(mode_name, mode_value)
+    local success = true
+    local message
+
+    handle_set(mode_name, mode_value)
+
+    return success, message
+end
+
 function TrustCommands:description()
     local result = '========================\n'
     for command_name, command in pairs(self.commands) do
