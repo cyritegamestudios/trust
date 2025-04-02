@@ -181,6 +181,9 @@ function job_util.getAbility(abilityName)
         return Command.new()
     elseif abilityName == 'Use Item' then
         return UseItem.new()
+    elseif abilityName == 'Set Mode' then
+        print('mode')
+        return SetMode.new()
     else
         return nil
     end

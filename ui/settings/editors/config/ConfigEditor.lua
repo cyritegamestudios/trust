@@ -173,7 +173,7 @@ function ConfigEditor.new(trustSettings, configSettings, configItems, infoView, 
         local item = self:getDataSource():itemAtIndexPath(indexPath)
         if (item.getCurrentValue and configItem.getInitialValue) then
             self:onConfigItemChanged():trigger(configItem:getKey(), item:getCurrentValue(), configItem:getInitialValue())
-            if item:getCurrentValue() ~= configItem:getInitialValue() then
+            --if item:getCurrentValue() ~= configItem:getInitialValue() then
                 for dependency in configItem:getDependencies():it() do
                     if dependency.onReload then
                         local allValues = dependency.onReload(configItem:getKey(), item:getCurrentValue(), configItem)
@@ -182,7 +182,7 @@ function ConfigEditor.new(trustSettings, configSettings, configItems, infoView, 
                         self:reloadConfigItem(dependency)
                     end
                 end
-            end
+            --end
         end
     end), self:getDelegate():didDeselectItemAtIndexPath())
 
