@@ -27,9 +27,11 @@ function SkillchainTrustCommands.new(trust, weapon_skill_settings, action_queue)
     self:add_command('save', self.handle_save, 'Saves settings changes to file')
 
     -- AutoSkillchainMode
-    self:add_command('auto', self.handle_toggle_auto, 'Automatically make skillchains')
-    self:add_command('cleave', self.handle_toggle_cleave, 'Cleave monsters')
-    self:add_command('spam', self.handle_toggle_spam, 'Spam the same weapon skill', L{
+    self:add_command('default', function(_) return self:handle_toggle_mode('AutoSkillchainMode', 'Auto', 'Off')  end, 'Toggle skillchains on and off')
+    self:add_command('off', function(_) return self:handle_set_mode('AutoSkillchainMode', 'Off')  end, 'Disable skillchains')
+    self:add_command('auto', function(_) return self:handle_set_mode('AutoSkillchainMode', 'Auto')  end, 'Automatically make skillchains')
+    self:add_command('cleave', function(_) return self:handle_set_mode('AutoSkillchainMode', 'Cleave')  end, 'Cleave monsters')
+    self:add_command('spam', self.handle_set_spam, 'Spam the same weapon skill', L{
         PickerConfigItem.new('weapon_skill_name', ability_names[1], ability_names, nil, "Weapon Skill Name")
     })
     self:add_command('mintp', self.handle_set_mintp, 'Sets the minimum tp for spamming', L{
@@ -56,21 +58,15 @@ function SkillchainTrustCommands.new(trust, weapon_skill_settings, action_queue)
         PickerConfigItem.new('skillchain_property', 'LightLv4', L(valid_skillchains), nil, "Skillchain Property"),
         ConfigItem.new('num_steps', 2, 6, 1, nil, "Number of Steps"),
     })
-    self:add_command('default', self.handle_set_default, 'Sets the default weapon skill to use when no skillchains can be made', L{
-        PickerConfigItem.new('weapon_skill_name', ability_names[1], ability_names, nil, "Weapon Skill Name")
-    })
 
     self:get_skillchainer():on_abilities_changed():addAction(function(_, abilities)
         local ability_names = L(S(abilities:map(function(a) return a:get_name() end)))
 
-        self:add_command('spam', self.handle_toggle_spam, 'Spam the same weapon skill', L{
+        self:add_command('spam', self.handle_set_spam, 'Spam the same weapon skill', L{
             PickerConfigItem.new('weapon_skill_name', ability_names[1], ability_names, nil, "Weapon Skill Name")
         })
         self:add_command('set', self.handle_set_step, 'Sets a step of a skillchain', L{
             ConfigItem.new('step_num', 1, 5, 1, function(value) return value end, "Step Number"),
-            PickerConfigItem.new('weapon_skill_name', ability_names[1], ability_names, nil, "Weapon Skill Name")
-        })
-        self:add_command('default', self.handle_set_default, 'Sets the default weapon skill to use when no skillchains can be made', L{
             PickerConfigItem.new('weapon_skill_name', ability_names[1], ability_names, nil, "Weapon Skill Name")
         })
     end)
@@ -156,25 +152,15 @@ function SkillchainTrustCommands:handle_save()
     return success, message
 end
 
--- // trust sc auto
-function SkillchainTrustCommands:handle_toggle_auto(_)
-    local success = true
-    local message
-
-    self:handle_toggle_mode('AutoSkillchainMode', 'Auto', 'Off')
-
-    return success, message
-end
-
 -- // trust sc spam weapon_skill_name (optional)
-function SkillchainTrustCommands:handle_toggle_spam(_, ...)
+function SkillchainTrustCommands:handle_set_spam(_, ...)
     local success
     local message
 
     local ability_name = table.concat({...}, " ") or ""
     ability_name = windower.convert_auto_trans(ability_name)
     if ability_name:empty() then
-        self:handle_toggle_mode('AutoSkillchainMode', 'Spam', 'Off')
+        self:handle_set_mode('AutoSkillchainMode', 'Spam')
         return true, message
     end
 

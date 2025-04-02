@@ -13,15 +13,17 @@ function MagicBurstTrustCommands.new(trust, trust_settings, action_queue)
     self.action_queue = action_queue
 
     -- AutoMagicBurstMode
-    self:add_command('auto', function(_) return self:handle_toggle_mode('AutoMagicBurstMode', 'Auto', 'Off')  end, 'Magic burst with spells of any element')
-    self:add_command('earth', function(_) return self:handle_toggle_mode('AutoMagicBurstMode', 'Earth', 'Off')  end, 'Magic burst with earth spells')
-    self:add_command('lightning', function(_) return self:handle_toggle_mode('AutoMagicBurstMode', 'Lightning', 'Off')  end, 'Magic burst with lightning spells')
-    self:add_command('water', function(_) return self:handle_toggle_mode('AutoMagicBurstMode', 'Water', 'Off')  end, 'Magic burst with water spells')
-    self:add_command('fire', function(_) return self:handle_toggle_mode('AutoMagicBurstMode', 'Fire', 'Off')  end, 'Magic burst with fire spells')
-    self:add_command('ice', function(_) return self:handle_toggle_mode('AutoMagicBurstMode', 'Ice', 'Off')  end, 'Magic burst with ice spells')
-    self:add_command('wind', function(_) return self:handle_toggle_mode('AutoMagicBurstMode', 'Wind', 'Off')  end, 'Magic burst with wind spells')
-    self:add_command('light', function(_) return self:handle_toggle_mode('AutoMagicBurstMode', 'Light', 'Off')  end, 'Magic burst with light spells')
-    self:add_command('dark', function(_) return self:handle_toggle_mode('AutoMagicBurstMode', 'Dark', 'Off')  end, 'Magic burst with dark spells')
+    self:add_command('default', function(_) return self:handle_toggle_mode('AutoMagicBurstMode', 'Auto', 'Off')  end, 'Toggle magic burst on and off')
+    self:add_command('auto', function(_) return self:handle_set_mode('AutoMagicBurstMode', 'Auto')  end, 'Magic burst with spells of any element')
+    self:add_command('off', function(_) return self:handle_set_mode('AutoMagicBurstMode', 'Off')  end, 'Disable magic bursting')
+    self:add_command('earth', function(_) return self:handle_set_mode('AutoMagicBurstMode', 'Earth')  end, 'Magic burst with earth spells')
+    self:add_command('lightning', function(_) return self:handle_set_mode('AutoMagicBurstMode', 'Lightning')  end, 'Magic burst with lightning spells')
+    self:add_command('water', function(_) return self:handle_set_mode('AutoMagicBurstMode', 'Water')  end, 'Magic burst with water spells')
+    self:add_command('fire', function(_) return self:handle_set_mode('AutoMagicBurstMode', 'Fire')  end, 'Magic burst with fire spells')
+    self:add_command('ice', function(_) return self:handle_set_mode('AutoMagicBurstMode', 'Ice')  end, 'Magic burst with ice spells')
+    self:add_command('wind', function(_) return self:handle_set_mode('AutoMagicBurstMode', 'Wind')  end, 'Magic burst with wind spells')
+    self:add_command('light', function(_) return self:handle_set_mode('AutoMagicBurstMode', 'Light')  end, 'Magic burst with light spells')
+    self:add_command('dark', function(_) return self:handle_set_mode('AutoMagicBurstMode', 'Dark')  end, 'Magic burst with dark spells')
 
     -- Blacklist
     local elements = L{ 'fire', 'ice', 'wind', 'earth', 'lightning', 'water', 'light', 'dark' }
@@ -66,6 +68,15 @@ function MagicBurstTrustCommands:handle_toggle_mode(mode_var_name, on_value, off
     else
         handle_set(mode_var_name, on_value)
     end
+
+    return success, message
+end
+
+function MagicBurstTrustCommands:handle_set_mode(mode_name, mode_value)
+    local success = true
+    local message
+
+    handle_set(mode_name, mode_value)
 
     return success, message
 end

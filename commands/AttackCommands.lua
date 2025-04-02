@@ -10,9 +10,10 @@ function AttackTrustCommands.new(trust, action_queue)
     self.action_queue = action_queue
 
     -- AutoEngageMode
-    self:add_command('engage', function(_) return self:handle_toggle_mode('AutoEngageMode', 'Always', 'Off')  end, 'Automatically engage mobs party is fighting')
-    self:add_command('mirror', function(_) return self:handle_toggle_mode('AutoEngageMode', 'Mirror', 'Off')  end, 'Automatically engage only if assist target is fighting')
-    self:add_command('assist', function(_) return self:handle_toggle_mode('AutoEngageMode', 'Assist', 'Off')  end, 'Automatically lock onto the battle target but don\'t engage')
+    self:add_command('default', function(_) return self:handle_toggle_mode('AutoEngageMode', 'Always', 'Off')  end, 'Toggle engaging mobs')
+    self:add_command('off', function(_) return self:handle_set_mode('AutoEngageMode', 'Off')  end, 'Disable engaging')
+    self:add_command('engage', function(_) return self:handle_set_mode('AutoEngageMode', 'Always')  end, 'Automatically engage mobs party is fighting')
+    self:add_command('mirror', function(_) return self:handle_set_mode('AutoEngageMode', 'Mirror')  end, 'Automatically engage only if assist target is fighting')
 
     return self
 end
