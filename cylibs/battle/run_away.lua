@@ -90,7 +90,6 @@ end
 function RunAway:to_action(target_index, _)
     return SequenceAction.new(L{
         RunAwayAction.new(target_index, self.distance),
-        WaitAction.new(0, 0, 0, 1.5),
     }, self.__class..'_run_away')
 end
 
