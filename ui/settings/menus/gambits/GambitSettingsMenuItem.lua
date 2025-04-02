@@ -46,13 +46,16 @@ function GambitSettingsMenuItem.compact(trust, trustSettings, trustSettingsMode,
     return self
 end
 
-function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKeys, abilityTargets, abilitiesForTargets, conditionTargets, editorStyle, modes, libraryCategoryFilter, gambitTagBlacklist)
+function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKeys, abilityTargets, abilitiesForTargets, conditionTargets, editorStyle, modes, libraryCategoryFilter, gambitTagBlacklist, conditionTypeFilter)
     editorStyle = editorStyle or GambitEditorStyle.new(function(gambits)
         local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit)
             return gambit:tostring()
         end)
         return configItem
     end, FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge, "Gambit", "Gambits")
+    conditionTypeFilter = conditionTypeFilter or function(_)
+        return true
+    end
 
     if class(settingsKeys) ~= 'List' then
         settingsKeys = L{ settingsKeys }
@@ -84,7 +87,7 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
     self.editorConfig = editorStyle
     self.modes = modes or L{ 'AutoGambitMode' }
     self.libraryCategoryFilter = libraryCategoryFilter
-    self.conditionSettingsMenuItem = GambitConditionSettingsMenuItem.new(self.trustSettings)
+    self.conditionSettingsMenuItem = GambitConditionSettingsMenuItem.new(self.trustSettings, nil, nil, conditionTypeFilter)
     self.conditionSettingsMenuItem:setTargetTypes(S(self.conditionTargets))
     self.defaultGambitTags = L{}
     self.gambitChanged = Event.newEvent()
