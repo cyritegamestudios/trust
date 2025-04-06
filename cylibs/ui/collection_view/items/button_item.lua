@@ -77,7 +77,7 @@ end
 -- @treturn ButtonItem The created ButtonItem with default properties.
 --
 function ButtonItem.default(buttonText, buttonHeight, textStyle, localizedText)
-    buttonHeight = buttonHeight or 16
+    buttonHeight = buttonHeight or 18
     textStyle = textStyle or ButtonItem.DefaultStyle
 
     local centerImageItem = ImageItem.new(windower.addon_path..'assets/buttons/menu_button_bg_mid.png', 84, buttonHeight)
