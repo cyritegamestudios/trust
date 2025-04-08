@@ -25,7 +25,7 @@ state.AutoAssaultMode:set_description('Auto', "Automatically deploy automaton in
 state.AutoManeuverMode = M{['description'] = 'Use Maneuvers', 'Off', 'Auto'}
 state.AutoManeuverMode:set_description('Auto', "Automatically use maneuvers.")
 
-state.AutoPetMode = M{['description'] = 'Call Pet', 'Off', 'Auto'}
+state.AutoPetMode = M{['description'] = 'Call Pet', 'Auto', 'Off'}
 state.AutoPetMode:set_description('Auto', "Automatically use Activate and Deus ex Machina.")
 
 state.AutoRepairMode = M{['description'] = 'Use Repair', 'Auto', 'Off'}

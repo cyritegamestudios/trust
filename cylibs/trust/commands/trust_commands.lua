@@ -10,13 +10,14 @@ function TrustCommands.new()
     return self
 end
 
-function TrustCommands:add_command(command_name, handler, description, args)
+function TrustCommands:add_command(command_name, handler, description, args, include_args_in_command_list)
     self.commands[command_name] = {
         callback = function(...)
             return handler(self, T{ ... }:unpack())
         end,
         description = description or '',
         args = args or L{},
+        include_args_in_command_list = include_args_in_command_list
     }
 end
 
@@ -49,6 +50,29 @@ function TrustCommands:handle_command(...)
         return true
     end
     return false
+end
+
+function TrustCommands:handle_toggle_mode(mode_var_name, on_value, off_value)
+    local success = true
+    local message
+
+    local mode_var = get_state(mode_var_name)
+    if mode_var.value == on_value then
+        handle_set(mode_var_name, off_value)
+    else
+        handle_set(mode_var_name, on_value)
+    end
+
+    return success, message
+end
+
+function TrustCommands:handle_set_mode(mode_name, mode_value)
+    local success = true
+    local message
+
+    handle_set(mode_name, mode_value)
+
+    return success, message
 end
 
 function TrustCommands:description()
@@ -99,6 +123,12 @@ function TrustCommands:get_all_commands()
             result:append('// trust '..self:get_command_name())
         else
             result:append('// trust '..self:get_command_name()..' '..command_name)
+            if command.include_args_in_command_list and command.args and command.args:length() == 1
+                    and command.args[1].getAllValues then
+                for value in command.args[1]:getAllValues():it() do
+                    result:append('// trust '..self:get_command_name()..' '..command_name..' '..value)
+                end
+            end
         end
     end
     return result

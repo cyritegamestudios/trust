@@ -43,7 +43,7 @@ end
 
 function WidgetSettingsMenuItem:getWidgetMenuItem(widgetName)
     local widgetMenuItem = MenuItem.new(L{
-        ButtonItem.default('Save')
+        ButtonItem.default('Confirm')
     }, {}, function(_, _, _)
         local widgetName = widgetName:lower()
 
@@ -60,7 +60,7 @@ function WidgetSettingsMenuItem:getWidgetMenuItem(widgetName)
             widget:layoutIfNeeded()
         end), configEditor:onConfigChanged())
         return configEditor
-    end, "Widgets", "Configure the "..widgetName.." widget. UI does not update until saved.")
+    end, "Widgets", "Configure the "..widgetName.." widget. UI does not update until changes are confirmed.")
 
     widgetMenuItem:setChildMenuItem('Shortcuts', ShortcutMenuItem.new(widgetName:lower(), string.format("Focus on %s widget", widgetName)))
 
@@ -69,7 +69,7 @@ end
 
 function WidgetSettingsMenuItem:getLayoutMenuItem()
     local layoutMenuItem = MenuItem.new(L{
-        ButtonItem.default('Save')
+        ButtonItem.default('Confirm')
     }, {}, function(_, _, _)
         local allAlignments = L{ 'Left', 'Right' }
 

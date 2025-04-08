@@ -11,9 +11,11 @@ function PullTrustCommands.new(trust, action_queue, puller)
     self.puller = puller
 
     -- AutoPullMode
-    self:add_command('auto', function(_) return self:handle_toggle_mode('AutoPullMode', 'Auto', 'Off')  end, 'Automatically pull mobs for the party')
-    self:add_command('party', function(_) return self:handle_toggle_mode('AutoPullMode', 'Party', 'Off')  end, 'Automatically pull whatever monster the party is fighting')
-    self:add_command('all', function(_) return self:handle_toggle_mode('AutoPullMode', 'All', 'Off')  end, 'Automatically pull whatever monsters are nearby')
+    self:add_command('default', function(_) return self:handle_toggle_mode('AutoPullMode', 'Auto', 'Off')  end, 'Toggle pulling on and off')
+    self:add_command('auto', function(_) return self:handle_set_mode('AutoPullMode', 'Auto')  end, 'Automatically pull mobs for the party')
+    self:add_command('off', function(_) return self:handle_set_mode('AutoPullMode', 'Off')  end, 'Disable pulling')
+    self:add_command('party', function(_) return self:handle_set_mode('AutoPullMode', 'Party')  end, 'Automatically pull whatever monster the party is fighting')
+    self:add_command('all', function(_) return self:handle_set_mode('AutoPullMode', 'All')  end, 'Automatically pull whatever monsters are nearby')
     self:add_command('camp', self.handle_camp, 'Automatically return to camp after battle')
 
     return self

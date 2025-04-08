@@ -61,7 +61,7 @@ end
 
 function AutomatonSettingsMenuItem:getModesMenuItem()
     return ModesMenuItem.new(self.trustModeSettings, "Set modes for automaton behavior.",
-            L{'AutoPetMode', 'AutoAssaultMode', 'AutoRepairMode', 'AutoManeuverMode', 'ManeuverMode'})
+            L{'AutoPetMode', 'AutoAssaultMode', 'AutoRepairMode', 'AutoManeuverMode'})
 end
 
 return AutomatonSettingsMenuItem
