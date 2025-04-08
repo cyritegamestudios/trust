@@ -10,7 +10,7 @@ local Thief = require('cylibs/entity/jobs/THF')
 function ThiefTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local roles = S{
 		Dispeler.new(action_queue, L{}, L{ JobAbility.new('Steal') }, false),
-		Puller.new(action_queue, trust_settings.PullSettings)
+		Puller.new(action_queue, trust_settings.PullSettings, job)
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, Thief.new()), ThiefTrust)
 

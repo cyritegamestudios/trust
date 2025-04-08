@@ -23,7 +23,7 @@ function DarkKnightTrust.new(settings, action_queue, battle_settings, trust_sett
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job, true),
 		ManaRestorer.new(action_queue, L{'Entropy'}, L{}, 40),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
-		Puller.new(action_queue, trust_settings.PullSettings),
+		Puller.new(action_queue, trust_settings.PullSettings, job),
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), DarkKnightTrust)
 	return self

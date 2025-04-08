@@ -11,7 +11,7 @@ state.AutoPetMode:set_description('Auto', "Automatically use Call Wyvern.")
 
 function DragoonTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local roles = S{
-		Puller.new(action_queue, trust_settings.PullSettings),
+		Puller.new(action_queue, trust_settings.PullSettings, job),
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, Dragoon.new()), DragoonTrust)
 

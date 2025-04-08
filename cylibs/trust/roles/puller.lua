@@ -1,6 +1,7 @@
 local Approach = require('cylibs/battle/approach')
 local ClaimedCondition = require('cylibs/conditions/claimed')
 local DisposeBag = require('cylibs/events/dispose_bag')
+local Engage = require('cylibs/battle/engage')
 local ffxi_util = require('cylibs/util/ffxi_util')
 local Gambit = require('cylibs/gambits/gambit')
 local GambitTarget = require('cylibs/gambits/gambit_target')
@@ -8,11 +9,12 @@ local RunToLocationAction = require('cylibs/actions/runtolocation')
 local SwitchTargetAction = require('cylibs/actions/switch_target')
 local Timer = require('cylibs/util/timers/timer')
 
-local Puller = setmetatable({}, {__index = Role })
+local Gambiter = require('cylibs/trust/roles/gambiter')
+local Puller = setmetatable({}, {__index = Gambiter })
 Puller.__index = Puller
 Puller.__class = "Puller"
 
-state.AutoPullMode = M{['description'] = 'Pull Monsters to Fight', 'Off', 'Auto','Party','All'}
+state.AutoPullMode = M{['description'] = 'Pull Monsters to Fight', 'Off', 'Auto','Party','All','AutoTarget'}
 state.AutoPullMode:set_description('Auto', "Pull monsters for the party from the target list.")
 state.AutoPullMode:set_description('Party', "Pull any monster aggressive to the party.")
 state.AutoPullMode:set_description('All', "Pull any monster that's nearby.")
@@ -20,13 +22,19 @@ state.AutoPullMode:set_description('All', "Pull any monster that's nearby.")
 state.AutoCampMode = M{['description'] = 'Return to Camp after Battle', 'Off', 'Auto'}
 state.AutoCampMode:set_description('Auto', "Return to camp after battle (set with // trust pull camp).")
 
+state.PullActionMode = M{['description'] = 'Pull Actions', 'Auto', 'Target', 'Approach'}
+state.PullActionMode:set_description('Auto', "Pull with pull actions in settings.")
+state.PullActionMode:set_description('Target', "Pull by auto targeting.")
+state.PullActionMode:set_description('Approach', "Pull by engaging and approaching.")
+
 state.ApproachPullMode = M{['description'] = 'Force Pull with Approach', 'Off', 'Auto'}
 state.ApproachPullMode:set_description('Auto', "Pull by engaging and approaching.")
 
 
-function Puller.new(action_queue, pull_settings)
-    local self = setmetatable(Role.new(action_queue), Puller)
+function Puller.new(action_queue, pull_settings, job)
+    local self = setmetatable(Gambiter.new(action_queue, { Gambits = L{} }, state.AutoPullMode), Puller)
 
+    self.job = job
     self.target_timer = Timer.scheduledTimer(1, 0)
     self.last_pull_time = os.time() - self:get_cooldown()
     self.dispose_bag = DisposeBag.new()
@@ -38,13 +46,13 @@ function Puller.new(action_queue, pull_settings)
 end
 
 function Puller:destroy()
-    Role.destroy(self)
+    Gambiter.destroy(self)
 
     self.dispose_bag:destroy()
 end
 
 function Puller:on_add()
-    Role.on_add(self)
+    Gambiter.on_add(self)
 
     if state.AutoPullMode.value ~= 'Off' then
         windower.send_command('input /autotarget off')
@@ -61,15 +69,6 @@ function Puller:on_add()
         end
     end), state.AutoPullMode:on_state_change())
 
-    if state.AutoTargetMode then
-        self.dispose_bag:add(state.AutoTargetMode:on_state_change():addAction(function(_, new_value)
-            if new_value ~= 'Off' and state.AutoPullMode.value ~= 'Off' then
-                state.AutoPullMode:set('Off')
-                self:get_party():add_to_chat(self:get_party():get_player(), "I can't pull while auto targeting, so I'm going to stop pulling.")
-            end
-        end), state.AutoTargetMode:on_state_change())
-    end
-
     self.dispose_bag:add(self.target_timer:onTimeChange():addAction(function(_)
         if not addon_enabled:getValue() then
             return
@@ -78,9 +77,13 @@ function Puller:on_add()
     end, self.target_timer:onTimeChange()))
 
     self.dispose_bag:add(WindowerEvents.MobKO:addAction(function(mob_id, mob_name)
-        if self:get_pull_target() and self:get_pull_target():get_id() == mob_id then
+        if self:get_target() and self:get_target():get_id() == mob_id then
+            print("mob is dead")
             self:set_pull_target(nil)
-            self:return_to_camp()
+            if not self:return_to_camp() then
+                print("find next target")
+                self:check_target()
+            end
         end
     end), WindowerEvents.MobKO)
 
@@ -89,23 +92,25 @@ end
 
 function Puller:return_to_camp()
     if state.AutoCampMode.value == 'Off' or self:get_camp_position() == nil then
-        return
+        return false
     end
 
     if ffxi_util.distance(ffxi_util.get_mob_position(windower.ffxi.get_player().name), self:get_camp_position()) > 40 then
         self:set_camp_position(nil)
         self:get_party():add_to_chat(self:get_party():get_player(), "I'm too far from camp to go back now.")
-        return
+        return false
     end
 
     local return_to_camp_action = RunToLocationAction.new(self:get_camp_position()[1], self:get_camp_position()[2], self:get_camp_position()[3], 2.0)
     return_to_camp_action.identifier = "Return to camp"
 
     self.action_queue:push_action(return_to_camp_action, true)
+
+    return true
 end
 
 function Puller:target_change(target_index)
-    Role.target_change(self, target_index)
+    Gambiter.target_change(self, target_index)
 
     if state.AutoPullMode.value == 'Off' then
         return
@@ -144,7 +149,9 @@ function Puller:check_target()
             self:set_pull_target(next_target)
         else
             logger.notice(self.__class, 'check_target', 'no valid targets')
-            self:get_party():add_to_chat(self:get_party():get_player(), "I can't find anything to pull. I'll check again soon.", self.__class..'_no_valid_targets', 15)
+            if state.AutoPullMode.value == 'Auto' then
+                self:get_party():add_to_chat(self:get_party():get_player(), "I can't find anything to pull. I'll check again soon.", self.__class..'_no_valid_targets', 15)
+            end
             return
         end
     end
@@ -265,6 +272,10 @@ end
 function Puller:pull_target(target)
     logger.notice(self.__class, 'pull_target', target:get_name(), target:get_mob().index, state.AutoPullMode.value)
 
+    --local gambit = self:get_pull_abilities():firstWhere(function(gambit)
+    --    return self:is_gambit_satisfied(gambit)
+    --end)
+
     -- TODO: refactor this to subclass gambiter so I can use is_gambit_satisfied
     local get_target_by_type = function(target_type)
         if target_type == GambitTarget.TargetType.Enemy then
@@ -344,21 +355,31 @@ end
 
 function Puller:get_default_conditions(gambit)
     local conditions = L{
-        MaxDistanceCondition.new(gambit:getAbility():get_range() or self.distance or 20),
+        MaxDistanceCondition.new(math.min(gambit:getAbility():get_range(), self.distance or 20)),
         MinHitPointsPercentCondition.new(1),
     }
-    return conditions --+ self.job:get_conditions_for_ability(gambit:getAbility())
+    return conditions --[[+ self.job:get_conditions_for_ability(gambit:getAbility()):map(function(condition)
+        return GambitCondition.new(condition, GambitTarget.TargetType.Self)
+    end)]] -- causes error??? yes it does, probably because they are gambit conditions
+
 end
 
 function Puller:get_pull_abilities()
-    if state.ApproachPullMode.value ~= 'Off' then
+    if state.PullActionMode.value == 'Approach' then
         local approach = Gambit.new(GambitTarget.TargetType.Enemy, L{}, Approach.new(L{MaxDistanceCondition.new(35)}), GambitTarget.TargetType.Enemy, L{"Pulling"})
         approach.conditions = self:get_default_conditions(approach):map(function(condition)
             return GambitCondition.new(condition, GambitTarget.TargetType.Enemy)
         end)
         return L{ approach }
+    elseif state.PullActionMode.value == 'Target' then
+        local auto_target = Gambit.new(GambitTarget.TargetType.Enemy, L{}, Engage.new(L{MaxDistanceCondition.new(30)}), GambitTarget.TargetType.Enemy, L{"Pulling"})
+        auto_target.conditions = self:get_default_conditions(auto_target):map(function(condition)
+            return GambitCondition.new(condition, GambitTarget.TargetType.Enemy)
+        end)
+        return L{ auto_target }
     end
     return self.pull_abilities
+
 end
 
 function Puller:get_blacklist()

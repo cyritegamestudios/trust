@@ -36,7 +36,7 @@ function BardTrust.new(settings, action_queue, battle_settings, trust_settings, 
 		Debuffer.new(action_queue, trust_settings.DebuffSettings, job),
 		Singer.new(action_queue, trust_settings.SongSettings.DummySongs, trust_settings.SongSettings.SongSets.Default.Songs, trust_settings.SongSettings.SongSets.Default.PianissimoSongs, job, state.AutoSongMode, ActionPriority.medium),
 		Dispeler.new(action_queue, L{ Spell.new('Magic Finale') }, L{}, true),
-		Puller.new(action_queue, trust_settings.PullSettings),
+		Puller.new(action_queue, trust_settings.PullSettings, job),
 		Sleeper.new(action_queue, L{ Spell.new('Horde Lullaby II'), Spell.new('Horde Lullaby') }, 3)
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), BardTrust)

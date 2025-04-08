@@ -11,7 +11,7 @@ local Tank = require('cylibs/trust/roles/tank')
 function WarriorTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = Warrior.new()
 	local roles = S{
-		Puller.new(action_queue, trust_settings.PullSettings),
+		Puller.new(action_queue, trust_settings.PullSettings, job),
 		Tank.new(action_queue, L{ JobAbility.new('Provoke') }, L{}),
 		Buffer.new(action_queue, trust_settings.BuffSettings, state.AutoBuffMode, job),
 	}
