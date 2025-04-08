@@ -6,7 +6,7 @@ DragoonTrust.__index = DragoonTrust
 
 local Puller = require('cylibs/trust/roles/puller')
 
-state.AutoPetMode = M{['description'] = 'Call Pet', 'Off', 'Auto'}
+state.AutoPetMode = M{['description'] = 'Call Pet', 'Auto', 'Off'}
 state.AutoPetMode:set_description('Auto', "Automatically use Call Wyvern.")
 
 function DragoonTrust.new(settings, action_queue, battle_settings, trust_settings)

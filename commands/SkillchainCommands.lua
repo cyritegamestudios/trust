@@ -39,8 +39,12 @@ function SkillchainTrustCommands.new(trust, weapon_skill_settings, action_queue)
     })
 
     -- AutoAftermathMode
-    self:add_command('am', function(_) return self:handle_set_mode('AutoAftermathMode', 'Auto')  end, 'Prioritize maintaining aftermath')
-    
+    self:add_command('am', function(_, _, mode_value)
+        return self:handle_set_mode('AutoAftermathMode', mode_value or 'Auto')
+    end, 'Prioritize maintaining aftermath', L{
+        PickerConfigItem.new('mode_value', 'Off', L{ 'Off', 'Auto', '2000', '1000' }, nil, "Aftermath Level")
+    }, true)
+
     local valid_skillchains = skillchain_util.LightSkillchains:union(skillchain_util.DarknessSkillchains)
              :filter(function(s) return not L{ 'Light Lv.4', 'Darkness Lv.4'}:contains(s:get_name()) end)
              :map(function(s) return s:get_name() end)
@@ -67,6 +71,9 @@ function SkillchainTrustCommands.new(trust, weapon_skill_settings, action_queue)
         })
         self:add_command('set', self.handle_set_step, 'Sets a step of a skillchain', L{
             ConfigItem.new('step_num', 1, 5, 1, function(value) return value end, "Step Number"),
+            PickerConfigItem.new('weapon_skill_name', ability_names[1], ability_names, nil, "Weapon Skill Name")
+        })
+        self:add_command('next', self.handle_next, 'Finds weapon skills that skillchain with the given weapon skill', L{
             PickerConfigItem.new('weapon_skill_name', ability_names[1], ability_names, nil, "Weapon Skill Name")
         })
     end)

@@ -10,13 +10,14 @@ function TrustCommands.new()
     return self
 end
 
-function TrustCommands:add_command(command_name, handler, description, args)
+function TrustCommands:add_command(command_name, handler, description, args, include_args_in_command_list)
     self.commands[command_name] = {
         callback = function(...)
             return handler(self, T{ ... }:unpack())
         end,
         description = description or '',
         args = args or L{},
+        include_args_in_command_list = include_args_in_command_list
     }
 end
 
@@ -122,6 +123,12 @@ function TrustCommands:get_all_commands()
             result:append('// trust '..self:get_command_name())
         else
             result:append('// trust '..self:get_command_name()..' '..command_name)
+            if command.include_args_in_command_list and command.args and command.args:length() == 1
+                    and command.args[1].getAllValues then
+                for value in command.args[1]:getAllValues():it() do
+                    result:append('// trust '..self:get_command_name()..' '..command_name..' '..value)
+                end
+            end
         end
     end
     return result
