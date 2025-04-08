@@ -39,8 +39,8 @@ function SkillchainTrustCommands.new(trust, weapon_skill_settings, action_queue)
     })
 
     -- AutoAftermathMode
-    self:add_command('am', function(_) return self:handle_toggle_mode('AutoAftermathMode', 'Auto', 'Off')  end, 'Prioritize maintaining aftermath on mythic weapons')
-
+    self:add_command('am', function(_) return self:handle_set_mode('AutoAftermathMode', 'Auto')  end, 'Prioritize maintaining aftermath')
+    
     local valid_skillchains = skillchain_util.LightSkillchains:union(skillchain_util.DarknessSkillchains)
              :filter(function(s) return not L{ 'Light Lv.4', 'Darkness Lv.4'}:contains(s:get_name()) end)
              :map(function(s) return s:get_name() end)
