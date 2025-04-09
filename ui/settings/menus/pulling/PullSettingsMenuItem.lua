@@ -141,7 +141,7 @@ end
 
 function PullSettingsMenuItem:getModesMenuItem()
     return ModesMenuItem.new(self.trust_mode_settings, "Set modes for pulling.",
-            L{ 'AutoPullMode', 'ApproachPullMode', 'AutoCampMode' })
+            L{ 'AutoPullMode', 'AutoCampMode', 'PullActionMode' })
 end
 
 function PullSettingsMenuItem:getConfigMenuItem()

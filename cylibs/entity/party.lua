@@ -202,6 +202,15 @@ function Party:get_party_members(include_self, range_check)
 end
 
 -------
+-- Returns the list of party member ids.
+-- @treturn list List of mob ids
+function Party:get_party_member_ids()
+    return self:get_party_members(true):map(function(party_member)
+        return party_member:get_id()
+    end):compact_map()
+end
+
+-------
 -- Returns the party member with the given mob id.
 -- @tparam number mob_id Party member mob id
 -- @treturn PartyMember Party member, or nil if none exists
@@ -227,6 +236,18 @@ function Party:get_party_member_named(mob_name, ignore_range_check)
         end
     end
     return nil
+end
+
+-------
+-- Returns the party leader.
+-- @treturn PartyMember Party leader
+function Party:get_party_leader()
+    local party_leader = party_util.get_party_leader()
+    if party_leader then
+        return self:get_party_member(party_leader.id)
+    else
+        return self:get_player()
+    end
 end
 
 -------

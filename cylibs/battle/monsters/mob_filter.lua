@@ -7,18 +7,18 @@ local MobFilter = {}
 MobFilter.__index = MobFilter
 MobFilter.__class = "MobFilter"
 
+local AggroedCondition = require('cylibs/conditions/aggroed')
 local ClaimedCondition = require('cylibs/conditions/claimed')
 local ConditionalCondition = require('cylibs/conditions/conditional')
 local MaxHeightDistanceCondition = require('cylibs/conditions/max_height_distance')
+local PartyClaimedCondition = require('cylibs/conditions/party_claimed')
 local UnclaimedCondition = require('cylibs/conditions/unclaimed')
 
 MobFilter.Type = {}
-MobFilter.Type.All = "All"
-MobFilter.Type.Aggroed = "Aggroed"
-MobFilter.Type.Unclaimed = "Unclaimed"
-MobFilter.Type.PartyClaimed = "PartyClaimed"
-MobFilter.Type.PartyTargeted = "PartyTargeted"
-MobFilter.Type.NotPartyTargeted = "NotPartyTargeted"
+MobFilter.Type.All = L{}
+MobFilter.Type.Aggroed = L{ AggroedCondition.new() }
+MobFilter.Type.Unclaimed = L{ UnclaimedCondition.new() }
+MobFilter.Type.PartyClaimed = L{ PartyClaimedCondition.new(true) }
 
 function MobFilter.new(alliance, max_distance, default_sort)
     local self = setmetatable({}, MobFilter)
@@ -37,32 +37,19 @@ end
 -- Returns nearby mobs.
 -- @tparam list filter (optional) List of MobFilter filters
 -- @treturn list List of mobs
-function MobFilter:get_nearby_mobs(filter_types)
-    local filters = (filter_types or L{ MobFilter.Type.All }):map(function(filter_type)
-        return self:get_filter_for_type(filter_type)
-    end)
+function MobFilter:get_nearby_mobs(conditions)
+    conditions = conditions:flatten(false)
 
     local mobs = L{}
     for _, mob in pairs(windower.ffxi.get_mob_array()) do
         mobs:append(mob)
     end
 
-    local conditions = L{
-        ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos()),
-        MinHitPointsPercentCondition.new(1),
-        MaxDistanceCondition.new(50),
-        MaxHeightDistanceCondition.new(8, Condition.Operator.LessThanOrEqualTo),
-        ConditionalCondition.new(L{ ClaimedCondition.new(self.alliance:get_alliance_member_ids()), UnclaimedCondition.new() }, Condition.LogicalOperator.Or)
-    }
+    conditions = self:get_default_conditions() + conditions
 
     mobs = mobs:filter(function(mob)
         if not Condition.check_conditions(conditions, mob.index) or mob.spawn_type ~= 16 then
             return false
-        end
-        for filter in filters:it() do
-            if not filter(mob) then
-                return false
-            end
         end
         return true
     end)
@@ -75,6 +62,16 @@ end
 -- @treturn list List of aggroed mob metadata
 function MobFilter:get_aggroed_mobs(filter_types)
     return self:get_nearby_mobs(L{ MobFilter.Type.Aggroed } + (filter_types or L{}))
+end
+
+function MobFilter:get_default_conditions()
+    return L{
+        ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos()),
+        MinHitPointsPercentCondition.new(1),
+        MaxDistanceCondition.new(50),
+        MaxHeightDistanceCondition.new(8, Condition.Operator.LessThanOrEqualTo),
+        ConditionalCondition.new(L{ ClaimedCondition.new(self.alliance:get_alliance_member_ids()), UnclaimedCondition.new() }, Condition.LogicalOperator.Or)
+    }
 end
 
 -------
@@ -98,7 +95,7 @@ function MobFilter:get_filter_for_type(filter_type)
         end
         return false
     end
-    filter_for_type[MobFilter.Type.PartyTargeted] = function(mob)
+    --[[filter_for_type[MobFilter.Type.PartyTargeted] = function(mob)
         local party_target_indices = S(self.alliance:get_alliance_members(false):map(function(p)
             return p:get_target_index()
         end))
@@ -109,7 +106,7 @@ function MobFilter:get_filter_for_type(filter_type)
             return p:get_target_index()
         end))
         return not party_target_indices:contains(mob.index)
-    end
+    end]]
     return filter_for_type[filter_type]
 end
 
