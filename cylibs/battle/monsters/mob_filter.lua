@@ -16,6 +16,9 @@ MobFilter.Type = {}
 MobFilter.Type.All = "All"
 MobFilter.Type.Aggroed = "Aggroed"
 MobFilter.Type.Unclaimed = "Unclaimed"
+MobFilter.Type.PartyClaimed = "PartyClaimed"
+MobFilter.Type.PartyTargeted = "PartyTargeted"
+MobFilter.Type.NotPartyTargeted = "NotPartyTargeted"
 
 function MobFilter.new(alliance, max_distance, default_sort)
     local self = setmetatable({}, MobFilter)
@@ -32,7 +35,7 @@ end
 
 -------
 -- Returns nearby mobs.
--- @tparam function filter (optional) List of MobFilter filters
+-- @tparam list filter (optional) List of MobFilter filters
 -- @treturn list List of mobs
 function MobFilter:get_nearby_mobs(filter_types)
     local filters = (filter_types or L{ MobFilter.Type.All }):map(function(filter_type)
@@ -70,8 +73,8 @@ end
 -------
 -- Returns the a list of aggroed mobs.
 -- @treturn list List of aggroed mob metadata
-function MobFilter:get_aggroed_mobs()
-    return self:get_nearby_mobs(L{ MobFilter.Type.Aggroed })
+function MobFilter:get_aggroed_mobs(filter_types)
+    return self:get_nearby_mobs(L{ MobFilter.Type.Aggroed } + (filter_types or L{}))
 end
 
 -------
@@ -88,6 +91,24 @@ function MobFilter:get_filter_for_type(filter_type)
     end
     filter_for_type[MobFilter.Type.Unclaimed] = function(mob)
         return mob.claim_id == 0 or mob.claim_id == nil
+    end
+    filter_for_type[MobFilter.Type.PartyClaimed] = function(mob)
+        if mob.claim_id then
+            return self.alliance:get_alliance_member_ids():contains(mob.claim_id)
+        end
+        return false
+    end
+    filter_for_type[MobFilter.Type.PartyTargeted] = function(mob)
+        local party_target_indices = S(self.alliance:get_alliance_members(false):map(function(p)
+            return p:get_target_index()
+        end))
+        return party_target_indices:contains(mob.index)
+    end
+    filter_for_type[MobFilter.Type.NotPartyTargeted] = function(mob)
+        local party_target_indices = S(self.alliance:get_alliance_members(false):map(function(p)
+            return p:get_target_index()
+        end))
+        return not party_target_indices:contains(mob.index)
     end
     return filter_for_type[filter_type]
 end

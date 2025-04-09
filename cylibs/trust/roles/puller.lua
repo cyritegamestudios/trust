@@ -5,6 +5,7 @@ local Engage = require('cylibs/battle/engage')
 local ffxi_util = require('cylibs/util/ffxi_util')
 local Gambit = require('cylibs/gambits/gambit')
 local GambitTarget = require('cylibs/gambits/gambit_target')
+local MobFilter = require('cylibs/battle/monsters/mob_filter')
 local RunToLocationAction = require('cylibs/actions/runtolocation')
 local SwitchTargetAction = require('cylibs/actions/switch_target')
 local Timer = require('cylibs/util/timers/timer')
@@ -54,6 +55,12 @@ end
 function Puller:on_add()
     Gambiter.on_add(self)
 
+    self.mob_filter = MobFilter.new(self:get_alliance(), 25) -- TODO: update distance
+
+    if self:get_target() and self:is_valid_target(self:get_target():get_mob()) then
+        self:set_pull_target(self:get_target())
+    end
+
     if state.AutoPullMode.value ~= 'Off' then
         windower.send_command('input /autotarget off')
     end
@@ -78,35 +85,14 @@ function Puller:on_add()
 
     self.dispose_bag:add(WindowerEvents.MobKO:addAction(function(mob_id, mob_name)
         if self:get_target() and self:get_target():get_id() == mob_id then
-            print("mob is dead")
             self:set_pull_target(nil)
             if not self:return_to_camp() then
-                print("find next target")
                 self:check_target()
             end
         end
     end), WindowerEvents.MobKO)
 
     self.target_timer:start()
-end
-
-function Puller:return_to_camp()
-    if state.AutoCampMode.value == 'Off' or self:get_camp_position() == nil then
-        return false
-    end
-
-    if ffxi_util.distance(ffxi_util.get_mob_position(windower.ffxi.get_player().name), self:get_camp_position()) > 40 then
-        self:set_camp_position(nil)
-        self:get_party():add_to_chat(self:get_party():get_player(), "I'm too far from camp to go back now.")
-        return false
-    end
-
-    local return_to_camp_action = RunToLocationAction.new(self:get_camp_position()[1], self:get_camp_position()[2], self:get_camp_position()[3], 2.0)
-    return_to_camp_action.identifier = "Return to camp"
-
-    self.action_queue:push_action(return_to_camp_action, true)
-
-    return true
 end
 
 function Puller:target_change(target_index)
@@ -140,7 +126,7 @@ function Puller:check_target()
     end
 
     local next_target = self:get_pull_target()
-    if not self:is_valid_target(next_target) then
+    if not self:is_valid_target(next_target and next_target:get_mob()) then
         self:set_pull_target(nil)
 
         next_target = self:get_next_target()
@@ -184,33 +170,69 @@ function Puller:check_pull()
     self:pull_target(next_target)
 end
 
-function Puller:get_random_target(targets)
-    return targets[math.random(math.min(math.max(1, targets:length()), self.max_num_targets or 1))]
+function Puller:get_all_targets()
+    if state.AutoPullMode.value == 'Party' then
+        -- 1. Aggroed mobs that are unclaimed and not targeted by party members
+        -- 2. Aggroed mobs that are unclaimed
+        -- 3. Aggroed mobs that are party claimed
+        return self.mob_filter:get_aggroed_mobs(L{ MobFilter.Type.Unclaimed, MobFilter.Type.NotPartyTargeted }) -- I think I can implement this as a list of list of filters and it can OR them
+                + self.mob_filter:get_aggroed_mobs(L{ MobFilter.Type.Unclaimed })
+                + self.mob_filter:get_aggroed_mobs(L{ MobFilter.Type.PartyClaimed })
+    elseif state.AutoPullMode.value == 'Auto' then
+        -- 1. Aggroed mobs that are party claimed
+        -- 2. Aggroed mobs that are unclaimed
+        -- 3. Unaggroed mobs in target name whitelist
+        return self.mob_filter:get_aggroed_mobs(L{ MobFilter.Type.PartyClaimed })
+                + self.mob_filter:get_aggroed_mobs(L{ MobFilter.Type.Unclaimed })
+                + (self.mob_filter:get_nearby_mobs(L{ MobFilter.Type.Unclaimed }):filter(function(mob)
+                    return self.target_names:contains(mob.name)
+                end))
+    elseif state.AutoPullMode.value == 'All' then
+        -- 1. All mobs that are party claimed
+        -- 2. All mobs that are unclaimed
+        return self.mob_filter:nearby_mobs(L{ MobFilter.Type.PartyClaimed })
+                + self.mob_filter:get_nearby_mobs(L{ MobFilter.Type.Unclaimed })
+    end
+    return L{}
 end
 
 function Puller:get_next_target()
-    if state.AutoPullMode.value == 'Party' then
-        -- Get all targets the party is tracking
-        local party_targets = self:get_party():get_targets(function(t)
-            -- Filter to distance 25, and engaged
-            return t:get_distance():sqrt() < 25 and t:get_mob().status == 1
-        end):sort(function(t1, t2)
-            -- Sort by distance
-            return t1:get_distance() < t2:get_distance()
+    local current_target = self:get_alliance():get_target_by_index(self:get_player():get_mob().target_index)
+    if current_target and self:is_valid_target(current_target:get_mob()) then
+        return Monster.new(current_target:get_id())
+    end
+
+    local all_targets = self:get_all_targets():filter(function(target)
+        return self:is_valid_target(target)
+    end)
+    if all_targets:length() > 0 then
+        return Monster.new(all_targets[1].id)
+    else
+        return nil
+    end
+
+
+    --[[if state.AutoPullMode.value == 'Party' then
+        local all_targets = self.mob_filter:get_aggroed_mobs():filter(function(mob)
+            if self:get_target() then
+                return mob.id ~= self:get_target().id
+            end
+            return true
         end)
-        -- If the party is tracking any targets
-        if party_targets:length() > 0 then
-            -- Get a list of all targets the party is targeting
-            local party_target_indices = self:get_party():get_party_members(false):map(function(p)
+        if all_targets:length() > 0 then
+            local party_target_indices = S(self:get_party():get_party_members(true):map(function(p)
                 return p:get_target_index()
-            end):compact_map()
-            -- Select next target, prefer targets not targeted by an ally
-            local next_targets = party_targets:filter(function(target)
-                return target and not party_target_indices:contains(target:get_mob().index)
+            end))
+            local targets = all_targets:filter(function(mob)
+                return not party_target_indices:contains(mob.index)
             end)
-            local next_target = self:get_random_target(next_targets) or self:get_random_target(party_targets)
-            local monster = Monster.new(next_target:get_id())
-            return monster
+            if targets:length() > 0 then
+                return Monster.new(targets:random():get_id())
+            else
+                return Monster.new(all_targets[1]:get_id())
+            end
+        else
+            return nil
         end
     else
         -- Ensure that we are either in all mode, or that target list is populated
@@ -266,18 +288,18 @@ function Puller:get_next_target()
             end
         end
     end
-    return nil
+    return nil]]
 end
 
 function Puller:pull_target(target)
     logger.notice(self.__class, 'pull_target', target:get_name(), target:get_mob().index, state.AutoPullMode.value)
 
-    --local gambit = self:get_pull_abilities():firstWhere(function(gambit)
-    --    return self:is_gambit_satisfied(gambit)
-    --end)
+    local gambit = self:get_pull_abilities():firstWhere(function(gambit)
+        return self:is_gambit_satisfied(gambit)
+    end)
 
     -- TODO: refactor this to subclass gambiter so I can use is_gambit_satisfied
-    local get_target_by_type = function(target_type)
+    --[[local get_target_by_type = function(target_type)
         if target_type == GambitTarget.TargetType.Enemy then
             return target
         elseif target_type == GambitTarget.TargetType.Self then
@@ -288,7 +310,7 @@ function Puller:pull_target(target)
 
     local gambit = self:get_pull_abilities():firstWhere(function(gambit)
         return gambit:isSatisfied(get_target_by_type)
-    end)
+    end)]]
 
     if gambit then
         local pull_action = gambit:getAbility():to_action(target:get_mob().index, self:get_player())
@@ -305,7 +327,7 @@ function Puller:pull_target(target)
 end
 
 function Puller:is_valid_target(target)
-    if not target or not target:get_mob() then
+    if not target then
         return false
     end
     local max_pull_ability_range = 0
@@ -317,7 +339,7 @@ function Puller:is_valid_target(target)
         MinHitPointsPercentCondition.new(1),
         ClaimedCondition.new(L{ 0 }:extend(self:get_party():get_party_members(true):map(function(p) return p:get_id() end)))
     }
-    return Condition.check_conditions(conditions, target:get_mob().index)
+    return Condition.check_conditions(conditions, target.index)
 end
 
 function Puller:get_pull_target()
@@ -329,6 +351,13 @@ function Puller:set_pull_target(target)
         self.target:destroy()
     end
     self.target = target
+end
+
+function Puller:get_gambit_targets(gambit_target_types)
+    local targets_by_type = Gambiter.get_gambit_targets(self, gambit_target_types)
+    targets_by_type[GambitTarget.TargetType.Enemy] = L{ self:get_pull_target() }
+
+    return targets_by_type
 end
 
 function Puller:get_pull_settings()
@@ -419,6 +448,25 @@ end
 
 function Puller:allows_duplicates()
     return false
+end
+
+function Puller:return_to_camp()
+    if state.AutoCampMode.value == 'Off' or self:get_camp_position() == nil then
+        return false
+    end
+
+    if ffxi_util.distance(ffxi_util.get_mob_position(windower.ffxi.get_player().name), self:get_camp_position()) > 40 then
+        self:set_camp_position(nil)
+        self:get_party():add_to_chat(self:get_party():get_player(), "I'm too far from camp to go back now.")
+        return false
+    end
+
+    local return_to_camp_action = RunToLocationAction.new(self:get_camp_position()[1], self:get_camp_position()[2], self:get_camp_position()[3], 2.0)
+    return_to_camp_action.identifier = "Return to camp"
+
+    self.action_queue:push_action(return_to_camp_action, true)
+
+    return true
 end
 
 return Puller
