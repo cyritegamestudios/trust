@@ -135,7 +135,7 @@ function Puller:check_target()
         }, self.__class..'_set_target')
         target_action.priority = ActionPriority.highest
 
-        self.action_queue:push_action(target_action, true)
+        self.action_queue:push_action(target_action, true) -- TODO: should I execute this outside of the queue. Also it doesn't engage if you don't have AutoEngageMode on
     end
 end
 
@@ -175,7 +175,7 @@ function Puller:get_next_target()
         return self:is_valid_target(target)
     end)
     if all_targets:length() > 0 then
-        return Monster.new(all_targets[1].id)
+        return Monster.new(all_targets[1].id) -- TODO: should i randomize this for auto target mode?
     else
         return nil
     end
@@ -202,6 +202,10 @@ function Puller:get_pull_target()
 end
 
 function Puller:set_pull_target(target)
+    if target and self.target
+            and target:get_id() == self.target:get_id() then
+        return
+    end
     if self.target then
         self.target:destroy()
     end
@@ -210,7 +214,7 @@ end
 
 function Puller:get_gambit_targets(gambit_target_types)
     local targets_by_type = Gambiter.get_gambit_targets(self, gambit_target_types)
-    targets_by_type[GambitTarget.TargetType.Enemy] = L{ self:get_pull_target() }
+    targets_by_type[GambitTarget.TargetType.Enemy] = L{ self:get_pull_target() }:compact_map()
 
     return targets_by_type
 end
@@ -220,6 +224,11 @@ function Puller:get_pull_settings()
 end
 
 function Puller:set_pull_settings(pull_settings)
+    self.pull_abilities = pull_settings.Gambits
+    self.distance = pull_settings.Distance
+    self.max_num_targets = pull_settings.MaxNumTargets or 6
+    self.mob_filter = MobFilter.new(self:get_alliance(), self.distance or 25)
+
     for gambit in pull_settings.Gambits:it() do
         gambit.conditions = gambit.conditions:filter(function(condition)
             return condition:is_editable()
@@ -230,10 +239,6 @@ function Puller:set_pull_settings(pull_settings)
             gambit:addCondition(condition)
         end
     end
-    self.pull_abilities = pull_settings.Gambits
-    self.distance = pull_settings.Distance
-    self.max_num_targets = pull_settings.MaxNumTargets or 6
-    self.mob_filter = MobFilter.new(self:get_alliance(), self.distance or 25)
 
     self:set_target_names(pull_settings.Targets or L{})
 end
@@ -300,9 +305,6 @@ function Puller:set_target_names(target_names)
 end
 
 function Puller:get_target_names()
-    if state.AutoPullMode.value == 'All' then
-        return L{}
-    end
     return self.target_names
 end
 
