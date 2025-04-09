@@ -19,7 +19,7 @@ local Puller = setmetatable({}, {__index = Gambiter })
 Puller.__index = Puller
 Puller.__class = "Puller"
 
-state.AutoPullMode = M{['description'] = 'Pull Monsters to Fight', 'Off', 'Auto','Party','All','AutoTarget'}
+state.AutoPullMode = M{['description'] = 'Pull Monsters to Fight', 'Off', 'Auto','Party','All'}
 state.AutoPullMode:set_description('Auto', "Pull monsters for the party from the target list.")
 state.AutoPullMode:set_description('Party', "Pull any monster aggressive to the party.")
 state.AutoPullMode:set_description('All', "Pull any monster that's nearby.")
@@ -125,7 +125,7 @@ function Puller:check_target()
         end
     end
 
-    if next_target:is_claimed() and self:get_target() ~= next_target then
+    if next_target:is_claimed() and (self:get_target() ~= next_target or self:get_target() == next_target and self:get_player():get_status() ~= 'Engaged') then
         logger.notice(self.__class, 'check_target', 'targeting', next_target:get_name(), next_target:get_mob().index)
 
         self.action_queue:clear()
@@ -175,7 +175,11 @@ function Puller:get_next_target()
         return self:is_valid_target(target)
     end)
     if all_targets:length() > 0 then
-        return Monster.new(all_targets[1].id) -- TODO: should i randomize this for auto target mode?
+        if state.PullActionMode.value == 'Target' then
+            return Monster.new(all_targets:random().id)
+        else
+            return Monster.new(all_targets[1].id)
+        end
     else
         return nil
     end
