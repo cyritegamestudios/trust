@@ -188,6 +188,8 @@ function PickerView:onSelectMenuItemAtIndexPath(textItem, _)
         if selectedItems:length() > 0 or self:getAllowsMultipleSelection() then
             self:on_pick_items():trigger(self, selectedItems, L(self:getDelegate():getSelectedIndexPaths()))
         end
+    elseif L{ 'Select All' }:contains(textItem:getText()) then
+        self:getDelegate():selectAllItems()
     elseif L{ 'Clear All' }:contains(textItem:getText()) then
         self:getDelegate():deselectAllItems()
     end
