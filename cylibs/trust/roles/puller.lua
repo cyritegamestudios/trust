@@ -20,7 +20,7 @@ Puller.__class = "Puller"
 
 state.AutoPullMode = M{['description'] = 'Pull Monsters to Fight', 'Off', 'Auto','Aggroed','All'}
 state.AutoPullMode:set_description('Auto', "Pull monsters for the party from the target list.")
-state.AutoPullMode:set_description('Party', "Pull any monster aggressive to the party.")
+state.AutoPullMode:set_description('Aggroed', "Pull any monster aggressive to the party.")
 state.AutoPullMode:set_description('All', "Pull any monster that's nearby.")
 
 state.AutoCampMode = M{['description'] = 'Return to Camp after Battle', 'Off', 'Auto'}

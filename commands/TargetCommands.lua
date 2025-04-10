@@ -13,15 +13,8 @@ function TargetCommands.new(trustSettings, trustSettingsMode, party, actionQueue
     self.party = party
     self.actionQueue = actionQueue
 
-    self:add_command('auto', function(_) return self:handle_toggle_mode('AutoTargetMode', 'Auto', 'Off')  end, 'Automatically target aggroed monsters after defeating one', L{
-        PickerConfigItem.new('mode_value', state.AutoTargetMode.value, L{ "Auto", "Off" }, nil, "Mirror Combat Position")
-    })
-    self:add_command('mirror', function(_) return self:handle_toggle_mode('AutoTargetMode', 'Mirror', 'Off')  end, 'Automatically target what the assist target is targeting', L{
-        PickerConfigItem.new('mode_value', state.AutoTargetMode.value, L{ "Mirror", "Off" }, nil, "Mirror Combat Position")
-    })
-    self:add_command('retry', self.handle_retry_autotarget, 'Attempt to retry auto target', L{
-        PickerConfigItem.new('should_retry', "true", L{ "true", "false" }, nil, "Retry Auto Target")
-    })
+    self:add_command('auto', function(_) return self:handle_set_mode('PullActionMode', 'Target')  end, 'Automatically target aggroed monsters after defeating one')
+    self:add_command('off', function(_) return self:handle_set_mode('PullActionMode', 'Auto')  end, 'Disable auto target')
     self:add_command('cycle', self.handle_cycle_target, 'Cycle between party targets')
 
     return self
