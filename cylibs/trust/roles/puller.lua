@@ -85,8 +85,8 @@ function Puller:on_add()
         if self:get_target() and self:get_target():get_id() == mob_id then
             self:set_pull_target(nil)
             if not self:return_to_camp() then
-                print(mob_id, 'died finding next target')
-                self:check_target(true)
+                self:check_target()
+                self:check_gambits(nil, nil, true)
             end
         end
     end), WindowerEvents.MobKO)
@@ -104,22 +104,19 @@ function Puller:tic(_, _)
     self:check_target()
 end
 
-function Puller:check_target(override_current_target)
+function Puller:check_target()
     if state.AutoPullMode.value == 'Off' then
         return
     end
 
     local next_target = self:get_pull_target()
-    if override_current_target or not self:is_valid_target(next_target and next_target:get_mob()) then
+    if not self:is_valid_target(next_target and next_target:get_mob()) then
         self:set_pull_target(nil)
 
         next_target = self:get_next_target()
         if next_target then
-            logger.notice(self.__class, 'check_target', 'set_pull_target', next_target:get_name(), next_target:get_mob().index)
             self:set_pull_target(next_target)
-            if override_current_target then
-                self:check_gambits(nil, nil, true)
-            end
+            logger.notice(self.__class, 'check_target', 'set_pull_target', next_target:get_name(), next_target:get_mob().index)
         else
             logger.notice(self.__class, 'check_target', 'no valid targets')
             if state.AutoPullMode.value == 'Auto' then
@@ -127,19 +124,6 @@ function Puller:check_target(override_current_target)
             end
             return
         end
-    end
-
-    if next_target:is_claimed() and (self:get_target() ~= next_target or self:get_target() == next_target and self:get_party():get_player():get_status() ~= 'Engaged') then
-        logger.notice(self.__class, 'check_target', 'targeting', next_target:get_name(), next_target:get_mob().index)
-
-        --self.action_queue:clear()
-
-        local target_action = SequenceAction.new(L{
-            SwitchTargetAction.new(next_target:get_mob().index, 3),
-        }, self.__class..'_set_target')
-        target_action.priority = ActionPriority.highest
-
-        self.action_queue:push_action(target_action, true) -- TODO: should I execute this outside of the queue. Also it doesn't engage if you don't have AutoEngageMode on
     end
 end
 
@@ -202,7 +186,7 @@ function Puller:is_valid_target(target)
         MinHitPointsPercentCondition.new(1),
         ClaimedCondition.new(L{ 0 }:extend(self:get_party():get_party_members(true):map(function(p) return p:get_id() end)))
     }
-    return Condition.check_conditions(conditions, target.index)
+    return not L{ 2, 3 }:contains(target.status) and Condition.check_conditions(conditions, target.index)
 end
 
 function Puller:get_pull_target()
@@ -223,7 +207,6 @@ end
 function Puller:get_gambit_targets(gambit_target_types)
     local targets_by_type = Gambiter.get_gambit_targets(self, gambit_target_types)
     targets_by_type[GambitTarget.TargetType.Enemy] = L{ self:get_pull_target() }:compact_map()
-
     return targets_by_type
 end
 
@@ -287,10 +270,20 @@ function Puller:get_pull_abilities()
 end
 
 function Puller:get_all_gambits()
-    if self:get_pull_target() and self:is_valid_target(self:get_pull_target():get_mob())
-            and not Condition.check_conditions(L{ ClaimedCondition.new(self:get_party():get_party_members(true):map(function(p) return p:get_id() end)) }, self:get_pull_target():get_mob().index) then
-        return self:get_pull_abilities()
+    local next_target = self:get_pull_target()
+    if not next_target or not self:is_valid_target(next_target and next_target:get_mob()) then
+        return L{}
     end
+
+    local is_claimed = next_target:is_claimed()
+    if not is_claimed then
+        return self:get_pull_abilities()
+    elseif is_claimed and (self:get_target() ~= next_target or self:get_target() == next_target and self:get_party():get_player():get_status() ~= 'Engaged') then
+        local auto_target = Gambit.new(GambitTarget.TargetType.Enemy, L{}, Engage.new(L{MaxDistanceCondition.new(30)}), GambitTarget.TargetType.Enemy, L{"Pulling"})
+        auto_target.conditions = self:get_default_conditions(auto_target)
+        return L{ auto_target }
+    end
+
     return L{}
 end
 

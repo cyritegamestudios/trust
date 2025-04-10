@@ -74,6 +74,13 @@ function SwitchTargetAction:target_mob(target)
     if self:is_completed() or self:is_cancelled() then
         return
     end
+
+    --[[packets.inject(packets.new('incoming', 0x058, {
+        ['Player'] = windower.ffxi.get_player().id,
+        ['Target'] = target.id,
+        ['Player Index'] = windower.ffxi.get_player().index,
+    }))]]
+
     if player.status == 'Engaged' then
         local p = packets.new('outgoing', 0x01A)
 
@@ -86,8 +93,6 @@ function SwitchTargetAction:target_mob(target)
         p['Y Offset'] = 0
 
         packets.inject(p)
-
-        print('performing switch target', target.name, target.hpp)
     else
         local p = packets.new('outgoing', 0x01A)
 
@@ -98,8 +103,6 @@ function SwitchTargetAction:target_mob(target)
         p['X Offset'] = 0
         p['Z Offset'] = 0
         p['Y Offset'] = 0
-
-        print('performing engage', target.name, target.hpp)
 
         packets.inject(p)
     end

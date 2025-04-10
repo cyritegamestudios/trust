@@ -289,11 +289,9 @@ local incoming_event_dispatcher = {
             WindowerEvents.MobUpdate:trigger(mob_id, name, hpp)
         end
 
-        if L{ 2, 3 }:contains(status) and mob.hpp == 0
-                and get_mob_info(mob_id).status ~= status then
+        if L{ 2, 3 }:contains(status) and get_mob_info(mob_id).status ~= status then
             get_mob_info(mob_id).hpp = mob.hpp
             get_mob_info(mob_id).status = status
-            print('updating: ', mob.hpp, status)
 
             WindowerEvents.MobKO:trigger(mob_id, name, status)
         end

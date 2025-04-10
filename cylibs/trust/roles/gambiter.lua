@@ -67,6 +67,7 @@ function Gambiter:check_gambits(gambits, param, ignore_delay)
     for gambit in gambits:it() do
         local success, target = self:is_gambit_satisfied(gambit, param)
         if success then
+            print(os.time(), 'performing', gambit:getAbility():get_name())
             self:perform_gambit(gambit, target)
             break
         end
