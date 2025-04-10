@@ -28,7 +28,7 @@ state.AutoCampMode:set_description('Auto', "Return to camp after battle (set wit
 
 state.PullActionMode = M{['description'] = 'Pull Actions', 'Auto', 'Target', 'Approach'}
 state.PullActionMode:set_description('Auto', "Pull with pull actions in settings.")
-state.PullActionMode:set_description('Target', "Pull by auto targeting.")
+state.PullActionMode:set_description('Target', "Pull by targeting.")
 state.PullActionMode:set_description('Approach', "Pull by engaging and approaching.")
 
 
