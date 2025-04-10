@@ -11,7 +11,6 @@ local PartyLeaderCondition = require('cylibs/conditions/party_leader')
 local PartyMemberCountCondition = require('cylibs/conditions/party_member_count')
 local PartyTargetedCondition = require('cylibs/conditions/party_targeted')
 local RunToLocationAction = require('cylibs/actions/runtolocation')
-local SwitchTargetAction = require('cylibs/actions/switch_target')
 local Timer = require('cylibs/util/timers/timer')
 
 local Gambiter = require('cylibs/trust/roles/gambiter')
@@ -86,7 +85,9 @@ function Puller:on_add()
             self:set_pull_target(nil)
             if not self:return_to_camp() then
                 self:check_target()
-                self:check_gambits(nil, nil, true)
+                if self:get_pull_target() then
+                    self:check_gambits(nil, nil, true)
+                end
             end
         end
     end), WindowerEvents.MobKO)
@@ -262,7 +263,7 @@ function Puller:get_pull_abilities()
         approach.conditions = self:get_default_conditions(approach)
         return L{ approach }
     elseif state.PullActionMode.value == 'Target' then
-        local auto_target = Gambit.new(GambitTarget.TargetType.Enemy, L{}, Engage.new(L{MaxDistanceCondition.new(30)}), GambitTarget.TargetType.Enemy, L{"Pulling"})
+        local auto_target = Gambit.new(GambitTarget.TargetType.Enemy, L{}, Engage.new(L{MaxDistanceCondition.new(30)}), GambitTarget.TargetType.Enemy, L{"Pulling","Reaction"})
         auto_target.conditions = self:get_default_conditions(auto_target)
         return L{ auto_target }
     end

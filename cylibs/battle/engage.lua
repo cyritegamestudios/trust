@@ -4,7 +4,7 @@
 -- @name Engage
 
 local serializer_util = require('cylibs/util/serializer_util')
-local SwitchTargetAction = require('cylibs/actions/switch_target')
+local EngageAction = require('cylibs/actions/engage')
 
 local Engage = {}
 Engage.__index = Engage
@@ -64,9 +64,12 @@ end
 -- Return the Action to use this action on a target.
 -- @treturn Action Action to use ability
 function Engage:to_action(target_index, _)
-    return SequenceAction.new(L{
+    local action = EngageAction.new(target_index)
+    action.identifier = self.__class..'_target_and_engage'
+    return action
+    --[[return SequenceAction.new(L{
         SwitchTargetAction.new(target_index, 3),
-    }, self.__class..'_target_and_engage')
+    }, self.__class..'_target_and_engage')]]
 end
 
 function Engage:serialize()
