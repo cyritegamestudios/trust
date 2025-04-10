@@ -54,8 +54,9 @@ end
 function Puller:on_add()
     Gambiter.on_add(self)
 
-    if self:get_target() and self:is_valid_target(self:get_target():get_mob()) then
-        self:set_pull_target(self:get_target())
+    local current_target = self:get_alliance():get_target_by_index(self:get_party():get_player():get_target_index())
+    if current_target and self:is_valid_target(current_target:get_mob()) then
+        self:set_pull_target(Monster.new(current_target.id))
     end
 
     if state.AutoPullMode.value ~= 'Off' then
@@ -84,7 +85,7 @@ function Puller:on_add()
         if self:get_target() and self:get_target():get_id() == mob_id then
             self:set_pull_target(nil)
             if not self:return_to_camp() then
-                self:check_target()
+                self:check_target(L{ mob_id })
                 if self:get_pull_target() then
                     self:check_gambits(nil, nil, true)
                 end
@@ -105,7 +106,7 @@ function Puller:tic(_, _)
     self:check_target()
 end
 
-function Puller:check_target()
+function Puller:check_target(target_id_blacklist)
     if state.AutoPullMode.value == 'Off' then
         return
     end
@@ -114,7 +115,7 @@ function Puller:check_target()
     if not self:is_valid_target(next_target and next_target:get_mob()) then
         self:set_pull_target(nil)
 
-        next_target = self:get_next_target()
+        next_target = self:get_next_target(target_id_blacklist)
         if next_target then
             self:set_pull_target(next_target)
             logger.notice(self.__class, 'check_target', 'set_pull_target', next_target:get_name(), next_target:get_mob().index)
@@ -154,14 +155,16 @@ function Puller:get_all_targets()
     return L{}
 end
 
-function Puller:get_next_target()
-    local current_target = self:get_alliance():get_target_by_index(self:get_player():get_mob().target_index)
-    if current_target and self:is_valid_target(current_target:get_mob()) then
+function Puller:get_next_target(target_id_blacklist)
+    target_id_blacklist = target_id_blacklist or L{}
+
+    local current_target = self:get_alliance():get_target_by_index(self:get_party():get_player():get_target_index())
+    if current_target and not target_id_blacklist:contains(current_target:get_id()) and self:is_valid_target(current_target:get_mob()) then
         return Monster.new(current_target:get_id())
     end
 
     local all_targets = self:get_all_targets():filter(function(target)
-        return self:is_valid_target(target)
+        return not target_id_blacklist:contains(target.id) and self:is_valid_target(target)
     end)
     if all_targets:length() > 0 then
         if state.PullActionMode.value == 'Target' or self.max_num_targets > 1 then -- TODO: test whether this randomizes target
