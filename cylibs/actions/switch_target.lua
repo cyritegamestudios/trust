@@ -72,7 +72,6 @@ end
 
 function SwitchTargetAction:target_mob(target)
     if self:is_completed() or self:is_cancelled() then
-        print('done', self:is_completed(), self:is_cancelled())
         return
     end
     if player.status == 'Engaged' then
@@ -87,6 +86,8 @@ function SwitchTargetAction:target_mob(target)
         p['Y Offset'] = 0
 
         packets.inject(p)
+
+        print('performing switch target', target.name, target.hpp)
     else
         local p = packets.new('outgoing', 0x01A)
 
@@ -97,6 +98,8 @@ function SwitchTargetAction:target_mob(target)
         p['X Offset'] = 0
         p['Z Offset'] = 0
         p['Y Offset'] = 0
+
+        print('performing engage', target.name, target.hpp)
 
         packets.inject(p)
     end

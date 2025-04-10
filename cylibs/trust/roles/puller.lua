@@ -19,7 +19,7 @@ local Puller = setmetatable({}, {__index = Gambiter })
 Puller.__index = Puller
 Puller.__class = "Puller"
 
-state.AutoPullMode = M{['description'] = 'Pull Monsters to Fight', 'Off', 'Auto','Party','All'}
+state.AutoPullMode = M{['description'] = 'Pull Monsters to Fight', 'Off', 'Auto','Aggroed','All'}
 state.AutoPullMode:set_description('Auto', "Pull monsters for the party from the target list.")
 state.AutoPullMode:set_description('Party', "Pull any monster aggressive to the party.")
 state.AutoPullMode:set_description('All', "Pull any monster that's nearby.")
@@ -81,11 +81,12 @@ function Puller:on_add()
         self:check_target()
     end, self.target_timer:onTimeChange()))
 
-    self.dispose_bag:add(WindowerEvents.MobKO:addAction(function(mob_id, mob_name)
+    self.dispose_bag:add(WindowerEvents.MobKO:addAction(function(mob_id, mob_name, status)
         if self:get_target() and self:get_target():get_id() == mob_id then
             self:set_pull_target(nil)
             if not self:return_to_camp() then
-                self:check_target()
+                print(mob_id, 'died finding next target')
+                self:check_target(true)
             end
         end
     end), WindowerEvents.MobKO)
@@ -103,19 +104,22 @@ function Puller:tic(_, _)
     self:check_target()
 end
 
-function Puller:check_target()
+function Puller:check_target(override_current_target)
     if state.AutoPullMode.value == 'Off' then
         return
     end
 
     local next_target = self:get_pull_target()
-    if not self:is_valid_target(next_target and next_target:get_mob()) then
+    if override_current_target or not self:is_valid_target(next_target and next_target:get_mob()) then
         self:set_pull_target(nil)
 
         next_target = self:get_next_target()
         if next_target then
             logger.notice(self.__class, 'check_target', 'set_pull_target', next_target:get_name(), next_target:get_mob().index)
             self:set_pull_target(next_target)
+            if override_current_target then
+                self:check_gambits(nil, nil, true)
+            end
         else
             logger.notice(self.__class, 'check_target', 'no valid targets')
             if state.AutoPullMode.value == 'Auto' then
@@ -125,10 +129,10 @@ function Puller:check_target()
         end
     end
 
-    if next_target:is_claimed() and (self:get_target() ~= next_target or self:get_target() == next_target and self:get_player():get_status() ~= 'Engaged') then
+    if next_target:is_claimed() and (self:get_target() ~= next_target or self:get_target() == next_target and self:get_party():get_player():get_status() ~= 'Engaged') then
         logger.notice(self.__class, 'check_target', 'targeting', next_target:get_name(), next_target:get_mob().index)
 
-        self.action_queue:clear()
+        --self.action_queue:clear()
 
         local target_action = SequenceAction.new(L{
             SwitchTargetAction.new(next_target:get_mob().index, 3),
@@ -140,7 +144,7 @@ function Puller:check_target()
 end
 
 function Puller:get_all_targets()
-    if state.AutoPullMode.value == 'Party' then
+    if state.AutoPullMode.value == 'Aggroed' then
         -- 1. Aggroed mobs that are unclaimed and not targeted by party members
         -- 2. Aggroed mobs that are unclaimed
         -- 3. Aggroed mobs that are party claimed
@@ -175,7 +179,7 @@ function Puller:get_next_target()
         return self:is_valid_target(target)
     end)
     if all_targets:length() > 0 then
-        if state.PullActionMode.value == 'Target' then
+        if state.PullActionMode.value == 'Target' or self.max_num_targets > 1 then -- TODO: test whether this randomizes target
             return Monster.new(all_targets:random().id)
         else
             return Monster.new(all_targets[1].id)
@@ -261,7 +265,7 @@ function Puller:get_default_conditions(gambit)
             },
             Condition.LogicalOperator.Or), GambitTarget.TargetType.Self)
     }
-    return alter_ego_conditions + conditions + self.job:get_conditions_for_ability(gambit:getAbility()):map(function(condition)
+    return (alter_ego_conditions + conditions + self.job:get_conditions_for_ability(gambit:getAbility())):map(function(condition)
         if condition.__type ~= GambitCondition.__type then
             return GambitCondition.new(condition, GambitTarget.TargetType.Self)
         end
@@ -272,21 +276,11 @@ end
 function Puller:get_pull_abilities()
     if state.PullActionMode.value == 'Approach' then
         local approach = Gambit.new(GambitTarget.TargetType.Enemy, L{}, Approach.new(L{MaxDistanceCondition.new(35)}), GambitTarget.TargetType.Enemy, L{"Pulling"})
-        approach.conditions = self:get_default_conditions(approach):map(function(condition)
-            if condition.__type ~= GambitCondition.__type then
-                return GambitCondition.new(condition, GambitTarget.TargetType.Enemy)
-            end
-            return condition
-        end)
+        approach.conditions = self:get_default_conditions(approach)
         return L{ approach }
     elseif state.PullActionMode.value == 'Target' then
         local auto_target = Gambit.new(GambitTarget.TargetType.Enemy, L{}, Engage.new(L{MaxDistanceCondition.new(30)}), GambitTarget.TargetType.Enemy, L{"Pulling"})
-        auto_target.conditions = self:get_default_conditions(auto_target):map(function(condition)
-            if condition.__type ~= GambitCondition.__type then
-                return GambitCondition.new(condition, GambitTarget.TargetType.Enemy)
-            end
-            return condition
-        end)
+        auto_target.conditions = self:get_default_conditions(auto_target)
         return L{ auto_target }
     end
     return self.pull_abilities

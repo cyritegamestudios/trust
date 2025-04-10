@@ -67,6 +67,15 @@ local vana_time = time - 1009810800
 
 local bufftime_offset = math.floor(time - (vana_time * 60 % 0x100000000) / 60)
 
+local mob_info = {}
+local function get_mob_info(mob_id)
+    if mob_info[mob_id] == nil then
+        mob_info[mob_id] = {}
+    end
+    return mob_info[mob_id]
+end
+
+
 local incoming_event_ids = S{
     0x028, -- data.incoming[0x028] = {name='Action',              description='Packet sent when an NPC is attacking.'}
     0x029, -- data.incoming[0x029] = {name='Action Message',      description='Packet sent for simple battle-related messages.'}
@@ -280,8 +289,13 @@ local incoming_event_dispatcher = {
             WindowerEvents.MobUpdate:trigger(mob_id, name, hpp)
         end
 
-        if L{ 2, 3 }:contains(status) then
-            WindowerEvents.MobKO:trigger(mob_id, name)
+        if L{ 2, 3 }:contains(status) and mob.hpp == 0
+                and get_mob_info(mob_id).status ~= status then
+            get_mob_info(mob_id).hpp = mob.hpp
+            get_mob_info(mob_id).status = status
+            print('updating: ', mob.hpp, status)
+
+            WindowerEvents.MobKO:trigger(mob_id, name, status)
         end
     end,
 
