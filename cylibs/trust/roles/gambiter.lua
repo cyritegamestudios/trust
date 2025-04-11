@@ -55,6 +55,7 @@ function Gambiter:check_gambits(gambits, param, ignore_delay)
     if self.state_var.value == 'Off' or not ignore_delay and (os.time() - self.last_gambit_time) < self:get_cooldown() then
         return
     end
+    --  self.last_gambit_time = os.time() -- FIXME: should i really add this? Otherwise cooldown isn't respected
 
     logger.notice(self.__class, 'check_gambits', self:get_type(), self.state_var.value)
 
