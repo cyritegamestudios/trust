@@ -3,7 +3,6 @@ local ClaimedCondition = require('cylibs/conditions/claimed')
 local ConditionalCondition = require('cylibs/conditions/conditional')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Engage = require('cylibs/battle/engage')
-local ffxi_util = require('cylibs/util/ffxi_util')
 local Gambit = require('cylibs/gambits/gambit')
 local GambitTarget = require('cylibs/gambits/gambit_target')
 local MobFilter = require('cylibs/battle/monsters/mob_filter')
@@ -84,11 +83,10 @@ function Puller:on_add()
     self.dispose_bag:add(WindowerEvents.MobKO:addAction(function(mob_id, mob_name, status)
         if self:get_target() and self:get_target():get_id() == mob_id then
             self:set_pull_target(nil)
-            if not self:return_to_camp() then
-                self:check_target(L{ mob_id })
-                if self:get_pull_target() then
-                    self:check_gambits(nil, nil, true)
-                end
+
+            self:check_target(L{ mob_id })
+            if self:get_pull_target() then
+                self:check_gambits(nil, nil, true)
             end
         end
     end), WindowerEvents.MobKO)
@@ -103,6 +101,7 @@ function Puller:tic(_, _)
 
     logger.notice(self.__class, 'tic', 'target_index', self.target_index or 'none')
 
+    self:return_to_camp()
     self:check_target()
 end
 
@@ -124,24 +123,26 @@ function Puller:check_target(target_id_blacklist)
             if state.AutoPullMode.value == 'Auto' then
                 self:get_party():add_to_chat(self:get_party():get_player(), "I can't find anything to pull. I'll check again soon.", self.__class..'_no_valid_targets', 15)
             end
+            self:return_to_camp()
             return
         end
     end
 end
 
 function Puller:get_all_targets()
+    local all_targets = L{}
     if state.AutoPullMode.value == 'Aggroed' then
         -- 1. Aggroed mobs that are unclaimed and not targeted by party members
         -- 2. Aggroed mobs that are unclaimed
         -- 3. Aggroed mobs that are party claimed
-        return self.mob_filter:get_aggroed_mobs(L{ UnclaimedCondition.new(), NotCondition.new(L{ PartyTargetedCondition.new() }) })
+        all_targets = self.mob_filter:get_aggroed_mobs(L{ UnclaimedCondition.new(), NotCondition.new(L{ PartyTargetedCondition.new() }) })
                 + self.mob_filter:get_aggroed_mobs(L{ MobFilter.Type.Unclaimed })
                 + self.mob_filter:get_aggroed_mobs(L{ MobFilter.Type.PartyClaimed })
     elseif state.AutoPullMode.value == 'Auto' then
         -- 1. Aggroed mobs that are party claimed
         -- 2. Aggroed mobs that are unclaimed
         -- 3. Unaggroed mobs in target name whitelist
-        return self.mob_filter:get_aggroed_mobs(L{ MobFilter.Type.PartyClaimed })
+        all_targets = self.mob_filter:get_aggroed_mobs(L{ MobFilter.Type.PartyClaimed })
                 + self.mob_filter:get_aggroed_mobs(L{ MobFilter.Type.Unclaimed })
                 + (self.mob_filter:get_nearby_mobs(L{ MobFilter.Type.Unclaimed }):filter(function(mob)
                     return self.target_names:contains(mob.name)
@@ -149,10 +150,10 @@ function Puller:get_all_targets()
     elseif state.AutoPullMode.value == 'All' then
         -- 1. All mobs that are party claimed
         -- 2. All mobs that are unclaimed
-        return self.mob_filter:nearby_mobs(L{ MobFilter.Type.PartyClaimed })
+        all_targets = self.mob_filter:nearby_mobs(L{ MobFilter.Type.PartyClaimed })
                 + self.mob_filter:get_nearby_mobs(L{ MobFilter.Type.Unclaimed })
     end
-    return L{}
+    return all_targets
 end
 
 function Puller:get_next_target(target_id_blacklist)
@@ -186,7 +187,7 @@ function Puller:is_valid_target(target)
         max_pull_ability_range = math.max(max_pull_ability_range, gambit:getAbility():get_range())
     end
     local conditions = L{
-        MaxDistanceCondition.new(math.min(self.distance, max_pull_ability_range)),
+        MaxDistanceCondition.new(max_pull_ability_range),
         MinHitPointsPercentCondition.new(1),
         ClaimedCondition.new(L{ 0 }:extend(self:get_party():get_party_members(true):map(function(p) return p:get_id() end)))
     }
@@ -240,7 +241,7 @@ end
 
 function Puller:get_default_conditions(gambit)
     local conditions = L{
-        MaxDistanceCondition.new(math.min(gambit:getAbility():get_range(), self.distance or 20)),
+        MaxDistanceCondition.new(gambit:getAbility():get_range()),
         MinHitPointsPercentCondition.new(1),
     }
     local alter_ego_conditions = L{
@@ -304,11 +305,11 @@ function Puller:get_target_names()
 end
 
 function Puller:set_camp_position(position)
-    self.camp_position = position
+    self.mob_filter:set_center_position(position)
 end
 
 function Puller:get_camp_position()
-    return self.camp_position
+    return self.mob_filter:get_center_position()
 end
 
 function Puller:get_cooldown()
@@ -324,20 +325,24 @@ function Puller:allows_multiple_actions()
 end
 
 function Puller:return_to_camp()
-    if state.AutoCampMode.value == 'Off' or self:get_camp_position() == nil then
+    if state.AutoCampMode.value == 'Off' or self:get_pull_target() ~= nil
+            or self:get_party():get_player():get_status() == 'Engaged' or self:get_camp_position() == nil then
         return false
     end
 
-    if ffxi_util.distance(ffxi_util.get_mob_position(windower.ffxi.get_player().name), self:get_camp_position()) > 40 then
+    local distance = self:get_party():get_player():distance(self:get_camp_position()[1], self:get_camp_position()[2])
+    if distance > 40 then
         self:set_camp_position(nil)
         self:get_party():add_to_chat(self:get_party():get_player(), "I'm too far from camp to go back now.")
         return false
     end
 
-    local return_to_camp_action = RunToLocationAction.new(self:get_camp_position()[1], self:get_camp_position()[2], self:get_camp_position()[3], 2.0)
-    return_to_camp_action.identifier = "Return to camp"
+    if distance > 2 then
+        local return_to_camp_action = RunToLocationAction.new(self:get_camp_position()[1], self:get_camp_position()[2], self:get_camp_position()[3], 2.0)
+        return_to_camp_action.identifier = "Return to camp"
 
-    self.action_queue:push_action(return_to_camp_action, true)
+        self.action_queue:push_action(return_to_camp_action, true)
+    end
 
     return true
 end

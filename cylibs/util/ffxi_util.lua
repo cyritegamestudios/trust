@@ -16,7 +16,6 @@ function ffxi_util.distance(v1, v2)
 	if not v1 or not v2 then
 		return 0
 	end
-
 	return math.sqrt((v1[1]-v2[1])^2+(v1[2]-v2[2])^2+(v1[3]-v2[3])^2)
 end
 

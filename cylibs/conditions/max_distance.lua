@@ -10,9 +10,10 @@ MaxDistanceCondition.__index = MaxDistanceCondition
 MaxDistanceCondition.__class = "MaxDistanceCondition"
 MaxDistanceCondition.__type = "MaxDistanceCondition"
 
-function MaxDistanceCondition.new(distance, target_index)
+function MaxDistanceCondition.new(distance, target_index, position)
     local self = setmetatable(Condition.new(target_index), MaxDistanceCondition)
     self.distance = distance or 20
+    self.position = position
     return self
 end
 
@@ -22,7 +23,12 @@ function MaxDistanceCondition:is_satisfied(target_index)
         if target.index == windower.ffxi.get_player().index then
             return true
         else
-            return target.valid_target and target.distance:sqrt() <= self.distance
+            if self.position then
+                local distance = math.sqrt((self.position[1]-target.x)^2+(self.position[2]-target.y)^2)
+                return distance <= self.distance
+            else
+                return target.valid_target and target.distance:sqrt() <= self.distance
+            end
         end
     end
     return false

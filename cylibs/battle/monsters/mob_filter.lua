@@ -24,6 +24,7 @@ function MobFilter.new(alliance, max_distance, default_sort)
     local self = setmetatable({}, MobFilter)
     self.alliance = alliance
     self.max_distance = max_distance or 25
+    self.center_position = nil
     self.default_sort = default_sort or function(mob1, mob2)
         return mob1.distance < mob2.distance
     end
@@ -68,7 +69,7 @@ function MobFilter:get_default_conditions()
     return L{
         ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos()),
         MinHitPointsPercentCondition.new(1),
-        MaxDistanceCondition.new(50),
+        MaxDistanceCondition.new(self.max_distance, nil, self.center_position),
         MaxHeightDistanceCondition.new(8, Condition.Operator.LessThanOrEqualTo),
         ConditionalCondition.new(L{ ClaimedCondition.new(self.alliance:get_alliance_member_ids()), UnclaimedCondition.new() }, Condition.LogicalOperator.Or)
     }
@@ -95,19 +96,21 @@ function MobFilter:get_filter_for_type(filter_type)
         end
         return false
     end
-    --[[filter_for_type[MobFilter.Type.PartyTargeted] = function(mob)
-        local party_target_indices = S(self.alliance:get_alliance_members(false):map(function(p)
-            return p:get_target_index()
-        end))
-        return party_target_indices:contains(mob.index)
-    end
-    filter_for_type[MobFilter.Type.NotPartyTargeted] = function(mob)
-        local party_target_indices = S(self.alliance:get_alliance_members(false):map(function(p)
-            return p:get_target_index()
-        end))
-        return not party_target_indices:contains(mob.index)
-    end]]
     return filter_for_type[filter_type]
+end
+
+-------
+-- Sets the center position to calculate mob distance from. Defaults to player position if nil.
+-- @tparam vector center_position Position
+function MobFilter:set_center_position(center_position)
+    self.center_position = center_position
+end
+
+-------
+-- Returns the center position to calculate mob distance from.
+-- @treturn vector Center position.
+function MobFilter:get_center_position()
+    return self.center_position
 end
 
 return MobFilter

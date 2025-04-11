@@ -46,7 +46,8 @@ function PullTrustCommands:handle_camp(_)
 
     handle_set('AutoCampMode', 'Auto')
 
-    self:get_puller():set_camp_position(ffxi_util.get_mob_position(windower.ffxi.get_player().name))
+    local position = ffxi_util.get_mob_position(windower.ffxi.get_player().name)
+    self:get_puller():set_camp_position(V{ position[1], position[2] })
 
     success = true
     message = "Return to the current position after battle"
