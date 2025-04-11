@@ -12,7 +12,6 @@ return {
         ["autoskillchainmode"]="Auto",
         ["skillchainprioritymode"]="Prefer",
         ["autoengagemode"]="Always",
-        ["autotargetmode"]="Off",
         ["autotrustsmode"]="Off",
         ["maintrustsettingsmode"]="Default",
         ["autofacemobmode"]="Auto",

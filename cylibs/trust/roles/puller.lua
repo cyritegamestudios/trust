@@ -253,7 +253,6 @@ function Puller:get_default_conditions(gambit)
             },
             Condition.LogicalOperator.Or), GambitTarget.TargetType.Self)
     }
-
     return (alter_ego_conditions + conditions + self.job:get_conditions_for_ability(gambit:getAbility())):map(function(condition)
         if condition.__type ~= GambitCondition.__type then
             return GambitCondition.new(condition, GambitTarget.TargetType.Self)

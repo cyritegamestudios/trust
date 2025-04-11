@@ -328,11 +328,6 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         childMenuItems.Pulling = PullSettingsMenuItem.disabled("Configure pull settings from the other job's menu.")
     end
 
-    if trust:role_with_type("targeter") then
-        menuItems:append(ButtonItem.localized('Targeting', i18n.translate('Button_Targeting')))
-        childMenuItems.Targeting = TargetSettingsMenuItem.new(trustSettings, trustSettingsMode)
-    end
-
     if trust:role_with_type("shooter") then
         menuItems:append(ButtonItem.default('Shooting', 18))
         childMenuItems.Shooting = self:getMenuItemForRole(trust:role_with_type("shooter"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode, trustModeSettings)

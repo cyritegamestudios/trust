@@ -64,12 +64,12 @@ end
 -- Return the Action to use this action on a target.
 -- @treturn Action Action to use ability
 function Engage:to_action(target_index, _)
-    local action = EngageAction.new(target_index)
-    action.identifier = self.__class..'_target_and_engage'
-    return action
-    --[[return SequenceAction.new(L{
-        SwitchTargetAction.new(target_index, 3),
-    }, self.__class..'_target_and_engage')]]
+    return SequenceAction.new(L{
+        EngageAction.new(target_index),
+        BlockAction.new(function()
+            player_util.face(windower.ffxi.get_mob_by_index(target_index))
+        end)
+    }, self.__class..'_target_and_engage')
 end
 
 function Engage:serialize()

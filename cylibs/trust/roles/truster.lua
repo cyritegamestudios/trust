@@ -2,7 +2,6 @@ local GambitTarget = require('cylibs/gambits/gambit_target')
 local HasAlterEgoCondition = require('cylibs/conditions/has_alter_ego')
 local PartyLeaderCondition = require('cylibs/conditions/party_leader')
 local PartyMemberCountCondition = require('cylibs/conditions/party_member_count')
-local trusts = require('cylibs/res/trusts')
 
 local Gambiter = require('cylibs/trust/roles/gambiter')
 local Truster = setmetatable({}, {__index = Gambiter })

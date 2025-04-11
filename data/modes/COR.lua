@@ -18,7 +18,6 @@ return {
         ["maintrustsettingsmode"]="Default",
         ["autofacemobmode"]="Auto",
         ["skillchainpartnermode"]="Off",
-        ["autotargetmode"]="Off",
         ["autoshootmode"]="Off",
         ["autofoodmode"]="Off",
         ["combatmode"]="Off",
