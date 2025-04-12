@@ -21,6 +21,8 @@ skills.weapon_skills = {
     [18] = {en='Shadowstitch',skillchain={'Reverberation'}},
     [19] = {en='Gust Slash',skillchain={'Detonation'}},
     [20] = {en='Cyclone',skillchain={'Detonation','Impaction'}},
+    [21] = {en="Energy Drain",skillchain={}},
+    [22] = {en="Energy Steal",skillchain={}},
     [23] = {en='Dancing Edge',skillchain={'Scission','Detonation'}},
     [24] = {en='Shark Bite',skillchain={'Fragmentation'}},
     [25] = {en='Evisceration',skillchain={'Gravitation','Transfixion'}},
