@@ -40,21 +40,18 @@ end
 -- @treturn list List of mobs
 function MobFilter:get_nearby_mobs(conditions)
     conditions = conditions:flatten(false)
+    conditions = self:get_default_conditions() + conditions
 
     local mobs = L{}
     for _, mob in pairs(windower.ffxi.get_mob_array()) do
         mobs:append(mob)
     end
-
-    conditions = self:get_default_conditions() + conditions
-
     mobs = mobs:filter(function(mob)
         if not Condition.check_conditions(conditions, mob.index) or mob.spawn_type ~= 16 then
             return false
         end
         return true
     end)
-
     return mobs:sort(self.default_sort)
 end
 
@@ -65,6 +62,9 @@ function MobFilter:get_aggroed_mobs(filter_types)
     return self:get_nearby_mobs(L{ MobFilter.Type.Aggroed } + (filter_types or L{}))
 end
 
+-------
+-- Returns the default conditions to use in every mob filter.
+-- @treturn list Default conditions
 function MobFilter:get_default_conditions()
     return L{
         ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos()),
@@ -73,30 +73,6 @@ function MobFilter:get_default_conditions()
         MaxHeightDistanceCondition.new(8, Condition.Operator.LessThanOrEqualTo),
         ConditionalCondition.new(L{ ClaimedCondition.new(self.alliance:get_alliance_member_ids()), UnclaimedCondition.new() }, Condition.LogicalOperator.Or)
     }
-end
-
--------
--- Returns the filter function for a filter type.
--- @tparam MobFilter.Type filter_type Filter type
--- @treturn function Filter function
-function MobFilter:get_filter_for_type(filter_type)
-    local filter_for_type = {}
-    filter_for_type[MobFilter.Type.All] = function(_)
-        return true
-    end
-    filter_for_type[MobFilter.Type.Aggroed] = function(mob)
-        return mob.status == 1
-    end
-    filter_for_type[MobFilter.Type.Unclaimed] = function(mob)
-        return mob.claim_id == 0 or mob.claim_id == nil
-    end
-    filter_for_type[MobFilter.Type.PartyClaimed] = function(mob)
-        if mob.claim_id then
-            return self.alliance:get_alliance_member_ids():contains(mob.claim_id)
-        end
-        return false
-    end
-    return filter_for_type[filter_type]
 end
 
 -------

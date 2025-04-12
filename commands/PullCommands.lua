@@ -23,9 +23,7 @@ function PullTrustCommands.new(trust, action_queue, puller)
     self:add_command('action', function(_, _, mode_value)
         return self:handle_set_mode('PullActionMode', mode_value or 'Auto')
     end, 'Action to pull monsters with', L{
-        PickerConfigItem.new('mode_value', 'auto', L{ 'auto', 'target', 'approach' }, function(mode_value)
-            print(mode_value)
-        end, "Pull Action")
+        PickerConfigItem.new('mode_value', 'auto', L{ 'auto', 'target', 'approach' }, nil, "Pull Action")
     }, true)
 
     return self

@@ -96,6 +96,7 @@ local outgoing_event_ids = S{
     0x015,
     0x05E,
     0x102,
+    0x00D,
 }
 
 -- Jump table with a mapping of message_id to handler for that message_id
@@ -291,7 +292,7 @@ local incoming_event_dispatcher = {
 
         if L{ 2, 3 }:contains(status) and get_mob_info(mob_id).status ~= status then
             get_mob_info(mob_id).hpp = mob.hpp
-            get_mob_info(mob_id).status = status
+            get_mob_info(mob_id).status = status -- NOTE: should probably set this outside of this block so it gets updated for other statuses
 
             WindowerEvents.MobKO:trigger(mob_id, name, status)
         end
@@ -438,6 +439,10 @@ local incoming_event_dispatcher = {
 
 -- Jump table with a mapping of message_id to handler for that message_id
 local outgoing_event_dispatcher = {
+
+    [0x00D] = function(_)
+        mob_info = {} -- NOTE: probably does not clear when mobs respawn
+    end,
 
     -- 0x015
     -- Updates (x, y, z) and target_index and gets sent very rapidly

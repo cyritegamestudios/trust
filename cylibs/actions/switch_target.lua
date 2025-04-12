@@ -75,12 +75,6 @@ function SwitchTargetAction:target_mob(target)
         return
     end
 
-    --[[packets.inject(packets.new('incoming', 0x058, {
-        ['Player'] = windower.ffxi.get_player().id,
-        ['Target'] = target.id,
-        ['Player Index'] = windower.ffxi.get_player().index,
-    }))]]
-
     if player.status == 'Engaged' then
         local p = packets.new('outgoing', 0x01A)
 

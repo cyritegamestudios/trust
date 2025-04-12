@@ -71,7 +71,7 @@ function Truster:get_type()
 end
 
 function Truster:get_cooldown()
-    return 10
+    return 8
 end
 
 function Truster:allows_duplicates()
