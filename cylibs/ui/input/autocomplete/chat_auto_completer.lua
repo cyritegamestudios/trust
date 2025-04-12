@@ -15,8 +15,10 @@ function ChatAutoCompleter.new(commands)
 
     self.allCommands = commands
     self.commandTrie = CommandTrie.new()
+    
     for command in commands:it() do
-        self.commandTrie:addCommand(command:gsub("^//%s*trust%s*", ""))
+        local sanitized_command, _ = command:gsub("^//%s*trust%s*", "")
+        self.commandTrie:addCommand(sanitized_command)
     end
 
     self.disposeBag = DisposeBag.new()

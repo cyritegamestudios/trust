@@ -35,7 +35,7 @@ function PuppetmasterTrust.new(settings, action_queue, battle_settings, trust_se
 	local job = Puppetmaster.new()
 	local roles = S{
 		Buffer.new(action_queue, trust_settings.BuffSettings, state.AutoBuffMode, job),
-		Puller.new(action_queue, trust_settings.PullSettings),
+		Puller.new(action_queue, trust_settings.PullSettings, job),
 		Dispeler.new(action_queue, L{}, L{ JobAbility.new('Dark Maneuver', L{ HasAttachmentsCondition.new(L{ 'regulator', 'disruptor' }), NotCondition.new(L{ HasBuffCondition.new('Dark Maneuver', windower.ffxi.get_player().index) }, windower.ffxi.get_player().index) }, L{}, 'me') }, false),
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), PuppetmasterTrust)

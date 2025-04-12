@@ -17,7 +17,6 @@ return {
         ["maintrustsettingsmode"]="Default",
         ["autofacemobmode"]="Auto",
         ["autoassaultmode"]="Auto",
-        ["autotargetmode"]="Off",
         ["engagemode"]="None",
         ["autofoodmode"]="Off",
         ["combatmode"]="Off",

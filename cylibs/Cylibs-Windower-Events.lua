@@ -67,6 +67,15 @@ local vana_time = time - 1009810800
 
 local bufftime_offset = math.floor(time - (vana_time * 60 % 0x100000000) / 60)
 
+local mob_info = {}
+local function get_mob_info(mob_id)
+    if mob_info[mob_id] == nil then
+        mob_info[mob_id] = {}
+    end
+    return mob_info[mob_id]
+end
+
+
 local incoming_event_ids = S{
     0x028, -- data.incoming[0x028] = {name='Action',              description='Packet sent when an NPC is attacking.'}
     0x029, -- data.incoming[0x029] = {name='Action Message',      description='Packet sent for simple battle-related messages.'}
@@ -87,6 +96,7 @@ local outgoing_event_ids = S{
     0x015,
     0x05E,
     0x102,
+    0x00D,
 }
 
 -- Jump table with a mapping of message_id to handler for that message_id
@@ -280,8 +290,11 @@ local incoming_event_dispatcher = {
             WindowerEvents.MobUpdate:trigger(mob_id, name, hpp)
         end
 
-        if L{ 2, 3 }:contains(status) then
-            WindowerEvents.MobKO:trigger(mob_id, name)
+        if L{ 2, 3 }:contains(status) and get_mob_info(mob_id).status ~= status then
+            get_mob_info(mob_id).hpp = mob.hpp
+            get_mob_info(mob_id).status = status -- NOTE: should probably set this outside of this block so it gets updated for other statuses
+
+            WindowerEvents.MobKO:trigger(mob_id, name, status)
         end
     end,
 
@@ -426,6 +439,10 @@ local incoming_event_dispatcher = {
 
 -- Jump table with a mapping of message_id to handler for that message_id
 local outgoing_event_dispatcher = {
+
+    [0x00D] = function(_)
+        mob_info = {} -- NOTE: probably does not clear when mobs respawn
+    end,
 
     -- 0x015
     -- Updates (x, y, z) and target_index and gets sent very rapidly

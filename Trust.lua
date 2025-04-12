@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '14.2.4'
+_addon.version = '14.3.0'
 _addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 
@@ -102,12 +102,11 @@ function load_user_files(main_job_id, sub_job_id)
 		if pull_abilities == nil or pull_abilities:length() == 0 then
 			pull_abilities = L{ Approach.new() }
 		end
-		player.trust.main_job:add_role(Puller.new(action_queue, player.trust.main_job_settings.Default.PullSettings))
+		player.trust.main_job:add_role(Puller.new(action_queue, player.trust.main_job_settings.Default.PullSettings, player.trust.main_job))
 	end
 
 	player.trust.main_job:add_role(Reacter.new(action_queue, player.trust.main_job_settings.Default.ReactionSettings, skillchainer))
 	player.trust.main_job:add_role(Gambiter.new(action_queue, player.trust.main_job_settings.Default.GambitSettings))
-	player.trust.main_job:add_role(Targeter.new(action_queue, main_trust_settings))
 	player.trust.main_job:add_role(Attacker.new(action_queue))
 	player.trust.main_job:add_role(CombatMode.new(action_queue, addon_settings:getSettings().battle.melee_distance, addon_settings:getSettings().battle.range_distance, addon_enabled))
 	local follower = Follower.new(action_queue, addon_settings:getSettings().follow.distance, addon_settings)

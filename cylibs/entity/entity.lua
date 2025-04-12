@@ -90,6 +90,11 @@ function Entity:set_position(x, y, z)
     self.position[3] = z
 end
 
+function Entity:distance(x, y)
+    local mob = self:get_mob()
+    return math.sqrt((mob.x-x)^2+(mob.y-y)^2)
+end
+
 function Entity:__eq(otherItem)
     return self:get_id() == otherItem:get_id()
 end

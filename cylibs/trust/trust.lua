@@ -53,10 +53,6 @@ function Trust:init()
 		if reacter then
 			reacter:set_gambit_settings(new_trust_settings.ReactionSettings)
 		end
-		local targeter = self:role_with_type("targeter")
-		if targeter then
-			targeter:set_target_settings(new_trust_settings.TargetSettings)
-		end
 		local buffer = self:role_with_type("buffer")
 		if buffer then
 			buffer:set_buff_settings(new_trust_settings.BuffSettings, self:get_job())

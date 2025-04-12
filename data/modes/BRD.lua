@@ -5,7 +5,6 @@ return {
         ["autofoodmode"]="Auto",
         ["autoaftermathmode"]="Off",
         ["maintrustsettingsmode"]="Default",
-        ["autotargetmode"]="Off",
         ["autofollowmode"]="Always",
         ["autogambitmode"]="Auto",
         ["autotrustsmode"]="Auto",

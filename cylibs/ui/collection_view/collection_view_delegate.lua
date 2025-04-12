@@ -171,6 +171,19 @@ function CollectionViewDelegate:selectItemAtIndexPath(indexPath)
     self:didSelectItemAtIndexPath():trigger(indexPath)
 end
 
+function CollectionViewDelegate:selectAllItems()
+    if not self.collectionView:getAllowsMultipleSelection() then
+        return
+    end
+
+    local indexPaths = L{}
+    for section = 1, self.collectionView:getDataSource():numberOfSections() do
+        for row = 1, self.collectionView:getDataSource():numberOfItemsInSection(section) do
+            self:selectItemAtIndexPath(IndexPath.new(section, row))
+        end
+    end
+end
+
 ---
 -- Selects all items in a section of the collection view.
 --

@@ -1,8 +1,10 @@
-local spell_util = require('cylibs/util/spell_util')
-local trusts = require('cylibs/res/trusts')
-local zone_util = require('cylibs/util/zone_util')
+local GambitTarget = require('cylibs/gambits/gambit_target')
+local HasAlterEgoCondition = require('cylibs/conditions/has_alter_ego')
+local PartyLeaderCondition = require('cylibs/conditions/party_leader')
+local PartyMemberCountCondition = require('cylibs/conditions/party_member_count')
 
-local Truster = setmetatable({}, {__index = Role })
+local Gambiter = require('cylibs/trust/roles/gambiter')
+local Truster = setmetatable({}, {__index = Gambiter })
 Truster.__index = Truster
 Truster.__class = "Truster"
 
@@ -10,130 +12,74 @@ state.AutoTrustsMode = M{['description'] = 'Call Alter Egos', 'Off', 'Auto'}
 state.AutoTrustsMode:set_description('Auto', "Automatically summon alter egos before pulling.")
 
 function Truster.new(action_queue, trusts)
-    local self = setmetatable(Role.new(action_queue), Truster)
-
-    self.action_events = {}
-    self.last_trust_time = os.time() - 10
+    local self = setmetatable(Gambiter.new(action_queue, { Gambits = L{} }, state.AutoTrustsMode), Truster)
 
     self:set_trusts(trusts)
 
     return self
 end
 
-function Truster:destroy()
-    Role.destroy(self)
-
-    if self.action_events then
-        for _,event in pairs(self.action_events) do
-            windower.unregister_event(event)
+function Truster:get_default_conditions(gambit)
+    local conditions = L{
+        PartyLeaderCondition.new(),
+        PartyMemberCountCondition.new(6, Condition.Operator.LessThan),
+        NotCondition.new(L{ HasAlterEgoCondition.new(gambit:getAbility():get_name()) }),
+        NotCondition.new(L{ InTownCondition.new() }),
+        IdleCondition.new(),
+    }:map(function(condition)
+        if condition.__type ~= GambitCondition.__type then
+            return GambitCondition.new(condition, GambitTarget.TargetType.Self)
         end
-    end
-end
-
-function Truster:on_add()
-    Role.on_add(self)
-end
-
-function Truster:target_change(target_index)
-    Role.target_change(self, target_index)
-
-    if target_index == nil then
-        self:check_trusts()
-    end
-end
-
-function Truster:tic(new_time, old_time)
-    Role.tic(new_time, old_time)
-
-    if state.AutoTrustsMode.value == 'Off' or os.time() - self.last_trust_time < 15 then
-        return
-    end
-    self.last_trust_time = os.time()
-
-    self:check_trusts()
-end
-
-function Truster:get_valid_trusts()
-    local party_member_names = self:get_party():get_party_members():map(function(p) return p:get_name() end)
-
-    logger.notice(self.__class, 'get_valid_trusts', 'party_member_names', party_member_names)
-
-    local trust_names = self.trusts:copy():filter(function(trust_name)
-        local sanitized_name = trust_name
-        if trusts:with('enl', trust_name) then
-            sanitized_name = trusts:with('enl', trust_name).en
-        end
-        return not party_member_names:contains(sanitized_name) and not party_member_names:contains(trust_name)
-                and spell_util.can_cast_spell(spell_util.spell_id(trust_name))
+        return condition
     end)
-    trust_names = trust_names:slice(1, math.min(6 - self:get_party():num_party_members(), trust_names:length()))
-
-    return trust_names
-end
-
--------
--- Summons trusts if there are fewer than 6 players in the party.
-function Truster:check_trusts()
-    if state.AutoTrustsMode.value == 'Off' or self:get_party():num_party_members() == 6
-             or player.status ~= 'Idle' or not party_util.is_party_leader(windower.ffxi.get_player().id) then
-        return
-    end
-
-    local info = windower.ffxi.get_info()
-    if info and zone_util.is_city(info.zone) then
-        return
-    end
-
-    local trust_names = self:get_valid_trusts()
-
-    logger.notice(self.__class, 'check_trusts', trust_names)
-
-    for trust_name in trust_names:it() do
-        self:call_trust(trust_name)
-    end
-end
-
-function Truster:call_trust(trust_name)
-    local trust_spell = res.spells:with('en', trust_name)
-    if trust_spell then
-        logger.notice(self.__class, 'call_trust', trust_name)
-
-        local actions = L{}
-
-        actions:append(WaitAction.new(0, 0, 0, 5))
-        actions:append(SpellAction.new(0, 0, 0, trust_spell.id, nil, self:get_player()))
-
-        local trust_action = SequenceAction.new(actions, 'truster_call_trust')
-        trust_action.priority = ActionPriority.highest
-        trust_action.max_duration = 20
-
-        self.action_queue:push_action(trust_action, true)
-    end
+    return conditions
 end
 
 function Truster:set_trusts(trusts)
-    local missing_trusts = L{}
-    for trust_name in trusts:it() do
-        if not spell_util.knows_spell(spell_util.spell_id(trust_name)) then
-            missing_trusts:append(trust_name)
+    local unknown_trusts = L{}
+
+    local gambits = trusts:map(function(trust_name)
+        return Gambit.new(GambitTarget.TargetType.Self, L{}, Spell.new(trust_name), Condition.TargetType.Self, L{"AlterEgo"})
+    end)
+    for gambit in gambits:it() do
+        if not spell_util.knows_spell(spell_util.spell_id(gambit:getAbility():get_name())) then
+            unknown_trusts:append(gambit:getAbility():get_name())
+        end
+        gambit.conditions = gambit.conditions:filter(function(condition)
+            return condition:is_editable()
+        end)
+        local conditions = self:get_default_conditions(gambit)
+        for condition in conditions:it() do
+            condition:set_editable(false)
+            gambit:addCondition(condition)
         end
     end
-    if missing_trusts:length() > 0 then
-        addon_message(260, '('..windower.ffxi.get_player().name..') '.."I can't summon the following Alter Egos, which may affect my ability to pull: "..missing_trusts:tostring())
+
+    if unknown_trusts:length() > 0 then
+        addon_system_error(string.format("Unknown alter egos: %s. Pulling will be disabled until you update your alter egos under Settings > Alter Egos.", unknown_trusts:tostring()))
     end
-    self.trusts = trusts:filter(function(trust_name) return spell_util.knows_spell(spell_util.spell_id(trust_name)) end)
+
+    self:set_gambit_settings({ Gambits = gambits })
 end
 
 function Truster:get_trusts()
     return self.trusts
 end
 
+function Truster:get_type()
+    return "truster"
+end
+
+function Truster:get_cooldown()
+    return 8
+end
+
 function Truster:allows_duplicates()
     return false
 end
 
-function Truster:get_type()
-    return "truster"
+function Truster:allows_multiple_actions()
+    return false
 end
 
 return Truster

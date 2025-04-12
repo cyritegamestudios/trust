@@ -156,6 +156,7 @@ function SongSettingsMenuItem:getJobsMenuItem()
     local editJobsMenuItem = MenuItem.new(L{
         ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
         ButtonItem.default('Clear All'),
+        ButtonItem.default('Select All'),
     }, {}, function(_, _)
         local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.SongSets[self.songSetName].Songs
 
@@ -178,6 +179,8 @@ function SongSettingsMenuItem:getJobsMenuItem()
 
                 self.trustSettings:saveSettings(true)
                 addon_system_message("Updated jobs for "..song:get_localized_name()..".")
+            else
+                addon_system_error("Choose at least 1 job.")
             end
         end), jobsPickerView:on_pick_items())
 

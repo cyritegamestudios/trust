@@ -73,6 +73,8 @@ function Gambiter:check_gambits(gambits, param, ignore_delay)
     end
 
     logger.notice(self.__class, 'check_gambits', self:get_type(), 'checked', gambits:length(), 'gambits')
+
+    self.last_gambit_time = os.time() -- FIXME: should i really add this? Otherwise cooldown isn't respected
 end
 
 function Gambiter:is_gambit_satisfied(gambit, param)

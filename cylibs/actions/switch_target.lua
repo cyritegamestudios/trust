@@ -71,6 +71,10 @@ function SwitchTargetAction:is_valid_target()
 end
 
 function SwitchTargetAction:target_mob(target)
+    if self:is_completed() or self:is_cancelled() then
+        return
+    end
+
     if player.status == 'Engaged' then
         local p = packets.new('outgoing', 0x01A)
 

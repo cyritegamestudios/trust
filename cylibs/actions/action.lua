@@ -140,7 +140,7 @@ function Action:is_cancelled()
 end
 
 function Action:is_completed()
-    return self.is_completed
+    return self.completed
 end
 
 function Action:getidentifier()

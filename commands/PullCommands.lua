@@ -1,3 +1,5 @@
+local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
+
 local TrustCommands = require('cylibs/trust/commands/trust_commands')
 local PullTrustCommands = setmetatable({}, {__index = TrustCommands })
 PullTrustCommands.__index = PullTrustCommands
@@ -12,11 +14,17 @@ function PullTrustCommands.new(trust, action_queue, puller)
 
     -- AutoPullMode
     self:add_command('default', function(_) return self:handle_toggle_mode('AutoPullMode', 'Auto', 'Off')  end, 'Toggle pulling on and off')
-    self:add_command('auto', function(_) return self:handle_set_mode('AutoPullMode', 'Auto')  end, 'Automatically pull mobs for the party')
+    self:add_command('auto', function(_) return self:handle_set_mode('AutoPullMode', 'Auto')  end, 'Automatically pull monsters for the party from the target list')
+    self:add_command('aggroed', function(_) return self:handle_set_mode('AutoPullMode', 'Aggroed')  end, 'Automatically pull any monster aggressive to the party')
+    self:add_command('all', function(_) return self:handle_set_mode('AutoPullMode', 'All')  end, 'Automatically pull nearby monsters')
     self:add_command('off', function(_) return self:handle_set_mode('AutoPullMode', 'Off')  end, 'Disable pulling')
-    self:add_command('party', function(_) return self:handle_set_mode('AutoPullMode', 'Party')  end, 'Automatically pull whatever monster the party is fighting')
-    self:add_command('all', function(_) return self:handle_set_mode('AutoPullMode', 'All')  end, 'Automatically pull whatever monsters are nearby')
     self:add_command('camp', self.handle_camp, 'Automatically return to camp after battle')
+
+    self:add_command('action', function(_, _, mode_value)
+        return self:handle_set_mode('PullActionMode', mode_value or 'Auto')
+    end, 'Action to pull monsters with', L{
+        PickerConfigItem.new('mode_value', 'auto', L{ 'auto', 'target', 'approach' }, nil, "Pull Action")
+    }, true)
 
     return self
 end
@@ -36,7 +44,8 @@ function PullTrustCommands:handle_camp(_)
 
     handle_set('AutoCampMode', 'Auto')
 
-    self:get_puller():set_camp_position(ffxi_util.get_mob_position(windower.ffxi.get_player().name))
+    local position = ffxi_util.get_mob_position(windower.ffxi.get_player().name)
+    self:get_puller():set_camp_position(V{ position[1], position[2] })
 
     success = true
     message = "Return to the current position after battle"
