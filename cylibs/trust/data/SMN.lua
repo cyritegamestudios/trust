@@ -69,7 +69,7 @@ function SummonerTrust:tic(old_time, new_time)
 end
 
 function SummonerTrust:check_avatar()
-	if os.time() - self.last_avatar_check_time < 10 then
+	if os.time() - self.last_avatar_check_time < 10 or Condition.check_conditions(L{ InTownCondition.new() }, windower.ffxi.get_player().index) then
 		return
 	end
 	self.last_avatar_check_time = os.time()
