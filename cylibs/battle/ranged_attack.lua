@@ -61,8 +61,18 @@ function RangedAttack:get_name()
     return 'Ranged Attack'
 end
 
+-------
+-- Returns the localized name for the action.
+-- @treturn string Localized action name
 function RangedAttack:get_localized_name()
     return self:get_name()
+end
+
+-------
+-- Returns the ability id for the action.
+-- @treturn string Ability id
+function RangedAttack:get_ability_id()
+    return 'Ranged Attack'
 end
 
 -------

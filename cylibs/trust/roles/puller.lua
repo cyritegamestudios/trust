@@ -150,7 +150,7 @@ function Puller:get_all_targets()
     elseif state.AutoPullMode.value == 'All' then
         -- 1. All mobs that are party claimed
         -- 2. All mobs that are unclaimed
-        all_targets = self.mob_filter:nearby_mobs(L{ MobFilter.Type.PartyClaimed })
+        all_targets = self.mob_filter:get_nearby_mobs(L{ MobFilter.Type.PartyClaimed })
                 + self.mob_filter:get_nearby_mobs(L{ MobFilter.Type.Unclaimed })
     end
     return all_targets

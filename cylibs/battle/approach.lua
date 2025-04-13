@@ -66,6 +66,10 @@ function Approach:get_localized_name()
     return self:get_name()
 end
 
+function Approach:get_ability_id()
+    return "Approach"
+end
+
 -------
 -- Return the Action to use this job ability on a target.
 -- @treturn Action Action to cast the spell
