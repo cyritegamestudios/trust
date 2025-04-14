@@ -18,6 +18,9 @@ end
 function ValidTargetCondition:is_satisfied(target_index)
     local target = windower.ffxi.get_mob_by_index(target_index)
     if target == nil or self.blacklist_names:contains(target.name) or not target.valid_target then
+        if target then
+            logger.notice(self.__class, 'invalid_target', target.name, self.blacklist_names:contains(target.name), not target.valid_target)
+        end
         return false
     end
     return true

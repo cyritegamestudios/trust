@@ -286,6 +286,7 @@ function GambitConditionSettingsMenuItem:getEditableConditionClasses()
         [HasCumulativeMagicEffectCondition.__type] = "has_cumulative_magic_effect",
         [StatusCondition.__type] = "status",
         [ActionCondition.__type] = "action",
+        [PetStatusCondition.__type] = "pet_status",
     }
 end
 

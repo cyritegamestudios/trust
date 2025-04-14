@@ -59,13 +59,6 @@ function SummonerTrust:tic(old_time, new_time)
 
 	self:check_avatar()
 	self:check_mp()
-
-	if self.avatar then
-		local target = self:get_target()
-		if state.AutoAssaultMode.value ~= 'Off' and pet_util.pet_idle() and target and target:is_claimed() then
-			self.action_queue:push_action(JobAbilityAction.new(0, 0, 0, 'Assault', self.target_index))
-		end
-	end
 end
 
 function SummonerTrust:check_avatar()
@@ -78,6 +71,7 @@ function SummonerTrust:check_avatar()
 		return
 	end
 
+	-- TODO: maybe use a mode delta to turn AutoAvatarMode Off when there are inactive buffs so I can use avatar gambits?
 	if state.AutoAvatarMode.value ~= 'Off' then
 		if self.avatar then
 			if self.avatar:get_mob().name ~= state.AutoAvatarMode.value then
