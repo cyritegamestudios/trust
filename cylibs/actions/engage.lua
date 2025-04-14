@@ -4,8 +4,12 @@
 -- @name EngageAction
 
 local alter_ego_util = require('cylibs/util/alter_ego_util')
+local ClaimedCondition = require('cylibs/conditions/claimed')
+local ConditionalCondition = require('cylibs/conditions/conditional')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local packets = require('packets')
+local Timer = require('cylibs/util/timers/timer')
+local UnclaimedCondition = require('cylibs/conditions/unclaimed')
 
 local Action = require('cylibs/actions/action')
 local EngageAction = setmetatable({}, {__index = Action })
@@ -15,6 +19,10 @@ function EngageAction.new(target_index)
     local conditions = L{
         ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos()),
     }
+    local alliance = player.alliance
+    if alliance then
+        conditions:append(ConditionalCondition.new(L{ ClaimedCondition.new(alliance:get_alliance_member_ids()), UnclaimedCondition.new() }, Condition.LogicalOperator.Or))
+    end
     local self = setmetatable(Action.new(0, 0, 0, target_index, conditions), EngageAction)
     self.dispose_bag = DisposeBag.new()
     return self
@@ -28,10 +36,11 @@ end
 
 function EngageAction:perform()
     local target = windower.ffxi.get_mob_by_index(self.target_index)
-    if not target then
+    if not target or not self:can_perform() then
         self:complete(false)
         return
     end
+
     if player.status == 'Engaged' then
         local p = packets.new('outgoing', 0x01A)
 
@@ -71,6 +80,18 @@ function EngageAction:perform()
             end
         end
     end), WindowerEvents.TargetIndexChanged)
+
+    self.timer = Timer.scheduledTimer(0.5)
+    self.timer:onTimeChange():addAction(function(_)
+        if not self:can_perform() then
+            self:complete(false)
+            return
+        end
+    end)
+
+    self.dispose_bag:addAny(L{ self.timer })
+
+    self.timer:start()
 end
 
 function EngageAction:gettype()
