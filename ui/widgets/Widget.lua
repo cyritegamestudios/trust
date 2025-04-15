@@ -208,7 +208,11 @@ end
 
 function Widget:hitTest(x, y)
     if not self.dragging then
-        return CollectionView.hitTest(self, x, y)
+        local result = CollectionView.hitTest(self, x, y)
+        if not result then
+            self:getDelegate():deHighlightAllItems()
+        end
+        return result
     end
     return true
 end
