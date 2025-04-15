@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '14.3.4'
+_addon.version = '14.3.5'
 _addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 
