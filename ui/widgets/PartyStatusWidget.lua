@@ -1,7 +1,10 @@
+local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
+local CollectionViewStyle = require('cylibs/ui/collection_view/collection_view_style')
 local Color = require('cylibs/ui/views/color')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Frame = require('cylibs/ui/views/frame')
+local HorizontalFlowLayout = require('cylibs/ui/collection_view/layouts/horizontal_flow_layout')
 local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_collection_view_cell')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local ImageTextCollectionViewCell = require('cylibs/ui/collection_view/cells/image_text_collection_view_cell')
@@ -70,6 +73,18 @@ function PartyStatusWidget.new(frame, alliance, party, trust, mediaPlayer, sound
     local rightArrowButtonItem = ImageItem.new(windower.addon_path..'assets/buttons/button_arrow_right.png', 14, 7)
     self.rightArrowButton = ImageCollectionViewCell.new(rightArrowButtonItem)
 
+    local buffsDataSource = CollectionViewDataSource.new(function(item)
+        local cell = ImageCollectionViewCell.new(item)
+        cell:setItemSize(16)
+        return cell
+    end)
+    self.buffsList = CollectionView.new(buffsDataSource, HorizontalFlowLayout.new(0, Padding.equal(0)), nil, CollectionViewStyle.empty())
+    self.buffsList:setScrollEnabled(false)
+    self.buffsList:setSize(100, 16)
+    self.buffsList:setVisible(false)
+
+    self:getContentView():addSubview(self.buffsList)
+
     self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
         self:getDelegate():deselectAllItems()
         local item = self:getDataSource():itemAtIndexPath(indexPath)
@@ -99,6 +114,45 @@ function PartyStatusWidget.new(frame, alliance, party, trust, mediaPlayer, sound
             end
         end
     end), self:getDelegate():didSelectItemAtIndexPath())
+
+    self:getDisposeBag():add(self:getDelegate():didHighlightItemAtIndexPath():addAction(function(indexPath)
+        self.buffsList:getDataSource():removeAllItems()
+
+        local item = self:getDataSource():itemAtIndexPath(indexPath)
+        if item then
+            local party_member = self.alliance:get_alliance_member_named(item:getText())
+            if party_member then
+                local allBuffIds = party_member:get_buff_ids():sort() or L{}
+
+                local buffItems = L{}
+
+                local buffIndex = 1
+                for buffId in allBuffIds:it() do
+                    if buffIndex > 8 then
+                        break
+                    end
+                    buffItems:append(IndexedItem.new(ImageItem.new(windower.addon_path..'assets/buffs/'..buffId..'.png', 16, 16), IndexPath.new(1, buffIndex)))
+                    buffIndex = buffIndex + 1
+                end
+
+                self.buffsList:getDataSource():addItems(buffItems)
+
+                self.buffsList:setPosition(0, self:getSize().height + 4)
+                --self.buffsList:setPosition((buffIndex - 1) * -16 - 4, 20 * (indexPath.row - 1))
+                self.buffsList:setVisible(true)
+            else
+                self.buffsList:setVisible(false)
+            end
+            self.buffsList:setNeedsLayout()
+            self.buffsList:layoutIfNeeded()
+        end
+    end), self:getDelegate():didHighlightItemAtIndexPath())
+
+    self:getDisposeBag():add(self:getDelegate():didDehighlightItemAtIndexPath():addAction(function(indexPath)
+        self.buffsList:getDataSource():removeAllItems()
+        self.buffsList:setVisible(false)
+        self.buffsList:layoutIfNeeded()
+    end), self:getDelegate():didDehighlightItemAtIndexPath())
 
     self:getDisposeBag():add(WindowerEvents.AllianceMemberListUpdate:addAction(function(_)
         self.parties = self:get_parties()
@@ -310,6 +364,13 @@ function PartyStatusWidget:onMouseEvent(type, x, y, delta)
         end
     end
     return Widget.onMouseEvent(self, type, x, y, delta)
+end
+
+function PartyStatusWidget:setHasFocus(hasFocus)
+    Widget.setHasFocus(self, hasFocus)
+    if not self:hasFocus() then
+        self:getDelegate():deHighlightAllItems()
+    end
 end
 
 return PartyStatusWidget

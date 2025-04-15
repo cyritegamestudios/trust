@@ -390,10 +390,24 @@ function PartyMember:get_main_job_short()
 end
 
 -------
+-- Returns the main job (e.g. Blue Mage, Red Mage, Warrior)
+-- @treturn string Main job, or nil if unknown
+function PartyMember:get_main_job()
+    return res.jobs:with('ens', self:get_main_job_short()).en
+end
+
+-------
 -- Returns the sub job short (e.g. BLU, RDM, WAR)
 -- @treturn string Sub job short, or nil if unknown
 function PartyMember:get_sub_job_short()
     return self.sub_job_short
+end
+
+-------
+-- Returns the main job (e.g. Blue Mage, Red Mage, Warrior)
+-- @treturn string Main job, or nil if unknown
+function PartyMember:get_sub_job()
+    return res.jobs:with('ens', self:get_sub_job_short()).en
 end
 
 -------

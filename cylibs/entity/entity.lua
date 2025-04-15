@@ -92,6 +92,9 @@ end
 
 function Entity:distance(x, y)
     local mob = self:get_mob()
+    if not mob then
+        return 9999
+    end
     return math.sqrt((mob.x-x)^2+(mob.y-y)^2)
 end
 
