@@ -35,7 +35,9 @@ function RunAway:can_perform()
 end
 
 function RunAway:perform()
-	--windower.send_command('input /lockon')
+	if windower.ffxi.get_player().target_locked then
+		windower.send_command('input /lockon')
+	end
 	self:run_to(self.distance, 0)
 end
 
