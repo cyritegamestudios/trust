@@ -53,7 +53,14 @@ Trust also requires the following addons, which can be installed through [Window
 3. _**You can configure your Trust through the menu by pressing down Control and the Numpad+ buttons.**_
 
 ## 日本のゲームクライアント
-日本語クライントで、gearswapを日本語で使用している場合は
+日本語版のGearSwap（`set_language('japanese')`）を使用している場合は、Config > GearSwapの下にある言語を日本語に更新し、保存してください。
+
+![image](https://github.com/user-attachments/assets/dddc5d73-4bef-41ea-bc34-5b11fbdd52f6)
+
+Trustを日本語に翻訳したい場合は、Config > Languageの下で言語を日本語に更新し、保存してください。
+
+![image](https://github.com/user-attachments/assets/97080afb-b123-4286-a7cd-2690bf789c85)
+
 
 ### Optional
 
