@@ -243,7 +243,6 @@ function Monster:handle_action_on_monster(act)
             local action = target.actions[1]
             if action then
                 if action_message_util.is_spikes_message(action.message) then
-                    print('gain spikes')
                     -- Note: since we don't know the source of the spikes, we are just using the id for Ice Spikes
                     self:handle_gain_buff(35)
                 -- resist: 85, 284 (AOE)
