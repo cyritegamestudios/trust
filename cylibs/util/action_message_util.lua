@@ -62,7 +62,7 @@ function action_message_util.is_monster_gain_buff(message_id, param)
     if L{750}:contains(param) then
         return true
     end
-    return L{194}:contains(message_id)
+    return L{194, 230}:contains(message_id)
 end
 
 -------
