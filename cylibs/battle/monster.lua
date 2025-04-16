@@ -363,6 +363,13 @@ function Monster:is_claimed()
 end
 
 -------
+-- Returns whether the monster is unclaimed.
+-- @treturn boolean True if the monster is unclaimed
+function Monster:is_unclaimed()
+    return self:get_mob() and Condition.check_conditions(L{ UnclaimedCondition.new() }, self:get_mob().index)
+end
+
+-------
 -- Returns whether the monster is claimed by any member in an alliance.
 -- @tparam Alliance alliance The alliance
 -- @treturn boolean True if the monster is alliance claimed

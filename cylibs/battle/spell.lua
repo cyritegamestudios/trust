@@ -180,7 +180,7 @@ function Spell:get_range()
             return math.max(self:get_spell().range, 10)
         end
     end
-    return 21
+    return 20
 end
 
 -------

@@ -7,6 +7,7 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local IsStandingCondition = require('cylibs/conditions/is_standing')
 local res = require('resources')
 local SpellCommand = require('cylibs/ui/input/chat/commands/spell')
+local Timer = require('cylibs/util/timers/timer')
 local ValidSpellTargetCondition = require('cylibs/conditions/valid_spell_target')
 
 local Action = require('cylibs/actions/action')
@@ -19,7 +20,7 @@ function SpellAction.new(x, y, z, spell_id, target_index, player, conditions)
 		IsStandingCondition.new(0.5, ">="),
 		NotCondition.new(L{StatusCondition.new("Mount")}),
 		NotCondition.new(L{InMogHouseCondition.new()}),
-		MaxDistanceCondition.new(21),
+		MaxDistanceCondition.new(20),
 		NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'mute', 'Invisible', 'stun'}, 1)}, windower.ffxi.get_player().index),
 		MinManaPointsCondition.new(res.spells[spell_id].mp_cost or 0, windower.ffxi.get_player().index),
 		SpellRecastReadyCondition.new(spell_id),
@@ -93,6 +94,18 @@ function SpellAction:perform()
 
 	local spell = SpellCommand.new(spell_util.spell_name(self.spell_id), target.id)
 	spell:run(true)
+
+	self.timer = Timer.scheduledTimer(5, math.max(res.spells[self.spell_id].cast_time, 5))
+	self.timer:onTimeChange():addAction(function(_)
+		if not self:is_completed() then
+			self:complete(false)
+			return
+		end
+	end)
+
+	self.dispose_bag:addAny(L{ self.timer })
+
+	self.timer:start()
 end
 
 function SpellAction:getspellid()
