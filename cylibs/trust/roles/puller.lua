@@ -281,7 +281,6 @@ function Puller:get_all_gambits()
     end
 
     if next_target:is_unclaimed() then
-        print(os.time(), 'not claimed', next_target:get_mob().index, windower.ffxi.get_player().target_index)
         return self:get_pull_abilities()
     elseif next_target:is_claimed_by(self:get_alliance()) and (self:get_target() ~= next_target or self:get_target() == next_target and self:get_party():get_player():get_status() ~= 'Engaged') then
         local auto_target = Gambit.new(GambitTarget.TargetType.Enemy, L{}, Engage.new(L{MaxDistanceCondition.new(30)}), GambitTarget.TargetType.Enemy, L{"Pulling"})

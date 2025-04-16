@@ -107,7 +107,6 @@ function CombatMode:check_distance()
                         self.action_queue:push_action(BlockAction.new(function() player_util.face(target) end))
                     else
                         self.action_queue:push_action(BlockAction.new(function() player_util.face(target) end))
-
                     end
                 end
             else
