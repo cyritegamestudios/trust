@@ -55,11 +55,11 @@ Trust also requires the following addons, which can be installed through [Window
 ## 日本のゲームクライアント
 日本語版のGearSwap（`set_language('japanese')`）を使用している場合は、Config > GearSwapの下にある言語を日本語に更新し、保存してください。
 
-![image](https://github.com/user-attachments/assets/dddc5d73-4bef-41ea-bc34-5b11fbdd52f6)
+![image](https://github.com/user-attachments/assets/e59c6cca-dc68-4828-94ac-e0453af15cb3)
 
 Trustを日本語に翻訳したい場合は、Config > Languageの下で言語を日本語に更新し、保存してください。
 
-![image](https://github.com/user-attachments/assets/97080afb-b123-4286-a7cd-2690bf789c85)
+![image](https://github.com/user-attachments/assets/e15a9bd1-bd9e-42b4-a7ff-c130eaa23e7a)
 
 
 ### Optional
