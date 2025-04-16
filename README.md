@@ -54,9 +54,6 @@ Trust also requires the following addons, which can be installed through [Window
 
 ## 日本のゲームクライアント
 日本語クライントで、gearswapを日本語で使用している場合は
-Config→LanguageのUse client language for actions をONにしSaveすることでtrustが正常に動作する可能性があります
-
-![image](https://github.com/user-attachments/assets/9048cb76-6ec7-4ca0-a37f-2078c69185a5)
 
 ### Optional
 
