@@ -19,9 +19,9 @@ function EnemiesNearbyCondition.new(num_required, distance, operator)
     return self
 end
 
-function EnemiesNearbyCondition:is_satisfied(target_index)
+function EnemiesNearbyCondition:is_satisfied(_)
     local party_targets = player.party:get_targets(function(m)
-        return --[[m:is_claimed() and]] m:get_mob() and m:get_mob().distance:sqrt() < self.distance
+        return m:get_mob() and m:get_mob().distance:sqrt() < self.distance
     end)
     return self:eval(party_targets:length(), self.num_required, self.operator)
 end
