@@ -6,7 +6,6 @@ WhiteMageTrust.__index = WhiteMageTrust
 
 local Barspeller = require('cylibs/trust/roles/barspeller')
 local Healer = require('cylibs/trust/roles/healer')
-local Raiser = require('cylibs/trust/roles/raiser')
 local Debuffer = require('cylibs/trust/roles/debuffer')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local MagicBurster = require('cylibs/trust/roles/magic_burster')
@@ -26,7 +25,6 @@ function WhiteMageTrust.new(settings, action_queue, battle_settings, trust_setti
 		Debuffer.new(action_queue, trust_settings.DebuffSettings, job),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
-		--Raiser.new(action_queue, job),
 		Puller.new(action_queue, trust_settings.PullSettings, job),
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), WhiteMageTrust)

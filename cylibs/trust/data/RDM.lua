@@ -10,8 +10,6 @@ local Trust = require('cylibs/trust/trust')
 local RedMageTrust = setmetatable({}, {__index = Trust })
 RedMageTrust.__index = RedMageTrust
 
-local Debuff = require('cylibs/battle/spells/debuff')
-
 local Barspeller = require('cylibs/trust/roles/barspeller')
 local Buffer = require('cylibs/trust/roles/buffer')
 local Debuffer = require('cylibs/trust/roles/debuffer')
@@ -20,7 +18,6 @@ local Healer = require('cylibs/trust/roles/healer')
 local MagicBurster = require('cylibs/trust/roles/magic_burster')
 local Nuker = require('cylibs/trust/roles/nuker')
 local Puller = require('cylibs/trust/roles/puller')
-local Raiser = require('cylibs/trust/roles/raiser')
 
 state.AutoConvertMode = M{['description'] = 'Auto Convert Mode', 'Off', 'Auto'}
 state.AutoConvertMode:set_description('Auto', "Use Convert when MP is low.")
@@ -39,7 +36,6 @@ function RedMageTrust.new(settings, action_queue, battle_settings, trust_setting
 		Debuffer.new(action_queue, trust_settings.DebuffSettings, job),
 		Dispeler.new(action_queue, L{ Spell.new('Dispel') }, L{}, true),
 		Healer.new(action_queue, job),
-		Raiser.new(action_queue, job),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		Puller.new(action_queue, trust_settings.PullSettings, job),

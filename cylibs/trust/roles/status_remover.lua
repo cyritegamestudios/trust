@@ -94,7 +94,6 @@ function StatusRemover:check_party_status_effects()
     end)
     for party_member in party_members:it() do
         local debuff_ids = party_member:get_debuff_ids():filter(function(debuff_id)
-            print(party_member:get_name(), 'has', debuff_id)
             local spell = self.main_job:get_status_removal_spell(debuff_id, 1)
             return spell and Condition.check_conditions(spell:get_conditions(), party_member:get_mob().index)
         end)
