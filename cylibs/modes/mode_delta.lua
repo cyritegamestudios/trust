@@ -32,7 +32,9 @@ function ModeDelta:apply(hideHelpText)
     self.disposeBag:dispose()
     self.disposeBag:add(on_state_changed():addAction(function(modeName, modeValue)
         self.oldModes[modeName] = modeValue
-        addon_system_error(self.errorMessage)
+        if not self.whitelist:contains(modeName) then
+            addon_system_error(self.errorMessage)
+        end
     end), on_state_changed())
 end
 
