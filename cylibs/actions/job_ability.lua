@@ -42,6 +42,11 @@ function JobAbility:perform()
 
     local target = windower.ffxi.get_mob_by_index(self.target_index or windower.ffxi.get_player().index)
 
+    if target == nil then
+        self:complete(false)
+        return
+    end
+
     local command = JobAbilityCommand.new(self.job_ability_name, target.id)
     command:run(true)
 
@@ -86,10 +91,10 @@ end
 
 function JobAbility:tostring()
     local target = windower.ffxi.get_mob_by_index(self.target_index or windower.ffxi.get_player().index)
-    if target.name == windower.ffxi.get_player().name then
-       return self:get_job_ability_name()
+    if target and target.name == windower.ffxi.get_player().name then
+        return self:get_job_ability_name()
     end
-    return i18n.resource('job_abilities', 'en', self:get_job_ability_name()) or self:get_job_ability_name()..' → '..target.name
+    return i18n.resource('job_abilities', 'en', self:get_job_ability_name()) or self:get_job_ability_name()..' → '..(target.name or '')
 end
 
 function JobAbility:debug_string()
