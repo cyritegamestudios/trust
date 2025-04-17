@@ -12,6 +12,7 @@ local spells_ext = require('cylibs/res/spells')
 local buff_util = {}
 
 local debuffs = T{
+	[0] = S{}, -- KO
 	[2] = S{253,259,678}, --Sleep
 	[3] = S{220,221,225,350,351,716}, --Poison
 	[4] = S{58,80,341,644,704}, --Paralyze
