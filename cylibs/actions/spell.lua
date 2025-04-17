@@ -7,7 +7,6 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local IsStandingCondition = require('cylibs/conditions/is_standing')
 local res = require('resources')
 local SpellCommand = require('cylibs/ui/input/chat/commands/spell')
-local Timer = require('cylibs/util/timers/timer')
 local ValidSpellTargetCondition = require('cylibs/conditions/valid_spell_target')
 
 local Action = require('cylibs/actions/action')
@@ -94,18 +93,6 @@ function SpellAction:perform()
 
 	local spell = SpellCommand.new(spell_util.spell_name(self.spell_id), target.id)
 	spell:run(true)
-
-	self.timer = Timer.scheduledTimer(5, math.max(res.spells[self.spell_id].cast_time, 5))
-	self.timer:onTimeChange():addAction(function(_)
-		if not self:is_completed() then
-			self:complete(false)
-			return
-		end
-	end)
-
-	self.dispose_bag:addAny(L{ self.timer })
-
-	self.timer:start()
 end
 
 function SpellAction:getspellid()
