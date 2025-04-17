@@ -241,8 +241,9 @@ end
 
 function Puller:get_default_conditions(gambit)
     local conditions = L{
-        MaxDistanceCondition.new(gambit:getAbility():get_range()),
-        MinHitPointsPercentCondition.new(1),
+        GambitCondition.new(MaxDistanceCondition.new(gambit:getAbility():get_range()), GambitTarget.TargetType.Enemy),
+        GambitCondition.new(MinHitPointsPercentCondition.new(1), GambitTarget.TargetType.Enemy),
+        GambitCondition.new(NotCondition.new(L{ HasBuffCondition.new('weakness') }), GambitTarget.TargetType.Self)
     }
     local alter_ego_conditions = L{
         GambitCondition.new(ConditionalCondition.new(

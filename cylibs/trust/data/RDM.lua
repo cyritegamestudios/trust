@@ -18,6 +18,7 @@ local Healer = require('cylibs/trust/roles/healer')
 local MagicBurster = require('cylibs/trust/roles/magic_burster')
 local Nuker = require('cylibs/trust/roles/nuker')
 local Puller = require('cylibs/trust/roles/puller')
+local StatusRemover = require('cylibs/trust/roles/status_remover')
 
 state.AutoConvertMode = M{['description'] = 'Auto Convert Mode', 'Off', 'Auto'}
 state.AutoConvertMode:set_description('Auto', "Use Convert when MP is low.")
@@ -39,6 +40,7 @@ function RedMageTrust.new(settings, action_queue, battle_settings, trust_setting
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		Puller.new(action_queue, trust_settings.PullSettings, job),
+		StatusRemover.new(action_queue, job),
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), RedMageTrust)
 
