@@ -535,9 +535,9 @@ function handle_status_change(new_status_id, old_status_id)
 	player.status = res.statuses[new_status_id].english
 
 	if player.status == 'Dead' then
-		if state.AutoUnloadOnDeathMode.value == 'Off' then
+		if state.AutoUnloadOnDeathMode.value == 'Disable' then
 			handle_stop()
-		else
+		elseif state.AutoUnloadOnDeathMode.value == 'Auto' then
 			handle_unload()
 		end
 	end

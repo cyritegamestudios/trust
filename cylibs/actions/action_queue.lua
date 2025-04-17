@@ -303,6 +303,7 @@ function ActionQueue:clear()
 end
 
 function ActionQueue:set_enabled(is_enabled)
+	is_enabled = is_enabled and windower.ffxi.get_player() and not L{ 2, 3 }:contains(windower.ffxi.get_player().status)
 	if is_enabled then
 		self:enable()
 	else
