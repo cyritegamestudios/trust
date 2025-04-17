@@ -52,6 +52,7 @@ WindowerEvents.Ability.Finish = Event.newEvent()
 WindowerEvents.Spell = {}
 WindowerEvents.Spell.Begin = Event.newEvent()
 WindowerEvents.Spell.Finish = Event.newEvent()
+WindowerEvents.Raised = Event.newEvent()
 WindowerEvents.StatusRemoval = {}
 WindowerEvents.StatusRemoval.NoEffect = Event.newEvent()
 WindowerEvents.StatusChanged = Event.newEvent()
@@ -108,6 +109,9 @@ local incoming_event_dispatcher = {
         if act.category == 4 then
             if act.param and res.spells[act.param] then
                 WindowerEvents.Spell.Finish:trigger(act.actor_id, act.param)
+                if res.spells[act.param] and L{ 'Raise', 'Raise II', 'Raise III', 'Arise' }:contains(res.spells[act.param].en) then
+                    WindowerEvents.Raised:trigger(act.targets[1].id, act.param)
+                end
             end
         elseif act.category == 7 then
             if res.monster_abilities[act.targets[1].actions[1].param] then
@@ -174,7 +178,7 @@ local incoming_event_dispatcher = {
         local param_3 = packet['_unknown1']
         WindowerEvents.ActionMessage:trigger(actor_id, target_id, actor_index,
             target_index, message_id, param_1, param_2, param_3)
-
+        print(res.action_messages[message_id].en)
         if action_message_util.is_lose_debuff_message(message_id) and param_1 then
             if buff_util.is_debuff(param_1) then
                 WindowerEvents.LoseDebuff:trigger(target_id, param_1)
