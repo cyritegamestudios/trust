@@ -19,6 +19,12 @@ StatusRemoval.__class = "StatusRemoval"
 -- @tparam list conditions List of conditions that must be satisfied to cast the spell (optional)
 -- @treturn StatusRemoval A status removal spell
 function StatusRemoval.new(spell_name, job_ability_names, debuff_id, conditions)
+    if debuff_id == 0 then
+        conditions = (conditions or L{}) + L{
+            NotCondition.new(L{ HasBuffCondition.new('Reraise') }),
+            StatusCondition.new('Dead', 4, Condition.Operator.GreaterThanOrEqualTo)
+        }
+    end
     local self = setmetatable(Spell.new(spell_name, job_ability_names, L{}, nil, conditions), StatusRemoval)
     self.debuff_id = debuff_id
     return self

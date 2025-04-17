@@ -18,7 +18,8 @@ function JobAbility.new(x, y, z, job_ability_name, target_index, conditions)
         NotCondition.new(L{ StatusCondition.new("Mount") }),
         NotCondition.new(L{InMogHouseCondition.new()}),
         NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'amnesia', 'Invisible', 'stun'}, 1)}, windower.ffxi.get_player().index),
-        JobAbilityRecastReadyCondition.new(job_ability_name)
+        JobAbilityRecastReadyCondition.new(job_ability_name),
+        ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos()),
     }
 
     local self = setmetatable(Action.new(x, y, z, target_index, conditions), JobAbility)
@@ -41,6 +42,11 @@ function JobAbility:perform()
     logger.notice(self.__class, 'perform', self.job_ability_name)
 
     local target = windower.ffxi.get_mob_by_index(self.target_index or windower.ffxi.get_player().index)
+
+    if target == nil then
+        self:complete(false)
+        return
+    end
 
     local command = JobAbilityCommand.new(self.job_ability_name, target.id)
     command:run(true)
@@ -86,10 +92,10 @@ end
 
 function JobAbility:tostring()
     local target = windower.ffxi.get_mob_by_index(self.target_index or windower.ffxi.get_player().index)
-    if target.name == windower.ffxi.get_player().name then
-       return self:get_job_ability_name()
+    if target and target.name == windower.ffxi.get_player().name then
+        return self:get_job_ability_name()
     end
-    return i18n.resource('job_abilities', 'en', self:get_job_ability_name()) or self:get_job_ability_name()..' → '..target.name
+    return i18n.resource('job_abilities', 'en', self:get_job_ability_name()) or self:get_job_ability_name()..' → '..(target.name or '')
 end
 
 function JobAbility:debug_string()

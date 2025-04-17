@@ -3,6 +3,7 @@ require('lists')
 require('logger')
 
 local Event = require('cylibs/events/Luvent')
+local packets = require('packets')
 
 local Trust = {}
 Trust.__index = Trust
@@ -76,6 +77,23 @@ function Trust:init()
 			return
 		end
 		self:set_trust_settings(self.trust_settings)
+	end)
+
+	WindowerEvents.Raise.DialogShown:addAction(function()
+		if not self:get_party():get_player():is_alive() then
+			local p = packets.new('outgoing', 0x01A)
+
+			p['Target'] = self:get_party():get_player():get_mob().id
+			p['Target Index'] = self:get_party():get_player():get_mob().index
+			p['Category'] = 0x0D -- Accept raise
+			p['Param'] = 0
+			p['X Offset'] = 0
+			p['Z Offset'] = 0
+			p['Y Offset'] = 0
+			p['_unknown1'] = 0
+
+			packets.inject(p)
+		end
 	end)
 
 	-- NOTE: this must come after so on_trust_settings_changed gets called in parent class first

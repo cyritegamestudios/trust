@@ -260,6 +260,21 @@ function PartyMember:monitor()
         end
     end), WindowerEvents.BuffsChanged)
 
+    self.dispose_bag:add(WindowerEvents.Raised:addAction(function(mob_id, _)
+        if self:get_id() == mob_id then
+            self.is_raised = true
+        end
+    end), WindowerEvents.Raised)
+
+    self.dispose_bag:add(WindowerEvents.ActionMessage:addAction(function(actor_id, target_id, actor_index, target_index, message_id, param_1, param_2, param_3)
+        if self:get_id() == target_id then
+            if message_id == 48 and not self:is_alive() and param_1 and res.spells[param_1]
+                    and L{ 'Arise', 'Raise III', 'Raise II', 'Raise' }:contains(res.spells[param_1].en) then
+                self.is_raised = true
+            end
+        end
+    end), WindowerEvents.ActionMessage)
+
     self.dispose_bag:add(WindowerEvents.ZoneUpdate:addAction(function(mob_id, zone_id)
         if self:get_id() == mob_id then
             self:set_zone_id(zone_id)
@@ -316,6 +331,11 @@ end
 -- Returns a list of the party member's debuff ids.
 -- @treturn List of debuff ids (see buffs.lua)
 function PartyMember:get_debuff_ids()
+    if not self:is_alive() and self:has_raise() then
+        return self.debuff_ids:filter(function(debuff_id)
+            return debuff_id ~= 0
+        end)
+    end
     return self.debuff_ids
 end
 
@@ -323,7 +343,7 @@ end
 -- Returns a list of the party member's debuffs.
 -- @treturn List of localized debuff names (see buffs.lua)
 function PartyMember:get_debuffs()
-    return L(self.debuff_ids:map(function(debuff_id)
+    return L(self:get_debuff_ids():map(function(debuff_id)
         return res.buffs:with('id', debuff_id).enl
     end))
 end
@@ -333,7 +353,7 @@ end
 -- @tparam number debuff_id Debuff id (see buffs.lua)
 -- @treturn boolean True if the party member has the given debuff, false otherwise
 function PartyMember:has_debuff(debuff_id)
-    return self.debuff_ids:contains(debuff_id)
+    return self:get_debuff_ids():contains(debuff_id)
 end
 
 -------
@@ -521,7 +541,7 @@ end
 -- Returns whether the party member is alive.
 -- @treturn Boolean True if the party member is alive, and false otherwise.
 function PartyMember:is_alive()
-    return self.hpp > 0
+    return self.hpp > 0 and self:get_status() ~= 'Dead'
 end
 
 -------
@@ -590,6 +610,9 @@ function PartyMember:set_status(status_id)
         return
     end
     local old_status_id = self.status_id
+    if old_status_id == 2 then
+        self.is_raised = false
+    end
 
     self.status_id = status_id
     self.status_change_time = os.time()
@@ -755,6 +778,13 @@ end
 -- @tparam number time_in_sec Time
 function PartyMember:set_heartbeat_time(time_in_sec)
     self.heartbeat_time = time_in_sec
+end
+
+-------
+-- Returns whether the party member has received a raise.
+-- @treturn boolean True if raise has been received
+function PartyMember:has_raise()
+    return self.is_raised
 end
 
 return PartyMember

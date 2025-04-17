@@ -121,7 +121,7 @@ function PartyStatusWidget.new(frame, alliance, party, trust, mediaPlayer, sound
         local item = self:getDataSource():itemAtIndexPath(indexPath)
         if item then
             local party_member = self.alliance:get_alliance_member_named(item:getText())
-            if party_member then
+            if party_member and not party_member:is_trust() then
                 local allBuffIds = party_member:get_buff_ids():sort() or L{}
 
                 local buffItems = L{}

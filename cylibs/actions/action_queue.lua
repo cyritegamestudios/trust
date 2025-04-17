@@ -11,6 +11,7 @@ require('queues')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Event = require('cylibs/events/Luvent')
 local RangedAttackAction = require('cylibs/actions/ranged_attack')
+local Timer = require('cylibs/util/timers/timer')
 
 local Action = require('cylibs/actions/action')
 
@@ -79,6 +80,14 @@ function ActionQueue.new(completion, is_priority_queue, max_size, debugging_enab
 			end
 		end), WindowerEvents.Action)
 	end
+
+	self.timer = Timer.scheduledTimer(5)
+	self.timer:onTimeChange():addAction(function(_)
+		self:cleanup()
+	end)
+
+
+	self.dispose_bag:addAny(L{ self.timer })
 
 	return self
 end
@@ -303,6 +312,7 @@ function ActionQueue:clear()
 end
 
 function ActionQueue:set_enabled(is_enabled)
+	is_enabled = is_enabled and windower.ffxi.get_player() and not L{ 2, 3 }:contains(windower.ffxi.get_player().status)
 	if is_enabled then
 		self:enable()
 	else

@@ -46,7 +46,7 @@ function StatusRemover:on_add()
     local monitor_party_member = function(party_member)
         self.dispose_bag:add(party_member:on_gain_debuff():addAction(
             function (p, debuff_id)
-                if party_member:get_mob() and party_member:get_mob().distance:sqrt() < 21 then
+                if party_member:get_mob() and party_member:get_mob().distance:sqrt() < 21 and debuff_id ~= 0 then
                     self:remove_status_effect(L{p}, debuff_id)
                 end
             end), party_member:on_gain_debuff())
@@ -90,10 +90,13 @@ function StatusRemover:check_party_status_effects()
 
     local party_members = self:get_party():get_party_members(true, 21):filter(function(party_member)
         return party_member:get_mob() and party_member:get_mob().distance:sqrt() < 21
-                and #party_member:get_debuffs() > 0 and party_member:is_alive()
+                and #party_member:get_debuffs() > 0
     end)
     for party_member in party_members:it() do
-        local debuff_ids = party_member:get_debuff_ids():filter(function(debuff_id) return self.main_job:get_status_removal_spell(debuff_id, 1) ~= nil  end)
+        local debuff_ids = party_member:get_debuff_ids():filter(function(debuff_id)
+            local spell = self.main_job:get_status_removal_spell(debuff_id, 1)
+            return spell and Condition.check_conditions(spell:get_conditions(), party_member:get_mob().index)
+        end)
         if debuff_ids:length() > 0 then
             local debuff_id = res.buffs:with('enl', party_member:get_debuffs()[1]).id
             local targets = party_members:filter(function(p) return p:has_debuff(debuff_id) end)
@@ -115,12 +118,14 @@ function StatusRemover:remove_status_effect(party_members, debuff_id)
         logger.notice(self.__class, 'remove_status_effect', 'detected aura', res.buffs[debuff_id].en)
         return
     end
+
     local status_removal_spell_or_ability = self.main_job:get_status_removal_spell(debuff_id, party_members:length())
     if status_removal_spell_or_ability then
         self.last_status_removal_time = os.time()
 
         local target = party_members[1]
-        if not status_removal_spell_or_ability:get_valid_targets():contains('Party') then
+
+        if S{ 'Party', 'Corpse' }:intersection(S(status_removal_spell_or_ability:get_valid_targets())):length() <= 0 then
             target = self:get_party():get_player()
         end
 

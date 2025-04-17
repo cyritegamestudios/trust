@@ -68,7 +68,7 @@ function Follower:on_add()
     end), self.state_var:on_state_change())
 
     self.dispose_bag:add(self:get_party():get_player():on_status_change():addAction(function(_, new_status, old_status)
-        if new_status == 'Idle' and old_status == 'Engaged' then
+        if new_status == 'Idle' and L{ 'Dead', 'Engaged' }:contains(old_status) then
             self:start_following(true)
         end
     end), self:get_party():get_player():on_status_change())

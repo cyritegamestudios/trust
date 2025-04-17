@@ -5,6 +5,7 @@
 
 _libs = _libs or {}
 
+local Buff = require('cylibs/battle/spells/buff')
 local res = require('resources')
 
 local cure_util = {}
@@ -60,7 +61,8 @@ local debuff_to_spell = {
 	['STR Down'] = 'Erase',
 	['VIT Down'] = 'Erase',
 	['weight'] = 'Erase',
-	['Flash'] = 'Erase'
+	['Flash'] = 'Erase',
+	['KO'] = 'Raise'
 }
 
 -- Default cure settings if none are specified
@@ -108,11 +110,20 @@ cure_util.default_cure_settings = {
 function cure_util.spell_id_for_debuff_id(debuff_id)
 	local debuff = res.buffs:with('id', debuff_id)
 	if debuff then
-		local spell_name = debuff_to_spell[debuff.en]
-		if spell_name then
-			local spell = res.spells:with('en', spell_name)
-			if spell then
-				return spell.id
+		if debuff_id == 0 then
+			for spell_name in L{ 'Arise', 'Raise III', 'Raise II', 'Raise' }:it() do
+				local spell = res.spells:with('en', spell_name)
+				if spell and spell_util.can_cast_spell(spell.id) then
+					return spell.id
+				end
+			end
+		else
+			local spell_name = debuff_to_spell[debuff.en]
+			if spell_name then
+				local spell = res.spells:with('en', spell_name)
+				if spell then
+					return spell.id
+				end
 			end
 		end
 	end
