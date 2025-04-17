@@ -738,7 +738,6 @@ end
 
 -------
 -- Returns the item id of the ranged weapon equipped.
-
 -- @tparam number Item id of ranged weapon equipped (see res/items.lua)
 function PartyMember:get_combat_skill_ids()
     return self.combat_skill_ids
