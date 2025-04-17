@@ -53,6 +53,8 @@ WindowerEvents.Spell = {}
 WindowerEvents.Spell.Begin = Event.newEvent()
 WindowerEvents.Spell.Finish = Event.newEvent()
 WindowerEvents.Raised = Event.newEvent()
+WindowerEvents.Raise = {}
+WindowerEvents.Raise.DialogShown = Event.newEvent()
 WindowerEvents.StatusRemoval = {}
 WindowerEvents.StatusRemoval.NoEffect = Event.newEvent()
 WindowerEvents.StatusChanged = Event.newEvent()
@@ -91,6 +93,7 @@ local incoming_event_ids = S{
     0x050,
     0x068,
     0x063,
+    0x0F9,
 }
 
 local outgoing_event_ids = S{
@@ -178,7 +181,7 @@ local incoming_event_dispatcher = {
         local param_3 = packet['_unknown1']
         WindowerEvents.ActionMessage:trigger(actor_id, target_id, actor_index,
             target_index, message_id, param_1, param_2, param_3)
-        print(res.action_messages[message_id].en)
+
         if action_message_util.is_lose_debuff_message(message_id) and param_1 then
             if buff_util.is_debuff(param_1) then
                 WindowerEvents.LoseDebuff:trigger(target_id, param_1)
@@ -416,7 +419,6 @@ local incoming_event_dispatcher = {
                 WindowerEvents.PetUpdate:trigger(owner_id, nil, pet_index, pet_name, pet_hpp, pet_mpp, pet_tp)
             end
         end
-
     end,
 
     [0x063] = function(data)
@@ -437,7 +439,20 @@ local incoming_event_dispatcher = {
         if buff_records:length() > 0 then
             WindowerEvents.BuffDurationChanged:trigger(windower.ffxi.get_player().id, buff_records)
         end
-    end
+    end,
+
+    [0x0F9] = function(data)
+        local packet = packets.parse('incoming', data)
+
+        local target_id = packet['ID']
+        local category = packet['Category']
+
+        if target_id == windower.ffxi.get_player().id then
+            if category == 1 then
+                WindowerEvents.Raise.DialogShown:trigger()
+            end
+        end
+    end,
 
 }
 
