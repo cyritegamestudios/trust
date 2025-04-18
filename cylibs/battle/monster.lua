@@ -326,6 +326,19 @@ function Monster:has_debuff(debuff_id)
 end
 
 -------
+-- Returns true if the monster has any of the given debuffs.
+-- @tparam list debuff_ids Debuff ids (see buffs.lua)
+-- @treturn boolean True if the monster has any of the given debuffs, false otherwise
+function Monster:has_any_debuff(debuff_ids)
+    for debuff_id in debuff_ids:it() do
+        if self:has_debuff(debuff_id) then
+            return true
+        end
+    end
+    return false
+end
+
+-------
 -- Returns the list of active debuff ids.
 -- @treturn list List of debuff ids (see res/buffs.lua)
 function Monster:get_debuff_ids()

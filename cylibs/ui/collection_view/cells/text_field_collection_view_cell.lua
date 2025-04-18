@@ -30,8 +30,8 @@ function TextFieldCollectionViewCell:setSelected(selected)
     end
 end
 
-function TextFieldCollectionViewCell:onKeyboardEvent(key, pressed, flags, blocked)
-    local blocked = blocked or ButtonCollectionViewCell.onKeyboardEvent(self, key, pressed, flags, blocked)
+function TextFieldCollectionViewCell:onKeyboardEvent(key, pressed, flags, blocked, resolved_key)
+    local blocked = blocked or ButtonCollectionViewCell.onKeyboardEvent(self, key, pressed, flags, blocked, resolved_key)
     if blocked then
         return true
     end
@@ -40,7 +40,7 @@ function TextFieldCollectionViewCell:onKeyboardEvent(key, pressed, flags, blocke
         if key then
             local textItem = self:getItem():getTextItem()
             if textItem and not self:getKeyBlacklist():contains(key) then
-                local currentText = textItem:getText():gsub('|', '')
+                local currentText = textItem:getText():gsub("|([^|]*)$", "%1")
                 local newText
                 if key == "Backspace" then
                     newText = currentText:slice(1, currentText:length()-1)
@@ -81,7 +81,7 @@ function TextFieldCollectionViewCell:setCursorVisible(cursorVisible)
     if cursorVisible then
         textItem:setText(textItem:getText()..'|')
     else
-        textItem:setText(textItem:getText():gsub('|', ''))
+        textItem:setText(textItem:getText():gsub("|([^|]*)$", "%1"))
     end
 
     self:setNeedsLayout()

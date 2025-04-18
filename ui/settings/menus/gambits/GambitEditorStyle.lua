@@ -57,7 +57,10 @@ function GambitEditorStyle:getAbilitiesForTargets(targets, trust)
                 if spell.type == 'Geomancy' and spellTargets:length() == 1 and spellTargets[1] == 'Self' then
                     spellTargets:append('Party')
                 end
-                return not S{ 'Trust', 'BardSong' }:contains(spell.type) and S(spellTargets):intersection(targets):length() > 0
+                if spell.type == 'BardSong' and spellTargets:contains('Self') then
+                    return false
+                end
+                return not S{ 'Trust' }:contains(spell.type) and S(spellTargets):intersection(targets):length() > 0
             end
             return false
         end):map(function(spellId)
