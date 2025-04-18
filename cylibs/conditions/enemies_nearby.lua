@@ -70,7 +70,7 @@ function EnemiesNearbyCondition:get_config_items()
             local text = localization_util.commas(debuff_names:map(function(debuff_name) return StatusAilment.new(debuff_name):get_localized_name() end))
             return text
         end, "Not Afflicted With"),
-        TextInputConfigItem.new('regex', self.regex or '', 'Ignore Target Name RegEx', function(_) return true end, 225),
+        TextInputConfigItem.new('regex', self.regex or '', 'Blacklist Pattern', function(_) return true end, 225),
         PickerConfigItem.new('operator', self.operator, L{ Condition.Operator.GreaterThanOrEqualTo, Condition.Operator.Equals, Condition.Operator.GreaterThan, Condition.Operator.LessThan, Condition.Operator.LessThanOrEqualTo }, nil, "Operator")
     }
 end

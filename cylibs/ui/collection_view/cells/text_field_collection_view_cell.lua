@@ -1,5 +1,7 @@
 local ButtonCollectionViewCell = require('cylibs/ui/collection_view/cells/button_collection_view_cell')
 local Keyboard = require('cylibs/ui/input/keyboard')
+local Timer = require('cylibs/util/timers/timer')
+local texts = require('texts')
 
 local TextFieldCollectionViewCell = setmetatable({}, {__index = ButtonCollectionViewCell })
 TextFieldCollectionViewCell.__index = TextFieldCollectionViewCell
@@ -7,6 +9,19 @@ TextFieldCollectionViewCell.__index = TextFieldCollectionViewCell
 
 function TextFieldCollectionViewCell.new(textFieldItem)
     local self = setmetatable(ButtonCollectionViewCell.new(textFieldItem), TextFieldCollectionViewCell)
+
+    self.lastCursorUpdate = os.clock()
+
+    self.cursorTextView = texts.new("|", textFieldItem:getTextItem():getSettings())
+    self.cursorTextView:bg_alpha(0)
+    self.cursorTextView:hide()
+
+    self.cursorTimer = Timer.scheduledTimer(0.05)
+    self.disposeBag:add(self.cursorTimer:onTimeChange():addAction(function(_)
+        self:updateCursor()
+    end), self.cursorTimer:onTimeChange())
+
+    self:getDisposeBag():addAny(L{ self.cursorTextView, self.cursorTimer })
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
@@ -30,6 +45,30 @@ function TextFieldCollectionViewCell:setSelected(selected)
     end
 end
 
+function TextFieldCollectionViewCell:updateCursor()
+    if self:hasFocus() then
+        local textView = self.textView.textView
+
+        self.cursorTextView:pos(textView:pos_x() + textView:extents(), textView:pos_y() - 1)
+        self.cursorTextView:visible(textView:visible())
+
+        if os.clock() - self.lastCursorUpdate >= 0.5 then
+            self.lastCursorUpdate = os.clock()
+            local alpha = self.cursorTextView:alpha()
+            if alpha == 255 then
+                alpha = 0
+            else
+                alpha = 255
+            end
+            self.cursorTextView:alpha(alpha)
+        end
+
+
+    else
+        self.cursorTextView:hide()
+    end
+end
+
 function TextFieldCollectionViewCell:onKeyboardEvent(key, pressed, flags, blocked, resolved_key)
     local blocked = blocked or ButtonCollectionViewCell.onKeyboardEvent(self, key, pressed, flags, blocked, resolved_key)
     if blocked then
@@ -40,7 +79,7 @@ function TextFieldCollectionViewCell:onKeyboardEvent(key, pressed, flags, blocke
         if key then
             local textItem = self:getItem():getTextItem()
             if textItem and not self:getKeyBlacklist():contains(key) then
-                local currentText = textItem:getText():gsub("|([^|]*)$", "%1")
+                local currentText = textItem:getText()
                 local newText
                 if key == "Backspace" then
                     newText = currentText:slice(1, currentText:length()-1)
@@ -56,7 +95,7 @@ function TextFieldCollectionViewCell:onKeyboardEvent(key, pressed, flags, blocke
                     newText = currentText
                 end
                 if self:getItem():isValid(newText) then
-                    textItem:setText(newText..'|')
+                    textItem:setText(newText)
                     self:setNeedsLayout()
                     self:layoutIfNeeded()
                 end
@@ -72,19 +111,14 @@ function TextFieldCollectionViewCell:getKeyBlacklist()
 end
 
 function TextFieldCollectionViewCell:setCursorVisible(cursorVisible)
-    local isCursorVisible = self:getItem():getTextItem():getText():endswith('|')
-    if isCursorVisible == cursorVisible then
-        return
-    end
-
-    local textItem = self:getItem():getTextItem()
     if cursorVisible then
-        textItem:setText(textItem:getText()..'|')
+        self.cursorTimer:resume()
     else
-        textItem:setText(textItem:getText():gsub("|([^|]*)$", "%1"))
+        self.cursorTimer:pause()
+        self.cursorTextView:hide()
+        self.cursorTextView:alpha(255)
     end
-
-    self:setNeedsLayout()
+    self:updateCursor(999)
 end
 
 function TextFieldCollectionViewCell:setHasFocus(hasFocus)
