@@ -64,6 +64,9 @@ function CombatSkillsCondition:get_config_items()
 end
 
 function CombatSkillsCondition:tostring()
+    if self.combat_skill_names:length() == 1 then
+        return string.format("Combat skill is %s", i18n.resource('skills', 'en', self.combat_skill_names[1]))
+    end
     return "Combat skills are "..localization_util.commas(self.combat_skill_names:map(function(combat_skill_name)
         return i18n.resource('skills', 'en', combat_skill_name)
     end), 'or')

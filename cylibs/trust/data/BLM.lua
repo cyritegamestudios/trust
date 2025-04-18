@@ -6,7 +6,6 @@ local BlackMage = require('cylibs/entity/jobs/BLM')
 local Buffer = require('cylibs/trust/roles/buffer')
 local Debuffer = require('cylibs/trust/roles/debuffer')
 local MagicBurster = require('cylibs/trust/roles/magic_burster')
-local ManaRestorer = require('cylibs/trust/roles/mana_restorer') -- for AutoRestoreManaMode
 local Nuker = require('cylibs/trust/roles/nuker')
 local Puller = require('cylibs/trust/roles/puller')
 local Sleeper = require('cylibs/trust/roles/sleeper')

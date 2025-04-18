@@ -5,7 +5,6 @@ local Geocolure = require('cylibs/entity/geocolure')
 local Nuker = require('cylibs/trust/roles/nuker')
 local Buffer = require('cylibs/trust/roles/buffer')
 local MagicBurster = require('cylibs/trust/roles/magic_burster')
-local ManaRestorer = require('cylibs/trust/roles/mana_restorer') -- for AutoRestoreManaMode
 local Puller = require('cylibs/trust/roles/puller')
 local zone_util = require('cylibs/util/zone_util')
 
