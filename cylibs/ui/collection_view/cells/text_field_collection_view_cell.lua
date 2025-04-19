@@ -62,8 +62,6 @@ function TextFieldCollectionViewCell:updateCursor()
             end
             self.cursorTextView:alpha(alpha)
         end
-
-
     else
         self.cursorTextView:hide()
     end

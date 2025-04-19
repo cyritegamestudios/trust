@@ -85,6 +85,9 @@ function EnemiesNearbyCondition:tostring()
     if self.debuff_names:length() > 0 then
         description = string.format("%s not afflicted with %s", description, localization_util.commas(self.debuff_names, 'or'))
     end
+    if self.regex:length() > 0 then
+        description = string.format("%s and name not matching %s", description, self.regex)
+    end
     return description
 end
 
@@ -105,6 +108,7 @@ function EnemiesNearbyCondition:__eq(otherItem)
             and self.num_required == otherItem.num_required
             and self.distance == otherItem.distance
             and self.debuff_names == otherItem.debuff_names
+            and self.regex == otherItem.regex
             and self.operator == otherItem.operator
 end
 
