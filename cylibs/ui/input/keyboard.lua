@@ -121,6 +121,8 @@ function Keyboard:getKey(dikCode, flags)
             return "("
         elseif dikKey == "0" then
             return ")"
+        elseif dikKey == "Minus" then
+            return "-"
         elseif dikKey == "Equals" then
             return "+"
         elseif dikKey == "\\" then
@@ -148,7 +150,7 @@ function Keyboard.allKeys()
         "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
         "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
         "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ",", ".","/",
-        "Numpad-", "Numpad+", "Numpad/", "Shift",
+        "Numpad-", "Numpad+", "Numpad/", "Shift", "-", "]", "Minus", "minus"
     }
 end
 

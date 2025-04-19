@@ -32,9 +32,12 @@ function LoadGlobalsAction:perform()
     state.AutoEnmityReductionMode = M{['description'] = 'Auto Enmity Reduction Mode', 'Off', 'Auto'}
     state.AutoEnmityReductionMode:set_description('Off', "Do not attempt to reduce enmity.")
     state.AutoEnmityReductionMode:set_description('Auto', "Automatically use abilities to reduce enmity.")
-    
+
     state.AutoRestoreManaMode = M{['description'] = 'Auto Restore Mana Mode', 'Auto', 'Off'}
     state.AutoRestoreManaMode:set_description('Auto', "Use weapon skills to recover MP when low.")
+
+    state.AutoTankMode = M{['description'] = 'Auto Tank Mode', 'Off', 'Auto'}
+    state.AutoTankMode:set_description('Auto', "Use job abilities and spells to maintain hate on the mob.")
 
     self:complete(true)
 end

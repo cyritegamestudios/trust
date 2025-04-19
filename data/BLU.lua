@@ -80,6 +80,8 @@ return {
         GambitSettings = {
             Default = L{
                 Gambit.new("Enemy", L{GambitCondition.new(MaxManaPointsPercentCondition.new(25), "Self"), GambitCondition.new(StatusCondition.new("Engaged", 2, ">="), "Self"), GambitCondition.new(ModeCondition.new("AutoRestoreManaMode", "Auto"), "Self")}, Spell.new("Magic Hammer", L{}, L{}, nil, L{}), "Enemy", L{"Spell"}),
+                Gambit.new("Enemy", L{GambitCondition.new(ModeCondition.new("AutoTankMode", "Auto"), "Self")}, Spell.new("Geist Wall", L{}, L{}, nil, L{}), "Enemy", L{}),
+                Gambit.new("Enemy", L{GambitCondition.new(ModeCondition.new("AutoTankMode", "Auto"), "Self")}, Spell.new("Sheep Song", L{}, L{}, nil, L{}), "Enemy", L{}),
             },
             Gambits = L{
                 Gambit.new("Self", L{GambitCondition.new(ModeCondition.new("AutoFoodMode", "Auto"), "Self"), GambitCondition.new(NotCondition.new(L{HasBuffCondition.new("Food")}), "Self"), GambitCondition.new(MainJobCondition.new("BLU"), "Self")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"food"}),
