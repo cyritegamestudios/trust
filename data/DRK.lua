@@ -47,10 +47,11 @@ return {
         },
         GambitSettings = {
             Default = L{
-                Gambit.new("Enemy", L{GambitCondition.new(MeleeAccuracyCondition.new(75, "<="), "Self"), GambitCondition.new(MainJobCondition.new("DRK"), "Self")},  Spell.new("Absorb-ACC", L{}, L{}), "Self"),
-                Gambit.new("Self", L{GambitCondition.new(HasBuffCondition.new("Max HP Boost"), "Self"), GambitCondition.new(StatusCondition.new('Idle', 2, ">="), "Self"), GambitCondition.new(NotCondition.new(L{HasBuffCondition.new("Dread Spikes")}), "Self")},  Spell.new("Dread Spikes", L{}, L{}), "Self"),
+                Gambit.new("Enemy", L{GambitCondition.new(CombatSkillsCondition.new(L{"Scythe"}), "Self"), GambitCondition.new(MaxManaPointsPercentCondition.new(25), "Self"), GambitCondition.new(MinTacticalPointsCondition.new(1000), "Self"), GambitCondition.new(StatusCondition.new("Engaged", 2, ">="), "Self"), GambitCondition.new(ModeCondition.new("AutoRestoreManaMode", "Auto"), "Self")}, WeaponSkill.new("Entropy", L{}), "Self", L{"Weaponskill"}),
             },
             Gambits = L{
+                Gambit.new("Enemy", L{GambitCondition.new(MeleeAccuracyCondition.new(75, "<="), "Self"), GambitCondition.new(MainJobCondition.new("DRK"), "Self")},  Spell.new("Absorb-ACC", L{}, L{}), "Self"),
+                Gambit.new("Self", L{GambitCondition.new(HasBuffCondition.new("Max HP Boost"), "Self"), GambitCondition.new(StatusCondition.new('Idle', 2, ">="), "Self"), GambitCondition.new(NotCondition.new(L{HasBuffCondition.new("Dread Spikes")}), "Self")},  Spell.new("Dread Spikes", L{}, L{}), "Self"),
                 Gambit.new("Self", L{GambitCondition.new(ModeCondition.new("AutoFoodMode", "Auto"), "Self"), GambitCondition.new(NotCondition.new(L{HasBuffCondition.new("Food")}), "Self"), GambitCondition.new(MainJobCondition.new("DRK"), "Self")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"food"}),
             }
         },

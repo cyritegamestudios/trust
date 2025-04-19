@@ -6,7 +6,6 @@ SummonerTrust.__index = SummonerTrust
 local Avatar = require('cylibs/entity/avatar')
 
 local MagicBurster = require('cylibs/trust/roles/magic_burster')
-local ManaRestorer = require('cylibs/trust/roles/mana_restorer') -- for AutoRestoreManaMode
 local Summoner = require('cylibs/entity/jobs/SMN')
 local Buffer = require('cylibs/trust/roles/buffer')
 local Frame = require('cylibs/ui/views/frame')

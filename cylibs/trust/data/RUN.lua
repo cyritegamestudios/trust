@@ -6,7 +6,6 @@ RuneFencerTrust.__index = RuneFencerTrust
 
 local Buffer = require('cylibs/trust/roles/buffer')
 local Puller = require('cylibs/trust/roles/puller')
-local Tank = require('cylibs/trust/roles/tank')
 local Frame = require('cylibs/ui/views/frame')
 
 state.AutoRuneMode = M{['description'] = 'Auto Rune Mode', 'Off', 'Tenebrae', 'Lux', 'Ignis', 'Gelus', 'Flabra', 'Tellus', 'Sulpor', 'Unda'}
@@ -16,7 +15,6 @@ function RuneFencerTrust.new(settings, action_queue, battle_settings, trust_sett
 	local roles = S{
 		Buffer.new(action_queue, trust_settings.BuffSettings, state.AutoBuffMode, job),
 		Puller.new(action_queue, trust_settings.PullSettings, job),
-		Tank.new(action_queue, L{}, L{ Spell.new('Flash'), Spell.new('Foil') })
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), RuneFencerTrust)
 

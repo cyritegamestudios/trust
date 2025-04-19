@@ -11,7 +11,6 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local Frame = require('cylibs/ui/views/frame')
 local Healer = require('cylibs/trust/roles/healer')
 local MagicBurster = require('cylibs/trust/roles/magic_burster')
-local ManaRestorer = require('cylibs/trust/roles/mana_restorer') -- for AutoRestoreManaMode
 local Nuker = require('cylibs/trust/roles/nuker')
 local Puller = require('cylibs/trust/roles/puller')
 local StatusRemover = require('cylibs/trust/roles/status_remover')

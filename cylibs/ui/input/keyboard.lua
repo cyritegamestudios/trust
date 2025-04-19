@@ -42,9 +42,10 @@ function Keyboard.new()
         [0x0E] = "Backspace", [0x039] = " ",
         [0xCB] = "Left", [0xCD] = "Right", [0xC8] = "Up", [0xD0] = "Down", [0x1C] = "Enter",
         [0x01] = "Escape", [0x2A] = "LShift",
-        [0x0C] = "Minus",
+        [0x0C] = "Minus", [0x0D] = "Equals",
         [0x1D] = "LControl", [0x9D] = "RControl",
-        [0x33] = ",", [0x34] = ".", [0x35] = "/", [0x28] = "\"",
+        [0x33] = ",", [0x34] = ".", [0x35] = "/", [0x2B] = "\\", [0x28] = "\"",
+        [0x1A] = "[", [0x1B] = "]",
         [0x04A] = "Numpad-", [0x4E] = "Numpad+", [0xB5] = "Numpad/",
     }
 
@@ -68,7 +69,7 @@ function Keyboard.new()
 
         local focusable = FocusManager.shared():getFocusable()
         if focusable and focusable.onKeyboardEvent then
-            local blocked = focusable:onKeyboardEvent(key, pressed, flags, blocked)
+            local blocked = focusable:onKeyboardEvent(key, pressed, flags, blocked, self:getKey(key, flags))
             return blocked
         end
         return blocked
@@ -107,10 +108,25 @@ end
 --
 function Keyboard:getKey(dikCode, flags)
     if flags == 1 then
-        if self.DIKKeyMap[dikCode] == "," then
+        local dikKey = self.DIKKeyMap[dikCode]
+        if dikKey == "," then
             return "<"
-        elseif self.DIKKeyMap[dikCode] == "." then
+        elseif dikKey == "." then
             return ">"
+        elseif dikKey == "6" then
+            return "^"
+        elseif dikKey == "8" then
+            return "*"
+        elseif dikKey == "9" then
+            return "("
+        elseif dikKey == "0" then
+            return ")"
+        elseif dikKey == "Minus" then
+            return "-"
+        elseif dikKey == "Equals" then
+            return "+"
+        elseif dikKey == "\\" then
+            return "|"
         end
     end
     return self.DIKKeyMap[dikCode]
@@ -134,7 +150,7 @@ function Keyboard.allKeys()
         "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
         "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
         "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ",", ".","/",
-        "Numpad-", "Numpad+", "Numpad/", "Shift",
+        "Numpad-", "Numpad+", "Numpad/", "Shift", "-", "]", "Minus", "minus"
     }
 end
 
