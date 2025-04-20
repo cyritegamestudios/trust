@@ -163,6 +163,9 @@ end
 
 function Gambiter:set_gambit_settings(gambit_settings)
     self.gambits = (gambit_settings.Gambits or L{}):filter(function(gambit)
+        if gambit.__type == GambitGroup.__type then
+            return true
+        end
         return gambit:getAbility() ~= nil
     end)
     self.job_gambits = (gambit_settings.Default or L{}):filter(function(gambit)

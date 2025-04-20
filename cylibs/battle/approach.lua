@@ -6,7 +6,7 @@
 local ClaimedCondition = require('cylibs/conditions/claimed')
 local FollowAction = require('cylibs/actions/follow')
 local serializer_util = require('cylibs/util/serializer_util')
-local SwitchTargetAction = require('cylibs/actions/switch_target')
+local EngageAction = require('cylibs/actions/engage')
 
 local Approach = {}
 Approach.__index = Approach
@@ -81,7 +81,7 @@ function Approach:to_action(target_index)
        actions:append(RunToAction.new(target_index, 25))
     end
 
-    actions:append(SwitchTargetAction.new(target_index, 3))
+    actions:append(EngageAction.new(target_index))
     actions:append(FollowAction.new(target_index, L{ ClaimedCondition.new() }))
 
     return SequenceAction.new(actions, self.__class..'_approach')

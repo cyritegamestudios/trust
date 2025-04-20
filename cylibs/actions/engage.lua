@@ -42,6 +42,8 @@ function EngageAction:perform()
     end
 
     if player.status == 'Engaged' then
+        self:log_target(target, 'switch_target')
+
         local p = packets.new('outgoing', 0x01A)
 
         p['Target'] = target.id
@@ -54,6 +56,8 @@ function EngageAction:perform()
 
         packets.inject(p)
     else
+        self:log_target(target, 'engage')
+
         local p = packets.new('outgoing', 0x01A)
 
         p['Target'] = target.id
@@ -92,6 +96,35 @@ function EngageAction:perform()
     self.dispose_bag:addAny(L{ self.timer })
 
     self.timer:start()
+end
+
+function EngageAction:log_target(target, action)
+    local MobFilter = require('cylibs/battle/monsters/mob_filter')
+    local PartyClaimedCondition = require('cylibs/conditions/party_claimed')
+
+    local mob_filter = MobFilter.new(player.alliance, 25)
+    local aggroed_mobs = mob_filter:get_nearby_mobs(L{ MobFilter.Type.PartyClaimed }):filter(function(mob)
+        return mob.hpp > 0 and not L{ 2, 3 }:contains(mob.status) and mob.index ~= target.index
+    end)
+
+    logger.notice('EngageAction', 'perform', action, 'num_party_aggroed_mobs', aggroed_mobs:length() or 0)
+
+    --print('num currently aggroed mobs:', aggroed_mobs:length() or 'none')
+    for mob in aggroed_mobs:it() do
+        logger.notice('EngageAction', 'perform', action, 'party_aggroed_mobs', mob.name, mob.hpp, mob.status, mob.claim_id, mob.index, Condition.check_conditions(L{ PartyClaimedCondition.new(true) }, mob.index))
+        --print(mob.name, mob.hpp, mob.status, mob.claim_id, mob.index, Condition.check_conditions(L{ PartyClaimedCondition.new(true) }, mob.index))
+    end
+
+    if windower.ffxi.get_player().target_index then
+        local current_mob = windower.ffxi.get_mob_by_index(windower.ffxi.get_player().target_index)
+        if current_mob then
+            logger.notice('EngageAction', 'perform', action, player.status, 'current', current_mob.name, current_mob.index, current_mob.hpp, current_mob.status, current_mob.claim_id or 'unclaimed', current_mob.distance:sqrt(),
+                    'new', target.name, target.index, target.hpp, target.status, target.claim_id or 'unclaimed', target.distance:sqrt())
+        end
+        if player.status == 'Engaged' and windower.ffxi.get_player().target_index ~= self.target_index then
+            logger.error('EngageAction', 'perform', action, 'engaged to', windower.ffxi.get_player().target_index or 'none', 'but trying to engage', self.target_index or 'none')
+        end
+    end
 end
 
 function EngageAction:gettype()
