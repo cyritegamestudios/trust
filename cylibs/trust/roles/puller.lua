@@ -113,6 +113,11 @@ function Puller:check_target(target_id_blacklist)
 
     local next_target = self:get_pull_target()
     if not self:is_valid_target(next_target and next_target:get_mob()) then
+        if next_target and next_target:get_mob() then
+            local previous_target = next_target:get_mob()
+            logger.notice(self.__class, 'check_target', 'clear', previous_target.name, previous_target.hpp, previous_target.index, previous_target.status, previous_target.claim_id or 'unclaimed')
+        end
+
         self:set_pull_target(nil)
 
         next_target = self:get_next_target(target_id_blacklist)

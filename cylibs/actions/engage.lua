@@ -109,10 +109,8 @@ function EngageAction:log_target(target, action)
 
     logger.notice('EngageAction', 'perform', action, 'num_party_aggroed_mobs', aggroed_mobs:length() or 0)
 
-    --print('num currently aggroed mobs:', aggroed_mobs:length() or 'none')
     for mob in aggroed_mobs:it() do
         logger.notice('EngageAction', 'perform', action, 'party_aggroed_mobs', mob.name, mob.hpp, mob.status, mob.claim_id, mob.index, Condition.check_conditions(L{ PartyClaimedCondition.new(true) }, mob.index))
-        --print(mob.name, mob.hpp, mob.status, mob.claim_id, mob.index, Condition.check_conditions(L{ PartyClaimedCondition.new(true) }, mob.index))
     end
 
     if windower.ffxi.get_player().target_index then
