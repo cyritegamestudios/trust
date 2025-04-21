@@ -287,6 +287,7 @@ function GambitConditionSettingsMenuItem:getEditableConditionClasses()
         [StatusCondition.__type] = "status",
         [ActionCondition.__type] = "action",
         [PetStatusCondition.__type] = "pet_status",
+        [HasSongsCondition.__type] = "has_songs",
     }
 end
 

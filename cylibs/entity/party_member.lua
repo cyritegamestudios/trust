@@ -403,6 +403,29 @@ function PartyMember:has_buff(buff_id)
 end
 
 -------
+-- Returns the number of active songs.
+-- @treturn number Number of active songs.
+function PartyMember:get_num_songs()
+    local singer = player.trust.main_job:role_with_type("singer")
+    if singer then
+        return singer.song_tracker:get_num_songs(self:get_id())
+    end
+    return 0
+end
+
+-------
+-- Returns true if the party member has the given song active.
+-- @tparam number song_id Song id (see spells.lua)
+-- @treturn boolean True if the song is active, false otherwise
+function PartyMember:has_song(song_id)
+    local singer = player.trust.main_job:role_with_type("singer")
+    if singer then
+        return singer.song_tracker:has_song(self:get_id(), song_id, self:get_buff_ids())
+    end
+    return false
+end
+
+-------
 -- Returns the main job short (e.g. BLU, RDM, WAR)
 -- @treturn string Main job short, or nil if unknown
 function PartyMember:get_main_job_short()
