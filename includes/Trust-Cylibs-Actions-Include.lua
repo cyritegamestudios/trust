@@ -28,3 +28,4 @@ SetMode = require('cylibs/gambits/abilities/set_mode')
 
 Gambit = require('cylibs/gambits/gambit')
 GambitCondition = require('cylibs/gambits/gambit_condition')
+GambitGroup = require('cylibs/gambits/gambit_group')

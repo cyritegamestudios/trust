@@ -82,6 +82,7 @@ function Puller:on_add()
 
     self.dispose_bag:add(WindowerEvents.MobKO:addAction(function(mob_id, mob_name, status)
         if self:get_target() and self:get_target():get_id() == mob_id then
+            logger.notice(self.__class, 'mob_ko', mob_name, self:get_target():get_mob().hpp, status)
             self:set_pull_target(nil)
 
             self:check_target(L{ mob_id })
@@ -112,6 +113,11 @@ function Puller:check_target(target_id_blacklist)
 
     local next_target = self:get_pull_target()
     if not self:is_valid_target(next_target and next_target:get_mob()) then
+        if next_target and next_target:get_mob() then
+            local previous_target = next_target:get_mob()
+            logger.notice(self.__class, 'check_target', 'clear', previous_target.name, previous_target.hpp, previous_target.index, previous_target.status, previous_target.claim_id or 'unclaimed')
+        end
+
         self:set_pull_target(nil)
 
         next_target = self:get_next_target(target_id_blacklist)
@@ -182,14 +188,17 @@ function Puller:is_valid_target(target)
     if not target then
         return false
     end
+
     local max_pull_ability_range = 0
     for gambit in self:get_pull_abilities():it() do
         max_pull_ability_range = math.max(max_pull_ability_range, gambit:getAbility():get_range())
     end
     local conditions = L{
-        MaxDistanceCondition.new(max_pull_ability_range),
         MinHitPointsPercentCondition.new(1),
-        ClaimedCondition.new(L{ 0 }:extend(self:get_party():get_party_members(true):map(function(p) return p:get_id() end)))
+        ConditionalCondition.new(L{
+            ClaimedCondition.new(self:get_party():get_party_members(true):map(function(p) return p:get_id() end)), -- TODO: should probably be alliance member ids
+            ConditionalCondition.new(L{ UnclaimedCondition.new(), MaxDistanceCondition.new(max_pull_ability_range) }, Condition.LogicalOperator.And)
+        }, Condition.LogicalOperator.Or),
     }
     return not L{ 2, 3 }:contains(target.status) and Condition.check_conditions(conditions, target.index)
 end

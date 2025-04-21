@@ -47,10 +47,10 @@ function MobFilter:get_nearby_mobs(conditions)
         mobs:append(mob)
     end
     mobs = mobs:filter(function(mob)
-        if not Condition.check_conditions(conditions, mob.index) or mob.spawn_type ~= 16 then
+        if mob.spawn_type ~= 16 then
             return false
         end
-        return true
+        return Condition.check_conditions(conditions, mob.index)
     end)
     return mobs:sort(self.default_sort)
 end
