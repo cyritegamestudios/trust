@@ -462,7 +462,7 @@ end
 -- Returns a target's songs.
 -- @tparam number target_id Target id
 -- @tparam number buff_id Filter by buff id (optional)
--- @treturn List Buff ids (see buffs.lua)
+-- @treturn List Song records
 function SongTracker:get_songs(target_id, buff_id)
     local target_songs = S(self.active_songs[target_id]) or S{}
     if buff_id then

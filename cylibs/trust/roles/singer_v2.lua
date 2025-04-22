@@ -6,6 +6,7 @@ local GambitTarget = require('cylibs/gambits/gambit_target')
 local NumSongsCondition = require('cylibs/conditions/num_songs')
 local logger = require('cylibs/logger/logger')
 local res = require('resources')
+local SongDurationCondition = require('cylibs/conditions/song_duration')
 
 local Gambiter = require('cylibs/trust/roles/gambiter')
 local Singer = setmetatable({}, {__index = Gambiter })
@@ -69,24 +70,39 @@ function Singer:set_song_settings(song_settings)
         }
     }
 
-    local previous_song_names = L{}
+    -- 1. Don't have the song
+    -- 2. Dummy song recast is ready
+    -- 3. Fewer than 2 songs or have dummy song
+    -- 4.
+
+    -- 1. Don't have the song
+    -- 2. Fewer than 2 songs or have dummy song
+    -- 3. Have all previous songs
+    -- 4. Have
+    -- 5.
+
     for song in song_settings.SongSets[state.SongSet.value].Songs:it() do
-        local gambit = Gambit.new(GambitTarget.TargetType.Self, L{
-            GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }, 1) }), GambitTarget.TargetType.Self),
-            --GambitCondition.new(ConditionalCondition.new(L{ HasSongsCondition.new(L{ self.dummy_songs[1]:get_name() }, 1), NumSongsCondition.new(song_settings.NumSongs, Condition.Operator.LessThan) }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Self),
-            GambitCondition.new(ConditionalCondition.new(L{ HasSongsCondition.new(L{ self.dummy_songs[1]:get_name() }, 1), NumSongsCondition.new(2, Condition.Operator.LessThan) }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Self),
-            SpellRecastReadyCondition.new(song_settings.DummySongs[1]:get_spell().id)
-        }, song, Condition.TargetType.Self)
-        if previous_song_names:length() > 0 then
-            gambit:addCondition(GambitCondition.new(HasSongsCondition.new(previous_song_names), GambitTarget.TargetType.Self))
-        end
+        song:set_requires_all_job_abilities(false)
 
-        gambit_settings.Gambits:append(gambit)
-
-        previous_song_names:append(song:get_name())
+        gambit_settings.Gambits = gambit_settings.Gambits + L{
+            Gambit.new(GambitTarget.TargetType.Self, L{
+                SpellRecastReadyCondition.new(song_settings.DummySongs[1]:get_spell().id),
+                GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }) }), GambitTarget.TargetType.Self),
+                GambitCondition.new(ConditionalCondition.new(L{ HasSongsCondition.new(L{ self.dummy_songs[1]:get_name() }), NumSongsCondition.new(2, Condition.Operator.LessThan) }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Self),
+            }, song, Condition.TargetType.Self),
+            Gambit.new(GambitTarget.TargetType.Self, L{
+                SpellRecastReadyCondition.new(song_settings.DummySongs[1]:get_spell().id),
+                GambitCondition.new(HasSongsCondition.new(L{ song:get_name() }), GambitTarget.TargetType.Self),
+                GambitCondition.new(SongDurationCondition.new(L{ song:get_name() }, 240, Condition.Operator.LessThan), GambitTarget.TargetType.Self),
+            }, song, Condition.TargetType.Self)
+        }
     end
 
-    gambit_settings.Gambits = gambit_settings.Gambits + gambit_settings.Gambits:map(function(gambit)
+    gambit_settings.Gambits = L{
+        --Gambit.new(GambitTarget.TargetType.Self, L{
+        --    GambitCondition.new(SongDurationCondition.new(L{ self.songs:map(function(song) return song:get_name() end) }, 120, Condition.LogicalOperator.LessThan))
+        --}, Command.new("// trust brd resing", L{}, "Resinging all songs"), Condition.TargetType.Self),
+    } + gambit_settings.Gambits + gambit_settings.Gambits:map(function(gambit)
         local ability = gambit:getAbility():copy()
         ability:set_job_abilities(L{ 'Pianissimo' })
 

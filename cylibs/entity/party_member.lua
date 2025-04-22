@@ -414,6 +414,17 @@ function PartyMember:get_num_songs()
 end
 
 -------
+-- Returns a list of active songs.
+-- @treturn list List of song records
+function PartyMember:get_songs()
+    local singer = player.trust.main_job:role_with_type("singer")
+    if singer then
+        return singer.song_tracker:get_songs(self:get_id())
+    end
+    return L{}
+end
+
+-------
 -- Returns true if the party member has the given song active.
 -- @tparam number song_id Song id (see spells.lua)
 -- @treturn boolean True if the song is active, false otherwise

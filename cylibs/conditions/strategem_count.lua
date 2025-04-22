@@ -42,10 +42,6 @@ function StrategemCountCondition:serialize()
     return "StrategemCountCondition.new(" .. serializer_util.serialize_args(self.strategem_count, self.operator) .. ")"
 end
 
-function StrategemCountCondition:tostring()
-    return "Has "..' '..self.operator..' '..self.strategem_count..' strategems'
-end
-
 function StrategemCountCondition.description()
     return "Has strategems."
 end

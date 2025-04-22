@@ -27,10 +27,10 @@ function HasSongsCondition:is_satisfied(target_index)
     if target then
         local party_member = player.party:get_party_member(target.id)
         if party_member then
-            local active_song_ids = self.song_names:filter(function(song_name)
+            local active_song_names = self.song_names:filter(function(song_name)
                 return party_member:has_song(spell_util.spell_id(song_name))
             end)
-            return active_song_ids:length() >= self.num_required
+            return active_song_names:length() >= self.num_required
         end
     end
     return false
