@@ -1,4 +1,5 @@
 local BlockAction = require('cylibs/actions/block')
+local ConditionalCondition = require('cylibs/conditions/conditional')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Event = require('cylibs/events/Luvent')
 local GambitTarget = require('cylibs/gambits/gambit_target')
@@ -39,10 +40,6 @@ end
 function Singer:on_add()
     Gambiter.on_add(self)
 
-    local songs = L{
-
-    }
-
     self.song_tracker = SongTracker.new(self:get_player(), self:get_party(), self.dummy_songs, self.songs, L{}, self.job)
     self.song_tracker:monitor()
 
@@ -56,64 +53,59 @@ function Singer:tic(new_time, old_time)
 end
 
 function Singer:set_song_settings(song_settings)
-    -- 1. Sing Song 1 if not has song 1 and current num songs < 2
-    -- 2. Sing Song 2 if not has song 2 and current num songs < 2
-    -- 3. Sing Dummy Song if not has dummy song, current num songs >= 2 and current num songs < max num songs
-    -- 4. Sing Song 3 if not has song 3, has song 1, song 2 and dummy song
-    -- 5. Sing Song 4 if not has song 4, has song 1, song 2, song 3 and dummy song
+    --self.job:set_trust_settings(song_settings)
 
-    local song1 = Gambit.new(GambitTarget.TargetType.Self, L{
-        NotCondition.new(L{ HasSongsCondition.new(L{ 'Honor March' }, 1) }),
-        NumSongsCondition.new(2, Condition.Operator.LessThan),
-    }, Spell.new('Honor March'), Condition.TargetType.Self)
-
-    local song2 = Gambit.new(GambitTarget.TargetType.Self, L{
-        NotCondition.new(L{ HasSongsCondition.new(L{ 'Blade Madrigal' }, 1) }),
-        NumSongsCondition.new(2, Condition.Operator.LessThan),
-    }, Spell.new('Blade Madrigal'), Condition.TargetType.Self)
-
-    local dummySong = Gambit.new(GambitTarget.TargetType.Self, L{
-        NotCondition.new(L{ HasSongsCondition.new(L{ "Scop's Operetta" }, 1) }),
-        NumSongsCondition.new(2, Condition.Operator.GreaterThanOrEqualTo),
-        NumSongsCondition.new(4, Condition.Operator.LessThan),
-    }, Spell.new("Scop's Operetta"), Condition.TargetType.Self)
-
-    local song3 = Gambit.new(GambitTarget.TargetType.Self, L{
-        NotCondition.new(L{ HasSongsCondition.new(L{ 'Valor Minuet IV' }, 1) }),
-        HasSongsCondition.new(L{ "Scop's Operetta" }, 1),
-    }, Spell.new('Valor Minuet IV'), Condition.TargetType.Self)
-
-    local song4 = Gambit.new(GambitTarget.TargetType.Self, L{
-        NotCondition.new(L{ HasSongsCondition.new(L{ 'Valor Minuet V' }, 1) }),
-        HasSongsCondition.new(L{ "Scop's Operetta" }, 1),
-    }, Spell.new('Valor Minuet V'), Condition.TargetType.Self)
-
-    self.songs = L{
-        song1, song2, song3, song4
-    }:map(function(gambit)
-        return gambit:getAbility()
-    end)
-
-    self.dummy_songs = L{
-        dummySong
-    }:map(function(gambit)
-        return gambit:getAbility()
-    end)
+    self.dummy_songs = song_settings.DummySongs
+    self.songs = song_settings.SongSets[state.SongSet.value].Songs
+    self.pianissimo_songs = song_settings.SongSets[state.SongSet.value].PianissimoSongs
 
     local gambit_settings = {
         Gambits = L{
-            song1,
-            song2,
-            dummySong,
-            song3,
-            song4
+            Gambit.new(GambitTarget.TargetType.Self, L{
+                GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song_settings.DummySongs[1]:get_name() }, 1) }), GambitTarget.TargetType.Self),
+                GambitCondition.new(NumSongsCondition.new(2, Condition.Operator.GreaterThanOrEqualTo), GambitTarget.TargetType.Self),
+                GambitCondition.new(NumSongsCondition.new(song_settings.NumSongs, Condition.Operator.LessThan), GambitTarget.TargetType.Self),
+            }, song_settings.DummySongs[1], Condition.TargetType.Self)
         }
     }
 
-    for gambit in gambit_settings.Gambits:it() do
-        if gambit:getAbility().__type == Buff.__type then
-            gambit:getAbility():reload()
+    local previous_song_names = L{}
+    for song in song_settings.SongSets[state.SongSet.value].Songs:it() do
+        local gambit = Gambit.new(GambitTarget.TargetType.Self, L{
+            GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }, 1) }), GambitTarget.TargetType.Self),
+            --GambitCondition.new(ConditionalCondition.new(L{ HasSongsCondition.new(L{ self.dummy_songs[1]:get_name() }, 1), NumSongsCondition.new(song_settings.NumSongs, Condition.Operator.LessThan) }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Self),
+            GambitCondition.new(ConditionalCondition.new(L{ HasSongsCondition.new(L{ self.dummy_songs[1]:get_name() }, 1), NumSongsCondition.new(2, Condition.Operator.LessThan) }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Self),
+            SpellRecastReadyCondition.new(song_settings.DummySongs[1]:get_spell().id)
+        }, song, Condition.TargetType.Self)
+        if previous_song_names:length() > 0 then
+            gambit:addCondition(GambitCondition.new(HasSongsCondition.new(previous_song_names), GambitTarget.TargetType.Self))
         end
+
+        gambit_settings.Gambits:append(gambit)
+
+        previous_song_names:append(song:get_name())
+    end
+
+    gambit_settings.Gambits = gambit_settings.Gambits + gambit_settings.Gambits:map(function(gambit)
+        local ability = gambit:getAbility():copy()
+        ability:set_job_abilities(L{ 'Pianissimo' })
+
+        return Gambit.new(GambitTarget.TargetType.Ally, gambit:getConditions():map(function(condition)
+            return GambitCondition.new(condition:getCondition(), GambitTarget.TargetType.Ally)
+        end), ability, GambitTarget.TargetType.Ally)
+    end)
+
+    --[[for song in song_settings.SongSets[state.SongSet.value].PianissimoSongs:it() do
+        local gambit = Gambit.new(GambitTarget.TargetType.Ally, L{
+            GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }, 1) }), GambitCondition.TargetType.Ally),
+            GambitCondition.new(NumSongsCondition.new(4, Condition.Operator.LessThan), GambitCondition.TargetType.Ally),
+            GambitCondition.new(JobCondition.new(song:get_job_names()))
+        }, song, Condition.TargetType.Ally)
+
+        gambit_settings.Gambits:append(gambit)
+    end]]
+
+    for gambit in gambit_settings.Gambits:it() do
         gambit.conditions = gambit.conditions:filter(function(condition)
             return condition:is_editable()
         end)
@@ -123,6 +115,7 @@ function Singer:set_song_settings(song_settings)
             gambit:addCondition(condition)
         end
     end
+
     self:set_gambit_settings(gambit_settings)
 end
 
@@ -159,7 +152,6 @@ end
 
 function Singer:get_type()
     return "singer"
-
 end
 
 function Singer:get_cooldown()

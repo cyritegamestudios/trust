@@ -526,42 +526,6 @@ function Migration_v16:getDescription()
 end
 
 ---------------------------
--- Adding jobs to songs with no job names.
--- @class module
--- @name Migration_17
-
-local Migration_17 = setmetatable({}, { __index = Migration })
-Migration_17.__index = Migration_17
-Migration_17.__class = "Migration_17"
-
-function Migration_17.new()
-    local self = setmetatable(Migration.new(), Migration_17)
-    return self
-end
-
-function Migration_17:shouldPerform(trustSettings, _, _)
-    return L{ 'BRD' }:contains(trustSettings.jobNameShort)
-end
-
-function Migration_17:perform(trustSettings, _, _)
-    local modeNames = list.subtract(L(T(trustSettings:getSettings()):keyset()), L{'Version','Migrations'})
-    for modeName in modeNames:it() do
-        local defaultSettings = T(trustSettings:getDefaultSettings().Default.SongSettings):clone()
-        local songs = trustSettings:getSettings()[modeName].SongSettings.Songs
-        for song in songs:it() do
-            if song:get_job_names():empty() then
-                trustSettings:getSettings()[modeName].SongSettings.Songs = defaultSettings.Songs
-                break
-            end
-        end
-    end
-end
-
-function Migration_17:getDescription()
-    return "Adding jobs to songs."
-end
-
----------------------------
 -- Adds TargetSettings to all job settings files.
 -- @class module
 -- @name Migration_v18
@@ -1023,6 +987,47 @@ function Migration_v28:getDescription()
     return "Migrating weapon skills settings."
 end
 
+---------------------------
+-- Migrating songs to gambits.
+-- @class module
+-- @name Migration_29
+
+local Migration_29 = setmetatable({}, { __index = Migration })
+Migration_29.__index = Migration_29
+Migration_29.__class = "Migration_29"
+
+function Migration_29.new()
+    local self = setmetatable(Migration.new(), Migration_29)
+    return self
+end
+
+function Migration_29:shouldPerform(trustSettings, _, _)
+    return L{ 'BRD' }:contains(trustSettings.jobNameShort)
+end
+
+function Migration_29:perform(trustSettings, _, _)
+    local modeNames = list.subtract(L(T(trustSettings:getSettings()):keyset()), L{'Version','Migrations'})
+    for modeName in modeNames:it() do
+        local songSettings = trustSettings:getSettings()[modeName].SongSettings
+        local dummySongs = L{}
+        for song in songSettings.DummySongs:it() do
+            if song.__type ~= Gambit.__type then
+                dummySongs:append(Gambit.new(GambitTarget.TargetType.Self, L{ JobCondition.new() } ))
+            end
+        end
+        for song in songs:it() do
+            if song:get_job_names():empty() then
+                trustSettings:getSettings()[modeName].SongSettings.Songs = defaultSettings.Songs
+                break
+            end
+        end
+    end
+end
+
+function Migration_29:getDescription()
+    return "Adding jobs to songs."
+end
+
 return {
     Migration_v1 = Migration_v1,
     Migration_v2 = Migration_v2,
@@ -1039,7 +1044,6 @@ return {
     Migration_v14 = Migration_v14,
     Migration_v15 = Migration_v15,
     Migration_v16 = Migration_v16,
-    Migration_v17 = Migration_17,
     Migration_v18 = Migration_v18,
     Migration_v19 = Migration_v19,
     Migration_v20 = Migration_v20,
