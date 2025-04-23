@@ -114,6 +114,25 @@ function Singer:set_song_settings(song_settings)
         }
     end
 
+    for song in self.pianissimo_songs:it() do
+        song:set_job_abilities(L{ "Pianissimo" })
+        song:set_requires_all_job_abilities(true)
+
+        local targetType = GambitTarget.TargetType.Self
+
+        gambit_settings.Gambits = gambit_settings.Gambits + L{
+            Gambit.new(targetType, L{
+                GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }) }), targetType),
+                GambitCondition.new(HasMaxNumSongsCondition.new(Condition.Operator.Equals), GambitTarget.TargetType.Self),
+                GambitCondition.new(JobCondition.new(song:get_job_names()), targetType),
+            }, song, targetType),
+            Gambit.new(GambitTarget.TargetType.Self, L{
+                GambitCondition.new(HasSongsCondition.new(L{ song:get_name() }), targetType),
+                GambitCondition.new(SongDurationCondition.new(L{ song:get_name() }, expire_duration, Condition.Operator.LessThan), targetType),
+            }, song, Condition.TargetType.Self)
+        }
+    end
+
     --for song_index = 1, songs:length() do
     --    local song = songs[song_index]
     --    if song_index == 1 then
