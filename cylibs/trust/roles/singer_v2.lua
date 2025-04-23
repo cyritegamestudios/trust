@@ -30,6 +30,8 @@ function Singer.new(action_queue, song_settings, job)
     local self = setmetatable(Gambiter.new(action_queue, { Gambits = L{} }, state.AutoSongMode), Singer)
 
     self.job = job
+    self.expiring_duration = 260
+    self.last_expire_time = os.time() - 60
     self.songs_begin = Event.newEvent()
     self.songs_end = Event.newEvent()
     self.dispose_bag = DisposeBag.new()
@@ -42,16 +44,36 @@ end
 function Singer:on_add()
     Gambiter.on_add(self)
 
-    self.song_tracker = SongTracker.new(self:get_player(), self:get_party(), self.dummy_songs, self.songs, L{}, self.job)
+    self.song_tracker = SongTracker.new(self:get_player(), self:get_party(), self.dummy_songs, self.songs, L{}, self.job, self.expiring_duration)
     self.song_tracker:monitor()
+
+    --[[self.song_tracker:on_song_duration_warning():addAction(function(_)
+        if os.time() - self.last_expire_time < 60 then
+            print('nope', os.time() - self.last_expire_time)
+            return
+        end
+        print('expiring!')
+        self.last_expire_time = os.time()
+        self.song_tracker:set_expiring_soon(self:get_party():get_player():get_id(), self.expiring_duration, true)
+    end)]]
 
     self.dispose_bag:addAny(L{ self.song_tracker })
 end
 
 function Singer:tic(new_time, old_time)
-    Gambiter.tic(self, new_time, old_time)
-
     self.song_tracker:tic(new_time, old_time)
+
+    if self.song_tracker:is_expiring_soon(self:get_party():get_player():get_id(), self.songs) then
+        if os.time() - self.last_expire_time < 60 then
+            print('nope', os.time() - self.last_expire_time)
+            return
+        end
+        print('expiring!')
+        self.last_expire_time = os.time()
+        self.song_tracker:set_expiring_soon(self:get_party():get_player():get_id(), self.expiring_duration, true)
+    end
+
+    Gambiter.tic(self, new_time, old_time)
 
     --print('checking', Condition.check_conditions(L{ SongDurationCondition.new(self.songs:map(function(song) return song:get_name() end) + self.pianissimo_songs:map(function(song) return song:get_name() end), 260, Condition.Operator.LessThanOrEqualTo, 1, Condition.Operator.GreaterThanOrEqualTo) }, windower.ffxi.get_player().index))
 end
@@ -61,7 +83,7 @@ function Singer:set_song_settings(song_settings)
     self.songs = song_settings.SongSets[state.SongSet.value].Songs
     self.pianissimo_songs = song_settings.SongSets[state.SongSet.value].PianissimoSongs
 
-    local expire_duration = 260
+    local expire_duration = self.expiring_duration
 
     --local gambit_settings = {
     --    Gambits = L{
@@ -91,28 +113,35 @@ function Singer:set_song_settings(song_settings)
 
     local gambit_settings = {
         Gambits = L{
-            Gambit.new(GambitTarget.TargetType.Self, L{
-                GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song_settings.DummySongs[1]:get_name() }, 1) }), GambitTarget.TargetType.Self),
-                GambitCondition.new(NumSongsCondition.new(2, Condition.Operator.GreaterThanOrEqualTo), GambitTarget.TargetType.Self),
-                GambitCondition.new(HasMaxNumSongsCondition.new(Condition.Operator.LessThan), GambitTarget.TargetType.Self),
-            }, song_settings.DummySongs[1], Condition.TargetType.Self),
         }
     }
+
+    gambit_settings.DummySongs = L{
+        Gambit.new(GambitTarget.TargetType.Self, L{
+            GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song_settings.DummySongs[1]:get_name() }, 1) }), GambitTarget.TargetType.Self),
+            GambitCondition.new(NumSongsCondition.new(2, Condition.Operator.GreaterThanOrEqualTo), GambitTarget.TargetType.Self),
+            GambitCondition.new(HasMaxNumSongsCondition.new(Condition.Operator.LessThan), GambitTarget.TargetType.Self),
+        }, song_settings.DummySongs[1], Condition.TargetType.Self),
+    }
+
+    gambit_settings.Songs = L{}
 
     for song in self.songs:it() do
         song:set_job_abilities(L{})
 
-        gambit_settings.Gambits = gambit_settings.Gambits + L{
+        gambit_settings.Songs = gambit_settings.Songs + L{
             Gambit.new(GambitTarget.TargetType.Self, L{
                 GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }) }), GambitTarget.TargetType.Self),
                 GambitCondition.new(ConditionalCondition.new(L{ HasSongsCondition.new(L{ self.dummy_songs[1]:get_name() }), NumSongsCondition.new(2, Condition.Operator.LessThan) }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Self),
             }, song, Condition.TargetType.Self),
             Gambit.new(GambitTarget.TargetType.Self, L{
                 GambitCondition.new(HasSongsCondition.new(L{ song:get_name() }), GambitTarget.TargetType.Self),
-                GambitCondition.new(SongDurationCondition.new(L{ song:get_name() }, expire_duration, Condition.Operator.LessThan), GambitTarget.TargetType.Self),
+                GambitCondition.new(SongDurationCondition.new(L{ song:get_name() }, self.expiring_duration, Condition.Operator.LessThan), GambitTarget.TargetType.Self),
             }, song, Condition.TargetType.Self)
         }
     end
+
+    gambit_settings.PianissimoSongs = L{}
 
     for song in self.pianissimo_songs:it() do
         song:set_job_abilities(L{ "Pianissimo" })
@@ -120,7 +149,7 @@ function Singer:set_song_settings(song_settings)
 
         local targetType = GambitTarget.TargetType.Self
 
-        gambit_settings.Gambits = gambit_settings.Gambits + L{
+        gambit_settings.PianissimoSongs = gambit_settings.PianissimoSongs + L{
             Gambit.new(targetType, L{
                 GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }) }), targetType),
                 GambitCondition.new(HasMaxNumSongsCondition.new(Condition.Operator.Equals), GambitTarget.TargetType.Self),
@@ -128,7 +157,7 @@ function Singer:set_song_settings(song_settings)
             }, song, targetType),
             Gambit.new(GambitTarget.TargetType.Self, L{
                 GambitCondition.new(HasSongsCondition.new(L{ song:get_name() }), targetType),
-                GambitCondition.new(SongDurationCondition.new(L{ song:get_name() }, expire_duration, Condition.Operator.LessThan), targetType),
+                GambitCondition.new(SongDurationCondition.new(L{ song:get_name() }, self.expiring_duration, Condition.Operator.LessThan), targetType),
             }, song, Condition.TargetType.Self)
         }
     end
@@ -187,6 +216,10 @@ function Singer:set_song_settings(song_settings)
         end), ability, GambitTarget.TargetType.Ally)
     end)]]
 
+    gambit_settings.Gambits = gambit_settings.DummySongs + gambit_settings.Songs + gambit_settings.PianissimoSongs
+
+    self.gambit_settings = gambit_settings
+
     for gambit in gambit_settings.Gambits:it() do
         gambit.conditions = gambit.conditions:filter(function(condition)
             return condition:is_editable()
@@ -213,6 +246,15 @@ function Singer:get_default_conditions(gambit)
     return conditions + self.job:get_conditions_for_ability(gambit:getAbility()):map(function(condition)
         return GambitCondition.new(condition, GambitTarget.TargetType.Self)
     end)
+end
+
+function Singer:get_all_gambits()
+    if self.song_tracker:is_expiring_soon(self:get_party():get_player():get_id(), self.songs) then
+        print('diong regular songs')
+        return self.gambit_settings.DummySongs + self.gambit_settings.Songs
+    end
+    print('doing pianissimo')
+    return Gambiter.get_all_gambits(self)
 end
 
 function Singer:set_is_singing(is_singing)

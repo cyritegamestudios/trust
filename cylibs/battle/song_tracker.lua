@@ -37,7 +37,7 @@ end
 -- @tparam List songs List of songs (see spell.lua)
 -- @tparam List pianissimo_songs List of songs to be sung with pianissimo after songs (see spell.lua)
 -- @treturn SongTracker A song tracker
-function SongTracker.new(player, party, dummy_songs, songs, pianissimo_songs, job)
+function SongTracker.new(player, party, dummy_songs, songs, pianissimo_songs, job, expiring_duration)
     local self = setmetatable({
         action_events = {};
         player = player;
@@ -47,7 +47,7 @@ function SongTracker.new(player, party, dummy_songs, songs, pianissimo_songs, jo
         songs = songs;
         job = job;
         active_songs = {};
-        expiring_duration = 60;
+        expiring_duration = expiring_duration or 260;
         last_expiration_check = os.time();
     }, SongTracker)
 
