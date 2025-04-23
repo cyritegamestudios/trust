@@ -405,10 +405,14 @@ end
 -------
 -- Returns the number of active songs.
 -- @treturn number Number of active songs.
-function PartyMember:get_num_songs()
+function PartyMember:get_num_songs(check_buff_ids_instead)
     local singer = player.trust.main_job:role_with_type("singer")
     if singer then
-        return singer.song_tracker:get_num_songs(self:get_id())
+        if check_buff_ids_instead then
+            return singer.job:get_song_buff_ids(self:get_buff_ids()):length()
+        else
+            return singer.song_tracker:get_num_songs(self:get_id())
+        end
     end
     return 0
 end
@@ -422,6 +426,17 @@ function PartyMember:get_songs()
         return singer.song_tracker:get_songs(self:get_id())
     end
     return L{}
+end
+
+-------
+-- Returns a list of active songs.
+-- @treturn list List of song records
+function PartyMember:get_max_num_songs()
+    local singer = player.trust.main_job:role_with_type("singer")
+    if singer then
+        return singer.song_tracker:get_max_num_songs(self:get_id())
+    end
+    return 0
 end
 
 -------

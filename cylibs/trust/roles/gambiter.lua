@@ -77,7 +77,7 @@ function Gambiter:check_gambits(gambits, param, ignore_delay)
     self.last_gambit_time = os.time() -- FIXME: should i really add this? Otherwise cooldown isn't respected
 end
 
-function Gambiter:is_gambit_satisfied(gambit, param)
+function Gambiter:is_gambit_satisfied(gambit, param, verbose)
     local target_types = L{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Enemy }
     if gambit:hasConditionTarget(GambitTarget.TargetType.Ally) then
         target_types:append(GambitTarget.TargetType.Ally)
@@ -87,7 +87,7 @@ function Gambiter:is_gambit_satisfied(gambit, param)
         local get_target_by_type = function(target_type)
             return targets_by_type[target_type]
         end
-        if gambit:isSatisfied(get_target_by_type, param) then
+        if gambit:isSatisfied(get_target_by_type, param, verbose) then
             local target = get_target_by_type(gambit:getAbilityTarget())
             return true, target
         end

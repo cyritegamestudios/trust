@@ -12,7 +12,7 @@ function SongStatusView.new(singer)
         PartyMember = partyMembers[1],
     }
 
-    local maxNumSongs = singer.brd_job.max_num_songs + 1
+    local maxNumSongs = singer.job.max_num_songs + 1
 
     local configItemsForPartyMember = function(partyMember)
         local partyMemberItem = PickerConfigItem.new('PartyMember', songSettings.PartyMember, partyMembers, function(p) return p:get_name() end, "Party Member")

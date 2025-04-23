@@ -40,7 +40,7 @@ function NumSongsCondition:get_config_items()
 end
 
 function NumSongsCondition:tostring()
-    return "Has "..' '..self.operator..' '..self.num_songs..' songs'
+    return "Has"..' '..self.operator..' '..self.num_songs..' songs'
 end
 
 function NumSongsCondition.description()

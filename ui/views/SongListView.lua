@@ -18,7 +18,7 @@ function SongListEditor.new(singer)
 
     local configItems = L{}
 
-    local maxNumSongs = singer.brd_job.max_num_songs + 1
+    local maxNumSongs = singer.job.max_num_songs + 1
     local mergedSongs = singer:get_merged_songs(partyMembers[1], maxNumSongs):reverse()
     local songItems = L{}
 

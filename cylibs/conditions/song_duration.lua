@@ -12,11 +12,13 @@ SongDurationCondition.__index = SongDurationCondition
 SongDurationCondition.__type = "SongDurationCondition"
 SongDurationCondition.__class = "SongDurationCondition"
 
-function SongDurationCondition.new(song_names, duration, operator)
+function SongDurationCondition.new(song_names, duration, operator, num_required, num_operator)
     local self = setmetatable(Condition.new(), SongDurationCondition)
     self.song_names = song_names or L{ "Army's Paeon" }
     self.duration = duration or 60
     self.operator = operator or Condition.Operator.GreaterThanOrEqualTo
+    self.num_required = num_required or song_names:length()
+    self.num_operator = num_operator or Condition.Operator.Equals
     return self
 end
 
@@ -31,17 +33,28 @@ function SongDurationCondition:check_song(song_name, active_songs)
 end
 
 function SongDurationCondition:is_satisfied(target_index)
+    if self.song_names:length() > 1 then
+        print('multiple')
+    end
     local target = windower.ffxi.get_mob_by_index(target_index)
     if target then
         local party_member = player.party:get_party_member(target.id)
         if party_member then
+            if self.song_names:length() > 1 then
+                print('checking start', self.song_names)
+            end
+            local num_satisfied = 0
             local active_songs = party_member:get_songs()
             for song_name in self.song_names:it() do
-                if not self:check_song(song_name, active_songs) then
-                    return false
+                if self:check_song(song_name, active_songs) then
+                    num_satisfied = num_satisfied + 1
                 end
             end
-            return true
+            if self.song_names:length() > 1 then
+                print('checking end', self.song_names, self:eval(num_satisfied, self.num_required, self.num_operator))
+            end
+            --print(self:tostring(), self.song_names, self:eval(num_satisfied, self.num_required, self.num_operator))
+            return self:eval(num_satisfied, self.num_required, self.num_operator)
         end
     end
     return false
@@ -61,15 +74,17 @@ function SongDurationCondition:get_config_items()
             return localization_util.commas(song_names)
         end, "Song Names"),
         ConfigItem.new('duration', 0, 800, 10, function(value) return value.."s" end, "Song Duration"),
-        PickerConfigItem.new('operator', self.operator, L{ Condition.Operator.GreaterThanOrEqualTo, Condition.Operator.Equals, Condition.Operator.GreaterThan, Condition.Operator.LessThan, Condition.Operator.LessThanOrEqualTo }, nil, "Operator")
+        PickerConfigItem.new('operator', self.operator, L{ Condition.Operator.GreaterThanOrEqualTo, Condition.Operator.Equals, Condition.Operator.GreaterThan, Condition.Operator.LessThan, Condition.Operator.LessThanOrEqualTo }, nil, "Operator"),
+        ConfigItem.new('num_required', 1, 5, 1, function(value) return value.."" end, "Num Required"),
+        PickerConfigItem.new('num_operator', self.num_operator, L{ Condition.Operator.GreaterThanOrEqualTo, Condition.Operator.Equals, Condition.Operator.GreaterThan, Condition.Operator.LessThan, Condition.Operator.LessThanOrEqualTo }, nil, "Operator")
     }
 end
 
 function SongDurationCondition:tostring()
     if self.song_names:length() == 0 then
-        return string.format("%s has %s %ss remaining", self.song_names[1], self.operator, self.duration)
+        return string.format("%s %d of %s has %s %ss remaining", self.num_operator, self.num_required, self.song_names[1], self.operator, self.duration)
     end
-    return string.format('%s have %s %ss remaining', localization_util.commas(self.song_names), self.operator, self.duration)
+    return string.format("%s %d of %s have %s %ss remaining", self.num_operator, self.num_required, localization_util.commas(self.song_names), self.operator, self.duration)
 end
 
 function SongDurationCondition.valid_targets()
@@ -77,7 +92,7 @@ function SongDurationCondition.valid_targets()
 end
 
 function SongDurationCondition:serialize()
-    return "SongDurationCondition.new(" .. serializer_util.serialize_args(self.song_names, self.duration, self.operator) .. ")"
+    return "SongDurationCondition.new(" .. serializer_util.serialize_args(self.song_names, self.duration, self.operator, self.num_required, self.num_operator) .. ")"
 end
 
 function SongDurationCondition.description()
@@ -86,8 +101,11 @@ end
 
 function SongDurationCondition:__eq(otherItem)
     return otherItem.__class == SongDurationCondition.__class
-            and self.strategem_count == otherItem.strategem_count
+            and self.song_names:equals(otherItem.song_names)
+            and self.duration == otherItem.duration
             and self.operator == otherItem.operator
+            and self.num_required == otherItem.num_required
+            and self.num_operator == otherItem.num_operator
 end
 
 return SongDurationCondition

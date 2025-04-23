@@ -22,6 +22,7 @@ function SongSetsMenuItem.new(trustSettings, trustSettingsMode, trustModeSetting
         ButtonItem.default('Config', 18),
         ButtonItem.default('Preview', 18),
         ButtonItem.localized("Modes", i18n.translate("Modes")),
+        ButtonItem.localized("Gambits", i18n.translate("Button_Gambits"))
     }, {}, nil, "Song Sets", "Choose or edit a song set."), SongSetsMenuItem)
 
     self.trust = trust
@@ -97,6 +98,58 @@ function SongSetsMenuItem:reloadSettings()
     self:setChildMenuItem("Preview", self:getPreviewSetMenuItem())
     self:setChildMenuItem("Config", self:getConfigMenuItem())
     self:setChildMenuItem("Modes", self:getModesMenuItem())
+    self:setChildMenuItem("Gambits", self:getGambitsMenuItem())
+end
+
+function SongSetsMenuItem:getGambitsMenuItem()
+    local gambitsMenuItem = MenuItem.new(L{
+        ButtonItem.default("Confirm")
+    }, {}, function(_, infoView)
+        local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
+        local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+        local GambitEditorStyle = require('ui/settings/menus/gambits/GambitEditorStyle')
+        local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
+
+        local editorConfig = GambitEditorStyle.new(function(gambits)
+            local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit)
+                return gambit:tostring()
+            end)
+            return configItem
+        end, FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge, "Gambit", "Gambits")
+
+        local currentGambits = singer_gambits
+
+        local configItem = editorConfig:getConfigItem(currentGambits)
+
+        local gambitSettingsEditor = FFXIPickerView.new(L{ configItem }, false, editorConfig:getViewSize())
+        gambitSettingsEditor:setAllowsCursorSelection(true)
+
+        gambitSettingsEditor:setNeedsLayout()
+        gambitSettingsEditor:layoutIfNeeded()
+
+        local itemsToUpdate = L{}
+        for rowIndex = 1, gambitSettingsEditor:getDataSource():numberOfItemsInSection(1) do
+            local indexPath = IndexPath.new(1, rowIndex)
+            local item = gambitSettingsEditor:getDataSource():itemAtIndexPath(indexPath)
+            item:setEnabled(currentGambits[rowIndex]:isEnabled() and currentGambits[rowIndex]:isValid())
+            itemsToUpdate:append(IndexedItem.new(item, indexPath))
+        end
+
+        gambitSettingsEditor:getDataSource():updateItems(itemsToUpdate)
+
+        gambitSettingsEditor:setNeedsLayout()
+        gambitSettingsEditor:layoutIfNeeded()
+
+        self.disposeBag:add(gambitSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
+            local selectedGambit = currentGambits[indexPath.row]
+            if selectedGambit then
+                infoView:setDescription(selectedGambit:tostring())
+            end
+        end), gambitSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath())
+
+        return gambitSettingsEditor
+    end, "Gambits", "Song gambits")
+    return gambitsMenuItem
 end
 
 function SongSetsMenuItem:getCreateSetMenuItem()

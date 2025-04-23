@@ -66,7 +66,7 @@ function SongTracker.new(player, party, dummy_songs, songs, pianissimo_songs, jo
                 self:on_gain_song(party_member:get_id(), song:get_spell().id, buff_id)
             end
         end
-        logger.notice(party_member:get_name().."'s", "songs are", self:get_songs(party_member:get_id()):map(function(song_record) return res.spells[song_record:get_song_id()].name end))
+        logger.notice(self.__class, party_member:get_name().."'s", "songs are", self:get_songs(party_member:get_id()):map(function(song_record) return res.spells[song_record:get_song_id()].name end))
     end
 
     if has_songs then
@@ -155,7 +155,7 @@ function SongTracker:monitor()
     local on_party_member_added = function(party_member)
         self.dispose_bag:add(party_member:on_gain_buff():addAction(function(p, buff_id)
             if self.job:is_bard_song_buff(buff_id) then
-                logger.notice(p:get_name(), "gains the effect of", res.buffs[buff_id].name)
+                logger.notice(self.__class, p:get_name(), "gains the effect of", res.buffs[buff_id].name)
                 self:prune_all_songs(p:get_id(), p:get_buff_ids())
                 if self.last_song_id and res.spells[self.last_song_id].status == buff_id then
                     self:on_song_added():trigger(self, p:get_id(), self.last_song_id, buff_id)
@@ -164,8 +164,9 @@ function SongTracker:monitor()
         end), party_member:on_gain_buff())
 
         self.dispose_bag:add(party_member:on_lose_buff():addAction(function(p, buff_id)
+            print(self.__class, 'losing', res.buffs[buff_id].en)
             if self.job:is_bard_song_buff(buff_id) then
-                logger.notice(p:get_mob().name.."'s", "effect of", res.buffs[buff_id].name, "wears off")
+                logger.notice(self.__class, p:get_mob().name.."'s", "effect of", res.buffs[buff_id].name, "wears off")
                 self:prune_all_songs(p:get_id(), p:get_buff_ids())
             end
         end), party_member:on_lose_buff())
@@ -213,13 +214,13 @@ function SongTracker:check_song_expiration()
         if song_records then
             local target = windower.ffxi.get_mob_by_id(target_id) or { name = 'Unknown'}
             for song_record in song_records:it() do
-                logger.notice(target.name.."'s", res.spells[song_record:get_song_id()].name, "has", song_record:get_expire_time() - os.time(), "seconds remaining")
+                logger.notice(self.__class, target.name.."'s", res.spells[song_record:get_song_id()].name, "has", song_record:get_expire_time() - os.time(), "seconds remaining")
                 if song_record:is_expired() then
                     self:on_lose_song(target_id, song_record:get_song_id(), song_record:get_buff_id())
-                    logger.notice(target.name.."'s", res.spells[song_record:get_song_id()].name, "is expired")
+                    logger.notice(self.__class, target.name.."'s", res.spells[song_record:get_song_id()].name, "is expired")
                 elseif song_record:get_expire_time() - os.time() < self.expiring_duration then
                     self:on_song_duration_warning():trigger(song_record)
-                    logger.notice(target.name.."'s", res.spells[song_record:get_song_id()].name, "is expiring soon")
+                    logger.notice(self.__class, target.name.."'s", res.spells[song_record:get_song_id()].name, "is expiring soon")
                 end
             end
         end
@@ -265,7 +266,7 @@ function SongTracker:set_expiring_soon(target_id, expiring_in)
     for song_record in active_songs:it() do
         local new_expire_time = math.min(song_record:get_expire_time(), os.time() + expiring_in)
         song_record:set_expire_time(new_expire_time)
-        logger.notice("Setting expiration time of", res.spells[song_record:get_song_id()].name, "to", new_expire_time)
+        logger.notice(self.__class, "Setting expiration time of", res.spells[song_record:get_song_id()].name, "to", new_expire_time)
     end
 end
 
@@ -309,14 +310,16 @@ function SongTracker:on_gain_song(target_id, song_id, buff_id, song_duration)
 
     local party_member = self.party:get_party_member(target_id)
 
-    logger.notice("Current buffs for", party_member:get_name(), "are", tostring(L(party_util.get_buffs(target_id)):map(function(buff_id) return res.buffs[buff_id].en  end)))
+    logger.notice(self.__class, "Current buffs for", party_member:get_name(), "are", tostring(L(party_util.get_buffs(target_id)):map(function(buff_id) return res.buffs[buff_id].en  end)))
 
     local target_songs = (self.active_songs[target_id] or S{}):add(SongRecord.new(song_id, song_duration or self.job:get_song_duration(res.spells[song_id].en)))
     self.active_songs[target_id] = target_songs
 
+    print('sang', res.spells[song_id].en)
+
     self:on_songs_changed():trigger(self, target_id, self.active_songs[target_id])
 
-    logger.notice(party_member:get_name(), "gains the effect of "..res.buffs[buff_id].name.." from "..res.spells[song_id].name)
+    logger.notice(self.__class, party_member:get_name(), "gains the effect of "..res.buffs[buff_id].name.." from "..res.spells[song_id].name)
 end
 
 -------
@@ -331,14 +334,14 @@ function SongTracker:on_lose_song(target_id, song_id, buff_id)
 
     local party_member = self.party:get_party_member(target_id)
 
-    logger.notice("Current buffs for", party_member:get_name(), "are", tostring(L(party_util.get_buffs(target_id)):map(function(buff_id) return res.buffs[buff_id].name  end)))
+    logger.notice(self.__class, "Current buffs for", party_member:get_name(), "are", tostring(L(party_util.get_buffs(target_id)):map(function(buff_id) return res.buffs[buff_id].name  end)))
 
     local target_songs = (self.active_songs[target_id] or S{}):filter(function(song_record) return song_record:get_song_id() ~= song_id  end)
     self.active_songs[target_id] = target_songs
 
     self:on_songs_changed():trigger(self, target_id, self.active_songs[target_id])
 
-    logger.notice(party_member:get_name(), "loses the effect of "..res.buffs[buff_id].name.." from "..res.spells[song_id].name)
+    logger.notice(self.__class, party_member:get_name(), "loses the effect of "..res.buffs[buff_id].name.." from "..res.spells[song_id].name)
 end
 
 -------
@@ -359,6 +362,8 @@ end
 function SongTracker:prune_songs(target_id, songs, buff_ids)
     local party_member = self.party:get_party_member(target_id)
 
+    buff_ids = buff_ids or party_member:get_buff_ids()
+
     local song_buff_ids = S{}
     for song in songs:it() do
         local buff_id = song:get_spell().status
@@ -377,12 +382,12 @@ function SongTracker:prune_songs(target_id, songs, buff_ids)
     for buff_id, song_records in pairs(buff_id_to_records) do
         local buff_count = buff_util.buff_count(buff_id, buff_ids)
         if song_records:length() > buff_count then
-            logger.notice(party_member:get_name(), "has", buff_count, res.buffs[buff_id].name, "buffs but song records of", tostring(song_records:map(function(song) return res.spells[song:get_song_id()].name end)))
+            logger.notice(self.__class, party_member:get_name(), "has", buff_count, res.buffs[buff_id].name, "buffs but song records of", tostring(song_records:map(function(song) return res.spells[song:get_song_id()].name end)))
             local songs_to_remove = L(song_records):sort(function(song_record1, song_record2)
                 return song_record1:get_expire_time() < song_record2:get_expire_time()
             end):slice(1, song_records:length() - buff_count)
             for song in songs_to_remove:it() do
-                logger.notice("Overwriting", party_member:get_name().."'s", res.spells[song:get_song_id()].name)
+                logger.notice(self.__class, "Overwriting", party_member:get_name().."'s", res.spells[song:get_song_id()].name)
                 self:on_lose_song(target_id, song:get_song_id(), song:get_buff_id())
             end
         end
