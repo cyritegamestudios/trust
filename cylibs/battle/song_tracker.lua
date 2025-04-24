@@ -154,8 +154,9 @@ function SongTracker:monitor()
 
     local on_party_member_added = function(party_member)
         self.dispose_bag:add(party_member:on_gain_buff():addAction(function(p, buff_id)
+            logger.notice(self.__class, p:get_name(), "gains the effect of pre", res.buffs[buff_id].name, p:get_buffs())
             if self.job:is_bard_song_buff(buff_id) then
-                logger.notice(self.__class, p:get_name(), "gains the effect of", res.buffs[buff_id].name)
+                logger.notice(self.__class, p:get_name(), "gains the effect of", res.buffs[buff_id].name, p:get_buffs())
                 self:prune_all_songs(p:get_id(), p:get_buff_ids())
                 if self.last_song_id and res.spells[self.last_song_id].status == buff_id then
                     self:on_song_added():trigger(self, p:get_id(), self.last_song_id, buff_id)
@@ -304,18 +305,16 @@ end
 -- @tparam number buff_id Buff id (see buffs.lua)
 -- @tparam number song_duration (optional) Song duration, or job default if not specified
 function SongTracker:on_gain_song(target_id, song_id, buff_id, song_duration)
+    local party_member = self.party:get_party_member(target_id)
+
     if self:has_song(target_id, song_id) then
         self:on_lose_song(target_id, song_id, buff_id)
     end
-
-    local party_member = self.party:get_party_member(target_id)
 
     logger.notice(self.__class, "Current buffs for", party_member:get_name(), "are", tostring(L(party_util.get_buffs(target_id)):map(function(buff_id) return res.buffs[buff_id].en  end)))
 
     local target_songs = (self.active_songs[target_id] or S{}):add(SongRecord.new(song_id, song_duration or self.job:get_song_duration(res.spells[song_id].en)))
     self.active_songs[target_id] = target_songs
-
-    print('sang', res.spells[song_id].en)
 
     self:on_songs_changed():trigger(self, target_id, self.active_songs[target_id])
 
@@ -331,7 +330,7 @@ function SongTracker:on_lose_song(target_id, song_id, buff_id)
     if not self:has_song(target_id, song_id) then
         return
     end
-
+    print('lose song', res.spells[song_id].en)
     local party_member = self.party:get_party_member(target_id)
 
     logger.notice(self.__class, "Current buffs for", party_member:get_name(), "are", tostring(L(party_util.get_buffs(target_id)):map(function(buff_id) return res.buffs[buff_id].name  end)))
