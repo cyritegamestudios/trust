@@ -30,7 +30,7 @@ function Singer.new(action_queue, song_settings, job)
     local self = setmetatable(Gambiter.new(action_queue, { Gambits = L{} }, state.AutoSongMode), Singer)
 
     self.job = job
-    self.expiring_duration = 260
+    self.expiring_duration = 100
     self.last_expire_time = os.time() - 60
     self.songs_begin = Event.newEvent()
     self.songs_end = Event.newEvent()
@@ -73,8 +73,6 @@ function Singer:set_song_settings(song_settings)
     self.songs = song_settings.SongSets[state.SongSet.value].Songs
     self.pianissimo_songs = song_settings.SongSets[state.SongSet.value].PianissimoSongs
 
-    local expire_duration = self.expiring_duration
-
     --local gambit_settings = {
     --    Gambits = L{
     --        Gambit.new(GambitTarget.TargetType.Self, L{
@@ -115,6 +113,7 @@ function Singer:set_song_settings(song_settings)
     }
 
     gambit_settings.Songs = L{}
+    gambit_settings.PianissimoSongs = L{}
 
     for song in self.songs:it() do
         song:set_job_abilities(L{})
@@ -129,9 +128,32 @@ function Singer:set_song_settings(song_settings)
                 GambitCondition.new(SongDurationCondition.new(L{ song:get_name() }, self.expiring_duration, Condition.Operator.LessThan), GambitTarget.TargetType.Self),
             }, song, Condition.TargetType.Self)
         }
+
+        --[[local pianissimo_song = song:copy()
+        pianissimo_song:set_job_abilities(L{ 'Pianissimo' })
+        pianissimo_song:set_requires_all_job_abilities(true)
+
+        gambit_settings.PianissimoSongs = gambit_settings.PianissimoSongs + L{
+            Gambit.new(GambitTarget.TargetType.Ally, L{
+                GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }) }), GambitTarget.TargetType.Ally),
+                GambitCondition.new(ConditionalCondition.new(L{ HasSongsCondition.new(L{ self.dummy_songs[1]:get_name() }), NumSongsCondition.new(2, Condition.Operator.LessThan), SongDurationCondition.new(self.pianissimo_songs:map(function(song) return song:get_name() end), self.expiring_duration, Condition.Operator.LessThanOrEqualTo, 1, Condition.Operator.GreaterThanOrEqualTo) }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Ally),
+            }, pianissimo_song, Condition.TargetType.Ally),
+            Gambit.new(GambitTarget.TargetType.Ally, L{
+                GambitCondition.new(HasSongsCondition.new(L{ song:get_name() }), GambitTarget.TargetType.Ally),
+                GambitCondition.new(SongDurationCondition.new(L{ song:get_name() }, self.expiring_duration, Condition.Operator.LessThan), GambitTarget.TargetType.Ally),
+            }, pianissimo_song, Condition.TargetType.Ally)
+        }]]
     end
 
-    gambit_settings.PianissimoSongs = L{}
+    gambit_settings.PianissimoSongs = (gambit_settings.DummySongs + gambit_settings.Songs):map(function(gambit)
+        local song = gambit:getAbility():copy()
+        song:set_job_abilities(L{ 'Pianissimo' })
+        song:set_requires_all_job_abilities(true)
+
+        return Gambit.new(GambitTarget.TargetType.Ally, gambit:getConditions():map(function(condition)
+            return GambitCondition.new(condition:getCondition(), GambitTarget.TargetType.Ally)
+        end), song, GambitTarget.TargetType.Ally)
+    end)
 
     for song in self.pianissimo_songs:it() do
         song:set_job_abilities(L{ "Pianissimo" })

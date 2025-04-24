@@ -33,16 +33,10 @@ function SongDurationCondition:check_song(song_name, active_songs)
 end
 
 function SongDurationCondition:is_satisfied(target_index)
-    if self.song_names:length() > 1 then
-        print('multiple')
-    end
     local target = windower.ffxi.get_mob_by_index(target_index)
     if target then
         local party_member = player.party:get_party_member(target.id)
         if party_member then
-            if self.song_names:length() > 1 then
-                print('checking start', self.song_names)
-            end
             local num_satisfied = 0
             local active_songs = party_member:get_songs()
             for song_name in self.song_names:it() do
@@ -50,10 +44,6 @@ function SongDurationCondition:is_satisfied(target_index)
                     num_satisfied = num_satisfied + 1
                 end
             end
-            if self.song_names:length() > 1 then
-                print('checking end', self.song_names, self:eval(num_satisfied, self.num_required, self.num_operator))
-            end
-            --print(self:tostring(), self.song_names, self:eval(num_satisfied, self.num_required, self.num_operator))
             return self:eval(num_satisfied, self.num_required, self.num_operator)
         end
     end

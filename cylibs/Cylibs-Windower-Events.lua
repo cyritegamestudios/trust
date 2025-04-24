@@ -308,7 +308,7 @@ local incoming_event_dispatcher = {
     [0x076] = function(data)
         for party_member in party_util.get_party_members(true):it() do
             local buff_ids = party_util.get_buffs(party_member.id)
-            print('Events.PartyBuffUpdate', buff_ids:map(function(buff_id) return res.buffs[buff_Id].en end))
+
             WindowerEvents.BuffsChanged:trigger(party_member.id, L(buff_util.buffs_for_buff_ids(buff_ids)))
             WindowerEvents.DebuffsChanged:trigger(party_member.id, L(buff_util.debuffs_for_buff_ids(buff_ids)))
         end
@@ -596,8 +596,6 @@ WindowerEvents.Events.GainBuff = windower.register_event('gain buff', function(b
 
     local buff_ids = party_util.get_buffs(target_id)
 
-    print('Events.GainBuff', res.buffs[buff_id].en, L(buff_util.buffs_for_buff_ids(buff_ids)):map(function(buff_id) return res.buffs[buff_id].en  end))
-
     WindowerEvents.BuffsChanged:trigger(target_id, L(buff_util.buffs_for_buff_ids(buff_ids)))
     WindowerEvents.DebuffsChanged:trigger(target_id, L(buff_util.debuffs_for_buff_ids(buff_ids)))
 end)
@@ -606,8 +604,6 @@ WindowerEvents.Events.LoseBuff = windower.register_event('lose buff', function(b
     local target_id = windower.ffxi.get_player().id
 
     local buff_ids = party_util.get_buffs(target_id)
-
-    print('Events.LoseBuff', res.buffs[buff_id].en, L(buff_util.buffs_for_buff_ids(buff_ids)):map(function(buff_id) return res.buffs[buff_id].en  end))
 
     WindowerEvents.BuffsChanged:trigger(target_id, L(buff_util.buffs_for_buff_ids(buff_ids)))
     WindowerEvents.DebuffsChanged:trigger(target_id, L(buff_util.debuffs_for_buff_ids(buff_ids)))
