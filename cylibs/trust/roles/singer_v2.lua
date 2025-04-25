@@ -7,6 +7,7 @@ local HasMaxNumSongsCondition = require('cylibs/conditions/has_max_num_songs')
 local NumSongsCondition = require('cylibs/conditions/num_songs')
 local logger = require('cylibs/logger/logger')
 local res = require('resources')
+local Sequence = require('cylibs/battle/sequence')
 local SongDurationCondition = require('cylibs/conditions/song_duration')
 
 local Gambiter = require('cylibs/trust/roles/gambiter')
@@ -47,25 +48,7 @@ function Singer:on_add()
     self.song_tracker = SongTracker.new(self:get_player(), self:get_party(), self.dummy_songs, self.songs, L{}, self.job, self.expiring_duration)
     self.song_tracker:monitor()
 
-    --[[self.song_tracker:on_song_duration_warning():addAction(function(_)
-        if os.time() - self.last_expire_time < 60 then
-            print('nope', os.time() - self.last_expire_time)
-            return
-        end
-        print('expiring!')
-        self.last_expire_time = os.time()
-        self.song_tracker:set_expiring_soon(self:get_party():get_player():get_id(), self.expiring_duration, true)
-    end)]]
-
     self.dispose_bag:addAny(L{ self.song_tracker })
-end
-
-function Singer:tic(new_time, old_time)
-    self.song_tracker:tic(new_time, old_time)
-
-    Gambiter.tic(self, new_time, old_time)
-
-    --print('checking', Condition.check_conditions(L{ SongDurationCondition.new(self.songs:map(function(song) return song:get_name() end) + self.pianissimo_songs:map(function(song) return song:get_name() end), 260, Condition.Operator.LessThanOrEqualTo, 1, Condition.Operator.GreaterThanOrEqualTo) }, windower.ffxi.get_player().index))
 end
 
 function Singer:set_song_settings(song_settings)
@@ -73,7 +56,6 @@ function Singer:set_song_settings(song_settings)
     self.songs = song_settings.SongSets[state.SongSet.value].Songs
     self.pianissimo_songs = song_settings.SongSets[state.SongSet.value].PianissimoSongs
 
-    -- Blade Madrigal failing on resing because it gets overridden with mage's ballad III
     -- I think this will break if a job has > 2 pianissimo songs because it would get into a song loop
     -- What if I set it so when any of the main songs is expiring on the bard, it sets song state to having all main songs (up to max num songs) that are expiring so it triggers a resing of main songs
 
@@ -135,7 +117,6 @@ function Singer:set_song_settings(song_settings)
         }
     end
 
-    -- TODO: make a combined Nitro action
     -- this works even for resing, but it does interrupt self nitro songs to re-pianissimo onto party members probably because Bard's songs
     -- aren't all under the expiring threshold...might want to set a higher threshold for when nitro is active so self songs take priority
     gambit_settings.Nitro = L{
@@ -144,24 +125,14 @@ function Singer:set_song_settings(song_settings)
             GambitCondition.new(JobAbilityRecastReadyCondition.new("Nightingale"), GambitTarget.TargetType.Self),
             GambitCondition.new(JobAbilityRecastReadyCondition.new("Troubadour"), GambitTarget.TargetType.Self),
             GambitCondition.new(NumSongsCondition.new(song_settings.NumSongs + 1, Condition.Operator.LessThan), GambitTarget.TargetType.Self),
-        }, JobAbility.new("Clarion Call"), GambitTarget.TargetType
-                .Self),
+        }, JobAbility.new("Clarion Call"), GambitTarget.TargetType.Self),
         Gambit.new(GambitTarget.TargetType.Self, L{
             GambitCondition.new(ModeCondition.new('AutoNitroMode', 'Auto'), GambitTarget.TargetType.Self),
             GambitCondition.new(ConditionalCondition.new(L{
                 NumSongsCondition.new(0, Condition.Operator.Equals),
                 SongDurationCondition.new((self.songs + self.pianissimo_songs):map(function(song) return song:get_name() end), self.expiring_duration, Condition.Operator.LessThanOrEqualTo, 1, Condition.Operator.GreaterThanOrEqualTo),
-                --SongDurationCondition.new(L{ (self.songs + self.pianissimo_songs):map(function(song) return song:get_name() end) }, self.expiring_duration, Condition.Operator.LessThan, 1, Condition.Operator.GreaterThanOrEqualTo),
             }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Self),
-        }, JobAbility.new("Nightingale"), GambitTarget.TargetType.Self),
-        Gambit.new(GambitTarget.TargetType.Self, L{
-            GambitCondition.new(ModeCondition.new('AutoNitroMode', 'Auto'), GambitTarget.TargetType.Self),
-            GambitCondition.new(ConditionalCondition.new(L{
-                NumSongsCondition.new(0, Condition.Operator.Equals),
-                SongDurationCondition.new((self.songs + self.pianissimo_songs):map(function(song) return song:get_name() end), self.expiring_duration, Condition.Operator.LessThanOrEqualTo, 1, Condition.Operator.GreaterThanOrEqualTo),
-                --SongDurationCondition.new(L{ (self.songs + self.pianissimo_songs):map(function(song) return song:get_name() end) }, self.expiring_duration, Condition.Operator.LessThan, 1, Condition.Operator.GreaterThanOrEqualTo),
-            }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Self),
-        }, JobAbility.new("Troubadour"), GambitTarget.TargetType.Self),
+        }, Sequence.new(L{ JobAbility.new("Nightingale"), JobAbility.new("Troubadour") }), GambitTarget.TargetType.Self),
     }
 
     gambit_settings.Gambits = gambit_settings.Nitro + gambit_settings.DummySongs + gambit_settings.Songs + gambit_settings.PianissimoSongs
@@ -195,15 +166,6 @@ function Singer:get_default_conditions(gambit)
         return GambitCondition.new(condition, GambitTarget.TargetType.Self)
     end)
 end
-
---[[function Singer:get_all_gambits()
-    if self.song_tracker:is_expiring_soon(self:get_party():get_player():get_id(), self.songs) then
-        print('diong regular songs')
-        return self.gambit_settings.DummySongs + self.gambit_settings.Songs
-    end
-    print('doing pianissimo')
-    return Gambiter.get_all_gambits(self)
-end]]
 
 function Singer:set_is_singing(is_singing)
     if self.is_singing == is_singing then
