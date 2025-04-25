@@ -78,7 +78,7 @@ function Singer:set_song_settings(song_settings)
     }
 
     for song in self.songs:it() do
-        song:set_job_abilities(L{})
+        --song:set_job_abilities(L{})
 
         gambit_settings.Songs = gambit_settings.Songs + L{
             Gambit.new(GambitTarget.TargetType.Self, L{
@@ -92,6 +92,7 @@ function Singer:set_song_settings(song_settings)
         }
     end
 
+    -- Pianissimo doesn't work when you don't have 5 songs because it requires you to have ALL main songs--need to cap at max num songs
     gambit_settings.PianissimoSongs = (gambit_settings.DummySongs + gambit_settings.Songs):map(function(gambit)
         local song = gambit:getAbility():copy()
         song:set_job_abilities(L{ "Pianissimo" })
@@ -167,6 +168,19 @@ function Singer:get_default_conditions(gambit)
     end)
 end
 
+function Singer:get_merged_songs(party_member, max_num_songs)
+    local all_songs = L{} + self.songs
+
+    local pianissimo_songs = self.pianissimo_songs:filter(function(song)
+        return song:get_job_names():contains(party_member:get_main_job_short())
+    end)
+
+    if pianissimo_songs:length() > 0 then
+        all_songs = pianissimo_songs + self.songs:slice(pianissimo_songs:length() + 1)
+    end
+    return all_songs
+end
+
 function Singer:set_is_singing(is_singing)
     if self.is_singing == is_singing then
         return
@@ -191,6 +205,9 @@ function Singer:get_type()
 end
 
 function Singer:get_cooldown()
+    if self.job:is_nitro_active() then
+        return 1
+    end
     return 5
 end
 

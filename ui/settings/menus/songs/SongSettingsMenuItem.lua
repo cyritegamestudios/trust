@@ -17,7 +17,7 @@ SongSettingsMenuItem.__index = SongSettingsMenuItem
 function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSettings, songSetName, trust)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
-        ButtonItem.default('Jobs'),
+        --ButtonItem.default('Jobs'),
         ButtonItem.default('Pianissimo')
     }, {},
     nil, "Song Sets", "Edit songs in this set."), SongSettingsMenuItem)
@@ -46,13 +46,20 @@ function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
             Song5 = songs[5]:get_name()
         }
 
+        local getDescription = function(songNum, song)
+            if song:get_job_abilities():contains('Marcato') then
+                return string.format("Song %d (Marcato)", songNum)
+            end
+            return string.format("Song %d", songNum)
+        end
+
         local configItems = L{
             PickerConfigItem.new('DummySong', songSettings.DummySong, allSongs, nil, "Dummy Song"),
-            PickerConfigItem.new('Song1', songSettings.Song1, allSongs, nil, "Song 1 (Marcato)"),
-            PickerConfigItem.new('Song2', songSettings.Song2, allSongs, nil, "Song 2"),
-            PickerConfigItem.new('Song3', songSettings.Song3, allSongs, nil, "Song 3"),
-            PickerConfigItem.new('Song4', songSettings.Song4, allSongs, nil, "Song 4"),
-            PickerConfigItem.new('Song5', songSettings.Song5, allSongs, nil, "Song 5"),
+            PickerConfigItem.new('Song1', songSettings.Song1, allSongs, nil, getDescription(1, songs[1])),
+            PickerConfigItem.new('Song2', songSettings.Song2, allSongs, nil, getDescription(2, songs[2])),
+            PickerConfigItem.new('Song3', songSettings.Song3, allSongs, nil, getDescription(3, songs[3])),
+            PickerConfigItem.new('Song4', songSettings.Song4, allSongs, nil, getDescription(4, songs[4])),
+            PickerConfigItem.new('Song5', songSettings.Song5, allSongs, nil, getDescription(5, songs[5])),
         }
 
         local songConfigEditor = ConfigEditor.new(nil, songSettings, configItems, infoView, function(newSettings)
@@ -93,11 +100,11 @@ function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
             for i = 1, 5 do
                 local newSongName = newSettings["Song"..i]
                 if songs[i]:get_name() ~= newSongName then
-                    local jobAbilities = L{}
-                    if i == 1 then
-                        jobAbilities = L{ "Marcato"}
-                    end
-                    songs[i] = Spell.new(newSongName, jobAbilities, job_util.all_jobs())
+                    --local jobAbilities = L{}
+                    --if i == 1 then
+                    --    jobAbilities = L{ "Marcato"}
+                    --end
+                    songs[i] = Spell.new(newSongName, songs[i]:get_job_abilities(), job_util.all_jobs())
                 end
             end
 
@@ -144,7 +151,8 @@ function SongSettingsMenuItem:destroy()
 end
 
 function SongSettingsMenuItem:reloadSettings()
-    self:setChildMenuItem("Jobs", self:getJobsMenuItem())
+    self:setChildMenuItem("Marcato", self:getMarcatoMenuItem())
+    --self:setChildMenuItem("Jobs", self:getJobsMenuItem())
     self:setChildMenuItem("Pianissimo", self:getPianissmoSongsMenuItem())
     self:setChildMenuItem("Reset", self:getResetSongsMenuItem())
     self:setChildMenuItem("Help", MenuItem.action(function()
@@ -314,6 +322,22 @@ function SongSettingsMenuItem:getPianissmoSongsMenuItem()
     end))
 
     return editPianissimoSongsMenuItem
+end
+
+function SongSettingsMenuItem:getMarcatoMenuItem()
+    return MenuItem.action(function(menu)
+        local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.SongSets[self.songSetName].Songs
+        if self.selectedSongIndex > 1 then
+            for song in songs:it() do
+                song:set_job_abilities(L{})
+            end
+            songs[self.selectedSongIndex - 1]:set_job_abilities(L{ "Marcato" })
+
+            self.trustSettings:saveSettings(true)
+
+            menu:showMenu(self)
+        end
+    end)
 end
 
 function SongSettingsMenuItem:getResetSongsMenuItem()
