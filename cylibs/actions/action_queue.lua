@@ -324,6 +324,7 @@ end
 -- Enables the action queue.
 function ActionQueue:enable()
 	self.is_enabled = true
+	self.timer:start()
 end
 
 -------
