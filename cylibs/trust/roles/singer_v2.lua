@@ -30,7 +30,7 @@ function Singer.new(action_queue, song_settings, job)
     local self = setmetatable(Gambiter.new(action_queue, { Gambits = L{} }, state.AutoSongMode), Singer)
 
     self.job = job
-    self.expiring_duration = 100
+    self.expiring_duration = 70
     self.last_expire_time = os.time() - 60
     self.songs_begin = Event.newEvent()
     self.songs_end = Event.newEvent()
@@ -73,35 +73,18 @@ function Singer:set_song_settings(song_settings)
     self.songs = song_settings.SongSets[state.SongSet.value].Songs
     self.pianissimo_songs = song_settings.SongSets[state.SongSet.value].PianissimoSongs
 
-    --local gambit_settings = {
-    --    Gambits = L{
-    --        Gambit.new(GambitTarget.TargetType.Self, L{
-    --            GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song_settings.DummySongs[1]:get_name() }, 1) }), GambitTarget.TargetType.Self),
-    --            GambitCondition.new(NumSongsCondition.new(2, Condition.Operator.GreaterThanOrEqualTo), GambitTarget.TargetType.Self),
-    --            GambitCondition.new(HasMaxNumSongsCondition.new(Condition.Operator.LessThan), GambitTarget.TargetType.Self),
-    --        }, song_settings.DummySongs[1], Condition.TargetType.Self),
-    --        --Gambit.new(GambitTarget.TargetType.Self, L{
-    --        --    GambitCondition.new(NotCondition.new(L{ SpellRecastReadyCondition.new(song_settings.DummySongs[1]:get_spell().id) }), GambitTarget.TargetType.Self),
-    --        --    GambitCondition.new(NumSongsCondition.new(2, Condition.Operator.GreaterThanOrEqualTo), GambitTarget.TargetType.Self),
-    --        --    GambitCondition.new(HasMaxNumSongsCondition.new(Condition.Operator.LessThan), GambitTarget.TargetType.Self),
-    --        --}, Command.new(''), GambitTarget.TargetType.Self)
-    --        --Gambit.new(GambitTarget.TargetType.Self, L{
-    --        --    GambitCondition.new(SongDurationCondition.new(self.songs:map(function(song) return song:get_name() end) + self.pianissimo_songs:map(function(song) return song:get_name() end), expire_duration, Condition.Operator.LessThanOrEqualTo, 1, Condition.Operator.GreaterThanOrEqualTo), GambitTarget.TargetType.Self),
-    --        --}, Command.new('// trust brd clear'), GambitTarget.TargetType.Self)
-    --    }
-    --}
-
     -- Blade Madrigal failing on resing because it gets overridden with mage's ballad III
     -- I think this will break if a job has > 2 pianissimo songs because it would get into a song loop
     -- What if I set it so when any of the main songs is expiring on the bard, it sets song state to having all main songs (up to max num songs) that are expiring so it triggers a resing of main songs
 
     -- How about self pianissimo only applies if bard has all real song buffs--but then how will madrigal get re-applied? How about if not has madrigal and any pianissimo songs are expiring?
 
-    --local songs = L{ self.songs[1]:copy() } + self.songs
-
     local gambit_settings = {
         Gambits = L{
-        }
+        },
+        DummySongs = L{},
+        Songs = L{},
+        PianissimoSongs = L{}
     }
 
     gambit_settings.DummySongs = L{
@@ -111,9 +94,6 @@ function Singer:set_song_settings(song_settings)
             GambitCondition.new(HasMaxNumSongsCondition.new(Condition.Operator.LessThan), GambitTarget.TargetType.Self),
         }, song_settings.DummySongs[1], Condition.TargetType.Self),
     }
-
-    gambit_settings.Songs = L{}
-    gambit_settings.PianissimoSongs = L{}
 
     for song in self.songs:it() do
         song:set_job_abilities(L{})
@@ -128,26 +108,11 @@ function Singer:set_song_settings(song_settings)
                 GambitCondition.new(SongDurationCondition.new(L{ song:get_name() }, self.expiring_duration, Condition.Operator.LessThan), GambitTarget.TargetType.Self),
             }, song, Condition.TargetType.Self)
         }
-
-        --[[local pianissimo_song = song:copy()
-        pianissimo_song:set_job_abilities(L{ 'Pianissimo' })
-        pianissimo_song:set_requires_all_job_abilities(true)
-
-        gambit_settings.PianissimoSongs = gambit_settings.PianissimoSongs + L{
-            Gambit.new(GambitTarget.TargetType.Ally, L{
-                GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }) }), GambitTarget.TargetType.Ally),
-                GambitCondition.new(ConditionalCondition.new(L{ HasSongsCondition.new(L{ self.dummy_songs[1]:get_name() }), NumSongsCondition.new(2, Condition.Operator.LessThan), SongDurationCondition.new(self.pianissimo_songs:map(function(song) return song:get_name() end), self.expiring_duration, Condition.Operator.LessThanOrEqualTo, 1, Condition.Operator.GreaterThanOrEqualTo) }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Ally),
-            }, pianissimo_song, Condition.TargetType.Ally),
-            Gambit.new(GambitTarget.TargetType.Ally, L{
-                GambitCondition.new(HasSongsCondition.new(L{ song:get_name() }), GambitTarget.TargetType.Ally),
-                GambitCondition.new(SongDurationCondition.new(L{ song:get_name() }, self.expiring_duration, Condition.Operator.LessThan), GambitTarget.TargetType.Ally),
-            }, pianissimo_song, Condition.TargetType.Ally)
-        }]]
     end
 
     gambit_settings.PianissimoSongs = (gambit_settings.DummySongs + gambit_settings.Songs):map(function(gambit)
         local song = gambit:getAbility():copy()
-        song:set_job_abilities(L{ 'Pianissimo' })
+        song:set_job_abilities(L{ "Pianissimo" })
         song:set_requires_all_job_abilities(true)
 
         return Gambit.new(GambitTarget.TargetType.Ally, gambit:getConditions():map(function(condition)
@@ -164,72 +129,42 @@ function Singer:set_song_settings(song_settings)
         gambit_settings.PianissimoSongs = gambit_settings.PianissimoSongs + L{
             Gambit.new(targetType, L{
                 GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }) }), targetType),
-                --GambitCondition.new(HasMaxNumSongsCondition.new(Condition.Operator.Equals), GambitTarget.TargetType.Self),
                 GambitCondition.new(HasSongsCondition.new(self.songs:map(function(song) return song:get_name() end)), GambitTarget.TargetType.Self), -- only allows for a single pianissimo song
                 GambitCondition.new(JobCondition.new(song:get_job_names()), targetType),
             }, song, targetType),
-            --Gambit.new(GambitTarget.TargetType.Self, L{
-            --    GambitCondition.new(HasSongsCondition.new(L{ song:get_name() }), targetType),
-            --    GambitCondition.new(SongDurationCondition.new(L{ song:get_name() }, self.expiring_duration, Condition.Operator.LessThan), targetType),
-            --}, song, Condition.TargetType.Self)
         }
     end
 
-    --for song_index = 1, songs:length() do
-    --    local song = songs[song_index]
-    --    if song_index == 1 then
-    --        song:set_job_abilities(L{ --[['Nightingale', 'Troubadour', 'Marcato']] })
-    --        song:set_requires_all_job_abilities(true)
-    --    else
-    --        song:set_job_abilities(L{})
-    --    end
-    --
-    --    gambit_settings.Gambits = gambit_settings.Gambits + L{
-    --        Gambit.new(GambitTarget.TargetType.Self, L{
-    --            --GambitCondition.new(HasMaxNumSongsCondition.new(Condition.Operator.Equals), GambitTarget.TargetType.Self),
-    --            GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }) }), GambitTarget.TargetType.Self),
-    --            GambitCondition.new(SongDurationCondition.new(self.pianissimo_songs:map(function(song) return song:get_name() end), expire_duration, Condition.Operator.LessThanOrEqualTo, 1, Condition.Operator.GreaterThanOrEqualTo), GambitTarget.TargetType.Self),
-    --        }, song, Condition.TargetType.Self),
-    --        Gambit.new(GambitTarget.TargetType.Self, L{
-    --            GambitCondition.new(SpellRecastReadyCondition.new(song_settings.DummySongs[1]:get_spell().id), GambitTarget.TargetType.Self),
-    --            GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }) }), GambitTarget.TargetType.Self),
-    --            GambitCondition.new(ConditionalCondition.new(L{ HasSongsCondition.new(L{ self.dummy_songs[1]:get_name() }), NumSongsCondition.new(2, Condition.Operator.LessThan) }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Self),
-    --        }, song, Condition.TargetType.Self),
-    --        Gambit.new(GambitTarget.TargetType.Self, L{
-    --            GambitCondition.new(HasSongsCondition.new(L{ song:get_name() }), GambitTarget.TargetType.Self),
-    --            GambitCondition.new(SongDurationCondition.new(L{ song:get_name() }, expire_duration, Condition.Operator.LessThan), GambitTarget.TargetType.Self),
-    --        }, song, Condition.TargetType.Self)
-    --    }
-    --end
+    -- TODO: make a combined Nitro action
+    -- this works even for resing, but it does interrupt self nitro songs to re-pianissimo onto party members probably because Bard's songs
+    -- aren't all under the expiring threshold...might want to set a higher threshold for when nitro is active so self songs take priority
+    gambit_settings.Nitro = L{
+        Gambit.new(GambitTarget.TargetType.Self, L{
+            GambitCondition.new(ModeCondition.new('AutoClarionCallMode', 'Auto'), GambitTarget.TargetType.Self),
+            GambitCondition.new(JobAbilityRecastReadyCondition.new("Nightingale"), GambitTarget.TargetType.Self),
+            GambitCondition.new(JobAbilityRecastReadyCondition.new("Troubadour"), GambitTarget.TargetType.Self),
+            GambitCondition.new(NumSongsCondition.new(song_settings.NumSongs + 1, Condition.Operator.LessThan), GambitTarget.TargetType.Self),
+        }, JobAbility.new("Clarion Call"), GambitTarget.TargetType
+                .Self),
+        Gambit.new(GambitTarget.TargetType.Self, L{
+            GambitCondition.new(ModeCondition.new('AutoNitroMode', 'Auto'), GambitTarget.TargetType.Self),
+            GambitCondition.new(ConditionalCondition.new(L{
+                NumSongsCondition.new(0, Condition.Operator.Equals),
+                SongDurationCondition.new((self.songs + self.pianissimo_songs):map(function(song) return song:get_name() end), self.expiring_duration, Condition.Operator.LessThanOrEqualTo, 1, Condition.Operator.GreaterThanOrEqualTo),
+                --SongDurationCondition.new(L{ (self.songs + self.pianissimo_songs):map(function(song) return song:get_name() end) }, self.expiring_duration, Condition.Operator.LessThan, 1, Condition.Operator.GreaterThanOrEqualTo),
+            }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Self),
+        }, JobAbility.new("Nightingale"), GambitTarget.TargetType.Self),
+        Gambit.new(GambitTarget.TargetType.Self, L{
+            GambitCondition.new(ModeCondition.new('AutoNitroMode', 'Auto'), GambitTarget.TargetType.Self),
+            GambitCondition.new(ConditionalCondition.new(L{
+                NumSongsCondition.new(0, Condition.Operator.Equals),
+                SongDurationCondition.new((self.songs + self.pianissimo_songs):map(function(song) return song:get_name() end), self.expiring_duration, Condition.Operator.LessThanOrEqualTo, 1, Condition.Operator.GreaterThanOrEqualTo),
+                --SongDurationCondition.new(L{ (self.songs + self.pianissimo_songs):map(function(song) return song:get_name() end) }, self.expiring_duration, Condition.Operator.LessThan, 1, Condition.Operator.GreaterThanOrEqualTo),
+            }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Self),
+        }, JobAbility.new("Troubadour"), GambitTarget.TargetType.Self),
+    }
 
-    --[[for targetType in L{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Ally }:it() do
-        for song in song_settings.SongSets[state.SongSet.value].PianissimoSongs:it() do
-            gambit_settings.Gambits = gambit_settings.Gambits + L{
-                Gambit.new(targetType, L{
-                    GambitCondition.new(SpellRecastReadyCondition.new(song_settings.DummySongs[1]:get_spell().id), GambitTarget.TargetType.Self),
-                    GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }, 1) }), targetType),
-                    GambitCondition.new(HasMaxNumSongsCondition.new(Condition.Operator.Equals), GambitTarget.TargetType.Self),
-                    GambitCondition.new(JobCondition.new(song:get_job_names()), targetType),
-                }, song, targetType),
-                Gambit.new(GambitTarget.TargetType.Self, L{
-                    GambitCondition.new(HasSongsCondition.new(L{ song:get_name() }), targetType),
-                    GambitCondition.new(SongDurationCondition.new(L{ song:get_name() }, expire_duration, Condition.Operator.LessThan), targetType),
-                }, song, Condition.TargetType.Self)
-            }
-        end
-    end]]
-
-    --[[gambit_settings.Gambits = gambit_settings.Gambits + gambit_settings.Gambits:map(function(gambit)
-        local ability = gambit:getAbility():copy()
-        ability:set_job_abilities(L{ 'Pianissimo' })
-        ability:set_requires_all_job_abilities(true)
-
-        return Gambit.new(GambitTarget.TargetType.Ally, gambit:getConditions():map(function(condition)
-            return GambitCondition.new(condition:getCondition(), GambitTarget.TargetType.Ally)
-        end), ability, GambitTarget.TargetType.Ally)
-    end)]]
-
-    gambit_settings.Gambits = gambit_settings.DummySongs + gambit_settings.Songs + gambit_settings.PianissimoSongs
+    gambit_settings.Gambits = gambit_settings.Nitro + gambit_settings.DummySongs + gambit_settings.Songs + gambit_settings.PianissimoSongs
 
     self.gambit_settings = gambit_settings
 
@@ -261,14 +196,14 @@ function Singer:get_default_conditions(gambit)
     end)
 end
 
-function Singer:get_all_gambits()
+--[[function Singer:get_all_gambits()
     if self.song_tracker:is_expiring_soon(self:get_party():get_player():get_id(), self.songs) then
         print('diong regular songs')
         return self.gambit_settings.DummySongs + self.gambit_settings.Songs
     end
     print('doing pianissimo')
     return Gambiter.get_all_gambits(self)
-end
+end]]
 
 function Singer:set_is_singing(is_singing)
     if self.is_singing == is_singing then

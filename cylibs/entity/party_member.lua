@@ -168,7 +168,6 @@ end
 -------
 -- Stops tracking the player's actions and disposes of all registered event handlers.
 function PartyMember:destroy()
-    print(debug.traceback())
     if self.action_events then
         for _,event in pairs(self.action_events) do
             windower.unregister_event(event)
@@ -250,9 +249,7 @@ function PartyMember:monitor()
     end), WindowerEvents.Equipment.RangedWeaponChanged)
 
     self.dispose_bag:add(WindowerEvents.BuffsChanged:addAction(function(mob_id, buff_ids)
-        print('party_member', 'BuffsChanged', buff_ids:map(function(buff_id) return res.buffs[buff_id].en  end))
         if self:get_id() == mob_id then
-            print('party_member', 'BuffsChanged', 'setting', buff_ids:map(function(buff_id) return res.buffs[buff_id].en  end))
             self:set_buff_ids(buff_ids)
         end
     end), WindowerEvents.BuffsChanged)
@@ -371,16 +368,13 @@ function PartyMember:set_buff_ids(buff_ids)
     self.buff_ids = buff_ids
 
     local delta = list.diff(old_buff_ids, buff_ids)
-    print('updating buff ids', 'old', old_buff_ids:map(function(buff_id) return res.buffs[buff_id].en  end), 'new', buff_ids:map(function(buff_id) return res.buffs[buff_id].en  end))
 
     self.buff_ids = buff_ids
 
     for buff_id in delta:it() do
         if buff_ids:contains(buff_id) then
-            print('gain', res.buffs[buff_id].en)
             self:on_gain_buff():trigger(self, buff_id)
         else
-            print('lose', res.buffs[buff_id].en)
             self:on_lose_buff():trigger(self, buff_id)
         end
     end

@@ -86,7 +86,6 @@ function ActionQueue.new(completion, is_priority_queue, max_size, debugging_enab
 		self:cleanup()
 	end)
 
-
 	self.dispose_bag:addAny(L{ self.timer })
 
 	return self
@@ -324,6 +323,7 @@ end
 -- Enables the action queue.
 function ActionQueue:enable()
 	self.is_enabled = true
+	self.timer:start()
 end
 
 -------
