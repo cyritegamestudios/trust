@@ -65,7 +65,7 @@ function Attacker:tic(_, _)
 end
 
 function Attacker:check_engage()
-    if state.AutoEngageMode.value == 'Off' then
+    if state.AutoEngageMode.value == 'Off' or state.AutoPullMode.value ~= 'Off' then
         return
     end
 

@@ -56,8 +56,6 @@ function SongStatusView.new(singer)
         end
     end), self:getDelegate():didSelectItemAtIndexPath())
 
-    self:getDisposeBag():addAny(partyMembers)
-
     return self
 end
 

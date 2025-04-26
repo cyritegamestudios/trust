@@ -15,7 +15,7 @@ local Action = require('cylibs/actions/action')
 local EngageAction = setmetatable({}, {__index = Action })
 EngageAction.__index = EngageAction
 
-function EngageAction.new(target_index)
+function EngageAction.new(target_index, use_assist_response)
     local conditions = L{
         ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos()),
     }
@@ -24,6 +24,7 @@ function EngageAction.new(target_index)
         conditions:append(ConditionalCondition.new(L{ ClaimedCondition.new(alliance:get_alliance_member_ids()), UnclaimedCondition.new() }, Condition.LogicalOperator.Or))
     end
     local self = setmetatable(Action.new(0, 0, 0, target_index, conditions), EngageAction)
+    self.use_assist_response = use_assist_response
     self.dispose_bag = DisposeBag.new()
     return self
 end
@@ -71,11 +72,13 @@ function EngageAction:perform()
         packets.inject(p)
     end
 
-    packets.inject(packets.new('incoming', 0x058, {
-        ['Player'] = windower.ffxi.get_player().id,
-        ['Target'] = target.id,
-        ['Player Index'] = windower.ffxi.get_player().index,
-    }))
+    if self.use_assist_response then
+        packets.inject(packets.new('incoming', 0x058, {
+            ['Player'] = windower.ffxi.get_player().id,
+            ['Target'] = target.id,
+            ['Player Index'] = windower.ffxi.get_player().index,
+        }))
+    end
 
     self.dispose_bag:add(WindowerEvents.TargetIndexChanged:addAction(function(mob_id, target_index)
         if windower.ffxi.get_player().id == mob_id then
