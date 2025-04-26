@@ -120,7 +120,7 @@ function Attacker:engage(target)
     if not self:can_engage(target) or (windower.ffxi.get_mob_by_target('t') and windower.ffxi.get_mob_by_target('t').index == target:get_index() and self:get_party():get_player():get_status() == 'Engaged') then
         return
     end
-    print('engaging')
+    
     local attack_action = Engage.new(target:get_index()):to_action(target:get_index())
     attack_action.priority = ActionPriority.high
 
@@ -141,7 +141,6 @@ function Attacker:should_disengage()
 end
 
 function Attacker:disengage()
-    print('disengaging')
     if self:get_party():get_player():get_status() == 'Idle' then
         return
     end
