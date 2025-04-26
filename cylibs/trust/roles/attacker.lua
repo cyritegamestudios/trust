@@ -61,7 +61,26 @@ function Attacker:target_change(target_index)
 end
 
 function Attacker:tic(_, _)
+    self:validate_target()
     self:check_engage()
+end
+
+function Attacker:validate_target()
+    local target = self:get_target()
+    if target == nil then
+        return
+    end
+    logger.notice(self.__class, 'validate_target')
+    if self:get_party():get_player():get_status() == 'Engaged' then
+        local current_target = windower.ffxi.get_mob_by_target('t')
+        if current_target and battle_util.is_valid_monster_target(current_target.id) then
+            if current_target.index ~= self.target_index then
+                logger.error(self.__class, 'validate_target', 'disengaging', 'current target', current_target.index, current_target.hpp, current_target.status,
+                        'trust target', target.index, target.hpp, target.status)
+                self:disengage()
+            end
+        end
+    end
 end
 
 function Attacker:check_engage()
