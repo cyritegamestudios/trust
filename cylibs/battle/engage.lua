@@ -14,9 +14,10 @@ Engage.__class = "Engage"
 -------
 -- Default initializer for a new engage.
 -- @treturn Engage An engage action.
-function Engage.new(conditions)
+function Engage.new(conditions, use_assist_response)
     local self = setmetatable({}, Engage)
     self.conditions = conditions or L{}
+    self.use_assist_response = use_assist_response
     return self
 end
 
@@ -65,7 +66,7 @@ end
 -- @treturn Action Action to use ability
 function Engage:to_action(target_index, _)
     return SequenceAction.new(L{
-        EngageAction.new(target_index),
+        EngageAction.new(target_index, self.use_assist_response),
         BlockAction.new(function()
             player_util.face(windower.ffxi.get_mob_by_index(target_index))
         end)

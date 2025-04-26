@@ -293,7 +293,7 @@ function Puller:get_all_gambits()
     if next_target:is_unclaimed() then
         return self:get_pull_abilities()
     elseif next_target:is_claimed_by(self:get_alliance()) and (self:get_target() ~= next_target or self:get_target() == next_target and self:get_party():get_player():get_status() ~= 'Engaged') then
-        local auto_target = Gambit.new(GambitTarget.TargetType.Enemy, L{}, Engage.new(L{MaxDistanceCondition.new(30)}), GambitTarget.TargetType.Enemy, L{"Pulling"})
+        local auto_target = Gambit.new(GambitTarget.TargetType.Enemy, L{}, Engage.new(L{MaxDistanceCondition.new(30)}, state.PullActionMode.value == 'Target'), GambitTarget.TargetType.Enemy, L{"Pulling"})
         auto_target.conditions = self:get_default_conditions(auto_target)
         return L{ auto_target }
     end
