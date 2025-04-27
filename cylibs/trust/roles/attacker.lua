@@ -6,6 +6,7 @@ local Engage = require('cylibs/battle/engage')
 local GambitTarget = require('cylibs/gambits/gambit_target')
 local IsAssistTargetCondition = require('cylibs/conditions/is_assist_target')
 local PartyClaimedCondition = require('cylibs/conditions/party_claimed')
+local TargetMismatchCondition = require('cylibs/conditions/target_mismatch')
 local UnclaimedCondition = require('cylibs/conditions/unclaimed')
 
 local Gambiter = require('cylibs/trust/roles/gambiter')
@@ -42,8 +43,8 @@ function Attacker:on_add()
     end), self:get_party():on_party_target_change())
 end
 
-function Attacker:target_change(_)
-    Gambiter.target_change(self)
+function Attacker:target_change(target_index)
+    Gambiter.target_change(self, target_index)
 
     self:check_gambits()
 end
@@ -52,13 +53,27 @@ function Attacker:set_attacker_settings(_)
     local gambit_settings = {
         Gambits = L{
             Gambit.new(GambitTarget.TargetType.Enemy, L{
+                GambitCondition.new(StatusCondition.new('Engaged'), GambitTarget.TargetType.Self),
+                GambitCondition.new(TargetMismatchCondition.new(), GambitTarget.TargetType.Self),
+            }, Engage.new(nil, true), GambitTarget.TargetType.Self),
+            Gambit.new(GambitTarget.TargetType.Enemy, L{
+                GambitCondition.new(ModeCondition.new('AutoEngageMode', 'Always'), GambitTarget.TargetType.Self),
                 GambitCondition.new(StatusCondition.new('Idle'), GambitTarget.TargetType.Self),
-                GambitCondition.new(ModeCondition.new('AutoPullMode', 'Off'), GambitTarget.TargetType.Self),
                 GambitCondition.new(MaxDistanceCondition.new(30), GambitTarget.TargetType.Enemy),
                 GambitCondition.new(AggroedCondition.new(), GambitTarget.TargetType.Enemy),
                 GambitCondition.new(ConditionalCondition.new(L{ UnclaimedCondition.new(), PartyClaimedCondition.new(true) }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Enemy),
                 GambitCondition.new(ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos(), ValidTargetCondition.EntityType.Monster), GambitTarget.TargetType.Enemy),
-            }, Engage.new(), GambitTarget.TargetType.Self),
+            }, Engage.new(), GambitTarget.TargetType.Enemy),
+            Gambit.new(GambitTarget.TargetType.Enemy, L{
+                GambitCondition.new(ModeCondition.new('AutoEngageMode', 'Mirror'), GambitTarget.TargetType.Self),
+                GambitCondition.new(StatusCondition.new('Idle'), GambitTarget.TargetType.Self),
+                GambitCondition.new(MaxDistanceCondition.new(30), GambitTarget.TargetType.Enemy),
+                GambitCondition.new(AggroedCondition.new(), GambitTarget.TargetType.Enemy),
+                GambitCondition.new(ConditionalCondition.new(L{ UnclaimedCondition.new(), PartyClaimedCondition.new(true) }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Enemy),
+                GambitCondition.new(ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos(), ValidTargetCondition.EntityType.Monster), GambitTarget.TargetType.Enemy),
+                GambitCondition.new(IsAssistTargetCondition.new(), GambitTarget.TargetType.Ally),
+                GambitCondition.new(StatusCondition.new('Engaged'), GambitTarget.TargetType.Ally),
+            }, Engage.new(), GambitTarget.TargetType.Enemy),
             Gambit.new(GambitTarget.TargetType.Self, L{
                 GambitCondition.new(ModeCondition.new('AutoEngageMode', 'Mirror'), GambitTarget.TargetType.Self),
                 GambitCondition.new(StatusCondition.new('Engaged'), GambitTarget.TargetType.Self),
@@ -84,8 +99,9 @@ end
 
 function Attacker:get_default_conditions(gambit)
     local conditions = L{
+        GambitCondition.new(ModeCondition.new('AutoPullMode', 'Off'), GambitTarget.TargetType.Self),
     }
-    return (conditions --[[+ self.job:get_conditions_for_ability(gambit:getAbility())]]):map(function(condition)
+    return conditions:map(function(condition)
         if condition.__type ~= GambitCondition.__type then
             return GambitCondition.new(condition, GambitTarget.TargetType.Self)
         end

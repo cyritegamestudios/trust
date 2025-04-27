@@ -10,6 +10,7 @@ local PartyLeaderCondition = require('cylibs/conditions/party_leader')
 local PartyMemberCountCondition = require('cylibs/conditions/party_member_count')
 local PartyTargetedCondition = require('cylibs/conditions/party_targeted')
 local RunToLocationAction = require('cylibs/actions/runtolocation')
+local TargetMismatchCondition = require('cylibs/conditions/target_mismatch')
 local Timer = require('cylibs/util/timers/timer')
 
 local Gambiter = require('cylibs/trust/roles/gambiter')
@@ -99,7 +100,10 @@ function Puller:tic(_, _)
     if state.AutoPullMode.value == 'Off' then
         return
     end
-
+    if res.statuses[windower.ffxi.get_player().status].en == 'Engaged' then
+        local current_target = windower.ffxi.get_mob_by_target('t')
+        print('engaged', current_target and current_target.index, self.target_index or 'none', self:get_pull_target() and self:get_pull_target():get_mob().index or 'none', windower.ffxi.get_player().target_index)
+    end
     logger.notice(self.__class, 'tic', 'target_index', self.target_index or 'none')
 
     self:return_to_camp()
@@ -290,15 +294,22 @@ function Puller:get_all_gambits()
         return L{}
     end
 
+    local gambits = L{
+        --Gambit.new(GambitTarget.TargetType.Enemy, L{
+        --    GambitCondition.new(StatusCondition.new('Engaged'), GambitTarget.TargetType.Self),
+        --    GambitCondition.new(TargetMismatchCondition.new(), GambitTarget.TargetType.Self),
+        --}, Engage.new(nil, true), GambitTarget.TargetType.Self),
+    }
+
     if next_target:is_unclaimed() then
-        return self:get_pull_abilities()
+        return gambits + self:get_pull_abilities()
     elseif next_target:is_claimed_by(self:get_alliance()) and (self:get_target() ~= next_target or self:get_target() == next_target and self:get_party():get_player():get_status() ~= 'Engaged') then
-        local auto_target = Gambit.new(GambitTarget.TargetType.Enemy, L{}, Engage.new(L{MaxDistanceCondition.new(30)}, state.PullActionMode.value == 'Target'), GambitTarget.TargetType.Enemy, L{"Pulling"})
+        local auto_target = Gambit.new(GambitTarget.TargetType.Enemy, L{}, Engage.new(L{MaxDistanceCondition.new(30)}, true), GambitTarget.TargetType.Enemy, L{"Pulling"})
         auto_target.conditions = self:get_default_conditions(auto_target)
-        return L{ auto_target }
+        return gambits + L{ auto_target }
     end
 
-    return L{}
+    return gambits
 end
 
 function Puller:get_type()

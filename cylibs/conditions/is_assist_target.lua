@@ -37,7 +37,7 @@ function IsAssistTargetCondition.description()
 end
 
 function IsAssistTargetCondition.valid_targets()
-    return S{ Condition.TargetType.Ally }
+    return S{ Condition.TargetType.Self, Condition.TargetType.Ally }
 end
 
 function IsAssistTargetCondition:serialize()
