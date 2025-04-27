@@ -87,6 +87,9 @@ function Attacker:set_attacker_settings(_)
         gambit.conditions = gambit.conditions:filter(function(condition)
             return condition:is_editable()
         end)
+        gambit.conditions = L{
+            GambitCondition.new(ModeCondition.new('AutoPullMode', 'Off'), GambitTarget.TargetType.Self),
+        } + gambit.conditions
         local conditions = self:get_default_conditions(gambit)
         for condition in conditions:it() do
             condition:set_editable(false)
@@ -99,7 +102,6 @@ end
 
 function Attacker:get_default_conditions(gambit)
     local conditions = L{
-        GambitCondition.new(ModeCondition.new('AutoPullMode', 'Off'), GambitTarget.TargetType.Self),
     }
     return conditions:map(function(condition)
         if condition.__type ~= GambitCondition.__type then
