@@ -1,13 +1,15 @@
 local AggroedCondition = require('cylibs/conditions/aggroed')
-local ClaimedCondition = require('cylibs/conditions/claimed')
 local ConditionalCondition = require('cylibs/conditions/conditional')
-local DisengageAction = require('cylibs/actions/disengage')
+local Disengage = require('cylibs/battle/disengage')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Engage = require('cylibs/battle/engage')
-local monster_util = require('cylibs/util/monster_util')
+local GambitTarget = require('cylibs/gambits/gambit_target')
+local IsAssistTargetCondition = require('cylibs/conditions/is_assist_target')
+local PartyClaimedCondition = require('cylibs/conditions/party_claimed')
 local UnclaimedCondition = require('cylibs/conditions/unclaimed')
 
-local Attacker = setmetatable({}, {__index = Role })
+local Gambiter = require('cylibs/trust/roles/gambiter')
+local Attacker = setmetatable({}, {__index = Gambiter })
 Attacker.__index = Attacker
 Attacker.__class = "Attacker"
 
@@ -17,21 +19,99 @@ state.AutoEngageMode:set_description('Always', "Automatically engage when target
 state.AutoEngageMode:set_description('Mirror', "Mirror the engage status of the party member you are assisting.")
 
 function Attacker.new(action_queue)
-    local self = setmetatable(Role.new(action_queue), Attacker)
-    self.action_queue = action_queue
-    self.assist_target_dispose_bag = DisposeBag.new()
+    local self = setmetatable(Gambiter.new(action_queue, { Gambits = L{} }, state.AutoEngageMode), Attacker)
+
     self.dispose_bag = DisposeBag.new()
-    self.dispose_bag:addAny(L{ self.assist_target_dispose_bag })
+
+    self:set_attacker_settings({})
+
     return self
 end
 
 function Attacker:destroy()
-    Role.destroy(self)
+    Gambiter.destroy(self)
 
     self.dispose_bag:destroy()
 end
 
 function Attacker:on_add()
+    Gambiter.on_add(self)
+
+    self.dispose_bag:add(self:get_party():on_party_target_change():addAction(function(_, _)
+        self:check_gambits()
+    end), self:get_party():on_party_target_change())
+end
+
+function Attacker:target_change(_)
+    Gambiter.target_change(self)
+
+    self:check_gambits()
+end
+
+function Attacker:set_attacker_settings(_)
+    local gambit_settings = {
+        Gambits = L{
+            Gambit.new(GambitTarget.TargetType.Enemy, L{
+                GambitCondition.new(StatusCondition.new('Idle'), GambitTarget.TargetType.Self),
+                GambitCondition.new(ModeCondition.new('AutoPullMode', 'Off'), GambitTarget.TargetType.Self),
+                GambitCondition.new(MaxDistanceCondition.new(30), GambitTarget.TargetType.Enemy),
+                GambitCondition.new(AggroedCondition.new(), GambitTarget.TargetType.Enemy),
+                GambitCondition.new(ConditionalCondition.new(L{ UnclaimedCondition.new(), PartyClaimedCondition.new(true) }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Enemy),
+                GambitCondition.new(ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos(), ValidTargetCondition.EntityType.Monster), GambitTarget.TargetType.Enemy),
+            }, Engage.new(), GambitTarget.TargetType.Self),
+            Gambit.new(GambitTarget.TargetType.Self, L{
+                GambitCondition.new(ModeCondition.new('AutoEngageMode', 'Mirror'), GambitTarget.TargetType.Self),
+                GambitCondition.new(StatusCondition.new('Engaged'), GambitTarget.TargetType.Self),
+                GambitCondition.new(IsAssistTargetCondition.new(), GambitTarget.TargetType.Ally),
+                GambitCondition.new(StatusCondition.new('Idle'), GambitTarget.TargetType.Ally),
+            }, Disengage.new(), GambitTarget.TargetType.Self)
+        }
+    }
+
+    for gambit in gambit_settings.Gambits:it() do
+        gambit.conditions = gambit.conditions:filter(function(condition)
+            return condition:is_editable()
+        end)
+        local conditions = self:get_default_conditions(gambit)
+        for condition in conditions:it() do
+            condition:set_editable(false)
+            gambit:addCondition(condition)
+        end
+    end
+
+    self:set_gambit_settings(gambit_settings)
+end
+
+function Attacker:get_default_conditions(gambit)
+    local conditions = L{
+    }
+    return (conditions --[[+ self.job:get_conditions_for_ability(gambit:getAbility())]]):map(function(condition)
+        if condition.__type ~= GambitCondition.__type then
+            return GambitCondition.new(condition, GambitTarget.TargetType.Self)
+        end
+        return condition
+    end)
+end
+
+function Attacker:get_cooldown()
+    return 6
+end
+
+function Attacker:allows_multiple_actions()
+    return false
+end
+
+function Attacker:get_type()
+    return "attacker"
+end
+
+function Attacker:allows_duplicates()
+    return false
+end
+
+
+
+--[[function Attacker:on_add()
     local on_assist_target_change = function(assist_target)
         self.assist_target_dispose_bag:dispose()
 
@@ -176,6 +256,6 @@ end
 
 function Attacker:get_type()
     return "attacker"
-end
+end]]
 
 return Attacker
