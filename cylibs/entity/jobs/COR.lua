@@ -217,7 +217,7 @@ end
 -- Returns true if snake eye can be used.
 -- @treturn Boolean True if snake eye can be used
 function Corsair:can_snake_eye()
-    return job_util.knows_job_ability(job_util.job_ability_id('Snake Eye')) == true
+    return state.AutoRollMode.value ~= 'Off' and job_util.knows_job_ability(job_util.job_ability_id('Snake Eye')) == true
             and job_util.can_use_job_ability('Snake Eye')
 end
 
