@@ -37,7 +37,7 @@ function Gambit:isSatisfied(target_by_type, param)
     if self:getAbility() == nil then
         return false
     end
-
+    logger.notice(self.__class, 'checking', self:tostring())
     local num_satisfied_conditions = 0
     for condition in self.conditions:it() do
         local target = target_by_type(condition:getTargetType())
