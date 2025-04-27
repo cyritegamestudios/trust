@@ -42,7 +42,7 @@ function EngageAction:perform()
         return
     end
 
-    if player.status == 'Engaged' then
+    if res.statuses[windower.ffxi.get_player().status].en == 'Engaged' then
         self:log_target(target, 'switch_target')
 
         local p = packets.new('outgoing', 0x01A)

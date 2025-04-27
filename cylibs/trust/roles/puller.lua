@@ -10,6 +10,7 @@ local PartyLeaderCondition = require('cylibs/conditions/party_leader')
 local PartyMemberCountCondition = require('cylibs/conditions/party_member_count')
 local PartyTargetedCondition = require('cylibs/conditions/party_targeted')
 local RunToLocationAction = require('cylibs/actions/runtolocation')
+local TargetMismatchCondition = require('cylibs/conditions/target_mismatch')
 local Timer = require('cylibs/util/timers/timer')
 
 local Gambiter = require('cylibs/trust/roles/gambiter')
@@ -169,7 +170,6 @@ function Puller:get_next_target(target_id_blacklist)
     if current_target and not target_id_blacklist:contains(current_target:get_id()) and self:is_valid_target(current_target:get_mob()) then
         return Monster.new(current_target:get_id())
     end
-
     local all_targets = self:get_all_targets():filter(function(target)
         return not target_id_blacklist:contains(target.id) and self:is_valid_target(target)
     end)
@@ -231,7 +231,11 @@ end
 function Puller:set_pull_settings(pull_settings)
     self.pull_abilities = pull_settings.Gambits
     self.distance = pull_settings.Distance
-    self.max_num_targets = pull_settings.MaxNumTargets or 6
+    if pull_settings.RandomizeTarget then
+        self.max_num_targets = 6
+    else
+        self.max_num_targets = 1
+    end
     self.mob_filter = MobFilter.new(self:get_alliance(), self.distance or 25)
 
     for gambit in pull_settings.Gambits:it() do
@@ -293,7 +297,7 @@ function Puller:get_all_gambits()
     if next_target:is_unclaimed() then
         return self:get_pull_abilities()
     elseif next_target:is_claimed_by(self:get_alliance()) and (self:get_target() ~= next_target or self:get_target() == next_target and self:get_party():get_player():get_status() ~= 'Engaged') then
-        local auto_target = Gambit.new(GambitTarget.TargetType.Enemy, L{}, Engage.new(L{MaxDistanceCondition.new(30)}, state.PullActionMode.value == 'Target'), GambitTarget.TargetType.Enemy, L{"Pulling"})
+        local auto_target = Gambit.new(GambitTarget.TargetType.Enemy, L{}, Engage.new(L{MaxDistanceCondition.new(30)}, true), GambitTarget.TargetType.Enemy, L{"Pulling"})
         auto_target.conditions = self:get_default_conditions(auto_target)
         return L{ auto_target }
     end

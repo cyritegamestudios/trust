@@ -53,7 +53,6 @@ function DisengageAction:getrawdata()
 end
 
 function DisengageAction:tostring()
-    local target = windower.ffxi.get_mob_by_index(self.target_index)
     return 'Disengaging'
 end
 

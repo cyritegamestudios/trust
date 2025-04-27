@@ -37,12 +37,17 @@ function Gambit:isSatisfied(target_by_type, param)
     if self:getAbility() == nil then
         return false
     end
-
-    local satisfied_conditions = self.conditions:filter(function(condition)
+    logger.notice(self.__class, 'checking', self:tostring())
+    local num_satisfied_conditions = 0
+    for condition in self.conditions:it() do
         local target = target_by_type(condition:getTargetType())
-        return condition:isSatisfied(target, param)
-    end)
-    return satisfied_conditions:length() == self.conditions:length()
+        if condition:isSatisfied(target, param) then
+            num_satisfied_conditions = num_satisfied_conditions + 1
+        else
+            break
+        end
+    end
+    return num_satisfied_conditions == self.conditions:length()
         and Condition.check_conditions(self:getAbility():get_conditions(), windower.ffxi.get_player().index, param)
 end
 
