@@ -45,7 +45,3 @@ function IsAssistTargetCondition:serialize()
 end
 
 return IsAssistTargetCondition
-
-
-
-

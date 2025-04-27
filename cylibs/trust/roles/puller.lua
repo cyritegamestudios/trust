@@ -170,7 +170,6 @@ function Puller:get_next_target(target_id_blacklist)
     if current_target and not target_id_blacklist:contains(current_target:get_id()) and self:is_valid_target(current_target:get_mob()) then
         return Monster.new(current_target:get_id())
     end
-    
     local all_targets = self:get_all_targets():filter(function(target)
         return not target_id_blacklist:contains(target.id) and self:is_valid_target(target)
     end)

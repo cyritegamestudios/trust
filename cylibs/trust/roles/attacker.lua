@@ -62,23 +62,23 @@ function Attacker:set_attacker_settings(_)
                 GambitCondition.new(MaxDistanceCondition.new(30), GambitTarget.TargetType.Enemy),
                 GambitCondition.new(AggroedCondition.new(), GambitTarget.TargetType.Enemy),
                 GambitCondition.new(ConditionalCondition.new(L{ UnclaimedCondition.new(), PartyClaimedCondition.new(true) }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Enemy),
-                GambitCondition.new(ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos(), ValidTargetCondition.EntityType.Monster), GambitTarget.TargetType.Enemy),
+                GambitCondition.new(ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos()), GambitTarget.TargetType.Enemy),
             }, Engage.new(), GambitTarget.TargetType.Enemy),
             Gambit.new(GambitTarget.TargetType.Enemy, L{
                 GambitCondition.new(ModeCondition.new('AutoEngageMode', 'Mirror'), GambitTarget.TargetType.Self),
+                GambitCondition.new(IsAssistTargetCondition.new(), GambitTarget.TargetType.Ally),
+                GambitCondition.new(StatusCondition.new('Engaged'), GambitTarget.TargetType.Ally),
                 GambitCondition.new(StatusCondition.new('Idle'), GambitTarget.TargetType.Self),
                 GambitCondition.new(MaxDistanceCondition.new(30), GambitTarget.TargetType.Enemy),
                 GambitCondition.new(AggroedCondition.new(), GambitTarget.TargetType.Enemy),
                 GambitCondition.new(ConditionalCondition.new(L{ UnclaimedCondition.new(), PartyClaimedCondition.new(true) }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Enemy),
-                GambitCondition.new(ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos(), ValidTargetCondition.EntityType.Monster), GambitTarget.TargetType.Enemy),
-                GambitCondition.new(IsAssistTargetCondition.new(), GambitTarget.TargetType.Ally),
-                GambitCondition.new(StatusCondition.new('Engaged'), GambitTarget.TargetType.Ally),
+                GambitCondition.new(ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos()), GambitTarget.TargetType.Enemy),
             }, Engage.new(), GambitTarget.TargetType.Enemy),
             Gambit.new(GambitTarget.TargetType.Self, L{
                 GambitCondition.new(ModeCondition.new('AutoEngageMode', 'Mirror'), GambitTarget.TargetType.Self),
-                GambitCondition.new(StatusCondition.new('Engaged'), GambitTarget.TargetType.Self),
                 GambitCondition.new(IsAssistTargetCondition.new(), GambitTarget.TargetType.Ally),
                 GambitCondition.new(StatusCondition.new('Idle'), GambitTarget.TargetType.Ally),
+                GambitCondition.new(StatusCondition.new('Engaged'), GambitTarget.TargetType.Self),
             }, Disengage.new(), GambitTarget.TargetType.Self)
         }
     }
@@ -110,7 +110,7 @@ function Attacker:get_default_conditions(gambit)
 end
 
 function Attacker:get_cooldown()
-    return 6
+    return 3
 end
 
 function Attacker:allows_multiple_actions()
