@@ -100,10 +100,7 @@ function Puller:tic(_, _)
     if state.AutoPullMode.value == 'Off' then
         return
     end
-    if res.statuses[windower.ffxi.get_player().status].en == 'Engaged' then
-        local current_target = windower.ffxi.get_mob_by_target('t')
-        print('engaged', current_target and current_target.index, self.target_index or 'none', self:get_pull_target() and self:get_pull_target():get_mob().index or 'none', windower.ffxi.get_player().target_index)
-    end
+
     logger.notice(self.__class, 'tic', 'target_index', self.target_index or 'none')
 
     self:return_to_camp()
@@ -173,7 +170,7 @@ function Puller:get_next_target(target_id_blacklist)
     if current_target and not target_id_blacklist:contains(current_target:get_id()) and self:is_valid_target(current_target:get_mob()) then
         return Monster.new(current_target:get_id())
     end
-
+    
     local all_targets = self:get_all_targets():filter(function(target)
         return not target_id_blacklist:contains(target.id) and self:is_valid_target(target)
     end)
@@ -235,7 +232,11 @@ end
 function Puller:set_pull_settings(pull_settings)
     self.pull_abilities = pull_settings.Gambits
     self.distance = pull_settings.Distance
-    self.max_num_targets = pull_settings.MaxNumTargets or 6
+    if pull_settings.RandomizeTarget then
+        self.max_num_targets = 6
+    else
+        self.max_num_targets = 1
+    end
     self.mob_filter = MobFilter.new(self:get_alliance(), self.distance or 25)
 
     for gambit in pull_settings.Gambits:it() do
