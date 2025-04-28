@@ -357,8 +357,8 @@ function Party:get_target_tracker()
     return self.target_tracker
 end
 
-function Party:set_party_target_index(target_index)
-    self.party_target:set_target_index(target_index)
+function Party:set_party_target_index(target_index, locked)
+    self.party_target:set_target_index(target_index, locked)
 end
 
 -------

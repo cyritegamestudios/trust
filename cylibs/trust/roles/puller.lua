@@ -37,10 +37,7 @@ function Puller.new(action_queue, pull_settings, job)
     local self = setmetatable(Gambiter.new(action_queue, { Gambits = L{} }, state.AutoPullMode), Puller)
 
     self.job = job
-    self.target_timer = Timer.scheduledTimer(1, 0)
-    self.assist_target_dispose_bag = DisposeBag.new()
     self.dispose_bag = DisposeBag.new()
-    self.dispose_bag:addAny(L{ self.target_timer })
 
     self:set_pull_settings(pull_settings)
 
@@ -61,41 +58,27 @@ function Puller:on_add()
         self:set_pull_target(Monster.new(current_target.id))
     end
 
-    if state.AutoPullMode.value ~= 'Off' then
-        windower.send_command('input /autotarget off')
-    end
-
-    self.dispose_bag:add(state.AutoPullMode:on_state_change():addAction(function(_, new_value)
+    local on_pull_mode_changed = function(new_value)
         if new_value ~= 'Off' then
             windower.send_command('input /autotarget off')
-            local assist_target = self:get_party():get_assist_target()
-            if assist_target:get_id() ~= windower.ffxi.get_player().id then
-                self:get_party():add_to_chat(self:get_party():get_player(), "I can't pull while I'm assisting someone else, so I'm going to stop assisting "..assist_target:get_name()..".")
-                self:get_party():set_assist_target(self:get_party():get_player())
-            end
+            self:get_party():set_assist_target(self:get_party():get_player())
+        else
+            self:set_pull_target(nil)
         end
-    end), state.AutoPullMode:on_state_change())
+    end
+    on_pull_mode_changed(state.AutoPullMode.value)
 
-    self.dispose_bag:add(self.target_timer:onTimeChange():addAction(function(_)
-        if not addon_enabled:getValue() then
-            return
-        end
-        self:check_target()
-    end, self.target_timer:onTimeChange()))
+    self.dispose_bag:add(state.AutoPullMode:on_state_change():addAction(function(_, new_value)
+        on_pull_mode_changed(new_value)
+    end), state.AutoPullMode:on_state_change())
 
     self.dispose_bag:add(WindowerEvents.MobKO:addAction(function(mob_id, mob_name, status)
         if self:get_target() and self:get_target():get_id() == mob_id then
             logger.notice(self.__class, 'mob_ko', mob_name, self:get_target():get_mob().hpp, status)
-            --self:set_pull_target(nil)
-
+            self:set_pull_target(nil) -- this is necessary otherwise get_target() returns valid until next loop
             self:check_target(L{ mob_id })
-            --if self:get_pull_target() then
-            --    self:check_gambits(nil, nil, true)
-            --end
         end
     end), WindowerEvents.MobKO)
-
-    self.target_timer:start()
 end
 
 function Puller:tic(_, _)
@@ -107,6 +90,12 @@ function Puller:tic(_, _)
 
     self:return_to_camp()
     self:check_target()
+end
+
+function Puller:target_change(target_index)
+    Gambiter.target_change(self, target_index)
+
+    self:check_gambits(nil, nil, true)
 end
 
 function Puller:check_target(target_id_blacklist)
@@ -124,7 +113,6 @@ function Puller:check_target(target_id_blacklist)
         next_target = self:get_next_target(target_id_blacklist)
         if next_target then
             self:set_pull_target(next_target)
-            self:check_gambits(nil, nil, true)
             logger.notice(self.__class, 'check_target', 'set_pull_target', next_target:get_name(), next_target:get_mob().index)
         else
             self:set_pull_target(nil)
@@ -213,7 +201,7 @@ function Puller:get_pull_target()
 end
 
 function Puller:set_pull_target(target)
-    self:get_party():set_party_target_index(target and target:get_mob().index)
+    self:get_party():set_party_target_index(target and target:get_mob().index, target ~= nil)
 end
 
 function Puller:get_pull_settings()
@@ -271,7 +259,8 @@ function Puller:get_default_conditions(gambit)
         GambitCondition.new(UnclaimedCondition.new(), GambitTarget.TargetType.Enemy),
         GambitCondition.new(MaxDistanceCondition.new(gambit:getAbility():get_range()), GambitTarget.TargetType.Enemy),
         GambitCondition.new(MinHitPointsPercentCondition.new(1), GambitTarget.TargetType.Enemy),
-        GambitCondition.new(NotCondition.new(L{ HasBuffCondition.new('weakness') }), GambitTarget.TargetType.Self)
+        GambitCondition.new(NotCondition.new(L{ HasBuffCondition.new('weakness') }), GambitTarget.TargetType.Self),
+        --GambitCondition.new(NotCondition.new(L{TargetMismatchCondition.new()}), GambitTarget.TargetType.Enemy),
     }
     local alter_ego_conditions = L{
         GambitCondition.new(ConditionalCondition.new(

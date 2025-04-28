@@ -42,17 +42,20 @@ function PartyTarget:set_assist_target(assist_target)
             logger.notice(self.__class, 'set_assist_target', 'on_target_change', p:get_name(), new_target_index)
             if assist_target and assist_target:is_valid() and p:get_name() == assist_target:get_name() then
                 logger.notice(self.__class, 'set_assist_target', 'on_party_target_change', p:get_name(), new_target_index)
-                self:set_target_index(new_target_index)
+                if not self.locked then
+                    self:set_target_index(new_target_index)
+                end
             end
         end), assist_target:on_target_change())
         self:set_target_index(assist_target:get_target_index())
     end
 end
 
-function PartyTarget:set_target_index(target_index)
+function PartyTarget:set_target_index(target_index, locked)
     if self.target_index == target_index then
         return
     end
+    self.locked = locked
     self.target_tracker:add_mob_by_index(target_index)
     local old_target_index = self.target_index
     self.target_index = target_index

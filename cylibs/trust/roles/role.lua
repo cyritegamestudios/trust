@@ -71,7 +71,6 @@ end
 
 function Role:get_target()
     if self.target_index then
-        print('has index', self.target_index, self:get_alliance():get_target_by_index(self.target_index) ~= nil)
         return self:get_alliance():get_target_by_index(self.target_index)
     end
     return nil
