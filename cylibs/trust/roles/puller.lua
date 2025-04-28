@@ -37,6 +37,7 @@ function Puller.new(action_queue, pull_settings, job)
 
     self.job = job
     self.target_timer = Timer.scheduledTimer(1, 0)
+    self.assist_target_dispose_bag = DisposeBag.new()
     self.dispose_bag = DisposeBag.new()
     self.dispose_bag:addAny(L{ self.target_timer })
 
@@ -84,12 +85,12 @@ function Puller:on_add()
     self.dispose_bag:add(WindowerEvents.MobKO:addAction(function(mob_id, mob_name, status)
         if self:get_target() and self:get_target():get_id() == mob_id then
             logger.notice(self.__class, 'mob_ko', mob_name, self:get_target():get_mob().hpp, status)
-            self:set_pull_target(nil)
+            --self:set_pull_target(nil)
 
             self:check_target(L{ mob_id })
-            if self:get_pull_target() then
-                self:check_gambits(nil, nil, true)
-            end
+            --if self:get_pull_target() then
+            --    self:check_gambits(nil, nil, true)
+            --end
         end
     end), WindowerEvents.MobKO)
 
@@ -124,6 +125,7 @@ function Puller:check_target(target_id_blacklist)
         next_target = self:get_next_target(target_id_blacklist)
         if next_target then
             self:set_pull_target(next_target)
+            self:check_gambits(nil, nil, true)
             logger.notice(self.__class, 'check_target', 'set_pull_target', next_target:get_name(), next_target:get_mob().index)
         else
             logger.notice(self.__class, 'check_target', 'no valid targets')
@@ -174,7 +176,7 @@ function Puller:get_next_target(target_id_blacklist)
         return not target_id_blacklist:contains(target.id) and self:is_valid_target(target)
     end)
     if all_targets:length() > 0 then
-        if state.PullActionMode.value == 'Target' or self.max_num_targets > 1 then -- TODO: test whether this randomizes target
+        if state.PullActionMode.value == 'Target' or self.max_num_targets > 1 then
             return Monster.new(all_targets:random().id)
         else
             return Monster.new(all_targets[1].id)
@@ -203,10 +205,38 @@ function Puller:is_valid_target(target)
     return not L{ 2, 3 }:contains(target.status) and Condition.check_conditions(conditions, target.index)
 end
 
+--[[function Puller:get_pull_target()
+    local assist_target = self:get_party():get_assist_target()
+    if assist_target:get_target_index() then
+        return Monster.new(windower.ffxi.get_mob_by_index(assist_target:get_target_index()).id)
+    end
+    return nil
+end
+
+local TargetLock = require('cylibs/entity/party/target_lock')
+
+function Puller:set_pull_target(target)
+    if target and self.target
+            and target:get_id() == self.target:get_id() then
+        return
+    end
+
+    self.assist_target_dispose_bag:dispose()
+
+    if target then
+        local assist_target = TargetLock.new(target:get_mob().index, self:get_party())
+        self:get_party():set_assist_target(assist_target)
+
+        self.assist_target_dispose_bag:addAny(L{ assist_target })
+    else
+        self:get_party():set_assist_target(self:get_party():get_player())
+    end
+end]]
+
 function Puller:get_pull_target()
     return self.target
 end
-
+local TargetLock = require('cylibs/entity/party/target_lock')
 function Puller:set_pull_target(target)
     if target and self.target
             and target:get_id() == self.target:get_id() then
@@ -216,6 +246,17 @@ function Puller:set_pull_target(target)
         self.target:destroy()
     end
     self.target = target
+
+    --[[self.assist_target_dispose_bag:dispose()
+
+    if target then
+        local assist_target = TargetLock.new(target:get_mob().index, self:get_party())
+        self:get_party():set_assist_target(assist_target)
+
+        self.assist_target_dispose_bag:addAny(L{ assist_target })
+    else
+        self:get_party():set_assist_target(self:get_party():get_player())
+    end]]
 end
 
 function Puller:get_gambit_targets(gambit_target_types)
