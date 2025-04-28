@@ -11,6 +11,7 @@ local monster_util = require('cylibs/util/monster_util')
 local MobTracker = require('cylibs/battle/monsters/mob_tracker')
 local PartyMember = require('cylibs/entity/party_member')
 local Player = require('cylibs/entity/party/player')
+local PartyTarget = require('cylibs/entity/party/party_target')
 local party_util = require('cylibs/util/party_util')
 
 local Party = setmetatable({}, {__index = Entity })
@@ -51,9 +52,9 @@ function Party.new(party_chat)
 
     self.party_chat = party_chat
     self.is_monitoring = false
+    self.party_target = PartyTarget.new()
     self.party_members = T{}
     self.dispose_bag = DisposeBag.new()
-    self.assist_target_dispose_bag = DisposeBag.new()
     self.action_events = {}
 
     self.party_member_added = Event.newEvent()
@@ -64,7 +65,7 @@ function Party.new(party_chat)
 
     self.target_tracker = MobTracker.new(self:on_party_member_added(), self:on_party_member_removed(), function() return self:get_assist_target() end)
 
-    self.dispose_bag:addAny(L{ self.target_tracker, self.assist_target_dispose_bag })
+    self.dispose_bag:addAny(L{ self.target_tracker, self.party_target })
 
     return self
 end
@@ -99,9 +100,10 @@ function Party:monitor()
     self.is_monitoring = true
 
     self.target_tracker:monitor()
+    self.party_target:monitor()
 
-    self.action_events.zone_change = windower.register_event('zone change', function(_, _)
-        self:on_party_target_change():trigger(self, nil, nil)
+    self.party_target:on_target_change():addAction(function(_, new_target_index, old_target_index)
+        self:on_party_target_change():trigger(self, new_target_index, old_target_index)
     end)
 end
 
@@ -123,14 +125,7 @@ function Party:add_party_member(party_member_id, party_member_name)
     end
 
     local party_member = self.party_members[party_member_id]
-
     party_member:monitor()
-    --party_member:on_target_change():addAction(function(p, new_target_index, old_target_index)
-    --    logger.notice(self.__class, 'on_target_change', p:get_name(), new_target_index)
-    --    if self:get_assist_target() and self:get_assist_target():is_valid() and p:get_name() == self:get_assist_target():get_name() then
-    --        self:on_party_target_change():trigger(self, new_target_index, old_target_index)
-    --    end
-    --end)
 
     self:on_party_member_added():trigger(party_member)
     self:on_party_members_changed():trigger(self:get_party_members(true))
@@ -265,7 +260,7 @@ function Party:prune_party_members()
         if current_time - party_member:get_heartbeat_time() > 5 then
             if not party_member:get_mob() or not party_util.is_party_member(party_member:get_id()) then
                 if party_member:get_id() == self:get_assist_target():get_id() then
-                    self:set_assist_target(self:get_party_member(windower.ffxi.get_player().id))
+                    self:set_assist_target(self:get_party():get_player())
                 end
                 self.party_members[party_member:get_id()] = nil
                 self.target_tracker:remove_player(party_member:get_id())
@@ -297,24 +292,10 @@ function Party:set_assist_target(party_member)
         return
     end
     self.assist_target = party_member
-    self.assist_target_dispose_bag:dispose()
+
+    self.party_target:set_assist_target(self.assist_target)
 
     if party_member then
-        self.assist_target_dispose_bag:add(party_member:on_target_change():addAction(function(p, new_target_index, old_target_index)
-            logger.notice(self.__class, 'set_assist_target', 'on_target_change', p:get_name(), new_target_index)
-            if self:get_assist_target() and self:get_assist_target():is_valid() and p:get_name() == self:get_assist_target():get_name() then
-                logger.notice(self.__class, 'set_assist_target', 'on_party_target_change', p:get_name(), new_target_index)
-                self:on_party_target_change():trigger(self, new_target_index, old_target_index)
-            end
-        end), party_member:on_target_change())
-
-        local party_targets = self.target_tracker:get_targets():filter(function(m) return m:is_claimed() end)
-        local initial_target_index = party_member:get_target_index() or party_targets:length() > 0 and party_targets[1]:get_mob().index
-        if initial_target_index then
-            self:on_party_target_change():trigger(self, initial_target_index, nil)
-        end
-        logger.notice(self.__class, 'set_assist_target', party_member:get_name(), initial_target_index)
-
         if party_member:get_name():length() > 0 and party_member:get_name() ~= windower.ffxi.get_player().name then
             self:add_to_chat(self:get_player(), "Okay, I'll assist "..party_member:get_name().." in battle.")
         end
@@ -374,6 +355,10 @@ end
 -- @treturn list List of Monsters
 function Party:get_target_tracker()
     return self.target_tracker
+end
+
+function Party:set_party_target_index(target_index)
+    self.party_target:set_target_index(target_index)
 end
 
 -------

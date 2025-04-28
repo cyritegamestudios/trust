@@ -121,14 +121,13 @@ function Puller:check_target(target_id_blacklist)
             logger.notice(self.__class, 'check_target', 'clear', previous_target.name, previous_target.hpp, previous_target.index, previous_target.status, previous_target.claim_id or 'unclaimed')
         end
 
-        self:set_pull_target(nil)
-
         next_target = self:get_next_target(target_id_blacklist)
         if next_target then
             self:set_pull_target(next_target)
             self:check_gambits(nil, nil, true)
             logger.notice(self.__class, 'check_target', 'set_pull_target', next_target:get_name(), next_target:get_mob().index)
         else
+            self:set_pull_target(nil)
             logger.notice(self.__class, 'check_target', 'no valid targets')
             if state.AutoPullMode.value == 'Auto' then
                 self:get_party():add_to_chat(self:get_party():get_player(), "I can't find anything to pull. I'll check again soon.", self.__class..'_no_valid_targets', 15)
@@ -207,64 +206,15 @@ function Puller:is_valid_target(target)
     return not L{ 2, 3 }:contains(target.status) and Condition.check_conditions(conditions, target.index)
 end
 
---[[function Puller:get_pull_target()
-    local assist_target = self:get_party():get_assist_target()
-    if assist_target:get_target_index() then
-        return Monster.new(windower.ffxi.get_mob_by_index(assist_target:get_target_index()).id)
-    end
-    return nil
-end
-
-local TargetLock = require('cylibs/entity/party/target_lock')
-
-function Puller:set_pull_target(target)
-    if target and self.target
-            and target:get_id() == self.target:get_id() then
-        return
-    end
-
-    self.assist_target_dispose_bag:dispose()
-
-    if target then
-        local assist_target = TargetLock.new(target:get_mob().index, self:get_party())
-        self:get_party():set_assist_target(assist_target)
-
-        self.assist_target_dispose_bag:addAny(L{ assist_target })
-    else
-        self:get_party():set_assist_target(self:get_party():get_player())
-    end
-end]]
-
 function Puller:get_pull_target()
-    return self.target
+    return self:get_target()
 end
-local TargetLock = require('cylibs/entity/party/target_lock')
+
 function Puller:set_pull_target(target)
-    if target and self.target
-            and target:get_id() == self.target:get_id() then
+    if target and self:get_target() and target:get_mob().index == self:get_target():get_mob().index then
         return
     end
-    if self.target then
-        self.target:destroy()
-    end
-    self.target = target
-
-    --[[self.assist_target_dispose_bag:dispose()
-
-    if target then
-        local assist_target = TargetLock.new(target:get_mob().index, self:get_party())
-        self:get_party():set_assist_target(assist_target)
-
-        self.assist_target_dispose_bag:addAny(L{ assist_target })
-    else
-        self:get_party():set_assist_target(self:get_party():get_player())
-    end]]
-end
-
-function Puller:get_gambit_targets(gambit_target_types)
-    local targets_by_type = Gambiter.get_gambit_targets(self, gambit_target_types)
-    targets_by_type[GambitTarget.TargetType.Enemy] = L{ self:get_pull_target() }:compact_map()
-    return targets_by_type
+    self:get_party():set_party_target_index(target and target:get_mob().index)
 end
 
 function Puller:get_pull_settings()
@@ -340,7 +290,7 @@ function Puller:get_all_gambits()
     if next_target:is_unclaimed() then
         return self:get_pull_abilities()
     elseif next_target:is_claimed_by(self:get_alliance()) and (self:get_target() ~= next_target or self:get_target() == next_target and self:get_party():get_player():get_status() ~= 'Engaged') then
-        local auto_target = Gambit.new(GambitTarget.TargetType.Enemy, L{}, Engage.new(L{MaxDistanceCondition.new(30)}, true), GambitTarget.TargetType.Enemy, L{"Pulling"})
+        local auto_target = Gambit.new(GambitTarget.TargetType.Enemy, L{}, Engage.new(L{MaxDistanceCondition.new(30)}), GambitTarget.TargetType.Enemy, L{"Pulling"})
         auto_target.conditions = self:get_default_conditions(auto_target)
         return L{ auto_target }
     end
