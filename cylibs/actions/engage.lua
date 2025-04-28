@@ -143,7 +143,11 @@ end
 
 function EngageAction:tostring()
     local target = windower.ffxi.get_mob_by_index(self.target_index)
-    return 'Engaging → '..target.name
+    if self.cursor_only then
+        return 'Targeting → '..target.name
+    else
+        return 'Engaging → '..target.name
+    end
 end
 
 function EngageAction:debug_string()

@@ -335,7 +335,7 @@ function Puller:get_camp_position()
 end
 
 function Puller:get_cooldown()
-    return 5
+    return 3
 end
 
 function Puller:allows_duplicates()
