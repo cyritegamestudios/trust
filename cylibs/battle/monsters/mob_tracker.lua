@@ -24,11 +24,12 @@ function MobTracker:on_targets_changed()
     return self.targets_changed
 end
 
-function MobTracker.new(on_party_member_added, on_party_member_removed)
+function MobTracker.new(on_party_member_added, on_party_member_removed, party_target)
     local self = setmetatable({
         player_ids = S{};
         mobs = T{};
         action_events = {};
+        party_target = party_target;
         dispose_bag = DisposeBag.new();
     }, MobTracker)
 
@@ -174,7 +175,8 @@ end
 function MobTracker:prune_mobs()
     local mob_ids_to_remove = L{}
     for id, mob in pairs(self.mobs) do
-        if not battle_util.is_valid_target(id) or (mob:get_mob().claim_id ~= nil and mob:get_mob().claim_id ~= 0 and not self.player_ids:contains(mob:get_mob().claim_id)) or L{ 'Idle' }:contains(mob:get_status()) or mob:get_distance():sqrt() > 50 then
+        if not battle_util.is_valid_target(id) or (mob:get_mob().claim_id ~= nil and mob:get_mob().claim_id ~= 0 and not self.player_ids:contains(mob:get_mob().claim_id))
+                or (L{ 'Idle' }:contains(mob:get_status()) and self.party_target():get_target_index() ~= mob:get_mob().index) or mob:get_distance():sqrt() > 50 then
             mob_ids_to_remove:append(id)
         end
     end

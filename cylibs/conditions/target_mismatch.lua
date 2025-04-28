@@ -18,12 +18,13 @@ function TargetMismatchCondition.new(target_index)
 end
 
 function TargetMismatchCondition:is_satisfied(target_index)
+    local target = player.trust.main_job:get_target()
+
     local current_target = windower.ffxi.get_mob_by_target('t')
     if current_target == nil then
-        return false
+        return target ~= nil
     end
 
-    local target = player.trust.main_job:get_target()
     if target and target:get_mob() and target:get_mob().index ~= current_target.index then
         return true
     end

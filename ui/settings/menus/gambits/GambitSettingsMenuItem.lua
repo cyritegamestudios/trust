@@ -157,6 +157,7 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
 
         if currentGambits:length() > 0 then
             gambitSettingsEditor:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
+            updateCurrentGambit(IndexPath.new(1, 1))
         end
 
         self.gambitSettingsEditor = gambitSettingsEditor

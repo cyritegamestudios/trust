@@ -5,6 +5,7 @@ local Event = require('cylibs/events/Luvent')
 local TargetLock = setmetatable({}, {__index = Entity })
 TargetLock.__index = TargetLock
 TargetLock.__class = "TargetLock"
+TargetLock.__type = "TargetLock"
 
 TargetLock.Identifier = 0
 
@@ -18,7 +19,7 @@ function TargetLock:on_target_ko()
     return self.target_ko
 end
 
-function TargetLock.new(target_index)
+function TargetLock.new(target_index, party)
     local self = setmetatable(Entity.new(TargetLock.Identifier), TargetLock)
 
     self.target_index = target_index

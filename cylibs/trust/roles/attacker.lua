@@ -3,6 +3,7 @@ local ConditionalCondition = require('cylibs/conditions/conditional')
 local Disengage = require('cylibs/battle/disengage')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Engage = require('cylibs/battle/engage')
+local Target = require('cylibs/battle/target')
 local GambitTarget = require('cylibs/gambits/gambit_target')
 local IsAssistTargetCondition = require('cylibs/conditions/is_assist_target')
 local PartyClaimedCondition = require('cylibs/conditions/party_claimed')
@@ -20,7 +21,7 @@ state.AutoEngageMode:set_description('Always', "Automatically engage when target
 state.AutoEngageMode:set_description('Mirror', "Mirror the engage status of the party member you are assisting.")
 
 function Attacker.new(action_queue)
-    local self = setmetatable(Gambiter.new(action_queue, { Gambits = L{} }, state.AutoEngageMode), Attacker)
+    local self = setmetatable(Gambiter.new(action_queue, { Gambits = L{} }, L{ state.AutoEngageMode, state.AutoPullMode }), Attacker)
 
     self.dispose_bag = DisposeBag.new()
 
@@ -55,7 +56,7 @@ function Attacker:set_attacker_settings(_)
             Gambit.new(GambitTarget.TargetType.Enemy, L{
                 GambitCondition.new(StatusCondition.new('Engaged'), GambitTarget.TargetType.Self),
                 GambitCondition.new(TargetMismatchCondition.new(), GambitTarget.TargetType.Self),
-            }, Engage.new(nil, true), GambitTarget.TargetType.Self),
+            }, Engage.new(), GambitTarget.TargetType.Self),
             Gambit.new(GambitTarget.TargetType.Enemy, L{
                 GambitCondition.new(ModeCondition.new('AutoEngageMode', 'Always'), GambitTarget.TargetType.Self),
                 GambitCondition.new(StatusCondition.new('Idle'), GambitTarget.TargetType.Self),
@@ -70,7 +71,6 @@ function Attacker:set_attacker_settings(_)
                 GambitCondition.new(StatusCondition.new('Engaged'), GambitTarget.TargetType.Ally),
                 GambitCondition.new(StatusCondition.new('Idle'), GambitTarget.TargetType.Self),
                 GambitCondition.new(MaxDistanceCondition.new(30), GambitTarget.TargetType.Enemy),
-                GambitCondition.new(AggroedCondition.new(), GambitTarget.TargetType.Enemy),
                 GambitCondition.new(ConditionalCondition.new(L{ UnclaimedCondition.new(), PartyClaimedCondition.new(true) }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Enemy),
                 GambitCondition.new(ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos()), GambitTarget.TargetType.Enemy),
             }, Engage.new(), GambitTarget.TargetType.Enemy),
@@ -79,7 +79,12 @@ function Attacker:set_attacker_settings(_)
                 GambitCondition.new(IsAssistTargetCondition.new(), GambitTarget.TargetType.Ally),
                 GambitCondition.new(StatusCondition.new('Idle'), GambitTarget.TargetType.Ally),
                 GambitCondition.new(StatusCondition.new('Engaged'), GambitTarget.TargetType.Self),
-            }, Disengage.new(), GambitTarget.TargetType.Self)
+            }, Disengage.new(), GambitTarget.TargetType.Self),
+            Gambit.new(GambitTarget.TargetType.Enemy, L{
+                GambitCondition.new(NotCondition.new(L{ ModeCondition.new('PullActionMode', 'Target') }), GambitTarget.TargetType.Self),
+                GambitCondition.new(StatusCondition.new('Idle'), GambitTarget.TargetType.Self),
+                GambitCondition.new(TargetMismatchCondition.new(), GambitTarget.TargetType.Self),
+            }, Target.new(), GambitTarget.TargetType.Self),
         }
     }
 
@@ -87,9 +92,6 @@ function Attacker:set_attacker_settings(_)
         gambit.conditions = gambit.conditions:filter(function(condition)
             return condition:is_editable()
         end)
-        gambit.conditions = L{
-            GambitCondition.new(ModeCondition.new('AutoPullMode', 'Off'), GambitTarget.TargetType.Self),
-        } + gambit.conditions
         local conditions = self:get_default_conditions(gambit)
         for condition in conditions:it() do
             condition:set_editable(false)
@@ -102,6 +104,7 @@ end
 
 function Attacker:get_default_conditions(gambit)
     local conditions = L{
+        GambitCondition.new(AggroedCondition.new(), GambitTarget.TargetType.Enemy),
     }
     return conditions:map(function(condition)
         if condition.__type ~= GambitCondition.__type then
@@ -112,7 +115,7 @@ function Attacker:get_default_conditions(gambit)
 end
 
 function Attacker:get_cooldown()
-    return 3
+    return 1
 end
 
 function Attacker:allows_multiple_actions()

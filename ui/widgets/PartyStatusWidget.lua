@@ -16,6 +16,7 @@ local Padding = require('cylibs/ui/style/padding')
 local PartyMemberMenuItem = require('ui/settings/menus/party/PartyMemberMenuItem')
 local PlayerMenuItem = require('ui/settings/menus/party/PlayerMenuItem')
 local SoundTheme = require('cylibs/sounds/sound_theme')
+local TargetLock = require('cylibs/entity/party/target_lock')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
@@ -208,6 +209,14 @@ function PartyStatusWidget:get_parties()
     return parties
 end
 
+function PartyStatusWidget:get_assist_target()
+    local assist_target = self.alliance:get_party(windower.ffxi.get_player().name):get_assist_target()
+    if assist_target.__type == TargetLock.__type then
+        assist_target = self.alliance:get_alliance_member_named(windower.ffxi.get_player().name)
+    end
+    return assist_target
+end
+
 -------
 -- Sets the party to be displayed in the widget.
 -- @tparam list party List of party member info
@@ -227,7 +236,7 @@ function PartyStatusWidget:set_party(party, force_update)
 
     self:getDataSource():removeAllItems()
 
-    local assist_target = self.alliance:get_party(windower.ffxi.get_player().name):get_assist_target()
+    local assist_target = self:get_assist_target()
 
     local itemsToAdd = IndexedItem.fromItems(L(self.party:map(function(party_member_info)
         local item = TextItem.new(party_member_info.name, PartyStatusWidget.TextSmall)

@@ -66,6 +66,8 @@ function Approach:get_localized_name()
     return self:get_name()
 end
 
+
+
 function Approach:get_ability_id()
     return "Approach"
 end
