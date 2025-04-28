@@ -55,7 +55,7 @@ function Puller:on_add()
     Gambiter.on_add(self)
 
     local current_target = self:get_alliance():get_target_by_index(self:get_party():get_player():get_target_index())
-    if current_target and self:is_valid_target(current_target:get_mob()) then
+    if state.AutoPullMode.value ~= 'Off' and current_target and self:is_valid_target(current_target:get_mob()) then
         self:set_pull_target(Monster.new(current_target.id))
     end
 
@@ -203,7 +203,11 @@ function Puller:get_pull_target()
 end
 
 function Puller:set_pull_target(target)
-    self:get_party():set_party_target_index(target and target:get_mob().index, target ~= nil)
+    if state.AutoPullMode.value == 'Off' then
+        self:get_party():set_party_target_index(self:get_party():get_assist_target():get_target_index())
+    else
+        self:get_party():set_party_target_index(target and target:get_mob().index, target ~= nil)
+    end
 end
 
 function Puller:get_pull_settings()
