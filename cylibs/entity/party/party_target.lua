@@ -53,8 +53,7 @@ function PartyTarget:set_target_index(target_index)
     if self.target_index == target_index then
         return
     end
-    print('setting party target index to', target_index or 'nil')
-    self.target_tracker:add_mob_by_index(self.target_index)
+    self.target_tracker:add_mob_by_index(target_index)
     local old_target_index = self.target_index
     self.target_index = target_index
     self:on_target_change():trigger(self, self.target_index, old_target_index)

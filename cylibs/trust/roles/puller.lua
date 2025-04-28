@@ -211,9 +211,6 @@ function Puller:get_pull_target()
 end
 
 function Puller:set_pull_target(target)
-    if target and self:get_target() and target:get_mob().index == self:get_target():get_mob().index then
-        return
-    end
     self:get_party():set_party_target_index(target and target:get_mob().index)
 end
 
@@ -247,6 +244,7 @@ end
 
 function Puller:get_default_conditions(gambit)
     local conditions = L{
+        GambitCondition.new(UnclaimedCondition.new(), GambitTarget.TargetType.Enemy),
         GambitCondition.new(MaxDistanceCondition.new(gambit:getAbility():get_range()), GambitTarget.TargetType.Enemy),
         GambitCondition.new(MinHitPointsPercentCondition.new(1), GambitTarget.TargetType.Enemy),
         GambitCondition.new(NotCondition.new(L{ HasBuffCondition.new('weakness') }), GambitTarget.TargetType.Self)

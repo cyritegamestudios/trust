@@ -108,7 +108,6 @@ function Trust:init()
 				logger.notice(self.__class, 'on_party_target_change', new_target_index or 'nil', old_target_index or 'nil')
 				self.action_queue:cleanup()
 				self.target_index = new_target_index
-				print('role target change', new_target_index or nil, old_target_index or nil)
 				self:job_target_change(new_target_index, old_target_index)
 			end)
 
@@ -256,7 +255,6 @@ function Trust:job_target_change(target_index)
 	for role in self.roles:it() do
 		if role.target_change then
 			role:target_change(target_index)
-			print('updating target index', role.target_index, target_index or 'nil')
 		end
 	end
 end
