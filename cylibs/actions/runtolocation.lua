@@ -12,7 +12,7 @@ local Action = require('cylibs/actions/action')
 local RunToLocationAction = setmetatable({}, {__index = Action })
 RunToLocationAction.__index = RunToLocationAction
 
-function RunToLocationAction.new(x, y, z, distance)
+function RunToLocationAction.new(x, y, z, distance, description)
 	local self = setmetatable(Action.new(0, 0, 0), RunToLocationAction)
 	self.user_events = {}
 	self.x = x
@@ -20,6 +20,7 @@ function RunToLocationAction.new(x, y, z, distance)
 	self.z = z
 	self.vector_location = V{self.x, self.y, self.z}
 	self.distance = distance
+	self.description = description
  	return self
 end
 
@@ -125,7 +126,7 @@ function RunToLocationAction:copy()
 end
 
 function RunToLocationAction:tostring()
-    return ("Run to Location: (%d, %d)"):format(self.x, self.y)
+    return self.description or ("Run to Location: (%d, %d)"):format(self.x, self.y)
 end
 
 return RunToLocationAction

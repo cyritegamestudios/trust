@@ -366,7 +366,7 @@ function Puller:return_to_camp()
     end
 
     if distance > 2 then
-        local return_to_camp_action = RunToLocationAction.new(self:get_camp_position()[1], self:get_camp_position()[2], self:get_camp_position()[3], 2.0)
+        local return_to_camp_action = RunToLocationAction.new(self:get_camp_position()[1], self:get_camp_position()[2], self:get_camp_position()[3], 2.0, "Return to camp")
         return_to_camp_action.identifier = "Return to camp"
 
         self.action_queue:push_action(return_to_camp_action, true)
