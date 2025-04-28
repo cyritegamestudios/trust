@@ -12,6 +12,7 @@ local PartyMemberCountCondition = require('cylibs/conditions/party_member_count'
 local PartyTargetedCondition = require('cylibs/conditions/party_targeted')
 local RunToLocationAction = require('cylibs/actions/runtolocation')
 local TargetMismatchCondition = require('cylibs/conditions/target_mismatch')
+local TargetNamesCondition = require('cylibs/conditions/target_names')
 local Timer = require('cylibs/util/timers/timer')
 
 local Gambiter = require('cylibs/trust/roles/gambiter')
@@ -60,6 +61,7 @@ function Puller:on_add()
 
     local on_pull_mode_changed = function(new_value)
         if new_value ~= 'Off' then
+            self:set_pull_settings(self.pull_settings)
             windower.send_command('input /autotarget off')
             self:get_party():set_assist_target(self:get_party():get_player())
         else
@@ -104,7 +106,7 @@ function Puller:check_target(target_id_blacklist)
     end
 
     local next_target = self:get_pull_target()
-    if not self:is_valid_target(next_target and next_target:get_mob()) then
+    if not self:is_valid_target(next_target and next_target:get_mob(), target_id_blacklist) then
         if next_target and next_target:get_mob() then
             local previous_target = next_target:get_mob()
             logger.notice(self.__class, 'check_target', 'clear', previous_target.name, previous_target.hpp, previous_target.index, previous_target.status, previous_target.claim_id or 'unclaimed')
@@ -175,8 +177,8 @@ function Puller:get_next_target(target_id_blacklist)
     end
 end
 
-function Puller:is_valid_target(target)
-    if not target then
+function Puller:is_valid_target(target, target_id_blacklist)
+    if not target or target_id_blacklist and target_id_blacklist:contains(target.id) then
         return false
     end
 
@@ -209,6 +211,7 @@ function Puller:get_pull_settings()
 end
 
 function Puller:set_pull_settings(pull_settings)
+    self.pull_settings = pull_settings
     self.distance = pull_settings.Distance
     self.mob_filter = MobFilter.new(self:get_alliance(), self.distance or 25)
     if pull_settings.RandomizeTarget then
@@ -216,6 +219,7 @@ function Puller:set_pull_settings(pull_settings)
     else
         self.max_num_targets = 1
     end
+    self:set_target_names(pull_settings.Targets or L{})
 
     for gambit in pull_settings.Gambits:it() do
         gambit.conditions = gambit.conditions:filter(function(condition)
@@ -238,11 +242,6 @@ function Puller:set_pull_settings(pull_settings)
     local auto_target = Gambit.new(GambitTarget.TargetType.Enemy, L{}, Engage.new(L{MaxDistanceCondition.new(30)}), GambitTarget.TargetType.Enemy, L{"Pulling","Reaction"})
     auto_target.conditions = L{
         GambitCondition.new(ModeCondition.new('PullActionMode', 'Target'), GambitTarget.TargetType.Self),
-        --[[GambitCondition.new(ConditionalCondition.new(L{
-            ModeCondition.new('AutoPullMode', 'All'),
-            ConditionalCondition.new(L{ ModeCondition.new('AutoPullMode', 'Aggroed') }, Condition.LogicalOperator.And),
-        }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Self)]]
-        --GambitCondition.new(StatusCondition.new('Idle'), GambitTarget.TargetType.Self),
     } + self:get_default_conditions(auto_target)
 
     self.pull_abilities = {
@@ -255,8 +254,6 @@ function Puller:set_pull_settings(pull_settings)
         Gambits = self.pull_abilities.Auto + self.pull_abilities.Approach + self.pull_abilities.Target
     }
     self:set_gambit_settings(gambit_settings)
-
-    self:set_target_names(pull_settings.Targets or L{})
 end
 
 function Puller:get_default_conditions(gambit)
@@ -266,6 +263,11 @@ function Puller:get_default_conditions(gambit)
         GambitCondition.new(MinHitPointsPercentCondition.new(1), GambitTarget.TargetType.Enemy),
         GambitCondition.new(NotCondition.new(L{ HasBuffCondition.new('weakness') }), GambitTarget.TargetType.Self),
     }
+    if state.AutoPullMode.value == 'Aggroed' then
+        conditions:append(GambitCondition.new(AggroedCondition.new(), GambitTarget.TargetType.Enemy))
+    elseif state.AutoPullMode.value == 'Auto' then
+        conditions:append(GambitCondition.new(TargetNamesCondition.new(self:get_target_names()), GambitTarget.TargetType.Enemy))
+    end
     local alter_ego_conditions = L{
         GambitCondition.new(ConditionalCondition.new(
             L{
