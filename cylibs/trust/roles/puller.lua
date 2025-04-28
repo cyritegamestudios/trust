@@ -54,6 +54,13 @@ function Puller:destroy()
     self.dispose_bag:destroy()
 end
 
+function Puller:target_change(target_index)
+    Gambiter.target_change(self, target_index)
+
+    print('target_change', 'checking gambits')
+    self:check_gambits(nil, nil, true)
+end
+
 function Puller:on_add()
     Gambiter.on_add(self)
 
@@ -90,19 +97,24 @@ function Puller:on_add()
     end, self.target_timer:onTimeChange()))
 
     self.dispose_bag:add(WindowerEvents.MobKO:addAction(function(mob_id, mob_name, status)
-        if state.AutoPullMode.value == 'Off' then
-            return
-        end
+        --if state.AutoPullMode.value == 'Off' then
+        --    return
+        --end
         if self:get_target() and self:get_target():get_id() == mob_id then
             logger.notice(self.__class, 'mob_ko', mob_name, self:get_target():get_mob().hpp, status)
-            print('mob KO', 'picking new target')
-            self:set_pull_target(nil)
+            print(os.time(), 'mob KO', 'picking new target')
+            --self:set_pull_target(nil)
 
             self:check_target(L{ mob_id })
-            if self:get_pull_target() then
-                self:check_gambits(nil, nil, true)
-            end
+
+            --coroutine.schedule(function()
+            --    if self:get_pull_target() then
+            --        print(os.time(), 'found target', self.target_lock ~= nil, self:get_all_gambits():length())
+            --        self:check_gambits(nil, nil, true)
+            --    end
+            --end, 0.05)
         end
+
     end), WindowerEvents.MobKO)
 
     self.target_timer:start()
@@ -132,11 +144,12 @@ function Puller:check_target(target_id_blacklist)
             local previous_target = next_target:get_mob()
             logger.notice(self.__class, 'check_target', 'clear', previous_target.name, previous_target.hpp, previous_target.index, previous_target.status, previous_target.claim_id or 'unclaimed')
         end
-
+        print(os.time(), 'set to nil')
         self:set_pull_target(nil)
 
         next_target = self:get_next_target(target_id_blacklist)
         if next_target then
+            print(os.time(), 'set to non nil')
             self:set_pull_target(next_target)
             logger.notice(self.__class, 'check_target', 'set_pull_target', next_target:get_name(), next_target:get_mob().index)
         else
@@ -221,6 +234,10 @@ function Puller:set_pull_target(target)
     if target and target:get_id() == target_lock:get_id() then
         return
     end
+    if self.target_lock == nil and target == nil then
+        return
+    end
+    self.target_lock = nil
     self.assist_target_dispose_bag:dispose()
 
     local assist_target = self:get_party():get_player()
@@ -229,6 +246,8 @@ function Puller:set_pull_target(target)
         assist_target:monitor()
 
         self.assist_target_dispose_bag:addAny(L{ assist_target })
+
+        self.target_lock = assist_target
     else
         if windower.ffxi.get_player().locked_on then
             windower.send_command('input /lockon')
@@ -314,6 +333,22 @@ function Puller:get_max_pull_ability_range(gambits)
         max_pull_ability_range = math.max(max_pull_ability_range, gambit:getAbility():get_range())
     end
     return max_pull_ability_range
+end
+
+function Puller:get_all_gambits()
+    if self.target_lock == nil then
+        return L{}
+    end
+    return Gambiter.get_all_gambits(self)
+end
+
+function Puller:get_gambit_targets(gambit_target_types)
+    local targets_by_type = Gambiter.get_gambit_targets(self, gambit_target_types)
+    if self.target_lock then
+        print('target lock')
+        targets_by_type[GambitTarget.TargetType.Enemy] = L{ Monster.new(self.target_lock.target_id) }:compact_map()
+    end
+    return targets_by_type
 end
 
 function Puller:get_type()
