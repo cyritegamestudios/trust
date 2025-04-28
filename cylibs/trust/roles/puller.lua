@@ -65,7 +65,7 @@ function Puller:on_add()
             windower.send_command('input /autotarget off')
             self:get_party():set_assist_target(self:get_party():get_player())
         else
-            self:set_pull_target(nil)
+            self:get_party():set_party_target_index(self:get_party():get_assist_target():get_target_index())
         end
     end
     on_pull_mode_changed(state.AutoPullMode.value)

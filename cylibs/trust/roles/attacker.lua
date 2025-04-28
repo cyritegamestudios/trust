@@ -54,7 +54,9 @@ function Attacker:set_attacker_settings(_)
     local gambit_settings = {
         Gambits = L{
             -- TODO: should I add this back???
+            -- this might mess up auto target because it will go first?
             Gambit.new(GambitTarget.TargetType.Enemy, L{
+                GambitCondition.new(NotCondition.new(L{ ModeCondition.new('PullActionMode', 'Target') }), GambitTarget.TargetType.Self),
                 GambitCondition.new(StatusCondition.new('Idle'), GambitTarget.TargetType.Self),
                 GambitCondition.new(TargetMismatchCondition.new(), GambitTarget.TargetType.Self),
             }, Target.new(), GambitTarget.TargetType.Self),
