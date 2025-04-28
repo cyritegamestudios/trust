@@ -62,12 +62,8 @@ function Puller:on_add()
     if current_target and self:is_valid_target(current_target:get_mob()) then
         self:set_pull_target(Monster.new(current_target.id))
     end
-
-    if state.AutoPullMode.value ~= 'Off' then
-        windower.send_command('input /autotarget off')
-    end
-
-    self.dispose_bag:add(state.AutoPullMode:on_state_change():addAction(function(_, new_value)
+    
+    local on_pull_mode_changed = function(new_value)
         if new_value ~= 'Off' then
             self:set_pull_target(nil)
 
@@ -77,6 +73,11 @@ function Puller:on_add()
                 self:get_party():set_assist_target(self:get_party():get_player())
             end
         end
+    end
+    on_pull_mode_changed(state.AutoPullMode.value)
+
+    self.dispose_bag:add(state.AutoPullMode:on_state_change():addAction(function(_, new_value)
+        on_pull_mode_changed(new_value)
     end), state.AutoPullMode:on_state_change())
 
     self.dispose_bag:add(self.target_timer:onTimeChange():addAction(function(_)
@@ -228,12 +229,6 @@ function Puller:set_pull_target(target)
     end
     self:get_party():set_assist_target(assist_target)
 end
-
---function Puller:get_gambit_targets(gambit_target_types)
---    local targets_by_type = Gambiter.get_gambit_targets(self, gambit_target_types)
---    targets_by_type[GambitTarget.TargetType.Enemy] = L{ self:get_pull_target() }:compact_map()
---    return targets_by_type
---end
 
 function Puller:get_pull_settings()
     return self.pull_settings
