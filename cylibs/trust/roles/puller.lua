@@ -237,7 +237,12 @@ function Puller:set_pull_settings(pull_settings)
 
     local auto_target = Gambit.new(GambitTarget.TargetType.Enemy, L{}, Engage.new(L{MaxDistanceCondition.new(30)}), GambitTarget.TargetType.Enemy, L{"Pulling","Reaction"})
     auto_target.conditions = L{
-        GambitCondition.new(ModeCondition.new('PullActionMode', 'Target'), GambitTarget.TargetType.Self)
+        GambitCondition.new(ModeCondition.new('PullActionMode', 'Target'), GambitTarget.TargetType.Self),
+        --[[GambitCondition.new(ConditionalCondition.new(L{
+            ModeCondition.new('AutoPullMode', 'All'),
+            ConditionalCondition.new(L{ ModeCondition.new('AutoPullMode', 'Aggroed') }, Condition.LogicalOperator.And),
+        }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Self)]]
+        --GambitCondition.new(StatusCondition.new('Idle'), GambitTarget.TargetType.Self),
     } + self:get_default_conditions(auto_target)
 
     self.pull_abilities = {
@@ -260,7 +265,6 @@ function Puller:get_default_conditions(gambit)
         GambitCondition.new(MaxDistanceCondition.new(gambit:getAbility():get_range()), GambitTarget.TargetType.Enemy),
         GambitCondition.new(MinHitPointsPercentCondition.new(1), GambitTarget.TargetType.Enemy),
         GambitCondition.new(NotCondition.new(L{ HasBuffCondition.new('weakness') }), GambitTarget.TargetType.Self),
-        --GambitCondition.new(NotCondition.new(L{TargetMismatchCondition.new()}), GambitTarget.TargetType.Enemy),
     }
     local alter_ego_conditions = L{
         GambitCondition.new(ConditionalCondition.new(
