@@ -192,7 +192,7 @@ function Puller:is_valid_target(target)
         return false
     end
 
-    local pull_abilities = self.pull_settings[state.PullActionMode.value]
+    local pull_abilities = self.pull_abilities[state.PullActionMode.value]
 
     local max_pull_ability_range = 0
     for gambit in pull_abilities:it() do
@@ -221,8 +221,6 @@ function Puller:get_pull_settings()
 end
 
 function Puller:set_pull_settings(pull_settings)
-    self.pull_settings = pull_settings
-    self.pull_abilities = pull_settings.Gambits
     self.distance = pull_settings.Distance
     self.mob_filter = MobFilter.new(self:get_alliance(), self.distance or 25)
     if pull_settings.RandomizeTarget then
@@ -244,24 +242,24 @@ function Puller:set_pull_settings(pull_settings)
         end
     end
 
-    pull_settings.Auto = pull_settings.Gambits
-
     local approach = Gambit.new(GambitTarget.TargetType.Enemy, L{}, Approach.new(L{MaxDistanceCondition.new(35)}), GambitTarget.TargetType.Enemy, L{"Pulling"})
     approach.conditions = L{
         GambitCondition.new(ModeCondition.new('PullActionMode', 'Approach'), GambitTarget.TargetType.Self)
     } + self:get_default_conditions(approach)
-
-    pull_settings.Approach = L{ approach }
 
     local auto_target = Gambit.new(GambitTarget.TargetType.Enemy, L{}, Engage.new(L{MaxDistanceCondition.new(30)}), GambitTarget.TargetType.Enemy, L{"Pulling","Reaction"})
     auto_target.conditions = L{
         GambitCondition.new(ModeCondition.new('PullActionMode', 'Target'), GambitTarget.TargetType.Self)
     } + self:get_default_conditions(auto_target)
 
-    pull_settings.Target = L{ auto_target }
+    self.pull_abilities = {
+        Auto = pull_settings.Gambits,
+        Approach = L{ approach },
+        Target = L{ auto_target },
+    }
 
     local gambit_settings = {
-        Gambits = pull_settings.Gambits + pull_settings.Approach + pull_settings.Target
+        Gambits = self.pull_abilities.Auto + self.pull_abilities.Approach + self.pull_abilities.Target
     }
     self:set_gambit_settings(gambit_settings)
 
