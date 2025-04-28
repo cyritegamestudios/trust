@@ -13,7 +13,6 @@ local PartyMemberCountCondition = require('cylibs/conditions/party_member_count'
 local PartyTargetedCondition = require('cylibs/conditions/party_targeted')
 local RunToLocationAction = require('cylibs/actions/runtolocation')
 local TargetLock = require('cylibs/entity/party/target_lock')
-local TargetMismatchCondition = require('cylibs/conditions/target_mismatch')
 local Timer = require('cylibs/util/timers/timer')
 
 local Gambiter = require('cylibs/trust/roles/gambiter')
@@ -84,6 +83,7 @@ function Puller:on_add()
         if not addon_enabled:getValue() then
             return
         end
+        -- return to camp might be broken now that this doesn't fire as often
         --self:check_target()
     end, self.target_timer:onTimeChange()))
 
@@ -106,7 +106,9 @@ function Puller:on_add()
     self.target_timer:start()
 end
 
-function Puller:tic(_, _)
+function Puller:tic(old_time, new_time)
+    Gambiter.tic(self, old_time, new_time)
+
     if state.AutoPullMode.value == 'Off' then
         return
     end
@@ -184,7 +186,7 @@ function Puller:get_next_target(target_id_blacklist)
         return not target_id_blacklist:contains(target.id) and self:is_valid_target(target)
     end)
     if all_targets:length() > 0 then
-        if state.PullActionMode.value == 'Target' or self.max_num_targets > 1 then -- TODO: test whether this randomizes target
+        if state.PullActionMode.value == 'Target' or self.max_num_targets > 1 then
             return Monster.new(all_targets:random().id)
         else
             return Monster.new(all_targets[1].id)
