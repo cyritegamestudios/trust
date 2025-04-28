@@ -27,6 +27,16 @@ function PartyTarget.new(target_tracker)
     return self
 end
 
+function PartyTarget:destroy()
+    for _, event in pairs(self.action_events) do
+        windower.unregister_event(event)
+    end
+
+    self:on_target_change():removeAllActions()
+
+    self.dispose_bag:destroy()
+end
+
 function PartyTarget:monitor()
     if self.is_monitoring then
         return

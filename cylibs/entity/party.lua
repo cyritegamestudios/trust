@@ -296,7 +296,7 @@ function Party:set_assist_target(party_member)
     self.party_target:set_assist_target(self.assist_target)
 
     if party_member then
-        if party_member:get_name():length() > 0 and party_member:get_name() ~= windower.ffxi.get_player().name then
+        if party_member:get_name() ~= windower.ffxi.get_player().name then
             self:add_to_chat(self:get_player(), "Okay, I'll assist "..party_member:get_name().." in battle.")
         end
     end

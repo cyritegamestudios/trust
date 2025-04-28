@@ -42,6 +42,12 @@ function EngageAction:perform()
         return
     end
 
+    packets.inject(packets.new('incoming', 0x058, {
+        ['Player'] = windower.ffxi.get_player().id,
+        ['Target'] = target.id,
+        ['Player Index'] = windower.ffxi.get_player().index,
+    }))
+
     if not self.cursor_only then
         if res.statuses[windower.ffxi.get_player().status].en == 'Engaged' then
             self:log_target(target, 'switch_target')
@@ -73,12 +79,6 @@ function EngageAction:perform()
             packets.inject(p)
         end
     end
-
-    packets.inject(packets.new('incoming', 0x058, {
-        ['Player'] = windower.ffxi.get_player().id,
-        ['Target'] = target.id,
-        ['Player Index'] = windower.ffxi.get_player().index,
-    }))
 
     self.dispose_bag:add(WindowerEvents.TargetIndexChanged:addAction(function(mob_id, target_index)
         if windower.ffxi.get_player().id == mob_id then

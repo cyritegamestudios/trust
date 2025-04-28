@@ -22,15 +22,7 @@ end
 function DistanceCondition:is_satisfied(target_index)
     local target = windower.ffxi.get_mob_by_index(target_index)
     if target then
-        local monster = player.alliance:get_target_by_index(target.index)
-        if monster then
-            return self:eval(monster:get_distance():sqrt(), self.distance, self.operator)
-        else
-            local party_member = player.alliance:get_alliance_member_named(target.name)
-            if party_member then
-                return self:eval(party_member:get_distance():sqrt(), self.distance, self.operator)
-            end
-        end
+        return self:eval(target.distance:sqrt(), self.distance, self.operator)
     end
     return false
 end
