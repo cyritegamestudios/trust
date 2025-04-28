@@ -88,6 +88,9 @@ function Puller:on_add()
     end, self.target_timer:onTimeChange()))
 
     self.dispose_bag:add(WindowerEvents.MobKO:addAction(function(mob_id, mob_name, status)
+        if state.AutoPullMode.value == 'Off' then
+            return
+        end
         if self:get_target() and self:get_target():get_id() == mob_id then
             logger.notice(self.__class, 'mob_ko', mob_name, self:get_target():get_mob().hpp, status)
 
@@ -278,7 +281,7 @@ end
 function Puller:get_default_conditions(gambit, mode_name, mode_value)
     local conditions = L{
         GambitCondition.new(ModeCondition.new(mode_name, mode_value), GambitTarget.TargetType.Self),
-        GambitCondition.new(UnclaimedCondition.new(), GambitTarget.TargetType.Enemy),
+        --GambitCondition.new(UnclaimedCondition.new(), GambitTarget.TargetType.Enemy),
         GambitCondition.new(MaxDistanceCondition.new(gambit:getAbility():get_range()), GambitTarget.TargetType.Enemy),
         --GambitCondition.new(Distance.new(3, Condition.Operator.GreaterThanOrEqualTo), GambitTarget.TargetType.Enemy),
         GambitCondition.new(MinHitPointsPercentCondition.new(1), GambitTarget.TargetType.Enemy),

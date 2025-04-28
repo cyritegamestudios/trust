@@ -183,7 +183,7 @@ end
 
 function Gambiter:is_enabled()
     local state_vars_enabled = self.state_vars:filter(function(state_var)
-        return state_var ~= 'Off'
+        return state_var.value ~= 'Off'
     end)
     if state_vars_enabled:length() == 0 then
         return false
