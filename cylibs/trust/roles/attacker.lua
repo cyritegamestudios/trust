@@ -53,10 +53,10 @@ end
 function Attacker:set_attacker_settings(_)
     local gambit_settings = {
         Gambits = L{
-            Gambit.new(GambitTarget.TargetType.Enemy, L{
-                GambitCondition.new(StatusCondition.new('Idle'), GambitTarget.TargetType.Self),
-                GambitCondition.new(TargetMismatchCondition.new(), GambitTarget.TargetType.Self),
-            }, Target.new(), GambitTarget.TargetType.Self),
+            --Gambit.new(GambitTarget.TargetType.Enemy, L{
+            --    GambitCondition.new(StatusCondition.new('Idle'), GambitTarget.TargetType.Self),
+            --    GambitCondition.new(TargetMismatchCondition.new(), GambitTarget.TargetType.Self),
+            --}, Target.new(), GambitTarget.TargetType.Self),
             Gambit.new(GambitTarget.TargetType.Enemy, L{
                 GambitCondition.new(StatusCondition.new('Engaged'), GambitTarget.TargetType.Self),
                 GambitCondition.new(TargetMismatchCondition.new(), GambitTarget.TargetType.Self),

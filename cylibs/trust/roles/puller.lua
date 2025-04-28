@@ -1,3 +1,4 @@
+local AggroedCondition = require('cylibs/conditions/aggroed')
 local Approach = require('cylibs/battle/approach')
 local ClaimedCondition = require('cylibs/conditions/claimed')
 local ConditionalCondition = require('cylibs/conditions/conditional')
@@ -169,7 +170,8 @@ function Puller:get_next_target(target_id_blacklist)
     target_id_blacklist = target_id_blacklist or L{}
 
     local current_target = self:get_alliance():get_target_by_index(self:get_party():get_player():get_target_index())
-    if current_target and not target_id_blacklist:contains(current_target:get_id()) and self:is_valid_target(current_target:get_mob()) then
+    if current_target and not target_id_blacklist:contains(current_target:get_id()) and self:is_valid_target(current_target:get_mob())
+            and Condition.check_conditions(L{ AggroedCondition.new() }, current_target:get_mob().index) then
         return Monster.new(current_target:get_id())
     end
     local all_targets = self:get_all_targets():filter(function(target)
