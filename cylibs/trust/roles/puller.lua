@@ -71,6 +71,8 @@ function Puller:on_add()
             if assist_target:get_id() ~= windower.ffxi.get_player().id then
                 self:get_party():set_assist_target(self:get_party():get_player())
             end
+        else
+            self:set_pull_target(nil)
         end
     end
     on_pull_mode_changed(state.AutoPullMode.value)
@@ -242,12 +244,12 @@ end
 function Puller:set_pull_settings(pull_settings)
     self.pull_abilities = pull_settings.Gambits
     self.distance = pull_settings.Distance
+    self.mob_filter = MobFilter.new(self:get_alliance(), self.distance or 25)
     if pull_settings.RandomizeTarget then
         self.max_num_targets = 6
     else
         self.max_num_targets = 1
     end
-    self.mob_filter = MobFilter.new(self:get_alliance(), self.distance or 25)
 
     for gambit in pull_settings.Gambits:it() do
         gambit.conditions = gambit.conditions:filter(function(condition)
