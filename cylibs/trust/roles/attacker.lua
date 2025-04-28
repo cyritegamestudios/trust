@@ -21,7 +21,7 @@ state.AutoEngageMode:set_description('Always', "Automatically engage when target
 state.AutoEngageMode:set_description('Mirror', "Mirror the engage status of the party member you are assisting.")
 
 function Attacker.new(action_queue)
-    local self = setmetatable(Gambiter.new(action_queue, { Gambits = L{} }, state.AutoEngageMode), Attacker)
+    local self = setmetatable(Gambiter.new(action_queue, { Gambits = L{} }, L{ state.AutoEngageMode, state.AutoPullMode }), Attacker)
 
     self.dispose_bag = DisposeBag.new()
 
@@ -53,10 +53,10 @@ end
 function Attacker:set_attacker_settings(_)
     local gambit_settings = {
         Gambits = L{
-            --Gambit.new(GambitTarget.TargetType.Enemy, L{
-            --    GambitCondition.new(StatusCondition.new('Idle'), GambitTarget.TargetType.Self),
-            --    GambitCondition.new(TargetMismatchCondition.new(), GambitTarget.TargetType.Self),
-            --}, Target.new(), GambitTarget.TargetType.Self),
+            Gambit.new(GambitTarget.TargetType.Enemy, L{
+                GambitCondition.new(StatusCondition.new('Idle'), GambitTarget.TargetType.Self),
+                GambitCondition.new(TargetMismatchCondition.new(), GambitTarget.TargetType.Self),
+            }, Target.new(), GambitTarget.TargetType.Self),
             Gambit.new(GambitTarget.TargetType.Enemy, L{
                 GambitCondition.new(StatusCondition.new('Engaged'), GambitTarget.TargetType.Self),
                 GambitCondition.new(TargetMismatchCondition.new(), GambitTarget.TargetType.Self),

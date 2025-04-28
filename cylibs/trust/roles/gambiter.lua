@@ -13,8 +13,12 @@ state.AutoGambitMode:set_description('Auto', "Automatically use gambits.")
 function Gambiter.new(action_queue, gambit_settings, state_var)
     local self = setmetatable(Role.new(action_queue), Gambiter)
 
+    if class(state_var) ~= 'List' then
+        state_var = L{ state_var or state.AutoGambitMode }
+    end
+
     self.action_queue = action_queue
-    self.state_var = state_var or state.AutoGambitMode
+    self.state_vars = state_var or L{ state.AutoGambitMode }
     self.timer = Timer.scheduledTimer(1)
     self.enabled = true
     self.last_gambit_time = os.time() - self:get_cooldown()
@@ -52,11 +56,11 @@ function Gambiter:get_cooldown()
 end
 
 function Gambiter:check_gambits(gambits, param, ignore_delay)
-    if self.state_var.value == 'Off' or not ignore_delay and (os.time() - self.last_gambit_time) < self:get_cooldown() then
+    if not self:is_enabled() or not ignore_delay and (os.time() - self.last_gambit_time) < self:get_cooldown() then
         return
     end
 
-    logger.notice(self.__class, 'check_gambits', self:get_type(), self.state_var.value)
+    logger.notice(self.__class, 'check_gambits', self:get_type(), localization_util.commas(self.state_vars:map(function(state_var) return state_var.value end)))
 
     if not self:allows_multiple_actions() and self.action_queue:has_action(self:get_action_identifier()) then
         logger.notice(self.__class, 'check_gambits', self:get_type(), 'duplicate')
@@ -178,7 +182,13 @@ function Gambiter:get_all_gambits()
 end
 
 function Gambiter:is_enabled()
-    return self.state_var.value ~= 'Off' and self.enabled
+    local state_vars_enabled = self.state_vars:filter(function(state_var)
+        return state_var ~= 'Off'
+    end)
+    if state_vars_enabled:length() == 0 then
+        return false
+    end
+    return self.enabled
 end
 
 function Gambiter:set_enabled(enabled)

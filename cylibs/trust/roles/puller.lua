@@ -62,7 +62,7 @@ function Puller:on_add()
     if current_target and self:is_valid_target(current_target:get_mob()) then
         self:set_pull_target(Monster.new(current_target.id))
     end
-    
+
     local on_pull_mode_changed = function(new_value)
         if new_value ~= 'Off' then
             self:set_pull_target(nil)
@@ -219,7 +219,7 @@ function Puller:set_pull_target(target)
     local assist_target = self:get_party():get_player()
     if target then
         assist_target = TargetLock.new(target:get_mob().index, self:get_party())
-        assist_target:monitor() -- TODO need to dispose of this
+        assist_target:monitor()
 
         self.assist_target_dispose_bag:addAny(L{ assist_target })
     else
