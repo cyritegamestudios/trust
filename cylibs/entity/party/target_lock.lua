@@ -5,6 +5,7 @@ local Event = require('cylibs/events/Luvent')
 local TargetLock = setmetatable({}, {__index = Entity })
 TargetLock.__index = TargetLock
 TargetLock.__class = "TargetLock"
+TargetLock.__type = "TargetLock"
 
 TargetLock.Identifier = 0
 
@@ -55,7 +56,7 @@ function TargetLock:monitor()
 end
 
 function TargetLock:get_name()
-    return ""
+    return windower.ffxi.get_player().name
 end
 
 function TargetLock:is_valid()

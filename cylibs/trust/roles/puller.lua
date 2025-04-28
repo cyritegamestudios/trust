@@ -84,7 +84,7 @@ function Puller:on_add()
         if not addon_enabled:getValue() then
             return
         end
-        self:check_target()
+        --self:check_target()
     end, self.target_timer:onTimeChange()))
 
     self.dispose_bag:add(WindowerEvents.MobKO:addAction(function(mob_id, mob_name, status)
@@ -217,7 +217,7 @@ function Puller:set_pull_target(target)
     self.assist_target_dispose_bag:dispose()
 
     local assist_target = self:get_party():get_player()
-    if target then
+    if state.AutoPullMode.value ~= 'Off' and target then
         assist_target = TargetLock.new(target:get_mob().index, self:get_party())
         assist_target:monitor()
 
@@ -278,8 +278,9 @@ end
 function Puller:get_default_conditions(gambit, mode_name, mode_value)
     local conditions = L{
         GambitCondition.new(ModeCondition.new(mode_name, mode_value), GambitTarget.TargetType.Self),
+        GambitCondition.new(UnclaimedCondition.new(), GambitTarget.TargetType.Enemy),
         GambitCondition.new(MaxDistanceCondition.new(gambit:getAbility():get_range()), GambitTarget.TargetType.Enemy),
-        GambitCondition.new(Distance.new(3, Condition.Operator.GreaterThanOrEqualTo), GambitTarget.TargetType.Enemy),
+        --GambitCondition.new(Distance.new(3, Condition.Operator.GreaterThanOrEqualTo), GambitTarget.TargetType.Enemy),
         GambitCondition.new(MinHitPointsPercentCondition.new(1), GambitTarget.TargetType.Enemy),
         GambitCondition.new(NotCondition.new(L{ HasBuffCondition.new('weakness') }), GambitTarget.TargetType.Self)
     }
