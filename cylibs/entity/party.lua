@@ -62,7 +62,7 @@ function Party.new(party_chat)
     self.target_change = Event.newEvent()
     self.assist_target_change = Event.newEvent()
 
-    self.target_tracker = MobTracker.new(self:on_party_member_added(), self:on_party_member_removed())
+    self.target_tracker = MobTracker.new(self:on_party_member_added(), self:on_party_member_removed(), function() return self:get_assist_target() end)
 
     self.dispose_bag:addAny(L{ self.target_tracker, self.assist_target_dispose_bag })
 
@@ -315,7 +315,7 @@ function Party:set_assist_target(party_member)
         end
         logger.notice(self.__class, 'set_assist_target', party_member:get_name(), initial_target_index)
 
-        if party_member:get_name() ~= windower.ffxi.get_player().name then
+        if party_member:get_name():length() > 0 and party_member:get_name() ~= windower.ffxi.get_player().name then
             self:add_to_chat(self:get_player(), "Okay, I'll assist "..party_member:get_name().." in battle.")
         end
     end

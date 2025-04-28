@@ -18,8 +18,11 @@ function TargetLock:on_target_ko()
     return self.target_ko
 end
 
-function TargetLock.new(target_index)
-    local self = setmetatable(Entity.new(TargetLock.Identifier), TargetLock)
+function TargetLock.new(target_index, party)
+    local target_id = windower.ffxi.get_mob_by_index(target_index).id
+    local self = setmetatable(Entity.new(target_id), TargetLock)
+
+    party.target_tracker:add_mob_by_index(target_index)
 
     self.target_index = target_index
     self.target_id = windower.ffxi.get_mob_by_index(target_index).id
@@ -52,7 +55,7 @@ function TargetLock:monitor()
 end
 
 function TargetLock:get_name()
-    return "the Party and lock onto the battle target"
+    return ""
 end
 
 function TargetLock:is_valid()

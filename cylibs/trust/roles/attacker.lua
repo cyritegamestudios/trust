@@ -3,6 +3,7 @@ local ConditionalCondition = require('cylibs/conditions/conditional')
 local Disengage = require('cylibs/battle/disengage')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Engage = require('cylibs/battle/engage')
+local Target = require('cylibs/battle/target')
 local GambitTarget = require('cylibs/gambits/gambit_target')
 local IsAssistTargetCondition = require('cylibs/conditions/is_assist_target')
 local PartyClaimedCondition = require('cylibs/conditions/party_claimed')
@@ -52,10 +53,14 @@ end
 function Attacker:set_attacker_settings(_)
     local gambit_settings = {
         Gambits = L{
+            --Gambit.new(GambitTarget.TargetType.Enemy, L{
+            --    GambitCondition.new(StatusCondition.new('Idle'), GambitTarget.TargetType.Self),
+            --    GambitCondition.new(TargetMismatchCondition.new(), GambitTarget.TargetType.Self),
+            --}, Target.new(), GambitTarget.TargetType.Self),
             Gambit.new(GambitTarget.TargetType.Enemy, L{
                 GambitCondition.new(StatusCondition.new('Engaged'), GambitTarget.TargetType.Self),
                 GambitCondition.new(TargetMismatchCondition.new(), GambitTarget.TargetType.Self),
-            }, Engage.new(nil, true), GambitTarget.TargetType.Self),
+            }, Engage.new(), GambitTarget.TargetType.Self),
             Gambit.new(GambitTarget.TargetType.Enemy, L{
                 GambitCondition.new(ModeCondition.new('AutoEngageMode', 'Always'), GambitTarget.TargetType.Self),
                 GambitCondition.new(StatusCondition.new('Idle'), GambitTarget.TargetType.Self),
@@ -88,7 +93,7 @@ function Attacker:set_attacker_settings(_)
             return condition:is_editable()
         end)
         gambit.conditions = L{
-            GambitCondition.new(ModeCondition.new('AutoPullMode', 'Off'), GambitTarget.TargetType.Self),
+            --GambitCondition.new(ModeCondition.new('AutoPullMode', 'Off'), GambitTarget.TargetType.Self),
         } + gambit.conditions
         local conditions = self:get_default_conditions(gambit)
         for condition in conditions:it() do
@@ -112,7 +117,7 @@ function Attacker:get_default_conditions(gambit)
 end
 
 function Attacker:get_cooldown()
-    return 3
+    return 1
 end
 
 function Attacker:allows_multiple_actions()
