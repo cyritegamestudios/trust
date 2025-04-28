@@ -282,6 +282,11 @@ function Puller:get_pull_abilities()
 end
 
 function Puller:get_all_gambits()
+    print(self:get_target() ~= nil, self:get_party().party_target:get_target_index() ~= nil)
+    return self:get_pull_abilities()
+end
+
+--[[function Puller:get_all_gambits()
     local next_target = self:get_pull_target()
     if not next_target or not self:is_valid_target(next_target and next_target:get_mob()) then
         return L{}
@@ -296,7 +301,7 @@ function Puller:get_all_gambits()
     end
 
     return L{}
-end
+end]]
 
 function Puller:get_type()
     return "puller"

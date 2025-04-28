@@ -52,7 +52,6 @@ function Party.new(party_chat)
 
     self.party_chat = party_chat
     self.is_monitoring = false
-    self.party_target = PartyTarget.new()
     self.party_members = T{}
     self.dispose_bag = DisposeBag.new()
     self.action_events = {}
@@ -63,7 +62,8 @@ function Party.new(party_chat)
     self.target_change = Event.newEvent()
     self.assist_target_change = Event.newEvent()
 
-    self.target_tracker = MobTracker.new(self:on_party_member_added(), self:on_party_member_removed(), function() return self:get_assist_target() end)
+    self.target_tracker = MobTracker.new(self:on_party_member_added(), self:on_party_member_removed(), function() return self.party_target end)
+    self.party_target = PartyTarget.new(self.target_tracker)
 
     self.dispose_bag:addAny(L{ self.target_tracker, self.party_target })
 

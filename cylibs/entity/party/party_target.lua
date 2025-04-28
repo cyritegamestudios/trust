@@ -11,9 +11,10 @@ function PartyTarget:on_target_change()
     return self.target_change
 end
 
-function PartyTarget.new()
+function PartyTarget.new(target_tracker)
     local self = setmetatable({}, PartyTarget)
 
+    self.target_tracker = target_tracker
     self.action_events = {}
     self.assist_target_dispose_bag = DisposeBag.new()
     self.dispose_bag = DisposeBag.new()
@@ -53,6 +54,7 @@ function PartyTarget:set_target_index(target_index)
         return
     end
     print('setting party target index to', target_index or 'nil')
+    self.target_tracker:add_mob_by_index(self.target_index)
     local old_target_index = self.target_index
     self.target_index = target_index
     self:on_target_change():trigger(self, self.target_index, old_target_index)
