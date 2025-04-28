@@ -216,6 +216,10 @@ function Puller:get_pull_target()
     return self:get_target()
 end
 
+function Puller:is_target_locked()
+    return self:get_party():get_assist_target().__type == TargetLock.type
+end
+
 function Puller:set_pull_target(target)
     local target_lock = self:get_party():get_assist_target()
     if target and target:get_id() == target_lock:get_id() then
@@ -349,7 +353,7 @@ function Puller:allows_multiple_actions()
 end
 
 function Puller:return_to_camp()
-    if state.AutoCampMode.value == 'Off' or self:get_pull_target() ~= nil
+    if state.AutoCampMode.value == 'Off' or self:get_pull_target() ~= nil or self:is_target_locked()
             or self:get_party():get_player():get_status() == 'Engaged' or self:get_camp_position() == nil then
         return false
     end
