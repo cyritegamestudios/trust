@@ -281,7 +281,7 @@ end
 function Puller:get_default_conditions(gambit, mode_name, mode_value)
     local conditions = L{
         GambitCondition.new(ModeCondition.new(mode_name, mode_value), GambitTarget.TargetType.Self),
-        --GambitCondition.new(UnclaimedCondition.new(), GambitTarget.TargetType.Enemy),
+        GambitCondition.new(UnclaimedCondition.new(), GambitTarget.TargetType.Enemy),
         GambitCondition.new(MaxDistanceCondition.new(gambit:getAbility():get_range()), GambitTarget.TargetType.Enemy),
         --GambitCondition.new(Distance.new(3, Condition.Operator.GreaterThanOrEqualTo), GambitTarget.TargetType.Enemy),
         GambitCondition.new(MinHitPointsPercentCondition.new(1), GambitTarget.TargetType.Enemy),
