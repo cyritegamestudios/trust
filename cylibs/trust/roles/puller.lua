@@ -95,7 +95,7 @@ function Puller:on_add()
         end
         if self:get_target() and self:get_target():get_id() == mob_id then
             logger.notice(self.__class, 'mob_ko', mob_name, self:get_target():get_mob().hpp, status)
-
+            print('mob KO', 'picking new target')
             self:set_pull_target(nil)
 
             self:check_target(L{ mob_id })
@@ -214,10 +214,6 @@ end
 
 function Puller:get_pull_target()
     return self:get_target()
-end
-
-function Puller:is_target_locked()
-    return self:get_party():get_assist_target().__type == TargetLock.type
 end
 
 function Puller:set_pull_target(target)
@@ -353,8 +349,9 @@ function Puller:allows_multiple_actions()
 end
 
 function Puller:return_to_camp()
-    if state.AutoCampMode.value == 'Off' or self:get_pull_target() ~= nil or self:is_target_locked()
-            or self:get_party():get_player():get_status() == 'Engaged' or self:get_camp_position() == nil then
+    if state.AutoCampMode.value == 'Off' or self:get_camp_position() == nil or self:get_party():get_player():get_status() == 'Engaged'
+            or self:get_target() ~= nil or self:get_party():get_assist_target().__type == TargetLock.__type then
+        --print('cant return to camp', self:get_pull_target() ~= nil, self:get_party():get_assist_target().__type == TargetLock.__type, self:get_camp_position() == nil)
         return false
     end
 

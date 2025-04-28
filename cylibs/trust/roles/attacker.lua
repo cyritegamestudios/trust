@@ -75,7 +75,7 @@ function Attacker:set_attacker_settings(_)
                 GambitCondition.new(StatusCondition.new('Engaged'), GambitTarget.TargetType.Ally),
                 GambitCondition.new(StatusCondition.new('Idle'), GambitTarget.TargetType.Self),
                 GambitCondition.new(MaxDistanceCondition.new(30), GambitTarget.TargetType.Enemy),
-                GambitCondition.new(AggroedCondition.new(), GambitTarget.TargetType.Enemy),
+                --GambitCondition.new(AggroedCondition.new(), GambitTarget.TargetType.Enemy),
                 GambitCondition.new(ConditionalCondition.new(L{ UnclaimedCondition.new(), PartyClaimedCondition.new(true) }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Enemy),
                 GambitCondition.new(ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos()), GambitTarget.TargetType.Enemy),
             }, Engage.new(), GambitTarget.TargetType.Enemy),
@@ -104,6 +104,7 @@ end
 
 function Attacker:get_default_conditions(gambit)
     local conditions = L{
+        GambitCondition.new(AggroedCondition.new(), GambitTarget.TargetType.Enemy),
     }
     return conditions:map(function(condition)
         if condition.__type ~= GambitCondition.__type then
