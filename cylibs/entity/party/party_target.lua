@@ -11,10 +11,11 @@ function PartyTarget:on_target_change()
     return self.target_change
 end
 
-function PartyTarget.new(target_tracker)
+function PartyTarget.new(target_tracker, ignore_assist_target)
     local self = setmetatable({}, PartyTarget)
 
     self.target_tracker = target_tracker
+    self.ignore_assist_target = ignore_assist_target
     self.action_events = {}
     self.assist_target_dispose_bag = DisposeBag.new()
     self.dispose_bag = DisposeBag.new()
@@ -52,7 +53,7 @@ function PartyTarget:set_assist_target(assist_target)
             logger.notice(self.__class, 'set_assist_target', 'on_target_change', p:get_name(), new_target_index)
             if assist_target and assist_target:is_valid() and p:get_name() == assist_target:get_name() then
                 logger.notice(self.__class, 'set_assist_target', 'on_party_target_change', p:get_name(), new_target_index)
-                if not self.locked then
+                if not self:should_ignore_assist_target() then
                     self:set_target_index(new_target_index)
                 end
             end
@@ -61,11 +62,10 @@ function PartyTarget:set_assist_target(assist_target)
     end
 end
 
-function PartyTarget:set_target_index(target_index, locked)
+function PartyTarget:set_target_index(target_index)
     if self.target_index == target_index then
         return
     end
-    self.locked = locked
     self.target_tracker:add_mob_by_index(target_index)
     local old_target_index = self.target_index
     self.target_index = target_index
@@ -83,6 +83,13 @@ function PartyTarget:get_target()
     return nil
 end
 
+function PartyTarget:set_should_ignore_assist_target(ignore_assist_target)
+    self.ignore_assist_target = ignore_assist_target
+end
+
+function PartyTarget:should_ignore_assist_target()
+    return self.ignore_assist_target
+end
 
 
 return PartyTarget
