@@ -73,6 +73,21 @@ function Monster:on_skillchain_ended()
     return self.skillchain_ended
 end
 
+-- Event called when the claim id changes.
+function Monster:on_claim_id_changed()
+    return self.claim_id_changed
+end
+
+-- Event called when a the HPP changes.
+function Monster:on_hpp_changed()
+    return self.hpp_changed
+end
+
+-- Event called when the position changes.
+function Monster:on_position_changed()
+    return self.position_change
+end
+
 num_monsters = 0
 
 -------
@@ -83,22 +98,10 @@ function Monster.new(mob_id)
     local self = setmetatable(Entity.new(mob_id), Monster)
 
     self.mob_id = mob_id
+    self.hpp = 100
     self.current_target = nil
     self.buff_ids = S{}
     self.resistances = T{}
-
-    local mob = windower.ffxi.get_mob_by_id(self.mob_id)
-    if mob then
-        local monster = monsters[mob.models[1]]
-        if monster then
-            self.family = monster.family
-            self.type = monster.type
-            local family = monster_families:with('family', monster.family)
-            if family then
-                self.resistances = family.resistances
-            end
-        end
-    end
 
     self.target_change = Event.newEvent()
     self.tp_move_finish = Event.newEvent()
@@ -111,6 +114,25 @@ function Monster.new(mob_id)
     self.spell_finish = Event.newEvent()
     self.skillchain = Event.newEvent()
     self.skillchain_ended = Event.newEvent()
+    self.claim_id_changed = Event.newEvent()
+    self.hpp_changed = Event.newEvent()
+    self.position_change = Event.newEvent()
+
+    local mob = windower.ffxi.get_mob_by_id(self.mob_id)
+    if mob then
+        local monster = monsters[mob.models[1]]
+        if monster then
+            self.family = monster.family
+            self.type = monster.type
+            local family = monster_families:with('family', monster.family)
+            if family then
+                self.resistances = family.resistances
+            end
+        end
+        self.hpp = mob.hpp or 100
+        self.claim_id = mob.claim_id
+        self:set_position(mob.x, mob.y, mob.z)
+    end
 
     self.dispose_bag = DisposeBag.new()
 
@@ -150,6 +172,9 @@ function Monster:destroy()
     self.spell_finish:removeAllActions()
     self.skillchain:removeAllActions()
     self.skillchain_ended:removeAllActions()
+    self.claim_id_changed:removeAllActions()
+    self.hpp_changed:removeAllActions()
+    self.position_change:removeAllActions()
 
     self.dispose_bag:destroy()
 
@@ -195,6 +220,19 @@ function Monster:monitor()
             self:handle_gain_buff(ability.status)
         end
     end), WindowerEvents.Ability.Finish)
+
+    self.dispose_bag:add(WindowerEvents.MobUpdate:addAction(function(mob_id, name, hpp, claimer_id)
+        if mob_id == self:get_id() then
+            self:set_hpp(hpp)
+            self:set_claim_id(claimer_id)
+        end
+    end), WindowerEvents.MobUpdate)
+
+    self.dispose_bag:add(WindowerEvents.PositionChanged:addAction(function(mob_id, x, y, z)
+        if self:get_id() == mob_id then
+            self:set_position(x, y, z)
+        end
+    end), WindowerEvents.PositionChanged)
 end
 
 function Monster:handle_action_by_monster(act)
@@ -373,6 +411,19 @@ function Monster:get_current_target()
     return self.current_target
 end
 
+function Monster:set_claim_id(claim_id)
+    if self.claim_id == claim_id then
+        return
+    end
+    local old_claim_id = self.claim_id
+    self.claim_id = claim_id
+    self:on_claim_id_changed():trigger(self, self.claim_id, old_claim_id)
+end
+
+function Monster:get_claim_id()
+    return self.claim_id
+end
+
 -------
 -- Returns whether the monster is party claimed.
 -- @treturn boolean True if the monster is party claimed
@@ -393,6 +444,44 @@ end
 -- @treturn boolean True if the monster is alliance claimed
 function Monster:is_claimed_by(alliance)
     return alliance:is_claimed(self:get_id())
+end
+
+-------
+-- Sets the party member's current hit point percentage.
+-- @tparam number Hit point percentage
+function Monster:set_hpp(hpp)
+    hpp = hpp or 100
+    if self.hpp == hpp then
+        return
+    end
+    self.hpp = hpp
+    if self.hpp > 0 then
+        self:on_hpp_changed():trigger(self, hpp)
+    --else
+    --    self:on_ko():trigger(self)
+    end
+end
+
+-------
+-- Returns the player's current hit point percentage.
+-- @treturn number Hit point percentage
+function Monster:get_hpp()
+    return self.hpp
+end
+
+-------
+-- Sets the (x, y, z) coordinate of the mob.
+-- @tparam number x X coordinate
+-- @tparam number y Y coordinate
+-- @tparam number z Z coordinate
+function Monster:set_position(x, y, z)
+    local last_position = self:get_position()
+    if last_position[1] == x and last_position[2] == y and last_position[3] == z then
+        return
+    end
+    Entity.set_position(self, x, y, z)
+
+    self:on_position_changed():trigger(self, x, y,  z)
 end
 
 -------
