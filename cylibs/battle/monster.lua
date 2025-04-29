@@ -447,7 +447,7 @@ function Monster:is_claimed_by(alliance)
 end
 
 -------
--- Sets the party member's current hit point percentage.
+-- Sets the monster's current hit point percentage.
 -- @tparam number Hit point percentage
 function Monster:set_hpp(hpp)
     hpp = hpp or 100
@@ -463,7 +463,7 @@ function Monster:set_hpp(hpp)
 end
 
 -------
--- Returns the player's current hit point percentage.
+-- Returns the monster's current hit point percentage.
 -- @treturn number Hit point percentage
 function Monster:get_hpp()
     return self.hpp

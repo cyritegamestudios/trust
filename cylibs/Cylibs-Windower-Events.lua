@@ -297,9 +297,7 @@ local incoming_event_dispatcher = {
             local claimer_id = packet['Claimer']
             WindowerEvents.MobUpdate:trigger(mob_id, name, hpp, claimer_id)
         end
-        if packet['X'] == nil then
-            print('nillll')
-        end
+
         WindowerEvents.PositionChanged:trigger(mob_id, packet['X'], packet['Y'], packet['Z'])
 
         if L{ 2, 3 }:contains(status) and get_mob_info(mob_id).status ~= status then
