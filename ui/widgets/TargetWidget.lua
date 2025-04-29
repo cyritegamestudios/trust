@@ -226,12 +226,16 @@ function TargetWidget:setTarget(target_index)
             self.targetDisposeBag:addAny(L{ infoTimer })
 
             infoTimer:start()
+
+            self:setInfo(target:get_hpp(), target:get_distance():sqrt(), target:is_claimed())
         else
             target = Monster.new(monster_util.id_for_index(target_index))
 
             self.targetDisposeBag:addAny(L{ target })
         end
         targetText = localization_util.truncate(target and target.name or "", 18)
+    else
+        self:getDelegate():deselectAllItems()
     end
 
     local targetItem = TextItem.new(targetText, TargetWidget.Text), IndexPath.new(1, 1)
