@@ -361,6 +361,10 @@ function Party:set_party_target_index(target_index, locked)
     self.party_target:set_target_index(target_index, locked)
 end
 
+function Party:set_should_ignore_assist_target(ignore_assist_target)
+    self.party_target:set_should_ignore_assist_target(ignore_assist_target)
+end
+
 -------
 -- Sends a message to the party chat.
 -- @tparam PartyMember Message sender

@@ -44,6 +44,21 @@ TargetWidget.Text = TextStyle.new(
     true
 )
 
+TargetWidget.TextSmall3 = TextStyle.new(
+        Color.clear,
+        Color.clear,
+        "Arial",
+        8,
+        Color.white,
+        Color.lightGrey,
+        0,
+        0,
+        Color.clear,
+        false,
+        Color.yellow,
+        true
+)
+
 TargetWidget.Subheadline = TextStyle.new(
     Color.clear,
     Color.clear,
@@ -66,16 +81,21 @@ function TargetWidget.new(frame, party, trust)
             cell:setUserInteractionEnabled(false)
             return cell
         elseif indexPath.row == 2 then
-            local cell = MarqueeCollectionViewCell.new(item)
+            local cell = TextCollectionViewCell.new(item)
             cell:setItemSize(14)
             cell:setUserInteractionEnabled(false)
             return cell
         elseif indexPath.row == 3 then
+            local cell = MarqueeCollectionViewCell.new(item)
+            cell:setItemSize(14)
+            cell:setUserInteractionEnabled(false)
+            return cell
+        elseif indexPath.row == 4 then
             local cell = ContainerCollectionViewCell.new(item)
             cell:setItemSize(item.viewSize or 14)
             cell:setUserInteractionEnabled(false)
             return cell
-        elseif indexPath.row == 4 then
+        elseif indexPath.row == 5 then
             local cell = ContainerCollectionViewCell.new(item)
             cell:setItemSize(item.viewSize or 32)
             cell:setUserInteractionEnabled(false)
@@ -94,13 +114,15 @@ function TargetWidget.new(frame, party, trust)
     self.infoViewIconSize = 8
     self.infoViewHeight = 32
     self.infoView = self:createInfoView()
+    self.needsResize = true
     self.targetDisposeBag = DisposeBag.new()
 
     local itemsToAdd = L{
         IndexedItem.new(TextItem.new("", TargetWidget.Text), IndexPath.new(1, 1)),
-        IndexedItem.new(TextItem.new("", TargetWidget.Subheadline), IndexPath.new(1, 2)),
-        IndexedItem.new(ViewItem.new(self.debuffsView, true, 14), IndexPath.new(1, 3)),
-        IndexedItem.new(ViewItem.new(self.infoView, true, self.infoViewHeight), IndexPath.new(1, 4))
+        IndexedItem.new(TextItem.new("", TargetWidget.TextSmall3), IndexPath.new(1, 2)),
+        IndexedItem.new(TextItem.new("", TargetWidget.Subheadline), IndexPath.new(1, 3)),
+        IndexedItem.new(ViewItem.new(self.debuffsView, true, 14), IndexPath.new(1, 4)),
+        IndexedItem.new(ViewItem.new(self.infoView, true, self.infoViewHeight), IndexPath.new(1, 5))
     }
     self:getDataSource():addItems(itemsToAdd)
 
@@ -190,31 +212,30 @@ function TargetWidget:setTarget(target_index)
     if target_index ~= nil and target_index ~= 0 then
         local target = self.alliance:get_target_by_index(target_index)
         if target then
-            self.targetDisposeBag:add(target:on_gain_debuff():addAction(function(_, debuff_id)
-                self:updateDebuffs()
-            end, target:on_gain_debuff()))
+            for event in L{ target:on_gain_debuff(), target.debuff_tracker:on_lose_debuff() }:it() do
+                self.targetDisposeBag:add(event:addAction(function(_, _)
+                    self:updateDebuffs()
+                end), event)
+            end
 
-            self.targetDisposeBag:add(target.debuff_tracker:on_lose_debuff():addAction(function(_, debuff_id)
-                self:updateDebuffs()
-            end, target.debuff_tracker:on_lose_debuff()))
+            local infoTimer = Timer.scheduledTimer(0.1)
 
-            self.targetDisposeBag:add(target:on_tp_move_finish():addAction(function(m, monster_ability_name, target_name, _)
-                if self.actionQueue:is_empty() then
-                    local actionText = monster_ability_name
-                    if target_name ~= m:get_name() then
-                        actionText = actionText..' → '..target_name
-                    end
-                    --self:setAction(actionText)
-                end
-            end), target:on_tp_move_finish())
+            self.targetDisposeBag:add(infoTimer:onTimeChange():addAction(function()
+                self:setInfo(target:get_hpp(), target:get_distance():sqrt(), target:is_claimed())
+            end), infoTimer:onTimeChange())
+            self.targetDisposeBag:addAny(L{ infoTimer })
 
-            self:updateDebuffs()
+            infoTimer:start()
+
+            self:setInfo(target:get_hpp(), target:get_distance():sqrt(), target:is_claimed())
         else
             target = Monster.new(monster_util.id_for_index(target_index))
 
             self.targetDisposeBag:addAny(L{ target })
         end
         targetText = localization_util.truncate(target and target.name or "", 18)
+    else
+        self:getDelegate():deselectAllItems()
     end
 
     local targetItem = TextItem.new(targetText, TargetWidget.Text), IndexPath.new(1, 1)
@@ -229,10 +250,32 @@ function TargetWidget:setTarget(target_index)
     self:layoutIfNeeded()
 end
 
-function TargetWidget:setAction(text)
-    local actionItem = TextItem.new(text or '', TargetWidget.Subheadline), IndexPath.new(1, 2)
+function TargetWidget:setClaimed(claimed)
+    if claimed then
+        self:getDelegate():selectItemAtIndexPath(IndexPath.new(1, 1))
+    else
+        self:getDelegate():deselectItemAtIndexPath(IndexPath.new(1, 1))
+    end
+end
 
-    self:getDataSource():updateItem(actionItem, IndexPath.new(1, 2))
+function TargetWidget:setInfo(hpp, distance, claimed)
+    local itemsToUpdate = L{}
+
+    itemsToUpdate:append(IndexedItem.new(TextItem.new(string.format("HP %d%%  %.1f", hpp, distance), TargetWidget.TextSmall3), IndexPath.new(1, 2)))
+
+    self:getDataSource():updateItems(itemsToUpdate)
+
+    if claimed then
+        self:getDelegate():selectItemAtIndexPath(IndexPath.new(1, 1))
+    else
+        self:getDelegate():deselectItemAtIndexPath(IndexPath.new(1, 1))
+    end
+end
+
+function TargetWidget:setAction(text)
+    local actionItem = TextItem.new(text or '', TargetWidget.Subheadline), IndexPath.new(1, 3)
+
+    self:getDataSource():updateItem(actionItem, IndexPath.new(1, 3))
     self:layoutIfNeeded()
 end
 
@@ -254,7 +297,7 @@ function TargetWidget:setExpanded(expanded)
     self.needsResize = false
 
     -- Debuffs view
-    local indexPath = IndexPath.new(1, 3)
+    local indexPath = IndexPath.new(1, 4)
 
     local itemSize = 14
     if expanded and L(target.debuff_tracker:get_debuff_ids()):length() > 0 then
@@ -265,10 +308,10 @@ function TargetWidget:setExpanded(expanded)
     self:getDataSource():updateItem(ViewItem.new(self.debuffsView, true, itemSize), indexPath)
 
     -- Info view
-    local indexPath = IndexPath.new(1, 4)
+    local indexPath = IndexPath.new(1, 5)
 
     local itemSize = self.infoViewHeight
-    if expanded and (target and target:has_resistance_info()) and self:getSettings(self.addonSettings).detailed then
+    if expanded and (target and target:has_resistance_info()) --[[and self:getSettings(self.addonSettings).detailed]] then
         itemSize = self.infoViewHeight
         self:updateInfoView(target)
     else

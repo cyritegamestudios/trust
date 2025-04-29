@@ -14,9 +14,7 @@ WidgetSettingsMenuItem.__index = WidgetSettingsMenuItem
 function WidgetSettingsMenuItem.new()
     local widgetNames = L{ 'Trust', 'Party', 'Target', 'Pet', 'Job' }
 
-    local buttonItems = L{ ButtonItem.localized('Layout', i18n.translate("Button_Widget_Layout")) } + widgetNames:map(function(widgetName)
-        return ButtonItem.default(widgetName, 18)
-    end)
+    local buttonItems = L{ ButtonItem.localized('Layout', i18n.translate("Button_Widget_Layout")) }
 
     local self = setmetatable(MenuItem.new(buttonItems, {}, nil, "Widgets", "Configure widget settings."), WidgetSettingsMenuItem)
 
@@ -36,7 +34,9 @@ end
 
 function WidgetSettingsMenuItem:reloadSettings()
     for widgetName in self.widgetNames:it() do
-        self:setChildMenuItem(widgetName, self:getWidgetMenuItem(widgetName))
+        if windower.trust.ui.get_widget(widgetName) then
+            self:setChildMenuItem(widgetName, self:getWidgetMenuItem(widgetName))
+        end
     end
     self:setChildMenuItem("Layout", self:getLayoutMenuItem())
 end
@@ -61,6 +61,10 @@ function WidgetSettingsMenuItem:getWidgetMenuItem(widgetName)
         end), configEditor:onConfigChanged())
         return configEditor
     end, "Widgets", "Configure the "..widgetName.." widget. UI does not update until changes are confirmed.")
+
+    widgetMenuItem.enabled = function()
+        return windower.trust.ui.get_widget(widgetName) ~= nil
+    end
 
     widgetMenuItem:setChildMenuItem('Shortcuts', ShortcutMenuItem.new(widgetName:lower(), string.format("Focus on %s widget", widgetName)))
 

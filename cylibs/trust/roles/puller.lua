@@ -58,6 +58,7 @@ function Puller:on_add()
     end
 
     local on_pull_mode_changed = function(new_value)
+        self:get_party():set_should_ignore_assist_target(new_value ~= 'Off')
         if new_value ~= 'Off' then
             self:set_pull_settings(self.pull_settings)
             windower.send_command('input /autotarget off')
@@ -204,7 +205,7 @@ function Puller:set_pull_target(target)
     if state.AutoPullMode.value == 'Off' then
         self:get_party():set_party_target_index(self:get_party():get_assist_target():get_target_index())
     else
-        self:get_party():set_party_target_index(target and target:get_mob().index, target ~= nil)
+        self:get_party():set_party_target_index(target and target:get_mob().index)
     end
 end
 

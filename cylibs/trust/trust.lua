@@ -81,18 +81,21 @@ function Trust:init()
 
 	WindowerEvents.Raise.DialogShown:addAction(function()
 		if not self:get_party():get_player():is_alive() then
-			local p = packets.new('outgoing', 0x01A)
+			local accept_raise = BlockAction.new(function()
+				local p = packets.new('outgoing', 0x01A)
 
-			p['Target'] = self:get_party():get_player():get_mob().id
-			p['Target Index'] = self:get_party():get_player():get_mob().index
-			p['Category'] = 0x0D -- Accept raise
-			p['Param'] = 0
-			p['X Offset'] = 0
-			p['Z Offset'] = 0
-			p['Y Offset'] = 0
-			p['_unknown1'] = 0
+				p['Target'] = self:get_party():get_player():get_mob().id
+				p['Target Index'] = self:get_party():get_player():get_mob().index
+				p['Category'] = 0x0D -- Accept raise
+				p['Param'] = 0
+				p['X Offset'] = 0
+				p['Z Offset'] = 0
+				p['Y Offset'] = 0
+				p['_unknown1'] = 0
 
-			packets.inject(p)
+				packets.inject(p)
+			end, 'accept-raise')
+			self.action_queue:push_action(accept_raise, true)
 		end
 	end)
 

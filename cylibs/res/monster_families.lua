@@ -50,7 +50,7 @@ return T{
     -- Plantoid
     [44] = {id=44, en="Belladonna", family="Belladonna", type="Plantoid", resistances={}},
     [45] = {id=45, en="Flytrap", family="Flytrap", type="Plantoid", resistances={}},
-    [46] = {id=46, en="Funguar", family="Funguar", type="Plantoid", resistances={}},
+    [46] = {id=46, en="Funguar", family="Funguar", type="Plantoid", resistances={[0]=1.300,[1]=1.300,[2]=1.300,[3]=1.300,[4]=1.300,[5]=0.500,[6]=1.500,[7]=1.500}},
     [47] = {id=47, en="Goobbue", family="Goobbue", type="Plantoid", resistances={}},
     [48] = {id=48, en="Leafkin", family="Leafkin", type="Plantoid", resistances={}},
     [49] = {id=49, en="Mandragora", family="Mandragora", type="Plantoid", resistances={}},
