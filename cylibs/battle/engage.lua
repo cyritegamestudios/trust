@@ -60,6 +60,10 @@ function Engage:get_localized_name()
     return 'Engage'
 end
 
+function Engage:get_ability_id()
+    return 'Engage'
+end
+
 -------
 -- Return the Action to use this action on a target.
 -- @treturn Action Action to use ability
