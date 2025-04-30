@@ -79,7 +79,7 @@ return T{
     [70] = {id=70, en="Bat", family="Bat", type="Bird", resistances={}},
     [71] = {id=71, en="Cockatrice", family="Cockatrice", type="Bird", resistances={[1]=1.250,[2]=1.250,[3]=0.875,}},
     [72] = {id=72, en="Colibri", family="Colibri", type="Bird", resistances={[0]=0.875,[2]=0.500,[3]=0.875,[4]=0.875,[5]=0.875,[7]=0.875}},
-    [73] = {id=73, en="Flock Bat", family="Flock Bat", type="Bird", resistances={[0]=1.250,[1]=1.500,[2]=1.250,[3]=1.250,[4]=1.500,[5]=0.375,[6]=1.250,[7]=1.250}},
+    [73] = {id=73, en="Flock Bat", family="Flock Bat", type="Bird", resistances={}},
     [74] = {id=74, en="Greater Bird", family="Greater Bird", type="Bird", resistances={}},
     [75] = {id=75, en="Harpeia", family="Harpeia", type="Bird", resistances={}},
     [76] = {id=76, en="Hippogryph", family="Hippogryph", type="Bird", resistances={}},

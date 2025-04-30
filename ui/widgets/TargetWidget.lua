@@ -1,5 +1,4 @@
 local ActionQueue = require('cylibs/actions/action_queue')
-local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
@@ -7,13 +6,9 @@ local CollectionViewStyle = require('cylibs/ui/collection_view/collection_view_s
 local Color = require('cylibs/ui/views/color')
 local ContainerCollectionViewCell = require('cylibs/ui/collection_view/cells/container_collection_view_cell')
 local DisposeBag = require('cylibs/events/dispose_bag')
-local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
-local GridLayout = require('cylibs/ui/collection_view/layouts/grid_layout')
 local HorizontalFlowLayout = require('cylibs/ui/collection_view/layouts/horizontal_flow_layout')
 local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_collection_view_cell')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
-local ImageTextCollectionViewCell = require('cylibs/ui/collection_view/cells/image_text_collection_view_cell')
-local ImageTextItem = require('cylibs/ui/collection_view/items/image_text_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local MarqueeCollectionViewCell = require('cylibs/ui/collection_view/cells/marquee_collection_view_cell')
@@ -113,9 +108,6 @@ function TargetWidget.new(frame, party, trust)
     self.alliance = player.alliance
     self.debuffsView = self:createDebuffsView()
     self.maxNumDebuffs = 7
-    self.infoViewIconSize = 8
-    self.infoViewHeight = 32
-    self.infoView = self:createInfoView()
     self.needsResize = true
     self.targetDisposeBag = DisposeBag.new()
 
@@ -124,7 +116,6 @@ function TargetWidget.new(frame, party, trust)
         IndexedItem.new(TextItem.new("", TargetWidget.TextSmall3), IndexPath.new(1, 2)),
         IndexedItem.new(TextItem.new("", TargetWidget.Subheadline), IndexPath.new(1, 3)),
         IndexedItem.new(ViewItem.new(self.debuffsView, true, 14), IndexPath.new(1, 4)),
-        IndexedItem.new(ViewItem.new(self.infoView, true, self.infoViewHeight), IndexPath.new(1, 5))
     }
     self:getDataSource():addItems(itemsToAdd)
 
@@ -339,23 +330,6 @@ function TargetWidget:setExpanded(expanded)
     end
     self:getDataSource():updateItem(ViewItem.new(self.debuffsView, true, itemSize), indexPath)
 
-    -- Info view
-    local indexPath = IndexPath.new(1, 5)
-
-    local itemSize = self.infoViewHeight
-    if expanded and (target and target:has_resistance_info()) --[[and self:getSettings(self.addonSettings).detailed]] then
-        itemSize = self.infoViewHeight
-        self:updateInfoView(target)
-    else
-        itemSize = 0
-        self.infoView:getDataSource():removeAllItems()
-    end
-
-    self.infoView:setNeedsLayout()
-    self.infoView:layoutIfNeeded()
-
-    self:getDataSource():updateItem(ViewItem.new(self.infoView, true, itemSize), indexPath)
-
     self:setSize(self:getSize().width, self:getContentSize().height)
 
     self:setNeedsLayout()
@@ -414,29 +388,6 @@ function TargetWidget:updateDebuffs()
     self.needsResize = true
 
     self:setExpanded(allDebuffIds:length() > 0)
-end
-
-function TargetWidget:createInfoView(target)
-    local containerDataSource = CollectionViewDataSource.new(function(item)
-        local cell = ImageTextCollectionViewCell.new(item)
-        cell:setItemSize(40)
-        return cell
-    end)
-    local containerView = CollectionView.new(containerDataSource, GridLayout.new(0, Padding.equal(0), 0, self:getSize().width, 40, 12), nil, FFXIClassicStyle.static())
-    return containerView
-end
-
-function TargetWidget:updateInfoView(target)
-    self.infoView:getDataSource():removeAllItems()
-    
-    local itemsToAdd = IndexedItem.fromItems(L{ 0, 1, 2, 3, 4, 5, 6, 7 }:map(function(elementId)
-        local resistance = (target:get_resistance(elementId) * 100).."%"
-        local textItem = TextItem.new(resistance, TextStyle.Default.Subheadline)
-        textItem:setOffset(-2, -5)
-        return ImageTextItem.new(AssetManager.imageItemForElement(elementId), textItem, 0)
-    end), 1)
-
-    self.infoView:getDataSource():addItems(itemsToAdd)
 end
 
 return TargetWidget
