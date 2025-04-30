@@ -267,6 +267,7 @@ end
 function TextItem:__eq(otherItem)
     return otherItem.__type == TextItem.__type
             and self.text == otherItem:getText()
+            and self.style:getFontColor() == otherItem.style:getFontColor()
             and self:getEnabled() == otherItem:getEnabled()
 end
 

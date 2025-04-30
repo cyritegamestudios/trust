@@ -1,21 +1,18 @@
 local ActionQueue = require('cylibs/actions/action_queue')
-local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
+local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
 local CollectionViewStyle = require('cylibs/ui/collection_view/collection_view_style')
 local Color = require('cylibs/ui/views/color')
 local ContainerCollectionViewCell = require('cylibs/ui/collection_view/cells/container_collection_view_cell')
 local DisposeBag = require('cylibs/events/dispose_bag')
-local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
-local GridLayout = require('cylibs/ui/collection_view/layouts/grid_layout')
 local HorizontalFlowLayout = require('cylibs/ui/collection_view/layouts/horizontal_flow_layout')
 local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_collection_view_cell')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
-local ImageTextCollectionViewCell = require('cylibs/ui/collection_view/cells/image_text_collection_view_cell')
-local ImageTextItem = require('cylibs/ui/collection_view/items/image_text_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local MarqueeCollectionViewCell = require('cylibs/ui/collection_view/cells/marquee_collection_view_cell')
+local MenuItem = require('cylibs/ui/menu/menu_item')
 local monster_util = require('cylibs/util/monster_util')
 local Padding = require('cylibs/ui/style/padding')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
@@ -42,6 +39,21 @@ TargetWidget.Text = TextStyle.new(
     true,
     Color.red,
     true
+)
+
+TargetWidget.TextClaimed = TextStyle.new(
+        Color.clear,
+        Color.clear,
+        "Arial",
+        9,
+        Color.red,
+        Color.red,
+        0,
+        1,
+        Color.black:withAlpha(175),
+        true,
+        Color.red,
+        true
 )
 
 TargetWidget.TextSmall3 = TextStyle.new(
@@ -83,7 +95,7 @@ function TargetWidget.new(frame, party, trust)
         elseif indexPath.row == 2 then
             local cell = TextCollectionViewCell.new(item)
             cell:setItemSize(14)
-            cell:setUserInteractionEnabled(false)
+            cell:setUserInteractionEnabled(true)
             return cell
         elseif indexPath.row == 3 then
             local cell = MarqueeCollectionViewCell.new(item)
@@ -111,9 +123,6 @@ function TargetWidget.new(frame, party, trust)
     self.alliance = player.alliance
     self.debuffsView = self:createDebuffsView()
     self.maxNumDebuffs = 7
-    self.infoViewIconSize = 8
-    self.infoViewHeight = 32
-    self.infoView = self:createInfoView()
     self.needsResize = true
     self.targetDisposeBag = DisposeBag.new()
 
@@ -122,12 +131,22 @@ function TargetWidget.new(frame, party, trust)
         IndexedItem.new(TextItem.new("", TargetWidget.TextSmall3), IndexPath.new(1, 2)),
         IndexedItem.new(TextItem.new("", TargetWidget.Subheadline), IndexPath.new(1, 3)),
         IndexedItem.new(ViewItem.new(self.debuffsView, true, 14), IndexPath.new(1, 4)),
-        IndexedItem.new(ViewItem.new(self.infoView, true, self.infoViewHeight), IndexPath.new(1, 5))
     }
     self:getDataSource():addItems(itemsToAdd)
 
+    self:setAllowsMultipleSelection(true)
+
     self:setNeedsLayout()
     self:layoutIfNeeded()
+
+    self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
+        self:getDelegate():deselectItemAtIndexPath(indexPath)
+        if indexPath.section == 1 and indexPath.row == 2 then
+            coroutine.schedule(function()
+                self:showTargetInfo()
+            end, 0.2)
+        end
+    end), self:getDelegate():didSelectItemAtIndexPath())
 
     self:getDisposeBag():add(self.actionQueue:on_action_start():addAction(function(_, s)
         self:setAction(s:tostring() or '')
@@ -202,6 +221,27 @@ function TargetWidget.new(frame, party, trust)
     return self
 end
 
+function TargetWidget:showTargetInfo()
+    if self.target_index == nil then
+        return
+    end
+    local target = self.alliance:get_target_by_index(self.target_index)
+    if target then
+        local targetInfoMenuItem = MenuItem.new(L{
+            ButtonItem.default('Info', 18),
+        }, {},
+            function(_)
+                local TargetInfoView = require('cylibs/battle/monsters/ui/target_info_view')
+                local targetInfoView = TargetInfoView.new(target)
+                targetInfoView:setShouldRequestFocus(true)
+                return targetInfoView
+            end, "Targets", "View info on the selected target.", false, function()
+                return self.selectedTargetIndex and self.targets[self.selectedTargetIndex]
+            end)
+        hud:openMenu(targetInfoMenuItem)
+    end
+end
+
 function TargetWidget:setTarget(target_index)
     self.target_index = target_index
 
@@ -221,13 +261,13 @@ function TargetWidget:setTarget(target_index)
             local infoTimer = Timer.scheduledTimer(0.1)
 
             self.targetDisposeBag:add(infoTimer:onTimeChange():addAction(function()
-                self:setInfo(target:get_hpp(), target:get_distance():sqrt(), target:is_claimed())
+                self:setInfo(target:get_hpp(), target:get_distance():sqrt(), target:get_claim_id() and target:get_claim_id() ~= 0)
             end), infoTimer:onTimeChange())
             self.targetDisposeBag:addAny(L{ infoTimer })
 
             infoTimer:start()
 
-            self:setInfo(target:get_hpp(), target:get_distance():sqrt(), target:is_claimed())
+            self:setInfo(target:get_hpp(), target:get_distance():sqrt(), target:get_claim_id() and target:get_claim_id() ~= 0)
         else
             target = Monster.new(monster_util.id_for_index(target_index))
 
@@ -263,13 +303,18 @@ function TargetWidget:setInfo(hpp, distance, claimed)
 
     itemsToUpdate:append(IndexedItem.new(TextItem.new(string.format("HP %d%%  %.1f", hpp, distance), TargetWidget.TextSmall3), IndexPath.new(1, 2)))
 
-    self:getDataSource():updateItems(itemsToUpdate)
+    local textItem = self:getDataSource():itemAtIndexPath(IndexPath.new(1, 1))
 
+    local cell = self:getDataSource():cellForItemAtIndexPath(IndexPath.new(1, 1))
     if claimed then
-        self:getDelegate():selectItemAtIndexPath(IndexPath.new(1, 1))
+        cell:setTextColor(Color.red)
+        itemsToUpdate:append(IndexedItem.new(TextItem.new(textItem:getText(), TargetWidget.TextClaimed), IndexPath.new(1, 1)))
     else
-        self:getDelegate():deselectItemAtIndexPath(IndexPath.new(1, 1))
+        cell:setTextColor(Color.yellow)
+        itemsToUpdate:append(IndexedItem.new(TextItem.new(textItem:getText(), TargetWidget.Text), IndexPath.new(1, 1)))
     end
+
+    self:getDataSource():updateItems(itemsToUpdate)
 end
 
 function TargetWidget:setAction(text)
@@ -306,23 +351,6 @@ function TargetWidget:setExpanded(expanded)
         itemSize = 0
     end
     self:getDataSource():updateItem(ViewItem.new(self.debuffsView, true, itemSize), indexPath)
-
-    -- Info view
-    local indexPath = IndexPath.new(1, 5)
-
-    local itemSize = self.infoViewHeight
-    if expanded and (target and target:has_resistance_info()) --[[and self:getSettings(self.addonSettings).detailed]] then
-        itemSize = self.infoViewHeight
-        self:updateInfoView(target)
-    else
-        itemSize = 0
-        self.infoView:getDataSource():removeAllItems()
-    end
-
-    self.infoView:setNeedsLayout()
-    self.infoView:layoutIfNeeded()
-
-    self:getDataSource():updateItem(ViewItem.new(self.infoView, true, itemSize), indexPath)
 
     self:setSize(self:getSize().width, self:getContentSize().height)
 
@@ -382,29 +410,6 @@ function TargetWidget:updateDebuffs()
     self.needsResize = true
 
     self:setExpanded(allDebuffIds:length() > 0)
-end
-
-function TargetWidget:createInfoView(target)
-    local containerDataSource = CollectionViewDataSource.new(function(item)
-        local cell = ImageTextCollectionViewCell.new(item)
-        cell:setItemSize(40)
-        return cell
-    end)
-    local containerView = CollectionView.new(containerDataSource, GridLayout.new(0, Padding.equal(0), 0, self:getSize().width, 40, 12), nil, FFXIClassicStyle.static())
-    return containerView
-end
-
-function TargetWidget:updateInfoView(target)
-    self.infoView:getDataSource():removeAllItems()
-    
-    local itemsToAdd = IndexedItem.fromItems(L{ 0, 1, 2, 3, 4, 5, 6, 7 }:map(function(elementId)
-        local resistance = (target:get_resistance(elementId) * 100).."%"
-        local textItem = TextItem.new(resistance, TextStyle.Default.Subheadline)
-        textItem:setOffset(-2, -5)
-        return ImageTextItem.new(AssetManager.imageItemForElement(elementId), textItem, 0)
-    end), 1)
-
-    self.infoView:getDataSource():addItems(itemsToAdd)
 end
 
 return TargetWidget

@@ -3,8 +3,10 @@ local CarouselCollectionViewCell = require('cylibs/ui/collection_view/cells/caro
 local CarouselItem = require('cylibs/ui/collection_view/items/carousel_item')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
-local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
+local ContainerCollectionViewCell = require('cylibs/ui/collection_view/cells/container_collection_view_cell')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
+local Frame = require('cylibs/ui/views/frame')
+local GridLayout = require('cylibs/ui/collection_view/layouts/grid_layout')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local ImageTextCollectionViewCell = require('cylibs/ui/collection_view/cells/image_text_collection_view_cell')
 local ImageTextItem = require('cylibs/ui/collection_view/items/image_text_item')
@@ -12,11 +14,11 @@ local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Padding = require('cylibs/ui/style/padding')
 local SectionHeaderItem = require('cylibs/ui/collection_view/items/section_header_item')
-local spell_util = require('cylibs/util/spell_util')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
+local ViewItem = require('cylibs/ui/collection_view/items/view_item')
 
 local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
 local TargetInfoView = setmetatable({}, {__index = FFXIWindow })
@@ -30,6 +32,10 @@ function TargetInfoView.new(target)
             cell:setClipsToBounds(true)
             cell:setItemSize(16)
             return cell
+        elseif item.__type == ViewItem.__type then
+            local cell = ContainerCollectionViewCell.new(item)
+            cell:setItemSize(16)
+            return cell
         else
             local cell = TextCollectionViewCell.new(item)
             cell:setClipsToBounds(true)
@@ -39,12 +45,16 @@ function TargetInfoView.new(target)
         end
     end)
 
-    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, FFXIClassicStyle.Padding.ConfigEditor, 6), nil, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditor), TargetInfoView)
+    local viewSize = FFXIClassicStyle.WindowSize.Editor.ConfigEditor
+    if target:has_resistance_info() then
+        viewSize = Frame.new(0, 0, 350, 315)
+    end
+
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(2, FFXIClassicStyle.Padding.ConfigEditor, 6), nil, false, viewSize), TargetInfoView)
 
     self.target = target
 
     self:setShouldRequestFocus(true)
-    --self:setAllowsCursorSelection(false)
     self:setScrollDelta(16)
 
     self:reloadSettings()
@@ -151,6 +161,18 @@ function TargetInfoView:reloadSettings()
 
     itemsToAdd:append(IndexedItem.new(TextItem.new(self.target:get_mob().models[1] or 'Unknown', TextStyle.Default.TextSmall), IndexPath.new(6, 1)))
 
+    -- Resistances
+    if self.target:has_resistance_info() then
+        local resistancesHeaderItem = SectionHeaderItem.new(
+                TextItem.new("Resistances", TextStyle.Default.SectionHeader),
+                ImageItem.new(windower.addon_path..'assets/icons/icon_bullet.png', 8, 8),
+                16
+        )
+        self:getDataSource():setItemForSectionHeader(7, resistancesHeaderItem)
+
+        itemsToAdd:append(IndexedItem.new(ViewItem.new(self:createResistancesView(self.target), false, 16, Frame.new(0, 6)), IndexPath.new(7, 1)))
+    end
+
     self:getDataSource():addItems(itemsToAdd)
 
     self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
@@ -163,6 +185,24 @@ function TargetInfoView:setVisible(visible)
     if visible then
         self:reloadSettings()
     end
+end
+
+function TargetInfoView:createResistancesView(target)
+    local resistancesDataSource = CollectionViewDataSource.new(function(item)
+        local cell = ImageTextCollectionViewCell.new(item)
+        cell:setItemSize(40)
+        return cell
+    end)
+    local resistancesView = CollectionView.new(resistancesDataSource, GridLayout.new(0, Padding.equal(0), 0, self:getSize().width, 40, 12), nil, FFXIClassicStyle.static())
+
+    local itemsToAdd = IndexedItem.fromItems(L{ 0, 1, 2, 3, 4, 5, 6, 7 }:map(function(elementId)
+        local resistance = (target:get_resistance(elementId) * 100).."%"
+        local textItem = TextItem.new(resistance, TextStyle.Default.Subheadline)
+        textItem:setOffset(-2, -5)
+        return ImageTextItem.new(AssetManager.imageItemForElement(elementId), textItem, 0)
+    end), 1)
+    resistancesView:getDataSource():addItems(itemsToAdd)
+    return resistancesView
 end
 
 return TargetInfoView
