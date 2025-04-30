@@ -41,6 +41,21 @@ TargetWidget.Text = TextStyle.new(
     true
 )
 
+TargetWidget.TextClaimed = TextStyle.new(
+        Color.clear,
+        Color.clear,
+        "Arial",
+        9,
+        Color.red,
+        Color.red,
+        0,
+        1,
+        Color.black:withAlpha(175),
+        true,
+        Color.red,
+        true
+)
+
 TargetWidget.TextSmall3 = TextStyle.new(
         Color.clear,
         Color.clear,
@@ -118,6 +133,8 @@ function TargetWidget.new(frame, party, trust)
         IndexedItem.new(ViewItem.new(self.debuffsView, true, 14), IndexPath.new(1, 4)),
     }
     self:getDataSource():addItems(itemsToAdd)
+
+    self:setAllowsMultipleSelection(true)
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
@@ -244,13 +261,13 @@ function TargetWidget:setTarget(target_index)
             local infoTimer = Timer.scheduledTimer(0.1)
 
             self.targetDisposeBag:add(infoTimer:onTimeChange():addAction(function()
-                self:setInfo(target:get_hpp(), target:get_distance():sqrt(), target:is_claimed())
+                self:setInfo(target:get_hpp(), target:get_distance():sqrt(), target:get_claim_id() and target:get_claim_id() ~= 0)
             end), infoTimer:onTimeChange())
             self.targetDisposeBag:addAny(L{ infoTimer })
 
             infoTimer:start()
 
-            self:setInfo(target:get_hpp(), target:get_distance():sqrt(), target:is_claimed())
+            self:setInfo(target:get_hpp(), target:get_distance():sqrt(), target:get_claim_id() and target:get_claim_id() ~= 0)
         else
             target = Monster.new(monster_util.id_for_index(target_index))
 
@@ -286,13 +303,18 @@ function TargetWidget:setInfo(hpp, distance, claimed)
 
     itemsToUpdate:append(IndexedItem.new(TextItem.new(string.format("HP %d%%  %.1f", hpp, distance), TargetWidget.TextSmall3), IndexPath.new(1, 2)))
 
-    self:getDataSource():updateItems(itemsToUpdate)
+    local textItem = self:getDataSource():itemAtIndexPath(IndexPath.new(1, 1))
 
+    local cell = self:getDataSource():cellForItemAtIndexPath(IndexPath.new(1, 1))
     if claimed then
-        self:getDelegate():selectItemAtIndexPath(IndexPath.new(1, 1))
+        cell:setTextColor(Color.red)
+        itemsToUpdate:append(IndexedItem.new(TextItem.new(textItem:getText(), TargetWidget.TextClaimed), IndexPath.new(1, 1)))
     else
-        self:getDelegate():deselectItemAtIndexPath(IndexPath.new(1, 1))
+        cell:setTextColor(Color.yellow)
+        itemsToUpdate:append(IndexedItem.new(TextItem.new(textItem:getText(), TargetWidget.Text), IndexPath.new(1, 1)))
     end
+
+    self:getDataSource():updateItems(itemsToUpdate)
 end
 
 function TargetWidget:setAction(text)
