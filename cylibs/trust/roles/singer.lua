@@ -33,6 +33,7 @@ function Singer.new(action_queue, dummy_songs, songs, pianissimo_songs, brd_job,
     self.song_action_identifier = self.__class..'_sing_song'
     self.last_sing_time = os.time()
     self.brd_job = brd_job
+    self.action_events = {}
     self.songs_begin = Event.newEvent()
     self.songs_end = Event.newEvent()
     self.dispose_bag = DisposeBag.new()
@@ -96,6 +97,10 @@ end
 function Singer:destroy()
     Role.destroy(self)
 
+    for _,event in pairs(self.action_events) do
+        windower.unregister_event(event)
+    end
+
     self.dispose_bag:destroy()
 end
 
@@ -134,6 +139,10 @@ function Singer:on_add()
         end), self.song_tracker:on_song_added())
 
     self.dispose_bag:addAny(L{ self.song_tracker })
+
+    self.action_events.zone_change = windower.register_event('zone change', function(_, _)
+        self:set_is_singing(false)
+    end)
 end
 
 function Singer:set_is_singing(is_singing)
