@@ -54,10 +54,6 @@ function Attacker:set_attacker_settings(_)
     local gambit_settings = {
         Gambits = L{
             Gambit.new(GambitTarget.TargetType.Enemy, L{
-                GambitCondition.new(StatusCondition.new('Engaged'), GambitTarget.TargetType.Self),
-                GambitCondition.new(TargetMismatchCondition.new(), GambitTarget.TargetType.Self),
-            }, Engage.new(), GambitTarget.TargetType.Self),
-            Gambit.new(GambitTarget.TargetType.Enemy, L{
                 GambitCondition.new(ModeCondition.new('AutoEngageMode', 'Always'), GambitTarget.TargetType.Self),
                 GambitCondition.new(StatusCondition.new('Idle'), GambitTarget.TargetType.Self),
                 GambitCondition.new(MaxDistanceCondition.new(30), GambitTarget.TargetType.Enemy),
@@ -98,6 +94,14 @@ function Attacker:set_attacker_settings(_)
             gambit:addCondition(condition)
         end
     end
+
+    gambit_settings.Gambits = L{
+        -- we do not want IsAggroedCondition here
+        Gambit.new(GambitTarget.TargetType.Enemy, L{
+            GambitCondition.new(StatusCondition.new('Engaged'), GambitTarget.TargetType.Self),
+            GambitCondition.new(TargetMismatchCondition.new(), GambitTarget.TargetType.Self),
+        }, Engage.new(), GambitTarget.TargetType.Self),
+    } + gambit_settings.Gambits
 
     self:set_gambit_settings(gambit_settings)
 end
