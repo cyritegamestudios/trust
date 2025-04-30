@@ -1,5 +1,6 @@
 local ActionQueue = require('cylibs/actions/action_queue')
 local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
+local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
 local CollectionViewStyle = require('cylibs/ui/collection_view/collection_view_style')
@@ -16,6 +17,7 @@ local ImageTextItem = require('cylibs/ui/collection_view/items/image_text_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local MarqueeCollectionViewCell = require('cylibs/ui/collection_view/cells/marquee_collection_view_cell')
+local MenuItem = require('cylibs/ui/menu/menu_item')
 local monster_util = require('cylibs/util/monster_util')
 local Padding = require('cylibs/ui/style/padding')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
@@ -83,7 +85,7 @@ function TargetWidget.new(frame, party, trust)
         elseif indexPath.row == 2 then
             local cell = TextCollectionViewCell.new(item)
             cell:setItemSize(14)
-            cell:setUserInteractionEnabled(false)
+            cell:setUserInteractionEnabled(true)
             return cell
         elseif indexPath.row == 3 then
             local cell = MarqueeCollectionViewCell.new(item)
@@ -128,6 +130,15 @@ function TargetWidget.new(frame, party, trust)
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
+
+    self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
+        self:getDelegate():deselectItemAtIndexPath(indexPath)
+        if indexPath.section == 1 and indexPath.row == 2 then
+            coroutine.schedule(function()
+                self:showTargetInfo()
+            end, 0.2)
+        end
+    end), self:getDelegate():didSelectItemAtIndexPath())
 
     self:getDisposeBag():add(self.actionQueue:on_action_start():addAction(function(_, s)
         self:setAction(s:tostring() or '')
@@ -200,6 +211,27 @@ function TargetWidget.new(frame, party, trust)
     end), skillchainer:on_skillchain_ended())
 
     return self
+end
+
+function TargetWidget:showTargetInfo()
+    if self.target_index == nil then
+        return
+    end
+    local target = self.alliance:get_target_by_index(self.target_index)
+    if target then
+        local targetInfoMenuItem = MenuItem.new(L{
+            ButtonItem.default('Info', 18),
+        }, {},
+            function(_)
+                local TargetInfoView = require('cylibs/battle/monsters/ui/target_info_view')
+                local targetInfoView = TargetInfoView.new(target)
+                targetInfoView:setShouldRequestFocus(true)
+                return targetInfoView
+            end, "Targets", "View info on the selected target.", false, function()
+                return self.selectedTargetIndex and self.targets[self.selectedTargetIndex]
+            end)
+        hud:openMenu(targetInfoMenuItem)
+    end
 end
 
 function TargetWidget:setTarget(target_index)

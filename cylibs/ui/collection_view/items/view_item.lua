@@ -9,11 +9,12 @@ ViewItem.__class = "ViewItem"
 -- @tparam boolean keepView Whether the view should be destroyed when the cell is destroyed.
 -- @treturn ViewItem The newly created ViewItem.
 --
-function ViewItem.new(view, keepView, viewSize)
+function ViewItem.new(view, keepView, viewSize, offset)
     local self = setmetatable({}, ViewItem)
     self.view = view
     self.keepView = keepView
     self.viewSize = viewSize
+    self.offset = offset
     return self
 end
 
@@ -31,6 +32,14 @@ end
 --
 function ViewItem:shouldDestroyView()
     return not self.keepView
+end
+
+---
+-- Gets the view offset.
+-- @treturn {number, number} View offset.
+--
+function ViewItem:getOffset()
+    return self.offset or { x = 0, y = 0 }
 end
 
 ---
