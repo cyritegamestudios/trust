@@ -496,7 +496,7 @@ function Monster:get_status()
 end
 
 function Monster:get_hpp()
-    return self:get_mob().hpp
+    return self:get_mob() and self:get_mob().hpp or 100
 end
 
 -------
