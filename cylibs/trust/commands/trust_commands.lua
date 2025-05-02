@@ -66,11 +66,15 @@ function TrustCommands:handle_toggle_mode(mode_var_name, on_value, off_value)
     return success, message
 end
 
-function TrustCommands:handle_set_mode(mode_name, mode_value)
+function TrustCommands:handle_set_mode(mode_name, mode_value, suppress_help_text)
     local success = true
     local message
 
-    handle_set(mode_name, mode_value)
+    if suppress_help_text then
+        get_state(mode_name):set(mode_value)
+    else
+        handle_set(mode_name, mode_value)
+    end
 
     return success, message
 end
