@@ -73,6 +73,7 @@ function SkillchainSettingsEditor:reloadSettings()
     local skillchain_builder = SkillchainBuilder.new(self.ability_gambits:filter(function(gambit)
         return not L{ SkillchainAbility.Auto, SkillchainAbility.Skip }:contains(gambit:getAbility():get_name())
     end):map(function(gambit) return gambit:getAbility() end))
+    skillchain_builder.include_aeonic = true
 
     local items = L{}
 

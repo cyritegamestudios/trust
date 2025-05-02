@@ -33,6 +33,7 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
     self.weaponSkillSettings = weaponSkillSettings
     self.weaponSkillSettingsMode = weaponSkillSettingsMode
     self.skillchainBuilder = SkillchainBuilder.new(skillchainer.skillchain_builder.abilities)
+    self.skillchainBuilder.include_aeonic = true
     self.skillchainer = skillchainer
     self.trust = trust
     self.conditionSettingsMenuItem =  GambitConditionSettingsMenuItem.new(self.weaponSkillSettings)
@@ -64,6 +65,9 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
                     if self.selectedAbility:getAbility():get_job_abilities():length() > 0 then
                         description = description..", Use with: "..localization_util.commas(self.selectedAbility:getAbility():get_job_abilities(), 'and')
                     end
+                    if self.selectedAbility:getAbility():has_aeonic_properties() then
+                        description = description..", May Require: Aeonic Aftermath"
+                    end
                     infoView:setDescription(description)
                 end
             end
@@ -93,7 +97,7 @@ function SkillchainSettingsMenuItem:getNextSteps(stepNum)
         function(ability)
             return ability
         end)
-
+    self.skillchainBuilder.include_aeonic = true
     local currentSkillchain = self.skillchainBuilder:reduce_skillchain(previousAbilities)
 
     self.skillchainBuilder:set_current_step(SkillchainStep.new(stepNum - 1, abilities[stepNum - 1], currentSkillchain))
