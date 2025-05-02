@@ -159,6 +159,16 @@ function SkillchainAbility:get_skillchain_properties(include_aeonic)
     return properties:map(function(property_name) return skillchain_util[property_name] end)
 end
 
+-- Returns whether this ability has aeonic properties.
+-- @treturn boolean True if the skill has aeonic properties
+function SkillchainAbility:has_aeonic_properties()
+    if L{ SkillchainAbility.Auto, SkillchainAbility.Skip }:contains(self:get_name()) then
+        return false
+    end
+    local skill = skills[self.resource][self.ability_id]
+    return skill and skill.aeonic
+end
+
 -- Sets the job abilities to use before this ability.
 -- @tparam list job_abilities List of job abilities
 function SkillchainAbility:set_job_abilities(job_abilities)

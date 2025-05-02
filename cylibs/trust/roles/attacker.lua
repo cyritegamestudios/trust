@@ -80,7 +80,7 @@ function Attacker:set_attacker_settings(_)
                 GambitCondition.new(NotCondition.new(L{ ModeCondition.new('PullActionMode', 'Target') }), GambitTarget.TargetType.Self),
                 GambitCondition.new(StatusCondition.new('Idle'), GambitTarget.TargetType.Self),
                 GambitCondition.new(TargetMismatchCondition.new(), GambitTarget.TargetType.Self),
-            }, Target.new(), GambitTarget.TargetType.Self),
+            }, Target.new(), GambitTarget.TargetType.Self), -- TODO: should I also remove aggroed condition from this??
         }
     }
 
