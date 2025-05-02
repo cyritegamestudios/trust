@@ -84,11 +84,15 @@ function ScenarioTrustCommands:handle_exp_party(_)
     self:handle_set_mode('PullActionMode', 'Auto', true)
     self:handle_set_mode('AutoEngageMode', 'Always', true)
 
-    -- 2. Clear assist on all
+    windower.send_command('trust pull camp')
+
+    -- 2. Set up party members
     windower.send_command('trust sendall trust assist clear')
     windower.send_command('trust sendall trust pull aggroed')
     windower.send_command('trust sendall trust pull action target')
+    windower.send_command('trust sendall trust pull camp')
     windower.send_command('trust sendall trust attack engage')
+    windower.send_command('trust sendall trust set CombatMode Melee')
 
     local party_members = self.party:get_party_members()
     if party_members:length() == 0 then

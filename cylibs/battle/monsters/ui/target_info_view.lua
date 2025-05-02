@@ -162,7 +162,7 @@ function TargetInfoView:reloadSettings()
     itemsToAdd:append(IndexedItem.new(TextItem.new(self.target:get_mob().models[1] or 'Unknown', TextStyle.Default.TextSmall), IndexPath.new(6, 1)))
 
     -- Resistances
-    if self.target:has_resistance_info() then
+    if self.target.has_resistance_info and self.target:has_resistance_info() then
         local resistancesHeaderItem = SectionHeaderItem.new(
                 TextItem.new("Resistances", TextStyle.Default.SectionHeader),
                 ImageItem.new(windower.addon_path..'assets/icons/icon_bullet.png', 8, 8),
