@@ -61,8 +61,10 @@ function AssistTrustCommands:handle_assist_player(party_member_name, mirror)
         end
 
         if state.AutoPullMode and state.AutoPullMode.value ~= 'Off' then
-            state.AutoPullMode:set('Off')
-            self.trust:get_party():add_to_chat(self.trust:get_party():get_player(), "I can't pull when I'm assisting someone else, so I'm going to stop pulling.")
+            if party_member_name ~= windower.ffxi.get_player().name then
+                state.AutoPullMode:set('Off')
+                self.trust:get_party():add_to_chat(self.trust:get_party():get_player(), "I can't pull when I'm assisting someone else, so I'm going to stop pulling.")
+            end
         end
     else
         success = false

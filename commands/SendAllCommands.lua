@@ -36,7 +36,7 @@ function SendAllTrustCommands:handle_send_command(...)
         if L{'All', 'Send'}:contains(state.IpcMode.value) then
             IpcRelay.shared():send_message(CommandMessage.new(windower_command))
             success = true
-            message = 'Executing command: '..windower_command..' on all players'
+            message = 'Executing command: '..windower_command..'on all players'
         else
             success = false
             message = 'IpcMode must be set to All or Send to use this command'
