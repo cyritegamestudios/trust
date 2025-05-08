@@ -103,7 +103,8 @@ function RunToAction:target_distance()
 		return 0
 	end
 
-	return target.distance:sqrt()
+	-- Update to use geometry_util.xyz_accurate_distance because the game actually does care about z-axis.
+	return geometry_util.xyz_accurate_distance(target, windower.ffxi.get_mob_by_id(windower.ffxi.get_player().id))
 end
 
 function RunToAction:gettype()
@@ -130,6 +131,3 @@ function RunToAction:tostring()
 end
 
 return RunToAction
-
-
-
