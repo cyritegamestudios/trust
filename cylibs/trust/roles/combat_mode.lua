@@ -110,10 +110,13 @@ function CombatMode:check_distance()
                     end
                 end
             else
-                if target.distance:sqrt() > self.melee_distance + self_mob.model_size + target.model_size - 0.2 then
+                -- Aldros: Update to use geometry_util.xyz_accurate_distance because the game actually does care about z-axis.
+                -- We also subtract 0.2 just in case... This may not be needed now with the new distance check.
+                -- I've also never seen model_scale be anything other than 1.0, buuuut can't hurt to have it.
+                if geometry_util.xyz_accurate_distance(target, self_mob) > self.melee_distance + (self_mob.model_size * self_mob.model_scale) + (target.model_size * target.model_scale) - 0.2 then
                     self.action_queue:push_action(BlockAction.new(function() player_util.face(target) end))
                     self.action_queue:push_action(
-                        RunToAction.new(target.index, self.melee_distance + self_mob.model_size + target.model_size - 0.2),
+                        RunToAction.new(target.index, self.melee_distance + (self_mob.model_size * self_mob.model_scale) + (target.model_size * target.model_scale) - 0.2),
                         true)
                 else
                     self:face_target(target)
