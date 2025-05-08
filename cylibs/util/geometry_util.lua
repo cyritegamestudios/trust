@@ -94,6 +94,16 @@ function geometry_util.is_in_front(target)
 	return math.abs((target.facing - player.facing) - math.pi) < (math.pi / 12.0)
 end
 
+-------
+-- Returns the distance between two mobs, including the z-axis.
+-- @tparam MobMetadata target Target mob
+-- @tparam MobMetadata self Self mob
+-- @treturn number Distance in yalms
+function geometry_util.xyz_accurate_distance(target, self)
+	local x = target.x - self.x
+	local y = target.y - self.y
+	local z = target.z - self.z
+	return math.sqrt(x*x + y*y + z*z)
+end
+
 return geometry_util
-
-
