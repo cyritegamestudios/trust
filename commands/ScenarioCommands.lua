@@ -85,12 +85,13 @@ function ScenarioTrustCommands:handle_exp_party(_)
     self:handle_set_mode('AutoEngageMode', 'Always', true)
 
     windower.send_command('trust pull camp')
+    windower.send_command('trust follow clear')
 
     -- 2. Set up party members
     windower.send_command('trust sendall trust assist clear')
     windower.send_command('trust sendall trust pull aggroed')
     windower.send_command('trust sendall trust pull action target')
-    windower.send_command('trust sendall trust pull camp')
+    windower.send_command('trust sendall trust follow '..windower.ffxi.get_player().name)
     windower.send_command('trust sendall trust attack engage')
     windower.send_command('trust sendall trust set CombatMode Melee')
 

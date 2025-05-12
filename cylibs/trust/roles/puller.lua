@@ -187,6 +187,8 @@ function Puller:is_valid_target(target, target_id_blacklist)
     for gambit in pull_abilities:it() do
         max_pull_ability_range = math.max(max_pull_ability_range, gambit:getAbility():get_range())
     end
+    max_pull_ability_range = math.min(max_pull_ability_range, self.distance)
+
     local conditions = L{
         MinHitPointsPercentCondition.new(1),
         ConditionalCondition.new(L{

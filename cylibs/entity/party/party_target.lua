@@ -62,6 +62,16 @@ function PartyTarget:set_assist_target(assist_target)
     end
 end
 
+function PartyTarget:log_target_changed(old_target_index, new_target_index)
+    local old_target = old_target_index and windower.ffxi.get_mob_by_index(old_target_index)
+    local new_target = new_target_index and windower.ffxi.get_mob_by_index(new_target_index)
+    logger.notice(
+            self.__class,
+            'old_target', old_target and old_target.name, old_target and old_target.index, old_target and old_target.hpp, old_target and old_target.status, old_target and old_target.claim_id,
+            'new_target', new_target and new_target.name, new_target and new_target.index, new_target and new_target.hpp, new_target and new_target.status, new_target and new_target.claim_id
+    )
+end
+
 function PartyTarget:set_target_index(target_index)
     if self.target_index == target_index then
         return
@@ -69,6 +79,7 @@ function PartyTarget:set_target_index(target_index)
     self.target_tracker:add_mob_by_index(target_index)
     local old_target_index = self.target_index
     self.target_index = target_index
+    self:log_target_changed(old_target_index, self.target_index)
     self:on_target_change():trigger(self, self.target_index, old_target_index)
 end
 
