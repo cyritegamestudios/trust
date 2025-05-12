@@ -17,9 +17,9 @@ function ScenarioTrustCommands.new(trust, action_queue, party, addon_settings)
     self:add_command('start', self.handle_start_scenario, 'Start a scenario')
     self:add_command('restart', self.handle_restart_scenario, 'Restart a scenario')
     self:add_command('stop', self.handle_stop_scenario, 'Stop an active scenario')
-    self:add_command('exp', self.handle_exp_party, 'Set up the party for experience points farming')
-    self:add_command('cp', self.handle_exp_party, 'Set up the party for capacity points farming')
-    self:add_command('ep', self.handle_exp_party, 'Set up the party for exemplar points farming')
+    self:add_command('exp', self.handle_exp_party, 'Set up the party for experience points farming and makes this player the puller')
+    self:add_command('cp', self.handle_exp_party, 'Set up the party for capacity points farming and makes this player the puller')
+    self:add_command('ep', self.handle_exp_party, 'Set up the party for exemplar points and makes this player the puller')
 
     return self
 end

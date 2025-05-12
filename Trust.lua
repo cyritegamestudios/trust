@@ -328,6 +328,13 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_name_short,
 				return term
 			end)
 			command_widget:setConfigItems(L{ configItem })
+
+			if not hud.trustMenu:isVisible() then
+				hud.infoBar:setTitle("Commands")
+				hud.infoBar:setDescription('Press Ctrl + Up to focus on the command list.')
+				hud.infoBar:setVisible(true)
+				hud.infoBar:layoutIfNeeded()
+			end
 		else
 			if command_widget:isVisible() then
 				command_widget:setVisible(false)
