@@ -66,6 +66,12 @@ function Roller:on_add()
         end
     end), self:get_party():get_player():on_gain_buff())
 
+    self.dispose_bag:add(self:get_party():get_player():on_lose_buff():addAction(function(_, buff_id)
+        if buff_id == 308 then -- Double-Up Chance
+            self:set_is_rolling(false)
+        end
+    end), self:get_party():get_player():on_gain_buff())
+
     self.dispose_bag:add(WindowerEvents.Action:addAction(function(act)
         if act.actor_id == self:get_player():get_id() then
             for _, target in pairs(act.targets) do
