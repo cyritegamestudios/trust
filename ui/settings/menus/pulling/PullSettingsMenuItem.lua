@@ -24,7 +24,7 @@ function PullSettingsMenuItem.new(abilities, trust, job_name_short, trust_settin
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Targets', 18),
         ButtonItem.default('Actions', 18),
-        ButtonItem.localized("Modes", i18n.translate("Modes")),
+        ButtonItem.localized('Modes', i18n.translate("Modes")),
         ButtonItem.default('Config', 18),
     }, {
 
@@ -152,13 +152,8 @@ function PullSettingsMenuItem:getConfigMenuItem()
 
         local pullSettings = T{
             Distance = allSettings.PullSettings.Distance,
+            RandomizeTarget = allSettings.PullSettings.RandomizeTarget or false
         }
-        local maxNumTargets = allSettings.PullSettings.MaxNumTargets or 1
-        if maxNumTargets > 1 then
-            pullSettings.RandomizeTarget = true
-        else
-            pullSettings.RandomizeTarget = false
-        end
 
         local configItems = L{
             ConfigItem.new('Distance', 0, 50, 1, function(value) return value.." yalms" end, "Detection Distance"),
@@ -168,11 +163,7 @@ function PullSettingsMenuItem:getConfigMenuItem()
 
         self.dispose_bag:add(pullConfigEditor:onConfigChanged():addAction(function(newSettings, _)
             allSettings.PullSettings.Distance = newSettings.Distance
-            if newSettings.RandomizeTarget then
-                allSettings.PullSettings.MaxNumTargets = 6
-            else
-                allSettings.PullSettings.MaxNumTargets = 1
-            end
+            allSettings.PullSettings.RandomizeTarget = newSettings.RandomizeTarget
             self.trust_settings:saveSettings(true)
         end), pullConfigEditor:onConfigChanged())
 
