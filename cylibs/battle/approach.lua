@@ -23,7 +23,7 @@ function Approach.new(conditions)
         return c.__class == MaxDistanceCondition.__class
     end)
     if matches:length() == 0 then
-        self:add_condition(MaxDistanceCondition.new(35))
+        self:add_condition(MaxDistanceCondition.new(50))
     end
 
     return self
@@ -84,7 +84,14 @@ function Approach:to_action(target_index)
     actions:append(EngageAction.new(target_index))
     actions:append(FollowAction.new(target_index, L{ ClaimedCondition.new() }))
 
-    return SequenceAction.new(actions, self.__class..'_approach')
+    local action = SequenceAction.new(actions, self.__class..'_approach')
+
+    local target = windower.ffxi.get_mob_by_index(target_index)
+    if target then
+        action.display_name = 'Approaching → '..target.name
+    end
+
+    return action
 end
 
 function Approach:serialize()
