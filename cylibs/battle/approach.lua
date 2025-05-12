@@ -84,7 +84,14 @@ function Approach:to_action(target_index)
     actions:append(EngageAction.new(target_index))
     actions:append(FollowAction.new(target_index, L{ ClaimedCondition.new() }))
 
-    return SequenceAction.new(actions, self.__class..'_approach')
+    local action = SequenceAction.new(actions, self.__class..'_approach')
+
+    local target = windower.ffxi.get_mob_by_index(target_index)
+    if target then
+        action.display_name = 'Approaching → '..target.name
+    end
+
+    return action
 end
 
 function Approach:serialize()
