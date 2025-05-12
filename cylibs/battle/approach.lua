@@ -23,7 +23,7 @@ function Approach.new(conditions)
         return c.__class == MaxDistanceCondition.__class
     end)
     if matches:length() == 0 then
-        self:add_condition(MaxDistanceCondition.new(35))
+        self:add_condition(MaxDistanceCondition.new(50))
     end
 
     return self
