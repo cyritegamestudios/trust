@@ -8,11 +8,11 @@ local MountCommands = setmetatable({}, {__index = TrustCommands })
 MountCommands.__index = MountCommands
 MountCommands.__class = "MountCommands"
 
-function MountCommands.new(trust, action_queue)
+function MountCommands.new(trust)
     local self = setmetatable(TrustCommands.new(), MountCommands)
 
     self.trust = trust
-    self.action_queue = action_queue
+    self.action_queue = ActionQueue.new(nil, false, 5, false, false)
     self.allowed_mounts = S(player_util.get_mounts())
 
     local mount_names = L{}
