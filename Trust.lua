@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '14.7.1'
+_addon.version = '14.7.2'
 _addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 
@@ -236,7 +236,7 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_name_short,
 		LoggingCommands.new(main_job_trust, action_queue),
 		state.AutoMagicBurstMode and MagicBurstCommands.new(main_job_trust, main_trust_settings, action_queue),
 		MenuCommands.new(main_job_trust, action_queue, hud),
-		MountCommands.new(main_job_trust, main_job_trust:role_with_type("follower").walk_action_queue),
+		MountCommands.new(main_job_trust),
 		state.AutoNukeMode and NukeCommands.new(main_job_trust, main_trust_settings, action_queue),
 		PathCommands.new(main_job_trust, action_queue),
 		ProfileCommands.new(main_trust_settings, sub_trust_settings, trust_mode_settings, weapon_skill_settings),
@@ -328,6 +328,13 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_name_short,
 				return term
 			end)
 			command_widget:setConfigItems(L{ configItem })
+
+			if not hud.trustMenu:isVisible() then
+				hud.infoBar:setTitle("Commands")
+				hud.infoBar:setDescription('Press Ctrl + Up to focus on the command list.')
+				hud.infoBar:setVisible(true)
+				hud.infoBar:layoutIfNeeded()
+			end
 		else
 			if command_widget:isVisible() then
 				command_widget:setVisible(false)

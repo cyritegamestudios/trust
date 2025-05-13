@@ -269,7 +269,7 @@ function player_util.get_current_target()
 end
 
 function player_util.get_mounts()
-	local possible_mounts = L{}
+	local possible_mounts = L{ 'Raptor' }
 	for _, mount in pairs(res.mounts) do
 		possible_mounts:append(mount.en:lower())
 	end
