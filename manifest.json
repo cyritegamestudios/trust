@@ -1,9 +1,5 @@
 {
-  "version": "14.7.2",
-<<<<<<< HEAD
+  "version": "14.7.3",
   "download_url": "https://github.com/cyritegamestudios/trust/archive/refs/heads/alpha.zip"
-=======
-  "download_url": "https://github.com/cyritegamestudios/trust/releases/download/v14.7.2/trust.zip"
->>>>>>> main
 }
 
