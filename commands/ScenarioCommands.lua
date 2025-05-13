@@ -75,31 +75,35 @@ function ScenarioTrustCommands:handle_stop_scenario(_, scenario_name)
 end
 
 -- // trust scenario [exp|cp|ep]
-function ScenarioTrustCommands:handle_exp_party(_)
+function ScenarioTrustCommands:handle_exp_party(_, assist_target_name)
     local success = true
     local message
 
-    -- 1. Set up primary puller
-    self:handle_set_mode('AutoPullMode', 'Auto', true)
-    self:handle_set_mode('PullActionMode', 'Auto', true)
-    self:handle_set_mode('AutoEngageMode', 'Always', true)
-
-    windower.send_command('trust pull camp')
-    windower.send_command('trust follow clear')
-
-    -- 2. Set up party members
-    windower.send_command('trust sendall trust assist clear')
-    windower.send_command('trust sendall trust pull aggroed')
-    windower.send_command('trust sendall trust pull action target')
-    windower.send_command('trust sendall trust follow '..windower.ffxi.get_player().name)
-    windower.send_command('trust sendall trust attack engage')
-    windower.send_command('trust sendall trust set CombatMode Melee')
-
-    local party_members = self.party:get_party_members()
-    if party_members:length() == 0 then
-        addon_system_message(string.format("%s will now pull mobs for the party.", self.party:get_player():get_name()))
+    if assist_target_name then
+        windower.send_command('trust assist clear')
+        windower.send_command('trust pull aggroed')
+        windower.send_command('trust pull action target')
+        windower.send_command('trust follow '..assist_target_name)
+        windower.send_command('trust attack engage')
+        windower.send_command('trust set CombatMode Melee')
     else
-        addon_system_message(string.format("%s will now pull mobs for the party and %s will assist and engage.", self.party:get_player():get_name(), localization_util.commas(self.party:get_party_members():map(function(p) return p:get_name() end))))
+        -- 1. Set up primary puller
+        self:handle_set_mode('AutoPullMode', 'Auto', true)
+        self:handle_set_mode('PullActionMode', 'Auto', true)
+        self:handle_set_mode('AutoEngageMode', 'Always', true)
+
+        windower.send_command('trust pull camp')
+        windower.send_command('trust follow clear')
+
+        -- 2. Set up party members
+        windower.send_command('trust sendall trust scenario exp '..windower.ffxi.get_player().name)
+
+        local party_members = self.party:get_party_members()
+        if party_members:length() == 0 then
+            addon_system_message(string.format("%s will now pull mobs for the party.", self.party:get_player():get_name()))
+        else
+            addon_system_message(string.format("%s will now pull mobs for the party and %s will assist and engage.", self.party:get_player():get_name(), localization_util.commas(self.party:get_party_members():map(function(p) return p:get_name() end))))
+        end
     end
 
     return success, message
