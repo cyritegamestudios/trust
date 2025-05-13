@@ -8,6 +8,7 @@ GambitTarget.TargetType = T{}
 GambitTarget.TargetType.Self = "Self"
 GambitTarget.TargetType.Ally = "Ally"
 GambitTarget.TargetType.Enemy = "Enemy"
+GambitTarget.TargetType.CurrentTarget = "t"
 --GambitTarget.TargetType.AllTargets = S{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Ally, GambitTarget.TargetType.Enemy }
 
 function GambitTarget.new(targetType)

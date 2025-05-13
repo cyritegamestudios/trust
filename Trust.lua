@@ -629,6 +629,8 @@ function unloaded()
 end
 
 function loaded()
+	windower.send_command('lua unload ata')
+
 	addon_system_message("Loading Trust...")
 
 	if windower.ffxi.get_player() == nil or windower.ffxi.get_mob_by_id(windower.ffxi.get_player().id) == nil then

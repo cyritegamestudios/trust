@@ -123,7 +123,7 @@ end
 
 function Gambit:getConditionsDescription()
     local conditions_by_type = {}
-    for type in L{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Ally, GambitTarget.TargetType.Enemy }:it() do
+    for type in L{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Ally, GambitTarget.TargetType.Enemy, GambitTarget.TargetType.CurrentTarget }:it() do
         conditions_by_type[type] = L{}
     end
     for condition in self:getConditions():it() do

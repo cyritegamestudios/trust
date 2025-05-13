@@ -2,6 +2,7 @@ local AggroedCondition = require('cylibs/conditions/aggroed')
 local ConditionalCondition = require('cylibs/conditions/conditional')
 local Disengage = require('cylibs/battle/disengage')
 local DisposeBag = require('cylibs/events/dispose_bag')
+local Distance = require('cylibs/conditions/distance')
 local Engage = require('cylibs/battle/engage')
 local Target = require('cylibs/battle/target')
 local GambitTarget = require('cylibs/gambits/gambit_target')
@@ -97,6 +98,10 @@ function Attacker:set_attacker_settings(_)
 
     gambit_settings.Gambits = L{
         -- we do not want IsAggroedCondition here
+        Gambit.new(GambitTarget.TargetType.Self, L{
+            GambitCondition.new(StatusCondition.new('Engaged'), GambitTarget.TargetType.Self),
+            GambitCondition.new(Distance.new(30, Condition.Operator.GreaterThanOrEqualTo), GambitTarget.TargetType.CurrentTarget),
+        }, Disengage.new(), GambitTarget.TargetType.Self),
         Gambit.new(GambitTarget.TargetType.Enemy, L{
             GambitCondition.new(StatusCondition.new('Engaged'), GambitTarget.TargetType.Self),
             GambitCondition.new(TargetMismatchCondition.new(), GambitTarget.TargetType.Self),

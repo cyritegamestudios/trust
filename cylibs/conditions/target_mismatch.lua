@@ -1,10 +1,8 @@
 ---------------------------
--- Condition checking the target's name.
+-- Condition checking whether <t> is a different mob than the trust target.
 -- @class module
 -- @name TargetMismatchCondition
-local BooleanConfigItem = require('ui/settings/editors/config/BooleanConfigItem')
 local serializer_util = require('cylibs/util/serializer_util')
-local TextInputConfigItem = require('ui/settings/editors/config/TextInputConfigItem')
 
 local Condition = require('cylibs/conditions/condition')
 local TargetMismatchCondition = setmetatable({}, { __index = Condition })

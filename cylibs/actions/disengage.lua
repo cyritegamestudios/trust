@@ -12,7 +12,7 @@ DisengageAction.__index = DisengageAction
 
 function DisengageAction.new()
     local conditions = L{
-        InBattleCondition.new(),
+        StatusCondition.new('Engaged'),
     }
     local self = setmetatable(Action.new(0, 0, 0, nil, conditions), DisengageAction)
 
