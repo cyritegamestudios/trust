@@ -78,11 +78,11 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
     self.trustSettingsMode = trustSettingsMode
     self.trustModeSettings = trustModeSettings
     self.settingsKeys = settingsKeys
-    self.abilityTargets = abilityTargets or S(GambitTarget.TargetType:keyset())
+    self.abilityTargets = abilityTargets or L{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Ally, GambitTarget.TargetType.Enemy }-- S(GambitTarget.TargetType:keyset())
     self.abilitiesForTargets = abilitiesForTargets or function(targets)
         return self:getAbilitiesForTargets(targets)
     end
-    self.conditionTargets = conditionTargets or L(Condition.TargetType.AllTargets)
+    self.conditionTargets = conditionTargets or L{ Condition.TargetType.Self, Condition.TargetType.Ally, Condition.TargetType.Enemy }
     self.gambitTagBlacklist = gambitTagBlacklist or S{}
     self.editorConfig = editorStyle
     self.modes = modes or L{ 'AutoGambitMode' }
