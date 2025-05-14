@@ -26,6 +26,7 @@ function GambitTargetGroup:it()
             target_by_type = {
                 [GambitTarget.TargetType.Self] = self:safe_get(GambitTarget.TargetType.Self, 1),
                 [GambitTarget.TargetType.Enemy] = self:safe_get(GambitTarget.TargetType.Enemy, 1),
+                [GambitTarget.TargetType.CurrentTarget] = self:safe_get(GambitTarget.TargetType.CurrentTarget, 1),
                 [GambitTarget.TargetType.Ally] = self:safe_get(GambitTarget.TargetType.Ally, key),
             }
         end

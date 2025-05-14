@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '14.7.2'
+_addon.version = '14.7.3'
 _addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 
@@ -629,6 +629,8 @@ function unloaded()
 end
 
 function loaded()
+	windower.send_command('lua unload ata')
+
 	addon_system_message("Loading Trust...")
 
 	if windower.ffxi.get_player() == nil or windower.ffxi.get_mob_by_id(windower.ffxi.get_player().id) == nil then

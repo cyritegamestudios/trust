@@ -82,7 +82,7 @@ function Gambiter:check_gambits(gambits, param, ignore_delay)
 end
 
 function Gambiter:is_gambit_satisfied(gambit, param)
-    local target_types = L{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Enemy }
+    local target_types = L{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Enemy, GambitTarget.TargetType.CurrentTarget }
     if gambit:hasConditionTarget(GambitTarget.TargetType.Ally) then
         target_types:append(GambitTarget.TargetType.Ally)
     end
@@ -113,6 +113,8 @@ function Gambiter:get_gambit_targets(gambit_target_types)
             target_group = self:get_party()
         elseif gambit_target_type == GambitTarget.TargetType.Enemy then
             target_group = self:get_target()
+        elseif gambit_target_type == GambitTarget.TargetType.CurrentTarget then
+            target_group = windower.ffxi.get_mob_by_target('t') and Monster.new(windower.ffxi.get_mob_by_target('t').id)
         end
         if target_group then
             local targets = L{}
@@ -131,9 +133,7 @@ function Gambiter:perform_gambit(gambit, target)
     if target == nil or target:get_mob() == nil then
         return
     end
-
     logger.notice(self.__class, 'perform_gambit', gambit:tostring(), target:get_mob().name)
-
     local action = gambit:getAbility():to_action(target:get_mob().index, self:get_player())
     if action then
         self.last_gambit_time = os.time()

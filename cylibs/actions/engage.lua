@@ -18,6 +18,7 @@ EngageAction.__index = EngageAction
 function EngageAction.new(target_index, cursor_only)
     local conditions = L{
         ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos()),
+        MaxDistanceCondition.new(30),
     }
     local alliance = player.alliance
     if alliance then

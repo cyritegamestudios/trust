@@ -23,7 +23,8 @@ Condition.TargetType = {}
 Condition.TargetType.Self = "Self"
 Condition.TargetType.Ally = "Ally"
 Condition.TargetType.Enemy = "Enemy"
-Condition.TargetType.AllTargets = S{ Condition.TargetType.Self, Condition.TargetType.Ally, Condition.TargetType.Enemy }
+Condition.TargetType.CurrentTarget = "t"
+Condition.TargetType.AllTargets = S{ Condition.TargetType.Self, Condition.TargetType.Ally, Condition.TargetType.Enemy, Condition.TargetType.CurrentTarget }
 
 -------
 -- Default initializer for a condition.
