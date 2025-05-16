@@ -36,7 +36,7 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
             return string.format("Step %d: %s", stepNum, descriptionForGambit(gambit:getAbility(), stepNum))
         end)
         return L{ configItem }
-    end, FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge, "Skillchain", "Skillchain", function(ability, indexPath)
+    end, FFXIClassicStyle.WindowSize.Editor.ConfigEditor, "Skillchain", "Skillchain", function(ability, indexPath)
         return descriptionForGambit(ability, indexPath.row)
     end, function(menuItemName)
         return S{ 'Edit', 'Reset', 'Modes', 'Shortcuts', 'Find' }:contains(menuItemName)
