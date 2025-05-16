@@ -216,6 +216,8 @@ skills.weapon_skills = {
     [226] = {en='Requiescat',skillchain={'Gravitation','Scission'},aeonic='Darkness',weapon='Sequence'},
     [227] = {en='Knights of Rotund',skillchain={'Light'}},
     [228] = {en='Final Paradise',skillchain={'Light'}},
+    [229] = {en='Fast Blade II',skillchain={'Fusion'}},
+    [230] = {en='Dragon Blow',skillchain={'Distortion'}},
     [231] = {en='Maru Kala',skillchain={'Detonation','Compression','Distortion'}},
     [232] = {en='Ruthless Stroke',skillchain={'Liquefaction','Impaction','Fragmentation'}},
     [233] = {en='Imperator',skillchain={'Detonation','Compression','Distortion'}},
