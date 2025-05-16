@@ -13,13 +13,14 @@ function GambitEditorStyle.named(abilityCategory, abilityCategoryPlural)
     end, FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge, abilityCategory, abilityCategoryPlural)
 end
 
-function GambitEditorStyle.new(configItemForGambits, viewSize, abilityCategory, abilityCategoryPlural, itemDescription)
+function GambitEditorStyle.new(configItemForGambits, viewSize, abilityCategory, abilityCategoryPlural, itemDescription, menuItemFilter)
     local self = setmetatable({}, GambitEditorStyle)
     self.configItemForGambits = configItemForGambits
     self.viewSize = viewSize
     self.abilityCategory = abilityCategory or "Gambit"
     self.abilityCategoryPlural = abilityCategoryPlural or "Gambits"
     self.itemDescription = itemDescription or function(_) return nil end
+    self.menuItemFilter = menuItemFilter or function(_) return true  end
     return self
 end
 
@@ -46,6 +47,10 @@ end
 
 function GambitEditorStyle:getItemDescription(item)
     return self.itemDescription(item)
+end
+
+function GambitEditorStyle:allowsAction(actionName)
+    return self.menuItemFilter(actionName)
 end
 
 function GambitEditorStyle:getAbilitiesForTargets(targets, trust)

@@ -113,6 +113,7 @@ function BuildSkillchainSettingsMenuItem:getConfirmMenuItem()
 
         local chooseSkillchainView = FFXIPickerView.new(L{ configItem }, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditorLarge)
         chooseSkillchainView.menuArgs.Skillchain = self.currentSkillchains[1]
+
         chooseSkillchainView:setAllowsCursorSelection(true)
         chooseSkillchainView:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
             chooseSkillchainView.menuArgs.Skillchain = self.currentSkillchains[indexPath.row]

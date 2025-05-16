@@ -192,6 +192,10 @@ function SkillchainAbility:is_aoe()
     }:contains(name)
 end
 
+function SkillchainAbility:is_valid()
+    return true
+end
+
 -- Returns the action to perform this ability.
 -- @tparam number target_index Index of target of the ability
 -- @tparam Player player Player

@@ -30,6 +30,10 @@ function GambitSettingsMenuItem:onGambitCreated()
     return self.gambitCreated
 end
 
+function GambitSettingsMenuItem:onSelectGambit()
+    return self.gambitSelected
+end
+
 function GambitSettingsMenuItem.compact(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKey, abilityTargets, abilitiesForTargets, conditionTargets, modes, abilityCategory, abilityCategoryPlural, libraryCategoryFilter, itemDescription, gambitTagBlacklist)
     local configItemForGambits = function(gambits)
         local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit)
@@ -61,17 +65,7 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
         settingsKeys = L{ settingsKeys }
     end
 
-    local self = setmetatable(MenuItem.new(L{
-        ButtonItem.default('Add', 18),
-        ButtonItem.default('Edit', 18),
-        ButtonItem.default('Remove', 18),
-        ButtonItem.default('Move Up', 18),
-        ButtonItem.default('Move Down', 18),
-        ButtonItem.default('Copy', 18),
-        ButtonItem.default('Toggle', 18),
-        ButtonItem.default('Reset', 18),
-        ButtonItem.localized('Modes', i18n.translate('Button_Modes')),
-    }, {}, nil, editorStyle:getDescription(true), "Configure "..editorStyle:getDescription(true)..".", false), GambitSettingsMenuItem)  -- changed keep views to false
+    local self = setmetatable(MenuItem.new(L{}, {}, nil, editorStyle:getDescription(true), "Configure "..editorStyle:getDescription(true)..".", false), GambitSettingsMenuItem)  -- changed keep views to false
 
     self.trust = trust
     self.trustSettings = trustSettings
@@ -92,6 +86,7 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
     self.defaultGambitTags = L{}
     self.gambitChanged = Event.newEvent()
     self.gambitCreated = Event.newEvent()
+    self.gambitSelected = Event.newEvent()
     self.disposeBag = DisposeBag.new()
 
     local updateCurrentGambit = function(cursorIndexPath)
@@ -104,6 +99,8 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
         local selectedGambit = currentGambits[cursorIndexPath.row]
         self.selectedGambit = selectedGambit
 
+        self:onSelectGambit():trigger(self.selectedGambit, cursorIndexPath.row)
+
         if self.selectedGambit then
             self.conditionSettingsMenuItem:setConditions(selectedGambit.conditions)
             --self.conditionSettingsMenuItem:setConditions(selectedGambit.conditions:map(function(condition) return condition:getCondition() end)) -- FIXME: condition menu item remove and add doesn't work
@@ -113,6 +110,9 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
 
     self.contentViewConstructor = function(_, infoView, _)
         local currentGambits = self:getSettings().Gambits
+        if currentGambits == nil then
+            currentGambits = self:getSettings()
+        end
 
         local configItem = self.editorConfig:getConfigItem(currentGambits)
 
@@ -194,6 +194,13 @@ function GambitSettingsMenuItem:getSettings(mode)
         settings = settings[settingsKey]
     end
     return settings
+end
+
+function GambitSettingsMenuItem:setChildMenuItem(text, childMenuItem)
+    -- TODO: localize these
+    if self.editorConfig:allowsAction(text) then
+        MenuItem.setChildMenuItem(self, text, childMenuItem)
+    end
 end
 
 function GambitSettingsMenuItem:reloadSettings()
@@ -319,7 +326,10 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
     }, {}, function(_, _, showMenu)
         local abilitiesByTargetType = self:getAbilitiesByTargetType()
 
-        local gambitEditor = GambitSettingsEditor.new(self.selectedGambit, self.trustSettings, self.trustSettingsMode, abilitiesByTargetType, self.conditionTargets, showMenu, Gambit.Tags.AllTags:filter(function(t) return not self.gambitTagBlacklist:contains(t)  end))
+        local gambitEditor = GambitSettingsEditor.new(self.selectedGambit, self.trustSettings, self.trustSettingsMode, abilitiesByTargetType, self.conditionTargets, showMenu, Gambit.Tags.AllTags:filter(function(t) return not self.gambitTagBlacklist:contains(t)  end), function(ability)
+            local description = self.editorConfig:getItemDescription(ability)
+            return description or ability:get_localized_name()
+        end)
 
         gambitEditor:getDisposeBag():add(gambitEditor:onGambitChanged():addAction(function(newGambit, oldGambit)
             self:onGambitChanged():trigger(newGambit, oldGambit)

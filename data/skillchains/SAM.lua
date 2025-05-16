@@ -2,13 +2,15 @@
 return {
     Version = 1,
     Default = {
-        Skillchain = L{
-            Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
-            Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
-            Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
-            Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
-            Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
-            Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
+        Skillchain = {
+            Gambits = L{
+                Gambit.new("Enemy", L{}, WeaponSkill.new("Tachi: Fudo", L{}, L{}), "Self", L{"Skillchain"}),
+                Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
+                Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
+                Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
+                Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
+                Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"})
+            }
         },
         Skills = L{
             CombatSkillSettings.new('Dagger', L{}),

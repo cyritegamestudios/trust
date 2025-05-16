@@ -60,7 +60,6 @@ function PickerView.new(configItems, allowsMultipleSelection, mediaPlayer, sound
     end)
 
     local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(0, Padding.new(8, 16, 8, 0)), nil, nil, mediaPlayer, soundTheme), PickerView)
-
     self.configItems = configItems:filter(function(configItem)
         return configItem:getAllValues():length() > 0
     end)

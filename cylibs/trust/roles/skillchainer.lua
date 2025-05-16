@@ -379,7 +379,7 @@ end
 function Skillchainer:set_current_settings(current_settings)
     self.current_settings = current_settings
 
-    self.gambit_for_step = current_settings.Skillchain
+    self.gambit_for_step = current_settings.Skillchain.Gambits
     for gambit in self.gambit_for_step:it() do
         gambit.conditions = (gambit.conditions or L{}):filter(function(condition)
             return condition:is_editable()

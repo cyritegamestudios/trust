@@ -131,8 +131,8 @@ function SkillchainTrustCommands:handle_clear()
     local message = "Skillchains will be automatically determined"
 
     local current_settings = self:get_settings()
-    for i = 1, current_settings.Skillchain:length() do
-        current_settings.Skillchain[i] = Gambit.new(GambitTarget.TargetType.Enemy, L{}, SkillchainAbility.auto(), Condition.TargetType.Self, L{"Skillchain"})
+    for i = 1, current_settings.Skillchain.Gambits:length() do
+        current_settings.Skillchain.Gambits[i] = Gambit.new(GambitTarget.TargetType.Enemy, L{}, SkillchainAbility.auto(), Condition.TargetType.Self, L{"Skillchain"})
     end
     self.weapon_skill_settings:saveSettings(true)
 
