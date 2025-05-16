@@ -28,18 +28,16 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
         if step and step:get_skillchain() then
             suffix = ' ('..step:get_skillchain()..')'
         end
-        return ability:get_localized_name()..suffix
+        return string.format("%s%s", ability:get_localized_name(), suffix)
     end
 
     local editorStyle = GambitEditorStyle.new(function(gambits)
-        local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit)
-            local allGambits = T(weaponSkillSettings:getSettings())[weaponSkillSettingsMode.value].Skillchain.Gambits
-            return descriptionForGambit(gambit:getAbility(), allGambits:indexOf(gambit))
+        local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit, stepNum)
+            return string.format("Step %d: %s", stepNum, descriptionForGambit(gambit:getAbility(), stepNum))
         end)
-        return configItem
-    end, FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge, "Skillchain", "Skillchain", function(ability)
-        local allGambits = T(weaponSkillSettings:getSettings())[weaponSkillSettingsMode.value].Skillchain.Gambits
-        return descriptionForGambit(ability, allGambits:indexOf(selectedGambit))
+        return L{ configItem }
+    end, FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge, "Skillchain", "Skillchain", function(ability, indexPath)
+        return descriptionForGambit(ability, indexPath.row)
     end, function(menuItemName)
         return S{ 'Edit', 'Reset', 'Modes', 'Shortcuts', 'Find' }:contains(menuItemName)
     end)

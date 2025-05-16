@@ -41,7 +41,7 @@ function GambitSettingsMenuItem.compact(trust, trustSettings, trustSettingsMode,
         end, abilityCategoryPlural, nil, function(gambit)
             return AssetManager.imageItemForAbility(gambit:getAbility():get_name())
         end)
-        return configItem
+        return L{ configItem }
     end
 
     local editorStyle = GambitEditorStyle.new(configItemForGambits, nil, abilityCategory, abilityCategoryPlural, itemDescription)
@@ -55,7 +55,7 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
         local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit)
             return gambit:tostring()
         end)
-        return configItem
+        return L{ configItem }
     end, FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge, "Gambit", "Gambits")
     conditionTypeFilter = conditionTypeFilter or function(_)
         return true
@@ -116,7 +116,7 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
 
         local configItem = self.editorConfig:getConfigItem(currentGambits)
 
-        local gambitSettingsEditor = FFXIPickerView.new(L{ configItem }, false, self.editorConfig:getViewSize())
+        local gambitSettingsEditor = FFXIPickerView.new(configItem, false, self.editorConfig:getViewSize())
         gambitSettingsEditor:setAllowsCursorSelection(true)
 
         gambitSettingsEditor:setNeedsLayout()
@@ -325,9 +325,8 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
         ButtonItem.default('Conditions', 18),
     }, {}, function(_, _, showMenu)
         local abilitiesByTargetType = self:getAbilitiesByTargetType()
-
         local gambitEditor = GambitSettingsEditor.new(self.selectedGambit, self.trustSettings, self.trustSettingsMode, abilitiesByTargetType, self.conditionTargets, showMenu, Gambit.Tags.AllTags:filter(function(t) return not self.gambitTagBlacklist:contains(t)  end), function(ability)
-            local description = self.editorConfig:getItemDescription(ability)
+            local description = self.editorConfig:getItemDescription(ability, self.gambitSettingsEditor:getDelegate():getCursorIndexPath())
             return description or ability:get_localized_name()
         end)
 

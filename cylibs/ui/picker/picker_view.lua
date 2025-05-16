@@ -104,7 +104,7 @@ function PickerView:reload()
         local itemsInSection = IndexedItem.fromItems(configItem:getAllValues():map(function(value)
             local item = TextItem.new(value, self.textStyle)
 
-            local text, isEnabled = configItem:getTextFormat()(value)
+            local text, isEnabled = configItem:getTextFormat()(value, rowIndex)
             item:setLocalizedText(text)
             if isEnabled ~= nil then
                 item:setEnabled(isEnabled) -- TODO: this should use itemDescription instead?

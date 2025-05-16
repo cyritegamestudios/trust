@@ -147,7 +147,11 @@ function Gambit:tostring()
     if self.ability.get_display_name then
         abilityName = self.ability:get_display_name()
     end
-    return string.format("%s → %s: %s", conditionsDescription, self.target, abilityName)
+    local jobAbilities = ""
+    if self.ability.get_job_abilities and (self.ability:get_job_abilities() or L{}):length() > 0 then
+        jobAbilities = string.format(", Use with: %s", localization_util.commas(self.ability:get_job_abilities()))
+    end
+    return string.format("%s → %s: %s%s", conditionsDescription, self.target, abilityName, jobAbilities)
 end
 
 function Gambit:serialize()
