@@ -26,7 +26,6 @@ function PartySkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSet
             local result = L{}
             local combatSkillId = ability:get_skill_id()
             for partyMember in skillchainer:get_party():get_party_members(true):it() do
-                print(partyMember:get_name(), partyMember:get_combat_skill_ids())
                 if partyMember:get_combat_skill_ids():contains(combatSkillId) then
                     result:append(partyMember:get_name())
                 end
