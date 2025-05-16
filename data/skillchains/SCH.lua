@@ -2,15 +2,15 @@
 return {
     Version = 1,
     Default = {
-        Skillchain = L{
-            Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
-            Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
-            Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
-            Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
-            Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
-            Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
-        },
-        Blacklist = L{
+        Skillchain = {
+            Gambits = L{
+                Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
+                Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
+                Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
+                Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
+                Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
+                Gambit.new("Enemy", L{}, SkillchainAbility.auto(), "Self", L{"Skillchain"}),
+            }
         },
         Skills = L{
             CombatSkillSettings.new('Dagger', L{}),
@@ -24,9 +24,6 @@ return {
                 'Thunder II', 'Thunder III', 'Thunder IV', 'Thunder V',
                 'Water II', 'Water III', 'Water IV', 'Water V'
             }),
-        },
-        JobAbilities = L{
-
         },
     }
 }
