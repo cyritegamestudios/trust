@@ -54,7 +54,7 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
             L{ SkillchainAbility.auto(), SkillchainAbility.skip() }
         }
         return sections
-    end,  L{ Condition.TargetType.Self, Condition.TargetType.Ally, Condition.TargetType.Enemy }, editorStyle, L{'AutoSkillchainMode', 'SkillchainPropertyMode'}, function() return false end)
+    end,  L{ Condition.TargetType.Self, Condition.TargetType.Ally, Condition.TargetType.Enemy }, editorStyle, L{'AutoSkillchainMode', 'SkillchainPropertyMode', 'SkillchainDelayMode', 'SkillchainAssistantMode', 'WeaponSkillSettingsMode'}, function() return false end)
 
     skillchainSettingsItem:onSelectGambit():addAction(function(gambit, index)
         selectedStepNum = index

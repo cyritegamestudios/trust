@@ -1046,7 +1046,6 @@ function Migration_v29:perform(_, _, weaponSkillSettings)
     for modeName in modeNames:it() do
         local currentSettings = weaponSkillSettings:getSettings()[modeName]
         if currentSettings.Skillchain.Gambits == nil then
-            currentSettings.Skillchain.Gambits = currentSettings.Skillchain
             currentSettings.Skillchain = {
                 Gambits = currentSettings.Skillchain
             }
