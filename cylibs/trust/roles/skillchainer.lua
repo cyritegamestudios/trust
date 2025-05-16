@@ -380,11 +380,11 @@ function Skillchainer:set_current_settings(current_settings)
     self.current_settings = current_settings
 
     self.gambit_for_step = current_settings.Skillchain.Gambits
-    for gambit in self.gambit_for_step:it() do
+    for stepNum, gambit in ipairs(self.gambit_for_step) do
         gambit.conditions = (gambit.conditions or L{}):filter(function(condition)
             return condition:is_editable()
         end)
-        local conditions = self:get_default_conditions(gambit)
+        local conditions = self:get_default_conditions(gambit) + L{ SkillchainStepCondition.new(stepNum, Condition.Operator.Equals) }
         for condition in conditions:it() do
             condition:set_editable(false)
             gambit:addCondition(condition)

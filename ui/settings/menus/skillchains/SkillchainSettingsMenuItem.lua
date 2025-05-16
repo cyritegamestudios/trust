@@ -11,8 +11,6 @@ local SkillchainStep = require('cylibs/battle/skillchains/skillchain_step')
 local SkillchainSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 SkillchainSettingsMenuItem.__index = SkillchainSettingsMenuItem
 
--- TODO: add other skillchain menu items back like find
-
 function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettingsMode, trustModeSettings, skillchainer, trust)
     local skillchainBuilder = SkillchainBuilder.new(skillchainer.skillchain_builder.abilities)
     skillchainBuilder.include_aeonic = true
@@ -43,7 +41,6 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
     end)
 
     local skillchainSettingsItem = GambitSettingsMenuItem.new(trust, weaponSkillSettings, weaponSkillSettingsMode, trustModeSettings, 'Skillchain', S{ GambitTarget.TargetType.Enemy }, function(targets)
-        -- TODO: make this return a different list of abilities depending upon the skillchain step (do I need to??)
         local sections = L{
             L(windower.ffxi.get_abilities().weapon_skills):filter(function(weaponSkillId)
                 local weaponSkill = res.weapon_skills[weaponSkillId]
@@ -61,7 +58,6 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
         selectedGambit = gambit
     end)
 
-    -- Lots of places are still saving to settings.Skillchain instead of settings.Skillchain.Gambits like PartySkillchainSettingsMenuItem
     skillchainSettingsItem:setChildMenuItem('Find', BuildSkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettingsMode, skillchainer))
 
     skillchainSettingsItem:setDefaultGambitTags(L{'Skillchain'})
@@ -71,7 +67,7 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
             newGambit.conditions = newGambit.conditions:filter(function(condition)
                 return condition:is_editable()
             end)
-            newGambit.conditions_target = Condition.TargetType.Self -- FIXME: update conditions target in other gambit settings menu items
+            newGambit.conditions_target = Condition.TargetType.Self
             local conditions = trust:role_with_type("skillchainer"):get_default_conditions(newGambit)
             for condition in conditions:it() do
                 condition:set_editable(false)
