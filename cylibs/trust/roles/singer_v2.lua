@@ -106,14 +106,11 @@ function Singer:set_song_settings(song_settings)
         song:set_job_abilities(L{ "Pianissimo" })
         song:set_requires_all_job_abilities(true)
 
-        local targetType = GambitTarget.TargetType.Self
-
-        for targetType in L{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Ally }:it() do
+        for targetType in L{ GambitTarget.TargetType.Ally, GambitTarget.TargetType.Self }:it() do
             gambit_settings.PianissimoSongs = gambit_settings.PianissimoSongs + L{
                 Gambit.new(targetType, L{
                     GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }) }), targetType),
                     GambitCondition.new(HasMaxNumSongsCondition.new(Condition.Operator.GreaterThanOrEqualTo, self.songs:map(function(song) return song:get_name() end)), GambitTarget.TargetType.Self),
-                    --GambitCondition.new(HasSongsCondition.new(self.songs:map(function(song) return song:get_name() end), self.trust:get_job():get_max_num_sonsg(state.AutoClarionCallMode.value == 'Auto')), GambitTarget.TargetType.Self), -- only allows for a single pianissimo song
                     GambitCondition.new(JobCondition.new(song:get_job_names()), targetType),
                 }, song, targetType),
             }
