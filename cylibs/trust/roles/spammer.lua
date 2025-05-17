@@ -25,12 +25,11 @@ function Spammer:get_next_ability()
         end
     end
 
-    local all_abilities = L{}
-    for ability in self.abilities:filter(function(a) return not a:is_aoe() end):it() do
-        all_abilities:append(ability)
-    end
+    local all_abilities = self.abilities + default_abilities:filter(function(a)
+        return not a:is_aoe()
+    end)
 
-    local ability = all_abilities:extend(default_abilities):lastWhere(function(a)
+    local ability = all_abilities:lastWhere(function(a)
         local all_conditions = L{}:extend(self.conditions):extend(a:get_conditions())
         return Condition.check_conditions(all_conditions, self:get_party():get_player():get_mob().index)
     end)
