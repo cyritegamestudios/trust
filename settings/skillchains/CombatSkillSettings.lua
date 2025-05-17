@@ -66,8 +66,11 @@ function CombatSkillSettings:get_default_ability()
     return nil
 end
 
-function CombatSkillSettings:get_default_conditions(_)
-    return L{ MinTacticalPointsCondition.new(1000) }:map(function(condition)
+function CombatSkillSettings:get_default_conditions(ability_name)
+    return L{
+        MinTacticalPointsCondition.new(1000),
+        CombatSkillsCondition.new(L{ self.combatSkillName })
+    }:map(function(condition)
         condition:set_editable(false)
         return condition
     end)

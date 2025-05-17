@@ -3,6 +3,18 @@ local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local GambitEditorStyle = {}
 GambitEditorStyle.__index = GambitEditorStyle
 
+GambitEditorStyle.Permissions = {}
+GambitEditorStyle.Permissions.Edit = "Edit"
+GambitEditorStyle.Permissions.Conditions = "Condition"
+GambitEditorStyle.Permissions.All = L{ GambitEditorStyle.Permissions.Edit, GambitEditorStyle.Permissions.Conditions }
+
+GambitEditorStyle.Permissions = {
+    None       = 0,
+    Edit       = bit.lshift(1, 0),  -- 1
+    Conditions = bit.lshift(1, 1),  -- 2
+}
+
+
 function GambitEditorStyle.named(abilityCategory, abilityCategoryPlural)
     local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
     return GambitEditorStyle.new(function(gambits)
@@ -13,13 +25,18 @@ function GambitEditorStyle.named(abilityCategory, abilityCategoryPlural)
     end, FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge, abilityCategory, abilityCategoryPlural)
 end
 
-function GambitEditorStyle.new(configItemForGambits, viewSize, abilityCategory, abilityCategoryPlural, itemDescription)
+function GambitEditorStyle.new(configItemForGambits, viewSize, abilityCategory, abilityCategoryPlural, itemDescription, menuItemFilter)
     local self = setmetatable({}, GambitEditorStyle)
     self.configItemForGambits = configItemForGambits
     self.viewSize = viewSize
     self.abilityCategory = abilityCategory or "Gambit"
     self.abilityCategoryPlural = abilityCategoryPlural or "Gambits"
     self.itemDescription = itemDescription or function(_) return nil end
+    self.menuItemFilter = menuItemFilter or function(_) return true  end
+    self:setEditPermissions(
+        GambitEditorStyle.Permissions.Edit,
+        GambitEditorStyle.Permissions.Conditions
+    )
     return self
 end
 
@@ -44,8 +61,24 @@ function GambitEditorStyle:getDescription(plural, lower)
     return description
 end
 
-function GambitEditorStyle:getItemDescription(item)
-    return self.itemDescription(item)
+function GambitEditorStyle:getItemDescription(item, indexPath)
+    return self.itemDescription(item, indexPath)
+end
+
+function GambitEditorStyle:allowsAction(actionName)
+    return self.menuItemFilter(actionName)
+end
+
+function GambitEditorStyle:setEditPermissions(...)
+    local args = {...}
+    self.editPermissions = 0
+    for _, permission in ipairs(args) do
+        self.editPermissions = bit.bor(self.editPermissions, permission)
+    end
+end
+
+function GambitEditorStyle:hasEditPermission(_, permission)
+    return bit.band(self.editPermissions, permission) ~= 0
 end
 
 function GambitEditorStyle:getAbilitiesForTargets(targets, trust)

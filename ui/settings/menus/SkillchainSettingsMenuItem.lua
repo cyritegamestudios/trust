@@ -18,7 +18,6 @@ SkillchainSettingsMenuItem.__index = SkillchainSettingsMenuItem
 function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettingsMode, skillchainer, trust)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Edit', 18),
-        --ButtonItem.default('Conditions', 18),
         ButtonItem.default('Skip', 18),
         ButtonItem.default('Clear', 18),
         ButtonItem.default('Clear All', 18),

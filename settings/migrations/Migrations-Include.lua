@@ -1023,6 +1023,40 @@ function Migration_v28:getDescription()
     return "Migrating weapon skills settings."
 end
 
+---------------------------
+-- Migrates skillchains to gambit structure.
+-- @class module
+-- @name Migration_v29
+
+local Migration_v29 = setmetatable({}, { __index = Migration })
+Migration_v29.__index = Migration_v29
+Migration_v29.__class = "Migration_v29"
+
+function Migration_v29.new()
+    local self = setmetatable(Migration.new(), Migration_v29)
+    return self
+end
+
+function Migration_v29:shouldPerform(_, _, weaponSkillSettings)
+    return weaponSkillSettings ~= nil
+end
+
+function Migration_v29:perform(_, _, weaponSkillSettings)
+    local modeNames = list.subtract(L(T(weaponSkillSettings:getSettings()):keyset()), L{'Version','Migrations'})
+    for modeName in modeNames:it() do
+        local currentSettings = weaponSkillSettings:getSettings()[modeName]
+        if currentSettings.Skillchain.Gambits == nil then
+            currentSettings.Skillchain = {
+                Gambits = currentSettings.Skillchain
+            }
+        end
+    end
+end
+
+function Migration_v29:getDescription()
+    return "Migrating weapon skills settings to gambits."
+end
+
 return {
     Migration_v1 = Migration_v1,
     Migration_v2 = Migration_v2,
@@ -1051,5 +1085,6 @@ return {
     Migration_v26 = Migration_v26,
     Migration_v27 = Migration_v27,
     Migration_v28 = Migration_v28,
+    Migration_v29 = Migration_v29,
 }
 

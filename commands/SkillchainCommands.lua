@@ -131,8 +131,8 @@ function SkillchainTrustCommands:handle_clear()
     local message = "Skillchains will be automatically determined"
 
     local current_settings = self:get_settings()
-    for i = 1, current_settings.Skillchain:length() do
-        current_settings.Skillchain[i] = Gambit.new(GambitTarget.TargetType.Enemy, L{}, SkillchainAbility.auto(), Condition.TargetType.Self, L{"Skillchain"})
+    for i = 1, current_settings.Skillchain.Gambits:length() do
+        current_settings.Skillchain.Gambits[i] = Gambit.new(GambitTarget.TargetType.Enemy, L{}, SkillchainAbility.auto(), Condition.TargetType.Self, L{"Skillchain"})
     end
     self.weapon_skill_settings:saveSettings(true)
 
@@ -235,18 +235,18 @@ function SkillchainTrustCommands:handle_set_step(_, step_num, ...)
     local current_settings = self.weapon_skill_settings:getSettings()[state.WeaponSkillSettingsMode.value]
     if current_settings then
         if ability_name == SkillchainAbility.skip():get_name() then
-            current_settings.Skillchain[step_num] = Gambit.new(GambitTarget.TargetType.Enemy, L{}, SkillchainAbility.skip(), Condition.TargetType.Self, L{"Skillchain"})
+            current_settings.Skillchain.Gambits[step_num] = Gambit.new(GambitTarget.TargetType.Enemy, L{}, SkillchainAbility.skip(), Condition.TargetType.Self, L{"Skillchain"})
             success = true
             message = "Step "..step_num.." is now "..SkillchainAbility.skip():get_name()
         elseif ability_name == SkillchainAbility.auto():get_name() then
-            current_settings.Skillchain[step_num] = Gambit.new(GambitTarget.TargetType.Enemy, L{}, SkillchainAbility.auto(), Condition.TargetType.Self, L{"Skillchain"})
+            current_settings.Skillchain.Gambits[step_num] = Gambit.new(GambitTarget.TargetType.Enemy, L{}, SkillchainAbility.auto(), Condition.TargetType.Self, L{"Skillchain"})
             success = true
             message = "Step "..step_num.." is now "..SkillchainAbility.auto():get_name()
         else
             for combat_skill in current_settings.Skills:it() do
                 local ability = combat_skill:get_ability(ability_name)
                 if ability then
-                    current_settings.Skillchain[step_num] = Gambit.new(GambitTarget.TargetType.Enemy, L{}, ability, Condition.TargetType.Self, L{"Skillchain"})
+                    current_settings.Skillchain.Gambits[step_num] = Gambit.new(GambitTarget.TargetType.Enemy, L{}, ability, Condition.TargetType.Self, L{"Skillchain"})
                     success = true
                     message = "Step "..step_num.." is now "..localization_util.translate(ability:get_name())
                     self.weapon_skill_settings:saveSettings(true)
