@@ -48,7 +48,21 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
         return sections
     end,  L{ Condition.TargetType.Self, Condition.TargetType.Ally, Condition.TargetType.Enemy }, editorStyle, L{'AutoSkillchainMode', 'SkillchainPropertyMode', 'SkillchainDelayMode', 'SkillchainAssistantMode', 'WeaponSkillSettingsMode'}, function() return false end)
 
+    local updatePermissions = function(gambit)
+        if L{ SkillchainAbility.Auto, SkillchainAbility.Skip }:contains(gambit:getAbility():get_name()) then
+            editorStyle:setEditPermissions(
+                    GambitEditorStyle.Permissions.None
+            )
+        else
+            editorStyle:setEditPermissions(
+                    GambitEditorStyle.Permissions.Edit,
+                    GambitEditorStyle.Permissions.Conditions
+            )
+        end
+    end
+
     skillchainSettingsItem:onSelectGambit():addAction(function(gambit, index)
+        updatePermissions(gambit)
         selectedStepNum = index
         selectedGambit = gambit
     end)
@@ -68,6 +82,7 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
                 condition:set_editable(false)
                 newGambit:addCondition(condition)
             end
+            updatePermissions(newGambit)
         end
     end), skillchainSettingsItem:onGambitChanged())
 

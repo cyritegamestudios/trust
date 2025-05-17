@@ -81,7 +81,9 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
     self.editorConfig = editorStyle
     self.modes = modes or L{ 'AutoGambitMode' }
     self.libraryCategoryFilter = libraryCategoryFilter
-    self.conditionSettingsMenuItem = GambitConditionSettingsMenuItem.new(self.trustSettings, nil, nil, conditionTypeFilter)
+    self.conditionSettingsMenuItem = GambitConditionSettingsMenuItem.new(self.trustSettings, nil, function()
+        return editorStyle:hasEditPermission(self.selectedGambit, GambitEditorStyle.Permissions.Conditions)
+    end, conditionTypeFilter)
     self.conditionSettingsMenuItem:setTargetTypes(S(self.conditionTargets))
     self.defaultGambitTags = L{}
     self.gambitChanged = Event.newEvent()
