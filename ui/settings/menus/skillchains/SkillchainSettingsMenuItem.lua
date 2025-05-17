@@ -42,12 +42,7 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
 
     local skillchainSettingsItem = GambitSettingsMenuItem.new(trust, weaponSkillSettings, weaponSkillSettingsMode, trustModeSettings, 'Skillchain', S{ GambitTarget.TargetType.Enemy }, function(targets)
         local sections = L{
-            L(windower.ffxi.get_abilities().weapon_skills):filter(function(weaponSkillId)
-                local weaponSkill = res.weapon_skills[weaponSkillId]
-                return S(weaponSkill.targets):intersection(targets):length() > 0
-            end):map(function(weaponSkillId)
-                return WeaponSkill.new(res.weapon_skills[weaponSkillId].en)
-            end),
+            skillchainBuilder:get_abilities(),
             L{ SkillchainAbility.auto(), SkillchainAbility.skip() }
         }
         return sections

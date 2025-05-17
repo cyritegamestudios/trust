@@ -384,7 +384,10 @@ function Skillchainer:set_current_settings(current_settings)
         gambit.conditions = (gambit.conditions or L{}):filter(function(condition)
             return condition:is_editable()
         end)
-        local conditions = self:get_default_conditions(gambit) + L{ SkillchainStepCondition.new(stepNum, Condition.Operator.Equals) }
+        local conditions = self:get_default_conditions(gambit)
+        if stepNum > 1 then
+            conditions:append(SkillchainStepCondition.new(stepNum - 1, Condition.Operator.Equals))
+        end
         for condition in conditions:it() do
             condition:set_editable(false)
             gambit:addCondition(condition)
