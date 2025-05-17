@@ -12,8 +12,6 @@ GambitEditorStyle.Permissions = {
     None       = 0,
     Edit       = bit.lshift(1, 0),  -- 1
     Conditions = bit.lshift(1, 1),  -- 2
-    -- You can add more flags here if needed
-    -- e.g., Delete = 1 << 2, View = 1 << 3, etc.
 }
 
 
