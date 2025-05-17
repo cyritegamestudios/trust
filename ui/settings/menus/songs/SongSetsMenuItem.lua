@@ -240,12 +240,14 @@ function SongSetsMenuItem:getConfigMenuItem()
                 local songSettings = T{
                     NumSongs = allSettings.SongSettings.NumSongs,
                     SongDuration = allSettings.SongSettings.SongDuration,
+                    ResingDuration = allSettings.SongSettings.ResingDuration or 60,
                     SongDelay = allSettings.SongSettings.SongDelay
                 }
 
                 local configItems = L{
                     ConfigItem.new('NumSongs', 2, 4, 1, function(value) return value.."" end, "Maximum Number of Songs"),
                     ConfigItem.new('SongDuration', 120, 400, 10, function(value) return value.."s" end, "Base Song Duration"),
+                    ConfigItem.new('ResingDuration', 45, 180, 1, function(value) return value.."" end, "Resing Song Duration"),
                     ConfigItem.new('SongDelay', 4, 8, 1, function(value) return value.."s" end, "Delay Between Songs")
                 }
 
@@ -262,6 +264,7 @@ function SongSetsMenuItem:getConfigMenuItem()
                 self.disposeBag:add(songConfigEditor:onConfigChanged():addAction(function(newSettings, _)
                     allSettings.SongSettings.NumSongs = newSettings.NumSongs
                     allSettings.SongSettings.SongDuration = newSettings.SongDuration
+                    allSettings.SongSettings.ResingDuration = newSettings.ResingDuration
                     allSettings.SongSettings.SongDelay = newSettings.SongDelay
 
                     self.trustSettings:saveSettings(true)

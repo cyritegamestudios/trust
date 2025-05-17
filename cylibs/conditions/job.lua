@@ -23,7 +23,6 @@ function JobCondition:is_satisfied(target_index)
     if target then
         local party_member = player.party:get_party_member(target.id)
         if party_member then
-            print('checking', party_member:get_name(), self.job_name_shorts)
             return self.job_name_shorts:contains(party_member:get_main_job_short())
         end
     end

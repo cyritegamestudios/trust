@@ -339,19 +339,19 @@ end
 -- to every action.
 function Luvent:trigger(...)
     if self.debugKey == "BuffsChanged" then
-        print('triggering', self.debugKey)
+        --print('triggering', self.debugKey)
     end
     local call = function (action, ...)
         local keep = invokeAction(action, ...)
         if keep == false then
             if self.debugKey == "BuffsChanged" then
-                print('removingsdfsdfsdfsdfsdfsdfsdfsdfsdf', self.debugKey)
+                --print('removingsdfsdfsdfsdfsdfsdfsdfsdfsdf', self.debugKey)
             end
             self:removeAction(action.id)
         end
     end
     if self.debugKey == "BuffsChanged" then
-        print('triggering', 'num actions', L(self.actions):length()) -- after awhile actions just get removed
+        --print('triggering', 'num actions', L(self.actions):length()) -- after awhile actions just get removed
     end
     sortActionsByPriority(self)
 
@@ -362,7 +362,7 @@ function Luvent:trigger(...)
                 action.timeOfLastInvocation = os.time()
             else
                 if self.debugKey == "BuffsChanged" then
-                    print('interval fail', self.debugKey)
+                    --print('interval fail', self.debugKey)
                 end
             end
         else

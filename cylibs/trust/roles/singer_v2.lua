@@ -31,8 +31,6 @@ function Singer.new(action_queue, song_settings, job)
     local self = setmetatable(Gambiter.new(action_queue, { Gambits = L{} }, state.AutoSongMode), Singer)
 
     self.job = job
-    self.expiring_duration = 70
-    self.last_expire_time = os.time() - 60
     self.songs_begin = Event.newEvent()
     self.songs_end = Event.newEvent()
     self.dispose_bag = DisposeBag.new()
@@ -55,6 +53,8 @@ function Singer:set_song_settings(song_settings)
     self.dummy_songs = song_settings.DummySongs
     self.songs = song_settings.SongSets[state.SongSet.value].Songs
     self.pianissimo_songs = song_settings.SongSets[state.SongSet.value].PianissimoSongs
+    self.expiring_duration = song_settings.ResingDuration or 60
+    self.last_expire_time = os.time() - self.expiring_duration
 
     -- I think this will break if a job has > 2 pianissimo songs because it would get into a song loop
     -- What if I set it so when any of the main songs is expiring on the bard, it sets song state to having all main songs (up to max num songs) that are expiring so it triggers a resing of main songs
@@ -76,8 +76,10 @@ function Singer:set_song_settings(song_settings)
         }, song_settings.DummySongs[1], Condition.TargetType.Self),
     }
 
+    -- There is some delay between songs because they aren't all under expire duration at the same time I think
     for song in self.songs:it() do
         --song:set_job_abilities(L{})
+        song:set_requires_all_job_abilities(false)
 
         gambit_settings.Songs = gambit_settings.Songs + L{
             Gambit.new(GambitTarget.TargetType.Self, L{

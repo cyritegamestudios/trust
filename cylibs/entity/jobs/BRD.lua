@@ -64,7 +64,16 @@ end
 -- @tparam number buff_id Buff ids (see buffs.lua)
 -- @treturn Boolean True if the buff id is for a bard song
 function Bard:is_bard_song_buff(buff_id)
-    return all_song_buff_ids:contains(buff_id)
+    return buff_id and all_song_buff_ids:contains(buff_id)
+end
+
+-------
+-- Returns whether a spell is a bard song.
+-- @tparam number spell_id Spell ids (see spells.lua)
+-- @treturn Boolean True if the spell id is for a bard song
+function Bard:is_bard_song(spell_id)
+    local spell = res.spells[spell_id]
+    return spell and self:is_bard_song_buff(spell.status)
 end
 
 -------
@@ -158,14 +167,17 @@ function Bard:get_extra_song_instrument_ids()
     }
 end
 
-function Bard:validate_songs(song_names, dummy_song_name)
+function Bard:validate_songs(song_names, dummy_song_names)
     if S(song_names):length() ~= 5 then
         return false, "You must pick 5 songs."
     end
     local buffsForSongs = S(song_names:map(function(song_name)
         return buff_util.buff_for_spell(spell_util.spell_id(song_name)).id
     end))
-    if set.intersection(S{ buff_util.buff_for_spell(spell_util.spell_id(dummy_song_name)).id }, buffsForSongs):length() > 0 then
+    local buffsForDummySongs = S(dummy_song_names:map(function(song_name)
+        return buff_util.buff_for_spell(spell_util.spell_id(song_name)).id
+    end))
+    if set.intersection(buffsForDummySongs, buffsForSongs):length() > 0 then
         return false, "Dummy song cannot give the same status effect as real songs."
     end
     return true, nil

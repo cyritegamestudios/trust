@@ -5,6 +5,7 @@ return {
         SongSettings = {
             NumSongs = 4,
             SongDuration = 240,
+            ResingDuration = 60,
             SongDelay = 6,
             SongSets = {
                 Default = {

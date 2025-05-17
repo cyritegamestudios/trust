@@ -23,7 +23,9 @@ function SongStatusView.new(singer)
 
         local songItems = L{}
         local songIndex = 1
-        local songRecords = singer.song_tracker:get_songs(partyMember:get_id())
+        local songRecords = singer.song_tracker:get_songs(partyMember:get_id()):sort(function(s1, s2)
+            return s1:get_time_remaining() < s2:get_time_remaining()
+        end)
         for songRecord in songRecords:it() do
             local songName = spell_util.spell_name(songRecord:get_song_id())..' ('..songRecord:get_time_remaining()..'s)'
             local tempIndex = songIndex

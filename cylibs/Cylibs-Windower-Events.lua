@@ -111,7 +111,7 @@ local incoming_event_dispatcher = {
 
         if act.category == 4 then
             if act.param and res.spells[act.param] then
-                WindowerEvents.Spell.Finish:trigger(act.actor_id, act.param)
+                WindowerEvents.Spell.Finish:trigger(act.actor_id, act.param, act.targets)
                 if res.spells[act.param] and L{ 'Raise', 'Raise II', 'Raise III', 'Arise' }:contains(res.spells[act.param].en) then
                     WindowerEvents.Raised:trigger(act.targets[1].id, act.param)
                 end
@@ -216,6 +216,9 @@ local incoming_event_dispatcher = {
         if zone ~= 0 then
             WindowerEvents.ZoneUpdate:trigger(mob_id, zone)
         end
+        if hp == 0 or hpp == 0 then
+            WindowerEvents.MobKO:trigger(mob_id)
+        end
     end,
 
     -- 0x0DF
@@ -244,6 +247,9 @@ local incoming_event_dispatcher = {
         local sub_job_id = packet['Sub job']
 
         WindowerEvents.CharacterUpdate:trigger(mob_id, name, hp, hpp, mp, mpp, tp, main_job_id, sub_job_id)
+        if hp == 0 or hpp == 0 then
+            WindowerEvents.MobKO:trigger(mob_id)
+        end
     end,
 
     -- 0x00D
@@ -337,6 +343,9 @@ local incoming_event_dispatcher = {
                 if party_member_info then
                     WindowerEvents.CharacterUpdate:trigger(alliance_member:get_id(), party_member_info.name, party_member_info.hp, party_member_info.hpp,
                             party_member_info.mp, party_member_info.mpp, party_member_info.tp, nil, nil)
+                    if party_member_info.hp == 0 or party_member_info.hpp == 0 then
+                        WindowerEvents.MobKO:trigger(alliance_member:get_id())
+                    end
                 end
                 WindowerEvents.ZoneUpdate:trigger(alliance_member:get_id(), alliance_member:get_zone_id())
 
