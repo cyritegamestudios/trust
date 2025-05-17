@@ -155,11 +155,11 @@ function ScholarTrustCommands:handle_set_skillchain(_, element)
     if spell1 and spell2 then
         local current_settings = self.weapon_skill_settings:getSettings()[state.WeaponSkillSettingsMode.value]
         if current_settings then
-            for i = 1, current_settings.Skillchain:length() do
-                current_settings.Skillchain[i] = Gambit.new(GambitTarget.TargetType.Enemy, L{}, SkillchainAbility.skip(), Condition.TargetType.Self, L{"Skillchain"})
+            for i = 1, current_settings.Skillchain.Gambits:length() do
+                current_settings.Skillchain.Gambits[i] = Gambit.new(GambitTarget.TargetType.Enemy, L{}, SkillchainAbility.skip(), Condition.TargetType.Self, L{"Skillchain"})
             end
-            current_settings.Skillchain[1] = Gambit.new(GambitTarget.TargetType.Enemy, L{ StrategemCountCondition.new(2, Condition.Operator.GreaterThanOrEqualTo) }, ElementalMagic.new(spell1), Condition.TargetType.Self)
-            current_settings.Skillchain[2] = Gambit.new(GambitTarget.TargetType.Enemy, L{ StrategemCountCondition.new(1, Condition.Operator.GreaterThanOrEqualTo) }, ElementalMagic.new(spell2), Condition.TargetType.Self)
+            current_settings.Skillchain.Gambits[1] = Gambit.new(GambitTarget.TargetType.Enemy, L{ StrategemCountCondition.new(2, Condition.Operator.GreaterThanOrEqualTo) }, ElementalMagic.new(spell1), Condition.TargetType.Self)
+            current_settings.Skillchain.Gambits[2] = Gambit.new(GambitTarget.TargetType.Enemy, L{ StrategemCountCondition.new(1, Condition.Operator.GreaterThanOrEqualTo) }, ElementalMagic.new(spell2), Condition.TargetType.Self)
 
             success = true
             message = "Setting skillchain to "..localization_util.translate(spell1).." > "..localization_util.translate(spell2)

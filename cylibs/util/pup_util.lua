@@ -20,7 +20,7 @@ _libs.pup_util = pup_util
 -- @treturn list Localized names for the player's attachments (e.g. Strobe, Attuner, etc.)
 function pup_util.get_attachments()
     local current = L{}
-    local atts = Item:where({ category = "Automaton" }, {}, true)
+    local atts = T(Item:where({ category = "Automaton" }, nil, true))
     local mjob_data = windower.ffxi.get_mjob_data()
     if not mjob_data then return current end
 
@@ -32,7 +32,7 @@ function pup_util.get_attachments()
             if i < 10 then
                 t = '0'
             end
-            current:append(atts[tmpTable[i]].name:lower())
+            current:append(atts:with('id', tmpTable[i]).en:lower())
         end
     end
     return current

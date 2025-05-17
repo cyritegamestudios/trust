@@ -25,7 +25,7 @@ function SkillchainStepCondition:is_satisfied(target_index)
     if player then
         local enemy = party:get_target_by_index(player:get_target_index())
         if enemy then
-            local step_num = 0
+            local step_num = 1
             local skillchain = enemy:get_skillchain()
             if skillchain then
                 step_num = skillchain:get_step()

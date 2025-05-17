@@ -38,6 +38,7 @@ function ContainerCollectionViewCell:layoutIfNeeded()
     end
 
     self.view:setSize(self.frame.width, self.frame.height)
+    self.view:setPosition(self:getItem():getOffset().x, self:getItem():getOffset().y)
 
     return true
 end

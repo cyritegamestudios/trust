@@ -2,7 +2,7 @@
 
 return T{
     [256] = {id=256, model_id="256", family="Bat", type="Bird"},
-    [260] = {id=260, model_id="260", family="Bats", type="Vermin"},
+    [260] = {id=260, model_id="260", family="Flock Bat", type="Vermin"},
     [264] = {id=264, model_id="264", family="Ahriman", type="Demon"},
     [268] = {id=268, model_id="268", family="Rabbit", type="Beast"},
     [272] = {id=272, model_id="272", family="Bee", type="Vermin"},
@@ -101,5 +101,6 @@ return T{
     [2145] = {id=2145, model_id="2145", family="Gyve", type="Structure"},
     [2146] = {id=2146, model_id="2146", family="Gyve", type="Structure"},
     [2246] = {id=2246, model_id="2246", family="Coeurl", type="Beast"},
+    [2249] = {id=2249, model_id="2249", family="Funguar", type="Plantoid"},
     [2965] = {id=2965, model_id="2965", family="Crab", type="Aquan"},
 }, {"id", "model_id", "family", "type"}

@@ -70,7 +70,9 @@ function ActionQueue.new(completion, is_priority_queue, max_size, debugging_enab
 			if action.actor_id ~= windower.ffxi.get_player().id then
 				return
 			end
-			if L{ 2, 3, 6 }:contains(action.category) then
+			if L{ 2, --[[3,]] 6 }:contains(action.category) then
+				self.forced_delay_time = os.clock() + 2
+			elseif action.category == 3 then
 				self.forced_delay_time = os.clock() + 2
 			elseif action.category == 4 or action.category == 8 and action.param == 28787 then
 				self.forced_delay_time = os.clock() + 3

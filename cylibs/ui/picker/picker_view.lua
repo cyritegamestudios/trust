@@ -60,7 +60,6 @@ function PickerView.new(configItems, allowsMultipleSelection, mediaPlayer, sound
     end)
 
     local self = setmetatable(CollectionView.new(dataSource, VerticalFlowLayout.new(0, Padding.new(8, 16, 8, 0)), nil, nil, mediaPlayer, soundTheme), PickerView)
-
     self.configItems = configItems:filter(function(configItem)
         return configItem:getAllValues():length() > 0
     end)
@@ -105,7 +104,7 @@ function PickerView:reload()
         local itemsInSection = IndexedItem.fromItems(configItem:getAllValues():map(function(value)
             local item = TextItem.new(value, self.textStyle)
 
-            local text, isEnabled = configItem:getTextFormat()(value)
+            local text, isEnabled = configItem:getTextFormat()(value, rowIndex)
             item:setLocalizedText(text)
             if isEnabled ~= nil then
                 item:setEnabled(isEnabled) -- TODO: this should use itemDescription instead?

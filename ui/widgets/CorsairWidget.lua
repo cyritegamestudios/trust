@@ -47,7 +47,7 @@ function CorsairWidget.new(frame, trust, trustHud, trustSettings, trustSettingsM
         end
     end)
 
-    local self = setmetatable(Widget.new(frame, "Corsair", dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 3), 12, true, 'job'), CorsairWidget)
+    local self = setmetatable(Widget.new(frame, "Corsair", dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 3), 40, true, 'job'), CorsairWidget)
 
     self.trust = trust
 

@@ -72,6 +72,13 @@ function Entity:is_valid()
 end
 
 -------
+-- Returns whether the entity has resistance info.
+-- @treturn Boolean True if the entity has resistance info.
+function Entity:has_resistance_info()
+    return false
+end
+
+-------
 -- Returns the (x, y, z) coordinate of the mob.
 -- @treturn vector Position of the mob, or the last known position if the mob is not valid
 function Entity:get_position()

@@ -13,8 +13,12 @@ state.AutoGambitMode:set_description('Auto', "Automatically use gambits.")
 function Gambiter.new(action_queue, gambit_settings, state_var)
     local self = setmetatable(Role.new(action_queue), Gambiter)
 
+    if class(state_var) ~= 'List' then
+        state_var = L{ state_var or state.AutoGambitMode }
+    end
+
     self.action_queue = action_queue
-    self.state_var = state_var or state.AutoGambitMode
+    self.state_vars = state_var or L{ state.AutoGambitMode }
     self.timer = Timer.scheduledTimer(1)
     self.enabled = true
     self.last_gambit_time = os.time() - self:get_cooldown()
@@ -52,11 +56,11 @@ function Gambiter:get_cooldown()
 end
 
 function Gambiter:check_gambits(gambits, param, ignore_delay)
-    if self.state_var.value == 'Off' or not ignore_delay and (os.time() - self.last_gambit_time) < self:get_cooldown() then
+    if not self:is_enabled() or not ignore_delay and (os.time() - self.last_gambit_time) < self:get_cooldown() then
         return
     end
 
-    logger.notice(self.__class, 'check_gambits', self:get_type(), self.state_var.value)
+    logger.notice(self.__class, 'check_gambits', self:get_type(), localization_util.commas(self.state_vars:map(function(state_var) return state_var.value end)))
 
     if not self:allows_multiple_actions() and self.action_queue:has_action(self:get_action_identifier()) then
         logger.notice(self.__class, 'check_gambits', self:get_type(), 'duplicate')
@@ -77,8 +81,8 @@ function Gambiter:check_gambits(gambits, param, ignore_delay)
     self.last_gambit_time = os.time() -- FIXME: should i really add this? Otherwise cooldown isn't respected
 end
 
-function Gambiter:is_gambit_satisfied(gambit, param, verbose)
-    local target_types = L{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Enemy }
+function Gambiter:is_gambit_satisfied(gambit, param)
+    local target_types = L{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Enemy, GambitTarget.TargetType.CurrentTarget }
     if gambit:hasConditionTarget(GambitTarget.TargetType.Ally) then
         target_types:append(GambitTarget.TargetType.Ally)
     end
@@ -87,7 +91,7 @@ function Gambiter:is_gambit_satisfied(gambit, param, verbose)
         local get_target_by_type = function(target_type)
             return targets_by_type[target_type]
         end
-        if gambit:isSatisfied(get_target_by_type, param, verbose) then
+        if gambit:isSatisfied(get_target_by_type, param) then
             local target = get_target_by_type(gambit:getAbilityTarget())
             return true, target
         end
@@ -109,6 +113,8 @@ function Gambiter:get_gambit_targets(gambit_target_types)
             target_group = self:get_party()
         elseif gambit_target_type == GambitTarget.TargetType.Enemy then
             target_group = self:get_target()
+        elseif gambit_target_type == GambitTarget.TargetType.CurrentTarget then
+            target_group = windower.ffxi.get_mob_by_target('t') and Monster.new(windower.ffxi.get_mob_by_target('t').id)
         end
         if target_group then
             local targets = L{}
@@ -127,9 +133,7 @@ function Gambiter:perform_gambit(gambit, target)
     if target == nil or target:get_mob() == nil then
         return
     end
-
     logger.notice(self.__class, 'perform_gambit', gambit:tostring(), target:get_mob().name)
-
     local action = gambit:getAbility():to_action(target:get_mob().index, self:get_player())
     if action then
         self.last_gambit_time = os.time()
@@ -178,7 +182,13 @@ function Gambiter:get_all_gambits()
 end
 
 function Gambiter:is_enabled()
-    return self.state_var.value ~= 'Off' and self.enabled
+    local state_vars_enabled = self.state_vars:filter(function(state_var)
+        return state_var.value ~= 'Off'
+    end)
+    if state_vars_enabled:length() == 0 then
+        return false
+    end
+    return self.enabled
 end
 
 function Gambiter:set_enabled(enabled)

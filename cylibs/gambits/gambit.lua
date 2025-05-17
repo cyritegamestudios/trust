@@ -37,12 +37,17 @@ function Gambit:isSatisfied(target_by_type, param, verbose)
     if self:getAbility() == nil then
         return false
     end
-
-    local satisfied_conditions = self.conditions:filter(function(condition)
+    logger.notice(self.__class, 'checking', self:tostring())
+    local num_satisfied_conditions = 0
+    for condition in self.conditions:it() do
         local target = target_by_type(condition:getTargetType())
-        return condition:isSatisfied(target, param)
-    end)
-    return satisfied_conditions:length() == self.conditions:length()
+        if condition:isSatisfied(target, param) then
+            num_satisfied_conditions = num_satisfied_conditions + 1
+        else
+            break
+        end
+    end
+    return num_satisfied_conditions == self.conditions:length()
         and Condition.check_conditions(self:getAbility():get_conditions(), windower.ffxi.get_player().index, param)
 end
 
@@ -118,7 +123,7 @@ end
 
 function Gambit:getConditionsDescription()
     local conditions_by_type = {}
-    for type in L{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Ally, GambitTarget.TargetType.Enemy }:it() do
+    for type in L{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Ally, GambitTarget.TargetType.Enemy, GambitTarget.TargetType.CurrentTarget }:it() do
         conditions_by_type[type] = L{}
     end
     for condition in self:getConditions():it() do
@@ -142,7 +147,11 @@ function Gambit:tostring()
     if self.ability.get_display_name then
         abilityName = self.ability:get_display_name()
     end
-    return string.format("%s → %s: %s", conditionsDescription, self.target, abilityName)
+    local jobAbilities = ""
+    if self.ability.get_job_abilities and (self.ability:get_job_abilities() or L{}):length() > 0 then
+        jobAbilities = string.format(", Use with: %s", localization_util.commas(self.ability:get_job_abilities()))
+    end
+    return string.format("%s → %s: %s%s", conditionsDescription, self.target, abilityName, jobAbilities)
 end
 
 function Gambit:serialize()

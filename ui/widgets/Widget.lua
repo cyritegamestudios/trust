@@ -168,7 +168,6 @@ function Widget:onMouseEvent(type, x, y, delta)
     end
     if type == Mouse.Event.Click then
         if self:isExpanded() and self:hitTest(x, y) then
-
             local startPosition = self:getAbsolutePosition()
             self.dragging = { x = startPosition.x, y = startPosition.y, dragX = x, dragY = y }
 

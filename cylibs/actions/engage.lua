@@ -15,15 +15,17 @@ local Action = require('cylibs/actions/action')
 local EngageAction = setmetatable({}, {__index = Action })
 EngageAction.__index = EngageAction
 
-function EngageAction.new(target_index)
+function EngageAction.new(target_index, cursor_only)
     local conditions = L{
         ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos()),
+        MaxDistanceCondition.new(30),
     }
     local alliance = player.alliance
     if alliance then
         conditions:append(ConditionalCondition.new(L{ ClaimedCondition.new(alliance:get_alliance_member_ids()), UnclaimedCondition.new() }, Condition.LogicalOperator.Or))
     end
     local self = setmetatable(Action.new(0, 0, 0, target_index, conditions), EngageAction)
+    self.cursor_only = cursor_only
     self.dispose_bag = DisposeBag.new()
     return self
 end
@@ -41,45 +43,51 @@ function EngageAction:perform()
         return
     end
 
-    if player.status == 'Engaged' then
-        self:log_target(target, 'switch_target')
-
-        local p = packets.new('outgoing', 0x01A)
-
-        p['Target'] = target.id
-        p['Target Index'] = target.index
-        p['Category'] = 0x0F -- Switch target
-        p['Param'] = 0
-        p['X Offset'] = 0
-        p['Z Offset'] = 0
-        p['Y Offset'] = 0
-
-        packets.inject(p)
-    else
-        self:log_target(target, 'engage')
-
-        local p = packets.new('outgoing', 0x01A)
-
-        p['Target'] = target.id
-        p['Target Index'] = target.index
-        p['Category'] = 0x02 -- Engage
-        p['Param'] = 0
-        p['X Offset'] = 0
-        p['Z Offset'] = 0
-        p['Y Offset'] = 0
-
-        packets.inject(p)
-    end
-
     packets.inject(packets.new('incoming', 0x058, {
         ['Player'] = windower.ffxi.get_player().id,
         ['Target'] = target.id,
         ['Player Index'] = windower.ffxi.get_player().index,
     }))
 
+    if not self.cursor_only then
+        if res.statuses[windower.ffxi.get_player().status].en == 'Engaged' then
+            self:log_target(target, 'switch_target')
+
+            local p = packets.new('outgoing', 0x01A)
+
+            p['Target'] = target.id
+            p['Target Index'] = target.index
+            p['Category'] = 0x0F -- Switch target
+            p['Param'] = 0
+            p['X Offset'] = 0
+            p['Z Offset'] = 0
+            p['Y Offset'] = 0
+
+            packets.inject(p)
+        else
+            self:log_target(target, 'engage')
+
+            local p = packets.new('outgoing', 0x01A)
+
+            p['Target'] = target.id
+            p['Target Index'] = target.index
+            p['Category'] = 0x02 -- Engage
+            p['Param'] = 0
+            p['X Offset'] = 0
+            p['Z Offset'] = 0
+            p['Y Offset'] = 0
+
+            packets.inject(p)
+        end
+    end
+
     self.dispose_bag:add(WindowerEvents.TargetIndexChanged:addAction(function(mob_id, target_index)
         if windower.ffxi.get_player().id == mob_id then
-            if self.target_index == target_index then
+            local target = windower.ffxi.get_mob_by_target('t')
+            if target and target.index == self.target_index then
+                if not windower.ffxi.get_player().target_locked then
+                    windower.send_command('input /lockon')
+                end
                 self:complete(true)
             end
         end
@@ -136,7 +144,11 @@ end
 
 function EngageAction:tostring()
     local target = windower.ffxi.get_mob_by_index(self.target_index)
-    return 'Engaging → '..target.name
+    if self.cursor_only then
+        return 'Targeting → '..target.name
+    else
+        return 'Engaging → '..target.name
+    end
 end
 
 function EngageAction:debug_string()

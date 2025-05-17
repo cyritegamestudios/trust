@@ -41,7 +41,7 @@ function SkillchainSettingsEditor.new(weaponSkillSettings, ability_gambits)
     self:layoutIfNeeded()
 
     self:getDisposeBag():add(state.WeaponSkillSettingsMode:on_state_change():addAction(function(_, new_value)
-        self.ability_gambits = self.weaponSkillSettings:getSettings()[new_value].Skillchain
+        self.ability_gambits = self.weaponSkillSettings:getSettings()[new_value].Skillchain.Gambits
         self:reloadSettings()
     end), state.WeaponSkillSettingsMode:on_state_change())
 
@@ -50,14 +50,6 @@ end
 
 function SkillchainSettingsEditor:destroy()
     CollectionView.destroy(self)
-end
-
-function SkillchainSettingsEditor:layoutIfNeeded()
-    if not CollectionView.layoutIfNeeded(self) then
-        return false
-    end
-
-    self:setTitle("Specify one or more steps of the skillchain.")
 end
 
 function SkillchainSettingsEditor:setVisible(visible)
@@ -73,6 +65,7 @@ function SkillchainSettingsEditor:reloadSettings()
     local skillchain_builder = SkillchainBuilder.new(self.ability_gambits:filter(function(gambit)
         return not L{ SkillchainAbility.Auto, SkillchainAbility.Skip }:contains(gambit:getAbility():get_name())
     end):map(function(gambit) return gambit:getAbility() end))
+    skillchain_builder.include_aeonic = true
 
     local items = L{}
 

@@ -78,7 +78,7 @@ function Command:get_windower_command()
 end
 
 function Command:get_config_items()
-    return L{ TextInputConfigItem.new('windower_command', self.windower_command, 'Command', function(_) return true  end) }
+    return L{ TextInputConfigItem.new('windower_command', self.windower_command, 'Command', function(_) return true  end, 275) }
 end
 
 -------
