@@ -15,7 +15,9 @@ function SkillSettingsMenuItem.new(weaponSkillSettings, skillSettings)
 
     local allAbilities = L(skillSettings:get_abilities(true):compact_map()):unique(function(ability) return ability:get_name() end)--:map(function(ability) return ability:get_name() end)
 
-    local defaultAbility = allAbilities:last()
+    local defaultAbility = allAbilities:lastWhere(function(a)
+        return not a:is_aoe()
+    end)
     if skillSettings:get_default_ability() then
         defaultAbility = skillSettings:get_default_ability()
     end

@@ -112,7 +112,7 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
 
     self.contentViewConstructor = function(_, infoView, _)
         local currentGambits = self:getSettings().Gambits
-        
+
         local configItem = self.editorConfig:getConfigItem(currentGambits)
 
         local gambitSettingsEditor = FFXIPickerView.new(configItem, false, self.editorConfig:getViewSize())
