@@ -62,8 +62,7 @@ function Singer:set_song_settings(song_settings)
     -- How about self pianissimo only applies if bard has all real song buffs--but then how will madrigal get re-applied? How about if not has madrigal and any pianissimo songs are expiring?
 
     local gambit_settings = {
-        Gambits = L{
-        },
+        Gambits = L{},
         DummySongs = L{},
         Songs = L{},
         PianissimoSongs = L{}
@@ -109,13 +108,16 @@ function Singer:set_song_settings(song_settings)
 
         local targetType = GambitTarget.TargetType.Self
 
-        gambit_settings.PianissimoSongs = gambit_settings.PianissimoSongs + L{
-            Gambit.new(targetType, L{
-                GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }) }), targetType),
-                GambitCondition.new(HasSongsCondition.new(self.songs:map(function(song) return song:get_name() end)), GambitTarget.TargetType.Self), -- only allows for a single pianissimo song
-                GambitCondition.new(JobCondition.new(song:get_job_names()), targetType),
-            }, song, targetType),
-        }
+        for targetType in L{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Ally }:it() do
+            gambit_settings.PianissimoSongs = gambit_settings.PianissimoSongs + L{
+                Gambit.new(targetType, L{
+                    GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }) }), targetType),
+                    GambitCondition.new(HasMaxNumSongsCondition.new(Condition.Operator.GreaterThanOrEqualTo, self.songs:map(function(song) return song:get_name() end)), GambitTarget.TargetType.Self),
+                    --GambitCondition.new(HasSongsCondition.new(self.songs:map(function(song) return song:get_name() end), self.trust:get_job():get_max_num_sonsg(state.AutoClarionCallMode.value == 'Auto')), GambitTarget.TargetType.Self), -- only allows for a single pianissimo song
+                    GambitCondition.new(JobCondition.new(song:get_job_names()), targetType),
+                }, song, targetType),
+            }
+        end
     end
 
     -- this works even for resing, but it does interrupt self nitro songs to re-pianissimo onto party members probably because Bard's songs

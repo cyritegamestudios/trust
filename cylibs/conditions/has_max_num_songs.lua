@@ -13,9 +13,10 @@ HasMaxNumSongsCondition.__index = HasMaxNumSongsCondition
 HasMaxNumSongsCondition.__type = "HasMaxNumSongsCondition"
 HasMaxNumSongsCondition.__class = "HasMaxNumSongsCondition"
 
-function HasMaxNumSongsCondition.new(operator)
+function HasMaxNumSongsCondition.new(operator, song_names)
     local self = setmetatable(Condition.new(), HasMaxNumSongsCondition)
     self.operator = operator or Condition.Operator.Equals
+    self.song_names = song_names or L{}
     return self
 end
 
@@ -25,7 +26,16 @@ function HasMaxNumSongsCondition:is_satisfied(target_index)
         local party_member = player.party:get_party_member(target.id)
         if party_member then
             --print(party_member:get_name(), 'max num songs', self.operator, self:eval(party_member:get_num_songs(), party_member:get_max_num_songs(), self.operator))
-            return self:eval(party_member:get_num_songs(), party_member:get_max_num_songs(), self.operator)
+            local max_num_songs = party_member:get_max_num_songs()
+            if self.song_names:length() > 0 then
+                local active_song_names = self.song_names:filter(function(song_name)
+                    return party_member:has_song(spell_util.spell_id(song_name))
+                end)
+                if active_song_names:length() < max_num_songs then
+                    return false
+                end
+            end
+            return self:eval(party_member:get_num_songs(), max_num_songs, self.operator)
         end
     end
     return false

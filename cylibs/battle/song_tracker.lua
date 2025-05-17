@@ -306,7 +306,7 @@ end
 -- @tparam number song_duration (optional) Song duration, or job default if not specified
 function SongTracker:on_gain_song(target_id, song_id, buff_id, song_duration)
     local party_member = self.party:get_party_member(target_id)
-
+    print('target', target_id, party_member ~= nil, song_id)
     if self:has_song(target_id, song_id) then
         self:on_lose_song(target_id, song_id, buff_id)
     end

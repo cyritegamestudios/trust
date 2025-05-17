@@ -1059,7 +1059,7 @@ end
 
 ---------------------------
 
--- Migrating songs to gambits.
+-- Updating jobs for songs.
 -- @class module
 -- @name Migration_v30
 
@@ -1080,24 +1080,19 @@ function Migration_v30:perform(trustSettings, _, _)
     local modeNames = list.subtract(L(T(trustSettings:getSettings()):keyset()), L { 'Version', 'Migrations' })
     for modeName in modeNames:it() do
         local songSettings = trustSettings:getSettings()[modeName].SongSettings
-        local dummySongs = L {}
         for song in songSettings.DummySongs:it() do
-            if song.__type ~= Gambit.__type then
-                dummySongs:append(Gambit.new(GambitTarget.TargetType.Self, L { JobCondition.new() }))
-            end
+            song:set_job_names(job_util.all_jobs())
         end
-        for song in songs:it() do
-            if song:get_job_names():empty() then
-                trustSettings:getSettings()[modeName].SongSettings.Songs = defaultSettings.Songs
-                break
+        for _, songSet in pairs(songSettings.SongSets) do
+            for song in songSet.Songs:it() do
+                song:set_job_names(job_util.all_jobs())
             end
-
         end
     end
 end
 
 function Migration_v30:getDescription()
-    return "Migrating songs to gambits."
+    return "Updating jobs for songs."
 
 end
 
