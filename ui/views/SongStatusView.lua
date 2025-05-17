@@ -55,7 +55,7 @@ function SongStatusView.new(singer)
             addon_system_message("You cannot edit songs from this menu.")
         end
     end), self:getDelegate():didSelectItemAtIndexPath())
-    
+
     return self
 end
 
