@@ -9,10 +9,10 @@ function SongStatusView.new(singer)
     local partyMembers = singer:get_party():get_party_members(true)
 
     local songSettings = {
-        PartyMember = partyMembers[1],
+        PartyMember = partyMembers[1], -- FIXME: this is getting destroyed which is removing buff listeners
     }
 
-    local maxNumSongs = singer.brd_job.max_num_songs + 1
+    local maxNumSongs = singer.job.max_num_songs + 1
 
     local configItemsForPartyMember = function(partyMember)
         local partyMemberItem = PickerConfigItem.new('PartyMember', songSettings.PartyMember, partyMembers, function(p) return p:get_name() end, "Party Member")

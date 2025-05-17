@@ -33,7 +33,7 @@ WindowerEvents.PositionChanged = Event.newEvent()
 WindowerEvents.TargetIndexChanged = Event.newEvent("TargetIndexChanged")
 WindowerEvents.ZoneUpdate = Event.newEvent()
 WindowerEvents.ZoneRequest = Event.newEvent()
-WindowerEvents.BuffsChanged = Event.newEvent()
+WindowerEvents.BuffsChanged = Event.newEvent("BuffsChanged")
 WindowerEvents.DebuffsChanged = Event.newEvent()
 WindowerEvents.BuffDurationChanged = Event.newEvent()
 WindowerEvents.GainDebuff = Event.newEvent()
@@ -311,6 +311,7 @@ local incoming_event_dispatcher = {
     [0x076] = function(data)
         for party_member in party_util.get_party_members(true):it() do
             local buff_ids = party_util.get_buffs(party_member.id)
+
             WindowerEvents.BuffsChanged:trigger(party_member.id, L(buff_util.buffs_for_buff_ids(buff_ids)))
             WindowerEvents.DebuffsChanged:trigger(party_member.id, L(buff_util.debuffs_for_buff_ids(buff_ids)))
         end
@@ -593,18 +594,20 @@ end
 
 WindowerEvents.Events = {}
 
-WindowerEvents.Events.GainBuff = windower.register_event('gain buff', function(_)
+WindowerEvents.Events.GainBuff = windower.register_event('gain buff', function(buff_id)
     local target_id = windower.ffxi.get_player().id
 
     local buff_ids = party_util.get_buffs(target_id)
+
     WindowerEvents.BuffsChanged:trigger(target_id, L(buff_util.buffs_for_buff_ids(buff_ids)))
     WindowerEvents.DebuffsChanged:trigger(target_id, L(buff_util.debuffs_for_buff_ids(buff_ids)))
 end)
 
-WindowerEvents.Events.LoseBuff = windower.register_event('lose buff', function(_)
+WindowerEvents.Events.LoseBuff = windower.register_event('lose buff', function(buff_id)
     local target_id = windower.ffxi.get_player().id
 
     local buff_ids = party_util.get_buffs(target_id)
+
     WindowerEvents.BuffsChanged:trigger(target_id, L(buff_util.buffs_for_buff_ids(buff_ids)))
     WindowerEvents.DebuffsChanged:trigger(target_id, L(buff_util.debuffs_for_buff_ids(buff_ids)))
 end)

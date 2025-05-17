@@ -88,7 +88,6 @@ function ActionQueue.new(completion, is_priority_queue, max_size, debugging_enab
 		self:cleanup()
 	end)
 
-
 	self.dispose_bag:addAny(L{ self.timer })
 
 	return self

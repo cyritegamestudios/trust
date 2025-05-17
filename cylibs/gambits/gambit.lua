@@ -33,7 +33,7 @@ function Gambit.new(target, conditions, ability, conditions_target, tags)
     return self
 end
 
-function Gambit:isSatisfied(target_by_type, param)
+function Gambit:isSatisfied(target_by_type, param, verbose)
     if self:getAbility() == nil then
         return false
     end

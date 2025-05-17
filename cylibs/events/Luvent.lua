@@ -256,6 +256,9 @@ end
 --
 -- @see Luvent:addAction
 function Luvent:removeAction(actionToRemove)
+    if self.debugKey == "BuffsChanged" then
+        print('removing BuffsChanged', debug.traceback())
+    end
     local exists,index = findAction(self, actionToRemove)
     if exists == true then
         table.remove(self.actions, index)
@@ -335,13 +338,21 @@ end
 -- @param ... All arguments given to this method will be passed along
 -- to every action.
 function Luvent:trigger(...)
+    if self.debugKey == "BuffsChanged" then
+        print('triggering', self.debugKey)
+    end
     local call = function (action, ...)
         local keep = invokeAction(action, ...)
         if keep == false then
+            if self.debugKey == "BuffsChanged" then
+                print('removingsdfsdfsdfsdfsdfsdfsdfsdfsdf', self.debugKey)
+            end
             self:removeAction(action.id)
         end
     end
-
+    if self.debugKey == "BuffsChanged" then
+        print('triggering', 'num actions', L(self.actions):length()) -- after awhile actions just get removed
+    end
     sortActionsByPriority(self)
 
     for _,action in ipairs(self.actions) do
@@ -349,8 +360,15 @@ function Luvent:trigger(...)
             if os.difftime(os.time(), action.timeOfLastInvocation) >= action.interval then
                 call(action, ...)
                 action.timeOfLastInvocation = os.time()
+            else
+                if self.debugKey == "BuffsChanged" then
+                    print('interval fail', self.debugKey)
+                end
             end
         else
+            if self.debugKey == "BuffsChanged" then
+                print('triggering action', self.debugKey)
+            end
             call(action, ...)
         end
     end

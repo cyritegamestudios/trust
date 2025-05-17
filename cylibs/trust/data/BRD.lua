@@ -11,7 +11,7 @@ local Dispeler = require('cylibs/trust/roles/dispeler')
 local Frame = require('cylibs/ui/views/frame')
 local ModeDelta = require('cylibs/modes/mode_delta')
 local Puller = require('cylibs/trust/roles/puller')
-local Singer = require('cylibs/trust/roles/singer')
+local Singer = require('cylibs/trust/roles/singer_v2')
 local Sleeper = require('cylibs/trust/roles/sleeper')
 
 state.AutoSongMode = M{['description'] = 'Sing Songs', 'Off', 'Auto', 'Dummy'}
@@ -34,7 +34,8 @@ function BardTrust.new(settings, action_queue, battle_settings, trust_settings, 
 	local job = Bard.new(trust_settings, addon_settings)
 	local roles = S{
 		Debuffer.new(action_queue, trust_settings.DebuffSettings, job),
-		Singer.new(action_queue, trust_settings.SongSettings.DummySongs, trust_settings.SongSettings.SongSets.Default.Songs, trust_settings.SongSettings.SongSets.Default.PianissimoSongs, job, state.AutoSongMode, ActionPriority.medium),
+		Singer.new(action_queue, trust_settings.SongSettings, job),
+		--Singer.new(action_queue, trust_settings.SongSettings.DummySongs, trust_settings.SongSettings.SongSets.Default.Songs, trust_settings.SongSettings.SongSets.Default.PianissimoSongs, job, state.AutoSongMode, ActionPriority.medium),
 		Dispeler.new(action_queue, L{ Spell.new('Magic Finale') }, L{}, true),
 		Puller.new(action_queue, trust_settings.PullSettings, job),
 		Sleeper.new(action_queue, L{ Spell.new('Horde Lullaby II'), Spell.new('Horde Lullaby') }, 3)
@@ -76,9 +77,11 @@ function BardTrust:on_init()
 
 		local singer = self:role_with_type("singer")
 
-		singer:set_dummy_songs(new_trust_settings.SongSettings.DummySongs)
-		singer:set_songs(new_trust_settings.SongSettings.SongSets[state.SongSet.value].Songs)
-		singer:set_pianissimo_songs(new_trust_settings.SongSettings.SongSets[state.SongSet.value].PianissimoSongs)
+		singer:set_song_settings(new_trust_settings.SongSettings)
+
+		--singer:set_dummy_songs(new_trust_settings.SongSettings.DummySongs)
+		--singer:set_songs(new_trust_settings.SongSettings.SongSets[state.SongSet.value].Songs)
+		--singer:set_pianissimo_songs(new_trust_settings.SongSettings.SongSets[state.SongSet.value].PianissimoSongs)
 
 		local debuffer = self:role_with_type("debuffer")
 		debuffer:set_debuff_settings(new_trust_settings.DebuffSettings)
@@ -87,8 +90,10 @@ function BardTrust:on_init()
 	state.SongSet:on_state_change():addAction(function(_, _, _, hide_help_text)
 		local singer = self:role_with_type("singer")
 
-		singer:set_songs(self:get_trust_settings().SongSettings.SongSets[state.SongSet.value].Songs)
-		singer:set_pianissimo_songs(self:get_trust_settings().SongSettings.SongSets[state.SongSet.value].PianissimoSongs)
+		singer:set_song_settings(self:get_trust_settings().SongSettings)
+
+		--singer:set_songs(self:get_trust_settings().SongSettings.SongSets[state.SongSet.value].Songs)
+		--singer:set_pianissimo_songs(self:get_trust_settings().SongSettings.SongSets[state.SongSet.value].PianissimoSongs)
 
 		if not hide_help_text then
 			addon_system_message("Switched to song set "..state.SongSet.value..".")
