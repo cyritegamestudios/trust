@@ -3,6 +3,7 @@
 -- @class module
 -- @name SongTracker
 
+local CooldownCondition = require('cylibs/conditions/cooldown')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Event = require('cylibs/events/Luvent')
 local list_ext = require('cylibs/util/extensions/lists')
@@ -50,6 +51,8 @@ function SongTracker.new(player, party, dummy_songs, songs, pianissimo_songs, jo
         expiring_duration = expiring_duration or 260;
         last_expiration_check = os.time();
     }, SongTracker)
+
+    CooldownCondition.set_timestamp('resing_songs', os.time())
 
     self.dispose_bag = DisposeBag.new()
     self.song_duration_warning = Event.newEvent()
@@ -283,6 +286,7 @@ end
 -------
 -- Sets all songs to expire soon for all party members.
 function SongTracker:set_all_expiring_soon()
+    CooldownCondition.set_timestamp('resing_songs', os.time())
     local player = self.party:get_player()
     for party_member in list.extend(L{player}, self.party:get_party_members(false)):it() do
         self:set_expiring_soon(party_member:get_id(), self.expiring_duration)

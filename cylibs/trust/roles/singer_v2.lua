@@ -67,7 +67,7 @@ function Singer:set_song_settings(song_settings)
         self.song_tracker.pianissimo_songs = self.pianissimo_songs
         self.song_tracker.expiring_duration = self.expiring_duration
     end
-    
+
     -- I think this will break if a job has > 2 pianissimo songs because it would get into a song loop
     -- What if I set it so when any of the main songs is expiring on the bard, it sets song state to having all main songs (up to max num songs) that are expiring so it triggers a resing of main songs
 
