@@ -9,6 +9,7 @@ function CommandAction.new(x, y, z, command)
 end
 
 function CommandAction:perform()
+    print('performing', self:get_command())
     if self:get_command():length() > 0 then
         windower.chat.input('%s':format(self:get_command()))
     end

@@ -1,5 +1,6 @@
 local BlockAction = require('cylibs/actions/block')
 local ConditionalCondition = require('cylibs/conditions/conditional')
+local CooldownCondition = require('cylibs/conditions/cooldown')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Event = require('cylibs/events/Luvent')
 local GambitTarget = require('cylibs/gambits/gambit_target')
@@ -7,6 +8,7 @@ local HasMaxNumSongsCondition = require('cylibs/conditions/has_max_num_songs')
 local NumSongsCondition = require('cylibs/conditions/num_songs')
 local logger = require('cylibs/logger/logger')
 local res = require('resources')
+local Script = require('cylibs/battle/script')
 local Sequence = require('cylibs/battle/sequence')
 local SongDurationCondition = require('cylibs/conditions/song_duration')
 
@@ -43,6 +45,8 @@ end
 function Singer:on_add()
     Gambiter.on_add(self)
 
+    CooldownCondition.set_timestamp('resing_songs', os.time())
+
     self.song_tracker = SongTracker.new(self:get_player(), self:get_party(), self.dummy_songs, self.songs, L{}, self.job, self.expiring_duration)
     self.song_tracker:monitor()
 
@@ -70,7 +74,7 @@ function Singer:set_song_settings(song_settings)
 
     gambit_settings.DummySongs = L{
         Gambit.new(GambitTarget.TargetType.Self, L{
-            GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song_settings.DummySongs[1]:get_name() }, 1) }), GambitTarget.TargetType.Self),
+            GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(song_settings.DummySongs:map(function(s) return s:get_name() end), 1) }), GambitTarget.TargetType.Self),
             GambitCondition.new(NumSongsCondition.new(2, Condition.Operator.GreaterThanOrEqualTo), GambitTarget.TargetType.Self),
             GambitCondition.new(HasMaxNumSongsCondition.new(Condition.Operator.LessThan), GambitTarget.TargetType.Self),
         }, song_settings.DummySongs[1], Condition.TargetType.Self),
@@ -78,13 +82,17 @@ function Singer:set_song_settings(song_settings)
 
     -- There is some delay between songs because they aren't all under expire duration at the same time I think
     for song in self.songs:it() do
-        --song:set_job_abilities(L{})
         song:set_requires_all_job_abilities(false)
 
         gambit_settings.Songs = gambit_settings.Songs + L{
             Gambit.new(GambitTarget.TargetType.Self, L{
                 GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }) }), GambitTarget.TargetType.Self),
-                GambitCondition.new(ConditionalCondition.new(L{ HasSongsCondition.new(L{ self.dummy_songs[1]:get_name() }), NumSongsCondition.new(2, Condition.Operator.LessThan), SongDurationCondition.new(self.pianissimo_songs:map(function(song) return song:get_name() end), self.expiring_duration, Condition.Operator.LessThanOrEqualTo, 1, Condition.Operator.GreaterThanOrEqualTo) }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Self),
+                GambitCondition.new(ConditionalCondition.new(L{
+                    HasSongsCondition.new(song_settings.DummySongs:map(function(s) return s:get_name() end), 1),
+                    NumSongsCondition.new(2, Condition.Operator.LessThan),
+                    -- Condition below needs to make sure 5th clarion call song can't be sung unless you have enough songs
+                    SongDurationCondition.new(self.pianissimo_songs:map(function(song) return song:get_name() end), self.expiring_duration, Condition.Operator.LessThanOrEqualTo, 1, Condition.Operator.GreaterThanOrEqualTo)
+                }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Self),
             }, song, Condition.TargetType.Self),
             Gambit.new(GambitTarget.TargetType.Self, L{
                 GambitCondition.new(HasSongsCondition.new(L{ song:get_name() }), GambitTarget.TargetType.Self),
@@ -93,8 +101,11 @@ function Singer:set_song_settings(song_settings)
         }
     end
 
-    -- Pianissimo doesn't work when you don't have 5 songs because it requires you to have ALL main songs--need to cap at max num songs
-    gambit_settings.PianissimoSongs = (gambit_settings.DummySongs + gambit_settings.Songs):map(function(gambit)
+    -- Pianissimo doesn't work when you don't have 5 songs because it requires you to have ALL main songs--need to cap at max num songs (fixed now??)
+    -- TODO: I wonder if I should just not have this since it is a big cause of sing loops. If we don't have it, then it will just not try to re-apply songs if they get dispeled or
+    -- party member is out of range. If I do that, I don't know if pianissimo songs will ever be sung for ally because they rely on having all songs. Maybe I should split it out
+    -- for self and ally--self requires all songs, ally does not. Though this would suck for resings if an ally dies.
+    --[[gambit_settings.PianissimoSongs = (gambit_settings.DummySongs + gambit_settings.Songs):map(function(gambit)
         local song = gambit:getAbility():copy()
         song:set_job_abilities(L{ "Pianissimo" })
         song:set_requires_all_job_abilities(true)
@@ -102,7 +113,7 @@ function Singer:set_song_settings(song_settings)
         return Gambit.new(GambitTarget.TargetType.Ally, gambit:getConditions():map(function(condition)
             return GambitCondition.new(condition:getCondition(), GambitTarget.TargetType.Ally)
         end), song, GambitTarget.TargetType.Ally)
-    end)
+    end)]]
 
     for song in self.pianissimo_songs:it() do
         song:set_job_abilities(L{ "Pianissimo" })
@@ -138,7 +149,23 @@ function Singer:set_song_settings(song_settings)
         }, Sequence.new(L{ JobAbility.new("Nightingale"), JobAbility.new("Troubadour") }), GambitTarget.TargetType.Self),
     }
 
-    gambit_settings.Gambits = gambit_settings.Nitro + gambit_settings.DummySongs + gambit_settings.Songs + gambit_settings.PianissimoSongs
+    -- Mostly working, but it's still singing Valor Minuet III on Cyrite for some reason
+    -- After resing of Valor Minuet IV it thinks it has 5 songs
+    -- Still seems like it's not pruning fast enough
+    -- 2025-05-17 21:32:09| Trust Notice: Singer perform_gambit Self: Valor Minuet III recast is ready and Pianissimo is ready and Ally: Not Has Valor Minuet III, Has Scop's Operetta, Has < 2 songs or >= 1 of Mage's Ballad III have <= 160s remaining, HP >= 1% and Target distance <= 20 yalms → Ally: Valor Minuet III, Use with: Pianissimo Cyrite
+    gambit_settings.Resing = L{
+        Gambit.new(GambitTarget.TargetType.Self, L{
+            GambitCondition.new(CooldownCondition.new('resing_songs', 100), GambitTarget.TargetType.Self),
+            GambitCondition.new(HasMaxNumSongsCondition.new(Condition.Operator.GreaterThanOrEqualTo), GambitTarget.TargetType.Self),
+            GambitCondition.new(SongDurationCondition.new(self.songs:map(function(song) return song:get_name() end), self.expiring_duration, Condition.Operator.LessThanOrEqualTo, 1, Condition.Operator.GreaterThanOrEqualTo), GambitTarget.TargetType.Self),
+        }, Script.new(function()
+            print('setting expiring')
+            self.song_tracker:set_all_expiring_soon()
+            CooldownCondition.set_timestamp('resing_songs', os.time())
+        end, L{}, "Resinging songs"), GambitTarget.TargetType.Self),
+    }
+
+    gambit_settings.Gambits = gambit_settings.Nitro + gambit_settings.DummySongs + gambit_settings.Resing + gambit_settings.Songs + gambit_settings.PianissimoSongs
 
     self.gambit_settings = gambit_settings
 

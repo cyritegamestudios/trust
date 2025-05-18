@@ -367,7 +367,7 @@ function Luvent:trigger(...)
             end
         else
             if self.debugKey == "BuffsChanged" then
-                print('triggering action', self.debugKey)
+                --print('triggering action', self.debugKey)
             end
             call(action, ...)
         end
