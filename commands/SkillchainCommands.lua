@@ -176,19 +176,17 @@ function SkillchainTrustCommands:handle_set_spam(_, ...)
         if skill:get_ability(ability_name) then
             skill:set_default_ability(ability_name)
 
-            local index = current_settings.Skills:indexOf(skill)
-            current_settings.Skills:remove(index)
-
-            current_settings.Skills:append(skill)
-
             success = true
             message = localization_util.translate(ability_name).." will now be used when spamming"
 
-            self.weapon_skill_settings:saveSettings(true)
-
             self:handle_toggle_mode('AutoSkillchainMode', 'Spam', 'Off', true)
-            break
+        else
+            skill:set_default_ability("")
         end
+    end
+
+    if success then
+        self.weapon_skill_settings:saveSettings(true)
     end
 
     if not success then

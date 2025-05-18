@@ -3,6 +3,8 @@
 -- @class module
 -- @name Bard
 
+local inventory_util = require('cylibs/util/inventory_util')
+
 local Job = require('cylibs/entity/jobs/job')
 local Bard = setmetatable({}, {__index = Job })
 Bard.__index = Bard
@@ -20,10 +22,9 @@ local all_song_buff_ids = L{
 -- Default initializer for a new Bard.
 -- @tparam T trust_settings Trust settings
 -- @treturn BRD A Bard
-function Bard.new(trust_settings, addon_settings)
+function Bard.new(trust_settings)
     local self = setmetatable(Job.new('BRD', L{ 'Honor March', 'Aria of Passion', 'Dispelga' }), Bard)
     self:set_trust_settings(trust_settings)
-    self.addon_settings = addon_settings
     return self
 end
 
@@ -121,21 +122,30 @@ function Bard:get_song_buff_ids(buff_ids)
 end
 
 -------
+-- Returns the duration modifier for the given song, taking into account buffs, instruments and gear.
+-- @tparam number song_name (optional) Name of the song (see res/spells.lua)
+-- @treturn number Duration modifier of song
+function Bard:get_song_duration_modifier(song_name)
+    local modifier = 1.0
+    if self:is_troubadour_active() then
+        modifier = modifier * 2.0
+    end
+    return modifier
+end
+
+-------
 -- Returns the maximum duration of a song, taking into account whether troubadour is active.
 -- @tparam number song_name (optional) Name of the song (see res/spells.lua)
 -- @treturn number Duration of song
 function Bard:get_song_duration(song_name)
-    local modifier = 1.0
-    if song_name then
-        if song_name == 'Honor March' then
-            modifier = 1.0
-        end
+    local song_duration = self.song_duration
+    if inventory_util.get_ranged_weapon_id() == 22249 then
+        song_duration = 60 * 15
+    else
+        local modifier = self:get_song_duration_modifier(song_name)
+        song_duration = song_duration * modifier
     end
-    local base_song_duration = self.song_duration * modifier
-    if self:is_troubadour_active() then
-        return base_song_duration * 2
-    end
-    return base_song_duration
+    return song_duration
 end
 
 -------
@@ -164,6 +174,7 @@ function Bard:get_extra_song_instrument_ids()
         22305, -- Loughnashade
         22306, -- Loughnashade
         22307, -- Loughnashade
+        22249, -- Miracle Cheer
     }
 end
 
