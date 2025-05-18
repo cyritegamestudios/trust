@@ -437,22 +437,22 @@ local incoming_event_dispatcher = {
     [0x063] = function(data)
         local buff_records = L{}
 
-        for n=1,32 do
-            local buff_id = data:unpack('H', n*2+7)
-            local buff_ts = data:unpack('I', n*4+69)
+        local subtype = data:byte(5)
+        if subtype == 0x09 then
+            for n=1,32 do
+                local buff_id = data:unpack('H', n*2+7)
+                local buff_ts = data:unpack('I', n*4+69)
 
-            if buff_ts == 0 then
-                break
-            elseif buff_id ~= 255 and buff_ts ~= nil then
-                local duration = math.floor(buff_ts / 60 + bufftime_offset) - os.time()
-                buff_records:append(BuffRecord.new(buff_id, duration))
+                if buff_ts == 0 then
+                    break
+                elseif buff_id ~= 255 and buff_ts ~= nil then
+                    local duration = math.floor(buff_ts / 60 + bufftime_offset) - os.time()
+                    buff_records:append(BuffRecord.new(buff_id, duration))
+                end
             end
-        end
-        --for buff_record in buff_records:it() do
-        --    print(res.buffs[buff_record:get_buff_id()].en, 'has', buff_record:get_time_remaining(), 'remaining')
-        --end
-        if buff_records:length() > 0 then
-            WindowerEvents.BuffDurationChanged:trigger(windower.ffxi.get_player().id, buff_records)
+            if buff_records:length() > 0 then
+                WindowerEvents.BuffDurationChanged:trigger(windower.ffxi.get_player().id, buff_records)
+            end
         end
     end,
 

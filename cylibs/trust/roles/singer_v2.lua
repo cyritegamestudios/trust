@@ -5,6 +5,7 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local Event = require('cylibs/events/Luvent')
 local GambitTarget = require('cylibs/gambits/gambit_target')
 local HasMaxNumSongsCondition = require('cylibs/conditions/has_max_num_songs')
+local MaxNumSongsCondition = require('cylibs/conditions/max_num_songs')
 local NumSongsCondition = require('cylibs/conditions/num_songs')
 local logger = require('cylibs/logger/logger')
 local res = require('resources')
@@ -47,7 +48,7 @@ function Singer:on_add()
 
     CooldownCondition.set_timestamp('resing_songs', os.time())
 
-    self.song_tracker = SongTracker.new(self:get_player(), self:get_party(), self.dummy_songs, self.songs, L{}, self.job, self.expiring_duration)
+    self.song_tracker = SongTracker.new(self:get_player(), self:get_party(), self.dummy_songs, self.songs, self.pianissimo_songs, self.job, self.expiring_duration)
     self.song_tracker:monitor()
 
     self.dispose_bag:addAny(L{ self.song_tracker })
@@ -60,6 +61,13 @@ function Singer:set_song_settings(song_settings)
     self.expiring_duration = song_settings.ResingDuration or 60
     self.last_expire_time = os.time() - self.expiring_duration
 
+    if self.song_tracker then
+        self.song_tracker.songs = self.songs
+        self.song_tracker.dummy_songs = self.dummy_songs
+        self.song_tracker.pianissimo_songs = self.pianissimo_songs
+        self.song_tracker.expiring_duration = self.expiring_duration
+    end
+    
     -- I think this will break if a job has > 2 pianissimo songs because it would get into a song loop
     -- What if I set it so when any of the main songs is expiring on the bard, it sets song state to having all main songs (up to max num songs) that are expiring so it triggers a resing of main songs
 
@@ -81,11 +89,12 @@ function Singer:set_song_settings(song_settings)
     }
 
     -- There is some delay between songs because they aren't all under expire duration at the same time I think
-    for song in self.songs:it() do
+    for songNum, song in ipairs(self.songs) do
         song:set_requires_all_job_abilities(false)
 
         gambit_settings.Songs = gambit_settings.Songs + L{
             Gambit.new(GambitTarget.TargetType.Self, L{
+                GambitCondition.new(MaxNumSongsCondition.new(songNum, Condition.Operator.GreaterThanOrEqualTo), GambitTarget.TargetType.Self),
                 GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }) }), GambitTarget.TargetType.Self),
                 GambitCondition.new(ConditionalCondition.new(L{
                     HasSongsCondition.new(song_settings.DummySongs:map(function(s) return s:get_name() end), 1),
@@ -122,7 +131,7 @@ function Singer:set_song_settings(song_settings)
         for targetType in L{ GambitTarget.TargetType.Ally, GambitTarget.TargetType.Self }:it() do
             gambit_settings.PianissimoSongs = gambit_settings.PianissimoSongs + L{
                 Gambit.new(targetType, L{
-                    GambitCondition.new(ModeCondition.new('AutoPianissimoMode', 'Auto'), targetType),
+                    GambitCondition.new(ModeCondition.new('AutoPianissimoMode', 'Auto'), GambitTarget.TargetType.Self),
                     GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }) }), targetType),
                     GambitCondition.new(HasMaxNumSongsCondition.new(Condition.Operator.GreaterThanOrEqualTo, self.songs:map(function(song) return song:get_name() end)), GambitTarget.TargetType.Self),
                     GambitCondition.new(JobCondition.new(song:get_job_names()), targetType),

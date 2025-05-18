@@ -68,7 +68,6 @@ function SongTracker.new(player, party, dummy_songs, songs, pianissimo_songs, jo
         end
         local song_records = self:get_songs(party_member:get_id())
         if song_records:length() > self.job:get_song_buff_ids(party_member:get_buff_ids()):length() then
-            print(party_member:get_name(), 'has too many songs')
             self:prune_all_songs(party_member:get_id(), party_member:get_buff_ids())
         end
         logger.notice(self.__class, party_member:get_name().."'s", "songs are", self:get_songs(party_member:get_id()):map(function(song_record) return res.spells[song_record:get_song_id()].name end))
@@ -174,6 +173,7 @@ function SongTracker:monitor()
         end), party_member:on_lose_buff())
 
         self.dispose_bag:add(party_member:on_buffs_duration_changed():addAction(function(p, buff_records)
+            print('pruning', 'buff_records', buff_records:map(function(b) return res.buffs[b:get_buff_id()].en end))
             self:prune_all_songs(p:get_id(), buff_records:map(function(b) return b:get_buff_id() end))
         end), party_member:on_buffs_duration_changed())
 
@@ -320,9 +320,8 @@ function SongTracker:on_gain_song(target_id, song_id, buff_id, song_duration)
         self:on_lose_song(target_id, song_id, buff_id)
     end
 
-
     logger.notice(self.__class, "Current buffs for", party_member:get_name(), "are", tostring(L(party_util.get_buffs(target_id)):map(function(buff_id) return res.buffs[buff_id].en  end)))
-    print('duration is', self.job:get_song_duration(res.spells[song_id].en))
+
     local target_songs = (self.active_songs[target_id] or S{}):add(SongRecord.new(song_id, song_duration or self.job:get_song_duration(res.spells[song_id].en)))
     self.active_songs[target_id] = target_songs
 
@@ -340,7 +339,7 @@ function SongTracker:on_lose_song(target_id, song_id, buff_id)
     if not self:has_song(target_id, song_id) then
         return
     end
-    print('lose song', res.spells[song_id].en)
+
     local party_member = self.party:get_party_member(target_id)
 
     logger.notice(self.__class, "Current buffs for", party_member:get_name(), "are", tostring(L(party_util.get_buffs(target_id)):map(function(buff_id) return res.buffs[buff_id].name  end)))
@@ -361,6 +360,7 @@ function SongTracker:prune_all_songs(target_id, buff_ids)
     self:prune_songs(target_id, self.dummy_songs, buff_ids)
     self:prune_songs(target_id, self.songs, buff_ids)
     self:prune_songs(target_id, self.pianissimo_songs, buff_ids)
+    self:prune_expired_songs(target_id)
 end
 
 -------
@@ -378,6 +378,7 @@ function SongTracker:prune_songs(target_id, songs, buff_ids)
     local song_buff_ids = S{}
     for song in songs:it() do
         local buff_id = song:get_spell().status
+        print('checking active count', res.buffs[buff_id].en, buff_util.buff_count(buff_id, buff_ids))
         if not buff_util.is_buff_active(buff_id, buff_ids) then
             self:on_lose_song(target_id, song:get_spell().id, song:get_spell().status)
         else
@@ -392,7 +393,7 @@ function SongTracker:prune_songs(target_id, songs, buff_ids)
 
     for buff_id, song_records in pairs(buff_id_to_records) do
         local buff_count = buff_util.buff_count(buff_id, buff_ids)
-        print('buff_id', song_records:length(), buff_count, 'all buffs', party_member:get_buff_ids(), buff_ids)
+
         if song_records:length() > buff_count then
             logger.notice(self.__class, party_member:get_name(), "has", buff_count, res.buffs[buff_id].name, "buffs but song records of", tostring(song_records:map(function(song) return res.spells[song:get_song_id()].name end)))
             local songs_to_remove = L(song_records):sort(function(song_record1, song_record2)
@@ -402,6 +403,8 @@ function SongTracker:prune_songs(target_id, songs, buff_ids)
                 logger.notice(self.__class, "Overwriting", party_member:get_name().."'s", res.spells[song:get_song_id()].name)
                 self:on_lose_song(target_id, song:get_song_id(), song:get_buff_id())
             end
+        elseif buff_count == 0 then
+
         end
     end
 end
