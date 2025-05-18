@@ -245,8 +245,8 @@ function SongSetsMenuItem:getConfigMenuItem()
                 }
 
                 local configItems = L{
-                    ConfigItem.new('NumSongs', 2, 4, 1, function(value) return value.."" end, "Maximum Number of Songs"),
-                    ConfigItem.new('SongDuration', 120, 400, 10, function(value) return value.."s" end, "Base Song Duration"),
+                    --ConfigItem.new('NumSongs', 2, 4, 1, function(value) return value.."" end, "Maximum Number of Songs"),
+                    --ConfigItem.new('SongDuration', 120, 400, 10, function(value) return value.."s" end, "Base Song Duration"),
                     ConfigItem.new('ResingDuration', 45, 180, 1, function(value) return value.."s" end, "Resing Song Duration"),
                     ConfigItem.new('SongDelay', 4, 8, 1, function(value) return value.."s" end, "Delay Between Songs")
                 }

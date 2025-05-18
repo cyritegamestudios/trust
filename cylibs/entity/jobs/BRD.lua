@@ -4,6 +4,7 @@
 -- @name Bard
 
 local inventory_util = require('cylibs/util/inventory_util')
+local Item = require('resources/resources').Item
 
 local Job = require('cylibs/entity/jobs/job')
 local Bard = setmetatable({}, {__index = Job })
@@ -333,6 +334,21 @@ function Bard:validate_songs(song_names, dummy_song_names)
     return true, nil
 end
 
+function Bard:get_extra_song_items()
+    return L{ 'Daurdabla', 'Blurred Harp', 'Blurred Harp +1', 'Terpander', 'Miracle Cheer' }
+end
+
+function Bard:get_extra_songs(item_name)
+    local item_to_num_songs = {
+        ['Daurdabla'] = 4,
+        ['Terpander'] = 3,
+        ['Blurred Harp'] = 3,
+        ['Blurred Harp +1'] = 3,
+        ['Miracle Cheer'] = 3,
+    }
+    return item_to_num_songs[item_name] or 2
+end
+
 -------
 -- Updates the songs settings based on trust settings.
 -- @tparam table Trust settings
@@ -341,6 +357,17 @@ function Bard:set_trust_settings(trust_settings)
     self.song_duration = trust_settings.SongSettings.SongDuration or 240
     self.song_delay = trust_settings.SongSettings.SongDelay or 6
     self.gear_swap_enabled = trust_settings.GearSwapSettings.Enabled
+
+    local max_num_songs = 2
+    for item_name in self:get_extra_song_items():it() do
+        local items = Item:where({ en = item_name }, L{ 'id' }, true)
+        for item in items:it() do
+            if inventory_util.get_item_count(item.id, true) > 0 then
+                max_num_songs = math.max(max_num_songs, self:get_extra_songs(item_name))
+            end
+        end
+    end
+    self.max_num_songs = max_num_songs
 end
 
 return Bard
