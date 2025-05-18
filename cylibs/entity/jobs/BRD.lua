@@ -18,6 +18,87 @@ local all_song_buff_ids = L{
     222, 223
 }
 
+local equip_mods = {
+    [18342] = {0.2},            -- 'Gjallarhorn',    -- 75
+    [18577] = {0.2},            -- 'Gjallarhorn',    -- 80
+    [18578] = {0.2},            -- 'Gjallarhorn',    -- 85
+    [18579] = {0.3},            -- 'Gjallarhorn',    -- 90
+    [18580] = {0.3},            -- 'Gjallarhorn',    -- 95
+    [18572] = {0.4},            -- 'Gjallarhorn',    -- 99
+    [18840] = {0.4},            -- 'Gjallarhorn',    -- 99-2
+    [18575] = {0.25},           -- 'Daurdabla',      -- 90
+    [18576] = {0.25},           -- 'Daurdabla',      -- 95
+    [18571] = {0.3},            -- 'Daurdabla',      -- 99
+    [18839] = {0.3},            -- 'Daurdabla',      -- 99-2
+    [19000] = {0.1},            -- 'Carnwenhan',     -- 75
+    [19069] = {0.2},            -- 'Carnwenhan',     -- 80
+    [19089] = {0.3},            -- 'Carnwenhan',     -- 85
+    [19621] = {0.4},            -- 'Carnwenhan',     -- 90
+    [19719] = {0.4},            -- 'Carnwenhan',     -- 95
+    [19828] = {0.5},            -- 'Carnwenhan',     -- 99
+    [19957] = {0.5},            -- 'Carnwenhan',     -- 99-2
+    [20561] = {0.5},            -- 'Carnwenhan',     -- 119
+    [20562] = {0.5},            -- 'Carnwenhan',     -- 119-2
+    [20586] = {0.5},            -- 'Carnwenhan',     -- 119-3
+    [21398] = {0.5},            -- 'Marsyas',
+    [21400] = {0.1},            -- 'Blurred Harp',
+    [21401] = {0.2,Ballad=0.2}, -- 'Blurred Harp +1',
+    [21405] = {0.2} ,           -- 'Eminent Flute',
+    [21404] = {0.3},			-- 'Linos'			-- assumes +2 songs augment
+    [20629] = {0.05},           -- 'Legato Dagger',
+    [20599] = {0.05},           -- 'Kali',
+    [27672] = {Paeon=0.1},      -- 'Brioso Roundlet',
+    [27693] = {Paeon=0.1},      -- 'Brioso Roundlet +1',
+    [23049] = {Paeon=0.1},      -- 'Brioso Roundlet +2',
+    [23384] = {Paeon=0.1},      -- 'Brioso Roundlet +3',
+    [28074] = {0.1},            -- 'Mdk. Shalwar +1',
+    [25865] = {0.12},           -- 'Inyanga Shalwar',
+    [25866] = {0.15},           -- 'Inyanga Shalwar +1',
+    [25882] = {0.17},           -- 'Inyanga Shalwar +2',
+    [28232] = {0.1},            -- 'Brioso Slippers',
+    [28253] = {0.11},           -- 'Brioso Slippers +1',
+    [23317] = {0.13},           -- 'Brioso Slippers +2',
+    [23652] = {0.15},           -- 'Brioso Slippers +3',
+    [11073] = {Madrigal=0.1},   -- 'Aoidos\' Calot +2',
+    [11093] = {0.1,Minuet=0.1}, -- 'Aoidos\' Hngrln. +2',
+    [11113] = {March=0.1},      -- 'Ad. Mnchtte. +2',
+    [11133] = {Ballad=0.1},     -- 'Aoidos\' Rhing. +2',
+    [11153] = {Scherzo=0.1},    -- 'Aoidos\' Cothrn. +2',
+    [11618] = {0.1},            -- 'Aoidos\' Matinee',
+    [26031] = {0.1},            -- 'Brioso Whistle',
+    [26032] = {0.2},            -- 'Moonbow Whistle',
+    [26033] = {0.3},            -- 'Mnbw. Whistle +1',
+    [26758] = {Madrigal=0.1},   -- 'Fili Calot',
+    [26759] = {Madrigal=0.1},   -- 'Fili Calot +1',
+    [23094] = {Madrigal=0.1},   -- 'Fili Calot +2',
+    [23429] = {Madrigal=0.1},   -- 'Fili Calot +3',
+    [26916] = {0.11,Minuet=0.1},-- 'Fili Hongreline',
+    [26917] = {0.12,Minuet=0.1},-- 'Fili Hongreline +1',
+    [23161] = {0.13,Minuet=0.1},-- 'Fili Hongreline +2',
+    [23496] = {0.14,Minuet=0.1},-- 'Fili Hongreline +3',
+    [27070] = {March=0.1},      -- 'Fili Manchettes',
+    [27071] = {March=0.1},      -- 'Fili Manchettes +1',
+    [23228] = {March=0.1},      -- 'Fili Manchettes +2',
+    [23563] = {March=0.1},      -- 'Fili Manchettes +3',
+    [27255] = {Ballad=0.1},     -- 'Fili Rhingrave',
+    [27256] = {Ballad=0.1},     -- 'Fili Rhingrave +1',
+    [23295] = {Ballad=0.1},     -- 'Fili Rhingrave +2',
+    [23630] = {Ballad=0.1},     -- 'Fili Rhingrave +3',
+    [27429] = {Scherzo=0.1},    -- 'Fili Cothurnes',
+    [27430] = {Scherzo=0.1},    -- 'Fili Cothurnes +1',
+    [23362] = {Scherzo=0.1},    -- 'Fili Cothurnes +2',
+    [23697] = {Scherzo=0.1},    -- 'Fili Cothurnes +3',
+    [26255] = {Madrigal=0.1,Prelude=0.1}, -- 'Intarabus\'s Cape',
+    [25561] = {Etude=0.1},      -- 'Mousai Turban',
+    [25562] = {Etude=0.2},      -- 'Mousai Turban +1',
+    [25988] = {Carol=0.1},      -- 'Mousai Gages',
+    [25989] = {Carol=0.2},      -- 'Mousai Gages +1',
+    [25901] = {Minne=0.1},      -- 'Mousai Seraweels',
+    [25902] = {Minne=0.2},      -- 'Mousai Seraweels +1',
+    [25968] = {Mambo=0.1},      -- 'Mousai Crackows',
+    [25969] = {Mambo=0.2},      -- 'Mousai Crackows +1',
+}
+
 -------
 -- Default initializer for a new Bard.
 -- @tparam T trust_settings Trust settings
@@ -25,6 +106,15 @@ local all_song_buff_ids = L{
 function Bard.new(trust_settings)
     local self = setmetatable(Job.new('BRD', L{ 'Honor March', 'Aria of Passion', 'Dispelga' }), Bard)
     self:set_trust_settings(trust_settings)
+
+    local jp = windower.ffxi.get_player().job_points.brd
+
+    self.jp_mods = {}
+    self.jp_mods.clarion = jp.clarion_call_effect * 2
+    self.jp_mods.tenuto = jp.tenuto_effect * 2
+    self.jp_mods.marcato = jp.marcato_effect
+    self.jp_mods.mult = jp.jp_spent >= 1200
+
     return self
 end
 
@@ -85,6 +175,21 @@ function Bard:is_clarion_call_active()
     return player_buff_ids:contains(buff_util.buff_id('Clarion Call'))
 end
 
+function Bard:is_soul_voice_active()
+    local player_buff_ids = L(windower.ffxi.get_player().buffs)
+    return player_buff_ids:contains(buff_util.buff_id('Soul Voice'))
+end
+
+function Bard:is_marcato_active()
+    local player_buff_ids = L(windower.ffxi.get_player().buffs)
+    return player_buff_ids:contains(buff_util.buff_id('Marcato'))
+end
+
+function Bard:is_tenuto_active()
+    local player_buff_ids = L(windower.ffxi.get_player().buffs)
+    return player_buff_ids:contains(buff_util.buff_id('Tenuto'))
+end
+
 -------
 -- Returns whether clarion call is ready to use.
 -- @treturn Boolean True if clarion call is ready to use
@@ -137,7 +242,7 @@ end
 -- Returns the maximum duration of a song, taking into account whether troubadour is active.
 -- @tparam number song_name (optional) Name of the song (see res/spells.lua)
 -- @treturn number Duration of song
-function Bard:get_song_duration(song_name)
+--[[function Bard:get_song_duration(song_name)
     local song_duration = self.song_duration
     if inventory_util.get_ranged_weapon_id() == 22249 then
         song_duration = 60 * 15
@@ -146,6 +251,40 @@ function Bard:get_song_duration(song_name)
         song_duration = song_duration * modifier
     end
     return song_duration
+end]]
+
+function Bard:get_song_duration(song_name, buffs)
+    local mult = self.jp_mods.mult and 1.05 or 1
+
+    local equipment_ids = inventory_util.get_equipment_ids()
+    for item_id in equipment_ids:it() do
+        local mod = equip_mods[item_id]
+        if mod then
+            for k,v in pairs(mod) do
+                if k == 1 then
+                    mult = mult + v
+                elseif string.find(song_name, k) then
+                    mult = mult + v
+                end
+            end
+        end
+    end
+
+    local dur = 120
+    if self:is_troubadour_active() then mult = mult*2 end
+    if song_name == "Sentinel's Scherzo" then
+        if self:is_soul_voice_active() then
+            mult = mult * 2
+        elseif self:is_marcato_active() then -- this might wear off
+            mult = mult * 1.5
+        end
+    end
+    dur = math.floor(mult * dur)
+    if self:is_marcato_active() then dur = dur + self.jp_mods.marcato end
+    if self:is_tenuto_active() then dur = dur + self.jp_mods.tenuto end
+    if self:is_clarion_call_active() then dur = dur + self.jp_mods.clarion end
+    print(song_name, 'is', dur, mult)
+    return dur
 end
 
 -------

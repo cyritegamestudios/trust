@@ -448,7 +448,9 @@ local incoming_event_dispatcher = {
                 buff_records:append(BuffRecord.new(buff_id, duration))
             end
         end
-
+        --for buff_record in buff_records:it() do
+        --    print(res.buffs[buff_record:get_buff_id()].en, 'has', buff_record:get_time_remaining(), 'remaining')
+        --end
         if buff_records:length() > 0 then
             WindowerEvents.BuffDurationChanged:trigger(windower.ffxi.get_player().id, buff_records)
         end
