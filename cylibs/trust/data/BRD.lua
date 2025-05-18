@@ -18,9 +18,9 @@ state.AutoSongMode = M{['description'] = 'Sing Songs', 'Off', 'Auto', 'Dummy'}
 state.AutoSongMode:set_description('Auto', "Automatically sing songs on the party.")
 state.AutoSongMode:set_description('Dummy', "Only sing dummy songs.")
 
-state.AutoPianissimoMode = M{['description'] = 'Pianissimo Type', 'Merged', 'Override'}
-state.AutoPianissimoMode:set_description('Merged', "Maintain the full list of songs on everyone.")
-state.AutoPianissimoMode:set_description('Override', "Only focus on Pianissimo songs.")
+state.AutoPianissimoMode = M{['description'] = 'Pianissimo Songs', 'Off', 'Auto'}
+state.AutoPianissimoMode:set_description('Off', "Do not sing Pianissimo songs.")
+state.AutoPianissimoMode:set_description('Auto', "Sing Pianissimo songs.")
 
 state.AutoNitroMode = M{['description'] = 'Use Nitro', 'Auto', 'Off'}
 state.AutoNitroMode:set_description('Auto', "Use Nightingale and Troubadour before singing songs.")

@@ -122,6 +122,7 @@ function Singer:set_song_settings(song_settings)
         for targetType in L{ GambitTarget.TargetType.Ally, GambitTarget.TargetType.Self }:it() do
             gambit_settings.PianissimoSongs = gambit_settings.PianissimoSongs + L{
                 Gambit.new(targetType, L{
+                    GambitCondition.new(ModeCondition.new('AutoPianissimoMode', 'Auto'), targetType),
                     GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }) }), targetType),
                     GambitCondition.new(HasMaxNumSongsCondition.new(Condition.Operator.GreaterThanOrEqualTo, self.songs:map(function(song) return song:get_name() end)), GambitTarget.TargetType.Self),
                     GambitCondition.new(JobCondition.new(song:get_job_names()), targetType),

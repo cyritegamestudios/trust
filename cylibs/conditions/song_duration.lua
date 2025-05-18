@@ -72,7 +72,7 @@ end
 
 function SongDurationCondition:tostring()
     if self.song_names:length() == 0 then
-        return string.format("%s %d of %s has %s %ss remaining", self.num_operator, self.num_required, self.song_names[1], self.operator, self.duration)
+        return string.format("%s %d of %s has %s %ss remaining", self.num_operator, self.num_required, tostring(L{}), self.operator, self.duration)
     end
     return string.format("%s %d of %s have %s %ss remaining", self.num_operator, self.num_required, localization_util.commas(self.song_names), self.operator, self.duration)
 end
