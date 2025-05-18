@@ -121,6 +121,7 @@ function Singer:set_song_settings(song_settings)
 
     -- this works even for resing, but it does interrupt self nitro songs to re-pianissimo onto party members probably because Bard's songs
     -- aren't all under the expiring threshold...might want to set a higher threshold for when nitro is active so self songs take priority
+    -- it will re-pianissimo ally songs in between nitro songs, which will cause unnecessary resings
     gambit_settings.Nitro = L{
         Gambit.new(GambitTarget.TargetType.Self, L{
             GambitCondition.new(ModeCondition.new('AutoClarionCallMode', 'Auto'), GambitTarget.TargetType.Self),
