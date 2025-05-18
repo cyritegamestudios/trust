@@ -48,6 +48,11 @@ function PartyMember:on_lose_buff()
     return self.lose_buff
 end
 
+-- Event called when buff duration changes.
+function PartyMember:on_buffs_duration_changed()
+    return self.buffs_duration_changed
+end
+
 -- Event called when a party member's HP changes.
 function PartyMember:on_hp_change()
     return self.hp_change
@@ -128,6 +133,7 @@ function PartyMember.new(id, name)
     self.lose_debuff = Event.newEvent()
     self.gain_buff = Event.newEvent()
     self.lose_buff = Event.newEvent()
+    self.buffs_duration_changed = Event.newEvent()
     self.hp_change = Event.newEvent()
     self.ko = Event.newEvent()
     self.position_change = Event.newEvent()
@@ -181,6 +187,7 @@ function PartyMember:destroy()
     self.lose_debuff:removeAllActions()
     self.gain_buff:removeAllActions()
     self.lose_buff:removeAllActions()
+    self.buffs_duration_changed:removeAllActions()
     self.hp_change:removeAllActions()
     self.ko:removeAllActions()
     self.position_change:removeAllActions()
@@ -250,6 +257,7 @@ function PartyMember:monitor()
 
     self.dispose_bag:add(WindowerEvents.BuffsChanged:addAction(function(mob_id, buff_ids)
         if self:get_id() == mob_id then
+            print('new buff ids are', buff_ids)
             self:set_buff_ids(buff_ids)
         end
     end), WindowerEvents.BuffsChanged)
@@ -378,7 +386,6 @@ function PartyMember:set_buff_ids(buff_ids)
             self:on_lose_buff():trigger(self, buff_id)
         end
     end
-
 end
 
 -------
