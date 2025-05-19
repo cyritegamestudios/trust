@@ -79,7 +79,7 @@ function SongTracker.new(player, party, dummy_songs, songs, pianissimo_songs, jo
     if has_songs then
         party:add_to_chat(self.party:get_player(), "It looks like there are already some active songs. I'll try my best to figure out what they are. Use // trust brd clear if I got it wrong and you want me to resing!")
 
-        if WindowerEvents.can_replay_last_event(WindowerEvents.BuffDurationChanged) then
+        --[[if WindowerEvents.can_replay_last_event(WindowerEvents.BuffDurationChanged) then
             local action_id = WindowerEvents.BuffDurationChanged:addAction(function(_, buff_records)
                 local song_records = L(buff_records:filter(function(buff_record)
                     return self.job:is_bard_song_buff(buff_record:get_buff_id())
@@ -105,7 +105,7 @@ function SongTracker.new(player, party, dummy_songs, songs, pianissimo_songs, jo
             WindowerEvents.replay_last_event(WindowerEvents.BuffDurationChanged)
         else
             self:set_expiring_soon(windower.ffxi.get_player().id)
-        end
+        end]]
     end
 
     return self
@@ -145,6 +145,12 @@ function SongTracker:monitor()
                             self.last_song_id = song_id
                             self:check_instrument(song_id, self.party:get_player():get_ranged_weapon_id())
                             if L{ 230, 266 }:contains(action.message) then
+                                -- FIXME: this is probably getting called twice
+                                -- perhaps one is injected?? do I ignore injected??
+                                -- check: https://github.com/Icydeath/ffxi-addons/blob/2a58c7142e9778ffe6974d0e8c15148d12003f1a/Singer/Singer.lua#L289
+                                if target.id == windower.ffxi.get_player().id then
+                                    print('on_spell_finish', 'Wapiti', song.en, action.message)
+                                end
                                 self:on_gain_song(target.id, song_id, action.param)
                             end
                         end
@@ -176,7 +182,7 @@ function SongTracker:monitor()
         end), party_member:on_lose_buff())
 
         self.dispose_bag:add(party_member:on_buffs_duration_changed():addAction(function(p, buff_records)
-            print('pruning', 'buff_records', buff_records:map(function(b) return res.buffs[b:get_buff_id()].en end))
+            --print('pruning', 'buff_records', buff_records:map(function(b) return res.buffs[b:get_buff_id()].en end))
             self:prune_all_songs(p:get_id(), buff_records:map(function(b) return b:get_buff_id() end))
         end), party_member:on_buffs_duration_changed())
 
@@ -320,18 +326,22 @@ end
 function SongTracker:on_gain_song(target_id, song_id, buff_id, song_duration)
     local party_member = self.party:get_party_member(target_id)
 
-    if self:has_song(target_id, song_id) then
-        self:on_lose_song(target_id, song_id, buff_id)
-    end
+    --if self:has_song(target_id, song_id) then
+    --    self:on_lose_song(target_id, song_id, buff_id)
+    --end
 
     logger.notice(self.__class, "Current buffs for", party_member:get_name(), "are", tostring(L(party_util.get_buffs(target_id)):map(function(buff_id) return res.buffs[buff_id].en  end)))
 
-    local target_songs = (self.active_songs[target_id] or S{}):add(SongRecord.new(song_id, song_duration or self.job:get_song_duration(res.spells[song_id].en)))
+    local song_duration = song_duration or self.job:get_song_duration(res.spells[song_id].en)
+
+    local target_songs = (self.active_songs[target_id] or S{}):filter(function(song_record) return song_record:get_song_id() ~= song_id  end)
+    target_songs:add(SongRecord.new(song_id, song_duration or self.job:get_song_duration(res.spells[song_id].en)))
+
     self.active_songs[target_id] = target_songs
 
     self:on_songs_changed():trigger(self, target_id, self.active_songs[target_id])
 
-    logger.notice(self.__class, party_member:get_name(), "gains the effect of "..res.buffs[buff_id].name.." from "..res.spells[song_id].name)
+    logger.notice(self.__class, party_member:get_name(), "gains the effect of "..res.buffs[buff_id].name.." from "..res.spells[song_id].name.." song_duration: "..(song_duration or 'nil').." calculated_duration: "..self.job:get_song_duration(res.spells[song_id].en))
 end
 
 -------
@@ -382,7 +392,7 @@ function SongTracker:prune_songs(target_id, songs, buff_ids)
     local song_buff_ids = S{}
     for song in songs:it() do
         local buff_id = song:get_spell().status
-        print('checking active count', res.buffs[buff_id].en, buff_util.buff_count(buff_id, buff_ids))
+        --print('checking active count', res.buffs[buff_id].en, buff_util.buff_count(buff_id, buff_ids))
         if not buff_util.is_buff_active(buff_id, buff_ids) then
             self:on_lose_song(target_id, song:get_spell().id, song:get_spell().status)
         else

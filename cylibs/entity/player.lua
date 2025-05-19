@@ -222,7 +222,7 @@ function Player:monitor()
     end
 
     -- Notify actions
-    self.dispose_bag:add(WindowerEvents.Action:addAction(function(action)
+    self.dispose_bag:add(WindowerEvents.Action2:addAction(function(action)
         if action.actor_id ~= self.id then return end
 
         if action.category == 12 then
@@ -236,6 +236,8 @@ function Player:monitor()
         elseif action.category == 3 then
             self:on_weapon_skill_finish():trigger(self, action.targets[1], action.param)
         elseif action.category == 4 then
+            print('player', self, action.actor_id, action.category, action.param)
+            logger.notice(action.actor_Id, action.category, action.param, debug.traceback())
             self:on_spell_finish():trigger(self, action.param, action.targets)
         elseif action.category == 6 then
             self:on_job_ability_used():trigger(self, action.param, action.targets)
@@ -246,7 +248,7 @@ function Player:monitor()
                 self:on_spell_begin():trigger(self, action.targets[1].actions[1].param)
             end
         end
-    end), WindowerEvents.Action)
+    end, 'Player'), WindowerEvents.Action2)
 end
 
 -------

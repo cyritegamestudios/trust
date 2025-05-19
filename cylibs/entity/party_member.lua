@@ -257,7 +257,6 @@ function PartyMember:monitor()
 
     self.dispose_bag:add(WindowerEvents.BuffsChanged:addAction(function(mob_id, buff_ids)
         if self:get_id() == mob_id then
-            print('new buff ids are', buff_ids)
             self:set_buff_ids(buff_ids)
         end
     end), WindowerEvents.BuffsChanged)

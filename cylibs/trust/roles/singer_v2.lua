@@ -91,6 +91,7 @@ function Singer:set_song_settings(song_settings)
 
         gambit_settings.Songs = gambit_settings.Songs + L{
             Gambit.new(GambitTarget.TargetType.Self, L{
+                GambitCondition.new(NotCondition.new(L{ IsAlterEgoCondition.new() }), GambitTarget.TargetType.Self),
                 GambitCondition.new(MaxNumSongsCondition.new(songNum, Condition.Operator.GreaterThanOrEqualTo), GambitTarget.TargetType.Self),
                 GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }) }), GambitTarget.TargetType.Self),
                 GambitCondition.new(ConditionalCondition.new(L{
@@ -101,12 +102,13 @@ function Singer:set_song_settings(song_settings)
                 }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Self),
             }, song, Condition.TargetType.Self),
             Gambit.new(GambitTarget.TargetType.Self, L{
+                GambitCondition.new(NotCondition.new(L{ IsAlterEgoCondition.new() }), GambitTarget.TargetType.Self),
                 GambitCondition.new(HasSongsCondition.new(L{ song:get_name() }), GambitTarget.TargetType.Self),
                 GambitCondition.new(SongDurationCondition.new(L{ song:get_name() }, self.expiring_duration, Condition.Operator.LessThan), GambitTarget.TargetType.Self),
             }, song, Condition.TargetType.Self)
         }
     end
-    
+
     gambit_settings.PianissimoSongs = gambit_settings.DummySongs:map(function(gambit)
         local song = gambit:getAbility():copy()
         song:set_job_abilities(L{ "Pianissimo" })
@@ -121,6 +123,7 @@ function Singer:set_song_settings(song_settings)
         song:set_requires_all_job_abilities(true)
 
         return Gambit.new(GambitTarget.TargetType.Ally, L{
+            GambitCondition.new(NotCondition.new(L{ IsAlterEgoCondition.new() }), GambitTarget.TargetType.Ally),
             GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }) }), GambitTarget.TargetType.Ally),
             GambitCondition.new(ConditionalCondition.new(L{
                 HasSongsCondition.new(song_settings.DummySongs:map(function(s) return s:get_name() end), 1),

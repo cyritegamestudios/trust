@@ -66,7 +66,7 @@ function SpellAction:perform()
 			function(p, spell_id, _)
 				if p:get_mob().id == windower.ffxi.get_player().id then
 					if spell_id == self.spell_id then
-						coroutine.sleep(1)
+						--coroutine.sleep(1)
 						self:complete(true)
 					end
 				end
@@ -76,7 +76,7 @@ function SpellAction:perform()
 			function(p, spell_id)
 				if p:get_mob().id == windower.ffxi.get_player().id then
 					if spell_id == self.spell_id then
-						coroutine.sleep(1)
+						--coroutine.sleep(1)
 						self:complete(false)
 					end
 				end

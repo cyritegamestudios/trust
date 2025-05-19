@@ -233,13 +233,16 @@ end
 -- @return The ID of the action.
 --
 -- @see isActionCallable
-function Luvent:addAction(actionToAdd)
+function Luvent:addAction(actionToAdd, actionDebugKey)
     assert(isActionCallable(actionToAdd) == true)
-
+    if actionDebugKey == 'Player' then
+        print('ADDING PLAYER')
+    end
     -- We do not allow adding an action more than once to an event.
     if self:hasAction(actionToAdd) then return end
 
     local new = newAction(actionToAdd)
+    new.actionDebugKey = actionDebugKey
     table.insert(self.actions, new)
 
     return new.id
@@ -309,7 +312,6 @@ local function invokeAction(action, ...)
     if action.enabled == false then
         return true
     end
-
     if type(action.callable) == "thread" then
         coroutine.resume(action.callable, ...)
         if coroutine.status(action.callable) == "dead" then
@@ -355,13 +357,18 @@ function Luvent:trigger(...)
     end
     sortActionsByPriority(self)
 
+    if self.debugKey == "Action" then
+        --local action_ids = L(self.actions):map(function(a) return a.id end)
+
+    end
+
     for _,action in ipairs(self.actions) do
         if action.interval > 0 then
             if os.difftime(os.time(), action.timeOfLastInvocation) >= action.interval then
                 call(action, ...)
                 action.timeOfLastInvocation = os.time()
             else
-                if self.debugKey == "BuffsChanged" then
+                if self.debugKey == "Action" then
                     --print('interval fail', self.debugKey)
                 end
             end

@@ -25,6 +25,7 @@ WindowerEvents.DisposeBag = DisposeBag.new()
 
 -- Global list of handlers for all Windower events. Listen to events here.
 WindowerEvents.Action = Event.newEvent("Action")
+WindowerEvents.Action2 = Event.newEvent("Action2")
 WindowerEvents.ActionMessage = Event.newEvent("ActionMessage")
 WindowerEvents.CharacterUpdate = Event.newEvent()
 WindowerEvents.MobUpdate = Event.newEvent()
@@ -165,7 +166,14 @@ local incoming_event_dispatcher = {
 
         -- NOTE: for some reason, if this triggers before individual events above there
         -- is a delay between when the event is received and processed
+        if act.actor_id == windower.ffxi.get_player().id then
+            print(act.category, act.param)
+        end
         WindowerEvents.Action:trigger(act)
+
+        -- For some reason, when player listens to WindowerEvents.Action it triggers multiple times but logs here only print
+        -- out once, implying somewhere it's adding an action for this event multiple times
+        WindowerEvents.Action2:trigger(act)
     end,
 
     [0x029] = function(data)
@@ -554,6 +562,7 @@ end
     bool injected -- was_injected?
     bool blocked -- was_blocked?
 ]]--
+
 local function outgoing_chunk_handler(id, data)
     if not outgoing_event_ids[id] or not data then return end -- if we don't care about the outgoing_event_id, just return
 

@@ -257,6 +257,8 @@ end]]
 function Bard:get_song_duration(song_name, buffs)
     local mult = self.jp_mods.mult and 1.05 or 1
 
+    local mod_item_ids = L{}
+
     local equipment_ids = inventory_util.get_equipment_ids()
     for item_id in equipment_ids:it() do
         local mod = equip_mods[item_id]
@@ -264,8 +266,10 @@ function Bard:get_song_duration(song_name, buffs)
             for k,v in pairs(mod) do
                 if k == 1 then
                     mult = mult + v
+                    mod_item_ids:append(item_id)
                 elseif string.find(song_name, k) then
                     mult = mult + v
+                    mod_item_ids:append(item_id)
                 end
             end
         end
@@ -284,7 +288,8 @@ function Bard:get_song_duration(song_name, buffs)
     if self:is_marcato_active() then dur = dur + self.jp_mods.marcato end
     if self:is_tenuto_active() then dur = dur + self.jp_mods.tenuto end
     if self:is_clarion_call_active() then dur = dur + self.jp_mods.clarion end
-    print(song_name, 'is', dur, mult)
+    logger.notice('SongTracker', 'get_song_duration', song_name, mod_item_ids:map(function(item_id) return res.items[item_id].en end), 'duration', dur, 'multiplier', mult)
+    --print('SongTracker', 'get_song_duration', song_name, mod_item_ids:map(function(item_id) return res.items[item_id].en end), 'duration', dur, 'multiplier', mult)
     return dur
 end
 
