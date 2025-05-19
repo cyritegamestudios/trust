@@ -48,23 +48,26 @@ end
 function Gambiter:on_add()
     Role.on_add(self)
 
-    self.dispose_bag:add(self.action_queue:on_action_start():addAction(function(_, a)
+    self.gambiter_dispose_bag:add(self.action_queue:on_action_start():addAction(function(_, a)
         if a:getidentifier() == self:get_action_identifier() then
             self.is_active:setValue(true)
         end
     end), self.action_queue:on_action_start())
 
-    self.dispose_bag:add(self.action_queue:on_action_end():addAction(function(a, _)
+    self.gambiter_dispose_bag:add(self.action_queue:on_action_end():addAction(function(a, _)
         if a:getidentifier() == self:get_action_identifier() then
             self.is_active:setValue(false)
         end
     end), self.action_queue:on_action_end())
 
-    self.dispose_bag:add(self.state_var:on_state_change():addAction(function(_, newValue)
-        if newValue == 'Off' then
-            self.is_active:setValue(false)
-        end
-    end), self.state_var:on_state_change())
+    -- FIXME: does this work with multiple state vars??
+    for state_var in self.state_vars:it() do
+        self.gambiter_dispose_bag:add(state_var:on_state_change():addAction(function(_, newValue)
+            if newValue == 'Off' then
+                self.is_active:setValue(false)
+            end
+        end), state_var:on_state_change())
+    end
 
     self.timer:onTimeChange():addAction(function(_)
         if not self:is_enabled() then

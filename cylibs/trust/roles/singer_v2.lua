@@ -208,7 +208,8 @@ function Singer:set_song_settings(song_settings)
         end, L{}, "Resinging songs"), GambitTarget.TargetType.Self),
     }
 
-    gambit_settings.Gambits = gambit_settings.Nitro + gambit_settings.DummySongs + gambit_settings.Resing + gambit_settings.Songs + gambit_settings.PianissimoSongs
+    --gambit_settings.Gambits = gambit_settings.Nitro + gambit_settings.DummySongs + gambit_settings.Resing + gambit_settings.Songs + gambit_settings.PianissimoSongs
+    gambit_settings.Gambits = gambit_settings.Resing + gambit_settings.Nitro + gambit_settings.DummySongs + gambit_settings.Songs + gambit_settings.PianissimoSongs
 
     self.gambit_settings = gambit_settings
 
