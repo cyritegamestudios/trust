@@ -106,6 +106,28 @@ function Singer:set_song_settings(song_settings)
             }, song, Condition.TargetType.Self)
         }
     end
+    
+    gambit_settings.PianissimoSongs = gambit_settings.DummySongs:map(function(gambit)
+        local song = gambit:getAbility():copy()
+        song:set_job_abilities(L{ "Pianissimo" })
+        song:set_requires_all_job_abilities(true)
+
+        return Gambit.new(GambitTarget.TargetType.Ally, gambit:getConditions():map(function(condition)
+            return GambitCondition.new(condition:getCondition(), GambitTarget.TargetType.Ally)
+        end), song, GambitTarget.TargetType.Ally)
+    end) + self.songs:map(function(song)
+        local song = song:copy()
+        song:set_job_abilities(L{ "Pianissimo" })
+        song:set_requires_all_job_abilities(true)
+
+        return Gambit.new(GambitTarget.TargetType.Ally, L{
+            GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }) }), GambitTarget.TargetType.Ally),
+            GambitCondition.new(ConditionalCondition.new(L{
+                HasSongsCondition.new(song_settings.DummySongs:map(function(s) return s:get_name() end), 1),
+                NumSongsCondition.new(2, Condition.Operator.LessThan),
+            }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Ally),
+        }, song, Condition.TargetType.Ally)
+    end)
 
     -- Pianissimo doesn't work when you don't have 5 songs because it requires you to have ALL main songs--need to cap at max num songs (fixed now??)
     -- TODO: I wonder if I should just not have this since it is a big cause of sing loops. If we don't have it, then it will just not try to re-apply songs if they get dispeled or
