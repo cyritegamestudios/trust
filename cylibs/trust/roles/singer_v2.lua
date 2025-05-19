@@ -49,13 +49,18 @@ function Singer:on_add()
     self.song_tracker:monitor()
 
     self.dispose_bag:addAny(L{ self.song_tracker })
+
+    self.dispose_bag:add(self:on_active_changed():addAction(function(_, is_singing)
+        self:set_is_singing(is_singing)
+    end), self:on_active_changed())
 end
 
 function Singer:set_song_settings(song_settings)
     self.dummy_songs = song_settings.DummySongs
     self.songs = song_settings.SongSets[state.SongSet.value].Songs
     self.pianissimo_songs = song_settings.SongSets[state.SongSet.value].PianissimoSongs
-    self.expiring_duration = song_settings.ResingDuration or 60
+    self.expiring_duration = song_settings.ResingDuration or 75
+    self.resing_lost_songs = song_settings.ResingLostSongs
     self.last_expire_time = os.time() - self.expiring_duration
 
     if self.song_tracker then
@@ -111,28 +116,30 @@ function Singer:set_song_settings(song_settings)
 
     -- FIXME: this should be put behind a mode--if you disable it it reduces the chance of loops, but then also
     -- does not get songs up again if they get dispeled or a player dies
-    gambit_settings.PianissimoSongs = gambit_settings.DummySongs:map(function(gambit)
-        local song = gambit:getAbility():copy()
-        song:set_job_abilities(L{ "Pianissimo" })
-        song:set_requires_all_job_abilities(true)
+    if self.resing_lost_songs then
+        gambit_settings.PianissimoSongs = gambit_settings.DummySongs:map(function(gambit)
+            local song = gambit:getAbility():copy()
+            song:set_job_abilities(L{ "Pianissimo" })
+            song:set_requires_all_job_abilities(true)
 
-        return Gambit.new(GambitTarget.TargetType.Ally, gambit:getConditions():map(function(condition)
-            return GambitCondition.new(condition:getCondition(), GambitTarget.TargetType.Ally)
-        end), song, GambitTarget.TargetType.Ally)
-    end) + self.songs:map(function(song)
-        local song = song:copy()
-        song:set_job_abilities(L{ "Pianissimo" })
-        song:set_requires_all_job_abilities(true)
+            return Gambit.new(GambitTarget.TargetType.Ally, gambit:getConditions():map(function(condition)
+                return GambitCondition.new(condition:getCondition(), GambitTarget.TargetType.Ally)
+            end), song, GambitTarget.TargetType.Ally)
+        end) + self.songs:map(function(song)
+            local song = song:copy()
+            song:set_job_abilities(L{ "Pianissimo" })
+            song:set_requires_all_job_abilities(true)
 
-        return Gambit.new(GambitTarget.TargetType.Ally, L{
-            GambitCondition.new(NotCondition.new(L{ IsAlterEgoCondition.new() }), GambitTarget.TargetType.Ally),
-            GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }) }), GambitTarget.TargetType.Ally),
-            GambitCondition.new(ConditionalCondition.new(L{
-                HasSongsCondition.new(song_settings.DummySongs:map(function(s) return s:get_name() end), 1),
-                NumSongsCondition.new(2, Condition.Operator.LessThan),
-            }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Ally),
-        }, song, Condition.TargetType.Ally)
-    end)
+            return Gambit.new(GambitTarget.TargetType.Ally, L{
+                GambitCondition.new(NotCondition.new(L{ IsAlterEgoCondition.new() }), GambitTarget.TargetType.Ally),
+                GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }) }), GambitTarget.TargetType.Ally),
+                GambitCondition.new(ConditionalCondition.new(L{
+                    HasSongsCondition.new(song_settings.DummySongs:map(function(s) return s:get_name() end), 1),
+                    NumSongsCondition.new(2, Condition.Operator.LessThan),
+                }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Ally),
+            }, song, Condition.TargetType.Ally)
+        end)
+    end
 
     -- Pianissimo doesn't work when you don't have 5 songs because it requires you to have ALL main songs--need to cap at max num songs (fixed now??)
     -- TODO: I wonder if I should just not have this since it is a big cause of sing loops. If we don't have it, then it will just not try to re-apply songs if they get dispeled or
@@ -147,6 +154,7 @@ function Singer:set_song_settings(song_settings)
             return GambitCondition.new(condition:getCondition(), GambitTarget.TargetType.Ally)
         end), song, GambitTarget.TargetType.Ally)
     end)]]
+
 
     for song in self.pianissimo_songs:it() do
         song:set_job_abilities(L{ "Pianissimo" })
@@ -250,6 +258,11 @@ function Singer:set_is_singing(is_singing)
         return
     end
     self.is_singing = is_singing
+    if self.is_singing then
+        self:on_songs_begin():trigger(self)
+    else
+        self:on_songs_end():trigger(self)
+    end
 end
 
 function Singer:get_is_singing()
@@ -257,7 +270,7 @@ function Singer:get_is_singing()
 end
 
 function Singer:allows_duplicates()
-    return true
+    return false
 end
 
 function Singer:allows_multiple_actions()
@@ -272,7 +285,7 @@ function Singer:get_cooldown()
     if self.job:is_nitro_active() then
         return 1
     end
-    return 5
+    return 3
 end
 
 function Singer:get_localized_name()

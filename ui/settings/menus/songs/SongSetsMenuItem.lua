@@ -1,4 +1,5 @@
 local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
+local BooleanConfigItem = require('ui/settings/editors/config/BooleanConfigItem')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local ConfigItem = require('ui/settings/editors/config/ConfigItem')
@@ -240,14 +241,16 @@ function SongSetsMenuItem:getConfigMenuItem()
                 local songSettings = T{
                     NumSongs = allSettings.SongSettings.NumSongs,
                     SongDuration = allSettings.SongSettings.SongDuration,
-                    ResingDuration = allSettings.SongSettings.ResingDuration or 60,
+                    ResingDuration = allSettings.SongSettings.ResingDuration or 75,
+                    ResingLostSongs = allSettings.SongSettings.ResingLostSongs,
                     SongDelay = allSettings.SongSettings.SongDelay
                 }
 
                 local configItems = L{
                     --ConfigItem.new('NumSongs', 2, 4, 1, function(value) return value.."" end, "Maximum Number of Songs"),
                     --ConfigItem.new('SongDuration', 120, 400, 10, function(value) return value.."s" end, "Base Song Duration"),
-                    ConfigItem.new('ResingDuration', 45, 180, 1, function(value) return value.."s" end, "Resing Song Duration"),
+                    ConfigItem.new('ResingDuration', 60, 180, 1, function(value) return value.."s" end, "Resing Song Duration"),
+                    BooleanConfigItem.new('ResingLostSongs', "Resing Lost Songs"),
                     ConfigItem.new('SongDelay', 4, 8, 1, function(value) return value.."s" end, "Delay Between Songs")
                 }
 
@@ -265,6 +268,7 @@ function SongSetsMenuItem:getConfigMenuItem()
                     allSettings.SongSettings.NumSongs = newSettings.NumSongs
                     allSettings.SongSettings.SongDuration = newSettings.SongDuration
                     allSettings.SongSettings.ResingDuration = newSettings.ResingDuration
+                    allSettings.SongSettings.ResingLostSongs = newSettings.ResingLostSongs
                     allSettings.SongSettings.SongDelay = newSettings.SongDelay
 
                     self.trustSettings:saveSettings(true)
