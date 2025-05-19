@@ -288,6 +288,7 @@ function Bard:get_song_duration(song_name, buffs)
     if self:is_marcato_active() then dur = dur + self.jp_mods.marcato end
     if self:is_tenuto_active() then dur = dur + self.jp_mods.tenuto end
     if self:is_clarion_call_active() then dur = dur + self.jp_mods.clarion end
+    -- FIXME: remove res.items reference
     logger.notice('SongTracker', 'get_song_duration', song_name, mod_item_ids:map(function(item_id) return res.items[item_id].en end), 'duration', dur, 'multiplier', mult)
     --print('SongTracker', 'get_song_duration', song_name, mod_item_ids:map(function(item_id) return res.items[item_id].en end), 'duration', dur, 'multiplier', mult)
     return dur

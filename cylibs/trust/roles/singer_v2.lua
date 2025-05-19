@@ -109,6 +109,8 @@ function Singer:set_song_settings(song_settings)
         }
     end
 
+    -- FIXME: this should be put behind a mode--if you disable it it reduces the chance of loops, but then also
+    -- does not get songs up again if they get dispeled or a player dies
     gambit_settings.PianissimoSongs = gambit_settings.DummySongs:map(function(gambit)
         local song = gambit:getAbility():copy()
         song:set_job_abilities(L{ "Pianissimo" })
@@ -166,18 +168,19 @@ function Singer:set_song_settings(song_settings)
     -- aren't all under the expiring threshold...might want to set a higher threshold for when nitro is active so self songs take priority
     -- it will re-pianissimo ally songs in between nitro songs, which will cause unnecessary resings
     gambit_settings.Nitro = L{
+        -- TODO: test this one
         Gambit.new(GambitTarget.TargetType.Self, L{
             GambitCondition.new(ModeCondition.new('AutoClarionCallMode', 'Auto'), GambitTarget.TargetType.Self),
-            GambitCondition.new(JobAbilityRecastReadyCondition.new("Nightingale"), GambitTarget.TargetType.Self),
-            GambitCondition.new(JobAbilityRecastReadyCondition.new("Troubadour"), GambitTarget.TargetType.Self),
+            GambitCondition.new(ModeCondition.new('AutoNitroMode', 'Auto'), GambitTarget.TargetType.Self),
             GambitCondition.new(NumSongsCondition.new(song_settings.NumSongs + 1, Condition.Operator.LessThan), GambitTarget.TargetType.Self),
-        }, JobAbility.new("Clarion Call"), GambitTarget.TargetType.Self),
+        }, Sequence.new(L{ JobAbility.new("Clarion Call"), JobAbility.new("Nightingale"), JobAbility.new("Troubadour") }), GambitTarget.TargetType.Self),
         Gambit.new(GambitTarget.TargetType.Self, L{
             GambitCondition.new(ModeCondition.new('AutoNitroMode', 'Auto'), GambitTarget.TargetType.Self),
             GambitCondition.new(ConditionalCondition.new(L{
                 NumSongsCondition.new(0, Condition.Operator.Equals),
                 SongDurationCondition.new((self.songs + self.pianissimo_songs):map(function(song) return song:get_name() end), self.expiring_duration, Condition.Operator.LessThanOrEqualTo, 1, Condition.Operator.GreaterThanOrEqualTo),
             }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Self),
+            -- Consider making this a Sequence ability that first sets all songs expiring and then uses Nitro
         }, Sequence.new(L{ JobAbility.new("Nightingale"), JobAbility.new("Troubadour") }), GambitTarget.TargetType.Self),
     }
 
