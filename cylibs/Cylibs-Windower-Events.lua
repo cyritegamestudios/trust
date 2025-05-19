@@ -25,7 +25,6 @@ WindowerEvents.DisposeBag = DisposeBag.new()
 
 -- Global list of handlers for all Windower events. Listen to events here.
 WindowerEvents.Action = Event.newEvent("Action")
-WindowerEvents.Action2 = Event.newEvent("Action2")
 WindowerEvents.ActionMessage = Event.newEvent("ActionMessage")
 WindowerEvents.CharacterUpdate = Event.newEvent()
 WindowerEvents.MobUpdate = Event.newEvent()
@@ -173,7 +172,7 @@ local incoming_event_dispatcher = {
 
         -- For some reason, when player listens to WindowerEvents.Action it triggers multiple times but logs here only print
         -- out once, implying somewhere it's adding an action for this event multiple times
-        WindowerEvents.Action2:trigger(act)
+        --WindowerEvents.Action2:trigger(act)
     end,
 
     [0x029] = function(data)
