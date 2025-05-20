@@ -14,10 +14,11 @@ NumSongsCondition.__index = NumSongsCondition
 NumSongsCondition.__type = "NumSongsCondition"
 NumSongsCondition.__class = "NumSongsCondition"
 
-function NumSongsCondition.new(num_songs, operator)
+function NumSongsCondition.new(num_songs, operator, use_buff_ids)
     local self = setmetatable(Condition.new(), NumSongsCondition)
     self.num_songs = num_songs or 1
     self.operator = operator or Condition.Operator.GreaterThanOrEqualTo
+    self.use_buff_ids = use_buff_ids
     return self
 end
 
@@ -26,7 +27,7 @@ function NumSongsCondition:is_satisfied(target_index)
     if target then
         local party_member = player.party:get_party_member(target.id)
         if party_member then
-            return self:eval(party_member:get_num_songs(), self.num_songs, self.operator)
+            return self:eval(party_member:get_num_songs(self.use_buff_ids), self.num_songs, self.operator)
         end
     end
     return false

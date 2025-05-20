@@ -242,7 +242,7 @@ function SongSetsMenuItem:getConfigMenuItem()
                     NumSongs = allSettings.SongSettings.NumSongs,
                     SongDuration = allSettings.SongSettings.SongDuration,
                     ResingDuration = allSettings.SongSettings.ResingDuration or 75,
-                    ResingLostSongs = allSettings.SongSettings.ResingLostSongs,
+                    ResingLostSongs = allSettings.SongSettings.ResingLostSongs or false,
                     SongDelay = allSettings.SongSettings.SongDelay
                 }
 

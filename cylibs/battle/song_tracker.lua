@@ -292,10 +292,15 @@ end
 -------
 -- Sets all songs to expire soon for all party members.
 function SongTracker:set_all_expiring_soon()
+    print('set all expiring soon')
     CooldownCondition.set_timestamp('resing_songs', os.time())
     local player = self.party:get_player()
     for party_member in list.extend(L{player}, self.party:get_party_members(false)):it() do
-        self:set_expiring_soon(party_member:get_id(), self.expiring_duration)
+        if party_member:is_trust() then
+            self:reset(party_member:get_id())
+        else
+            self:set_expiring_soon(party_member:get_id(), self.expiring_duration)
+        end
     end
 end
 

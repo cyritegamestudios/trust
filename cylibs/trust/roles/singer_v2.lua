@@ -175,41 +175,67 @@ function Singer:set_song_settings(song_settings)
     -- this works even for resing, but it does interrupt self nitro songs to re-pianissimo onto party members probably because Bard's songs
     -- aren't all under the expiring threshold...might want to set a higher threshold for when nitro is active so self songs take priority
     -- it will re-pianissimo ally songs in between nitro songs, which will cause unnecessary resings
+    -- FIXME: add AutoSoulVoiceMode
     gambit_settings.Nitro = L{
-        -- TODO: test this one
         Gambit.new(GambitTarget.TargetType.Self, L{
             GambitCondition.new(ModeCondition.new('AutoClarionCallMode', 'Auto'), GambitTarget.TargetType.Self),
             GambitCondition.new(ModeCondition.new('AutoNitroMode', 'Auto'), GambitTarget.TargetType.Self),
-            GambitCondition.new(NumSongsCondition.new(song_settings.NumSongs + 1, Condition.Operator.LessThan), GambitTarget.TargetType.Self),
-        }, Sequence.new(L{ JobAbility.new("Clarion Call"), JobAbility.new("Nightingale"), JobAbility.new("Troubadour") }), GambitTarget.TargetType.Self),
+            GambitCondition.new(NumSongsCondition.new(song_settings.NumSongs + 1, Condition.Operator.LessThan, true), GambitTarget.TargetType.Self),
+        }, Sequence.new(L{
+            Script.new(function()
+                self.song_tracker:set_all_expiring_soon()
+            end),
+            JobAbility.new("Clarion Call"),
+            JobAbility.new("Nightingale"),
+            JobAbility.new("Troubadour")
+        }), GambitTarget.TargetType.Self),
         Gambit.new(GambitTarget.TargetType.Self, L{
             GambitCondition.new(ModeCondition.new('AutoNitroMode', 'Auto'), GambitTarget.TargetType.Self),
             GambitCondition.new(ConditionalCondition.new(L{
                 NumSongsCondition.new(0, Condition.Operator.Equals),
+                -- why not change this to any current songs expiring
                 SongDurationCondition.new((self.songs + self.pianissimo_songs):map(function(song) return song:get_name() end), self.expiring_duration, Condition.Operator.LessThanOrEqualTo, 1, Condition.Operator.GreaterThanOrEqualTo),
             }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Self),
-            -- Consider making this a Sequence ability that first sets all songs expiring and then uses Nitro
-        }, Sequence.new(L{ JobAbility.new("Nightingale"), JobAbility.new("Troubadour") }), GambitTarget.TargetType.Self),
+        }, Sequence.new(L{
+            Script.new(function()
+                self.song_tracker:set_all_expiring_soon()
+            end),
+            JobAbility.new("Nightingale"),
+            JobAbility.new("Troubadour")
+        }), GambitTarget.TargetType.Self),
+        Gambit.new(GambitTarget.TargetType.Self, L{
+            GambitCondition.new(ModeCondition.new('AutoNitroMode', 'Off'), GambitTarget.TargetType.Self),
+            GambitCondition.new(CooldownCondition.new('resing_songs', 100), GambitTarget.TargetType.Self), -- is this necessary? probably
+            GambitCondition.new(ConditionalCondition.new(L{
+                NumSongsCondition.new(0, Condition.Operator.Equals),
+                -- why not change this to any current songs expiring
+                SongDurationCondition.new((self.songs + self.pianissimo_songs):map(function(song) return song:get_name() end), self.expiring_duration, Condition.Operator.LessThanOrEqualTo, 1, Condition.Operator.GreaterThanOrEqualTo),
+            }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Self),
+        }, Sequence.new(L{
+            Script.new(function()
+                self.song_tracker:set_all_expiring_soon()
+            end),
+        }), GambitTarget.TargetType.Self),
+        -- what if nitro is off
     }
 
     -- Mostly working, but it's still singing Valor Minuet III on Cyrite for some reason
     -- After resing of Valor Minuet IV it thinks it has 5 songs
     -- Still seems like it's not pruning fast enough
     -- 2025-05-17 21:32:09| Trust Notice: Singer perform_gambit Self: Valor Minuet III recast is ready and Pianissimo is ready and Ally: Not Has Valor Minuet III, Has Scop's Operetta, Has < 2 songs or >= 1 of Mage's Ballad III have <= 160s remaining, HP >= 1% and Target distance <= 20 yalms → Ally: Valor Minuet III, Use with: Pianissimo Cyrite
-    gambit_settings.Resing = L{
+    -- FIXME: if we keep this, this probably needs to include pianissimo songs
+    --[[gambit_settings.Resing = L{
         Gambit.new(GambitTarget.TargetType.Self, L{
             GambitCondition.new(CooldownCondition.new('resing_songs', 100), GambitTarget.TargetType.Self),
             GambitCondition.new(HasMaxNumSongsCondition.new(Condition.Operator.GreaterThanOrEqualTo), GambitTarget.TargetType.Self),
             GambitCondition.new(SongDurationCondition.new(self.songs:map(function(song) return song:get_name() end), self.expiring_duration, Condition.Operator.LessThanOrEqualTo, 1, Condition.Operator.GreaterThanOrEqualTo), GambitTarget.TargetType.Self),
         }, Script.new(function()
-            print('setting expiring')
             self.song_tracker:set_all_expiring_soon()
-            CooldownCondition.set_timestamp('resing_songs', os.time())
         end, L{}, "Resinging songs"), GambitTarget.TargetType.Self),
-    }
+    }]]
 
     --gambit_settings.Gambits = gambit_settings.Nitro + gambit_settings.DummySongs + gambit_settings.Resing + gambit_settings.Songs + gambit_settings.PianissimoSongs
-    gambit_settings.Gambits = gambit_settings.Resing + gambit_settings.Nitro + gambit_settings.DummySongs + gambit_settings.Songs + gambit_settings.PianissimoSongs
+    gambit_settings.Gambits = gambit_settings.Nitro + gambit_settings.DummySongs + gambit_settings.Songs + gambit_settings.PianissimoSongs
 
     self.gambit_settings = gambit_settings
 
@@ -274,6 +300,7 @@ function Singer:allows_duplicates()
     return false
 end
 
+-- what if i allow multiple actions? will this make songs go into the queue before other actions
 function Singer:allows_multiple_actions()
     return false
 end
