@@ -5,6 +5,7 @@ local Event = require('cylibs/events/Luvent')
 local GambitTarget = require('cylibs/gambits/gambit_target')
 local HasMaxNumSongsCondition = require('cylibs/conditions/has_max_num_songs')
 local MaxNumSongsCondition = require('cylibs/conditions/max_num_songs')
+local NumExpiringSongsCondition = require('cylibs/conditions/num_expiring_songs')
 local NumSongsCondition = require('cylibs/conditions/num_songs')
 local Script = require('cylibs/battle/script')
 local Sequence = require('cylibs/battle/sequence')
@@ -101,8 +102,7 @@ function Singer:set_song_settings(song_settings)
                 GambitCondition.new(ConditionalCondition.new(L{
                     HasSongsCondition.new(song_settings.DummySongs:map(function(s) return s:get_name() end), 1),
                     NumSongsCondition.new(2, Condition.Operator.LessThan),
-                    -- Condition below needs to make sure 5th clarion call song can't be sung unless you have enough songs
-                    SongDurationCondition.new(self.pianissimo_songs:map(function(song) return song:get_name() end), self.expiring_duration, Condition.Operator.LessThanOrEqualTo, 1, Condition.Operator.GreaterThanOrEqualTo)
+                    NumExpiringSongsCondition.new(1, Condition.Operator.GreaterThanOrEqualTo),
                 }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Self),
             }, song, Condition.TargetType.Self),
             Gambit.new(GambitTarget.TargetType.Self, L{
@@ -113,8 +113,6 @@ function Singer:set_song_settings(song_settings)
         }
     end
 
-    -- FIXME: this should be put behind a mode--if you disable it it reduces the chance of loops, but then also
-    -- does not get songs up again if they get dispeled or a player dies
     if self.resing_lost_songs then
         gambit_settings.PianissimoSongs = gambit_settings.DummySongs:map(function(gambit)
             local song = gambit:getAbility():copy()
