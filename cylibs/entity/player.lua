@@ -253,7 +253,6 @@ function Player:monitor()
 
     self.dispose_bag:add(WindowerEvents.Spell.Finish:addAction(function(actor_id, spell_id, targets)
         if actor_id == self.id then
-            print('player', self, actor_id, spell_id)
             self:on_spell_finish():trigger(self, spell_id, targets)
         end
     end), WindowerEvents.Spell.Finish)

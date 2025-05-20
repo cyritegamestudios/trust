@@ -145,12 +145,6 @@ function SongTracker:monitor()
                             self.last_song_id = song_id
                             self:check_instrument(song_id, self.party:get_player():get_ranged_weapon_id())
                             if L{ 230, 266 }:contains(action.message) then
-                                -- FIXME: this is probably getting called twice
-                                -- perhaps one is injected?? do I ignore injected??
-                                -- check: https://github.com/Icydeath/ffxi-addons/blob/2a58c7142e9778ffe6974d0e8c15148d12003f1a/Singer/Singer.lua#L289
-                                if target.id == windower.ffxi.get_player().id then
-                                    print('on_spell_finish', 'Wapiti', song.en, action.message)
-                                end
                                 self:on_gain_song(target.id, song_id, action.param)
                             end
                         end

@@ -235,9 +235,6 @@ end
 -- @see isActionCallable
 function Luvent:addAction(actionToAdd, actionDebugKey)
     assert(isActionCallable(actionToAdd) == true)
-    if actionDebugKey == 'Player' then
-        print('ADDING PLAYER')
-    end
     -- We do not allow adding an action more than once to an event.
     if self:hasAction(actionToAdd) then return end
 
