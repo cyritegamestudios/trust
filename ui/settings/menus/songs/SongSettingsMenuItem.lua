@@ -110,13 +110,14 @@ function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
                 end
             end
 
-            if newSettings["DummySong"] ~= oldSettings["DummySong"] then
+            if newSettings["DummySongs"] ~= oldSettings["DummySongs"] then
                 addon_system_error("Please update your GearSwap, e.g. sets.Midcast['"..newSettings["DummySong"].."'] = set_combine(sets.Nyame, {range='Daurdabla', ammo=empty})")
             end
             local dummySongs = T(trustSettings:getSettings())[trustSettingsMode.value].SongSettings.DummySongs
             dummySongs:clear()
 
             for newDummySongName in newSettings["DummySongs"]:it() do
+                print('adding', newDummySongName)
                 dummySongs:append(Spell.new(newDummySongName, L{}, L{}))
             end
 
