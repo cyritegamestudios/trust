@@ -148,6 +148,19 @@ function SongSetsMenuItem:getGambitsMenuItem()
             end
         end), gambitSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath())
 
+        self.disposeBag:add(gambitSettingsEditor:on_pick_items():addAction(function(_, selectedGambits)
+            local singer = self.trust:role_with_type("singer")
+            for gambit in selectedGambits:it() do
+                local is_satisfied, target = singer:is_gambit_satisfied(gambit)
+                if is_satisfied then
+                    addon_system_message(string.format("%s satisified for %s.", gambit:tostring(), target:get_name()))
+                else
+                    addon_system_error(string.format("%s not satisified.", gambit:tostring()))
+                    logger.error(string.format("%s not satisified.", gambit:tostring()))
+                end
+            end
+        end), gambitSettingsEditor:on_pick_items())
+
         return gambitSettingsEditor
     end, "Gambits", "Song gambits")
     return gambitsMenuItem
