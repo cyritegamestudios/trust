@@ -53,6 +53,9 @@ function Singer:on_add()
 
     self.dispose_bag:add(self:on_active_changed():addAction(function(_, is_singing)
         self:set_is_singing(is_singing)
+        if not is_singing then
+            self:check_gambits(nil, nil, true)
+        end
     end), self:on_active_changed())
 end
 

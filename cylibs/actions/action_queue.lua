@@ -57,7 +57,8 @@ function ActionQueue.new(completion, is_priority_queue, max_size, debugging_enab
 	self.action_start = Event.newEvent()
 	self.action_end = Event.newEvent()
 	self.action_queued = Event.newEvent()
-
+	self.last_action_time = os.clock()
+	self.next_action_time = os.clock()
 	if calculate_forced_delay then
 		local category_to_action_type = {
 			[2] = RangedAttackAction.__type,
@@ -75,12 +76,27 @@ function ActionQueue.new(completion, is_priority_queue, max_size, debugging_enab
 			elseif action.category == 3 then
 				self.forced_delay_time = os.clock() + 2
 			elseif action.category == 4 or action.category == 8 and action.param == 28787 then
+				self.last_action_time = os.clock()
 				self.forced_delay_time = os.clock() + 3
+				print(res.spells[action.param].en, 'ending', os.clock())
+			elseif action.category == 8 then
+				print(res.spells[action.targets[1].actions[1].param].en, 'starting', os.clock(), 'time elapsed', os.clock() - self.last_action_time)
 			end
 			if category_to_action_type[action.category] then
 				self.last_action_type = category_to_action_type[action.category]
 			end
+
+			if self.forced_delay_time > self.next_action_time then
+				self.forced_delay_time = self.forced_delay_time - self.next_action_time
+			end
+			print(self.forced_delay_time)
 		end), WindowerEvents.Action)
+
+		windower.register_event('outgoing chunk', function(id, data)
+			if id == 0x015 then
+				self.next_action_time = os.clock() + 0.4
+			end
+		end)
 	end
 
 	self.timer = Timer.scheduledTimer(5)
@@ -138,6 +154,8 @@ function ActionQueue:perform_next_action()
 		local forced_delay = self:get_forced_delay(next_action)
 		if forced_delay > 0 then
 			local display_name = next_action.display_name
+			-- NOTE: the latency between sending a packet and the action firing on the server can
+			-- take up to 400ms, so there will be cases where we force a longer delay than necessary
 			next_action = SequenceAction.new(L{
 				WaitAction.new(0, 0, 0, forced_delay),
 				next_action,
@@ -166,6 +184,8 @@ function ActionQueue:perform_next_action()
 end
 
 function ActionQueue:handle_action_completed(a, success)
+	self:on_action_end():trigger(a, success)
+
 	self.current_action:destroy()
 	self.current_action = nil
 
@@ -176,8 +196,6 @@ function ActionQueue:handle_action_completed(a, success)
 		windower.chat.input('// lua m')
 	end
 	--print(a:gettype()..' '..(a:getidentifier() or 'nil')..' end, success: '..tostring(success))
-
-	self:on_action_end():trigger(a, success)
 
 	self:perform_next_action()
 end
