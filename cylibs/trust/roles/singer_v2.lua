@@ -81,13 +81,25 @@ function Singer:set_song_settings(song_settings)
         PianissimoSongs = L{}
     }
 
-    gambit_settings.DummySongs = L{
+    gambit_settings.DummySongs = song_settings.DummySongs:map(function(song)
+        return Gambit.new(GambitTarget.TargetType.Self, L{
+            GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(song_settings.DummySongs:map(function(s) return s:get_name() end), 1) }), GambitTarget.TargetType.Self),
+            GambitCondition.new(NumSongsCondition.new(2, Condition.Operator.GreaterThanOrEqualTo), GambitTarget.TargetType.Self),
+            GambitCondition.new(HasMaxNumSongsCondition.new(Condition.Operator.LessThan), GambitTarget.TargetType.Self),
+        }, song, Condition.TargetType.Self)
+    end)
+    --[[gambit_settings.DummySongs = L{
         Gambit.new(GambitTarget.TargetType.Self, L{
             GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(song_settings.DummySongs:map(function(s) return s:get_name() end), 1) }), GambitTarget.TargetType.Self),
             GambitCondition.new(NumSongsCondition.new(2, Condition.Operator.GreaterThanOrEqualTo), GambitTarget.TargetType.Self),
             GambitCondition.new(HasMaxNumSongsCondition.new(Condition.Operator.LessThan), GambitTarget.TargetType.Self),
         }, song_settings.DummySongs[1], Condition.TargetType.Self),
-    }
+        Gambit.new(GambitTarget.TargetType.Self, L{
+            GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(song_settings.DummySongs:map(function(s) return s:get_name() end), 1) }), GambitTarget.TargetType.Self),
+            GambitCondition.new(NumSongsCondition.new(2, Condition.Operator.GreaterThanOrEqualTo), GambitTarget.TargetType.Self),
+            GambitCondition.new(HasMaxNumSongsCondition.new(Condition.Operator.LessThan), GambitTarget.TargetType.Self),
+        }, song_settings.DummySongs[2], Condition.TargetType.Self),
+    }]]
 
     for songNum, song in ipairs(self.songs) do
         song:set_requires_all_job_abilities(false)
