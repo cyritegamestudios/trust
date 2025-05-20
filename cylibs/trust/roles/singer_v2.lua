@@ -61,7 +61,7 @@ function Singer:set_song_settings(song_settings)
     self.songs = song_settings.SongSets[state.SongSet.value].Songs
     self.pianissimo_songs = song_settings.SongSets[state.SongSet.value].PianissimoSongs
     self.expiring_duration = song_settings.ResingDuration or 75
-    self.resing_lost_songs = song_settings.ResingLostSongs
+    self.resing_missing_songs = song_settings.ResingMissingSongs
     self.last_expire_time = os.time() - self.expiring_duration
 
     if self.song_tracker then
@@ -108,7 +108,7 @@ function Singer:set_song_settings(song_settings)
         }
     end
 
-    if self.resing_lost_songs then
+    if self.resing_missing_songs then
         gambit_settings.PianissimoSongs = gambit_settings.DummySongs:map(function(gambit)
             local song = gambit:getAbility():copy()
             song:set_job_abilities(L{ "Pianissimo" })
@@ -177,7 +177,6 @@ function Singer:set_song_settings(song_settings)
             JobAbility.new("Troubadour")
         }), GambitTarget.TargetType.Self),
         Gambit.new(GambitTarget.TargetType.Self, L{
-            GambitCondition.new(ModeCondition.new('AutoNitroMode', 'Off'), GambitTarget.TargetType.Self), -- maybe I can just remove this so it applies to non carn songs too
             GambitCondition.new(CooldownCondition.new('resing_songs', 100), GambitTarget.TargetType.Self), -- is this necessary? probably
             GambitCondition.new(ConditionalCondition.new(L{
                 NumSongsCondition.new(0, Condition.Operator.Equals),

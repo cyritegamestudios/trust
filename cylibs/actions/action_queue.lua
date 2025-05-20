@@ -142,7 +142,7 @@ function ActionQueue:perform_next_action()
 				WaitAction.new(0, 0, 0, forced_delay),
 				next_action,
 			}, next_action:getidentifier())
-			next_action.display_name = display_name
+			next_action.display_name = display_name or next_action:tostring()
 		end
 
 		next_action:set_action_queue_id(self.identifier)

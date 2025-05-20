@@ -255,7 +255,7 @@ function SongSetsMenuItem:getConfigMenuItem()
                     NumSongs = allSettings.SongSettings.NumSongs,
                     SongDuration = allSettings.SongSettings.SongDuration,
                     ResingDuration = allSettings.SongSettings.ResingDuration or 75,
-                    ResingLostSongs = allSettings.SongSettings.ResingLostSongs or false,
+                    ResingMissingSongs = allSettings.SongSettings.ResingMissingSongs or false,
                     SongDelay = allSettings.SongSettings.SongDelay
                 }
 
@@ -263,7 +263,7 @@ function SongSetsMenuItem:getConfigMenuItem()
                     --ConfigItem.new('NumSongs', 2, 4, 1, function(value) return value.."" end, "Maximum Number of Songs"),
                     --ConfigItem.new('SongDuration', 120, 400, 10, function(value) return value.."s" end, "Base Song Duration"),
                     ConfigItem.new('ResingDuration', 60, 180, 1, function(value) return value.."s" end, "Resing Song Duration"),
-                    BooleanConfigItem.new('ResingLostSongs', "Resing Lost Songs"),
+                    BooleanConfigItem.new('ResingMissingSongs', "Resing Missing Songs"),
                     ConfigItem.new('SongDelay', 4, 8, 1, function(value) return value.."s" end, "Delay Between Songs")
                 }
 
@@ -281,7 +281,7 @@ function SongSetsMenuItem:getConfigMenuItem()
                     allSettings.SongSettings.NumSongs = newSettings.NumSongs
                     allSettings.SongSettings.SongDuration = newSettings.SongDuration
                     allSettings.SongSettings.ResingDuration = newSettings.ResingDuration
-                    allSettings.SongSettings.ResingLostSongs = newSettings.ResingLostSongs
+                    allSettings.SongSettings.ResingLostSongs = newSettings.ResingMissingSongs
                     allSettings.SongSettings.SongDelay = newSettings.SongDelay
 
                     self.trustSettings:saveSettings(true)

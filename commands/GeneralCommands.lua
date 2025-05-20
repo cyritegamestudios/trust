@@ -236,6 +236,9 @@ function GeneralTrustCommands:handle_debug()
     local inventory_util = require('cylibs/util/inventory_util')
     print(inventory_util.get_item_count(5824))
 
+    windower.chat.input('/jobability Berserk <me>')
+    windower.chat.input('/jobability Defender <me>')
+
     return true, nil
 end
 
