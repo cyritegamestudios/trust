@@ -1,3 +1,4 @@
+local bit = require('bit')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 
 local GambitEditorStyle = {}
