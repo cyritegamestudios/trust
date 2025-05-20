@@ -138,21 +138,6 @@ function Singer:set_song_settings(song_settings)
         end)
     end
 
-    -- Pianissimo doesn't work when you don't have 5 songs because it requires you to have ALL main songs--need to cap at max num songs (fixed now??)
-    -- TODO: I wonder if I should just not have this since it is a big cause of sing loops. If we don't have it, then it will just not try to re-apply songs if they get dispeled or
-    -- party member is out of range. If I do that, I don't know if pianissimo songs will ever be sung for ally because they rely on having all songs. Maybe I should split it out
-    -- for self and ally--self requires all songs, ally does not. Though this would suck for resings if an ally dies.
-    --[[gambit_settings.PianissimoSongs = (gambit_settings.DummySongs + gambit_settings.Songs):map(function(gambit)
-        local song = gambit:getAbility():copy()
-        song:set_job_abilities(L{ "Pianissimo" })
-        song:set_requires_all_job_abilities(true)
-
-        return Gambit.new(GambitTarget.TargetType.Ally, gambit:getConditions():map(function(condition)
-            return GambitCondition.new(condition:getCondition(), GambitTarget.TargetType.Ally)
-        end), song, GambitTarget.TargetType.Ally)
-    end)]]
-
-
     for song in self.pianissimo_songs:it() do
         song:set_job_abilities(L{ "Pianissimo" })
         song:set_requires_all_job_abilities(true)
@@ -163,17 +148,12 @@ function Singer:set_song_settings(song_settings)
                     GambitCondition.new(ModeCondition.new('AutoPianissimoMode', 'Auto'), GambitTarget.TargetType.Self),
                     GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }) }), targetType),
                     GambitCondition.new(HasMaxNumSongsCondition.new(Condition.Operator.GreaterThanOrEqualTo), GambitTarget.TargetType.Self),
-                    --GambitCondition.new(HasMaxNumSongsCondition.new(Condition.Operator.GreaterThanOrEqualTo, self.songs:map(function(song) return song:get_name() end)), GambitTarget.TargetType.Self),
                     GambitCondition.new(JobCondition.new(song:get_job_names()), targetType),
                 }, song, targetType),
             }
         end
     end
 
-    -- this works even for resing, but it does interrupt self nitro songs to re-pianissimo onto party members probably because Bard's songs
-    -- aren't all under the expiring threshold...might want to set a higher threshold for when nitro is active so self songs take priority
-    -- it will re-pianissimo ally songs in between nitro songs, which will cause unnecessary resings
-    -- FIXME: add AutoSoulVoiceMode
     gambit_settings.Nitro = L{
         Gambit.new(GambitTarget.TargetType.Self, L{
             GambitCondition.new(ModeCondition.new('AutoClarionCallMode', 'Auto'), GambitTarget.TargetType.Self),
@@ -192,7 +172,8 @@ function Singer:set_song_settings(song_settings)
             GambitCondition.new(ConditionalCondition.new(L{
                 NumSongsCondition.new(0, Condition.Operator.Equals),
                 -- why not change this to any current songs expiring
-                SongDurationCondition.new((self.songs + self.pianissimo_songs):map(function(song) return song:get_name() end), self.expiring_duration, Condition.Operator.LessThanOrEqualTo, 1, Condition.Operator.GreaterThanOrEqualTo),
+                NumExpiringSongsCondition.new(1, Condition.Operator.GreaterThanOrEqualTo),
+                --SongDurationCondition.new((self.songs + self.pianissimo_songs):map(function(song) return song:get_name() end), self.expiring_duration, Condition.Operator.LessThanOrEqualTo, 1, Condition.Operator.GreaterThanOrEqualTo),
             }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Self),
         }, Sequence.new(L{
             Script.new(function()
@@ -207,7 +188,8 @@ function Singer:set_song_settings(song_settings)
             GambitCondition.new(ConditionalCondition.new(L{
                 NumSongsCondition.new(0, Condition.Operator.Equals),
                 -- why not change this to any current songs expiring
-                SongDurationCondition.new((self.songs + self.pianissimo_songs):map(function(song) return song:get_name() end), self.expiring_duration, Condition.Operator.LessThanOrEqualTo, 1, Condition.Operator.GreaterThanOrEqualTo),
+                NumExpiringSongsCondition.new(1, Condition.Operator.GreaterThanOrEqualTo),
+                --SongDurationCondition.new((self.songs + self.pianissimo_songs):map(function(song) return song:get_name() end), self.expiring_duration, Condition.Operator.LessThanOrEqualTo, 1, Condition.Operator.GreaterThanOrEqualTo),
             }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Self),
         }, Sequence.new(L{
             Script.new(function()
