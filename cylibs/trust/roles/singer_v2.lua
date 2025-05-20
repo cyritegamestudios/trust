@@ -90,7 +90,6 @@ function Singer:set_song_settings(song_settings)
         }, song_settings.DummySongs[1], Condition.TargetType.Self),
     }
 
-    -- There is some delay between songs because they aren't all under expire duration at the same time I think
     for songNum, song in ipairs(self.songs) do
         song:set_requires_all_job_abilities(false)
 
