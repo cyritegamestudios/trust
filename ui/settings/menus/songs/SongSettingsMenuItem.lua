@@ -29,7 +29,7 @@ function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
     self.contentViewConstructor = function(_, infoView, showMenu)
         local songs = T(trustSettings:getSettings())[trustSettingsMode.value].SongSettings.SongSets[self.songSetName].Songs
         local dummySongs = T(trustSettings:getSettings())[trustSettingsMode.value].SongSettings.DummySongs
-
+        print('dummies are', dummySongs:map(function(s) return s:get_name()  end))
         local allSongs = trust:get_job():get_spells(function(spell_id)
             local spell = res.spells[spell_id]
             return spell and spell.type == 'BardSong' and S{'Self'}:intersection(S(spell.targets)):length() > 0
@@ -38,7 +38,7 @@ function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
         end):sort()
 
         local songSettings = {
-            DummySongs = dummySongs:map(function(s) return s:get_name() end),
+            DummySongs = dummySongs,
             Song1 = songs[1]:get_name(),
             Song2 = songs[2]:get_name(),
             Song3 = songs[3]:get_name(),
@@ -53,10 +53,15 @@ function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
             return string.format("Song %d", songNum)
         end
 
+        local dummySongsConfigItem = MultiPickerConfigItem.new('DummySongs', songSettings.DummySongs, allSongs:map(function(song_name) return Spell.new(song_name) end), function(dummySongs)
+            return localization_util.commas(dummySongs:map(function(dummySong) return dummySong:get_name() end))
+        end, "Dummy Songs")
+        dummySongsConfigItem:setPickerTitle("Dummy Songs")
+        dummySongsConfigItem:setPickerDescription("Choose one or more dummy song that does not give the same buff as real songs.")
+        dummySongsConfigItem:setAutoSave(true)
+
         local configItems = L{
-            MultiPickerConfigItem.new('DummySongs', songSettings.DummySongs, allSongs, function(dummySongs)
-                return localization_util.commas(dummySongs)
-            end, "Dummy Songs"), -- TODO: this doesn't reload on changing dummy song
+            dummySongsConfigItem,
             PickerConfigItem.new('Song1', songSettings.Song1, allSongs, nil, getDescription(1, songs[1])),
             PickerConfigItem.new('Song2', songSettings.Song2, allSongs, nil, getDescription(2, songs[2])),
             PickerConfigItem.new('Song3', songSettings.Song3, allSongs, nil, getDescription(3, songs[3])),
@@ -64,18 +69,18 @@ function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
             PickerConfigItem.new('Song5', songSettings.Song5, allSongs, nil, getDescription(5, songs[5])),
         }
 
-        local songConfigEditor = ConfigEditor.new(nil, songSettings, configItems, infoView, function(newSettings)
+        local songConfigEditor = ConfigEditor.new(self.trustSettings, songSettings, configItems, infoView, function(newSettings)
             local newSongNames = L{}
             for key, songName in pairs(newSettings) do
                 if key ~= 'DummySongs' then
                     newSongNames:append(songName)
                 end
             end
-            local is_valid, error_message = trust:get_job():validate_songs(newSongNames, newSettings['DummySongs'])
+            local is_valid, error_message = trust:get_job():validate_songs(newSongNames, newSettings['DummySongs']:map(function(song) return song:get_name() end))
             return is_valid, error_message
         end, showMenu)
         songConfigEditor:setShouldRequestFocus(true)
-
+        print(songConfigEditor)
         self.disposeBag:add(songConfigEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
             self.selectedSongIndex = indexPath.section
             local song
@@ -98,6 +103,7 @@ function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
         end), songConfigEditor:getDelegate():didMoveCursorToItemAtIndexPath())
 
         self.disposeBag:add(songConfigEditor:onConfigChanged():addAction(function(newSettings, oldSettings)
+            print('config changed')
             local songs = T(trustSettings:getSettings())[trustSettingsMode.value].SongSettings.SongSets[self.songSetName].Songs
             for i = 1, 5 do
                 local newSongName = newSettings["Song"..i]
@@ -110,16 +116,27 @@ function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
                 end
             end
 
-            if newSettings["DummySongs"] ~= oldSettings["DummySongs"] then
-                addon_system_error("Please update your GearSwap, e.g. sets.Midcast['"..newSettings["DummySong"].."'] = set_combine(sets.Nyame, {range='Daurdabla', ammo=empty})")
+            if not newSettings["DummySongs"]:equals(oldSettings["DummySongs"]) then
+                local dummySongs = newSettings["DummySongs"]:map(function(dummySong)
+                    return "sets.Midcast['"..dummySong.."'] = set_combine(sets.Nyame, {range='Daurdabla', ammo=empty})"
+                end)
+                addon_system_error(string.format("Please update your GearSwap, e.g. %s", localization_util.commas(dummySongs)))
+                --addon_system_error("Please update your GearSwap, e.g. sets.Midcast['"..newSettings["DummySong"].."'] = set_combine(sets.Nyame, {range='Daurdabla', ammo=empty})")
             end
+            print('new', newSettings['DummySongs'])
+
+            local newDummySongs = newSettings["DummySongs"]:copy()
+
             local dummySongs = T(trustSettings:getSettings())[trustSettingsMode.value].SongSettings.DummySongs
             dummySongs:clear()
 
-            for newDummySongName in newSettings["DummySongs"]:it() do
-                print('adding', newDummySongName)
-                dummySongs:append(Spell.new(newDummySongName, L{}, L{}))
+            for newDummySong in newDummySongs:it() do
+                print('adding', newDummySong, newDummySong:get_name())
+                dummySongs:append(Spell.new(newDummySong:get_name(), L{}, L{}))
             end
+
+
+
 
             trustSettings:saveSettings(true)
 
