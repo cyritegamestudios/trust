@@ -331,6 +331,7 @@ end
 function Bard:get_extra_songs(item_name)
     local item_to_num_songs = {
         ['Daurdabla'] = 4,
+        ['Loughnashade'] = 4,
         ['Terpander'] = 3,
         ['Blurred Harp'] = 3,
         ['Blurred Harp +1'] = 3,
