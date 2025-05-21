@@ -318,12 +318,10 @@ function ConfigEditor:getCellItemForConfigItem(configItem)
         pickerItem:setPickerTextFormat(configItem:getPickerTextFormat())
         pickerItem:setShowMenu(self.showMenu)
         pickerItem:setOnPickItems(function(newValue)
-            local originalSettings
-
-            if self.configSettings.copy then
-                originalSettings = self.configSettings:copy()
-            else
-                originalSettings = T(self.configSettings):copy(true)
+            local is_valid, error = configItem:getPickerValidator()(newValue)
+            if not is_valid then
+                addon_system_error(error)
+                return
             end
             if class(newValue) == 'List' then
                 self.configSettings[configItem:getKey()]:clear()
@@ -334,9 +332,9 @@ function ConfigEditor:getCellItemForConfigItem(configItem)
                 self.configSettings[configItem:getKey()] = newValue
             end
             addon_system_message("Your choices have been updated.")
-            print(self)
+
             if configItem:getAutoSave() then
-                self:onConfirmClick(false, originalSettings)
+                self:onConfirmClick()
             end
         end)
         return pickerItem
@@ -361,20 +359,15 @@ function ConfigEditor:sectionForConfigKey(key)
     return nil
 end
 
-function ConfigEditor:onConfirmClick(skipSave, originalSettings)
+function ConfigEditor:onConfirmClick(skipSave)
     self:resignFirstResponder()
 
-
-
-    if originalSettings == nil then
-        if self.configSettings.copy then
-            originalSettings = self.configSettings:copy()
-        else
-            originalSettings = T(self.configSettings):copy(true)
-        end
+    local originalSettings
+    if self.configSettings.copy then
+        originalSettings = self.configSettings:copy()
+    else
+        originalSettings = T(self.configSettings):copy(true)
     end
-
-    print('original', originalSettings['DummySongs'])
 
     for sectionIndex = 1, self:getDataSource():numberOfSections(), 1 do
         local configItem = self.configItems[sectionIndex]
@@ -422,11 +415,10 @@ function ConfigEditor:onConfirmClick(skipSave, originalSettings)
         self:onConfigValidationError():trigger(errorMessage)
         return
     end
-    print('new', self.configSettings['DummySongs'])
+
     self:onConfigConfirm():trigger(self.configSettings, originalSettings)
-    print('111')
+
     if self.configSettings ~= originalSettings then
-        print(self, 'it changed', self.configSettings.DummySongs)
         self:onConfigChanged():trigger(self.configSettings, originalSettings)
     end
 

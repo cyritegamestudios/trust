@@ -335,7 +335,7 @@ function Bard:validate_songs(song_names, dummy_song_names)
         return buff_util.buff_for_spell(spell_util.spell_id(song_name)).id
     end))
     if set.intersection(buffsForDummySongs, buffsForSongs):length() > 0 then
-        return false, "Dummy song cannot give the same status effect as real songs."
+        return false, "Dummy songs cannot give the same status effect as real songs."
     end
     return true, nil
 end

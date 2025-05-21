@@ -29,7 +29,7 @@ function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
     self.contentViewConstructor = function(_, infoView, showMenu)
         local songs = T(trustSettings:getSettings())[trustSettingsMode.value].SongSettings.SongSets[self.songSetName].Songs
         local dummySongs = T(trustSettings:getSettings())[trustSettingsMode.value].SongSettings.DummySongs
-        print('dummies are', dummySongs:map(function(s) return s:get_name()  end))
+
         local allSongs = trust:get_job():get_spells(function(spell_id)
             local spell = res.spells[spell_id]
             return spell and spell.type == 'BardSong' and S{'Self'}:intersection(S(spell.targets)):length() > 0
@@ -59,6 +59,19 @@ function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
         dummySongsConfigItem:setPickerTitle("Dummy Songs")
         dummySongsConfigItem:setPickerDescription("Choose one or more dummy song that does not give the same buff as real songs.")
         dummySongsConfigItem:setAutoSave(true)
+        dummySongsConfigItem:setPickerValidator(function(newValue)
+            if newValue:length() < 1 then
+                return false, "You must choose at least 1 song."
+            end
+
+            local is_valid, error_message = trust:get_job():validate_songs(songs:map(function(s) return s:get_name()  end), newValue:map(function(s) return s:get_name() end))
+
+            if is_valid then
+                addon_system_error("Please update your GearSwap for all dummy songs, e.g. sets.Midcast['"..newValue[1]:get_name().."'] = set_combine(sets.Nyame, {range='Daurdabla', ammo=empty})")
+            end
+
+            return is_valid, error_message
+        end)
 
         local configItems = L{
             dummySongsConfigItem,
@@ -80,7 +93,7 @@ function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
             return is_valid, error_message
         end, showMenu)
         songConfigEditor:setShouldRequestFocus(true)
-        print(songConfigEditor)
+
         self.disposeBag:add(songConfigEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
             self.selectedSongIndex = indexPath.section
             local song
@@ -103,15 +116,10 @@ function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
         end), songConfigEditor:getDelegate():didMoveCursorToItemAtIndexPath())
 
         self.disposeBag:add(songConfigEditor:onConfigChanged():addAction(function(newSettings, oldSettings)
-            print('config changed')
             local songs = T(trustSettings:getSettings())[trustSettingsMode.value].SongSettings.SongSets[self.songSetName].Songs
             for i = 1, 5 do
                 local newSongName = newSettings["Song"..i]
                 if songs[i]:get_name() ~= newSongName then
-                    --local jobAbilities = L{}
-                    --if i == 1 then
-                    --    jobAbilities = L{ "Marcato"}
-                    --end
                     songs[i] = Spell.new(newSongName, songs[i]:get_job_abilities(), job_util.all_jobs())
                 end
             end
@@ -120,10 +128,9 @@ function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
                 local dummySongs = newSettings["DummySongs"]:map(function(dummySong)
                     return "sets.Midcast['"..dummySong.."'] = set_combine(sets.Nyame, {range='Daurdabla', ammo=empty})"
                 end)
-                addon_system_error(string.format("Please update your GearSwap, e.g. %s", localization_util.commas(dummySongs)))
-                --addon_system_error("Please update your GearSwap, e.g. sets.Midcast['"..newSettings["DummySong"].."'] = set_combine(sets.Nyame, {range='Daurdabla', ammo=empty})")
+                --addon_system_error(string.format("Please update your GearSwap, e.g. %s", localization_util.commas(dummySongs)))
+                addon_system_error("Please update your GearSwap, e.g. sets.Midcast['"..newSettings["DummySong"][1].."'] = set_combine(sets.Nyame, {range='Daurdabla', ammo=empty})")
             end
-            print('new', newSettings['DummySongs'])
 
             local newDummySongs = newSettings["DummySongs"]:copy()
 
@@ -131,16 +138,10 @@ function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
             dummySongs:clear()
 
             for newDummySong in newDummySongs:it() do
-                print('adding', newDummySong, newDummySong:get_name())
                 dummySongs:append(Spell.new(newDummySong:get_name(), L{}, L{}))
             end
 
-
-
-
             trustSettings:saveSettings(true)
-
-            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my songs!")
         end), songConfigEditor:onConfigChanged())
 
         self.disposeBag:add(songConfigEditor:onConfigValidationError():addAction(function(errorMessage)

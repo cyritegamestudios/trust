@@ -210,6 +210,16 @@ function MultiPickerConfigItem:getPickerTextFormat()
     end
 end
 
+function MultiPickerConfigItem:setPickerValidator(validator)
+    self.validator = validator
+end
+
+function MultiPickerConfigItem:getPickerValidator()
+    return self.validator or function(_)
+        return true, nil
+    end
+end
+
 function MultiPickerConfigItem:setAutoSave(autoSave)
     self.autoSave = autoSave
 end
