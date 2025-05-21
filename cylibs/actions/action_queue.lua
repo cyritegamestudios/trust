@@ -78,9 +78,6 @@ function ActionQueue.new(completion, is_priority_queue, max_size, debugging_enab
 			elseif action.category == 4 or action.category == 8 and action.param == 28787 then
 				self.last_action_time = os.clock()
 				self.forced_delay_time = os.clock() + 3
-				print(res.spells[action.param].en, 'ending', os.clock())
-			elseif action.category == 8 then
-				print(res.spells[action.targets[1].actions[1].param].en, 'starting', os.clock(), 'time elapsed', os.clock() - self.last_action_time)
 			end
 			if category_to_action_type[action.category] then
 				self.last_action_type = category_to_action_type[action.category]
@@ -89,7 +86,6 @@ function ActionQueue.new(completion, is_priority_queue, max_size, debugging_enab
 			if self.forced_delay_time > self.next_action_time then
 				self.forced_delay_time = self.forced_delay_time - self.next_action_time
 			end
-			print(self.forced_delay_time)
 		end), WindowerEvents.Action)
 
 		windower.register_event('outgoing chunk', function(id, data)

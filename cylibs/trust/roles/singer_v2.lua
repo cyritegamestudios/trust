@@ -164,7 +164,6 @@ function Singer:set_song_settings(song_settings)
         end
     end
 
-    -- FIXME: what if nitro is on but not using Carnwenhan. It probably won't set all expiring
     gambit_settings.Nitro = L{
         Gambit.new(GambitTarget.TargetType.Self, L{
             GambitCondition.new(ModeCondition.new('AutoClarionCallMode', 'Auto'), GambitTarget.TargetType.Self),
