@@ -237,6 +237,13 @@ function SongSettingsMenuItem:getPianissmoSongsMenuItem()
 
                 self.trustSettings:saveSettings(true)
                 addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my songs!")
+
+                local num_ballads = songs:filter(function(song)
+                    return song:get_status().en == 'Ballad'
+                end):length()
+                if num_ballads >= 2 then
+                    addon_system_error("Multiple ballads might result in a song loop due to its low duration. Consider adding ballad as a main song instead.")
+                end
             end
         end), chooseSongsView:on_pick_items())
 
