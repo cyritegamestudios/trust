@@ -36,7 +36,6 @@ function SpellAction.new(x, y, z, spell_id, target_index, player, conditions)
 	self.spell_id = spell_id
 	self.identifier = spell_id
 	self.player = player
-	self.user_events = {}
 
 	self:debug_log_create(self:gettype())
 
@@ -44,12 +43,6 @@ function SpellAction.new(x, y, z, spell_id, target_index, player, conditions)
 end
 
 function SpellAction:destroy()
-	if self.user_events then
-		for _,event in pairs(self.user_events) do
-			windower.unregister_event(event)
-		end
-	end
-
 	self.dispose_bag:destroy()
 
 	self.player = nil
@@ -66,7 +59,6 @@ function SpellAction:perform()
 			function(p, spell_id, _)
 				if p:get_mob().id == windower.ffxi.get_player().id then
 					if spell_id == self.spell_id then
-						coroutine.sleep(1)
 						self:complete(true)
 					end
 				end
@@ -76,7 +68,6 @@ function SpellAction:perform()
 			function(p, spell_id)
 				if p:get_mob().id == windower.ffxi.get_player().id then
 					if spell_id == self.spell_id then
-						coroutine.sleep(1)
 						self:complete(false)
 					end
 				end

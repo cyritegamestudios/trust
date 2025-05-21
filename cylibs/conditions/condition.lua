@@ -148,6 +148,7 @@ function Condition.defaultSerializableConditionClasses()
         StatusCondition.__class,
         PetStatusCondition.__class,
         TargetNameCondition.__class,
+        HasSongsCondition.__class,
     }
 end
 

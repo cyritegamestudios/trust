@@ -1,4 +1,5 @@
 local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
+local BooleanConfigItem = require('ui/settings/editors/config/BooleanConfigItem')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local ConfigItem = require('ui/settings/editors/config/ConfigItem')
@@ -22,6 +23,7 @@ function SongSetsMenuItem.new(trustSettings, trustSettingsMode, trustModeSetting
         ButtonItem.default('Config', 18),
         ButtonItem.default('Preview', 18),
         ButtonItem.localized("Modes", i18n.translate("Modes")),
+        ButtonItem.localized("Gambits", i18n.translate("Button_Gambits"))
     }, {}, nil, "Song Sets", "Choose or edit a song set."), SongSetsMenuItem)
 
     self.trust = trust
@@ -97,6 +99,71 @@ function SongSetsMenuItem:reloadSettings()
     self:setChildMenuItem("Preview", self:getPreviewSetMenuItem())
     self:setChildMenuItem("Config", self:getConfigMenuItem())
     self:setChildMenuItem("Modes", self:getModesMenuItem())
+    self:setChildMenuItem("Gambits", self:getGambitsMenuItem())
+end
+
+function SongSetsMenuItem:getGambitsMenuItem()
+    local gambitsMenuItem = MenuItem.new(L{
+        ButtonItem.default("Confirm")
+    }, {}, function(_, infoView)
+        local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
+        local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+        local GambitEditorStyle = require('ui/settings/menus/gambits/GambitEditorStyle')
+        local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
+
+        local editorConfig = GambitEditorStyle.new(function(gambits)
+            local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit)
+                return gambit:tostring()
+            end)
+            return configItem
+        end, FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge, "Gambit", "Gambits")
+
+        local currentGambits = singer_gambits
+
+        local configItem = editorConfig:getConfigItem(currentGambits)
+
+        local gambitSettingsEditor = FFXIPickerView.new(L{ configItem }, false, editorConfig:getViewSize())
+        gambitSettingsEditor:setAllowsCursorSelection(true)
+
+        gambitSettingsEditor:setNeedsLayout()
+        gambitSettingsEditor:layoutIfNeeded()
+
+        local itemsToUpdate = L{}
+        for rowIndex = 1, gambitSettingsEditor:getDataSource():numberOfItemsInSection(1) do
+            local indexPath = IndexPath.new(1, rowIndex)
+            local item = gambitSettingsEditor:getDataSource():itemAtIndexPath(indexPath)
+            item:setEnabled(currentGambits[rowIndex]:isEnabled() and currentGambits[rowIndex]:isValid())
+            itemsToUpdate:append(IndexedItem.new(item, indexPath))
+        end
+
+        gambitSettingsEditor:getDataSource():updateItems(itemsToUpdate)
+
+        gambitSettingsEditor:setNeedsLayout()
+        gambitSettingsEditor:layoutIfNeeded()
+
+        self.disposeBag:add(gambitSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
+            local selectedGambit = currentGambits[indexPath.row]
+            if selectedGambit then
+                infoView:setDescription(selectedGambit:tostring())
+            end
+        end), gambitSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath())
+
+        self.disposeBag:add(gambitSettingsEditor:on_pick_items():addAction(function(_, selectedGambits)
+            local singer = self.trust:role_with_type("singer")
+            for gambit in selectedGambits:it() do
+                local is_satisfied, target = singer:is_gambit_satisfied(gambit)
+                if is_satisfied then
+                    addon_system_message(string.format("%s satisified for %s.", gambit:tostring(), target:get_name()))
+                else
+                    addon_system_error(string.format("%s not satisified.", gambit:tostring()))
+                    logger.error(string.format("%s not satisified.", gambit:tostring()))
+                end
+            end
+        end), gambitSettingsEditor:on_pick_items())
+
+        return gambitSettingsEditor
+    end, "Gambits", "Song gambits")
+    return gambitsMenuItem
 end
 
 function SongSetsMenuItem:getCreateSetMenuItem()
@@ -173,7 +240,7 @@ function SongSetsMenuItem:getPreviewSetMenuItem()
         local singer = self.trust:role_with_type("singer")
         local songListView = SongListView.new(singer)
         return songListView
-    end, "Songs", "View the merged list of songs for each job.")
+    end, "Songs", "View the merged list of songs for each job. May vary depending upon song duration.")
     return previewMenuItem
 end
 
@@ -187,13 +254,17 @@ function SongSetsMenuItem:getConfigMenuItem()
                 local songSettings = T{
                     NumSongs = allSettings.SongSettings.NumSongs,
                     SongDuration = allSettings.SongSettings.SongDuration,
+                    ResingDuration = allSettings.SongSettings.ResingDuration or 75,
+                    ResingMissingSongs = allSettings.SongSettings.ResingMissingSongs or false,
                     SongDelay = allSettings.SongSettings.SongDelay
                 }
 
                 local configItems = L{
-                    ConfigItem.new('NumSongs', 2, 4, 1, function(value) return value.."" end, "Maximum Number of Songs"),
-                    ConfigItem.new('SongDuration', 120, 400, 10, function(value) return value.."s" end, "Base Song Duration"),
-                    ConfigItem.new('SongDelay', 4, 8, 1, function(value) return value.."s" end, "Delay Between Songs")
+                    --ConfigItem.new('NumSongs', 2, 4, 1, function(value) return value.."" end, "Maximum Number of Songs"),
+                    --ConfigItem.new('SongDuration', 120, 400, 10, function(value) return value.."s" end, "Base Song Duration"),
+                    ConfigItem.new('ResingDuration', 60, 180, 1, function(value) return value.."s" end, "Resing Threshold"),
+                    BooleanConfigItem.new('ResingMissingSongs', "Resing Missing Songs"),
+                    --ConfigItem.new('SongDelay', 4, 8, 1, function(value) return value.."s" end, "Delay Between Songs")
                 }
 
                 local songConfigEditor = ConfigEditor.new(self.trustSettings, songSettings, configItems, infoView, function(newSettings)
@@ -209,6 +280,8 @@ function SongSetsMenuItem:getConfigMenuItem()
                 self.disposeBag:add(songConfigEditor:onConfigChanged():addAction(function(newSettings, _)
                     allSettings.SongSettings.NumSongs = newSettings.NumSongs
                     allSettings.SongSettings.SongDuration = newSettings.SongDuration
+                    allSettings.SongSettings.ResingDuration = newSettings.ResingDuration
+                    allSettings.SongSettings.ResingMissingSongs = newSettings.ResingMissingSongs
                     allSettings.SongSettings.SongDelay = newSettings.SongDelay
 
                     self.trustSettings:saveSettings(true)
@@ -220,9 +293,10 @@ function SongSetsMenuItem:getConfigMenuItem()
 
                 self.disposeBag:add(songConfigEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
                     if indexPath.section == 1 then
-                        infoView:setDescription("Maximum number of songs without Clarion Call.")
+                        local currentSettings = T(self.trustSettings:getSettings())[self.trustSettingsMode.value]
+                        infoView:setDescription("Resing all songs when any song has less than "..currentSettings.SongSettings.ResingDuration.."s remaining.")
                     elseif indexPath.section == 2 then
-                        infoView:setDescription("Base song duration with gear but without Troubadour.")
+                        infoView:setDescription("Resing missing songs onto party members using Pianissimo.")
                     else
                         infoView:setDescription("Configure general song settings.")
                     end

@@ -1,7 +1,9 @@
+local DisposeBag = require('cylibs/events/dispose_bag')
 local logger = require('cylibs/logger/logger')
 local Timer = require('cylibs/util/timers/timer')
 local GambitTarget = require('cylibs/gambits/gambit_target')
 local GambitTargetGroup = require('cylibs/gambits/gambit_target_group')
+local ValueRelay = require('cylibs/events/value_relay')
 
 local Gambiter = setmetatable({}, {__index = Role })
 Gambiter.__index = Gambiter
@@ -9,6 +11,11 @@ Gambiter.__class = "Gambiter"
 
 state.AutoGambitMode = M{['description'] = 'Use Gambits', 'Auto', 'Off'}
 state.AutoGambitMode:set_description('Auto', "Automatically use gambits.")
+
+function Gambiter:on_active_changed()
+    return self.is_active:onValueChanged()
+end
+
 
 function Gambiter.new(action_queue, gambit_settings, state_var)
     local self = setmetatable(Role.new(action_queue), Gambiter)
@@ -21,7 +28,11 @@ function Gambiter.new(action_queue, gambit_settings, state_var)
     self.state_vars = state_var or L{ state.AutoGambitMode }
     self.timer = Timer.scheduledTimer(1)
     self.enabled = true
+    self.is_active = ValueRelay.new(false)
     self.last_gambit_time = os.time() - self:get_cooldown()
+    self.gambiter_dispose_bag = DisposeBag.new()
+
+    self.gambiter_dispose_bag:addAny(L{ self.timer, self.is_active })
 
     self:set_gambit_settings(gambit_settings)
 
@@ -31,11 +42,32 @@ end
 function Gambiter:destroy()
     Role.destroy(self)
 
-    self.timer:destroy()
+    self.gambiter_dispose_bag:destroy()
 end
 
 function Gambiter:on_add()
     Role.on_add(self)
+
+    self.gambiter_dispose_bag:add(self.action_queue:on_action_start():addAction(function(_, a)
+        if a:getidentifier() == self:get_action_identifier() then
+            self.is_active:setValue(true)
+        end
+    end), self.action_queue:on_action_start())
+
+    self.gambiter_dispose_bag:add(self.action_queue:on_action_end():addAction(function(a, _)
+        if a:getidentifier() == self:get_action_identifier() then
+            self.is_active:setValue(false)
+        end
+    end), self.action_queue:on_action_end())
+
+    -- FIXME: does this work with multiple state vars??
+    for state_var in self.state_vars:it() do
+        self.gambiter_dispose_bag:add(state_var:on_state_change():addAction(function(_, newValue)
+            if newValue == 'Off' then
+                self.is_active:setValue(false)
+            end
+        end), state_var:on_state_change())
+    end
 
     self.timer:onTimeChange():addAction(function(_)
         if not self:is_enabled() then

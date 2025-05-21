@@ -35,23 +35,38 @@ end
 -- Returns the number of the given item in the player's inventory.
 -- @tparam number item_id Item id (see res/items.lua)
 -- @treturn number Number of items
-function inventory_util.get_item_count(item_id)
+function inventory_util.get_item_count(item_id, include_wardrobes)
     if type(item_id) == 'string' then
         local item = Item:get({ en = item_id })
         if item then
             item_id = item.id
         end
     end
+    local bags = L{ 'inventory', 'temporary' }
+    if include_wardrobes then
+        bags = bags + L{
+            'Wardrobe',
+            'Wardrobe2',
+            'Wardrobe3',
+            'Wardrobe4',
+            'Wardrobe5',
+            'Wardrobe6',
+            'Wardrobe7',
+            'Wardrobe8',
+        }
+    end
     local item_count = 0
-    for bag in L{ 'inventory', 'temporary' }:it() do
+    for bag in bags:it() do
         local items = L(windower.ffxi.get_items(bag))
-        for item in items:it() do
-            if item.id == item_id then
-                item_count = item_count + item.count
+        if items.enabled then
+            for item in items:it() do
+                if item.id == item_id then
+                    item_count = item_count + item.count
+                end
             end
-        end
-        if item_count > 0 then
-            return item_count
+            if item_count > 0 then
+                return item_count
+            end
         end
     end
     return item_count
@@ -81,6 +96,16 @@ function inventory_util.get_ranged_weapon_id()
         return nil
     end
     return ranged_weapon_id
+end
+
+function inventory_util.get_equipment_ids()
+    local item = windower.ffxi.get_items('equipment')
+    local slots = {'main','sub','range','head','neck','body','hands','legs','feet','back'}
+    local equipment_ids = L{}
+    for _,slot in ipairs(slots) do
+        equipment_ids:append(windower.ffxi.get_items(item[slot..'_bag'],item[slot]).id)
+    end
+    return equipment_ids
 end
 
 return inventory_util

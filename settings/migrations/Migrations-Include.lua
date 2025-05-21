@@ -1057,6 +1057,45 @@ function Migration_v29:getDescription()
     return "Migrating weapon skills settings to gambits."
 end
 
+---------------------------
+
+-- Updating jobs for songs.
+-- @class module
+-- @name Migration_v30
+
+local Migration_v30 = setmetatable({}, { __index = Migration })
+Migration_v30.__index = Migration_v30
+Migration_v30.__class = "Migration_v30"
+
+function Migration_v30.new()
+    local self = setmetatable(Migration.new(), Migration_v30)
+    return self
+end
+
+function Migration_v30:shouldPerform(trustSettings, _, _)
+    return L { 'BRD' }:contains(trustSettings.jobNameShort)
+end
+
+function Migration_v30:perform(trustSettings, _, _)
+    local modeNames = list.subtract(L(T(trustSettings:getSettings()):keyset()), L { 'Version', 'Migrations' })
+    for modeName in modeNames:it() do
+        local songSettings = trustSettings:getSettings()[modeName].SongSettings
+        for song in songSettings.DummySongs:it() do
+            song:set_job_names(job_util.all_jobs())
+        end
+        for _, songSet in pairs(songSettings.SongSets) do
+            for song in songSet.Songs:it() do
+                song:set_job_names(job_util.all_jobs())
+            end
+        end
+    end
+end
+
+function Migration_v30:getDescription()
+    return "Updating jobs for songs."
+
+end
+
 return {
     Migration_v1 = Migration_v1,
     Migration_v2 = Migration_v2,
@@ -1086,5 +1125,6 @@ return {
     Migration_v27 = Migration_v27,
     Migration_v28 = Migration_v28,
     Migration_v29 = Migration_v29,
+    Migration_v30 = Migration_v30,
 }
 

@@ -236,7 +236,10 @@ function Player:monitor()
         elseif action.category == 3 then
             self:on_weapon_skill_finish():trigger(self, action.targets[1], action.param)
         elseif action.category == 4 then
-            self:on_spell_finish():trigger(self, action.param, action.targets)
+            --print('player', self, action.actor_id, action.category, action.param)
+            --logger.notice(action.actor_Id, action.category, action.param, debug.traceback())
+            --self:on_spell_finish():trigger(self, action.param, action.targets)
+            -- DO NOT ADD THIS BACK UNTIL YOU FIGURE OUT WHY IT TRIGGERS DUPLICATE TIMES SOMETIMES
         elseif action.category == 6 then
             self:on_job_ability_used():trigger(self, action.param, action.targets)
         elseif action.category == 8 then
@@ -247,6 +250,12 @@ function Player:monitor()
             end
         end
     end), WindowerEvents.Action)
+
+    self.dispose_bag:add(WindowerEvents.Spell.Finish:addAction(function(actor_id, spell_id, targets)
+        if actor_id == self.id then
+            self:on_spell_finish():trigger(self, spell_id, targets)
+        end
+    end), WindowerEvents.Spell.Finish)
 end
 
 -------

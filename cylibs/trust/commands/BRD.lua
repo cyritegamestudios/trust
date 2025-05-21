@@ -18,6 +18,7 @@ function BardTrustCommands.new(trust, action_queue)
     self:add_command('sing', self.handle_sing, 'Sings songs, optionally with nitro', L{
         PickerConfigItem.new('use_nitro', "true", L{ "true", "false" }, nil, "Use Nitro")
     })
+    self:add_command('resing', self.handle_resing_songs, 'Resings all songs')
     self:add_command('clear', self.handle_clear_songs, 'Clears the list of tracked songs')
     self:add_command('validate', self.handle_validate_songs, 'Runs diagnostics to validate songs are working properly')
     self:add_command('set', self.handle_set_song_set, 'Sets the current song set', L{
@@ -149,6 +150,21 @@ function BardTrustCommands:handle_clear_songs()
 
     success = true
     message = "Song tracker has been cleared"
+
+    return success, message
+end
+
+function BardTrustCommands:handle_resing_songs(_)
+    local success
+    local message
+
+    local singer = self.trust:role_with_type("singer")
+    singer.song_tracker:set_all_expiring_soon()
+
+    self.action_queue:clear()
+
+    success = true
+    message = "Resinging songs"
 
     return success, message
 end

@@ -391,7 +391,7 @@ function Spell:copy()
     for condition in self:get_conditions():it() do
         conditions:append(condition:copy())
     end
-    return Spell.new(self.spell_name, self.job_abilities, self.job_names, self.target, conditions, self.consumable )
+    return Spell.new(self.spell_name, self.job_abilities:copy(), self.job_names:copy(), self.target, conditions, self.consumable )
 end
 
 return Spell

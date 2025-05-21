@@ -210,12 +210,22 @@ function MultiPickerConfigItem:getPickerTextFormat()
     end
 end
 
-function MultiPickerConfigItem:setAutoSave(autoSave)
-    self.autoSave = autoSave
+function MultiPickerConfigItem:setPickerValidator(validator)
+    self.validator = validator
 end
 
-function MultiPickerConfigItem:getAutoSave()
-    return self.autoSave
+function MultiPickerConfigItem:getPickerValidator()
+    return self.validator or function(_)
+        return true, nil
+    end
+end
+
+function MultiPickerConfigItem:getOnConfirm()
+    return self.onConfirm or function() end
+end
+
+function MultiPickerConfigItem:setOnConfirm(onConfirm)
+    self.onConfirm = onConfirm
 end
 
 function MultiPickerConfigItem:isEnabled()

@@ -318,6 +318,11 @@ function ConfigEditor:getCellItemForConfigItem(configItem)
         pickerItem:setPickerTextFormat(configItem:getPickerTextFormat())
         pickerItem:setShowMenu(self.showMenu)
         pickerItem:setOnPickItems(function(newValue)
+            local is_valid, error = configItem:getPickerValidator()(newValue)
+            if not is_valid then
+                addon_system_error(error)
+                return
+            end
             if class(newValue) == 'List' then
                 self.configSettings[configItem:getKey()]:clear()
                 for value in newValue:it() do
@@ -327,9 +332,8 @@ function ConfigEditor:getCellItemForConfigItem(configItem)
                 self.configSettings[configItem:getKey()] = newValue
             end
             addon_system_message("Your choices have been updated.")
-            if configItem:getAutoSave() then
-                self:onConfirmClick()
-            end
+
+            configItem:getOnConfirm()(newValue)
         end)
         return pickerItem
     elseif configItem.__type == TextInputConfigItem.__type then

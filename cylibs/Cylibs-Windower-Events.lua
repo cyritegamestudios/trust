@@ -111,7 +111,7 @@ local incoming_event_dispatcher = {
 
         if act.category == 4 then
             if act.param and res.spells[act.param] then
-                WindowerEvents.Spell.Finish:trigger(act.actor_id, act.param)
+                WindowerEvents.Spell.Finish:trigger(act.actor_id, act.param, act.targets)
                 if res.spells[act.param] and L{ 'Raise', 'Raise II', 'Raise III', 'Arise' }:contains(res.spells[act.param].en) then
                     WindowerEvents.Raised:trigger(act.targets[1].id, act.param)
                 end
@@ -216,6 +216,9 @@ local incoming_event_dispatcher = {
         if zone ~= 0 then
             WindowerEvents.ZoneUpdate:trigger(mob_id, zone)
         end
+        if hp == 0 or hpp == 0 then
+            WindowerEvents.MobKO:trigger(mob_id)
+        end
     end,
 
     -- 0x0DF
@@ -244,6 +247,9 @@ local incoming_event_dispatcher = {
         local sub_job_id = packet['Sub job']
 
         WindowerEvents.CharacterUpdate:trigger(mob_id, name, hp, hpp, mp, mpp, tp, main_job_id, sub_job_id)
+        if hp == 0 or hpp == 0 then
+            WindowerEvents.MobKO:trigger(mob_id)
+        end
     end,
 
     -- 0x00D
@@ -311,6 +317,7 @@ local incoming_event_dispatcher = {
     [0x076] = function(data)
         for party_member in party_util.get_party_members(true):it() do
             local buff_ids = party_util.get_buffs(party_member.id)
+
             WindowerEvents.BuffsChanged:trigger(party_member.id, L(buff_util.buffs_for_buff_ids(buff_ids)))
             WindowerEvents.DebuffsChanged:trigger(party_member.id, L(buff_util.debuffs_for_buff_ids(buff_ids)))
         end
@@ -336,6 +343,9 @@ local incoming_event_dispatcher = {
                 if party_member_info then
                     WindowerEvents.CharacterUpdate:trigger(alliance_member:get_id(), party_member_info.name, party_member_info.hp, party_member_info.hpp,
                             party_member_info.mp, party_member_info.mpp, party_member_info.tp, nil, nil)
+                    if party_member_info.hp == 0 or party_member_info.hpp == 0 then
+                        WindowerEvents.MobKO:trigger(alliance_member:get_id())
+                    end
                 end
                 WindowerEvents.ZoneUpdate:trigger(alliance_member:get_id(), alliance_member:get_zone_id())
 
@@ -427,20 +437,22 @@ local incoming_event_dispatcher = {
     [0x063] = function(data)
         local buff_records = L{}
 
-        for n=1,32 do
-            local buff_id = data:unpack('H', n*2+7)
-            local buff_ts = data:unpack('I', n*4+69)
+        local subtype = data:byte(5)
+        if subtype == 0x09 then
+            for n=1,32 do
+                local buff_id = data:unpack('H', n*2+7)
+                local buff_ts = data:unpack('I', n*4+69)
 
-            if buff_ts == 0 then
-                break
-            elseif buff_id ~= 255 and buff_ts ~= nil then
-                local duration = math.floor(buff_ts / 60 + bufftime_offset) - os.time()
-                buff_records:append(BuffRecord.new(buff_id, duration))
+                if buff_ts == 0 then
+                    break
+                elseif buff_id ~= 255 and buff_ts ~= nil then
+                    local duration = math.floor(buff_ts / 60 + bufftime_offset) - os.time()
+                    buff_records:append(BuffRecord.new(buff_id, duration))
+                end
             end
-        end
-
-        if buff_records:length() > 0 then
-            WindowerEvents.BuffDurationChanged:trigger(windower.ffxi.get_player().id, buff_records)
+            if buff_records:length() > 0 then
+                WindowerEvents.BuffDurationChanged:trigger(windower.ffxi.get_player().id, buff_records)
+            end
         end
     end,
 
@@ -542,6 +554,7 @@ end
     bool injected -- was_injected?
     bool blocked -- was_blocked?
 ]]--
+
 local function outgoing_chunk_handler(id, data)
     if not outgoing_event_ids[id] or not data then return end -- if we don't care about the outgoing_event_id, just return
 
@@ -593,18 +606,20 @@ end
 
 WindowerEvents.Events = {}
 
-WindowerEvents.Events.GainBuff = windower.register_event('gain buff', function(_)
+WindowerEvents.Events.GainBuff = windower.register_event('gain buff', function(buff_id)
     local target_id = windower.ffxi.get_player().id
 
     local buff_ids = party_util.get_buffs(target_id)
+
     WindowerEvents.BuffsChanged:trigger(target_id, L(buff_util.buffs_for_buff_ids(buff_ids)))
     WindowerEvents.DebuffsChanged:trigger(target_id, L(buff_util.debuffs_for_buff_ids(buff_ids)))
 end)
 
-WindowerEvents.Events.LoseBuff = windower.register_event('lose buff', function(_)
+WindowerEvents.Events.LoseBuff = windower.register_event('lose buff', function(buff_id)
     local target_id = windower.ffxi.get_player().id
 
     local buff_ids = party_util.get_buffs(target_id)
+
     WindowerEvents.BuffsChanged:trigger(target_id, L(buff_util.buffs_for_buff_ids(buff_ids)))
     WindowerEvents.DebuffsChanged:trigger(target_id, L(buff_util.debuffs_for_buff_ids(buff_ids)))
 end)
