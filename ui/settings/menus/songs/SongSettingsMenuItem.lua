@@ -390,7 +390,7 @@ function SongSettingsMenuItem:getDiagnosticsMenuItem()
         local singer = self.trust:role_with_type("singer")
         local songListView = SongListView.new(singer)
         return songListView
-    end, "Songs", "View the merged list of songs for each job.")
+    end, "Songs", "View the merged list of songs for each job. May vary depending upon song duration.")
     return diagnosticMenuItem
 end
 

@@ -240,7 +240,7 @@ function SongSetsMenuItem:getPreviewSetMenuItem()
         local singer = self.trust:role_with_type("singer")
         local songListView = SongListView.new(singer)
         return songListView
-    end, "Songs", "View the merged list of songs for each job.")
+    end, "Songs", "View the merged list of songs for each job. May vary depending upon song duration.")
     return previewMenuItem
 end
 
@@ -262,9 +262,9 @@ function SongSetsMenuItem:getConfigMenuItem()
                 local configItems = L{
                     --ConfigItem.new('NumSongs', 2, 4, 1, function(value) return value.."" end, "Maximum Number of Songs"),
                     --ConfigItem.new('SongDuration', 120, 400, 10, function(value) return value.."s" end, "Base Song Duration"),
-                    ConfigItem.new('ResingDuration', 60, 180, 1, function(value) return value.."s" end, "Resing Song Duration"),
+                    ConfigItem.new('ResingDuration', 60, 180, 1, function(value) return value.."s" end, "Resing Threshold"),
                     BooleanConfigItem.new('ResingMissingSongs', "Resing Missing Songs"),
-                    ConfigItem.new('SongDelay', 4, 8, 1, function(value) return value.."s" end, "Delay Between Songs")
+                    --ConfigItem.new('SongDelay', 4, 8, 1, function(value) return value.."s" end, "Delay Between Songs")
                 }
 
                 local songConfigEditor = ConfigEditor.new(self.trustSettings, songSettings, configItems, infoView, function(newSettings)
@@ -293,9 +293,10 @@ function SongSetsMenuItem:getConfigMenuItem()
 
                 self.disposeBag:add(songConfigEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
                     if indexPath.section == 1 then
-                        infoView:setDescription("Maximum number of songs without Clarion Call.")
+                        local currentSettings = T(self.trustSettings:getSettings())[self.trustSettingsMode.value]
+                        infoView:setDescription("Resing all songs when any song has less than "..currentSettings.SongSettings.ResingDuration.."s remaining.")
                     elseif indexPath.section == 2 then
-                        infoView:setDescription("Base song duration with gear but without Troubadour.")
+                        infoView:setDescription("Resing missing songs onto party members using Pianissimo.")
                     else
                         infoView:setDescription("Configure general song settings.")
                     end
