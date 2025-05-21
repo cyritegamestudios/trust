@@ -22,7 +22,7 @@ function GambitEditorStyle.named(abilityCategory, abilityCategoryPlural)
         local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit)
             return gambit:tostring()
         end)
-        return configItem
+        return L{ configItem }
     end, FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge, abilityCategory, abilityCategoryPlural)
 end
 
