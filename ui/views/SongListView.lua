@@ -18,8 +18,8 @@ function SongListEditor.new(singer)
 
     local configItems = L{}
 
-    local maxNumSongs = singer.brd_job.max_num_songs + 1
-    local mergedSongs = singer:get_merged_songs(partyMembers[1], maxNumSongs):reverse()
+    local maxNumSongs = singer.job.max_num_songs + 1
+    local mergedSongs = singer:get_merged_songs(partyMembers[1], maxNumSongs)
     local songItems = L{}
 
     local songIndex = 1
@@ -33,7 +33,7 @@ function SongListEditor.new(singer)
         songItem.onReload = function(key, newValue, configItem)
             songSettings.PartyMember = newValue
             configItem.initialValue = newValue
-            return L{ singer:get_merged_songs(newValue, maxNumSongs):reverse()[tempIndex] }:map(function(s) return s:get_spell().en end)
+            return L{ singer:get_merged_songs(newValue, maxNumSongs)[tempIndex] }:map(function(s) return s:get_spell().en end)
         end
         songItems:append(songItem)
         songIndex = songIndex + 1

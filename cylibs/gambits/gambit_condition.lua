@@ -11,6 +11,10 @@ function GambitCondition.new(condition, targetType)
     self.condition = condition
     self.targetType = targetType
 
+    if targetType == nil then
+        addon_system_error("Missing targetType for GambitCondition")
+    end
+
     return self
 end
 

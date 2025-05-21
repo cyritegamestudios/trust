@@ -108,6 +108,8 @@ function TrustStatusWidget.new(frame, addonEnabled, actionQueue, mainJobName, su
     self.mainJobName = mainJobName
     self.subJobName = subJobName
 
+    self:getDisposeBag():addAny(L{ self.action_queue })
+
     self:setJobs(mainJobName, subJobName)
 
     self:getDataSource():addItem(TextItem.new(state.TrustMode.value, TrustStatusWidget.TextSmall3), IndexPath.new(1, 3))
@@ -154,7 +156,7 @@ function TrustStatusWidget.new(frame, addonEnabled, actionQueue, mainJobName, su
         self:setAction(s:tostring() or '')
     end), actionQueue:on_action_start())
 
-    self:getDisposeBag():add(actionQueue:on_action_end():addAction(function(_, s)
+    self:getDisposeBag():add(actionQueue:on_action_end():addAction(function(s, _)
         self:setAction('')
     end), actionQueue:on_action_end())
 
@@ -221,6 +223,10 @@ end
 function TrustStatusWidget:setAction(text)
     if text == nil or text:empty() then
         text = 'Idle'
+    end
+
+    if self:getDataSource():itemAtIndexPath(IndexPath.new(2, 1)):getText() == text then
+        return
     end
 
     local actionItem = TextItem.new(text, TrustStatusWidget.Subheadline), IndexPath.new(2, 1)

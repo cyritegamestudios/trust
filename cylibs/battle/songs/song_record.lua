@@ -66,6 +66,13 @@ function SongRecord:get_song_id()
 end
 
 -------
+-- Returns the spell metadata.
+-- @treturn table Song metadata (see spells.lua)
+function SongRecord:get_song()
+    return res.spells[self:get_song_id()]
+end
+
+-------
 -- Returns the buff id for the song.
 -- @treturn number Buff id (see buffs.lua)
 function SongRecord:get_buff_id()

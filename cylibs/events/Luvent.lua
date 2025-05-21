@@ -235,7 +235,6 @@ end
 -- @see isActionCallable
 function Luvent:addAction(actionToAdd)
     assert(isActionCallable(actionToAdd) == true)
-
     -- We do not allow adding an action more than once to an event.
     if self:hasAction(actionToAdd) then return end
 
@@ -306,7 +305,6 @@ local function invokeAction(action, ...)
     if action.enabled == false then
         return true
     end
-
     if type(action.callable) == "thread" then
         coroutine.resume(action.callable, ...)
         if coroutine.status(action.callable) == "dead" then
@@ -341,7 +339,6 @@ function Luvent:trigger(...)
             self:removeAction(action.id)
         end
     end
-
     sortActionsByPriority(self)
 
     for _,action in ipairs(self.actions) do

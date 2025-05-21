@@ -4,6 +4,7 @@
 -- @name JobAbility
 
 local Action = require('cylibs/actions/action')
+local DisposeBag = require('cylibs/events/dispose_bag')
 local IsStandingCondition = require('cylibs/conditions/is_standing')
 local JobAbilityCommand = require('cylibs/ui/input/chat/commands/job_ability')
 local JobAbility = setmetatable({}, {__index = Action })
@@ -25,6 +26,8 @@ function JobAbility.new(x, y, z, job_ability_name, target_index, conditions)
     local self = setmetatable(Action.new(x, y, z, target_index, conditions), JobAbility)
 
     self.job_ability_name = job_ability_name
+    self.retry_count = 0
+    self.dispose_bag = DisposeBag.new()
     self.debug_log_type = self:gettype()
 
     self:debug_log_create(self.debug_log_type)
@@ -35,25 +38,44 @@ end
 function JobAbility:destroy()
     self:debug_log_destroy(self.debug_log_type)
 
+    self.dispose_bag:destroy()
+
     Action.destroy(self)
 end
 
 function JobAbility:perform()
     logger.notice(self.__class, 'perform', self.job_ability_name)
 
+    self.dispose_bag:add(WindowerEvents.Action:addAction(function(action)
+        if action.actor_id ~= windower.ffxi.get_player().id then return end
+
+        if action.category == 6 then
+            self:complete(true)
+        end
+    end), WindowerEvents.Action)
+
+    self.dispose_bag:add(WindowerEvents.ActionMessage:addAction(function(actor_id, _, _, _, message_id, _, _, _)
+        if actor_id ~= windower.ffxi.get_player().id then return end
+
+        if L{ 87, 88 }:contains(message_id) then
+            self.retry_count = self.retry_count + 1
+            self:use_job_ability(self.retry_count)
+        end
+    end), WindowerEvents.ActionMessage)
+
+    self:use_job_ability(self.retry_count)
+end
+
+function JobAbility:use_job_ability(retry_count)
     local target = windower.ffxi.get_mob_by_index(self.target_index or windower.ffxi.get_player().index)
 
-    if target == nil then
+    if target == nil or retry_count > 1 then
         self:complete(false)
         return
     end
 
     local command = JobAbilityCommand.new(self.job_ability_name, target.id)
     command:run(true)
-
-    coroutine.sleep(1)
-
-    self:complete(true)
 end
 
 function JobAbility:get_job_ability_name()

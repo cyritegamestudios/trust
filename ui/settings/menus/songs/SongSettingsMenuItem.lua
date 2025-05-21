@@ -17,7 +17,6 @@ SongSettingsMenuItem.__index = SongSettingsMenuItem
 function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSettings, songSetName, trust)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
-        ButtonItem.default('Jobs'),
         ButtonItem.default('Pianissimo')
     }, {},
     nil, "Song Sets", "Edit songs in this set."), SongSettingsMenuItem)
@@ -26,7 +25,7 @@ function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
     self.selectedSongIndex = 1
     self.disposeBag = DisposeBag.new()
 
-    self.contentViewConstructor = function(_, infoView)
+    self.contentViewConstructor = function(_, infoView, showMenu)
         local songs = T(trustSettings:getSettings())[trustSettingsMode.value].SongSettings.SongSets[self.songSetName].Songs
         local dummySongs = T(trustSettings:getSettings())[trustSettingsMode.value].SongSettings.DummySongs
 
@@ -38,7 +37,7 @@ function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
         end):sort()
 
         local songSettings = {
-            DummySong = dummySongs[1]:get_name(),
+            DummySongs = dummySongs,
             Song1 = songs[1]:get_name(),
             Song2 = songs[2]:get_name(),
             Song3 = songs[3]:get_name(),
@@ -46,25 +45,57 @@ function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
             Song5 = songs[5]:get_name()
         }
 
+        local getDescription = function(songNum, song)
+            if song:get_job_abilities():contains('Marcato') then
+                return string.format("Song %d (Marcato)", songNum)
+            end
+            return string.format("Song %d", songNum)
+        end
+
+        local dummySongsConfigItem = MultiPickerConfigItem.new('DummySongs', songSettings.DummySongs, allSongs:map(function(song_name) return Spell.new(song_name) end), function(dummySongs)
+            return localization_util.commas(dummySongs:map(function(dummySong) return dummySong:get_name() end))
+        end, "Dummy Songs")
+        dummySongsConfigItem:setPickerTitle("Dummy Songs")
+        dummySongsConfigItem:setPickerDescription("Choose one or more dummy song that does not give the same buff as real songs.")
+        dummySongsConfigItem:setPickerValidator(function(newValue)
+            if newValue:length() < 1 then
+                return false, "You must choose at least 1 song."
+            end
+            local is_valid, error_message = trust:get_job():validate_songs(songs:map(function(s) return s:get_name()  end), newValue:map(function(s) return s:get_name() end))
+            return is_valid, error_message
+        end)
+        dummySongsConfigItem:setOnConfirm(function(newDummySongs)
+            local dummySongs = T(trustSettings:getSettings())[trustSettingsMode.value].SongSettings.DummySongs
+            dummySongs:clear()
+
+            for newDummySong in newDummySongs:it() do
+                dummySongs:append(Spell.new(newDummySong:get_name(), L{}, L{}))
+            end
+
+            addon_system_error("Please update your GearSwap, e.g. sets.Midcast['"..newDummySongs[1]:get_name().."'] = set_combine(sets.Nyame, {range='Daurdabla', ammo=empty})")
+
+            trustSettings:saveSettings(true)
+        end)
+
         local configItems = L{
-            PickerConfigItem.new('DummySong', songSettings.DummySong, allSongs, nil, "Dummy Song"),
-            PickerConfigItem.new('Song1', songSettings.Song1, allSongs, nil, "Song 1 (Marcato)"),
-            PickerConfigItem.new('Song2', songSettings.Song2, allSongs, nil, "Song 2"),
-            PickerConfigItem.new('Song3', songSettings.Song3, allSongs, nil, "Song 3"),
-            PickerConfigItem.new('Song4', songSettings.Song4, allSongs, nil, "Song 4"),
-            PickerConfigItem.new('Song5', songSettings.Song5, allSongs, nil, "Song 5"),
+            dummySongsConfigItem,
+            PickerConfigItem.new('Song1', songSettings.Song1, allSongs, nil, getDescription(1, songs[1])),
+            PickerConfigItem.new('Song2', songSettings.Song2, allSongs, nil, getDescription(2, songs[2])),
+            PickerConfigItem.new('Song3', songSettings.Song3, allSongs, nil, getDescription(3, songs[3])),
+            PickerConfigItem.new('Song4', songSettings.Song4, allSongs, nil, getDescription(4, songs[4])),
+            PickerConfigItem.new('Song5', songSettings.Song5, allSongs, nil, getDescription(5, songs[5])),
         }
 
-        local songConfigEditor = ConfigEditor.new(nil, songSettings, configItems, infoView, function(newSettings)
+        local songConfigEditor = ConfigEditor.new(self.trustSettings, songSettings, configItems, infoView, function(newSettings)
             local newSongNames = L{}
             for key, songName in pairs(newSettings) do
-                if key ~= 'DummySong' then
+                if key ~= 'DummySongs' then
                     newSongNames:append(songName)
                 end
             end
-            local is_valid, error_message = trust:get_job():validate_songs(newSongNames, newSettings['DummySong'])
+            local is_valid, error_message = trust:get_job():validate_songs(newSongNames, newSettings['DummySongs']:map(function(song) return song:get_name() end))
             return is_valid, error_message
-        end)
+        end, showMenu)
         songConfigEditor:setShouldRequestFocus(true)
 
         self.disposeBag:add(songConfigEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
@@ -93,26 +124,10 @@ function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
             for i = 1, 5 do
                 local newSongName = newSettings["Song"..i]
                 if songs[i]:get_name() ~= newSongName then
-                    local jobAbilities = L{}
-                    if i == 1 then
-                        jobAbilities = L{ "Marcato"}
-                    end
-                    songs[i] = Spell.new(newSongName, jobAbilities, job_util.all_jobs())
+                    songs[i] = Spell.new(newSongName, songs[i]:get_job_abilities(), job_util.all_jobs())
                 end
             end
-
-            if newSettings["DummySong"] ~= oldSettings["DummySong"] then
-                addon_system_error("Please update your GearSwap, e.g. sets.Midcast['"..newSettings["DummySong"].."'] = set_combine(sets.Nyame, {range='Daurdabla', ammo=empty})")
-            end
-            local dummySongs = T(trustSettings:getSettings())[trustSettingsMode.value].SongSettings.DummySongs
-            dummySongs:clear()
-
-            local newSongName = newSettings["DummySong"]
-            dummySongs:append(Spell.new(newSongName, L{}, L{}))
-
             trustSettings:saveSettings(true)
-
-            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my songs!")
         end), songConfigEditor:onConfigChanged())
 
         self.disposeBag:add(songConfigEditor:onConfigValidationError():addAction(function(errorMessage)
@@ -144,7 +159,7 @@ function SongSettingsMenuItem:destroy()
 end
 
 function SongSettingsMenuItem:reloadSettings()
-    self:setChildMenuItem("Jobs", self:getJobsMenuItem())
+    self:setChildMenuItem("Marcato", self:getMarcatoMenuItem())
     self:setChildMenuItem("Pianissimo", self:getPianissmoSongsMenuItem())
     self:setChildMenuItem("Reset", self:getResetSongsMenuItem())
     self:setChildMenuItem("Help", MenuItem.action(function()
@@ -222,6 +237,13 @@ function SongSettingsMenuItem:getPianissmoSongsMenuItem()
 
                 self.trustSettings:saveSettings(true)
                 addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my songs!")
+
+                local num_ballads = songs:filter(function(song)
+                    return song:get_status().en == 'Ballad'
+                end):length()
+                if num_ballads >= 2 then
+                    addon_system_error("Multiple ballads might result in a song loop due to its low duration. Consider adding ballad as a main song instead.")
+                end
             end
         end), chooseSongsView:on_pick_items())
 
@@ -316,6 +338,22 @@ function SongSettingsMenuItem:getPianissmoSongsMenuItem()
     return editPianissimoSongsMenuItem
 end
 
+function SongSettingsMenuItem:getMarcatoMenuItem()
+    return MenuItem.action(function(menu)
+        local songs = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].SongSettings.SongSets[self.songSetName].Songs
+        if self.selectedSongIndex > 1 then
+            for song in songs:it() do
+                song:set_job_abilities(L{})
+            end
+            songs[self.selectedSongIndex - 1]:set_job_abilities(L{ "Marcato" })
+
+            self.trustSettings:saveSettings(true)
+
+            menu:showMenu(self)
+        end
+    end)
+end
+
 function SongSettingsMenuItem:getResetSongsMenuItem()
     return MenuItem.action(function(menu)
         local defaultSettings = T(self.trustSettings:getDefaultSettings().Default):clone().SongSettings
@@ -352,7 +390,7 @@ function SongSettingsMenuItem:getDiagnosticsMenuItem()
         local singer = self.trust:role_with_type("singer")
         local songListView = SongListView.new(singer)
         return songListView
-    end, "Songs", "View the merged list of songs for each job.")
+    end, "Songs", "View the merged list of songs for each job. May vary depending upon song duration.")
     return diagnosticMenuItem
 end
 

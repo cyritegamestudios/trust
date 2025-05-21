@@ -71,6 +71,11 @@ function Player:monitor()
             self:set_pet(pet_id, pet_name)
         end
     end), WindowerEvents.PetUpdate)
+    self.dispose_bag:add(WindowerEvents.BuffDurationChanged:addAction(function(mob_id, buff_records)
+        if mob_id == self:get_id() then
+            self:on_buffs_duration_changed():trigger(self, buff_records)
+        end
+    end), WindowerEvents.BuffDurationChanged)
 
     self.dispose_bag:add(IpcRelay.shared():on_connected():addAction(function(_)
         IpcRelay.shared():send_message(EquipmentChangedMessage.new(self:get_id(), self:get_main_weapon_id(), self:get_ranged_weapon_id()))

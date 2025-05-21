@@ -48,6 +48,11 @@ function PartyMember:on_lose_buff()
     return self.lose_buff
 end
 
+-- Event called when buff duration changes.
+function PartyMember:on_buffs_duration_changed()
+    return self.buffs_duration_changed
+end
+
 -- Event called when a party member's HP changes.
 function PartyMember:on_hp_change()
     return self.hp_change
@@ -128,6 +133,7 @@ function PartyMember.new(id, name)
     self.lose_debuff = Event.newEvent()
     self.gain_buff = Event.newEvent()
     self.lose_buff = Event.newEvent()
+    self.buffs_duration_changed = Event.newEvent()
     self.hp_change = Event.newEvent()
     self.ko = Event.newEvent()
     self.position_change = Event.newEvent()
@@ -181,6 +187,7 @@ function PartyMember:destroy()
     self.lose_debuff:removeAllActions()
     self.gain_buff:removeAllActions()
     self.lose_buff:removeAllActions()
+    self.buffs_duration_changed:removeAllActions()
     self.hp_change:removeAllActions()
     self.ko:removeAllActions()
     self.position_change:removeAllActions()
@@ -258,7 +265,7 @@ function PartyMember:monitor()
         if self:get_id() == mob_id then
             self:set_debuff_ids(debuff_ids)
         end
-    end), WindowerEvents.BuffsChanged)
+    end), WindowerEvents.DebuffsChanged)
 
     self.dispose_bag:add(WindowerEvents.Raised:addAction(function(mob_id, _)
         if self:get_id() == mob_id then
@@ -363,11 +370,14 @@ function PartyMember:set_buff_ids(buff_ids)
     if buff_ids == nil then
         return
     end
-    local old_buff_ids = self.buff_ids
+    local old_buff_ids = self.buff_ids:copy()
 
     self.buff_ids = buff_ids
 
     local delta = list.diff(old_buff_ids, buff_ids)
+
+    self.buff_ids = buff_ids
+
     for buff_id in delta:it() do
         if buff_ids:contains(buff_id) then
             self:on_gain_buff():trigger(self, buff_id)
@@ -375,7 +385,6 @@ function PartyMember:set_buff_ids(buff_ids)
             self:on_lose_buff():trigger(self, buff_id)
         end
     end
-    self.buff_ids = buff_ids
 end
 
 -------
@@ -400,6 +409,55 @@ end
 -- @treturn boolean True if the buff is active, false otherwise
 function PartyMember:has_buff(buff_id)
     return self.buff_ids:contains(buff_id)
+end
+
+-------
+-- Returns the number of active songs.
+-- @treturn number Number of active songs.
+function PartyMember:get_num_songs(check_buff_ids_instead)
+    local singer = player.trust.main_job:role_with_type("singer")
+    if singer then
+        if check_buff_ids_instead then
+            return singer.job:get_song_buff_ids(self:get_buff_ids()):length()
+        else
+            return singer.song_tracker:get_num_songs(self:get_id())
+        end
+    end
+    return 0
+end
+
+-------
+-- Returns a list of active songs.
+-- @treturn list List of song records
+function PartyMember:get_songs()
+    local singer = player.trust.main_job:role_with_type("singer")
+    if singer then
+        return singer.song_tracker:get_songs(self:get_id())
+    end
+    return L{}
+end
+
+-------
+-- Returns a list of active songs.
+-- @treturn list List of song records
+function PartyMember:get_max_num_songs()
+    local singer = player.trust.main_job:role_with_type("singer")
+    if singer then
+        return singer.song_tracker:get_max_num_songs(self:get_id())
+    end
+    return 0
+end
+
+-------
+-- Returns true if the party member has the given song active.
+-- @tparam number song_id Song id (see spells.lua)
+-- @treturn boolean True if the song is active, false otherwise
+function PartyMember:has_song(song_id)
+    local singer = player.trust.main_job:role_with_type("singer")
+    if singer then
+        return singer.song_tracker:has_song(self:get_id(), song_id, self:get_buff_ids())
+    end
+    return false
 end
 
 -------
