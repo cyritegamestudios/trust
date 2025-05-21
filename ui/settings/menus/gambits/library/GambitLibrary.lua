@@ -16,7 +16,11 @@ return L{
         Gambit.new("Enemy", L{ActionCondition.new("Casting start")}, Spell.new("Stun", L{}, L{}, nil, L{}), "Enemy", L{"Enemies","Reaction"}),
         Gambit.new("Enemy", L{GambitCondition.new(ReadyAbilityCondition.new("Pain Sync"), "Enemy")}, TurnAround.new(L{}), "Enemy", L{"Enemies","Reaction"}),
         Gambit.new("Enemy", L{GambitCondition.new(FinishAbilityCondition.new("Pain Sync"), "Enemy")}, TurnToFace.new(L{}), "Enemy", L{"Enemies","Reaction"}),
-        Gambit.new("Enemy", L{GambitCondition.new(EnemiesNearbyCondition.new(2, 12, ">=", L{"sleep", "Dia"}, "^(Agon)"), "Enemy")}, Spell.new("Horde Lullaby II", L{}, L{}, nil, L{}), "Enemy", L{"Enemies","Spells"})
+        Gambit.new("Enemy", L{GambitCondition.new(EnemiesNearbyCondition.new(2, 12, ">=", L{"sleep", "Dia"}, "^(Agon)"), "Enemy")}, Spell.new("Horde Lullaby II", L{}, L{}, nil, L{}), "Enemy", L{"Enemies","Spells"}),
+        Gambit.new("Enemy", L{GambitCondition.new(GainDebuffCondition.new("Dia"), "Enemy")}, JobAbility.new("Light Shot", L{}, L{}), "Enemy", L{"Enemies","Reaction"}),
+        Gambit.new("Enemy", L{GambitCondition.new(GainDebuffCondition.new("silence"), "Enemy")}, JobAbility.new("Wind Shot", L{}, L{}), "Enemy", L{"Enemies","Reaction"}),
+        Gambit.new("Enemy", L{GambitCondition.new(GainDebuffCondition.new("slow"), "Enemy")}, JobAbility.new("Earth Shot", L{}, L{}), "Enemy", L{"Enemies","Reaction"}),
+        Gambit.new("Enemy", L{GambitCondition.new(GainDebuffCondition.new("paralysis"), "Enemy")}, JobAbility.new("Ice Shot", L{}, L{}), "Enemy", L{"Enemies","Reaction"}),
     }),
     GambitCategory.new("Items", "Use items.", L{
         Gambit.new("Self", L{HasDebuffCondition.new("silence")}, UseItem.new("Echo Drops", L{ItemCountCondition.new("Echo Drops", 1, ">=")}), "Self", L{"Items", "Status Ailments"}),

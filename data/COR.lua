@@ -34,10 +34,6 @@ return {
         },
         GambitSettings = {
             Default = L{
-                Gambit.new("Enemy", L{GambitCondition.new(GainDebuffCondition.new("Dia"), "Enemy")}, JobAbility.new("Light Shot", L{}, L{}), "Enemy"),
-                Gambit.new("Enemy", L{GambitCondition.new(GainDebuffCondition.new("silence"), "Enemy")}, JobAbility.new("Wind Shot", L{}, L{}), "Enemy"),
-                Gambit.new("Enemy", L{GambitCondition.new(GainDebuffCondition.new("slow"), "Enemy")}, JobAbility.new("Earth Shot", L{}, L{}), "Enemy"),
-                Gambit.new("Enemy", L{GambitCondition.new(GainDebuffCondition.new("paralysis"), "Enemy")}, JobAbility.new("Ice Shot", L{}, L{}), "Enemy"),
                 Gambit.new("Self", L{GambitCondition.new(ModeCondition.new("AutoShootMode", "Auto"), "Self")}, JobAbility.new("Triple Shot", L{}, L{}), "Self")
             },
             Gambits = L{
@@ -46,6 +42,10 @@ return {
         },
         ReactionSettings = {
             Gambits = L{
+                Gambit.new("Enemy", L{GambitCondition.new(GainDebuffCondition.new("Dia"), "Enemy")}, JobAbility.new("Light Shot", L{}, L{}), "Enemy"),
+                Gambit.new("Enemy", L{GambitCondition.new(GainDebuffCondition.new("silence"), "Enemy")}, JobAbility.new("Wind Shot", L{}, L{}), "Enemy"),
+                Gambit.new("Enemy", L{GambitCondition.new(GainDebuffCondition.new("slow"), "Enemy")}, JobAbility.new("Earth Shot", L{}, L{}), "Enemy"),
+                Gambit.new("Enemy", L{GambitCondition.new(GainDebuffCondition.new("paralysis"), "Enemy")}, JobAbility.new("Ice Shot", L{}, L{}), "Enemy"),
             }
         },
         GearSwapSettings = {
