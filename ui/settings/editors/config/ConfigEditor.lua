@@ -333,9 +333,7 @@ function ConfigEditor:getCellItemForConfigItem(configItem)
             end
             addon_system_message("Your choices have been updated.")
 
-            if configItem:getAutoSave() then
-                self:onConfirmClick()
-            end
+            configItem:getOnConfirm()(newValue)
         end)
         return pickerItem
     elseif configItem.__type == TextInputConfigItem.__type then

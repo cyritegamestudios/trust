@@ -45,9 +45,15 @@ function EntrustSettingsMenuItem.new(trust, trustSettings, trustSettingsMode)
         end, "Target's Job")
         jobPickerConfigItem:setPickerTitle("Jobs")
         jobPickerConfigItem:setPickerDescription("Choose one or more jobs.")
-        jobPickerConfigItem:setAutoSave(true)
         jobPickerConfigItem:setPickerTextFormat(function(job_name_short)
             return i18n.resource('jobs', 'ens', job_name_short)
+        end)
+        jobPickerConfigItem:setOnConfirm(function(newJobNames)
+            allSettings.Entrust = Spell.new(allSettings.Entrust:get_name(), L{ "Entrust" }, L{}, nil, L{ JobCondition.new(newJobNames) })
+
+            self.trustSettings:saveSettings(true)
+
+            trust:get_party():add_to_chat(trust:get_party():get_player(), string.format("I'll entrust %s on %s now!", allSettings.Entrust:get_name(), localization_util.commas(newJobNames)))
         end)
 
         local configItems = L{

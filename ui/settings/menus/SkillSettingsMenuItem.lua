@@ -32,17 +32,24 @@ function SkillSettingsMenuItem.new(weaponSkillSettings, skillSettings)
     end
 
     self.contentViewConstructor = function(_, _, showMenu)
-        local blacklist = self.newSkillSettings.Blacklist
-        if blacklist:length() == 0 then
-            blacklist:append(SkillchainAbility.None)
-        end
+        local blacklist = skillSettings.blacklist
 
         local blacklistConfigItem = MultiPickerConfigItem.new('Blacklist', blacklist, L{}:extend(allAbilities:map(function(a) return a:get_name() end)), function(currentAbilities)
-            -- TODO: localize this
+            if currentAbilities:empty() then
+                return 'None'
+            end
             return localization_util.commas(currentAbilities, 'and')
         end, 'Blacklist', nil, imageItemForText)
         blacklistConfigItem:setPickerTitle('Blacklist')
         blacklistConfigItem:setPickerDescription('Choose one or more abilities to avoid when making skillchains.')
+        blacklistConfigItem:setOnConfirm(function(newValue)
+            skillSettings.blacklist = newValue
+
+            weaponSkillSettings:saveSettings(true)
+
+            addon_message(260, string.format("(%s) Alright, I won't use %s when making skillchains!", windower.ffxi.get_player().name, localization_util.commas(newValue, 'or')))
+        end)
+
         local configItems = L{
             PickerConfigItem.new('DefaultAbility', self.newSkillSettings.DefaultAbility, allAbilities, function(ability)
                 return ability:get_localized_name()
@@ -50,15 +57,13 @@ function SkillSettingsMenuItem.new(weaponSkillSettings, skillSettings)
             blacklistConfigItem,
         }
 
-        local skillEditor = ConfigEditor.new(nil, self.newSkillSettings, configItems, nil, nil, showMenu)
+        local skillEditor = ConfigEditor.new(weaponSkillSettings, self.newSkillSettings, configItems, nil, nil, showMenu)
         skillEditor:onConfigChanged():addAction(function(newSettings, oldSettings)
             skillSettings:set_default_ability(newSettings.DefaultAbility:get_name())
-            skillSettings.blacklist = newSettings.Blacklist:filter(function(abilityName) return abilityName ~= SkillchainAbility.None end)
+            skillSettings.blacklist = newSettings.Blacklist
 
             weaponSkillSettings:saveSettings(true)
             weaponSkillSettings:reloadSettings()
-
-            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my "..skillSettings:get_name().." settings!")
         end)
         return skillEditor
     end

@@ -220,12 +220,12 @@ function MultiPickerConfigItem:getPickerValidator()
     end
 end
 
-function MultiPickerConfigItem:setAutoSave(autoSave)
-    self.autoSave = autoSave
+function MultiPickerConfigItem:getOnConfirm()
+    return self.onConfirm or function() end
 end
 
-function MultiPickerConfigItem:getAutoSave()
-    return self.autoSave
+function MultiPickerConfigItem:setOnConfirm(onConfirm)
+    self.onConfirm = onConfirm
 end
 
 function MultiPickerConfigItem:isEnabled()

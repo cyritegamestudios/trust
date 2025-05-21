@@ -58,19 +58,24 @@ function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
         end, "Dummy Songs")
         dummySongsConfigItem:setPickerTitle("Dummy Songs")
         dummySongsConfigItem:setPickerDescription("Choose one or more dummy song that does not give the same buff as real songs.")
-        dummySongsConfigItem:setAutoSave(true)
         dummySongsConfigItem:setPickerValidator(function(newValue)
             if newValue:length() < 1 then
                 return false, "You must choose at least 1 song."
             end
-
             local is_valid, error_message = trust:get_job():validate_songs(songs:map(function(s) return s:get_name()  end), newValue:map(function(s) return s:get_name() end))
+            return is_valid, error_message
+        end)
+        dummySongsConfigItem:setOnConfirm(function(newDummySongs)
+            local dummySongs = T(trustSettings:getSettings())[trustSettingsMode.value].SongSettings.DummySongs
+            dummySongs:clear()
 
-            if is_valid then
-                addon_system_error("Please update your GearSwap for all dummy songs, e.g. sets.Midcast['"..newValue[1]:get_name().."'] = set_combine(sets.Nyame, {range='Daurdabla', ammo=empty})")
+            for newDummySong in newDummySongs:it() do
+                dummySongs:append(Spell.new(newDummySong:get_name(), L{}, L{}))
             end
 
-            return is_valid, error_message
+            addon_system_error("Please update your GearSwap, e.g. sets.Midcast['"..newDummySongs[1]:get_name().."'] = set_combine(sets.Nyame, {range='Daurdabla', ammo=empty})")
+
+            trustSettings:saveSettings(true)
         end)
 
         local configItems = L{
@@ -123,24 +128,6 @@ function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
                     songs[i] = Spell.new(newSongName, songs[i]:get_job_abilities(), job_util.all_jobs())
                 end
             end
-
-            if not newSettings["DummySongs"]:equals(oldSettings["DummySongs"]) then
-                local dummySongs = newSettings["DummySongs"]:map(function(dummySong)
-                    return "sets.Midcast['"..dummySong.."'] = set_combine(sets.Nyame, {range='Daurdabla', ammo=empty})"
-                end)
-                --addon_system_error(string.format("Please update your GearSwap, e.g. %s", localization_util.commas(dummySongs)))
-                addon_system_error("Please update your GearSwap, e.g. sets.Midcast['"..newSettings["DummySong"][1].."'] = set_combine(sets.Nyame, {range='Daurdabla', ammo=empty})")
-            end
-
-            local newDummySongs = newSettings["DummySongs"]:copy()
-
-            local dummySongs = T(trustSettings:getSettings())[trustSettingsMode.value].SongSettings.DummySongs
-            dummySongs:clear()
-
-            for newDummySong in newDummySongs:it() do
-                dummySongs:append(Spell.new(newDummySong:get_name(), L{}, L{}))
-            end
-
             trustSettings:saveSettings(true)
         end), songConfigEditor:onConfigChanged())
 
