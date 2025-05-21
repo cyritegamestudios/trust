@@ -9,7 +9,7 @@ function SongStatusView.new(singer)
     local partyMembers = singer:get_party():get_party_members(true)
 
     local songSettings = {
-        PartyMember = partyMembers[1], -- FIXME: this is getting destroyed which is removing buff listeners
+        PartyMember = partyMembers[1],
     }
 
     local maxNumSongs = singer.job.max_num_songs + 1
