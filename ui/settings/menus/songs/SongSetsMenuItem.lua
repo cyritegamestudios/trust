@@ -281,7 +281,7 @@ function SongSetsMenuItem:getConfigMenuItem()
                     allSettings.SongSettings.NumSongs = newSettings.NumSongs
                     allSettings.SongSettings.SongDuration = newSettings.SongDuration
                     allSettings.SongSettings.ResingDuration = newSettings.ResingDuration
-                    allSettings.SongSettings.ResingLostSongs = newSettings.ResingMissingSongs
+                    allSettings.SongSettings.ResingMissingSongs = newSettings.ResingMissingSongs
                     allSettings.SongSettings.SongDelay = newSettings.SongDelay
 
                     self.trustSettings:saveSettings(true)

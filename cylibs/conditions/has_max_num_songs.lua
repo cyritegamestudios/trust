@@ -25,7 +25,6 @@ function HasMaxNumSongsCondition:is_satisfied(target_index)
     if target then
         local party_member = player.party:get_party_member(target.id)
         if party_member then
-            --print(party_member:get_name(), 'max num songs', self.operator, self:eval(party_member:get_num_songs(), party_member:get_max_num_songs(), self.operator))
             local max_num_songs = party_member:get_max_num_songs()
             if self.song_names:length() > 0 then
                 local active_song_names = self.song_names:filter(function(song_name)

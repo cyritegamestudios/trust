@@ -17,7 +17,6 @@ SongSettingsMenuItem.__index = SongSettingsMenuItem
 function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSettings, songSetName, trust)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
-        --ButtonItem.default('Jobs'),
         ButtonItem.default('Pianissimo')
     }, {},
     nil, "Song Sets", "Edit songs in this set."), SongSettingsMenuItem)
@@ -161,7 +160,6 @@ end
 
 function SongSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Marcato", self:getMarcatoMenuItem())
-    --self:setChildMenuItem("Jobs", self:getJobsMenuItem())
     self:setChildMenuItem("Pianissimo", self:getPianissmoSongsMenuItem())
     self:setChildMenuItem("Reset", self:getResetSongsMenuItem())
     self:setChildMenuItem("Help", MenuItem.action(function()

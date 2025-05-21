@@ -249,7 +249,7 @@ function Player:monitor()
                 self:on_spell_begin():trigger(self, action.targets[1].actions[1].param)
             end
         end
-    end, 'Player'), WindowerEvents.Action)
+    end), WindowerEvents.Action)
 
     self.dispose_bag:add(WindowerEvents.Spell.Finish:addAction(function(actor_id, spell_id, targets)
         if actor_id == self.id then

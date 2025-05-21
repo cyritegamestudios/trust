@@ -239,21 +239,6 @@ function Bard:get_song_duration_modifier(song_name)
     return modifier
 end
 
--------
--- Returns the maximum duration of a song, taking into account whether troubadour is active.
--- @tparam number song_name (optional) Name of the song (see res/spells.lua)
--- @treturn number Duration of song
---[[function Bard:get_song_duration(song_name)
-    local song_duration = self.song_duration
-    if inventory_util.get_ranged_weapon_id() == 22249 then
-        song_duration = 60 * 15
-    else
-        local modifier = self:get_song_duration_modifier(song_name)
-        song_duration = song_duration * modifier
-    end
-    return song_duration
-end]]
-
 function Bard:get_song_duration(song_name, buffs)
     local mult = self.jp_mods.mult and 1.05 or 1
 
@@ -285,12 +270,11 @@ function Bard:get_song_duration(song_name, buffs)
         end
     end
     dur = math.floor(mult * dur)
+
     if self:is_marcato_active() then dur = dur + self.jp_mods.marcato end
     if self:is_tenuto_active() then dur = dur + self.jp_mods.tenuto end
     if self:is_clarion_call_active() then dur = dur + self.jp_mods.clarion end
-    -- FIXME: remove res.items reference
-    logger.notice('SongTracker', 'get_song_duration', song_name, mod_item_ids:map(function(item_id) return res.items[item_id].en end), 'duration', dur, 'multiplier', mult)
-    --print('SongTracker', 'get_song_duration', song_name, mod_item_ids:map(function(item_id) return res.items[item_id].en end), 'duration', dur, 'multiplier', mult)
+
     return dur
 end
 

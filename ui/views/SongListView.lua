@@ -20,7 +20,6 @@ function SongListEditor.new(singer)
 
     local maxNumSongs = singer.job.max_num_songs + 1
     local mergedSongs = singer:get_merged_songs(partyMembers[1], maxNumSongs)
-    --print(mergedSongs)
     local songItems = L{}
 
     local songIndex = 1

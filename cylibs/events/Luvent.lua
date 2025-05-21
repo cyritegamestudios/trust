@@ -233,13 +233,12 @@ end
 -- @return The ID of the action.
 --
 -- @see isActionCallable
-function Luvent:addAction(actionToAdd, actionDebugKey)
+function Luvent:addAction(actionToAdd)
     assert(isActionCallable(actionToAdd) == true)
     -- We do not allow adding an action more than once to an event.
     if self:hasAction(actionToAdd) then return end
 
     local new = newAction(actionToAdd)
-    new.actionDebugKey = actionDebugKey
     table.insert(self.actions, new)
 
     return new.id
@@ -256,9 +255,6 @@ end
 --
 -- @see Luvent:addAction
 function Luvent:removeAction(actionToRemove)
-    if self.debugKey == "BuffsChanged" then
-        print('removing BuffsChanged', debug.traceback())
-    end
     local exists,index = findAction(self, actionToRemove)
     if exists == true then
         table.remove(self.actions, index)
@@ -337,42 +333,21 @@ end
 -- @param ... All arguments given to this method will be passed along
 -- to every action.
 function Luvent:trigger(...)
-    if self.debugKey == "BuffsChanged" then
-        --print('triggering', self.debugKey)
-    end
     local call = function (action, ...)
         local keep = invokeAction(action, ...)
         if keep == false then
-            if self.debugKey == "BuffsChanged" then
-                --print('removingsdfsdfsdfsdfsdfsdfsdfsdfsdf', self.debugKey)
-            end
             self:removeAction(action.id)
         end
     end
-    if self.debugKey == "BuffsChanged" then
-        --print('triggering', 'num actions', L(self.actions):length()) -- after awhile actions just get removed
-    end
     sortActionsByPriority(self)
-
-    if self.debugKey == "Action" then
-        --local action_ids = L(self.actions):map(function(a) return a.id end)
-
-    end
 
     for _,action in ipairs(self.actions) do
         if action.interval > 0 then
             if os.difftime(os.time(), action.timeOfLastInvocation) >= action.interval then
                 call(action, ...)
                 action.timeOfLastInvocation = os.time()
-            else
-                if self.debugKey == "Action" then
-                    --print('interval fail', self.debugKey)
-                end
             end
         else
-            if self.debugKey == "BuffsChanged" then
-                --print('triggering action', self.debugKey)
-            end
             call(action, ...)
         end
     end

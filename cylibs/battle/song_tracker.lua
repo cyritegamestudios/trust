@@ -48,7 +48,7 @@ function SongTracker.new(player, party, dummy_songs, songs, pianissimo_songs, jo
         songs = songs;
         job = job;
         active_songs = {};
-        expiring_duration = expiring_duration or 260;
+        expiring_duration = expiring_duration or 85;
         last_expiration_check = os.time();
     }, SongTracker)
 
@@ -188,10 +188,6 @@ function SongTracker:monitor()
     self.dispose_bag:add(self.party:on_party_member_added():addAction(on_party_member_added), self.party:on_party_member_added())
     self.dispose_bag:add(self.party:on_party_member_removed():addAction(function(p) self:reset(p:get_id()) end), self.party:on_party_member_removed())
 
-    self.dispose_bag:add(WindowerEvents.BuffDurationChanged:addAction(function(target_id, buff_records)
-        --self:prune_all_songs(target_id)
-    end), WindowerEvents.BuffDurationChanged)
-
     for party_member in self.party:get_party_members(true):it() do
         on_party_member_added(party_member)
     end
@@ -324,10 +320,6 @@ end
 function SongTracker:on_gain_song(target_id, song_id, buff_id, song_duration)
     local party_member = self.party:get_party_member(target_id)
 
-    --if self:has_song(target_id, song_id) then
-    --    self:on_lose_song(target_id, song_id, buff_id)
-    --end
-
     logger.notice(self.__class, "Current buffs for", party_member:get_name(), "are", tostring(L(party_util.get_buffs(target_id)):map(function(buff_id) return res.buffs[buff_id].en  end)))
 
     local song_duration = song_duration or self.job:get_song_duration(res.spells[song_id].en)
@@ -385,12 +377,9 @@ function SongTracker:prune_songs(target_id, songs, buff_ids)
 
     buff_ids = buff_ids or party_member:get_buff_ids()
 
-    --print('pruning for', party_member:get_name(), 'buffs', buff_ids)
-
     local song_buff_ids = S{}
     for song in songs:it() do
         local buff_id = song:get_spell().status
-        --print('checking active count', res.buffs[buff_id].en, buff_util.buff_count(buff_id, buff_ids))
         if not buff_util.is_buff_active(buff_id, buff_ids) then
             self:on_lose_song(target_id, song:get_spell().id, song:get_spell().status)
         else
@@ -415,8 +404,6 @@ function SongTracker:prune_songs(target_id, songs, buff_ids)
                 logger.notice(self.__class, "Overwriting", party_member:get_name().."'s", res.spells[song:get_song_id()].name)
                 self:on_lose_song(target_id, song:get_song_id(), song:get_buff_id())
             end
-        elseif buff_count == 0 then
-
         end
     end
 end

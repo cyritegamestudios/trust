@@ -58,8 +58,6 @@ end
 -- @param destroyables A list of destroyable items to add.
 --
 function DisposeBag:addAny(destroyables)
-    local PartyMember = require('cylibs/entity/party_member')
-    local Player = require('cylibs/entity/party/player')
     for destroyable in destroyables:it() do
         self.destroyables:append(destroyable)
     end
