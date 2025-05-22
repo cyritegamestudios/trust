@@ -40,6 +40,7 @@ function MigrationManager.new(trustSettings, addonSettings, weaponSkillSettings)
         M.Migration_v28.new(),
         M.Migration_v29.new(),
         M.Migration_v30.new(),
+        M.Migration_v31.new(),
         UpdateDefaultGambits.new(),
     }
     return self
