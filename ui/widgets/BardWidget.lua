@@ -9,6 +9,7 @@ local SongSetsMenuItem = require('ui/settings/menus/songs/SongSetsMenuItem')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
+local Timer = require('cylibs/util/timers/timer')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 local Widget = require('ui/widgets/Widget')
 
@@ -30,12 +31,26 @@ BardWidget.TextSmall3 = TextStyle.new(
         Color.yellow,
         false
 )
+BardWidget.TextSmall4 = TextStyle.new(
+        Color.clear,
+        Color.clear,
+        "Arial",
+        8,
+        Color.white,
+        Color.lightGrey,
+        0,
+        0,
+        Color.clear,
+        false,
+        Color.yellow,
+        true
+)
 
 function BardWidget.new(frame, trust, trustHud, trustSettings, trustSettingsMode, trustModeSettings)
-    local dataSource = CollectionViewDataSource.new(function(item, _)
+    local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         if item.__type == ImageTextItem.__type then
             local cell = ImageTextCollectionViewCell.new(item)
-            cell:setUserInteractionEnabled(true)
+            cell:setUserInteractionEnabled(indexPath.row == 1)
             cell:setIsSelectable(true)
             cell:setItemSize(16)
             return cell
@@ -47,13 +62,24 @@ function BardWidget.new(frame, trust, trustHud, trustSettings, trustSettingsMode
         end
     end)
 
-    local self = setmetatable(Widget.new(frame, "Bard", dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 3), 12, true, 'job'), BardWidget)
+    local self = setmetatable(Widget.new(frame, "Bard", dataSource, VerticalFlowLayout.new(2, Padding.new(6, 4, 0, 0), 3), 12, true, 'job'), BardWidget)
 
     self.trust = trust
+    self.timer = Timer.scheduledTimer(1)
+    self.timer:onTimeChange():addAction(function()
+        self:updateTimer()
+    end)
+
+    self:getDisposeBag():addAny(L{ self.timer })
 
     local singer = trust:role_with_type("singer")
 
     self:setSongSet(state.SongSet.value, singer:get_is_singing())
+
+    local text_item = TextItem.new(string.format("00:01:25"), BardWidget.TextSmall4)
+    local image_item = ImageTextItem.new(ImageItem.new(windower.addon_path..'assets/icons/icon_timer.png', 14, 14), text_item, 2, { x = 0, y = 0 })
+
+    self:getDataSource():updateItem(image_item, IndexPath.new(1, 2))
 
     self:getDisposeBag():add(state.SongSet:on_state_change():addAction(function(_, new_value, _)
         self:setSongSet(new_value, singer:get_is_singing())
@@ -75,10 +101,20 @@ function BardWidget.new(frame, trust, trustHud, trustSettings, trustSettingsMode
         self:setSongSet(state.SongSet.value, false)
     end, singer:on_songs_end()))
 
+    self:updateTimer()
+
     self:setNeedsLayout()
     self:layoutIfNeeded()
 
+    self.timestamp = os.time() + 120
+
+    self.timer:start()
+
     return self
+end
+
+function BardWidget:getSinger()
+    return self.trust:role_with_type("singer")
 end
 
 function BardWidget:setSongSet(_, isSinging)
@@ -95,5 +131,21 @@ function BardWidget:setSongSet(_, isSinging)
 
     self:getDataSource():updateItem(image_item, IndexPath.new(1, 1))
 end
+
+function BardWidget:updateTimer()
+    local songs = player.party:get_player():get_songs():sort(function(song_record_1, song_record_2)
+        return song_record_1:get_expire_time() < song_record_2:get_expire_time()
+    end)
+    local timestamp = os.time()
+    if songs:length() > 0 then
+        timestamp = songs[1]:get_expire_time() - self:getSinger().song_tracker.expiring_duration
+    end
+   
+    local textItem = TextItem.new(string.format(localization_util.time_format(timestamp)), BardWidget.TextSmall4)
+
+    local imageItem = ImageTextItem.new(ImageItem.new(windower.addon_path..'assets/icons/icon_timer.png', 14, 14), textItem, 2, { x = 0, y = 0 })
+    self:getDataSource():updateItem(imageItem, IndexPath.new(1, 2))
+end
+
 
 return BardWidget

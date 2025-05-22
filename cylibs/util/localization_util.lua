@@ -60,6 +60,19 @@ function localization_util.commas(list, join_word)
     return result
 end
 
+function localization_util.time_format(timestamp)
+    local diff = timestamp - os.time()
+    if diff < 0 then
+        return "00:00:00"
+    end
+
+    local hours = math.floor(diff / 3600)
+    local minutes = math.floor((diff % 3600) / 60)
+    local seconds = diff % 60
+
+    return string.format("%02d:%02d:%02d", hours, minutes, seconds)
+end
+
 function localization_util.format(string, inverted)
     if inverted then
         return "Not "..string
