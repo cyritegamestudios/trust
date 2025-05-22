@@ -1093,7 +1093,43 @@ end
 
 function Migration_v30:getDescription()
     return "Updating jobs for songs."
+end
 
+---------------------------
+
+-- Adding ResingDuration and ResingMissingSongs.
+-- @class module
+-- @name Migration_v31
+
+local Migration_v31 = setmetatable({}, { __index = Migration })
+Migration_v31.__index = Migration_v31
+Migration_v31.__class = "Migration_v31"
+
+function Migration_v31.new()
+    local self = setmetatable(Migration.new(), Migration_v31)
+    return self
+end
+
+function Migration_v31:shouldPerform(trustSettings, _, _)
+    return L { 'BRD' }:contains(trustSettings.jobNameShort)
+end
+
+function Migration_v31:perform(trustSettings, _, _)
+    local defaultSettings = T(trustSettings:getDefaultSettings()):clone().Default
+    local modeNames = list.subtract(L(T(trustSettings:getSettings()):keyset()), L { 'Version', 'Migrations' })
+    for modeName in modeNames:it() do
+        local songSettings = trustSettings:getSettings()[modeName].SongSettings
+        if songSettings.ResingDuration == nil then
+            songSettings.ResingDuration = defaultSettings.SongSettings.ResingDuration
+        end
+        if songSettings.ResingMissingSongs == nil then
+            songSettings.ResingMissingSongs = defaultSettings.SongSettings.ResingMissingSongs
+        end
+    end
+end
+
+function Migration_v31:getDescription()
+    return "Updating song config."
 end
 
 return {
@@ -1126,5 +1162,6 @@ return {
     Migration_v28 = Migration_v28,
     Migration_v29 = Migration_v29,
     Migration_v30 = Migration_v30,
+    Migration_v31 = Migration_v31,
 }
 
