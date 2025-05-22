@@ -140,7 +140,7 @@ function BardWidget:updateTimer()
     if songs:length() > 0 then
         timestamp = songs[1]:get_expire_time() - self:getSinger().song_tracker.expiring_duration
     end
-   
+
     local textItem = TextItem.new(string.format(localization_util.time_format(timestamp)), BardWidget.TextSmall4)
 
     local imageItem = ImageTextItem.new(ImageItem.new(windower.addon_path..'assets/icons/icon_timer.png', 14, 14), textItem, 2, { x = 0, y = 0 })
