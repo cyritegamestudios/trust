@@ -46,6 +46,7 @@ local equip_mods = {
     [21401] = {0.2,Ballad=0.2}, -- 'Blurred Harp +1',
     [21405] = {0.2} ,           -- 'Eminent Flute',
     [21404] = {0.3},			-- 'Linos'			-- assumes +2 songs augment
+    [22249] = {100.0},           -- Miracle Cheer
     [20629] = {0.05},           -- 'Legato Dagger',
     [20599] = {0.05},           -- 'Kali',
     [27672] = {Paeon=0.1},      -- 'Brioso Roundlet',
@@ -275,7 +276,7 @@ function Bard:get_song_duration(song_name, buffs)
     if self:is_tenuto_active() then dur = dur + self.jp_mods.tenuto end
     if self:is_clarion_call_active() then dur = dur + self.jp_mods.clarion end
 
-    return dur
+    return math.min(dur, 15 * 60)
 end
 
 -------
