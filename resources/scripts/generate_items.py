@@ -59,7 +59,7 @@ def insert_item(conn, item):
     values = [getattr(item, f, defaults[f]) for f in fields]
     placeholders = ','.join(['?'] * len(values))
     conn.execute(f"""
-        INSERT INTO items ({','.join(fields)})
+        INSERT OR REPLACE INTO items ({','.join(fields)})
         VALUES ({placeholders})
     """, values)
 
