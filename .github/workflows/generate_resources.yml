@@ -37,10 +37,11 @@ jobs:
         run: |
           git clone https://github.com/Windower/Resources.git /tmp/resources_data
 
-      - name: Run Lua script via luarocks exec
+      - name: Run Lua script with correct environment
         run: |
-          luarocks exec -- lua resources/scripts/generate_items.lua /tmp/resources_data/items.lua
-
+          export LUA_PATH="/usr/local/share/lua/5.1/?.lua;/usr/local/share/lua/5.1/?/init.lua;;"
+          export LUA_CPATH="/usr/local/lib/lua/5.1/?.so;;"
+          lua5.1 resources/scripts/generate_items.lua /tmp/resources_data/items.lua
 
       - name: Configure Git
         run: |
