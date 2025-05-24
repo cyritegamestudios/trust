@@ -13,35 +13,21 @@ jobs:
         with:
           token: ${{ secrets.PUSH_KEY }}
 
-      - name: Install Lua, LuaRocks, and lsqlite3
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y lua5.1 lua5.1-dev libsqlite3-dev build-essential curl unzip
-      
-          curl -L -O https://luarocks.org/releases/luarocks-3.9.2.tar.gz
-          tar zxpf luarocks-3.9.2.tar.gz
-          cd luarocks-3.9.2
-          ./configure --lua-version=5.1 --with-lua-include=/usr/include/lua5.1
-          make
-          sudo make install
-          cd ..
-      
-          # Install lsqlite3 into a known tree
-          mkdir -p /tmp/luarocks
-          luarocks install lsqlite3 --tree=/tmp/luarocks
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install Python dependencies
+        run: pip install lupa
 
       - name: Clone Windower/Resources outside workspace
         run: |
           git clone https://github.com/Windower/Resources.git /tmp/resources_data
 
-      - name: Run Lua script with fixed paths
+      - name: Run Python script
         run: |
-          export LUA_PATH="/tmp/luarocks/share/lua/5.1/?.lua;/tmp/luarocks/share/lua/5.1/?/init.lua;;"
-          export LUA_CPATH="/tmp/luarocks/lib/lua/5.1/?.so;;"
-      
-          echo "LUA_CPATH: $LUA_CPATH"
-          ls -la /tmp/luarocks/lib/lua/5.1
-          lua5.1 resources/scripts/generate_items.lua /tmp/resources_data/items.lua
+          python resources/scripts/generate_items.py /tmp/resources_data/items.lua resources/scripts/items.db
 
       - name: Configure Git
         run: |
