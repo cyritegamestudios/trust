@@ -248,6 +248,20 @@ function Alliance:get_alliance_member_named(alliance_member_name, ignore_range_c
 end
 
 -------
+-- Returns a member of the alliance with the given name.
+-- @tparam number alliance_member_id Id of alliance member
+-- @treturn PartyMember Party member, or nil if member is not in the alliance
+function Alliance:get_alliance_member(alliance_member_id)
+    for party in self:get_parties():it() do
+        local party_member = party:get_party_member(alliance_member_id)
+        if party_member then
+            return party_member
+        end
+    end
+    return nil
+end
+
+-------
 -- Returns the party of the alliance member with the given name.
 -- @tparam string alliance_member_name Name of alliance member
 -- @treturn Party Party that the alliance member is in, or nil if not in the alliance
