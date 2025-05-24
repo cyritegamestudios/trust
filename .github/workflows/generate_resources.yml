@@ -1,0 +1,45 @@
+name: Update Resource Database
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update-resources:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out main repo
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PUSH_KEY }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install Python dependencies
+        run: pip install lupa
+
+      - name: Clone Windower/Resources outside workspace
+        run: |
+          git clone https://github.com/Windower/Resources.git /tmp/resources_data
+
+      - name: Run Python script
+        run: |
+          python resources/scripts/generate_items.py /tmp/resources_data/resources_data/items.lua resources/scripts/items.db
+
+      - name: Configure Git
+        run: |
+          git config --global user.name 'cyrite'
+          git config --global user.email 'cyrite@users.noreply.github.com'
+
+      - name: Commit and push changes
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git add .
+            git commit -m "Updating resource database"
+            git push
+          else
+            echo "No changes to commit."
+          fi
