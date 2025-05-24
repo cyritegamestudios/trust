@@ -14,9 +14,9 @@ jobs:
           token: ${{ secrets.PUSH_KEY }}
 
       - name: Set up Lua
-        uses: xpol/setup-lua@v1
+        uses: leafo/gh-actions-lua@v11
         with:
-          lua-version: "5.1"
+          luaVersion: "5.1.5"
 
       - name: Clone Windower/Resources outside workspace
         run: |
