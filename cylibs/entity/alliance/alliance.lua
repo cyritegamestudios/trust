@@ -248,7 +248,7 @@ function Alliance:get_alliance_member_named(alliance_member_name, ignore_range_c
 end
 
 -------
--- Returns a member of the alliance with the given name.
+-- Returns a member of the alliance with the given id.
 -- @tparam number alliance_member_id Id of alliance member
 -- @treturn PartyMember Party member, or nil if member is not in the alliance
 function Alliance:get_alliance_member(alliance_member_id)
