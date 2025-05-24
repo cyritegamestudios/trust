@@ -13,44 +13,34 @@ jobs:
         with:
           token: ${{ secrets.PUSH_KEY }}
 
-      - name: Reinstall LuaRocks cleanly with exec support
+      - name: Install Lua, LuaRocks, and lsqlite3
         run: |
           sudo apt-get update
           sudo apt-get install -y lua5.1 lua5.1-dev libsqlite3-dev build-essential curl unzip
       
-          # Download and install LuaRocks with Lua 5.1
           curl -L -O https://luarocks.org/releases/luarocks-3.9.2.tar.gz
           tar zxpf luarocks-3.9.2.tar.gz
           cd luarocks-3.9.2
-          ./configure --lua-version=5.1 --lua-suffix=5.1 --with-lua-include=/usr/include/lua5.1
+          ./configure --lua-version=5.1 --with-lua-include=/usr/include/lua5.1
           make
           sudo make install
           cd ..
       
-          # Verify and install sqlite3
-          luarocks --version
-          which luarocks
-          which lua
-          sudo luarocks install lsqlite3
-
-      - name: Confirm sqlite3.so is installed
-        run: |
-          echo "Looking for sqlite3.so..."
-          find / -name sqlite3.so 2>/dev/null || echo "Not found"
-
+          # Install lsqlite3 into a known tree
+          mkdir -p /tmp/luarocks
+          luarocks install lsqlite3 --tree=/tmp/luarocks
 
       - name: Clone Windower/Resources outside workspace
         run: |
           git clone https://github.com/Windower/Resources.git /tmp/resources_data
 
-      - name: Run Lua script with extra CPATH debug
+      - name: Run Lua script with fixed paths
         run: |
-          export LUA_PATH="/usr/local/share/lua/5.1/?.lua;/usr/local/share/lua/5.1/?/init.lua;;"
-          export LUA_CPATH="/usr/local/lib/lua/5.1/?.so;/usr/lib/x86_64-linux-gnu/lua/5.1/?.so;/usr/lib/lua/5.1/?.so;;"
+          export LUA_PATH="/tmp/luarocks/share/lua/5.1/?.lua;/tmp/luarocks/share/lua/5.1/?/init.lua;;"
+          export LUA_CPATH="/tmp/luarocks/lib/lua/5.1/?.so;;"
       
-          echo "LUA_PATH: $LUA_PATH"
           echo "LUA_CPATH: $LUA_CPATH"
-          ls -la /usr/local/lib/lua/5.1/
+          ls -la /tmp/luarocks/lib/lua/5.1
           lua5.1 resources/scripts/generate_items.lua /tmp/resources_data/items.lua
 
       - name: Configure Git
