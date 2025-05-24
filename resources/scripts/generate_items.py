@@ -71,8 +71,8 @@ def main():
     items = parse_lua_file(lua_file)
     conn = create_database(db_file)
 
-    for key in items:
-        insert_item(conn, items[key])
+    for key, item in items.items():
+        insert_item(conn, item)
 
     conn.commit()
     print("Inserted all items.")
