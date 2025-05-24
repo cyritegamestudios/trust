@@ -28,9 +28,12 @@ jobs:
           sudo apt-get install -y lua5.1 luarocks libsqlite3-dev
           sudo luarocks install lsqlite3
 
-      - name: Run Lua script via LuaRocks
+      - name: Run Lua script with argument
         run: |
-          luarocks exec -- lua resources/scripts/generate_items.lua /tmp/resources_data/items.lua
+          export LUA_PATH="/usr/local/share/lua/5.1/?.lua;/usr/local/share/lua/5.1/?/init.lua;;"
+          export LUA_CPATH="/usr/local/lib/lua/5.1/?.so;;"
+          lua resources/scripts/generate_items.lua /tmp/resources_data/items.lua
+
 
 
       - name: Configure Git
