@@ -1,5 +1,7 @@
 import sys
 import sqlite3
+import shutil
+import os
 from lupa import LuaRuntime
 
 def parse_lua_file(lua_file_path):
