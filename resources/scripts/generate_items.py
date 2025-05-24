@@ -7,9 +7,8 @@ def parse_lua_file(lua_file_path):
     with open(lua_file_path, 'r') as f:
         lua_code = f.read()
 
-    # Execute Lua code and grab the return values
-    lua_func = lua.execute(lua_code)
-    item_table, field_names = lua_func()
+    # Execute Lua code directly, returns a tuple of (items, fields)
+    item_table, field_names = lua.execute(lua_code)
     return item_table
 
 def create_database(db_file):
