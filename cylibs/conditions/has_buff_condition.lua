@@ -42,7 +42,7 @@ function HasBuffCondition:is_satisfied(target_index)
                 else
                     -- need to make sure all debuff ids are added to buff_util before using this
                     --local party_member = player.alliance:get_alliance_member_named(target.name)
-                    --return S(party_member:get_buff_ids()):contains(buff_id)
+                    --return party_member:has_buff(self.buff_id)
                     return S(all_buff_ids):intersection(S(party_util.get_buffs(target.id))):length() > 0
                 end
             end

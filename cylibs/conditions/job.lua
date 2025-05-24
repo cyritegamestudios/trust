@@ -21,7 +21,7 @@ end
 function JobCondition:is_satisfied(target_index)
     local target = windower.ffxi.get_mob_by_index(target_index)
     if target then
-        local party_member = player.party:get_party_member(target.id)
+        local party_member = player.alliance:get_alliance_member(target.id)
         if party_member then
             return self.job_name_shorts:contains(party_member:get_main_job_short())
         end

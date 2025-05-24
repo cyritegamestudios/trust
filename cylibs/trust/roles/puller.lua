@@ -7,6 +7,7 @@ local Engage = require('cylibs/battle/engage')
 local Gambit = require('cylibs/gambits/gambit')
 local GambitTarget = require('cylibs/gambits/gambit_target')
 local MobFilter = require('cylibs/battle/monsters/mob_filter')
+local PartyClaimedCondition = require('cylibs/conditions/party_claimed')
 local PartyLeaderCondition = require('cylibs/conditions/party_leader')
 local PartyMemberCountCondition = require('cylibs/conditions/party_member_count')
 local PartyTargetedCondition = require('cylibs/conditions/party_targeted')
@@ -192,7 +193,7 @@ function Puller:is_valid_target(target, target_id_blacklist)
     local conditions = L{
         MinHitPointsPercentCondition.new(1),
         ConditionalCondition.new(L{
-            ClaimedCondition.new(self:get_party():get_party_members(true):map(function(p) return p:get_id() end)), -- TODO: should probably be alliance member ids
+            PartyClaimedCondition.new(true),
             ConditionalCondition.new(L{ UnclaimedCondition.new(), MaxDistanceCondition.new(max_pull_ability_range) }, Condition.LogicalOperator.And)
         }, Condition.LogicalOperator.Or),
     }

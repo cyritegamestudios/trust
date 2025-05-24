@@ -143,6 +143,7 @@ function Gambiter:get_gambit_targets(gambit_target_types)
             target_group = self:get_player()
         elseif gambit_target_type == GambitTarget.TargetType.Ally then
             target_group = self:get_party()
+            --target_group = self:get_alliance()
         elseif gambit_target_type == GambitTarget.TargetType.Enemy then
             target_group = self:get_target()
         elseif gambit_target_type == GambitTarget.TargetType.CurrentTarget then
@@ -152,6 +153,10 @@ function Gambiter:get_gambit_targets(gambit_target_types)
             local targets = L{}
             if target_group.__class == Party.__class then
                 targets = targets + target_group:get_party_members(false, 21)
+            elseif target_group.__class == Alliance.__class then
+                for party in target_group:get_parties():it() do
+                    targets = targets + party:get_party_members(false, 21)
+                end
             else
                 targets = targets + L{ target_group }
             end
