@@ -27,7 +27,7 @@ jobs:
 
       - name: Run Python script
         run: |
-          python resources/scripts/generate_items.py /tmp/resources_data/items.lua resources/scripts/items.db
+          python resources/scripts/generate_items.py /tmp/resources_data/resources_data/items.lua resources/scripts/items.db
 
       - name: Configure Git
         run: |
