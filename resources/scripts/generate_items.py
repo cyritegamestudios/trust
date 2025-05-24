@@ -7,10 +7,10 @@ def parse_lua_file(lua_file_path):
     with open(lua_file_path, 'r') as f:
         lua_code = f.read()
 
-    # Convert Lua file into a function so we can safely call it
-    lua_table_loader = lua.eval(f"function() {lua_code} end")
-    items = lua_table_loader()
-    return items
+    # Ensure Lua returns one value (a tuple of two tables)
+    lua_table_loader = lua.eval(f"function() return ({lua_code}) end")
+    item_table, field_names = lua_table_loader()
+    return item_table
 
 def create_database(db_file):
     conn = sqlite3.connect(db_file)
