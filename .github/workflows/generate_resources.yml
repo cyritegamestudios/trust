@@ -33,14 +33,24 @@ jobs:
           which lua
           sudo luarocks install lsqlite3
 
+      - name: Confirm sqlite3.so is installed
+        run: |
+          echo "Looking for sqlite3.so..."
+          find / -name sqlite3.so 2>/dev/null || echo "Not found"
+
+
       - name: Clone Windower/Resources outside workspace
         run: |
           git clone https://github.com/Windower/Resources.git /tmp/resources_data
 
-      - name: Run Lua script with correct environment
+      - name: Run Lua script with extra CPATH debug
         run: |
           export LUA_PATH="/usr/local/share/lua/5.1/?.lua;/usr/local/share/lua/5.1/?/init.lua;;"
-          export LUA_CPATH="/usr/local/lib/lua/5.1/?.so;;"
+          export LUA_CPATH="/usr/local/lib/lua/5.1/?.so;/usr/lib/x86_64-linux-gnu/lua/5.1/?.so;/usr/lib/lua/5.1/?.so;;"
+      
+          echo "LUA_PATH: $LUA_PATH"
+          echo "LUA_CPATH: $LUA_CPATH"
+          ls -la /usr/local/lib/lua/5.1/
           lua5.1 resources/scripts/generate_items.lua /tmp/resources_data/items.lua
 
       - name: Configure Git
