@@ -18,23 +18,21 @@ jobs:
         with:
           luaVersion: "5.1.5"
 
-      - name: Clone Windower/Resources outside workspace
-        run: |
-          git clone https://github.com/Windower/Resources.git /tmp/resources_data
-
       - name: Install lsqlite3
         run: |
           sudo apt-get update
           sudo apt-get install -y lua5.1 luarocks libsqlite3-dev
           sudo luarocks install lsqlite3
 
+      - name: Clone Windower/Resources outside workspace
+        run: |
+          git clone https://github.com/Windower/Resources.git /tmp/resources_data
+
       - name: Run Lua script with argument
         run: |
           export LUA_PATH="/usr/local/share/lua/5.1/?.lua;/usr/local/share/lua/5.1/?/init.lua;;"
           export LUA_CPATH="/usr/local/lib/lua/5.1/?.so;;"
           lua resources/scripts/generate_items.lua /tmp/resources_data/items.lua
-
-
 
       - name: Configure Git
         run: |
