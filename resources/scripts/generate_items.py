@@ -77,5 +77,11 @@ def main():
     print("Inserted all items.")
     conn.close()
 
+    # Copy to trust/resources/resources.db
+    output_path = "trust/resources/resources.db"
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    shutil.copyfile(db_file, output_path)
+    print(f"Database copied to {output_path}")
+
 if __name__ == "__main__":
     main()
