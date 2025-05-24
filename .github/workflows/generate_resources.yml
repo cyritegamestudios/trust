@@ -1,0 +1,41 @@
+name: Update Resource Database
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update-resources:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out main repo
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PUSH_KEY }}
+
+      - name: Set up Lua
+        uses: leafo/gh-actions-lua@v9
+        with:
+          luaVersion: "5.1"
+
+      - name: Clone Windower/Resources outside workspace
+        run: |
+          git clone https://github.com/Windower/Resources.git /tmp/resources_data
+
+      - name: Run Lua script with argument
+        run: lua resources/scripts/generate_items.lua /tmp/resources_data/items.lua
+
+      - name: Configure Git
+        run: |
+          git config --global user.name 'cyrite'
+          git config --global user.email 'cyrite@users.noreply.github.com'
+
+      - name: Commit and push changes
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git add .
+            git commit -m "Updating resource database"
+            git push
+          else
+            echo "No changes to commit."
+          fi
