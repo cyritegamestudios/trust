@@ -54,6 +54,15 @@ function PickerConfigItem:getInitialValue()
 end
 
 ---
+-- Sets the initial value.
+--
+-- @tparam any The initial value.
+--
+function PickerConfigItem:setInitialValue(initialValue)
+    self.initialValue = initialValue
+end
+
+---
 -- Gets all possible values.
 --
 -- @treturn list All possible values.

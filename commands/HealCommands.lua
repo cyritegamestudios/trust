@@ -24,8 +24,8 @@ function HealCommands.new(trust)
         local party_member_names = party_members:map(function(p) return p:get_name() end)
 
         self:add_command('blacklist', self.handle_blacklist_party_member, 'Toggle healing for a party or alliance member', L{
+            PickerConfigItem.new('command', 'add', L{ 'add', 'remove', 'clear' }, function(command) return localization_util.firstUpper(command) end, "Command"),
             PickerConfigItem.new('party_member_name', party_member_names[1], party_member_names, nil, "Party Member Name"),
-            BooleanConfigItem.new('add_to_blacklist', "Ignore Party Member"),
         })
     end
 
@@ -67,48 +67,74 @@ function HealCommands:handle_blacklist_all(_, ...)
         if group:length() > 0 then
             message = string.format("%s have been added to the healing blacklist", localization_util.commas(group:map(function(a) return a:get_name() end)))
             for alliance_member in group:it() do
-                self:handle_blacklist_party_member(_, alliance_member:get_name(), "true")
+                self:handle_blacklist_party_member(_, 'Add', alliance_member:get_name())
             end
         else
             message = string.format("No alliance members matching %s found", group_name)
         end
     else
         success = false
-        message = string.format("Invalid group name %s, valid options are %s", group_name and group_name:length() > 0 or "nil", localization_util.commas(L(group_to_alliance_members:keyset())))
+        message = string.format("Invalid group name %s, valid options are %s", group_name or 'nil', localization_util.commas(L(group_to_alliance_members:keyset())))
     end
 
     return success, message
 end
 
-function HealCommands:handle_blacklist_party_member(_, party_member_name, add_to_blacklist)
+function HealCommands:handle_blacklist_party_member(_, command, party_member_name)
     local success
     local message
 
-    local party_member = player.alliance:get_alliance_member_named(localization_util.firstUpper(party_member_name))
-    if party_member then
-        success = true
+    command = command and localization_util.firstUpper(command)
 
-        if add_to_blacklist == nil then add_to_blacklist = true end
-
+    local valid_commands = L{ 'Add', 'Remove', 'Clear' }
+    if valid_commands:contains(command) then
         local healer = self.trust:role_with_type("healer")
 
-        local blacklist = healer:get_party_member_blacklist():filter(function(name)
-            return name ~= party_member_name
-        end)
-        if add_to_blacklist == "true" then
-            blacklist:append(party_member:get_name())
-            message = string.format("%s has been added to the healing blacklist", party_member:get_name())
+        if command == 'Clear' then
+            success = true
+            message = "All party members have been removed from the healing blacklist"
+
+            healer:set_party_member_blacklist(L{})
         else
-            message = string.format("%s has been removed from the healing blacklist", party_member:get_name())
+            local party_member = player.alliance:get_alliance_member_named(localization_util.firstUpper(party_member_name), true)
+            if party_member then
+                success = true
+
+                local blacklist = healer:get_party_member_blacklist():filter(function(name)
+                    return name ~= party_member_name
+                end)
+                if command == 'Add' then
+                    blacklist:append(party_member:get_name())
+                    message = string.format("%s has been added to the healing blacklist", party_member:get_name())
+                elseif command == 'Remove' then
+                    message = string.format("%s has been removed from the healing blacklist", party_member:get_name())
+                end
+                healer:set_party_member_blacklist(blacklist)
+            else
+                success = false
+                message = string.format("Invalid party member %s or party member out of range", party_member_name or "")
+            end
         end
-        healer:set_party_member_blacklist(blacklist)
-        print('blacklist is now', blacklist)
     else
         success = false
-        message = string.format("Invalid party member %s", party_member_name or "")
+        message = string.format("Invalid command %s, valid commands are %s", command or 'nil', localization_util.commas(valid_commands))
     end
 
     return success, message
+end
+
+function HealCommands:get_all_commands()
+    local result = TrustCommands.get_all_commands(self)
+
+    for blacklist_command in L{ 'Add', 'Remove', 'Clear' }:it() do
+        result:append(string.format('// trust heal blacklist %s', blacklist_command:lower()))
+    end
+
+    for blacklist_group in L{ 'Alter Egos' }:it() do
+        result:append(string.format('// trust heal blacklistall %s', blacklist_group))
+    end
+
+    return result
 end
 
 
