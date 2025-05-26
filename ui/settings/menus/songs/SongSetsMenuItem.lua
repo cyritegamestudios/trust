@@ -252,25 +252,18 @@ function SongSetsMenuItem:getConfigMenuItem()
                 local allSettings = T(self.trustSettings:getSettings())[self.trustSettingsMode.value]
 
                 local songSettings = T{
-                    NumSongs = allSettings.SongSettings.NumSongs,
-                    SongDuration = allSettings.SongSettings.SongDuration,
                     ResingDuration = allSettings.SongSettings.ResingDuration or 75,
                     ResingMissingSongs = allSettings.SongSettings.ResingMissingSongs or false,
-                    SongDelay = allSettings.SongSettings.SongDelay
+                    DummySongThreshold = allSettings.SongSettings.DummySongThreshold or 2,
                 }
 
                 local configItems = L{
-                    --ConfigItem.new('NumSongs', 2, 4, 1, function(value) return value.."" end, "Maximum Number of Songs"),
-                    --ConfigItem.new('SongDuration', 120, 400, 10, function(value) return value.."s" end, "Base Song Duration"),
                     ConfigItem.new('ResingDuration', 60, 180, 1, function(value) return value.."s" end, "Resing Threshold"),
                     BooleanConfigItem.new('ResingMissingSongs', "Resing Missing Songs"),
-                    --ConfigItem.new('SongDelay', 4, 8, 1, function(value) return value.."s" end, "Delay Between Songs")
+                    ConfigItem.new('DummySongThreshold', 2, 4, 1, function(value) return value end, "Dummy Song Threshold"),
                 }
 
                 local songConfigEditor = ConfigEditor.new(self.trustSettings, songSettings, configItems, infoView, function(newSettings)
-                    if newSettings.NumSongs > 2 and not allSettings.GearSwapSettings.Enabled then
-                        return false
-                    end
                     return true
                 end)
 
@@ -278,11 +271,15 @@ function SongSetsMenuItem:getConfigMenuItem()
                 songConfigEditor:setShouldRequestFocus(true)
 
                 self.disposeBag:add(songConfigEditor:onConfigChanged():addAction(function(newSettings, _)
-                    allSettings.SongSettings.NumSongs = newSettings.NumSongs
+                    if allSettings.SongSettings.DummySongThreshold ~= newSettings.DummySongThreshold then
+                        addon_system_error("---== WARNING ==---- changing the dummy song threshold can completely break singing if you don't know what you are doing.")
+                    end
+
                     allSettings.SongSettings.SongDuration = newSettings.SongDuration
                     allSettings.SongSettings.ResingDuration = newSettings.ResingDuration
                     allSettings.SongSettings.ResingMissingSongs = newSettings.ResingMissingSongs
                     allSettings.SongSettings.SongDelay = newSettings.SongDelay
+                    allSettings.SongSettings.DummySongThreshold = newSettings.DummySongThreshold
 
                     self.trustSettings:saveSettings(true)
                 end), songConfigEditor:onConfigChanged())
@@ -292,11 +289,14 @@ function SongSetsMenuItem:getConfigMenuItem()
                 end), songConfigEditor:onConfigValidationError())
 
                 self.disposeBag:add(songConfigEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
+                    local currentSettings = T(self.trustSettings:getSettings())[self.trustSettingsMode.value]
+
                     if indexPath.section == 1 then
-                        local currentSettings = T(self.trustSettings:getSettings())[self.trustSettingsMode.value]
                         infoView:setDescription("Resing all songs when any song has less than "..currentSettings.SongSettings.ResingDuration.."s remaining.")
                     elseif indexPath.section == 2 then
                         infoView:setDescription("Resing missing songs onto party members using Pianissimo.")
+                    elseif indexPath.section == 3 then
+                        infoView:setDescription(string.format("Sing dummy songs after the target has %d songs.", currentSettings.SongSettings.DummySongThreshold))
                     else
                         infoView:setDescription("Configure general song settings.")
                     end

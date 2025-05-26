@@ -489,7 +489,7 @@ function TrustHud:getStatusMenuItem(trust)
         return view
     end)
     targetsMenuItem.enabled = function()
-        return self.party:get_targets():length() > 0
+        return self.party:get_targets():length() > 0, "No targets found."
     end
 
     local statusMenuItem = MenuItem.new(statusMenuButtons, {

@@ -315,7 +315,7 @@ function SongTracker:on_gain_song(target_id, song_id, buff_id, song_duration)
     local party_member = self.party:get_party_member(target_id)
 
     logger.notice(self.__class, "Current buffs for", party_member:get_name(), "are", tostring(L(party_util.get_buffs(target_id)):map(function(buff_id) return res.buffs[buff_id].en  end)))
-
+    
     local song_duration = song_duration or self.job:get_song_duration(res.spells[song_id].en)
 
     local target_songs = (self.active_songs[target_id] or S{}):filter(function(song_record) return song_record:get_song_id() ~= song_id  end)

@@ -84,7 +84,7 @@ function Singer:set_song_settings(song_settings)
     gambit_settings.DummySongs = song_settings.DummySongs:map(function(song)
         return Gambit.new(GambitTarget.TargetType.Self, L{
             GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(song_settings.DummySongs:map(function(s) return s:get_name() end), 1) }), GambitTarget.TargetType.Self),
-            GambitCondition.new(NumSongsCondition.new(2, Condition.Operator.GreaterThanOrEqualTo), GambitTarget.TargetType.Self),
+            GambitCondition.new(NumSongsCondition.new(song_settings.DummySongThreshold, Condition.Operator.GreaterThanOrEqualTo), GambitTarget.TargetType.Self),
             GambitCondition.new(HasMaxNumSongsCondition.new(Condition.Operator.LessThan), GambitTarget.TargetType.Self),
         }, song, Condition.TargetType.Self)
     end)
@@ -99,7 +99,7 @@ function Singer:set_song_settings(song_settings)
                 GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }) }), GambitTarget.TargetType.Self),
                 GambitCondition.new(ConditionalCondition.new(L{
                     HasSongsCondition.new(song_settings.DummySongs:map(function(s) return s:get_name() end), 1),
-                    NumSongsCondition.new(2, Condition.Operator.LessThan),
+                    NumSongsCondition.new(song_settings.DummySongThreshold, Condition.Operator.LessThan),
                     NumExpiringSongsCondition.new(1, Condition.Operator.GreaterThanOrEqualTo),
                 }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Self),
             }, song, Condition.TargetType.Self),
@@ -130,7 +130,7 @@ function Singer:set_song_settings(song_settings)
                 GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }) }), GambitTarget.TargetType.Ally),
                 GambitCondition.new(ConditionalCondition.new(L{
                     HasSongsCondition.new(song_settings.DummySongs:map(function(s) return s:get_name() end), 1),
-                    NumSongsCondition.new(2, Condition.Operator.LessThan),
+                    NumSongsCondition.new(song_settings.DummySongThreshold, Condition.Operator.LessThan),
                 }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Ally),
             }, song, Condition.TargetType.Ally)
         end)
@@ -156,7 +156,7 @@ function Singer:set_song_settings(song_settings)
         Gambit.new(GambitTarget.TargetType.Self, L{
             GambitCondition.new(ModeCondition.new('AutoClarionCallMode', 'Auto'), GambitTarget.TargetType.Self),
             GambitCondition.new(ModeCondition.new('AutoNitroMode', 'Auto'), GambitTarget.TargetType.Self),
-            GambitCondition.new(NumSongsCondition.new(song_settings.NumSongs + 1, Condition.Operator.LessThan, true), GambitTarget.TargetType.Self),
+            GambitCondition.new(NumSongsCondition.new(self.job.max_num_songs + 1, Condition.Operator.LessThan, true), GambitTarget.TargetType.Self),
         }, Sequence.new(L{
             Script.new(function()
                 self.song_tracker:set_all_expiring_soon()
