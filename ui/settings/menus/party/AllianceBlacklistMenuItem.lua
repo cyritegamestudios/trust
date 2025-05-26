@@ -45,11 +45,6 @@ function AllianceBlacklistMenuItem.new(alliance)
         end
 
         local roleSettingsEditor = ConfigEditor.new(nil, roleSettings, roleConfigItems, infoView, nil, showMenu)
-
-        roleSettingsEditor:onConfigConfirm():addAction(function(newSettings, _)
-            self.party:add_to_chat(self.party:get_player(), "Alright, I'll ignore these party and alliance members until the addon reloads!")
-        end)
-
         return roleSettingsEditor
     end, "Blacklist", "Choose party and alliance members to ignore.", false, function()
         return roles:length() > 0, "There are no roles that can be configured."
