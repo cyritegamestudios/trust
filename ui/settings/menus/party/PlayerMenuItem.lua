@@ -17,7 +17,7 @@ function PlayerMenuItem.new(partyMember, party, alliance, trust)
         return role.get_party_member_blacklist ~= nil
     end))
 
-    local configButtonItem = ButtonItem.default('Config', 18)
+    local configButtonItem = ButtonItem.default('Blacklist', 18)
     configButtonItem:setEnabled(roles:length() > 0)
 
     local self = setmetatable(MenuItem.new(L{
@@ -64,7 +64,7 @@ function PlayerMenuItem:reloadSettings(roles)
         addon_system_message("Assist and follow target have been cleared.")
     end, self.partyMemberName, "Clear assist and follow target."))
     self:setChildMenuItem("Commands", self:getCommandsMenuItem())
-    self:setChildMenuItem("Config", self:getConfigMenuItem(roles))
+    self:setChildMenuItem("Blacklist", self:getConfigMenuItem(roles))
 end
 
 function PlayerMenuItem:getCommandsMenuItem()

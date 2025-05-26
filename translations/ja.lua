@@ -15,4 +15,5 @@ return T{
     ["Button_Gambits"] = {singular="ガンビット"},
     ["Button_Confirm"] = {singular="確認する"},
     ["Button_Edit"] = {singular="編集する"},
+    ["Button_Blacklist"] = {singular="ブラックリスト"},
 }, {"singular", "plural"}

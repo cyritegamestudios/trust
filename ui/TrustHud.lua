@@ -479,7 +479,7 @@ end
 
 function TrustHud:getStatusMenuItem(trust)
     local statusMenuButtons = L{
-        ButtonItem.default('Party', 18),
+        ButtonItem.default('Alliance', 18),
         ButtonItem.default('Targets', 18)
     }
 
@@ -493,7 +493,7 @@ function TrustHud:getStatusMenuItem(trust)
     end
 
     local statusMenuItem = MenuItem.new(statusMenuButtons, {
-        Party = AllianceSettingsMenuItem.new(player.alliance),
+        Alliance = AllianceSettingsMenuItem.new(player.alliance, trust),
         Targets = targetsMenuItem,
     }, nil, "Status", "View status of party members and enemies.")
 

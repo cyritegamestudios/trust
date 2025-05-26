@@ -95,9 +95,10 @@ function Menu:showMenu(menuItem)
 
             local childMenuItem = self.menuView:getItem():getChildMenuItem(textItem:getText())
             if childMenuItem then
-                if not childMenuItem:isEnabled() then
+                local isEnabled, errorMessage = childMenuItem:isEnabled()
+                if not isEnabled then
                     self.mediaPlayer:playSound(self.soundTheme:getSoundForAction(SoundTheme.UI.Menu.Error))
-                    addon_system_message("Unable to perform this action.")
+                    addon_system_message(errorMessage or "Unable to perform this action.")
                     return
                 end
                 if type(childMenuItem) == 'function' then

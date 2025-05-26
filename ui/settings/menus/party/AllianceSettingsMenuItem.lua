@@ -1,3 +1,4 @@
+local AllianceBlacklistMenuItem = require('ui/settings/menus/party/AllianceBlacklistMenuItem')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
@@ -13,6 +14,7 @@ function AllianceSettingsMenuItem.new(alliance, trust)
 
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.localized('Edit', i18n.translate('Button_Edit')),
+        ButtonItem.localized('Blacklist', i18n.translate('Button_Blacklist')),
     }, {}, nil, "Alliance", "See status and configure alliance members."), AllianceSettingsMenuItem)
 
     self.alliance = alliance
@@ -29,9 +31,9 @@ function AllianceSettingsMenuItem.new(alliance, trust)
 
         local reloadSettings = function(allianceMember)
             if allianceMember:is_player() then
-                self:setChildMenuItem("Edit", PlayerMenuItem.new(allianceMember, player.party, player.alliance, trust))
+                self:setChildMenuItem("Edit", PlayerMenuItem.new(allianceMember, trust:get_party(), trust:get_alliance(), trust))
             else
-                self:setChildMenuItem("Edit", PartyMemberMenuItem.new(allianceMember, player.party, trust))
+                self:setChildMenuItem("Edit", PartyMemberMenuItem.new(allianceMember, trust:get_party(), trust))
             end
             infoView:setTitle(allianceMember:get_name())
             infoView:setDescription("See status and configure alliance members.")
@@ -46,6 +48,8 @@ function AllianceSettingsMenuItem.new(alliance, trust)
 
         return self.allianceSettingsEditor
     end
+
+    self:setChildMenuItem("Blacklist", AllianceBlacklistMenuItem.new(alliance))
 
     return self
 end

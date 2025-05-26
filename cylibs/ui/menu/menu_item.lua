@@ -26,7 +26,7 @@ function MenuItem.new(buttonItems, childMenuItems, contentViewConstructor, title
     self.descriptionText = descriptionText
     self.titleText = titleText
     self.keepViews = keepViews
-    self.enabled = enabled or function() return true  end
+    self.enabled = enabled or function() return true, nil  end
 
     return self
 end

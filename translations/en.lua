@@ -22,4 +22,5 @@ return T{
     ["Button_Clear"] = {singular="Clear"},
     ["Button_Widget_Layout"] = {singular="Layout"},
     ["Button_Edit"] = {singular="Edit"},
+    ["Button_Blacklist"] = {singular="Blacklist"},
 }, {"singular", "plural"}
