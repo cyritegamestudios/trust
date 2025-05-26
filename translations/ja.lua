@@ -14,4 +14,5 @@ return T{
     ["Button_Paths"] = {singular="移動経路"},
     ["Button_Gambits"] = {singular="ガンビット"},
     ["Button_Confirm"] = {singular="確認する"},
+    ["Button_Edit"] = {singular="編集する"},
 }, {"singular", "plural"}

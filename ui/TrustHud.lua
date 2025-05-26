@@ -482,15 +482,8 @@ function TrustHud:getStatusMenuItem(trust)
         ButtonItem.default('Party', 18),
         ButtonItem.default('Targets', 18)
     }
-    local partyMenuItem = MenuItem.new(L{}, {},
-    function()
-        local truster =  trust:role_with_type("truster")
-        local PartyMemberView = require('cylibs/entity/party/ui/party_member_view')
-        local partyMemberView = PartyMemberView.new(self.party, self.player.player, self.actionQueue, truster and truster.trusts or L{})
-        partyMemberView:setShouldRequestFocus(false)
-        return partyMemberView
-    end, "Party", "View party status.")
 
+    local AllianceSettingsMenuItem = require('ui/settings/menus/party/AllianceSettingsMenuItem')
     local PartyTargetsMenuItem = require('ui/settings/menus/PartyTargetsMenuItem')
     local targetsMenuItem = PartyTargetsMenuItem.new(self.party, function(view)
         return view
@@ -500,7 +493,7 @@ function TrustHud:getStatusMenuItem(trust)
     end
 
     local statusMenuItem = MenuItem.new(statusMenuButtons, {
-        Party = partyMenuItem,
+        Party = AllianceSettingsMenuItem.new(player.alliance),
         Targets = targetsMenuItem,
     }, nil, "Status", "View status of party members and enemies.")
 

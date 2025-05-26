@@ -21,4 +21,5 @@ return T{
     ["Button_Confirm"] = {singular="Confirm"},
     ["Button_Clear"] = {singular="Clear"},
     ["Button_Widget_Layout"] = {singular="Layout"},
+    ["Button_Edit"] = {singular="Edit"},
 }, {"singular", "plural"}
