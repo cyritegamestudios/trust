@@ -38,10 +38,14 @@ function CommandsMenuItem:reloadSettings(commands)
         }, {}, function(_, infoView)
             if self.selectedCommand then
                 local args = string.split(self.selectedCommand, " ")
+                local initialValues = args:slice(5)
                 local commandArgs = command:get_args(args[4])
                 local commandArgValues = {}
-                for arg in commandArgs:it() do
-                    commandArgValues[arg.key] = arg.getDefaultValue and arg:getDefaultValue() or ''
+                for index, arg in ipairs(commandArgs) do
+                    commandArgValues[arg.key] = initialValues[index] or arg.getDefaultValue and arg:getDefaultValue() or ''
+                    if arg.setInitialValue and initialValues[index] then
+                        arg:setInitialValue(initialValues[index])
+                    end
                 end
                 local commandConfigEditor = ConfigEditor.new(nil, commandArgValues, commandArgs)
                 commandConfigEditor:onConfigConfirm():addAction(function(newSettings, _)
@@ -107,6 +111,7 @@ function CommandsMenuItem:reloadSettings(commands)
                     update_for_command(item)
                 end
             end)
+            commandList:setAllowsCursorSelection(true)
 
             update_for_command(self.selectedCommand)
 
