@@ -16,12 +16,16 @@ function HealCommands.new(trust)
     self:add_command('emergency', function(_) return self:handle_set_mode('AutoHealMode', 'Emergency')  end, 'Heal self and party using Emergency threshold')
     self:add_command('off', function(_) return self:handle_set_mode('AutoHealMode', 'Off')  end, 'Do not heal self and party')
 
+    self:add_command('blacklistall', self.handle_blacklist_all, 'Toggle healing for groups of party or alliance members', L{
+        PickerConfigItem.new('group_name', 'Alter Egos', L{ 'Alter Egos' }, nil, "Group Name"),
+    })
+
     local update_commands = function(party_members)
         local party_member_names = party_members:map(function(p) return p:get_name() end)
 
-        self:add_command('ignore', self.handle_ignore_party_member, 'Toggle healing for a party or alliance member', L{
+        self:add_command('blacklist', self.handle_blacklist_party_member, 'Toggle healing for a party or alliance member', L{
             PickerConfigItem.new('party_member_name', party_member_names[1], party_member_names, nil, "Party Member Name"),
-            BooleanConfigItem.new('ignore', "Ignore Party Member"),
+            BooleanConfigItem.new('add_to_blacklist', "Ignore Party Member"),
         })
     end
 
@@ -42,7 +46,41 @@ function HealCommands:get_localized_command_name()
     return 'Heal'
 end
 
-function HealCommands:handle_ignore_party_member(_, party_member_name, ignore)
+function HealCommands:handle_blacklist_all(_, ...)
+    local success
+    local message
+
+    local group_name = table.concat({...}, " ") or ""
+
+    local group_to_alliance_members = T{
+        ['Alter Egos'] = function()
+            return self.trust:get_party():get_party_members(false):filter(function(p)
+                return p:is_trust()
+            end)
+        end,
+    }
+
+    local group = group_to_alliance_members[group_name] and group_to_alliance_members[group_name]()
+    if group then
+        success = true
+
+        if group:length() > 0 then
+            message = string.format("%s have been added to the healing blacklist", localization_util.commas(group:map(function(a) return a:get_name() end)))
+            for alliance_member in group:it() do
+                self:handle_blacklist_party_member(_, alliance_member:get_name(), "true")
+            end
+        else
+            message = string.format("No alliance members matching %s found", group_name)
+        end
+    else
+        success = false
+        message = string.format("Invalid group name %s, valid options are %s", group_name and group_name:length() > 0 or "nil", localization_util.commas(L(group_to_alliance_members:keyset())))
+    end
+
+    return success, message
+end
+
+function HealCommands:handle_blacklist_party_member(_, party_member_name, add_to_blacklist)
     local success
     local message
 
@@ -50,20 +88,21 @@ function HealCommands:handle_ignore_party_member(_, party_member_name, ignore)
     if party_member then
         success = true
 
-        if ignore == nil then ignore = true end
+        if add_to_blacklist == nil then add_to_blacklist = true end
 
         local healer = self.trust:role_with_type("healer")
 
         local blacklist = healer:get_party_member_blacklist():filter(function(name)
             return name ~= party_member_name
         end)
-        if ignore == "true" then
+        if add_to_blacklist == "true" then
             blacklist:append(party_member:get_name())
             message = string.format("%s has been added to the healing blacklist", party_member:get_name())
         else
             message = string.format("%s has been removed from the healing blacklist", party_member:get_name())
         end
         healer:set_party_member_blacklist(blacklist)
+        print('blacklist is now', blacklist)
     else
         success = false
         message = string.format("Invalid party member %s", party_member_name or "")
