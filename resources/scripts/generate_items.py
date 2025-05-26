@@ -1,5 +1,7 @@
 import sys
 import sqlite3
+import shutil
+import os
 from lupa import LuaRuntime
 
 def parse_lua_file(lua_file_path):
@@ -59,7 +61,7 @@ def insert_item(conn, item):
     values = [getattr(item, f, defaults[f]) for f in fields]
     placeholders = ','.join(['?'] * len(values))
     conn.execute(f"""
-        INSERT INTO items ({','.join(fields)})
+        INSERT OR REPLACE INTO items ({','.join(fields)})
         VALUES ({placeholders})
     """, values)
 
@@ -76,6 +78,12 @@ def main():
     conn.commit()
     print("Inserted all items.")
     conn.close()
+
+    # Copy to resources/resources.db
+    output_path = "resources/resources.db"
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    shutil.copyfile(db_file, output_path)
+    print(f"Database copied to {output_path}")
 
 if __name__ == "__main__":
     main()
