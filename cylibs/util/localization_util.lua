@@ -108,4 +108,14 @@ function localization_util.truncate(text, max_num_chars)
     return text:slice(1, max_num_chars - 3).."…"
 end
 
+-------
+-- Converts the input text to first upper case.
+-- @tparam string text Text to truncate
+-- @treturn string Text with first character capitalized and the remaining characters lower cased.
+function localization_util.firstUpper(text)
+    return (text or ""):gsub("(%a)(%w*)", function(first, rest)
+        return first:upper() .. rest:lower()
+    end)
+end
+
 return localization_util
