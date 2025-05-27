@@ -263,12 +263,9 @@ function SongSetsMenuItem:getConfigMenuItem()
                     ConfigItem.new('DummySongThreshold', 2, 4, 1, function(value) return value end, "Dummy Song Threshold"),
                 }
 
-                local songConfigEditor = ConfigEditor.new(self.trustSettings, songSettings, configItems, infoView, function(newSettings)
+                local songConfigEditor = ConfigEditor.new(self.trustSettings, songSettings, configItems, infoView, function(_)
                     return true
                 end)
-
-                songConfigEditor:setTitle('Configure general song settings.')
-                songConfigEditor:setShouldRequestFocus(true)
 
                 self.disposeBag:add(songConfigEditor:onConfigChanged():addAction(function(newSettings, _)
                     if allSettings.SongSettings.DummySongThreshold ~= newSettings.DummySongThreshold then
@@ -294,7 +291,7 @@ function SongSetsMenuItem:getConfigMenuItem()
                     if indexPath.section == 1 then
                         infoView:setDescription("Resing all songs when any song has less than "..currentSettings.SongSettings.ResingDuration.."s remaining.")
                     elseif indexPath.section == 2 then
-                        infoView:setDescription("Resing missing songs onto party members using Pianissimo.")
+                        infoView:setDescription("Resing missing songs onto party members using Pianissimo. May cause extra singing.")
                     elseif indexPath.section == 3 then
                         infoView:setDescription(string.format("Sing dummy songs after the target has %d songs.", currentSettings.SongSettings.DummySongThreshold))
                     else
