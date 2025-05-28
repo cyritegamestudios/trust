@@ -202,6 +202,7 @@ function TrustHud:getMainMenuItem()
         return self.mainMenuItem
     end
 
+    local InventoryMenuItem = require('ui/views/inventory/InventoryMenuItem')
     local LoadSettingsMenuItem = require('ui/settings/menus/loading/LoadSettingsMenuItem')
 
     local mainMenuItem = MenuItem.new(L{
@@ -210,9 +211,11 @@ function TrustHud:getMainMenuItem()
         ButtonItem.localized('Profiles', i18n.translate('Button_Profiles')),
         ButtonItem.default('Commands', 18),
         ButtonItem.default('Config', 18),
+        ButtonItem.default('Inventory', 18),
     }, {
         Profiles = LoadSettingsMenuItem.new(self.addon_settings, self.trustModeSettings, main_trust_settings, weapon_skill_settings, sub_trust_settings),
         Config = ConfigSettingsMenuItem.new(self.addon_settings, main_trust_settings, state.MainTrustSettingsMode, self.mediaPlayer),
+        Inventory = InventoryMenuItem.new(),
     }, nil, "Jobs")
 
     self.mainMenuItem = mainMenuItem

@@ -233,11 +233,12 @@ end
 -- // trust debug
 function GeneralTrustCommands:handle_debug()
 
-    local inventory_util = require('cylibs/util/inventory_util')
-    print(inventory_util.get_item_count(5824))
+    --local Equipment = require('cylibs/inventory/equipment/equipment')
 
-    windower.chat.input('/jobability Berserk <me>')
-    windower.chat.input('/jobability Defender <me>')
+    local Inventory = require('cylibs/inventory/inventory')
+    local inventory = Inventory.new()
+    print(inventory:getBag('inventory'):getItems():length())
+
 
     return true, nil
 end

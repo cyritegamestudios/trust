@@ -281,6 +281,7 @@ function SongSetsMenuItem:getConfigMenuItem()
                     self.trustSettings:saveSettings(true)
                 end), songConfigEditor:onConfigChanged())
 
+
                 self.disposeBag:add(songConfigEditor:onConfigValidationError():addAction(function()
                     addon_system_error("Unable to sing more than 2 songs without GearSwap enabled.")
                 end), songConfigEditor:onConfigValidationError())
