@@ -202,6 +202,7 @@ function TrustHud:getMainMenuItem()
         return self.mainMenuItem
     end
 
+    local EquipSetMenuItem = require('ui/views/inventory/equipment/EquipSetMenuItem')
     local InventoryMenuItem = require('ui/views/inventory/InventoryMenuItem')
     local LoadSettingsMenuItem = require('ui/settings/menus/loading/LoadSettingsMenuItem')
 
@@ -212,10 +213,12 @@ function TrustHud:getMainMenuItem()
         ButtonItem.default('Commands', 18),
         ButtonItem.default('Config', 18),
         ButtonItem.default('Inventory', 18),
+        ButtonItem.default('Equipment', 18),
     }, {
         Profiles = LoadSettingsMenuItem.new(self.addon_settings, self.trustModeSettings, main_trust_settings, weapon_skill_settings, sub_trust_settings),
         Config = ConfigSettingsMenuItem.new(self.addon_settings, main_trust_settings, state.MainTrustSettingsMode, self.mediaPlayer),
         Inventory = InventoryMenuItem.new(),
+        Equipment = EquipSetMenuItem.new(self.party:get_player():get_current_equip_set())
     }, nil, "Jobs")
 
     self.mainMenuItem = mainMenuItem
