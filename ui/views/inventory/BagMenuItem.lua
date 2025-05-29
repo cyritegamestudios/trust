@@ -9,7 +9,6 @@ local BagMenuItem = setmetatable({}, {__index = MenuItem })
 BagMenuItem.__index = BagMenuItem
 
 function BagMenuItem.new(bag)
-
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
     }, {}, function(_, infoView, _)
