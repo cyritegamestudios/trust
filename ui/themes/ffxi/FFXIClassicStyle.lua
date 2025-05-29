@@ -59,6 +59,18 @@ function FFXIClassicStyle.default()
     return self
 end
 
+function FFXIClassicStyle.slot()
+    local self = setmetatable(CollectionViewStyle.new(
+            CursorItem.new(ImageItem.new(windower.addon_path..'assets/icons/cursor_slot.png', 32, 32), 36),
+            ScrollItem.new(),
+            FFXIClassicStyle.CenterImageItem,
+            FFXIClassicStyle.Border.LeftImageItem,
+            FFXIClassicStyle.Border.CenterImageItem,
+            FFXIClassicStyle.Border.RightImageItem
+    ), FFXIClassicStyle)
+    return self
+end
+
 function FFXIClassicStyle.background()
     local self = setmetatable(CollectionViewStyle.new(
             nil,

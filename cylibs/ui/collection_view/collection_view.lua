@@ -112,7 +112,7 @@ function CollectionView:moveCursorToIndexPath(cursorIndexPath)
     if cursorIndexPath and self:getDataSource():itemAtIndexPath(cursorIndexPath) then
         local cell = self:getDataSource():cellForItemAtIndexPath(cursorIndexPath)
         if cell then
-            self.selectionBackground:setPosition(cell:getPosition().x - self.cursorImageItem:getSize().width - 7, cell:getPosition().y + (cell:getSize().height - self.cursorImageItem:getSize().height) / 2)
+            self.selectionBackground:setPosition(cell:getPosition().x - self.cursorImageItem:getSize().width - 7 + self.cursorImageItem.offsetX, cell:getPosition().y + (cell:getSize().height - self.cursorImageItem:getSize().height) / 2 + self.cursorImageItem.offsetY)
             self.selectionBackground:setSize(self.cursorImageItem:getSize().width, self.cursorImageItem:getSize().height)
             isCursorVisible = self:hasFocus() and self:isCursorEnabled()
         end

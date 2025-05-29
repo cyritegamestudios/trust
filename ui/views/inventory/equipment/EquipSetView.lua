@@ -4,6 +4,7 @@ local EquipmentPickerView = require('ui/views/inventory/equipment/EquipmentPicke
 local EquipSet = require('cylibs/inventory/equipment/equip_set')
 local Event = require('cylibs/events/Luvent')
 local FFXIBackgroundView = require('ui/themes/ffxi/FFXIBackgroundView')
+local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local Frame = require('cylibs/ui/views/frame')
 local GridLayout = require('cylibs/ui/collection_view/layouts/grid_layout')
 local icon_extractor = require('cylibs/util/images/icon_extractor')
@@ -37,7 +38,7 @@ function EquipmentSlotGrid.new(equipSet)
         end
     end)
 
-    local self = setmetatable(CollectionView.new(dataSource, GridLayout.new(2, Padding.equal(0), 0, 136, 32, 32)), EquipmentSlotGrid)
+    local self = setmetatable(CollectionView.new(dataSource, GridLayout.new(2, Padding.equal(0), 0, 136, 32, 32), nil, FFXIClassicStyle.slot()), EquipmentSlotGrid)
     self:setSize(136, 128)
 
     self:setEquipSet(equipSet)
