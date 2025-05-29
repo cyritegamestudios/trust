@@ -2,6 +2,7 @@ local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
 local EquipmentPickerView = require('ui/views/inventory/equipment/EquipmentPickerView')
 local EquipSet = require('cylibs/inventory/equipment/equip_set')
+local Event = require('cylibs/events/Luvent')
 local FFXIBackgroundView = require('ui/themes/ffxi/FFXIBackgroundView')
 local Frame = require('cylibs/ui/views/frame')
 local GridLayout = require('cylibs/ui/collection_view/layouts/grid_layout')
@@ -10,8 +11,88 @@ local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_c
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
+local Keyboard = require('cylibs/ui/input/keyboard')
 local Padding = require('cylibs/ui/style/padding')
 local View = require('cylibs/ui/views/view')
+
+local EquipmentSlotGrid = setmetatable({}, {__index = CollectionView})
+EquipmentSlotGrid.__index = EquipmentSlotGrid
+
+function EquipmentSlotGrid:onSlotSelected()
+    return self.slotSelected
+end
+
+function EquipmentSlotGrid.new(equipSet)
+    local dataSource = CollectionViewDataSource.new(function(item, indexPath)
+        if item.__type == ImageItem.__type then
+            local cell = ImageCollectionViewCell.new(item)
+            cell:setItemSize(32)
+            return cell
+        end
+    end)
+
+    local self = setmetatable(CollectionView.new(dataSource, GridLayout.new(0, Padding.equal(0), 0, 128, 32, 32)), EquipmentSlotGrid)
+    self:setSize(128, 128)
+
+    self:setEquipSet(equipSet)
+
+    self.slotSelected = Event.newEvent()
+
+    return self
+end
+
+function EquipmentSlotGrid:destroy()
+    CollectionViewDataSource.destroy(self)
+
+    self.slotSelected:removeAllActions()
+end
+
+function EquipmentSlotGrid:setEquipSet(equipSet)
+    if self.equipSet == equipSet then
+        return
+    end
+    self.equipSet = equipSet
+
+    local itemToUpdate = L{}
+
+    for slot, itemId in equipSet:it() do
+        local iconPath = string.format('%s/%s.bmp', windower.addon_path..'assets/equipment', itemId)
+
+        if not windower.file_exists(iconPath) then
+            icon_extractor.item_by_id(itemId, iconPath)
+        end
+
+        local imageItem = ImageItem.new(iconPath, 32, 32)
+
+        itemToUpdate:append(IndexedItem.new(imageItem, IndexPath.new(1, slot)))
+    end
+
+    self:getDataSource():updateItems(itemToUpdate)
+
+    self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
+end
+
+function EquipmentSlotGrid:onKeyboardEvent(key, pressed, flags, blocked)
+    local blocked = blocked or CollectionView.onKeyboardEvent(self, key, pressed, flags, blocked)
+    if blocked then
+        return true
+    end
+    if pressed then
+        local key = Keyboard.input():getKey(key)
+        if key then
+            if key == 'Enter' then
+                local selectedSlotIndex = self:getDelegate():getCursorIndexPath().row
+                self:onSlotSelected():trigger(self, selectedSlotIndex)
+                return true
+            elseif key == 'Escape' then
+                --self:setShouldResignFocus(true)
+                --self:resignFocus()
+            end
+        end
+    end
+    return false
+end
+
 
 local EquipSetView = setmetatable({}, {__index = View })
 EquipSetView.__index = EquipSetView
@@ -30,7 +111,7 @@ function EquipSetView.new(equipSet)
 
     self.containerView:addSubview(self:createEquipmentSlotView(ImageItem.new(windower.addon_path..'assets/backgrounds/item_slot_background.png', 32, 32, 128)))
 
-    self.equipmentSlotView = self:createEquipmentSlotView(ImageItem.new('', 32, 32))
+    self.equipmentSlotView = EquipmentSlotGrid.new(equipSet)
     self.equipmentSlotView:setAllowsCursorSelection(true)
 
     self.containerView:addSubview(self.equipmentSlotView)
@@ -39,29 +120,13 @@ function EquipSetView.new(equipSet)
 
     self:addSubview(self.equipmentPickerView)
 
-    self:reloadEquipSet(equipSet)
+    self.equipmentSlotView:setEquipSet(equipSet)
+
+    self.equipmentSlotView:onSlotSelected():addAction(function(_, slotIndex)
+        self.equipmentPickerView:requestFocus()
+    end)
 
     return self
-end
-
-function EquipSetView:reloadEquipSet(equipSet)
-    self.equipmentSlotView:getDataSource():removeAllItems()
-
-    local itemToUpdate = L{}
-
-    for slot, itemId in equipSet:it() do
-        local iconPath = string.format('%s/%s.bmp', windower.addon_path..'assets/equipment', itemId)
-
-        if not windower.file_exists(iconPath) then
-            icon_extractor.item_by_id(itemId, iconPath)
-        end
-
-        local imageItem = ImageItem.new(iconPath, 32, 32)
-
-        itemToUpdate:append(IndexedItem.new(imageItem, IndexPath.new(1, slot)))
-    end
-
-    self.equipmentSlotView:getDataSource():updateItems(itemToUpdate)
 end
 
 function EquipSetView:createEquipmentSlotView(defaultImageItem)
@@ -99,6 +164,7 @@ function EquipSetView:layoutIfNeeded()
         self.containerView:setPosition((self:getSize().width - self.containerView:getSize().width) / 2, 8)
 
         self.equipmentPickerView:setPosition(self:getSize().width + 4, 0)
+        self.equipmentPickerView:layoutIfNeeded()
     end
 end
 
