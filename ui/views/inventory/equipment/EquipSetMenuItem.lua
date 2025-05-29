@@ -11,7 +11,7 @@ function EquipSetMenuItem.new(equipSet)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
     }, {}, function(_, infoView, _)
-        local equipSetView = EquipSetView.new(equipSet)
+        local equipSetView = EquipSetView.new(equipSet or player.party:get_player():get_current_equip_set())
         return equipSetView
     end, "Equip Set", string.format("View equipment in this set.")), EquipSetMenuItem)
 

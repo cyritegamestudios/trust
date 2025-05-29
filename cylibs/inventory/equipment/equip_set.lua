@@ -80,6 +80,17 @@ function EquipSet:getWaist() return self.waist end
 function EquipSet:getLegs() return self.legs end
 function EquipSet:getFeet() return self.feet end
 
+function EquipSet:it()
+    local index = 0
+    return function()
+        index = index + 1
+        local slot = EquipSet.Slot.AllSlots[index]
+        if slot then
+            return index, self[slot]
+        end
+    end
+end
+
 function EquipSet:__tostring()
     local parts = {}
     for slot in EquipSet.Slot.AllSlots:it() do
