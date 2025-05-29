@@ -15,11 +15,17 @@ local Keyboard = require('cylibs/ui/input/keyboard')
 local Padding = require('cylibs/ui/style/padding')
 local View = require('cylibs/ui/views/view')
 
+-- EquipmentSlotGrid
+
 local EquipmentSlotGrid = setmetatable({}, {__index = CollectionView})
 EquipmentSlotGrid.__index = EquipmentSlotGrid
 
 function EquipmentSlotGrid:onSlotSelected()
     return self.slotSelected
+end
+
+function EquipmentSlotGrid:onSlotHighlighted()
+    return self.slotHighlighted
 end
 
 function EquipmentSlotGrid.new(equipSet)
@@ -31,20 +37,27 @@ function EquipmentSlotGrid.new(equipSet)
         end
     end)
 
-    local self = setmetatable(CollectionView.new(dataSource, GridLayout.new(0, Padding.equal(0), 0, 128, 32, 32)), EquipmentSlotGrid)
-    self:setSize(128, 128)
+    local self = setmetatable(CollectionView.new(dataSource, GridLayout.new(2, Padding.equal(0), 0, 136, 32, 32)), EquipmentSlotGrid)
+    self:setSize(136, 128)
 
     self:setEquipSet(equipSet)
 
     self.slotSelected = Event.newEvent()
+    self.slotHighlighted = Event.newEvent()
+
+    self:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
+        local slotIndex = indexPath.row
+        self:onSlotHighlighted():trigger(self, EquipSet.Slot.AllSlots[slotIndex])
+    end)
 
     return self
 end
 
 function EquipmentSlotGrid:destroy()
-    CollectionViewDataSource.destroy(self)
+    CollectionView.destroy(self)
 
     self.slotSelected:removeAllActions()
+    self.slotHighlighted:removeAllActions()
 end
 
 function EquipmentSlotGrid:setEquipSet(equipSet)
@@ -82,54 +95,52 @@ function EquipmentSlotGrid:onKeyboardEvent(key, pressed, flags, blocked)
         if key then
             if key == 'Enter' then
                 local selectedSlotIndex = self:getDelegate():getCursorIndexPath().row
-                self:onSlotSelected():trigger(self, selectedSlotIndex)
+                self:onSlotSelected():trigger(self, EquipSet.Slot.AllSlots[selectedSlotIndex])
                 return true
-            elseif key == 'Escape' then
-                --self:setShouldResignFocus(true)
-                --self:resignFocus()
             end
         end
     end
     return false
 end
 
+-- EquipSetView
 
 local EquipSetView = setmetatable({}, {__index = View })
 EquipSetView.__index = EquipSetView
 
 
 function EquipSetView.new(equipSet)
-    local viewSize = Frame.new(0, 0, 176, 144)
+    local viewSize = Frame.new(0, 0, 176, 150)
 
     local self = setmetatable(View.new(viewSize), EquipSetView)
 
     local backgroundView = FFXIBackgroundView.new(viewSize, true, CollectionView.defaultStyle())
     self:setBackgroundImageView(backgroundView)
 
-    self.containerView = View.new(Frame.new(0, 0, 128, 128))
+    self.equipmentPickerView = EquipmentPickerView.new(L{ EquipSet.Slot.Head })
+    self:addSubview(self.equipmentPickerView)
+
+    self.containerView = View.new(Frame.new(0, 0, 136, 128))
     self:addSubview(self.containerView)
 
-    self.containerView:addSubview(self:createEquipmentSlotView(ImageItem.new(windower.addon_path..'assets/backgrounds/item_slot_background.png', 32, 32, 128)))
+    self.containerView:addSubview(self:createEquipmentSlotBackgroundView(ImageItem.new(windower.addon_path..'assets/backgrounds/item_slot_background.png', 32, 32, 128)))
 
     self.equipmentSlotView = EquipmentSlotGrid.new(equipSet)
     self.equipmentSlotView:setAllowsCursorSelection(true)
 
-    self.containerView:addSubview(self.equipmentSlotView)
-
-    self.equipmentPickerView = EquipmentPickerView.new(L{ EquipSet.Slot.Head })
-
-    self:addSubview(self.equipmentPickerView)
-
-    self.equipmentSlotView:setEquipSet(equipSet)
-
-    self.equipmentSlotView:onSlotSelected():addAction(function(_, slotIndex)
+    self.equipmentSlotView:onSlotSelected():addAction(function(_, _)
         self.equipmentPickerView:requestFocus()
     end)
+    self.equipmentSlotView:onSlotHighlighted():addAction(function(_, slot)
+        self.equipmentPickerView:setSlots(S{ slot })
+    end)
+
+    self.containerView:addSubview(self.equipmentSlotView)
 
     return self
 end
 
-function EquipSetView:createEquipmentSlotView(defaultImageItem)
+function EquipSetView:createEquipmentSlotBackgroundView(defaultImageItem)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         if item.__type == ImageItem.__type then
             local cell = ImageCollectionViewCell.new(item)
@@ -137,6 +148,7 @@ function EquipSetView:createEquipmentSlotView(defaultImageItem)
             return cell
         end
     end)
+    dataSource.debugTag = "SlotBackgroundView"
 
     local itemsToAdd = L{}
 
@@ -144,8 +156,8 @@ function EquipSetView:createEquipmentSlotView(defaultImageItem)
         itemsToAdd:append(IndexedItem.new(defaultImageItem, IndexPath.new(1, slot)))
     end
 
-    local slotBackgroundView = CollectionView.new(dataSource, GridLayout.new(0, Padding.equal(0), 0, 128, 32, 32))
-    slotBackgroundView:setSize(128, 128)
+    local slotBackgroundView = CollectionView.new(dataSource, GridLayout.new(2, Padding.equal(0), 0, 136, 32, 32))
+    slotBackgroundView:setSize(136, 128)
 
     slotBackgroundView:getDataSource():addItems(itemsToAdd)
 
@@ -172,12 +184,6 @@ function EquipSetView:requestFocus()
     View.requestFocus(self)
 
     self.equipmentSlotView:requestFocus()
-end
-
-function EquipSetView:resignFocus()
-    View.resignFocus(self)
-
-    self.equipmentSlotView:resignFocus()
 end
 
 return EquipSetView
