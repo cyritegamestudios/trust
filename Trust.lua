@@ -150,6 +150,9 @@ function load_user_files(main_job_id, sub_job_id)
 		end
 		return nil
 	end
+	windower.trust.get_inventory = function()
+		return player.party:get_player():get_inventory()
+	end
 
 	windower.trust.ui = {}
 	windower.trust.ui.get_hud = function()

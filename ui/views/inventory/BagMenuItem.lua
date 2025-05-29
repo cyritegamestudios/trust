@@ -15,8 +15,9 @@ function BagMenuItem.new(bag)
         local configItem = MultiPickerConfigItem.new("Items", L{}, bag:getItems():filter(function(item)
             return item.id ~= 0
         end), function(item)
-            local matches = Item:where({ id = item.id }, L{ 'en' })
+            local matches = Item:where({ id = item.id }, L{ 'en', 'slots' })
             if matches:length() > 0 then
+                print(matches[1].en, 'slot is', matches[1].slots)
                 return matches[1].en
             end
             return "Unknown"

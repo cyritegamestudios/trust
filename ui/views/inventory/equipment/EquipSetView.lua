@@ -1,5 +1,7 @@
 local CollectionView = require('cylibs/ui/collection_view/collection_view')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
+local EquipmentPickerView = require('ui/views/inventory/equipment/EquipmentPickerView')
+local EquipSet = require('cylibs/inventory/equipment/equip_set')
 local FFXIBackgroundView = require('ui/themes/ffxi/FFXIBackgroundView')
 local Frame = require('cylibs/ui/views/frame')
 local GridLayout = require('cylibs/ui/collection_view/layouts/grid_layout')
@@ -32,6 +34,10 @@ function EquipSetView.new(equipSet)
     self.equipmentSlotView:setAllowsCursorSelection(true)
 
     self.containerView:addSubview(self.equipmentSlotView)
+
+    self.equipmentPickerView = EquipmentPickerView.new(L{ EquipSet.Slot.Head })
+
+    self:addSubview(self.equipmentPickerView)
 
     self:reloadEquipSet(equipSet)
 
@@ -91,6 +97,8 @@ function EquipSetView:layoutIfNeeded()
 
     if self.containerView then
         self.containerView:setPosition((self:getSize().width - self.containerView:getSize().width) / 2, 8)
+
+        self.equipmentPickerView:setPosition(self:getSize().width + 4, 0)
     end
 end
 

@@ -113,10 +113,12 @@ function ORM:insert(table_name, data)
     self:execute(sql, table.unpack(values))
 end
 
+local localization_util = require('cylibs/util/localization_util')
+
 function ORM:select(table_name, conditions, fields, raw_rows)
     local columns = "*"
     if fields and fields:length() > 0 then
-        columns = table.concat(fields)
+        columns = localization_util.commas(fields, '')
     end
 
     local sql = string.format("SELECT %s FROM %s", columns, table_name)
@@ -136,10 +138,12 @@ function ORM:select(table_name, conditions, fields, raw_rows)
         end
     end
     sql = sql .. ";"
+
     local result = L{}
     for row in self.db:nrows(sql) do
         result:append(row)
     end
+
     if not raw_rows then
         result = result:map(function(row)
             return Model.new(self.tables[table_name], row)

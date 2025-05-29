@@ -13,7 +13,7 @@ function EquipSetMenuItem.new(equipSet)
         ButtonItem.default('Edit', 18),
     }, {
         Edit = InventoryMenuItem.new()
-    }, function(_, infoView, _)
+    }, function(_, _, _)
         local equipSetView = EquipSetView.new(equipSet or player.party:get_player():get_current_equip_set())
         return equipSetView
     end, "Equip Set", string.format("View equipment in this set.")), EquipSetMenuItem)

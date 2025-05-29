@@ -40,6 +40,38 @@ EquipSet.Slot.AllSlots = L{
     EquipSet.Slot.Feet
 }
 
+local bit = require('bit')  -- Only needed if bit isn't already available globally
+
+local slot_bit_map = {
+    [bit.lshift(1, 0)]  = EquipSet.Slot.Main,
+    [bit.lshift(1, 1)]  = EquipSet.Slot.Sub,
+    [bit.lshift(1, 2)]  = EquipSet.Slot.Range,
+    [bit.lshift(1, 3)]  = EquipSet.Slot.Ammo,
+    [bit.lshift(1, 4)]  = EquipSet.Slot.Head,
+    [bit.lshift(1, 5)]  = EquipSet.Slot.Body,
+    [bit.lshift(1, 6)]  = EquipSet.Slot.Hands,
+    [bit.lshift(1, 7)]  = EquipSet.Slot.Legs,
+    [bit.lshift(1, 8)]  = EquipSet.Slot.Feet,
+    [bit.lshift(1, 9)]  = EquipSet.Slot.Neck,
+    [bit.lshift(1, 10)] = EquipSet.Slot.Waist,
+    [bit.lshift(1, 11)] = EquipSet.Slot.Ear1,       -- Left Ear
+    [bit.lshift(1, 12)] = EquipSet.Slot.Ear2,       -- Right Ear
+    [bit.lshift(1, 13)] = EquipSet.Slot.Ring2,      -- Left Ring
+    [bit.lshift(1, 14)] = EquipSet.Slot.Ring1,      -- Right Ring
+    [bit.lshift(1, 15)] = EquipSet.Slot.Back,
+}
+
+
+EquipSet.getSlotsForMask = function(mask)
+    local slots = {}
+    for bitmask, slot_name in pairs(slot_bit_map) do
+        if bit.band(tonumber(mask), bitmask) ~= 0 then
+            table.insert(slots, slot_name)
+        end
+    end
+    return slots
+end
+
 function EquipSet.new(main, sub, range, ammo, head, neck, left_ear, right_ear, body, hands, left_ring, right_ring, back, waist, legs, feet)
     local self = setmetatable({}, EquipSet)
 

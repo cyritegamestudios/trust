@@ -233,11 +233,18 @@ end
 -- // trust debug
 function GeneralTrustCommands:handle_debug()
 
+    local Item = require('resources/resources').Item
+
+    local matches = Item:where({ id = 26341 }, L{ 'en', 'slots' })
+    if matches:length() > 0 then
+        print(T(matches[1]):keyset())
+    end
+
     --local Equipment = require('cylibs/inventory/equipment/equipment')
 
-    local Inventory = require('cylibs/inventory/inventory')
-    local inventory = Inventory.new()
-    print(inventory:getBag('inventory'):getItems():length())
+    --local Inventory = require('cylibs/inventory/inventory')
+    --local inventory = Inventory.new()
+    --print(inventory:getBag('inventory'):getItems():length())
 
 
     return true, nil

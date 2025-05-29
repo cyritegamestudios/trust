@@ -40,7 +40,7 @@ end
 
 function TrustRemoteCommands:on_init()
     self.events.chat_message = windower.register_event('chat message', function(message, sender, mode, gm)
-        if not gm and self:get_whitelist():contains(sender) then
+        if mode == 3 and not gm and self:get_whitelist():contains(sender) then
             local args = string.split(message, ' ')
             if args[1] == 'trust' then
                 windower.send_command('input // '..message)
