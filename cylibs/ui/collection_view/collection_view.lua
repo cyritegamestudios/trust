@@ -56,6 +56,8 @@ function CollectionView.new(dataSource, layout, delegate, style, mediaPlayer, so
     self.allowsMultipleSelection = false
     self.allowsCursorSelection = false
     self.cursorImageItem = style:getCursorItem()
+    self.scrollNextKey = 208
+    self.scrollPreviousKey = 200
 
     if self.cursorImageItem then
         self.selectionBackground = ImageCollectionViewCell.new(self.cursorImageItem)
@@ -321,7 +323,7 @@ function CollectionView:onKeyboardEvent(key, pressed, flags, blocked)
 
         local currentIndexPath = self:getDelegate():getCursorIndexPath()
         if currentIndexPath then
-            if key == 208 then
+            if key == self.scrollNextKey then
                 self.isScrolling = true
                 if self:canScroll() then
                     local nextIndexPath = self:getDataSource():getNextIndexPath(currentIndexPath, self.allowsScrollWrap)
@@ -332,7 +334,7 @@ function CollectionView:onKeyboardEvent(key, pressed, flags, blocked)
                     self:getDelegate():setCursorIndexPath(nextIndexPath)
                 end
                 return true
-            elseif key == 200 then
+            elseif key == self.scrollPreviousKey then
                 self.isScrolling = true
                 if self:canScroll() then
                     local nextIndexPath = self:getDataSource():getPreviousIndexPath(currentIndexPath, self.allowsScrollWrap)
@@ -360,7 +362,7 @@ function CollectionView:onKeyboardEvent(key, pressed, flags, blocked)
     else
         self.isScrolling = false
     end
-    return L{200, 208}:contains(key)
+    return L{self.scrollNextKey, self.scrollPreviousKey}:contains(key)
 end
 
 function CollectionView:onMouseEvent(type, x, y, delta)
