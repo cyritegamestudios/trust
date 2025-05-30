@@ -53,11 +53,20 @@ function EquipSetView.new(equipSet)
     self.slotSelected = Event.newEvent()
     self.slotHighlighted = Event.newEvent()
 
-    self:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
+    self:getDisposeBag():add(self.equipmentPickerView:onEquipmentPicked():addAction(function(equipmentPickerView, itemId, slot)
+        local equipSet = self.equipSet:copy()
+        equipSet[slot] = itemId
+
+        self:setEquipSet(equipSet)
+
+        equipmentPickerView:resignFocus()
+    end), self.equipmentPickerView:onEquipmentPicked())
+
+    self:getDisposeBag():add(self:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
         local slotIndex = indexPath.row
         self:onSlotHighlighted():trigger(self, EquipSet.Slot.AllSlots[slotIndex])
         self.equipmentPickerView:setSlots(S{ EquipSet.Slot.AllSlots[slotIndex] })
-    end)
+    end), self:getDelegate():didMoveCursorToItemAtIndexPath())
 
     return self
 end
@@ -90,6 +99,9 @@ function EquipSetView:setEquipSet(equipSet)
     end
 
     self:getDataSource():updateItems(itemToUpdate)
+
+    self:setNeedsLayout()
+    self:layoutIfNeeded()
 
     self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
 end

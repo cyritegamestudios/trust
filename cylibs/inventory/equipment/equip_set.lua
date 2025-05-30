@@ -123,6 +123,10 @@ function EquipSet:it()
     end
 end
 
+function EquipSet:copy()
+    return EquipSet.new(self.main, self.sub, self.range, self.ammo, self.head, self.neck, self.left_ear, self.right_ear, self.body, self.hands, self.left_ring, self.right_ring, self.back, self.waist, self.legs, self.feet)
+end
+
 function EquipSet:__tostring()
     local parts = {}
     for slot in EquipSet.Slot.AllSlots:it() do

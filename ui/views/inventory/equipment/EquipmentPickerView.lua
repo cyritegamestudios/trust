@@ -1,4 +1,5 @@
 local EquipSet = require('cylibs/inventory/equipment/equip_set')
+local Event = require('cylibs/events/Luvent')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local Item = require('resources/resources').Item
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
@@ -6,13 +7,28 @@ local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerCon
 local EquipmentPickerView = setmetatable({}, {__index = FFXIPickerView })
 EquipmentPickerView.__index = EquipmentPickerView
 
+function EquipmentPickerView:onEquipmentPicked()
+    return self.equipmentPicked
+end
 
 function EquipmentPickerView.new(slots)
     local self = setmetatable(FFXIPickerView.withConfig(MultiPickerConfigItem.new("Items", L{}, L{})), EquipmentPickerView)
 
     self:setSlots(slots)
 
+    self:getDisposeBag():add(self:on_select_items():addAction(function(_, selectedItems, _)
+        self:onEquipmentPicked():trigger(self, selectedItems[1].id, L(self.slots)[1])
+    end), self:on_select_items())
+
+    self.equipmentPicked = Event.newEvent()
+
     return self
+end
+
+function EquipmentPickerView:destroy()
+    FFXIPickerView.destroy(self)
+
+    self.equipmentPicked:removeAllActions()
 end
 
 function EquipmentPickerView:setSlots(slots)

@@ -10,7 +10,7 @@ EquipSetMenuItem.__index = EquipSetMenuItem
 function EquipSetMenuItem.new(equipSet)
 
     local self = setmetatable(MenuItem.new(L{
-        ButtonItem.default('Edit', 18),
+        ButtonItem.default('Confirm', 18),
     }, {
         Edit = InventoryMenuItem.new()
     }, function(_, _, _)
