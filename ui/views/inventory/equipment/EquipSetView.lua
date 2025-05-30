@@ -10,6 +10,7 @@ local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_c
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
+local ItemDescription = require('resources/resources').ItemDescription
 local Keyboard = require('cylibs/ui/input/keyboard')
 local Padding = require('cylibs/ui/style/padding')
 
@@ -96,6 +97,8 @@ function EquipSetView:setEquipSet(equipSet)
         local imageItem = ImageItem.new(iconPath, 32, 32)
 
         itemToUpdate:append(IndexedItem.new(imageItem, IndexPath.new(1, slot)))
+
+        --local description = ItemDescription:where({ id = itemId }, L{ 'en '})
     end
 
     self:getDataSource():updateItems(itemToUpdate)

@@ -65,6 +65,14 @@ function Resources.new()
                 superior_level = "INTEGER"
             },
         }),
+        ItemDescription = Table(self.database, {
+            table_name = "item_descriptions",
+            schema = {
+                id = "INTEGER PRIMARY KEY",
+                en = "TEXT",
+                ja = "TEXT"
+            },
+        }),
     }
 
     return self
@@ -79,7 +87,8 @@ function Resources:get_table(resource_name)
         return self.tables[resource_name]
     end
     local resource_map = {
-        items = self.tables.Item
+        items = self.tables.Item,
+        item_descriptions = self.tables.ItemDescription
     }
     return resource_map[resource_name]
 end
@@ -96,4 +105,5 @@ end
 return {
     Resources = Resources.shared(),
     Item = Resources.shared().tables.Item,
+    ItemDescription = Resources.shared().tables.ItemDescription
 }
