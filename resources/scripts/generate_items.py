@@ -17,7 +17,9 @@ def parse_description_file(lua_file_path):
     lua = LuaRuntime(unpack_returned_tuples=True)
     with open(lua_file_path, 'r', encoding='utf-8') as f:
         lua_code = f.read()
-    description_table = lua.eval(lua_code)
+
+    # This returns a tuple: (descriptions_table, field_names)
+    description_table, _ = lua.execute(lua_code)
 
     descriptions = {}
     for key, value in description_table.items():
@@ -26,7 +28,6 @@ def parse_description_file(lua_file_path):
             'ja': value.get("ja", "Unknown")
         }
     return descriptions
-
 
 def create_items_table(conn):
     c = conn.cursor()
