@@ -16,97 +16,11 @@ local Keyboard = require('cylibs/ui/input/keyboard')
 local Padding = require('cylibs/ui/style/padding')
 local View = require('cylibs/ui/views/view')
 
--- EquipmentSlotGrid
 
-local EquipmentSlotGrid = setmetatable({}, {__index = CollectionView})
-EquipmentSlotGrid.__index = EquipmentSlotGrid
-
-function EquipmentSlotGrid:onSlotSelected()
-    return self.slotSelected
-end
-
-function EquipmentSlotGrid:onSlotHighlighted()
-    return self.slotHighlighted
-end
-
-function EquipmentSlotGrid.new(equipSet)
-    local dataSource = CollectionViewDataSource.new(function(item, indexPath)
-        if item.__type == ImageItem.__type then
-            local cell = ImageCollectionViewCell.new(item)
-            cell:setItemSize(32)
-            return cell
-        end
-    end)
-
-    local self = setmetatable(CollectionView.new(dataSource, GridLayout.new(2, Padding.equal(0), 0, 136, 32, 32), nil, FFXIClassicStyle.slot()), EquipmentSlotGrid)
-    self:setSize(136, 128)
-
-    self:setEquipSet(equipSet)
-
-    self.slotSelected = Event.newEvent()
-    self.slotHighlighted = Event.newEvent()
-
-    self:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
-        local slotIndex = indexPath.row
-        self:onSlotHighlighted():trigger(self, EquipSet.Slot.AllSlots[slotIndex])
-    end)
-
-    return self
-end
-
-function EquipmentSlotGrid:destroy()
-    CollectionView.destroy(self)
-
-    self.slotSelected:removeAllActions()
-    self.slotHighlighted:removeAllActions()
-end
-
-function EquipmentSlotGrid:setEquipSet(equipSet)
-    if self.equipSet == equipSet then
-        return
-    end
-    self.equipSet = equipSet
-
-    local itemToUpdate = L{}
-
-    for slot, itemId in equipSet:it() do
-        local iconPath = string.format('%s/%s.bmp', windower.addon_path..'assets/equipment', itemId)
-
-        if not windower.file_exists(iconPath) then
-            icon_extractor.item_by_id(itemId, iconPath)
-        end
-
-        local imageItem = ImageItem.new(iconPath, 32, 32)
-
-        itemToUpdate:append(IndexedItem.new(imageItem, IndexPath.new(1, slot)))
-    end
-
-    self:getDataSource():updateItems(itemToUpdate)
-
-    self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
-end
-
-function EquipmentSlotGrid:onKeyboardEvent(key, pressed, flags, blocked)
-    local blocked = blocked or CollectionView.onKeyboardEvent(self, key, pressed, flags, blocked)
-    if blocked then
-        return true
-    end
-    if pressed then
-        local key = Keyboard.input():getKey(key)
-        if key then
-            if key == 'Enter' then
-                local selectedSlotIndex = self:getDelegate():getCursorIndexPath().row
-                self:onSlotSelected():trigger(self, EquipSet.Slot.AllSlots[selectedSlotIndex])
-                return true
-            end
-        end
-    end
-    return false
-end
 
 -- EquipSetView
 
-local EquipSetView = setmetatable({}, {__index = View })
+--[[local EquipSetView = setmetatable({}, {__index = View })
 EquipSetView.__index = EquipSetView
 
 
@@ -149,7 +63,6 @@ function EquipSetView:createEquipmentSlotBackgroundView(defaultImageItem)
             return cell
         end
     end)
-    dataSource.debugTag = "SlotBackgroundView"
 
     local itemsToAdd = L{}
 
@@ -185,6 +98,116 @@ function EquipSetView:requestFocus()
     View.requestFocus(self)
 
     self.equipmentSlotView:requestFocus()
+end
+
+return EquipSetView]]
+
+local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
+local EquipSetView = setmetatable({}, {__index = FFXIWindow})
+EquipSetView.__index = EquipSetView
+
+function EquipSetView:onSlotSelected()
+    return self.slotSelected
+end
+
+function EquipSetView:onSlotHighlighted()
+    return self.slotHighlighted
+end
+
+function EquipSetView.new(equipSet)
+    local dataSource = CollectionViewDataSource.new(function(item, indexPath)
+        if item.__type == ImageItem.__type then
+            local slotBackgroundView = ImageCollectionViewCell.new(ImageItem.new(windower.addon_path..'assets/backgrounds/item_slot_background.png', 32, 32, 128))
+
+            local cell = ImageCollectionViewCell.new(item)
+            cell:setItemSize(32)
+            cell:addSubview(slotBackgroundView)
+            return cell
+        end
+    end)
+
+    local viewSize = Frame.new(0, 0, 160, 160)
+
+    local self = setmetatable(FFXIWindow.new(dataSource, GridLayout.new(2, Padding.new(14, 12, 0, 0), 0, 136, 32, 32), nil, false, viewSize, FFXIClassicStyle.slot()), EquipSetView)
+
+    self:setEquipSet(equipSet)
+
+    self.equipmentPickerView = EquipmentPickerView.new(L{ EquipSet.Slot.Head })
+    self:addSubview(self.equipmentPickerView)
+
+    self.slotSelected = Event.newEvent()
+    self.slotHighlighted = Event.newEvent()
+
+    self:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
+        local slotIndex = indexPath.row
+        self:onSlotHighlighted():trigger(self, EquipSet.Slot.AllSlots[slotIndex])
+        self.equipmentPickerView:setSlots(S{ EquipSet.Slot.AllSlots[slotIndex] })
+    end)
+
+    return self
+end
+
+function EquipSetView:destroy()
+    FFXIWindow.destroy(self)
+
+    self.slotSelected:removeAllActions()
+    self.slotHighlighted:removeAllActions()
+end
+
+function EquipSetView:setEquipSet(equipSet)
+    if self.equipSet == equipSet then
+        return
+    end
+    self.equipSet = equipSet
+
+    local itemToUpdate = L{}
+
+    for slot, itemId in equipSet:it() do
+        local iconPath = string.format('%s/%s.bmp', windower.addon_path..'assets/equipment', itemId)
+
+        if not windower.file_exists(iconPath) then
+            icon_extractor.item_by_id(itemId, iconPath)
+        end
+
+        local imageItem = ImageItem.new(iconPath, 32, 32)
+
+        itemToUpdate:append(IndexedItem.new(imageItem, IndexPath.new(1, slot)))
+    end
+
+    self:getDataSource():updateItems(itemToUpdate)
+
+    self:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
+end
+
+function EquipSetView:layoutIfNeeded()
+    local needsLayout = FFXIWindow.layoutIfNeeded(self)
+    if not needsLayout then
+        return false
+    end
+
+    if self.equipmentPickerView then
+        self.equipmentPickerView:setPosition(self:getSize().width + 4, 0)
+        self.equipmentPickerView:layoutIfNeeded()
+    end
+end
+
+function EquipSetView:onKeyboardEvent(key, pressed, flags, blocked)
+    local blocked = blocked or CollectionView.onKeyboardEvent(self, key, pressed, flags, blocked)
+    if blocked then
+        return true
+    end
+    if pressed then
+        local key = Keyboard.input():getKey(key)
+        if key then
+            if key == 'Enter' then
+                local selectedSlotIndex = self:getDelegate():getCursorIndexPath().row
+                self.equipmentPickerView:requestFocus()
+                self:onSlotSelected():trigger(self, EquipSet.Slot.AllSlots[selectedSlotIndex])
+                return true
+            end
+        end
+    end
+    return false
 end
 
 return EquipSetView

@@ -77,12 +77,12 @@ function GridLayout:layoutSubviews(collectionView, indexPathFilter)
                 cellSize = self:sizeForItemAtIndexPath(collectionView, cell)
 
                 if xOffset + cellSize.width + self.itemSpacing > self.width then
-                    xOffset = 0
+                    xOffset = self.padding.left
                     yOffset = yOffset + cellSize.height + self.itemSpacing
                 end
 
                 cell:setPosition(xOffset, yOffset)
-                cell:setSize(cellSize.width - self.padding.left - self.padding.right, cellSize.height)
+                cell:setSize(cellSize.width --[[- self.padding.left - self.padding.right]], cellSize.height)
                 cell:setVisible(collectionView:getContentView():isVisible() and cell:isVisible())
                 cell:layoutIfNeeded()
 
