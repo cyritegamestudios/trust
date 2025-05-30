@@ -2,6 +2,7 @@ local EquipSet = require('cylibs/inventory/equipment/equip_set')
 local Event = require('cylibs/events/Luvent')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local Item = require('resources/resources').Item
+local ItemDescriptionView = require('ui/views/inventory/ItemDescriptionView')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 
 local EquipmentPickerView = setmetatable({}, {__index = FFXIPickerView })
@@ -14,11 +15,19 @@ end
 function EquipmentPickerView.new(slots)
     local self = setmetatable(FFXIPickerView.withConfig(MultiPickerConfigItem.new("Items", L{}, L{})), EquipmentPickerView)
 
+    self.itemDescriptionView = ItemDescriptionView.new()
+    self:addSubview(self.itemDescriptionView)
+
     self:setSlots(slots)
 
     self:getDisposeBag():add(self:on_select_items():addAction(function(_, selectedItems, _)
+        self.itemDescriptionView:setItemId(selectedItems[1].id)
         self:onEquipmentPicked():trigger(self, selectedItems[1].id, L(self.slots)[1])
     end), self:on_select_items())
+
+    self:getDisposeBag():add(self:getDelegate():didHighlightItemAtIndexPath():addAction(function(indexPath)
+
+    end), self:getDelegate():didHighlightItemAtIndexPath())
 
     self.equipmentPicked = Event.newEvent()
 
@@ -60,6 +69,14 @@ function EquipmentPickerView:setSlots(slots)
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
+end
+
+function EquipmentPickerView:layoutIfNeeded()
+    local needsLayout = FFXIPickerView.layoutIfNeeded(self)
+
+    self.itemDescriptionView:setPosition(-164, self:getSize().height + 6)
+
+    return needsLayout
 end
 
 return EquipmentPickerView

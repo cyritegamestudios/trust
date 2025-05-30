@@ -10,7 +10,6 @@ local ImageCollectionViewCell = require('cylibs/ui/collection_view/cells/image_c
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
-local ItemDescription = require('resources/resources').ItemDescription
 local Keyboard = require('cylibs/ui/input/keyboard')
 local Padding = require('cylibs/ui/style/padding')
 
@@ -39,7 +38,7 @@ function EquipSetView.new(equipSet)
         end
     end)
 
-    local viewSize = Frame.new(0, 0, 160, 160)
+    local viewSize = Frame.new(0, 0, 160, 192)
 
     local self = setmetatable(FFXIWindow.new(dataSource, GridLayout.new(2, Padding.new(14, 12, 0, 0), 0, 136, 32, 32), nil, false, viewSize, FFXIClassicStyle.slot()), EquipSetView)
 
