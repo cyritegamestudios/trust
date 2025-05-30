@@ -18,16 +18,9 @@ def parse_description_file(lua_file_path):
     with open(lua_file_path, 'r', encoding='utf-8') as f:
         lua_code = f.read()
 
-    # This returns a tuple: (descriptions_table, field_names)
     description_table, _ = lua.execute(lua_code)
+    return description_table
 
-    descriptions = {}
-    for key, value in description_table.items():
-        descriptions[int(key)] = {
-            'en': value.get("en", "Unknown"),
-            'ja': value.get("ja", "Unknown")
-        }
-    return descriptions
 
 def create_items_table(conn):
     c = conn.cursor()
@@ -115,7 +108,7 @@ def main():
         insert_item(conn, item)
 
     for id, desc in descriptions.items():
-        insert_description(conn, id, desc['en'], desc['ja'])
+        insert_description(conn, int(id), desc['en'], desc['ja'])
 
     conn.commit()
     print("Inserted all items.")
