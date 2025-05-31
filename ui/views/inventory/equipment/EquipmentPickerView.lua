@@ -81,4 +81,11 @@ function EquipmentPickerView:layoutIfNeeded()
     return needsLayout
 end
 
+function EquipmentPickerView:setHasFocus(hasFocus)
+    FFXIPickerView.setHasFocus(self, hasFocus)
+
+    self.itemDescriptionView:setVisible(hasFocus)
+    self.itemDescriptionView:layoutIfNeeded()
+end
+
 return EquipmentPickerView
