@@ -12,6 +12,24 @@ local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Keyboard = require('cylibs/ui/input/keyboard')
 local Padding = require('cylibs/ui/style/padding')
 
+local SlotItem = setmetatable({}, {__index = ImageItem})
+SlotItem.__index = SlotItem
+SlotItem.__type = "SlotItem"
+SlotItem.__class = "SlotItem"
+
+---
+-- Creates a new SlotItem instance.
+--
+-- @tparam number slot The slot number (see res/slots.lua).
+-- @tparam number itemId The item id (see res/items.lua).
+-- @treturn SlotItem The newly created SlotItem instance.
+--
+function SlotItem.new(slot, itemId)
+    local self = setmetatable(AssetManager.imageItemForItem(itemId), SlotItem)
+    self.slot = slot
+    return self
+end
+
 local FFXIWindow = require('ui/themes/ffxi/FFXIWindow')
 local EquipSetView = setmetatable({}, {__index = FFXIWindow})
 EquipSetView.__index = EquipSetView
@@ -21,7 +39,7 @@ function EquipSetView.new(equipSet)
     local itemSize = 32
 
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
-        if item.__type == ImageItem.__type then
+        if item.__type == SlotItem.__type then
             local slotBackgroundView = ImageCollectionViewCell.new(ImageItem.new(windower.addon_path..'assets/backgrounds/item_slot_background.png', 32, 32, 128))
 
             local cell = ImageCollectionViewCell.new(item)
@@ -53,10 +71,15 @@ function EquipSetView.new(equipSet)
     end), self.equipmentPickerView:onEquipmentPicked())
 
     self:getDisposeBag():add(self:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
-        self.equipmentPickerView:setSlots(S{ EquipSet.Slot.AllSlots[indexPath.row] })
+        local item = self:getDataSource():itemAtIndexPath(indexPath)
+        self.equipmentPickerView:setSlots(L{ EquipSet.getSlotNameForSlot(item.slot) })
     end), self:getDelegate():didMoveCursorToItemAtIndexPath())
 
     return self
+end
+
+function EquipSetView:getSlotOrder()
+    return L{ 0, 1, 2, 3, 4, 9, 11, 12, 5, 6, 13, 14, 15, 10, 7, 8 }
 end
 
 function EquipSetView:setEquipSet(equipSet)
@@ -64,9 +87,10 @@ function EquipSetView:setEquipSet(equipSet)
 
     local itemToUpdate = L{}
 
-    for slot, itemId in equipSet:it() do
-        print(slot, res.items[itemId].en)
-        itemToUpdate:append(IndexedItem.new(AssetManager.imageItemForItem(itemId), IndexPath.new(1, slot)))
+    for i, slot in pairs(self:getSlotOrder()) do
+        if type(i) == 'number' then
+            itemToUpdate:append(IndexedItem.new(SlotItem.new(slot, self.equipSet[slot]), IndexPath.new(1, i)))
+        end
     end
 
     self:getDataSource():updateItems(itemToUpdate)

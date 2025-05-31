@@ -97,6 +97,15 @@ EquipSet.getSlotsForMask = function(mask)
     return slots
 end
 
+EquipSet.getSlotNameForSlot = function(slot_id)
+    for _, slot in ipairs(slot_definitions) do
+        if slot.bit == slot_id then
+            return slot.name
+        end
+    end
+    return nil
+end
+
 -- Allow indexed access using bitmask numbers
 EquipSet.__index = function(t, k)
     if type(k) == 'number' and slot_bit_map[bit.lshift(1, k)] then
@@ -123,11 +132,14 @@ function EquipSet:it()
     local i = 0
     return function()
         i = i + 1
-        local slot = EquipSet.Slot.AllSlots[i]
-        if slot then
-            return i, self[slot]  -- returns index as slot
+        if i <= 16 then
+            local itemId = self[i-1]
+            return i, itemId
         end
-    end
+        --if itemId then
+        --    return i, self[slot]  -- returns index as slot
+        --end
+        end
 end
 
 -- Deep copy

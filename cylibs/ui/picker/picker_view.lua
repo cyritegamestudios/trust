@@ -109,6 +109,8 @@ end
 function PickerView:reload()
     self:getDataSource():removeAllItems()
 
+    self:setContentOffset(0, 0)
+
     local indexedItems = L{}
     local selectedIndexPaths = L{}
 
