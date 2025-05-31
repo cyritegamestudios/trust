@@ -21,12 +21,14 @@ function EquipmentPickerView.new(slots)
     self:setSlots(slots)
 
     self:getDisposeBag():add(self:on_select_items():addAction(function(_, selectedItems, _)
-        self.itemDescriptionView:setItemId(selectedItems[1].id)
         self:onEquipmentPicked():trigger(self, selectedItems[1].id, L(self.slots)[1])
     end), self:on_select_items())
 
     self:getDisposeBag():add(self:getDelegate():didHighlightItemAtIndexPath():addAction(function(indexPath)
-
+        local item = self:valueAtIndexPath(indexPath)
+        if item then
+            self.itemDescriptionView:setItemId(item.id)
+        end
     end), self:getDelegate():didHighlightItemAtIndexPath())
 
     self.equipmentPicked = Event.newEvent()
