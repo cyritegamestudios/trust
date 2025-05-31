@@ -55,9 +55,7 @@ function EquipSetView.new(equipSet)
     self.slotHighlighted = Event.newEvent()
 
     self:getDisposeBag():add(self.equipmentPickerView:onEquipmentPicked():addAction(function(equipmentPickerView, itemId, slot)
-        --local equipSet = self.equipSet:copy()
         equipSet[slot] = itemId
-        print('settttting', slot, itemId)
 
         self:setEquipSet(equipSet)
 
@@ -85,7 +83,7 @@ function EquipSetView:setEquipSet(equipSet)
     --    return
     --end
     self.equipSet = equipSet
-    print('am updating', self.equipSet['main'])
+
     local itemToUpdate = L{}
 
     for slot, itemId in equipSet:it() do

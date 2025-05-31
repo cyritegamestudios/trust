@@ -134,9 +134,6 @@ function EquipSet:save(equip_set_name)
         user_id = windower.ffxi.get_player().id
     })
     for _, slot in ipairs(EquipSet.Slot.AllSlots) do
-        if slot == 'main' then
-            print('saving', slot, self[slot])
-        end
         equipSet[slot] = self[slot]
     end
     equipSet:save()
