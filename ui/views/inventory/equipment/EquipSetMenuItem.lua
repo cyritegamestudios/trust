@@ -1,6 +1,5 @@
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local EquipSetView = require('ui/views/inventory/equipment/EquipSetView')
-local InventoryMenuItem = require('ui/views/inventory/InventoryMenuItem')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 
 
@@ -13,11 +12,11 @@ function EquipSetMenuItem.new(equipSet)
         ButtonItem.default('Confirm', 18),
     }, {
         Confirm = MenuItem.action(function()
-            equipSet:save()
+            equipSet:save('test_set')
             print('saved set')
         end, "Confirm", "Save the equip set.")
     }, function(_, _, _)
-        local equipSetView = EquipSetView.new(equipSet or player.party:get_player():get_current_equip_set())
+        local equipSetView = EquipSetView.new(equipSet)
         return equipSetView
     end, "Equip Set", string.format("View equipment in this set.")), EquipSetMenuItem)
 

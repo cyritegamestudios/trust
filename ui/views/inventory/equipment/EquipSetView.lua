@@ -56,9 +56,10 @@ function EquipSetView.new(equipSet)
 
     self:getDisposeBag():add(self.equipmentPickerView:onEquipmentPicked():addAction(function(equipmentPickerView, itemId, slot)
         --local equipSet = self.equipSet:copy()
-        self.equipSet[slot] = itemId
+        equipSet[slot] = itemId
+        print('settttting', slot, itemId)
 
-        self:setEquipSet(self.equipSet, true)
+        self:setEquipSet(equipSet)
 
         equipmentPickerView:resignFocus()
     end), self.equipmentPickerView:onEquipmentPicked())
@@ -79,12 +80,12 @@ function EquipSetView:destroy()
     self.slotHighlighted:removeAllActions()
 end
 
-function EquipSetView:setEquipSet(equipSet, force)
-    if self.equipSet == equipSet and not force then
-        return
-    end
+function EquipSetView:setEquipSet(equipSet)
+    --if self.equipSet == equipSet then
+    --    return
+    --end
     self.equipSet = equipSet
-
+    print('am updating', self.equipSet['main'])
     local itemToUpdate = L{}
 
     for slot, itemId in equipSet:it() do

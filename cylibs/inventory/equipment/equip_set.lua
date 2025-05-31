@@ -66,6 +66,27 @@ function EquipSet.new(...)
     return self
 end
 
+function EquipSet.named(equip_set_name)
+    local row = EquipSets:get({
+        name = equip_set_name,
+        user_id = windower.ffxi.get_player().id,
+    })
+
+    if not row then
+        return nil
+    end
+
+    local slot_values = {}
+    for _, slot in ipairs(EquipSet.Slot.AllSlots) do
+        table.insert(slot_values, row[slot])
+    end
+
+    local equipSet = EquipSet.new(table.unpack(slot_values))
+    equipSet.ext_data = row.ext_data or nil
+
+    return equipSet
+end
+
 -- Bitmask-based slot lookup
 EquipSet.getSlotsForMask = function(mask)
     local slots = {}
@@ -107,9 +128,9 @@ function EquipSet:copy()
     return EquipSet.new(table.unpack(args))
 end
 
-function EquipSet:save()
-    local equipSet = EquipSets:get({ name = "hello_world", user_id = windower.ffxi.get_player().id }) or EquipSets({
-        name = "hello_world",
+function EquipSet:save(equip_set_name)
+    local equipSet = EquipSets:get({ name = equip_set_name, user_id = windower.ffxi.get_player().id }) or EquipSets({
+        name = equip_set_name,
         user_id = windower.ffxi.get_player().id
     })
     for _, slot in ipairs(EquipSet.Slot.AllSlots) do
