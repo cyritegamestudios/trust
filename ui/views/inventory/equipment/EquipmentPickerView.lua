@@ -16,6 +16,8 @@ function EquipmentPickerView.new(slots)
     local self = setmetatable(FFXIPickerView.withConfig(MultiPickerConfigItem.new("Items", L{}, L{})), EquipmentPickerView)
 
     self.itemDescriptionView = ItemDescriptionView.new()
+    self.itemDescriptionView:setVisible(false)
+
     self:addSubview(self.itemDescriptionView)
 
     self:setSlots(slots)

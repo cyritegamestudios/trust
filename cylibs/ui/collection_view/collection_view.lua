@@ -357,12 +357,17 @@ function CollectionView:onKeyboardEvent(key, pressed, flags, blocked)
                     end
                 end
                 self:getDelegate():selectItemAtIndexPath(self:getDelegate():getCursorIndexPath())
+            elseif self.layout.onKeyboardEvent then
+                blocked = blocked or self.layout:onKeyboardEvent(key, pressed, flags, blocked, self)
+                if blocked then
+                    return true
+                end
             end
         end
     else
         self.isScrolling = false
     end
-    return L{self.scrollNextKey, self.scrollPreviousKey}:contains(key)
+    return L{ self.scrollNextKey, self.scrollPreviousKey }:contains(key)
 end
 
 function CollectionView:onMouseEvent(type, x, y, delta)
