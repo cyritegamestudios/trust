@@ -204,7 +204,7 @@ function TrustHud:getMainMenuItem()
 
     local EquipSetMenuItem = require('ui/views/inventory/equipment/EquipSetMenuItem')
     local EquipSet = require('cylibs/inventory/equipment/equip_set')
-    local InventoryMenuItem = require('ui/views/inventory/InventoryMenuItem')
+    --local InventoryMenuItem = require('ui/views/inventory/InventoryMenuItem')
     local LoadSettingsMenuItem = require('ui/settings/menus/loading/LoadSettingsMenuItem')
 
     local mainMenuItem = MenuItem.new(L{
@@ -213,12 +213,12 @@ function TrustHud:getMainMenuItem()
         ButtonItem.localized('Profiles', i18n.translate('Button_Profiles')),
         ButtonItem.default('Commands', 18),
         ButtonItem.default('Config', 18),
-        ButtonItem.default('Inventory', 18),
+        --ButtonItem.default('Inventory', 18),
         ButtonItem.default('Equipment', 18),
     }, {
         Profiles = LoadSettingsMenuItem.new(self.addon_settings, self.trustModeSettings, main_trust_settings, weapon_skill_settings, sub_trust_settings),
         Config = ConfigSettingsMenuItem.new(self.addon_settings, main_trust_settings, state.MainTrustSettingsMode, self.mediaPlayer),
-        Inventory = InventoryMenuItem.new(),
+        --Inventory = InventoryMenuItem.new(),
         Equipment = EquipSetMenuItem.new(EquipSet.named('test_set') or player.party:get_player():get_current_equip_set())
     }, nil, "Jobs")
 

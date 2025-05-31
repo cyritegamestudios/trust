@@ -61,7 +61,7 @@ end
 
 function FFXIClassicStyle.slot()
     local self = setmetatable(CollectionViewStyle.new(
-            CursorItem.new(ImageItem.new(windower.addon_path..'assets/icons/cursor_slot.png', 32, 32), 36),
+            CursorItem.new(ImageItem.new(windower.addon_path..'assets/icons/cursor_slot.png', 32, 32), 36, -2),
             ScrollItem.new(),
             FFXIClassicStyle.CenterImageItem,
             FFXIClassicStyle.Border.LeftImageItem,
