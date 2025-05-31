@@ -114,6 +114,15 @@ EquipSet.__index = function(t, k)
     return rawget(EquipSet, k) or rawget(t, k)
 end
 
+EquipSet.__newindex = function(t, k, v)
+    if type(k) == 'number' and slot_bit_map[bit.lshift(1, k)] then
+        rawset(t, slot_bit_map[bit.lshift(1, k)], v)
+    else
+        rawset(t, k, v)
+    end
+end
+
+
 -- Delta between the given equip set
 function EquipSet:delta(equipSet)
     local result = {}
@@ -152,6 +161,8 @@ function EquipSet:copy()
 end
 
 function EquipSet:save(equip_set_name)
+    local CanEquipSetCondition = require('cylibs/conditions/can_equip_set')
+
     local equipSet = EquipSets:get({ name = equip_set_name, user_id = windower.ffxi.get_player().id }) or EquipSets({
         name = equip_set_name,
         user_id = windower.ffxi.get_player().id
@@ -160,6 +171,8 @@ function EquipSet:save(equip_set_name)
         equipSet[slot] = self[slot]
     end
     equipSet:save()
+
+    print('checking', Condition.check_conditions(L{ CanEquipSetCondition.new(equip_set_name) }, windower.ffxi.get_player().index))
 end
 
 -- Equality check
@@ -172,7 +185,7 @@ function EquipSet:__eq(other)
 end
 
 -- To string
-function EquipSet:__tostring()
+--[[function EquipSet:__tostring()
     local parts = {}
     for _, slot in ipairs(EquipSet.Slot.AllSlots) do
         local value = self[slot]
@@ -182,6 +195,6 @@ function EquipSet:__tostring()
         end
     end
     return string.format("EquipSet {\n  %s\n}", table.concat(parts, "\n  "))
-end
+end]]
 
 return EquipSet

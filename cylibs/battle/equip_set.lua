@@ -3,9 +3,10 @@
 -- @class module
 -- @name EquipSet
 
-local serializer_util = require('cylibs/util/serializer_util')
+local CanEquipSetCondition = require('cylibs/conditions/can_equip_set')
 local EquipSetAction = require('cylibs/actions/equip_set')
-local EquipSets = require('settings/settings').EquipSet
+local GearSet = require('cylibs/inventory/equipment/equip_set')
+local serializer_util = require('cylibs/util/serializer_util')
 
 local EquipSet = {}
 EquipSet.__index = EquipSet
@@ -18,8 +19,17 @@ EquipSet.__class = "EquipSet"
 -- @treturn EquipSet An equip action.
 function EquipSet.new(equip_set_name, conditions)
     local self = setmetatable({}, EquipSet)
+
     self.equip_set_name = equip_set_name
     self.conditions = conditions or L{}
+
+    local matches = (conditions or L{}):filter(function(c)
+        return c.__class == CanEquipSetCondition.__class
+    end)
+    if matches:length() == 0 then
+        self:add_condition(CanEquipSetCondition.new(equip_set_name))
+    end
+
     return self
 end
 
@@ -69,7 +79,7 @@ end
 -- @treturn Action Action to use ability
 function EquipSet:to_action(target_index, _)
     return SequenceAction.new(L{
-        EquipSetAction.new(EquipSets:with({ name = self.equip_set_name, user_id = windower.ffxi.get_player().id })),
+        EquipSetAction.new(GearSet.named(self.equip_set_name)),
     }, self.__class..'_equip_set')
 end
 

@@ -113,6 +113,18 @@ function EquipSetView:layoutIfNeeded()
     return needsLayout
 end
 
+function EquipSetView:onSelectMenuItemAtIndexPath(textItem, _)
+    if L{ 'Clear' }:contains(textItem:getText()) then
+        local indexPath = self:getDelegate():getCursorIndexPath()
+
+        local slot = self:getSlotOrder()[indexPath.row]
+
+        self.equipSet[slot] = 65535
+
+        self:setEquipSet(self.equipSet)
+    end
+end
+
 function EquipSetView:onKeyboardEvent(key, pressed, flags, blocked)
     local blocked = blocked or FFXIWindow.onKeyboardEvent(self, key, pressed, flags, blocked)
     if pressed then

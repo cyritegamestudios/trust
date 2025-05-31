@@ -233,14 +233,21 @@ end
 -- // trust debug
 function GeneralTrustCommands:handle_debug()
 
-    local EquipSetAction = require('cylibs/actions/equip_set')
-    local EquipSet = require('cylibs/inventory/equipment/equip_set')
+    --local EquipSetAction = require('cylibs/actions/equip_set')
+    --local EquipSet = require('cylibs/inventory/equipment/equip_set')
+    local EquipSet = require('cylibs/battle/equip_set')
     --local EquipSets = require('settings/settings').EquipSet
 
-    local action_queue = ActionQueue.new(nil, false, 5)
+    local equipSet = EquipSet.new('test_set')
+    if Condition.check_conditions(equipSet:get_conditions(), windower.ffxi.get_player().index) then
+        print('is valid')
+        local action_queue = ActionQueue.new(nil, false, 5)
+        action_queue:push_action(equipSet:to_action(windower.ffxi.get_player().index), true)
+    else
+        print('is not valid')
+    end
 
-    local equipSet = EquipSetAction.new(EquipSet.named('test_set'))
-    action_queue:push_action(equipSet, true)
+
 
 
     --[[local Inventory = require('cylibs/inventory/inventory')

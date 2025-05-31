@@ -8,6 +8,7 @@ EquipSetMenuItem.__index = EquipSetMenuItem
 function EquipSetMenuItem.new(equipSet)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
+        ButtonItem.default('Clear', 18),
     }, {}, function(_, _, _)
         local equipSetView = EquipSetView.new(equipSet)
         return equipSetView
