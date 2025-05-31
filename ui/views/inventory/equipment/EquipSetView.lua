@@ -1,3 +1,4 @@
+local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
 local EquipmentPickerView = require('ui/views/inventory/equipment/EquipmentPickerView')
 local EquipSet = require('cylibs/inventory/equipment/equip_set')
@@ -54,10 +55,10 @@ function EquipSetView.new(equipSet)
     self.slotHighlighted = Event.newEvent()
 
     self:getDisposeBag():add(self.equipmentPickerView:onEquipmentPicked():addAction(function(equipmentPickerView, itemId, slot)
-        local equipSet = self.equipSet:copy()
-        equipSet[slot] = itemId
+        --local equipSet = self.equipSet:copy()
+        self.equipSet[slot] = itemId
 
-        self:setEquipSet(equipSet)
+        self:setEquipSet(self.equipSet, true)
 
         equipmentPickerView:resignFocus()
     end), self.equipmentPickerView:onEquipmentPicked())
@@ -78,8 +79,8 @@ function EquipSetView:destroy()
     self.slotHighlighted:removeAllActions()
 end
 
-function EquipSetView:setEquipSet(equipSet)
-    if self.equipSet == equipSet then
+function EquipSetView:setEquipSet(equipSet, force)
+    if self.equipSet == equipSet and not force then
         return
     end
     self.equipSet = equipSet
@@ -87,17 +88,7 @@ function EquipSetView:setEquipSet(equipSet)
     local itemToUpdate = L{}
 
     for slot, itemId in equipSet:it() do
-        local iconPath = string.format('%s/%s.bmp', windower.addon_path..'assets/equipment', itemId)
-
-        if not windower.file_exists(iconPath) then
-            icon_extractor.item_by_id(itemId, iconPath)
-        end
-
-        local imageItem = ImageItem.new(iconPath, 32, 32)
-
-        itemToUpdate:append(IndexedItem.new(imageItem, IndexPath.new(1, slot)))
-
-        --local description = ItemDescription:where({ id = itemId }, L{ 'en '})
+        itemToUpdate:append(IndexedItem.new(AssetManager.imageItemForItem(itemId), IndexPath.new(1, slot)))
     end
 
     self:getDataSource():updateItems(itemToUpdate)

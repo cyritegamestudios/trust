@@ -1,4 +1,5 @@
 local bit = require('bit')
+local EquipSets = require('settings/settings').EquipSet
 local Item = require('resources/resources').Item
 
 local EquipSet = {}
@@ -27,13 +28,31 @@ local slot_definitions = {
 
 -- Initialize Slot constants and maps
 EquipSet.Slot = {}
-EquipSet.Slot.AllSlots = L{}
+EquipSet.Slot.AllSlots = L{
+    "main",         -- 1
+    "sub",          -- 2
+    "range",        -- 3
+    "ammo",         -- 4
+    "head",         -- 5
+    "neck",         -- 6
+    "left_ear",     -- 7
+    "right_ear",    -- 8
+    "body",         -- 9
+    "hands",        -- 10
+    "left_ring",    -- 11
+    "right_ring",   -- 12
+    "back",         -- 13
+    "waist",        -- 14
+    "legs",         -- 15
+    "feet",         -- 16
+}
+
 local slot_bit_map = {}
 
 for _, slot in ipairs(slot_definitions) do
     local mask = bit.lshift(1, slot.bit)
     EquipSet.Slot[slot.name:gsub("^%l", string.upper)] = slot.name -- e.g. Slot.Main = "main"
-    table.insert(EquipSet.Slot.AllSlots, slot.name)
+    --table.insert(EquipSet.Slot.AllSlots, slot.name)
     slot_bit_map[mask] = slot.name
 end
 
@@ -72,9 +91,12 @@ function EquipSet:it()
     return function()
         i = i + 1
         local slot = EquipSet.Slot.AllSlots[i]
-        if slot then return i, self[slot] end
+        if slot then
+            return i, self[slot]  -- returns index as slot
+        end
     end
 end
+
 
 -- Deep copy
 function EquipSet:copy()
@@ -83,6 +105,20 @@ function EquipSet:copy()
         table.insert(args, self[slot])
     end
     return EquipSet.new(table.unpack(args))
+end
+
+function EquipSet:save()
+    local equipSet = EquipSets:get({ name = "hello_world", user_id = windower.ffxi.get_player().id }) or EquipSets({
+        name = "hello_world",
+        user_id = windower.ffxi.get_player().id
+    })
+    for _, slot in ipairs(EquipSet.Slot.AllSlots) do
+        if slot == 'main' then
+            print('saving', slot, self[slot])
+        end
+        equipSet[slot] = self[slot]
+    end
+    equipSet:save()
 end
 
 -- Equality check

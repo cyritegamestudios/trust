@@ -12,7 +12,10 @@ function EquipSetMenuItem.new(equipSet)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Confirm', 18),
     }, {
-        Edit = InventoryMenuItem.new()
+        Confirm = MenuItem.action(function()
+            equipSet:save()
+            print('saved set')
+        end, "Confirm", "Save the equip set.")
     }, function(_, _, _)
         local equipSetView = EquipSetView.new(equipSet or player.party:get_player():get_current_equip_set())
         return equipSetView

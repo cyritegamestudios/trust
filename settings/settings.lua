@@ -1,4 +1,3 @@
-local DisposeBag = require('cylibs/events/dispose_bag')
 local ORM = require('cylibs/database/orm/orm')
 local Database = ORM.ORM
 local Table = ORM.Table
@@ -66,6 +65,32 @@ function Settings.new()
                 id = "VARCHAR(64) PRIMARY KEY UNIQUE",
             }
         }),
+        EquipSet = Table(self.database, {
+            table_name = "equip_sets",
+            primary_key = "(name, user_id)",
+            schema = {
+                name = "VARCHAR(64)",
+                user_id = "INTEGER",
+                main = "INTEGER",
+                sub = "INTEGER",
+                range = "INTEGER",
+                ammo = "INTEGER",
+                head = "INTEGER",
+                neck = "INTEGER",
+                left_ear = "INTEGER",
+                right_ear = "INTEGER",
+                body = "INTEGER",
+                hands = "INTEGER",
+                left_ring = "INTEGER",
+                right_ring = "INTEGER",
+                back = "INTEGER",
+                waist = "INTEGER",
+                legs = "INTEGER",
+                feet = "INTEGER",
+                ext_data = "TEXT"
+            }
+        })
+
     }
 
     return self
@@ -89,4 +114,5 @@ return {
     User = Settings.shared().tables.User,
     Widget = Settings.shared().tables.Widget,
     Whitelist = Settings.shared().tables.Whitelist,
+    EquipSet = Settings.shared().tables.EquipSet,
 }
