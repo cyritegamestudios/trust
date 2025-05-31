@@ -65,6 +65,7 @@ function EquipSetView:setEquipSet(equipSet)
     local itemToUpdate = L{}
 
     for slot, itemId in equipSet:it() do
+        print(slot, res.items[itemId].en)
         itemToUpdate:append(IndexedItem.new(AssetManager.imageItemForItem(itemId), IndexPath.new(1, slot)))
     end
 

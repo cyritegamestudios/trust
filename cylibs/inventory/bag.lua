@@ -43,6 +43,15 @@ function Bag:getItemCount(itemId)
     return count
 end
 
+function Bag:findItem(itemId)
+    for i, item in ipairs(self:getItems()) do
+        if item.id == itemId then
+            return i
+        end
+    end
+    return -1
+end
+
 function Bag:getItems()
     return L(windower.ffxi.get_items(self.name))
 end

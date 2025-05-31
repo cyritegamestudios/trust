@@ -52,7 +52,6 @@ local slot_bit_map = {}
 for _, slot in ipairs(slot_definitions) do
     local mask = bit.lshift(1, slot.bit)
     EquipSet.Slot[slot.name:gsub("^%l", string.upper)] = slot.name -- e.g. Slot.Main = "main"
-    --table.insert(EquipSet.Slot.AllSlots, slot.name)
     slot_bit_map[mask] = slot.name
 end
 
@@ -106,7 +105,20 @@ EquipSet.__index = function(t, k)
     return rawget(EquipSet, k) or rawget(t, k)
 end
 
+-- Delta between the given equip set
+function EquipSet:delta(equipSet)
+    local result = {}
+    for slot, _ in pairs(res.slots) do
+        if equipSet[slot] ~= 65535 and self[slot] ~= equipSet[slot] then
+            result[slot] = equipSet[slot]
+        end
+    end
+    return result
+end
+
 -- Iterator
+-- Note that this does NOT go in the order in res.slots or the order 0x051 expects. It's meant to go in
+-- the order in which gear slots appear in the equip set editor
 function EquipSet:it()
     local i = 0
     return function()
@@ -117,7 +129,6 @@ function EquipSet:it()
         end
     end
 end
-
 
 -- Deep copy
 function EquipSet:copy()

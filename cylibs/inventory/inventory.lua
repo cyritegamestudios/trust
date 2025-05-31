@@ -35,5 +35,15 @@ function Inventory:getEquipment()
     return self.equipment
 end
 
+function Inventory:find(itemId)
+    for bag in self:getAllBags():it() do
+        local index = bag:findItem(itemId)
+        if index ~= -1 then
+            return bag, index
+        end
+    end
+    return nil, -1
+end
+
 return Inventory
 

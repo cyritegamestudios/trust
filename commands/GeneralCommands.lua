@@ -233,18 +233,25 @@ end
 -- // trust debug
 function GeneralTrustCommands:handle_debug()
 
-    local Item = require('resources/resources').Item
+    local EquipSetAction = require('cylibs/actions/equip_set')
+    local EquipSet = require('cylibs/inventory/equipment/equip_set')
+    --local EquipSets = require('settings/settings').EquipSet
 
-    local matches = Item:where({ id = 26341 }, L{ 'en', 'slots' })
-    if matches:length() > 0 then
-        print(T(matches[1]):keyset())
-    end
+    local action_queue = ActionQueue.new(nil, false, 5)
 
-    --local Equipment = require('cylibs/inventory/equipment/equipment')
+    local equipSet = EquipSetAction.new(EquipSet.named('test_set'))
+    action_queue:push_action(equipSet, true)
 
-    --local Inventory = require('cylibs/inventory/inventory')
-    --local inventory = Inventory.new()
-    --print(inventory:getBag('inventory'):getItems():length())
+
+    --[[local Inventory = require('cylibs/inventory/inventory')
+    local inventory = Inventory.new()
+
+    local bag, index = inventory:find(22062)
+
+    print(res.bags:with('api', bag.name).id, index)]]
+
+    --print(inventory:find(22062))
+    --print(inventory:find(23691))
 
 
     return true, nil

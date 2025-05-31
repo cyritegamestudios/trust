@@ -17,7 +17,6 @@ function BagMenuItem.new(bag)
         end), function(item)
             local matches = Item:where({ id = item.id }, L{ 'en', 'slots' })
             if matches:length() > 0 then
-                print(matches[1].en, 'slot is', matches[1].slots)
                 return matches[1].en
             end
             return "Unknown"

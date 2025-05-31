@@ -14,16 +14,17 @@ ItemCountCondition.__index = ItemCountCondition
 ItemCountCondition.__type = "ItemCountCondition"
 ItemCountCondition.__class = "ItemCountCondition"
 
-function ItemCountCondition.new(item_name, item_count, operator)
+function ItemCountCondition.new(item_name, item_count, operator, include_wardrobes)
     local self = setmetatable(Condition.new(), ItemCountCondition)
     self.item_name = item_name or "Grape Daifuku"
     self.item_count = item_count or 1
     self.operator = operator or Condition.Operator.GreaterThanOrEqualTo
+    self.include_wardrobes = include_wardrobes
     return self
 end
 
 function ItemCountCondition:is_satisfied(_)
-    return self:eval(inventory_util.get_item_count(self.item_name), self.item_count, self.operator)
+    return self:eval(inventory_util.get_item_count(self.item_name, self.include_wardrobes), self.item_count, self.operator)
 end
 
 function ItemCountCondition:get_config_items()
