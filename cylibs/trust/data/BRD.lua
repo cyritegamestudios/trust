@@ -88,6 +88,20 @@ function BardTrust:on_init()
 			addon_system_message("Switched to song set "..state.SongSet.value..".")
 		end
 	end)
+
+	self:get_party():get_player():on_gain_buff():addAction(function(_, buff_id)
+		if res.buffs[buff_id].en == 'Clarion Call' then
+			local singer = self:role_with_type("singer")
+			singer:set_song_settings(self:get_trust_settings().SongSettings)
+		end
+	end)
+
+	self:get_party():get_player():on_lose_buff():addAction(function(_, buff_id)
+		if res.buffs[buff_id].en == 'Clarion Call' then
+			local singer = self:role_with_type("singer")
+			singer:set_song_settings(self:get_trust_settings().SongSettings)
+		end
+	end)
 end
 
 function BardTrust:destroy()

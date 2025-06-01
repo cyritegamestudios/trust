@@ -81,10 +81,15 @@ function Singer:set_song_settings(song_settings)
         PianissimoSongs = L{}
     }
 
+    local dummy_song_threshold = song_settings.DummySongThreshold
+    if self.job:is_clarion_call_active() then
+        dummy_song_threshold = dummy_song_threshold + 1
+    end
+
     gambit_settings.DummySongs = song_settings.DummySongs:map(function(song)
         return Gambit.new(GambitTarget.TargetType.Self, L{
             GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(song_settings.DummySongs:map(function(s) return s:get_name() end), 1) }), GambitTarget.TargetType.Self),
-            GambitCondition.new(NumSongsCondition.new(song_settings.DummySongThreshold, Condition.Operator.GreaterThanOrEqualTo), GambitTarget.TargetType.Self),
+            GambitCondition.new(NumSongsCondition.new(dummy_song_threshold, Condition.Operator.GreaterThanOrEqualTo), GambitTarget.TargetType.Self),
             GambitCondition.new(HasMaxNumSongsCondition.new(Condition.Operator.LessThan), GambitTarget.TargetType.Self),
         }, song, Condition.TargetType.Self)
     end)
@@ -99,7 +104,7 @@ function Singer:set_song_settings(song_settings)
                 GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }) }), GambitTarget.TargetType.Self),
                 GambitCondition.new(ConditionalCondition.new(L{
                     HasSongsCondition.new(song_settings.DummySongs:map(function(s) return s:get_name() end), 1),
-                    NumSongsCondition.new(song_settings.DummySongThreshold, Condition.Operator.LessThan),
+                    NumSongsCondition.new(dummy_song_threshold, Condition.Operator.LessThan),
                     NumExpiringSongsCondition.new(1, Condition.Operator.GreaterThanOrEqualTo),
                 }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Self),
             }, song, Condition.TargetType.Self),
@@ -130,7 +135,7 @@ function Singer:set_song_settings(song_settings)
                 GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }) }), GambitTarget.TargetType.Ally),
                 GambitCondition.new(ConditionalCondition.new(L{
                     HasSongsCondition.new(song_settings.DummySongs:map(function(s) return s:get_name() end), 1),
-                    NumSongsCondition.new(song_settings.DummySongThreshold, Condition.Operator.LessThan),
+                    NumSongsCondition.new(dummy_song_threshold, Condition.Operator.LessThan),
                 }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Ally),
             }, song, Condition.TargetType.Ally)
         end)

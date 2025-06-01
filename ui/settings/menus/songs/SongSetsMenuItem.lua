@@ -294,7 +294,7 @@ function SongSetsMenuItem:getConfigMenuItem()
                     elseif indexPath.section == 2 then
                         infoView:setDescription("Resing missing songs onto party members using Pianissimo. May cause extra singing.")
                     elseif indexPath.section == 3 then
-                        infoView:setDescription(string.format("Sing dummy songs after the target has %d songs.", currentSettings.SongSettings.DummySongThreshold))
+                        infoView:setDescription(string.format("Sing dummy songs after the target has %d songs (without Clarion Call).", currentSettings.SongSettings.DummySongThreshold))
                     else
                         infoView:setDescription("Configure general song settings.")
                     end

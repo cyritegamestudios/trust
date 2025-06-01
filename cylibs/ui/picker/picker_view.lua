@@ -70,6 +70,8 @@ function PickerView.new(configItems, allowsMultipleSelection, mediaPlayer, sound
     end)
     self.menuArgs = {}
     self.textStyle = textStyle or TextStyle.Picker.Text
+    self.pick_items = Event.newEvent()
+    self.select_items = Event.newEvent()
 
     self:setAllowsMultipleSelection(allowsMultipleSelection)
     self:setScrollDelta(16)
@@ -93,8 +95,7 @@ function PickerView.new(configItems, allowsMultipleSelection, mediaPlayer, sound
 
     self:reload()
 
-    self.pick_items = Event.newEvent()
-    self.select_items = Event.newEvent()
+
 
     return self
 end
