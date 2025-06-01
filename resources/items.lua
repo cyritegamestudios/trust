@@ -12,7 +12,7 @@ function Items.new(database)
 
     self.database = database
     self.database:Table(self:get_table_name(), self:get_schema())
-    print('is called?')
+
     return self
 end
 
@@ -58,9 +58,7 @@ end
 
 function Items:post_process(result)
     if result.rows then
-        print('post process')
         for _, row in pairs(result.rows) do
-            print(T(row):keyset())
             if row.slots then
                 local slots = L{}
                 for i = 0, 15 do
@@ -69,7 +67,6 @@ function Items:post_process(result)
                         slots:append(i)
                     end
                 end
-                print(row.slots, 'is now', slots)
                 row.slots = slots
             end
         end

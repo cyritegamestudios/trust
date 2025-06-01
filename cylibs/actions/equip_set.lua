@@ -23,8 +23,6 @@ function EquipSetAction:perform()
 
     local delta = player.party:get_player():get_current_equip_set():delta(self.equipSet)
 
-    -- TODO: still need to check to make sure that it isn't trying to equip gear it can't use (or bad combos of main/sub or range/ammo)
-
     local i = 1
     for slot_id = 0, T(res.slots):keyset():length() do
         if delta[slot_id] then
