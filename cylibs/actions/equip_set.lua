@@ -49,11 +49,11 @@ function EquipSetAction:perform()
         local p = packets.new('outgoing', 0x051, data, data.Count)
         p._raw = packets.build(p)
 
-        --for key, value in pairs(data) do
-        --    print(key, value)
-        --end
+        for key, value in pairs(data) do
+            print(key, value)
+        end
 
-        packets.inject(p)
+        --packets.inject(p)
 
         self:complete(true)
     else
