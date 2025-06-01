@@ -81,7 +81,6 @@ function EquipSet.named(equip_set_name)
     end
 
     local equipSet = EquipSet.new(table.unpack(slot_values))
-    equipSet.ext_data = row.ext_data or nil
 
     return equipSet
 end

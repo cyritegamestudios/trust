@@ -71,26 +71,56 @@ function Settings.new()
             schema = {
                 name = "VARCHAR(64)",
                 user_id = "INTEGER",
+
                 main = "INTEGER",
+                main_ext_data = "TEXT",
+
                 sub = "INTEGER",
+                sub_ext_data = "TEXT",
+
                 range = "INTEGER",
+                range_ext_data = "TEXT",
+
                 ammo = "INTEGER",
+                ammo_ext_data = "TEXT",
+
                 head = "INTEGER",
+                head_ext_data = "TEXT",
+
                 neck = "INTEGER",
+                neck_ext_data = "TEXT",
+
                 left_ear = "INTEGER",
+                left_ear_ext_data = "TEXT",
+
                 right_ear = "INTEGER",
+                right_ear_ext_data = "TEXT",
+
                 body = "INTEGER",
+                body_ext_data = "TEXT",
+
                 hands = "INTEGER",
+                hands_ext_data = "TEXT",
+
                 left_ring = "INTEGER",
+                left_ring_ext_data = "TEXT",
+
                 right_ring = "INTEGER",
+                right_ring_ext_data = "TEXT",
+
                 back = "INTEGER",
+                back_ext_data = "TEXT",
+
                 waist = "INTEGER",
+                waist_ext_data = "TEXT",
+
                 legs = "INTEGER",
+                legs_ext_data = "TEXT",
+
                 feet = "INTEGER",
-                ext_data = "TEXT"
+                feet_ext_data = "TEXT",
             }
         })
-
     }
 
     return self
