@@ -55,7 +55,7 @@ function EquipmentPickerView:setSlots(slots)
             local matches = Item:where({ id = item.id }, L{ 'en', 'slots' })
             if matches:length() > 0 and matches[1].slots then
                 local match = matches[1]
-                return item.id ~= 0 and S(self.slots):intersection(S(EquipSet.getSlotsForMask(match.slots))):length() > 0
+                return item.id ~= 0 and S(self.slots):intersection(S(match.slots)):length() > 0
             end
             return false
         end)

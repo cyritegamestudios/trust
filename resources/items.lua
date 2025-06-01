@@ -1,3 +1,5 @@
+local bit = require('bit')
+
 local Items = {}
 Items.__index = Items
 
@@ -10,7 +12,7 @@ function Items.new(database)
 
     self.database = database
     self.database:Table(self:get_table_name(), self:get_schema())
-
+    print('is called?')
     return self
 end
 
@@ -54,10 +56,31 @@ function Items:get_table()
     return self.database:Table(self:get_table_name())
 end
 
+function Items:post_process(result)
+    if result.rows then
+        print('post process')
+        for _, row in pairs(result.rows) do
+            print(T(row):keyset())
+            if row.slots then
+                local slots = L{}
+                for i = 0, 15 do
+                    local mask = bit.lshift(1, i)
+                    if bit.band(tonumber(mask), row.slots) ~= 0 then
+                        slots:append(i)
+                    end
+                end
+                print(row.slots, 'is now', slots)
+                row.slots = slots
+            end
+        end
+    end
+end
+
 function Items:where(query, fields)
     local table = self:get_table()
     local result = table():where(query, fields)
     if result.rows then
+        self:post_process(result)
         return L(result.rows)
     end
     return L{}

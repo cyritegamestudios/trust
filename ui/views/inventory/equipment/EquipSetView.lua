@@ -59,7 +59,7 @@ function EquipSetView.new(equipSet)
 
     self:setEquipSet(equipSet)
 
-    self.equipmentPickerView = EquipmentPickerView.new(L{ EquipSet.Slot.Main })
+    self.equipmentPickerView = EquipmentPickerView.new(L{ 0 })
     self:addSubview(self.equipmentPickerView)
 
     self:getDisposeBag():add(self.equipmentPickerView:onEquipmentPicked():addAction(function(equipmentPickerView, itemId, slot)
@@ -70,7 +70,7 @@ function EquipSetView.new(equipSet)
 
     self:getDisposeBag():add(self:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
         local item = self:getDataSource():itemAtIndexPath(indexPath)
-        self.equipmentPickerView:setSlots(L{ EquipSet.getSlotNameForSlot(item.slot) })
+        self.equipmentPickerView:setSlots(L{ item.slot })
     end), self:getDelegate():didMoveCursorToItemAtIndexPath())
 
     return self

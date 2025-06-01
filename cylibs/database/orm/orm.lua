@@ -288,6 +288,7 @@ function Table.new(orm, config)
     self.orm = orm
     self.table_name = config.table_name
     self.schema = config.schema
+    self.post_process = config.post_process or function(rows) return rows end
     self.primary_key = config.primary_key
     self.row_updated = Event.newEvent()
 
@@ -303,16 +304,27 @@ function Table.new(orm, config)
 end
 
 function Table:all()
-    return self.orm:select(self.table_name)
+    local result = self.orm:select(self.table_name)
+    if result:length() > 0 then
+        self.post_process(result)
+    end
+    return result
 end
 
 function Table:get(conditions, fields, raw_rows)
     local result = self.orm:select(self.table_name, conditions, fields, raw_rows)
+    if #result > 0 then
+        self.post_process(result)
+    end
     return #result > 0 and result[1] or nil
 end
 
 function Table:where(conditions, fields, raw_rows)
-    return self.orm:select(self.table_name, conditions, fields, raw_rows)
+    local result = self.orm:select(self.table_name, conditions, fields, raw_rows)
+    if result then
+        self.post_process(result)
+    end
+    return result
 end
 
 function Table:update(data, conditions)

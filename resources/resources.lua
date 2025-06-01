@@ -64,6 +64,21 @@ function Resources.new()
                 item_level = "INTEGER",
                 superior_level = "INTEGER"
             },
+            post_process = function(rows)
+                local bit = require('bit')
+                for row in rows:it() do
+                    if row.slots then
+                        local slots = L{}
+                        for i = 0, 15 do
+                            local mask = bit.lshift(1, i)
+                            if bit.band(tonumber(mask), row.slots) ~= 0 then
+                                slots:append(i)
+                            end
+                        end
+                        row.slots = slots
+                    end
+                end
+            end
         }),
         ItemDescription = Table(self.database, {
             table_name = "item_descriptions",

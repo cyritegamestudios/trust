@@ -362,11 +362,11 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         childMenuItems.Paths = self:getMenuItemForRole(trust:role_with_type("pather"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize)
     end
 
-    --local EquipSetMenuItem = require('ui/views/inventory/equipment/EquipSetMenuItem')
-    --local EquipSet = require('cylibs/inventory/equipment/equip_set')
+    local EquipSetMenuItem = require('ui/views/inventory/equipment/EquipSetMenuItem')
+    local EquipSet = require('cylibs/inventory/equipment/equip_set')
 
-    --menuItems:append(ButtonItem.default('Equipment', 18))
-    --childMenuItems.Equipment = EquipSetMenuItem.new(EquipSet.named('test_set') or player.party:get_player():get_current_equip_set())
+    menuItems:append(ButtonItem.default('Equipment', 18))
+    childMenuItems.Equipment = EquipSetMenuItem.new(EquipSet.named('test_set') or player.party:get_player():get_current_equip_set())
 
     local jobName = res.jobs:with('ens', jobNameShort).en
 
