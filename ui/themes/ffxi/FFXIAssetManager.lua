@@ -65,6 +65,9 @@ function FFXIAssetManager.imageItemForAbility(abilityName)
 end
 
 function FFXIAssetManager.imageItemForItem(itemId)
+    if itemId == 65535 or itemId == nil then
+        return ImageItem.new('', 32, 32)
+    end
     local iconPath = string.format('%s/%s.bmp', windower.addon_path..'assets/equipment', itemId)
 
     if not windower.file_exists(iconPath) then

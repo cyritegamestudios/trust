@@ -202,9 +202,6 @@ function TrustHud:getMainMenuItem()
         return self.mainMenuItem
     end
 
-    local EquipSetMenuItem = require('ui/views/inventory/equipment/EquipSetMenuItem')
-    local EquipSet = require('cylibs/inventory/equipment/equip_set')
-    --local InventoryMenuItem = require('ui/views/inventory/InventoryMenuItem')
     local LoadSettingsMenuItem = require('ui/settings/menus/loading/LoadSettingsMenuItem')
 
     local mainMenuItem = MenuItem.new(L{
@@ -213,13 +210,9 @@ function TrustHud:getMainMenuItem()
         ButtonItem.localized('Profiles', i18n.translate('Button_Profiles')),
         ButtonItem.default('Commands', 18),
         ButtonItem.default('Config', 18),
-        --ButtonItem.default('Inventory', 18),
-        ButtonItem.default('Equipment', 18),
     }, {
         Profiles = LoadSettingsMenuItem.new(self.addon_settings, self.trustModeSettings, main_trust_settings, weapon_skill_settings, sub_trust_settings),
         Config = ConfigSettingsMenuItem.new(self.addon_settings, main_trust_settings, state.MainTrustSettingsMode, self.mediaPlayer),
-        --Inventory = InventoryMenuItem.new(),
-        Equipment = EquipSetMenuItem.new(EquipSet.named('test_set') or player.party:get_player():get_current_equip_set())
     }, nil, "Jobs")
 
     self.mainMenuItem = mainMenuItem
@@ -368,6 +361,12 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         menuItems:append(ButtonItem.localized('Paths', i18n.translate('Button_Paths')))
         childMenuItems.Paths = self:getMenuItemForRole(trust:role_with_type("pather"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize)
     end
+
+    local EquipSetMenuItem = require('ui/views/inventory/equipment/EquipSetMenuItem')
+    local EquipSet = require('cylibs/inventory/equipment/equip_set')
+
+    menuItems:append(ButtonItem.default('Equipment', 18))
+    childMenuItems.Equipment = EquipSetMenuItem.new(EquipSet.named('test_set') or player.party:get_player():get_current_equip_set())
 
     local jobName = res.jobs:with('ens', jobNameShort).en
 

@@ -111,7 +111,7 @@ end
 
 function inventory_util.get_equipment(slot)
     local item = windower.ffxi.get_items('equipment')
-    return windower.ffxi.get_items(item[slot..'_bag'],item[slot]).id
+    return windower.ffxi.get_items(item[slot..'_bag'], item[slot]).id
 end
 
 return inventory_util

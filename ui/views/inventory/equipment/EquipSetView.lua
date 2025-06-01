@@ -64,9 +64,7 @@ function EquipSetView.new(equipSet)
 
     self:getDisposeBag():add(self.equipmentPickerView:onEquipmentPicked():addAction(function(equipmentPickerView, itemId, slot)
         equipSet[slot] = itemId
-
         self:setEquipSet(equipSet)
-
         equipmentPickerView:resignFocus()
     end), self.equipmentPickerView:onEquipmentPicked())
 

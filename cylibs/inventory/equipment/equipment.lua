@@ -12,7 +12,6 @@ end
 
 function Equipment:getEquipSet()
     local equipSet = EquipSet.new(
-
         inventory_util.get_equipment(EquipSet.Slot.Main),
         inventory_util.get_equipment(EquipSet.Slot.Sub),
         inventory_util.get_equipment(EquipSet.Slot.Range),
