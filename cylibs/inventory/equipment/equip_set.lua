@@ -135,7 +135,6 @@ function EquipSet:save(equip_set_name)
     end
 
     equipSet:save()
-    equipSet:save()
 
     if not Condition.check_conditions(L{ CanEquipSetCondition.new(equip_set_name) }, windower.ffxi.get_player().index) then
         addon_system_error(string.format("%s is not a valid set.", equip_set_name))

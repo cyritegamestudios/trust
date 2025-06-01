@@ -121,7 +121,7 @@ function MagicBurster:set_nuke_settings(nuke_settings)
             gambit:addCondition(condition)
         end
 
-        gambit:setEnabled(not element_id_blacklist:contains(gambit:getAbility():get_element()))
+        gambit:setEnabled(gambit:isEnabled() and not element_id_blacklist:contains(gambit:getAbility():get_element()))
     end
     self:set_gambit_settings(nuke_settings)
 end
