@@ -103,7 +103,6 @@ function inventory_util.get_equipment_ids()
     local slots = {'main','sub','range','head','neck','body','hands','legs','feet','back'}
     local equipment_ids = L{}
     for _,slot in ipairs(slots) do
-        print(slot)
         equipment_ids:append(windower.ffxi.get_items(item[slot..'_bag'],item[slot]).id)
     end
     return equipment_ids

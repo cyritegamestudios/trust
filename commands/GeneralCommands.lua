@@ -232,7 +232,6 @@ end
 
 -- // trust debug
 function GeneralTrustCommands:handle_debug()
-
     --local EquipSetAction = require('cylibs/actions/equip_set')
     --local EquipSet = require('cylibs/inventory/equipment/equip_set')
     local EquipSet = require('cylibs/battle/equip_set')
@@ -247,9 +246,6 @@ function GeneralTrustCommands:handle_debug()
         print('is not valid')
     end
 
-
-
-
     --[[local Inventory = require('cylibs/inventory/inventory')
     local inventory = Inventory.new()
 
@@ -259,7 +255,6 @@ function GeneralTrustCommands:handle_debug()
 
     --print(inventory:find(22062))
     --print(inventory:find(23691))
-
 
     return true, nil
 end

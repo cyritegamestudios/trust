@@ -14,7 +14,7 @@ EquipSet.__type = "EquipSet"
 EquipSet.__class = "EquipSet"
 
 -------
--- Default initializer for a new engage.
+-- Default initializer for a new equip set.
 -- @tparam string equip_set_name Equip set name
 -- @treturn EquipSet An equip action.
 function EquipSet.new(equip_set_name, conditions)
@@ -96,7 +96,8 @@ function EquipSet:is_valid()
 end
 
 function EquipSet:__eq(otherItem)
-    if otherItem.__type == self.__type then
+    if otherItem.__type == self.__type
+            and otherItem.equip_set_name == self.equip_set_name then
         return true
     end
     return false

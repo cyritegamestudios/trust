@@ -171,7 +171,9 @@ function EquipSet:save(equip_set_name)
     end
     equipSet:save()
 
-    print('checking', Condition.check_conditions(L{ CanEquipSetCondition.new(equip_set_name) }, windower.ffxi.get_player().index))
+    if not Condition.check_conditions(L{ CanEquipSetCondition.new(equip_set_name) }, windower.ffxi.get_player().index) then
+        addon_system_error(string.format("%s is not a valid set.", equip_set_name))
+    end
 end
 
 -- Equality check
@@ -184,7 +186,7 @@ function EquipSet:__eq(other)
 end
 
 -- To string
---[[function EquipSet:__tostring()
+function EquipSet:__tostring()
     local parts = {}
     for _, slot in ipairs(EquipSet.Slot.AllSlots) do
         local value = self[slot]
@@ -194,6 +196,6 @@ end
         end
     end
     return string.format("EquipSet {\n  %s\n}", table.concat(parts, "\n  "))
-end]]
+end
 
 return EquipSet

@@ -27,18 +27,6 @@
 -- Base Extraction Code graciously provided by Trv of Windower discord
 local icon_extractor = {}
 
---[[local temp_dir = string.format('%s/', windower.trust.get_temp_dir(windower.ffxi.get_player().name..'/icons'))
---local temp_dir = string.format("%s/assets/temp", windower.addon_path)
-if not windower.dir_exists(temp_dir) then
-    windower.create_dir(temp_dir)
-end
-
-windower.register_event('unload', function()
-    if temp_dir ~= nil then
-        os.remove(temp_dir)
-    end
-end)]]
-
 local game_path_default = windower.ffxi_path
 local game_path = game_path_default
 
