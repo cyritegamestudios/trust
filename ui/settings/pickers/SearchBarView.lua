@@ -1,8 +1,6 @@
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local Event = require('cylibs/events/Luvent')
-local FocusManager = require('cylibs/ui/focus/focus_manager')
 local Frame = require('cylibs/ui/views/frame')
-local Keyboard = require('cylibs/ui/input/keyboard')
 local TextInputConfigItem = require('ui/settings/editors/config/TextInputConfigItem')
 
 local SearchBarView = setmetatable({}, {__index = ConfigEditor })
@@ -34,19 +32,6 @@ function SearchBarView.new()
     self:setNeedsLayout()
     self:layoutIfNeeded()
 
-    self:getDisposeBag():add(Keyboard.input():on_key_pressed():addAction(function(key, pressed, flags, blocked)
-        if not self:isVisible() or not pressed then
-            return
-        end
-        key = Keyboard.input():getKey(key)
-        if self:hasFocus() then
-            if key == 'Escape' or key == 'Right' then
-                self:setVisible(false)
-            end
-        end
-
-    end), Keyboard.input():on_key_pressed())
-
     return self
 end
 
@@ -55,12 +40,5 @@ function SearchBarView:destroy()
 
     self.searchQueryChanged:removeAllActions()
 end
-
---[[function SearchBarView:setHasFocus(hasFocus)
-    ConfigEditor.setHasFocus(self, hasFocus)
-
-    self:setVisible(hasFocus or FocusManager.shared():hasFocusable(self))
-    self:layoutIfNeeded()
-end]]
 
 return SearchBarView

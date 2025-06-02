@@ -235,6 +235,7 @@ function FFXIFastPickerView:onSelectMenuItemAtIndexPath(textItem, _)
     elseif L{ 'Clear All' }:contains(textItem:getText()) then
         self:getDelegate():deselectAllItems()
     elseif L{ 'Filter' }:contains(textItem:getText()) then
+        self:requestFocus()
         self:setSearchEnabled(true)
     end
 end
@@ -275,6 +276,16 @@ function FFXIFastPickerView:setSearchEnabled(searchEnabled)
         end
         self.searchBarView:setVisible(true)
         self.searchBarView:requestFocus()
+    end
+end
+
+function FFXIFastPickerView:setHasFocus(hasFocus)
+    FFXIWindow.setHasFocus(self, hasFocus)
+
+    if self:hasFocus() then
+        if self.searchBarView then
+            self.searchBarView:setVisible(false)
+        end
     end
 end
 
