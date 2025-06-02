@@ -39,12 +39,12 @@ function SearchBarView.new()
             return
         end
         key = Keyboard.input():getKey(key)
-        if key == 'Escape' then
-            if self:hasFocus() then
-                print('goodbye')
-                self:resignFocus()
+        if self:hasFocus() then
+            if key == 'Escape' or key == 'Right' then
+                self:setVisible(false)
             end
         end
+
     end), Keyboard.input():on_key_pressed())
 
     return self
