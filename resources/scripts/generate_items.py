@@ -1,3 +1,4 @@
+import re
 import sys
 import sqlite3
 import shutil
