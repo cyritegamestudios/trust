@@ -82,7 +82,7 @@ function ConfigEditor.fromModel(model, configItems, infoView, validator, showMen
     return self
 end
 
-function ConfigEditor.new(trustSettings, configSettings, configItems, infoView, validator, showMenu, viewSize)
+function ConfigEditor.new(trustSettings, configSettings, configItems, infoView, validator, showMenu, viewSize, title)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         if item.__type == SliderItem.__type then
             local cell = SliderCollectionViewCell.new(item)
@@ -119,7 +119,7 @@ function ConfigEditor.new(trustSettings, configSettings, configItems, infoView, 
         return nil
     end)
 
-    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(0, FFXIClassicStyle.Padding.ConfigEditor, 10), nil, false, viewSize or FFXIClassicStyle.WindowSize.Editor.ConfigEditor), ConfigEditor)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(0, FFXIClassicStyle.Padding.ConfigEditor, 10), nil, title ~= nil, viewSize or FFXIClassicStyle.WindowSize.Editor.ConfigEditor), ConfigEditor)
 
     self:setAllowsCursorSelection(false)
     self:setAllowsMultipleSelection(true)
@@ -174,6 +174,7 @@ function ConfigEditor.new(trustSettings, configSettings, configItems, infoView, 
         if (item.getCurrentValue and configItem.getInitialValue) then
             self:onConfigItemChanged():trigger(configItem:getKey(), item:getCurrentValue(), configItem:getInitialValue())
             --if item:getCurrentValue() ~= configItem:getInitialValue() then
+            if configItem.getDependencies then
                 for dependency in configItem:getDependencies():it() do
                     if dependency.onReload then
                         local allValues = dependency.onReload(configItem:getKey(), item:getCurrentValue(), configItem)
@@ -182,6 +183,7 @@ function ConfigEditor.new(trustSettings, configSettings, configItems, infoView, 
                         self:reloadConfigItem(dependency)
                     end
                 end
+            end
             --end
         end
     end), self:getDelegate():didDeselectItemAtIndexPath())
@@ -250,12 +252,14 @@ function ConfigEditor:reloadSettings()
     local sectionIndex = 1
 
     for configItem in self.configItems:it() do
-        local sectionHeaderItem = SectionHeaderItem.new(
-                TextItem.new(configItem:getDescription(), TextStyle.Default.SectionHeader),
-                ImageItem.new(windower.addon_path..'assets/icons/icon_bullet.png', 8, 8),
-                16
-        )
-        self:getDataSource():setItemForSectionHeader(sectionIndex, sectionHeaderItem)
+        if configItem:getDescription() then
+            local sectionHeaderItem = SectionHeaderItem.new(
+                    TextItem.new(configItem:getDescription(), TextStyle.Default.SectionHeader),
+                    ImageItem.new(windower.addon_path..'assets/icons/icon_bullet.png', 8, 8),
+                    16
+            )
+            self:getDataSource():setItemForSectionHeader(sectionIndex, sectionHeaderItem)
+        end
 
         local defaultItems = L{}
         if configItem.__type == GroupConfigItem.__type then

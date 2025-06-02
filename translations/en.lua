@@ -23,4 +23,5 @@ return T{
     ["Button_Widget_Layout"] = {singular="Layout"},
     ["Button_Edit"] = {singular="Edit"},
     ["Button_Blacklist"] = {singular="Blacklist"},
+    ["Button_Filter"] = {singular="Filter"},
 }, {"singular", "plural"}

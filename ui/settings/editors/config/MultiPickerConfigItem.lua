@@ -31,6 +31,7 @@ function MultiPickerConfigItem.new(key, initialValues, allValues, textFormat, de
     self.dependencies = L{}
     self.onReload = onReload
     self.enabled = true
+    self.filter = function(_) return true end
 
     return self
 end
@@ -53,17 +54,15 @@ function MultiPickerConfigItem:getInitialValues()
     return self.initialValues
 end
 
-function MultiPickerConfigItem:getCurrentValues()
-    return self.initialValues
-end
-
 ---
 -- Gets all possible values.
 --
 -- @treturn list All possible values.
 --
 function MultiPickerConfigItem:getAllValues()
-    return self.allValues
+    return self.allValues:filter(function(value)
+        return self.filter(value)
+    end)
 end
 
 ---
@@ -79,22 +78,27 @@ function MultiPickerConfigItem:setAllValues(allValues)
 end
 
 ---
--- Gets the formatted text for a list of items.
+-- Gets the formatted function for a list of items.
 --
--- @treturn function The formatted text.
+-- @treturn function The format function.
 --
 function MultiPickerConfigItem:getTextFormat()
     return self.textFormat
 end
 
+---
+-- Gets the formatted text for a list of items.
+--
+-- @treturn function The formatted text.
+--
 function MultiPickerConfigItem:getText()
     return self:getTextFormat()(self:getInitialValues())
 end
 
 ---
--- Gets the image item factory.
+-- Gets the image item.
 --
--- @treturn function The image item factory.
+-- @treturn function The image item.
 --
 function MultiPickerConfigItem:getImageItem()
     return self.imageItem
@@ -234,6 +238,15 @@ end
 
 function MultiPickerConfigItem:setEnabled(enabled)
     self.enabled = enabled
+end
+
+---
+-- Sets the filter to be used when calling getAllValues().
+--
+-- @tparam function filter Value filter.
+--
+function MultiPickerConfigItem:setFilter(filter)
+    self.filter = filter
 end
 
 return MultiPickerConfigItem

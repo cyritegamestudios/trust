@@ -4,7 +4,7 @@ local ResizableImageItem = require('cylibs/ui/collection_view/items/resizable_im
 local TextFieldItem = require('cylibs/ui/collection_view/items/text_field_item')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 
-local FFXITextFieldItem = setmetatable({}, {__index = ResizableImageItem })
+local FFXITextFieldItem = setmetatable({}, {__index = TextFieldItem })
 FFXITextFieldItem.__index = FFXITextFieldItem
 
 function FFXITextFieldItem.new(placeholderText, validator, width)
@@ -34,7 +34,9 @@ function FFXITextFieldItem.new(placeholderText, validator, width)
                 return text:length() >= 0 and text:length() < 20
             end
     )
-    return textFieldItem
+
+    local self = setmetatable(textFieldItem, FFXITextFieldItem)
+    return self
 end
 
 return FFXITextFieldItem

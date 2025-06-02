@@ -104,9 +104,9 @@ function FFXIFastPickerView:getItemForValue(value)
     return item
 end
 
-function FFXIFastPickerView:setRange(startIndex, endIndex)
+function FFXIFastPickerView:setRange(startIndex, endIndex, shouldReload)
     local range = { startIndex = math.max(1, startIndex), endIndex = math.min(self.configItem:getAllValues():length(), endIndex) }
-    if self.range and range.endIndex - range.startIndex < self.maxNumItems then
+    if self.range and range.endIndex - range.startIndex < self.maxNumItems and not shouldReload then
         return
     end
     self.range = range
@@ -150,6 +150,11 @@ function FFXIFastPickerView:layoutIfNeeded()
 
     for scrollBar in self.scrollBars:it() do
         scrollBar:layoutIfNeeded()
+    end
+
+    if self.searchBarView then
+        self.searchBarView:setPosition(self:getSize().width + 4, 0)
+        self.searchBarView:layoutIfNeeded()
     end
 
     return true
@@ -229,6 +234,47 @@ function FFXIFastPickerView:onSelectMenuItemAtIndexPath(textItem, _)
         end
     elseif L{ 'Clear All' }:contains(textItem:getText()) then
         self:getDelegate():deselectAllItems()
+    elseif L{ 'Filter' }:contains(textItem:getText()) then
+        self:setSearchEnabled(true)
+    end
+end
+
+function FFXIFastPickerView:setFilter(filter)
+    self:setRange(1, self.maxNumItems + 1)
+
+    local selectedValues = L(self:getDelegate():getSelectedIndexPaths():map(function(indexPath)
+        return self:getDataSource():itemAtIndexPath(indexPath):getText()
+    end)):compact_map()
+
+    if self.configItem.setFilter then
+        self.configItem:setFilter(function(value)
+            return selectedValues:contains(value) or filter(value)
+        end)
+        self:setRange(1, self.maxNumItems + 1, true)
+    end
+end
+
+function FFXIFastPickerView:setSearchEnabled(searchEnabled)
+    if searchEnabled then
+        if self.searchBarView == nil then
+            local SearchBarView = require('ui/settings/pickers/SearchBarView')
+            self.searchBarView = SearchBarView.new()
+            self:addSubview(self.searchBarView)
+
+            self.searchBarView:onSearchQueryChanged():addAction(function(_, query, _)
+                self:setFilter(function(value)
+                    return self.configItem:getTextFormat()(value):contains(query)
+                end)
+            end)
+
+            self.searchBarView:setNeedsLayout()
+            self.searchBarView:layoutIfNeeded()
+
+            self:setNeedsLayout()
+            self:layoutIfNeeded()
+        end
+        self.searchBarView:setVisible(true)
+        self.searchBarView:requestFocus()
     end
 end
 
