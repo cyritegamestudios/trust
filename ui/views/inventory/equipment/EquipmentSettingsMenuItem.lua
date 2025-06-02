@@ -1,12 +1,16 @@
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
+local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local CreateProfileEditor = require('ui/settings/editors/sets/CreateProfileEditor')
 local DisposeBag = require('cylibs/events/dispose_bag')
+local EquipSetMenuItem = require('ui/views/inventory/equipment/EquipSetMenuItem')
+local EquipSet = require('cylibs/inventory/equipment/equip_set')
 local EquipSets = require('settings/settings').EquipSet
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local ImportProfileMenuItem = require('ui/settings/menus/loading/ImportProfileMenuItem')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local Profile = require('ui/settings/profiles/Profile')
+local TextInputConfigItem = require('ui/settings/editors/config/TextInputConfigItem')
 local TrustSetsConfigEditor = require('ui/settings/editors/TrustSetsConfigEditor')
 
 local EquipmentSettingsMenuItem = setmetatable({}, {__index = MenuItem })
@@ -22,13 +26,14 @@ function EquipmentSettingsMenuItem.new()
         ButtonItem.default('Help', 18),
     }, {
         Help = MenuItem.action(function(_)
-            windower.open_url(addonSettings:getSettings().help.wiki_base_url..'/Equipment')
-        end, "Profiles", "Learn more about equipment sets in the wiki.")
-    }, nil, "Profiles", "Load, create and edit equipment sets."), EquipmentSettingsMenuItem)
+            windower.open_url(windower.trust.settings.get_addon_settings():getSettings().help.wiki_base_url..'/Equipment')
+        end, "Equipment", "Learn more about equipment sets in the wiki.")
+    }, nil, "Equipment", "Load, create and edit equipment sets."), EquipmentSettingsMenuItem)
+
+    self.equipSetMenuItem = EquipSetMenuItem.new(player.party:get_player():get_current_equip_set())
 
     self.contentViewConstructor = function(_, _)
         local allSets = EquipSets:all(L{ 'name' })
-        print(allSets:length())
 
         local configItem = MultiPickerConfigItem.new("EquipSets", L{ allSets[1].name }, L(allSets:map(function(equipSet) return equipSet.name end)), function(equipSetName)
             return equipSetName
@@ -40,36 +45,18 @@ function EquipmentSettingsMenuItem.new()
             local item = loadSettingsView:getDataSource():itemAtIndexPath(indexPath)
             if item then
                 local setName = item:getText()
+
+                self.equipSetMenuItem:setEquipSet(EquipSet.named(setName))
+
                 self.selectedSetName = setName
-                if setName ~= state.TrustMode.value then
-                    state.TrustMode:set(setName)
-                    addon_system_message("Loaded profile "..setName..".")
-                end
             end
         end), loadSettingsView:getDelegate():didSelectItemAtIndexPath())
 
-        self.disposeBag:add(loadSettingsView:getDelegate():didHighlightItemAtIndexPath():addAction(function(indexPath)
-            local item = loadSettingsView:getDataSource():itemAtIndexPath(indexPath)
-            if item then
-                self.highlightedSetName = item:getText()
-            end
-        end), loadSettingsView:getDelegate():didHighlightItemAtIndexPath())
-
         self.loadSettingsView = loadSettingsView
-
-        self.selectedSetName = state.TrustMode.value
-        self.highlightedSetName = state.TrustMode.value
 
         return loadSettingsView
     end
 
-    self.addonSettings = addonSettings
-    self.trustModeSettings = trustModeSettings
-    self.jobSettings = jobSettings
-    self.subJobSettings = subJobSettings
-    self.weaponSkillSettings = weaponSkillSettings
-    self.weaponSkillSettings = weaponSkillSettings
-    self.subJobSettings = subJobSettings
     self.disposeBag = DisposeBag.new()
 
     self:reloadSettings()
@@ -85,10 +72,10 @@ end
 
 function EquipmentSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Create", self:getCreateSetMenuItem())
-    self:setChildMenuItem("Edit", self:getEditSetMenuItem())
-    self:setChildMenuItem("Delete", self:getDeleteSetMenuItem())
-    self:setChildMenuItem("Import", ImportProfileMenuItem.new(self.trustModeSettings, self.jobSettings, self.weaponSkillSettings, self.subJobSettings))
-    self:setChildMenuItem("Share", self:getShareSetMenuItem())
+    self:setChildMenuItem("Edit", self.equipSetMenuItem)
+    --self:setChildMenuItem("Delete", self:getDeleteSetMenuItem())
+    --self:setChildMenuItem("Import", ImportProfileMenuItem.new(self.trustModeSettings, self.jobSettings, self.weaponSkillSettings, self.subJobSettings))
+    --self:setChildMenuItem("Share", self:getShareSetMenuItem())
 end
 
 function EquipmentSettingsMenuItem:getCreateSetMenuItem()
@@ -97,11 +84,11 @@ function EquipmentSettingsMenuItem:getCreateSetMenuItem()
     }, {
         Confirm = MenuItem.action(function(menu)
             menu:showMenu(self)
-        end, "Confirm", "Create a new profile.")
+        end, "Confirm", "Create a new equipment set.")
     }, function(_)
         local createSetView = CreateProfileEditor.new(self.trustModeSettings, self.jobSettings, self.subJobSettings, self.weaponSkillSettings)
         return createSetView
-    end, "Profiles", "Create a new profile.")
+    end, "Equipment", "Create a new equipment set.")
     return createSetMenuItem
 end
 
@@ -112,7 +99,7 @@ function EquipmentSettingsMenuItem:getEditSetMenuItem()
         local loadSettingsView = TrustSetsConfigEditor.new(self.highlightedSetName or 'Default', self.trustModeSettings, self.jobSettings, self.subJobSettings, self.weaponSkillSettings, infoView)
         loadSettingsView:setShouldRequestFocus(true)
         return loadSettingsView
-    end, "Profiles", "Edit the selected profile.", true)
+    end, "Equipment", "Edit the selected profile.", true)
     return editMenuItem
 end
 
@@ -128,7 +115,7 @@ function EquipmentSettingsMenuItem:getDeleteSetMenuItem()
             menu:showMenu(self)
             --self.loadSettingsView:setItems(L(state.TrustMode:options()), state.TrustMode.value)
         end
-    end, "Profiles", "Delete the selected profile.")
+    end, "Equipment", "Delete the selected profile.")
 end
 
 function EquipmentSettingsMenuItem:getImportSetMenuItem()
@@ -144,7 +131,7 @@ function EquipmentSettingsMenuItem:getImportSetMenuItem()
         profile:saveToFile()
 
         addon_system_message("Profile saved to "..windower.addon_path..profile:getFilePath())
-    end, "Profiles", "Import a Profile.")
+    end, "Equipment", "Import a Profile.")
 end
 
 function EquipmentSettingsMenuItem:getShareSetMenuItem()
@@ -172,7 +159,7 @@ function EquipmentSettingsMenuItem:getShareSetMenuItem()
         profile:saveToFile()
 
         addon_system_message("Profile saved to "..windower.addon_path..profile:getFilePath())
-    end, "Profiles", "Share the selected profile with friends.")
+    end, "Equipment", "Share the selected profile with friends.")
 end
 
 return EquipmentSettingsMenuItem
