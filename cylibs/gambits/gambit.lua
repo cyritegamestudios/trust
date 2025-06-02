@@ -16,7 +16,7 @@ Gambit.Tags.AllTags = L{
     'Nukes',
 }
 
-function Gambit.new(target, conditions, ability, conditions_target, tags)
+function Gambit.new(target, conditions, ability, conditions_target, tags, enabled)
     local self = setmetatable({}, Gambit)
     self.target = target
     self.conditions = (conditions or L{}):map(function(condition)
@@ -28,7 +28,10 @@ function Gambit.new(target, conditions, ability, conditions_target, tags)
     self.ability = ability
     self.conditions_target = conditions_target
     self.tags = tags or L{}
-    self.enabled = true
+    self.enabled = enabled
+    if self.enabled == nil then
+        self.enabled = true
+    end
 
     return self
 end
@@ -160,7 +163,7 @@ function Gambit:serialize()
     end):unique()
 
     local tags = serializer_util.serialize(self.tags or L{}, 0)
-    return "Gambit.new(" .. serializer_util.serialize(self.target) .. ", " .. serializer_util.serialize(conditions_to_serialize, 0) .. ", " .. self.ability:serialize(true) .. ", " .. serializer_util.serialize(self.conditions_target) .. ", " .. tags .. ")"
+    return "Gambit.new(" .. serializer_util.serialize(self.target) .. ", " .. serializer_util.serialize(conditions_to_serialize, 0) .. ", " .. self.ability:serialize(true) .. ", " .. serializer_util.serialize(self.conditions_target) .. ", " .. tags .. ", " .. serializer_util.serialize(self.enabled) .. ")"
 end
 
 function Gambit:copy()
@@ -168,7 +171,7 @@ function Gambit:copy()
     for condition in self:getConditions():it() do
         conditions:append(condition:copy())
     end
-    return Gambit.new(self:getAbilityTarget(), conditions, self:getAbility(), self:getConditionsTarget(), L(self:getTags()))
+    return Gambit.new(self:getAbilityTarget(), conditions, self:getAbility(), self:getConditionsTarget(), L(self:getTags()), self:isEnabled())
 end
 
 function Gambit:__eq(otherItem)

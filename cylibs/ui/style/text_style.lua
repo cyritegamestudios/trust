@@ -47,6 +47,29 @@ function TextStyle.new(selectedBackgroundColor, defaultBackgroundColor, fontName
 end
 
 ---
+-- Returns a copy of this text style.
+--
+-- @treturn TextStyle Copy of this text style.
+--
+function TextStyle:copy()
+    return TextStyle.new(
+            self.selectedBackgroundColor,
+            self.defaultBackgroundColor,
+            self.fontName,
+            self.fontSize,
+            self.fontColor,
+            self.highlightColor,
+            self.padding,
+            self.strokeWidth,
+            self.strokeColor,
+            self.bold,
+            self.selectedColor,
+            self.italic
+    )
+end
+
+
+---
 -- Gets the selected background color.
 --
 -- @treturn Color The selected background color.
@@ -185,6 +208,19 @@ function TextStyle:getEstimatedTextWidth(text)
         textWidth = textWidth * 1.05
     end
     return textWidth
+end
+
+---
+-- Returns this text style but bolded.
+--
+-- @tparam boolean bold True if bold
+--
+-- @treturn TextStyle Text style but bolded.
+--
+function TextStyle:bolded(bold)
+    local textStyle = self:copy()
+    textStyle.bold = bold
+    return textStyle
 end
 
 TextStyle.Default = {

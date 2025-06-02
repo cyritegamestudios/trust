@@ -1096,7 +1096,6 @@ function Migration_v30:getDescription()
 end
 
 ---------------------------
-
 -- Adding ResingDuration and ResingMissingSongs.
 -- @class module
 -- @name Migration_v31
@@ -1132,6 +1131,39 @@ function Migration_v31:getDescription()
     return "Updating song config."
 end
 
+---------------------------
+-- Adding DummySongThreshold.
+-- @class module
+-- @name Migration_v32
+
+local Migration_v32 = setmetatable({}, { __index = Migration })
+Migration_v32.__index = Migration_v32
+Migration_v32.__class = "Migration_v32"
+
+function Migration_v32.new()
+    local self = setmetatable(Migration.new(), Migration_v32)
+    return self
+end
+
+function Migration_v32:shouldPerform(trustSettings, _, _)
+    return L { 'BRD' }:contains(trustSettings.jobNameShort)
+end
+
+function Migration_v32:perform(trustSettings, _, _)
+    local defaultSettings = T(trustSettings:getDefaultSettings()):clone().Default
+    local modeNames = list.subtract(L(T(trustSettings:getSettings()):keyset()), L { 'Version', 'Migrations' })
+    for modeName in modeNames:it() do
+        local songSettings = trustSettings:getSettings()[modeName].SongSettings
+        if songSettings.DummySongThreshold == nil then
+            songSettings.DummySongThreshold = defaultSettings.SongSettings.DummySongThreshold
+        end
+    end
+end
+
+function Migration_v32:getDescription()
+    return "Updating song config."
+end
+
 return {
     Migration_v1 = Migration_v1,
     Migration_v2 = Migration_v2,
@@ -1163,5 +1195,6 @@ return {
     Migration_v29 = Migration_v29,
     Migration_v30 = Migration_v30,
     Migration_v31 = Migration_v31,
+    Migration_v32 = Migration_v32,
 }
 

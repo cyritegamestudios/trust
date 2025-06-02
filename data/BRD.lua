@@ -7,6 +7,7 @@ return {
             SongDuration = 240,
             ResingDuration = 85,
             ResingMissingSongs = false,
+            DummySongThreshold = 2,
             SongDelay = 6,
             SongSets = {
                 Default = {

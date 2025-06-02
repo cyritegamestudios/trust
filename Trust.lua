@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '15.0.0'
+_addon.version = '15.0.1'
 _addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 
@@ -149,6 +149,9 @@ function load_user_files(main_job_id, sub_job_id)
 			end
 		end
 		return nil
+	end
+	windower.trust.get_inventory = function()
+		return player.party:get_player():get_inventory()
 	end
 
 	windower.trust.ui = {}

@@ -11,11 +11,11 @@ ImageItem.__type = "ImageItem"
 -- @tparam number height The height of the image.
 -- @treturn ImageItem The newly created ImageItem.
 --
-function ImageItem.new(imagePath, width, height)
+function ImageItem.new(imagePath, width, height, alpha)
     local self = setmetatable({}, ImageItem)
     self.imagePath = imagePath
     self.size = Frame.new(0, 0, width, height)
-    self.alpha = 255
+    self.alpha = alpha or 255
     self.repeatX = 1
     self.repeatY = 1
     return self

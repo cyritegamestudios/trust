@@ -1,4 +1,3 @@
-local BooleanConfigItem = require('ui/settings/editors/config/BooleanConfigItem')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 
 local TrustCommands = require('cylibs/trust/commands/trust_commands')

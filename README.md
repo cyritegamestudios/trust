@@ -44,7 +44,6 @@ You will need the latest version of [Trust](https://github.com/cyritegamestudios
 ## Dependencies
 
 Trust also requires the following addons, which can be installed through [Windower](https://docs.windower.net/addons/). **After installing all dependencies, run the `// lua list` command and ensure both appear in the list of loaded addons**:
-* [Shortcuts](https://docs.windower.net/addons/shortcuts/)
 * [Gearswap](https://docs.windower.net/addons/gearswap/) (vanilla or Selendrile)
 
 ## Post Install

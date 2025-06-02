@@ -232,12 +232,29 @@ end
 
 -- // trust debug
 function GeneralTrustCommands:handle_debug()
+    --local EquipSetAction = require('cylibs/actions/equip_set')
+    --local EquipSet = require('cylibs/inventory/equipment/equip_set')
+    local EquipSet = require('cylibs/battle/equip_set')
+    --local EquipSets = require('settings/settings').EquipSet
 
-    local inventory_util = require('cylibs/util/inventory_util')
-    print(inventory_util.get_item_count(5824))
+    local equipSet = EquipSet.new('test_set')
+    if Condition.check_conditions(equipSet:get_conditions(), windower.ffxi.get_player().index) then
+        print('is valid')
+        local action_queue = ActionQueue.new(nil, false, 5)
+        action_queue:push_action(equipSet:to_action(windower.ffxi.get_player().index), true)
+    else
+        print('is not valid')
+    end
 
-    windower.chat.input('/jobability Berserk <me>')
-    windower.chat.input('/jobability Defender <me>')
+    --[[local Inventory = require('cylibs/inventory/inventory')
+    local inventory = Inventory.new()
+
+    local bag, index = inventory:find(22062)
+
+    print(res.bags:with('api', bag.name).id, index)]]
+
+    --print(inventory:find(22062))
+    --print(inventory:find(23691))
 
     return true, nil
 end

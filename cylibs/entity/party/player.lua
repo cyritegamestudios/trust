@@ -1,5 +1,7 @@
 local EquipmentChangedMessage = require('cylibs/messages/equipment_changed_message')
+local EquipSet = require('cylibs/inventory/equipment/equip_set')
 local Event = require('cylibs/events/Luvent')
+local Inventory = require('cylibs/inventory/inventory')
 local inventory_util = require('cylibs/util/inventory_util')
 local PartyMember = require('cylibs/entity/party_member')
 local Weapon = require('cylibs/battle/weapons/weapon')
@@ -19,6 +21,8 @@ end
 -- @treturn Player A player
 function Player.new(id)
     local self = setmetatable(PartyMember.new(id, windower.ffxi.get_player().name), Player)
+
+    self.inventory = Inventory.new()
 
     self:set_zone_id(windower.ffxi.get_info().zone)
     local main_weapon_id = inventory_util.get_main_weapon_id()
@@ -156,6 +160,18 @@ function Player:set_ranged_weapon_id(ranged_weapon_id)
     self:update_combat_skills()
 
     self:on_equipment_change():trigger(self)
+end
+
+function Player:get_current_equip_set()
+    local equip_set = EquipSet.new()
+    for slot in EquipSet.Slot.AllSlots:it() do
+        equip_set[slot] = inventory_util.get_equipment(slot)
+    end
+    return equip_set
+end
+
+function Player:get_inventory()
+    return self.inventory
 end
 
 -------

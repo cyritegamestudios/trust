@@ -1,5 +1,6 @@
 local DisposeBag = require('cylibs/events/dispose_bag')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
+local Keyboard = require('cylibs/ui/input/keyboard')
 local Padding = require('cylibs/ui/style/padding')
 
 local GridLayout = {}
@@ -40,6 +41,7 @@ function GridLayout:layoutSubviews(collectionView, indexPathFilter)
             return true
         end
     end
+    local numRows = 1
     local yOffset = self.padding.top
     for section = 1, collectionView:getDataSource():numberOfSections() do
         local numberOfItems = collectionView:getDataSource():numberOfItemsInSection(section)
@@ -77,12 +79,13 @@ function GridLayout:layoutSubviews(collectionView, indexPathFilter)
                 cellSize = self:sizeForItemAtIndexPath(collectionView, cell)
 
                 if xOffset + cellSize.width + self.itemSpacing > self.width then
-                    xOffset = 0
+                    xOffset = self.padding.left
                     yOffset = yOffset + cellSize.height + self.itemSpacing
+                    numRows = numRows + 1
                 end
 
                 cell:setPosition(xOffset, yOffset)
-                cell:setSize(cellSize.width - self.padding.left - self.padding.right, cellSize.height)
+                cell:setSize(cellSize.width --[[- self.padding.left - self.padding.right]], cellSize.height)
                 cell:setVisible(collectionView:getContentView():isVisible() and cell:isVisible())
                 cell:layoutIfNeeded()
 
@@ -96,6 +99,7 @@ function GridLayout:layoutSubviews(collectionView, indexPathFilter)
     -- Set the width and height of the layout
     self.width = collectionView:getSize().width
     self.height = yOffset + self.padding.bottom
+    self.numRows = numRows
 
     collectionView:setContentSize(self.width, self.height)
 end
@@ -119,6 +123,29 @@ end
 
 function GridLayout:getPadding()
     return self.padding
+end
+
+function GridLayout:onKeyboardEvent(key, pressed, flags, blocked, collectionView)
+    if pressed then
+        local currentIndexPath = collectionView:getDelegate():getCursorIndexPath()
+        if currentIndexPath then
+            local keyName = Keyboard.input():getKey(key, flags)
+            if keyName == 'Up' then
+                local nextIndexPath = IndexPath.new(currentIndexPath.section, currentIndexPath.row - self.numRows)
+                if collectionView:getDataSource():itemAtIndexPath(nextIndexPath) then
+                    collectionView:getDelegate():setCursorIndexPath(nextIndexPath)
+                    return true
+                end
+            elseif keyName == 'Down' then
+                local nextIndexPath = IndexPath.new(currentIndexPath.section, currentIndexPath.row + self.numRows)
+                if collectionView:getDataSource():itemAtIndexPath(nextIndexPath) then
+                    collectionView:getDelegate():setCursorIndexPath(nextIndexPath)
+                    return true
+                end
+            end
+        end
+    end
+    return false
 end
 
 return GridLayout

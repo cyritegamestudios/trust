@@ -38,6 +38,11 @@ function PickerView:on_pick_items()
     return self.pick_items
 end
 
+-- Event called when a list of items are selected but not confirmed.
+function PickerView:on_select_items()
+    return self.select_items
+end
+
 ---
 -- Creates a new PickerView.
 --
@@ -65,6 +70,8 @@ function PickerView.new(configItems, allowsMultipleSelection, mediaPlayer, sound
     end)
     self.menuArgs = {}
     self.textStyle = textStyle or TextStyle.Picker.Text
+    self.pick_items = Event.newEvent()
+    self.select_items = Event.newEvent()
 
     self:setAllowsMultipleSelection(allowsMultipleSelection)
     self:setScrollDelta(16)
@@ -77,9 +84,18 @@ function PickerView.new(configItems, allowsMultipleSelection, mediaPlayer, sound
         end
     end), self:getDataSource():onItemsWillChange())
 
+    self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
+        local selectedItems = L(self:getDelegate():getSelectedIndexPaths():map(function(indexPath)
+            return self:valueAtIndexPath(indexPath)
+        end)):compact_map()
+        if selectedItems:length() > 0 then
+            self:on_select_items():trigger(self, selectedItems, L(self:getDelegate():getSelectedIndexPaths()))
+        end
+    end, self:getDelegate():didSelectItemAtIndexPath()))
+
     self:reload()
 
-    self.pick_items = Event.newEvent()
+
 
     return self
 end
@@ -88,10 +104,13 @@ function PickerView:destroy()
     CollectionView.destroy(self)
 
     self.pick_items:removeAllActions()
+    self.select_items:removeAllActions()
 end
 
 function PickerView:reload()
     self:getDataSource():removeAllItems()
+
+    self:setContentOffset(0, 0)
 
     local indexedItems = L{}
     local selectedIndexPaths = L{}

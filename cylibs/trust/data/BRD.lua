@@ -43,7 +43,6 @@ function BardTrust.new(settings, action_queue, battle_settings, trust_settings, 
 
 	self.settings = settings
 	state.SongSet:options(L(T(trust_settings.SongSettings.SongSets):keyset()):unpack())
-	self.num_songs = trust_settings.NumSongs
 	self.action_queue = action_queue
 	self.song_modes_delta = ModeDelta.new(BardModes.Singing, "Unable to change modes while singing. Use // trust stop to stop singing.", S{ 'AutoSongMode', 'AutoFollowMode' })
 
@@ -68,8 +67,6 @@ function BardTrust:on_init()
 	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
 		self:get_job():set_trust_settings(new_trust_settings)
 
-		self.num_songs = new_trust_settings.NumSongs
-
 		local current_set_name = state.SongSet.value
 		state.SongSet:options(L(T(new_trust_settings.SongSettings.SongSets):keyset()):unpack())
 		state.SongSet:set(current_set_name, true)
@@ -89,6 +86,20 @@ function BardTrust:on_init()
 
 		if not hide_help_text then
 			addon_system_message("Switched to song set "..state.SongSet.value..".")
+		end
+	end)
+
+	self:get_party():get_player():on_gain_buff():addAction(function(_, buff_id)
+		if res.buffs[buff_id].en == 'Clarion Call' then
+			local singer = self:role_with_type("singer")
+			singer:set_song_settings(self:get_trust_settings().SongSettings)
+		end
+	end)
+
+	self:get_party():get_player():on_lose_buff():addAction(function(_, buff_id)
+		if res.buffs[buff_id].en == 'Clarion Call' then
+			local singer = self:role_with_type("singer")
+			singer:set_song_settings(self:get_trust_settings().SongSettings)
 		end
 	end)
 end

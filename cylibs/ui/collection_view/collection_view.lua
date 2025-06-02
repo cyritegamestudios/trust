@@ -56,6 +56,8 @@ function CollectionView.new(dataSource, layout, delegate, style, mediaPlayer, so
     self.allowsMultipleSelection = false
     self.allowsCursorSelection = false
     self.cursorImageItem = style:getCursorItem()
+    self.scrollNextKey = 208
+    self.scrollPreviousKey = 200
 
     if self.cursorImageItem then
         self.selectionBackground = ImageCollectionViewCell.new(self.cursorImageItem)
@@ -112,7 +114,7 @@ function CollectionView:moveCursorToIndexPath(cursorIndexPath)
     if cursorIndexPath and self:getDataSource():itemAtIndexPath(cursorIndexPath) then
         local cell = self:getDataSource():cellForItemAtIndexPath(cursorIndexPath)
         if cell then
-            self.selectionBackground:setPosition(cell:getPosition().x - self.cursorImageItem:getSize().width - 7, cell:getPosition().y + (cell:getSize().height - self.cursorImageItem:getSize().height) / 2)
+            self.selectionBackground:setPosition(cell:getPosition().x - self.cursorImageItem:getSize().width - 7 + self.cursorImageItem.offsetX, cell:getPosition().y + (cell:getSize().height - self.cursorImageItem:getSize().height) / 2 + self.cursorImageItem.offsetY)
             self.selectionBackground:setSize(self.cursorImageItem:getSize().width, self.cursorImageItem:getSize().height)
             isCursorVisible = self:hasFocus() and self:isCursorEnabled()
         end
@@ -321,7 +323,7 @@ function CollectionView:onKeyboardEvent(key, pressed, flags, blocked)
 
         local currentIndexPath = self:getDelegate():getCursorIndexPath()
         if currentIndexPath then
-            if key == 208 then
+            if key == self.scrollNextKey then
                 self.isScrolling = true
                 if self:canScroll() then
                     local nextIndexPath = self:getDataSource():getNextIndexPath(currentIndexPath, self.allowsScrollWrap)
@@ -332,7 +334,7 @@ function CollectionView:onKeyboardEvent(key, pressed, flags, blocked)
                     self:getDelegate():setCursorIndexPath(nextIndexPath)
                 end
                 return true
-            elseif key == 200 then
+            elseif key == self.scrollPreviousKey then
                 self.isScrolling = true
                 if self:canScroll() then
                     local nextIndexPath = self:getDataSource():getPreviousIndexPath(currentIndexPath, self.allowsScrollWrap)
@@ -355,12 +357,17 @@ function CollectionView:onKeyboardEvent(key, pressed, flags, blocked)
                     end
                 end
                 self:getDelegate():selectItemAtIndexPath(self:getDelegate():getCursorIndexPath())
+            elseif self.layout.onKeyboardEvent then
+                blocked = blocked or self.layout:onKeyboardEvent(key, pressed, flags, blocked, self)
+                if blocked then
+                    return true
+                end
             end
         end
     else
         self.isScrolling = false
     end
-    return L{200, 208}:contains(key)
+    return L{ self.scrollNextKey, self.scrollPreviousKey }:contains(key)
 end
 
 function CollectionView:onMouseEvent(type, x, y, delta)

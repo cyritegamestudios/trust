@@ -64,6 +64,29 @@ function Resources.new()
                 item_level = "INTEGER",
                 superior_level = "INTEGER"
             },
+            post_process = function(rows)
+                local bit = require('bit')
+                for row in rows:it() do
+                    if row.slots then
+                        local slots = L{}
+                        for i = 0, 15 do
+                            local mask = bit.lshift(1, i)
+                            if bit.band(tonumber(mask), row.slots) ~= 0 then
+                                slots:append(i)
+                            end
+                        end
+                        row.slots = slots
+                    end
+                end
+            end
+        }),
+        ItemDescription = Table(self.database, {
+            table_name = "item_descriptions",
+            schema = {
+                id = "INTEGER PRIMARY KEY",
+                en = "TEXT",
+                ja = "TEXT"
+            },
         }),
     }
 
@@ -79,7 +102,8 @@ function Resources:get_table(resource_name)
         return self.tables[resource_name]
     end
     local resource_map = {
-        items = self.tables.Item
+        items = self.tables.Item,
+        item_descriptions = self.tables.ItemDescription
     }
     return resource_map[resource_name]
 end
@@ -96,4 +120,5 @@ end
 return {
     Resources = Resources.shared(),
     Item = Resources.shared().tables.Item,
+    ItemDescription = Resources.shared().tables.ItemDescription
 }

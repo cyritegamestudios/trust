@@ -1,3 +1,4 @@
+local icon_extractor = require('cylibs/util/images/icon_extractor')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 
 local FFXIAssetManager = {}
@@ -61,6 +62,19 @@ function FFXIAssetManager.imageItemForAbility(abilityName)
     else
         return ImageItem.new(windower.addon_path..'assets/icons/icon_job_ability_light.png', 16, 16)
     end
+end
+
+function FFXIAssetManager.imageItemForItem(itemId)
+    if itemId == 65535 or itemId == nil then
+        return ImageItem.new('', 32, 32)
+    end
+    local iconPath = string.format('%s/%s.bmp', windower.addon_path..'assets/equipment', itemId)
+
+    if not windower.file_exists(iconPath) then
+        icon_extractor.item_by_id(itemId, iconPath)
+    end
+
+    return ImageItem.new(iconPath, 32, 32)
 end
 
 return FFXIAssetManager

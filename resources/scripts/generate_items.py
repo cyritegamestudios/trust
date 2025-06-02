@@ -13,8 +13,16 @@ def parse_lua_file(lua_file_path):
     item_table, field_names = lua.execute(lua_code)
     return item_table
 
-def create_database(db_file):
-    conn = sqlite3.connect(db_file)
+def parse_description_file(lua_file_path):
+    lua = LuaRuntime(unpack_returned_tuples=True)
+    with open(lua_file_path, 'r', encoding='utf-8') as f:
+        lua_code = f.read()
+
+    description_table, _ = lua.execute(lua_code)
+    return description_table
+
+
+def create_items_table(conn):
     c = conn.cursor()
     c.execute("""
         CREATE TABLE IF NOT EXISTS items (
@@ -47,6 +55,22 @@ def create_database(db_file):
         );
     """)
     conn.commit()
+
+def create_description_table(conn):
+    c = conn.cursor()
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS item_descriptions (
+            id INTEGER PRIMARY KEY,
+            en TEXT,
+            ja TEXT
+        );
+    """)
+    conn.commit()
+
+def create_database(db_file):
+    conn = sqlite3.connect(db_file)
+    create_items_table(conn)
+    create_description_table(conn)
     return conn
 
 def insert_item(conn, item):
@@ -65,15 +89,26 @@ def insert_item(conn, item):
         VALUES ({placeholders})
     """, values)
 
+def insert_description(conn, id, en, ja):
+    conn.execute("""
+        INSERT OR REPLACE INTO item_descriptions (id, en, ja)
+        VALUES (?, ?, ?)
+    """, (id, en, ja))
+
 def main():
     lua_file = sys.argv[1]
     db_file = sys.argv[2]
+    description_file = sys.argv[3]
 
     items = parse_lua_file(lua_file)
+    descriptions = parse_description_file(description_file)
     conn = create_database(db_file)
 
     for key, item in items.items():
         insert_item(conn, item)
+
+    for id, desc in descriptions.items():
+        insert_description(conn, int(id), desc['en'], desc['ja'])
 
     conn.commit()
     print("Inserted all items.")

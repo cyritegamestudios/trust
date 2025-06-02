@@ -432,6 +432,8 @@ function GambitSettingsMenuItem:getToggleMenuItem()
 
                 local currentGambits = self:getSettings().Gambits
                 currentGambits[selectedIndexPath.row]:setEnabled(not currentGambits[selectedIndexPath.row]:isEnabled())
+
+                self.trustSettings:saveSettings(true)
             end
         end
     end, self:getTitleText(), "Temporarily enable or disable the selected "..self.editorConfig:getDescription().." until the addon reloads.", false, function()

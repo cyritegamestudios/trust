@@ -240,7 +240,7 @@ function Bard:get_song_duration_modifier(song_name)
     return modifier
 end
 
-function Bard:get_song_duration(song_name, buffs)
+function Bard:get_song_duration(song_name)
     local mult = self.jp_mods.mult and 1.05 or 1
 
     local mod_item_ids = L{}
@@ -345,7 +345,7 @@ end
 -- Updates the songs settings based on trust settings.
 -- @tparam table Trust settings
 function Bard:set_trust_settings(trust_settings)
-    self.max_num_songs = trust_settings.SongSettings.NumSongs or 4
+    self.max_num_songs = 4
     self.song_duration = trust_settings.SongSettings.SongDuration or 240
     self.song_delay = trust_settings.SongSettings.SongDelay or 6
     self.gear_swap_enabled = trust_settings.GearSwapSettings.Enabled
