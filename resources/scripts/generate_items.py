@@ -4,6 +4,28 @@ import shutil
 import os
 from lupa import LuaRuntime
 
+ALLOWED_STATS = {
+    'STR': 'STR',
+    'DEX': 'DEX',
+    'AGI': 'AGI',
+    'INT': 'INT',
+    'CHR': 'CHR',
+    'VIT': 'VIT',
+    'MND': 'MND',
+    'DEF': 'DEF',
+    'HP': 'HP',
+    'MP': 'MP',
+    'Attack': 'Attack',
+    'Ranged Attack': 'Ranged_Attack',
+    'Magic Atk. Bonus': 'Magic_Attack',
+    'Accuracy': 'Accuracy',
+    'Ranged Accuracy': 'Ranged_Accuracy',
+    'Magic Accuracy': 'Magic_Accuracy',
+    'Evasion': 'Evasion',
+    'Magic Evasion': 'Magic_Evasion',
+    'Magic Def. Bonus': 'Magic_Defense_Bonus'
+}
+
 def parse_lua_file(lua_file_path):
     lua = LuaRuntime(unpack_returned_tuples=True)
     with open(lua_file_path, 'r') as f:
@@ -20,7 +42,6 @@ def parse_description_file(lua_file_path):
 
     description_table, _ = lua.execute(lua_code)
     return description_table
-
 
 def create_items_table(conn):
     c = conn.cursor()
@@ -62,7 +83,26 @@ def create_description_table(conn):
         CREATE TABLE IF NOT EXISTS item_descriptions (
             id INTEGER PRIMARY KEY,
             en TEXT,
-            ja TEXT
+            ja TEXT,
+            STR INTEGER,
+            DEX INTEGER,
+            AGI INTEGER,
+            INT INTEGER,
+            CHR INTEGER,
+            VIT INTEGER,
+            MND INTEGER,
+            DEF INTEGER,
+            HP INTEGER,
+            MP INTEGER,
+            Attack INTEGER,
+            Ranged_Attack INTEGER,
+            Magic_Attack INTEGER,
+            Accuracy INTEGER,
+            Ranged_Accuracy INTEGER,
+            Magic_Accuracy INTEGER,
+            Evasion INTEGER,
+            Magic_Evasion INTEGER,
+            Magic_Defense_Bonus INTEGER
         );
     """)
     conn.commit()
@@ -89,11 +129,53 @@ def insert_item(conn, item):
         VALUES ({placeholders})
     """, values)
 
+
+def extract_stats(description_en):
+    if not description_en:
+        return {}
+
+    description_en = description_en.replace('\n', ' ')
+    stats = {}
+
+    # Pattern: label followed by +number (e.g., STR+10, Magic Accuracy+7)
+    pattern = re.compile(r'([A-Za-z. ]+?)(?:\s*\+|\s*:\s*)([-+]?\d+)(%?)\b')
+
+    for match in pattern.finditer(description_en):
+        raw_key, value, _ = match.groups()
+        key = raw_key.strip()
+        normalized_key = ALLOWED_STATS.get(key)
+        if normalized_key:
+            try:
+                stats[normalized_key] = int(value)
+            except ValueError:
+                pass  # silently ignore bad values
+
+    return stats
+
 def insert_description(conn, id, en, ja):
-    conn.execute("""
-        INSERT OR REPLACE INTO item_descriptions (id, en, ja)
-        VALUES (?, ?, ?)
-    """, (id, en, ja))
+    stats = extract_stats(en)
+
+    # Base fields
+    columns = ['id', 'en', 'ja']
+    values = [id, en, ja]
+
+    # Add any stat columns and values
+    for col in [
+        'STR', 'DEX', 'AGI', 'INT', 'CHR', 'VIT', 'MND', 'DEF', 'HP', 'MP',
+        'Attack', 'Ranged_Attack', 'Magic_Attack', 'Accuracy',
+        'Ranged_Accuracy', 'Magic_Accuracy', 'Evasion',
+        'Magic_Evasion', 'Magic_Defense_Bonus'
+    ]:
+        columns.append(col)
+        values.append(stats.get(col))
+
+    placeholders = ', '.join(['?'] * len(values))
+    col_string = ', '.join(columns)
+
+    conn.execute(f"""
+        INSERT OR REPLACE INTO item_descriptions ({col_string})
+        VALUES ({placeholders})
+    """, values)
 
 def main():
     lua_file = sys.argv[1]
