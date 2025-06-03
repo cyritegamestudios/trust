@@ -25,7 +25,9 @@ function FFXIFastPickerView:on_pick_items()
     return self.pick_items
 end
 
-function FFXIFastPickerView.new(configItem)
+function FFXIFastPickerView.new(configItem, viewSize)
+    viewSize = viewSize or FFXIClassicStyle.WindowSize.Picker.Default
+
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         if item.__type == TextItem.__type then
             local cell = TextCollectionViewCell.new(item)
@@ -42,8 +44,8 @@ function FFXIFastPickerView.new(configItem)
         end
     end)
 
-    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(0, FFXIClassicStyle.Padding.CollectionView.Default), nil, false, FFXIClassicStyle.WindowSize.Picker.Default), FFXIFastPickerView)
-
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(0, FFXIClassicStyle.Padding.CollectionView.Default), nil, false, viewSize), FFXIFastPickerView)
+    
     self.configItem = configItem
     self.mediaPlayer = defaultMediaPlayer
     self.soundTheme = defaultSoundTheme
@@ -135,13 +137,23 @@ function FFXIFastPickerView:setRange(startIndex, endIndex, shouldReload)
 
     self:getDataSource():removeAllItems()
 
+    local itemsToUpdate = L{}
+    local selectedIndexPaths = L{}
     for indexedItem in IndexedItem.fromItems(self.visibleItems, 1):it() do
         local item = self:getItemForValue(indexedItem:getItem())
-        self:getDataSource():updateItem(item, indexedItem:getIndexPath())
+        itemsToUpdate:append(IndexedItem.new(item, indexedItem:getIndexPath()))
+        --self:getDataSource():updateItem(item, indexedItem:getIndexPath())
 
         if self.selectedItems:getValue():contains(indexedItem:getItem()) then
-            self:getDelegate():selectItemAtIndexPath(indexedItem:getIndexPath())
+            selectedIndexPaths:append(indexedItem:getIndexPath())
+            --self:getDelegate():selectItemAtIndexPath(indexedItem:getIndexPath())
         end
+    end
+
+    self:getDataSource():updateItems(itemsToUpdate)
+
+    for selectedIndexPath in selectedIndexPaths:it() do
+        self:getDelegate():selectItemAtIndexPath(selectedIndexPath)
     end
 
     if self:getDataSource():numberOfItemsInSection(1) > 0 then

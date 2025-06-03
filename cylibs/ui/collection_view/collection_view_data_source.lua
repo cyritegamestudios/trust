@@ -234,9 +234,10 @@ function CollectionViewDataSource:updateItems(indexedItems)
         if cachedCell then
             if self.sizeForItem ~= nil then
                 cachedCell:setItemSize(self.sizeForItem(indexedItem:getItem(), indexedItem:getIndexPath()))
+                cachedCell:setNeedsLayout()
             end
             -- FIXME: revert this if it causes errors
-            cachedCell:setNeedsLayout()
+
             cachedCell:layoutIfNeeded()
         end
     end
