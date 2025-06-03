@@ -115,10 +115,8 @@ end
 
 function FFXIFastPickerView:setRange(startIndex, endIndex, shouldReload)
     local range = { startIndex = math.max(1, startIndex), endIndex = math.min(self.configItem:getAllValues():length(), endIndex) }
-    if self.range and range.startIndex == self.range.startIndex and range.endIndex == self.range.endIndex then
-        return
-    end
-    if self.range and range.endIndex - range.startIndex < self.maxNumItems and not shouldReload then
+    if self.range and not shouldReload and (range.endIndex - range.startIndex < self.maxNumItems
+            or range.startIndex == self.range.startIndex and range.endIndex == self.range.endIndex) then
         return
     end
     self.range = range
@@ -254,7 +252,7 @@ function FFXIFastPickerView:onSelectMenuItemAtIndexPath(textItem, _)
 end
 
 function FFXIFastPickerView:setFilter(filter)
-    self:setRange(1, self.maxNumItems + 1)
+    self:setRange(1, self.maxNumItems + 1, true)
 
     local selectedValues = L(self:getDelegate():getSelectedIndexPaths():map(function(indexPath)
         return self:getDataSource():itemAtIndexPath(indexPath):getText()
