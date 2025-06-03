@@ -8,6 +8,7 @@ local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Keyboard = require('cylibs/ui/input/keyboard')
 local Mouse = require('cylibs/ui/input/mouse')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local ScrollView = require('cylibs/ui/scroll_view/scroll_view')
 local SoundTheme = require('cylibs/sounds/sound_theme')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
@@ -46,13 +47,17 @@ function FFXIFastPickerView.new(configItem, viewSize)
 
     local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(0, FFXIClassicStyle.Padding.CollectionView.Default), nil, false, viewSize), FFXIFastPickerView)
 
+    if configItem:getInitialValues():length() > 1 then
+        self:setAllowsMultipleSelection(true)
+    end
+
     self.configItem = configItem
     self.mediaPlayer = defaultMediaPlayer
     self.soundTheme = defaultSoundTheme
     self.textStyle = TextStyle.Picker.Text
     self.maxNumItems = math.min(configItem:getAllValues():length(), 10)
     self.highlightedItem = ValueRelay.new(nil)
-    self.selectedItems = ValueRelay.new(L{})
+    self.selectedItems = ValueRelay.new(self.configItem:getInitialValues() or L{})
     self.pick_items = Event.newEvent()
 
     self:setShouldRequestFocus(true)
@@ -142,11 +147,8 @@ function FFXIFastPickerView:setRange(startIndex, endIndex, shouldReload)
     for indexedItem in IndexedItem.fromItems(self.visibleItems, 1):it() do
         local item = self:getItemForValue(indexedItem:getItem())
         itemsToUpdate:append(IndexedItem.new(item, indexedItem:getIndexPath()))
-        --self:getDataSource():updateItem(item, indexedItem:getIndexPath())
-
         if self.selectedItems:getValue():contains(indexedItem:getItem()) then
             selectedIndexPaths:append(indexedItem:getIndexPath())
-            --self:getDelegate():selectItemAtIndexPath(indexedItem:getIndexPath())
         end
     end
 

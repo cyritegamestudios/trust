@@ -149,7 +149,7 @@ function MultiPickerConfigItem:getMenuItem()
     return MenuItem.new(L{
         ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
     }, {}, function(_, _)
-        local configItem = MultiPickerConfigItem.new("PickerItems", L{ self:getCurrentValues() }, self:getAllValues())
+        local configItem = MultiPickerConfigItem.new("PickerItems", self:getInitialValues(), self:getAllValues())
         configItem.imageItem = self:getImageItem()
 
         local pickerView = FFXIPickerView.withConfig(configItem, true)

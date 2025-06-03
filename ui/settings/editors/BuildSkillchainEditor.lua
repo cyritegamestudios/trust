@@ -4,6 +4,7 @@ local ConfigItem = require('ui/settings/editors/config/ConfigItem')
 local ImageItem = require('cylibs/ui/collection_view/items/image_item')
 local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local SectionHeaderItem = require('cylibs/ui/collection_view/items/section_header_item')
 local skillchain_util = require('cylibs/util/skillchain_util')
@@ -20,6 +21,9 @@ function BuildSkillchainEditor.new(builderSettings, skillchainer, selectedCombat
         ConfigItem.new('NumSteps', 2, 6, 1, function(value) return value.."" end, "Number of Steps"),
         PickerConfigItem.new('Property', 'Light Lv.4', skillchain_util.all_skillchain_properties()),
         BooleanConfigItem.new('IncludeAeonic', 'Enable Aeonic'),
+        MultiPickerConfigItem.new('CombatSkills', skillchainer:get_party():get_player():get_combat_skill_ids(), L{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 25, 26 }, function(skillIds)
+            return localization_util.commas(skillIds:map(function(skillId) return i18n.resource('skills', 'en', res.skills[skillId].en) end))
+        end, "Skills")
     }
 
     local self = setmetatable(ConfigEditor.new(nil, builderSettings, configItems), BuildSkillchainEditor)
@@ -30,13 +34,6 @@ function BuildSkillchainEditor.new(builderSettings, skillchainer, selectedCombat
 
     self:setScrollDelta(16)
     self:setShouldRequestFocus(true)
-
-    local sectionHeaderItem = SectionHeaderItem.new(
-        TextItem.new("Skills", TextStyle.Default.SectionHeader),
-        ImageItem.new(windower.addon_path..'assets/icons/icon_bullet.png', 8, 8),
-        16
-    )
-    self:getDataSource():setItemForSectionHeader(4, sectionHeaderItem)
 
     self:reloadSettings()
 
@@ -78,28 +75,7 @@ function BuildSkillchainEditor:reloadSettings()
         return
     end
 
-    local combatSkillIds = L{1,2,3,4,5,6,7,8,9,10,11,12,25,26}
-    local combatSkillItems = IndexedItem.fromItems(combatSkillIds:map(function(combatSkillId)
-        local textItem = TextItem.new(res.skills[combatSkillId].en, TextStyle.Default.TextSmall)
-        textItem:setLocalizedText(i18n.resource('skills', 'en', res.skills[combatSkillId].en))
-        return textItem
-    end), 4)
-
-    self:getDataSource():addItems(combatSkillItems)
-
-    local activeCombatSkillIds = self.skillchainer:get_party():get_player():get_combat_skill_ids()
-    for activeCombatSkillId in activeCombatSkillIds:it() do
-        self.builderSettings.CombatSkills:add(activeCombatSkillId)
-    end
-
     local selectedIndexPaths = L{}
-    for combatSkillItem in combatSkillItems:it() do
-        local combatSkillId = res.skills:with('en', combatSkillItem:getItem():getText()).id
-        if activeCombatSkillIds:contains(combatSkillId) or self.builderSettings.CombatSkills:contains(combatSkillId) then
-            selectedIndexPaths:append(combatSkillItem:getIndexPath())
-        end
-    end
-
     if self.builderSettings.IncludeAeonic then
         selectedIndexPaths:append(IndexPath.new(3, 1))
     end
