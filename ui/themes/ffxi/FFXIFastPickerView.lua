@@ -10,6 +10,7 @@ local Keyboard = require('cylibs/ui/input/keyboard')
 local Mouse = require('cylibs/ui/input/mouse')
 local ScrollView = require('cylibs/ui/scroll_view/scroll_view')
 local SoundTheme = require('cylibs/sounds/sound_theme')
+local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
 local ValueRelay = require('cylibs/events/value_relay')
@@ -26,11 +27,19 @@ end
 
 function FFXIFastPickerView.new(configItem)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
-        local cell = ImageTextCollectionViewCell.new(item)
-        cell:setClipsToBounds(false)
-        cell:setItemSize(16)
-        cell:setUserInteractionEnabled(true)
-        return cell
+        if item.__type == TextItem.__type then
+            local cell = TextCollectionViewCell.new(item)
+            cell:setClipsToBounds(false)
+            cell:setItemSize(16)
+            cell:setUserInteractionEnabled(true)
+            return cell
+        elseif item.__type == ImageTextItem.__type then
+            local cell = ImageTextCollectionViewCell.new(item)
+            cell:setClipsToBounds(false)
+            cell:setItemSize(16)
+            cell:setUserInteractionEnabled(true)
+            return cell
+        end
     end)
 
     local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(0, FFXIClassicStyle.Padding.CollectionView.Default), nil, false, FFXIClassicStyle.WindowSize.Picker.Default), FFXIFastPickerView)
@@ -106,6 +115,9 @@ end
 
 function FFXIFastPickerView:setRange(startIndex, endIndex, shouldReload)
     local range = { startIndex = math.max(1, startIndex), endIndex = math.min(self.configItem:getAllValues():length(), endIndex) }
+    if self.range and range.startIndex == self.range.startIndex and range.endIndex == self.range.endIndex then
+        return
+    end
     if self.range and range.endIndex - range.startIndex < self.maxNumItems and not shouldReload then
         return
     end
@@ -235,7 +247,7 @@ function FFXIFastPickerView:onSelectMenuItemAtIndexPath(textItem, _)
     elseif L{ 'Clear All' }:contains(textItem:getText()) then
         self:getDelegate():deselectAllItems()
     elseif L{ 'Filter' }:contains(textItem:getText()) then
-        self:requestFocus()
+        --self:requestFocus()
         self:setSearchEnabled(true)
     end
 end
@@ -274,8 +286,13 @@ function FFXIFastPickerView:setSearchEnabled(searchEnabled)
             self:setNeedsLayout()
             self:layoutIfNeeded()
         end
+
+        self:requestFocus()
+
         self.searchBarView:setVisible(true)
         self.searchBarView:requestFocus()
+
+        -- FIXME: remove search from FFXIPickerView (not fast)
     end
 end
 

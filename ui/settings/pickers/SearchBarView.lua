@@ -20,13 +20,12 @@ function SearchBarView.new()
 
     local self = setmetatable(ConfigEditor.new(nil, searchResults, configItems, nil, nil, nil, Frame.new(0, 0, 130, 60), "Search"), SearchBarView)
     self:setTitle("Search", 30)
+
+    self.resignFocusKeys = L{ 1, 203 }
     self.searchQueryChanged = Event.newEvent()
 
     self:onConfigItemChanged():addAction(function(key, currentValue, initialValue)
         self:onSearchQueryChanged():trigger(self, currentValue, initialValue)
-
-        --self:resignFocus()
-        --self:setVisible(false)
     end)
 
     self:setNeedsLayout()

@@ -101,7 +101,7 @@ end
 -- @treturn function The image item.
 --
 function MultiPickerConfigItem:getImageItem()
-    return self.imageItem
+    return self.imageItem or function(_) return nil end
 end
 
 ---

@@ -73,50 +73,6 @@ function FFXIPickerView.withItems(configItems, allowsMultipleSelection, viewSize
     return FFXIPickerView.new(configItems, allowsMultipleSelection, viewSize, title, nil, nil, textStyle)
 end
 
-function FFXIPickerView:layoutIfNeeded()
-    local needsLayout = PickerView.layoutIfNeeded(self)
-
-    if self.searchBarView then
-        self.searchBarView:setPosition(0, self:getSize().height + 4)
-        self.searchBarView:layoutIfNeeded()
-    end
-
-    return needsLayout
-end
-
----
--- Called when the confirm button is pressed.
--- @tparam TextItem textItem Selected item.
--- @tparam IndexPath indexPath Selected index path.
---
-function FFXIPickerView:onSelectMenuItemAtIndexPath(textItem, _)
-    if L{ 'Filter' }:contains(textItem:getText()) then
-        if self.searchBarView == nil then
-            local SearchBarView = require('ui/settings/pickers/SearchBarView')
-            self.searchBarView = SearchBarView.new()
-            self:addSubview(self.searchBarView)
-
-            self.searchBarView:onSearchQueryChanged():addAction(function(_, query, _)
-                self:setFilter(function(name)
-                    return name:contains(query)
-                end)
-            end)
-
-            self.searchBarView:setNeedsLayout()
-            self.searchBarView:layoutIfNeeded()
-
-            self:setNeedsLayout()
-            self:layoutIfNeeded()
-
-            --self.searchBarView:setVisible(true)
-            --self.searchBarView:layoutIfNeeded()
-        end
-        self.searchBarView:requestFocus()
-    else
-        PickerView.onSelectMenuItemAtIndexPath(self, textItem, _)
-    end
-end
-
 function FFXIPickerView:shouldRequestFocus()
     return PickerView.shouldRequestFocus(self) and self:getDataSource():numberOfItemsInSection(1) > 0
 end
