@@ -20,7 +20,9 @@ return T{
     ["Button_Info"] = {singular="Info"},
     ["Button_Confirm"] = {singular="Confirm"},
     ["Button_Clear"] = {singular="Clear"},
+    ["Button_Clear_All"] = {singular="Clear All"},
     ["Button_Widget_Layout"] = {singular="Layout"},
     ["Button_Edit"] = {singular="Edit"},
     ["Button_Blacklist"] = {singular="Blacklist"},
+    ["Button_Filter"] = {singular="Filter"},
 }, {"singular", "plural"}

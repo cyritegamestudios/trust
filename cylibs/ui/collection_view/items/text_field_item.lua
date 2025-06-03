@@ -6,6 +6,7 @@ TextFieldItem.__type = "TextFieldItem"
 
 function TextFieldItem.new(textItem, defaultImageItem, highlightedImageItem, selectedImageItem, validator)
     local self = setmetatable(ButtonItem.new(textItem, defaultImageItem, highlightedImageItem, selectedImageItem), TextFieldItem)
+    self.initialValue = textItem:getText()
     self.validator = validator or function(_)
         return true
     end
@@ -18,6 +19,14 @@ end
 
 function TextFieldItem:isValid(text)
     return self.validator(text)
+end
+
+function TextFieldItem:getInitialValue()
+    return self.initialValue
+end
+
+function TextFieldItem:getCurrentValue()
+    return self.textItem:getText()
 end
 
 return TextFieldItem

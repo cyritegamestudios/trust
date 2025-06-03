@@ -12,7 +12,7 @@ TextInputConfigItem.__type = "TextInputConfigItem"
 -- @tparam function Formatter for current value.
 -- @treturn ConfigItem The newly created ConfigItem instance.
 --
-function TextInputConfigItem.new(key, placeholderText, description, validator, width)
+function TextInputConfigItem.new(key, placeholderText, description, validator, width, height)
     local self = setmetatable({}, TextInputConfigItem)
 
     self.key = key
@@ -21,9 +21,10 @@ function TextInputConfigItem.new(key, placeholderText, description, validator, w
     else
         self.placeholderText = placeholderText:get_windower_command()
     end
-    self.description = description or key
+    self.description = description --or key -- FIXME: add back?
     self.validator = validator or function(_) return true  end
     self.width = width or 175
+    self.height = height or 32
 
     return self
 end
@@ -38,12 +39,21 @@ function TextInputConfigItem:getKey()
 end
 
 ---
--- Gets the minimum value in the range.
+-- Gets the placeholder text.
 --
--- @treturn number The minimum value in the range.
+-- @treturn string The placeholder text.
 --
 function TextInputConfigItem:getPlaceholderText()
     return self.placeholderText
+end
+
+---
+-- Gets the initial value.
+--
+-- @treturn string The initial value.
+--
+function TextInputConfigItem:getInitialValue()
+    return self:getPlaceholderText()
 end
 
 ---
@@ -62,6 +72,15 @@ end
 --
 function TextInputConfigItem:getWidth()
     return self.width
+end
+
+---
+-- Gets the height.
+--
+-- @treturn number The height.
+--
+function TextInputConfigItem:getHeight()
+    return self.height
 end
 
 ---

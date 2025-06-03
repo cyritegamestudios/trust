@@ -29,6 +29,12 @@ function FFXIWindow.new(dataSource, layout, delegate, showTitle, viewSize, style
     return self
 end
 
+function FFXIWindow:setTitle(title, width)
+    self.backgroundImageView:setTitle(title, Frame.new(0, 0, width, 0))
+    self.backgroundImageView:setNeedsLayout()
+    self.backgroundImageView:layoutIfNeeded()
+end
+
 function FFXIWindow.getLayoutParams(numItemsPerPage, itemSize, itemSpacing, defaultSize, defaultPadding)
     local viewHeight = numItemsPerPage * itemSize + (numItemsPerPage - 1) * itemSpacing
     local viewSize = defaultSize

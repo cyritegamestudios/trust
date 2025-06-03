@@ -10,6 +10,7 @@ local Keyboard = require('cylibs/ui/input/keyboard')
 local Mouse = require('cylibs/ui/input/mouse')
 local ScrollView = require('cylibs/ui/scroll_view/scroll_view')
 local SoundTheme = require('cylibs/sounds/sound_theme')
+local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
 local ValueRelay = require('cylibs/events/value_relay')
@@ -26,11 +27,19 @@ end
 
 function FFXIFastPickerView.new(configItem)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
-        local cell = ImageTextCollectionViewCell.new(item)
-        cell:setClipsToBounds(false)
-        cell:setItemSize(16)
-        cell:setUserInteractionEnabled(true)
-        return cell
+        if item.__type == TextItem.__type then
+            local cell = TextCollectionViewCell.new(item)
+            cell:setClipsToBounds(false)
+            cell:setItemSize(16)
+            cell:setUserInteractionEnabled(true)
+            return cell
+        elseif item.__type == ImageTextItem.__type then
+            local cell = ImageTextCollectionViewCell.new(item)
+            cell:setClipsToBounds(false)
+            cell:setItemSize(16)
+            cell:setUserInteractionEnabled(true)
+            return cell
+        end
     end)
 
     local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(0, FFXIClassicStyle.Padding.CollectionView.Default), nil, false, FFXIClassicStyle.WindowSize.Picker.Default), FFXIFastPickerView)
@@ -104,17 +113,22 @@ function FFXIFastPickerView:getItemForValue(value)
     return item
 end
 
-function FFXIFastPickerView:setRange(startIndex, endIndex)
+function FFXIFastPickerView:setRange(startIndex, endIndex, shouldReload)
     local range = { startIndex = math.max(1, startIndex), endIndex = math.min(self.configItem:getAllValues():length(), endIndex) }
-    if self.range and range.endIndex - range.startIndex < self.maxNumItems then
+    if self.range and range.startIndex == self.range.startIndex and range.endIndex == self.range.endIndex then
+        return
+    end
+    if self.range and range.endIndex - range.startIndex < self.maxNumItems and not shouldReload then
         return
     end
     self.range = range
 
     local visibleItems = L{}
+
+    local allValues = self.configItem:getAllValues()
     for i = startIndex, endIndex do
-        if i <= self.configItem:getAllValues():length() then
-            local value = self.configItem:getAllValues()[i]
+        if i <= allValues:length() then
+            local value = allValues[i]
             visibleItems:append(value)
         end
     end
@@ -150,6 +164,11 @@ function FFXIFastPickerView:layoutIfNeeded()
 
     for scrollBar in self.scrollBars:it() do
         scrollBar:layoutIfNeeded()
+    end
+
+    if self.searchBarView then
+        self.searchBarView:setPosition(self:getSize().width + 4, 0)
+        self.searchBarView:layoutIfNeeded()
     end
 
     return true
@@ -229,6 +248,60 @@ function FFXIFastPickerView:onSelectMenuItemAtIndexPath(textItem, _)
         end
     elseif L{ 'Clear All' }:contains(textItem:getText()) then
         self:getDelegate():deselectAllItems()
+    elseif L{ 'Filter' }:contains(textItem:getText()) then
+        self:setSearchEnabled(true)
+    end
+end
+
+function FFXIFastPickerView:setFilter(filter)
+    self:setRange(1, self.maxNumItems + 1)
+
+    local selectedValues = L(self:getDelegate():getSelectedIndexPaths():map(function(indexPath)
+        return self:getDataSource():itemAtIndexPath(indexPath):getText()
+    end)):compact_map()
+
+    if self.configItem.setFilter then
+        self.configItem:setFilter(function(value)
+            return selectedValues:contains(value) or filter(value)
+        end)
+        self:setRange(1, self.maxNumItems + 1, true)
+    end
+end
+
+function FFXIFastPickerView:setSearchEnabled(searchEnabled)
+    if searchEnabled then
+        if self.searchBarView == nil then
+            local SearchBarView = require('ui/settings/pickers/SearchBarView')
+            self.searchBarView = SearchBarView.new()
+            self:addSubview(self.searchBarView)
+
+            self.searchBarView:onSearchQueryChanged():addAction(function(_, query, _)
+                self:setFilter(function(value)
+                    return self.configItem:getTextFormat()(value):contains(query)
+                end)
+            end)
+
+            self.searchBarView:setNeedsLayout()
+            self.searchBarView:layoutIfNeeded()
+
+            self:setNeedsLayout()
+            self:layoutIfNeeded()
+        end
+
+        self:requestFocus()
+
+        self.searchBarView:setVisible(true)
+        self.searchBarView:requestFocus()
+    end
+end
+
+function FFXIFastPickerView:setHasFocus(hasFocus)
+    FFXIWindow.setHasFocus(self, hasFocus)
+
+    if self:hasFocus() then
+        if self.searchBarView then
+            self.searchBarView:setVisible(false)
+        end
     end
 end
 

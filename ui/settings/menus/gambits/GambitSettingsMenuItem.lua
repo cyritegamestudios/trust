@@ -260,6 +260,7 @@ function GambitSettingsMenuItem:getAddAbilityMenuItem()
     local newAbilityMenuItem = function(targetType)
         local blankGambitMenuItem = MenuItem.new(L{
             ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
+            ButtonItem.localized('Filter', i18n.translate('Button_Filter')),
         }, {}, function(_, _, showMenu)
             local abilitiesByTargetType = self:getAbilitiesByTargetType()
 

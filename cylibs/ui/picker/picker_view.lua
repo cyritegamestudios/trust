@@ -13,6 +13,7 @@ local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 
+
 local PickerView = setmetatable({}, {__index = CollectionView })
 PickerView.__index = PickerView
 PickerView.__type = "PickerView"
@@ -223,6 +224,29 @@ function PickerView:addItem(text, section)
     self.pickerItems[section]:append(newItem)
 
     self:reload()
+end
+
+function PickerView:setFilter(filter)
+    local selectedValues = L(self:getDelegate():getSelectedIndexPaths():map(function(indexPath)
+        return self:getDataSource():itemAtIndexPath(indexPath):getText()
+    end)):compact_map()
+
+    local needsUpdate = false
+    for configItem in self.configItems:it() do
+        if configItem.setFilter then
+            configItem:setFilter(function(value)
+                return selectedValues:contains(value) or filter(value)
+            end)
+            needsUpdate = true
+        end
+    end
+    if needsUpdate then
+        self:reload()
+    end
+end
+
+function PickerView:clearFilter()
+    self:setFilter(function(_) return true end)
 end
 
 return PickerView

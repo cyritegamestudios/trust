@@ -7,7 +7,7 @@ local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_col
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
-local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+local FFXIPickerView = require('ui/themes/ffxi/FFXIFastPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 
 local PickerCollectionViewCell = setmetatable({}, {__index = CollectionViewCell })
@@ -98,7 +98,8 @@ function PickerCollectionViewCell:showPickerView()
     if item:allowsMultipleSelection() then
         local menuItem = MenuItem.new(L{
             ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
-            ButtonItem.default('Clear All'),
+            ButtonItem.localized('Clear All', i18n.translate('Button_Clear_All')),
+            ButtonItem.localized('Filter', i18n.translate('Button_Filter')),
         }, {}, function(_, _)
             local initialValue = item:getCurrentValue()
             if class(initialValue) ~= 'List' then
@@ -108,8 +109,9 @@ function PickerCollectionViewCell:showPickerView()
                 return item:getPickerTextFormat()(value)
             end, nil, nil, item:getImageItemForText())
 
-            local pickerView = FFXIPickerView.withConfig(configItem, true)
-            pickerView:setShouldRequestFocus(true)
+            local pickerView = FFXIPickerView.new(configItem)
+            pickerView:setAllowsMultipleSelection(true)
+
             pickerView:on_pick_items():addAction(function(pickerView, selectedItems)
                 self:getItem():setCurrentValue(selectedItems:map(function(item) return item end))
                 self:setItem(self:getItem())

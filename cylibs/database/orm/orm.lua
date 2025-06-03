@@ -303,8 +303,8 @@ function Table.new(orm, config)
     return self
 end
 
-function Table:all()
-    local result = self.orm:select(self.table_name)
+function Table:all(fields)
+    local result = self.orm:select(self.table_name, nil, fields)
     if result and #result > 0 then
         self.post_process(result)
     end
