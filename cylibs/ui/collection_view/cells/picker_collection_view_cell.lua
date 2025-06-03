@@ -98,8 +98,8 @@ function PickerCollectionViewCell:showPickerView()
     if item:allowsMultipleSelection() then
         local menuItem = MenuItem.new(L{
             ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
-            ButtonItem.default('Clear All'),
-            ButtonItem.default('Filter'),
+            ButtonItem.localized('Clear All', i18n.translate('Button_Clear_All')),
+            ButtonItem.localized('Filter', i18n.translate('Button_Filter')),
         }, {}, function(_, _)
             local initialValue = item:getCurrentValue()
             if class(initialValue) ~= 'List' then
@@ -111,8 +111,7 @@ function PickerCollectionViewCell:showPickerView()
 
             local pickerView = FFXIPickerView.new(configItem)
             pickerView:setAllowsMultipleSelection(true)
-            --local pickerView = FFXIPickerView.withConfig(configItem, true)
-            pickerView:setShouldRequestFocus(true)
+
             pickerView:on_pick_items():addAction(function(pickerView, selectedItems)
                 self:getItem():setCurrentValue(selectedItems:map(function(item) return item end))
                 self:setItem(self:getItem())

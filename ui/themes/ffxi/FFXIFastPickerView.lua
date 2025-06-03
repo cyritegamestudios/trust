@@ -249,7 +249,6 @@ function FFXIFastPickerView:onSelectMenuItemAtIndexPath(textItem, _)
     elseif L{ 'Clear All' }:contains(textItem:getText()) then
         self:getDelegate():deselectAllItems()
     elseif L{ 'Filter' }:contains(textItem:getText()) then
-        --self:requestFocus()
         self:setSearchEnabled(true)
     end
 end
@@ -293,8 +292,6 @@ function FFXIFastPickerView:setSearchEnabled(searchEnabled)
 
         self.searchBarView:setVisible(true)
         self.searchBarView:requestFocus()
-
-        -- FIXME: remove search from FFXIPickerView (not fast)
     end
 end
 
