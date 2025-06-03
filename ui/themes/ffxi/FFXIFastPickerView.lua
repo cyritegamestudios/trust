@@ -45,7 +45,7 @@ function FFXIFastPickerView.new(configItem, viewSize)
     end)
 
     local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(0, FFXIClassicStyle.Padding.CollectionView.Default), nil, false, viewSize), FFXIFastPickerView)
-    
+
     self.configItem = configItem
     self.mediaPlayer = defaultMediaPlayer
     self.soundTheme = defaultSoundTheme
