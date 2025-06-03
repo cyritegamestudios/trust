@@ -124,9 +124,11 @@ function FFXIFastPickerView:setRange(startIndex, endIndex, shouldReload)
     self.range = range
 
     local visibleItems = L{}
+
+    local allValues = self.configItem:getAllValues()
     for i = startIndex, endIndex do
-        if i <= self.configItem:getAllValues():length() then
-            local value = self.configItem:getAllValues()[i]
+        if i <= allValues:length() then
+            local value = allValues[i]
             visibleItems:append(value)
         end
     end

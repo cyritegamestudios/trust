@@ -12,13 +12,13 @@ end
 
 function SearchBarView.new()
     local configItems = L{
-        TextInputConfigItem.new('query', '', nil, nil, 80)
+        TextInputConfigItem.new('query', '', nil, nil, 80, 24)
     }
     local searchResults = {
         query = ''
     }
 
-    local self = setmetatable(ConfigEditor.new(nil, searchResults, configItems, nil, nil, nil, Frame.new(0, 0, 130, 60), "Search"), SearchBarView)
+    local self = setmetatable(ConfigEditor.new(nil, searchResults, configItems, nil, nil, nil, Frame.new(0, 0, 130, 50), "Search"), SearchBarView)
     self:setTitle("Search", 30)
 
     self.resignFocusKeys = L{ 1, 203 }

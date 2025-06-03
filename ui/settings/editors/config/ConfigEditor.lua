@@ -113,7 +113,7 @@ function ConfigEditor.new(trustSettings, configSettings, configItems, infoView, 
             local cell = TextFieldCollectionViewCell.new(item)
             cell:setUserInteractionEnabled(true)
             cell:setIsSelectable(true)
-            cell:setItemSize(32)
+            cell:setItemSize(item:getSize().height)
             return cell
         end
         return nil
@@ -341,7 +341,7 @@ function ConfigEditor:getCellItemForConfigItem(configItem)
         end)
         return pickerItem
     elseif configItem.__type == TextInputConfigItem.__type then
-        return FFXITextFieldItem.new(configItem:getPlaceholderText(), configItem:getValidator(), configItem:getWidth())
+        return FFXITextFieldItem.new(configItem:getPlaceholderText(), configItem:getValidator(), configItem:getWidth(), configItem:getHeight())
     end
     return nil
 end

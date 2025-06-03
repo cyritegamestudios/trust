@@ -98,8 +98,8 @@ function PickerCollectionViewCell:showPickerView()
     if item:allowsMultipleSelection() then
         local menuItem = MenuItem.new(L{
             ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
-            ButtonItem.default('Filter'),
             ButtonItem.default('Clear All'),
+            ButtonItem.default('Filter'),
         }, {}, function(_, _)
             local initialValue = item:getCurrentValue()
             if class(initialValue) ~= 'List' then
