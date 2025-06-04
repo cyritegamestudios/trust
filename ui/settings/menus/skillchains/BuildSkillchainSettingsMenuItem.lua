@@ -1,33 +1,59 @@
-local BuildSkillchainEditor = require('ui/settings/editors/BuildSkillchainEditor')
+local BooleanConfigItem = require('ui/settings/editors/config/BooleanConfigItem')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
+local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
+local ConfigItem = require('ui/settings/editors/config/ConfigItem')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
-local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+local FFXIPickerView = require('ui/themes/ffxi/FFXIFastPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local PartySkillchainSettingsMenuItem = require('ui/settings/menus/skillchains/PartySkillchainSettingsMenuItem')
+local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local SkillchainBuilder = require('cylibs/battle/skillchains/skillchain_builder')
+local skillchain_util = require('cylibs/util/skillchain_util')
+
 
 local BuildSkillchainSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 BuildSkillchainSettingsMenuItem.__index = BuildSkillchainSettingsMenuItem
 
 function BuildSkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettingsMode, skillchainer, selectPartyCombatSkillIds)
-    local builderSettings = T{}
-    builderSettings.NumSteps = 2
-    builderSettings.Property = 'Light Lv.4'
-    builderSettings.CombatSkills = S{}
-    builderSettings.IncludeAeonic = false
+    local builderSettings = T{
+        NumSteps = 2,
+        Property = "Light Lv.4",
+        CombatSkills = skillchainer:get_party():get_player():get_combat_skill_ids(),
+        IncludeAeonic = false
+    }
 
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Search', 18),
-    }, {}, function(menuArgs)
-        local activeCombatSkillIds = S(skillchainer:get_party():get_player():get_combat_skill_ids())
+    }, {}, function(_, infoView, showMenu)
+        local activeCombatSkillIds = L(skillchainer:get_party():get_player():get_combat_skill_ids())
         if selectPartyCombatSkillIds then
             for partyMember in skillchainer:get_party():get_party_members(false):it() do
-                activeCombatSkillIds = activeCombatSkillIds:union(partyMember:get_combat_skill_ids())
+                activeCombatSkillIds = activeCombatSkillIds + partyMember:get_combat_skill_ids()
             end
         end
 
-        local skillchainBuilderEditor = BuildSkillchainEditor.new(builderSettings, skillchainer, activeCombatSkillIds)
+        local skillPickerItem = MultiPickerConfigItem.new('CombatSkills',  activeCombatSkillIds, L{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 25, 26, 36, 38 }, function(skillIds)
+            return localization_util.commas(skillIds:map(function(skillId) return i18n.resource('skills', 'en', res.skills[skillId].en) end))
+        end, "Skills")
+        skillPickerItem:setPickerTitle("Skills")
+        skillPickerItem:setPickerDescription("Choose one or more skill for the skillchain.")
+        skillPickerItem:setPickerTextFormat(function(skillId)
+            return i18n.resource('skills', 'en', res.skills[skillId].en)
+        end)
+
+        local configItems = L{
+            ConfigItem.new('NumSteps', 2, 6, 1, function(value) return value.."" end, "Number of Steps"),
+            PickerConfigItem.new('Property', builderSettings.Property, skillchain_util.all_skillchain_properties()),
+            BooleanConfigItem.new('IncludeAeonic', 'Enable Aeonic'),
+            skillPickerItem
+        }
+
+        local skillchainBuilderEditor = ConfigEditor.new(nil, builderSettings, configItems, infoView, nil, showMenu)
+
+        skillchainBuilderEditor:onConfigItemChanged():addAction(function(key, newValue, _)
+            builderSettings[key] = newValue
+        end)
 
         skillchainBuilderEditor:setNeedsLayout()
         skillchainBuilderEditor:layoutIfNeeded()
@@ -39,16 +65,11 @@ function BuildSkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSet
     self.weaponSkillSettingsMode = weaponSkillSettingsMode
     self.builderSettings = builderSettings
     self.skillchainer = skillchainer
+    self.partySkillchainSettingsMenuItem = PartySkillchainSettingsMenuItem.new(self.weaponSkillSettings, self.weaponSkillSettingsMode, self.skillchainer)
 
     self:reloadSettings()
 
     return self
-end
-
-function BuildSkillchainSettingsMenuItem:destroy()
-    MenuItem.destroy(self)
-
-    self.chooseSkillchainView = nil
 end
 
 function BuildSkillchainSettingsMenuItem:reloadSettings()
@@ -59,39 +80,11 @@ function BuildSkillchainSettingsMenuItem:reloadSettings()
 end
 
 function BuildSkillchainSettingsMenuItem:getConfirmMenuItem()
-    local setPage = function(newPage)
-        if newPage > 0 and newPage ~= self.currentPage then
-            local itemsPerPage = 18
-            local startIndex = (newPage - 1) * itemsPerPage + 1
-            if startIndex > self.skillchains:length() then
-                return
-            end
-            self.currentPage = newPage
-
-            local newSkillchains = L{}:extend(self.skillchains):slice(startIndex, math.min(self.skillchains:length(), startIndex + itemsPerPage))
-            self.currentSkillchains = newSkillchains
-
-            local pickerItems = L(newSkillchains:map(function(abilities)
-                local abilities = L(abilities:map(function(ability) return ability:get_name() end))
-                return localization_util.join(abilities, '→')
-            end))
-            self.chooseSkillchainView:setItems(pickerItems, L{}, true)
-        end
-    end
-
     local confirmMenuItem = MenuItem.new(L{
-        --ButtonItem.default('Save', 18),
-        ButtonItem.default('Select', 18),
-        --ButtonItem.default('Previous', 18),
-        --ButtonItem.default('Next', 18),
+        ButtonItem.default('Confirm', 18),
+        ButtonItem.default('Filter', 18),
     }, {
-        Select = PartySkillchainSettingsMenuItem.new(self.weaponSkillSettings, self.weaponSkillSettingsMode, self.skillchainer),
-        --Previous = MenuItem.action(function()
-        --    setPage(self.currentPage - 1)
-        --end, "Skillchains", "See previous page."),
-        --Next = MenuItem.action(function()
-        --    setPage(self.currentPage + 1)
-        --end, "Skillchains", "See next page."),
+        Confirm = self.partySkillchainSettingsMenuItem,
     }, function(menuArgs, infoView)
         self.currentPage = 1
 
@@ -102,46 +95,31 @@ function BuildSkillchainSettingsMenuItem:getConfirmMenuItem()
         self.skillchains = skillchains
 
         self.currentSkillchains = L{}:extend(skillchains):slice(1, math.min(skillchains:length(), 500))
-        local pickerItems = L(self.currentSkillchains:map(function(abilities)
+
+        local configItem = MultiPickerConfigItem.new("Skillchains", L{}, self.currentSkillchains, function(abilities)
             local abilities = L(abilities:map(function(ability) return ability:get_localized_name() end))
             return localization_util.join(abilities, '→')
-        end))
-
-        local configItem = MultiPickerConfigItem.new("Skillchains", L{}, pickerItems, function(pickerItem)
-            return pickerItem
+        end, "Skillchains", nil, nil, function(abilities)
+            local abilities = L(abilities:map(function(ability) return ability:get_localized_name() end))
+            return localization_util.join(abilities, '→')
         end)
 
-        local chooseSkillchainView = FFXIPickerView.new(L{ configItem }, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditorLarge)
-        chooseSkillchainView.menuArgs.Skillchain = self.currentSkillchains[1]
-
+        local chooseSkillchainView = FFXIPickerView.new(configItem, FFXIClassicStyle.WindowSize.Editor.ConfigEditorLarge, 17)
         chooseSkillchainView:setAllowsCursorSelection(true)
-        chooseSkillchainView:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
-            chooseSkillchainView.menuArgs.Skillchain = self.currentSkillchains[indexPath.row]
-            local abilities = L(self.currentSkillchains[indexPath.row]:map(function(ability) return ability:get_localized_name() end))
-            infoView:setDescription(localization_util.join(abilities, '→'))
+
+        chooseSkillchainView:on_pick_items():addAction(function(_, selectedItems)
+            self.partySkillchainSettingsMenuItem:setSkillchain(selectedItems[1])
         end)
-        self.chooseSkillchainView = chooseSkillchainView
+
         return chooseSkillchainView
     end, "Skillchains", "Find a skillchain.")
     return confirmMenuItem
 end
 
-function BuildSkillchainSettingsMenuItem:getPartyMenuItem()
-    local partyMenuItem = MenuItem.new(L{
-       ButtonItem.default('Save', 18)
-    }, {
-
-    }, function(menuArgs)
-
-    end, "Skillchains", "Assign steps to party members.")
-
-    return partyMenuItem
-end
-
 function BuildSkillchainSettingsMenuItem:resetSettings()
     self.builderSettings.NumSteps = 2
     self.Property = 'LightLv4'
-    self.CombatSkills = S{}
+    self.CombatSkills = L{}
 end
 
 return BuildSkillchainSettingsMenuItem

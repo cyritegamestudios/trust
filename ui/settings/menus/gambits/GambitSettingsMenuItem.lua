@@ -115,11 +115,15 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
         
         local configItem = self.editorConfig:getConfigItem(currentGambits)
 
-        local gambitSettingsEditor = FFXIPickerView.new(configItem, false, self.editorConfig:getViewSize())
-        gambitSettingsEditor:setAllowsCursorSelection(true)
+        local gambitSettingsEditor
+        if configItem:length() > 0 then
+            gambitSettingsEditor = FFXIPickerView.new(configItem, false, self.editorConfig:getViewSize())
+        else
+            local FFXIFastPickerView = require('ui/themes/ffxi/FFXIFastPickerView')
+            gambitSettingsEditor = FFXIFastPickerView.new(configItem[1], self.editorConfig:getViewSize())
+        end
 
-        gambitSettingsEditor:setNeedsLayout()
-        gambitSettingsEditor:layoutIfNeeded()
+        gambitSettingsEditor:setAllowsCursorSelection(true)
 
         local itemsToUpdate = L{}
         for rowIndex = 1, gambitSettingsEditor:getDataSource():numberOfItemsInSection(1) do

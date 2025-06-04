@@ -29,6 +29,9 @@ end
 local num_layout_called = 0
 
 function VerticalFlowLayout:layoutSubviews(collectionView, indexPathFilter)
+    if self.tag == 'test' then
+        --print(debug.traceback())
+    end
     num_layout_called = num_layout_called + 1
 
     if indexPathFilter == nil then

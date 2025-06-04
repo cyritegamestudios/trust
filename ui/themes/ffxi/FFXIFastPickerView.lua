@@ -8,6 +8,7 @@ local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Keyboard = require('cylibs/ui/input/keyboard')
 local Mouse = require('cylibs/ui/input/mouse')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local ScrollView = require('cylibs/ui/scroll_view/scroll_view')
 local SoundTheme = require('cylibs/sounds/sound_theme')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
@@ -25,7 +26,9 @@ function FFXIFastPickerView:on_pick_items()
     return self.pick_items
 end
 
-function FFXIFastPickerView.new(configItem)
+function FFXIFastPickerView.new(configItem, viewSize, itemsPerPage)
+    viewSize = viewSize or FFXIClassicStyle.WindowSize.Picker.Default
+
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
         if item.__type == TextItem.__type then
             local cell = TextCollectionViewCell.new(item)
@@ -42,15 +45,19 @@ function FFXIFastPickerView.new(configItem)
         end
     end)
 
-    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(0, FFXIClassicStyle.Padding.CollectionView.Default), nil, false, FFXIClassicStyle.WindowSize.Picker.Default), FFXIFastPickerView)
+    local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(0, FFXIClassicStyle.Padding.CollectionView.Default), nil, false, viewSize), FFXIFastPickerView)
+
+    if configItem:getInitialValues():length() > 1 then
+        self:setAllowsMultipleSelection(true)
+    end
 
     self.configItem = configItem
     self.mediaPlayer = defaultMediaPlayer
     self.soundTheme = defaultSoundTheme
     self.textStyle = TextStyle.Picker.Text
-    self.maxNumItems = math.min(configItem:getAllValues():length(), 10)
+    self.maxNumItems = math.min(configItem:getAllValues():length(), itemsPerPage or 10)
     self.highlightedItem = ValueRelay.new(nil)
-    self.selectedItems = ValueRelay.new(L{})
+    self.selectedItems = ValueRelay.new(self.configItem:getInitialValues() or L{})
     self.pick_items = Event.newEvent()
 
     self:setShouldRequestFocus(true)
@@ -135,13 +142,20 @@ function FFXIFastPickerView:setRange(startIndex, endIndex, shouldReload)
 
     self:getDataSource():removeAllItems()
 
+    local itemsToUpdate = L{}
+    local selectedIndexPaths = L{}
     for indexedItem in IndexedItem.fromItems(self.visibleItems, 1):it() do
         local item = self:getItemForValue(indexedItem:getItem())
-        self:getDataSource():updateItem(item, indexedItem:getIndexPath())
-
+        itemsToUpdate:append(IndexedItem.new(item, indexedItem:getIndexPath()))
         if self.selectedItems:getValue():contains(indexedItem:getItem()) then
-            self:getDelegate():selectItemAtIndexPath(indexedItem:getIndexPath())
+            selectedIndexPaths:append(indexedItem:getIndexPath())
         end
+    end
+
+    self:getDataSource():updateItems(itemsToUpdate)
+
+    for selectedIndexPath in selectedIndexPaths:it() do
+        self:getDelegate():selectItemAtIndexPath(selectedIndexPath)
     end
 
     if self:getDataSource():numberOfItemsInSection(1) > 0 then

@@ -89,9 +89,13 @@ function PathSettingsMenuItem:getStartPathMenuItem()
 end
 
 function PathSettingsMenuItem:getStopPathMenuItem()
-    return MenuItem.action(function()
+    local menuItem = MenuItem.action(function()
         self.pather:stop(true)
     end, "Paths", "Cancel any active path.")
+    menuItem.enabled = function(_)
+        return self.pather:is_pathing(), "No path running."
+    end
+    return menuItem
 end
 
 function PathSettingsMenuItem:getEditPathMenuItem()

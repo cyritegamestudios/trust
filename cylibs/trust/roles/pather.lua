@@ -114,6 +114,10 @@ function Pather:get_path_dir()
     return self.path_dir
 end
 
+function Pather:is_pathing()
+    return self.path_target ~= nil
+end
+
 function Pather:allows_duplicates()
     return false
 end
