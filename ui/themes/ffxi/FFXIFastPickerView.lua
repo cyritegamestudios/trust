@@ -26,7 +26,7 @@ function FFXIFastPickerView:on_pick_items()
     return self.pick_items
 end
 
-function FFXIFastPickerView.new(configItem, viewSize)
+function FFXIFastPickerView.new(configItem, viewSize, itemsPerPage)
     viewSize = viewSize or FFXIClassicStyle.WindowSize.Picker.Default
 
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
@@ -55,7 +55,7 @@ function FFXIFastPickerView.new(configItem, viewSize)
     self.mediaPlayer = defaultMediaPlayer
     self.soundTheme = defaultSoundTheme
     self.textStyle = TextStyle.Picker.Text
-    self.maxNumItems = math.min(configItem:getAllValues():length(), 10)
+    self.maxNumItems = math.min(configItem:getAllValues():length(), itemsPerPage or 10)
     self.highlightedItem = ValueRelay.new(nil)
     self.selectedItems = ValueRelay.new(self.configItem:getInitialValues() or L{})
     self.pick_items = Event.newEvent()

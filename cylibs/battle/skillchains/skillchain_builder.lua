@@ -26,11 +26,16 @@ end
 -- Convenience initializer for creating a skillchain builder with a list of combat skills.
 -- @tparam list skillIds List of skill ids
 function SkillchainBuilder.with_skills(skillIds)
-    local allCombatSkillSettings = skillIds:map(function(skillId)
+    local allSkillSettings = skillIds:map(function(skillId)
+        if skillId == 36 then
+            return ElementalMagicSkillSettings.new(L{})
+        elseif skillId == 38 then
+            return BloodPactSkillSettings.new(L{})
+        end
         return CombatSkillSettings.new(res.skills[skillId].en, L{})
     end)
-    local abilities = allCombatSkillSettings:map(function(combatSkillSettings)
-        return combatSkillSettings:get_abilities(true, true)
+    local abilities = allSkillSettings:map(function(skillSettings)
+        return skillSettings:get_abilities(true, true)
     end):combine():compact_map()
     return SkillchainBuilder.new(abilities)
 end

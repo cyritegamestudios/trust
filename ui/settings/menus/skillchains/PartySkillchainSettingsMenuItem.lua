@@ -8,18 +8,19 @@ local PartySkillchainSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 PartySkillchainSettingsMenuItem.__index = PartySkillchainSettingsMenuItem
 
 function PartySkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettingsMode, skillchainer)
-    local skillchainSettings = T{
+    local self = setmetatable(MenuItem.new(L{
+        ButtonItem.default('Save', 18),
+    }, {}, nil, "Skillchains", "Choose party members for each step. Press Enter and use the Left and Right arrow keys."), PartySkillchainSettingsMenuItem)
+
+    self.skillchainSettings = T{
         Skillchain = {}
     }
 
-    local self = setmetatable(MenuItem.new(L{
-        ButtonItem.default('Save', 18),
-    }, {}, function(menuArgs)
-        local skillchain = menuArgs.Skillchain
-        skillchainSettings.Skillchain = skillchain
+    self.contentViewConstructor = function(_)
+        local skillchain = self.skillchainSettings.Skillchain
 
         for i = 1, skillchain:length() do
-            skillchainSettings['Step '..i..': '..skillchain[i]:get_name()] = windower.ffxi.get_player().name
+            self.skillchainSettings['Step '..i..': '..skillchain[i]:get_name()] = windower.ffxi.get_player().name
         end
 
         local validPartyMembers = function(ability)
@@ -42,14 +43,13 @@ function PartySkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSet
             configItems:append(PickerConfigItem.new('Step '..i..': '..skillchain[i]:get_name(), partyMemberNames[1], partyMemberNames))
         end
 
-        local partySkillchainEditor = ConfigEditor.new(nil, skillchainSettings, configItems)
+        local partySkillchainEditor = ConfigEditor.new(nil, self.skillchainSettings, configItems)
         return partySkillchainEditor
-    end, "Skillchains", "Choose party members for each step. Press Enter and use the Left and Right arrow keys."), PartySkillchainSettingsMenuItem)
+    end
 
     self.weaponSkillSettings = weaponSkillSettings
     self.weaponSkillSettingsMode = weaponSkillSettingsMode
     self.skillchainer = skillchainer
-    self.skillchainSettings = skillchainSettings
 
     self:reloadSettings()
 
@@ -132,6 +132,10 @@ function PartySkillchainSettingsMenuItem:reloadSettings()
         self.weaponSkillSettings:saveSettings(true)
         addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my skillchain!")
     end), "Skillchains", "Choose party members for each step.")
+end
+
+function PartySkillchainSettingsMenuItem:setSkillchain(skillchain)
+    self.skillchainSettings.Skillchain = skillchain
 end
 
 return PartySkillchainSettingsMenuItem

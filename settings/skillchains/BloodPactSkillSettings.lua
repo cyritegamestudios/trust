@@ -31,10 +31,13 @@ end
 -- Returns the list of skillchain abilities included in this settings. Omits abilities on the blacklist but does
 -- not check conditions for whether an ability can be performed.
 -- @treturn list A list of SkillchainAbility
-function BloodPactSkillSettings:get_abilities()
+function BloodPactSkillSettings:get_abilities(include_blacklist, include_unknown)
     local blood_pacts = self.all_blood_pacts:filter(
             function(blood_pact)
-                return not self.blacklist:contains(blood_pact.en) and job_util.knows_job_ability(blood_pact.id) and skills.job_abilities[blood_pact.id] ~= nil
+                if self.blacklist:contains(blood_pact.en) and not include_blacklist then
+                    return false
+                end
+                return (job_util.knows_job_ability(blood_pact.id) or include_unknown) and skills.job_abilities[blood_pact.id] ~= nil
             end):map(
             function(blood_pact)
                 return self:get_ability(blood_pact.en)
