@@ -51,6 +51,10 @@ function BuildSkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSet
 
         local skillchainBuilderEditor = ConfigEditor.new(nil, builderSettings, configItems, infoView, nil, showMenu)
 
+        skillchainBuilderEditor:onConfigItemChanged():addAction(function(key, newValue, _)
+            builderSettings[key] = newValue
+        end)
+
         skillchainBuilderEditor:setNeedsLayout()
         skillchainBuilderEditor:layoutIfNeeded()
 
