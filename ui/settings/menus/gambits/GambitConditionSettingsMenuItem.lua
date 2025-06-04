@@ -109,7 +109,7 @@ function GambitConditionSettingsMenuItem:getAddConditionMenuItem(parentMenuItem)
                 addon_system_message(string.format("Added condition: %s %s.", targetType, newCondition:tostring()))
             end)
             return chooseConditionView
-        end, "Conditions", string.format("`Add a new condition for %s.", targetType))
+        end, "Conditions", string.format("Add a new condition for %s.", targetType))
         return addConditionsMenuItem
     end
 
