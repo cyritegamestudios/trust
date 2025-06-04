@@ -105,10 +105,12 @@ function PickerCollectionViewCell:showPickerView()
             if class(initialValue) ~= 'List' then
                 initialValue = L{ initialValue }
             end
-            
+
             local configItem = MultiPickerConfigItem.new("Items", initialValue, item:getAllValues(), function(value)
                 return item:getPickerTextFormat()(value)
-            end, nil, nil, item:getImageItemForText())
+            end, nil, nil, item:getImageItemForText(), function(value)
+                return item:getPickerItemDescription(value)
+            end)
 
             local pickerView = FFXIPickerView.new(configItem)
             pickerView:setAllowsMultipleSelection(true)

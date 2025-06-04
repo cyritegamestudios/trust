@@ -320,6 +320,9 @@ function ConfigEditor:getCellItemForConfigItem(configItem)
         pickerItem:setPickerTitle(configItem:getPickerTitle())
         pickerItem:setPickerDescription(configItem:getPickerDescription())
         pickerItem:setPickerTextFormat(configItem:getPickerTextFormat())
+        pickerItem:setPickerItemDescription(function(value)
+            return configItem:getItemDescription(value)
+        end)
         pickerItem:setShowMenu(self.showMenu)
         pickerItem:setOnPickItems(function(newValue)
             local is_valid, error = configItem:getPickerValidator()(newValue)
@@ -336,7 +339,7 @@ function ConfigEditor:getCellItemForConfigItem(configItem)
                 self.configSettings[configItem:getKey()] = newValue
             end
             addon_system_message("Your choices have been updated.")
-
+            print(newValue)
             configItem:getOnConfirm()(newValue)
         end)
         return pickerItem
