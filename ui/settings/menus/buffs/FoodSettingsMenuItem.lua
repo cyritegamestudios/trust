@@ -61,6 +61,7 @@ function FoodSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
         foodPickerConfigItem:setPickerTextFormat(function(item_name)
             return item_name
         end)
+
         foodPickerConfigItem:setOnConfirm(function(newItemNames)
             setFoodItem(newItemNames[1])
         end)
