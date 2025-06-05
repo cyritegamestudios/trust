@@ -72,6 +72,7 @@ function HasBuffCondition:get_config_items()
     buffPickerConfigItem:setPickerTextFormat(function(buff_name)
         return i18n.resource('buffs', 'en', buff_name)
     end)
+    buffPickerConfigItem:setAllowsMultipleSelection(true)
     buffPickerConfigItem:setNumItemsRequired(1)
     buffPickerConfigItem:setOnConfirm(function(buff_names)
         self.buff_name = buff_names[1]

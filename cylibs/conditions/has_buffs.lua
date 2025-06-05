@@ -78,7 +78,7 @@ function HasBuffsCondition:get_config_items()
         return text
     end, "Buff Names")
     buffPickerConfigItem:setPickerTitle("Buffs")
-    buffPickerConfigItem:setPickerDescription("Choose one or more buffs")
+    buffPickerConfigItem:setPickerDescription("Choose one or more buffs.")
     buffPickerConfigItem:setPickerTextFormat(function(buff_name)
         return i18n.resource('buffs', 'en', buff_name)
     end)

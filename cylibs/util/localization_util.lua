@@ -56,6 +56,9 @@ function localization_util.commas(list, join_word)
             result = result..' '..join_word..' '..list[i]
         end
     end
+    if result == nil then
+        print(list, list:length())
+    end
     result = result:sub(1, -1)
     return result
 end

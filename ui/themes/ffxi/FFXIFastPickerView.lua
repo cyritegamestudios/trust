@@ -81,7 +81,6 @@ function FFXIFastPickerView.new(configItem, viewSize, itemsPerPage)
         end
 
         local item = self.visibleItems[indexPath.row]
-
         local selectedItems = self.selectedItems:getValue()
         if not selectedItems:contains(item) then
             selectedItems:append(item)
@@ -254,18 +253,20 @@ end
 --
 function FFXIFastPickerView:onSelectMenuItemAtIndexPath(textItem, _)
     if L{ 'Confirm', 'Save', 'Search', 'Select' }:contains(textItem:getText()) then
-        if self.selectedItems:getValue():length() > 0 or self:getAllowsMultipleSelection() then
-            if self.numItemsRequired and self.selectedItems:getValue():length() ~= self.numItemsRequired then
-                if self.numItemsRequired == 1 then
-                    addon_system_error(string.format("You must select %d item.", self.numItemsRequired))
-                else
-                    addon_system_error(string.format("You must select %d items.", self.numItemsRequired))
-                end
+        local numItemsSelected = self.selectedItems:getValue():length()
+        if self.numItemsRequired and numItemsSelected ~= self.numItemsRequired then
+            if self.numItemsRequired == 0 then
+                addon_system_error("No items selected.")
+            elseif self.numItemsRequired == 1 then
+                addon_system_error(string.format("You must select %d item.", self.numItemsRequired))
             else
-                self:on_pick_items():trigger(self, self.selectedItems:getValue(), nil)
+                addon_system_error(string.format("You must select %d items.", self.numItemsRequired))
             end
+        else
+            self:on_pick_items():trigger(self, self.selectedItems:getValue(), nil)
         end
     elseif L{ 'Clear All' }:contains(textItem:getText()) then
+        self.selectedItems:getValue():clear()
         self:getDelegate():deselectAllItems()
     elseif L{ 'Filter' }:contains(textItem:getText()) then
         self:setSearchEnabled(true)
