@@ -153,16 +153,18 @@ end
 -- @treturn boolean The current value of `numItemsRequired`.
 --
 function PickerItem:getNumItemsRequired()
-    return self.numItemsRequired
+    return { minNumItems = self.minNumItems, maxNumItems = self.maxNumItems}
 end
 
 ---
--- Sets the `numItemsRequired` property to the specified value.
+-- Sets the minimum and maximum number of items required.
 --
--- @tparam boolean numItemsRequired The new value for `numItemsRequired`.
+-- @tparam number minNumItems The minimum number of items required
+-- @tparam number maxNumItems The maximum number of items required (defaults to minNumItems if not specified)
 --
-function PickerItem:setNumItemsRequired(numItemsRequired)
-    self.numItemsRequired = numItemsRequired
+function PickerItem:setNumItemsRequired(minNumItems, maxNumItems)
+    self.minNumItems = minNumItems
+    self.maxNumItems = maxNumItems or minNumItems
 end
 
 ---

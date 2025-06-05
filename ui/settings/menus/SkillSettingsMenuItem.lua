@@ -42,6 +42,7 @@ function SkillSettingsMenuItem.new(weaponSkillSettings, skillSettings)
         end, 'Blacklist', nil, imageItemForText)
         blacklistConfigItem:setPickerTitle('Blacklist')
         blacklistConfigItem:setPickerDescription('Choose one or more abilities to avoid when making skillchains.')
+        blacklistConfigItem:setNumItemsRequired(0)
         blacklistConfigItem:setOnConfirm(function(newValue)
             skillSettings.blacklist = newValue
 

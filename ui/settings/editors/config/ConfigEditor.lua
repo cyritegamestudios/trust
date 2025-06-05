@@ -317,7 +317,7 @@ function ConfigEditor:getCellItemForConfigItem(configItem)
     elseif configItem.__type == MultiPickerConfigItem.__type then
         local pickerItem = PickerItem.new(configItem:getInitialValues(), configItem:getAllValues(), configItem:getTextFormat(), configItem:isEnabled(), configItem:getImageItem())
         pickerItem:setShouldTruncateText(true)
-        pickerItem:setNumItemsRequired(configItem:getNumItemsRequired())
+        pickerItem:setNumItemsRequired(configItem:getNumItemsRequired().minNumItems, configItem:getNumItemsRequired().maxNumItems)
         pickerItem:setAllowsMultipleSelection(configItem:getAllowsMultipleSelection())
         pickerItem:setPickerTitle(configItem:getPickerTitle())
         pickerItem:setPickerDescription(configItem:getPickerDescription())

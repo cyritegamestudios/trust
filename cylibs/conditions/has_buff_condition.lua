@@ -73,7 +73,7 @@ function HasBuffCondition:get_config_items()
         return i18n.resource('buffs', 'en', buff_name)
     end)
     buffPickerConfigItem:setAllowsMultipleSelection(true)
-    buffPickerConfigItem:setNumItemsRequired(1)
+    buffPickerConfigItem:setNumItemsRequired(1, 1)
     buffPickerConfigItem:setOnConfirm(function(buff_names)
         self.buff_name = buff_names[1]
     end)

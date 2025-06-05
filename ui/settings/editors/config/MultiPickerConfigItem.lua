@@ -265,16 +265,18 @@ end
 -- @treturn boolean The current value of `numItemsRequired`.
 --
 function MultiPickerConfigItem:getNumItemsRequired()
-    return self.numItemsRequired
+    return { minNumItems = self.minNumItems or 1, maxNumItems = self.maxNumItems or 999 }
 end
 
 ---
--- Sets the `numItemsRequired` property to the specified value.
+-- Sets the minimum and maximum number of items required.
 --
--- @tparam boolean numItemsRequired The new value for `numItemsRequired`.
+-- @tparam number minNumItems The minimum number of items required
+-- @tparam number maxNumItems The maximum number of items required (defaults to 999 if not specified)
 --
-function MultiPickerConfigItem:setNumItemsRequired(numItemsRequired)
-    self.numItemsRequired = numItemsRequired
+function MultiPickerConfigItem:setNumItemsRequired(minNumItems, maxNumItems)
+    self.minNumItems = minNumItems
+    self.maxNumItems = maxNumItems or 999
 end
 
 ---

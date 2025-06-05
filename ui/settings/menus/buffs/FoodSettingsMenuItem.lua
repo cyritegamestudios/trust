@@ -64,6 +64,7 @@ function FoodSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
         foodPickerConfigItem:setOnConfirm(function(newItemNames)
             setFoodItem(newItemNames[1])
         end)
+        foodPickerConfigItem:setNumItemsRequired(1, 1)
 
         local configItems = L{ foodPickerConfigItem }
 

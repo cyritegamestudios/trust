@@ -64,6 +64,7 @@ function WeaponSkill:get_config_items(trust)
     end)
     configItem:setPickerTitle("Job Abilities")
     configItem:setPickerDescription("Choose one or more job abilities to use with this weapon skill.")
+    configItem:setNumItemsRequired(0)
     return L{
         configItem,
     }

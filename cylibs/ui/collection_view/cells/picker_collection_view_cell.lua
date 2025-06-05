@@ -111,10 +111,10 @@ function PickerCollectionViewCell:showPickerView()
             end, nil, nil, item:getImageItemForText(), function(value)
                 return item:getPickerItemDescription(value)
             end)
+            configItem:setNumItemsRequired(item:getNumItemsRequired().minNumItems, item:getNumItemsRequired().maxNumItems)
 
             local pickerView = FFXIPickerView.new(configItem)
-            pickerView:setAllowsMultipleSelection(item:getAllowsMultipleSelection() and item:getNumItemsRequired() ~= 1)
-            pickerView:setNumItemsRequired(item:getNumItemsRequired())
+            --pickerView:setAllowsMultipleSelection(item:getAllowsMultipleSelection() and item:getNumItemsRequired().minNumItems ~= item:getNumItemsRequired().maxNumItems ~= 1)
 
             pickerView:on_pick_items():addAction(function(pickerView, selectedItems)
                 self:getItem():setCurrentValue(selectedItems:map(function(item) return item end))

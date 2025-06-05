@@ -110,6 +110,7 @@ function HealerSettingsMenuItem:getBlacklistMenuItem()
         local configItem = MultiPickerConfigItem.new("StatusRemovalBlacklist", cureSettings.StatusRemovals.Blacklist, buff_util.get_all_debuffs():sort(), function(statusEffect)
             return i18n.resource('buffs', 'en', statusEffect)
         end)
+        configItem:setNumItemsRequired(0)
 
         local blacklistPickerView = FFXIPickerView.withConfig(configItem, true)
 

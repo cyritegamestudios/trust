@@ -50,13 +50,15 @@ function FFXIFastPickerView.new(configItem, viewSize, itemsPerPage)
         self:setAllowsMultipleSelection(true)
     end
 
+    self:setAllowsMultipleSelection(not (configItem:getNumItemsRequired().minNumItems == 1 and configItem:getNumItemsRequired().maxNumItems == 1))
+
     self.configItem = configItem
     self.mediaPlayer = defaultMediaPlayer
     self.soundTheme = defaultSoundTheme
     self.textStyle = TextStyle.Picker.Text
     self.maxNumItems = math.min(configItem:getAllValues():length(), itemsPerPage or 10)
     self.highlightedItem = ValueRelay.new(nil)
-    self.selectedItems = ValueRelay.new(self.configItem:getInitialValues() or L{})
+    self.selectedItems = ValueRelay.new(self.configItem:getInitialValues():copy() or L{})
     self.pick_items = Event.newEvent()
 
     self:setShouldRequestFocus(true)
@@ -76,7 +78,7 @@ function FFXIFastPickerView.new(configItem, viewSize, itemsPerPage)
     end)
 
     self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
-        if not self:getAllowsMultipleSelection() or self.numItemsRequired == 1 then
+        if not self:getAllowsMultipleSelection() then
             self.selectedItems:getValue():clear()
         end
 
@@ -254,16 +256,28 @@ end
 function FFXIFastPickerView:onSelectMenuItemAtIndexPath(textItem, _)
     if L{ 'Confirm', 'Save', 'Search', 'Select' }:contains(textItem:getText()) then
         local numItemsSelected = self.selectedItems:getValue():length()
-        if self.numItemsRequired and numItemsSelected ~= self.numItemsRequired then
-            if self.numItemsRequired == 0 then
-                addon_system_error("No items selected.")
-            elseif self.numItemsRequired == 1 then
-                addon_system_error(string.format("You must select %d item.", self.numItemsRequired))
-            else
-                addon_system_error(string.format("You must select %d items.", self.numItemsRequired))
+
+        local minNumItems = self.configItem:getNumItemsRequired().minNumItems
+        local maxNumItems = self.configItem:getNumItemsRequired().maxNumItems
+
+        local validate = function(numItemsSelected)
+            local success = true
+            local message
+            if minNumItems == maxNumItems and numItemsSelected ~= minNumItems then
+                success = false
+                message = string.format("You must select %d item(s).", minNumItems)
+            elseif numItemsSelected < minNumItems or numItemsSelected > maxNumItems then
+                success = false
+                message = string.format("You must select between %d and %d item(s).", minNumItems, maxNumItems)
             end
-        else
+            return success, message
+        end
+
+        local is_valid, message = validate(numItemsSelected)
+        if is_valid then
             self:on_pick_items():trigger(self, self.selectedItems:getValue(), nil)
+        else
+            addon_system_error(message or "Invalid selection.")
         end
     elseif L{ 'Clear All' }:contains(textItem:getText()) then
         self.selectedItems:getValue():clear()
@@ -313,10 +327,6 @@ function FFXIFastPickerView:setSearchEnabled(searchEnabled)
         self.searchBarView:setVisible(true)
         self.searchBarView:requestFocus()
     end
-end
-
-function FFXIFastPickerView:setNumItemsRequired(numItemsRequired)
-    self.numItemsRequired = numItemsRequired
 end
 
 function FFXIFastPickerView:setHasFocus(hasFocus)
