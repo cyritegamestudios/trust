@@ -95,7 +95,7 @@ end
 
 function PickerCollectionViewCell:showPickerView()
     local item = self:getItem()
-    if item:allowsMultipleSelection() then
+    if item:allowsMultipleSelection() then -- FIXME: may need to change second copy of this to selection limit or something, since we don't always want to show a picker for single selection
         local menuItem = MenuItem.new(L{
             ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
             ButtonItem.localized('Clear All', i18n.translate('Button_Clear_All')),
@@ -113,7 +113,8 @@ function PickerCollectionViewCell:showPickerView()
             end)
 
             local pickerView = FFXIPickerView.new(configItem)
-            pickerView:setAllowsMultipleSelection(true)
+            pickerView:setAllowsMultipleSelection(item:allowsMultipleSelection() and item:getNumItemsRequired() ~= 1)
+            pickerView:setNumItemsRequired(item:getNumItemsRequired())
 
             pickerView:on_pick_items():addAction(function(pickerView, selectedItems)
                 self:getItem():setCurrentValue(selectedItems:map(function(item) return item end))

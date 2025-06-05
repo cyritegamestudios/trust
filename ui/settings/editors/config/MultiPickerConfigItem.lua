@@ -32,6 +32,7 @@ function MultiPickerConfigItem.new(key, initialValues, allValues, textFormat, de
     self.onReload = onReload
     self.enabled = true
     self.filter = function(_) return true end
+    self.allowsMultipleSelection = true
 
     return self
 end
@@ -238,6 +239,42 @@ end
 
 function MultiPickerConfigItem:setEnabled(enabled)
     self.enabled = enabled
+end
+
+---
+-- Gets the current value of the `allowsMultipleSelection` property.
+--
+-- @treturn boolean The current value of `allowsMultipleSelection`.
+--
+function MultiPickerConfigItem:getAllowsMultipleSelection()
+    return self.allowsMultipleSelection
+end
+
+---
+-- Sets the `allowsMultipleSelection` property to the specified value.
+--
+-- @tparam boolean allowsMultipleSelection The new value for `allowsMultipleSelection`.
+--
+function MultiPickerConfigItem:setAllowsMultipleSelection(allowsMultipleSelection)
+    self.allowsMultipleSelection = allowsMultipleSelection
+end
+
+---
+-- Gets the current value of the `numItemsRequired` property.
+--
+-- @treturn boolean The current value of `numItemsRequired`.
+--
+function MultiPickerConfigItem:getNumItemsRequired()
+    return self.numItemsRequired
+end
+
+---
+-- Sets the `numItemsRequired` property to the specified value.
+--
+-- @tparam boolean numItemsRequired The new value for `numItemsRequired`.
+--
+function MultiPickerConfigItem:setNumItemsRequired(numItemsRequired)
+    self.numItemsRequired = numItemsRequired
 end
 
 ---

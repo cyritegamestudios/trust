@@ -317,6 +317,8 @@ function ConfigEditor:getCellItemForConfigItem(configItem)
     elseif configItem.__type == MultiPickerConfigItem.__type then
         local pickerItem = PickerItem.new(configItem:getInitialValues(), configItem:getAllValues(), configItem:getTextFormat(), configItem:isEnabled(), configItem:getImageItem())
         pickerItem:setShouldTruncateText(true)
+        pickerItem:setNumItemsRequired(configItem:getNumItemsRequired())
+        pickerItem:setAllowsMultipleSelection(configItem:getAllowsMultipleSelection())
         pickerItem:setPickerTitle(configItem:getPickerTitle())
         pickerItem:setPickerDescription(configItem:getPickerDescription())
         pickerItem:setPickerTextFormat(configItem:getPickerTextFormat())
@@ -339,7 +341,7 @@ function ConfigEditor:getCellItemForConfigItem(configItem)
                 self.configSettings[configItem:getKey()] = newValue
             end
             addon_system_message("Your choices have been updated.")
-            print(newValue)
+
             configItem:getOnConfirm()(newValue)
         end)
         return pickerItem

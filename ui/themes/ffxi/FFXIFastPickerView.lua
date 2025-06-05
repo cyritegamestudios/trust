@@ -76,7 +76,7 @@ function FFXIFastPickerView.new(configItem, viewSize, itemsPerPage)
     end)
 
     self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
-        if not self:getAllowsMultipleSelection() then
+        if not self:getAllowsMultipleSelection() or self.numItemsRequired == 1 then
             self.selectedItems:getValue():clear()
         end
 
@@ -304,6 +304,10 @@ function FFXIFastPickerView:setSearchEnabled(searchEnabled)
         self.searchBarView:setVisible(true)
         self.searchBarView:requestFocus()
     end
+end
+
+function FFXIFastPickerView:setNumItemsRequired(numItemsRequired)
+    self.numItemsRequired = numItemsRequired
 end
 
 function FFXIFastPickerView:setHasFocus(hasFocus)

@@ -55,6 +55,7 @@ function FoodSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
             local item_description = ItemDescription:where({ id = item[1].id }, L{ 'en' })[1].en
             return item_description:gsub("[\r\n]", " ")
         end)
+        foodPickerConfigItem:setNumItemsRequired(1)
         foodPickerConfigItem:setPickerTitle("Food")
         foodPickerConfigItem:setPickerDescription("Choose a food to use.")
         foodPickerConfigItem:setPickerTextFormat(function(item_name)

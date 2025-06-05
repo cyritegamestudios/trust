@@ -130,12 +130,39 @@ function PickerItem:getMenuItem()
 end
 
 ---
+-- Sets the `allowsMultipleSelection` property to the specified value.
+--
+-- @tparam boolean allowsMultipleSelection The new value for `allowsMultipleSelection`.
+--
+function PickerItem:setAllowsMultipleSelection(allowsMultipleSelection)
+    self.multipleSelection = allowsMultipleSelection
+end
+
+---
 -- Returns whether multi-select is allowed.
 --
 -- @treturn boolean True if multi-select is allowed.
 --
 function PickerItem:allowsMultipleSelection()
     return self.multipleSelection
+end
+
+---
+-- Gets the current value of the `numItemsRequired` property.
+--
+-- @treturn boolean The current value of `numItemsRequired`.
+--
+function PickerItem:getNumItemsRequired()
+    return self.numItemsRequired
+end
+
+---
+-- Sets the `numItemsRequired` property to the specified value.
+--
+-- @tparam boolean numItemsRequired The new value for `numItemsRequired`.
+--
+function PickerItem:setNumItemsRequired(numItemsRequired)
+    self.numItemsRequired = numItemsRequired
 end
 
 ---
