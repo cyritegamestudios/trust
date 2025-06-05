@@ -141,6 +141,7 @@ function PlayerMenuItem:getConfigMenuItem(roles)
 
             roleConfigItem:setPickerTitle(role:get_localized_name())
             roleConfigItem:setPickerDescription("Choose party or alliance members to ignore.")
+            roleConfigItem:setNumItemsRequired(0)
 
             roleConfigItems:append(roleConfigItem)
         end
