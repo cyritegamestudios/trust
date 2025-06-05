@@ -20,7 +20,7 @@ function PickerItem.new(currentValue, allValues, textFormat, allowsMultipleSelec
     self.textFormat = textFormat or function(value)
         return tostring(value)
     end
-    self.multipleSelection = allowsMultipleSelection
+    self.allowsMultipleSelection = allowsMultipleSelection
     self.imageItemForText = imageItemForText
     self.pickerItemDescription = function(_) return nil end
     self.shouldTruncateText = false
@@ -135,7 +135,7 @@ end
 -- @tparam boolean allowsMultipleSelection The new value for `allowsMultipleSelection`.
 --
 function PickerItem:setAllowsMultipleSelection(allowsMultipleSelection)
-    self.multipleSelection = allowsMultipleSelection
+    self.allowsMultipleSelection = allowsMultipleSelection
 end
 
 ---
@@ -143,8 +143,8 @@ end
 --
 -- @treturn boolean True if multi-select is allowed.
 --
-function PickerItem:allowsMultipleSelection()
-    return self.multipleSelection
+function PickerItem:getAllowsMultipleSelection()
+    return self.allowsMultipleSelection
 end
 
 ---

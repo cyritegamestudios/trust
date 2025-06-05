@@ -47,7 +47,7 @@ function PickerCollectionViewCell:setSelected(selected)
 
     self.textView:setSelected(selected)
 
-    if not self:getItem():allowsMultipleSelection() then
+    if not self:getItem():getAllowsMultipleSelection() then
         if selected then
             self:requestFocus()
         else
@@ -95,7 +95,7 @@ end
 
 function PickerCollectionViewCell:showPickerView()
     local item = self:getItem()
-    if item:allowsMultipleSelection() then -- FIXME: may need to change second copy of this to selection limit or something, since we don't always want to show a picker for single selection
+    if item:getAllowsMultipleSelection() then
         local menuItem = MenuItem.new(L{
             ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
             ButtonItem.localized('Clear All', i18n.translate('Button_Clear_All')),
@@ -113,7 +113,7 @@ function PickerCollectionViewCell:showPickerView()
             end)
 
             local pickerView = FFXIPickerView.new(configItem)
-            pickerView:setAllowsMultipleSelection(item:allowsMultipleSelection() and item:getNumItemsRequired() ~= 1)
+            pickerView:setAllowsMultipleSelection(item:getAllowsMultipleSelection() and item:getNumItemsRequired() ~= 1)
             pickerView:setNumItemsRequired(item:getNumItemsRequired())
 
             pickerView:on_pick_items():addAction(function(pickerView, selectedItems)
@@ -139,7 +139,7 @@ function PickerCollectionViewCell:onKeyboardEvent(key, pressed, flags, blocked)
         if key then
             local currentIndex = self:getItem():getAllValues():indexOf(self:getItem():getCurrentValue())
             if key == 'Left' then
-                if self:getItem():allowsMultipleSelection() then
+                if self:getItem():getAllowsMultipleSelection() then
                     return false
                 end
                 local interval = 1
@@ -155,7 +155,7 @@ function PickerCollectionViewCell:onKeyboardEvent(key, pressed, flags, blocked)
                 self:setItem(self:getItem())
                 return true
             elseif key == 'Right' then
-                if self:getItem():allowsMultipleSelection() then
+                if self:getItem():getAllowsMultipleSelection() then
                     return false
                 end
                 local interval = 1
@@ -197,7 +197,7 @@ function PickerCollectionViewCell:onMouseEvent(type, x, y, delta)
 end
 
 function PickerCollectionViewCell:setHasFocus(hasFocus)
-    if self:getItem():allowsMultipleSelection() then
+    if self:getItem():getAllowsMultipleSelection() then
         hasFocus = false
     end
     CollectionViewCell.setHasFocus(self, hasFocus)

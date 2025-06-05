@@ -154,7 +154,7 @@ function ConfigEditor.new(trustSettings, configSettings, configItems, infoView, 
         local item = self:getDataSource():itemAtIndexPath(indexPath)
         if item then
             if item.__type == PickerItem.__type then
-                if item:allowsMultipleSelection() then
+                if item:getAllowsMultipleSelection() then
                     self:getDelegate():deselectItemAtIndexPath(indexPath)
                 end
             end
