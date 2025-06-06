@@ -171,6 +171,14 @@ function MenuItem:getConfigKey()
     return self.configKey
 end
 
+function MenuItem:setMenuIndex(menuIndex)
+    self.menuIndex = menuIndex
+end
+
+function MenuItem:getMenuIndex()
+    return self.menuIndex
+end
+
 ---
 -- Checks if this MenuItem is equal to another TextItem.
 --

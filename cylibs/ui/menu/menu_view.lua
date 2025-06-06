@@ -165,6 +165,13 @@ function MenuView:setPage(pageNum)
 end
 
 function MenuView:setItem(menuItem)
+    if self.menuItem then
+        local cursorIndexPath = self:getDelegate():getCursorIndexPath()
+        if cursorIndexPath then
+            self.menuItem:setMenuIndex(cursorIndexPath.row)
+        end
+    end
+
     local menuArgs = {}
 
     local currentView = self.viewStack:getCurrentView()
@@ -188,6 +195,11 @@ function MenuView:setItem(menuItem)
     self:setArrowsVisible(buttonItems:length() > 14)
 
     self:setPage(1)
+
+    local menuIndex = self.menuItem:getMenuIndex()
+    if menuIndex then
+        self:getDelegate():setCursorIndexPath(IndexPath.new(1, menuIndex))
+    end
 
     local contentView = menuItem:getContentView(menuArgs, self.infoView, self.showMenu)
     if contentView then
