@@ -108,7 +108,7 @@ function HealerSettingsMenuItem:getBlacklistMenuItem()
         local cureSettings = self.trustSettings:getSettings()[self.trustSettingsMode.value].CureSettings
 
         local configItem = MultiPickerConfigItem.new("StatusRemovalBlacklist", cureSettings.StatusRemovals.Blacklist, buff_util.get_all_debuffs():sort(), function(statusEffect)
-            return i18n.resource('buffs', 'en', statusEffect)
+            return i18n.resource('buffs', 'en', statusEffect):gsub("^%l", string.upper)
         end)
         configItem:setNumItemsRequired(0)
 

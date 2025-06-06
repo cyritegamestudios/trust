@@ -90,7 +90,7 @@ function ActionQueue.new(completion, is_priority_queue, max_size, debugging_enab
 
 		windower.register_event('outgoing chunk', function(id, data)
 			if id == 0x015 then
-				self.next_action_time = os.clock() + 0.6
+				self.next_action_time = os.clock() + 0.8
 			end
 		end)
 	end
