@@ -114,7 +114,6 @@ function PickerCollectionViewCell:showPickerView()
             configItem:setNumItemsRequired(item:getNumItemsRequired().minNumItems, item:getNumItemsRequired().maxNumItems)
 
             local pickerView = FFXIPickerView.new(configItem)
-            --pickerView:setAllowsMultipleSelection(item:getAllowsMultipleSelection() and item:getNumItemsRequired().minNumItems ~= item:getNumItemsRequired().maxNumItems ~= 1)
 
             pickerView:on_pick_items():addAction(function(pickerView, selectedItems)
                 self:getItem():setCurrentValue(selectedItems:map(function(item) return item end))
