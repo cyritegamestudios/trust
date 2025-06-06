@@ -202,8 +202,11 @@ function Menu:onKeyboardEvent(key, pressed, flags, blocked)
             end
         elseif keyName == 'Escape' then
             if self.menuItemStack:length() > 1 then
-                self.menuItemStack:remove(self.menuItemStack:length())
+                local removed = self.menuItemStack:remove(self.menuItemStack:length())
                 self.menuView:setItem(self.menuItemStack[self.menuItemStack:length()])
+                if removed then
+                    removed:setMenuIndex(nil)
+                end
             else
                 self.viewStack:dismiss()
                 self.menuItemStack = L{}
