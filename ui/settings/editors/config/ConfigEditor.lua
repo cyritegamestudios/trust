@@ -154,7 +154,7 @@ function ConfigEditor.new(trustSettings, configSettings, configItems, infoView, 
         local item = self:getDataSource():itemAtIndexPath(indexPath)
         if item then
             if item.__type == PickerItem.__type then
-                if item:allowsMultipleSelection() then
+                if item:getAllowsMultipleSelection() then
                     self:getDelegate():deselectItemAtIndexPath(indexPath)
                 end
             end
@@ -317,9 +317,14 @@ function ConfigEditor:getCellItemForConfigItem(configItem)
     elseif configItem.__type == MultiPickerConfigItem.__type then
         local pickerItem = PickerItem.new(configItem:getInitialValues(), configItem:getAllValues(), configItem:getTextFormat(), configItem:isEnabled(), configItem:getImageItem())
         pickerItem:setShouldTruncateText(true)
+        pickerItem:setNumItemsRequired(configItem:getNumItemsRequired().minNumItems, configItem:getNumItemsRequired().maxNumItems)
+        pickerItem:setAllowsMultipleSelection(configItem:getAllowsMultipleSelection())
         pickerItem:setPickerTitle(configItem:getPickerTitle())
         pickerItem:setPickerDescription(configItem:getPickerDescription())
         pickerItem:setPickerTextFormat(configItem:getPickerTextFormat())
+        pickerItem:setPickerItemDescription(function(value)
+            return configItem:getItemDescription(value)
+        end)
         pickerItem:setShowMenu(self.showMenu)
         pickerItem:setOnPickItems(function(newValue)
             local is_valid, error = configItem:getPickerValidator()(newValue)

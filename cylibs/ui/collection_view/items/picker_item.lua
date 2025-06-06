@@ -20,8 +20,9 @@ function PickerItem.new(currentValue, allValues, textFormat, allowsMultipleSelec
     self.textFormat = textFormat or function(value)
         return tostring(value)
     end
-    self.multipleSelection = allowsMultipleSelection
+    self.allowsMultipleSelection = allowsMultipleSelection
     self.imageItemForText = imageItemForText
+    self.pickerItemDescription = function(_) return nil end
     self.shouldTruncateText = false
 
     return self
@@ -129,12 +130,41 @@ function PickerItem:getMenuItem()
 end
 
 ---
+-- Sets the `allowsMultipleSelection` property to the specified value.
+--
+-- @tparam boolean allowsMultipleSelection The new value for `allowsMultipleSelection`.
+--
+function PickerItem:setAllowsMultipleSelection(allowsMultipleSelection)
+    self.allowsMultipleSelection = allowsMultipleSelection
+end
+
+---
 -- Returns whether multi-select is allowed.
 --
 -- @treturn boolean True if multi-select is allowed.
 --
-function PickerItem:allowsMultipleSelection()
-    return self.multipleSelection
+function PickerItem:getAllowsMultipleSelection()
+    return self.allowsMultipleSelection
+end
+
+---
+-- Gets the current value of the `numItemsRequired` property.
+--
+-- @treturn boolean The current value of `numItemsRequired`.
+--
+function PickerItem:getNumItemsRequired()
+    return { minNumItems = self.minNumItems, maxNumItems = self.maxNumItems}
+end
+
+---
+-- Sets the minimum and maximum number of items required.
+--
+-- @tparam number minNumItems The minimum number of items required
+-- @tparam number maxNumItems The maximum number of items required (defaults to minNumItems if not specified)
+--
+function PickerItem:setNumItemsRequired(minNumItems, maxNumItems)
+    self.minNumItems = minNumItems
+    self.maxNumItems = maxNumItems or minNumItems
 end
 
 ---
@@ -218,6 +248,27 @@ function PickerItem:getPickerTextFormat()
     return self.pickerTextFormat or function(value)
         return tostring(value)
     end
+end
+
+---
+-- Sets the picker item description.
+--
+-- @tparam function pickerItemDescription Sets the picker item description.
+--
+function PickerItem:setPickerItemDescription(pickerItemDescription)
+    self.pickerItemDescription = pickerItemDescription
+end
+
+---
+-- Gets the item description.
+--
+-- @treturn string The item description.
+--
+function PickerItem:getPickerItemDescription(value)
+    if self.pickerItemDescription then
+        return self.pickerItemDescription(value)
+    end
+    return nil
 end
 
 return PickerItem

@@ -32,6 +32,7 @@ function MultiPickerConfigItem.new(key, initialValues, allValues, textFormat, de
     self.onReload = onReload
     self.enabled = true
     self.filter = function(_) return true end
+    self.allowsMultipleSelection = true
 
     return self
 end
@@ -238,6 +239,44 @@ end
 
 function MultiPickerConfigItem:setEnabled(enabled)
     self.enabled = enabled
+end
+
+---
+-- Gets the current value of the `allowsMultipleSelection` property.
+--
+-- @treturn boolean The current value of `allowsMultipleSelection`.
+--
+function MultiPickerConfigItem:getAllowsMultipleSelection()
+    return self.allowsMultipleSelection
+end
+
+---
+-- Sets the `allowsMultipleSelection` property to the specified value.
+--
+-- @tparam boolean allowsMultipleSelection The new value for `allowsMultipleSelection`.
+--
+function MultiPickerConfigItem:setAllowsMultipleSelection(allowsMultipleSelection)
+    self.allowsMultipleSelection = allowsMultipleSelection
+end
+
+---
+-- Gets the current value of the `numItemsRequired` property.
+--
+-- @treturn boolean The current value of `numItemsRequired`.
+--
+function MultiPickerConfigItem:getNumItemsRequired()
+    return { minNumItems = self.minNumItems or 1, maxNumItems = self.maxNumItems or 999 }
+end
+
+---
+-- Sets the minimum and maximum number of items required.
+--
+-- @tparam number minNumItems The minimum number of items required
+-- @tparam number maxNumItems The maximum number of items required (defaults to 999 if not specified)
+--
+function MultiPickerConfigItem:setNumItemsRequired(minNumItems, maxNumItems)
+    self.minNumItems = minNumItems
+    self.maxNumItems = maxNumItems or 999
 end
 
 ---

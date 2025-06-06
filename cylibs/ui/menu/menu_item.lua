@@ -172,6 +172,24 @@ function MenuItem:getConfigKey()
 end
 
 ---
+-- Sets the last menu index.
+--
+-- @tparam number menuIndex Sets th last menu index.
+--
+function MenuItem:setMenuIndex(menuIndex)
+    self.menuIndex = menuIndex
+end
+
+---
+-- Returns the last menu index.
+--
+-- @treturn number Last menu index (or nil).
+--
+function MenuItem:getMenuIndex()
+    return self.menuIndex
+end
+
+---
 -- Checks if this MenuItem is equal to another TextItem.
 --
 -- @tparam any otherItem The other item to compare.

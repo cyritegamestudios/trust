@@ -405,7 +405,7 @@ function buff_util.get_all_debuffs()
 	return L(T(debuffs):keyset()):map(function(debuff_id)
 		local debuff = res.buffs[debuff_id]
 		if debuff then
-			return debuff.en:gsub("^%l", string.upper)
+			return debuff.en
 		end
 		return nil
 	end):compact_map()

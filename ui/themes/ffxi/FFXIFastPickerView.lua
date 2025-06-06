@@ -8,7 +8,6 @@ local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Keyboard = require('cylibs/ui/input/keyboard')
 local Mouse = require('cylibs/ui/input/mouse')
-local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local ScrollView = require('cylibs/ui/scroll_view/scroll_view')
 local SoundTheme = require('cylibs/sounds/sound_theme')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
@@ -51,13 +50,15 @@ function FFXIFastPickerView.new(configItem, viewSize, itemsPerPage)
         self:setAllowsMultipleSelection(true)
     end
 
+    self:setAllowsMultipleSelection(not (configItem:getNumItemsRequired().minNumItems == 1 and configItem:getNumItemsRequired().maxNumItems == 1))
+
     self.configItem = configItem
     self.mediaPlayer = defaultMediaPlayer
     self.soundTheme = defaultSoundTheme
     self.textStyle = TextStyle.Picker.Text
     self.maxNumItems = math.min(configItem:getAllValues():length(), itemsPerPage or 10)
     self.highlightedItem = ValueRelay.new(nil)
-    self.selectedItems = ValueRelay.new(self.configItem:getInitialValues() or L{})
+    self.selectedItems = ValueRelay.new(self.configItem:getInitialValues():copy() or L{})
     self.pick_items = Event.newEvent()
 
     self:setShouldRequestFocus(true)
@@ -82,7 +83,6 @@ function FFXIFastPickerView.new(configItem, viewSize, itemsPerPage)
         end
 
         local item = self.visibleItems[indexPath.row]
-
         local selectedItems = self.selectedItems:getValue()
         if not selectedItems:contains(item) then
             selectedItems:append(item)
@@ -255,10 +255,32 @@ end
 --
 function FFXIFastPickerView:onSelectMenuItemAtIndexPath(textItem, _)
     if L{ 'Confirm', 'Save', 'Search', 'Select' }:contains(textItem:getText()) then
-        if self.selectedItems:getValue():length() > 0 or self:getAllowsMultipleSelection() then
-            self:on_pick_items():trigger(self, self.selectedItems:getValue(), nil) -- FIXME: index paths
+        local numItemsSelected = self.selectedItems:getValue():length()
+
+        local minNumItems = self.configItem:getNumItemsRequired().minNumItems
+        local maxNumItems = self.configItem:getNumItemsRequired().maxNumItems
+
+        local validate = function(numItemsSelected)
+            local success = true
+            local message
+            if minNumItems == maxNumItems and numItemsSelected ~= minNumItems then
+                success = false
+                message = string.format("You must select %d item(s).", minNumItems)
+            elseif numItemsSelected < minNumItems or numItemsSelected > maxNumItems then
+                success = false
+                message = string.format("You must select between %d and %d item(s).", minNumItems, maxNumItems)
+            end
+            return success, message
+        end
+
+        local is_valid, message = validate(numItemsSelected)
+        if is_valid then
+            self:on_pick_items():trigger(self, self.selectedItems:getValue(), nil)
+        else
+            addon_system_error(message or "Invalid selection.")
         end
     elseif L{ 'Clear All' }:contains(textItem:getText()) then
+        self.selectedItems:getValue():clear()
         self:getDelegate():deselectAllItems()
     elseif L{ 'Filter' }:contains(textItem:getText()) then
         self:setSearchEnabled(true)

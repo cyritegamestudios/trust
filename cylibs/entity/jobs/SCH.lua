@@ -27,7 +27,9 @@ function Scholar.new(trust_settings)
     if self.allow_sub_job == nil then
         self.allow_sub_job = true
     end
-    self.ignore_debuff_ids = self.cure_settings.StatusRemovals.Blacklist:map(function(debuff_name) return res.buffs:with('en', debuff_name).id end)
+    self.ignore_debuff_ids = self.cure_settings.StatusRemovals.Blacklist:map(function(debuff_name)
+        return res.buffs:with('en', debuff_name).id
+    end)
     self.sub_job_spell_list = SpellList.new(windower.ffxi.get_player().sub_job_id, windower.ffxi.get_player().sub_job_level, L{})
     return self
 end

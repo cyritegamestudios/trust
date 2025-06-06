@@ -275,6 +275,7 @@ function GambitSettingsMenuItem:getAddAbilityMenuItem()
             end, function(ability)
                 return self.editorConfig:getItemDescription(ability) or "Add a new "..targetType.." "..self.editorConfig:getDescription().."."
             end)
+            abilityPickerItem:setNumItemsRequired(1, 1)
 
             local FFXIFastPickerView = require('ui/themes/ffxi/FFXIFastPickerView')
 

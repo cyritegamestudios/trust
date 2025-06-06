@@ -3,7 +3,7 @@ local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIFastPickerView = require('ui/themes/ffxi/FFXIFastPickerView')
-local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+local FFXIPickerView = require('ui/themes/ffxi/FFXIFastPickerView')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
@@ -64,6 +64,7 @@ function SongSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
             local is_valid, error_message = trust:get_job():validate_songs(songs:map(function(s) return s:get_name()  end), newValue:map(function(s) return s:get_name() end))
             return is_valid, error_message
         end)
+        dummySongsConfigItem:setNumItemsRequired(1, 3)
         dummySongsConfigItem:setOnConfirm(function(newDummySongs)
             local dummySongs = T(trustSettings:getSettings())[trustSettingsMode.value].SongSettings.DummySongs
             dummySongs:clear()
@@ -179,7 +180,7 @@ function SongSettingsMenuItem:getJobsMenuItem()
             return i18n.resource('jobs', 'ens', jobNameShort)
         end)
 
-        local jobsPickerView = FFXIPickerView.withConfig(configItem, true)
+        local jobsPickerView = FFXIPickerView.new(configItem)
 
         self.disposeBag:add(jobsPickerView:on_pick_items():addAction(function(_, newJobNames)
             if newJobNames:length() > 0 then
@@ -223,8 +224,10 @@ function SongSettingsMenuItem:getPianissmoSongsMenuItem()
         end, "Pianissimo", nil, function(spell)
             return AssetManager.imageItemForSpell(spell:get_name())
         end)
+        configItem:setNumItemsRequired(1, 1)
 
         local chooseSongsView = FFXIFastPickerView.new(configItem)
+        chooseSongsView:setAllowsCursorSelection(true)
 
         self.disposeBag:add(chooseSongsView:on_pick_items():addAction(function(_, selectedSongs)
             if selectedSongs:length() > 0 then
@@ -260,7 +263,7 @@ function SongSettingsMenuItem:getPianissmoSongsMenuItem()
             return i18n.resource('jobs', 'ens', jobNameShort)
         end)
 
-        local jobsPickerView = FFXIPickerView.withConfig(configItem, true)
+        local jobsPickerView = FFXIPickerView.new(configItem)
 
         self.disposeBag:add(jobsPickerView:on_pick_items():addAction(function(_, newJobNames)
             if newJobNames:length() > 0 then
@@ -302,8 +305,9 @@ function SongSettingsMenuItem:getPianissmoSongsMenuItem()
                 return "Use when: Never (no jobs selected)"
             end
         end)
+        configItem:setNumItemsRequired(1, 1)
 
-        local pianissimoSongsView = FFXIPickerView.withConfig(configItem)
+        local pianissimoSongsView = FFXIPickerView.new(configItem)
         pianissimoSongsView:setAllowsCursorSelection(true)
 
         self.disposeBag:add(pianissimoSongsView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)

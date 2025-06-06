@@ -161,3 +161,15 @@ function list.random(l)
     local index = math.random(1, l:length())
     return l[index]
 end
+
+function list.remove(l, i)
+    i = i or l.n
+    local res = rawget(l, i)
+    if res then
+        for key = i, l.n do
+            rawset(l, key, rawget(l, key + 1))
+        end
+        l.n = l.n - 1
+    end
+    return res
+end

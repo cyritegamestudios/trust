@@ -103,6 +103,7 @@ function BuildSkillchainSettingsMenuItem:getConfirmMenuItem()
             local abilities = L(abilities:map(function(ability) return ability:get_localized_name() end))
             return localization_util.join(abilities, '→')
         end)
+        configItem:setNumItemsRequired(1, 1)
 
         local chooseSkillchainView = FFXIPickerView.new(configItem, FFXIClassicStyle.WindowSize.Editor.ConfigEditorLarge, 17)
         chooseSkillchainView:setAllowsCursorSelection(true)

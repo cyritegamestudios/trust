@@ -6,6 +6,7 @@
 local buff_util = require('cylibs/util/buff_util')
 local party_util = require('cylibs/util/party_util')
 local serializer_util = require('cylibs/util/serializer_util')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local StatusAilment = require('cylibs/battle/status_ailment')
 
@@ -60,11 +61,25 @@ function HasBuffCondition:get_config_items()
         return nil
     end)):compact_map())):sort()
 
+    self.buff_names = L{ self.buff_name }
+
+    local buffPickerConfigItem = MultiPickerConfigItem.new('buff_names', L{ self.buff_name }, all_buffs, function(buff_names)
+        local text = localization_util.commas(buff_names:map(function(buff_name) return StatusAilment.new(buff_name):get_localized_name() end))
+        return text
+    end, "Buff Name")
+    buffPickerConfigItem:setPickerTitle("Buffs")
+    buffPickerConfigItem:setPickerDescription("Choose a buff.")
+    buffPickerConfigItem:setPickerTextFormat(function(buff_name)
+        return i18n.resource('buffs', 'en', buff_name)
+    end)
+    buffPickerConfigItem:setAllowsMultipleSelection(true)
+    buffPickerConfigItem:setNumItemsRequired(1, 1)
+    buffPickerConfigItem:setOnConfirm(function(buff_names)
+        self.buff_name = buff_names[1]
+    end)
+
     return L{
-        PickerConfigItem.new('buff_name', self.buff_name, all_buffs, function(buff_name)
-            local buff = StatusAilment.new(buff_name)
-            return buff:get_localized_name()
-        end, "Buff Name")
+        buffPickerConfigItem
     }
 end
 
