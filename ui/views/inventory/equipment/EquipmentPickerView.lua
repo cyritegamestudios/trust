@@ -86,8 +86,19 @@ end
 function EquipmentPickerView:setHasFocus(hasFocus)
     FFXIPickerView.setHasFocus(self, hasFocus)
 
-    self.itemDescriptionView:setVisible(hasFocus)
+    self.itemDescriptionView:setVisible(self.itemDescriptionView:hasFocus() or hasFocus)
     self.itemDescriptionView:layoutIfNeeded()
+end
+
+function EquipmentPickerView:onMouseEvent(type, x, y, delta)
+    if self.itemDescriptionView:onMouseEvent(type, x, y, delta) then
+        return true
+    end
+    return FFXIPickerView.onMouseEvent(self, type, x, y, delta)
+end
+
+function EquipmentPickerView:hitTest(x, y)
+    return FFXIPickerView.hitTest(self, x, y) or self.itemDescriptionView:hitTest(x, y)
 end
 
 return EquipmentPickerView
