@@ -24,19 +24,27 @@ function ItemDescriptionView.new(itemId)
     local dataSource = CollectionViewDataSource.new(function(item, _)
         if item.__type == TextItem.__type then
             local cell = TextCollectionViewCell.new(item)
-            cell:setItemSize(96)
+            cell:setItemSize(16)
+            cell:setUserInteractionEnabled(true)
             return cell
         elseif item.__type == ImageTextItem.__type then
             local slotBackgroundView = ImageCollectionViewCell.new(ImageItem.new(windower.addon_path..'assets/backgrounds/item_slot_background.png', 32, 32, 128))
             local cell = ImageTextCollectionViewCell.new(item)
-            cell:setItemSize(96)
+            cell:setItemSize(32)
             cell.imageView:addSubview(slotBackgroundView)
+            cell:setUserInteractionEnabled(true)
             return cell
         end
     end)
 
     local self = setmetatable(FFXIWindow.new(dataSource, VerticalFlowLayout.new(0, Padding.new(6, 6, 0, 0)), nil, false, Frame.new(0, 0, 344, 96)), ItemDescriptionView)
+
+    self:setScrollEnabled(true)
+    self:setUserInteractionEnabled(true)
+    self:setAllowsCursorSelection(true)
+
     self:setItemId(itemId)
+
     return self
 end
 
@@ -49,8 +57,19 @@ function ItemDescriptionView:setItemId(itemId)
     local itemDescriptions = ItemDescription:where({ id = itemId }, L{ 'en' })
     if itemDescriptions:length() > 0 then
         local item = Item:where({ id = itemId }, L{ 'en '})[1]
-        local itemDescription = string.format("%s\n%s", item.en, itemDescriptions[1].en)
-        self:getDataSource():updateItems(L{ IndexedItem.new( ImageTextItem.new(AssetManager.imageItemForItem(itemId), TextItem.new(itemDescription, TextStyle.Default.TextSmall:bolded(true)), 8, { x = 0, y = 4 }), IndexPath.new(1, 1)) })
+        --local itemDescription = string.format("%s\n%s", item.en, itemDescriptions[1].en)
+
+        local titleItem = ImageTextItem.new(AssetManager.imageItemForItem(itemId), TextItem.new(item.en, TextStyle.Default.TextSmall:bolded(true)), 8, { x = 0, y = 4 })
+
+        local descriptionItems = L(string.split(itemDescriptions[1].en, '\n')):map(function(row)
+            local textItem = TextItem.new(row, TextStyle.Default.TextSmall:bolded(true))
+            textItem:setOffset(40, 0)
+            return textItem
+        end)
+
+        self:getDataSource():updateItems(IndexedItem.fromItems(L{ titleItem } + descriptionItems, 1))
+
+        --self:getDataSource():updateItems(L{ IndexedItem.new( ImageTextItem.new(AssetManager.imageItemForItem(itemId), TextItem.new(itemDescription, TextStyle.Default.TextSmall:bolded(true)), 8, { x = 0, y = 4 }), IndexPath.new(1, 1)) })
     else
         self:getDataSource():updateItems(L{ IndexedItem.new(TextItem.new('', TextStyle.Default.TextSmall), IndexPath.new(1, 1)) })
     end

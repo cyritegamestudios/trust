@@ -137,4 +137,15 @@ function EquipSetView:onKeyboardEvent(key, pressed, flags, blocked)
     return blocked
 end
 
+function EquipSetView:onMouseEvent(type, x, y, delta)
+    if self.equipmentPickerView:onMouseEvent(type, x, y, delta) then
+        return true
+    end
+    return FFXIWindow.onMouseEvent(self, type, x, y, delta)
+end
+
+function EquipSetView:hitTest(x, y)
+    return FFXIWindow.hitTest(self, x, y) or self.equipmentPickerView:hitTest(x, y)
+end
+
 return EquipSetView
