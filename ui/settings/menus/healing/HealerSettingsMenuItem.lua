@@ -19,6 +19,7 @@ function HealerSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
         menuItems:append(ButtonItem.default('Blacklist', 18))
     end
     menuItems:append(ButtonItem.localized("Modes", i18n.translate("Modes")))
+    menuItems:append(ButtonItem.localized("Gambits", i18n.translate("Button_Gambits")))
 
     local self = setmetatable(MenuItem.new(menuItems, {}, nil, "Healing", "Configure healing and status removal settings."), HealerSettingsMenuItem)
 
@@ -47,6 +48,7 @@ function HealerSettingsMenuItem:reloadSettings()
         self:setChildMenuItem("Blacklist", self:getBlacklistMenuItem())
     end
     self:setChildMenuItem("Modes", self:getModesMenuItem())
+    self:setChildMenuItem("Gambits", self:getGambitsMenuItem())
 end
 
 function HealerSettingsMenuItem:getConfigMenuItem()
@@ -128,6 +130,70 @@ end
 function HealerSettingsMenuItem:getModesMenuItem()
     return ModesMenuItem.new(self.trustModeSettings, "Set modes for healing and status removals.",
             L{'AutoHealMode', 'AutoStatusRemovalMode', 'AutoDetectAuraMode'})
+end
+
+function HealerSettingsMenuItem:getGambitsMenuItem()
+    local gambitsMenuItem = MenuItem.new(L{
+        ButtonItem.default("Confirm")
+    }, {}, function(_, infoView)
+        local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
+        local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+        local GambitEditorStyle = require('ui/settings/menus/gambits/GambitEditorStyle')
+        local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
+
+        local editorConfig = GambitEditorStyle.new(function(gambits)
+            local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit)
+                return gambit:tostring()
+            end)
+            return configItem
+        end, FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge, "Gambit", "Gambits")
+
+        local currentGambits = healer_gambits
+
+        local configItem = editorConfig:getConfigItem(currentGambits)
+
+        local gambitSettingsEditor = FFXIPickerView.new(L{ configItem }, false, editorConfig:getViewSize())
+        gambitSettingsEditor:setAllowsCursorSelection(true)
+
+        gambitSettingsEditor:setNeedsLayout()
+        gambitSettingsEditor:layoutIfNeeded()
+
+        local itemsToUpdate = L{}
+        for rowIndex = 1, gambitSettingsEditor:getDataSource():numberOfItemsInSection(1) do
+            local indexPath = IndexPath.new(1, rowIndex)
+            local item = gambitSettingsEditor:getDataSource():itemAtIndexPath(indexPath)
+            item:setEnabled(currentGambits[rowIndex]:isEnabled() and currentGambits[rowIndex]:isValid())
+            itemsToUpdate:append(IndexedItem.new(item, indexPath))
+        end
+
+        gambitSettingsEditor:getDataSource():updateItems(itemsToUpdate)
+
+        gambitSettingsEditor:setNeedsLayout()
+        gambitSettingsEditor:layoutIfNeeded()
+
+        self.dispose_bag:add(gambitSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
+            local selectedGambit = currentGambits[indexPath.row]
+            if selectedGambit then
+                infoView:setDescription(selectedGambit:tostring())
+            end
+        end), gambitSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath())
+
+        self.dispose_bag:add(gambitSettingsEditor:on_pick_items():addAction(function(_, selectedGambits)
+            local healer = self.trust:role_with_type("healer")
+            for gambit in selectedGambits:it() do
+                local is_satisfied, target = healer:is_gambit_satisfied(gambit)
+                if is_satisfied then
+                    addon_system_message(string.format("%s satisified for %s.", gambit:tostring(), target:get_name()))
+                else
+                    addon_system_error(string.format("%s not satisified.", gambit:tostring()))
+                    logger.error(string.format("%s not satisified.", gambit:tostring()))
+                end
+            end
+        end), gambitSettingsEditor:on_pick_items())
+
+        return gambitSettingsEditor
+    end, "Gambits", "Healer gambits")
+    return gambitsMenuItem
 end
 
 return HealerSettingsMenuItem

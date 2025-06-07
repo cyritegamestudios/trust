@@ -79,6 +79,9 @@ function Healer:set_heal_settings(heal_settings)
             gambit:addCondition(condition)
         end
     end
+
+    healer_gambits = gambits -- FIXME: unhack this
+
     self:set_gambit_settings({ Gambits = gambits })
 end
 
@@ -86,8 +89,8 @@ function Healer:get_default_conditions(gambit)
     local conditions = L{
     }
 
-    if L(gambit:getAbility():get_valid_targets()) ~= L{ 'Self' } then
-        conditions:append(MaxDistanceCondition.new(gambit:getAbility():get_range()))
+    if gambit:getAbilityTarget() == GambitTarget.TargetType.Ally then
+        conditions:append(GambitCondition.new(MaxDistanceCondition.new(gambit:getAbility():get_range()), GambitTarget.TargetType.Ally))
     end
 
     local ability_conditions = self.job:get_conditions_for_ability(gambit:getAbility())
