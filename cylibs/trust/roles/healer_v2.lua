@@ -62,7 +62,7 @@ function Healer:get_type()
 end
 
 function Healer:allows_multiple_actions()
-    return false
+    return true
 end
 
 -------
