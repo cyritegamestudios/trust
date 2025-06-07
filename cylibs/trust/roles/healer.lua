@@ -1,6 +1,7 @@
 local cure_util = require('cylibs/util/cure_util')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local HealerTracker = require('cylibs/analytics/trackers/healer_tracker')
+local Timer = require('cylibs/util/timers/timer')
 
 local Healer = setmetatable({}, {__index = Role })
 Healer.__index = Healer
@@ -21,8 +22,10 @@ function Healer.new(action_queue, main_job)
     self.main_job = main_job
     self.last_cure_time = os.time()
     self.party_member_blacklist = L{}
+    self.timer = Timer.scheduledTimer(0.5)
 
     self.dispose_bag = DisposeBag.new()
+    self.dispose_bag:addAny(L{ self.timer })
 
     return self
 end
@@ -65,20 +68,16 @@ function Healer:on_add()
     self.healer_tracker:monitor()
 
     self.dispose_bag:addAny(L{ self.healer_tracker })
-end
 
-function Healer:target_change(target_index)
-    Role.target_change(self, target_index)
-end
+    self.timer:onTimeChange():addAction(function(_)
+        if state.AutoHealMode.value == 'Off'
+                or self:get_party() == nil then
+            return
+        end
+        self:check_party_hp()
+    end)
 
-function Healer:tic(old_time, new_time)
-    if state.AutoHealMode.value == 'Off'
-            or (os.time() - self.last_cure_time) < self:get_cure_delay()
-            or self:get_party() == nil then
-        return
-    end
-
-    self:check_party_hp()
+    self.timer:start()
 end
 
 -------
