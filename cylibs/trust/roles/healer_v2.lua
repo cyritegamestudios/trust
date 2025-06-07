@@ -1,11 +1,9 @@
-local Reacter = require('cylibs/trust/roles/reacter')
-local Healer = setmetatable({}, {__index = Reacter })
-Healer.__index = Healer
-
-local ConditionalCondition = require('cylibs/conditions/conditional')
 local DisposeBag = require('cylibs/events/dispose_bag')
-local Gambit = require('cylibs/gambits/gambit')
 local GambitTarget = require('cylibs/gambits/gambit_target')
+
+local Gambiter = require('cylibs/trust/roles/gambiter')
+local Healer = setmetatable({}, {__index = Gambiter })
+Healer.__index = Healer
 
 state.AutoHealMode = M{['description'] = 'Heal Player and Party', 'Auto', 'Emergency', 'Off'}
 state.AutoHealMode:set_description('Auto', "Heal the party using the Default cure threshold.")
@@ -17,9 +15,10 @@ state.AutoHealMode:set_description('Emergency', "Heal the party using the Emerge
 -- @tparam T heal_settings heal settings
 -- @treturn Healer A healer role
 function Healer.new(action_queue, heal_settings, job)
-    local self = setmetatable(Reacter.new(action_queue, { Gambits = L{} }, nil, state.AutoHealMode), Healer)
+    local self = setmetatable(Gambiter.new(action_queue, { Gambits = L{} }, L{ state.AutoHealMode }), Healer)
 
     self.job = job
+    self.timer.timeInterval = self:get_cooldown()
     self.dispose_bag = DisposeBag.new()
 
     self:set_heal_settings(heal_settings)
@@ -28,19 +27,27 @@ function Healer.new(action_queue, heal_settings, job)
 end
 
 function Healer:destroy()
-    Reacter.destroy(self)
+    Gambiter.destroy(self)
 
     self.dispose_bag:destroy()
 end
 
 function Healer:on_add()
-    Reacter.on_add(self)
+    Gambiter.on_add(self)
 
+    self.dispose_bag:add(WindowerEvents.CharacterUpdate:addAction(function(mob_id, name, hp, hpp, mp, mpp, tp, main_job_id, sub_job_id)
+        local party_member = self:get_alliance():get_alliance_member(mob_id)
+        if party_member then
+            if hpp < 60 then -- FIXME: this is hacky now
+                self:check_gambits()
+            end
+        end
+    end), WindowerEvents.CharacterUpdate)
 end
 
 function Healer:get_cooldown()
-    if self.state_var.value == 'Auto' then
-        return 0
+    if state.AutoHealMode.value == 'Auto' then
+        return 0.5
     else
         return 2
     end
