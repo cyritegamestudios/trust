@@ -84,7 +84,6 @@ end
 -- Checks the hp of party members and cures if needed.
 -- @tparam number cure_threshold (optional) Cure threshold, defaults to self:get_cure_threshold()
 function Healer:check_party_hp(cure_threshold, ignore_delay)
-    print('check')
     cure_threshold = cure_threshold or self:get_cure_threshold()
 
     logger.notice(self.__class, 'check_party_hp', cure_threshold)
