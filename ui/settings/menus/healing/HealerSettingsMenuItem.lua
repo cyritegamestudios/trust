@@ -2,16 +2,119 @@ local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local ConfigItem = require('ui/settings/editors/config/ConfigItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
+local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+local GambitEditorStyle = require('ui/settings/menus/gambits/GambitEditorStyle')
+local GambitTarget = require('cylibs/gambits/gambit_target')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 
-local HealerSettingsMenuItem = setmetatable({}, {__index = MenuItem })
+local GambitSettingsMenuItem = require('ui/settings/menus/gambits/GambitSettingsMenuItem')
+local HealerSettingsMenuItem = setmetatable({}, {__index = GambitSettingsMenuItem })
 HealerSettingsMenuItem.__index = HealerSettingsMenuItem
 
+
 function HealerSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings)
+    local editorStyle = GambitEditorStyle.new(function(gambits)
+        local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit)
+            return gambit:tostring()
+        end)
+        return L{ configItem }
+    end, FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge, "Heal", "Heals", nil, function(menuItemName)
+        return L{ 'Edit', 'Move Up', 'Move Down', 'Reset', 'Modes', 'Shortcuts', 'Blacklist' }:contains(menuItemName)
+    end)
+
+    local self = setmetatable(GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, 'CureSettings', S{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Ally }, function(targets)
+        return L{}
+    end, L{ Condition.TargetType.Self, Condition.TargetType.Ally }, editorStyle, L{'AutoHealMode', 'AutoStatusRemovalMode', 'AutoDetectAuraMode'}), HealerSettingsMenuItem)
+
+    --[[local healSettingsItem = GambitSettingsMenuItem.compact(trust, trustSettings, trustSettingsMode, trustModeSettings, 'CureSettings', S{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Ally }, function(targets)
+        local sections = L{
+            L(trust:get_job():get_spells(function(spellId)
+                local spell = res.spells[spellId]
+                if spell then
+                    local valid_targets = S(spell.targets)
+                    if spell.en:contains('Absorb') then
+                        valid_targets = S{ 'Self' }
+                    end
+                    local status = buff_util.buff_for_spell(spell.id)
+                    return status ~= nil and not buff_util.is_debuff(status.id) and spell.skill ~= 44 and targets:intersection(valid_targets):length() > 0
+                end
+                return false
+            end):map(function(spellId)
+                return buffItemMapper:map(Spell.new(res.spells[spellId].en))
+            end)):unique(function(spell)
+                return spell:get_name()
+            end),
+            L(trust:get_job():get_job_abilities(function(jobAbilityId)
+                local jobAbility = res.job_abilities[jobAbilityId]
+                if jobAbility then
+                    return buff_util.buff_for_job_ability(jobAbility.id) ~= nil and targets:intersection(S(jobAbility.targets)):length() > 0
+                end
+                return false
+            end):map(function(jobAbilityId)
+                return jobAbilityItemMapper:map(JobAbility.new(res.job_abilities[jobAbilityId].en))
+            end)),
+        }
+        return sections
+    end, L{ Condition.TargetType.Self, Condition.TargetType.Ally }, L{'AutoHealMode', 'AutoStatusRemovalMode', 'AutoDetectAuraMode'}, "Heal", "Heals", function(_)
+        return false
+    end, function(ability)
+        return ability:get_localized_name()
+    end, S{ 'Reaction' })]]
+    self:setDefaultGambitTags(L{'Heals'})
+
+    self:getDisposeBag():add(self:onGambitChanged():addAction(function(newGambit, oldGambit)
+        if newGambit:getAbility() ~= oldGambit:getAbility() then
+            newGambit.conditions = newGambit.conditions:filter(function(condition)
+                return condition:is_editable()
+            end)
+            newGambit.conditions_target = newGambit:getAbilityTarget()
+            local conditions = trust:role_with_type("healer"):get_default_conditions(newGambit)
+            for condition in conditions:it() do
+                condition:set_editable(false)
+                newGambit:addCondition(condition)
+            end
+        end
+    end), self:onGambitChanged())
+
+    self:setConfigKey("heals")
+
+    self:setChildMenuItem("Blacklist", self:getBlacklistMenuItem())
+
+    return self
+end
+
+function HealerSettingsMenuItem:getBlacklistMenuItem()
+    local statusRemovalMenuItem = MenuItem.new(L{
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
+        ButtonItem.default('Clear All', 18),
+    }, {},
+        function()
+            local cureSettings = self.trustSettings:getSettings()[self.trustSettingsMode.value].CureSettings
+
+            local configItem = MultiPickerConfigItem.new("StatusRemovalBlacklist", cureSettings.StatusRemovals.Blacklist, buff_util.get_all_debuffs():sort(), function(statusEffect)
+                return i18n.resource('buffs', 'en', statusEffect):gsub("^%l", string.upper)
+            end)
+            configItem:setNumItemsRequired(0)
+
+            local blacklistPickerView = FFXIPickerView.withConfig(configItem, true)
+
+            blacklistPickerView:getDisposeBag():add(blacklistPickerView:on_pick_items():addAction(function(_, selectedDebuffs)
+                cureSettings.StatusRemovals.Blacklist = selectedDebuffs
+                self.trustSettings:saveSettings(true)
+                addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I won't remove these debuffs anymore!")
+            end), blacklistPickerView:on_pick_items())
+
+            return blacklistPickerView
+        end, "Blacklist", "Choose status ailments to ignore.")
+    return statusRemovalMenuItem
+end
+
+
+--[[function HealerSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings)
     local menuItems = L{
         ButtonItem.default('Config', 18),
     }
@@ -23,6 +126,7 @@ function HealerSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
 
     local self = setmetatable(MenuItem.new(menuItems, {}, nil, "Healing", "Configure healing and status removal settings."), HealerSettingsMenuItem)
 
+    self.trust = trust
     self.trustSettings = trustSettings
     self.trustSettingsMode = trustSettingsMode
     self.trustModeSettings = trustModeSettings
@@ -194,6 +298,6 @@ function HealerSettingsMenuItem:getGambitsMenuItem()
         return gambitSettingsEditor
     end, "Gambits", "Healer gambits")
     return gambitsMenuItem
-end
+end]]
 
 return HealerSettingsMenuItem

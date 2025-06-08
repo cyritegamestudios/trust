@@ -57,6 +57,9 @@ function Job:get_conditions_for_ability(ability)
             conditions = conditions + JobAbility.new(job_ability_name):get_conditions()
         end
     end
+    if ability.get_mp_cost ~= nil then
+        conditions:append(MinManaPointsCondition.new(ability:get_mp_cost(), windower.ffxi.get_player().index))
+    end
     return conditions
 end
 

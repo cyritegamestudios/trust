@@ -24,7 +24,7 @@ return {
                 Gambit.new("Self", L{GambitCondition.new(MaxManaPointsPercentCondition.new(20), "Self"), GambitCondition.new(NotCondition.new(L{HasBuffCondition.new("weakness")}), "Self"), GambitCondition.new(ModeCondition.new("AutoConvertMode", "Auto"), "Self"), GambitCondition.new(JobAbilityRecastReadyCondition.new('Convert'), "Self")}, Spell.new("Cure IV", L{ 'Convert'}), "Self", L{})
             },
             Gambits = L{
-                Gambit.new("Enemy", L{GambitCondition.new(MeleeAccuracyCondition.new(75, "<="), "Self"), GambitCondition.new(MainJobCondition.new("RDM"), "Self"), GambitCondition.new(NumResistsCondition.new("Distract", "<", 3), "Enemy"), GambitCondition.new(NumResistsCondition.new("Distract II", "<", 3), "Enemy"), GambitCondition.new(NumResistsCondition.new("Distract III", "<", 3), "Enemy")}, Spell.new("Distract III", L{}, L{}), "Self", L{}),
+                Gambit.new("Enemy", L{GambitCondition.new(NotCondition.new(L{HasDebuffCondition.new("Evasion Down")}), GambitCondition.new(MeleeAccuracyCondition.new(75, "<="), "Self"), GambitCondition.new(MainJobCondition.new("RDM"), "Self"), GambitCondition.new(NumResistsCondition.new("Distract", "<", 3), "Enemy"), GambitCondition.new(NumResistsCondition.new("Distract II", "<", 3), "Enemy"), GambitCondition.new(NumResistsCondition.new("Distract III", "<", 3), "Enemy")}, Spell.new("Distract III", L{}, L{}), "Self", L{}),
                 Gambit.new("Self", L{GambitCondition.new(ModeCondition.new("AutoFoodMode", "Auto"), "Self"), GambitCondition.new(NotCondition.new(L{HasBuffCondition.new("Food")}), "Self"), GambitCondition.new(MainJobCondition.new("RDM"), "Self")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"food"}),
             }
         },
@@ -33,12 +33,13 @@ return {
             }
         },
         CureSettings = {
-            Thresholds = {
-                ["Cure IV"] = 1500,
-                Emergency = 35,
-                Default = 78,
-                ["Cure II"] = 0,
-                ["Cure III"] = 600
+            Gambits = L{
+                Gambit.new("Self", L{GambitCondition.new(HitPointsPercentRangeCondition.new(1, 50), "Self")}, Spell.new("Cure IV", L{}, L{}, nil, L{}), "Self", L{}, true),
+                Gambit.new("Self", L{GambitCondition.new(HitPointsPercentRangeCondition.new(1, 60), "Self")}, Spell.new("Cure III", L{}, L{}, nil, L{}), "Self", L{}, true),
+                Gambit.new("Self", L{GambitCondition.new(HitPointsPercentRangeCondition.new(1, 72), "Self")}, Spell.new("Cure II", L{}, L{}, nil, L{}), "Self", L{}, true),
+                Gambit.new("Ally", L{GambitCondition.new(HitPointsPercentRangeCondition.new(1, 52), "Ally")}, Spell.new("Cure IV", L{}, L{}, nil, L{}), "Ally", L{}, true),
+                Gambit.new("Ally", L{GambitCondition.new(HitPointsPercentRangeCondition.new(1, 62), "Ally")}, Spell.new("Cure III", L{}, L{}, nil, L{}), "Ally", L{}, true),
+                Gambit.new("Ally", L{GambitCondition.new(HitPointsPercentRangeCondition.new(1, 72), "Ally")}, Spell.new("Cure II", L{}, L{}, nil, L{}), "Ally", L{}, true)
             },
             MinNumAOETargets = 3,
             Delay = 2

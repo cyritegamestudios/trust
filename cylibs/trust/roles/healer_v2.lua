@@ -71,11 +71,10 @@ end
 function Healer:set_heal_settings(heal_settings)
     self.heal_settings = heal_settings
 
-    local gambits = heal_settings.Gambits:map(function(gambit)
-        return gambit:copy()
-    end)
-    for gambit in gambits:it() do
-        gambit:getAbility():set_requires_all_job_abilities(false)
+    for gambit in heal_settings.Gambits:it() do
+        if gambit:getAbility().set_requires_all_job_abilities ~= nil then
+            gambit:getAbility():set_requires_all_job_abilities(false)
+        end
 
         gambit.conditions = gambit.conditions:filter(function(condition)
             return condition:is_editable()
@@ -87,9 +86,9 @@ function Healer:set_heal_settings(heal_settings)
         end
     end
 
-    healer_gambits = gambits -- FIXME: unhack this
+    --healer_gambits = gambits -- FIXME: unhack this
 
-    self:set_gambit_settings({ Gambits = gambits })
+    self:set_gambit_settings(heal_settings)
 end
 
 function Healer:get_default_conditions(gambit)
@@ -100,7 +99,8 @@ function Healer:get_default_conditions(gambit)
         conditions:append(GambitCondition.new(MaxDistanceCondition.new(gambit:getAbility():get_range()), GambitTarget.TargetType.Ally))
     end
 
-    local ability_conditions = self.job:get_conditions_for_ability(gambit:getAbility())
+    local ability_conditions = (L{} + self.job:get_conditions_for_ability(gambit:getAbility()))
+
     return conditions + ability_conditions:map(function(condition)
         return GambitCondition.new(condition, GambitTarget.TargetType.Self)
     end)

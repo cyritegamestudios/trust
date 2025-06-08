@@ -15,12 +15,17 @@ return {
         },
         StrategemCooldown = 33,
         CureSettings = {
-            Thresholds = {
-                ["Cure IV"] = 1200,
-                Emergency = 25,
-                Default = 78,
-                ["Cure II"] = 0,
-                ["Cure III"] = 500
+            Gambits = L{
+                Gambit.new("Self", L{GambitCondition.new(ClusterHitPointsPercentRangeCondition.new(1, 60, 2), "Self")}, Spell.new("Cure IV", L{ "Accession" }, L{}, nil, L{}), "Self", L{}, true),
+                Gambit.new("Self", L{GambitCondition.new(ClusterHitPointsPercentRangeCondition.new(1, 72, 2), "Self")}, Spell.new("Cure III", L{ "Accession" }, L{}, nil, L{}), "Self", L{}, true),
+                Gambit.new("Ally", L{GambitCondition.new(ClusterHitPointsPercentRangeCondition.new(1, 60, 2), "Ally")}, Spell.new("Cure IV", L{ "Accession" }, L{}, nil, L{}), "Ally", L{}, true),
+                Gambit.new("Ally", L{GambitCondition.new(ClusterHitPointsPercentRangeCondition.new(1, 72, 2), "Ally")}, Spell.new("Cure III", L{ "Accession" }, L{}, nil, L{}), "Ally", L{}, true),
+                Gambit.new("Self", L{GambitCondition.new(HitPointsPercentRangeCondition.new(1, 50), "Self")}, Spell.new("Cure IV", L{}, L{}, nil, L{}), "Self", L{}, true),
+                Gambit.new("Self", L{GambitCondition.new(HitPointsPercentRangeCondition.new(1, 60), "Self")}, Spell.new("Cure III", L{}, L{}, nil, L{}), "Self", L{}, true),
+                Gambit.new("Self", L{GambitCondition.new(HitPointsPercentRangeCondition.new(1, 72), "Self")}, Spell.new("Cure II", L{}, L{}, nil, L{}), "Self", L{}, true),
+                Gambit.new("Ally", L{GambitCondition.new(HitPointsPercentRangeCondition.new(1, 52), "Ally")}, Spell.new("Cure IV", L{}, L{}, nil, L{}), "Ally", L{}, true),
+                Gambit.new("Ally", L{GambitCondition.new(HitPointsPercentRangeCondition.new(1, 62), "Ally")}, Spell.new("Cure III", L{}, L{}, nil, L{}), "Ally", L{}, true),
+                Gambit.new("Ally", L{GambitCondition.new(HitPointsPercentRangeCondition.new(1, 72), "Ally")}, Spell.new("Cure II", L{}, L{}, nil, L{}), "Ally", L{}, true)
             },
             Delay = 2,
             StatusRemovals = {

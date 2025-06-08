@@ -8,6 +8,7 @@ local Dancer = setmetatable({}, {__index = Job })
 Dancer.__index = Dancer
 
 local buff_util = require('cylibs/util/buff_util')
+local ConditionalCondition = require('cylibs/conditions/conditional')
 local cure_util = require('cylibs/util/cure_util')
 
 -------
@@ -155,6 +156,27 @@ function Dancer:can_perform_waltz(waltz_name)
         MinTacticalPointsCondition.new(res.job_abilities:with('en', waltz_name).tp_cost),
     }
     return Condition.check_conditions(conditions, windower.ffxi.get_player().index)
+end
+
+-------
+-- Returns a list of conditions for an ability.
+-- @tparam Spell|JobAbility ability The ability
+-- @treturn list List of conditions
+function Dancer:get_conditions_for_ability(ability)
+    local conditions = Job.get_conditions_for_ability(self, ability)
+
+    local job_ability = res.job_abilities[ability:get_ability_id()]
+    if job_ability then
+        local tp_cost = job_ability.tp_cost
+        if tp_cost and tp_cost > 0 then
+            conditions:append(ConditionalCondition.new(L{ MinTacticalPointsCondition.new(tp_cost), HasBuffCondition.new('Trance') }, Condition.LogicalOperator.Or))
+        end
+        if job_ability.type == 'Waltz' then
+            conditions:append(NotCondition.new(L{ HasBuffCondition.new('Saber Dance') }))
+        end
+    end
+
+    return conditions
 end
 
 return Dancer

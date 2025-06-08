@@ -1164,6 +1164,39 @@ function Migration_v32:getDescription()
     return "Updating song config."
 end
 
+---------------------------
+-- Adding healing gambits.
+-- @class module
+-- @name Migration_v33
+
+local Migration_v33 = setmetatable({}, { __index = Migration })
+Migration_v33.__index = Migration_v33
+Migration_v33.__class = "Migration_v33"
+
+function Migration_v33.new()
+    local self = setmetatable(Migration.new(), Migration_v33)
+    return self
+end
+
+function Migration_v33:shouldPerform(trustSettings, _, _)
+    return trustSettings:getDefaultSettings().Default.CureSettings ~= nil
+end
+
+function Migration_v33:perform(trustSettings, _, _)
+    local defaultSettings = T(trustSettings:getDefaultSettings()):clone().Default
+    local modeNames = list.subtract(L(T(trustSettings:getSettings()):keyset()), L { 'Version', 'Migrations' })
+    for modeName in modeNames:it() do
+        local cureSettings = trustSettings:getSettings()[modeName].CureSettings
+        --if cureSettings.Gambits == nil then
+            cureSettings.Gambits = defaultSettings.CureSettings.Gambits
+        --end
+    end
+end
+
+function Migration_v33:getDescription()
+    return "Adding healing gambits."
+end
+
 return {
     Migration_v1 = Migration_v1,
     Migration_v2 = Migration_v2,
@@ -1196,5 +1229,6 @@ return {
     Migration_v30 = Migration_v30,
     Migration_v31 = Migration_v31,
     Migration_v32 = Migration_v32,
+    Migration_v33 = Migration_v33,
 }
 
