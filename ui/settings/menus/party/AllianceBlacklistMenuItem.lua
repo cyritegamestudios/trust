@@ -43,7 +43,6 @@ function AllianceBlacklistMenuItem.new(alliance)
 
         local roleSettingsEditor = ConfigEditor.new(nil, roleSettings, roleConfigItems, infoView, nil, showMenu)
         roleSettingsEditor:onConfigChanged():addAction(function(newSettings)
-            print('here')
             for role in roles:it() do
                 local key = role:get_type()
                 print(key, newSettings[key])

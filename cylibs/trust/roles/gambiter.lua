@@ -73,9 +73,6 @@ function Gambiter:on_add()
         if not self:is_enabled() then
             return
         end
-        if self:get_type() == "healer" then
-            --print('checking healing', self.job.jobNameShort, self:get_priority())
-        end
         self:check_gambits()
     end, self:get_priority() or ActionPriority.default, self:get_type())
 

@@ -233,7 +233,7 @@ end
 -- @return The ID of the action.
 --
 -- @see isActionCallable
-function Luvent:addAction(actionToAdd, priority, debugKey)
+function Luvent:addAction(actionToAdd, priority)
     assert(isActionCallable(actionToAdd) == true)
     -- We do not allow adding an action more than once to an event.
     if self:hasAction(actionToAdd) then return end

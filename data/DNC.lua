@@ -4,8 +4,8 @@ return {
     Default = {
         CureSettings = {
             Gambits = L{
-                Gambit.new("Self", L{GambitCondition.new(ClusterHitPointsPercentRangeCondition.new(1, 65, 2), "Self")}, JobAbility.new("Divine Waltz II"), "Self", L{}, true),
-                Gambit.new("Self", L{GambitCondition.new(ClusterHitPointsPercentRangeCondition.new(1, 72, 2), "Self")}, JobAbility.new("Divine Waltz"), "Self", L{}, true),
+                Gambit.new("Self", L{GambitCondition.new(ClusterHitPointsPercentRangeCondition.new(1, 65, 3), "Self")}, JobAbility.new("Divine Waltz II"), "Self", L{}, true),
+                Gambit.new("Self", L{GambitCondition.new(ClusterHitPointsPercentRangeCondition.new(1, 72, 3), "Self")}, JobAbility.new("Divine Waltz"), "Self", L{}, true),
                 Gambit.new("Self", L{GambitCondition.new(HitPointsPercentRangeCondition.new(1, 60), "Self")}, JobAbility.new("Curing Waltz V"), "Self", L{}, true),
                 Gambit.new("Self", L{GambitCondition.new(HitPointsPercentRangeCondition.new(1, 65), "Self")}, JobAbility.new("Curing Waltz IV"), "Self", L{}, true),
                 Gambit.new("Self", L{GambitCondition.new(HitPointsPercentRangeCondition.new(1, 72), "Self")}, JobAbility.new("Curing Waltz III"), "Self", L{}, true),

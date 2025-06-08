@@ -42,7 +42,7 @@ function Healer:on_add()
         local party_member = self:get_alliance():get_alliance_member(mob_id)
         if party_member then
             if hpp < 60 then -- FIXME: this is hacky now
-                self:check_gambits()
+                self:check_gambits(nil, nil, true)
             end
         end
     end), WindowerEvents.CharacterUpdate)
