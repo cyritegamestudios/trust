@@ -232,19 +232,25 @@ end
 
 -- // trust debug
 function GeneralTrustCommands:handle_debug()
+    local heal_condition = ClusterHitPointsPercentRangeCondition.new(1, 92, 2)
+
+    for party_member in player.party:get_party_members(true):it() do
+        print('checking', party_member:get_name(), Condition.check_conditions(L{ heal_condition }, party_member:get_mob().index))
+    end
+
     --local EquipSetAction = require('cylibs/actions/equip_set')
     --local EquipSet = require('cylibs/inventory/equipment/equip_set')
-    local EquipSet = require('cylibs/battle/equip_set')
+    --local EquipSet = require('cylibs/battle/equip_set')
     --local EquipSets = require('settings/settings').EquipSet
 
-    local equipSet = EquipSet.new('test_set')
-    if Condition.check_conditions(equipSet:get_conditions(), windower.ffxi.get_player().index) then
-        print('is valid')
-        local action_queue = ActionQueue.new(nil, false, 5)
-        action_queue:push_action(equipSet:to_action(windower.ffxi.get_player().index), true)
-    else
-        print('is not valid')
-    end
+    --local equipSet = EquipSet.new('test_set')
+    --if Condition.check_conditions(equipSet:get_conditions(), windower.ffxi.get_player().index) then
+    --print('is valid')
+    --local action_queue = ActionQueue.new(nil, false, 5)
+    --action_queue:push_action(equipSet:to_action(windower.ffxi.get_player().index), true)
+    --else
+    --print('is not valid')
+    --end
 
     --[[local Inventory = require('cylibs/inventory/inventory')
     local inventory = Inventory.new()
@@ -257,6 +263,6 @@ function GeneralTrustCommands:handle_debug()
     --print(inventory:find(23691))
 
     return true, nil
-end
+    end
 
 return GeneralTrustCommands

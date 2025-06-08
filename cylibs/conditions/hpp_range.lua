@@ -33,7 +33,7 @@ function HitPointsPercentRangeCondition:get_config_items()
 end
 
 function HitPointsPercentRangeCondition:tostring()
-    return 'HP >= '..self.min_hpp..' % and HP <= '..self.max_hpp..' %'
+    return 'HP >= '..self.min_hpp..'% and HP <= '..self.max_hpp..'%'
 end
 
 function HitPointsPercentRangeCondition.description()

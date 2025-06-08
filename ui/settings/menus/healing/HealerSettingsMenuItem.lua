@@ -1,102 +1,57 @@
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
-local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
-local ConfigItem = require('ui/settings/editors/config/ConfigItem')
-local DisposeBag = require('cylibs/events/dispose_bag')
+local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
-local IndexPath = require('cylibs/ui/collection_view/index_path')
+local GambitEditorStyle = require('ui/settings/menus/gambits/GambitEditorStyle')
+local GambitTarget = require('cylibs/gambits/gambit_target')
 local MenuItem = require('cylibs/ui/menu/menu_item')
-local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 
-local HealerSettingsMenuItem = setmetatable({}, {__index = MenuItem })
+local GambitSettingsMenuItem = require('ui/settings/menus/gambits/GambitSettingsMenuItem')
+local HealerSettingsMenuItem = setmetatable({}, {__index = GambitSettingsMenuItem })
 HealerSettingsMenuItem.__index = HealerSettingsMenuItem
 
+
 function HealerSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings)
-    local menuItems = L{
-        ButtonItem.default('Config', 18),
-    }
-    if trust:role_with_type("statusremover") then
-        menuItems:append(ButtonItem.default('Blacklist', 18))
-    end
-    menuItems:append(ButtonItem.localized("Modes", i18n.translate("Modes")))
+    local editorStyle = GambitEditorStyle.new(function(gambits)
+        local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit)
+            return gambit:tostring()
+        end)
+        return L{ configItem }
+    end, FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge, "Heal", "Heals", nil, function(menuItemName)
+        return L{ 'Add', 'Remove', 'Edit', 'Move Up', 'Move Down', 'Reset', 'Modes', 'Shortcuts', 'Blacklist' }:contains(menuItemName)
+    end)
+    editorStyle:setEditPermissions(
+        GambitEditorStyle.Permissions.Edit,
+        GambitEditorStyle.Permissions.Conditions
+    )
 
-    local self = setmetatable(MenuItem.new(menuItems, {}, nil, "Healing", "Configure healing and status removal settings."), HealerSettingsMenuItem)
+    local self = setmetatable(GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, 'CureSettings', S{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Ally }, function(targets)
+        return L{}
+    end, L{ Condition.TargetType.Self, Condition.TargetType.Ally }, editorStyle, L{'AutoHealMode', 'AutoStatusRemovalMode', 'AutoDetectAuraMode'}, function(category)
+        return L{ "Heals" }:contains(category:getName())
+    end), HealerSettingsMenuItem)
 
-    self.trustSettings = trustSettings
-    self.trustSettingsMode = trustSettingsMode
-    self.trustModeSettings = trustModeSettings
-    self.showStatusRemovals = trust:role_with_type("statusremover") ~= nil
-    self.dispose_bag = DisposeBag.new()
+    self:setDefaultGambitTags(L{'Heals'})
 
-    self:reloadSettings()
+    self:getDisposeBag():add(self:onGambitChanged():addAction(function(newGambit, oldGambit)
+        if newGambit:getAbility() ~= oldGambit:getAbility() then
+            newGambit.conditions = newGambit.conditions:filter(function(condition)
+                return condition:is_editable()
+            end)
+            newGambit.conditions_target = newGambit:getAbilityTarget()
+            local conditions = trust:role_with_type("healer"):get_default_conditions(newGambit)
+            for condition in conditions:it() do
+                condition:set_editable(false)
+                newGambit:addCondition(condition)
+            end
+        end
+    end), self:onGambitChanged())
+
+    self:setConfigKey("heals")
+
+    self:setChildMenuItem("Blacklist", self:getBlacklistMenuItem())
 
     return self
-end
-
-function HealerSettingsMenuItem:destroy()
-    MenuItem.destroy(self)
-
-    self.dispose_bag:destroy()
-
-    self.viewFactory = nil
-end
-
-function HealerSettingsMenuItem:reloadSettings()
-    self:setChildMenuItem("Config", self:getConfigMenuItem())
-    if self.trustSettings:getSettings().Default.CureSettings.StatusRemovals ~= nil then
-        self:setChildMenuItem("Blacklist", self:getBlacklistMenuItem())
-    end
-    self:setChildMenuItem("Modes", self:getModesMenuItem())
-end
-
-function HealerSettingsMenuItem:getConfigMenuItem()
-    local curesMenuItem = MenuItem.new(L{
-        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
-        ButtonItem.default('Reset', 18),
-    }, L{}, function(menuArgs, infoView)
-        local cureSettings = self.trustSettings:getSettings()[self.trustSettingsMode.value].CureSettings
-
-        local configItems = L{
-            ConfigItem.new('Default', 0, 100, 1, function(value) return value.." %" end, "Cure Threshold"),
-            ConfigItem.new('Emergency', 0, 100, 1, function(value) return value.." %" end, "Emergency Cure Threshold"),
-        }
-
-        local cureAbilityConfigItems = L{}
-        local settingsKeys = list.subtract(L(T(cureSettings.Thresholds):keyset()), L{'Default', 'Emergency'})
-        for settingsKey in settingsKeys:it() do
-            cureAbilityConfigItems:append(ConfigItem.new(settingsKey, 0, 2000, 100, function(value) return value.."" end))
-        end
-
-        cureAbilityConfigItems:sort(function(configItem1, configItem2)
-            return configItem1:getDescription() < configItem2:getDescription()
-        end)
-
-        local cureConfigEditor = ConfigEditor.new(self.trustSettings, cureSettings.Thresholds, configItems:extend(cureAbilityConfigItems))
-
-        self.dispose_bag:add(cureConfigEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(cursorIndexPath)
-            local configItem = cureConfigEditor:getDataSource():itemAtIndexPath(IndexPath.new(cursorIndexPath.section, 1))
-            if configItem then
-                if cursorIndexPath.section == 1 then
-                    infoView:setDescription("Cure when target HP is <= "..configItem:getCurrentValue().."% and AutoHealMode is set to Auto.")
-                elseif cursorIndexPath.section == 2 then
-                    infoView:setDescription("Cure when target HP is <= "..configItem:getCurrentValue().."% and AutoHealMode is set to Emergency or to ignore cure cooldown when AutoHealMode is set to Auto.")
-                else
-                    local description = "Use when: HP missing is >= "..configItem:getCurrentValue()
-                    if not S{ 5, configItems:length() }:contains(cursorIndexPath.section) then
-                        local nextConfigItem = cureConfigEditor:getDataSource():itemAtIndexPath(cureConfigEditor:getDataSource():getNextIndexPath(cursorIndexPath))
-                        description = description.." and <= "..nextConfigItem:getCurrentValue()
-                    end
-                    description = description.."."
-                    infoView:setDescription(description)
-                end
-            else
-                infoView:setDescription("Customize thresholds for cures.")
-            end
-        end))
-
-        return cureConfigEditor
-    end, "Cures", "Customize thresholds for cures.")
-    return curesMenuItem
 end
 
 function HealerSettingsMenuItem:getBlacklistMenuItem()
@@ -104,30 +59,25 @@ function HealerSettingsMenuItem:getBlacklistMenuItem()
         ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
         ButtonItem.default('Clear All', 18),
     }, {},
-    function()
-        local cureSettings = self.trustSettings:getSettings()[self.trustSettingsMode.value].CureSettings
+        function()
+            local cureSettings = self.trustSettings:getSettings()[self.trustSettingsMode.value].CureSettings
 
-        local configItem = MultiPickerConfigItem.new("StatusRemovalBlacklist", cureSettings.StatusRemovals.Blacklist, buff_util.get_all_debuffs():sort(), function(statusEffect)
-            return i18n.resource('buffs', 'en', statusEffect):gsub("^%l", string.upper)
-        end)
-        configItem:setNumItemsRequired(0)
+            local configItem = MultiPickerConfigItem.new("StatusRemovalBlacklist", cureSettings.StatusRemovals.Blacklist, buff_util.get_all_debuffs():sort(), function(statusEffect)
+                return i18n.resource('buffs', 'en', statusEffect):gsub("^%l", string.upper)
+            end)
+            configItem:setNumItemsRequired(0)
 
-        local blacklistPickerView = FFXIPickerView.withConfig(configItem, true)
+            local blacklistPickerView = FFXIPickerView.withConfig(configItem, true)
 
-        blacklistPickerView:getDisposeBag():add(blacklistPickerView:on_pick_items():addAction(function(_, selectedDebuffs)
-            cureSettings.StatusRemovals.Blacklist = selectedDebuffs
-            self.trustSettings:saveSettings(true)
-            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I won't remove these debuffs anymore!")
-        end), blacklistPickerView:on_pick_items())
+            blacklistPickerView:getDisposeBag():add(blacklistPickerView:on_pick_items():addAction(function(_, selectedDebuffs)
+                cureSettings.StatusRemovals.Blacklist = selectedDebuffs
+                self.trustSettings:saveSettings(true)
+                addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I won't remove these debuffs anymore!")
+            end), blacklistPickerView:on_pick_items())
 
-        return blacklistPickerView
-    end, "Blacklist", "Choose status ailments to ignore.")
+            return blacklistPickerView
+        end, "Blacklist", "Choose status ailments to ignore.")
     return statusRemovalMenuItem
-end
-
-function HealerSettingsMenuItem:getModesMenuItem()
-    return ModesMenuItem.new(self.trustModeSettings, "Set modes for healing and status removals.",
-            L{'AutoHealMode', 'AutoStatusRemovalMode', 'AutoDetectAuraMode'})
 end
 
 return HealerSettingsMenuItem

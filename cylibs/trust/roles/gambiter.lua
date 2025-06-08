@@ -74,7 +74,7 @@ function Gambiter:on_add()
             return
         end
         self:check_gambits()
-    end)
+    end, self:get_priority() or ActionPriority.default, self:get_type())
 
     self.timer:start()
 end
@@ -107,7 +107,6 @@ function Gambiter:check_gambits(gambits, param, ignore_delay)
             break
         end
     end
-
     logger.notice(self.__class, 'check_gambits', self:get_type(), 'checked', gambits:length(), 'gambits')
 
     self.last_gambit_time = os.time() -- FIXME: should i really add this? Otherwise cooldown isn't respected
@@ -200,6 +199,10 @@ end
 
 function Gambiter:get_action_identifier()
     return self:get_type()..'_action'
+end
+
+function Gambiter:get_priority()
+    return ActionPriority.default
 end
 
 function Gambiter:set_gambit_settings(gambit_settings)

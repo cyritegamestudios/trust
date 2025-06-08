@@ -312,13 +312,12 @@ function GambitSettingsMenuItem:getAddAbilityMenuItem()
         abilityTargetMenuItem:setChildMenuItem(targetType, newAbilityMenuItem(targetType))
     end
 
-    local addGambitMenuItem = MenuItem.new(L{
-        ButtonItem.default('New', 18),
-        ButtonItem.default('Browse', 18),
-    }, {
-        New = abilityTargetMenuItem,
-        Browse = self:getGambitLibraryMenuItem()
-    }, nil, self:getTitleText(), "Add a new "..self.editorConfig:getDescription()..".")
+    local addGambitMenuItem = MenuItem.new(L{}, {}, nil, self:getTitleText(), "Add a new "..self.editorConfig:getDescription()..".")
+
+    if self.editorConfig:hasEditPermission(self.selectedGambit, GambitEditorStyle.Permissions.New) then
+        addGambitMenuItem:setChildMenuItem("New", abilityTargetMenuItem)
+    end
+    addGambitMenuItem:setChildMenuItem("Browse", self:getGambitLibraryMenuItem())
 
     return addGambitMenuItem
 end

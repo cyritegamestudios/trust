@@ -5,7 +5,7 @@ DancerTrust.__index = DancerTrust
 local Buffer = require('cylibs/trust/roles/buffer')
 local Dancer = require('cylibs/entity/jobs/DNC')
 local DisposeBag = require('cylibs/events/dispose_bag')
-local Healer = require('cylibs/trust/roles/healer')
+local Healer = require('cylibs/trust/roles/healer_v2')
 local Puller = require('cylibs/trust/roles/puller')
 local StatusRemover = require('cylibs/trust/roles/status_remover')
 
@@ -13,7 +13,7 @@ function DancerTrust.new(settings, action_queue, battle_settings, trust_settings
 	local job = Dancer.new(trust_settings.CureSettings)
 	local roles = S{
 		Buffer.new(action_queue, trust_settings.BuffSettings, state.AutoBuffMode, job),
-		Healer.new(action_queue, job),
+		Healer.new(action_queue, trust_settings.CureSettings, job),
 		Puller.new(action_queue, trust_settings.PullSettings, job),
 		StatusRemover.new(action_queue, job),
 	}
@@ -34,10 +34,6 @@ end
 
 function DancerTrust:on_init()
 	Trust.on_init(self)
-
-	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
-		self:get_job():set_cure_settings(new_trust_settings.CureSettings)
-	end)
 
 	self:get_party():get_player():on_gain_buff():addAction(function(_, buff_id)
 		local buff_name = buff_util.buff_name(buff_id)
