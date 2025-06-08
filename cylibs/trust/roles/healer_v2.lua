@@ -38,15 +38,6 @@ end
 function Healer:on_add()
     Gambiter.on_add(self)
 
-    self.dispose_bag:add(WindowerEvents.CharacterUpdate:addAction(function(mob_id, name, hp, hpp, mp, mpp, tp, main_job_id, sub_job_id)
-        local party_member = self:get_alliance():get_alliance_member(mob_id)
-        if party_member then
-            if hpp < 60 then -- FIXME: this is hacky now
-                self:check_gambits(nil, nil, true)
-            end
-        end
-    end), WindowerEvents.CharacterUpdate)
-
     self.healer_tracker = HealerTracker.new(self)
     self.healer_tracker:monitor()
 
