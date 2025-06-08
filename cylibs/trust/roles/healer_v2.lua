@@ -83,6 +83,7 @@ function Healer:set_heal_settings(heal_settings)
         for condition in conditions:it() do
             condition:set_editable(false)
             gambit:addCondition(condition)
+            print('order is now', gambit.conditions:map(function(c) return c:tostring()  end))
         end
     end
 

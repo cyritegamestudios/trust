@@ -62,6 +62,10 @@ function Trust:init()
 		if puller then
 			puller:set_pull_settings(new_trust_settings.PullSettings)
 		end
+		local healer = self:role_with_type("healer")
+		if healer then
+			healer:set_heal_settings(new_trust_settings.CureSettings)
+		end
 
 		self.gambits = new_trust_settings.GambitSettings.Default or L{}
 	end

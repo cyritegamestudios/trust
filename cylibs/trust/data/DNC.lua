@@ -35,10 +35,6 @@ end
 function DancerTrust:on_init()
 	Trust.on_init(self)
 
-	self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
-		self:get_job():set_cure_settings(new_trust_settings.CureSettings)
-	end)
-
 	self:get_party():get_player():on_gain_buff():addAction(function(_, buff_id)
 		local buff_name = buff_util.buff_name(buff_id)
 		if buff_name == 'Saber Dance' then

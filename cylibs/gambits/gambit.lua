@@ -132,8 +132,12 @@ function Gambit:getConditionsDescription()
     for condition in self:getConditions():it() do
         conditions_by_type[condition:getTargetType() or self:getConditionsTarget()]:append(condition)
     end
+    local ordered_types = L{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Ally, GambitTarget.TargetType.Enemy, GambitTarget.TargetType.CurrentTarget }
+    ordered_types = L{ ordered_types:remove(ordered_types:indexOf(self:getAbilityTarget())) } + ordered_types
+    
     local descriptions = L{}
-    for type, conditions in pairs(conditions_by_type) do
+    for type in ordered_types:it() do
+        local conditions = conditions_by_type[type]
         if conditions:length() > 0 then
             descriptions:append(string.format("%s: %s", type, localization_util.commas(conditions:map(function(c) return c:tostring() end))))
         end

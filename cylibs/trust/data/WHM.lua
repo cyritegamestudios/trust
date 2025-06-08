@@ -39,8 +39,6 @@ function WhiteMageTrust:on_init()
 	Trust.on_init(self)
 
 	self.dispose_bag:add(self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
-		self:get_job():set_cure_settings(new_trust_settings.CureSettings)
-
 		local debuffer = self:role_with_type("debuffer")
 		debuffer:set_debuff_settings(new_trust_settings.DebuffSettings)
 
