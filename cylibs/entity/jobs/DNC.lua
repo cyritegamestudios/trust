@@ -162,7 +162,7 @@ end
 -- Returns a list of conditions for an ability.
 -- @tparam Spell|JobAbility ability The ability
 -- @treturn list List of conditions
-function Dancer:get_conditions_for_ability(ability)
+--[[function Dancer:get_conditions_for_ability(ability)
     local conditions = Job.get_conditions_for_ability(self, ability)
 
     local job_ability = res.job_abilities[ability:get_ability_id()]
@@ -177,6 +177,6 @@ function Dancer:get_conditions_for_ability(ability)
     end
 
     return conditions
-end
+end]]
 
 return Dancer
