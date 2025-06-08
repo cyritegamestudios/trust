@@ -48,7 +48,7 @@ function Healer:get_cooldown()
     if state.AutoHealMode.value == 'Auto' then
         return 0.5
     else
-        return 3 -- FIXME: for emergency, I can either do this or I can append a HPP < X% condition to each gambit when AutoHealMode changes to Emergency
+        return 4 -- FIXME: for emergency, I can either do this or I can append a HPP < X% condition to each gambit when AutoHealMode changes to Emergency
     end
 end
 

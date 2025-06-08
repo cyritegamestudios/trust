@@ -45,7 +45,6 @@ function AllianceBlacklistMenuItem.new(alliance)
         roleSettingsEditor:onConfigChanged():addAction(function(newSettings)
             for role in roles:it() do
                 local key = role:get_type()
-                print(key, newSettings[key])
                 role:set_party_member_blacklist(newSettings[key])
             end
         end)

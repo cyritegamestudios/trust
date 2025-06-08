@@ -15,7 +15,7 @@ function ClusterHitPointsPercentRangeCondition.new(min_hpp, max_hpp, num_party_m
     local self = setmetatable(Condition.new(target_index), ClusterHitPointsPercentRangeCondition)
     self.min_hpp = min_hpp or 1
     self.max_hpp = max_hpp or 100
-    self.num_party_members = num_party_members or 2
+    self.num_party_members = num_party_members or 3
     self.include_alliance = include_alliance
     return self
 end
