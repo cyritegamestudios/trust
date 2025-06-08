@@ -23,7 +23,7 @@ function HealerSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
         end)
         return L{ configItem }
     end, FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge, "Heal", "Heals", nil, function(menuItemName)
-        return L{ 'Add', 'Edit', 'Move Up', 'Move Down', 'Reset', 'Modes', 'Shortcuts', 'Blacklist' }:contains(menuItemName)
+        return L{ 'Add', 'Remove', 'Edit', 'Move Up', 'Move Down', 'Reset', 'Modes', 'Shortcuts', 'Blacklist' }:contains(menuItemName)
     end)
     editorStyle:setEditPermissions(
         GambitEditorStyle.Permissions.Edit,
