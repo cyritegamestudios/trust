@@ -134,7 +134,7 @@ function Gambit:getConditionsDescription()
     end
     local ordered_types = L{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Ally, GambitTarget.TargetType.Enemy, GambitTarget.TargetType.CurrentTarget }
     ordered_types = L{ ordered_types:remove(ordered_types:indexOf(self:getAbilityTarget())) } + ordered_types
-    
+
     local descriptions = L{}
     for type in ordered_types:it() do
         local conditions = conditions_by_type[type]

@@ -1,11 +1,7 @@
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
-local DisposeBag = require('cylibs/events/dispose_bag')
-local IpcRelay = require('cylibs/messages/ipc/ipc_relay')
-local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
-local Whitelist = require('settings/settings').Whitelist
 
 local AllianceBlacklistMenuItem = setmetatable({}, {__index = MenuItem })
 AllianceBlacklistMenuItem.__index = AllianceBlacklistMenuItem
@@ -46,6 +42,14 @@ function AllianceBlacklistMenuItem.new(alliance)
         end
 
         local roleSettingsEditor = ConfigEditor.new(nil, roleSettings, roleConfigItems, infoView, nil, showMenu)
+        roleSettingsEditor:onConfigChanged():addAction(function(newSettings)
+            print('here')
+            for role in roles:it() do
+                local key = role:get_type()
+                print(key, newSettings[key])
+                role:set_party_member_blacklist(newSettings[key])
+            end
+        end)
         return roleSettingsEditor
     end, "Blacklist", "Choose party and alliance members to ignore.", false, function()
         return roles:length() > 0, "There are no roles that can be configured."

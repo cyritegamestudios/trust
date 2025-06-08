@@ -149,6 +149,9 @@ function PlayerMenuItem:getConfigMenuItem(roles)
         local roleSettingsEditor = ConfigEditor.new(nil, roleSettings, roleConfigItems, infoView, nil, showMenu)
 
         self.disposeBag:add(roleSettingsEditor:onConfigConfirm():addAction(function(newSettings, _)
+            for role in roles:it() do
+                role:set_party_member_blacklist(newSettings[role:get_type()])
+            end
             self.party:add_to_chat(self.party:get_player(), "Alright, I'll ignore these party and alliance members until the addon reloads!")
         end), roleSettingsEditor:onConfigConfirm())
 

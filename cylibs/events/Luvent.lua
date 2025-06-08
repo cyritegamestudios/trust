@@ -233,12 +233,15 @@ end
 -- @return The ID of the action.
 --
 -- @see isActionCallable
-function Luvent:addAction(actionToAdd)
+function Luvent:addAction(actionToAdd, priority, debugKey)
     assert(isActionCallable(actionToAdd) == true)
     -- We do not allow adding an action more than once to an event.
     if self:hasAction(actionToAdd) then return end
 
     local new = newAction(actionToAdd)
+    if type(priority) == 'number' then
+        new.priority = priority or 0
+    end
     table.insert(self.actions, new)
 
     return new.id
