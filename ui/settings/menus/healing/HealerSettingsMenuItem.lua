@@ -23,12 +23,18 @@ function HealerSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
         end)
         return L{ configItem }
     end, FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge, "Heal", "Heals", nil, function(menuItemName)
-        return L{ 'Edit', 'Move Up', 'Move Down', 'Reset', 'Modes', 'Shortcuts', 'Blacklist' }:contains(menuItemName)
+        return L{ 'Add', 'Edit', 'Move Up', 'Move Down', 'Reset', 'Modes', 'Shortcuts', 'Blacklist' }:contains(menuItemName)
     end)
+    editorStyle:setEditPermissions(
+        GambitEditorStyle.Permissions.Edit,
+        GambitEditorStyle.Permissions.Conditions
+    )
 
     local self = setmetatable(GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, 'CureSettings', S{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Ally }, function(targets)
         return L{}
-    end, L{ Condition.TargetType.Self, Condition.TargetType.Ally }, editorStyle, L{'AutoHealMode', 'AutoStatusRemovalMode', 'AutoDetectAuraMode'}), HealerSettingsMenuItem)
+    end, L{ Condition.TargetType.Self, Condition.TargetType.Ally }, editorStyle, L{'AutoHealMode', 'AutoStatusRemovalMode', 'AutoDetectAuraMode'}, function(category)
+        return L{ "Heals" }:contains(category:getName())
+    end), HealerSettingsMenuItem)
 
     --[[local healSettingsItem = GambitSettingsMenuItem.compact(trust, trustSettings, trustSettingsMode, trustModeSettings, 'CureSettings', S{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Ally }, function(targets)
         local sections = L{

@@ -13,6 +13,7 @@ GambitEditorStyle.Permissions = {
     None       = 0,
     Edit       = bit.lshift(1, 0),  -- 1
     Conditions = bit.lshift(1, 1),  -- 2
+    New        = bit.lshift(1, 2),  -- 8
 }
 
 
@@ -36,7 +37,8 @@ function GambitEditorStyle.new(configItemForGambits, viewSize, abilityCategory, 
     self.menuItemFilter = menuItemFilter or function(_) return true  end
     self:setEditPermissions(
         GambitEditorStyle.Permissions.Edit,
-        GambitEditorStyle.Permissions.Conditions
+        GambitEditorStyle.Permissions.Conditions,
+        GambitEditorStyle.Permissions.New
     )
     return self
 end
