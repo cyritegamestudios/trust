@@ -51,6 +51,9 @@ function FFXIFastPickerView.new(configItem, viewSize, itemsPerPage)
     end
 
     self:setAllowsMultipleSelection(not (configItem:getNumItemsRequired().minNumItems == 1 and configItem:getNumItemsRequired().maxNumItems == 1))
+    if self:getAllowsMultipleSelection() then
+        self:setAllowsCursorSelection(false)
+    end
 
     self.configItem = configItem
     self.mediaPlayer = defaultMediaPlayer

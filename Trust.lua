@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '15.2.3'
+_addon.version = '15.2.4'
 _addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 
@@ -633,6 +633,7 @@ function unloaded()
 end
 
 function loaded()
+	windower.chat.input('/console console_echo Unloaded addons that conflict with Trust.')
 	windower.send_command('lua unload ata')
 
 	addon_system_message("Loading Trust...")

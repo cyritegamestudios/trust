@@ -11,7 +11,7 @@ local Dispeler = require('cylibs/trust/roles/dispeler')
 local Frame = require('cylibs/ui/views/frame')
 local ModeDelta = require('cylibs/modes/mode_delta')
 local Puller = require('cylibs/trust/roles/puller')
-local Singer = require('cylibs/trust/roles/singer_v2')
+local Singer = require('cylibs/trust/roles/singer')
 local Sleeper = require('cylibs/trust/roles/sleeper')
 
 state.AutoSongMode = M{['description'] = 'Sing Songs', 'Off', 'Auto', 'Dummy'}

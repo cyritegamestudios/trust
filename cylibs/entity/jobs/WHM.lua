@@ -30,22 +30,6 @@ function WhiteMage.new(cure_settings, afflatus_mode)
 end
 
 -------
--- Returns the Spell for the cure that should be used to restore the given amount of hp.
--- @tparam number hp_missing Amount of hp missing
--- @treturn Spell Cure spell
-function WhiteMage:get_cure_spell(hp_missing)
-    return self.current_afflatus:get_cure_spell(hp_missing)
-end
-
--------
--- Returns the Spell for the aoe cure that should be used to restore the given amount of hp.
--- @tparam number hp_missing Amount of hp missing
--- @treturn Spell Aoe cure spell
-function WhiteMage:get_aoe_cure_spell(hp_missing)
-    return self.current_afflatus:get_aoe_cure_spell(hp_missing)
-end
-
--------
 -- Returns the spell that removes the given status effect.
 -- @tparam number debuff_id Debuff id (see buffs.lua)
 -- @tparam number num_targets Number of targets afflicted with the status effect
@@ -77,45 +61,6 @@ end
 -- @treturn list List of AOE spell names
 function WhiteMage:get_aoe_spells()
     return L{ 'Banishga', 'Banishga II', 'Diaga' }
-end
-
--------
--- Returns a cluster of party members within 10' of the first party member in the list.
--- @tparam list List of party members
--- @treturn list List of party members
-function WhiteMage:get_cure_cluster(party_members)
-    return self.current_afflatus:get_cure_cluster(party_members)
-end
-
--------
--- Returns the threshold below which players should be healed.
--- @tparam Boolean is_backup_healer Whether the player is the backup healer
--- @treturn number HP percentage
-function WhiteMage:get_cure_threshold(is_backup_healer)
-    if is_backup_healer then
-        return self.cure_settings.Thresholds['Emergency'] or 25
-    else
-        return self.cure_settings.Thresholds['Default'] or 78
-    end
-end
-
--------
--- Returns the threshold above which AOE cures should be used.
--- @treturn number Minimum number of party members under cure threshold
-function WhiteMage:get_aoe_threshold()
-    return self.cure_settings.MinNumAOETargets or 3
-end
-
--------
--- Returns the delay between cures.
--- @tparam boolean is_backup_healer Whether the player is the backup healer
--- @treturn number Delay between cures in seconds
-function WhiteMage:get_cure_delay(is_backup_healer)
-    if is_backup_healer then
-        return self.cure_settings.Delay or 2
-    else
-        return 0
-    end
 end
 
 -------

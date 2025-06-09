@@ -30,7 +30,7 @@ function BloodPactWard:is_valid()
 end
 
 function BloodPactWard:get_mp_cost()
-    return 0
+    return res.job_abilities[self:get_job_ability_id()].mp_cost or 0
 end
 
 function BloodPactWard:get_avatar_name()
