@@ -21,7 +21,7 @@ function Healer.new(action_queue, heal_settings, job)
 
     self.job = job
     self.party_member_blacklist = L{}
-    self.timer.timeInterval = self:get_cooldown()
+    self.timer.timeInterval = 0.5
     self.dispose_bag = DisposeBag.new()
 
     self:set_heal_settings(heal_settings)
