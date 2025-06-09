@@ -108,57 +108,6 @@ function BlueMage:has_spell_equipped(spell_name)
 end
 
 -------
--- Returns the JobAbility for the cure that should be used to restore the given amount of hp.
--- @tparam number hp_missing Amount of hp missing
--- @treturn JobAbility Job ability
-function BlueMage:get_cure_spell(hp_missing)
-    if hp_missing > self.cure_settings.Thresholds['Cure IV'] then
-        if not spell_util.is_spell_on_cooldown(res.spells:with('en', 'Magic Fruit').id) then
-            return Spell.new('Magic Fruit', L{}, L{})
-        else
-            return Spell.new('White Wind', L{}, L{}, 'me')
-        end
-    elseif hp_missing > self.cure_settings.Thresholds['Cure III'] then
-        if not spell_util.is_spell_on_cooldown(res.spells:with('en', 'Magic Fruit').id) then
-            return Spell.new('Magic Fruit', L{}, L{})
-        else
-            return Spell.new('Wild Carrot', L{}, L{})
-        end
-    else
-        return Spell.new('White Wind', L{}, L{}, 'me')
-    end
-end
-
--------
--- Returns the JobAbility for the aoe cure that should be used to restore the given amount of hp.
--- @tparam number hp_missing Amount of hp missing
--- @treturn JobAbility Aoe job ability
-function BlueMage:get_aoe_cure_spell(hp_missing)
-    if hp_missing > self.cure_settings.Thresholds['Curaga III'] then
-        if not spell_util.is_spell_on_cooldown(res.spells:with('en', 'White Wind').id) then
-            return Spell.new('White Wind', L{}, L{}, 'me')
-        else
-            return Spell.new('Healing Breeze', L{}, L{}, 'me')
-        end
-    elseif hp_missing > self.cure_settings.Thresholds['Curaga II'] then
-        if not spell_util.is_spell_on_cooldown(res.spells:with('en', 'Healing Breeze').id) then
-            return Spell.new('Healing Breeze', L{}, L{}, 'me')
-        else
-            return Spell.new('White Wind', L{}, L{}, 'me')
-        end
-    else
-        return Spell.new('Healing Breeze', L{}, L{}, 'me')
-    end
-end
-
--------
--- Returns the threshold above which AOE cures should be used.
--- @treturn number Minimum number of party members under cure threshold
-function BlueMage:get_aoe_threshold()
-    return self.cure_settings.MinNumAOETargets or 3
-end
-
--------
 -- Returns the spell that removes the given status effect.
 -- @tparam number debuff_id Debuff id (see buffs.lua)
 -- @tparam number num_targets Number of targets afflicted with the status effect
@@ -187,25 +136,6 @@ end
 -- @treturn Spell Raise spell
 function BlueMage:get_raise_spell()
     return nil
-end
-
--------
--- Returns the threshold below which players should be healed.
--- @tparam Boolean is_backup_healer Whether the player is the backup healer
--- @treturn number HP percentage
-function BlueMage:get_cure_threshold(is_backup_healer)
-    if is_backup_healer then
-        return self.cure_settings.Thresholds['Emergency'] or 25
-    else
-        return self.cure_settings.Thresholds['Default'] or 78
-    end
-end
-
--------
--- Returns the delay between cures.
--- @treturn number Delay between cures in seconds
-function BlueMage:get_cure_delay()
-    return self.cure_settings.Delay or 2
 end
 
 -------
@@ -242,7 +172,6 @@ function BlueMage:equip_spells(spell_names)
     end
 
     local actions = L{}
-
     actions:append(BlockAction.new(function()
         self:remove_all_spells()
     end), 'equip_remove_all_spells')

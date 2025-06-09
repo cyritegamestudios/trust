@@ -22,59 +22,6 @@ function Dancer.new(cure_settings)
 end
 
 -------
--- Returns the JobAbility for the cure that should be used to restore the given amount of hp.
--- @tparam number hp_missing Amount of hp missing
--- @treturn JobAbility Job ability
-function Dancer:get_cure_spell(hp_missing)
-    if hp_missing > self.cure_settings.Thresholds['Curing Waltz IV'] then
-        if Condition.check_conditions(L{ JobAbilityRecastReadyCondition.new('Curing Waltz IV') }) then
-            return JobAbility.new('Curing Waltz IV')
-        else
-            return JobAbility.new('Curing Waltz V')
-        end
-    elseif hp_missing > self.cure_settings.Thresholds['Curing Waltz III'] then
-        if Condition.check_conditions(L{ JobAbilityRecastReadyCondition.new('Curing Waltz III') }) then
-            return JobAbility.new('Curing Waltz III')
-        else
-            return JobAbility.new('Curing Waltz IV')
-        end
-    else
-        if Condition.check_conditions(L{ JobAbilityRecastReadyCondition.new('Curing Waltz II') }) then
-            return JobAbility.new('Curing Waltz II')
-        else
-            return JobAbility.new('Curing Waltz III')
-        end
-    end
-end
-
--------
--- Returns the JobAbility for the aoe cure that should be used to restore the given amount of hp.
--- @tparam number hp_missing Amount of hp missing
--- @treturn JobAbility Aoe job ability
-function Dancer:get_aoe_cure_spell(hp_missing)
-    if hp_missing > self.cure_settings.Thresholds['Divine Waltz II'] then
-        if Condition.check_conditions(L{ JobAbilityRecastReadyCondition.new('Divine Waltz II') }) then
-            return JobAbility.new('Divine Waltz II')
-        else
-            return JobAbility.new('Divine Waltz')
-        end
-    else
-        if Condition.check_conditions(L{ JobAbilityRecastReadyCondition.new('Divine Waltz') }) then
-            return JobAbility.new('Divine Waltz')
-        else
-            return JobAbility.new('Divine Waltz II')
-        end
-    end
-end
-
--------
--- Returns the threshold above which AOE cures should be used.
--- @treturn number Minimum number of party members under cure threshold
-function Dancer:get_aoe_threshold()
-    return self.cure_settings.MinNumAOETargets or 3
-end
-
--------
 -- Returns the spell that removes the given status effect.
 -- @tparam number debuff_id Debuff id (see buffs.lua)
 -- @tparam number num_targets Number of targets afflicted with the status effect
@@ -89,7 +36,6 @@ function Dancer:get_status_removal_spell(debuff_id, _)
             return JobAbility.new('Healing Waltz')
         end
     end
-
     return nil
 end
 
@@ -105,30 +51,6 @@ end
 -- @treturn Spell Raise spell
 function Dancer:get_raise_spell()
     return nil
-end
-
--------
--- Returns the threshold below which players should be healed.
--- @tparam Boolean is_backup_healer Whether the player is the backup healer
--- @treturn number HP percentage
-function Dancer:get_cure_threshold(is_backup_healer)
-    if is_backup_healer then
-        return self.cure_settings.Thresholds['Emergency'] or 25
-    else
-        return self.cure_settings.Thresholds['Default'] or 78
-    end
-end
-
--------
--- Returns the delay between cures.
--- @tparam boolean is_backup_healer Whether the player is the backup healer
--- @treturn number Delay between cures in seconds
-function Dancer:get_cure_delay(is_backup_healer)
-    if is_backup_healer then
-        return self.cure_settings.Delay or 2
-    else
-        return 0
-    end
 end
 
 -------
@@ -157,26 +79,5 @@ function Dancer:can_perform_waltz(waltz_name)
     }
     return Condition.check_conditions(conditions, windower.ffxi.get_player().index)
 end
-
--------
--- Returns a list of conditions for an ability.
--- @tparam Spell|JobAbility ability The ability
--- @treturn list List of conditions
---[[function Dancer:get_conditions_for_ability(ability)
-    local conditions = Job.get_conditions_for_ability(self, ability)
-
-    local job_ability = res.job_abilities[ability:get_ability_id()]
-    if job_ability then
-        local tp_cost = job_ability.tp_cost
-        if tp_cost and tp_cost > 0 then
-            conditions:append(ConditionalCondition.new(L{ MinTacticalPointsCondition.new(tp_cost), HasBuffCondition.new('Trance') }, Condition.LogicalOperator.Or))
-        end
-        if job_ability.type == 'Waltz' then
-            conditions:append(NotCondition.new(L{ HasBuffCondition.new('Saber Dance') }))
-        end
-    end
-
-    return conditions
-end]]
 
 return Dancer
