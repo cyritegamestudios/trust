@@ -73,7 +73,7 @@ end
 function Sequence:get_ability_id()
     local ability_id = 'sequence'
     for ability in self.abilities:it() do
-        ability_id = ability_id + ability:get_ability_id()
+        ability_id = string.format("%s%s", ability_id, ability:get_ability_id())
     end
     return ability_id
 end
