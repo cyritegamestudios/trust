@@ -39,8 +39,6 @@ return L{
         Gambit.new("Enemy", L{MaxManaPointsPercentCondition.new(40)}, Spell.new("Aspir", L{}, L{}, nil, L{}), "Self", L{"Spells"}),
         Gambit.new("Enemy", L{MaxManaPointsPercentCondition.new(40)}, Spell.new("Aspir II", L{}, L{}, nil, L{}), "Self", L{"Spells"}),
         Gambit.new("Enemy", L{MaxManaPointsPercentCondition.new(40)}, Spell.new("Aspir III", L{}, L{}, nil, L{}), "Self", L{"Spells"}),
-        Gambit.new("Ally", L{MaxHitPointsPercentCondition.new(40)}, Spell.new("Cure III", L{}, L{}, nil, L{}), "Ally", L{}),
-        Gambit.new("Ally", L{MaxHitPointsPercentCondition.new(40)}, Spell.new("Cure IV", L{}, L{}, nil, L{}), "Ally", L{}),
     }),
     GambitCategory.new("Heals", "Heal allies.", L{
         Gambit.new("Self", L{GambitCondition.new(ClusterHitPointsPercentRangeCondition.new(1, 40, 3), "Self")}, Spell.new("Curaga V", L{}, L{}, nil, L{}), "Self", L{"Spells"}, true),

@@ -63,17 +63,16 @@ function GambitLibraryMenuItem:getGambitCategoryMenuItem(category)
         configItem:setNumItemsRequired(1, 999)
 
         local gambitList = FFXIPickerView.new(configItem, FFXIClassicStyle.WindowSize.Editor.ConfigEditorLarge, 17)
-        --gambitList:setAllowsCursorSelection(false)
 
         gambitList:setNeedsLayout()
         gambitList:layoutIfNeeded()
 
-        self.disposeBag:add(gambitList:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
+        self.disposeBag:add(gambitList:getDelegate():didHighlightItemAtIndexPath():addAction(function(indexPath)
             self.selectedGambit = category:getGambits()[indexPath.row]
             if self.selectedGambit then
                 infoView:setDescription(self.selectedGambit:tostring())
             end
-        end), gambitList:getDelegate():didSelectItemAtIndexPath())
+        end), gambitList:getDelegate():didHighlightItemAtIndexPath())
 
         return gambitList
     end, category:getName(), category:getDescription())

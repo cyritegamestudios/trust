@@ -633,6 +633,7 @@ function unloaded()
 end
 
 function loaded()
+	windower.chat.input('/console console_echo Unloaded addons that conflict with Trust.')
 	windower.send_command('lua unload ata')
 
 	addon_system_message("Loading Trust...")
