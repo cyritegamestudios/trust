@@ -151,8 +151,7 @@ function MagicBurster:get_default_conditions(gambit, exclude_mode_conditions)
     conditions:append(SkillchainWindowCondition.new(1.25, ">="))
 
     local ability_conditions = (L{
-        MinManaPointsCondition.new(gambit:getAbility():get_mp_cost(), windower.ffxi.get_player().index),
-        MinManaPointsPercentCondition.new(self.magic_burst_mpp, windower.ffxi.get_player().index),
+        MinManaPointsPercentCondition.new(self.magic_burst_mpp),
     } + self.job:get_conditions_for_ability(gambit:getAbility()))
 
     return conditions + ability_conditions:map(function(condition)
