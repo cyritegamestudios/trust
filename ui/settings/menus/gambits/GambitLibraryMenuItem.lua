@@ -1,7 +1,7 @@
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
-local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
+local FFXIPickerView = require('ui/themes/ffxi/FFXIFastPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 
@@ -51,16 +51,19 @@ end
 
 function GambitLibraryMenuItem:getGambitCategoryMenuItem(category)
     return MenuItem.new(L{
-        ButtonItem.default('Add', 18),
+        ButtonItem.default('Confirm', 18),
+        ButtonItem.localized('Clear All', i18n.translate('Button_Clear_All')),
+        ButtonItem.localized('Filter', i18n.translate('Button_Filter')),
     }, {
-        Add = self:getAddGambitsMenuItem()
+        Confirm = self:getAddGambitsMenuItem()
     }, function(_, infoView)
         local configItem = MultiPickerConfigItem.new("Gambits", L{}, category:getGambits(), function(gambit)
             return gambit:tostring()
         end)
+        configItem:setNumItemsRequired(1, 999)
 
-        local gambitList = FFXIPickerView.new(L{ configItem }, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditorLarge)
-        gambitList:setAllowsCursorSelection(true)
+        local gambitList = FFXIPickerView.new(configItem, FFXIClassicStyle.WindowSize.Editor.ConfigEditorLarge, 17)
+        --gambitList:setAllowsCursorSelection(false)
 
         gambitList:setNeedsLayout()
         gambitList:layoutIfNeeded()
