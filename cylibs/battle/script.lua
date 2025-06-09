@@ -66,6 +66,10 @@ function Script:get_display_name()
     return self.description or 'Script'
 end
 
+function Script:get_ability_id()
+    return 0
+end
+
 function Script:__tostring()
     return self:get_display_name()
 end
