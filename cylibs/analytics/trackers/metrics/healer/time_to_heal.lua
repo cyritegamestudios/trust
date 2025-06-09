@@ -55,7 +55,7 @@ function TimeToHealMetric:monitor()
 end
 
 function TimeToHealMetric:report_hpp_change(p, hpp, max_hp)
-    local hpp_threshold = self.healer:get_job():get_cure_threshold(state.AutoHealMode == 'Emergency')
+    local hpp_threshold = 72 --self.healer:get_job():get_cure_threshold(state.AutoHealMode == 'Emergency')
     if hpp <= hpp_threshold then
         if not self.time_to_heal_summary[p:get_id()].last_start_time then
             self.time_to_heal_summary[p:get_id()].last_start_time = os.time()
