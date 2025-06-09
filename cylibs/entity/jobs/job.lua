@@ -3,6 +3,7 @@
 -- @class module
 -- @name Job
 
+local ConditionalCondition = require('cylibs/conditions/conditional')
 local SpellList = require('cylibs/util/spell_list')
 
 local Job = {}
@@ -55,6 +56,19 @@ function Job:get_conditions_for_ability(ability)
     if ability.requires_all_job_abilities ~= nil and ability:requires_all_job_abilities() and ability.get_job_abilities ~= nil then
         for job_ability_name in ability:get_job_abilities():it() do
             conditions = conditions + JobAbility.new(job_ability_name):get_conditions()
+        end
+    end
+    if ability.get_mp_cost ~= nil then
+        conditions:append(MinManaPointsCondition.new(ability:get_mp_cost()))
+    end
+    local job_ability = res.job_abilities[ability:get_ability_id()]
+    if job_ability then
+        local tp_cost = job_ability.tp_cost
+        if tp_cost and tp_cost > 0 then
+            conditions:append(ConditionalCondition.new(L{ MinTacticalPointsCondition.new(tp_cost), HasBuffCondition.new('Trance') }, Condition.LogicalOperator.Or))
+        end
+        if job_ability.type == 'Waltz' then
+            conditions:append(NotCondition.new(L{ HasBuffCondition.new('Saber Dance') }))
         end
     end
     return conditions

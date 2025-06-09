@@ -102,7 +102,10 @@ function TimeToHealMetric:report()
     local num_reporting = T(self.time_to_heal_summary):keyset():length()
     for party_member_id, time_to_heal in pairs(self.time_to_heal_summary) do
         average = average + 1.0 * time_to_heal.total / time_elapsed
-        result = "%s\n[%s] %ds (avg %.2fs)":format(result, self.healer:get_party():get_party_member(party_member_id):get_name(), time_to_heal.total, time_to_heal.average)
+        local party_member = self.healer:get_party():get_party_member(party_member_id)
+        if party_member then
+            result = "%s\n[%s] %ds (avg %.2fs)":format(result, party_member:get_name(), time_to_heal.total, time_to_heal.average)
+        end
     end
     average = 1.0 - average / num_reporting
     result = "%s\nScore: %d/%d":format(result, average * 100, 100)

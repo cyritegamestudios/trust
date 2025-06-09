@@ -14,18 +14,15 @@ return {
             }
         },
         CureSettings = {
-            Thresholds = {
-                ["Cure IV"] = 600,
-                Emergency = 40,
-                Default = 65,
-                ["Cure III"] = 400,
-                ["Curaga III"] = 800,
-                ["Cure II"] = 0,
-                ["Curaga II"] = 400,
-                Curaga = 0
+            Gambits = L{
+                Gambit.new("Self", L{GambitCondition.new(ClusterHitPointsPercentRangeCondition.new(1, 65, 3), "Self")}, Spell.new("White Wind", L{}, L{}, nil, L{}), "Self", L{}, true),
+                Gambit.new("Self", L{GambitCondition.new(ClusterHitPointsPercentRangeCondition.new(1, 72, 3), "Self")}, Spell.new("Healing Breeze", L{}, L{}, nil, L{}), "Self", L{}, true),
+                Gambit.new("Self", L{GambitCondition.new(HitPointsPercentRangeCondition.new(1, 65), "Self")}, Spell.new("Magic Fruit", L{}, L{}, nil, L{}), "Self", L{}, true),
+                Gambit.new("Self", L{GambitCondition.new(HitPointsPercentRangeCondition.new(1, 72), "Self")}, Spell.new("Wild Carrot", L{}, L{}, nil, L{}), "Self", L{}, true),
+                Gambit.new("Ally", L{GambitCondition.new(HitPointsPercentRangeCondition.new(1, 65), "Ally")}, Spell.new("Magic Fruit", L{}, L{}, nil, L{}), "Ally", L{}, true),
+                Gambit.new("Ally", L{GambitCondition.new(HitPointsPercentRangeCondition.new(1, 72), "Ally")}, Spell.new("Wild Carrot", L{}, L{}, nil, L{}), "Ally", L{}, true),
             },
             MinNumAOETargets = 3,
-            Delay = 2,
             StatusRemovals = {
                 Delay = 3,
                 Blacklist = L{

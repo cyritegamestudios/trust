@@ -5,7 +5,7 @@ local WhiteMageTrust = setmetatable({}, {__index = Trust })
 WhiteMageTrust.__index = WhiteMageTrust
 
 local Barspeller = require('cylibs/trust/roles/barspeller')
-local Healer = require('cylibs/trust/roles/healer')
+local Healer = require('cylibs/trust/roles/healer_v2')
 local Debuffer = require('cylibs/trust/roles/debuffer')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local MagicBurster = require('cylibs/trust/roles/magic_burster')
@@ -17,7 +17,7 @@ local StatusRemover = require('cylibs/trust/roles/status_remover')
 function WhiteMageTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = WhiteMage.new(trust_settings.CureSettings)
 	local roles = S{
-		Healer.new(action_queue, job),
+		Healer.new(action_queue, trust_settings.CureSettings, job),
 		StatusRemover.new(action_queue, job),
 		Barspeller.new(action_queue, job),
 		Buffer.new(action_queue, trust_settings.BuffSettings, state.AutoBuffMode, job),
@@ -39,8 +39,6 @@ function WhiteMageTrust:on_init()
 	Trust.on_init(self)
 
 	self.dispose_bag:add(self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
-		self:get_job():set_cure_settings(new_trust_settings.CureSettings)
-
 		local debuffer = self:role_with_type("debuffer")
 		debuffer:set_debuff_settings(new_trust_settings.DebuffSettings)
 

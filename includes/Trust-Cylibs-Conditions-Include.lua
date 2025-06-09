@@ -1,6 +1,7 @@
 Condition = require('cylibs/conditions/condition')
 ActionCondition = require('cylibs/conditions/action')
 BeginCastCondition = require('cylibs/conditions/begin_cast')
+ClusterHitPointsPercentRangeCondition = require('cylibs/conditions/cluster_hpp_range')
 CombatSkillsCondition = require('cylibs/conditions/combat_skills')
 InBattleCondition = require('cylibs/conditions/in_battle')
 IdleCondition = require('cylibs/conditions/idle')

@@ -4,7 +4,7 @@ local Trust = require('cylibs/trust/trust')
 local PaladinTrust = setmetatable({}, {__index = Trust })
 PaladinTrust.__index = PaladinTrust
 
-local Healer = require('cylibs/trust/roles/healer')
+local Healer = require('cylibs/trust/roles/healer_v2')
 local Puller = require('cylibs/trust/roles/puller')
 local Buffer = require('cylibs/trust/roles/buffer')
 local MagicBurster = require('cylibs/trust/roles/magic_burster')
@@ -15,7 +15,7 @@ function PaladinTrust.new(settings, action_queue, battle_settings, trust_setting
 	local job = Paladin.new(trust_settings.CureSettings)
 	local roles = S{
 		Buffer.new(action_queue, trust_settings.BuffSettings, state.AutoBuffMode, job),
-		Healer.new(action_queue, job),
+		Healer.new(action_queue, trust_settings.CureSettings, job),
 		MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),
 		Puller.new(action_queue, trust_settings.PullSettings, job),

@@ -151,22 +151,24 @@ function Reacter:on_add()
         self:check_gambits(gambits, action)
     end)
 
-    self.skillchainer:on_skillchain():addAction(function(target_id, skillchain_step)
-        local has_valid_target = self:get_gambit_targets(L(SkillchainPropertyCondition.valid_targets()), true):firstWhere(function(target)
-            return target:get_id() == target_id
+    if self.skillchainer then
+        self.skillchainer:on_skillchain():addAction(function(target_id, skillchain_step)
+            local has_valid_target = self:get_gambit_targets(L(SkillchainPropertyCondition.valid_targets()), true):firstWhere(function(target)
+                return target:get_id() == target_id
+            end)
+            if not has_valid_target then
+                return
+            end
+
+            logger.notice(self.__class, 'on_skillchain', 'check_gambits', skillchain_step:get_skillchain():get_name())
+
+            local gambits = self:get_reactions_of_type(SkillchainPropertyCondition.__type)
+            if gambits:length() == 0 then
+                return
+            end
+            self:check_gambits(gambits, skillchain_step:get_skillchain():get_name())
         end)
-        if not has_valid_target then
-            return
-        end
-
-        logger.notice(self.__class, 'on_skillchain', 'check_gambits', skillchain_step:get_skillchain():get_name())
-
-        local gambits = self:get_reactions_of_type(SkillchainPropertyCondition.__type)
-        if gambits:length() == 0 then
-            return
-        end
-        self:check_gambits(gambits, skillchain_step:get_skillchain():get_name())
-    end)
+    end
 
     -- Trust turns off when zoning, so even if this evaluates to true it never performs the gambit
     self:get_party():get_player():on_zone_change():addAction(function(p, new_zone_id)
