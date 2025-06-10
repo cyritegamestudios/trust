@@ -21,8 +21,9 @@ function PickerCollectionViewCell.new(item, textStyle)
     local self = setmetatable(CollectionViewCell.new(item), PickerCollectionViewCell)
 
     self.textStyle = textStyle
+    self.currentIndex = 1
 
-    local text = item:getTextFormat()(item:getCurrentValue())
+    local text = item:getTextFormat()(item:getCurrentValue(), self.currentIndex)
 
     local textItem = TextItem.new(text, textStyle)
     textItem:setShouldTruncateText(item:getShouldTruncateText())
@@ -63,7 +64,7 @@ end
 function PickerCollectionViewCell:setItem(item)
     CollectionViewCell.setItem(self, item)
 
-    local text = item:getTextFormat()(item:getCurrentValue())
+    local text = item:getTextFormat()(item:getCurrentValue(), self.currentIndex)
 
     local textItem = TextItem.new(text, self.textStyle)
     textItem:setShouldTruncateText(item:getShouldTruncateText())
@@ -150,6 +151,7 @@ function PickerCollectionViewCell:onKeyboardEvent(key, pressed, flags, blocked)
                     newIndex = self:getItem():getAllValues():length()
                 end
                 local newValue = self:getItem():getAllValues()[newIndex]
+                self.currentIndex = newIndex
                 self:getItem():setCurrentValue(newValue)
                 self:setItem(self:getItem())
                 return true
@@ -166,6 +168,7 @@ function PickerCollectionViewCell:onKeyboardEvent(key, pressed, flags, blocked)
                     newIndex = 1
                 end
                 local newValue = self:getItem():getAllValues()[newIndex]
+                self.currentIndex = newIndex
                 self:getItem():setCurrentValue(newValue)
                 self:setItem(self:getItem())
                 return true

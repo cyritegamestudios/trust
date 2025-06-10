@@ -96,8 +96,6 @@ function PickerView.new(configItems, allowsMultipleSelection, mediaPlayer, sound
 
     self:reload()
 
-
-
     return self
 end
 

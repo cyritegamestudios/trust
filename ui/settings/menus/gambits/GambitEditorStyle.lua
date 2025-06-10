@@ -64,8 +64,8 @@ function GambitEditorStyle:getDescription(plural, lower)
     return description
 end
 
-function GambitEditorStyle:getItemDescription(item, indexPath)
-    return self.itemDescription(item, indexPath)
+function GambitEditorStyle:getItemDescription(item, index)
+    return self.itemDescription(item, index)
 end
 
 function GambitEditorStyle:allowsAction(actionName)

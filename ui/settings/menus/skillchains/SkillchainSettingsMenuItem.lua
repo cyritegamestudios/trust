@@ -18,6 +18,7 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
     local selectedGambit = 1
     local selectedStepNum = 1
 
+    -- FIXME: when this is called by editor it doesn't pass an index so it can't figure out the step
     local descriptionForGambit = function(ability, stepNum)
         local allGambits = T(weaponSkillSettings:getSettings())[weaponSkillSettingsMode.value].Skillchain.Gambits
         local nextSteps = SkillchainSettingsMenuItem.getNextSteps(stepNum, allGambits, skillchainBuilder)
@@ -35,7 +36,7 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
         end)
         return L{ configItem }
     end, FFXIClassicStyle.WindowSize.Editor.ConfigEditor, "Skillchain", "Skillchain", function(ability, indexPath)
-        return descriptionForGambit(ability, indexPath.row)
+        return descriptionForGambit(ability, selectedStepNum)
     end, function(menuItemName)
         return S{ 'Edit', 'Reset', 'Modes', 'Shortcuts', 'Find' }:contains(menuItemName)
     end)

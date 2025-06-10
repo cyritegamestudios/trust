@@ -59,7 +59,7 @@ function Job:get_conditions_for_ability(ability)
         end
     end
     if ability.get_mp_cost ~= nil then
-        conditions:append(MinManaPointsCondition.new(ability:get_mp_cost()))
+        conditions:append(ConditionalCondition.new(L{ MinManaPointsCondition.new(ability:get_mp_cost()), HasBuffCondition.new('Mana Font') }, Condition.LogicalOperator.Or))
     end
     if ability.get_ability_id then
         local job_ability = res.job_abilities[ability:get_ability_id()]

@@ -52,7 +52,7 @@ end
 
 function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKeys, abilityTargets, abilitiesForTargets, conditionTargets, editorStyle, modes, libraryCategoryFilter, gambitTagBlacklist, conditionTypeFilter)
     editorStyle = editorStyle or GambitEditorStyle.new(function(gambits)
-        local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit)
+        local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit, gambitIndex)
             return gambit:tostring()
         end)
         return L{ configItem }
@@ -329,8 +329,9 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
         ButtonItem.default('Conditions', 18),
     }, {}, function(_, _, showMenu)
         local abilitiesByTargetType = self:getAbilitiesByTargetType()
-        local gambitEditor = GambitSettingsEditor.new(self.selectedGambit, self.trustSettings, self.trustSettingsMode, abilitiesByTargetType, self.conditionTargets, showMenu, Gambit.Tags.AllTags:filter(function(t) return not self.gambitTagBlacklist:contains(t)  end), function(ability)
-            return ability:get_localized_name()
+        local gambitEditor = GambitSettingsEditor.new(self.selectedGambit, self.trustSettings, self.trustSettingsMode, abilitiesByTargetType, self.conditionTargets, showMenu, Gambit.Tags.AllTags:filter(function(t) return not self.gambitTagBlacklist:contains(t)  end), function(ability, index)
+            return self.editorConfig:getItemDescription(ability, index)
+            --return ability:get_localized_name()
         end)
 
         gambitEditor:getDisposeBag():add(gambitEditor:onGambitChanged():addAction(function(newGambit, oldGambit)
