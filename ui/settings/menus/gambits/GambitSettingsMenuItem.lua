@@ -330,7 +330,7 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
     }, {}, function(_, _, showMenu)
         local abilitiesByTargetType = self:getAbilitiesByTargetType()
         local gambitEditor = GambitSettingsEditor.new(self.selectedGambit, self.trustSettings, self.trustSettingsMode, abilitiesByTargetType, self.conditionTargets, showMenu, Gambit.Tags.AllTags:filter(function(t) return not self.gambitTagBlacklist:contains(t)  end), function(ability, index)
-            return self.editorConfig:getItemDescription(ability, index)
+            return self.editorConfig:getItemDescription(ability, index) or ability:get_localized_name()
             --return ability:get_localized_name()
         end)
 
