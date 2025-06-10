@@ -42,7 +42,7 @@ function FFXIPickerView.new(configItems, allowsMultipleSelection, viewSize, titl
         if configItem and configItem.getItemDescription then
             local item = self:getDataSource():itemAtIndexPath(indexPath)
             if item then
-                local description = configItem:getItemDescription(item:getText())
+                local description = configItem:getItemDescription(item:getText(), indexPath.row)
                 if description then
                     defaultInfoView:setDescription(description)
                     return

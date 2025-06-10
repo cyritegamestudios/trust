@@ -47,7 +47,8 @@ function PullActionMenuItem.new(trust, trustSettings, trustSettingsMode, trustMo
     end, L{ Condition.TargetType.Enemy, Condition.TargetType.Self }, L{'ApproachPullMode'}, "Ability", "Abilities", function(_)
         return false
     end, function(ability)
-        return ability:get_localized_name()
+        --return ability:get_localized_name()
+        return nil
     end, S{ 'Reaction' })
     pullActionSettingsItem:setDefaultGambitTags(L{'Pulling'})
 

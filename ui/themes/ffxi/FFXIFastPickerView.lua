@@ -72,7 +72,7 @@ function FFXIFastPickerView.new(configItem, viewSize, itemsPerPage)
         self.highlightedItem = self.visibleItems[cursorIndexPath.row]
 
         if self.configItem.getItemDescription then
-            local description = configItem:getItemDescription(self.highlightedItem)
+            local description = configItem:getItemDescription(self.highlightedItem, cursorIndexPath.row)
             if description then
                 defaultInfoView:setDescription(description)
                 return

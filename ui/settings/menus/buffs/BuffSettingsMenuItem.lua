@@ -44,10 +44,11 @@ function BuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trust
     end, L{ Condition.TargetType.Self, Condition.TargetType.Ally, Condition.TargetType.Enemy }, L{'AutoBarSpellMode', 'AutoBuffMode'}, "Buff", "Buffs", function(_)
         return false
     end, function(ability)
-        local buff = ability:get_status()
-        if buff then
-            return "Grants: "..i18n.resource('buffs', 'en', buff.en).."."
-        end
+        -- FIXME: this conflicts with ability names rendering correctly in PickerCollectionViewCell
+        --local buff = ability:get_status()
+        --if buff then
+        --    return "Grants: "..i18n.resource('buffs', 'en', buff.en).."."
+        --end
         return nil
     end, S{ 'Reaction' })
     buffSettingsItem:setDefaultGambitTags(L{'Buffs'})
