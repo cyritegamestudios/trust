@@ -1,5 +1,6 @@
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
+local ConfigItem = require('ui/settings/editors/config/ConfigItem')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
@@ -22,27 +23,30 @@ function RollSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
     self.dispose_bag = DisposeBag.new()
 
     self.contentViewConstructor = function(_, _)
-        local allSettings = T(self.trustSettings:getSettings())[self.trustSettingsMode.value]
+        local allSettings = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].RollSettings
 
         local rollSettings = T{
             Roll1 = allSettings.Roll1:get_roll_name(),
             Roll2 = allSettings.Roll2:get_roll_name(),
+            DoubleUpThreshold = allSettings.DoubleUpThreshold,
+            NumRequiredPartyMembers = allSettings.NumRequiredPartyMembers
         }
 
         local configItems = L{
             PickerConfigItem.new('Roll1', rollSettings.Roll1, trust:get_job():get_all_rolls():sort(), nil, "Roll 1 (Crooked Cards)"),
             PickerConfigItem.new('Roll2', rollSettings.Roll2, trust:get_job():get_all_rolls():sort(), nil, "Roll 2"),
+            ConfigItem.new('DoubleUpThreshold', 1, 10, 1, function(value) return value.."" end, "Double-Up Max"),
+            ConfigItem.new('NumRequiredPartyMembers', 1, 6, 1, function(value) return value.."" end, "Num Party Members Nearby"),
         }
 
         local rollConfigEditor = ConfigEditor.new(self.trustSettings, rollSettings, configItems)
-
-        rollConfigEditor:setTitle('Configure general song settings.')
-        rollConfigEditor:setShouldRequestFocus(true)
 
         self.dispose_bag:add(rollConfigEditor:onConfigChanged():addAction(function(newSettings, _)
             if newSettings.Roll1 ~= newSettings.Roll2 then
                 allSettings.Roll1 = Roll.new(newSettings.Roll1, true)
                 allSettings.Roll2 = Roll.new(newSettings.Roll2, false)
+                allSettings.DoubleUpThreshold = newSettings.DoubleUpThreshold
+                allSettings.NumRequiredPartyMembers = newSettings.NumRequiredPartyMembers
 
                 self.trustSettings:saveSettings(true)
 

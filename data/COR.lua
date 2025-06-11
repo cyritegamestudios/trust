@@ -6,6 +6,15 @@ return {
             Delay = 1.5,
             MaxTP = 1000,
         },
+        RollSettings = {
+            Gambits = L{
+
+            },
+            Roll1 = Roll.new("Chaos Roll", true),
+            Roll2 = Roll.new("Samurai Roll", false),
+            DoubleUpThreshold = 8,
+            NumRequiredPartyMembers = 1,
+        },
         Roll1 = Roll.new("Chaos Roll", true),
         Roll2 = Roll.new("Samurai Roll", false),
         DebuffSettings = {

@@ -1,7 +1,12 @@
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Event = require('cylibs/events/Luvent')
+local GambitTarget = require('cylibs/gambits/gambit_target')
+local HasRollCondition = require('cylibs/conditions/has_roll')
+local HealerTracker = require('cylibs/analytics/trackers/healer_tracker')
+local TargetNamesCondition = require('cylibs/conditions/target_names')
 
-local Roller = setmetatable({}, {__index = Role })
+local Gambiter = require('cylibs/trust/roles/gambiter')
+local Roller = setmetatable({}, {__index = Gambiter })
 Roller.__index = Roller
 
 state.AutoRollMode = M{['description'] = 'Use Phantom Roll', 'Manual', 'Auto', 'Safe', 'Off'}
@@ -19,28 +24,28 @@ function Roller:on_rolls_end()
     return self.rolls_end
 end
 
-function Roller.new(action_queue, job, roll1, roll2)
-    local self = setmetatable(Role.new(action_queue), Roller)
+-------
+-- Default initializer for a nuker role.
+-- @tparam ActionQueue action_queue Action queue
+-- @tparam T roll_settings Roll settings
+-- @treturn Healer A healer role
+function Roller.new(action_queue, roll_settings, job)
+    local self = setmetatable(Gambiter.new(action_queue, { Gambits = L{} }, L{ state.AutoRollMode }), Roller)
 
-    self.action_queue = action_queue
     self.job = job
-    self.should_double_up = false
-    self.is_xi_streak_active = false
-    self.roll1 = roll1
     self.roll1_current = 0
-    self.roll2 = roll2
     self.roll2_current = 0
-    self.last_roll_time = os.time()
-    self.is_rolling = false
     self.rolls_begin = Event.newEvent()
     self.rolls_end = Event.newEvent()
     self.dispose_bag = DisposeBag.new()
+
+    self:set_roll_settings(roll_settings)
 
     return self
 end
 
 function Roller:destroy()
-    Role.destroy(self)
+    Gambiter.destroy(self)
 
     self.dispose_bag:destroy()
 
@@ -49,52 +54,142 @@ function Roller:destroy()
 end
 
 function Roller:on_add()
-    Role.on_add(self)
+    Gambiter.on_add(self)
 
     self.dispose_bag:add(self:get_player():on_job_ability_used():addAction(
-            function(_, job_ability_id, targets)
-                if self.job:is_roll(job_ability_id) then
-                    coroutine.schedule(function()
-                        self:on_roll_used(job_ability_id, targets)
-                    end, 1)
-                end
-            end), self:get_player():on_job_ability_used())
-
-    self.dispose_bag:add(self:get_party():get_player():on_gain_buff():addAction(function(_, buff_id)
-        if buff_id == 309 then -- Busted
-            self:set_is_rolling(false)
-        end
-    end), self:get_party():get_player():on_gain_buff())
-
-    self.dispose_bag:add(self:get_party():get_player():on_lose_buff():addAction(function(_, buff_id)
-        if buff_id == 308 then -- Double-Up Chance
-            self:set_is_rolling(false)
-        end
-    end), self:get_party():get_player():on_gain_buff())
-
-    self.dispose_bag:add(WindowerEvents.Action:addAction(function(act)
-        if act.actor_id == self:get_player():get_id() then
-            for _, target in pairs(act.targets) do
-                for action in L(target.actions):it() do
-                    if action.message == 426 then -- Busted
-                        self:set_is_rolling(false)
-                    end
-                end
+        function(_, job_ability_id, targets)
+            if self.job:is_roll(job_ability_id) then
+                coroutine.schedule(function()
+                    self:on_roll_used(job_ability_id, targets)
+                end, 1)
             end
-        end
-    end), WindowerEvents.Action)
+        end), self:get_player():on_job_ability_used())
+end
 
-    self.dispose_bag:add(state.AutoRollMode:on_state_change():addAction(function(_, newValue)
-        if L{'Off', 'Manual'}:contains(newValue) then
-            self:set_is_rolling(false)
-        end
-    end), state.AutoRollMode:on_state_change())
+function Roller:get_cooldown()
+    return 4
+end
 
-    self.dispose_bag:add(addon_enabled:onValueChanged():addAction(function(_, isEnabled)
-        if not isEnabled then
-            self:set_is_rolling(false)
+
+-- FIXME: this can actually work--just need to set priority of main vs sub job heals
+function Roller:allows_duplicates()
+    return false
+end
+
+function Roller:get_type()
+    return "roller"
+end
+
+function Roller:allows_multiple_actions()
+    return false
+end
+
+-------
+-- Sets the nuke settings.
+-- @tparam T nuke_settings Nuke settings
+function Roller:set_roll_settings(roll_settings)
+    self.roll_settings = roll_settings
+    self.roll1 = roll_settings.Roll1
+    self.roll2 = roll_settings.Roll2
+    self.max_double_up_num = roll_settings.DoubleUpThreshold
+    self.num_party_members_nearby = roll_settings.NumRequiredPartyMembers
+
+    -- 1. If bust -> fold
+    -- 2. If double up active and current roll == lucky roll - 1 -> snake eye
+
+    -- For each roll (only add gambits for ones that match roll 1 and roll 2, don't add if COR is sub job):
+    -- 1. Not has roll 1 -> phantom roll (roll 1, optionally use crooked cards)
+    -- 2. Has roll 1 and double up is active and unlucky roll -> double up
+    -- 3. Has roll 1 and double up is active and not is lucky roll and current roll < max double up threshold -> double up
+
+    local gambit_settings = {
+        Gambits = L{},
+        Roll1 = L{},
+        Roll2 = L{},
+    }
+
+    gambit_settings.Gambits = L{
+        Gambit.new(GambitTarget.TargetType.Self, L{
+            GambitCondition.new(HasBuffCondition.new('Bust'), GambitTarget.TargetType.Self),
+        }, JobAbility.new('Fold'), Condition.TargetType.Self),
+    }
+
+    for roll in L{ self.roll1, self.roll2 }:it() do
+        gambit_settings.Gambits = gambit_settings.Gambits + L{
+            Gambit.new(GambitTarget.TargetType.Self, L{
+                GambitCondition.new(HasBuffCondition.new('Double-Up Chance'), GambitTarget.TargetType.Self),
+                GambitCondition.new(NotCondition.new(L{ HasBuffCondition.new('Snake Eye') }), GambitTarget.TargetType.Self),
+                HasRollCondition.new(roll:get_roll_name(), self.job:get_lucky_roll(roll:get_roll_name()) - 1, Condition.Operator.Equals)
+            }, JobAbility.new('Snake Eye'), Condition.TargetType.Self),
+            Gambit.new(GambitTarget.TargetType.Self, L{
+                GambitCondition.new(NotCondition.new(L{ HasBuffCondition.new(roll:get_roll_name()) }), GambitTarget.TargetType.Self),
+            }, JobAbility.new(roll:get_roll_name()), Condition.TargetType.Self),
+            Gambit.new(GambitTarget.TargetType.Self, L{
+                HasBuffsCondition.new(L{ roll:get_roll_name(), 'Double-Up Chance' }, 2),
+                HasRollCondition.new(roll:get_roll_name(), self.job:get_unlucky_roll(roll:get_roll_name()), Condition.Operator.Equals)
+            }, JobAbility.new('Double-Up'), GambitTarget.TargetType.Self),
+            Gambit.new(GambitTarget.TargetType.Self, L{
+                HasBuffsCondition.new(L{ roll:get_roll_name(), 'Double-Up Chance' }, 2),
+                NotCondition.new(L{ HasRollCondition.new(roll:get_roll_name(), self.job:get_lucky_roll(roll:get_roll_name()), Condition.Operator.Equals)}),
+                HasRollCondition.new(roll:get_roll_name(), self.max_double_up_num, Condition.Operator.LessThanOrEqualTo),
+            }, JobAbility.new('Double-Up'), GambitTarget.TargetType.Self),
+        }
+    end
+
+
+    for gambit in gambit_settings.Gambits:it() do
+        gambit.conditions = gambit.conditions:filter(function(condition)
+            return condition:is_editable()
+        end)
+        local conditions = self:get_default_conditions(gambit)
+        for condition in conditions:it() do
+            condition:set_editable(false)
+            gambit:addCondition(condition)
         end
-    end), addon_enabled:onValueChanged())
+    end
+
+    self:set_gambit_settings(gambit_settings)
+end
+
+function Roller:get_default_conditions(gambit)
+    local conditions = L{
+    }
+
+    local ability_conditions = (L{} + self.job:get_conditions_for_ability(gambit:getAbility()))
+
+    return conditions + ability_conditions:map(function(condition)
+        return GambitCondition.new(condition, GambitTarget.TargetType.Self)
+    end)
+end
+
+function Roller:get_tracker()
+    return self.healer_tracker
+end
+
+function Roller:get_roll_num(roll_name)
+    if self.roll_settings.Roll1:get_roll_name() == roll_name then
+        return self.roll1_current
+    end
+    if self.roll_settings.Roll2:get_roll_name() == roll_name then
+        return self.roll2_current
+    end
+    return nil
+end
+
+function Roller:get_is_rolling()
+    return self.is_rolling
+end
+
+function Roller:set_is_rolling(is_rolling)
+    if self.is_rolling == is_rolling then
+        return
+    end
+    self.is_rolling = is_rolling
+    if self.is_rolling then
+        self:on_rolls_begin():trigger(self)
+    else
+        self:on_rolls_end():trigger(self)
+    end
 end
 
 function Roller:on_roll_used(roll_id, targets)
@@ -124,83 +219,6 @@ function Roller:on_roll_used(roll_id, targets)
             end
         end
     end
-end
-
-function Roller:target_change(target_index)
-    Role.target_change(self, target_index)
-end
-
-function Roller:tic(new_time, old_time)
-    Role.tic(new_time, old_time)
-
-    self:check_rolls()
-end
-
-function Roller:set_is_rolling(is_rolling)
-    if self.is_rolling == is_rolling then
-        return
-    end
-    self.is_rolling = is_rolling
-    if self.is_rolling then
-        self:on_rolls_begin():trigger(self)
-    else
-        self:on_rolls_end():trigger(self)
-    end
-end
-
-function Roller:get_is_rolling()
-    return self.is_rolling
-end
-
-function Roller:check_rolls()
-    if state.AutoRollMode.value == 'Off' or (not self.job:can_double_up() and (os.time() - self.last_roll_time) < 5) then
-        return
-    end
-
-    self.last_roll_time = os.time()
-
-    if self.job:busted() and self.job:can_fold() then
-        self.job:fold()
-        self:set_is_rolling(false)
-        return
-    end
-    
-    if self.job:can_double_up() and self.should_double_up or self.job:is_snake_eye_active() then
-        self.job:double_up()
-        return
-    end
-
-    if state.AutoRollMode.value == 'Auto' or state.AutoRollMode.value == 'Safe' then
-        if self.job:can_roll() then
-            local roll1 = res.job_abilities:with('en', self.roll1:get_roll_name())
-            if not self.job:has_roll(roll1.id) then
-                self:set_is_rolling(true)
-                self.job:roll(roll1.id, self.roll1:should_use_crooked_cards())
-                return
-            end
-            if self.job:get_max_num_rolls() > 1 then
-                local roll2 = res.job_abilities:with('en', self.roll2:get_roll_name())
-                if not self.job:has_roll(roll2.id) then
-                    self:set_is_rolling(true)
-                    self.job:roll(roll2.id, self.roll2:should_use_crooked_cards())
-                    return
-                end
-            end
-        end
-    end
-end
-
-function Roller:allows_duplicates()
-    return false
-end
-
-function Roller:get_type()
-    return "roller"
-end
-
-function Roller:set_rolls(roll1, roll2)
-    self.roll1 = roll1
-    self.roll2 = roll2
 end
 
 return Roller

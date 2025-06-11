@@ -1197,6 +1197,45 @@ function Migration_v33:getDescription()
     return "Adding healing gambits."
 end
 
+---------------------------
+-- Adding roll settings.
+-- @class module
+-- @name Migration_v34
+
+local Migration_v34 = setmetatable({}, { __index = Migration })
+Migration_v34.__index = Migration_v34
+Migration_v34.__class = "Migration_v34"
+
+function Migration_v34.new()
+    local self = setmetatable(Migration.new(), Migration_v34)
+    return self
+end
+
+function Migration_v34:shouldPerform(trustSettings, _, _)
+    return L { 'COR' }:contains(trustSettings.jobNameShort)
+end
+
+function Migration_v34:perform(trustSettings, _, _)
+    local defaultSettings = T(trustSettings:getDefaultSettings()):clone().Default
+    local modeNames = list.subtract(L(T(trustSettings:getSettings()):keyset()), L { 'Version', 'Migrations' })
+    for modeName in modeNames:it() do
+        local currentSettings = trustSettings:getSettings()[modeName]
+        if currentSettings.RollSettings == nil then
+            currentSettings.RollSettings = defaultSettings.RollSettings
+            currentSettings.RollSettings.Roll1 = currentSettings.Roll1
+            currentSettings.RollSettings.Roll2 = currentSettings.Roll2
+            print(currentSettings.RollSettings.Roll1 ~= nil)
+            print(currentSettings.RollSettings.Roll2 ~= nil)
+            currentSettings.Roll1 = nil
+            currentSettings.Roll2 = nil
+        end
+    end
+end
+
+function Migration_v34:getDescription()
+    return "Adding roll settings."
+end
+
 return {
     Migration_v1 = Migration_v1,
     Migration_v2 = Migration_v2,
@@ -1230,5 +1269,6 @@ return {
     Migration_v31 = Migration_v31,
     Migration_v32 = Migration_v32,
     Migration_v33 = Migration_v33,
+    Migration_v34 = Migration_v34,
 }
 
