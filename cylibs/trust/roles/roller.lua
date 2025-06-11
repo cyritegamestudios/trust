@@ -136,6 +136,7 @@ function Roller:set_roll_settings(roll_settings)
         }
     end
 
+    roller_gambits = gambit_settings.Gambits
 
     for gambit in gambit_settings.Gambits:it() do
         gambit.conditions = gambit.conditions:filter(function(condition)
