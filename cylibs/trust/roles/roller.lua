@@ -9,10 +9,8 @@ local Gambiter = require('cylibs/trust/roles/gambiter')
 local Roller = setmetatable({}, {__index = Gambiter })
 Roller.__index = Roller
 
-state.AutoRollMode = M{['description'] = 'Use Phantom Roll', 'Manual', 'Auto', 'Safe', 'Off'}
-state.AutoRollMode:set_description('Manual', "Automatically double up after manually using a roll.")
+state.AutoRollMode = M{['description'] = 'Use Phantom Roll', 'Auto', 'Off'}
 state.AutoRollMode:set_description('Auto', "Automatically roll until an 11 or lucky roll.")
-state.AutoRollMode:set_description('Safe', "Automatically roll and prioritize not busting over an 11 or lucky roll.")
 
 -- Event called when rolls begin
 function Roller:on_rolls_begin()
@@ -94,6 +92,7 @@ function Roller:set_roll_settings(roll_settings)
     self.max_double_up_num = roll_settings.DoubleUpThreshold
     self.num_party_members_nearby = roll_settings.NumRequiredPartyMembers
     self.prioritize_elevens = roll_settings.PrioritizeElevens
+    self.max_bust_count = self.job:isMainJob() and 2 or 1
 
     -- 1. If bust -> fold
     -- 2. If double up active and current roll == lucky roll - 1 -> snake eye
@@ -110,8 +109,8 @@ function Roller:set_roll_settings(roll_settings)
     -- 3. XI streak?
 
     -- FIXME:
-    -- Need to make crooked cards optional
-    -- Need to make it stop rolling if current roll num is 11
+    -- Still doubling up on 10 for corsair's roll
+    -- Need to account for when has bust (1 or 2) to make it not keep rolling
 
     local gambit_settings = {
         Gambits = L{},
@@ -126,7 +125,10 @@ function Roller:set_roll_settings(roll_settings)
         }, JobAbility.new('Double-Up'), Condition.TargetType.Self),
     }
 
-    for roll in L{ self.roll1, self.roll2 }:it() do
+    local rolls = self.job:isMainJob() and L{ self.roll1, self.roll2 } or L{ self.roll1 }
+    for roll in rolls:it() do
+        local allGambits = L{}
+
         local newRollGambits = L{}
         if roll:should_use_crooked_cards() then
             newRollGambits = newRollGambits + L{
@@ -145,11 +147,16 @@ function Roller:set_roll_settings(roll_settings)
             }, JobAbility.new(roll:get_roll_name()), Condition.TargetType.Self)
         }
 
-        gambit_settings.Gambits = gambit_settings.Gambits + L {
+        allGambits = allGambits + L{
             Gambit.new(GambitTarget.TargetType.Self, L {
                 GambitCondition.new(HasBuffCondition.new('Double-Up Chance'), GambitTarget.TargetType.Self),
                 GambitCondition.new(NotCondition.new(L { HasBuffCondition.new('Snake Eye') }), GambitTarget.TargetType.Self),
                 HasRollCondition.new(roll:get_roll_name(), self.job:get_lucky_roll(roll:get_roll_name()) - 1, Condition.Operator.Equals)
+            }, JobAbility.new('Snake Eye'), Condition.TargetType.Self),
+            Gambit.new(GambitTarget.TargetType.Self, L {
+                GambitCondition.new(HasBuffCondition.new('Double-Up Chance'), GambitTarget.TargetType.Self),
+                GambitCondition.new(NotCondition.new(L { HasBuffCondition.new('Snake Eye') }), GambitTarget.TargetType.Self),
+                HasRollCondition.new(roll:get_roll_name(), 10, Condition.Operator.Equals)
             }, JobAbility.new('Snake Eye'), Condition.TargetType.Self)
         } + newRollGambits + L{
             Gambit.new(GambitTarget.TargetType.Self, L{
@@ -157,25 +164,24 @@ function Roller:set_roll_settings(roll_settings)
                 HasRollCondition.new(roll:get_roll_name(), self.job:get_unlucky_roll(roll:get_roll_name()), Condition.Operator.Equals)
             }, JobAbility.new('Double-Up'), GambitTarget.TargetType.Self),
         }
-        if self.prioritize_elevens then
-            gambit_settings.Gambits:append(Gambit.new(GambitTarget.TargetType.Self, L{
+        if self.job:isMainJob() and self.prioritize_elevens then
+            allGambits:append(Gambit.new(GambitTarget.TargetType.Self, L{
                 GambitCondition.new(HasBuffsCondition.new(L{ roll:get_roll_name(), 'Double-Up Chance' }, 2), GambitTarget.TargetType.Self),
                 GambitCondition.new(NotCondition.new(L{ HasRollCondition.new(roll:get_roll_name(), self.job:get_lucky_roll(roll:get_roll_name()), Condition.Operator.Equals)}), GambitTarget.TargetType.Self),
                 GambitCondition.new(ConditionalCondition.new(L{
                     HasRollCondition.new(roll:get_roll_name(), self.max_double_up_num, Condition.Operator.LessThanOrEqualTo),
-                    ConditionalCondition.new(L{
-                        HasRollCondition.new(self.roll1:get_roll_name(), 11, Condition.Operator.Equals), -- FIXME: this needs to only check the other roll otherwise it doubles up on 11 for this roll
-                        HasRollCondition.new(self.roll2:get_roll_name(), 11, Condition.Operator.Equals),
-                    }, Condition.LogicalOperator.Or)
+                    HasRollCondition.new(rolls:firstWhere(function(r) return r:get_roll_name() ~= roll:get_roll_name() end):get_roll_name(), 11, Condition.Operator.Equals),
                 }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Self),
             }, JobAbility.new('Double-Up'), GambitTarget.TargetType.Self))
         else
-            gambit_settings.Gambits:append(Gambit.new(GambitTarget.TargetType.Self, L{
+            allGambits:append(Gambit.new(GambitTarget.TargetType.Self, L{
                 GambitCondition.new(HasBuffsCondition.new(L{ roll:get_roll_name(), 'Double-Up Chance' }, 2), GambitTarget.TargetType.Self),
                 GambitCondition.new(NotCondition.new(L{ HasRollCondition.new(roll:get_roll_name(), self.job:get_lucky_roll(roll:get_roll_name()), Condition.Operator.Equals)}), GambitTarget.TargetType.Self),
                 GambitCondition.new(HasRollCondition.new(roll:get_roll_name(), self.max_double_up_num, Condition.Operator.LessThanOrEqualTo), GambitTarget.TargetType.Self),
             }, JobAbility.new('Double-Up'), GambitTarget.TargetType.Self))
         end
+
+        gambit_settings.Gambits = gambit_settings.Gambits + allGambits
     end
 
     roller_gambits = gambit_settings.Gambits
@@ -242,26 +248,10 @@ function Roller:on_roll_used(roll_id, targets)
     self.last_roll_num = roll_num
 
     local roll = res.job_abilities:with('id', roll_id)
-    if roll.en == self.roll1:get_roll_name() or state.AutoRollMode.value == 'Manual' then
+    if roll.en == self.roll1:get_roll_name() then
         self.roll1_current = roll_num
-        if self.job:can_snake_eye() and self.job:should_snake_eye(roll.id, roll_num) then
-            self.job:snake_eye()
-        else
-            self.should_double_up = self.job:should_double_up(roll.id, roll_num)
-            if not self.should_double_up then
-                self:set_is_rolling(false)
-            end
-        end
     elseif roll.en == self.roll2:get_roll_name() then
         self.roll2_current = roll_num
-        if self.job:can_snake_eye() and self.job:should_snake_eye(roll.id, roll_num) then
-            self.job:snake_eye()
-        else
-            self.should_double_up = self.job:should_double_up(roll.id, roll_num)
-            if not self.should_double_up then
-                self:set_is_rolling(false)
-            end
-        end
     end
 end
 
