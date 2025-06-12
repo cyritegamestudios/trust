@@ -54,48 +54,35 @@ function GambitLibraryMenuItem:getGambitCategoryMenuItem(category)
         ButtonItem.default('Confirm', 18),
         ButtonItem.localized('Clear All', i18n.translate('Button_Clear_All')),
         ButtonItem.localized('Filter', i18n.translate('Button_Filter')),
-    }, {
-        Confirm = self:getAddGambitsMenuItem()
-    }, function(_, infoView)
+    }, {}, function(_, infoView)
         local configItem = MultiPickerConfigItem.new("Gambits", L{}, category:getGambits(), function(gambit)
+            return gambit:tostring()
+        end, "", nil, nil, function(gambit)
             return gambit:tostring()
         end)
         configItem:setNumItemsRequired(1, 999)
 
         local gambitList = FFXIPickerView.new(configItem, FFXIClassicStyle.WindowSize.Editor.ConfigEditorLarge, 17)
 
+        gambitList:on_pick_items():addAction(function(_, gambits)
+            local settings = self.trustSettings:getSettings()[self.trustSettingsMode.value]
+            for settingsKey in self.settingsKeys:it() do
+                settings = settings[settingsKey]
+            end
+            for gambit in gambits:it() do
+                settings.Gambits:append(gambit:copy())
+            end
+
+            self.trustSettings:saveSettings(true)
+
+            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll add this gambit to my list!")
+        end)
+
         gambitList:setNeedsLayout()
         gambitList:layoutIfNeeded()
 
-        self.disposeBag:add(gambitList:getDelegate():didHighlightItemAtIndexPath():addAction(function(indexPath)
-            self.selectedGambit = category:getGambits()[indexPath.row]
-            if self.selectedGambit then
-                infoView:setDescription(self.selectedGambit:tostring())
-            end
-        end), gambitList:getDelegate():didHighlightItemAtIndexPath())
-
         return gambitList
     end, category:getName(), category:getDescription())
-end
-
-function GambitLibraryMenuItem:getAddGambitsMenuItem()
-    return MenuItem.action(function()
-        if self.selectedGambit == nil then
-            return
-        end
-
-        local settings = self.trustSettings:getSettings()[self.trustSettingsMode.value]
-        for settingsKey in self.settingsKeys:it() do
-            settings = settings[settingsKey]
-        end
-
-        local currentGambits = settings.Gambits
-        currentGambits:append(self.selectedGambit)
-
-        self.trustSettings:saveSettings(true)
-
-        addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I'll add this gambit to my list!")
-    end, "Gambits", "Add the selected gambit from the library.")
 end
 
 return GambitLibraryMenuItem
