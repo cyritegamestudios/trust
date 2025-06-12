@@ -57,6 +57,8 @@ function GambitLibraryMenuItem:getGambitCategoryMenuItem(category)
     }, {}, function(_, infoView)
         local configItem = MultiPickerConfigItem.new("Gambits", L{}, category:getGambits(), function(gambit)
             return gambit:tostring()
+        end, "", nil, nil, function(gambit)
+            return gambit:tostring()
         end)
         configItem:setNumItemsRequired(1, 999)
 
@@ -68,7 +70,7 @@ function GambitLibraryMenuItem:getGambitCategoryMenuItem(category)
                 settings = settings[settingsKey]
             end
             for gambit in gambits:it() do
-                settings.Gambits:append(gambit)
+                settings.Gambits:append(gambit:copy())
             end
 
             self.trustSettings:saveSettings(true)
@@ -78,13 +80,6 @@ function GambitLibraryMenuItem:getGambitCategoryMenuItem(category)
 
         gambitList:setNeedsLayout()
         gambitList:layoutIfNeeded()
-
-        self.disposeBag:add(gambitList:getDelegate():didHighlightItemAtIndexPath():addAction(function(indexPath)
-            self.selectedGambit = category:getGambits()[indexPath.row]
-            if self.selectedGambit then
-                infoView:setDescription(self.selectedGambit:tostring())
-            end
-        end), gambitList:getDelegate():didHighlightItemAtIndexPath())
 
         return gambitList
     end, category:getName(), category:getDescription())
