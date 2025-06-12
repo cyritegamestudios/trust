@@ -1,3 +1,4 @@
+local BooleanConfigItem = require('ui/settings/editors/config/BooleanConfigItem')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local ConfigItem = require('ui/settings/editors/config/ConfigItem')
@@ -33,7 +34,8 @@ function RollSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
             Roll1 = allSettings.Roll1:get_roll_name(),
             Roll2 = allSettings.Roll2:get_roll_name(),
             DoubleUpThreshold = allSettings.DoubleUpThreshold,
-            NumRequiredPartyMembers = allSettings.NumRequiredPartyMembers
+            NumRequiredPartyMembers = allSettings.NumRequiredPartyMembers,
+            PrioritizeElevens = allSettings.PrioritizeElevens,
         }
 
         local configItems = L{
@@ -41,6 +43,7 @@ function RollSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
             PickerConfigItem.new('Roll2', rollSettings.Roll2, trust:get_job():get_all_rolls():sort(), nil, "Roll 2"),
             ConfigItem.new('DoubleUpThreshold', 1, 10, 1, function(value) return value.."" end, "Double-Up Max"),
             ConfigItem.new('NumRequiredPartyMembers', 1, 6, 1, function(value) return value.."" end, "Num Party Members Nearby"),
+            BooleanConfigItem.new('PrioritizeElevens', "XI Streak"),
         }
 
         local rollConfigEditor = ConfigEditor.new(self.trustSettings, rollSettings, configItems)
@@ -51,6 +54,7 @@ function RollSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
                 allSettings.Roll2 = Roll.new(newSettings.Roll2, false)
                 allSettings.DoubleUpThreshold = newSettings.DoubleUpThreshold
                 allSettings.NumRequiredPartyMembers = newSettings.NumRequiredPartyMembers
+                allSettings.PrioritizeElevens = newSettings.PrioritizeElevens
 
                 self.trustSettings:saveSettings(true)
 

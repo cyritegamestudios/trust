@@ -14,6 +14,7 @@ return {
             Roll2 = Roll.new("Samurai Roll", false),
             DoubleUpThreshold = 8,
             NumRequiredPartyMembers = 1,
+            PrioritizeElevens = false,
         },
         Roll1 = Roll.new("Chaos Roll", true),
         Roll2 = Roll.new("Samurai Roll", false),

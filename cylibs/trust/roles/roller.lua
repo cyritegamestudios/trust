@@ -1,9 +1,9 @@
+local ConditionalCondition = require('cylibs/conditions/conditional')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Event = require('cylibs/events/Luvent')
 local GambitTarget = require('cylibs/gambits/gambit_target')
 local HasRollCondition = require('cylibs/conditions/has_roll')
-local HealerTracker = require('cylibs/analytics/trackers/healer_tracker')
-local TargetNamesCondition = require('cylibs/conditions/target_names')
+local Sequence = require('cylibs/battle/sequence')
 
 local Gambiter = require('cylibs/trust/roles/gambiter')
 local Roller = setmetatable({}, {__index = Gambiter })
@@ -93,6 +93,7 @@ function Roller:set_roll_settings(roll_settings)
     self.roll2 = roll_settings.Roll2
     self.max_double_up_num = roll_settings.DoubleUpThreshold
     self.num_party_members_nearby = roll_settings.NumRequiredPartyMembers
+    self.prioritize_elevens = roll_settings.PrioritizeElevens
 
     -- 1. If bust -> fold
     -- 2. If double up active and current roll == lucky roll - 1 -> snake eye
@@ -102,38 +103,79 @@ function Roller:set_roll_settings(roll_settings)
     -- 2. Has roll 1 and double up is active and unlucky roll -> double up
     -- 3. Has roll 1 and double up is active and not is lucky roll and current roll < max double up threshold -> double up
 
+    -- TODO:
+    -- 1. Random deal logic?
+    -- 2. Less risky double up if Fold is down?
+
+    -- 3. XI streak?
+
+    -- FIXME:
+    -- Need to make crooked cards optional
+    -- Need to make it stop rolling if current roll num is 11
+
     local gambit_settings = {
         Gambits = L{},
-        Roll1 = L{},
-        Roll2 = L{},
     }
 
     gambit_settings.Gambits = L{
         Gambit.new(GambitTarget.TargetType.Self, L{
             GambitCondition.new(HasBuffCondition.new('Bust'), GambitTarget.TargetType.Self),
         }, JobAbility.new('Fold'), Condition.TargetType.Self),
+        Gambit.new(GambitTarget.TargetType.Self, L{
+            GambitCondition.new(HasBuffCondition.new('Snake Eye'), GambitTarget.TargetType.Self),
+        }, JobAbility.new('Double-Up'), Condition.TargetType.Self),
     }
 
     for roll in L{ self.roll1, self.roll2 }:it() do
-        gambit_settings.Gambits = gambit_settings.Gambits + L{
-            Gambit.new(GambitTarget.TargetType.Self, L{
-                GambitCondition.new(HasBuffCondition.new('Double-Up Chance'), GambitTarget.TargetType.Self),
-                GambitCondition.new(NotCondition.new(L{ HasBuffCondition.new('Snake Eye') }), GambitTarget.TargetType.Self),
-                HasRollCondition.new(roll:get_roll_name(), self.job:get_lucky_roll(roll:get_roll_name()) - 1, Condition.Operator.Equals)
-            }, JobAbility.new('Snake Eye'), Condition.TargetType.Self),
+        local newRollGambits = L{}
+        if roll:should_use_crooked_cards() then
+            newRollGambits = newRollGambits + L{
+                Gambit.new(GambitTarget.TargetType.Self, L{
+                    GambitCondition.new(NotCondition.new(L{ HasBuffCondition.new(roll:get_roll_name()) }), GambitTarget.TargetType.Self),
+                    GambitCondition.new(JobAbilityRecastReadyCondition.new("Crooked Cards"), GambitTarget.TargetType.Self),
+                }, Sequence.new(L{
+                    JobAbility.new("Crooked Cards"),
+                    JobAbility.new(roll:get_roll_name()),
+                }) or JobAbility.new(roll:get_roll_name()), Condition.TargetType.Self),
+            }
+        end
+        newRollGambits = newRollGambits + L{
             Gambit.new(GambitTarget.TargetType.Self, L{
                 GambitCondition.new(NotCondition.new(L{ HasBuffCondition.new(roll:get_roll_name()) }), GambitTarget.TargetType.Self),
-            }, JobAbility.new(roll:get_roll_name()), Condition.TargetType.Self),
+            }, JobAbility.new(roll:get_roll_name()), Condition.TargetType.Self)
+        }
+
+        gambit_settings.Gambits = gambit_settings.Gambits + L {
+            Gambit.new(GambitTarget.TargetType.Self, L {
+                GambitCondition.new(HasBuffCondition.new('Double-Up Chance'), GambitTarget.TargetType.Self),
+                GambitCondition.new(NotCondition.new(L { HasBuffCondition.new('Snake Eye') }), GambitTarget.TargetType.Self),
+                HasRollCondition.new(roll:get_roll_name(), self.job:get_lucky_roll(roll:get_roll_name()) - 1, Condition.Operator.Equals)
+            }, JobAbility.new('Snake Eye'), Condition.TargetType.Self)
+        } + newRollGambits + L{
             Gambit.new(GambitTarget.TargetType.Self, L{
                 HasBuffsCondition.new(L{ roll:get_roll_name(), 'Double-Up Chance' }, 2),
                 HasRollCondition.new(roll:get_roll_name(), self.job:get_unlucky_roll(roll:get_roll_name()), Condition.Operator.Equals)
             }, JobAbility.new('Double-Up'), GambitTarget.TargetType.Self),
-            Gambit.new(GambitTarget.TargetType.Self, L{
-                HasBuffsCondition.new(L{ roll:get_roll_name(), 'Double-Up Chance' }, 2),
-                NotCondition.new(L{ HasRollCondition.new(roll:get_roll_name(), self.job:get_lucky_roll(roll:get_roll_name()), Condition.Operator.Equals)}),
-                HasRollCondition.new(roll:get_roll_name(), self.max_double_up_num, Condition.Operator.LessThanOrEqualTo),
-            }, JobAbility.new('Double-Up'), GambitTarget.TargetType.Self),
         }
+        if self.prioritize_elevens then
+            gambit_settings.Gambits:append(Gambit.new(GambitTarget.TargetType.Self, L{
+                GambitCondition.new(HasBuffsCondition.new(L{ roll:get_roll_name(), 'Double-Up Chance' }, 2), GambitTarget.TargetType.Self),
+                GambitCondition.new(NotCondition.new(L{ HasRollCondition.new(roll:get_roll_name(), self.job:get_lucky_roll(roll:get_roll_name()), Condition.Operator.Equals)}), GambitTarget.TargetType.Self),
+                GambitCondition.new(ConditionalCondition.new(L{
+                    HasRollCondition.new(roll:get_roll_name(), self.max_double_up_num, Condition.Operator.LessThanOrEqualTo),
+                    ConditionalCondition.new(L{
+                        HasRollCondition.new(self.roll1:get_roll_name(), 11, Condition.Operator.Equals), -- FIXME: this needs to only check the other roll otherwise it doubles up on 11 for this roll
+                        HasRollCondition.new(self.roll2:get_roll_name(), 11, Condition.Operator.Equals),
+                    }, Condition.LogicalOperator.Or)
+                }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Self),
+            }, JobAbility.new('Double-Up'), GambitTarget.TargetType.Self))
+        else
+            gambit_settings.Gambits:append(Gambit.new(GambitTarget.TargetType.Self, L{
+                GambitCondition.new(HasBuffsCondition.new(L{ roll:get_roll_name(), 'Double-Up Chance' }, 2), GambitTarget.TargetType.Self),
+                GambitCondition.new(NotCondition.new(L{ HasRollCondition.new(roll:get_roll_name(), self.job:get_lucky_roll(roll:get_roll_name()), Condition.Operator.Equals)}), GambitTarget.TargetType.Self),
+                GambitCondition.new(HasRollCondition.new(roll:get_roll_name(), self.max_double_up_num, Condition.Operator.LessThanOrEqualTo), GambitTarget.TargetType.Self),
+            }, JobAbility.new('Double-Up'), GambitTarget.TargetType.Self))
+        end
     end
 
     roller_gambits = gambit_settings.Gambits
@@ -197,6 +239,7 @@ function Roller:on_roll_used(roll_id, targets)
     self.should_double_up = false
 
     local roll_num = targets[1].actions[1].param
+    self.last_roll_num = roll_num
 
     local roll = res.job_abilities:with('id', roll_id)
     if roll.en == self.roll1:get_roll_name() or state.AutoRollMode.value == 'Manual' then
@@ -220,6 +263,10 @@ function Roller:on_roll_used(roll_id, targets)
             end
         end
     end
+end
+
+function Roller:get_last_roll_num()
+    return self.last_roll_num
 end
 
 return Roller
