@@ -9,6 +9,7 @@ local Entity = require('cylibs/entity/entity')
 local Event = require('cylibs/events/Luvent')
 local ffxi_util = require('cylibs/util/ffxi_util')
 local packets = require('packets')
+local Renderer = require('cylibs/ui/views/render')
 local res = require('resources')
 
 local Player = setmetatable({}, {__index = Entity })
@@ -198,13 +199,6 @@ function Player:monitor()
             -- Notify target changes
             if id == 0x015 then
                 local p = packets.parse('outgoing', original)
-                local current_position = ffxi_util.get_player_position()
-                if ffxi_util.distance(self.last_position, current_position) > 0.01 then
-                    self:set_moving(true)
-                else
-                    self:set_moving(false)
-                end
-                self.last_position = current_position
                 self:update_target(p['Target Index'])
             end
         end)
@@ -220,6 +214,19 @@ function Player:monitor()
             end
         end), WindowerEvents.ActionMessage)
     end
+
+    self.dispose_bag:add(Renderer.shared():onPrerender():addAction(function()
+        local player = windower.ffxi.get_mob_by_id(windower.ffxi.get_player().id)
+        if player then
+            local current_position = V{ player.x, player.y, player.z }
+            if ffxi_util.distance(self.last_position, current_position) > 0.01 then
+                self:set_moving(true)
+            else
+                self:set_moving(false)
+            end
+            self.last_position = current_position
+        end
+    end), Renderer.shared():onPrerender())
 
     -- Notify actions
     self.dispose_bag:add(WindowerEvents.Action:addAction(function(action)
