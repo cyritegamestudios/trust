@@ -16,11 +16,13 @@ HasBuffsCondition.__index = HasBuffsCondition
 HasBuffsCondition.__type = "HasBuffsCondition"
 HasBuffsCondition.__class = "HasBuffsCondition"
 
+-- FIXME: move target index to last param
 function HasBuffsCondition.new(buff_names, num_required, target_index)
     local self = setmetatable(Condition.new(target_index), HasBuffsCondition)
     self.buff_names = buff_names or L{ "sleep" } -- save arg for serializer
     self.buff_ids = self.buff_names:map(function(buff_name) return buff_util.buff_id(buff_name)  end)
     self.num_required = num_required or self.buff_names:length()
+    self.operator = Condition.Operator.GreaterThanOrEqualTo
     return self
 end
 
@@ -30,6 +32,13 @@ function HasBuffsCondition.from_party_member(buff_names, num_required, party_mem
     self.buff_ids = buff_names:map(function(buff_name) return buff_util.buff_id(buff_name)  end)
     self.num_required = num_required or buff_names:length()
     self.party_member = party_member
+    self.operator = Condition.Operator.GreaterThanOrEqualTo
+    return self
+end
+
+function HasBuffsCondition.count(buff_names, buff_count, operator)
+    local self = HasBuffsCondition.new(buff_names, buff_count)
+    self.operator = operator
     return self
 end
 
@@ -56,11 +65,7 @@ function HasBuffsCondition:is_satisfied(target_index)
     for buff_id in buff_ids:it() do
         num_active_buffs = num_active_buffs + self:get_buff_count(buff_id, target_index)
     end
-    if num_active_buffs >= self.num_required then
-        return true
-    else
-        return false
-    end
+    return self:eval(num_active_buffs, self.num_required, self.operator)
 end
 
 function HasBuffsCondition:get_config_items()
@@ -97,7 +102,7 @@ function HasBuffsCondition:tostring()
     if buff_names:length() == self.num_required then
         return "Has "..localization_util.commas(buff_names)
     else
-        return "Has "..self.num_required.."+ of "..localization_util.commas(buff_names)
+        return string.format("Has %s %d of %s", self.operator, self.num_required, localization_util.commas(buff_names))
     end
 end
 

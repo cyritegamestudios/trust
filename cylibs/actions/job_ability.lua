@@ -46,6 +46,19 @@ end
 function JobAbility:perform()
     logger.notice(self.__class, 'perform', self.job_ability_name)
 
+    if self:get_job_ability_name() == 'Double-Up' then
+        for trust in L{ player.trust.main_job, player.trust.sub_job }:compact_map():it() do
+            local roller = trust:role_with_type("roller")
+            if roller then
+                local message = ""
+                for roll_id, roll_num in pairs(roller.roll_tracker) do
+                    message = string.format("%s, %s: %d", message, res.job_abilities[roll_id].en, roll_num)
+                end
+                print(message)
+            end
+        end
+    end
+
     self.dispose_bag:add(WindowerEvents.Action:addAction(function(action)
         if action.actor_id ~= windower.ffxi.get_player().id then return end
 
