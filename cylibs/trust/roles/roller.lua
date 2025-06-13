@@ -3,6 +3,7 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local Event = require('cylibs/events/Luvent')
 local GambitTarget = require('cylibs/gambits/gambit_target')
 local HasRollCondition = require('cylibs/conditions/has_roll')
+local PhantomRoll = require('cylibs/battle/abilities/phantom_roll')
 local Sequence = require('cylibs/battle/sequence')
 
 local Gambiter = require('cylibs/trust/roles/gambiter')
@@ -109,8 +110,8 @@ function Roller:set_roll_settings(roll_settings)
     -- 3. XI streak?
 
     -- FIXME:
-    -- Still doubling up on 10 for corsair's roll
-    -- Need to account for when has bust (1 or 2) to make it not keep rolling
+    -- Still doubling up on 10 for corsair's roll (it might have thought it still had snake eye??)
+    -- Need to account for when has bust (1 or 2) to make it not keep rolling (fixed?)
 
     local gambit_settings = {
         Gambits = L{},
@@ -138,13 +139,13 @@ function Roller:set_roll_settings(roll_settings)
                 }, Sequence.new(L{
                     JobAbility.new("Crooked Cards"),
                     JobAbility.new(roll:get_roll_name()),
-                }) or JobAbility.new(roll:get_roll_name()), Condition.TargetType.Self),
+                }) or PhantomRoll.new(roll:get_roll_name()), Condition.TargetType.Self),
             }
         end
         newRollGambits = newRollGambits + L{
             Gambit.new(GambitTarget.TargetType.Self, L{
                 GambitCondition.new(NotCondition.new(L{ HasBuffCondition.new(roll:get_roll_name()) }), GambitTarget.TargetType.Self),
-            }, JobAbility.new(roll:get_roll_name()), Condition.TargetType.Self)
+            }, PhantomRoll.new(roll:get_roll_name()), Condition.TargetType.Self)
         }
 
         allGambits = allGambits + L{
