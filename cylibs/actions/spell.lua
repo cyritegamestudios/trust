@@ -16,7 +16,7 @@ SpellAction.__type = "SpellAction"
 
 function SpellAction.new(x, y, z, spell_id, target_index, player, conditions)
 	local conditions = (conditions or L{}):extend(L{
-		IsStandingCondition.new(0.5, ">="),
+		IsStandingCondition.new(0.3, ">="),
 		NotCondition.new(L{StatusCondition.new("Mount")}),
 		NotCondition.new(L{InMogHouseCondition.new()}),
 		MaxDistanceCondition.new(21),
