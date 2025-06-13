@@ -25,7 +25,7 @@ function StatusRemover.new(action_queue, main_job)
 
     self.main_job = main_job
     self.last_status_removal_time = os.time()
-    self.status_removal_delay = main_job:get_status_removal_delay()
+    self.status_removal_delay = 1--main_job:get_status_removal_delay()
     self.aura_list = S{}
     self.dispose_bag = DisposeBag.new()
 
