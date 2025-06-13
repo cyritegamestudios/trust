@@ -74,8 +74,7 @@ function TimeToHealMetric:report_hpp_change(p, hpp, max_hp)
 
             ttr.count = ttr.count + 1
             ttr.average = (ttr.average + delta) / ttr.count
-
-
+            
             self.time_to_heal_summary[p:get_id()] = ttr
 
             logger.notice(self.__class, 'report_hpp_change', p:get_name(), 'logging', delta, 'seconds')
