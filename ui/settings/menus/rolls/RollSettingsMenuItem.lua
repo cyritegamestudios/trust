@@ -151,7 +151,7 @@ function RollSettingsMenuItem:getGambitsMenuItem()
         end), gambitSettingsEditor:on_pick_items())
 
         return gambitSettingsEditor
-    end, "Rolling", "Roll gambits")
+    end, "Rolling", "See gambits controlling rolling behavior.")
     return gambitsMenuItem
 end
 
