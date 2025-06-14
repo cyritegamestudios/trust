@@ -12,17 +12,18 @@ PartyMemberCountCondition.__index = PartyMemberCountCondition
 PartyMemberCountCondition.__type = "PartyMemberCountCondition"
 PartyMemberCountCondition.__class = "PartyMemberCountCondition"
 
-function PartyMemberCountCondition.new(member_count, operator)
+function PartyMemberCountCondition.new(member_count, operator, distance)
     local self = setmetatable(Condition.new(), PartyMemberCountCondition)
     self.member_count = member_count or 6
     self.operator = operator or Condition.Operator.GreaterThanOrEqualTo
+    self.distance = distance or 50
     return self
 end
 
 function PartyMemberCountCondition:is_satisfied(_)
     local party = player.party
     if party then
-        return self:eval(party:get_party_members(true):length(), self.member_count, self.operator)
+        return self:eval(party:get_party_members(true, self.distance):length(), self.member_count, self.operator)
     end
     return false
 end
@@ -30,7 +31,8 @@ end
 function PartyMemberCountCondition:get_config_items()
     return L{
         ConfigItem.new('member_count', 0, 5, 1, function(value) return value.."" end, "Number of Party Members"),
-        PickerConfigItem.new('operator', self.operator, L{ Condition.Operator.GreaterThanOrEqualTo, Condition.Operator.Equals, Condition.Operator.GreaterThan, Condition.Operator.LessThan, Condition.Operator.LessThanOrEqualTo }, nil, "Operator")
+        PickerConfigItem.new('operator', self.operator, L{ Condition.Operator.GreaterThanOrEqualTo, Condition.Operator.Equals, Condition.Operator.GreaterThan, Condition.Operator.LessThan, Condition.Operator.LessThanOrEqualTo }, nil, "Operator"),
+        ConfigItem.new('distance', 0, 50, 1, function(value) return value.." yalms" end, "Distance"),
     }
 end
 
@@ -39,11 +41,11 @@ function PartyMemberCountCondition.valid_targets()
 end
 
 function PartyMemberCountCondition:serialize()
-    return "PartyMemberCountCondition.new(" .. serializer_util.serialize_args(self.member_count, self.operator) .. ")"
+    return "PartyMemberCountCondition.new(" .. serializer_util.serialize_args(self.member_count, self.operator, self.distance) .. ")"
 end
 
 function PartyMemberCountCondition:tostring()
-    return "Has "..' '..self.operator..' '..self.member_count..' party members'
+    return string.format("Has %s %d party members within %d yalms", self.operator, self.member_count, self.distance)
 end
 
 function PartyMemberCountCondition.description()

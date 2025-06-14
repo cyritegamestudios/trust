@@ -124,6 +124,7 @@ function SkillchainTracker:apply_properties(party_member, target_id, action)
         end
 
         local next_step = SkillchainStep.new(step_num, ability, skillchain, ability:get_delay(), os.clock() + ability:get_delay() + 8 - step_num, os.clock())
+
         self:add_step(target_id, next_step)
     end
 end
@@ -152,6 +153,11 @@ end
 function SkillchainTracker:add_step(mob_id, step)
     logger.notice(self.__class, 'add_step', mob_id, tostring(step))
 
+    if self.steps[mob_id] and self.steps[mob_id][step] then
+        logger.notice(self.__class, 'add_step', 'step already exists')
+        return
+    end
+
     local old_step = self:get_current_step(mob_id)
     if old_step then
         local old_properties = L{}
@@ -160,12 +166,19 @@ function SkillchainTracker:add_step(mob_id, step)
         else
             old_properties = old_properties:extend(old_step:get_ability():get_skillchain_properties())
         end
+        local did_upgrade = false
         for old_property in old_properties:it() do
+            if did_upgrade then
+                break
+            end
             for new_property in step:get_ability():get_skillchain_properties():it() do
                 local skillchain = skillchain_util[old_property:get_name()][new_property:get_name()]
                 if skillchain and skillchain:get_level() > 3 then
                     logger.notice(self.__class, 'add_step', 'upgrading', step:get_skillchain():get_name(), 'to', skillchain:get_name())
+                    logger.notice(self.__class, 'add_step', 'old', old_properties:map(function(old) return old:get_name() end), 'new', new_property:get_name())
                     step:set_skillchain(skillchain)
+                    did_upgrade = true
+                    break
                 end
             end
         end

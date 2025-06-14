@@ -3,6 +3,7 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local Event = require('cylibs/events/Luvent')
 local GambitTarget = require('cylibs/gambits/gambit_target')
 local HasRollCondition = require('cylibs/conditions/has_roll')
+local PartyMemberCountCondition = require('cylibs/conditions/party_member_count')
 local PhantomRoll = require('cylibs/battle/abilities/phantom_roll')
 local Sequence = require('cylibs/battle/sequence')
 
@@ -208,6 +209,7 @@ end
 
 function Roller:get_default_conditions(gambit)
     local conditions = L{
+        PartyMemberCountCondition.new(self.num_party_members_nearby or 1, Condition.Operator.GreaterThanOrEqualTo, 16)
     }
 
     local ability_conditions = (L{} + self.job:get_conditions_for_ability(gambit:getAbility()))

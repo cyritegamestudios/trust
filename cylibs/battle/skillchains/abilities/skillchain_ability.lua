@@ -152,7 +152,7 @@ function SkillchainAbility:get_skillchain_properties(include_aeonic)
         return L{}
     end
     local skill = skills[self.resource][self.ability_id]
-    local properties = L(skill.skillchain)
+    local properties = L{} + L(skill.skillchain)
     if include_aeonic and skill.aeonic then
         properties:append(skill.aeonic)
     end
