@@ -17,7 +17,7 @@ local Shooter = require('cylibs/trust/roles/shooter')
 function CorsairTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = Corsair.new(action_queue, state.AutoRollMode)
 	local roles = S{
-		Dispeler.new(action_queue, L{}, L{ JobAbility.new('Dark Shot') }, false),
+		Dispeler.new(action_queue, L{}, L{ JobAbility.new('Dark Shot') }, true),
 		Shooter.new(action_queue, trust_settings.Shooter),
 		Roller.new(action_queue, trust_settings.RollSettings, job),
 		Puller.new(action_queue, trust_settings.PullSettings, job)
