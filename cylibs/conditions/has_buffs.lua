@@ -16,7 +16,6 @@ HasBuffsCondition.__index = HasBuffsCondition
 HasBuffsCondition.__type = "HasBuffsCondition"
 HasBuffsCondition.__class = "HasBuffsCondition"
 
--- FIXME: move target index to last param
 function HasBuffsCondition.new(buff_names, num_required, target_index)
     local self = setmetatable(Condition.new(target_index), HasBuffsCondition)
     self.buff_names = buff_names or L{ "sleep" } -- save arg for serializer

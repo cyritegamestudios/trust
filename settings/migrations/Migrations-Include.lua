@@ -1224,8 +1224,6 @@ function Migration_v34:perform(trustSettings, _, _)
             currentSettings.RollSettings = defaultSettings.RollSettings
             currentSettings.RollSettings.Roll1 = currentSettings.Roll1
             currentSettings.RollSettings.Roll2 = currentSettings.Roll2
-            print(currentSettings.RollSettings.Roll1 ~= nil)
-            print(currentSettings.RollSettings.Roll2 ~= nil)
             currentSettings.Roll1 = nil
             currentSettings.Roll2 = nil
         end

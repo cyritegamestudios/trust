@@ -124,7 +124,6 @@ function SkillchainTracker:apply_properties(party_member, target_id, action)
         end
 
         local next_step = SkillchainStep.new(step_num, ability, skillchain, ability:get_delay(), os.clock() + ability:get_delay() + 8 - step_num, os.clock())
-
         self:add_step(target_id, next_step)
     end
 end
