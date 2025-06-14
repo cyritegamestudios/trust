@@ -141,6 +141,14 @@ function Corsair:is_lucky_roll(roll_id, roll_num)
 end
 
 -------
+-- Returns the lucky number for a roll.
+-- @tparam string roll_name Roll name (see res/job_abilities.lua)
+-- @treturn number Lucky number for roll
+function Corsair:get_lucky_roll(roll_name)
+    return rolls[roll_name].Lucky or 0
+end
+
+-------
 -- Returns whether a roll is an unlucky roll.
 -- @tparam number roll_id Job ability id (see job_abilities.lua)
 -- @tparam number roll_num Roll number
@@ -151,6 +159,14 @@ function Corsair:is_unlucky_roll(roll_id, roll_num)
         return roll_num == rolls[roll.en].Unlucky
     end
     return false
+end
+
+-------
+-- Returns the unlucky number for a roll.
+-- @tparam string roll_name Roll name (see res/job_abilities.lua)
+-- @treturn number Unlucky number for roll
+function Corsair:get_unlucky_roll(roll_name)
+    return rolls[roll_name].Unlucky or 0
 end
 
 -------

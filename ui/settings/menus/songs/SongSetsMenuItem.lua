@@ -162,7 +162,7 @@ function SongSetsMenuItem:getGambitsMenuItem()
         end), gambitSettingsEditor:on_pick_items())
 
         return gambitSettingsEditor
-    end, "Gambits", "Song gambits")
+    end, "Gambits", "See gambits controlling singing behavior.")
     return gambitsMenuItem
 end
 

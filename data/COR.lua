@@ -6,6 +6,16 @@ return {
             Delay = 1.5,
             MaxTP = 1000,
         },
+        RollSettings = {
+            Gambits = L{
+
+            },
+            Roll1 = Roll.new("Chaos Roll", true),
+            Roll2 = Roll.new("Samurai Roll", false),
+            DoubleUpThreshold = 7,
+            NumRequiredPartyMembers = 1,
+            PrioritizeElevens = false,
+        },
         Roll1 = Roll.new("Chaos Roll", true),
         Roll2 = Roll.new("Samurai Roll", false),
         DebuffSettings = {
@@ -34,7 +44,7 @@ return {
         },
         GambitSettings = {
             Default = L{
-                Gambit.new("Self", L{GambitCondition.new(ModeCondition.new("AutoShootMode", "Auto"), "Self")}, JobAbility.new("Triple Shot", L{}, L{}), "Self")
+                Gambit.new("Self", L{GambitCondition.new(ModeCondition.new("AutoShootMode", "Auto"), "Self"), GambitCondition.new(NotCondition.new(L{ HasBuffCondition.new("Triple Shot") }), "Self")}, JobAbility.new("Triple Shot", L{}, L{}), "Self")
             },
             Gambits = L{
                 Gambit.new("Self", L{GambitCondition.new(ModeCondition.new("AutoFoodMode", "Auto"), "Self"), GambitCondition.new(NotCondition.new(L{HasBuffCondition.new("Food")}), "Self"), GambitCondition.new(MainJobCondition.new("COR"), "Self")}, UseItem.new("Grape Daifuku", L{ItemCountCondition.new("Grape Daifuku", 1, ">=")}), "Self", L{"food"}),

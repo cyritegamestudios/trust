@@ -66,6 +66,10 @@ function Trust:init()
 		if healer then
 			healer:set_heal_settings(new_trust_settings.CureSettings)
 		end
+		local roller = self:role_with_type("roller")
+		if roller then
+			roller:set_roll_settings(new_trust_settings.RollSettings)
+		end
 
 		self.gambits = new_trust_settings.GambitSettings.Default or L{}
 	end
