@@ -27,7 +27,7 @@ function RollSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
     self.trust = trust
     self.dispose_bag = DisposeBag.new()
 
-    self.contentViewConstructor = function(_, _)
+    self.contentViewConstructor = function(_, infoView)
         local allSettings = T(self.trustSettings:getSettings())[self.trustSettingsMode.value].RollSettings
 
         local rollSettings = T{
@@ -63,6 +63,18 @@ function RollSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
                 addon_message(260, '('..windower.ffxi.get_player().name..') '.."I can't use the same roll twice!")
             end
         end), rollConfigEditor:onConfigChanged())
+
+        self.dispose_bag:add(rollConfigEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
+            if indexPath.section == 3 then
+                infoView:setDescription(string.format("Do not Double-Up if the current roll >= a certain number (lower = fewer busts, higher = more busts).", allSettings.DoubleUpThreshold))
+            elseif indexPath.section == 4 then
+                infoView:setDescription(string.format("Do not roll unless a certain number of party members are within 16 yalms (assumes Luzaf's Ring is equipped).", allSettings.NumRequiredPartyMembers))
+            elseif indexPath.section == 5 then
+                infoView:setDescription("Go for XIs when an XI roll is currently active (OFF = fewer busts, ON = more busts).")
+            else
+                infoView:setDescription("Choose a roll.")
+            end
+        end), rollConfigEditor:getDelegate():didMoveCursorToItemAtIndexPath())
 
         return rollConfigEditor
     end
