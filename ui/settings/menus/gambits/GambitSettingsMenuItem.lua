@@ -41,6 +41,7 @@ function GambitSettingsMenuItem.compact(trust, trustSettings, trustSettingsMode,
         end, abilityCategoryPlural, nil, function(gambit)
             return AssetManager.imageItemForAbility(gambit:getAbility():get_name())
         end)
+        configItem:setNumItemsRequired(1, 1)
         return L{ configItem }
     end
 
@@ -55,6 +56,7 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
         local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit, gambitIndex)
             return gambit:tostring()
         end)
+        configItem:setNumItemsRequired(1, 1)
         return L{ configItem }
     end, FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge, "Gambit", "Gambits")
     conditionTypeFilter = conditionTypeFilter or function(_)
@@ -116,7 +118,7 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
         local configItem = self.editorConfig:getConfigItem(currentGambits)
 
         local gambitSettingsEditor
-        if configItem:length() > 0 then
+        if configItem:length() > 1 then
             gambitSettingsEditor = FFXIPickerView.new(configItem, false, self.editorConfig:getViewSize())
         else
             local FFXIFastPickerView = require('ui/themes/ffxi/FFXIFastPickerView')

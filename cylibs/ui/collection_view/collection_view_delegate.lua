@@ -308,6 +308,15 @@ function CollectionViewDelegate:deHighlightAllItems()
 end
 
 ---
+-- Gets the highlighted IndexPaths.
+--
+-- @treturn S Returns the set of highlighted IndexPaths
+--
+function CollectionViewDelegate:getHighlightedIndexPaths()
+    return self.highlightedIndexPaths
+end
+
+---
 -- Sets the `indexPath` of the cursor.
 --
 -- @tparam IndexPath indexPath The new value for `cursorIndexPath`
