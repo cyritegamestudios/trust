@@ -25,6 +25,10 @@ function FFXIFastPickerView:on_pick_items()
     return self.pick_items
 end
 
+function FFXIFastPickerView:didMoveCursorToIndexPath()
+    return self.cursorIndexPath:onValueChanged()
+end
+
 function FFXIFastPickerView.new(configItem, viewSize, itemsPerPage)
     viewSize = viewSize or FFXIClassicStyle.WindowSize.Picker.Default
 
@@ -62,6 +66,7 @@ function FFXIFastPickerView.new(configItem, viewSize, itemsPerPage)
     self.maxNumItems = math.min(configItem:getAllValues():length(), itemsPerPage or 10)
     self.highlightedItem = ValueRelay.new(nil)
     self.selectedItems = ValueRelay.new(self.configItem:getInitialValues():copy() or L{})
+    self.cursorIndexPath = ValueRelay.new(IndexPath.new(1, 1))
     self.pick_items = Event.newEvent()
 
     self:setShouldRequestFocus(true)
@@ -69,15 +74,15 @@ function FFXIFastPickerView.new(configItem, viewSize, itemsPerPage)
     self:setScrollEnabled(true)
 
     self:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(cursorIndexPath)
+        local adjustedIndexPath = IndexPath.new(cursorIndexPath.section, cursorIndexPath.row + self.range.startIndex - 1)
         self.highlightedItem = self.visibleItems[cursorIndexPath.row]
-
         if self.configItem.getItemDescription then
-            local description = configItem:getItemDescription(self.highlightedItem, cursorIndexPath.row + self.range.startIndex)
+            local description = configItem:getItemDescription(self.highlightedItem, adjustedIndexPath.row)
             if description then
                 defaultInfoView:setDescription(description)
-                return
             end
         end
+        self.cursorIndexPath:setValue(adjustedIndexPath)
     end)
 
     self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
@@ -104,10 +109,11 @@ function FFXIFastPickerView.new(configItem, viewSize, itemsPerPage)
     return self
 end
 
-function FFXIFastPickerView:getItemForValue(value)
+function FFXIFastPickerView:getItemForValue(value, index)
     local item = TextItem.new(value, self.textStyle)
 
-    local text, isEnabled = self.configItem:getTextFormat()(value)
+    local text, isEnabled = self.configItem:getTextFormat()(value, index)
+
     item:setLocalizedText(text)
     item:setShouldTruncateText(i18n.current_locale() ~= i18n.Locale.Japanese)
 
@@ -148,7 +154,7 @@ function FFXIFastPickerView:setRange(startIndex, endIndex, shouldReload)
     local itemsToUpdate = L{}
     local selectedIndexPaths = L{}
     for indexedItem in IndexedItem.fromItems(self.visibleItems, 1):it() do
-        local item = self:getItemForValue(indexedItem:getItem())
+        local item = self:getItemForValue(indexedItem:getItem(), indexedItem:getIndexPath().row + range.startIndex)
         itemsToUpdate:append(IndexedItem.new(item, indexedItem:getIndexPath()))
         if self.selectedItems:getValue():contains(indexedItem:getItem()) then
             selectedIndexPaths:append(indexedItem:getIndexPath())

@@ -34,6 +34,8 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
         local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit, stepNum)
             return string.format("Step %d: %s", stepNum, descriptionForGambit(gambit:getAbility(), stepNum))
         end)
+        configItem:setAllowsMultipleSelection(false)
+        configItem:setNumItemsRequired(1, 1)
         return L{ configItem }
     end, FFXIClassicStyle.WindowSize.Editor.ConfigEditor, "Skillchain", "Skillchain", function(ability, indexPath)
         return descriptionForGambit(ability, selectedStepNum)
@@ -97,7 +99,10 @@ end
 
 function SkillchainSettingsMenuItem.getNextSteps(stepNum, allGambits, skillchainBuilder)
     local abilityGambits = allGambits
-
+    if stepNum == nil then
+        stepNum = 1
+        print(debug.traceback())
+    end
     local abilities = abilityGambits:map(function(gambit) return gambit:getAbility() end)
     local previousAbilities = abilities:slice(1, math.max(stepNum - 1, 1)):map(
             function(ability)
