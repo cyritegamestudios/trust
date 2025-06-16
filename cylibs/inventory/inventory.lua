@@ -31,6 +31,11 @@ function Inventory:getAllBags()
     return self:getBags(Bag.AllBags)
 end
 
+function Inventory:getKeyItems()
+    local keyItems = L(windower.ffxi.get_key_items())
+    return keyItems
+end
+
 function Inventory:getEquipment()
     return self.equipment
 end

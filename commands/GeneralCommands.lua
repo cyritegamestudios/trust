@@ -232,11 +232,9 @@ end
 
 -- // trust debug
 function GeneralTrustCommands:handle_debug()
-    local heal_condition = ClusterHitPointsPercentRangeCondition.new(1, 92, 2)
-
-    for party_member in player.party:get_party_members(true):it() do
-        print('checking', party_member:get_name(), Condition.check_conditions(L{ heal_condition }, party_member:get_mob().index))
-    end
+    local HasKeyItemsCondition = require('cylibs/conditions/has_key_items')
+    local heal_condition = HasKeyItemsCondition.new(L{ "\"Rhapsody in Crimson\"" })
+    print(Condition.check_conditions(L{ heal_condition }, windower.ffxi.get_player().index))
 
     --local EquipSetAction = require('cylibs/actions/equip_set')
     --local EquipSet = require('cylibs/inventory/equipment/equip_set')

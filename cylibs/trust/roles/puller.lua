@@ -275,6 +275,7 @@ function Puller:get_default_conditions(gambit)
         conditions:append(GambitCondition.new(TargetNamesCondition.new(self:get_target_names()), GambitTarget.TargetType.Enemy))
     end
     local alter_ego_conditions = L{
+        -- FIXME: lower party member count condition from 6
         GambitCondition.new(ConditionalCondition.new(
             L{
                 NotCondition.new(L{ PartyLeaderCondition.new() }),
