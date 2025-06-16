@@ -29,6 +29,10 @@ function FFXIFastPickerView:didMoveCursorToIndexPath()
     return self.cursorIndexPath:onValueChanged()
 end
 
+function FFXIFastPickerView:getCursorIndexPath()
+    return self.cursorIndexPath:getValue()
+end
+
 function FFXIFastPickerView.new(configItem, viewSize, itemsPerPage)
     viewSize = viewSize or FFXIClassicStyle.WindowSize.Picker.Default
 
@@ -172,6 +176,10 @@ function FFXIFastPickerView:setRange(startIndex, endIndex, shouldReload)
     end
 
     self:layoutIfNeeded()
+end
+
+function FFXIFastPickerView:reload()
+    self:setRange(self.range.startIndex, self.range.endIndex, true)
 end
 
 function FFXIFastPickerView:layoutIfNeeded()
