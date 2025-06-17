@@ -1,11 +1,12 @@
 local buff_util = require('cylibs/util/buff_util')
-local cure_util = require('cylibs/util/cure_util')
 local AuraTracker = require('cylibs/battle/aura_tracker')
 local DisposeBag = require('cylibs/events/dispose_bag')
-local logger = require('cylibs/logger/logger')
+local GambitTarget = require('cylibs/gambits/gambit_target')
 local StatusRemovalAction = require('cylibs/actions/status_removal')
+local TargetNamesCondition = require('cylibs/conditions/target_names')
 
-local StatusRemover = setmetatable({}, {__index = Role })
+local Gambiter = require('cylibs/trust/roles/gambiter')
+local StatusRemover = setmetatable({}, {__index = Gambiter })
 StatusRemover.__index = StatusRemover
 StatusRemover.__class = "StatusRemover"
 
@@ -20,14 +21,24 @@ state.AutoDetectAuraMode:set_description('Auto', "Avoid removing status effects 
 -- @tparam ActionQueue action_queue Shared action queue
 -- @tparam Job main_job Main job, used to specify status removal spells
 -- @treturn StatusRemover A status remover
-function StatusRemover.new(action_queue, main_job)
-    local self = setmetatable(Role.new(action_queue), StatusRemover)
+function StatusRemover.new(action_queue, status_removal_settings, job)
+    local self = setmetatable(Gambiter.new(action_queue, { Gambits = L{} }, L{ state.AutoStatusRemovalMode }), StatusRemover)
 
-    self.main_job = main_job
-    self.last_status_removal_time = os.time()
-    self.status_removal_delay = 1--main_job:get_status_removal_delay()
+    self.job = job
+    self.party_member_blacklist = L{}
+    self.timer.timeInterval = 1.0
     self.aura_list = S{}
     self.dispose_bag = DisposeBag.new()
+
+    self:set_status_removal_settings(status_removal_settings)
+
+    --local self = setmetatable(Role.new(action_queue), StatusRemover)
+
+    --self.main_job = main_job
+    --self.last_status_removal_time = os.time()
+    --self.status_removal_delay = 1--main_job:get_status_removal_delay()
+
+    --self.dispose_bag = DisposeBag.new()
 
     return self
 end
@@ -43,23 +54,6 @@ function StatusRemover:on_add()
 
     self.dispose_bag:addAny(L{ self.aura_tracker })
 
-    local monitor_party_member = function(party_member)
-        self.dispose_bag:add(party_member:on_gain_debuff():addAction(
-            function (p, debuff_id)
-                if party_member:get_mob() and party_member:get_mob().distance:sqrt() < 21 and debuff_id ~= 0 then
-                    self:remove_status_effect(L{p}, debuff_id)
-                end
-            end), party_member:on_gain_debuff())
-    end
-
-    self.dispose_bag:add(self:get_party():on_party_member_added():addAction(function(party_member)
-        monitor_party_member(party_member)
-    end), self:get_party():on_party_member_added())
-
-    for party_member in self:get_party():get_party_members(true):it() do
-        monitor_party_member(party_member)
-    end
-
     self.dispose_bag:add(WindowerEvents.StatusRemoval.NoEffect:addAction(function(spell_id, target_id, debuff_id)
         self.aura_tracker:record_status_effect_removal(spell_id, target_id, debuff_id)
     end), WindowerEvents.StatusRemoval.NoEffect)
@@ -71,7 +65,79 @@ function StatusRemover:target_change(target_index)
     self.aura_tracker:reset()
 end
 
-function StatusRemover:tic(old_time, new_time)
+function StatusRemover:get_cooldown()
+    return 1.0
+end
+
+function StatusRemover:allows_duplicates()
+    return false
+end
+
+function StatusRemover:get_type()
+    return "statusremover"
+end
+
+function StatusRemover:allows_multiple_actions()
+    return false
+end
+
+-------
+-- Sets the nuke settings.
+-- @tparam T nuke_settings Nuke settings
+function StatusRemover:set_status_removal_settings(status_removal_settings)
+    self.status_removal_settings = status_removal_settings
+    self.blacklist = status_removal_settings.Blacklist
+
+    for gambit in status_removal_settings.Gambits:it() do
+        if gambit:getAbility().set_requires_all_job_abilities ~= nil then
+            gambit:getAbility():set_requires_all_job_abilities(false)
+        end
+
+        gambit.conditions = gambit.conditions:filter(function(condition)
+
+            return condition:is_editable()
+        end)
+        local conditions = self:get_default_conditions(gambit)
+        for condition in conditions:it() do
+            condition:set_editable(false)
+            gambit:addCondition(condition)
+        end
+    end
+
+    self:set_gambit_settings(status_removal_settings)
+end
+
+function StatusRemover:get_default_conditions(gambit)
+    local conditions = L{
+    }
+
+    if self:get_party_member_blacklist():length() > 0 then
+        conditions:append(NotCondition.new(L{ TargetNamesCondition.new(self:get_party_member_blacklist()) }))
+    end
+
+    if gambit:getAbilityTarget() == GambitTarget.TargetType.Ally then
+        conditions:append(GambitCondition.new(MaxDistanceCondition.new(gambit:getAbility():get_range()), GambitTarget.TargetType.Ally))
+    end
+
+    local ability_conditions = (L{} + self.job:get_conditions_for_ability(gambit:getAbility()))
+
+    return conditions + ability_conditions:map(function(condition)
+        return GambitCondition.new(condition, GambitTarget.TargetType.Self)
+    end)
+end
+
+function StatusRemover:set_party_member_blacklist(blacklist)
+    self.party_member_blacklist = blacklist
+    self:set_status_removal_settings(self.status_removal_settings)
+end
+
+function StatusRemover:get_party_member_blacklist()
+    return self.party_member_blacklist
+end
+
+
+
+--[[function StatusRemover:tic(old_time, new_time)
     if state.AutoStatusRemovalMode.value == 'Off'
             or (os.time() - self.last_status_removal_time) < self.status_removal_delay
             or self:get_party() == nil then
@@ -151,6 +217,6 @@ end
 
 function StatusRemover:get_type()
     return "statusremover"
-end
+end]]
 
 return StatusRemover

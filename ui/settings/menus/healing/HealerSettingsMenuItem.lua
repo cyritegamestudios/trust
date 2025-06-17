@@ -13,8 +13,14 @@ HealerSettingsMenuItem.__index = HealerSettingsMenuItem
 
 function HealerSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings)
     local editorStyle = GambitEditorStyle.new(function(gambits)
-        local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit)
-            return gambit:tostring()
+        local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit, _)
+            return gambit:tostring(), gambit:isEnabled() and gambit:isValid()
+        end, "Gambits", nil, nil, function(gambit, _)
+            if not gambit:isValid() then
+                return "Unavailable on current job or settings."
+            else
+                return gambit:tostring()
+            end
         end)
         configItem:setNumItemsRequired(1, 1)
         return L{ configItem }
