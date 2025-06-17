@@ -17,8 +17,7 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
 
     local selectedGambit = 1
     local selectedStepNum = 1
-
-    -- FIXME: when this is called by editor it doesn't pass an index so it can't figure out the step
+    
     local descriptionForGambit = function(ability, stepNum)
         local allGambits = T(weaponSkillSettings:getSettings())[weaponSkillSettingsMode.value].Skillchain.Gambits
         local nextSteps = SkillchainSettingsMenuItem.getNextSteps(stepNum, allGambits, skillchainBuilder)
@@ -99,10 +98,6 @@ end
 
 function SkillchainSettingsMenuItem.getNextSteps(stepNum, allGambits, skillchainBuilder)
     local abilityGambits = allGambits
-    if stepNum == nil then
-        stepNum = 1
-        print(debug.traceback())
-    end
     local abilities = abilityGambits:map(function(gambit) return gambit:getAbility() end)
     local previousAbilities = abilities:slice(1, math.max(stepNum - 1, 1)):map(
             function(ability)

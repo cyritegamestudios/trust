@@ -60,7 +60,7 @@ end
 function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKeys, abilityTargets, abilitiesForTargets, conditionTargets, editorStyle, modes, libraryCategoryFilter, gambitTagBlacklist, conditionTypeFilter)
     editorStyle = editorStyle or GambitEditorStyle.new(function(gambits)
         local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit, _)
-            return gambit:tostring()
+            return gambit:tostring(), gambit:isEnabled() and gambit:isValid()
         end, "Gambits", nil, nil, function(gambit, _)
             if not gambit:isValid() then
                 return "Unavailable on current job or settings."
