@@ -16,6 +16,7 @@ function HealerSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
         local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit)
             return gambit:tostring()
         end)
+        configItem:setNumItemsRequired(1, 1)
         return L{ configItem }
     end, FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge, "Heal", "Heals", nil, function(menuItemName)
         return L{ 'Add', 'Remove', 'Edit', 'Move Up', 'Move Down', 'Reset', 'Modes', 'Shortcuts', 'Blacklist' }:contains(menuItemName)

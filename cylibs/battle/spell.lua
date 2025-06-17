@@ -269,13 +269,12 @@ function Spell:to_action(target_index, player, job_abilities)
     end
 
     local job_abilities = (job_abilities or self:get_job_abilities()):map(function(job_ability_name)
-        local conditions = L{}
-
-        local job_ability = res.job_abilities:with('en', job_ability_name)
-        if job_ability.status then
-            conditions:append(NotCondition.new(L{ HasBuffCondition.new(res.buffs[job_ability.status].en, player:get_mob().index) }, windower.ffxi.get_player().index))
+        local job_ability = JobAbility.new(job_ability_name)
+        local status = job_ability:get_status()
+        if status then
+            job_ability:add_condition(NotCondition.new(L{ HasBuffCondition.new(status.en, player:get_mob().index) }, windower.ffxi.get_player().index))
         end
-        return JobAbility.new(job_ability_name, conditions)
+        return job_ability
     end):filter(function(job_ability)
         return Condition.check_conditions(job_ability:get_conditions(), player:get_mob().index)
     end)

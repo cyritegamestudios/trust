@@ -36,11 +36,18 @@ end
 
 function GambitSettingsMenuItem.compact(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKey, abilityTargets, abilitiesForTargets, conditionTargets, modes, abilityCategory, abilityCategoryPlural, libraryCategoryFilter, itemDescription, gambitTagBlacklist)
     local configItemForGambits = function(gambits)
-        local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit)
-            return gambit:getAbility():get_localized_name()
+        local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit, index)
+            return gambit:getAbility():get_localized_name(), gambit:isEnabled() and gambit:isValid()
         end, abilityCategoryPlural, nil, function(gambit)
             return AssetManager.imageItemForAbility(gambit:getAbility():get_name())
+        end, function(gambit, _)
+            if not gambit:isValid() then
+                return "Unavailable on current job or settings."
+            else
+                return gambit:tostring()
+            end
         end)
+        configItem:setNumItemsRequired(1, 1)
         return L{ configItem }
     end
 
@@ -52,9 +59,16 @@ end
 
 function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, settingsKeys, abilityTargets, abilitiesForTargets, conditionTargets, editorStyle, modes, libraryCategoryFilter, gambitTagBlacklist, conditionTypeFilter)
     editorStyle = editorStyle or GambitEditorStyle.new(function(gambits)
-        local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit, gambitIndex)
-            return gambit:tostring()
+        local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit, _)
+            return gambit:tostring(), gambit:isEnabled() and gambit:isValid()
+        end, "Gambits", nil, nil, function(gambit, _)
+            if not gambit:isValid() then
+                return "Unavailable on current job or settings."
+            else
+                return gambit:tostring()
+            end
         end)
+        configItem:setNumItemsRequired(1, 1)
         return L{ configItem }
     end, FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge, "Gambit", "Gambits")
     conditionTypeFilter = conditionTypeFilter or function(_)
@@ -116,7 +130,7 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
         local configItem = self.editorConfig:getConfigItem(currentGambits)
 
         local gambitSettingsEditor
-        if configItem:length() > 0 then
+        if configItem:length() > 0 then -- FFXIFastPickerView is not ready for use here yet, too many issues
             gambitSettingsEditor = FFXIPickerView.new(configItem, false, self.editorConfig:getViewSize())
         else
             local FFXIFastPickerView = require('ui/themes/ffxi/FFXIFastPickerView')
@@ -125,45 +139,20 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
 
         gambitSettingsEditor:setAllowsCursorSelection(true)
 
-        local itemsToUpdate = L{}
-        for rowIndex = 1, gambitSettingsEditor:getDataSource():numberOfItemsInSection(1) do
-            local indexPath = IndexPath.new(1, rowIndex)
-            local item = gambitSettingsEditor:getDataSource():itemAtIndexPath(indexPath)
-            item:setEnabled(currentGambits[rowIndex]:isEnabled() and currentGambits[rowIndex]:isValid())
-            itemsToUpdate:append(IndexedItem.new(item, indexPath))
-        end
-
-        gambitSettingsEditor:getDataSource():updateItems(itemsToUpdate)
-
         gambitSettingsEditor:setNeedsLayout()
         gambitSettingsEditor:layoutIfNeeded()
 
-        self.disposeBag:add(self.trustSettings:onSettingsChanged():addAction(function(settings)
-            local cursorIndexPath = self.gambitSettingsEditor:getDelegate():getCursorIndexPath()
+        self.disposeBag:add(gambitSettingsEditor:didMoveCursorToIndexPath():addAction(function(cursorIndexPath) -- add back _, for FFXIFastPickerView
             updateCurrentGambit(cursorIndexPath)
-        end), self.trustSettings:onSettingsChanged())
+        end))
 
-        self.disposeBag:add(gambitSettingsEditor:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
-            updateCurrentGambit(indexPath)
-        end, gambitSettingsEditor:getDelegate():didSelectItemAtIndexPath()))
+        self.gambitSettingsEditor = gambitSettingsEditor
 
-        self.disposeBag:add(gambitSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
-            local selectedGambit = currentGambits[indexPath.row]
-            if selectedGambit then
-                if not selectedGambit:isValid() then
-                    infoView:setDescription("Unavailable on current job or settings.")
-                else
-                    infoView:setDescription(selectedGambit:tostring())
-                end
-            end
-        end), gambitSettingsEditor:getDelegate():didMoveCursorToItemAtIndexPath())
-
+        -- NOTE: needed for self:showMenu(self) in order to call updateCurrentGambit
         if currentGambits:length() > 0 then
             gambitSettingsEditor:getDelegate():setCursorIndexPath(IndexPath.new(1, 1))
             updateCurrentGambit(IndexPath.new(1, 1))
         end
-
-        self.gambitSettingsEditor = gambitSettingsEditor
 
         return gambitSettingsEditor
     end
@@ -429,18 +418,12 @@ end
 
 function GambitSettingsMenuItem:getToggleMenuItem()
     local toggleMenuItem = MenuItem.action(function(_)
-        local selectedIndexPath = self.gambitSettingsEditor:getDelegate():getCursorIndexPath()
+        local selectedIndexPath = self.gambitSettingsEditor:getCursorIndexPath()
         if selectedIndexPath then
-            local item = self.gambitSettingsEditor:getDataSource():itemAtIndexPath(selectedIndexPath)
-            if item then
-                item:setEnabled(not item:getEnabled())
-                self.gambitSettingsEditor:getDataSource():updateItem(item, selectedIndexPath)
+            local currentGambits = self:getSettings().Gambits
+            currentGambits[selectedIndexPath.row]:setEnabled(not currentGambits[selectedIndexPath.row]:isEnabled())
 
-                local currentGambits = self:getSettings().Gambits
-                currentGambits[selectedIndexPath.row]:setEnabled(not currentGambits[selectedIndexPath.row]:isEnabled())
-
-                self.trustSettings:saveSettings(true)
-            end
+            self.gambitSettingsEditor:reload()
         end
     end, self:getTitleText(), "Temporarily enable or disable the selected "..self.editorConfig:getDescription().." until the addon reloads.", false, function()
         if self.selectedGambit then
@@ -458,7 +441,6 @@ function GambitSettingsMenuItem:getMoveUpGambitMenuItem()
 
         local selectedIndexPath = self.gambitSettingsEditor:getDelegate():getCursorIndexPath()
         if selectedIndexPath and selectedIndexPath.row > 1 then
-
             local newIndexPath = self.gambitSettingsEditor:getDataSource():getPreviousIndexPath(selectedIndexPath)
             local item1 = self.gambitSettingsEditor:getDataSource():itemAtIndexPath(selectedIndexPath)
             local item2 = self.gambitSettingsEditor:getDataSource():itemAtIndexPath(newIndexPath)

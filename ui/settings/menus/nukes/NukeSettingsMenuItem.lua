@@ -62,6 +62,27 @@ function NukeSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trust
     self:setConfigKey("nukes")
 
     return self
+
+    --local self = setmetatable(GambitSettingsMenuItem.new(trustSettings, trustSettingsMode, 'NukeSettings'), NukeSettingsMenuItem)
+
+    --self:setGambits(self:getSettings().Gambits)
+
+    --return self
+end
+
+function NukeSettingsMenuItem:getConfigItem(gambits)
+    local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit, _)
+        return gambit:getAbility():get_name(), gambit:isValid() and gambit:isEnabled()
+    end, "Nukes", nil, function(gambit)
+        return AssetManager.imageItemForAbility(gambit:getAbility():get_name())
+    end, function(gambit, _)
+        if not gambit:isValid() then
+            return "Unavailable on current job or settings."
+        else
+            return gambit:tostring()
+        end
+    end)
+    return configItem
 end
 
 function NukeSettingsMenuItem:getBlacklistMenuItem()

@@ -19,6 +19,14 @@ function FFXIPickerView.setDefaultInfoView(infoView)
     defaultInfoView = infoView
 end
 
+function FFXIPickerView:didMoveCursorToIndexPath()
+    return self:getDelegate():didMoveCursorToItemAtIndexPath()
+end
+
+function FFXIPickerView:getCursorIndexPath()
+    return self:getDelegate():getCursorIndexPath()
+end
+
 function FFXIPickerView.new(configItems, allowsMultipleSelection, viewSize, title, mediaPlayer, soundTheme, textStyle)
     local style = CollectionView.defaultStyle()
     local viewSize = viewSize or style:getDefaultPickerSize()

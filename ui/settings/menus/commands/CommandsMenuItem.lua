@@ -11,7 +11,7 @@ CommandsMenuItem.__index = CommandsMenuItem
 
 function CommandsMenuItem.new(commands)
     local commands = L{}:extend(commands):filter(function(command)
-        return not S{ 'Default', 'Scenario', 'Sendall', 'Send' }:contains(command:get_command_name():gsub("^%l", string.upper))
+        return not S{ 'Default', 'Sendall', 'Send' }:contains(command:get_command_name():gsub("^%l", string.upper))
     end)
 
     local buttonItems = commands:map(function(command)

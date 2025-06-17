@@ -296,6 +296,13 @@ end
 function CollectionView:setHasFocus(hasFocus)
     ScrollView.setHasFocus(self, hasFocus)
 
+    if self:hasFocus() then
+        local cursorIndexPath = self:getDelegate():getCursorIndexPath()
+        if cursorIndexPath then
+            self:getDelegate():setCursorIndexPath(cursorIndexPath)
+        end
+    end
+
     self:setNeedsLayout()
     self:layoutIfNeeded()
 end
