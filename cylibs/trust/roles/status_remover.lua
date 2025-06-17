@@ -44,12 +44,16 @@ function StatusRemover.new(action_queue, status_removal_settings, job)
 end
 
 function StatusRemover:destroy()
+    Gambiter.destroy(self)
+
     self.is_disposed = true
 
     self.dispose_bag:destroy()
 end
 
 function StatusRemover:on_add()
+    Gambiter.on_add(self)
+
     self.aura_tracker = AuraTracker.new(buff_util.debuffs_for_auras(), self:get_party())
 
     self.dispose_bag:addAny(L{ self.aura_tracker })
@@ -60,7 +64,7 @@ function StatusRemover:on_add()
 end
 
 function StatusRemover:target_change(target_index)
-    Role.target_change(self, target_index)
+    Gambiter.target_change(self, target_index)
 
     self.aura_tracker:reset()
 end
@@ -94,7 +98,6 @@ function StatusRemover:set_status_removal_settings(status_removal_settings)
         end
 
         gambit.conditions = gambit.conditions:filter(function(condition)
-
             return condition:is_editable()
         end)
         local conditions = self:get_default_conditions(gambit)

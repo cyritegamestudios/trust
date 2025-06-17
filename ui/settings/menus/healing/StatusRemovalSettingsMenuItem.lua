@@ -14,7 +14,16 @@ StatusRemovalSettingsMenuItem.__index = StatusRemovalSettingsMenuItem
 function StatusRemovalSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings)
     local editorStyle = GambitEditorStyle.new(function(gambits)
         local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit, _)
-            return gambit:getAbility():get_name(), gambit:isEnabled() and gambit:isValid()
+            --[[local debuffCondition = gambit:getConditions():firstWhere(function(condition)
+                return condition:getCondition().__type == HasBuffsCondition.__type
+            end)
+            if debuffCondition then
+                local buffNames = debuffCondition:getCondition().buff_names:map(function(buffName)
+                    return buffName:gsub("^%l", string.upper)
+                end)
+                return localization_util.commas(buffNames), gambit:isEnabled() and gambit:isValid()
+            end]]
+            return string.format("%s: %s", gambit:getAbilityTarget(), gambit:getAbility():get_name()), gambit:isEnabled() and gambit:isValid()
         end, "Gambits", nil, nil, function(gambit, _)
             if not gambit:isValid() then
                 return "Unavailable on current job or settings."
@@ -25,7 +34,7 @@ function StatusRemovalSettingsMenuItem.new(trust, trustSettings, trustSettingsMo
         configItem:setNumItemsRequired(1, 1)
         return L{ configItem }
     end, nil, "Status Cure", "Status Cures", nil, function(menuItemName)
-        return L{ 'Add', 'Remove', 'Edit', 'Move Up', 'Move Down', 'Reset', 'Modes', 'Shortcuts', 'Blacklist' }:contains(menuItemName)
+        return L{ 'Add', 'Remove', 'Edit', 'Move Up', 'Move Down', 'Toggle', 'Reset', 'Modes', 'Shortcuts', 'Blacklist' }:contains(menuItemName)
     end)
     editorStyle:setEditPermissions(
             GambitEditorStyle.Permissions.Edit,
@@ -56,35 +65,7 @@ function StatusRemovalSettingsMenuItem.new(trust, trustSettings, trustSettingsMo
 
     self:setConfigKey("statusremoval")
 
-    self:setChildMenuItem("Blacklist", self:getBlacklistMenuItem())
-
     return self
-end
-
-function StatusRemovalSettingsMenuItem:getBlacklistMenuItem()
-    local statusRemovalMenuItem = MenuItem.new(L{
-        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
-        ButtonItem.default('Clear All', 18),
-    }, {},
-            function()
-                local cureSettings = self.trustSettings:getSettings()[self.trustSettingsMode.value].CureSettings
-
-                local configItem = MultiPickerConfigItem.new("StatusRemovalBlacklist", cureSettings.StatusRemovals.Blacklist, buff_util.get_all_debuffs():sort(), function(statusEffect)
-                    return i18n.resource('buffs', 'en', statusEffect):gsub("^%l", string.upper)
-                end)
-                configItem:setNumItemsRequired(0)
-
-                local blacklistPickerView = FFXIPickerView.withConfig(configItem, true)
-
-                blacklistPickerView:getDisposeBag():add(blacklistPickerView:on_pick_items():addAction(function(_, selectedDebuffs)
-                    cureSettings.StatusRemovals.Blacklist = selectedDebuffs
-                    self.trustSettings:saveSettings(true)
-                    addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I won't remove these debuffs anymore!")
-                end), blacklistPickerView:on_pick_items())
-
-                return blacklistPickerView
-            end, "Blacklist", "Choose status ailments to ignore.")
-    return statusRemovalMenuItem
 end
 
 return StatusRemovalSettingsMenuItem
