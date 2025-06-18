@@ -24,7 +24,6 @@ function JobAbility.new(x, y, z, job_ability_name, target_index, conditions)
 
     local self = setmetatable(Action.new(x, y, z, target_index, conditions), JobAbility)
 
-
     self.job_ability_name = job_ability_name
     self.identifier = self.job_ability_name
     self.retry_count = 0
