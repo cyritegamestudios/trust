@@ -25,7 +25,7 @@ function ScholarTrust.new(settings, action_queue, battle_settings, trust_setting
         Debuffer.new(action_queue, trust_settings.DebuffSettings, job),
         Healer.new(action_queue, trust_settings.CureSettings, job),
         Puller.new(action_queue, trust_settings.PullSettings, job),
-        StatusRemover.new(action_queue, job),
+        StatusRemover.new(action_queue, trust_settings.StatusRemovalSettings, job),
         Dispeler.new(action_queue, L{ Spell.new('Dispel', L{'Addendum: Black'}) }, L{}, true),
         MagicBurster.new(action_queue, trust_settings.NukeSettings, 0.8, L{ 'Ebullience' }, job, false),
         Nuker.new(action_queue, trust_settings.NukeSettings, 0.8, L{}, job),

@@ -32,14 +32,6 @@ function StatusRemover.new(action_queue, status_removal_settings, job)
 
     self:set_status_removal_settings(status_removal_settings)
 
-    --local self = setmetatable(Role.new(action_queue), StatusRemover)
-
-    --self.main_job = main_job
-    --self.last_status_removal_time = os.time()
-    --self.status_removal_delay = 1--main_job:get_status_removal_delay()
-
-    --self.dispose_bag = DisposeBag.new()
-
     return self
 end
 

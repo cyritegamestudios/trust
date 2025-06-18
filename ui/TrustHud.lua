@@ -321,8 +321,8 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
     end
 
     if trust:role_with_type("statusremover") then
-        menuItems:append(ButtonItem.default('Status Cures', 18))
-        childMenuItems["Status Cures"] = self:getMenuItemForRole(trust:role_with_type("statusremover"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode, trustModeSettings)
+        menuItems:append(ButtonItem.default('Ailments', 18))
+        childMenuItems["Ailments"] = self:getMenuItemForRole(trust:role_with_type("statusremover"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode, trustModeSettings)
     end
 
     menuItems:append(ButtonItem.localized('Pulling', i18n.translate('Button_Pulling')))

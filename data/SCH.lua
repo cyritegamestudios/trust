@@ -26,13 +26,29 @@ return {
                 Gambit.new("Ally", L{GambitCondition.new(HitPointsPercentRangeCondition.new(1, 72), "Ally")}, Spell.new("Cure III", L{}, L{}, nil, L{}), "Ally", L{}, true),
             },
             Delay = 2,
-            StatusRemovals = {
-                Delay = 3,
-                Blacklist = L{
-
-                }
-            },
             MinNumAOETargets = 3
+        },
+        StatusRemovalSettings = {
+            Gambits = L{
+                Gambit.new("Self", L{GambitCondition.new(HasBuffsCondition.new(L{"sleep"}, 1), "Self")}, Spell.new("Cure", L{}, L{}, nil, L{}), "Self", L{}, true),
+                Gambit.new("Ally", L{GambitCondition.new(HasBuffsCondition.new(L{"sleep"}, 1), "Ally")}, Spell.new("Cure", L{}, L{}, nil, L{}), "Ally", L{}, true),
+                Gambit.new("Self", L{GambitCondition.new(HasBuffCondition.new("Addendum: White"), "Self"), GambitCondition.new(HasBuffsCondition.new(L{"curse", "doom", "doomed"}, 1), "Self")}, Spell.new("Cursna", L{}, L{}, nil, L{}), "Self", L{}, true),
+                Gambit.new("Ally", L{GambitCondition.new(HasBuffCondition.new("Addendum: White"), "Self"), GambitCondition.new(HasBuffsCondition.new(L{"curse", "doom", "doomed"}, 1), "Ally")}, Spell.new("Cursna", L{}, L{}, nil, L{}), "Ally", L{}, true),
+                Gambit.new("Self", L{GambitCondition.new(HasBuffCondition.new("Addendum: White"), "Self"), GambitCondition.new(HasBuffsCondition.new(L{"petrification"}, 1), "Self")}, Spell.new("Stona", L{}, L{}, nil, L{}), "Self", L{}, true),
+                Gambit.new("Ally", L{GambitCondition.new(HasBuffCondition.new("Addendum: White"), "Self"), GambitCondition.new(HasBuffsCondition.new(L{"petrification"}, 1), "Ally")}, Spell.new("Stona", L{}, L{}, nil, L{}), "Ally", L{}, true),
+                Gambit.new("Self", L{GambitCondition.new(HasBuffCondition.new("Addendum: White"), "Self"), GambitCondition.new(HasBuffsCondition.new(L{"Accuracy Down", "addle", "AGI Down", "Attack Down", "bind", "Bio", "Burn", "Choke", "CHR Down", "Defense Down", "DEX Down", "Dia", "Drown", "Elegy", "Evasion Down", "Frost", "Inhibit TP", "INT Down", "Magic Acc. Down", "Magic Atk. Down", "Magic Def. Down", "Magic Evasion Down", "Max HP Down", "Max MP Down", "Max TP Down", "MND Down", "Nocturne", "Rasp", "Requiem", "Shock", "slow", "STR Down", "VIT Down", "weight", "Flash"}, 1), "Self")}, Spell.new("Erase", L{}, L{}, nil, L{}), "Self", L{}, true),
+                Gambit.new("Ally", L{GambitCondition.new(HasBuffCondition.new("Addendum: White"), "Self"), GambitCondition.new(HasBuffsCondition.new(L{"Accuracy Down", "addle", "AGI Down", "Attack Down", "bind", "Bio", "Burn", "Choke", "CHR Down", "Defense Down", "DEX Down", "Dia", "Drown", "Elegy", "Evasion Down", "Frost", "Inhibit TP", "INT Down", "Magic Acc. Down", "Magic Atk. Down", "Magic Def. Down", "Magic Evasion Down", "Max HP Down", "Max MP Down", "Max TP Down", "MND Down", "Nocturne", "Rasp", "Requiem", "Shock", "slow", "STR Down", "VIT Down", "weight", "Flash"}, 1), "Ally")}, Spell.new("Erase", L{}, L{}, nil, L{}), "Ally", L{}, true),
+                Gambit.new("Self", L{GambitCondition.new(HasBuffCondition.new("Addendum: White"), "Self"), GambitCondition.new(HasBuffsCondition.new(L{"paralysis"}, 1), "Self")}, Spell.new("Paralyna", L{}, L{}, nil, L{}), "Self", L{}, true),
+                Gambit.new("Ally", L{GambitCondition.new(HasBuffCondition.new("Addendum: White"), "Self"), GambitCondition.new(HasBuffsCondition.new(L{"paralysis"}, 1), "Ally")}, Spell.new("Paralyna", L{}, L{}, nil, L{}), "Ally", L{}, true),
+                Gambit.new("Self", L{GambitCondition.new(HasBuffCondition.new("Addendum: White"), "Self"), GambitCondition.new(HasBuffsCondition.new(L{"silence"}, 1), "Self")}, Spell.new("Silena", L{}, L{}, nil, L{}), "Self", L{}, true),
+                Gambit.new("Ally", L{GambitCondition.new(HasBuffCondition.new("Addendum: White"), "Self"), GambitCondition.new(HasBuffsCondition.new(L{"silence"}, 1), "Ally")}, Spell.new("Silena", L{}, L{}, nil, L{}), "Ally", L{}, true),
+                Gambit.new("Self", L{GambitCondition.new(HasBuffCondition.new("Addendum: White"), "Self"), GambitCondition.new(HasBuffsCondition.new(L{"poison"}, 1), "Self")}, Spell.new("Poisona", L{}, L{}, nil, L{}), "Self", L{}, true),
+                Gambit.new("Ally", L{GambitCondition.new(HasBuffCondition.new("Addendum: White"), "Self"), GambitCondition.new(HasBuffsCondition.new(L{"poison"}, 1), "Ally")}, Spell.new("Poisona", L{}, L{}, nil, L{}), "Ally", L{}, true),
+                Gambit.new("Self", L{GambitCondition.new(HasBuffCondition.new("Addendum: White"), "Self"), GambitCondition.new(HasBuffsCondition.new(L{"disease"}, 1), "Self")}, Spell.new("Viruna", L{}, L{}, nil, L{}), "Self", L{}, true),
+                Gambit.new("Ally", L{GambitCondition.new(HasBuffCondition.new("Addendum: White"), "Self"), GambitCondition.new(HasBuffsCondition.new(L{"disease"}, 1), "Ally")}, Spell.new("Viruna", L{}, L{}, nil, L{}), "Ally", L{}, true),
+                Gambit.new("Self", L{GambitCondition.new(HasBuffCondition.new("Addendum: White"), "Self"), GambitCondition.new(HasBuffsCondition.new(L{"blindness"}, 1), "Self")}, Spell.new("Blindna", L{}, L{}, nil, L{}), "Self", L{}, true),
+                Gambit.new("Ally", L{GambitCondition.new(HasBuffCondition.new("Addendum: White"), "Self"), GambitCondition.new(HasBuffsCondition.new(L{"blindness"}, 1), "Ally")}, Spell.new("Blindna", L{}, L{}, nil, L{}), "Ally", L{}, true),
+            }
         },
         NukeSettings = {
             Delay = 2,

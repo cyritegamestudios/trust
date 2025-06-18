@@ -17,9 +17,6 @@ return {
             }
         },
         StatusRemovalSettings = {
-            Blacklist = L{
-
-            },
             Gambits = L{
                 Gambit.new("Self", L{GambitCondition.new(HasBuffsCondition.new(L{"sleep"}, 1), "Self")}, Spell.new("Cure", L{}, L{}, nil, L{}), "Self", L{}, true),
                 Gambit.new("Ally", L{GambitCondition.new(HasBuffsCondition.new(L{"sleep"}, 1), "Ally")}, Spell.new("Cure", L{}, L{}, nil, L{}), "Ally", L{}, true),
@@ -29,10 +26,7 @@ return {
                 Gambit.new("Ally", L{GambitCondition.new(HasBuffsCondition.new(L{"petrification"}, 1), "Ally")}, Spell.new("Stona", L{}, L{}, nil, L{}), "Ally", L{}, true),
                 Gambit.new("Self", L{GambitCondition.new(HasBuffsCondition.new(L{"Accuracy Down", "addle", "AGI Down", "Attack Down", "bind", "Bio", "Burn", "Choke", "CHR Down", "Defense Down", "DEX Down", "Dia", "Drown", "Elegy", "Evasion Down", "Frost", "Inhibit TP", "INT Down", "Magic Acc. Down", "Magic Atk. Down", "Magic Def. Down", "Magic Evasion Down", "Max HP Down", "Max MP Down", "Max TP Down", "MND Down", "Nocturne", "Rasp", "Requiem", "Shock", "slow", "STR Down", "VIT Down", "weight", "Flash"}, 1), "Self")}, Spell.new("Erase", L{}, L{}, nil, L{}), "Self", L{}, true),
                 Gambit.new("Ally", L{GambitCondition.new(HasBuffsCondition.new(L{"Accuracy Down", "addle", "AGI Down", "Attack Down", "bind", "Bio", "Burn", "Choke", "CHR Down", "Defense Down", "DEX Down", "Dia", "Drown", "Elegy", "Evasion Down", "Frost", "Inhibit TP", "INT Down", "Magic Acc. Down", "Magic Atk. Down", "Magic Def. Down", "Magic Evasion Down", "Max HP Down", "Max MP Down", "Max TP Down", "MND Down", "Nocturne", "Rasp", "Requiem", "Shock", "slow", "STR Down", "VIT Down", "weight", "Flash"}, 1), "Ally")}, Spell.new("Erase", L{}, L{}, nil, L{}), "Ally", L{}, true),
-                Gambit.new("Self", L{
-                    GambitCondition.new(HasBuffCondition.new("Afflatus Misery"), "Self"),
-                    GambitCondition.new(HasBuffsCondition.new(L{"curse","disease","poison","paralysis","blindness","Accuracy Down", "addle", "AGI Down", "Attack Down", "bind", "Bio", "Burn", "Choke", "CHR Down", "Defense Down", "DEX Down", "Dia", "Drown", "Elegy", "Evasion Down", "Frost", "Inhibit TP", "INT Down", "Magic Acc. Down", "Magic Atk. Down", "Magic Def. Down", "Magic Evasion Down", "Max HP Down", "Max MP Down", "Max TP Down", "MND Down", "Nocturne", "Rasp", "Requiem", "Shock", "slow", "STR Down", "VIT Down", "weight", "Flash"}, 1), "Self")
-                }, Spell.new("Esuna", L{}, L{}, nil, L{}), "Self", L{}, true),
+                Gambit.new("Self", L{GambitCondition.new(HasBuffCondition.new("Afflatus Misery"), "Self"), GambitCondition.new(HasBuffsCondition.new(L{"curse","disease","poison","paralysis","blindness","Accuracy Down", "addle", "AGI Down", "Attack Down", "bind", "Bio", "Burn", "Choke", "CHR Down", "Defense Down", "DEX Down", "Dia", "Drown", "Elegy", "Evasion Down", "Frost", "Inhibit TP", "INT Down", "Magic Acc. Down", "Magic Atk. Down", "Magic Def. Down", "Magic Evasion Down", "Max HP Down", "Max MP Down", "Max TP Down", "MND Down", "Nocturne", "Rasp", "Requiem", "Shock", "slow", "STR Down", "VIT Down", "weight", "Flash"}, 1), "Self") }, Spell.new("Esuna", L{}, L{}, nil, L{}), "Self", L{}, true),
                 Gambit.new("Self", L{GambitCondition.new(HasBuffsCondition.new(L{"paralysis"}, 1), "Self")}, Spell.new("Paralyna", L{}, L{}, nil, L{}), "Self", L{}, true),
                 Gambit.new("Ally", L{GambitCondition.new(HasBuffsCondition.new(L{"paralysis"}, 1), "Ally")}, Spell.new("Paralyna", L{}, L{}, nil, L{}), "Ally", L{}, true),
                 Gambit.new("Self", L{GambitCondition.new(HasBuffsCondition.new(L{"silence"}, 1), "Self")}, Spell.new("Silena", L{}, L{}, nil, L{}), "Self", L{}, true),

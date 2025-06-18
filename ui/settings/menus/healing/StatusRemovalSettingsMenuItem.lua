@@ -14,15 +14,15 @@ StatusRemovalSettingsMenuItem.__index = StatusRemovalSettingsMenuItem
 function StatusRemovalSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings)
     local editorStyle = GambitEditorStyle.new(function(gambits)
         local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit, _)
-            --[[local debuffCondition = gambit:getConditions():firstWhere(function(condition)
+            local debuffCondition = gambit:getConditions():firstWhere(function(condition)
                 return condition:getCondition().__type == HasBuffsCondition.__type
             end)
             if debuffCondition then
                 local buffNames = debuffCondition:getCondition().buff_names:map(function(buffName)
                     return buffName:gsub("^%l", string.upper)
                 end)
-                return localization_util.commas(buffNames), gambit:isEnabled() and gambit:isValid()
-            end]]
+                return string.format("%s: %s", gambit:getAbilityTarget(), localization_util.commas(buffNames)), gambit:isEnabled() and gambit:isValid()
+            end
             return string.format("%s: %s", gambit:getAbilityTarget(), gambit:getAbility():get_name()), gambit:isEnabled() and gambit:isValid()
         end, "Gambits", nil, nil, function(gambit, _)
             if not gambit:isValid() then
@@ -44,7 +44,7 @@ function StatusRemovalSettingsMenuItem.new(trust, trustSettings, trustSettingsMo
     local self = setmetatable(GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings, 'StatusRemovalSettings', S{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Ally }, function(targets)
         return L{}
     end, L{ Condition.TargetType.Self, Condition.TargetType.Ally }, editorStyle, L{'AutoStatusRemovalMode', 'AutoDetectAuraMode'}, function(category)
-        return L{ "StatusRemoval" }:contains(category:getName())
+        return L{ "Ailments" }:contains(category:getName())
     end), StatusRemovalSettingsMenuItem)
 
     self:setDefaultGambitTags(L{'StatusRemoval'})

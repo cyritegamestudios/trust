@@ -19,12 +19,13 @@ return {
                 Gambit.new("Ally", L{GambitCondition.new(HitPointsPercentRangeCondition.new(1, 65), "Ally")}, Spell.new("Cure IV", L{}, L{}, nil, L{}), "Ally", L{}, true),
                 Gambit.new("Ally", L{GambitCondition.new(HitPointsPercentRangeCondition.new(1, 72), "Ally")}, Spell.new("Cure III", L{}, L{}, nil, L{}), "Ally", L{}, true),
             },
-            StatusRemovals = {
-                Blacklist = L{
-
-                }
-            },
             MinNumAOETargets = 3
+        },
+        StatusRemovalSettings = {
+            Gambits = L{
+                Gambit.new("Self", L{GambitCondition.new(HasBuffsCondition.new(L{"sleep"}, 1), "Self")}, Spell.new("Cure", L{}, L{}, nil, L{}), "Self", L{}, true),
+                Gambit.new("Ally", L{GambitCondition.new(HasBuffsCondition.new(L{"sleep"}, 1), "Ally")}, Spell.new("Cure", L{}, L{}, nil, L{}), "Ally", L{}, true),
+            }
         },
         NukeSettings = {
             Delay = 10,

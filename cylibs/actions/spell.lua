@@ -20,7 +20,6 @@ function SpellAction.new(x, y, z, spell_id, target_index, player, conditions)
 		NotCondition.new(L{StatusCondition.new("Mount")}),
 		NotCondition.new(L{InMogHouseCondition.new()}),
 		MaxDistanceCondition.new(21),
-		NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'mute', 'Invisible', 'stun'}, 1)}, windower.ffxi.get_player().index),
 		MinManaPointsCondition.new(res.spells[spell_id].mp_cost or 0, windower.ffxi.get_player().index),
 		SpellRecastReadyCondition.new(spell_id),
 		ValidSpellTargetCondition.new(res.spells[spell_id].en, alter_ego_util.untargetable_alter_egos()),

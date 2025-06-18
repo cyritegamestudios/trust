@@ -62,7 +62,7 @@ function Job:get_conditions_for_ability(ability)
         conditions:append(ConditionalCondition.new(L{ MinManaPointsCondition.new(ability:get_mp_cost()), HasBuffCondition.new('Mana Font') }, Condition.LogicalOperator.Or))
     end
     if ability.get_ability_id then
-        local job_ability = res.job_abilities[ability:get_ability_id()]
+        local job_ability = res.job_abilities:with('en', ability:get_name())
         if job_ability then
             local tp_cost = job_ability.tp_cost
             if tp_cost and tp_cost > 0 then
@@ -71,6 +71,11 @@ function Job:get_conditions_for_ability(ability)
             if job_ability.type == 'Waltz' then
                 conditions:append(NotCondition.new(L{ HasBuffCondition.new('Saber Dance') }))
             end
+            conditions:append(NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'Invisible', 'stun', 'amnesia'}, 1)}))
+        end
+        local spell = res.spells:with('en', ability:get_name())
+        if spell then
+            conditions:append(NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'mute', 'Invisible', 'stun'}, 1)}))
         end
     end
     return conditions
