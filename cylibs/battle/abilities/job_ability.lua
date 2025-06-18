@@ -3,6 +3,7 @@
 -- @class module
 -- @name JobAbility
 
+local ConditionalCondition = require('cylibs/conditions/conditional')
 local FlourishAction = require('cylibs/actions/flourish')
 local JobAbilityRecastReadyCondition = require('cylibs/conditions/job_ability_recast_ready')
 local serializer_util = require('cylibs/util/serializer_util')
@@ -102,6 +103,26 @@ end
 -- @treturn list List of conditions
 function JobAbility:get_conditions()
     return self.conditions
+end
+
+-------
+-- Return the default conditions.
+-- @treturn list List of conditions
+function JobAbility:get_default_conditions()
+    local conditions = L{
+        NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'Invisible', 'stun', 'amnesia'}, 1)})
+    }
+    local job_ability = res.job_abilities[self:get_ability_id()]
+    if job_ability then
+        local tp_cost = job_ability.tp_cost
+        if tp_cost and tp_cost > 0 then
+            conditions:append(ConditionalCondition.new(L{ MinTacticalPointsCondition.new(tp_cost), HasBuffCondition.new('Trance') }, Condition.LogicalOperator.Or))
+        end
+        if job_ability.type == 'Waltz' then
+            conditions:append(NotCondition.new(L{ HasBuffCondition.new('Saber Dance') }))
+        end
+    end
+    return conditions
 end
 
 -------

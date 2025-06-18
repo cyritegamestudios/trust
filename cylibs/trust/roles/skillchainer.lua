@@ -55,9 +55,10 @@ function Skillchainer:on_abilities_changed()
     return self.abilities_changed
 end
 
-function Skillchainer.new(action_queue, weapon_skill_settings)
+function Skillchainer.new(action_queue, weapon_skill_settings, job)
     local self = setmetatable(Gambiter.new(action_queue, { Gambits = L{} }, state.AutoSkillchainMode), Skillchainer)
 
+    self.job = job
     self.gambit_for_step = L{}
     self.weapon_skill_settings = weapon_skill_settings
     self.num_skillchain_steps = 3
@@ -404,7 +405,12 @@ function Skillchainer:get_default_conditions(gambit)
             conditions = conditions + skill:get_default_conditions(gambit:getAbility():get_name())
         end
     end
-    return conditions
+
+    local ability_conditions = L{}--(L{} + self:get_job():get_conditions_for_ability(gambit:getAbility()))
+
+    return conditions + ability_conditions:map(function(condition)
+        return GambitCondition.new(condition, GambitTarget.TargetType.Self)
+    end)
 end
 
 return Skillchainer

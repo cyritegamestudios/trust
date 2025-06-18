@@ -50,7 +50,7 @@ function HasBuffsCondition:get_buff_count(buff_id, target_index)
         else
             local party_member = player.alliance:get_alliance_member_named(target.name)
             if party_member then
-                buff_ids = party_member:get_buff_ids()
+                buff_ids = party_member:get_buff_ids() + party_member:get_debuff_ids() -- FIXME: separate out into HasDebuffsCondition
             end
         end
         return buff_util.buff_count(buff_id, buff_ids)

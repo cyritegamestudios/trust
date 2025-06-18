@@ -8,6 +8,7 @@ require('lists')
 require('logger')
 
 local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
+local ConditionalCondition = require('cylibs/conditions/conditional')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local serializer_util = require('cylibs/util/serializer_util')
 
@@ -218,6 +219,19 @@ end
 -- @treturn list List of conditions
 function Spell:get_conditions()
     return self.conditions
+end
+
+-------
+-- Return the default conditions to cast a spell.
+-- @treturn list List of conditions
+function Spell:get_default_conditions()
+    local conditions = L{
+        NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'mute', 'Invisible', 'stun'}, 1)})
+    }
+    if self:get_mp_cost() > 0 then
+        conditions:append(ConditionalCondition.new(L{ MinManaPointsCondition.new(self:get_mp_cost()), HasBuffCondition.new('Mana Font') }, Condition.LogicalOperator.Or))
+    end
+    return conditions
 end
 
 -------

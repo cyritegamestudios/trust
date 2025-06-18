@@ -33,6 +33,17 @@ function BloodPactWard:get_mp_cost()
     return res.job_abilities[self:get_job_ability_id()].mp_cost or 0
 end
 
+-------
+-- Return the default conditions.
+-- @treturn list List of conditions
+function BloodPactWard:get_default_conditions()
+    local conditions = JobAbility.get_default_conditions(self)
+    if self:get_mp_cost() > 0 then
+        conditions:append(MinManaPointsCondition.new(self:get_mp_cost()))
+    end
+    return conditions
+end
+
 function BloodPactWard:get_avatar_name()
     local job = Summoner.new()
     return job:get_avatar_name(self:get_name())

@@ -95,7 +95,7 @@ function load_user_files(main_job_id, sub_job_id)
 	player.trust.main_job = main_job_trust
 	player.trust.sub_job = sub_job_trust
 
-	local skillchainer = Skillchainer.new(action_queue, weapon_skill_settings)
+	local skillchainer = Skillchainer.new(action_queue, weapon_skill_settings, player.trust.main_job:get_job())
 
 	if player.trust.main_job:role_with_type("puller") == nil and player.trust.sub_job:role_with_type("puller") == nil then
 		local pull_abilities = player.trust.main_job_settings.Default.PullSettings.Abilities

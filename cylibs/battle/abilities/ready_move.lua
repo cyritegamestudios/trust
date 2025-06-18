@@ -43,6 +43,16 @@ function ReadyMove.get_charges(readyMoveName)
     return 3
 end
 
+-------
+-- Return the default conditions.
+-- @treturn list List of conditions
+function ReadyMove:get_default_conditions()
+    local conditions = L{
+        NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'Invisible', 'stun', 'amnesia'}, 1)})
+    }
+    return conditions
+end
+
 function ReadyMove:serialize()
     local conditions_classes_to_serialize = Condition.defaultSerializableConditionClasses()
     local conditions_to_serialize = self.conditions:filter(function(condition)

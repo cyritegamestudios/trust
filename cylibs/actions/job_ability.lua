@@ -18,12 +18,12 @@ function JobAbility.new(x, y, z, job_ability_name, target_index, conditions)
         IsStandingCondition.new(0.5, ">="),
         NotCondition.new(L{ StatusCondition.new("Mount") }),
         NotCondition.new(L{InMogHouseCondition.new()}),
-        NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'amnesia', 'Invisible', 'stun'}, 1)}, windower.ffxi.get_player().index),
         JobAbilityRecastReadyCondition.new(job_ability_name),
         ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos()),
     }
 
     local self = setmetatable(Action.new(x, y, z, target_index, conditions), JobAbility)
+
 
     self.job_ability_name = job_ability_name
     self.identifier = self.job_ability_name
