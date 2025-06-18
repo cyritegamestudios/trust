@@ -250,7 +250,7 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_name_short,
 		SendCommands.new(main_job_trust, action_queue),
 		SkillchainCommands.new(main_job_trust, weapon_skill_settings, action_queue),
 		SoundCommands.new(hud.mediaPlayer),
-		TargetCommands.new(main_trust_settings, state.MainTrustSettingsMode, party, action_queue),
+		TargetCommands.new(main_trust_settings, state.MainTrustSettingsMode, party, action_queue, main_job_trust:role_with_type("puller") or sub_job_trust:role_with_type("puller")),
 		WarpCommands.new(main_job_trust:role_with_type("follower").walk_action_queue),
 	}:compact_map():extend(get_job_commands(job_name_short, main_job_trust, action_queue, main_trust_settings, weapon_skill_settings)):extend(get_job_commands(sub_job_name_short, sub_job_trust, action_queue, sub_trust_settings, weapon_skill_settings))
 

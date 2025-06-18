@@ -121,6 +121,7 @@ function TargetWidget.new(frame, party, trust)
     self.actionDisposeBag = DisposeBag.new()
     self.party = party
     self.alliance = player.alliance
+    self.trust = trust
     self.debuffsView = self:createDebuffsView()
     self.maxNumDebuffs = 7
     self.needsResize = true
@@ -228,8 +229,12 @@ function TargetWidget:showTargetInfo()
     local target = self.alliance:get_target_by_index(self.target_index)
     if target then
         local targetInfoMenuItem = MenuItem.new(L{
-            ButtonItem.default('Info', 18),
-        }, {},
+            ButtonItem.default('Clear', 18),
+        }, {
+            Clear = MenuItem.action(function()
+                windower.send_command('trust target clear')
+            end)
+        },
             function(_)
                 local TargetInfoView = require('cylibs/battle/monsters/ui/target_info_view')
                 local targetInfoView = TargetInfoView.new(target)
