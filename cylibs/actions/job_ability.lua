@@ -60,6 +60,8 @@ function JobAbility:perform()
         if L{ 87, 88 }:contains(message_id) then
             self.retry_count = self.retry_count + 1
             self:use_job_ability(self.retry_count)
+        elseif L{ 523 }:contains(message_id) then
+            self:complete(false)
         end
     end), WindowerEvents.ActionMessage)
 
