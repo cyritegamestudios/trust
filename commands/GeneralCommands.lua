@@ -234,7 +234,12 @@ end
 function GeneralTrustCommands:handle_debug()
     local HasKeyItemsCondition = require('cylibs/conditions/has_key_items')
     local heal_condition = HasKeyItemsCondition.new(L{ "\"Rhapsody in Crimson\"" })
-    print(Condition.check_conditions(L{ heal_condition }, windower.ffxi.get_player().index))
+    local heal_condition = HasBuffsCondition.new(L{"Accuracy Down", "addle", "AGI Down", "Attack Down", "bind", "Bio", "Burn", "Choke", "CHR Down", "Defense Down", "DEX Down", "Dia", "Drown", "Elegy", "Evasion Down", "Frost", "Inhibit TP", "INT Down", "Magic Acc. Down", "Magic Atk. Down", "Magic Def. Down", "Magic Evasion Down", "Max HP Down", "Max MP Down", "Max TP Down", "MND Down", "Nocturne", "Rasp", "Requiem", "Shock", "slow", "STR Down", "VIT Down", "weight", "Flash"}, 1)
+    local heal_condition = HasBuffsCondition.new(L{"Accuracy Down", "addle", "AGI Down", "Attack Down", "bind", "Bio", "Burn", "Choke", "CHR Down", "Defense Down", "DEX Down", "Dia", "Drown", "Elegy", "Evasion Down", "Frost", "Inhibit TP", "INT Down", "Magic Acc. Down", "Magic Atk. Down", "Magic Def. Down", "Magic Evasion Down", "Max HP Down", "Max MP Down", "Max TP Down", "MND Down", "Nocturne", "Rasp", "Requiem", "Shock", "slow", "STR Down", "VIT Down", "weight", "Flash"}, 1)
+
+
+
+    print(Condition.check_conditions(L{ heal_condition }, windower.ffxi.get_mob_by_name('Cyrite').index))
 
     --local EquipSetAction = require('cylibs/actions/equip_set')
     --local EquipSet = require('cylibs/inventory/equipment/equip_set')

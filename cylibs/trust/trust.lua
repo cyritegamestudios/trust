@@ -66,6 +66,10 @@ function Trust:init()
 		if healer then
 			healer:set_heal_settings(new_trust_settings.CureSettings)
 		end
+		local status_remover = self:role_with_type("statusremover")
+		if status_remover then
+			status_remover:set_status_removal_settings(new_trust_settings.StatusRemovalSettings)
+		end
 		local roller = self:role_with_type("roller")
 		if roller then
 			roller:set_roll_settings(new_trust_settings.RollSettings)

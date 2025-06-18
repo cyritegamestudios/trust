@@ -320,6 +320,11 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         childMenuItems.Healing = self:getMenuItemForRole(trust:role_with_type("healer"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode, trustModeSettings)
     end
 
+    if trust:role_with_type("statusremover") then
+        menuItems:append(ButtonItem.default('Ailments', 18))
+        childMenuItems["Ailments"] = self:getMenuItemForRole(trust:role_with_type("statusremover"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode, trustModeSettings)
+    end
+
     menuItems:append(ButtonItem.localized('Pulling', i18n.translate('Button_Pulling')))
     if trust:role_with_type("puller") then
         childMenuItems.Pulling = self:getMenuItemForRole(trust:role_with_type("puller"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode, trustModeSettings)
@@ -401,6 +406,9 @@ function TrustHud:getMenuItemForRole(role, weaponSkillSettings, weaponSkillSetti
     if role:get_type() == "healer" then
         return self:getHealerMenuItem(trust, trustSettings, trustSettingsMode, trustModeSettings)
     end
+    if role:get_type() == "statusremover" then
+        return self:getStatusRemoverMenuItem(trust, trustSettings, trustSettingsMode, trustModeSettings)
+    end
     if role:get_type() == "skillchainer" then
         return self:getSkillchainerMenuItem(weaponSkillSettings, weaponSkillSettingsMode, trustModeSettings, trust)
     end
@@ -438,6 +446,12 @@ function TrustHud:getHealerMenuItem(trust, trustSettings, trustSettingsMode, tru
     local HealerSettingsMenuItem = require('ui/settings/menus/healing/HealerSettingsMenuItem')
     local healerSettingsMenuItem = HealerSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings)
     return healerSettingsMenuItem
+end
+
+function TrustHud:getStatusRemoverMenuItem(trust, trustSettings, trustSettingsMode, trustModeSettings)
+    local StatusRemovalSettingsMenuItem = require('ui/settings/menus/healing/StatusRemovalSettingsMenuItem')
+    local statusRemoverSettingsMenuItem = StatusRemovalSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings)
+    return statusRemoverSettingsMenuItem
 end
 
 function TrustHud:getSkillchainerMenuItem(weaponSkillSettings, weaponSkillSettingsMode, trustModeSettings, trust)

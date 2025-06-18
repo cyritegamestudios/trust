@@ -3,6 +3,7 @@
 -- @class module
 -- @name ElementalMagic
 
+local ConditionalCondition = require('cylibs/conditions/conditional')
 local res = require('resources')
 local serializer_util = require('cylibs/util/serializer_util')
 
@@ -30,6 +31,19 @@ function ElementalMagic.new(spell_name, conditions)
     end
     local self = setmetatable(SkillchainAbility.new('spells', spell.id, conditions), ElementalMagic)
     return self
+end
+
+-------
+-- Return the default conditions to cast a spell.
+-- @treturn list List of conditions
+function ElementalMagic:get_default_conditions()
+    local conditions = L{
+        NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'mute', 'Invisible', 'stun'}, 1)})
+    }
+    if self:get_mp_cost() > 0 then
+        conditions:append(ConditionalCondition.new(L{ MinManaPointsCondition.new(self:get_mp_cost()), HasBuffCondition.new('Mana Font') }, Condition.LogicalOperator.Or))
+    end
+    return conditions
 end
 
 function ElementalMagic:serialize()

@@ -18,7 +18,7 @@ function WhiteMageTrust.new(settings, action_queue, battle_settings, trust_setti
 	local job = WhiteMage.new(trust_settings.CureSettings)
 	local roles = S{
 		Healer.new(action_queue, trust_settings.CureSettings, job),
-		StatusRemover.new(action_queue, job),
+		StatusRemover.new(action_queue, trust_settings.StatusRemovalSettings, job),
 		Barspeller.new(action_queue, job),
 		Buffer.new(action_queue, trust_settings.BuffSettings, state.AutoBuffMode, job),
 		Debuffer.new(action_queue, trust_settings.DebuffSettings, job),

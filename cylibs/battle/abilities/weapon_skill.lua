@@ -70,11 +70,15 @@ function WeaponSkill:get_config_items(trust)
     }
 end
 
---[[function WeaponSkill:to_action(target_index, _)
-    local action = WeaponSkillAction.new(self:get_name(), target_index)
-    action.identifier = self.__class..'_'..self:get_name()
-    return action
-end]]
+-------
+-- Return the default conditions.
+-- @treturn list List of conditions
+function WeaponSkill:get_default_conditions()
+    local conditions = L{
+        NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'Invisible', 'stun', 'amnesia'}, 1)})
+    }
+    return conditions
+end
 
 function WeaponSkill:serialize(exclude_conditions)
     local conditions_classes_to_serialize = Condition.defaultSerializableConditionClasses()

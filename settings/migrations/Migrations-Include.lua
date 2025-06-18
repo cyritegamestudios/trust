@@ -1234,6 +1234,40 @@ function Migration_v34:getDescription()
     return "Adding roll settings."
 end
 
+---------------------------
+-- Creates StatusRemovalSettings.
+-- @class module
+-- @name Migration_v35
+
+local Migration_v35 = setmetatable({}, { __index = Migration })
+Migration_v35.__index = Migration_v35
+Migration_v35.__class = "Migration_v35"
+
+function Migration_v35.new()
+    local self = setmetatable(Migration.new(), Migration_v35)
+    return self
+end
+
+function Migration_v35:shouldPerform(trustSettings, _, _)
+    local defaultSettings = T(trustSettings:getDefaultSettings()).Default
+    return defaultSettings.StatusRemovalSettings ~= nil and trustSettings:getSettings().Default.StatusRemovalSettings == nil
+end
+
+function Migration_v35:perform(trustSettings, _, _)
+    local modeNames = list.subtract(L(T(trustSettings:getSettings()):keyset()), L{'Version','Migrations'})
+    for modeName in modeNames:it() do
+        local defaultSettings = T(trustSettings:getDefaultSettings()):clone()
+        local currentSettings = trustSettings:getSettings()[modeName]
+        if currentSettings.StatusRemovalSettings == nil then
+            currentSettings.StatusRemovalSettings = defaultSettings.Default.StatusRemovalSettings
+        end
+    end
+end
+
+function Migration_v35:getDescription()
+    return "Creating status removal settings."
+end
+
 return {
     Migration_v1 = Migration_v1,
     Migration_v2 = Migration_v2,
@@ -1268,5 +1302,6 @@ return {
     Migration_v32 = Migration_v32,
     Migration_v33 = Migration_v33,
     Migration_v34 = Migration_v34,
+    Migration_v35 = Migration_v35,
 }
 

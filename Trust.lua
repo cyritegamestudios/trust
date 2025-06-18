@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '15.3.1'
+_addon.version = '15.4.0'
 _addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 
@@ -95,7 +95,7 @@ function load_user_files(main_job_id, sub_job_id)
 	player.trust.main_job = main_job_trust
 	player.trust.sub_job = sub_job_trust
 
-	local skillchainer = Skillchainer.new(action_queue, weapon_skill_settings)
+	local skillchainer = Skillchainer.new(action_queue, weapon_skill_settings, player.trust.main_job:get_job())
 
 	if player.trust.main_job:role_with_type("puller") == nil and player.trust.sub_job:role_with_type("puller") == nil then
 		local pull_abilities = player.trust.main_job_settings.Default.PullSettings.Abilities
@@ -250,7 +250,7 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_name_short,
 		SendCommands.new(main_job_trust, action_queue),
 		SkillchainCommands.new(main_job_trust, weapon_skill_settings, action_queue),
 		SoundCommands.new(hud.mediaPlayer),
-		TargetCommands.new(main_trust_settings, state.MainTrustSettingsMode, party, action_queue),
+		TargetCommands.new(main_trust_settings, state.MainTrustSettingsMode, party, action_queue, main_job_trust:role_with_type("puller") or sub_job_trust:role_with_type("puller")),
 		WarpCommands.new(main_job_trust:role_with_type("follower").walk_action_queue),
 	}:compact_map():extend(get_job_commands(job_name_short, main_job_trust, action_queue, main_trust_settings, weapon_skill_settings)):extend(get_job_commands(sub_job_name_short, sub_job_trust, action_queue, sub_trust_settings, weapon_skill_settings))
 

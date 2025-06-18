@@ -18,7 +18,6 @@ function JobAbility.new(x, y, z, job_ability_name, target_index, conditions)
         IsStandingCondition.new(0.5, ">="),
         NotCondition.new(L{ StatusCondition.new("Mount") }),
         NotCondition.new(L{InMogHouseCondition.new()}),
-        NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'amnesia', 'Invisible', 'stun'}, 1)}, windower.ffxi.get_player().index),
         JobAbilityRecastReadyCondition.new(job_ability_name),
         ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos()),
     }
@@ -61,6 +60,8 @@ function JobAbility:perform()
         if L{ 87, 88 }:contains(message_id) then
             self.retry_count = self.retry_count + 1
             self:use_job_ability(self.retry_count)
+        elseif L{ 523 }:contains(message_id) then
+            self:complete(false)
         end
     end), WindowerEvents.ActionMessage)
 

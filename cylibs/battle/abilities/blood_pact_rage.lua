@@ -4,7 +4,6 @@
 -- @name BloodPactRage
 
 local AssetManager = require('ui/themes/ffxi/FFXIAssetManager')
-local res = require('resources')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local serializer_util = require('cylibs/util/serializer_util')
 
@@ -62,6 +61,21 @@ function BloodPactRage:get_config_items(trust)
     return L{
         configItem,
     }
+end
+
+function BloodPactRage:get_mp_cost()
+    return res.job_abilities[self:get_ability_id()].mp_cost or 0
+end
+
+-------
+-- Return the default conditions.
+-- @treturn list List of conditions
+function BloodPactRage:get_default_conditions()
+    local conditions = SkillchainAbility.get_default_conditions(self)
+    if self:get_mp_cost() > 0 then
+        conditions:append(MinManaPointsCondition.new(self:get_mp_cost()))
+    end
+    return conditions
 end
 
 function BloodPactRage:serialize()

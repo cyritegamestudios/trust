@@ -3,17 +3,19 @@ local TargetCommands = setmetatable({}, {__index = TrustCommands })
 TargetCommands.__index = TargetCommands
 TargetCommands.__class = "TargetCommands"
 
-function TargetCommands.new(trustSettings, trustSettingsMode, party, actionQueue)
+function TargetCommands.new(trustSettings, trustSettingsMode, party, actionQueue, puller)
     local self = setmetatable(TrustCommands.new(), TargetCommands)
 
     self.trust_settings = trustSettings
     self.trust_settings_mode = trustSettingsMode
     self.party = party
+    self.puller = puller
     self.actionQueue = actionQueue
 
     self:add_command('auto', function(_) return self:handle_set_mode('PullActionMode', 'Target')  end, 'Automatically target aggroed monsters after defeating one')
     self:add_command('off', function(_) return self:handle_set_mode('PullActionMode', 'Auto')  end, 'Disable auto target')
     self:add_command('cycle', self.handle_cycle_target, 'Cycle between party targets')
+    self:add_command('clear', self.handle_clear_target, 'Clears the current target in the target widget')
 
     return self
 end
@@ -55,6 +57,15 @@ function TargetCommands:handle_cycle_target(_)
         success = false
         message = "There are not enough targets"
     end
+
+    return success, message
+end
+
+function TargetCommands:handle_clear_target(_)
+    local success = true
+    local message = "Target has been cleared"
+
+    self.puller:set_pull_target(nil)
 
     return success, message
 end
