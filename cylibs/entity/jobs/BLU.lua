@@ -17,15 +17,13 @@ BlueMage.__index = BlueMage
 -- Default initializer for a new Blue Mage.
 -- @tparam T cure_settings Cure thresholds
 -- @treturn BLU A Blue Mage
-function BlueMage.new(cure_settings)
+function BlueMage.new()
     local self = setmetatable(Job.new('BLU'), BlueMage)
 
     self.spells_action_queue = ActionQueue.new(nil, true, 20, false, false)
     self.dispose_bag = DisposeBag.new()
 
     self.dispose_bag:addAny(L{ self.spells_action_queue })
-
-    self:set_cure_settings(cure_settings)
 
     return self
 end
@@ -108,42 +106,10 @@ function BlueMage:has_spell_equipped(spell_name)
 end
 
 -------
--- Returns the spell that removes the given status effect.
--- @tparam number debuff_id Debuff id (see buffs.lua)
--- @tparam number num_targets Number of targets afflicted with the status effect
--- @treturn Spell Status removal spell
-function BlueMage:get_status_removal_spell(debuff_id, num_targets)
-    if self.ignore_debuff_ids:contains(debuff_id) or self.ignore_debuff_names:contains(buff_util.buff_name(debuff_id)) then return nil end
-
-    local spell_id = cure_util.spell_id_for_debuff_id(debuff_id)
-    if spell_id then
-        if spell_util.spell_name(spell_id) == 'Erase' then
-            return StatusRemoval.new('Winds of Promy.', L{}, debuff_id)
-        end
-    end
-    return nil
-end
-
--------
--- Returns the delay between status removals.
--- @treturn number Delay between status removals in seconds
-function BlueMage:get_status_removal_delay()
-    return self.cure_settings.StatusRemovals.Delay or 3
-end
-
--------
 -- Returns the spell that can raise a party member.
 -- @treturn Spell Raise spell
 function BlueMage:get_raise_spell()
     return nil
-end
-
--------
--- Sets the cure settings.
--- @tparam T cure_settings Cure settings
-function BlueMage:set_cure_settings(cure_settings)
-    self.cure_settings = cure_settings or cure_util.default_cure_settings.Magic
-    self.ignore_debuff_ids = self.cure_settings.StatusRemovals.Blacklist:map(function(debuff_name) return buff_util.buff_id(debuff_name) end)
 end
 
 function BlueMage:create_spell_set()

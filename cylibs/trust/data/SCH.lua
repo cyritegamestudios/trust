@@ -50,8 +50,6 @@ function ScholarTrust:on_init()
     Trust.on_init(self)
 
     self:on_trust_settings_changed():addAction(function(_, new_trust_settings)
-        self:get_job():set_trust_settings(new_trust_settings)
-
         local debuffer = self:role_with_type("debuffer")
         debuffer:set_debuff_settings(new_trust_settings.DebuffSettings)
 
