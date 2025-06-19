@@ -5,7 +5,6 @@
 
 local cure_util = require('cylibs/util/cure_util')
 local SpellList = require('cylibs/util/spell_list')
-local StatusRemoval = require('cylibs/battle/healing/status_removal')
 
 local Job = require('cylibs/entity/jobs/job')
 local Scholar = setmetatable({}, {__index = Job })
@@ -22,14 +21,10 @@ local Grimoire = {
 -- @treturn SCH A Scholar
 function Scholar.new(trust_settings)
     local self = setmetatable(Job.new('SCH', L{ 'Dispelga', 'Impact' }), Scholar)
-    self:set_trust_settings(trust_settings)
     self.allow_sub_job = trust_settings.AllowSubJob
     if self.allow_sub_job == nil then
         self.allow_sub_job = true
     end
-    self.ignore_debuff_ids = self.cure_settings.StatusRemovals.Blacklist:map(function(debuff_name)
-        return res.buffs:with('en', debuff_name).id
-    end)
     self.sub_job_spell_list = SpellList.new(windower.ffxi.get_player().sub_job_id, windower.ffxi.get_player().sub_job_level, L{})
     return self
 end
@@ -48,38 +43,6 @@ function Scholar:get_spells(filter)
         end)
     end
     return spells
-end
-
--------
--- Returns the spell that removes the given status effect.
--- @tparam number debuff_id Debuff id (see buffs.lua)
--- @tparam number num_targets Number of targets afflicted with the status effect
--- @treturn Spell Status removal spell
-function Scholar:get_status_removal_spell(debuff_id, num_targets)
-    if self.ignore_debuff_ids:contains(debuff_id) then return end
-
-    if not self:is_light_arts_active() then return nil end
-
-    local spell_id = cure_util.spell_id_for_debuff_id(debuff_id)
-    if spell_id then
-        local job_abilities = L{}
-        if not self:is_addendum_white_active() then
-            job_abilities:append('Addendum: White')
-        end
-        if num_targets > 1 then
-            return StatusRemoval.new(res.spells:with('id', spell_id).en, job_abilities:extend(L{'Accession'}), debuff_id)
-        else
-            return StatusRemoval.new(res.spells:with('id', spell_id).en, job_abilities, debuff_id)
-        end
-    end
-    return nil
-end
-
--------
--- Returns the delay between status removals.
--- @treturn number Delay between status removals in seconds
-function Scholar:get_status_removal_delay()
-    return self.cure_settings.StatusRemovals.Delay or 3
 end
 
 -------
@@ -125,21 +88,6 @@ function Scholar:is_addendum_black_active()
 end
 
 -------
--- Returns the list of buffs to cast on party members while in Light Arts.
--- @treturn list List of party buffs
-function Scholar:get_light_arts_buffs()
-    return self.trust_settings.LightArts.BuffSettings
-end
-
-
--------
--- Returns the list of buffs to cast on party members while in Dark Arts.
--- @treturn list List of party buffs
-function Scholar:get_dark_arts_buffs()
-    return self.trust_settings.DarkArts.BuffSettings
-end
-
--------
 -- Returns whether the player has sublimation active.
 -- @treturn Boolean True is sublimation is active and false otherwise
 function Scholar:is_sublimation_active()
@@ -171,14 +119,6 @@ function Scholar:can_cast_spell(spell_id)
         return buff_util.is_buff_active(buff_util.buff_id('Addendum: White'))
     end
     return spell_util.can_cast_spell(spell_id)
-end
-
--------
--- Sets the trust settings.
--- @tparam T trust_settings Trust settings
-function Scholar:set_trust_settings(trust_settings)
-    self.trust_settings = trust_settings
-    self.cure_settings = trust_settings.CureSettings or cure_util.default_cure_settings.Magic
 end
 
 -------

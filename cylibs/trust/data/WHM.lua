@@ -15,7 +15,7 @@ local Puller = require('cylibs/trust/roles/puller')
 local StatusRemover = require('cylibs/trust/roles/status_remover')
 
 function WhiteMageTrust.new(settings, action_queue, battle_settings, trust_settings)
-	local job = WhiteMage.new(trust_settings.CureSettings)
+	local job = WhiteMage.new()
 	local roles = S{
 		Healer.new(action_queue, trust_settings.CureSettings, job),
 		StatusRemover.new(action_queue, trust_settings.StatusRemovalSettings, job),
@@ -47,31 +47,12 @@ function WhiteMageTrust:on_init()
 			role:set_nuke_settings(new_trust_settings.NukeSettings)
 		end
 	end), self:on_trust_settings_changed())
-
-	self.dispose_bag:add(self:get_party():get_player():on_gain_buff():addAction(function(_, buff_id)
-		local buff_name = buff_util.buff_name(buff_id)
-		if buff_name == 'Afflatus Solace' then
-			self:get_job():set_afflatus_mode(WhiteMage.Afflatus.Solace)
-		elseif buff_name == 'Afflatus Misery' then
-			self:get_job():set_afflatus_mode(WhiteMage.Afflatus.Misery)
-		end
-	end, self:get_party():get_player():on_gain_buff()))
 end
 
 function WhiteMageTrust:destroy()
 	Trust.destroy(self)
 
 	self.dispose_bag:destroy()
-end
-
-function WhiteMageTrust:job_target_change(target_index)
-	Trust.job_target_change(self, target_index)
-
-	self.target_index = target_index
-end
-
-function WhiteMageTrust:tic(old_time, new_time)
-	Trust.tic(self, old_time, new_time)
 end
 
 return WhiteMageTrust
