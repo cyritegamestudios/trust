@@ -167,7 +167,7 @@ function Roller:set_roll_settings(roll_settings)
             Gambit.new(GambitTarget.TargetType.Self, L{
                 HasBuffsCondition.new(L{ roll:get_roll_name(), 'Double-Up Chance' }, 2),
                 HasRollCondition.new(roll:get_roll_name(), self.job:get_unlucky_roll(roll:get_roll_name()), Condition.Operator.Equals)
-            }, JobAbility.new('Double-Up'), GambitTarget.TargetType.Self),
+            }, Sequence.new(L{ JobAbility.new('Snake Eye'), JobAbility.new('Double-Up') }) , GambitTarget.TargetType.Self),
         }
         if self.job:isMainJob() and self.prioritize_elevens then
             rollGambits:append(Gambit.new(GambitTarget.TargetType.Self, L{

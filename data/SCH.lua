@@ -17,9 +17,9 @@ return {
         CureSettings = {
             Gambits = L{
                 Gambit.new("Self", L{GambitCondition.new(ClusterHitPointsPercentRangeCondition.new(1, 65, 3), "Self")}, Spell.new("Cure IV", L{ "Accession" }, L{}, nil, L{}), "Self", L{}, true),
-                Gambit.new("Self", L{GambitCondition.new(ClusterHitPointsPercentRangeCondition.new(1, 72, 3), "Self")}, Spell.new("Cure III", L{ "Accession" }, L{}, nil, L{}), "Self", L{}, true),
+                Gambit.new("Self", L{GambitCondition.new(ClusterHitPointsPercentRangeCondition.new(1, 75, 3), "Self")}, Spell.new("Cure III", L{ "Accession" }, L{}, nil, L{}), "Self", L{}, true),
                 Gambit.new("Ally", L{GambitCondition.new(ClusterHitPointsPercentRangeCondition.new(1, 65, 3), "Ally")}, Spell.new("Cure IV", L{ "Accession" }, L{}, nil, L{}), "Ally", L{}, true),
-                Gambit.new("Ally", L{GambitCondition.new(ClusterHitPointsPercentRangeCondition.new(1, 72, 3), "Ally")}, Spell.new("Cure III", L{ "Accession" }, L{}, nil, L{}), "Ally", L{}, true),
+                Gambit.new("Ally", L{GambitCondition.new(ClusterHitPointsPercentRangeCondition.new(1, 75, 3), "Ally")}, Spell.new("Cure III", L{ "Accession" }, L{}, nil, L{}), "Ally", L{}, true),
                 Gambit.new("Self", L{GambitCondition.new(HitPointsPercentRangeCondition.new(1, 65), "Self")}, Spell.new("Cure IV", L{}, L{}, nil, L{}), "Self", L{}, true),
                 Gambit.new("Self", L{GambitCondition.new(HitPointsPercentRangeCondition.new(1, 72), "Self")}, Spell.new("Cure III", L{}, L{}, nil, L{}), "Self", L{}, true),
                 Gambit.new("Ally", L{GambitCondition.new(HitPointsPercentRangeCondition.new(1, 65), "Ally")}, Spell.new("Cure IV", L{}, L{}, nil, L{}), "Ally", L{}, true),
