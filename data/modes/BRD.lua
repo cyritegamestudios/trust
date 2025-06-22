@@ -23,7 +23,7 @@ return {
         ["autoassistantmode"]="Off",
         ["automagicburstmode"]="Off",
         ["autoengagemode"]="Off",
-        ["autoenablemode"]="Auto",
+        ["autoenablemode"]="Off",
         ["autodisablemode"]="Auto",
         ["ipcmode"]="All",
         ["autopianissimomode"]="Off",
