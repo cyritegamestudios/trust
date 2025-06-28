@@ -106,6 +106,8 @@ function Roller:set_roll_settings(roll_settings)
     self.prioritize_elevens = roll_settings.PrioritizeElevens
     self.max_bust_count = self.job:isMainJob() and 2 or 1
 
+    self:on_rolls_changed():trigger(self.roll1:get_roll_name(), self.roll_tracker[self.roll1:get_roll_id()], self.roll2:get_roll_name(), self.roll_tracker[self.roll2:get_roll_id()])
+
     -- 1. If bust -> fold
     -- 2. If double up active and current roll == lucky roll - 1 -> snake eye
 
