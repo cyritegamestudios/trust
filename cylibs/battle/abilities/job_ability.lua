@@ -180,6 +180,10 @@ function JobAbility:to_action(target_index)
     elseif string.find(self:get_job_ability_name(), 'Flourish') then
         job_ability_action = FlourishAction.new(self:get_job_ability_name(), target_index or self:get_target())
     else
+        local target_index = target_index or self:get_target()
+        if S(self.valid_targets) == S{ 'Self' } then
+            target_index = windower.ffxi.get_player().index
+        end
         job_ability_action = JobAbilityAction.new(0, 0, 0, self:get_job_ability_name(), target_index or self:get_target())
     end
     if job_ability_action then
