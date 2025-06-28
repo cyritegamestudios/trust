@@ -106,6 +106,8 @@ function Roller:set_roll_settings(roll_settings)
     self.prioritize_elevens = roll_settings.PrioritizeElevens
     self.max_bust_count = self.job:isMainJob() and 2 or 1
 
+    self:validate_rolls()
+
     self:on_rolls_changed():trigger(self.roll1:get_roll_name(), self.roll_tracker[self.roll1:get_roll_id()], self.roll2:get_roll_name(), self.roll_tracker[self.roll2:get_roll_id()])
 
     -- 1. If bust -> fold
@@ -257,13 +259,17 @@ function Roller:on_roll_used(roll_id, targets)
 
     self.roll_tracker[roll_id] = roll_num
 
+    self:validate_rolls()
+
+    self:on_rolls_changed():trigger(self.roll1:get_roll_name(), self.roll_tracker[self.roll1:get_roll_id()], self.roll2:get_roll_name(), self.roll_tracker[self.roll2:get_roll_id()])
+end
+
+function Roller:validate_rolls()
     for roll_id, _ in pairs(self.roll_tracker) do
         if not self:get_party():get_player():has_buff(res.job_abilities[roll_id].status) then
             self.roll_tracker[roll_id] = 0
         end
     end
-
-    self:on_rolls_changed():trigger(self.roll1:get_roll_name(), self.roll_tracker[self.roll1:get_roll_id()], self.roll2:get_roll_name(), self.roll_tracker[self.roll2:get_roll_id()])
 end
 
 function Roller:get_last_roll_num()
