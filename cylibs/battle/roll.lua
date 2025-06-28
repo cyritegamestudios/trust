@@ -29,6 +29,13 @@ function Roll:get_roll_name()
 end
 
 -------
+-- Returns the id for the roll.
+-- @treturn number Roll id
+function Roll:get_roll_id()
+    return res.job_abilities:with('en', self:get_roll_name()).id
+end
+
+-------
 -- Sets the name for the roll.
 -- @tparam string roll_name Roll name
 function Roll:set_roll_name(roll_name)
