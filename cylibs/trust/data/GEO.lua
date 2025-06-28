@@ -13,9 +13,6 @@ local Trust = require('cylibs/trust/trust')
 local GeomancerTrust = setmetatable({}, {__index = Trust })
 GeomancerTrust.__index = GeomancerTrust
 
-state.AutoGeoMode = M{['description'] = 'Use geocolures', 'Off', 'Auto'}
-state.AutoGeoMode:set_description('Auto', "Use Geocolure spells.")
-
 state.AutoIndiMode = M{['description'] = 'Use indicolures', 'Auto', 'Off'}
 state.AutoIndiMode:set_description('Auto', "Use Indicolure spells.")
 

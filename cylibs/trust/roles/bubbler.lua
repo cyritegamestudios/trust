@@ -1,15 +1,14 @@
 local DisposeBag = require('cylibs/events/dispose_bag')
 local GambitTarget = require('cylibs/gambits/gambit_target')
 local PartyClaimedCondition = require('cylibs/conditions/party_claimed')
-local Sequence = require('cylibs/battle/sequence')
 
 local Gambiter = require('cylibs/trust/roles/gambiter')
 local Bubbler = setmetatable({}, {__index = Gambiter })
 Bubbler.__index = Bubbler
 Bubbler.__class = Bubbler
 
-state.AutoRollMode = M{['description'] = 'Use Phantom Roll', 'Auto', 'Off'}
-state.AutoRollMode:set_description('Auto', "Automatically roll until an 11 or lucky roll.")
+state.AutoGeoMode = M{['description'] = 'Use geocolures', 'Off', 'Auto'}
+state.AutoGeoMode:set_description('Auto', "Use Geocolure spells.")
 
 -------
 -- Default initializer for a bubbler role.

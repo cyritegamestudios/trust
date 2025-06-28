@@ -169,7 +169,7 @@ function Gambiter:perform_gambit(gambit, target)
     if target == nil or target:get_mob() == nil then
         return
     end
-    logger.notice(self:get_type(), 'perform_gambit', gambit:tostring(), target:get_mob().name)
+    logger.notice(self.__class, 'perform_gambit', gambit:tostring(), target:get_mob().name)
     local action = gambit:getAbility():to_action(target:get_mob().index, self:get_player())
     if action then
         self.last_gambit_time = os.time()
