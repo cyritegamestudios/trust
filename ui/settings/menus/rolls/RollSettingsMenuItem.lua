@@ -66,7 +66,7 @@ function RollSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSet
 
         self.dispose_bag:add(rollConfigEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
             if indexPath.section == 3 then
-                infoView:setDescription(string.format("Do not Double-Up if the current roll >= a certain number (lower = fewer busts, higher = more busts).", allSettings.DoubleUpThreshold))
+                infoView:setDescription(string.format("Do not Double-Up if the current roll > a certain number (lower = fewer busts, higher = more busts).", allSettings.DoubleUpThreshold))
             elseif indexPath.section == 4 then
                 infoView:setDescription(string.format("Do not roll unless a certain number of party members are within 16 yalms (assumes Luzaf's Ring is equipped).", allSettings.NumRequiredPartyMembers))
             elseif indexPath.section == 5 then

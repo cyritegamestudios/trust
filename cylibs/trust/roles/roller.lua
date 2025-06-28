@@ -24,6 +24,10 @@ function Roller:on_rolls_end()
     return self.rolls_end
 end
 
+function Roller:on_rolls_changed()
+    return self.rolls_changed
+end
+
 -------
 -- Default initializer for a nuker role.
 -- @tparam ActionQueue action_queue Action queue
@@ -33,11 +37,10 @@ function Roller.new(action_queue, roll_settings, job)
     local self = setmetatable(Gambiter.new(action_queue, { Gambits = L{} }, L{ state.AutoRollMode }), Roller)
 
     self.job = job
-    self.roll1_current = 0
-    self.roll2_current = 0
     self.roll_tracker = {}
     self.rolls_begin = Event.newEvent()
     self.rolls_end = Event.newEvent()
+    self.rolls_changed = Event.newEvent()
     self.dispose_bag = DisposeBag.new()
 
     self:set_roll_settings(roll_settings)
@@ -52,6 +55,7 @@ function Roller:destroy()
 
     self:on_rolls_begin():removeAllActions()
     self:on_rolls_end():removeAllActions()
+    self:on_rolls_changed():removeAllActions()
 end
 
 function Roller:on_add()
@@ -101,6 +105,10 @@ function Roller:set_roll_settings(roll_settings)
     self.num_party_members_nearby = roll_settings.NumRequiredPartyMembers
     self.prioritize_elevens = roll_settings.PrioritizeElevens
     self.max_bust_count = self.job:isMainJob() and 2 or 1
+
+    self:validate_rolls()
+
+    self:on_rolls_changed():trigger(self.roll1:get_roll_name(), self.roll_tracker[self.roll1:get_roll_id()], self.roll2:get_roll_name(), self.roll_tracker[self.roll2:get_roll_id()])
 
     -- 1. If bust -> fold
     -- 2. If double up active and current roll == lucky roll - 1 -> snake eye
@@ -220,12 +228,6 @@ function Roller:get_default_conditions(gambit)
 end
 
 function Roller:get_roll_num(roll_name)
-    if self.roll_settings.Roll1:get_roll_name() == roll_name then
-        return self.roll1_current
-    end
-    if self.roll_settings.Roll2:get_roll_name() == roll_name then
-        return self.roll2_current
-    end
     local roll = res.job_abilities:with('en', roll_name)
     if roll then
         return self.roll_tracker[roll.id]
@@ -257,11 +259,16 @@ function Roller:on_roll_used(roll_id, targets)
 
     self.roll_tracker[roll_id] = roll_num
 
-    local roll = res.job_abilities:with('id', roll_id)
-    if roll.en == self.roll1:get_roll_name() then
-        self.roll1_current = roll_num
-    elseif roll.en == self.roll2:get_roll_name() then
-        self.roll2_current = roll_num
+    self:validate_rolls()
+
+    self:on_rolls_changed():trigger(self.roll1:get_roll_name(), self.roll_tracker[self.roll1:get_roll_id()], self.roll2:get_roll_name(), self.roll_tracker[self.roll2:get_roll_id()])
+end
+
+function Roller:validate_rolls()
+    for roll_id, _ in pairs(self.roll_tracker) do
+        if not self:get_party():get_player():has_buff(res.job_abilities[roll_id].status) then
+            self.roll_tracker[roll_id] = 0
+        end
     end
 end
 

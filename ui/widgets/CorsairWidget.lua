@@ -37,27 +37,23 @@ function CorsairWidget.new(frame, trust, trustHud, trustSettings, trustSettingsM
             local cell = ImageTextCollectionViewCell.new(item)
             cell:setUserInteractionEnabled(true)
             cell:setIsSelectable(true)
-            cell:setItemSize(16)
+            cell:setItemSize(14)
             return cell
         elseif item.__type == TextItem.__type then
             local cell = TextCollectionViewCell.new(item)
-            cell:setItemSize(16)
+            cell:setItemSize(12)
             cell:setUserInteractionEnabled(true)
             return cell
         end
     end)
 
-    local self = setmetatable(Widget.new(frame, "Corsair", dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 3), 40, true, 'job'), CorsairWidget)
+    local self = setmetatable(Widget.new(frame, "Corsair", dataSource, VerticalFlowLayout.new(2, Padding.new(8, 4, 0, 0), 3), 40, true, 'job'), CorsairWidget)
 
     self.trust = trust
 
     local roller = trust:role_with_type("roller")
 
-    self:setRolls(state.AutoRollMode.value, roller:get_is_rolling())
-
-    self:getDisposeBag():add(state.AutoRollMode:on_state_change():addAction(function(_, new_value, _)
-        self:setRolls(new_value, roller:get_is_rolling())
-    end), state.AutoRollMode:on_state_change())
+    self:updateRolls(roller.roll1:get_roll_name(), 0, roller.roll2:get_roll_name(), 0)
 
     self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
         self:getDelegate():deselectItemAtIndexPath(indexPath)
@@ -66,14 +62,10 @@ function CorsairWidget.new(frame, trust, trustHud, trustSettings, trustSettingsM
             trustHud:openMenu(RollSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSettings, trust))
         end, 0.2)
     end), self:getDelegate():didSelectItemAtIndexPath())
-
-    self:getDisposeBag():add(roller:on_rolls_begin():addAction(function(_, _)
-        self:setRolls(state.AutoRollMode.value, true)
-    end, roller:on_rolls_begin()))
-
-    self:getDisposeBag():add(roller:on_rolls_end():addAction(function(_, _)
-        self:setRolls(state.AutoRollMode.value, false)
-    end, roller:on_rolls_end()))
+    
+    self:getDisposeBag():add(roller:on_rolls_changed():addAction(function(roll1Name, roll1Num, roll2Name, roll2Num)
+        self:updateRolls(roll1Name, roll1Num, roll2Name, roll2Num)
+    end), roller:on_rolls_changed())
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
@@ -94,6 +86,14 @@ function CorsairWidget:setRolls(_, isRolling)
     end
 
     self:getDataSource():updateItem(image_item, IndexPath.new(1, 1))
+end
+
+function CorsairWidget:updateRolls(roll1Name, roll1Count, roll2Name, roll2Count)
+    local roll1 = ImageTextItem.new(ImageItem.new(windower.addon_path..'assets/buffs/312.png', 14, 14), TextItem.new(string.format("%s: %d", roll1Name:gsub(" Roll", ""), roll1Count or 0), CorsairWidget.TextSmall3), 2, { x = 0, y = 1 })
+    self:getDataSource():updateItem(roll1, IndexPath.new(1, 1))
+
+    local roll2 = ImageTextItem.new(ImageItem.new(windower.addon_path..'assets/buffs/312.png', 14, 14), TextItem.new(string.format("%s: %d", roll2Name:gsub(" Roll", ""), roll2Count or 0), CorsairWidget.TextSmall3), 2, { x = 0, y = 1 })
+    self:getDataSource():updateItem(roll2, IndexPath.new(1, 2))
 end
 
 return CorsairWidget
