@@ -53,12 +53,7 @@ function CorsairWidget.new(frame, trust, trustHud, trustSettings, trustSettingsM
 
     local roller = trust:role_with_type("roller")
 
-    --self:setRolls(state.AutoRollMode.value, roller:get_is_rolling())
     self:updateRolls(roller.roll1:get_roll_name(), 0, roller.roll2:get_roll_name(), 0)
-
-    self:getDisposeBag():add(state.AutoRollMode:on_state_change():addAction(function(_, new_value, _)
-        self:setRolls(new_value, roller:get_is_rolling())
-    end), state.AutoRollMode:on_state_change())
 
     self:getDisposeBag():add(self:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
         self:getDelegate():deselectItemAtIndexPath(indexPath)
@@ -67,15 +62,7 @@ function CorsairWidget.new(frame, trust, trustHud, trustSettings, trustSettingsM
             trustHud:openMenu(RollSettingsMenuItem.new(trustSettings, trustSettingsMode, trustModeSettings, trust))
         end, 0.2)
     end), self:getDelegate():didSelectItemAtIndexPath())
-
-    self:getDisposeBag():add(roller:on_rolls_begin():addAction(function(_, _)
-        --self:setRolls(state.AutoRollMode.value, true)
-    end, roller:on_rolls_begin()))
-
-    self:getDisposeBag():add(roller:on_rolls_end():addAction(function(_, _)
-        --self:setRolls(state.AutoRollMode.value, false)
-    end, roller:on_rolls_end()))
-
+    
     self:getDisposeBag():add(roller:on_rolls_changed():addAction(function(roll1Name, roll1Num, roll2Name, roll2Num)
         self:updateRolls(roll1Name, roll1Num, roll2Name, roll2Num)
     end), roller:on_rolls_changed())
