@@ -89,7 +89,13 @@ function Bubbler:set_geomancy_settings(geomancy_settings)
             Gambit.new(GambitTarget.TargetType.Enemy, L{
                 GambitCondition.new(NotCondition.new(L{ HasPetCondition.new() }), GambitTarget.TargetType.Self),
                 GambitCondition.new(PartyClaimedCondition.new(true), GambitTarget.TargetType.Enemy),
+                GambitCondition.new(NotCondition.new(L{ HasBuffCondition.new('Bolster') }), GambitTarget.TargetType.Self),
             }, geocolure, Condition.TargetType.Self),
+            Gambit.new(GambitTarget.TargetType.Enemy, L{
+                GambitCondition.new(NotCondition.new(L{ HasPetCondition.new() }), GambitTarget.TargetType.Self),
+                GambitCondition.new(PartyClaimedCondition.new(true), GambitTarget.TargetType.Enemy),
+                GambitCondition.new(HasBuffCondition.new('Bolster'), GambitTarget.TargetType.Self),
+            }, Spell.new(geomancy_settings.Geo:get_name()), Condition.TargetType.Self),
         }
     else
         local geocolure = Spell.new(geomancy_settings.Geo:get_name(), L{ 'Blaze of Glory' }, L{}, geomancy_settings.Geo:get_target())
@@ -109,7 +115,12 @@ function Bubbler:set_geomancy_settings(geomancy_settings)
             }, JobAbility.new('Full Circle'), Condition.TargetType.Self),
             Gambit.new(GambitTarget.TargetType.Self, L{
                 GambitCondition.new(NotCondition.new(L{ HasPetCondition.new() }), GambitTarget.TargetType.Self),
+                GambitCondition.new(NotCondition.new(L{ HasBuffCondition.new('Bolster') }), GambitTarget.TargetType.Self),
             }, geocolure, Condition.TargetType.Self),
+            Gambit.new(GambitTarget.TargetType.Self, L{
+                GambitCondition.new(NotCondition.new(L{ HasPetCondition.new() }), GambitTarget.TargetType.Self),
+                GambitCondition.new(HasBuffCondition.new('Bolster'), GambitTarget.TargetType.Self),
+            }, Spell.new(geomancy_settings.Geo:get_name(), L{}, L{}, geomancy_settings.Geo:get_target()), Condition.TargetType.Self),
         }
     end
 
