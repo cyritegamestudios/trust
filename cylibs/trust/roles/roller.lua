@@ -136,14 +136,17 @@ function Roller:set_roll_settings(roll_settings)
         Gambit.new(GambitTarget.TargetType.Self, L{
             GambitCondition.new(HasBuffCondition.new('Bust'), GambitTarget.TargetType.Self),
         }, JobAbility.new('Fold'), Condition.TargetType.Self),
-        Gambit.new(GambitTarget.TargetType.Self, L{
-            GambitCondition.new(HasBuffCondition.new('Snake Eye'), GambitTarget.TargetType.Self),
-        }, JobAbility.new('Double-Up'), Condition.TargetType.Self),
     }
 
     local rolls = self.job:isMainJob() and L{ self.roll1, self.roll2 } or L{ self.roll1 }
     for roll in rolls:it() do
-        local rollGambits = L{}
+        local rollGambits = L{
+            Gambit.new(GambitTarget.TargetType.Self, L{
+                GambitCondition.new(NotCondition.new(L{ HasRollCondition.new(roll:get_roll_name(), self.job:get_lucky_roll(roll:get_roll_name()), Condition.Operator.Equals)}), GambitTarget.TargetType.Self),
+                GambitCondition.new(NotCondition.new(L{ HasRollCondition.new(roll:get_roll_name(), 11, Condition.Operator.Equals)}), GambitTarget.TargetType.Self),
+                GambitCondition.new(HasBuffCondition.new('Snake Eye'), GambitTarget.TargetType.Self),
+            }, JobAbility.new('Double-Up'), Condition.TargetType.Self),
+        }
 
         -- Snake Eye
         for rollNum in L{ self.job:get_lucky_roll(roll:get_roll_name()) - 1, 10 }:it() do
@@ -152,7 +155,7 @@ function Roller:set_roll_settings(roll_settings)
                     GambitCondition.new(HasBuffCondition.new('Double-Up Chance'), GambitTarget.TargetType.Self),
                     GambitCondition.new(NotCondition.new(L { HasBuffCondition.new('Snake Eye') }), GambitTarget.TargetType.Self),
                     HasRollCondition.new(roll:get_roll_name(), rollNum, Condition.Operator.Equals)
-                }, JobAbility.new('Snake Eye'), Condition.TargetType.Self)
+                }, Sequence.new(L{ JobAbility.new('Snake Eye'), JobAbility.new('Double-Up') }), Condition.TargetType.Self)
             )
         end
 
