@@ -119,11 +119,10 @@ function Roller:on_add()
     self.dispose_bag:add(self:get_party():get_player():on_lose_buff():addAction(function(_, buff_id)
         if buff_id == 308 then
             self.current_roll_id = nil
-
-            self:validate_rolls()
-
-            self:on_rolls_changed():trigger(self.roll1:get_roll_name(), self.roll_tracker[self.roll1:get_roll_id()], self.roll2:get_roll_name(), self.roll_tracker[self.roll2:get_roll_id()])
         end
+        self:validate_rolls()
+
+        self:on_rolls_changed():trigger(self.roll1:get_roll_name(), self.roll_tracker[self.roll1:get_roll_id()], self.roll2:get_roll_name(), self.roll_tracker[self.roll2:get_roll_id()])
     end), self:get_party():get_player():on_lose_buff())
 end
 
