@@ -89,11 +89,28 @@ function CorsairWidget:setRolls(_, isRolling)
 end
 
 function CorsairWidget:updateRolls(roll1Name, roll1Count, roll2Name, roll2Count)
-    local roll1 = ImageTextItem.new(ImageItem.new(windower.addon_path..'assets/buffs/312.png', 14, 14), TextItem.new(string.format("%s: %d", roll1Name:gsub(" Roll", ""), roll1Count or 0), CorsairWidget.TextSmall3), 2, { x = 0, y = 1 })
+    local roller = self.trust:role_with_type("roller")
+
+    local activeRollName = roller:get_current_roll_id() and res.job_abilities[roller:get_current_roll_id()].en
+
+    for roll in L{ { rollNum = 1, rollName = roll1Name, rollCount = roll1Count }, { rollNum = 2, rollName = roll2Name, rollCount = roll2Count } }:it() do
+        local image_item = ImageItem.new(windower.addon_path..'assets/buffs/312.png', 14, 14)
+
+        if roll.rollName == activeRollName then
+            image_item:setAlpha(255)
+        else
+            image_item:setAlpha(100)
+        end
+
+        local item = ImageTextItem.new(image_item, TextItem.new(string.format("%s: %d", roll.rollName:gsub(" Roll", ""), roll.rollCount or 0), CorsairWidget.TextSmall3), 2, { x = 0, y = 1 })
+        self:getDataSource():updateItem(item, IndexPath.new(1, roll.rollNum))
+    end
+
+    --[[local roll1 = ImageTextItem.new(ImageItem.new(windower.addon_path..'assets/buffs/312.png', 14, 14), TextItem.new(string.format("%s: %d", roll1Name:gsub(" Roll", ""), roll1Count or 0), CorsairWidget.TextSmall3), 2, { x = 0, y = 1 })
     self:getDataSource():updateItem(roll1, IndexPath.new(1, 1))
 
     local roll2 = ImageTextItem.new(ImageItem.new(windower.addon_path..'assets/buffs/312.png', 14, 14), TextItem.new(string.format("%s: %d", roll2Name:gsub(" Roll", ""), roll2Count or 0), CorsairWidget.TextSmall3), 2, { x = 0, y = 1 })
-    self:getDataSource():updateItem(roll2, IndexPath.new(1, 2))
+    self:getDataSource():updateItem(roll2, IndexPath.new(1, 2))]]
 end
 
 return CorsairWidget

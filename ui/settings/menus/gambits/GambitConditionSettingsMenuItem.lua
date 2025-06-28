@@ -289,6 +289,7 @@ function GambitConditionSettingsMenuItem:getEditableConditionClasses()
         [PetStatusCondition.__type] = "pet_status",
         [HasSongsCondition.__type] = "has_songs",
         [ClusterHitPointsPercentRangeCondition.__type] = "cluster_hpp_range",
+        [PartyHasMainJobCondition.__type] = "party_has_main_job",
     }
 end
 
