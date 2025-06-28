@@ -155,7 +155,9 @@ function Bubbler:get_gambit_targets(gambit_target_types)
 
     if not L{ 'bt', 'me' }:contains(self.geocolure:get_target()) then
         local target = windower.ffxi.get_mob_by_target(self.geocolure:get_target())
-        targets_by_type[GambitTarget.TargetType.Ally] = L{ self:get_party():get_party_member(target.id) }
+        if target then
+            targets_by_type[GambitTarget.TargetType.Ally] = L{ self:get_party():get_party_member(target.id) }
+        end
     end
     return targets_by_type
 end
