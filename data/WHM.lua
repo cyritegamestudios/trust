@@ -30,7 +30,7 @@ return {
                 Gambit.new("Self", L{GambitCondition.new(HasBuffsCondition.new(L{"paralysis"}, 1), "Self")}, Spell.new("Paralyna", L{}, L{}, nil, L{}), "Self", L{}, true),
                 Gambit.new("Ally", L{GambitCondition.new(HasBuffsCondition.new(L{"paralysis"}, 1), "Ally")}, Spell.new("Paralyna", L{}, L{}, nil, L{}), "Ally", L{}, true),
                 Gambit.new("Self", L{GambitCondition.new(HasBuffsCondition.new(L{"silence"}, 1), "Self")}, Spell.new("Silena", L{}, L{}, nil, L{}), "Self", L{}, true),
-                Gambit.new("Ally", L{GambitCondition.new(HasBuffsCondition.new(L{"silence"}, 1), "Ally")}, Spell.new("Silena", L{}, L{}, nil, L{}), "Ally", L{}, true),
+                Gambit.new("Ally", L{GambitCondition.new(HasBuffsCondition.new(L{"silence"}, 1), "Ally"), GambitCondition.new(JobCondition.new(L{"WHM", "RDM", "PLD", "BRD", "BLU", "SCH", "RUN", "BLM", "NIN", "SMN", "GEO", "DRK"}), "Ally")}, Spell.new("Silena", L{}, L{}, nil, L{}), "Ally", L{}, true),
                 Gambit.new("Self", L{GambitCondition.new(HasBuffsCondition.new(L{"poison"}, 1), "Self")}, Spell.new("Poisona", L{}, L{}, nil, L{}), "Self", L{}, true),
                 Gambit.new("Ally", L{GambitCondition.new(HasBuffsCondition.new(L{"poison"}, 1), "Ally")}, Spell.new("Poisona", L{}, L{}, nil, L{}), "Ally", L{}, true),
                 Gambit.new("Self", L{GambitCondition.new(HasBuffsCondition.new(L{"disease"}, 1), "Self")}, Spell.new("Viruna", L{}, L{}, nil, L{}), "Self", L{}, true),

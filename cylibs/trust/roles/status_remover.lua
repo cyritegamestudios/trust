@@ -65,6 +65,10 @@ function StatusRemover:get_cooldown()
     return 1.0
 end
 
+function StatusRemover:get_priority()
+    return ActionPriority.high
+end
+
 function StatusRemover:allows_duplicates()
     return false
 end
