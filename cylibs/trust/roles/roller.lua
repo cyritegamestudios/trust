@@ -130,6 +130,10 @@ function Roller:get_cooldown()
     return 4
 end
 
+function Roller:get_priority()
+    return ActionPriority.highest
+end
+
 function Roller:allows_duplicates()
     return false
 end
