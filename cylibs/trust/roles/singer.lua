@@ -277,6 +277,10 @@ function Singer:get_cooldown()
     return 3
 end
 
+function Singer:get_priority()
+    return ActionPriority.highest
+end
+
 function Singer:get_localized_name()
     return "Singing"
 end

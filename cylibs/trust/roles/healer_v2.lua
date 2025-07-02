@@ -67,7 +67,7 @@ end
 
 function Healer:get_priority()
     if self.job:isMainJob() then
-        return ActionPriority.medium
+        return ActionPriority.highest
     end
     return ActionPriority.default
 end

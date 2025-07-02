@@ -177,7 +177,7 @@ function Gambiter:perform_gambit(gambit, target)
         if gambit:getTags():contains('reaction') or gambit:getTags():contains('Reaction') then
             self.action_queue:clear()
         end
-        action.priority = ActionPriority.highest
+        action.priority = self:get_priority()
         if not self:allows_multiple_actions() then
             action.identifier = self:get_action_identifier()
         end
