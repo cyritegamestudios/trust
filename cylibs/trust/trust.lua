@@ -74,6 +74,10 @@ function Trust:init()
 		if roller then
 			roller:set_roll_settings(new_trust_settings.RollSettings)
 		end
+		local bubbler = self:role_with_type("bubbler")
+		if bubbler then
+			bubbler:set_geomancy_settings(new_trust_settings.Geomancy)
+		end
 
 		self.gambits = new_trust_settings.GambitSettings.Default or L{}
 	end
