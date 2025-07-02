@@ -13,7 +13,7 @@ local Puller = require('cylibs/trust/roles/puller')
 --local Nuker = require('cylibs/trust/roles/nuker')
 
 state.AutoAssaultMode = M{['description'] = 'Auto Assault Mode', 'Off', 'Auto'}
-state.AutoAvatarMode = M{['description'] = 'Avatar Mode', 'Off', 'Ifrit', 'Ramuh', 'Shiva', 'Garuda', 'Leviathan', 'Titan', 'Carbuncle', 'Diabolos', 'Fenrir', 'Siren', 'Cait Sith'}
+state.AutoAvatarMode = M{['description'] = 'Avatar Mode', 'Off', 'Ifrit', 'Ramuh', 'Shiva', 'Garuda', 'Leviathan', 'Titan', 'Carbuncle', 'Diabolos', 'Fenrir', 'Siren', 'Cait Sith', 'Release'}
 
 function SummonerTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = Summoner.new()
@@ -68,6 +68,16 @@ function SummonerTrust:check_avatar()
 
 	if state.AutoBuffMode.value ~= 'Off' and self:get_inactive_buffs():length() > 0 then
 		return
+	end
+
+	if state.AutoAvatarMode.value == 'Release' then
+		if self.avatar then
+			local actions = L{
+				JobAbilityAction.new(0, 0, 0, 'Release'),
+				WaitAction.new(0, 0, 0, 2)
+			}
+			self.action_queue:push_action(SequenceAction.new(actions, 'release_avatar'), true)
+		end
 	end
 
 	-- TODO: maybe use a mode delta to turn AutoAvatarMode Off when there are inactive buffs so I can use avatar gambits?
