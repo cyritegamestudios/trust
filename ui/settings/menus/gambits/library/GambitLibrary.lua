@@ -41,7 +41,7 @@ return L{
         Gambit.new("Enemy", L{MaxManaPointsPercentCondition.new(40)}, Spell.new("Aspir III", L{}, L{}, nil, L{}), "Self", L{"Spells"}),
     }),
     GambitCategory.new("Ailments", "Remove status ailments.", L{
-        Gambit.new("Self", L{GambitCondition.new(HasBuffsCondition.new(L{"sleep"}, 1), "Self")}, Spell.new("Cure", L{}, L{}, nil, L{}), "Self", L{}, true),
+        Gambit.new("Ally", L{GambitCondition.new(HasBuffsCondition.new(L{"sleep"}, 1), "Ally")}, Spell.new("Curaga", L{}, L{}, nil, L{}), "Ally", L{}, true),
         Gambit.new("Ally", L{GambitCondition.new(HasBuffsCondition.new(L{"sleep"}, 1), "Ally")}, Spell.new("Cure", L{}, L{}, nil, L{}), "Ally", L{}, true),
         Gambit.new("Self", L{GambitCondition.new(HasBuffsCondition.new(L{"curse", "doom", "doomed"}, 1), "Self")}, Spell.new("Cursna", L{}, L{}, nil, L{}), "Self", L{}, true),
         Gambit.new("Ally", L{GambitCondition.new(HasBuffsCondition.new(L{"curse", "doom", "doomed"}, 1), "Ally")}, Spell.new("Cursna", L{}, L{}, nil, L{}), "Ally", L{}, true),

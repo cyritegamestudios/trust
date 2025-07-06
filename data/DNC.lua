@@ -18,7 +18,6 @@ return {
         },
         StatusRemovalSettings = {
             Gambits = L{
-                Gambit.new("Self", L{GambitCondition.new(HasBuffsCondition.new(L{"sleep"}, 1), "Self")}, JobAbility.new("Healing Waltz"), "Self", L{}, true),
                 Gambit.new("Ally", L{GambitCondition.new(HasBuffsCondition.new(L{"sleep"}, 1), "Ally")}, JobAbility.new("Healing Waltz"), "Ally", L{}, true),
                 Gambit.new("Self", L{GambitCondition.new(HasBuffsCondition.new(L{"curse"}, 1), "Self")}, JobAbility.new("Healing Waltz"), "Self", L{}, true),
                 Gambit.new("Ally", L{GambitCondition.new(HasBuffsCondition.new(L{"curse"}, 1), "Ally")}, JobAbility.new("Healing Waltz"), "Ally", L{}, true),
