@@ -62,7 +62,7 @@ return {
         },
         GambitSettings = {
             Default = L{
-                Gambit.new("Enemy", L{GambitCondition.new(ModeCondition.new("AutoTankMode", "Auto"), "Self")}, Spell.new("Flash", L{}, L{}, nil, L{}), "Enemy", L{}),
+                Gambit.new("Enemy", L{GambitCondition.new(ModeCondition.new("AutoTankMode", "Auto"), "Self"), GambitCondition.new(InBattleCondition.new(), "Self")}, Spell.new("Flash", L{}, L{}, nil, L{}), "Enemy", L{}),
             },
             Gambits = L{
                 Gambit.new("Ally", L{GambitCondition.new(MaxHitPointsPercentCondition.new(80), "Ally"), GambitCondition.new(InBattleCondition.new(), "Self")}, JobAbility.new("Cover", L{}, L{}), "Ally", L{}),

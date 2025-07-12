@@ -283,8 +283,10 @@ function player_util.get_mounts()
 				local mount_index = possible_mounts:find(function(possible_mount)
 					return windower.wc_match(ki.en:lower(), '♪' .. possible_mount .. '*')
 				end)
-				local mount = possible_mounts[mount_index]
-				allowed_mounts_set:add(mount)
+				if mount_index then
+					local mount = possible_mounts[mount_index]
+					allowed_mounts_set:add(mount)
+				end
 			end
 		end
 	end
