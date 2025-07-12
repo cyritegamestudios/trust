@@ -5,7 +5,7 @@ return {
         ["autodispelmode"]="Auto",
         ["autoaftermathmode"]="Off",
         ["autofollowmode"]="Always",
-        ["autorollmode"]="Manual",
+        ["autorollmode"]="Auto",
         ["engagemode"]="None",
         ["subtrustsettingsmode"]="Default",
         ["autoskillchainmode"]="Off",
