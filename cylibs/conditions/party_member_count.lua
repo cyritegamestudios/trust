@@ -16,7 +16,7 @@ function PartyMemberCountCondition.new(member_count, operator, distance)
     local self = setmetatable(Condition.new(), PartyMemberCountCondition)
     self.member_count = member_count or 6
     self.operator = operator or Condition.Operator.GreaterThanOrEqualTo
-    self.distance = distance or 50
+    self.distance = distance
     return self
 end
 
