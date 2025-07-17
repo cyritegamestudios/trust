@@ -45,7 +45,11 @@ function PartyMemberCountCondition:serialize()
 end
 
 function PartyMemberCountCondition:tostring()
-    return string.format("Has %s %d party members within %d yalms", self.operator, self.member_count, self.distance)
+    if self.distance then
+        return string.format("Has %s %d party members within %d yalms", self.operator, self.member_count, self.distance)
+    else
+        return string.format("Has %s %d party members", self.operator, self.member_count)
+    end
 end
 
 function PartyMemberCountCondition.description()
