@@ -1,9 +1,11 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '15.5.6'
+_addon.version = '15.6.0'
 _addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
+_addon.start_time = os.time()
+_addon.timeout = nil
 
 windower.trust = {}
 windower.trust.get_temp_dir = function(file_name)
@@ -540,6 +542,10 @@ function handle_tic(old_time, new_time)
 
 	player.trust.main_job:tic(old_time, new_time)
 	player.trust.sub_job:tic(old_time, new_time)
+
+	if _addon.timeout and os.time() > _addon.start_time + _addon.timeout * 60 then
+		handle_stop()
+	end
 end
 
 function handle_status_change(new_status_id, old_status_id)

@@ -1187,7 +1187,9 @@ function Migration_v33:perform(trustSettings, _, _)
     local modeNames = list.subtract(L(T(trustSettings:getSettings()):keyset()), L { 'Version', 'Migrations' })
     for modeName in modeNames:it() do
         local cureSettings = trustSettings:getSettings()[modeName].CureSettings
-        if cureSettings.Gambits == nil then
+        if cureSettings == nil then
+            trustSettings:getSettings()[modeName].CureSettings = defaultSettings.CureSettings
+        elseif cureSettings.Gambits == nil then
             cureSettings.Gambits = defaultSettings.CureSettings.Gambits
         end
     end

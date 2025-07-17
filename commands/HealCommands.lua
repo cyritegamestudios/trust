@@ -157,7 +157,7 @@ function StatusRemovalCommands:get_command_name()
 end
 
 function StatusRemovalCommands:get_localized_command_name()
-    return 'Status Removal'
+    return 'Ailments'
 end
 
 -- // trust status status_removal_mode

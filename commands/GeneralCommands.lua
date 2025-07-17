@@ -21,6 +21,7 @@ function GeneralTrustCommands.new(trust, action_queue, addon_enabled, trust_mode
     self:add_command('help', self.handle_help, 'Learn more on the wiki')
     self:add_command('commands', self.handle_command_list, 'See all Trust commands')
     self:add_command('debug', self.handle_debug, 'Show debug info')
+    self:add_command('timeout', self.handle_timeout, 'Unload Trust after a specified number of minutes, // trust timeout num_minutes or // trust timeout clear')
 
     -- State
     self:add_command('start', self.handle_start, 'Start Trust')
@@ -229,6 +230,27 @@ function GeneralTrustCommands:handle_save_set(_, mode_set_name)
     return success, message
 end
 
+-- // trust timeout num_minutes or // trust timeout clear
+function GeneralTrustCommands:handle_timeout(_, num_minutes)
+    local success
+    local message
+
+    if num_minutes == nil then
+        success = false
+        message = string.format("Valid options are clear or number of minutes")
+    else
+        success = true
+        if num_minutes == 'clear' then
+            _addon.timeout = nil
+            message = "Timeout cleared"
+        else
+            _addon.timeout = tonumber(num_minutes)
+            message = string.format("Trust will unload after %d minutes", num_minutes)
+        end
+    end
+
+    return success, message
+end
 
 -- // trust debug
 function GeneralTrustCommands:handle_debug()
@@ -266,6 +288,6 @@ function GeneralTrustCommands:handle_debug()
     --print(inventory:find(23691))
 
     return true, nil
-    end
+end
 
 return GeneralTrustCommands
