@@ -86,7 +86,9 @@ function BlueMagicSettingsMenuItem:getViewSetMenuItem()
         end)
         local spellListEditor = FFXIPickerView.withConfig(L{ configItem })
         return spellListEditor
-    end, "Spells", "View blue magic spells in the set.")
+    end, "Spells", "View blue magic spells in the set.", false, function()
+        return self.selectedSet ~= nil
+    end)
 end
 
 function BlueMagicSettingsMenuItem:getCreateSetMenuItem()
