@@ -544,7 +544,6 @@ function handle_tic(old_time, new_time)
 	player.trust.sub_job:tic(old_time, new_time)
 
 	if _addon.timeout and os.time() > _addon.start_time + _addon.timeout * 60 then
-		print('timeout')
 		handle_stop()
 	end
 end
