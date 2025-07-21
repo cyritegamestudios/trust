@@ -160,6 +160,13 @@ local incoming_event_dispatcher = {
                 if act.param and S{278, 279, 280, 281, 282, 283, 284, 285, 885, 886, 887, 888, 889, 890, 891, 892}:contains(act.param) and S{2, 252}:contains(action.message) then
                     WindowerEvents.GainDebuff:trigger(target.id, 186)
                 end
+                -- Blue Magic
+                if act.param == 727 then
+                    WindowerEvents.GainDebuff:trigger(target.id, res.spells[727].status)
+                end
+                if act.param == 728 then
+                    WindowerEvents.GainDebuff:trigger(target.id, res.spells[728].status)
+                end
             end
         end
 
