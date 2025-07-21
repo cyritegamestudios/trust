@@ -49,7 +49,8 @@ function JobAbility:perform()
     self.dispose_bag:add(WindowerEvents.Action:addAction(function(action)
         if action.actor_id ~= windower.ffxi.get_player().id then return end
 
-        if S{ 6, 14 }:contains(action.category) then
+        if L{ 6, 14 }:contains(action.category)
+                or (L{ 3 }:contains(action.category) and action.param and L{ 66, 67, 68, 260, 293 }:contains(action.param)) then
             self:complete(true)
         end
     end), WindowerEvents.Action)
