@@ -986,44 +986,6 @@ function Migration_v27:getDescription()
 end
 
 ---------------------------
--- Migrates skillchains to gambits.
--- @class module
--- @name Migration_v28
-
-local Migration_v28 = setmetatable({}, { __index = Migration })
-Migration_v28.__index = Migration_v28
-Migration_v28.__class = "Migration_v28"
-
-function Migration_v28.new()
-    local self = setmetatable(Migration.new(), Migration_v28)
-    return self
-end
-
-function Migration_v28:shouldPerform(_, _, weaponSkillSettings)
-    return weaponSkillSettings ~= nil
-end
-
-function Migration_v28:perform(_, _, weaponSkillSettings)
-    local modeNames = list.subtract(L(T(weaponSkillSettings:getSettings()):keyset()), L{'Version','Migrations'})
-    for modeName in modeNames:it() do
-        local currentSettings = weaponSkillSettings:getSettings()[modeName]
-        currentSettings.Skillchain = currentSettings.Skillchain:map(function(ability)
-            if ability.__type == Gambit.__type then
-                return ability
-            else
-                local gambit = Gambit.new("Enemy", ability.conditions, ability, "Self", L{"Skillchain"})
-                ability.conditions = L{}
-                return gambit
-            end
-        end)
-    end
-end
-
-function Migration_v28:getDescription()
-    return "Migrating weapon skills settings."
-end
-
----------------------------
 -- Migrates skillchains to gambit structure.
 -- @class module
 -- @name Migration_v29
@@ -1045,10 +1007,9 @@ function Migration_v29:perform(_, _, weaponSkillSettings)
     local modeNames = list.subtract(L(T(weaponSkillSettings:getSettings()):keyset()), L{'Version','Migrations'})
     for modeName in modeNames:it() do
         local currentSettings = weaponSkillSettings:getSettings()[modeName]
-        if currentSettings.Skillchain.Gambits == nil then
-            currentSettings.Skillchain = {
-                Gambits = currentSettings.Skillchain
-            }
+        if currentSettings.Skillchain == nil or currentSettings.Skillchain.Gambits == nil then
+            local defaultSettings = T(weaponSkillSettings:getDefaultSettings()):clone().Default
+            currentSettings.Skillchain = defaultSettings.Skillchain
         end
     end
 end
@@ -1297,7 +1258,6 @@ return {
     Migration_v25 = Migration_v25,
     Migration_v26 = Migration_v26,
     Migration_v27 = Migration_v27,
-    Migration_v28 = Migration_v28,
     Migration_v29 = Migration_v29,
     Migration_v30 = Migration_v30,
     Migration_v31 = Migration_v31,
