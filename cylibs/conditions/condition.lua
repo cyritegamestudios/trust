@@ -152,6 +152,7 @@ function Condition.defaultSerializableConditionClasses()
         ClusterHitPointsPercentRangeCondition.__class,
         PetDistanceCondition.__class,
         PartyHasMainJobCondition.__class,
+        SkillchainAbilityCondition.__class,
     }
 end
 

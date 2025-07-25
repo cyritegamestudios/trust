@@ -187,6 +187,7 @@ function SkillchainTracker:add_step(mob_id, step)
     steps:append(step)
 
     self.steps[mob_id] = steps
+
     if step:get_skillchain() then
         self:on_skillchain():trigger(mob_id, step)
     else
