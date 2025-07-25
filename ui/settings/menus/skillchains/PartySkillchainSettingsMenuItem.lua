@@ -86,6 +86,9 @@ function PartySkillchainSettingsMenuItem:reloadSettings()
                 if partyMemberName == windower.ffxi.get_player().name then
                     local ability = abilityForCombatSkillSettings(self.skillchainSettings.Skillchain[i]:get_name()) or SkillchainAbility.auto()
                     currentSettings.Skillchain.Gambits[i] = Gambit.new(GambitTarget.TargetType.Enemy, L{}, ability, Condition.TargetType.Self, L{"Skillchain"})
+                    if i > 1 then
+                        currentSettings.Skillchain.Gambits[i]:addCondition(GambitCondition.new(SkillchainAbilityCondition.new(self.skillchainSettings.Skillchain[i - 1]:get_name()), GambitTarget.TargetType.Self))
+                    end
                     for partyMember in partyMembers:it() do
                         windower.send_command('trust send '..partyMember:get_name()..' trust sc set '..i..' '..'Skip')
                     end

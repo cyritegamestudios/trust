@@ -109,7 +109,7 @@ function SummonerTrust:get_inactive_buffs()
 end
 
 function SummonerTrust:check_mp()
-	if windower.ffxi.get_player().vitals.mpp < 20 then
+	if state.AutoRestoreManaMode.value ~= 'Off' and windower.ffxi.get_player().vitals.mpp < 20 then
 		local actions = L{
 			JobAbilityAction.new(0, 0, 0, 'Release'),
 			SpellAction.new(0, 0, 0, spell_util.spell_id(self:get_job():get_spirit_for_current_day()), nil, self:get_player()),
