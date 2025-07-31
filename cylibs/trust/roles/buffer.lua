@@ -1,5 +1,6 @@
 local BuffConflictsCondition = require('cylibs/conditions/buff_conflicts')
 local GambitTarget = require('cylibs/gambits/gambit_target')
+local HasStatusEffectCondition = require('cylibs/conditions/has_status_effect')
 
 local Gambiter = require('cylibs/trust/roles/gambiter')
 local Buffer = setmetatable({}, {__index = Gambiter })
@@ -39,7 +40,8 @@ end
 
 function Buffer:get_default_conditions(gambit)
     local conditions = L{
-        NotCondition.new(L{ HasBuffCondition.new(gambit:getAbility():get_status().en) }),
+        NotCondition.new(L{ HasStatusEffectCondition.new(gambit:getAbility():get_status().id) }),
+        --NotCondition.new(L{ HasBuffCondition.new(gambit:getAbility():get_status().en) }),
         NotCondition.new(L{ BuffConflictsCondition.new(gambit:getAbility():get_status().en)}),
         MinHitPointsPercentCondition.new(1),
     }
