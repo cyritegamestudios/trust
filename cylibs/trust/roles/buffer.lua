@@ -41,7 +41,6 @@ end
 function Buffer:get_default_conditions(gambit)
     local conditions = L{
         NotCondition.new(L{ HasStatusEffectCondition.new(gambit:getAbility():get_status().id) }),
-        --NotCondition.new(L{ HasBuffCondition.new(gambit:getAbility():get_status().en) }),
         NotCondition.new(L{ BuffConflictsCondition.new(gambit:getAbility():get_status().en)}),
         MinHitPointsPercentCondition.new(1),
     }
