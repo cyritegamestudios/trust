@@ -259,6 +259,7 @@ function Puller:set_pull_settings(pull_settings)
     local gambit_settings = {
         Gambits = self.pull_abilities.Auto + self.pull_abilities.Approach + self.pull_abilities.Target
     }
+    
     self:set_gambit_settings(gambit_settings)
 end
 
@@ -317,7 +318,7 @@ function Puller:get_cooldown()
 end
 
 function Puller:allows_duplicates()
-    return false
+    return true
 end
 
 function Puller:allows_multiple_actions()

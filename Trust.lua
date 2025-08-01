@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '15.7.0'
+_addon.version = '15.7.1'
 _addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 _addon.start_time = os.time()
@@ -22,6 +22,18 @@ function load_user_files(main_job_id, sub_job_id)
 	local start_time = os.clock()
 
 	addon_system_message("Loaded Trust v".._addon.version)
+
+	local blacklisted_addons = L{}
+	for addon_name in L{ 'ata', 'ATA' }:it() do
+		local addon_path = string.format("%s/%s/%s/%s.lua", windower.windower_path, 'addons', addon_name, addon_name)
+
+		if windower.file_exists(addon_path) then
+			blacklisted_addons:append(addon_name)
+		end
+	end
+	if blacklisted_addons:length() > 0 then
+		addon_system_error(string.format("Please unload the following addons or Trust will not work properly: %s", localization_util.commas(blacklisted_addons)))
+	end
 
 	action_queue = ActionQueue.new(nil, true, 5, false, true, true)
 
@@ -639,9 +651,6 @@ function unloaded()
 end
 
 function loaded()
-	windower.chat.input('/console console_echo Unloaded addons that conflict with Trust.')
-	windower.send_command('lua unload ata')
-
 	addon_system_message("Loading Trust...")
 
 	if windower.ffxi.get_player() == nil or windower.ffxi.get_mob_by_id(windower.ffxi.get_player().id) == nil then
