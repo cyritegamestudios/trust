@@ -19,17 +19,21 @@ function PullActionMenuItem.new(trust, trustSettings, trustSettingsMode, trustMo
     local jobAbilityItemMapper = JobAbilityPickerItemMapper.new()
 
     local pullActionSettingsItem = GambitSettingsMenuItem.compact(trust, trustSettings, trustSettingsMode, trustModeSettings, 'PullSettings', S{ GambitTarget.TargetType.Enemy }, function(targets)
-        local sections = L{
-            L(trust:get_job():get_spells(function(spellId)
+        local spells_for_trust = function(trust)
+            return L(trust:get_job():get_spells(function(spellId)
                 local spell = res.spells[spellId]
                 if spell then
                     local valid_targets = S(spell.targets)
                     return targets:intersection(valid_targets):length() > 0
                 end
                 return false
-            end):map(function(spellId)
+            end))
+        end
+
+        local sections = L{
+            (spells_for_trust(player.trust.main_job) + spells_for_trust(player.trust.sub_job)):map(function(spellId)
                 return spellItemMapper:map(Spell.new(res.spells[spellId].en))
-            end)):unique(function(spell)
+            end):unique(function(spell)
                 return spell:get_name()
             end),
             L(trust:get_job():get_job_abilities(function(jobAbilityId)
