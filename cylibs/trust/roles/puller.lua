@@ -318,7 +318,7 @@ function Puller:get_cooldown()
 end
 
 function Puller:allows_duplicates()
-    return true
+    return false
 end
 
 function Puller:allows_multiple_actions()
