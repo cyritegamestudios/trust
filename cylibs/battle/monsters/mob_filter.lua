@@ -39,7 +39,16 @@ end
 -- @tparam list filter (optional) List of MobFilter filters
 -- @treturn list List of mobs
 function MobFilter:get_nearby_mobs(conditions)
-    conditions = conditions:flatten(false)
+    local all_conditions = L{}
+    for condition in conditions:it() do
+        if class(condition) == 'List' then
+            all_conditions = all_conditions + condition
+        else
+            all_conditions:append(condition)
+        end
+    end
+    conditions = all_conditions
+
     conditions = self:get_default_conditions() + conditions
 
     local mobs = L{}

@@ -53,7 +53,7 @@ function AssistTrustCommands:handle_assist_player(party_member_name, mirror)
 
         self.trust:get_party():set_assist_target(alliance_member)
 
-        if mirror then
+        if mirror == "true" then
             for mode_name in L{ 'CombatMode' }:it() do
                 handle_set(mode_name, 'Mirror')
             end

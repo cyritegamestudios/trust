@@ -1,6 +1,5 @@
 local AggroedCondition = require('cylibs/conditions/aggroed')
 local Approach = require('cylibs/battle/approach')
-local ClaimedCondition = require('cylibs/conditions/claimed')
 local ConditionalCondition = require('cylibs/conditions/conditional')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Engage = require('cylibs/battle/engage')
