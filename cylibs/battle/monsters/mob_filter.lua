@@ -39,7 +39,16 @@ end
 -- @tparam list filter (optional) List of MobFilter filters
 -- @treturn list List of mobs
 function MobFilter:get_nearby_mobs(conditions)
-    conditions = conditions:flatten(false)
+    local all_conditions = L{}
+    for condition in conditions:it() do
+        if class(condition) == 'List' then
+            all_conditions = all_conditions + condition
+        else
+            all_conditions:append(condition)
+        end
+    end
+    conditions = all_conditions
+
     conditions = self:get_default_conditions() + conditions
 
     local mobs = L{}
@@ -49,6 +58,13 @@ function MobFilter:get_nearby_mobs(conditions)
     mobs = mobs:filter(function(mob)
         if mob.spawn_type ~= 16 then
             return false
+        end
+        if mob.name == "Pulse Martello" then
+            for condition in conditions:it() do
+                if condition.__type == "NotCondition" then
+                    print('fdsfdsf', condition.conditions[1].__type)
+                end
+            end
         end
         return Condition.check_conditions(conditions, mob.index)
     end)
