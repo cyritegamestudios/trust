@@ -5,7 +5,6 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local Engage = require('cylibs/battle/engage')
 local Gambit = require('cylibs/gambits/gambit')
 local GambitTarget = require('cylibs/gambits/gambit_target')
-local IsNpcCondition = require('cylibs/conditions/is_npc')
 local MobFilter = require('cylibs/battle/monsters/mob_filter')
 local PartyClaimedCondition = require('cylibs/conditions/party_claimed')
 local PartyLeaderCondition = require('cylibs/conditions/party_leader')
@@ -150,7 +149,7 @@ function Puller:get_all_targets()
         -- 1. All mobs that are party claimed
         -- 2. All mobs that are unclaimed
         all_targets = self.mob_filter:get_nearby_mobs(L{ MobFilter.Type.PartyClaimed })
-                + self.mob_filter:get_nearby_mobs(L{ MobFilter.Type.Unclaimed, NotCondition.new(L{IsNpcCondition.new()}) })
+                + self.mob_filter:get_nearby_mobs(L{ MobFilter.Type.Unclaimed })
     end
     return all_targets
 end
@@ -194,7 +193,6 @@ function Puller:is_valid_target(target, target_id_blacklist)
         MinHitPointsPercentCondition.new(1),
         ConditionalCondition.new(L{
             PartyClaimedCondition.new(true),
-            NotCondition.new(L{ IsNpcCondition.new() }),
             ConditionalCondition.new(L{ UnclaimedCondition.new(), MaxDistanceCondition.new(max_pull_ability_range) }, Condition.LogicalOperator.And)
         }, Condition.LogicalOperator.Or),
     }
@@ -270,7 +268,6 @@ function Puller:get_default_conditions(gambit)
         GambitCondition.new(MaxDistanceCondition.new(gambit:getAbility():get_range()), GambitTarget.TargetType.Enemy),
         GambitCondition.new(MinHitPointsPercentCondition.new(1), GambitTarget.TargetType.Enemy),
         GambitCondition.new(NotCondition.new(L{ HasBuffCondition.new('weakness') }), GambitTarget.TargetType.Self),
-        GambitCondition.new(NotCondition.new(L{ IsNpcCondition.new() }), GambitTarget.TargetType.Enemy),
     }
     if state.AutoPullMode.value == 'Aggroed' then
         conditions:append(GambitCondition.new(AggroedCondition.new(), GambitTarget.TargetType.Enemy))

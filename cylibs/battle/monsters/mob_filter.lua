@@ -59,13 +59,6 @@ function MobFilter:get_nearby_mobs(conditions)
         if mob.spawn_type ~= 16 then
             return false
         end
-        if mob.name == "Pulse Martello" then
-            for condition in conditions:it() do
-                if condition.__type == "NotCondition" then
-                    print('fdsfdsf', condition.conditions[1].__type)
-                end
-            end
-        end
         return Condition.check_conditions(conditions, mob.index)
     end)
     return mobs:sort(self.default_sort)
