@@ -25,6 +25,7 @@ function JobAbility.new(x, y, z, job_ability_name, target_index, conditions)
     local self = setmetatable(Action.new(x, y, z, target_index, conditions), JobAbility)
 
     self.job_ability_name = job_ability_name
+    self.job_ability_id = res.job_abilities:with('en', self.job_ability_name).id
     self.identifier = self.job_ability_name
     self.retry_count = 0
     self.dispose_bag = DisposeBag.new()
@@ -50,7 +51,8 @@ function JobAbility:perform()
         if action.actor_id ~= windower.ffxi.get_player().id then return end
 
         if L{ 6, 14 }:contains(action.category)
-                or (L{ 3 }:contains(action.category) and action.param and L{ 66, 67, 68, 260, 293 }:contains(action.param)) then
+                or (L{ 3 }:contains(action.category) and action.param and L{ 66, 67, 68, 260, 293 }:contains(action.param))
+                or L{ 15 }:contains(action.category) and action.param == self.job_ability_id then
             self:complete(true)
         end
     end), WindowerEvents.Action)
