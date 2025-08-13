@@ -1,9 +1,6 @@
-local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
-local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local GambitEditorStyle = require('ui/settings/menus/gambits/GambitEditorStyle')
 local GambitTarget = require('cylibs/gambits/gambit_target')
-local MenuItem = require('cylibs/ui/menu/menu_item')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 
 local GambitSettingsMenuItem = require('ui/settings/menus/gambits/GambitSettingsMenuItem')
@@ -11,10 +8,24 @@ local HealerSettingsMenuItem = setmetatable({}, {__index = GambitSettingsMenuIte
 HealerSettingsMenuItem.__index = HealerSettingsMenuItem
 
 
+function HealerSettingsMenuItem.descriptionForGambit(gambit)
+    local hppRangeCondition = gambit:getConditions():firstWhere(function(condition)
+        if condition:getCondition().__type == HitPointsPercentRangeCondition.__type then
+            return true
+        end
+        return false
+    end)
+    --if hppRangeCondition then
+    --    return string.format("%s: %s (%s)", gambit:getAbilityTarget(), gambit:getAbility():get_name(), hppRangeCondition:tostring())
+    --else
+        return string.format("%s: %s", gambit:getAbilityTarget(), gambit:getAbility():get_name())
+    --end
+end
+
 function HealerSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, trustModeSettings)
     local editorStyle = GambitEditorStyle.new(function(gambits)
         local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit, _)
-            return gambit:tostring(), gambit:isEnabled() and gambit:isValid()
+            return HealerSettingsMenuItem.descriptionForGambit(gambit), gambit:isEnabled() and gambit:isValid()
         end, "Gambits", nil, nil, function(gambit, _)
             if not gambit:isValid() then
                 return "Unavailable on current job or settings."
@@ -24,7 +35,7 @@ function HealerSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
         end)
         configItem:setNumItemsRequired(1, 1)
         return L{ configItem }
-    end, FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge, "Heal", "Heals", nil, function(menuItemName)
+    end, FFXIClassicStyle.WindowSize.Picker.Default, "Heal", "Heals", nil, function(menuItemName)
         return L{ 'Add', 'Remove', 'Edit', 'Move Up', 'Move Down', 'Reset', 'Modes', 'Shortcuts', 'Blacklist' }:contains(menuItemName)
     end)
     editorStyle:setEditPermissions(

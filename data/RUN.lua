@@ -38,8 +38,8 @@ return {
         GambitSettings = {
             Default = L{
                 Gambit.new("Self", L{GambitCondition.new(MaxHitPointsPercentCondition.new(30), "Self"), GambitCondition.new(HasRunesCondition.new(3), "Self")}, JobAbility.new("Vivacious Pulse", L{}, L{}), "Self", L{}),
-                Gambit.new("Enemy", L{GambitCondition.new(ModeCondition.new("AutoTankMode", "Auto"), "Self")}, Spell.new("Flash", L{}, L{}, nil, L{}), "Enemy", L{}),
-                Gambit.new("Self", L{GambitCondition.new(ModeCondition.new("AutoTankMode", "Auto"), "Self")}, Spell.new("Foil", L{}, L{}, nil, L{}), "Self", L{}),
+                Gambit.new("Enemy", L{GambitCondition.new(ModeCondition.new("AutoTankMode", "Auto"), "Self"), GambitCondition.new(InBattleCondition.new(), "Self")}, Spell.new("Flash", L{}, L{}, nil, L{}), "Enemy", L{}),
+                Gambit.new("Self", L{GambitCondition.new(ModeCondition.new("AutoTankMode", "Auto"), "Self"), GambitCondition.new(InBattleCondition.new(), "Self")}, Spell.new("Foil", L{}, L{}, nil, L{}), "Self", L{}),
             },
             Gambits = L{
                 Gambit.new("Self", L{GambitCondition.new(ModeCondition.new("AutoFoodMode", "Auto"), "Self"), GambitCondition.new(NotCondition.new(L{HasBuffCondition.new("Food")}), "Self"), GambitCondition.new(MainJobCondition.new("RUN"), "Self")}, UseItem.new("Miso Ramen", L{ItemCountCondition.new("Miso Ramen", 1, ">=")}), "Self", L{"food"}),
