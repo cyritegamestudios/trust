@@ -148,7 +148,7 @@ function StatusRemovalCommands.new()
     self:add_command('default', self.handle_set_status_mode, 'Remove status effects from self and party', L{
         PickerConfigItem.new('mode_value', state.AutoStatusRemovalMode.value, L(state.AutoStatusRemovalMode:options()), nil, "Status Removals")
     })
-
+    
     return self
 end
 
