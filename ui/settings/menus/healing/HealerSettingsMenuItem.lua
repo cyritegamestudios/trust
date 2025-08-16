@@ -35,7 +35,7 @@ function HealerSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
         end)
         configItem:setNumItemsRequired(1, 1)
         return L{ configItem }
-    end, FFXIClassicStyle.WindowSize.Picker.Default, "Heal", "Heals", nil, function(menuItemName)
+    end, FFXIClassicStyle.WindowSize.Picker.Wide, "Heal", "Heals", nil, function(menuItemName)
         return L{ 'Add', 'Remove', 'Edit', 'Move Up', 'Move Down', 'Reset', 'Modes', 'Shortcuts', 'Blacklist' }:contains(menuItemName)
     end)
     editorStyle:setEditPermissions(

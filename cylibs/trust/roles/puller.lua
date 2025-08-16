@@ -239,7 +239,7 @@ function Puller:set_pull_settings(pull_settings)
         end
     end
 
-    local approach = Gambit.new(GambitTarget.TargetType.Enemy, L{}, Approach.new(L{MaxDistanceCondition.new(35)}), GambitTarget.TargetType.Enemy, L{"Pulling"})
+    local approach = Gambit.new(GambitTarget.TargetType.Enemy, L{}, Approach.new(), GambitTarget.TargetType.Enemy, L{"Pulling"})
     approach.conditions = L{
         GambitCondition.new(ModeCondition.new('PullActionMode', 'Approach'), GambitTarget.TargetType.Self)
     } + self:get_default_conditions(approach)
