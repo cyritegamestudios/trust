@@ -42,7 +42,7 @@ function NumResistsCondition:get_config_items()
             local spell = Spell.new(spell_name)
             return spell:get_localized_name()
         end, "Spell"),
-        ConfigItem.new('num_resists', 1, 20, 1, nil, "Number of Resists"),
+        ConfigItem.new('num_resists', 1, 200, 1, nil, "Number of Resists"),
         PickerConfigItem.new('operator', self.operator, L{ Condition.Operator.GreaterThanOrEqualTo, Condition.Operator.Equals, Condition.Operator.GreaterThan, Condition.Operator.LessThan, Condition.Operator.LessThanOrEqualTo }, nil, "Operator")
     }
 end

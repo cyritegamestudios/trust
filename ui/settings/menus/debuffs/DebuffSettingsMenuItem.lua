@@ -48,11 +48,11 @@ function DebuffSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
     debuffSettingsItem:getDisposeBag():add(debuffSettingsItem:onGambitChanged():addAction(function(newGambit, oldGambit)
         if newGambit:getAbility() ~= oldGambit:getAbility() then
             newGambit.conditions = newGambit.conditions:filter(function(condition)
-                return condition:is_editable()
+                return condition:is_editable() and condition:getCondition().__type ~= NumResistsCondition.__type
             end)
             local conditions = trust:role_with_type("debuffer"):get_default_conditions(newGambit)
             for condition in conditions:it() do
-                condition:set_editable(false)
+                condition:set_editable(condition.__type == NumResistsCondition.__type)
                 newGambit:addCondition(condition)
             end
         end

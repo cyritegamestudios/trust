@@ -27,7 +27,7 @@ function Debuffer:set_debuff_settings(debuff_settings)
         end)
         local conditions = self:get_default_conditions(gambit)
         for condition in conditions:it() do
-            condition:set_editable(false)
+            condition:set_editable(condition.__type == NumResistsCondition.__type)
             gambit:addCondition(condition)
         end
     end
