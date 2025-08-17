@@ -152,8 +152,9 @@ end
 -- @tparam string target_name Name of the target
 -- @treturn boolean True if the target can be followed
 function Follower:is_valid_target(target_name)
+    local do_mob_check = not IpcRelay.shared():is_connected(target_name or "")
     local target = self:get_alliance():get_alliance_member_named(target_name, true)
-    if target == nil or target:get_mob() == nil or target:get_name() == windower.ffxi.get_player().name or target:get_zone_id() ~= windower.ffxi.get_info().zone then
+    if target == nil or do_mob_check and target:get_mob() == nil or target:get_name() == windower.ffxi.get_player().name or target:get_zone_id() ~= windower.ffxi.get_info().zone then
         return false
     end
     if not IpcRelay.shared():is_connected(target_name) then
