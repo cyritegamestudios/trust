@@ -2,6 +2,10 @@
 return {
     Version = 2,
     Default = {
+        CombatSettings = {
+            Distance = 2,
+            MirrorDistance = 1.5,
+        },
         BuffSettings = {
             Gambits = L{
                 Gambit.new("Self", L{}, BloodPactWard.new("Reraise II", L{}), "Self", L{"Buffs"}),

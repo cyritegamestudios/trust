@@ -1231,6 +1231,40 @@ function Migration_v35:getDescription()
     return "Creating status removal settings."
 end
 
+---------------------------
+-- Creates CombatSettings.
+-- @class module
+-- @name Migration_v36
+
+local Migration_v36 = setmetatable({}, { __index = Migration })
+Migration_v36.__index = Migration_v36
+Migration_v36.__class = "Migration_v36"
+
+function Migration_v36.new()
+    local self = setmetatable(Migration.new(), Migration_v36)
+    return self
+end
+
+function Migration_v36:shouldPerform(trustSettings, _, _)
+    local defaultSettings = T(trustSettings:getDefaultSettings()).Default
+    return defaultSettings.CombatSettings ~= nil and trustSettings:getSettings().Default.CombatSettings == nil
+end
+
+function Migration_v36:perform(trustSettings, _, _)
+    local modeNames = list.subtract(L(T(trustSettings:getSettings()):keyset()), L{'Version','Migrations'})
+    for modeName in modeNames:it() do
+        local defaultSettings = T(trustSettings:getDefaultSettings()):clone()
+        local currentSettings = trustSettings:getSettings()[modeName]
+        if currentSettings.CombatSettings == nil then
+            currentSettings.CombatSettings = defaultSettings.Default.CombatSettings
+        end
+    end
+end
+
+function Migration_v36:getDescription()
+    return "Creating combat settings."
+end
+
 return {
     Migration_v1 = Migration_v1,
     Migration_v2 = Migration_v2,
@@ -1265,5 +1299,6 @@ return {
     Migration_v33 = Migration_v33,
     Migration_v34 = Migration_v34,
     Migration_v35 = Migration_v35,
+    Migration_v36 = Migration_v36,
 }
 

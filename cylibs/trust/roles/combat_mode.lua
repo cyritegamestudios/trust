@@ -16,9 +16,8 @@ state.AutoFaceMobMode = M{['description'] = 'Auto Face Mob Mode', 'Auto', 'Away'
 state.AutoFaceMobMode:set_description('Auto', "Automatically turn to face the mob.")
 state.AutoFaceMobMode:set_description('Away', "Automatically face away from the mob.")
 
-state.CombatMode = M{['description'] = 'Combat Mode', 'Off', 'Melee', 'Ranged', 'Mirror'}
-state.CombatMode:set_description('Melee', "Maintain a 3' distance from the target.")
-state.CombatMode:set_description('Ranged', "Maintain a 21' distance from the target.")
+state.CombatMode = M{['description'] = 'Combat Mode', 'Off', 'Auto', 'Mirror'}
+state.CombatMode:set_description('Auto', "Maintain a specified distance from the target.")
 state.CombatMode:set_description('Mirror', "Mirror the position of the party member you are assisting.")
 
 state.FlankMode = M{['description'] = 'Flanking Mode', 'Off', 'Back', 'Left', 'Right'}
@@ -26,13 +25,14 @@ state.FlankMode:set_description('Back', "Stand behind the mob.")
 state.FlankMode:set_description('Left', "Stand on the left side of the mob.")
 state.FlankMode:set_description('Right', "Stand on the right side of the mob.")
 
-function CombatMode.new(action_queue, melee_distance, range_distance, addon_enabled)
+function CombatMode.new(action_queue, combat_settings, addon_enabled)
     local self = setmetatable(Role.new(action_queue), CombatMode)
 
     self.action_queue = action_queue
-    self.melee_distance = 2
-    self.range_distance = range_distance
     self.addon_enabled = addon_enabled
+
+    self:set_combat_settings(combat_settings)
+
     self.dispose_bag = DisposeBag.new()
 
     return self
@@ -62,15 +62,7 @@ function CombatMode:on_add()
     end), WindowerEvents.ActionMessage)
 end
 
-function CombatMode:target_change(target_index)
-    Role.target_change(self, target_index)
-
-    self.target_index = target_index
-end
-
 function CombatMode:tic(new_time, old_time)
-    if self.target_index == nil then return end
-
     self:check_distance()
 end
 
@@ -84,24 +76,15 @@ function CombatMode:check_distance()
     if target == nil or not battle_util.is_valid_target(target.id) then return end
 
     if party_util.party_claimed(target.id) then
-        if L{'Ranged'}:contains(state.CombatMode.value) then
-            if target.distance:sqrt() < self.range_distance then
-                self.action_queue:push_action(RunAwayAction.new(target.index, self.range_distance), true)
-            elseif target.distance:sqrt() > (self.range_distance + 0.5) then
-                self.action_queue:push_action(BlockAction.new(function() player_util.face(target)  end))
-                self.action_queue:push_action(RunToAction.new(target.index, self.range_distance), true)
-            else
-                self.action_queue:push_action(BlockAction.new(function() player_util.face(target)  end))
-            end
-        elseif L{'Melee'}:contains(state.CombatMode.value) then
+        if L{'Auto'}:contains(state.CombatMode.value) then
             -- Handle FlankMode for melee
             if not L{'Off'}:contains(state.FlankMode.value) then
                 -- If we have a relative location, use that
-                local target_location = flanking_util.get_relative_location_for_target(target.id, flanking_util[state.FlankMode.value], self.melee_distance - 2)
+                local target_location = flanking_util.get_relative_location_for_target(target.id, flanking_util[state.FlankMode.value], self.distance - 2)
                 local distance = player_util.distance(player_util.get_player_position(), target_location)
                 if target_location then
                     -- TODO(Aldros): Ensure that we only do this if the mob isn't targeting us
-                    if distance > self.melee_distance then
+                    if distance > self.distance then
                         -- TODO(Aldros): Double check if this face target should have a check or not in front of it
                         self.action_queue:push_action(RunToLocationAction.new(target_location[1], target_location[2], target_location[3], 1), true)
                         self.action_queue:push_action(BlockAction.new(function() player_util.face(target) end))
@@ -110,20 +93,21 @@ function CombatMode:check_distance()
                     end
                 end
             else
-                if target.distance:sqrt() > self.melee_distance + self_mob.model_size + target.model_size - 0.2 then
+                local adjusted_distance = self.distance + self_mob.model_size + target.model_size - 0.2
+                if target.distance:sqrt() < self.distance + 0.1 then
+                    self.action_queue:push_action(RunAwayAction.new(target.index, self.distance), true)
+                elseif target.distance > adjusted_distance then
                     self.action_queue:push_action(BlockAction.new(function() player_util.face(target) end))
-                    self.action_queue:push_action(
-                        RunToAction.new(target.index, self.melee_distance + self_mob.model_size + target.model_size - 0.2),
-                        true)
+                    self.action_queue:push_action(RunToAction.new(target.index, adjusted_distance), true)
                 else
                     self:face_target(target)
                 end
             end
         elseif L{'Mirror'}:contains(state.CombatMode.value) then
             local assist_target = self:get_party():get_assist_target()
-            if assist_target then
+            if assist_target and assist_target:get_status() == 'Engaged' then
                 local dist = player_util.distance(self:get_party():get_player():get_position(), assist_target:get_position())
-                if dist > 2 then
+                if dist > self.mirror_distance then
                     self.action_queue:push_action(RunToAction.new(assist_target:get_mob().index, 1), true)
                     return
                 end
@@ -134,10 +118,10 @@ function CombatMode:check_distance()
         end
     elseif L{'Mirror'}:contains(state.CombatMode.value) then
         local assist_target = self:get_party():get_assist_target()
-        if assist_target then
+        if assist_target and assist_target:get_status() == 'Engaged' then
             local dist = player_util.distance(self:get_party():get_player():get_position(), assist_target:get_position())
-            if dist > 2 then
-                self.action_queue:push_action(RunToAction.new(assist_target:get_mob().index, 1), true)
+            if dist > self.mirror_distance then
+                self.action_queue:push_action(RunToAction.new(assist_target:get_mob().index, self.mirror_distance), true)
                 return
             end
         end
@@ -166,6 +150,11 @@ end
 
 function CombatMode:get_type()
     return "combatmode"
+end
+
+function CombatMode:set_combat_settings(combat_settings)
+    self.distance = combat_settings.Distance
+    self.mirror_distance = combat_settings.MirrorDistance
 end
 
 return CombatMode

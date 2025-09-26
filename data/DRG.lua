@@ -2,6 +2,10 @@
 return {
     Version = 1,
     Default = {
+        CombatSettings = {
+            Distance = 2,
+            MirrorDistance = 1.5,
+        },
         DebuffSettings = {
             Gambits = L{
             }

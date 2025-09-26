@@ -32,7 +32,16 @@ function LoadSettingsAction:load_main_trust_settings()
         end
     end)
 
-    player.trust.main_job_settings = main_trust_settings:loadSettings()
+    local success, err = pcall(function()
+        player.trust.main_job_settings = main_trust_settings:loadSettings()
+    end)
+    if not success then
+        addon_system_error(string.format("Unable to load job settings for %s, backing up and loading default settings.", self.main_job_name_short))
+
+        -- Backup old settings and load default profile
+        main_trust_settings:copySettings(true)
+        main_trust_settings:reloadSettings()
+    end
 end
 
 function LoadSettingsAction:load_sub_trust_settings()
@@ -53,7 +62,16 @@ function LoadSettingsAction:load_sub_trust_settings()
         end
     end)
 
-    player.trust.sub_job_settings = sub_trust_settings:loadSettings()
+    local success, err = pcall(function()
+        player.trust.sub_job_settings = sub_trust_settings:loadSettings()
+    end)
+    if not success then
+        addon_system_error(string.format("Unable to load job settings for %s, backing up and loading default settings.", self.sub_job_name_short))
+
+        -- Backup old settings and load default profile
+        sub_trust_settings:copySettings(true)
+        sub_trust_settings:reloadSettings()
+    end
 end
 
 function LoadSettingsAction:load_weapon_skill_settings()

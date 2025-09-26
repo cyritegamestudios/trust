@@ -320,6 +320,11 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
         childMenuItems["Ailments"] = self:getMenuItemForRole(trust:role_with_type("statusremover"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode, trustModeSettings)
     end
 
+    if trust:role_with_type("combatmode") then
+        menuItems:append(ButtonItem.default('Combat', 18))
+        childMenuItems.Combat = self:getMenuItemForRole(trust:role_with_type("combatmode"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode, trustModeSettings)
+    end
+
     menuItems:append(ButtonItem.localized('Pulling', i18n.translate('Button_Pulling')))
     if trust:role_with_type("puller") then
         childMenuItems.Pulling = self:getMenuItemForRole(trust:role_with_type("puller"), weaponSkillSettings, weaponSkillSettingsMode, trust, jobNameShort, viewSize, trustSettings, trustSettingsMode, trustModeSettings)
@@ -416,6 +421,9 @@ function TrustHud:getMenuItemForRole(role, weaponSkillSettings, weaponSkillSetti
     if role:get_type() == "nuker" or role:get_type() == "magicburster" then
         return self:getNukerMenuItem(trust, trustSettings, trustSettingsMode, trustModeSettings, jobNameShort)
     end
+    if role:get_type() == "combatmode" then
+        return self:getCombatModeMenuItem(trust, trustSettings, trustSettingsMode)
+    end
     if role:get_type() == "shooter" then
         return self:getShooterMenuItem(trust, trustSettings, trustSettingsMode)
     end
@@ -459,6 +467,12 @@ function TrustHud:getPullerMenuItem(trust, jobNameShort, trustSettings, trustSet
     local PullSettingsMenuItem = require('ui/settings/menus/pulling/PullSettingsMenuItem')
     local pullerSettingsMenuItem = PullSettingsMenuItem.new(L{}, trust, jobNameShort, trustSettings, trustSettingsMode, trustModeSettings)
     return pullerSettingsMenuItem
+end
+
+function TrustHud:getCombatModeMenuItem(trust, trustSettings, trustSettingsMode)
+    local CombatModeSettingsMenuItem = require('ui/settings/menus/CombatModeSettingsMenuItem')
+    local combatModeSettingsMenuItem = CombatModeSettingsMenuItem.new(trustSettings, trustSettingsMode, self.trustModeSettings, trust:role_with_type("combatmode"))
+    return combatModeSettingsMenuItem
 end
 
 function TrustHud:getShooterMenuItem(trust, trustSettings, trustSettingsMode)
