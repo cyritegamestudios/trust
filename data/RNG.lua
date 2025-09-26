@@ -4,7 +4,7 @@ return {
     Default = {
         CombatSettings = {
             Distance = 2,
-            MirrorDistance = 2,
+            MirrorDistance = 1.5,
         },
         Shooter = {
             Delay = 0,

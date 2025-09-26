@@ -144,12 +144,6 @@ function CombatMode:face_target(target)
     end
 end
 
-function CombatMode:is_current_target_in_range()
-    local target = windower.ffxi.get_mob_by_index(self.target_index)
-    local self_mob = windower.ffxi.get_mob_by_target('me')
-    return target == nil or target.distance:sqrt() > self.distance + self_mob.model_size + target.model_size - 0.2
-end
-
 function CombatMode:allows_duplicates()
     return false
 end
