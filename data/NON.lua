@@ -4,6 +4,7 @@ return {
     Default = {
         CombatSettings = {
             Distance = 2,
+            EngageDistance = 30,
             MirrorDistance = 1.5,
         },
         GambitSettings = {

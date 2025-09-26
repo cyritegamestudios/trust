@@ -75,7 +75,7 @@ function CombatMode:check_distance()
     local self_mob = windower.ffxi.get_mob_by_target('me')
     if target == nil or not battle_util.is_valid_target(target.id) then return end
 
-    if party_util.party_claimed(target.id) then
+    if party_util.party_claimed(target.id) and self:get_party():get_player():get_status() == 'Engaged' then
         if L{'Auto'}:contains(state.CombatMode.value) then
             -- Handle FlankMode for melee
             if not L{'Off'}:contains(state.FlankMode.value) then

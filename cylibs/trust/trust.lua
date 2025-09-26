@@ -54,6 +54,10 @@ function Trust:init()
 		if reacter then
 			reacter:set_gambit_settings(new_trust_settings.ReactionSettings)
 		end
+		local attacker = self:role_with_type("attacker")
+		if attacker then
+			attacker:set_attacker_settings(new_trust_settings.CombatSettings)
+		end
 		local combat_mode = self:role_with_type("combatmode")
 		if combat_mode then
 			combat_mode:set_combat_settings(new_trust_settings.CombatSettings)

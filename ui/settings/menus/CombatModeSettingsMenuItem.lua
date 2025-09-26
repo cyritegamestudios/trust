@@ -37,6 +37,7 @@ function CombatModeSettingsMenuItem:getConfigMenuItem()
 
         local configItems = L{
             ConfigItem.new('Distance', 1.0, 30.0, 0.1, function(value) return value.." yalms" end, "Combat Distance"),
+            ConfigItem.new('EngageDistance', 1.0, 30.0, 0.1, function(value) return value.." yalms" end, "Engage Distance"),
             --ConfigItem.new('MirrorDistance', 1.0, 30.0, 0.1, function(value) return value.." yalms" end, "Mirror Distance"),
         }
         return ConfigEditor.new(self.trustSettings, combatSettings, configItems)
