@@ -2,6 +2,10 @@
 return {
     Version = 2,
     Default = {
+        CombatSettings = {
+            Distance = 2,
+            MirrorDistance = 2,
+        },
         BuffSettings = {
             Gambits = L{
                 Gambit.new("Self", L{GambitCondition.new(CombatSkillsCondition.new(L{'Great Sword','Great Axe','Scythe','Polearm','Great Katana','Staff'}), "Self")}, JobAbility.new("Hasso", L{}, L{}), "Self", L{"Buffs"}),

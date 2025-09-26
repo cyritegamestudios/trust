@@ -2,6 +2,10 @@
 return {
     Version = 2,
     Default = {
+        CombatSettings = {
+            Distance = 2,
+            MirrorDistance = 2,
+        },
         BuffSettings = {
             Gambits = L{
                 Gambit.new("Self", L{}, JobAbility.new('Mana Wall', L{}, L{}, nil), "Self", L{"Buffs"}),

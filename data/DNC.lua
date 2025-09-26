@@ -2,6 +2,10 @@
 return {
     Version = 1,
     Default = {
+        CombatSettings = {
+            Distance = 2,
+            MirrorDistance = 2,
+        },
         CureSettings = {
             Gambits = L{
                 Gambit.new("Self", L{GambitCondition.new(ClusterHitPointsPercentRangeCondition.new(1, 65, 3), "Self")}, JobAbility.new("Divine Waltz II"), "Self", L{}, true),
