@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '15.9.0'
+_addon.version = '15.9.1'
 _addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 _addon.start_time = os.time()
@@ -244,7 +244,7 @@ end
 function load_trust_commands(job_name_short, main_job_trust, sub_job_name_short, sub_job_trust, action_queue, party, main_trust_settings, sub_trust_settings)
 	local common_commands = L{
 		AssistCommands.new(main_job_trust, action_queue),
-		AttackCommands.new(main_job_trust, action_queue),
+		AttackCommands.new(main_job_trust, main_trust_settings, action_queue),
 		state.AutoBuffMode and BuffCommands.new(),
 		state.AutoDebuffMode and DebuffCommands.new(),
 		FollowCommands.new(main_job_trust, action_queue),
