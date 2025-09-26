@@ -41,16 +41,18 @@ end
 
 -- // trust attack engage [distance]
 function AttackTrustCommands:handle_set_engage_distance(_, distance)
-    if distance:match("^%d+%.?%d*$") then
-        distance = math.min(math.max(tonumber(distance), 5), 30)
-    else
-        distance = 30
+    if distance then
+        if distance:match("^%d+%.?%d*$") then
+            distance = math.min(math.max(tonumber(distance), 5), 30)
+        else
+            distance = 30
+        end
+
+        local current_settings = self.trust_settings:getSettings()[state.MainTrustSettingsMode.value].CombatSettings
+        current_settings.EngageDistance = distance
+
+        self.trust_settings:saveSettings(true)
     end
-
-    local current_settings = self.trust_settings:getSettings()[state.MainTrustSettingsMode.value].CombatSettings
-    current_settings.EngageDistance = distance
-
-    self.trust_settings:saveSettings(true)
 
     return self:handle_set_mode('AutoEngageMode', 'Always')
 end
