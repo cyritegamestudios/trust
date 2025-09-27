@@ -13,11 +13,11 @@ RunTo.__class = "RunTo"
 -------
 -- Default initializer for a new run to.
 -- @treturn RunTo A run to.
-function RunTo.new(distance, conditions, operator)
+function RunTo.new(distance, conditions, angle)
     local self = setmetatable({}, RunTo)
     self.distance = distance or 3
     self.conditions = conditions or L{}
-    self.operator = operator or Condition.Operator.LessThanOrEqualTo
+    self.angle = angle
     return self
 end
 

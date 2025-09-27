@@ -37,13 +37,6 @@ function RunToAction:can_perform()
 		return false
 	end
 
-	--[[if not self.force_perform then
-		local dist = self:target_distance()
-		if dist < self.distance then
-			return false
-		end
-	end]]
-
 	return true
 end
 
@@ -69,8 +62,8 @@ function RunToAction:perform()
 		windower.ffxi.follow()
 		windower.ffxi.run((angle):radian())
 
-		local dist = target.distance:sqrt()
-		if dist < self.distance then
+		local adjusted_distance = self.distance --+ player.model_size + target.model_size - 0.2
+		if target.distance:sqrt() < adjusted_distance then
 			windower.ffxi.run(false)
 			if self.was_locked_on then
 				windower.send_command('input /lockon')
