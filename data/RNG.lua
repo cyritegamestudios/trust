@@ -5,7 +5,7 @@ return {
         CombatSettings = {
             Distance = 2,
             EngageDistance = 30,
-            MirrorDistance = 1.5,
+            MirrorDistance = 0.5,
         },
         Shooter = {
             Delay = 0,

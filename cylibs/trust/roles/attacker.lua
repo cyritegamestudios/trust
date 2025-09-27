@@ -102,7 +102,7 @@ function Attacker:set_attacker_settings(attacker_settings)
         -- we do not want IsAggroedCondition here
         Gambit.new(GambitTarget.TargetType.Self, L{
             GambitCondition.new(StatusCondition.new('Engaged'), GambitTarget.TargetType.Self),
-            GambitCondition.new(Distance.new(self.engage_distance, Condition.Operator.GreaterThanOrEqualTo), GambitTarget.TargetType.CurrentTarget),
+            GambitCondition.new(Distance.new(30, Condition.Operator.GreaterThanOrEqualTo), GambitTarget.TargetType.CurrentTarget),
         }, Disengage.new(), GambitTarget.TargetType.Self),
         Gambit.new(GambitTarget.TargetType.Enemy, L{
             GambitCondition.new(StatusCondition.new('Engaged'), GambitTarget.TargetType.Self),

@@ -60,7 +60,7 @@ function CombatMode:on_add()
     end), WindowerEvents.ActionMessage)
 
     self.timer:onTimeChange():addAction(function(_)
-        if not self:is_enabled() or not self.addon_enabled:getValue()
+        if not self.addon_enabled:getValue()
                 or self:get_target() == nil then
             return
         end
