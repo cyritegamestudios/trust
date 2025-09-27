@@ -2,7 +2,8 @@ require('vectors')
 require('math')
 require('logger')
 
-local PlayerUtil = require('cylibs/util/player_util')
+local DisposeBag = require('cylibs/events/dispose_bag')
+local Renderer = require('cylibs/ui/views/render')
 
 local Action = require('cylibs/actions/action')
 local RunAway = setmetatable({}, {__index = Action })
@@ -10,10 +11,17 @@ RunAway.__index = RunAway
 
 function RunAway.new(target_index, distance)
 	local self = setmetatable(Action.new(0, 0, 0), RunAway)
+	self.dispose_bag = DisposeBag.new()
 	self.user_events = {}
 	self.target_index = target_index
 	self.distance = distance
  	return self
+end
+
+function RunAway:destroy()
+	Action.destroy(self)
+
+	self.dispose_bag:destroy()
 end
 
 function RunAway:can_perform()
@@ -26,69 +34,39 @@ function RunAway:can_perform()
 		return false
 	end
 
-	local dist = self:delta_distance()
-	if dist > self.distance then
-		return false
-	end
-
 	return true
 end
 
 function RunAway:perform()
 	if windower.ffxi.get_player().target_locked then
 		windower.send_command('input /lockon')
-	end
-	self:run_to(self.distance, 0)
-end
-
-function RunAway:run_to(distance, retry_count)
-	if self:is_cancelled() then
-		return
-	end
-	
-	windower.ffxi.follow()
-
-	if retry_count > 100 then
-		self:complete(false)
-		return
+		self.was_locked_on = true
 	end
 
-	local dist = self:target_distance()
-	if dist > self.distance then
-		windower.ffxi.run(false) 
-		self:complete(true)
-	else
-		if self:is_cancelled() then
+	self.dispose_bag:add(Renderer.shared():onPrerender():addAction(function()
+		local target = windower.ffxi.get_mob_by_index(self.target_index)
+
+		if self:is_cancelled() or target == nil then
 			windower.ffxi.run(false)
+			self:complete(false)
 			return
 		end
 
 		local player = windower.ffxi.get_mob_by_id(windower.ffxi.get_player().id)
-		local target = windower.ffxi.get_mob_by_index(self.target_index)
-
 		local angle = (math.atan2((target.y - player.y), (target.x - player.x))*180/math.pi)*-1
+
+		windower.ffxi.follow()
 		windower.ffxi.run((angle+180):radian())
 
-		local walk_speed = 10
-		local walk_time = 0.1--self:target_distance() / walk_speed
-
-		coroutine.schedule(function()
-			self:run_to(self.distance, retry_count + 1)
-		end, walk_time)
-	end
-end
-
-function RunAway:delta_distance()
-	return math.abs(self:target_distance() - self.distance)
-end
-
-function RunAway:target_distance()
-	local target = windower.ffxi.get_mob_by_index(self.target_index)
-	if target == nil then
-		return 0
-	end
-
-	return target.distance:sqrt()
+		local adjusted_distance = self.distance --+ player.model_size + target.model_size - 0.2
+		if target.distance:sqrt() > adjusted_distance then
+			windower.ffxi.run(false)
+			if self.was_locked_on then
+				windower.send_command('input /lockon')
+			end
+			self:complete(true)
+		end
+	end), Renderer.shared():onPrerender())
 end
 
 function RunAway:gettype()
@@ -111,7 +89,7 @@ function RunAway:copy()
 end
 
 function RunAway:tostring()
-    return "RunAway: (%d, %d, %d)":format(self.x, self.y, self.z)
+	return "Run Away"
 end
 
 return RunAway

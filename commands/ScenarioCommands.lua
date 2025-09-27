@@ -84,8 +84,9 @@ function ScenarioTrustCommands:handle_exp_party(_, assist_target_name)
         windower.send_command('trust pull aggroed')
         windower.send_command('trust pull action target')
         windower.send_command('trust follow '..assist_target_name)
-        windower.send_command('trust attack engage')
-        windower.send_command('trust set CombatMode Melee')
+        windower.send_command('trust attack engage 10')
+        windower.send_command('trust attack distance 2')
+        windower.send_command('trust set CombatMode Auto')
     else
         -- 1. Set up primary puller
         self:handle_set_mode('AutoPullMode', 'Auto', true)

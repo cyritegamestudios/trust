@@ -21,12 +21,12 @@ state.AutoEngageMode:set_description('Off', "Manually engage and disengage.")
 state.AutoEngageMode:set_description('Always', "Automatically engage when targeting a claimed mob.")
 state.AutoEngageMode:set_description('Mirror', "Mirror the engage status of the party member you are assisting.")
 
-function Attacker.new(action_queue)
+function Attacker.new(action_queue, attacker_settings)
     local self = setmetatable(Gambiter.new(action_queue, { Gambits = L{} }, L{ state.AutoEngageMode, state.AutoPullMode }), Attacker)
 
     self.dispose_bag = DisposeBag.new()
 
-    self:set_attacker_settings({})
+    self:set_attacker_settings(attacker_settings)
 
     return self
 end
@@ -51,13 +51,15 @@ function Attacker:target_change(target_index)
     self:check_gambits()
 end
 
-function Attacker:set_attacker_settings(_)
+function Attacker:set_attacker_settings(attacker_settings)
+    self.engage_distance = attacker_settings.EngageDistance or 30
+
     local gambit_settings = {
         Gambits = L{
             Gambit.new(GambitTarget.TargetType.Enemy, L{
                 GambitCondition.new(ModeCondition.new('AutoEngageMode', 'Always'), GambitTarget.TargetType.Self),
                 GambitCondition.new(StatusCondition.new('Idle'), GambitTarget.TargetType.Self),
-                GambitCondition.new(MaxDistanceCondition.new(30), GambitTarget.TargetType.Enemy),
+                GambitCondition.new(MaxDistanceCondition.new(self.engage_distance), GambitTarget.TargetType.Enemy),
                 GambitCondition.new(AggroedCondition.new(), GambitTarget.TargetType.Enemy),
                 GambitCondition.new(ConditionalCondition.new(L{ UnclaimedCondition.new(), PartyClaimedCondition.new(true) }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Enemy),
                 GambitCondition.new(ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos()), GambitTarget.TargetType.Enemy),
@@ -67,7 +69,7 @@ function Attacker:set_attacker_settings(_)
                 GambitCondition.new(IsAssistTargetCondition.new(), GambitTarget.TargetType.Ally),
                 GambitCondition.new(StatusCondition.new('Engaged'), GambitTarget.TargetType.Ally),
                 GambitCondition.new(StatusCondition.new('Idle'), GambitTarget.TargetType.Self),
-                GambitCondition.new(MaxDistanceCondition.new(30), GambitTarget.TargetType.Enemy),
+                GambitCondition.new(MaxDistanceCondition.new(self.engage_distance), GambitTarget.TargetType.Enemy),
                 GambitCondition.new(ConditionalCondition.new(L{ UnclaimedCondition.new(), PartyClaimedCondition.new(true) }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Enemy),
                 GambitCondition.new(ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos()), GambitTarget.TargetType.Enemy),
             }, Engage.new(), GambitTarget.TargetType.Enemy),

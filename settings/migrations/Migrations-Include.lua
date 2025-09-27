@@ -1265,6 +1265,37 @@ function Migration_v36:getDescription()
     return "Creating combat settings."
 end
 
+---------------------------
+-- Adds engage distance.
+-- @class module
+-- @name Migration_v37
+
+local Migration_v37 = setmetatable({}, { __index = Migration })
+Migration_v37.__index = Migration_v37
+Migration_v37.__class = "Migration_v37"
+
+function Migration_v37.new()
+    local self = setmetatable(Migration.new(), Migration_v37)
+    return self
+end
+
+function Migration_v37:shouldPerform(trustSettings, _, _)
+    return trustSettings:getSettings().Default.CombatSettings ~= nil
+end
+
+function Migration_v37:perform(trustSettings, _, _)
+    local modeNames = list.subtract(L(T(trustSettings:getSettings()):keyset()), L{'Version','Migrations'})
+    for modeName in modeNames:it() do
+        local defaultSettings = T(trustSettings:getDefaultSettings()):clone()
+        local currentSettings = trustSettings:getSettings()[modeName]
+        currentSettings.CombatSettings.EngageDistance = currentSettings.CombatSettings.EngageDistance or defaultSettings.Default.CombatSettings.EngageDistance
+    end
+end
+
+function Migration_v37:getDescription()
+    return "Update combat settings."
+end
+
 return {
     Migration_v1 = Migration_v1,
     Migration_v2 = Migration_v2,
@@ -1300,5 +1331,6 @@ return {
     Migration_v34 = Migration_v34,
     Migration_v35 = Migration_v35,
     Migration_v36 = Migration_v36,
+    Migration_v37 = Migration_v37,
 }
 

@@ -13,10 +13,11 @@ RunTo.__class = "RunTo"
 -------
 -- Default initializer for a new run to.
 -- @treturn RunTo A run to.
-function RunTo.new(distance, conditions)
+function RunTo.new(distance, conditions, angle)
     local self = setmetatable({}, RunTo)
     self.distance = distance or 3
     self.conditions = conditions or L{}
+    self.angle = angle
     return self
 end
 
@@ -88,11 +89,17 @@ end
 -- Return the Action to use this action on a target.
 -- @treturn Action Action to use ability
 function RunTo:to_action(target_index, _)
-    return SequenceAction.new(L{
-        BlockAction.new(function() player_util.face(windower.ffxi.get_mob_by_index(target_index))  end),
-        RunToAction.new(target_index, self.distance),
-        WaitAction.new(0, 0, 0, 1.5),
-    }, self.__class..'_run_to')
+    local target = windower.ffxi.get_mob_by_index(target_index)
+    if target.distance:sqrt() > self.distance then
+        return SequenceAction.new(L{
+            BlockAction.new(function() player_util.face(windower.ffxi.get_mob_by_index(target_index))  end),
+            RunToAction.new(target_index, self.distance),
+        }, self.__class..'_run_to')
+    else
+        return SequenceAction.new(L{
+            RunAwayAction.new(target_index, self.distance),
+        }, self.__class..'_run_to')
+    end
 end
 
 function RunTo:serialize()
