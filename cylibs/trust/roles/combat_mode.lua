@@ -1,5 +1,9 @@
 local BlockAction = require('cylibs/actions/block')
+local ConditionalCondition = require('cylibs/conditions/conditional')
 local DisposeBag = require('cylibs/events/dispose_bag')
+local DistanceCondition = require('cylibs/conditions/distance')
+local GambitTarget = require('cylibs/gambits/gambit_target')
+local IsAssistTargetCondition = require('cylibs/conditions/is_assist_target')
 local RunAwayAction = require('cylibs/actions/runaway')
 local RunToAction = require('cylibs/actions/runto')
 local RunToLocationAction = require('cylibs/actions/runtolocation')
@@ -8,9 +12,10 @@ local party_util = require('cylibs/util/party_util')
 local player_util = require('cylibs/util/player_util')
 local flanking_util = require("cylibs/util/flanking_util")
 
-local Role = require('cylibs/trust/roles/role')
-local CombatMode = setmetatable({}, {__index = Role })
+local Gambiter = require('cylibs/trust/roles/gambiter')
+local CombatMode = setmetatable({}, {__index = Gambiter })
 CombatMode.__index = CombatMode
+CombatMode.__class = "CombatMode"
 
 state.AutoFaceMobMode = M{['description'] = 'Auto Face Mob Mode', 'Auto', 'Away', 'Off'}
 state.AutoFaceMobMode:set_description('Auto', "Automatically turn to face the mob.")
@@ -26,7 +31,7 @@ state.FlankMode:set_description('Left', "Stand on the left side of the mob.")
 state.FlankMode:set_description('Right', "Stand on the right side of the mob.")
 
 function CombatMode.new(action_queue, combat_settings, addon_enabled)
-    local self = setmetatable(Role.new(action_queue), CombatMode)
+    local self = setmetatable(Gambiter.new(action_queue, { Gambits = L{} }, L{ state.CombatMode }), CombatMode)
 
     self.action_queue = action_queue
     self.addon_enabled = addon_enabled
@@ -39,12 +44,24 @@ function CombatMode.new(action_queue, combat_settings, addon_enabled)
 end
 
 function CombatMode:destroy()
-    Role.destroy(self)
+    Gambiter.destroy(self)
 
     self.dispose_bag:destroy()
 end
 
 function CombatMode:on_add()
+    Gambiter.on_add(self)
+
+    self.timer:onTimeChange():addAction(function(_)
+        if not self:is_enabled() or not self.addon_enabled:getValue()
+                or self:get_target() == nil then
+            return
+        end
+        self:face_target(self:get_target():get_mob())
+    end, self:get_priority() or ActionPriority.default, self:get_type())
+end
+
+--[[function CombatMode:on_add()
     self.dispose_bag:add(state.CombatMode:on_state_change():addAction(function(_, new_value)
         if new_value == 'Mirror' then
             local assist_target = self:get_party():get_assist_target()
@@ -57,19 +74,23 @@ function CombatMode:on_add()
     self.dispose_bag:add(WindowerEvents.ActionMessage:addAction(function(actor_id, target_id, actor_index, target_index, message_id, param_1, param_2, param_3)
         -- Unable to see ${target}
         if message_id == 5 then
-            self:check_distance()
+            --self:check_distance()
         end
     end), WindowerEvents.ActionMessage)
-end
-
-function CombatMode:tic(new_time, old_time)
-    self:check_distance()
-end
+end]]
 
 function CombatMode:check_distance()
-    if self.target_index == nil then
+    local target = self:get_target()
+    if target == nil then
         return
     end
+
+    local player = self:get_party():get_player()
+    if player:get_status() ~= 'Engaged' then
+        return
+    end
+
+
 
     local target = windower.ffxi.get_mob_by_index(self.target_index)
     local self_mob = windower.ffxi.get_mob_by_target('me')
@@ -155,6 +176,64 @@ end
 function CombatMode:set_combat_settings(combat_settings)
     self.distance = combat_settings.Distance
     self.mirror_distance = combat_settings.MirrorDistance
+
+    local gambit_settings = {
+        Gambits = L{
+            Gambit.new(GambitTarget.TargetType.Enemy, L{
+                GambitCondition.new(ModeCondition.new('CombatMode', 'Auto'), GambitTarget.TargetType.Self),
+                GambitCondition.new(StatusCondition.new('Engaged'), GambitTarget.TargetType.Self),
+                GambitCondition.new(ConditionalCondition.new(L{ DistanceCondition.new(self.distance + 0.2, Condition.Operator.GreaterThan), DistanceCondition.new(self.distance - 0.2, Condition.Operator.LessThan) }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Enemy),
+            }, RunTo.new(self.distance), GambitTarget.TargetType.Enemy),
+            Gambit.new(GambitTarget.TargetType.Ally, L{
+                GambitCondition.new(ModeCondition.new('CombatMode', 'Mirror'), GambitTarget.TargetType.Self),
+                GambitCondition.new(IsAssistTargetCondition.new(), GambitTarget.TargetType.Ally),
+                GambitCondition.new(StatusCondition.new('Engaged'), GambitTarget.TargetType.Ally),
+                GambitCondition.new(DistanceCondition.new(self.mirror_distance, Condition.Operator.GreaterThan), GambitTarget.TargetType.Ally),
+            }, RunTo.new(self.mirror_distance), GambitTarget.TargetType.Enemy),
+        }
+    }
+
+    for gambit in gambit_settings.Gambits:it() do
+        gambit.conditions = gambit.conditions:filter(function(condition)
+            return condition:is_editable()
+        end)
+        local conditions = self:get_default_conditions(gambit)
+        for condition in conditions:it() do
+            condition:set_editable(false)
+            gambit:addCondition(condition)
+        end
+    end
+
+    self:set_gambit_settings(gambit_settings)
+end
+
+function CombatMode:get_default_conditions(gambit)
+    local conditions = L{
+        GambitCondition.new(ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos()), GambitTarget.TargetType.Enemy),
+        --GambitCondition.new(AggroedCondition.new(), GambitTarget.TargetType.Enemy),
+    }
+    return conditions:map(function(condition)
+        if condition.__type ~= GambitCondition.__type then
+            return GambitCondition.new(condition, GambitTarget.TargetType.Self)
+        end
+        return condition
+    end)
+end
+
+function CombatMode:get_cooldown()
+    return 2
+end
+
+function CombatMode:allows_multiple_actions()
+    return false
+end
+
+function CombatMode:get_type()
+    return "combatmode"
+end
+
+function CombatMode:allows_duplicates()
+    return false
 end
 
 return CombatMode
