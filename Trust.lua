@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '15.9.2'
+_addon.version = '15.9.3'
 _addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 _addon.start_time = os.time()
@@ -19,9 +19,6 @@ end
 -- Main
 
 function load_user_files(main_job_id, sub_job_id)
-	local fruits = require('plus/test')
-	print(fruits)
-
 	local start_time = os.clock()
 
 	addon_system_message("Loaded Trust v".._addon.version)
@@ -538,15 +535,7 @@ function handle_stop()
 	addon_enabled:setValue(false)
 end
 
-
-local SyncService = require('cylibs/networking/sync_service')
-
-sync_service = SyncService.new()
-
 function handle_tic(old_time, new_time)
-	sync_service:connect()
-	sync_service:send_ping()
-
 	if should_check_version then
 		if os.time() - addon_load_time > 5 then
 			should_check_version = false

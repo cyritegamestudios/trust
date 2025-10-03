@@ -75,6 +75,15 @@ function StepTracker:monitor()
             end
         end
     end), WindowerEvents.Action)
+
+    self.dispose_bag:add(WindowerEvents.LoseDebuff:addAction(function(mob_id, debuff_id)
+        if mob_id == self.mob_id then
+            local daze_name = self:get_daze_name_from_debuff_id(debuff_id)
+            if daze_name then
+                self:remove_daze(daze_name)
+            end
+        end
+    end), WindowerEvents.LoseDebuff)
 end
 
 function StepTracker:tic(_, _)
@@ -101,6 +110,15 @@ function StepTracker:get_daze_name(message_id, level)
     else
         return message_to_name[message_id]..' '..level
     end
+end
+
+function StepTracker:get_daze_name_from_debuff_id(debuff_id)
+    local debuff_id_to_name = {
+        [386] = "Lethargic Daze",
+        [391] = "Sluggish Daze",
+        [396] = "Weakened Daze",
+    }
+    return debuff_id_to_name[debuff_id]
 end
 
 function StepTracker:add_daze(daze_name, level)
