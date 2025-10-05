@@ -96,7 +96,7 @@ function StepTracker:reset()
 end
 
 function StepTracker:get_daze_action_messages()
-    return S{ 519, 520, 521 }
+    return S{ 519, 520, 521, 591 }
 end
 
 function StepTracker:get_daze_name(message_id, level)
@@ -104,6 +104,7 @@ function StepTracker:get_daze_name(message_id, level)
         [519] = "Lethargic Daze",
         [520] = "Sluggish Daze",
         [521] = "Weakened Daze",
+        [591] = "Bewildered Daze",
     }
     if level == nil then
         return message_to_name[message_id]
@@ -117,6 +118,7 @@ function StepTracker:get_daze_name_from_debuff_id(debuff_id)
         [386] = "Lethargic Daze",
         [391] = "Sluggish Daze",
         [396] = "Weakened Daze",
+        [448] = "Bewildered Daze",
     }
     return debuff_id_to_name[debuff_id]
 end

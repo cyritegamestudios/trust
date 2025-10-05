@@ -135,4 +135,10 @@ return L{
         Gambit.new("Enemy", L{NotCondition.new(L{HasDebuffCondition.new("Defense Down")}), InBattleCondition.new()}, WeaponSkill.new("Full Break", L{MinTacticalPointsCondition.new(1000)}), "Enemy", L{"Weaponskills"}),
         Gambit.new("Self", L{GambitCondition.new(MaxManaPointsPercentCondition.new(40), "Self"), GambitCondition.new(CombatSkillsCondition.new(L{"Staff"}), "Self"), GambitCondition.new(ModeCondition.new("AutoRestoreManaMode", "Auto"), "Self"), GambitCondition.new(MinTacticalPointsCondition.new(1000), "Self")}, WeaponSkill.new("Myrkr", L{}, L{}), "Self", L{"Weaponskill"}),
     }),
+    GambitCategory.new("Steps", "Use steps.", L{
+        Gambit.new("Enemy", L{GambitCondition.new(HasDazeCondition.new("Lethargic Daze", 1, "<"), "Enemy")}, JobAbility.new("Quickstep", L{}), "Enemy", L{"Steps"}, true),
+        Gambit.new("Enemy", L{GambitCondition.new(HasDazeCondition.new("Weakened Daze", 1, "<"), "Enemy")}, JobAbility.new("Stutter Step", L{}), "Enemy", L{"Steps"}, true),
+        Gambit.new("Enemy", L{GambitCondition.new(HasDazeCondition.new("Sluggish Daze", 1, "<"), "Enemy")}, JobAbility.new("Box Step", L{}), "Enemy", L{"Steps"}, true),
+        Gambit.new("Enemy", L{GambitCondition.new(HasDazeCondition.new("Bewildered Daze", 1, "<"), "Enemy")}, JobAbility.new("Feather Step", L{}), "Enemy", L{"Steps"}, true),
+    }),
 }
