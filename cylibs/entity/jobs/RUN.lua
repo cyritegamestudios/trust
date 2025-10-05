@@ -93,15 +93,14 @@ end
 -- Returns the maximum number of runes that can be used.
 -- @treturn number Maximum number of runes
 function RuneFencer:get_max_num_runes()
-    local player = windower.ffxi.get_player()
-    if player then
-        if player.main_job_id == res.jobs:with('en', 'Rune Fencer').id then
-            return 3
-        else
-            return 2
-        end
+    local level = self:getLevel()
+    if level >= 65 then
+        return 3
+    elseif level >= 35 then
+        return 2
+    else
+        return 1
     end
-    return 3
 end
 
 return RuneFencer
