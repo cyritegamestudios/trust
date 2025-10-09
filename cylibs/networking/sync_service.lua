@@ -9,6 +9,7 @@ SyncService.__index = SyncService
 function SyncService.new(remote_port)
     local self = setmetatable({}, SyncService)
 
+    self.handlers = {}
     self.ip_address = "127.0.0.1"
     self.receiver = assert(socket.udp())
     self.receiver:setsockname(self.ip_address, 0)  -- bind to localhost on dynamic port
@@ -46,7 +47,7 @@ function SyncService:connect()
             return
         end
         self.last_sync_time = os.time()
-
+        print('sending')
         self:send_info()
         self:receive_info()
     end)
@@ -138,6 +139,12 @@ function SyncService:receive_info()
         local ok, err = pcall(function()
             data, from_ip, from_port = self.sock:receivefrom()
             if data then
+                local json = json.decode(data)
+                if json["type"] then
+                    for handler in (self.handlers[json["type"]] or L{}):it() do
+                        handler(json["payload"] or {})
+                    end
+                end
                 -- handle your incoming data here
                 print(string.format("[sync] recv %dB from %s:%d", #data, from_ip or "?", from_port or -1))
             end
@@ -147,6 +154,13 @@ function SyncService:receive_info()
             return
         end
     until not data
+end
+
+function SyncService:register_handler(type, handler)
+    self.handlers[type] = self.handlers[type] or L{}
+
+    local handlers = self.handlers[type]
+    handlers:append(handler)
 end
 
 return SyncService

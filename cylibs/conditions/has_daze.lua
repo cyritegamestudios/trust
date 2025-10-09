@@ -34,7 +34,7 @@ function HasDazeCondition:is_satisfied(target_index)
 end
 
 function HasDazeCondition:get_config_items()
-    local all_dazes = L{ 'Sluggish Daze', 'Lethargic Daze', 'Weakened Daze' }
+    local all_dazes = L{ 'Sluggish Daze', 'Lethargic Daze', 'Weakened Daze', 'Bewildered Daze' }
 
     return L{
         PickerConfigItem.new('daze_name', self.daze_name, all_dazes, nil, "Daze"),

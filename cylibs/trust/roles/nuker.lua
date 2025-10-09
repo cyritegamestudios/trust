@@ -137,7 +137,7 @@ function Nuker:get_default_conditions(gambit, exclude_mode_conditions)
     end
 
     local ability_conditions = (L{
-        MinManaPointsPercentCondition.new(self.magic_burst_mpp),
+        MinManaPointsPercentCondition.new(self.nuke_mpp),
     } + self.job:get_conditions_for_ability(gambit:getAbility()))
 
     return conditions + ability_conditions:map(function(condition)
