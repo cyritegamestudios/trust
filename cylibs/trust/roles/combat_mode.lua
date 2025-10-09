@@ -95,13 +95,23 @@ function CombatMode:set_combat_settings(combat_settings)
                 GambitCondition.new(StatusCondition.new('Engaged'), GambitTarget.TargetType.Ally),
                 GambitCondition.new(DistanceCondition.new(self.mirror_distance, Condition.Operator.GreaterThan), GambitTarget.TargetType.Ally),
             }, RunTo.new(self.mirror_distance), GambitTarget.TargetType.Enemy),
-            Gambit.new(GambitTarget.TargetType.Enemy, L{
-                GambitCondition.new(ModeCondition.new('CombatMode', 'Auto'), GambitTarget.TargetType.Self),
-                GambitCondition.new(StatusCondition.new('Engaged'), GambitTarget.TargetType.Self),
-                GambitCondition.new(ConditionalCondition.new(L{ DistanceCondition.new(self.distance + 0.2, Condition.Operator.GreaterThan), DistanceCondition.new(self.distance - 0.2, Condition.Operator.LessThan) }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Enemy),
-            }, RunTo.new(self.distance), GambitTarget.TargetType.Enemy),
         }
     }
+
+    local distance_condition
+    if self.distance < 4 then
+        distance_condition = GambitCondition.new(DistanceCondition.new(self.distance, Condition.Operator.GreaterThan), GambitTarget.TargetType.Enemy)
+    else
+        distance_condition = GambitCondition.new(ConditionalCondition.new(L{ DistanceCondition.new(self.distance + 1, Condition.Operator.GreaterThan), DistanceCondition.new(self.distance - 1, Condition.Operator.LessThan) }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Enemy)
+    end
+    gambit_settings.Gambits:append(
+        Gambit.new(GambitTarget.TargetType.Enemy, L{
+            GambitCondition.new(ModeCondition.new('CombatMode', 'Auto'), GambitTarget.TargetType.Self),
+            GambitCondition.new(StatusCondition.new('Engaged'), GambitTarget.TargetType.Self),
+            distance_condition,
+        },
+        RunTo.new(self.distance), GambitTarget.TargetType.Enemy)
+    )
 
     for gambit in gambit_settings.Gambits:it() do
         gambit.conditions = gambit.conditions:filter(function(condition)
