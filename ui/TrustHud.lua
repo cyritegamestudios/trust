@@ -234,15 +234,6 @@ function TrustHud:reloadMainMenuItem()
     end
 end
 
-local function setupView(view, viewSize, hideBackground)
-    if not hideBackground then
-        --view:setBackgroundImageView(createBackgroundView(viewSize.width, viewSize.height))
-    end
-    --view:setNavigationBar(createTitleView(viewSize))
-    view:setSize(viewSize.width, viewSize.height)
-    return view
-end
-
 function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, weaponSkillSettings, weaponSkillSettingsMode, trustModeSettings, jobNameShort)
     local viewSize = Frame.new(0, 0, 500, 500)
 
@@ -265,9 +256,7 @@ function TrustHud:getSettingsMenuItem(trust, trustSettings, trustSettingsMode, w
     if jobNameShort == 'GEO' then
         menuItems:append(ButtonItem.default('Geomancy', 18))
         local GeomancySettingsMenuItem = require('ui/settings/menus/buffs/GeomancySettingsMenuItem')
-        childMenuItems.Geomancy = GeomancySettingsMenuItem.new(trust, trustSettings, trustSettingsMode, self.trustModeSettings, trustSettings:getSettings()[trustSettingsMode.value].Geomancy, trustSettings:getSettings()[trustSettingsMode.value].PartyBuffs, function(view)
-            return setupView(view, viewSize)
-        end)
+        childMenuItems.Geomancy = GeomancySettingsMenuItem.new(trust, trustSettings, trustSettingsMode, self.trustModeSettings, trustSettings:getSettings()[trustSettingsMode.value].Geomancy, trustSettings:getSettings()[trustSettingsMode.value].PartyBuffs)
     end
 
     if jobNameShort == 'SMN' then
