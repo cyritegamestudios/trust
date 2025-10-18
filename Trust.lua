@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '16.0.3'
+_addon.version = '16.0.4'
 _addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 _addon.start_time = os.time()
@@ -197,6 +197,12 @@ function load_user_files(main_job_id, sub_job_id)
 	addon_system_message("Trust is up to date ("..load_time.."s).")
 
 	logger.notice('performance', 'load_user_files', 'end', load_time)
+
+	local TrustBridge = require('premium/modules/common/Trust-Bridge')
+	if TrustBridge then
+		trust_bridge = TrustBridge.new()
+		trust_bridge:connect()
+	end
 end
 
 function load_trust_modes(job_name_short)
