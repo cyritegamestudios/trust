@@ -53,7 +53,7 @@ end
 function ScholarTrustCommands:get_spells(element)
     element = element:lower()
     if element == "liquefaction" then
-        return "Stone", "Fire"
+        return "Stone", "Pyrohelix" 
     elseif element == "scission" then
         return "Aero", "Stone"
     elseif element == "reverberation" then

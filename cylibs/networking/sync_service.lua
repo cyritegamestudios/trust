@@ -47,7 +47,7 @@ function SyncService:connect()
             return
         end
         self.last_sync_time = os.time()
-        print('sending')
+
         self:send_info()
         self:receive_info()
     end)
@@ -68,46 +68,29 @@ function SyncService:get_cooldown()
     if self.connected then
         return 1
     else
-        return 5
+        return 1
     end
 end
 
-function SyncService:enqueue(payload)
-    self.queue:push(payload)
+function SyncService:enqueue(message_type, payload)
+    self.queue:push({ type = message_type, payload = payload })
 end
 
-function SyncService:send_ping()
-    local payload = {
-        type = "ping",
-        id = tostring(os.time()), -- or use a guid generator if you have one
-        target = tostring(windower.ffxi.get_player().name),       -- optional, whatever your channel expects
-        payload = {
-            sent_at = os.date("!%Y-%m-%dT%H:%M:%SZ"),
-            message = message or "hello from lua",
-        }
-    }
-    self.queue:push(payload)
+function SyncService:flush_queue()
+    self:send_info()
 end
 
 function SyncService:send_info()
-    --[[for payload in self.queue:it() do
-        local data = json.encode(payload)
-        if data then
-            local udp = assert(socket.udp())
-
-            udp:setpeername(self.ip_address, self.remote_port)
-            udp:settimeout(0)
-
-
-            local success = udp:send(data)
-            if not success then
-                error(string.format("Failed to connect to %s:%d", self.ip_address, self.port))
-            end
-            udp:close()
-        end
-    end
-    self.queue:clear()]]
-    for payload in self.queue:it() do
+    for message in self.queue:it() do
+        print('sending message of type', message.type)
+        local payload = {
+            type = message.type,
+            id = tostring(os.time()),
+            user_name = tostring(windower.ffxi.get_player().name),
+            user_id = windower.ffxi.get_player().id,
+            sent_at = os.date("!%Y-%m-%dT%H:%M:%SZ"),
+            payload = message.payload,
+        }
         local data = json.encode(payload)
         if data then
             -- reuse the same socket; keep your local port stable
@@ -121,19 +104,6 @@ function SyncService:send_info()
 end
 
 function SyncService:receive_info()
-    --[[local ok, error = pcall(function()
-        local data, error = self.receiver:receive()
-        if data then
-            local json = json.decode(data)
-            print(T(json):keyset())
-        else
-            --if error then
-            --    print('error receiving', error)
-            --end
-        end
-    end)]]
-
-
     local data
     repeat
         local ok, err = pcall(function()
@@ -145,7 +115,6 @@ function SyncService:receive_info()
                         handler(json["payload"] or {})
                     end
                 end
-                -- handle your incoming data here
                 print(string.format("[sync] recv %dB from %s:%d", #data, from_ip or "?", from_port or -1))
             end
         end)
