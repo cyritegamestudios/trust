@@ -198,7 +198,7 @@ function load_user_files(main_job_id, sub_job_id)
 
 	logger.notice('performance', 'load_user_files', 'end', load_time)
 
-	local TrustBridge = require('Trust-Bridge')
+	local TrustBridge = require('premium/modules/common/Trust-Bridge')
 	if TrustBridge then
 		trust_bridge = TrustBridge.new()
 		trust_bridge:connect()
@@ -722,8 +722,6 @@ function loaded()
 
 	local actions = L{
 		Loading.LoadDependenciesAction.new(import_paths),
-		--Loading.LoadBridgeAction.new(),
-		--Loading.LoadModulesAction.new(),
 		Loading.LoadSettingsAction.new(settings, res.jobs[windower.ffxi.get_player().main_job_id].ens, res.jobs[windower.ffxi.get_player().sub_job_id or 0].ens),
 		Loading.Loadi18nAction.new(),
 		Loading.LoadGlobalsAction.new(),
