@@ -137,7 +137,7 @@ function TrustSettings:copySettings(override)
         if playerSettings:exists() then
             self:backupSettings(filePath)
         end
-        local defaultSettings = FileIO.new(self.settingsFolder..self.jobNameShort..'.lua')
+        local defaultSettings = FileIO.new('settings/default/'..self.jobNameShort..'.lua')
         playerSettings:write(defaultSettings:read())
 
         --addon_message(207, 'Copied default settings to '..filePath)
