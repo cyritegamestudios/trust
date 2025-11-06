@@ -74,11 +74,12 @@ function TrustModeSettings:reloadSettings()
 end
 
 function TrustModeSettings:getSettingsFilePath()
+    local default_file_prefix = windower.addon_path..'settings/default/modes/'..self.jobNameShort
     local file_prefix = windower.addon_path..'data/modes/'..self.jobNameShort
     if windower.file_exists(file_prefix..'_'..self.playerName..'.lua') then
         return file_prefix..'_'..self.playerName..'.lua'
-    elseif windower.file_exists(file_prefix..'.lua') then
-        return file_prefix..'.lua'
+    elseif windower.file_exists(default_file_prefix..'.lua') then
+        return default_file_prefix..'.lua'
     end
     addon_message(100, 'No default trust modes for '..(self.jobNameShort or 'nil'))
     return nil

@@ -3673,6 +3673,7 @@ return {
     [20652] = {en="Tizona",skill=3,level=99,item_level=119,enl="Tizona",id=20652,},
     [20653] = {en="Almace",skill=3,level=99,item_level=119,enl="Almace",id=20653,},
     [20654] = {en="Almace",skill=3,level=99,item_level=119,enl="Almace",id=20654,},
+    [20655] = {en="Archduke's Sword",skill=3,level=99,item_level=119,enl="archduke's sword",id=20655},
     [20665] = {en="Kam'lanaut's Sword",skill=3,level=1,enl="Kam'lanaut's sword",id=20665,},
     [20666] = {en="Blizzard Brand",skill=3,level=1,enl="blizzard brand",id=20666,},
     [20667] = {en="Blizzard Brand +1",skill=3,level=1,enl="blizzard brand +1",id=20667,},

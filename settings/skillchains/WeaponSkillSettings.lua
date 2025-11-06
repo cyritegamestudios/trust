@@ -93,11 +93,12 @@ function WeaponSkillSettings:reloadSettings()
 end
 
 function WeaponSkillSettings:getSettingsFilePath(default_settings)
-    local file_prefix = windower.addon_path..self.settingsFolder..self.jobNameShort
+    local default_file_prefix = windower.addon_path..'settings/default/skillchains/'..self.jobNameShort
+    local file_prefix = windower.addon_path..'data/skillchains/'..self.jobNameShort
     if windower.file_exists(file_prefix..'_'..windower.ffxi.get_player().name..'.lua') and not default_settings then
         return file_prefix..'_'..windower.ffxi.get_player().name..'.lua'
-    elseif windower.file_exists(file_prefix..'.lua') then
-        return file_prefix..'.lua'
+    elseif windower.file_exists(default_file_prefix..'.lua') then
+        return default_file_prefix..'.lua'
     end
     return nil
 end

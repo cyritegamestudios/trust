@@ -1,3 +1,5 @@
+local Item = require('resources/resources').Item
+
 ---------------------------
 -- Wrapper around a weapon
 -- @class module
@@ -12,16 +14,14 @@ Weapon.__class = "Weapon"
 -- @tparam Boolean use_crooked_cards Whether to use Crooked Cards
 -- @treturn Roll A roll
 function Weapon.new(weapon_id)
-    local weapons = require('cylibs/res/weapons')
+    local weapon = Item:get({ id = weapon_id })
 
     local self = setmetatable({
         weapon_id = weapon_id;
-        weapon_name = weapons[weapon_id].en;
-        combat_skill = weapons[weapon_id].skill;
+        weapon_name = weapon.en;
+        combat_skill = weapon.skill;
     }, Weapon)
-
-    weapons = nil
-
+    
     return self
 end
 
