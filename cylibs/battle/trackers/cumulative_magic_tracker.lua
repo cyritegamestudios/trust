@@ -141,7 +141,7 @@ function CumulativeMagicTracker:update_effect(spell_id)
     if not self:is_cumulative_magic_spell(spell_id) then
         return
     end
-    
+
     if self.current_effect == nil or not self.current_effect:is_same_effect(spell_id) then
         self:reset()
 
