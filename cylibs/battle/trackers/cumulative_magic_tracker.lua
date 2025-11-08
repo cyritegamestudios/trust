@@ -141,12 +141,12 @@ function CumulativeMagicTracker:update_effect(spell_id)
     if not self:is_cumulative_magic_spell(spell_id) then
         return
     end
+    
     if self.current_effect == nil or not self.current_effect:is_same_effect(spell_id) then
         self:reset()
 
         self.current_effect = CumulativeMagicEffect.new(spell_id, self.cumulative_effect_duration)
-
-        local effect_timer = Timer.scheduledTimer(self.current_effect:get_time_remaining(), 0)
+        local effect_timer = Timer.scheduledTimer(self.current_effect:get_time_remaining(), self.current_effect:get_time_remaining())
         effect_timer:onTimeChange():addAction(function(_)
             self:reset()
         end)
