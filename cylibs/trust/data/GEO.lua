@@ -1,4 +1,5 @@
 local Bubbler = require('cylibs/trust/roles/bubbler')
+local ConditionalCondition = require('cylibs/conditions/conditional')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Gambit = require('cylibs/gambits/gambit')
 local GambitTarget = require('cylibs/gambits/gambit_target')
@@ -21,9 +22,7 @@ state.AutoEntrustMode:set_description('Auto', "Entrust Indicolure spells on part
 
 function GeomancerTrust.new(settings, action_queue, battle_settings, trust_settings)
 	local job = Geomancer.new()
-	local entrust = trust_settings.Geomancy.Entrust:copy()
-	entrust.conditions = L{}
-	local entrustGambit = Gambit.new(GambitTarget.TargetType.Ally, trust_settings.Geomancy.Entrust.conditions + L{ JobAbilityRecastReadyCondition.new('Entrust') }, entrust, "Ally")
+
 	local roles = S{
 		Bubbler.new(action_queue, trust_settings.Geomancy, job),
 		Buffer.new(action_queue, GeomancerTrust.get_buff_settings(trust_settings.Geomancy), state.AutoIndiMode, job),
@@ -50,9 +49,11 @@ function GeomancerTrust.get_buff_settings(geomancy_settings)
 			Gambit.new(GambitTarget.TargetType.Ally, L{
 				GambitCondition.new(ModeCondition.new('AutoEntrustMode', 'Auto'), GambitTarget.TargetType.Self),
 				GambitCondition.new(geomancy_settings.Entrust.conditions:firstWhere(function(c) return c.__type == JobCondition.__type end), GambitTarget.TargetType.Ally),
+				GambitCondition.new(NotCondition.new(L{ InTownCondition.new() }), GambitTarget.TargetType.Self),
 			}, Spell.new(geomancy_settings.Entrust:get_name(), L{ 'Entrust' }), GambitTarget.TargetType.Self),
 			Gambit.new(GambitTarget.TargetType.Self, L{
 				GambitCondition.new(NotCondition.new(L{ HasBuffCondition.new('Colure Active') }), GambitTarget.TargetType.Self),
+				GambitCondition.new(NotCondition.new(L{ InTownCondition.new() }), GambitTarget.TargetType.Self),
 			}, geomancy_settings.Indi, GambitTarget.TargetType.Self)
 		}
 	}
