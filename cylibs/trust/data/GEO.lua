@@ -1,5 +1,4 @@
 local Bubbler = require('cylibs/trust/roles/bubbler')
-local ConditionalCondition = require('cylibs/conditions/conditional')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Gambit = require('cylibs/gambits/gambit')
 local GambitTarget = require('cylibs/gambits/gambit_target')
