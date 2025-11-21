@@ -109,7 +109,7 @@ end
 
 function GeomancySettingsMenuItem:getModesMenuItem()
     return ModesMenuItem.new(self.trustModeSettings, "Set modes for geocolures and indicolures.",
-            L{'AutoGeoMode', 'AutoIndiMode', 'AutoEntrustMode'})
+            L{'AutoGeoMode', 'AutoBlazeOfGloryMode', 'AutoIndiMode', 'AutoEntrustMode' })
 end
 
 return GeomancySettingsMenuItem
