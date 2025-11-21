@@ -19,4 +19,6 @@ return T{
     [16] = {id=16,en="MihliAliapoh",enl="Mihli Aliapoh",main_job_short="WHM",sub_job_short="NON"},
     [17] = {id=17,en="Adelheid",enl="Adelheid",main_job_short="SCH",sub_job_short="NON"},
     [18] = {id=18,en="FerreousCoffin",enl="Ferreous Coffin",main_job_short="WHM",sub_job_short="NON"},
+    [19] = {id=19,en="Ovjang",enl="Ovjang",main_job_short="RDM",sub_job_short="BLM"},
+    [20] = {id=20,en="Iroha II",enl="Iroha II",main_job_short="SAM",sub_job_short="WHM"},
 }, {"id", "en", "enl","main_job_short", "sub_job_short"}
