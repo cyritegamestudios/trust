@@ -19,7 +19,8 @@ function alter_ego_util.untargetable_alter_egos()
         'Kuyin Hathdenna',
         'Cornelia',
         'Sakura',
-        'Star Sibyl'
+        'Star Sibyl',
+        'StarSibyl',
     }
 end
 

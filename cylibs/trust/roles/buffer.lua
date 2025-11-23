@@ -1,4 +1,4 @@
-local BuffConflictsCondition = require('cylibs/conditions/buff_conflicts')
+    local BuffConflictsCondition = require('cylibs/conditions/buff_conflicts')
 local GambitTarget = require('cylibs/gambits/gambit_target')
 local HasStatusEffectCondition = require('cylibs/conditions/has_status_effect')
 
@@ -46,6 +46,7 @@ function Buffer:get_default_conditions(gambit)
     }
     if gambit:getAbilityTarget() ~= GambitTarget.TargetType.Self then
         conditions:append(MaxDistanceCondition.new(gambit:getAbility():get_range()))
+        conditions:append(ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos()))
     end
     return conditions + self.job:get_conditions_for_ability(gambit:getAbility()):map(function(condition)
         return GambitCondition.new(condition, GambitTarget.TargetType.Self)
