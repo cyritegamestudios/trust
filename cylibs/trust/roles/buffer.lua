@@ -1,4 +1,4 @@
-    local BuffConflictsCondition = require('cylibs/conditions/buff_conflicts')
+local BuffConflictsCondition = require('cylibs/conditions/buff_conflicts')
 local GambitTarget = require('cylibs/gambits/gambit_target')
 local HasStatusEffectCondition = require('cylibs/conditions/has_status_effect')
 
