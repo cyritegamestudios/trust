@@ -137,7 +137,7 @@ function WeaponSkillSettings:copySettings(override)
         if playerSettings:exists() then
             self:backupSettings(filePath)
         end
-        local defaultSettings = FileIO.new('settinsg/default/skillchains/'..self.jobNameShort..'.lua')
+        local defaultSettings = FileIO.new('settings/default/skillchains/'..self.jobNameShort..'.lua')
         playerSettings:write(defaultSettings:read())
 
         --addon_message(207, 'Copied default weapon skill settings to '..filePath)

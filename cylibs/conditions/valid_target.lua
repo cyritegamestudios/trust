@@ -43,7 +43,7 @@ function ValidTargetCondition:check_entity_type(target)
 end
 
 function ValidTargetCondition:tostring()
-    return "ValidTargetCondition"
+    return "Is a valid target"
 end
 
 function ValidTargetCondition.valid_targets()

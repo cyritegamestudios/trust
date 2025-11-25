@@ -44,11 +44,11 @@ function SubJobCondition:get_config_items()
 end
 
 function SubJobCondition:tostring()
-    return "Player sub job is "..res.jobs:with('ens', self.job_name_short).en
+    return "Sub job is "..res.jobs:with('ens', self.job_name_short).en
 end
 
 function SubJobCondition.description()
-    return "Player sub job is X."
+    return "Sub job is X."
 end
 
 function SubJobCondition.valid_targets()

@@ -261,6 +261,7 @@ function GambitConditionSettingsMenuItem:getEditableConditionClasses()
         [HasBuffCondition.__type] = "has_buff_condition",
         [ZoneCondition.__type] = "zone",
         [MainJobCondition.__type] = "main_job",
+        [SubJobCondition.__type] = "sub_job",
         [JobCondition.__type] = "job",
         [ReadyAbilityCondition.__type] = "ready_ability",
         [FinishAbilityCondition.__type] = "finish_ability",
