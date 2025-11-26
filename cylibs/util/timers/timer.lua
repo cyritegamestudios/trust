@@ -50,14 +50,22 @@ function Timer:start()
     end
     self.running = true
 
-    self.lastTime = os.clock() + self.delay
+    self.lastTime = os.clock() - self.timeInterval + self.delay
 
-    self.disposeBag:add(Renderer.shared():onPrerender():addAction(function()
+    local handleTimeChange = function()
         if not self.paused and self.running and os.clock() - self.lastTime >= self.timeInterval then
             self.lastTime = os.clock()
             self:onTimeChange():trigger(self)
         end
+    end
+
+    self.disposeBag:add(Renderer.shared():onPrerender():addAction(function()
+        handleTimeChange()
     end), Renderer.shared():onPrerender())
+
+    if self.delay == 0 then
+        handleTimeChange()
+    end
 end
 
 function Timer:resume()
