@@ -88,7 +88,7 @@ function ActionQueue.new(completion, is_priority_queue, max_size, debugging_enab
 			end
 
 			if self.forced_delay_time > self.next_action_time then
-				self.forced_delay_time = self.forced_delay_time - self.next_action_time
+				--self.forced_delay_time = self.forced_delay_time - self.next_action_time
 			end
 		end), WindowerEvents.Action)
 
@@ -153,7 +153,6 @@ function ActionQueue:perform_next_action()
 	if next_action ~= nil and next_action:can_perform() then
 		local forced_delay = self:get_forced_delay(next_action)
 		if forced_delay > 0 then
-			print('forced delay is', forced_delay)
 			local display_name = next_action.display_name
 			-- NOTE: the latency between sending a packet and the action firing on the server can
 			-- take up to 400ms, so there will be cases where we force a longer delay than necessary
