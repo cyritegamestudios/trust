@@ -120,7 +120,7 @@ function ActionQueue:destroy()
 end
 
 function ActionQueue:get_forced_delay(action)
-	local forced_delay = os.clock() - self.forced_delay_time
+	local forced_delay = self.forced_delay_time - os.clock()
 	if forced_delay > 0 then
 		local action_type = action.__type
 		if action_type == SequenceAction.__type and action.queue and action.queue:length() > 0 then
@@ -153,6 +153,7 @@ function ActionQueue:perform_next_action()
 	if next_action ~= nil and next_action:can_perform() then
 		local forced_delay = self:get_forced_delay(next_action)
 		if forced_delay > 0 then
+			print('forced delay is', forced_delay)
 			local display_name = next_action.display_name
 			-- NOTE: the latency between sending a packet and the action firing on the server can
 			-- take up to 400ms, so there will be cases where we force a longer delay than necessary
