@@ -20,7 +20,7 @@ function WaitAction:destroy()
 end
 
 function WaitAction:perform()
-    self.timer = Timer.scheduledTimer(self.duration)
+    self.timer = Timer.scheduledTimer(0, self.duration)
     self.timer:onTimeChange():addAction(function(_)
         if self:is_completed() or self:is_cancelled() then
             return
