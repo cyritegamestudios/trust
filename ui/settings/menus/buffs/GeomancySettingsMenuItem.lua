@@ -1,3 +1,4 @@
+local BooleanConfigItem = require('ui/settings/editors/config/BooleanConfigItem')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local DisposeBag = require('cylibs/events/dispose_bag')
@@ -42,6 +43,10 @@ function GeomancySettingsMenuItem.new(trust, trustSettings, trustSettingsMode, t
             Indicolure = allSettings.Geomancy.Indi:get_name(),
             Geocolure = allSettings.Geomancy.Geo:get_name(),
             Target = allSettings.Geomancy.Geo:get_target(),
+            FullCircleDistance = allSettings.FullCircleDistance or 6,
+            EclipticAttrition = allSettings.Geomancy.EclipticAttrition or false,
+            LastingEmanation = allSettings.Geomancy.LastingEmanation or false,
+            Dematerialize = allSettings.Geomancy.Dematerialize or false,
         }
 
         local validTargetsForSpell = function(spell)
@@ -73,9 +78,13 @@ function GeomancySettingsMenuItem.new(trust, trustSettings, trustSettingsMode, t
         geocolureConfigItem:addDependency(targetConfigItem)
 
         local configItems = L{
-            PickerConfigItem.new('Indicolure', geomancySettings.Indicolure, allIndiSpells, nil, "Indicolure"),
+            PickerConfigItem.new('Indicolure', geomancySettingsN.Indicolure, allIndiSpells, nil, "Indicolure"),
             geocolureConfigItem,
             targetConfigItem,
+            ConfigItem.new('FullCircleDistance', 6, 20, 1, function(value) return value.." yalms" end, "Full Circle Distance"),
+            BooleanConfigItem.new('EclipticAttrition', 'Use Ecliptic Attrition'),
+            BooleanConfigItem.new('LastingEmanation', 'Use Lasting Emanation'),
+            BooleanConfigItem.new('Dematerialize', 'Use Dematerialize'),
         }
 
         local geomancyConfigEditor = ConfigEditor.new(trustSettings, geomancySettings, configItems)
@@ -83,7 +92,11 @@ function GeomancySettingsMenuItem.new(trust, trustSettings, trustSettingsMode, t
 
         self.dispose_bag:add(geomancyConfigEditor:onConfigChanged():addAction(function(newSettings, _)
             allSettings.Geomancy.Indi = Spell.new(newSettings.Indicolure)
-            allSettings.Geomancy.Geo = Spell.new(newSettings.Geocolure, L{}, L{}, newSettings.Target),
+            allSettings.Geomancy.Geo = Spell.new(newSettings.Geocolure, L{}, L{}, newSettings.Target)
+            allSettings.FullCircleDistance = newSettings.FullCircleDistance or 6
+            allSettings.Geomancy.EclipticAttrition = newSettings.EclipticAttrition
+            allSettings.Geomancy.LastingEmanation = newSettings.LastingEmanation
+            allSettings.Geomancy.Dematerialize = newSettings.Dematerialize
 
             self.trustSettings:saveSettings(true)
         end), geomancyConfigEditor:onConfigChanged())

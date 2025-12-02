@@ -72,6 +72,17 @@ function Bubbler:set_geomancy_settings(geomancy_settings)
         }, JobAbility.new('Life Cycle'), Condition.TargetType.Self),
     }
 
+    for ability_name in L{ 'Ecliptic Attrition', 'Lasting Emanation', 'Dematerialize' }:it() do
+        if geomancy_settings[ability_name:gsub(" ", "")] then
+            gambit_settings.Gambits:append(
+                Gambit.new(GambitTarget.TargetType.Self, L{
+                    GambitCondition.new(HasPetCondition.new(), GambitTarget.TargetType.Self),
+                    GambitCondition.new(NotCondition.new(L{ HasBuffCondition.new('Bolster') }), GambitTarget.TargetType.Self),
+                }, JobAbility.new(ability_name), Condition.TargetType.Self)
+            )
+        end
+    end
+
     if L(geomancy_settings.Geo:get_spell().targets):contains("Enemy") then
         local geocolure = Spell.new(geomancy_settings.Geo:get_name(), L{ 'Blaze of Glory' })
         geocolure:set_requires_all_job_abilities(false)
@@ -79,7 +90,7 @@ function Bubbler:set_geomancy_settings(geomancy_settings)
         gambit_settings.Gambits = gambit_settings.Gambits + L{
             Gambit.new(GambitTarget.TargetType.Self, L{
                 GambitCondition.new(HasPetCondition.new(), GambitTarget.TargetType.Self),
-                GambitCondition.new(PetDistanceCondition.new(6, Condition.Operator.GreaterThan), GambitTarget.TargetType.Enemy),
+                GambitCondition.new(PetDistanceCondition.new(geomancy_settings.FullCircleDistance or 6, Condition.Operator.GreaterThan), GambitTarget.TargetType.Enemy),
             }, JobAbility.new('Full Circle'), Condition.TargetType.Self),
             Gambit.new(GambitTarget.TargetType.Enemy, L{
                 GambitCondition.new(NotCondition.new(L{ HasPetCondition.new() }), GambitTarget.TargetType.Self),
