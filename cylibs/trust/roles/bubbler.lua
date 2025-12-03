@@ -93,12 +93,6 @@ function Bubbler:set_geomancy_settings(geomancy_settings)
                 GambitCondition.new(NotCondition.new(L{ HasPetCondition.new() }), GambitTarget.TargetType.Self),
                 GambitCondition.new(PartyClaimedCondition.new(true), GambitTarget.TargetType.Enemy),
                 GambitCondition.new(NotCondition.new(L{ HasBuffCondition.new('Bolster') }), GambitTarget.TargetType.Self),
-                GambitCondition.new(ModeCondition.new('AutoBlazeOfGloryMode', 'Auto'), GambitTarget.TargetType.Self),
-            }, geocolure, Condition.TargetType.Self),
-            Gambit.new(GambitTarget.TargetType.Enemy, L{
-                GambitCondition.new(NotCondition.new(L{ HasPetCondition.new() }), GambitTarget.TargetType.Self),
-                GambitCondition.new(PartyClaimedCondition.new(true), GambitTarget.TargetType.Enemy),
-                GambitCondition.new(NotCondition.new(L{ HasBuffCondition.new('Bolster') }), GambitTarget.TargetType.Self),
             }, Spell.new(geomancy_settings.Geo:get_name()), Condition.TargetType.Self),
             Gambit.new(GambitTarget.TargetType.Enemy, L{
                 GambitCondition.new(NotCondition.new(L{ HasPetCondition.new() }), GambitTarget.TargetType.Self),
@@ -106,6 +100,16 @@ function Bubbler:set_geomancy_settings(geomancy_settings)
                 GambitCondition.new(HasBuffCondition.new('Bolster'), GambitTarget.TargetType.Self),
             }, Spell.new(geomancy_settings.Geo:get_name()), Condition.TargetType.Self),
         }
+
+        if geomancy_settings.BlazeOfGlory then
+            gambit_settings.Gambits:append(
+                Gambit.new(GambitTarget.TargetType.Enemy, L{
+                    GambitCondition.new(NotCondition.new(L{ HasPetCondition.new() }), GambitTarget.TargetType.Self),
+                    GambitCondition.new(PartyClaimedCondition.new(true), GambitTarget.TargetType.Enemy),
+                    GambitCondition.new(NotCondition.new(L{ HasBuffCondition.new('Bolster') }), GambitTarget.TargetType.Self),
+                }, geocolure, Condition.TargetType.Self)
+            )
+        end
     else
         local geocolure = Spell.new(geomancy_settings.Geo:get_name(), L{ 'Blaze of Glory' }, L{}, geomancy_settings.Geo:get_target())
         geocolure:set_requires_all_job_abilities(false)
@@ -122,11 +126,7 @@ function Bubbler:set_geomancy_settings(geomancy_settings)
                 GambitCondition.new(HasPetCondition.new(), GambitTarget.TargetType.Self),
                 GambitCondition.new(PetDistanceCondition.new(6, Condition.Operator.GreaterThan), target_type),
             }, JobAbility.new('Full Circle'), Condition.TargetType.Self),
-            Gambit.new(GambitTarget.TargetType.Self, L{
-                GambitCondition.new(NotCondition.new(L{ HasPetCondition.new() }), GambitTarget.TargetType.Self),
-                GambitCondition.new(NotCondition.new(L{ HasBuffCondition.new('Bolster') }), GambitTarget.TargetType.Self),
-                GambitCondition.new(ModeCondition.new('AutoBlazeOfGloryMode', 'Auto'), GambitTarget.TargetType.Self),
-            }, geocolure, Condition.TargetType.Self),
+
             Gambit.new(GambitTarget.TargetType.Self, L{
                 GambitCondition.new(NotCondition.new(L{ HasPetCondition.new() }), GambitTarget.TargetType.Self),
                 GambitCondition.new(NotCondition.new(L{ HasBuffCondition.new('Bolster') }), GambitTarget.TargetType.Self),
@@ -136,6 +136,15 @@ function Bubbler:set_geomancy_settings(geomancy_settings)
                 GambitCondition.new(HasBuffCondition.new('Bolster'), GambitTarget.TargetType.Self),
             }, Spell.new(geomancy_settings.Geo:get_name(), L{}, L{}, geomancy_settings.Geo:get_target()), Condition.TargetType.Self),
         }
+
+        if geomancy_settings.BlazeOfGlory then
+            gambit_settings.Gambits:append(
+                Gambit.new(GambitTarget.TargetType.Self, L{
+                    GambitCondition.new(NotCondition.new(L{ HasPetCondition.new() }), GambitTarget.TargetType.Self),
+                    GambitCondition.new(NotCondition.new(L{ HasBuffCondition.new('Bolster') }), GambitTarget.TargetType.Self),
+                }, geocolure, Condition.TargetType.Self)
+            )
+        end
     end
 
     for gambit in gambit_settings.Gambits:it() do
