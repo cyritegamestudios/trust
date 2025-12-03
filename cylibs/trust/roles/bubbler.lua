@@ -10,9 +10,6 @@ Bubbler.__class = Bubbler
 state.AutoGeoMode = M{['description'] = 'Use geocolures', 'Off', 'Auto'}
 state.AutoGeoMode:set_description('Auto', "Use Geocolure spells.")
 
-state.AutoBlazeOfGloryMode = M{['description'] = 'Use Blaze of Glory', 'Auto', 'Off'}
-state.AutoBlazeOfGloryMode:set_description('Auto', "Use Blaze of Glory before Geocolure spell.")
-
 -------
 -- Default initializer for a bubbler role.
 -- @tparam ActionQueue action_queue Action queue

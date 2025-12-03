@@ -46,8 +46,9 @@ return {
             Geo = Spell.new("Geo-Fury", L{}, L{}, "me", L{}),
             Entrust = Spell.new("Indi-Haste", L{ 'Entrust' }, nil, nil, L{ JobCondition.new(job_util.all_jobs()) }),
             Dematerialize = true,
+            BlazeOfGlory = true,
             EclipticAttrition = true,
-            LastingEmanation = true,
+            LastingEmanation = false,
             FullCircleDistance = 6,
         },
         DebuffSettings = {

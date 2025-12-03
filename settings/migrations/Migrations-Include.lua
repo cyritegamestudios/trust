@@ -1296,6 +1296,39 @@ function Migration_v37:getDescription()
     return "Update combat settings."
 end
 
+---------------------------
+-- Adds geomancy job abilities and full circle distance.
+-- @class module
+-- @name Migration_v38
+
+local Migration_v38 = setmetatable({}, { __index = Migration })
+Migration_v38.__index = Migration_v38
+Migration_v38.__class = "Migration_v38"
+
+function Migration_v38.new()
+    local self = setmetatable(Migration.new(), Migration_v38)
+    return self
+end
+
+function Migration_v38:shouldPerform(trustSettings, _, _)
+    return trustSettings:getSettings().Default.Geomancy ~= nil
+end
+
+function Migration_v38:perform(trustSettings, _, _)
+    local modeNames = list.subtract(L(T(trustSettings:getSettings()):keyset()), L{'Version','Migrations'})
+    for modeName in modeNames:it() do
+        local defaultSettings = T(trustSettings:getDefaultSettings()):clone()
+        local currentSettings = trustSettings:getSettings()[modeName]
+        for settingsKey in L{ 'FullCircleDistance', 'BlazeOfGlory', 'EclipticAttrition', 'LastingEmanation', 'Dematerialize' }:it() do
+            currentSettings.Geomancy[settingsKey] = currentSettings.Geomancy[settingsKey] or defaultSettings.Default.Geomancy[settingsKey]
+        end
+    end
+end
+
+function Migration_v38:getDescription()
+    return "Update geomancy settings."
+end
+
 return {
     Migration_v1 = Migration_v1,
     Migration_v2 = Migration_v2,
@@ -1332,5 +1365,6 @@ return {
     Migration_v35 = Migration_v35,
     Migration_v36 = Migration_v36,
     Migration_v37 = Migration_v37,
+    Migration_v38 = Migration_v38,
 }
 

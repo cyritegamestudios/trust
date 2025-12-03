@@ -14,6 +14,7 @@ function GeomancySettingsMenuItem.new(trust, trustSettings, trustSettingsMode, t
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
         ButtonItem.default('Entrust', 18),
+        ButtonItem.default('Config', 18),
         ButtonItem.localized("Modes", i18n.translate("Modes")),
     }, {}, nil, "Geomancy", "Configure indicolure and geocolure settings."), GeomancySettingsMenuItem)
 
@@ -43,10 +44,6 @@ function GeomancySettingsMenuItem.new(trust, trustSettings, trustSettingsMode, t
             Indicolure = allSettings.Geomancy.Indi:get_name(),
             Geocolure = allSettings.Geomancy.Geo:get_name(),
             Target = allSettings.Geomancy.Geo:get_target(),
-            FullCircleDistance = allSettings.FullCircleDistance or 6,
-            EclipticAttrition = allSettings.Geomancy.EclipticAttrition or false,
-            LastingEmanation = allSettings.Geomancy.LastingEmanation or false,
-            Dematerialize = allSettings.Geomancy.Dematerialize or false,
         }
 
         local validTargetsForSpell = function(spell)
@@ -78,13 +75,9 @@ function GeomancySettingsMenuItem.new(trust, trustSettings, trustSettingsMode, t
         geocolureConfigItem:addDependency(targetConfigItem)
 
         local configItems = L{
-            PickerConfigItem.new('Indicolure', geomancySettingsN.Indicolure, allIndiSpells, nil, "Indicolure"),
+            PickerConfigItem.new('Indicolure', geomancySettings.Indicolure, allIndiSpells, nil, "Indicolure"),
             geocolureConfigItem,
             targetConfigItem,
-            ConfigItem.new('FullCircleDistance', 6, 20, 1, function(value) return value.." yalms" end, "Full Circle Distance"),
-            BooleanConfigItem.new('EclipticAttrition', 'Use Ecliptic Attrition'),
-            BooleanConfigItem.new('LastingEmanation', 'Use Lasting Emanation'),
-            BooleanConfigItem.new('Dematerialize', 'Use Dematerialize'),
         }
 
         local geomancyConfigEditor = ConfigEditor.new(trustSettings, geomancySettings, configItems)
@@ -93,10 +86,6 @@ function GeomancySettingsMenuItem.new(trust, trustSettings, trustSettingsMode, t
         self.dispose_bag:add(geomancyConfigEditor:onConfigChanged():addAction(function(newSettings, _)
             allSettings.Geomancy.Indi = Spell.new(newSettings.Indicolure)
             allSettings.Geomancy.Geo = Spell.new(newSettings.Geocolure, L{}, L{}, newSettings.Target)
-            allSettings.FullCircleDistance = newSettings.FullCircleDistance or 6
-            allSettings.Geomancy.EclipticAttrition = newSettings.EclipticAttrition
-            allSettings.Geomancy.LastingEmanation = newSettings.LastingEmanation
-            allSettings.Geomancy.Dematerialize = newSettings.Dematerialize
 
             self.trustSettings:saveSettings(true)
         end), geomancyConfigEditor:onConfigChanged())
@@ -117,7 +106,44 @@ end
 
 function GeomancySettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Entrust", EntrustSettingsMenuItem.new(self.trust, self.trustSettings, self.trustSettingsMode))
+    self:setChildMenuItem("Config", self:getConfigMenuItem())
     self:setChildMenuItem("Modes", self:getModesMenuItem())
+end
+
+function GeomancySettingsMenuItem:getConfigMenuItem()
+    local configMenuItem = MenuItem.new(L{
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
+        ButtonItem.default('Reset', 18),
+    }, L{}, function(_, infoView)
+        local allSettings = T(self.trustSettings:getSettings())[self.trustSettingsMode.value]
+
+        local configItems = L{
+            ConfigItem.new('FullCircleDistance', 6, 20, 1, function(value) return value.." yalms" end, "Full Circle Distance"),
+            BooleanConfigItem.new('BlazeOfGlory', 'Use Blaze of Glory'),
+            BooleanConfigItem.new('EclipticAttrition', 'Use Ecliptic Attrition'),
+            BooleanConfigItem.new('LastingEmanation', 'Use Lasting Emanation'),
+            BooleanConfigItem.new('Dematerialize', 'Use Dematerialize'),
+        }
+        local configEditor = ConfigEditor.new(self.trustSettings, allSettings.Geomancy, configItems)
+
+        self.dispose_bag:add(configEditor:getDelegate():didMoveCursorToItemAtIndexPath():addAction(function(indexPath)
+            if indexPath.section == 1 then
+                infoView:setDescription("Maximum geocolure distance from the enemy before Full Circle is used.")
+            elseif indexPath.section == 2 then
+                infoView:setDescription("Use Blaze of Glory with geocolures.")
+            elseif indexPath.section == 3 then
+                infoView:setDescription("Use Ecliptic Attrition with geocolures (shares timer with Lasting Emanation).")
+            elseif indexPath.section == 4 then
+                infoView:setDescription("Use Lasting Emanation with geocolures (shares timer with Ecliptic Attrition).")
+            elseif indexPath.section == 5 then
+                infoView:setDescription("Use Dematerialize with geocolures.")
+            end
+        end), configEditor:getDelegate():didMoveCursorToItemAtIndexPath())
+
+        return configEditor
+    end, "Geomancy", "Configure geomancy settings.")
+
+    return configMenuItem
 end
 
 function GeomancySettingsMenuItem:getModesMenuItem()
