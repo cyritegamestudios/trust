@@ -42,9 +42,14 @@ return {
             },
         },
         Geomancy = {
-            Indi = Spell.new("Indi-Fury", L{}, L{}, nil, L{}),
-            Geo = Spell.new("Geo-Frailty", L{}, L{}, "bt", L{}),
-            Entrust = Spell.new("Indi-Haste", L{ 'Entrust' }, nil, nil, L{ JobCondition.new(job_util.all_jobs()) })
+            Indi = Spell.new("Indi-Frailty", L{}, L{}, nil, L{}),
+            Geo = Spell.new("Geo-Fury", L{}, L{}, "me", L{}),
+            Entrust = Spell.new("Indi-Haste", L{ 'Entrust' }, nil, nil, L{ JobCondition.new(job_util.all_jobs()) }),
+            Dematerialize = true,
+            BlazeOfGlory = true,
+            EclipticAttrition = true,
+            LastingEmanation = false,
+            FullCircleDistance = 6,
         },
         DebuffSettings = {
             Gambits = L{
