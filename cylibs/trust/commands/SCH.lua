@@ -59,7 +59,7 @@ function ScholarTrustCommands:get_spells(element)
     elseif element == "reverberation" then
         return "Stone", "Water"
     elseif element == "detonation" then
-        return "Stone", "Aero"
+        return "Thunder", "Aero"
     elseif element == "induration" then
         return "Water", "Blizzard"
     elseif element == "impaction" then
