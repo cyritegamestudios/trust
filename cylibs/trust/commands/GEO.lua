@@ -51,6 +51,8 @@ function GeomancerTrustCommands:handle_set_indi(_, ...)
     local current_settings = self:get_settings()
     current_settings.Geomancy.Indi = Spell.new(spell_name)
 
+    self.trust_settings:saveSettings(true)
+
     success = true
     message = localization_util.translate(spell_name).." will now be used"
 
@@ -89,6 +91,8 @@ function GeomancerTrustCommands:handle_set_geo(_, ...)
     local current_settings = self:get_settings()
     current_settings.Geomancy.Geo = Spell.new(spell_name, L{}, L{}, validTargetsForSpell(spell_name)[1])
 
+    self.trust_settings:saveSettings(true)
+
     success = true
     message = localization_util.translate(spell_name).." will now be used"
 
@@ -112,6 +116,8 @@ function GeomancerTrustCommands:handle_set_entrust(_, ...)
 
     local current_settings = self:get_settings()
     current_settings.Geomancy.Entrust = Spell.new(spell_name, L{"Entrust"}, L{}, nil, L{JobCondition.new(L{'WAR','WHM','RDM','PLD','BRD','SAM','DRG','BLU','PUP','SCH','RUN','MNK','BLM','THF','BST','RNG','NIN','SMN','COR','DNC','GEO','DRK'})})
+
+    self.trust_settings:saveSettings(true)
 
     success = true
     message = localization_util.translate(spell_name).." will now be used with entrust (all jobs)"
