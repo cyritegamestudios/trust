@@ -133,7 +133,7 @@ function Nuker:get_default_conditions(gambit, exclude_mode_conditions)
     end
 
     if L(gambit:getAbility():get_valid_targets()) ~= L{ 'Self' } then
-        conditions:append(MaxDistanceCondition.new(gambit:getAbility():get_range()))
+        conditions:append(GambitCondition.new(MaxDistanceCondition.new(gambit:getAbility():get_range()), GambitTarget.TargetType.Enemy))
     end
 
     local ability_conditions = (L{

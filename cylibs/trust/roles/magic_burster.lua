@@ -145,7 +145,7 @@ function MagicBurster:get_default_conditions(gambit, exclude_mode_conditions)
     conditions:append(SkillchainPropertyCondition.new(skillchain_util.get_skillchain_properties_for_element(gambit:getAbility():get_element())))
 
     if L(gambit:getAbility():get_valid_targets()) ~= L{ 'Self' } then
-        conditions:append(MaxDistanceCondition.new(gambit:getAbility():get_range()))
+        conditions:append(GambitCondition.new(MaxDistanceCondition.new(gambit:getAbility():get_range()), GambitTarget.TargetType.Enemy))
     end
 
     conditions:append(SkillchainWindowCondition.new(1.25, ">="))
