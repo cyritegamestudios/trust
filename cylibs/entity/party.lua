@@ -115,7 +115,7 @@ function Party:add_party_member(party_member_id, party_member_name)
     if self:has_party_member(party_member_id) then
         return self.party_members[party_member_id]
     end
-    print('adding', party_member_name)
+    
     if party_util.is_alter_ego(party_member_name) then
         self.party_members[party_member_id] = AlterEgo.new(party_member_id, party_member_name)
     elseif party_member_id == windower.ffxi.get_player().id then
