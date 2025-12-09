@@ -14,19 +14,14 @@ HasAlterEgoCondition.__type = "HasAlterEgoCondition"
 
 function HasAlterEgoCondition.new(name)
     local self = setmetatable(Condition.new(), HasAlterEgoCondition)
-    self.name = name or "Kupipi"
+    self.name = res.spells:with('en', name or "Kupipi").party_name
     return self
 end
 
 function HasAlterEgoCondition:is_satisfied(target_index)
     local party = player.party
     if party then
-        local sanitized_name = self.name
-        if trusts:with('enl', self.name) then
-            sanitized_name = trusts:with('enl', self.name).en
-        end
-        local party_member_names = party:get_party_members():map(function(p) return p:get_name() end)
-        return party_member_names:contains(sanitized_name) or party_member_names:contains(self.name)
+        return party:has_party_member_named(self.name)
     end
     return false
 end
