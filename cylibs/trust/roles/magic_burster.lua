@@ -142,13 +142,13 @@ function MagicBurster:get_default_conditions(gambit, exclude_mode_conditions)
         conditions:append(GambitCondition.new(ModeCondition.new('MagicBurstTargetMode', 'All'), GambitTarget.TargetType.Self))
     end
 
-    conditions:append(SkillchainPropertyCondition.new(skillchain_util.get_skillchain_properties_for_element(gambit:getAbility():get_element())))
+    conditions:append(GambitCondition.new(SkillchainPropertyCondition.new(skillchain_util.get_skillchain_properties_for_element(gambit:getAbility():get_element())), GambitTarget.TargetType.Enemy))
 
     if L(gambit:getAbility():get_valid_targets()) ~= L{ 'Self' } then
         conditions:append(GambitCondition.new(MaxDistanceCondition.new(gambit:getAbility():get_range()), GambitTarget.TargetType.Enemy))
     end
 
-    conditions:append(SkillchainWindowCondition.new(1.25, ">="))
+    conditions:append(GambitCondition.new(SkillchainWindowCondition.new(1.25, ">="), GambitTarget.TargetType.Enemy))
 
     local ability_conditions = (L{
         MinManaPointsPercentCondition.new(self.magic_burst_mpp),
