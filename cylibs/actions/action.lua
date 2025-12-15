@@ -50,6 +50,7 @@ function Action.new(x, y, z, target_index, conditions)
         cancelled = false;
         priority = ActionPriority.default;
         identifier = os.time();
+        validate = function() return true end
     }, Action)
 
     self.action_complete = Event.newEvent()

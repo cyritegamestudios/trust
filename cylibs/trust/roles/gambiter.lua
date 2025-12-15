@@ -103,7 +103,7 @@ function Gambiter:check_gambits(gambits, param, ignore_delay)
     for gambit in gambits:it() do
         local success, target = self:is_gambit_satisfied(gambit, param)
         if success then
-            self:perform_gambit(gambit, target)
+            self:perform_gambit(gambit, target, param)
             break
         end
     end
@@ -165,12 +165,16 @@ function Gambiter:get_gambit_targets(gambit_target_types)
     return targets_by_type
 end
 
-function Gambiter:perform_gambit(gambit, target)
+function Gambiter:perform_gambit(gambit, target, param)
     if target == nil or target:get_mob() == nil then
         return
     end
     logger.notice(self.__class, 'perform_gambit', gambit:tostring(), target:get_mob().name)
     local action = gambit:getAbility():to_action(target:get_mob().index, self:get_player())
+    action.validate = function()
+        local success, _ = self:is_gambit_satisfied(gambit, param)
+        return success
+    end
     if action then
         self.last_gambit_time = os.time()
 
