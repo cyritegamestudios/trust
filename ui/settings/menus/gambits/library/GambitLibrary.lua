@@ -60,6 +60,7 @@ return L{
         Gambit.new("Ally", L{GambitCondition.new(HasBuffsCondition.new(L{"disease"}, 1), "Ally")}, Spell.new("Viruna", L{}, L{}, nil, L{}), "Ally", L{}, true),
         Gambit.new("Self", L{GambitCondition.new(HasBuffsCondition.new(L{"blindness"}, 1), "Self")}, Spell.new("Blindna", L{}, L{}, nil, L{}), "Self", L{}, true),
         Gambit.new("Ally", L{GambitCondition.new(HasBuffsCondition.new(L{"blindness"}, 1), "Ally")}, Spell.new("Blindna", L{}, L{}, nil, L{}), "Ally", L{}, true),
+        Gambit.new("Ally", L{GambitCondition.new(HasBuffsCondition.new(L{"zombie"}, 1), "Ally")}, Spell.new("Sacrifice", L{}, L{}, nil, L{}), "Ally", L{}, true),
         Gambit.new("Self", L{
             GambitCondition.new(HasBuffsCondition.new(L{
                 "sleep", "curse", "Accuracy Down", "addle", "AGI Down", "Attack Down", "bind", "Bio", "Burn",

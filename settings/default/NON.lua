@@ -19,6 +19,9 @@ return {
             },
             Targets = L{
             },
+            Blacklist = L{
+
+            },
             Distance = 20
         },
         TargetSettings = {
