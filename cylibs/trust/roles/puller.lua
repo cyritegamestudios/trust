@@ -159,9 +159,6 @@ function Puller:get_next_target(target_id_blacklist)
     target_id_blacklist = target_id_blacklist or L{}
 
     local current_target = self:get_alliance():get_target_by_index(self:get_party():get_player():get_target_index())
-
-    print('is valid', current_target and self:is_valid_target(current_target:get_mob()))
-
     if current_target and not target_id_blacklist:contains(current_target:get_id()) and self:is_valid_target(current_target:get_mob())
             and Condition.check_conditions(L{ AggroedCondition.new() }, current_target:get_mob().index) then
         return Monster.new(current_target:get_id())
