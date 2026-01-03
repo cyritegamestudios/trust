@@ -9,6 +9,7 @@ local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local PullActionMenuItem = require('ui/settings/menus/pulling/PullActionMenuItem')
+local TextInputConfigItem = require('ui/settings/editors/config/TextInputConfigItem')
 
 local PullSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 PullSettingsMenuItem.__index = PullSettingsMenuItem
@@ -24,6 +25,7 @@ function PullSettingsMenuItem.new(abilities, trust, job_name_short, trust_settin
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Targets', 18),
         ButtonItem.default('Actions', 18),
+        ButtonItem.default('Blacklist', 18),
         ButtonItem.localized('Modes', i18n.translate("Modes")),
         ButtonItem.default('Config', 18),
     }, {
@@ -53,6 +55,7 @@ end
 function PullSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Targets", self:getTargetsMenuItem())
     self:setChildMenuItem("Actions", PullActionMenuItem.new(self.trust, self.trust_settings, self.trust_settings_mode))
+    self:setChildMenuItem("Blacklist", self:getBlacklistMenuItem())
     self:setChildMenuItem("Modes", self:getModesMenuItem())
     self:setChildMenuItem("Config", self:getConfigMenuItem())
 end
@@ -131,6 +134,77 @@ function PullSettingsMenuItem:getTargetsMenuItem()
 
         return self.pullTargetsEditor
     end, "Targets", "Choose which enemies to pull.")
+
+    chooseTargetsMenuItem:setChildMenuItem("Confirm", MenuItem.action(function(menu)
+        menu:showMenu(targetsMenuItem)
+    end, "Targets", "Confirm enemies to pull."))
+
+    return targetsMenuItem
+end
+
+function PullSettingsMenuItem:getBlacklistMenuItem()
+    local chooseTargetsMenuItem = MenuItem.new(L{
+        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
+    }, {},
+    function()
+        local pullSettings = self.trust_settings:getSettings()[self.trust_settings_mode.value].PullSettings
+
+        local blacklistSettings = {
+            Name = '',
+        }
+
+        local blacklistConfigEditor = ConfigEditor.new(self.trust_settings, blacklistSettings, L{
+            TextInputConfigItem.new('Name', '', 'Mob Name', function(_) return true end, 225)
+        })
+
+        self.dispose_bag:add(blacklistConfigEditor:onConfigChanged():addAction(function(newConfigSettings, _)
+            local mobName = newConfigSettings.Name
+            if mobName and #mobName > 0 then
+                pullSettings.Blacklist = pullSettings.Blacklist or L{}
+                pullSettings.Blacklist:append(mobName)
+
+                self.trust_settings:saveSettings()
+            end
+        end), blacklistConfigEditor:onConfigChanged())
+
+        return blacklistConfigEditor
+    end, "Blacklist", "Choose which enemies to avoid pulling.")
+
+    local targetsMenuItem = MenuItem.new(L{
+        ButtonItem.default('Add', 18),
+        ButtonItem.default('Remove', 18),
+    }, {
+        Add = chooseTargetsMenuItem,
+        Remove = MenuItem.action(function()
+            if self.pullBlacklistEditor then
+                local cursorIndexPath = self.pullBlacklistEditor:getDelegate():getCursorIndexPath()
+                if cursorIndexPath then
+                    local currentTargets = self.trust_settings:getSettings()[self.trust_settings_mode.value].PullSettings.Blacklist
+                    currentTargets:remove(cursorIndexPath.row)
+
+                    self.pullBlacklistEditor:getDataSource():removeItem(cursorIndexPath)
+
+                    self.trust_settings:saveSettings(true)
+
+                    addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've removed this enemy from my naughty list!")
+                end
+            end
+        end, "Blacklist", "Remove selected target from the blacklist.", false, function()
+            return self.trust_settings:getSettings()[self.trust_settings_mode.value].PullSettings.Targets:length() > 0
+        end),
+    },
+    function()
+        local currentTargets = self.trust_settings:getSettings()[self.trust_settings_mode.value].PullSettings.Blacklist
+
+        local configItem = MultiPickerConfigItem.new("Blacklist", L{}, currentTargets, function(targetName)
+            return targetName
+        end)
+
+        self.pullBlacklistEditor = FFXIPickerView.new(L{ configItem }, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditor)
+        self.pullBlacklistEditor:setAllowsCursorSelection(true)
+
+        return self.pullBlacklistEditor
+    end, "Blacklist", "Choose which enemies to avoid pulling.")
 
     chooseTargetsMenuItem:setChildMenuItem("Confirm", MenuItem.action(function(menu)
         menu:showMenu(targetsMenuItem)

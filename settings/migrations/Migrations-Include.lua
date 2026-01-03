@@ -1329,6 +1329,31 @@ function Migration_v38:getDescription()
     return "Update geomancy settings."
 end
 
+local Migration_v39 = setmetatable({}, { __index = Migration })
+Migration_v39.__index = Migration_v39
+Migration_v39.__class = "Migration_v39"
+
+function Migration_v39.new()
+    local self = setmetatable(Migration.new(), Migration_v39)
+    return self
+end
+
+function Migration_v39:shouldPerform(trustSettings, _, _)
+    return trustSettings:getSettings().Default.PullSettings.Blacklist == nil
+end
+
+function Migration_v39:perform(trustSettings, _, _)
+    local modeNames = list.subtract(L(T(trustSettings:getSettings()):keyset()), L{'Version','Migrations'})
+    for modeName in modeNames:it() do
+        local currentSettings = trustSettings:getSettings()[modeName].PullSettings
+        currentSettings.Blacklist = L{}
+    end
+end
+
+function Migration_v39:getDescription()
+    return "Add pull blacklist."
+end
+
 return {
     Migration_v1 = Migration_v1,
     Migration_v2 = Migration_v2,
@@ -1366,5 +1391,6 @@ return {
     Migration_v36 = Migration_v36,
     Migration_v37 = Migration_v37,
     Migration_v38 = Migration_v38,
+    Migration_v39 = Migration_v39,
 }
 

@@ -35,6 +35,9 @@ return {
                 "Locus Dire Bat",
                 "Locus Armet Beetle",
             },
+            Blacklist = L{
+
+            },
             Distance = 20,
             MaxNumTargets = 1,
         },

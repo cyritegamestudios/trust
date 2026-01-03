@@ -12,6 +12,7 @@ local ClaimedCondition = require('cylibs/conditions/claimed')
 local ConditionalCondition = require('cylibs/conditions/conditional')
 local MaxHeightDistanceCondition = require('cylibs/conditions/max_height_distance')
 local PartyClaimedCondition = require('cylibs/conditions/party_claimed')
+local TargetNamesCondition = require('cylibs/conditions/target_names')
 local UnclaimedCondition = require('cylibs/conditions/unclaimed')
 
 MobFilter.Type = {}
@@ -20,7 +21,7 @@ MobFilter.Type.Aggroed = L{ AggroedCondition.new() }
 MobFilter.Type.Unclaimed = L{ UnclaimedCondition.new() }
 MobFilter.Type.PartyClaimed = L{ PartyClaimedCondition.new(true) }
 
-function MobFilter.new(alliance, max_distance, default_sort)
+function MobFilter.new(alliance, max_distance, default_sort, blacklist)
     local self = setmetatable({}, MobFilter)
     self.alliance = alliance
     self.max_distance = max_distance or 25
@@ -28,6 +29,7 @@ function MobFilter.new(alliance, max_distance, default_sort)
     self.default_sort = default_sort or function(mob1, mob2)
         return mob1.distance < mob2.distance
     end
+    self.blacklist = blacklist or L{}
     return self
 end
 
@@ -80,7 +82,8 @@ function MobFilter:get_default_conditions()
         MinHitPointsPercentCondition.new(1),
         MaxDistanceCondition.new(self.max_distance, nil, self.center_position),
         MaxHeightDistanceCondition.new(8, Condition.Operator.LessThanOrEqualTo),
-        ConditionalCondition.new(L{ ClaimedCondition.new(self.alliance:get_alliance_member_ids()), UnclaimedCondition.new() }, Condition.LogicalOperator.Or)
+        ConditionalCondition.new(L{ ClaimedCondition.new(self.alliance:get_alliance_member_ids()), UnclaimedCondition.new() }, Condition.LogicalOperator.Or),
+        NotCondition.new(L{ TargetNamesCondition.new(self.blacklist) }),
     }
 end
 

@@ -5,10 +5,11 @@ local PullTrustCommands = setmetatable({}, {__index = TrustCommands })
 PullTrustCommands.__index = PullTrustCommands
 PullTrustCommands.__class = "PullTrustCommands"
 
-function PullTrustCommands.new(trust, action_queue, puller)
+function PullTrustCommands.new(trust, trust_settings, action_queue, puller)
     local self = setmetatable(TrustCommands.new(), PullTrustCommands)
 
     self.trust = trust
+    self.trust_settings = trust_settings
     self.action_queue = action_queue
     self.puller = puller
 
@@ -19,6 +20,7 @@ function PullTrustCommands.new(trust, action_queue, puller)
     self:add_command('all', function(_) return self:handle_set_mode('AutoPullMode', 'All')  end, 'Automatically pull nearby monsters')
     self:add_command('off', function(_) return self:handle_set_mode('AutoPullMode', 'Off')  end, 'Disable pulling')
     self:add_command('camp', self.handle_camp, 'Automatically return to camp after battle')
+    self:add_command('ignore', self.handle_ignore, 'Add a mob to the blacklist')
 
     self:add_command('action', function(_, _, mode_value)
         return self:handle_set_mode('PullActionMode', mode_value or 'Auto')
@@ -37,6 +39,10 @@ function PullTrustCommands:get_puller()
     return self.puller
 end
 
+function PullTrustCommands:get_settings()
+    return self.trust_settings:getSettings()[state.MainTrustSettingsMode.value]
+end
+
 -- // trust pull camp
 function PullTrustCommands:handle_camp(_)
     local success
@@ -49,6 +55,34 @@ function PullTrustCommands:handle_camp(_)
 
     success = true
     message = "Return to the current position after battle"
+
+    return success, message
+end
+
+-- // trust pull ignore
+function PullTrustCommands:handle_ignore(_, ...)
+    local success
+    local message
+
+    local mob_name = table.concat({...}, " ") or ""
+    if mob_name == "<t>" then
+        mob_name = windower.ffxi.get_mob_by_target('t') and windower.ffxi.get_mob_by_target('t').name
+    end
+
+    if not mob_name or mob_name:length() == 0 then
+        success = false
+        message = "Invalid mob name"
+    else
+        success = true
+        message = string.format("%s has been added to the blacklist", mob_name)
+
+        local blacklist = self:get_settings().PullSettings.Blacklist
+        if not blacklist:contains(mob_name) then
+            blacklist:append(mob_name)
+
+            self.trust_settings:saveSettings(true)
+        end
+    end
 
     return success, message
 end
