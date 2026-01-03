@@ -105,6 +105,7 @@ function Puller:check_target(target_id_blacklist)
     end
 
     local next_target = self:get_pull_target()
+
     if not self:is_valid_target(next_target and next_target:get_mob(), target_id_blacklist) then
         if next_target and next_target:get_mob() then
             local previous_target = next_target:get_mob()
@@ -158,6 +159,9 @@ function Puller:get_next_target(target_id_blacklist)
     target_id_blacklist = target_id_blacklist or L{}
 
     local current_target = self:get_alliance():get_target_by_index(self:get_party():get_player():get_target_index())
+
+    print('is valid', current_target and self:is_valid_target(current_target:get_mob()))
+
     if current_target and not target_id_blacklist:contains(current_target:get_id()) and self:is_valid_target(current_target:get_mob())
             and Condition.check_conditions(L{ AggroedCondition.new() }, current_target:get_mob().index) then
         return Monster.new(current_target:get_id())
@@ -193,8 +197,9 @@ function Puller:is_valid_target(target, target_id_blacklist)
         MinHitPointsPercentCondition.new(1),
         ConditionalCondition.new(L{
             PartyClaimedCondition.new(true),
-            ConditionalCondition.new(L{ UnclaimedCondition.new(), MaxDistanceCondition.new(max_pull_ability_range) }, Condition.LogicalOperator.And)
+            ConditionalCondition.new(L{ UnclaimedCondition.new(), MaxDistanceCondition.new(max_pull_ability_range) }, Condition.LogicalOperator.And),
         }, Condition.LogicalOperator.Or),
+        NotCondition.new(L{ TargetNamesCondition.new(self.blacklist) }),
     }
     return not L{ 2, 3 }:contains(target.status) and Condition.check_conditions(conditions, target.index)
 end
@@ -218,7 +223,8 @@ end
 function Puller:set_pull_settings(pull_settings)
     self.pull_settings = pull_settings
     self.distance = pull_settings.Distance
-    self.mob_filter = MobFilter.new(self:get_alliance(), self.distance or 25)
+    self.blacklist = pull_settings.Blacklist
+    self.mob_filter = MobFilter.new(self:get_alliance(), self.distance or 25, nil, self.blacklist)
     if pull_settings.RandomizeTarget then
         self.max_num_targets = 6
     else
