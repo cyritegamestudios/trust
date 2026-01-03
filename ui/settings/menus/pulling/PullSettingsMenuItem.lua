@@ -25,6 +25,7 @@ function PullSettingsMenuItem.new(abilities, trust, job_name_short, trust_settin
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Targets', 18),
         ButtonItem.default('Actions', 18),
+        ButtonItem.default('Blacklist', 18),
         ButtonItem.localized('Modes', i18n.translate("Modes")),
         ButtonItem.default('Config', 18),
     }, {
@@ -188,7 +189,7 @@ function PullSettingsMenuItem:getBlacklistMenuItem()
                     addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've removed this enemy from my naughty list!")
                 end
             end
-        end, "Targets", "Remove selected target from list of enemies to pull.", false, function()
+        end, "Blacklist", "Remove selected target from the blacklist.", false, function()
             return self.trust_settings:getSettings()[self.trust_settings_mode.value].PullSettings.Targets:length() > 0
         end),
     },
