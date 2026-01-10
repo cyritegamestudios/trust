@@ -1,3 +1,4 @@
+local BooleanConfigItem = require('ui/settings/editors/config/BooleanConfigItem')
 local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local DisposeBag = require('cylibs/events/dispose_bag')
@@ -6,6 +7,7 @@ local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local FileIO = require('files')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
+local ConfigItem = require('ui/settings/editors/config/ConfigItem')
 local TextInputConfigItem = require('ui/settings/editors/config/TextInputConfigItem')
 
 local PathSettingsMenuItem = setmetatable({}, {__index = MenuItem })
@@ -100,10 +102,10 @@ end
 
 function PathSettingsMenuItem:getEditPathMenuItem()
     return MenuItem.new(L{
-        ButtonItem.default("Rename", 18),
+        ButtonItem.default("Config", 18),
         ButtonItem.default("Delete", 18),
     }, L{
-        Rename = self:getRenamePathMenuItem(),
+        Config = self:getRenamePathMenuItem(),
         Delete = self:getDeletePathMenuItem()
     }, nil,"Record", "Record a new path.", true)
 end
@@ -113,16 +115,23 @@ function PathSettingsMenuItem:getRenamePathMenuItem()
         ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
     }, L{}, function(_)
         local configItems = L{
-            TextInputConfigItem.new('PathName', 'New Path Name', 'Path Name', function(_) return true  end)
+            TextInputConfigItem.new('PathName', self.selectedPath:gsub('.lua', ''), 'Path Name', function(_) return true  end),
+            ConfigItem.new('ReverseDelay', 0, 180, 1, function(v) return string.format("%d seconds", v) end, "Reverse Delay")
         }
-        local pathNameConfigEditor = ConfigEditor.new(nil, { PathName = '' }, configItems, nil, function(newSettings)
+
+        local path = self.pather:get_path_with_name(self.selectedPath)
+
+        local pathNameConfigEditor = ConfigEditor.new(nil, { PathName = path:get_path_name(), ReverseDelay = path:get_reverse_delay() }, configItems, nil, function(newSettings)
             return newSettings.PathName and newSettings.PathName:length() > 3
         end)
 
         self.dispose_bag:add(pathNameConfigEditor:onConfigChanged():addAction(function(newSettings, _)
-            self:renamePath(self.selectedPath, newSettings.PathName)
+            path.path_name = newSettings.PathName
+            path.reverse_delay = newSettings.ReverseDelay
 
-            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I renamed the path to "..newSettings.PathName.."!")
+            self.pather:get_path_recorder():save_path(path)
+
+            addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated the path "..newSettings.PathName.."!")
         end), pathNameConfigEditor:onConfigChanged())
 
         self.dispose_bag:add(pathNameConfigEditor:onConfigValidationError():addAction(function()
@@ -130,7 +139,7 @@ function PathSettingsMenuItem:getRenamePathMenuItem()
         end), pathNameConfigEditor:onConfigValidationError())
 
         return pathNameConfigEditor
-    end, "Paths", "Rename the path.")
+    end, "Paths", "Edit the path.")
     return renamePathMenuItem
 end
 

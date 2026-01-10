@@ -87,6 +87,8 @@ function PathTarget:get_position()
     local action
     if self.current_index > self.actions:length() then
         if self.path:should_reverse() then
+            self:on_path_finish():trigger(self, true)
+
             self.actions = self.path:get_actions():copy(true)
 
             self.is_reversed = not self.is_reversed

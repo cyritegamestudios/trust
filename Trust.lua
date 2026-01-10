@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '16.3.0'
+_addon.version = '16.4.0'
 _addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 _addon.start_time = os.time()
@@ -125,7 +125,7 @@ function load_user_files(main_job_id, sub_job_id)
 	player.trust.main_job:add_role(CombatMode.new(action_queue, player.trust.main_job_settings.Default.CombatSettings, addon_enabled))
 	local follower = Follower.new(action_queue, addon_settings:getSettings().follow.distance, addon_settings)
 	player.trust.main_job:add_role(follower)
-	player.trust.main_job:add_role(Pather.new(action_queue, 'data/paths/', follower))
+	player.trust.main_job:add_role(Pather.new(action_queue, 'data/paths/', follower, player.trust.main_job:role_with_type("puller")))
 	player.trust.main_job:add_role(skillchainer)
 	player.trust.main_job:add_role(Spammer.new(action_queue, weapon_skill_settings))
 	player.trust.main_job:add_role(Cleaver.new(action_queue, weapon_skill_settings))

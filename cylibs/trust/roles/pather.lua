@@ -13,11 +13,12 @@ local player_util = require('cylibs/util/player_util')
 -- @tparam ActionQueue action_queue Action queue
 -- @tparam string path_dir Directory where paths are loaded and saved
 -- @treturn Pather A pather role
-function Pather.new(action_queue, path_dir, follower)
+function Pather.new(action_queue, path_dir, follower, puller)
     local self = setmetatable(Role.new(action_queue), Pather)
 
     self.path_dir = path_dir
     self.follower = follower
+    self.puller = puller
     self.path_recorder = PathRecorder.new(self:get_path_dir())
 
     self.dispose_bag = DisposeBag.new()
@@ -86,8 +87,12 @@ function Pather:set_path(path)
 
     addon_system_message(string.format("Started path."))
 
-    self.path_target:on_path_finish():addAction(function(_)
-        self:stop(true)
+    self.path_target:on_path_finish():addAction(function(_, auto_reverse)
+        if not auto_reverse then
+            self:stop(true)
+        else
+            self.follower.walk_action_queue:push_action(WaitAction.new(0, 0, 0, self.path_target.path:get_reverse_delay()))
+        end
     end)
 
     self.path_target.timer:onTimeChange():addAction(function()
@@ -97,7 +102,9 @@ function Pather:set_path(path)
         if dist < 1 then
             self.path_target.current_index = self.path_target.current_index + 1
         end
-        self.path_target:set_position(position[1], position[2], position[3])
+        if not self.puller:get_pull_target() then
+            self.path_target:set_position(position[1], position[2], position[3])
+        end
     end)
     self.path_target.timer:start()
 end
@@ -107,6 +114,20 @@ function Pather:set_path_with_name(path_name, auto_reverse)
     if path then
         path:set_should_auto_reverse(auto_reverse)
         self:set_path(path)
+    end
+end
+
+function Pather:get_path_with_name(path_name)
+    local path = Path.from_file(self:get_path_dir()..path_name)
+    return path
+end
+
+function Pather:update_path_with_name(path_name, auto_reverse)
+    local path = Path.from_file(self:get_path_dir()..path_name)
+    if path then
+        path:set_should_auto_reverse(auto_reverse)
+
+        self:get_path_recorder():save_path(path)
     end
 end
 

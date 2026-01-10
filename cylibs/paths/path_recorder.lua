@@ -96,6 +96,13 @@ function PathRecorder:stop_recording(path_name, discard)
     return nil
 end
 
+function PathRecorder:save_path(path)
+    local file_path = self.output_folder..path:get_path_name()..'.lua'
+
+    local file = FileIO.new(file_path)
+    file:write('\nreturn ' .. serializer_util.serialize(path))
+end
+
 function PathRecorder:add_point(x, y, z)
     self.actions:append(WalkAction.new(x, y, z, 1))
 end
