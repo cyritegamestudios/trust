@@ -13,11 +13,12 @@ local player_util = require('cylibs/util/player_util')
 -- @tparam ActionQueue action_queue Action queue
 -- @tparam string path_dir Directory where paths are loaded and saved
 -- @treturn Pather A pather role
-function Pather.new(action_queue, path_dir, follower)
+function Pather.new(action_queue, path_dir, follower, puller)
     local self = setmetatable(Role.new(action_queue), Pather)
 
     self.path_dir = path_dir
     self.follower = follower
+    self.puller = puller
     self.path_recorder = PathRecorder.new(self:get_path_dir())
 
     self.dispose_bag = DisposeBag.new()
@@ -101,7 +102,9 @@ function Pather:set_path(path)
         if dist < 1 then
             self.path_target.current_index = self.path_target.current_index + 1
         end
-        self.path_target:set_position(position[1], position[2], position[3])
+        if not self.puller:get_pull_target() then
+            self.path_target:set_position(position[1], position[2], position[3])
+        end
     end)
     self.path_target.timer:start()
 end
