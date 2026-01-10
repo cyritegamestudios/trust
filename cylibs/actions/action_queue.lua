@@ -208,7 +208,6 @@ function ActionQueue:push_action(action, check_duplicates)
 		action:destroy()
 		return
 	end
-
 	self.queue:push(action)
 
 	if self.is_priority_queue and self.queue:length() > 1 then
