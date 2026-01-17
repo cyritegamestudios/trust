@@ -148,7 +148,7 @@ end
 
 function Player:update_target(target_index)
     if self.target_index ~= target_index then
-        if target_index and target_index ~= 0 and battle_util.is_valid_monster_target(ffxi_util.mob_id_for_index(target_index)) then
+        if target_index and target_index ~= 0 and battle_util.is_valid_monster_target(ffxi_util.mob_id_for_index(target_index)) and not windower.ffxi.get_mob_by_target('st') then
             local target = windower.ffxi.get_mob_by_index(target_index)
             if target and battle_util.is_valid_monster_target(target.id) then
                 self.target_index = target.index
