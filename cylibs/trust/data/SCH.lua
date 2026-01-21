@@ -16,6 +16,7 @@ local Puller = require('cylibs/trust/roles/puller')
 local StatusRemover = require('cylibs/trust/roles/status_remover')
 
 state.AutoArtsMode = M{['description'] = 'Auto Arts Mode', 'Off', 'LightArts', 'DarkArts'}
+state.AutoSublimationMode = M{['description'] = 'Use Sublimation', 'Auto', 'Off'}
 
 function ScholarTrust.new(settings, action_queue, battle_settings, trust_settings)
     local job = Scholar.new(trust_settings)

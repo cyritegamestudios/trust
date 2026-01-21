@@ -39,10 +39,19 @@ function SetMode:add_condition(condition)
 end
 
 -------
--- Returns the list of conditions for turning around.
+-- Returns the list of conditions.
 -- @treturn list List of conditions
 function SetMode:get_conditions()
-    return self.conditions
+    return self.conditions + L{}
+end
+
+-------
+-- Returns the list of default conditions.
+-- @treturn list List of default conditions
+function SetMode:get_default_conditions()
+    local mode_condition = NotCondition.new(L{ ModeCondition.new(self.mode_name, self.mode_value) })
+    mode_condition.editable = false
+    return L{ mode_condition }
 end
 
 -------

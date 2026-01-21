@@ -110,7 +110,7 @@ return {
         },
         GambitSettings = {
             Default = L{
-                Gambit.new("Self", L{GambitCondition.new(NotCondition.new(L{HasBuffsCondition.new(L{"Sublimation: Activated", "Sublimation: Complete", "Refresh"}, 1)}), "Self")}, JobAbility.new("Sublimation", L{}, L{}), "Self"),
+                Gambit.new("Self", L{GambitCondition.new(NotCondition.new(L{HasBuffsCondition.new(L{"Sublimation: Activated", "Sublimation: Complete", "Refresh"}, 1)}), "Self"), GambitCondition.new(ModeCondition.new("AutoSublimationMode", "Auto"), "Self")}, JobAbility.new("Sublimation", L{}, L{}), "Self"),
                 Gambit.new("Self", L{GambitCondition.new(HasBuffsCondition.new(L{"Sublimation: Complete"}, 1), "Self"), GambitCondition.new(MaxManaPointsPercentCondition.new(30), "Self")}, JobAbility.new("Sublimation", L{}, L{}), "Self"),
                 Gambit.new("Self", L{GambitCondition.new(ModeCondition.new("AutoArtsMode", "DarkArts"), "Self"), GambitCondition.new(NotCondition.new(L{HasBuffsCondition.new(L{"Dark Arts", "Addendum: Black"}, 1)}), "Self")}, JobAbility.new("Dark Arts", L{}, L{}), "Self", L{}),
                 Gambit.new("Self", L{GambitCondition.new(ModeCondition.new("AutoArtsMode", "LightArts"), "Self"), GambitCondition.new(NotCondition.new(L{HasBuffsCondition.new(L{"Light Arts", "Addendum: White"}, 1)}), "Self")}, JobAbility.new("Light Arts", L{}, L{}), "Self", L{}),
