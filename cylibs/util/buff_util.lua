@@ -103,6 +103,7 @@ local debuffs = T{
 	[719] = S{312}, -- bewildered daze
 	[404] = S{843,844,883}, --Magic Evasion Down
 	[597] = S{879}, --inundation
+	[23] = S{}, -- Kaustra
 }
 
 local aura_debuff_names = L{'Defense Down','Magic Atk. Down','Magic Def. Down','Accuracy Down','Evasion Down','Magic Acc. Down','Magic Evasion Down','disease'}

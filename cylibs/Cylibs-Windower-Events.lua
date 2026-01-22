@@ -136,36 +136,40 @@ local incoming_event_dispatcher = {
         for _, target in pairs(act.targets) do
             local action = target.actions[1]
             if action then
-                if action_message_util.is_gain_debuff_message(action.message) and act.param and not L{260, 360}:contains(act.param) then
-                    local debuff = buff_util.debuff_for_spell(act.param)
-                    if debuff then
-                        WindowerEvents.GainDebuff:trigger(target.id, debuff.id)
-                    end
-                end
                 -- Dia
                 if act.param and S{23, 24, 25}:contains(act.param) and S{252}:contains(action.message) then
                     local debuff = buff_util.debuff_for_spell(act.param)
                     if debuff then
                         WindowerEvents.GainDebuff:trigger(target.id, debuff.id)
                     end
-                end
                 -- Bio
-                if act.param and S{230, 231, 232, 233, 234}:contains(act.param) and S{252}:contains(action.message) then
+                elseif act.param and S{230, 231, 232, 233, 234}:contains(act.param) and S{252}:contains(action.message) then
                     local debuff = buff_util.debuff_for_spell(act.param)
                     if debuff then
                         WindowerEvents.GainDebuff:trigger(target.id, debuff.id)
                     end
-                end
+                -- Kaustra
+                elseif act.param and act.param == 502 and S{2, 252}:contains(action.message) then
+                    WindowerEvents.GainDebuff:trigger(target.id, 23)
                 -- Helix
-                if act.param and S{278, 279, 280, 281, 282, 283, 284, 285, 885, 886, 887, 888, 889, 890, 891, 892}:contains(act.param) and S{2, 252}:contains(action.message) then
+                elseif act.param and S{278, 279, 280, 281, 282, 283, 284, 285}:contains(act.param) and S{2, 252}:contains(action.message) then
+                    if windower.ffxi.get_player().main_job ~= "SCH" or -- If main job not SCH
+                        windower.ffxi.get_player().job_points.sch.jp_spent < 100 -- Helix IIs are unlocked at 100 JP
+                    then
+                        WindowerEvents.GainDebuff:trigger(target.id, 186)
+                    end
+                elseif act.param and S{885, 886, 887, 888, 889, 890, 891, 892}:contains(act.param) and S{2, 252}:contains(action.message) then
                     WindowerEvents.GainDebuff:trigger(target.id, 186)
-                end
                 -- Blue Magic
-                if act.param == 727 then
+                elseif act.param == 727 then
                     WindowerEvents.GainDebuff:trigger(target.id, res.spells[727].status)
-                end
-                if act.param == 728 then
+                elseif act.param == 728 then
                     WindowerEvents.GainDebuff:trigger(target.id, res.spells[728].status)
+                elseif action_message_util.is_gain_debuff_message(action.message) and act.param and not L{260, 360}:contains(act.param) then
+                    local debuff = buff_util.debuff_for_spell(act.param)
+                    if debuff then
+                        WindowerEvents.GainDebuff:trigger(target.id, debuff.id)
+                    end
                 end
             end
         end
