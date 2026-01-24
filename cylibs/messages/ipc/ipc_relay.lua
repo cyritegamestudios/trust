@@ -8,6 +8,7 @@ local LampUpdateMessage = require('cylibs/messages/lamp_update_message')
 local logger = require('cylibs/logger/logger')
 local LoseBuffMessage = require('cylibs/messages/lose_buff_message')
 local MobUpdateMessage = require('cylibs/messages/mob_update_message')
+local TargetChangeMessage = require('cylibs/messages/target_change_message')
 local ZoneMessage = require('cylibs/messages/zone_message')
 
 local IpcRelay = {}
@@ -57,6 +58,8 @@ function IpcRelay.new()
                     self:on_message_received():trigger(EquipmentChangedMessage.deserialize(message))
                 elseif message_type == 'lamp_update' then
                     self:on_message_received():trigger(LampUpdateMessage.deserialize(message))
+                elseif message_type == 'target_change' then
+                    self:on_message_received():trigger(TargetChangeMessage.deserialize(message))
                 end
             end
         end

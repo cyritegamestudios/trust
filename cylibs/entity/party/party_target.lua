@@ -1,5 +1,7 @@
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Event = require('cylibs/events/Luvent')
+local IpcRelay = require('cylibs/messages/ipc/ipc_relay')
+local TargetChangeMessage = require('cylibs/messages/target_change_message')
 
 local PartyTarget = {}
 PartyTarget.__index = PartyTarget
@@ -73,6 +75,7 @@ function PartyTarget:log_target_changed(old_target_index, new_target_index)
 end
 
 function PartyTarget:set_target_index(target_index)
+    if windower.ffxi.get_mob_by_target('st') then return end
     if self.target_index == target_index then
         return
     end
