@@ -69,7 +69,7 @@ function ScholarTrustCommands:get_spells(element)
     elseif element == "compression" then
         return "Blizzard", "Noctohelix"
     elseif element == "fragmentation" then
-        return "Blizzard", "Water"
+        return "Blizzard", "Hydrohelix"
     elseif element == "fusion" then
         return "Fire", "Ionohelix"
     elseif element == "gravitation" then
