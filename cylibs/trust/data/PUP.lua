@@ -154,6 +154,9 @@ function PuppetmasterTrust:check_automaton()
 end
 
 function PuppetmasterTrust:check_restore_mp()
+	if state.AutoRestoreManaMode.value == 'Off' then
+		return
+	end
 	local vitals = self.automaton:get_vitals()
 	if vitals.mpp < 40 and self.automaton:has_attachment('mana converter') and (os.time() - self.economizer_last_used) > 90 then
 		self.economizer_last_used = os.time()
