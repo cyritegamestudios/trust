@@ -19,9 +19,9 @@ function PartyLeaderCondition:is_satisfied(target_index)
     if target then
         local party = player.party
         if party then
-            local party_leader = party:get_party_leader()
-            if party_leader then
-                return party_leader:get_mob() and party_leader:get_id() == target.id
+            local party_leader_id = party:get_party_leader_id()
+            if party_leader_id then
+                return party_leader_id == target.id
             end
         end
     end

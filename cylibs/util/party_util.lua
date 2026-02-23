@@ -41,6 +41,18 @@ function party_util.get_party_leader()
 end
 
 -------
+-- Returns the party leader id for the first party.
+-- @treturn number The party leader id.
+function party_util.get_party_leader_id()
+    local party_info = windower.ffxi.get_party()
+    if party_info ~= nil then
+        local party1_leader_id = party_info['party1_leader']
+        return party1_leader_id
+    end
+    return nil
+end
+
+-------
 -- Determines if a mob is the leader of the player's party.
 -- @param target_id Mob id
 -- @treturn Boolean True if the mob is the party leader and false otherwise.

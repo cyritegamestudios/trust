@@ -88,4 +88,13 @@ function Truster:allows_multiple_actions()
     return false
 end
 
+function Truster:get_max_num_alter_egos()
+    if Condition.check_conditions(L{ HasKeyItemsCondition.new(L{ "\"Rhapsody in Crimson\"" }, 1, Condition.Operator.Equals) }) then
+        return 5
+    elseif Condition.check_conditions(L{ HasKeyItemsCondition.new(L{ "\"Rhapsody in White\"" }, 1, Condition.Operator.Equals) }) then
+        return 4
+    end
+    return 3
+end
+
 return Truster
