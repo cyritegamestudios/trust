@@ -7,6 +7,7 @@ _libs = _libs or {}
 
 require('lists')
 
+local HasKeyItemsCondition = require('cylibs/conditions/has_key_items')
 local table = require('table')
 local packets = require('packets')
 local player_util = require('cylibs/util/player_util')
@@ -47,7 +48,7 @@ function party_util.get_party_leader_id()
     local party_info = windower.ffxi.get_party()
     if party_info ~= nil then
         local party1_leader_id = party_info['party1_leader']
-        return party1_leader_id
+        return party1_leader_id or windower.ffxi.get_player() and windower.ffxi.get_player().id
     end
     return nil
 end
@@ -307,6 +308,15 @@ function party_util.is_alter_ego(target_name)
     local trusts = require('cylibs/res/trusts')
     local trust_names = L(res.spells:with_all('type', 'Trust'):map(function(trust) return trust.name end))
     return trust_names:contains(target_name) or trust_names:contains(target_name..' (UC)') or trusts:with('enl', target_name) or res.spells:with('party_name', target_name)
+end
+
+function party_util.get_max_num_alter_egos()
+    if Condition.check_conditions(L{ HasKeyItemsCondition.new(L{ "\"Rhapsody in Crimson\"" }, 1, Condition.Operator.Equals) }) then
+        return 5
+    elseif Condition.check_conditions(L{ HasKeyItemsCondition.new(L{ "\"Rhapsody in White\"" }, 1, Condition.Operator.Equals) }) then
+        return 4
+    end
+    return 3
 end
 
 return party_util

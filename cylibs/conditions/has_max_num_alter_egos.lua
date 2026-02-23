@@ -17,8 +17,9 @@ function HasMaxNumAlterEgosCondition.new()
 end
 
 function HasMaxNumAlterEgosCondition:is_satisfied(_)
+    local num_party_members = player.party:get_party_members(true):length()
     local num_alter_egos = player.party:get_party_members():filter(function(p) return p:is_trust() end):length()
-    return num_alter_egos >= self:get_max_num_alter_egos()
+    return num_alter_egos >= self:get_max_num_alter_egos() or num_party_members >= 6
 end
 
 function HasMaxNumAlterEgosCondition:get_max_num_alter_egos()
