@@ -5,10 +5,10 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local Engage = require('cylibs/battle/engage')
 local Gambit = require('cylibs/gambits/gambit')
 local GambitTarget = require('cylibs/gambits/gambit_target')
+local HasMaxNumAlterEgosCondition = require('cylibs/conditions/has_max_num_alter_egos')
 local MobFilter = require('cylibs/battle/monsters/mob_filter')
 local PartyClaimedCondition = require('cylibs/conditions/party_claimed')
 local PartyLeaderCondition = require('cylibs/conditions/party_leader')
-local PartyMemberCountCondition = require('cylibs/conditions/party_member_count')
 local PartyTargetedCondition = require('cylibs/conditions/party_targeted')
 local RunToLocationAction = require('cylibs/actions/runtolocation')
 local TargetNamesCondition = require('cylibs/conditions/target_names')
@@ -278,14 +278,14 @@ function Puller:get_default_conditions(gambit)
         conditions:append(GambitCondition.new(TargetNamesCondition.new(self:get_target_names()), GambitTarget.TargetType.Enemy))
     end
     local alter_ego_conditions = L{
-        -- FIXME: lower party member count condition from 6
         GambitCondition.new(ConditionalCondition.new(
             L{
                 NotCondition.new(L{ PartyLeaderCondition.new() }),
                 ModeCondition.new('AutoTrustsMode', 'Off'),
-                ConditionalCondition.new(L{ ModeCondition.new('AutoTrustsMode', 'Auto'), ModeCondition.new('AutoPullMode', 'Auto'), PartyMemberCountCondition.new(6, Condition.Operator.GreaterThanOrEqualTo) }, Condition.LogicalOperator.And)
+                ConditionalCondition.new(L{ ModeCondition.new('AutoTrustsMode', 'Auto'), ModeCondition.new('AutoPullMode', 'Auto'), HasMaxNumAlterEgosCondition.new() }, Condition.LogicalOperator.And)
             },
-            Condition.LogicalOperator.Or), GambitTarget.TargetType.Self)
+            Condition.LogicalOperator.Or), GambitTarget.TargetType.Self
+        )
     }
     return (alter_ego_conditions + conditions + self.job:get_conditions_for_ability(gambit:getAbility())):map(function(condition)
         if condition.__type ~= GambitCondition.__type then

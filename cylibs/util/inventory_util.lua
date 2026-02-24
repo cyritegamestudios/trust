@@ -72,6 +72,14 @@ function inventory_util.get_item_count(item_id, include_wardrobes)
     return item_count
 end
 
+function inventory_util.has_key_item(name)
+    local key_items = S(windower.trust.get_inventory():getKeyItems())
+    local key_item_count = self.key_item_names:filter(function(key_item_name)
+        local key_item = res.key_items:with('en', key_item_name)
+        return key_item and key_items:contains(key_item.id)
+    end):length()
+end
+
 -------
 -- Returns the item id of the main weapon equipped.
 -- @treturn number Item id of the main weapon equipped (see res/items.lua)

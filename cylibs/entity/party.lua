@@ -246,6 +246,13 @@ function Party:get_party_leader()
 end
 
 -------
+-- Returns the party leader id.
+-- @treturn number Party leader id
+function Party:get_party_leader_id()
+    return party_util.get_party_leader_id()
+end
+
+-------
 -- Returns the party member for the player.
 -- @treturn PartyMember Party member for the player, or nil if none exists
 function Party:get_player()
