@@ -13,6 +13,8 @@ Sequence.__type = "Sequence"
 
 -------
 -- Default initializer for a new sequence.
+-- @tparam abilities List of abilities
+-- @tparam conditions List of conditions
 -- @treturn Sequence A sequence of abilities.
 function Sequence.new(abilities, conditions)
     local self = setmetatable({}, Sequence)

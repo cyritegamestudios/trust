@@ -10,6 +10,7 @@ local NumSongsCondition = require('cylibs/conditions/num_songs')
 local Script = require('cylibs/battle/script')
 local Sequence = require('cylibs/battle/sequence')
 local SongDurationCondition = require('cylibs/conditions/song_duration')
+local Wait = require('cylibs/battle/wait')
 
 local Gambiter = require('cylibs/trust/roles/gambiter')
 local Singer = setmetatable({}, {__index = Gambiter })
@@ -167,7 +168,9 @@ function Singer:set_song_settings(song_settings)
                 self.song_tracker:set_all_expiring_soon()
             end),
             JobAbility.new("Clarion Call"),
+            Wait.new(1),
             JobAbility.new("Nightingale"),
+            Wait.new(1),
             JobAbility.new("Troubadour")
         }), GambitTarget.TargetType.Self),
         Gambit.new(GambitTarget.TargetType.Self, L{
@@ -181,6 +184,7 @@ function Singer:set_song_settings(song_settings)
                 self.song_tracker:set_all_expiring_soon()
             end),
             JobAbility.new("Nightingale"),
+            Wait.new(1),
             JobAbility.new("Troubadour")
         }), GambitTarget.TargetType.Self),
         Gambit.new(GambitTarget.TargetType.Self, L{

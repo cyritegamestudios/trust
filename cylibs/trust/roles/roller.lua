@@ -9,6 +9,7 @@ local Sequence = require('cylibs/battle/sequence')
 local serializer_util = require('cylibs/util/serializer_util')
 local Condition = require('cylibs/conditions/condition')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
+local Wait = require('cylibs/battle/wait')
 
 local IsRollingCondition = setmetatable({}, { __index = Condition })
 IsRollingCondition.__index = IsRollingCondition
@@ -189,7 +190,11 @@ function Roller:set_roll_settings(roll_settings)
                     GambitCondition.new(HasBuffCondition.new('Double-Up Chance'), GambitTarget.TargetType.Self),
                     GambitCondition.new(NotCondition.new(L { HasBuffCondition.new('Snake Eye') }), GambitTarget.TargetType.Self),
                     GambitCondition.new(HasRollCondition.new(roll:get_roll_name(), rollNum, Condition.Operator.Equals), GambitTarget.TargetType.Self),
-                }, Sequence.new(L{ JobAbility.new('Snake Eye'), JobAbility.new('Double-Up') }), Condition.TargetType.Self)
+                }, Sequence.new(L{
+                    JobAbility.new('Snake Eye'),
+                    Wait.new(1),
+                    JobAbility.new('Double-Up')
+                }), Condition.TargetType.Self)
             )
         end
 
@@ -200,6 +205,7 @@ function Roller:set_roll_settings(roll_settings)
                     GambitCondition.new(HasBuffsCondition.count(L{ 'Crooked Cards', roll:get_roll_name() }, 0, Condition.Operator.Equals), GambitTarget.TargetType.Self),
                 }, Sequence.new(L{
                     JobAbility.new('Crooked Cards'),
+                    Wait.new(1),
                     PhantomRoll.new(roll:get_roll_name()),
                 }), Condition.TargetType.Self)
             )
@@ -212,7 +218,11 @@ function Roller:set_roll_settings(roll_settings)
             Gambit.new(GambitTarget.TargetType.Self, L{
                 GambitCondition.new(HasBuffsCondition.new(L{ roll:get_roll_name(), 'Double-Up Chance' }, 2), GambitTarget.TargetType.Self),
                 GambitCondition.new(HasRollCondition.new(roll:get_roll_name(), self.job:get_unlucky_roll(roll:get_roll_name()), Condition.Operator.Equals), GambitTarget.TargetType.Self),
-            }, Sequence.new(L{ JobAbility.new('Snake Eye'), JobAbility.new('Double-Up') }) , GambitTarget.TargetType.Self),
+            }, Sequence.new(L{
+                JobAbility.new('Snake Eye'),
+                Wait.new(1),
+                JobAbility.new('Double-Up')
+            }) , GambitTarget.TargetType.Self),
         }
         if self.job:isMainJob() and self.prioritize_elevens then
             rollGambits:append(Gambit.new(GambitTarget.TargetType.Self, L{
