@@ -23,7 +23,7 @@ return {
         },
         StatusRemovalSettings = {
             Gambits = L{
-                Gambit.new("Ally", L{GambitCondition.new(HasBuffsCondition.new(L{"sleep"}, 1), "Ally")}, JobAbility.new("Healing Waltz"), "Ally", L{}, true),
+                Gambit.new("Ally", L{GambitCondition.new(HasBuffsCondition.new(L{"sleep"}, 1), "Ally")}, JobAbility.new("Curing Waltz"), "Ally", L{}, true),
                 Gambit.new("Self", L{GambitCondition.new(HasBuffsCondition.new(L{"curse"}, 1), "Self")}, JobAbility.new("Healing Waltz"), "Self", L{}, true),
                 Gambit.new("Ally", L{GambitCondition.new(HasBuffsCondition.new(L{"curse"}, 1), "Ally")}, JobAbility.new("Healing Waltz"), "Ally", L{}, true),
                 Gambit.new("Self", L{GambitCondition.new(HasBuffsCondition.new(L{"Accuracy Down", "addle", "AGI Down", "Attack Down", "bind", "Bio", "Burn", "Choke", "CHR Down", "Defense Down", "DEX Down", "Dia", "Drown", "Elegy", "Evasion Down", "Frost", "Inhibit TP", "INT Down", "Magic Acc. Down", "Magic Atk. Down", "Magic Def. Down", "Magic Evasion Down", "Max HP Down", "Max MP Down", "Max TP Down", "MND Down", "Nocturne", "Rasp", "Requiem", "Shock", "slow", "STR Down", "VIT Down", "weight", "Flash"}, 1), "Self")}, JobAbility.new("Healing Waltz"), "Self", L{}, true),
