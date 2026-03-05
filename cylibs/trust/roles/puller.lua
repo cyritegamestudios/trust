@@ -53,8 +53,6 @@ end
 function Puller:on_add()
     Gambiter.on_add(self)
 
-    CooldownCondition.set_timestamp('puller_mob_ko', os.time())
-
     local current_target = self:get_alliance():get_target_by_index(self:get_party():get_player():get_target_index())
     if state.AutoPullMode.value ~= 'Off' and current_target and self:is_valid_target(current_target:get_mob()) then
         self:set_pull_target(Monster.new(current_target.id))
@@ -79,7 +77,7 @@ function Puller:on_add()
     self.dispose_bag:add(WindowerEvents.MobKO:addAction(function(mob_id, mob_name, status)
         if self:get_target() and self:get_target():get_id() == mob_id then
             logger.notice(self.__class, 'mob_ko', mob_name, self:get_target():get_mob().hpp, status)
-            CooldownCondition.set_timestamp('puller_mob_ko', os.time())
+            CooldownCondition.set_timestamp('last_mob_ko', os.time())
             self:set_pull_target(nil) -- this is necessary otherwise get_target() returns valid until next loop
             self:check_target(L{ mob_id })
         end
@@ -159,8 +157,17 @@ function Puller:get_all_targets()
     return all_targets
 end
 
+function Puller:check_delay()
+    local last_mob_ko = CooldownCondition.get_timestamp('last_mob_ko')
+    return last_mob_ko == nil or os.time() >= last_mob_ko + self.delay
+end
+
 function Puller:get_next_target(target_id_blacklist)
     target_id_blacklist = target_id_blacklist or L{}
+
+    if not self:check_delay() then
+        return
+    end
 
     local current_target = self:get_alliance():get_target_by_index(self:get_party():get_player():get_target_index())
     if current_target and not target_id_blacklist:contains(current_target:get_id()) and self:is_valid_target(current_target:get_mob())
@@ -234,6 +241,8 @@ function Puller:set_pull_settings(pull_settings)
     end
     self:set_target_names(pull_settings.Targets or L{})
 
+    CooldownCondition.set_timestamp('last_mob_ko', os.time() - self.delay)
+
     for gambit in pull_settings.Gambits:it() do
         gambit.conditions = gambit.conditions:filter(function(condition)
             return condition:is_editable()
@@ -272,7 +281,6 @@ end
 
 function Puller:get_default_conditions(gambit)
     local conditions = L{
-        GambitCondition.new(CooldownCondition.new('puller_mob_ko', self.delay or 0), GambitTarget.TargetType.Self),
         GambitCondition.new(UnclaimedCondition.new(), GambitTarget.TargetType.Enemy),
         GambitCondition.new(MaxDistanceCondition.new(gambit:getAbility():get_range()), GambitTarget.TargetType.Enemy),
         GambitCondition.new(MinHitPointsPercentCondition.new(1), GambitTarget.TargetType.Enemy),
