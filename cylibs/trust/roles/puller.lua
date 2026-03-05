@@ -1,6 +1,7 @@
 local AggroedCondition = require('cylibs/conditions/aggroed')
 local Approach = require('cylibs/battle/approach')
 local ConditionalCondition = require('cylibs/conditions/conditional')
+local CooldownCondition = require('cylibs/conditions/cooldown')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Engage = require('cylibs/battle/engage')
 local Gambit = require('cylibs/gambits/gambit')
@@ -76,6 +77,7 @@ function Puller:on_add()
     self.dispose_bag:add(WindowerEvents.MobKO:addAction(function(mob_id, mob_name, status)
         if self:get_target() and self:get_target():get_id() == mob_id then
             logger.notice(self.__class, 'mob_ko', mob_name, self:get_target():get_mob().hpp, status)
+            CooldownCondition.set_timestamp('last_mob_ko', os.time())
             self:set_pull_target(nil) -- this is necessary otherwise get_target() returns valid until next loop
             self:check_target(L{ mob_id })
         end
@@ -155,8 +157,17 @@ function Puller:get_all_targets()
     return all_targets
 end
 
+function Puller:check_delay()
+    local last_mob_ko = CooldownCondition.get_timestamp('last_mob_ko')
+    return last_mob_ko == nil or os.time() >= last_mob_ko + self.delay
+end
+
 function Puller:get_next_target(target_id_blacklist)
     target_id_blacklist = target_id_blacklist or L{}
+
+    if not self:check_delay() then
+        return
+    end
 
     local current_target = self:get_alliance():get_target_by_index(self:get_party():get_player():get_target_index())
     if current_target and not target_id_blacklist:contains(current_target:get_id()) and self:is_valid_target(current_target:get_mob())
@@ -221,6 +232,7 @@ function Puller:set_pull_settings(pull_settings)
     self.pull_settings = pull_settings
     self.distance = pull_settings.Distance
     self.blacklist = pull_settings.Blacklist
+    self.delay = pull_settings.Delay or 0
     self.mob_filter = MobFilter.new(self:get_alliance(), self.distance or 25, nil, self.blacklist)
     if pull_settings.RandomizeTarget then
         self.max_num_targets = 6
@@ -228,6 +240,8 @@ function Puller:set_pull_settings(pull_settings)
         self.max_num_targets = 1
     end
     self:set_target_names(pull_settings.Targets or L{})
+
+    CooldownCondition.set_timestamp('last_mob_ko', os.time() - self.delay)
 
     for gambit in pull_settings.Gambits:it() do
         gambit.conditions = gambit.conditions:filter(function(condition)
