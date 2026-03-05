@@ -76,7 +76,7 @@ end
 function PathTarget:set_position(x, y, z)
     local last_position = self:get_position()
     if last_position[1] == x and last_position[2] == y and last_position[3] == z then
-        return
+        --return
     end
     Entity.set_position(self, x, y, z)
 
