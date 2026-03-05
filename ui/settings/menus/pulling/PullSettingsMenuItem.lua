@@ -226,17 +226,20 @@ function PullSettingsMenuItem:getConfigMenuItem()
 
         local pullSettings = T{
             Distance = allSettings.PullSettings.Distance,
+            Delay = allSettings.PullSettings.Delay or 0,
             RandomizeTarget = allSettings.PullSettings.RandomizeTarget or false
         }
 
         local configItems = L{
             ConfigItem.new('Distance', 0, 50, 1, function(value) return value.." yalms" end, "Detection Distance"),
+            ConfigItem.new('Delay', 0, 50, 1, function(value) return value.."s" end, "Delay Between Pulls"),
             BooleanConfigItem.new('RandomizeTarget', "Randomize Target"),
         }
         local pullConfigEditor = ConfigEditor.new(self.trust_settings, pullSettings, configItems, infoView)
 
         self.dispose_bag:add(pullConfigEditor:onConfigChanged():addAction(function(newSettings, _)
             allSettings.PullSettings.Distance = newSettings.Distance
+            allSettings.PullSettings.Delay = newSettings.Delay
             allSettings.PullSettings.RandomizeTarget = newSettings.RandomizeTarget
             self.trust_settings:saveSettings(true)
         end), pullConfigEditor:onConfigChanged())

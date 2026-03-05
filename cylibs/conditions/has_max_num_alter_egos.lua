@@ -33,6 +33,7 @@ end
 
 function HasMaxNumAlterEgosCondition:get_config_items()
     return L{}
+    
 end
 
 function HasMaxNumAlterEgosCondition.valid_targets()

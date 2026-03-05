@@ -15,6 +15,11 @@ function ScenarioTrustCommands.new(trust, action_queue, party, addon_settings)
     self:add_command('cp', self.handle_exp_party, 'Set up the party for capacity points farming and makes this player the puller')
     self:add_command('ep', self.handle_exp_party, 'Set up the party for exemplar points and makes this player the puller')
 
+    local TrustScenarios = require('premium/modules/scenarios/TrustScenarios')
+    if TrustScenarios then
+        self.scenarios = TrustScenarios.new(action_queue, addon_settings, party, trust, self)
+    end
+
     return self
 end
 

@@ -1,6 +1,7 @@
 local AggroedCondition = require('cylibs/conditions/aggroed')
 local Approach = require('cylibs/battle/approach')
 local ConditionalCondition = require('cylibs/conditions/conditional')
+local CooldownCondition = require('cylibs/conditions/cooldown')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Engage = require('cylibs/battle/engage')
 local Gambit = require('cylibs/gambits/gambit')
@@ -52,6 +53,8 @@ end
 function Puller:on_add()
     Gambiter.on_add(self)
 
+    CooldownCondition.set_timestamp('puller_mob_ko', os.time())
+
     local current_target = self:get_alliance():get_target_by_index(self:get_party():get_player():get_target_index())
     if state.AutoPullMode.value ~= 'Off' and current_target and self:is_valid_target(current_target:get_mob()) then
         self:set_pull_target(Monster.new(current_target.id))
@@ -76,6 +79,7 @@ function Puller:on_add()
     self.dispose_bag:add(WindowerEvents.MobKO:addAction(function(mob_id, mob_name, status)
         if self:get_target() and self:get_target():get_id() == mob_id then
             logger.notice(self.__class, 'mob_ko', mob_name, self:get_target():get_mob().hpp, status)
+            CooldownCondition.set_timestamp('puller_mob_ko', os.time())
             self:set_pull_target(nil) -- this is necessary otherwise get_target() returns valid until next loop
             self:check_target(L{ mob_id })
         end
@@ -221,6 +225,7 @@ function Puller:set_pull_settings(pull_settings)
     self.pull_settings = pull_settings
     self.distance = pull_settings.Distance
     self.blacklist = pull_settings.Blacklist
+    self.delay = pull_settings.Delay or 0
     self.mob_filter = MobFilter.new(self:get_alliance(), self.distance or 25, nil, self.blacklist)
     if pull_settings.RandomizeTarget then
         self.max_num_targets = 6
@@ -267,6 +272,7 @@ end
 
 function Puller:get_default_conditions(gambit)
     local conditions = L{
+        GambitCondition.new(CooldownCondition.new('puller_mob_ko', self.delay or 0), GambitTarget.TargetType.Self),
         GambitCondition.new(UnclaimedCondition.new(), GambitTarget.TargetType.Enemy),
         GambitCondition.new(MaxDistanceCondition.new(gambit:getAbility():get_range()), GambitTarget.TargetType.Enemy),
         GambitCondition.new(MinHitPointsPercentCondition.new(1), GambitTarget.TargetType.Enemy),
