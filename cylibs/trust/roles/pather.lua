@@ -100,7 +100,6 @@ function Pather:set_path(path)
 
         local dist = math.floor(player_util.distance(player_util.get_player_position(), position))
         if dist < 1 then
-            print(dist)
             self.path_target.current_index = self.path_target.current_index + 1
         end
         if state.AutoPullMode.value == 'Off' or not self.puller:get_pull_target() then
