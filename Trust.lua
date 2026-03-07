@@ -178,6 +178,14 @@ function load_user_files(main_job_id, sub_job_id)
 		return widgets:getWidget(widget_name)
 	end
 
+	windower.trust.ui.add_widget = function(widget, widget_name)
+		widgets:addWidget(widget, widget_name)
+	end
+
+	windower.trust.ui.remove_widget = function(widget_name)
+		widgets:removeWidget(widget_name)
+	end
+
 	load_ui()
 	load_trust_commands(player.main_job_name_short, player.trust.main_job, player.sub_job_name_short, player.trust.sub_job, action_queue, player.party, main_trust_settings, sub_trust_settings)
 

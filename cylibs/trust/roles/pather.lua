@@ -91,6 +91,7 @@ function Pather:set_path(path)
         if not auto_reverse then
             self:stop(true)
         else
+            print('delay')
             self.follower.walk_action_queue:push_action(WaitAction.new(0, 0, 0, self.path_target.path:get_reverse_delay()))
         end
     end)
