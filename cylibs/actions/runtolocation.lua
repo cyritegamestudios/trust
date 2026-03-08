@@ -12,7 +12,7 @@ local Action = require('cylibs/actions/action')
 local RunToLocationAction = setmetatable({}, {__index = Action })
 RunToLocationAction.__index = RunToLocationAction
 
-function RunToLocationAction.new(x, y, z, distance, description)
+function RunToLocationAction.new(x, y, z, distance, description, keep_running)
 	local self = setmetatable(Action.new(0, 0, 0), RunToLocationAction)
 	self.user_events = {}
 	self.x = x
@@ -21,6 +21,7 @@ function RunToLocationAction.new(x, y, z, distance, description)
 	self.vector_location = V{self.x, self.y, self.z}
 	self.distance = distance
 	self.description = description
+	self.keep_running = keep_running
  	return self
 end
 
@@ -72,7 +73,9 @@ function RunToLocationAction:run_to(distance, retry_count)
 
 	local dist = self:target_distance()
 	if dist < self.distance then -- If we're within 'distance' of target, then we're done
-		windower.ffxi.run(false)
+		if not self.keep_running then
+			windower.ffxi.run(false)
+		end
 		self:complete(true)
 	else
 		if self:is_cancelled() then
@@ -84,7 +87,7 @@ function RunToLocationAction:run_to(distance, retry_count)
 		-- Get target direction to run in
 		local player_pos = player_util.get_player_position()
 		windower.ffxi.run(self.x - player_pos[1], self.y - player_pos[2], self.z)
-
+		
 		local walk_interval = 0.1 -- Update walk every 0.1s
 
 		coroutine.schedule(function()

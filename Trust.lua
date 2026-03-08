@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '16.5.3'
+_addon.version = '16.5.4'
 _addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 _addon.start_time = os.time()
@@ -176,6 +176,14 @@ function load_user_files(main_job_id, sub_job_id)
 	windower.trust.ui.widgets = {}
 	windower.trust.ui.get_widget = function(widget_name)
 		return widgets:getWidget(widget_name)
+	end
+
+	windower.trust.ui.add_widget = function(widget, widget_name)
+		widgets:addWidget(widget, widget_name)
+	end
+
+	windower.trust.ui.remove_widget = function(widget_name)
+		widgets:removeWidget(widget_name)
 	end
 
 	load_ui()

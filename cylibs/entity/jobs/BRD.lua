@@ -20,6 +20,9 @@ local all_song_buff_ids = L{
 }
 
 local equip_mods = {
+    [22305] = {0.2},            -- 'Loughnashade',   -- stage 3
+    [22306] = {0.3},            -- 'Loughnashade',   -- stage 4
+    [22307] = {0.4},            -- 'Loughnashade',   -- stage 5
     [18342] = {0.2},            -- 'Gjallarhorn',    -- 75
     [18577] = {0.2},            -- 'Gjallarhorn',    -- 80
     [18578] = {0.2},            -- 'Gjallarhorn',    -- 85
