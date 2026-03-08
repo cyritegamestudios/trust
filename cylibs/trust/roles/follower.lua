@@ -188,7 +188,7 @@ function Follower:check_distance()
         local distance = player_util.distance(player_util.get_player_position(), follow_target:get_position())
         local deltaZ = math.abs(z - player.z)
         if distance < self.maxfollowdistance and deltaZ < 6 and (deltaZ > 1 or distance > self:get_distance()) then
-            self.walk_action_queue:push_action(RunToLocation.new(x, y, z, self:get_distance(), nil, true))
+            self.walk_action_queue:push_action(RunToLocation.new(x, y, z, self:get_distance()))
         end
     end
 end
