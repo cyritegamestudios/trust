@@ -63,7 +63,6 @@ end
 
 function Buffer:get_type()
     return "buffer"
-
 end
 
 function Buffer:get_cooldown()
