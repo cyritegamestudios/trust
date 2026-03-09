@@ -82,6 +82,12 @@ function Puller:on_add()
             self:check_target(L{ mob_id })
         end
     end), WindowerEvents.MobKO)
+
+    self.dispose_bag:add(self:get_party():get_player():on_status_change():addAction(function(_, new_status, old_status)
+        if L{ 'Event' }:contains(new_status) then
+            self:set_pull_target(nil)
+        end
+    end), self:get_party():get_player():on_status_change())
 end
 
 function Puller:tic(_, _)
@@ -165,7 +171,7 @@ end
 function Puller:get_next_target(target_id_blacklist)
     target_id_blacklist = target_id_blacklist or L{}
 
-    if not self:check_delay() then
+    if self:get_party():get_player():get_status() == 'Event' or not self:check_delay() then
         return
     end
 
