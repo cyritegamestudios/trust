@@ -30,7 +30,7 @@ function HasMaxNumAlterEgosCondition:get_max_num_alter_egos()
         max_num = 4
     end
     local zone = res.zones[windower.ffxi.get_info().zone or 0]
-    if zone and L{ 'Apollyon', 'Temenos' }:contains(zone.id) then
+    if zone and L{ 'Apollyon', 'Temenos' }:contains(zone.en) then
         return math.min(max_num, 3)
     end
     return max_num

@@ -52,7 +52,7 @@ function Truster:set_trusts(trusts)
             return condition:is_editable()
         end)
         local conditions = self:get_default_conditions(gambit)
-        
+
         for condition in conditions:it() do
             condition:set_editable(false)
             gambit:addCondition(condition)
