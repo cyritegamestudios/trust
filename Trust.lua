@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '16.5.5'
+_addon.version = '16.5.6'
 _addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 _addon.start_time = os.time()
@@ -576,6 +576,10 @@ function handle_status_change(new_status_id, old_status_id)
 			handle_stop()
 		elseif state.AutoUnloadOnDeathMode.value == 'Auto' then
 			handle_unload()
+		end
+	elseif player.status == 'Event' then
+		for queue in L{ action_queue, player.trust.main_job:role_with_type("follower").walk_action_queue }:it() do
+			queue:clear()
 		end
 	end
 end

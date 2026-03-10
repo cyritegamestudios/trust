@@ -110,7 +110,8 @@ end
 -- @treturn list List of conditions
 function JobAbility:get_default_conditions()
     local conditions = L{
-        NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'Invisible', 'stun', 'amnesia'}, 1)})
+        NotCondition.new(L{HasBuffsCondition.new(L{'sleep', 'petrification', 'charm', 'terror', 'Invisible', 'stun', 'amnesia'}, 1)}),
+        NotCondition.new(L{ StatusCondition.new('Event') }),
     }
     local job_ability = res.job_abilities[self:get_ability_id()]
     if job_ability then

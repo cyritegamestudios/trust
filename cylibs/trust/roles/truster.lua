@@ -1,6 +1,7 @@
 local GambitTarget = require('cylibs/gambits/gambit_target')
 local HasAlterEgoCondition = require('cylibs/conditions/has_alter_ego')
 local HasKeyItemsCondition = require('cylibs/conditions/has_key_items')
+local HasMaxNumAlterEgosCondition = require('cylibs/conditions/has_max_num_alter_egos')
 local PartyLeaderCondition = require('cylibs/conditions/party_leader')
 local PartyMemberCountCondition = require('cylibs/conditions/party_member_count')
 
@@ -25,6 +26,7 @@ function Truster:get_default_conditions(gambit)
         PartyLeaderCondition.new(),
         PartyMemberCountCondition.new(6, Condition.Operator.LessThan),
         NotCondition.new(L{ HasAlterEgoCondition.new(gambit:getAbility():get_name()) }),
+        NotCondition.new(L{ HasMaxNumAlterEgosCondition.new() }),
         NotCondition.new(L{ InTownCondition.new() }),
         IdleCondition.new(),
     }:map(function(condition)
@@ -50,11 +52,7 @@ function Truster:set_trusts(trusts)
             return condition:is_editable()
         end)
         local conditions = self:get_default_conditions(gambit)
-        if i > 4 then
-            conditions:append(GambitCondition.new(HasKeyItemsCondition.new(L{ "\"Rhapsody in Crimson\"" }, 1, Condition.Operator.Equals), GambitTarget.TargetType.Self))
-        elseif i > 3 then
-            conditions:append(GambitCondition.new(HasKeyItemsCondition.new(L{ "\"Rhapsody in White\"" }, 1, Condition.Operator.Equals), GambitTarget.TargetType.Self))
-        end
+
         for condition in conditions:it() do
             condition:set_editable(false)
             gambit:addCondition(condition)

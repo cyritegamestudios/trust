@@ -80,6 +80,7 @@ function Attacker:set_attacker_settings(attacker_settings)
                 GambitCondition.new(StatusCondition.new('Engaged'), GambitTarget.TargetType.Self),
             }, Disengage.new(), GambitTarget.TargetType.Self),
             Gambit.new(GambitTarget.TargetType.Enemy, L{
+                GambitCondition.new(NotCondition.new(L{ ModeCondition.new('AutoEngageMode', 'Off') }), GambitTarget.TargetType.Self),
                 GambitCondition.new(NotCondition.new(L{ ModeCondition.new('PullActionMode', 'Target') }), GambitTarget.TargetType.Self),
                 GambitCondition.new(StatusCondition.new('Idle'), GambitTarget.TargetType.Self),
                 GambitCondition.new(TargetMismatchCondition.new(), GambitTarget.TargetType.Self),
