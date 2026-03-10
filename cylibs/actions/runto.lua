@@ -60,6 +60,7 @@ function RunToAction:perform()
 		local angle = (math.atan2((target.y - player.y), (target.x - player.x))*180/math.pi)*-1
 
 		windower.ffxi.follow()
+		
 		windower.ffxi.run((angle):radian())
 
 		local adjusted_distance = self.distance --+ player.model_size + target.model_size - 0.2

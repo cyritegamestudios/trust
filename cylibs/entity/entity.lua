@@ -15,6 +15,7 @@ Entity.__index = Entity
 function Entity.new(id)
     local self = setmetatable({
         id = id;
+        position_last_changed = os.time();
     }, Entity)
     local mob = windower.ffxi.get_mob_by_id(self.id)
     if mob then
@@ -86,6 +87,13 @@ function Entity:get_position()
 end
 
 -------
+-- Returns the duration the player has been standing in the same position.
+-- @treturn vector Position of the mob, or the last known position if the mob is not valid
+function Entity:get_stationary_duration()
+    return os.time() - self.position_last_changed
+end
+
+-------
 -- Sets the (x, y, z) coordinate of the mob.
 -- @tparam number x X coordinate
 -- @tparam number y Y coordinate
@@ -95,6 +103,7 @@ function Entity:set_position(x, y, z)
     self.position[1] = x
     self.position[2] = y
     self.position[3] = z
+    self.position_last_changed = os.time()
 end
 
 function Entity:distance(x, y)
