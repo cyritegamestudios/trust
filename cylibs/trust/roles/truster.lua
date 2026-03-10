@@ -52,12 +52,7 @@ function Truster:set_trusts(trusts)
             return condition:is_editable()
         end)
         local conditions = self:get_default_conditions(gambit)
-
-        --[[if i > 4 then
-            conditions:append(GambitCondition.new(HasKeyItemsCondition.new(L{ "\"Rhapsody in Crimson\"" }, 1, Condition.Operator.Equals), GambitTarget.TargetType.Self))
-        elseif i > 3 then
-            conditions:append(GambitCondition.new(HasKeyItemsCondition.new(L{ "\"Rhapsody in White\"" }, 1, Condition.Operator.Equals), GambitTarget.TargetType.Self))
-        end]]
+        
         for condition in conditions:it() do
             condition:set_editable(false)
             gambit:addCondition(condition)
