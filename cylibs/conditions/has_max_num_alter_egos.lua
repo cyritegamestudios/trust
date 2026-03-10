@@ -23,12 +23,17 @@ function HasMaxNumAlterEgosCondition:is_satisfied(_)
 end
 
 function HasMaxNumAlterEgosCondition:get_max_num_alter_egos()
+    local max_num = 3
     if Condition.check_conditions(L{ HasKeyItemsCondition.new(L{ "\"Rhapsody in Crimson\"" }, 1, Condition.Operator.Equals) }) then
-        return 5
+        max_num = 5
     elseif Condition.check_conditions(L{ HasKeyItemsCondition.new(L{ "\"Rhapsody in White\"" }, 1, Condition.Operator.Equals) }) then
-        return 4
+        max_num = 4
     end
-    return 3
+    local zone = res.zones[windower.ffxi.get_info().zone or 0]
+    if zone and L{ 'Apollyon', 'Temenos' }:contains(zone.id) then
+        return math.min(max_num, 3)
+    end
+    return max_num
 end
 
 function HasMaxNumAlterEgosCondition:get_config_items()
