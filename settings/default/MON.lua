@@ -1,4 +1,4 @@
--- Settings file for NON
+-- Settings file for MON
 return {
     Version = 1,
     Default = {
