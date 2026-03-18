@@ -138,6 +138,9 @@ end
 
 function Puller:get_all_targets()
     local all_targets = L{}
+    if not self:check_delay() then
+        return all_targets
+    end
     if state.AutoPullMode.value == 'Aggroed' then
         -- 1. Aggroed mobs that are unclaimed and not targeted by party members
         -- 2. Aggroed mobs that are unclaimed
@@ -172,7 +175,7 @@ function Puller:get_next_target(target_id_blacklist)
     target_id_blacklist = target_id_blacklist or L{}
 
     if self:get_party():get_player():get_status() == 'Event' or not self:check_delay() then
-        return
+        return nil
     end
 
     local current_target = self:get_alliance():get_target_by_index(self:get_party():get_player():get_target_index())
@@ -302,7 +305,7 @@ function Puller:get_default_conditions(gambit)
             L{
                 NotCondition.new(L{ PartyLeaderCondition.new() }),
                 ModeCondition.new('AutoTrustsMode', 'Off'),
-                ConditionalCondition.new(L{ ModeCondition.new('AutoTrustsMode', 'Auto'), ModeCondition.new('AutoPullMode', 'Auto'), HasMaxNumAlterEgosCondition.new() }, Condition.LogicalOperator.And)
+                ConditionalCondition.new(L{ ModeCondition.new('AutoTrustsMode', 'Auto'), NotCondition.new(L{ ModeCondition.new('AutoPullMode', 'Off') }), HasMaxNumAlterEgosCondition.new() }, Condition.LogicalOperator.And)
             },
             Condition.LogicalOperator.Or), GambitTarget.TargetType.Self
         )
