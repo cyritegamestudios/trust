@@ -305,7 +305,7 @@ function Puller:get_default_conditions(gambit)
             L{
                 NotCondition.new(L{ PartyLeaderCondition.new() }),
                 ModeCondition.new('AutoTrustsMode', 'Off'),
-                ConditionalCondition.new(L{ ModeCondition.new('AutoTrustsMode', 'Auto'), ModeCondition.new('AutoPullMode', 'Auto'), HasMaxNumAlterEgosCondition.new() }, Condition.LogicalOperator.And)
+                ConditionalCondition.new(L{ ModeCondition.new('AutoTrustsMode', 'Auto'), NotCondition.new(L{ ModeCondition.new('AutoPullMode', 'Off') }), HasMaxNumAlterEgosCondition.new() }, Condition.LogicalOperator.And)
             },
             Condition.LogicalOperator.Or), GambitTarget.TargetType.Self
         )
