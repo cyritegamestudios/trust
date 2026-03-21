@@ -92,7 +92,9 @@ function get_state_name(l_name)
     return l_name
 end
 
-function handle_set(field, value)
+function handle_set(field, value, hide_help_text)
+    hide_help_text = hide_help_text or false
+
     if modes_locked and not modes_whitelist:contains(field:lower()) then
         addon_system_error(modes_locked_reason or "You cannot changes modes at this time.")
         return
@@ -122,16 +124,20 @@ function handle_set(field, value)
             state_change(descrip, newVal, oldVal)
         end
 
-        local msg = field..' is now '..state_var.current
-        if state_var == state.DefenseMode and newVal ~= 'None' then
-            msg = msg .. ' (' .. state[newVal .. 'DefenseMode'].current .. ')'
-        end
-        msg = msg .. '.'
+        if not hide_help_text then
+            local msg = field..' is now '..state_var.current
+            if state_var == state.DefenseMode and newVal ~= 'None' then
+                msg = msg .. ' (' .. state[newVal .. 'DefenseMode'].current .. ')'
+            end
+            msg = msg .. '.'
 
-        addon_system_message(msg)
+            addon_system_message(msg)
+        end
         --handle_update({'auto'})
     else
-        addon_system_error('Set: Unknown field ['..field..']')
+        if not hide_help_text then
+            addon_system_error('Set: Unknown field ['..field..']')
+        end
     end
 
     -- handle string states: CombatForm, CombatWeapon, etc
