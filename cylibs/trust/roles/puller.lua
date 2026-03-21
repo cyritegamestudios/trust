@@ -163,6 +163,14 @@ function Puller:get_all_targets()
         all_targets = self.mob_filter:get_nearby_mobs(L{ MobFilter.Type.PartyClaimed })
                 + self.mob_filter:get_nearby_mobs(L{ MobFilter.Type.Unclaimed })
     end
+    local target_names = self.target_names
+    table.sort(all_targets, function(a, b)
+        local index_a = target_names:indexOf(a.name)
+        local index_b = target_names:indexOf(b.name)
+        if index_a == -1 then index_a = math.huge end
+        if index_b == -1 then index_b = math.huge end
+        return index_a < index_b
+    end)
     return all_targets
 end
 
