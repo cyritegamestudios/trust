@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -r \"0x1[Ee][Ff]\\\\|0x1ef\\\\|temp.*item\\\\|item.*arrived\" --include=*.lua d:/FFXI/addons/trust)",
+      "Bash(grep -rn \"Item.*packet\\\\|item.*update\\\\|bag.*update\" --include=*.lua d:/FFXI/addons/trust)",
+      "Bash(/tmp/search_result.txt:*)",
+      "Read(//tmp/**)",
+      "Bash(grep -rn 0x1[Ff]b d:/FFXI/addons/trust --include=*.lua)"
+    ]
+  }
+}

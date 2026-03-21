@@ -53,8 +53,10 @@ end
 -- Stops execution of the current path, if any.
 function Pather:stop(clear_path)
     if clear_path then
-        self.path_target:destroy()
-        self.path_target = nil
+        if self.path_target then
+            self.path_target:destroy()
+            self.path_target = nil
+        end
 
         self.follower:set_follow_target(nil)
 
