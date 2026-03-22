@@ -50,7 +50,6 @@ function Attacker:on_add()
                 -- 4: out of range, 5: unable to see
                 self.num_unable_attack = self.num_unable_attack + 1
                 if self.num_unable_attack > 5 then
-                    print('disengaging')
                     self.action_queue:push_action(Disengage.new():to_action())
                 end
             end
