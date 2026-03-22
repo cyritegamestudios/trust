@@ -9,6 +9,7 @@ local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local PullActionMenuItem = require('ui/settings/menus/pulling/PullActionMenuItem')
+local PullTargetsMenuItem = require('ui/settings/menus/pulling/PullTargetsMenuItem')
 local TextInputConfigItem = require('ui/settings/editors/config/TextInputConfigItem')
 
 local PullSettingsMenuItem = setmetatable({}, {__index = MenuItem })
@@ -53,93 +54,11 @@ function PullSettingsMenuItem:destroy()
 end
 
 function PullSettingsMenuItem:reloadSettings()
-    self:setChildMenuItem("Targets", self:getTargetsMenuItem())
+    self:setChildMenuItem("Targets", PullTargetsMenuItem.new(self.trust_settings, self.trust_settings_mode))
     self:setChildMenuItem("Actions", PullActionMenuItem.new(self.trust, self.trust_settings, self.trust_settings_mode))
     self:setChildMenuItem("Blacklist", self:getBlacklistMenuItem())
     self:setChildMenuItem("Modes", self:getModesMenuItem())
     self:setChildMenuItem("Config", self:getConfigMenuItem())
-end
-
-function PullSettingsMenuItem:getTargetsMenuItem()
-    local chooseTargetsMenuItem = MenuItem.new(L{
-        ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
-        ButtonItem.default('Clear All', 18),
-    }, {
-        Clear = MenuItem.action(nil, "Targets", "Clear selected targets."),
-    },
-    function()
-        local pullSettings = self.trust_settings:getSettings()[self.trust_settings_mode.value].PullSettings
-
-        local allMobs = S{}
-        local nearbyMobs = windower.ffxi.get_mob_array()
-        for _, mob in pairs(nearbyMobs) do
-            if mob.valid_target and mob.spawn_type == 16 then
-                allMobs:add(mob.name)
-            end
-        end
-
-        local configItem = MultiPickerConfigItem.new("Targets", L{}, L(allMobs), function(mobName)
-            return mobName
-        end)
-
-        local targetPickerView = FFXIPickerView.withConfig(configItem, true)
-
-        self.dispose_bag:add(targetPickerView:on_pick_items():addAction(function(_, newTargetNames)
-            targetPickerView:getDelegate():deselectAllItems()
-
-            if newTargetNames:length() > 0 then
-                pullSettings.Targets = L(S(pullSettings.Targets + newTargetNames))
-
-                self.trust_settings:saveSettings(true)
-
-                addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I've updated my list of enemies to pull!")
-            end
-        end), targetPickerView:on_pick_items())
-
-        return targetPickerView
-    end, "Targets", "Choose which enemies to pull.")
-
-    local targetsMenuItem = MenuItem.new(L{
-        ButtonItem.default('Add', 18),
-        ButtonItem.default('Remove', 18),
-    }, {
-        Add = chooseTargetsMenuItem,
-        Remove = MenuItem.action(function()
-            if self.pullTargetsEditor then
-                local cursorIndexPath = self.pullTargetsEditor:getDelegate():getCursorIndexPath()
-                if cursorIndexPath then
-                    local currentTargets = self.trust_settings:getSettings()[self.trust_settings_mode.value].PullSettings.Targets
-                    currentTargets:remove(cursorIndexPath.row)
-
-                    self.pullTargetsEditor:getDataSource():removeItem(cursorIndexPath)
-
-                    self.trust_settings:saveSettings(true)
-
-                    addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I won't pull this enemy anymore!")
-                end
-            end
-        end, "Targets", "Remove selected target from list of enemies to pull.", false, function()
-            return self.trust_settings:getSettings()[self.trust_settings_mode.value].PullSettings.Targets:length() > 0
-        end),
-    },
-    function()
-        local currentTargets = self.trust_settings:getSettings()[self.trust_settings_mode.value].PullSettings.Targets
-
-        local configItem = MultiPickerConfigItem.new("Targets", L{}, currentTargets, function(targetName)
-            return targetName
-        end)
-
-        self.pullTargetsEditor = FFXIPickerView.new(L{ configItem }, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditor)
-        self.pullTargetsEditor:setAllowsCursorSelection(true)
-
-        return self.pullTargetsEditor
-    end, "Targets", "Choose which enemies to pull.")
-
-    chooseTargetsMenuItem:setChildMenuItem("Confirm", MenuItem.action(function(menu)
-        menu:showMenu(targetsMenuItem)
-    end, "Targets", "Confirm enemies to pull."))
-
-    return targetsMenuItem
 end
 
 function PullSettingsMenuItem:getBlacklistMenuItem()
