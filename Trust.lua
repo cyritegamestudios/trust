@@ -1,7 +1,7 @@
 _addon.author = 'Cyrite'
 _addon.commands = {'Trust','trust'}
 _addon.name = 'Trust'
-_addon.version = '16.5.8'
+_addon.version = '16.5.9'
 _addon.release_notes = ""
 _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 _addon.start_time = os.time()
@@ -267,7 +267,7 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_name_short,
 		PathCommands.new(main_job_trust, action_queue),
 		ProfileCommands.new(main_trust_settings, sub_trust_settings, trust_mode_settings, weapon_skill_settings),
 		PullCommands.new(main_job_trust, main_trust_settings, action_queue, main_job_trust:role_with_type("puller") or sub_job_trust:role_with_type("puller")),
-		ScenarioCommands.new(main_job_trust, action_queue, party, addon_settings),
+		ScenarioCommands.new(main_job_trust, action_queue, party, addon_settings, main_trust_settings),
 		SendAllCommands.new(main_job_trust, action_queue),
 		SendCommands.new(main_job_trust, action_queue),
 		SkillchainCommands.new(main_job_trust, weapon_skill_settings, action_queue),

@@ -3,7 +3,7 @@ local ScenarioTrustCommands = setmetatable({}, {__index = TrustCommands })
 ScenarioTrustCommands.__index = ScenarioTrustCommands
 ScenarioTrustCommands.__class = "ScenarioTrustCommands"
 
-function ScenarioTrustCommands.new(trust, action_queue, party, addon_settings)
+function ScenarioTrustCommands.new(trust, action_queue, party, addon_settings, trust_settings)
     local self = setmetatable(TrustCommands.new(), ScenarioTrustCommands)
 
     self.trust = trust
@@ -17,7 +17,7 @@ function ScenarioTrustCommands.new(trust, action_queue, party, addon_settings)
 
     local ok, TrustScenarios = pcall(require, 'premium/modules/scenarios/TrustScenarios')
     if ok and TrustScenarios then
-        self.scenarios = TrustScenarios.new(action_queue, addon_settings, party, trust, self)
+        self.scenarios = TrustScenarios.new(action_queue, addon_settings, trust_settings, party, trust, self)
     end
 
     return self
