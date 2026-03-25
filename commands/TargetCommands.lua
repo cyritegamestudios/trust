@@ -16,6 +16,7 @@ function TargetCommands.new(trustSettings, trustSettingsMode, party, actionQueue
     self:add_command('off', function(_) return self:handle_set_mode('PullActionMode', 'Auto')  end, 'Disable auto target')
     self:add_command('cycle', self.handle_cycle_target, 'Cycle between party targets')
     self:add_command('clear', self.handle_clear_target, 'Clears the current target in the target widget')
+    self:add_command('poke', self.handle_poke_target, 'Poke the NPC with the given target id')
 
     return self
 end
@@ -59,6 +60,26 @@ function TargetCommands:handle_cycle_target(_)
     end
 
     return success, message
+end
+
+function TargetCommands:handle_poke_target(_, target_id)
+    target_id = tonumber(target_id)
+    if target_id == nil then
+        return false, "Invalid target id"
+    end
+
+    local npc = windower.ffxi.get_mob_by_id(target_id)
+    if npc == nil then
+        return false, "Unable to find NPC with id "..tostring(target_id)
+    end
+
+    local NpcAction = require('cylibs/actions/npc')
+    local action = NpcAction.new(target_id)
+    action:perform()
+    action:destroy()
+
+    return true, "Poking "..npc.name
+
 end
 
 function TargetCommands:handle_clear_target(_)

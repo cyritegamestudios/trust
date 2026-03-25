@@ -22,6 +22,7 @@ function GeneralTrustCommands.new(trust, action_queue, addon_enabled, trust_mode
     self:add_command('commands', self.handle_command_list, 'See all Trust commands')
     self:add_command('debug', self.handle_debug, 'Show debug info')
     self:add_command('timeout', self.handle_timeout, 'Unload Trust after a specified number of minutes, // trust timeout num_minutes or // trust timeout clear')
+    self:add_command('item', self.handle_use_item, 'Use an item by name, // trust item item_name')
 
     -- State
     self:add_command('start', self.handle_start, 'Start Trust')
@@ -250,6 +251,20 @@ function GeneralTrustCommands:handle_timeout(_, num_minutes)
     end
 
     return success, message
+end
+
+-- // trust item item_name
+function GeneralTrustCommands:handle_use_item(_, ...)
+    local item_name = table.concat({...}, " ") or ""
+    item_name = windower.convert_auto_trans(item_name)
+    if item_name == nil then
+        return false, "Invalid item name"
+    end
+
+    local CommandAction = require('cylibs/actions/command')
+    self.action_queue:push_action(CommandAction.new(0, 0, 0, '/item "' .. item_name .. '" <me>'), true)
+
+    return true, "Using " .. item_name
 end
 
 -- // trust debug
