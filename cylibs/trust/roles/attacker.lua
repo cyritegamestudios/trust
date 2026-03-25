@@ -49,8 +49,11 @@ function Attacker:on_add()
     end), self:get_party():on_party_target_change())
 
     self.dispose_bag:add(WindowerEvents.ActionMessage:addAction(function(actor_id, target_id, actor_index, target_index, message_id, param_1, param_2, param_3)
+        if state.AutoDisengageMode.value == 'Off' then
+            return
+        end
         if actor_id == windower.ffxi.get_player().id then
-            if state.AutoDisengageMode.value == 'Auto' and message_id == 4 or message_id == 5 then
+            if message_id == 4 or message_id == 5 then
                 -- 4: out of range, 5: unable to see
                 self.num_unable_attack = self.num_unable_attack + 1
                 if self.num_unable_attack > 5 then
