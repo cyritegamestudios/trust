@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -n get_conditions /d/FFXI/addons/trust/cylibs/gambits/abilities --include=*.lua)",
+      "Bash(find /d/FFXI/addons/trust/cylibs/gambits/abilities -type f -name *.lua)"
+    ]
+  }
+}

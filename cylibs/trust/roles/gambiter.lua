@@ -1,6 +1,7 @@
 local DisposeBag = require('cylibs/events/dispose_bag')
 local logger = require('cylibs/logger/logger')
 local Timer = require('cylibs/util/timers/timer')
+local GambitCondition = require('cylibs/gambits/gambit_condition')
 local GambitTarget = require('cylibs/gambits/gambit_target')
 local GambitTargetGroup = require('cylibs/gambits/gambit_target_group')
 local ValueRelay = require('cylibs/events/value_relay')
@@ -8,6 +9,10 @@ local ValueRelay = require('cylibs/events/value_relay')
 local Gambiter = setmetatable({}, {__index = Role })
 Gambiter.__index = Gambiter
 Gambiter.__class = "Gambiter"
+
+local DefaultGambiter = setmetatable({}, {__index = Gambiter })
+DefaultGambiter.__index = DefaultGambiter
+DefaultGambiter.__class = "DefaultGambiter"
 
 state.AutoGambitMode = M{['description'] = 'Use Gambits', 'Auto', 'Off'}
 state.AutoGambitMode:set_description('Auto', "Automatically use gambits.")
@@ -37,6 +42,10 @@ function Gambiter.new(action_queue, gambit_settings, state_var)
     self:set_gambit_settings(gambit_settings)
 
     return self
+end
+
+function Gambiter.default(action_queue, gambit_settings, state_var)
+    return DefaultGambiter.new(action_queue, gambit_settings, state_var)
 end
 
 function Gambiter:destroy()
@@ -241,6 +250,49 @@ end
 
 function Gambiter:tostring()
     return tostring(self:get_all_gambits())
+end
+
+
+
+function DefaultGambiter.new(action_queue, gambit_settings, state_var, job)
+    local self = setmetatable(Gambiter.new(action_queue, {}, state_var), DefaultGambiter)
+
+    self.job = job
+
+    self:set_gambit_settings(gambit_settings)
+
+    return self
+end
+
+function DefaultGambiter:destroy()
+    Gambiter.destroy(self)
+end
+
+function DefaultGambiter:set_gambit_settings(gambit_settings)
+    if self.job == nil then
+        return
+    end
+    local all_gambits = L{ gambit_settings.Gambits or L{}, gambit_settings.Default or L{} }
+    for gambit_list in all_gambits:it() do
+        for gambit in (gambit_list or L{}):it() do
+            gambit.conditions = gambit.conditions:filter(function(condition)
+                return condition:is_editable()
+            end)
+            local conditions = self:get_default_conditions(gambit)
+            for condition in conditions:it() do
+                condition:set_editable(false)
+                gambit:addCondition(condition)
+            end
+        end
+    end
+    Gambiter.set_gambit_settings(self, gambit_settings)
+end
+
+function DefaultGambiter:get_default_conditions(gambit)
+    local conditions = L{}
+    return conditions + self.job:get_conditions_for_ability(gambit:getAbility()):map(function(condition)
+        return GambitCondition.new(condition, GambitTarget.TargetType.Self)
+    end)
 end
 
 return Gambiter

@@ -7,6 +7,7 @@ local WaitAction = require('cylibs/actions/wait')
 local SequenceAction = require('cylibs/actions/sequence')
 local party_util = require('cylibs/util/party_util')
 local pet_util = require('cylibs/util/pet_util')
+local WeaponSkillAction = require('cylibs/actions/weapon_skill')
 
 local Trust = require('cylibs/trust/trust')
 local PuppetmasterTrust = setmetatable({}, {__index = Trust })
