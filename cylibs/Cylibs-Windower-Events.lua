@@ -8,6 +8,7 @@ local inventory_util = require('cylibs/util/inventory_util')
 local IpcRelay = require('cylibs/messages/ipc/ipc_relay')
 local MobUpdateMessage = require('cylibs/messages/mob_update_message')
 local packets = require('packets')
+local TargetChangeMessage = require('cylibs/messages/target_change_message')
 local Timer = require('cylibs/util/timers/timer')
 local ZoneMessage = require('cylibs/messages/zone_message')
 
@@ -281,8 +282,8 @@ local incoming_event_dispatcher = {
             local target = windower.ffxi.get_mob_by_id(target_id)
             if target and not IpcRelay.shared():is_connected(target.name) then
                 WindowerEvents.PositionChanged:trigger(target_id, packet['X'], packet['Y'], packet['Z'])
+                WindowerEvents.TargetIndexChanged:trigger(target_id, packet['Target Index'])
             end
-            WindowerEvents.TargetIndexChanged:trigger(target_id, packet['Target Index'])
         end
 
         -- packet['Status'] doesn't always match mob.status and packet['Update Status'] doesn't work for 0x00D
@@ -502,9 +503,11 @@ local outgoing_event_dispatcher = {
         local z = packet['Z']
 
         WindowerEvents.PositionChanged:trigger(target_id, x, y, z)
-        WindowerEvents.TargetIndexChanged:trigger(target_id, packet['Target Index'])
-
-        IpcRelay.shared():send_message(MobUpdateMessage.new(windower.ffxi.get_player().name, x, y, z))
+        if windower.ffxi.get_mob_by_target('st') == nil then
+            WindowerEvents.TargetIndexChanged:trigger(target_id, packet['Target Index'])
+            IpcRelay.shared():send_message(MobUpdateMessage.new(windower.ffxi.get_player().name, x, y, z))
+            IpcRelay.shared():send_message(TargetChangeMessage.new(windower.ffxi.get_player().name, packet['Target Index']))
+        end
     end,
 
     [0x05E] = function(data)
@@ -662,6 +665,11 @@ WindowerEvents.DisposeBag:add(IpcRelay.shared():on_message_received():addAction(
     elseif ipc_message.__class == EquipmentChangedMessage.__class then
         WindowerEvents.Equipment.MainWeaponChanged:trigger(ipc_message:get_mob_id(), ipc_message:get_main_weapon_id())
         WindowerEvents.Equipment.RangedWeaponChanged:trigger(ipc_message:get_mob_id(), ipc_message:get_ranged_weapon_id())
+    elseif ipc_message.__class == TargetChangeMessage.__class then
+        local player = windower.ffxi.get_mob_by_name(ipc_message:get_player_name())
+        if player then
+            WindowerEvents.TargetIndexChanged:trigger(player.id, ipc_message:get_target_index())
+        end
     end
 end), IpcRelay.shared():on_message_received())
 
