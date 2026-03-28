@@ -1,4 +1,9 @@
 {
   "version": "16.6.1",
+<<<<<<< HEAD
   "download_url": "https://github.com/cyritegamestudios/trust/archive/refs/heads/alpha.zip"
 }
+=======
+  "download_url": "https://github.com/cyritegamestudios/trust/releases/download/v16.6.1/trust.zip"
+}
+>>>>>>> main
