@@ -116,8 +116,8 @@ end
 -- @treturn list List of conditions
 function Summoner:get_conditions_for_ability(ability)
     local conditions = Job.get_conditions_for_ability(self, ability)
-    if ability.get_ability_id and res.spells[ability:get_ability_id()] and res.spells[ability:get_ability_id()].type == 'SummonerPact'
-            or res.job_abilities[ability:get_ability_id()] and res.job_abilities[ability:get_ability_id()].type == 'BloodPactWard' then
+    if ability.get_ability_id and (res.spells[ability:get_ability_id()] and res.spells[ability:get_ability_id()].type == 'SummonerPact'
+            or res.job_abilities[ability:get_ability_id()] and res.job_abilities[ability:get_ability_id()].type == 'BloodPactWard') then
         conditions:append(NotCondition.new(L{InTownCondition.new()}))
     end
     return conditions
