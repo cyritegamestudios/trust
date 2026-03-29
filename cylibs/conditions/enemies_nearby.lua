@@ -29,10 +29,13 @@ function EnemiesNearbyCondition:is_satisfied(_)
     local mob_filter = MobFilter.new(player.alliance, self.distance)
 
     if self.regex:length() > 0 then
+        local patterns = self.regex:split(',')
         local nearby_mobs = mob_filter:get_nearby_mobs(MobFilter.Type.All)
         for target in nearby_mobs:it() do
-            if target.name:match(self.regex) ~= nil then
-                return false
+            for pattern in patterns:it() do
+                if target.name:match(pattern:trim()) ~= nil then
+                    return false
+                end
             end
         end
     end
