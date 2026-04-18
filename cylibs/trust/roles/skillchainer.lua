@@ -255,6 +255,9 @@ function Skillchainer:get_next_ability(current_step)
             return gambit:getAbility()
         end
     else
+        if gambit and not self:is_gambit_satisfied(gambit) then
+            return nil
+        end
         if current_step == nil then
             local ability = self:get_starter_ability(self.num_skillchain_steps)
             if ability and Condition.check_conditions(ability:get_conditions(), self:get_party():get_player():get_mob().index) then

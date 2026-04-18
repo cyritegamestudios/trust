@@ -51,7 +51,7 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
     end,  L{ Condition.TargetType.Self, Condition.TargetType.Ally, Condition.TargetType.Enemy }, editorStyle, L{'AutoSkillchainMode', 'SkillchainPropertyMode', 'SkillchainDelayMode', 'SkillchainAssistantMode', 'WeaponSkillSettingsMode'}, function() return false end)
 
     local updatePermissions = function(gambit)
-        if L{ SkillchainAbility.Auto, SkillchainAbility.Skip }:contains(gambit:getAbility():get_name()) then
+        if L{ SkillchainAbility.Skip }:contains(gambit:getAbility():get_name()) then
             editorStyle:setEditPermissions(
                     GambitEditorStyle.Permissions.None
             )
