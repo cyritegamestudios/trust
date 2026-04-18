@@ -64,6 +64,11 @@ function RunToLocationAction:perform()
 	end
 	windower.ffxi.follow()
 
+	-- Kick off movement synchronously so action handovers don't leave a 1-frame gap
+	-- between the previous action's run(false) and the next action's first run(dx, dy, z).
+	local player_pos = player_util.get_player_position()
+	windower.ffxi.run(self.x - player_pos[1], self.y - player_pos[2], self.z)
+
 	local prerender = Renderer.shared():onPrerender()
 	self.dispose_bag:add(prerender:addAction(function()
 		if self:is_cancelled() then
