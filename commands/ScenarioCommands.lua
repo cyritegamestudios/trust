@@ -14,8 +14,8 @@ function ScenarioTrustCommands.new(trust, action_queue, party, addon_settings, t
     self:add_command('exp', self.handle_exp_party, 'Set up the party for experience points farming and makes this player the puller')
     self:add_command('cp', self.handle_exp_party, 'Set up the party for capacity points farming and makes this player the puller')
     self:add_command('ep', self.handle_exp_party, 'Set up the party for exemplar points and makes this player the puller')
-    self:add_command('attackwithme', self.handle_attack_with_me, 'Lead the party; the given partner mirrors combat and stops pulling')
-    self:add_command('attacksolo', self.handle_attack_solo, 'Delegate pulling to the given partner (they pull aggroed mobs on the current target)')
+    self:add_command('attackwithme', self.handle_attack_with_me, 'Set up the party to all attack the same mob')
+    self:add_command('attacksolo', self.handle_attack_solo, 'Set up the party to all attack their own mobs')
 
     local ok, TrustScenarios = pcall(require, 'premium/modules/scenarios/TrustScenarios')
     if ok and TrustScenarios then
@@ -72,7 +72,7 @@ function ScenarioTrustCommands:handle_attack_with_me(_)
     windower.send_command('trust sendall trust set AutoEngageMode Mirror')
     windower.send_command('trust sendall trust set CombatMode Mirror')
 
-    return true, 'Party will mirror your combat and stop pulling'
+    return true, 'Party members will attack the mob you are fighting'
 end
 
 -- // trust scenario attacksolo
@@ -83,7 +83,7 @@ function ScenarioTrustCommands:handle_attack_solo(_)
     windower.send_command('trust sendall trust set AutoEngageMode Always')
     windower.send_command('trust sendall trust set CombatMode Off')
 
-    return true, 'Party will now pull for you'
+    return true, 'Party members will attempt to attack different aggroed mobs'
 end
 
 return ScenarioTrustCommands
