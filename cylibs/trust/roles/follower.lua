@@ -71,6 +71,9 @@ function Follower:on_add()
         if new_status == 'Idle' and L{ 'Dead', 'Engaged' }:contains(old_status) then
             self:start_following(true)
         end
+        if new_status == 'Event' then
+            self.walk_action_queue:clear()
+        end
     end), self:get_party():get_player():on_status_change())
 
     self.dispose_bag:add(self:get_party():on_party_assist_target_change():addAction(function(_, assist_target)

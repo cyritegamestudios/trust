@@ -23,6 +23,7 @@ function Healer.new(action_queue, heal_settings, job)
     self.party_member_blacklist = L{}
     self.timer.timeInterval = 0.5
     self.dispose_bag = DisposeBag.new()
+    self.party_member_dispose_bags = {}
 
     self:set_heal_settings(heal_settings)
 
@@ -32,6 +33,10 @@ end
 function Healer:destroy()
     Gambiter.destroy(self)
 
+    for _, bag in pairs(self.party_member_dispose_bags) do
+        bag:destroy()
+    end
+    self.party_member_dispose_bags = {}
     self.dispose_bag:destroy()
 end
 
@@ -42,6 +47,38 @@ function Healer:on_add()
     self.healer_tracker:monitor()
 
     self.dispose_bag:addAny(L{ self.healer_tracker })
+
+    local on_party_member_added = function(p)
+        local member_id = p:get_id()
+        if self.party_member_dispose_bags[member_id] then
+            self.party_member_dispose_bags[member_id]:destroy()
+        end
+        local member_dispose_bag = DisposeBag.new()
+        member_dispose_bag:add(p:on_hp_change():addAction(function(p, hpp, max_hp)
+            if state.AutoHealMode.value == 'Off' then
+                return
+            end
+            if hpp > 0 then
+                self:check_gambits(nil, nil, true)
+            end
+        end), p:on_hp_change())
+        self.party_member_dispose_bags[member_id] = member_dispose_bag
+    end
+
+    local on_party_member_removed = function(p)
+        local member_id = p:get_id()
+        if self.party_member_dispose_bags[member_id] then
+            self.party_member_dispose_bags[member_id]:destroy()
+            self.party_member_dispose_bags[member_id] = nil
+        end
+    end
+
+    self.dispose_bag:add(self:get_party():on_party_member_added():addAction(on_party_member_added), self:get_party():on_party_member_added())
+    self.dispose_bag:add(self:get_party():on_party_member_removed():addAction(on_party_member_removed), self:get_party():on_party_member_removed())
+
+    for party_member in self:get_party():get_party_members(true, 21):it() do
+        on_party_member_added(party_member)
+    end
 end
 
 function Healer:get_cooldown()
@@ -62,7 +99,7 @@ function Healer:get_type()
 end
 
 function Healer:allows_multiple_actions()
-    return false
+    return true
 end
 
 function Healer:get_priority()

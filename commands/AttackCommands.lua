@@ -14,7 +14,7 @@ function AttackTrustCommands.new(trust, trust_settings, action_queue)
     self:add_command('default', function(_) return self:handle_toggle_mode('AutoEngageMode', 'Always', 'Off')  end, 'Toggle engaging mobs')
     self:add_command('off', function(_) return self:handle_set_mode('AutoEngageMode', 'Off')  end, 'Disable engaging')
     self:add_command('engage', self.handle_set_engage_distance, 'Automatically engage mobs party is fighting', L{ ConfigItem.new('distance', 5, 30, 1, function(value) return value.." yalms" end, "Engage Distance"), })
-    self:add_command('mirror', function(_) return self:handle_set_mode('AutoEngageMode', 'Mirror')  end, 'Automatically engage only if assist target is fighting')
+    self:add_command('mirror', self.handle_set_mirror_distance, 'Automatically engage only if assist target is fighting', L{ ConfigItem.new('distance', 0.2, 10, 0.1, function(value) return value.." yalms" end, "Mirror Distance"), })
     self:add_command('distance', self.handle_set_combat_distance, 'Set the combat distance', L{ ConfigItem.new('distance', 1.0, 30.0, 0.1, function(value) return value.." yalms" end, "Combat Distance"), })
 
     return self
@@ -36,6 +36,29 @@ function AttackTrustCommands:handle_toggle_mode(mode_var_name, on_value, off_val
         handle_set(mode_var_name, on_value)
     end
 
+    return success, message
+end
+
+-- // trust attack mirror [distance]
+function AttackTrustCommands:handle_set_mirror_distance(_, distance)
+    local message
+
+    if distance then
+        if distance:match("^%d+%.?%d*$") then
+            distance = math.min(math.max(tonumber(distance), 0.2), 10)
+        else
+            distance = 0.5
+        end
+
+        local current_settings = self.trust_settings:getSettings()[state.MainTrustSettingsMode.value].CombatSettings
+        current_settings.MirrorDistance = distance
+
+        self.trust_settings:saveSettings(true)
+
+        message = string.format("Mirror distance set to %.1f yalms", distance)
+    end
+
+    local success, _ = self:handle_set_mode('AutoEngageMode', 'Mirror')
     return success, message
 end
 
