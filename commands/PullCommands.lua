@@ -22,6 +22,9 @@ function PullTrustCommands.new(trust, trust_settings, action_queue, puller)
     self:add_command('camp', self.handle_camp, 'Automatically return to camp after battle')
     self:add_command('ignore', self.handle_ignore, 'Add a mob to the blacklist')
     self:add_command('delay', self.handle_delay, 'Set delay between pulls')
+    self:add_command('randomize', self.handle_set_randomize, 'Enable or disable randomizing pull targets', L{
+        PickerConfigItem.new('value', 'true', L{ 'true', 'false' }, nil, "Randomize Target")
+    })
 
     self:add_command('action', function(_, _, mode_value)
         return self:handle_set_mode('PullActionMode', mode_value or 'Auto')
@@ -105,6 +108,19 @@ function PullTrustCommands:handle_delay(_, delay)
     end
 
     return success, message
+end
+
+-- // trust pull randomize <true|false>
+function PullTrustCommands:handle_set_randomize(_, value)
+    if value ~= "true" and value ~= "false" then
+        return false, 'Usage: // trust pull randomize <true|false>'
+    end
+
+    local enabled = value == "true"
+    self:get_settings().PullSettings.RandomizeTarget = enabled
+    self.trust_settings:saveSettings(true)
+
+    return true, 'Pull target randomization '..(enabled and 'enabled' or 'disabled')
 end
 
 -- // trust pull [auto, party, all]

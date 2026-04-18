@@ -80,6 +80,7 @@ function ScenarioTrustCommands:handle_attack_solo(_)
     windower.send_command('trust sendall trust assist clear')
     windower.send_command('trust sendall trust set AutoPullMode Aggroed')
     windower.send_command('trust sendall trust set PullActionMode Target')
+    windower.send_command('trust sendall trust pull randomize true')
     windower.send_command('trust sendall trust set AutoEngageMode Always')
     windower.send_command('trust sendall trust set CombatMode Off')
 
