@@ -1,6 +1,7 @@
 local CommandMessage = require('cylibs/messages/command_message')
 local EquipmentChangedMessage = require('cylibs/messages/equipment_changed_message')
 local Event = require('cylibs/events/Luvent')
+local FlagMessage = require('cylibs/messages/flag_message')
 local GainBuffMessage = require('cylibs/messages/gain_buff_message')
 local IpcConnection = require('cylibs/messages/ipc/ipc_connection')
 local IpcMessage = require('cylibs/messages/ipc_message')
@@ -60,6 +61,8 @@ function IpcRelay.new()
                     self:on_message_received():trigger(LampUpdateMessage.deserialize(message))
                 elseif message_type == 'target_change' then
                     self:on_message_received():trigger(TargetChangeMessage.deserialize(message))
+                elseif message_type == 'flag' then
+                    self:on_message_received():trigger(FlagMessage.deserialize(message))
                 end
             end
         end
