@@ -118,7 +118,7 @@ function GambitSettingsMenuItem.new(trust, trustSettings, trustSettingsMode, tru
         self:onSelectGambit():trigger(self.selectedGambit, cursorIndexPath.row)
 
         if self.selectedGambit then
-            self.conditionSettingsMenuItem:setConditions(selectedGambit.conditions)
+            self.conditionSettingsMenuItem:setConditions(function() return selectedGambit.conditions end)
             --self.conditionSettingsMenuItem:setConditions(selectedGambit.conditions:map(function(condition) return condition:getCondition() end)) -- FIXME: condition menu item remove and add doesn't work
             --self.conditionSettingsMenuItem:setTargetTypes(S{ selectedGambit:getConditionsTarget() })
         end
@@ -326,7 +326,7 @@ function GambitSettingsMenuItem:getEditGambitMenuItem()
         gambitEditor:getDisposeBag():add(gambitEditor:onGambitChanged():addAction(function(newGambit, oldGambit)
             self:onGambitChanged():trigger(newGambit, oldGambit)
 
-            self.conditionSettingsMenuItem:setConditions(newGambit:getConditions())
+            self.conditionSettingsMenuItem:setConditions(function() return newGambit:getConditions() end)
             --self.conditionSettingsMenuItem:setConditions(newGambit:getConditions():map(function(condition) return condition:getCondition() end)) -- FIXME
             --self.conditionSettingsMenuItem:setTargetTypes(S{ newGambit:getConditionsTarget() })
         end), gambitEditor:onGambitChanged())
