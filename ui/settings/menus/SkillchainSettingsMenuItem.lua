@@ -48,13 +48,13 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
 
         self.selectedAbility = ability_gambits[1]
 
-        self.conditionSettingsMenuItem:setConditions(self.selectedAbility.conditions) -- get_conditions() makes a copy
+        self.conditionSettingsMenuItem:setConditions(function() return self.selectedAbility.conditions end)
 
         self.disposeBag:add(createSkillchainView:getDelegate():didSelectItemAtIndexPath():addAction(function(indexPath)
             self.selectedAbility = ability_gambits[indexPath.section]
             self.selectedIndex = indexPath.section
 
-            self.conditionSettingsMenuItem:setConditions(self.selectedAbility.conditions) -- get_conditions() makes a copy
+            self.conditionSettingsMenuItem:setConditions(function() return self.selectedAbility.conditions end)
 
             if self.selectedAbility then
                 if self.selectedAbility:getConditions():empty() then
@@ -148,7 +148,7 @@ function SkillchainSettingsMenuItem:getEditSkillchainStepMenuItem() -- FIXME: us
                 end
             end
 
-            self.conditionSettingsMenuItem:setConditions(newGambit.conditions)
+            self.conditionSettingsMenuItem:setConditions(function() return newGambit.conditions end)
         end), gambitEditor:onGambitChanged())
 
 

@@ -43,7 +43,8 @@ function GambitConditionSettingsMenuItem.new(trustSettings, parentMenuItem, enab
             return c1 < c2
         end)
 
-        local configItem = MultiPickerConfigItem.new("Conditions", self.conditions:length() > 0 and L{ self.conditions[1] } or L{}, self.conditions, function(condition)
+        local conditions = self:getConditions()
+        local configItem = MultiPickerConfigItem.new("Conditions", conditions:length() > 0 and L{ conditions[1] } or L{}, conditions, function(condition)
             local description = string.format("%s: %s", condition:getTargetType(), condition:tostring())
             return description, condition:is_editable()
         end, "Conditions", nil, nil, function(condition)
@@ -52,7 +53,7 @@ function GambitConditionSettingsMenuItem.new(trustSettings, parentMenuItem, enab
         end)
 
         local editConditionsView = FFXIPickerView.withConfig(L{ configItem }, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditor, TextStyle.Default.TextSmall)
-        editConditionsView:setShouldRequestFocus(self.conditions:length() > 0)
+        editConditionsView:setShouldRequestFocus(conditions:length() > 0)
         editConditionsView:setAllowsCursorSelection(true)
 
         self.editConditionsView = editConditionsView
@@ -102,7 +103,7 @@ function GambitConditionSettingsMenuItem:getAddConditionMenuItem(parentMenuItem)
                 local conditionClass = self:getFileForCondition(conditionPickerItems[selectedIndexPaths[1].row])
                 local newCondition = conditionClass.new()
 
-                self.conditions:append(GambitCondition.new(newCondition, targetType))
+                self:getConditions():append(GambitCondition.new(newCondition, targetType))
 
                 self.trustSettings:saveSettings(true)
 
@@ -147,7 +148,7 @@ function GambitConditionSettingsMenuItem:getRemoveConditionMenuItem()
         if selectedIndexPath then
             local item = self.editConditionsView:getDataSource():itemAtIndexPath(selectedIndexPath)
             if item then
-                self.conditions:remove(selectedIndexPath.row)
+                self:getConditions():remove(selectedIndexPath.row)
 
                 self.editConditionsView:getDataSource():removeItem(selectedIndexPath)
 
@@ -195,17 +196,22 @@ end
 function GambitConditionSettingsMenuItem:getSelectedCondition()
     local cursorIndexPath = self.editConditionsView:getDelegate():getCursorIndexPath()
     if cursorIndexPath then
-        return self.conditions[cursorIndexPath.row]
+        return self:getConditions()[cursorIndexPath.row]
     end
     return nil
 end
 
 ---
--- Gets the list of conditions.
+-- Gets the list of conditions. Always returns the live list when a getter has
+-- been supplied via setConditions, so callers and internal mutations operate
+-- on the gambit's current conditions reference.
 --
 -- @treturn list List of conditions.
 --
 function GambitConditionSettingsMenuItem:getConditions()
+    if self._conditionsGetter then
+        return self._conditionsGetter()
+    end
     return self.conditions
 end
 
@@ -229,12 +235,20 @@ function GambitConditionSettingsMenuItem:getTargetTypes()
 end
 
 ---
--- Sets the list of conditions.
+-- Sets the list of conditions, or a getter function that returns the live list.
+-- Passing a function lets the menu re-read the list on every operation, so it
+-- stays in sync if the owning gambit's conditions field is reassigned (e.g. by
+-- a role's set_gambit_settings reload after a save).
 --
--- @tparam list List of conditions.
+-- @tparam list|function List of conditions, or a function returning one.
 --
 function GambitConditionSettingsMenuItem:setConditions(conditions)
-    self.conditions = conditions
+    if type(conditions) == 'function' then
+        self._conditionsGetter = conditions
+    else
+        self._conditionsGetter = nil
+        self.conditions = conditions
+    end
 end
 
 function GambitConditionSettingsMenuItem:getFileForCondition(conditionClass)
