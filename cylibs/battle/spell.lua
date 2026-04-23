@@ -242,11 +242,21 @@ end
 -- to edit this ability.
 -- @treturn list List of ConfigItem
 function Spell:get_config_items(trust)
-    local allJobAbilities = (trust and L(trust:get_job():get_job_abilities(function(jobAbilityId)
-        return true
-    end):map(function(jobAbilityId)
+    local jobAbilityIds = L{}
+    if trust then
+        jobAbilityIds = jobAbilityIds + trust:get_job():get_job_abilities(function(_) return true end)
+    end
+    local sub_job_id = windower.ffxi.get_player().sub_job_id
+    if sub_job_id and sub_job_id ~= 0 then
+        for jobAbilityId in player_util.get_job_abilities():it() do
+            if not jobAbilityIds:contains(jobAbilityId) and job_util.knows_job_ability(jobAbilityId, sub_job_id) then
+                jobAbilityIds:append(jobAbilityId)
+            end
+        end
+    end
+    local allJobAbilities = jobAbilityIds:map(function(jobAbilityId)
         return res.job_abilities[jobAbilityId].en
-    end)) or L{}):sort()
+    end):sort()
 
     local configItem = MultiPickerConfigItem.new("job_abilities", self.job_abilities, allJobAbilities, function(jobAbilityNames)
         local summary = localization_util.commas(jobAbilityNames:map(function(jobAbilityName) return i18n.resource('job_abilities', 'en', jobAbilityName) end), 'and')
