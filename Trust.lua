@@ -212,6 +212,12 @@ function load_trust_modes(job_name_short)
 	trust_mode_settings:copySettings()
 
 	local function update_for_new_modes(new_modes)
+		for state_name, state_var in pairs(state) do
+			if class(state_var) == 'mode' and state_name ~= 'TrustMode'
+					and new_modes[state_name:lower()] == nil then
+				state_var:reset()
+			end
+		end
 		for state_name, value in pairs(new_modes) do
 			local state_var = get_state(state_name)
 			if state_var then
