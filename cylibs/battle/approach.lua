@@ -75,7 +75,7 @@ end
 -- @treturn Action Action to cast the spell
 function Approach:to_action(target_index)
     local actions = L{}
-
+    
     local target = windower.ffxi.get_mob_by_index(target_index)
     if target and target.distance:sqrt() > 25 then
        actions:append(RunToAction.new(target_index, 25))
@@ -85,7 +85,7 @@ function Approach:to_action(target_index)
     actions:append(EngageAction.new(target_index))
     actions:append(FollowAction.new(target_index, L{ ClaimedCondition.new() }))
 
-    local action = SequenceAction.new(actions, self.__class..'_approach')
+    local action = SequenceAction.new(actions, self.__class..'_approach', true)
 
     local target = windower.ffxi.get_mob_by_index(target_index)
     if target then
