@@ -141,36 +141,39 @@ function Puller:get_all_targets()
     if not self:check_delay() then
         return all_targets
     end
+    local target_names = self.target_names
+    local function sort_bucket(mobs)
+        table.sort(mobs, function(a, b)
+            local index_a = target_names:indexOf(a.name)
+            local index_b = target_names:indexOf(b.name)
+            if index_a == -1 then index_a = math.huge end
+            if index_b == -1 then index_b = math.huge end
+            return index_a < index_b
+        end)
+        return mobs
+    end
     if state.AutoPullMode.value == 'Aggroed' then
         -- 1. Aggroed mobs that are unclaimed and not targeted by party members
         -- 2. Aggroed mobs that are unclaimed
         -- 3. Aggroed mobs that are party claimed
-        all_targets = self.mob_filter:get_aggroed_mobs(L{ UnclaimedCondition.new(), NotCondition.new(L{ PartyTargetedCondition.new() }) })
-                + self.mob_filter:get_aggroed_mobs(L{ MobFilter.Type.Unclaimed })
-                + self.mob_filter:get_aggroed_mobs(L{ MobFilter.Type.PartyClaimed })
+        all_targets = sort_bucket(self.mob_filter:get_aggroed_mobs(L{ UnclaimedCondition.new(), NotCondition.new(L{ PartyTargetedCondition.new() }) }))
+                + sort_bucket(self.mob_filter:get_aggroed_mobs(L{ MobFilter.Type.Unclaimed }))
+                + sort_bucket(self.mob_filter:get_aggroed_mobs(L{ MobFilter.Type.PartyClaimed }))
     elseif state.AutoPullMode.value == 'Auto' then
         -- 1. Aggroed mobs that are party claimed
         -- 2. Aggroed mobs that are unclaimed
         -- 3. Unaggroed mobs in target name whitelist
-        all_targets = self.mob_filter:get_aggroed_mobs(L{ MobFilter.Type.PartyClaimed })
-                + self.mob_filter:get_aggroed_mobs(L{ MobFilter.Type.Unclaimed })
-                + (self.mob_filter:get_nearby_mobs(L{ MobFilter.Type.Unclaimed }):filter(function(mob)
+        all_targets = sort_bucket(self.mob_filter:get_aggroed_mobs(L{ MobFilter.Type.PartyClaimed }))
+                + sort_bucket(self.mob_filter:get_aggroed_mobs(L{ MobFilter.Type.Unclaimed }))
+                + sort_bucket(self.mob_filter:get_nearby_mobs(L{ MobFilter.Type.Unclaimed }):filter(function(mob)
             return self.target_names:contains(mob.name)
         end))
     elseif state.AutoPullMode.value == 'All' then
         -- 1. All mobs that are party claimed
         -- 2. All mobs that are unclaimed
-        all_targets = self.mob_filter:get_nearby_mobs(L{ MobFilter.Type.PartyClaimed })
-                + self.mob_filter:get_nearby_mobs(L{ MobFilter.Type.Unclaimed })
+        all_targets = sort_bucket(self.mob_filter:get_nearby_mobs(L{ MobFilter.Type.PartyClaimed }))
+                + sort_bucket(self.mob_filter:get_nearby_mobs(L{ MobFilter.Type.Unclaimed }))
     end
-    local target_names = self.target_names
-    table.sort(all_targets, function(a, b)
-        local index_a = target_names:indexOf(a.name)
-        local index_b = target_names:indexOf(b.name)
-        if index_a == -1 then index_a = math.huge end
-        if index_b == -1 then index_b = math.huge end
-        return index_a < index_b
-    end)
     return all_targets
 end
 
