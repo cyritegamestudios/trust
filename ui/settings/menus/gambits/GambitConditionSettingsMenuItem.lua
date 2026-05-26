@@ -89,7 +89,7 @@ function GambitConditionSettingsMenuItem:getAddConditionMenuItem(parentMenuItem)
     local getAddConditionMenuItem = function(targetType)
         local addConditionsMenuItem = MenuItem.new(L{
             ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
-        }, {}, function(_, _, _)
+        }, {}, function(_, _, showMenu)
             local conditionPickerItems = self:getConditionItemsForTarget(targetType)
 
             local configItem = MultiPickerConfigItem.new("Conditions", L{}, conditionPickerItems:map(function(conditionClass)
@@ -108,6 +108,10 @@ function GambitConditionSettingsMenuItem:getAddConditionMenuItem(parentMenuItem)
                 self.trustSettings:saveSettings(true)
 
                 addon_system_message(string.format("Added condition: %s %s.", targetType, newCondition:tostring()))
+
+                if showMenu then
+                    showMenu(parentMenuItem)
+                end
             end)
             return chooseConditionView
         end, "Conditions", string.format("Add a new condition for %s.", targetType))
