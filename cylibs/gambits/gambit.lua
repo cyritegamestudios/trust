@@ -114,6 +114,14 @@ function Gambit:isEnabled()
     return self.enabled
 end
 
+function Gambit:setPriorityComparator(comparator)
+    self.priorityComparator = comparator
+end
+
+function Gambit:getPriorityComparator()
+    return self.priorityComparator
+end
+
 function Gambit:isValid()
     if not self:getAbility():is_valid() then
         return false

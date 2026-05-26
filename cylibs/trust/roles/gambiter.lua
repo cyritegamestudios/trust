@@ -127,14 +127,29 @@ function Gambiter:is_gambit_satisfied(gambit, param)
         target_types:append(GambitTarget.TargetType.Ally)
     end
     local gambit_target_group = GambitTargetGroup.new(self:get_gambit_targets(target_types))
+
+    local comparator = gambit:getPriorityComparator()
+    local candidates
+
     for targets_by_type in gambit_target_group:it() do
         local get_target_by_type = function(target_type)
             return targets_by_type[target_type]
         end
         if gambit:isSatisfied(get_target_by_type, param) then
             local target = get_target_by_type(gambit:getAbilityTarget())
-            return true, target
+            if comparator == nil then
+                return true, target
+            end
+            if target ~= nil then
+                candidates = candidates or {}
+                candidates[#candidates + 1] = target
+            end
         end
+    end
+
+    if candidates and #candidates > 0 then
+        table.sort(candidates, comparator)
+        return true, candidates[1]
     end
     return false, nil
 end

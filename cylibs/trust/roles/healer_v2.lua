@@ -128,6 +128,10 @@ function Healer:set_heal_settings(heal_settings)
             condition:set_editable(false)
             gambit:addCondition(condition)
         end
+
+        if gambit:getAbilityTarget() == GambitTarget.TargetType.Ally then
+            gambit:setPriorityComparator(function(a, b) return a:get_hpp() < b:get_hpp() end)
+        end
     end
 
     self:set_gambit_settings(heal_settings)
