@@ -305,6 +305,7 @@ function GambitConditionSettingsMenuItem:getEditableConditionClasses()
         [HasSongsCondition.__type] = "has_songs",
         [ClusterHitPointsPercentRangeCondition.__type] = "cluster_hpp_range",
         [PartyHasMainJobCondition.__type] = "party_has_main_job",
+        [PartyMemberCountCondition.__type] = "party_member_count",
         [SkillchainAbilityCondition.__type] = "skillchain_ability"
     }
 end

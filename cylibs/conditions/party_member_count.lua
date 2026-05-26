@@ -16,7 +16,7 @@ function PartyMemberCountCondition.new(member_count, operator, distance)
     local self = setmetatable(Condition.new(), PartyMemberCountCondition)
     self.member_count = member_count or 6
     self.operator = operator or Condition.Operator.GreaterThanOrEqualTo
-    self.distance = distance
+    self.distance = distance or 21
     return self
 end
 
@@ -30,7 +30,7 @@ end
 
 function PartyMemberCountCondition:get_config_items()
     return L{
-        ConfigItem.new('member_count', 0, 5, 1, function(value) return value.."" end, "Number of Party Members"),
+        ConfigItem.new('member_count', 1, 6, 1, function(value) return value.."" end, "Number of Party Members"),
         PickerConfigItem.new('operator', self.operator, L{ Condition.Operator.GreaterThanOrEqualTo, Condition.Operator.Equals, Condition.Operator.GreaterThan, Condition.Operator.LessThan, Condition.Operator.LessThanOrEqualTo }, nil, "Operator"),
         ConfigItem.new('distance', 0, 50, 1, function(value) return value.." yalms" end, "Distance"),
     }

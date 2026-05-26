@@ -153,6 +153,7 @@ function Condition.defaultSerializableConditionClasses()
         PetDistanceCondition.__class,
         PartyHasMainJobCondition.__class,
         SkillchainAbilityCondition.__class,
+        PartyMemberCountCondition.__class,
     }
 end
 
