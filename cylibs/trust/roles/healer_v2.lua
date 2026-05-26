@@ -2,6 +2,7 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local GambitTarget = require('cylibs/gambits/gambit_target')
 local HealerTracker = require('cylibs/analytics/trackers/healer_tracker')
 local TargetNamesCondition = require('cylibs/conditions/target_names')
+local Timer = require('cylibs/util/timers/timer')
 
 local Gambiter = require('cylibs/trust/roles/gambiter')
 local Healer = setmetatable({}, {__index = Gambiter })
@@ -22,6 +23,7 @@ function Healer.new(action_queue, heal_settings, job)
     self.job = job
     self.party_member_blacklist = L{}
     self.timer.timeInterval = 0.5
+    self.is_dirty = false
     self.dispose_bag = DisposeBag.new()
     self.party_member_dispose_bags = {}
 
@@ -59,7 +61,7 @@ function Healer:on_add()
                 return
             end
             if hpp > 0 then
-                self:check_gambits(nil, nil, true)
+                self.is_dirty = true
             end
         end), p:on_hp_change())
         self.party_member_dispose_bags[member_id] = member_dispose_bag
@@ -79,6 +81,19 @@ function Healer:on_add()
     for party_member in self:get_party():get_party_members(true, 21):it() do
         on_party_member_added(party_member)
     end
+
+    self.on_event_timer = Timer.scheduledTimer(0.1)
+
+    self.dispose_bag:add(self.on_event_timer:onTimeChange():addAction(function(_)
+        if not self:is_enabled() or not self.is_dirty then
+            return
+        end
+        self.is_dirty = false
+        self:check_gambits(nil, nil, true)
+    end, self:get_priority() or ActionPriority.default, self:get_type()), self.on_event_timer:onTimeChange())
+    self.dispose_bag:addAny(L{ self.on_event_timer })
+
+    self.on_event_timer:start()
 end
 
 function Healer:get_cooldown()
