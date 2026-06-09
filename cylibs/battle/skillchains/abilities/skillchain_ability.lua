@@ -144,6 +144,15 @@ function SkillchainAbility:get_delay()
     return 3
 end
 
+-- Returns the skill data for this ability from cylibs/res/skills.lua.
+-- @treturn table Skill data, or nil if this is a synthetic ability (Auto/Skip/None)
+function SkillchainAbility:get_skill()
+    if L{ SkillchainAbility.Auto, SkillchainAbility.Skip, SkillchainAbility.None }:contains(self:get_name()) then
+        return nil
+    end
+    return skills[self.resource] and skills[self.resource][self.ability_id] or nil
+end
+
 -- Returns the skillchain properties of this ability (e.g. `Light`, `Fire`, `Water`).
 -- @tparam boolean include_aeonic If true, include aeonic properties
 -- @treturn list List of skillchain properties (see util/skillchain_util.lua)
@@ -151,56 +160,12 @@ function SkillchainAbility:get_skillchain_properties(include_aeonic)
     if L{ SkillchainAbility.Auto, SkillchainAbility.Skip }:contains(self:get_name()) then
         return L{}
     end
-    local skill = skills[self.resource][self.ability_id]
+    local skill = self:get_skill()
     local properties = L{} + L(skill.skillchain)
-    if skill.aeonic and (include_aeonic or self:has_aeonic_weapon_equipped(skill.weapon)) then
+    if include_aeonic and skill.aeonic then
         properties:append(skill.aeonic)
     end
     return properties:map(function(property_name) return skillchain_util[property_name] end)
-end
-
--- Returns whether the aeonic weapon required for this skill is currently equipped.
--- Uses normalized name matching to be resilient to apostrophes, punctuation, and spacing.
--- @tparam string aeonic_weapon_name Aeonic weapon name from skills resource
--- @treturn boolean True if the required aeonic weapon is equipped in main or range slot
-function SkillchainAbility:has_aeonic_weapon_equipped(aeonic_weapon_name)
-    if aeonic_weapon_name == nil or aeonic_weapon_name == '' then
-        return false
-    end
-
-    local function normalize_name(name)
-        if name == nil then
-            return ''
-        end
-        return string.lower(name):gsub('[^%w]', '')
-    end
-
-    local target_name = normalize_name(aeonic_weapon_name)
-
-    local equipment = windower.ffxi.get_items('equipment')
-    if equipment == nil then
-        return false
-    end
-
-    local slots = { 'main', 'range' }
-    for _, slot in ipairs(slots) do
-        local bag = equipment[slot..'_bag']
-        local index = equipment[slot]
-        if bag ~= nil and index ~= nil and index ~= 0 then
-            local item = windower.ffxi.get_items(bag, index)
-            if item and item.id and item.id ~= 65535 then
-                local item_resource = res.items[item.id]
-                if item_resource then
-                    local item_name = item_resource.enl or item_resource.en
-                    if normalize_name(item_name) == target_name then
-                        return true
-                    end
-                end
-            end
-        end
-    end
-
-    return false
 end
 
 -- Returns whether this ability has aeonic properties.
@@ -209,7 +174,7 @@ function SkillchainAbility:has_aeonic_properties()
     if L{ SkillchainAbility.Auto, SkillchainAbility.Skip }:contains(self:get_name()) then
         return false
     end
-    local skill = skills[self.resource][self.ability_id]
+    local skill = self:get_skill()
     return skill and skill.aeonic
 end
 

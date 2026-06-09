@@ -57,6 +57,18 @@ function SkillchainBuilder:get_current_step()
     return self.step
 end
 
+-- Returns whether aeonic properties should be included for the given ability.
+-- include_aeonic supports either a boolean or a predicate function(ability) -> boolean.
+-- @tparam SkillchainAbility ability Ability to evaluate
+-- @treturn boolean True if aeonic properties should be included
+function SkillchainBuilder:should_include_aeonic(ability)
+    if type(self.include_aeonic) == 'function' then
+        local success, should_include = pcall(self.include_aeonic, ability)
+        return success and should_include or false
+    end
+    return self.include_aeonic == true
+end
+
 -------
 -- Returns a list of possible next skillchain steps that can be used to continue the skillchain.
 -- @treturn table Table mapping ability name to SkillchainAbility
@@ -71,7 +83,7 @@ function SkillchainBuilder:get_next_steps()
         if self.step:get_skillchain() then
             properties:append(self.step:get_skillchain())
         else
-            properties = self.step:get_ability():get_skillchain_properties(self.include_aeonic)
+            properties = self.step:get_ability():get_skillchain_properties(self:should_include_aeonic(self.step:get_ability()))
         end
         for ability in self.abilities:it() do
             if not ability_name_to_step[ability:get_name()] then
@@ -132,7 +144,7 @@ function SkillchainBuilder:get_abilities(skillchain_property)
     if skillchain_property == nil then
         return self.abilities
     end
-    return self.abilities:filter(function(ability) return ability:get_skillchain_properties(self.include_aeonic):contains(skillchain_property) end):compact_map()
+    return self.abilities:filter(function(ability) return ability:get_skillchain_properties(self:should_include_aeonic(ability)):contains(skillchain_property) end):compact_map()
 end
 
 -------
@@ -156,8 +168,8 @@ end
 -- @tparam SkillchainAbility ability2 Second ability
 -- @treturn Skillchain The skillchain formed, or nil if none
 function SkillchainBuilder:get_skillchain(ability1, ability2)
-    for property1 in ability1:get_skillchain_properties(self.include_aeonic):it() do
-        for property2 in ability2:get_skillchain_properties(self.include_aeonic):it() do
+    for property1 in ability1:get_skillchain_properties(self:should_include_aeonic(ability1)):it() do
+        for property2 in ability2:get_skillchain_properties(self:should_include_aeonic(ability2)):it() do
             if skillchain_util[property1:get_name()][property2:get_name()] then
                 return skillchain_util[property1:get_name()][property2:get_name()]
             end
@@ -173,7 +185,7 @@ end
 -- @treturn Skillchain The skillchain formed, or nil if none
 function SkillchainBuilder:get_skillchain_by_properties(properties, ability2)
     for property1 in properties:it() do
-        for property2 in ability2:get_skillchain_properties(self.include_aeonic):it() do
+        for property2 in ability2:get_skillchain_properties(self:should_include_aeonic(ability2)):it() do
             if skillchain_util[property1:get_name()][property2:get_name()] then
                 return skillchain_util[property1:get_name()][property2:get_name()]
             end
