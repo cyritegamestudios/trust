@@ -112,6 +112,7 @@ See [Windower Commands](https://github.com/cyritegamestudios/trust/wiki/Commands
   * [AutoTankMode](https://github.com/cyritegamestudios/trust/wiki/AutoTankMode)
   * [AutoTargetMode](https://github.com/cyritegamestudios/trust/wiki/AutoTargetMode)
   * [AutoTrustsMode](https://github.com/cyritegamestudios/trust/wiki/AutoTrustsMode)
+  * [AutoZoneMode](https://github.com/cyritegamestudios/trust/wiki/AutoZoneMode)
   * [CombatMode](https://github.com/cyritegamestudios/trust/wiki/AutoCombatMode)
   * [FlankMode](https://github.com/cyritegamestudios/trust/wiki/FlankMode)
   * [IpcMode](https://github.com/cyritegamestudios/trust/wiki/IpcMode)
