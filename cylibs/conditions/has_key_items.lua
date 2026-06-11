@@ -5,6 +5,9 @@
 
 local serializer_util = require('cylibs/util/serializer_util')
 local Condition = require('cylibs/conditions/condition')
+local localization_util = require('cylibs/util/localization_util')
+local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
+local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 
 local HasKeyItemsCondition = setmetatable({}, { __index = Condition })
 HasKeyItemsCondition.__index = HasKeyItemsCondition
@@ -13,7 +16,7 @@ HasKeyItemsCondition.__class = "HasKeyItemsCondition"
 
 function HasKeyItemsCondition.new(key_item_names, item_count, operator)
     local self = setmetatable(Condition.new(), HasKeyItemsCondition)
-    self.key_item_names = key_item_names or "\"Rhapsody in White\""
+    self.key_item_names = key_item_names or L{ "Rhapsody in White" }
     self.item_count = item_count or 1
     self.operator = operator or Condition.Operator.GreaterThanOrEqualTo
     return self
@@ -29,7 +32,27 @@ function HasKeyItemsCondition:is_satisfied(_)
 end
 
 function HasKeyItemsCondition:get_config_items()
-    return L{}
+    local all_key_items = L(res.key_items:map(function(key_item)
+        return key_item and key_item.en
+    end)):compact_map()
+    all_key_items = L(all_key_items)
+    all_key_items:sort()
+    local keyItemsPickerConfigItem = MultiPickerConfigItem.new('key_item_names', self.key_item_names, all_key_items, function(key_item_names)
+        local text = localization_util.commas(L(key_item_names):map(function(key_item_name) return i18n.resource('key_items', 'en', key_item_name) end))
+        return text
+    end, "Key Item Names")
+    keyItemsPickerConfigItem:setPickerTitle("Key Items")
+    keyItemsPickerConfigItem:setPickerDescription("Choose one or more key items.")
+    keyItemsPickerConfigItem:setPickerTextFormat(function(key_item_name)
+        return i18n.resource('key_items', 'en', key_item_name)
+    end)
+    keyItemsPickerConfigItem:setAllowsMultipleSelection(true)
+    keyItemsPickerConfigItem:setNumItemsRequired(1)
+    return L{
+        keyItemsPickerConfigItem,
+        ConfigItem.new('item_count', 1, 10, 1, nil, "Number Required"),
+        PickerConfigItem.new('operator', self.operator, L{ Condition.Operator.GreaterThanOrEqualTo, Condition.Operator.Equals, Condition.Operator.GreaterThan, Condition.Operator.LessThan, Condition.Operator.LessThanOrEqualTo }, nil, "Operator")
+    }
 end
 
 function HasKeyItemsCondition.valid_targets()

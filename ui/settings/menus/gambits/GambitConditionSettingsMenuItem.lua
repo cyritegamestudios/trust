@@ -311,7 +311,8 @@ function GambitConditionSettingsMenuItem:getEditableConditionClasses()
         [PartyHasMainJobCondition.__type] = "party_has_main_job",
         [PartyHppRangeCondition.__type] = "party_hpp_range",
         [PartyMemberCountCondition.__type] = "party_member_count",
-        [SkillchainAbilityCondition.__type] = "skillchain_ability"
+        [SkillchainAbilityCondition.__type] = "skillchain_ability",
+        [HasKeyItemsCondition.__type] = "has_key_items"
     }
 end
 

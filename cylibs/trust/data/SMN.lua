@@ -104,7 +104,7 @@ end
 
 function SummonerTrust:get_inactive_buffs()
 	return self.party_buffs:filter(function(gambit)
-		return not buff_util.is_buff_active(buff_util.buff_for_job_ability(gambit:getAbility():get_job_ability_id()).id)
+		return gambit:isEnabled() and not buff_util.is_buff_active(buff_util.buff_for_job_ability(gambit:getAbility():get_job_ability_id()).id)
 	end)
 end
 
