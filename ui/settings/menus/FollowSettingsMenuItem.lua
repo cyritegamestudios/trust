@@ -51,7 +51,7 @@ end
 
 function FollowSettingsMenuItem:getModesMenuItem()
     return ModesMenuItem.new(self.trustModeSettings, "Set modes for following.",
-            L{'AutoFollowMode'})
+            L{'AutoFollowMode', 'AutoZoneMode'})
 end
 
 return FollowSettingsMenuItem

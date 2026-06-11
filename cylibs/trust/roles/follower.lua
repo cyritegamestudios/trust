@@ -16,6 +16,9 @@ local zone_util = require('cylibs/util/zone_util')
 state.AutoFollowMode = M{['description'] = 'Follow', 'Off', 'Always', 'Path'}
 state.AutoFollowMode:set_description('Always', "Follow the party member set with // trust follow when not in battle.")
 
+state.AutoZoneMode = M{['description'] = 'Auto Zone', 'Auto', 'Off'  }
+state.AutoZoneMode:set_description('Auto', "Automatically zones when the party member you are following zones.")
+
 -- Event called when the follow target changes
 function Follower:on_follow_target_changed()
     return self.follow_target_changed
@@ -269,7 +272,7 @@ end
 
 function Follower:can_zone(zone_id)
     local player = self:get_party():get_player()
-    if state.AutoFollowMode.value == 'Off' or not player or (os.time() - player:get_last_zone_time()) < self.zone_cooldown
+    if state.AutoZoneMode.value == 'Off' or state.AutoFollowMode.value == 'Off' or not player or (os.time() - player:get_last_zone_time()) < self.zone_cooldown
             or zone_id ~= windower.ffxi.get_info().zone or windower.ffxi.get_info().zone == 0 then
         return false
     end

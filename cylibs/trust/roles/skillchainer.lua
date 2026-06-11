@@ -204,6 +204,11 @@ function Skillchainer:target_change(target_index)
     Role.target_change(self, target_index)
 
     self.is_performing_ability = false
+
+    if self.skillchain_tracker then
+        local target = self:get_target()
+        self.skillchain_builder:set_current_step(target and self.skillchain_tracker:get_current_step(target.id) or nil)
+    end
 end
 
 function Skillchainer:check_skillchain()
