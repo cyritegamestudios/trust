@@ -144,6 +144,15 @@ function SkillchainAbility:get_delay()
     return 3
 end
 
+-- Returns the skill data for this ability from cylibs/res/skills.lua.
+-- @treturn table Skill data, or nil if this is a synthetic ability (Auto/Skip/None)
+function SkillchainAbility:get_skill()
+    if L{ SkillchainAbility.Auto, SkillchainAbility.Skip, SkillchainAbility.None }:contains(self:get_name()) then
+        return nil
+    end
+    return skills[self.resource] and skills[self.resource][self.ability_id] or nil
+end
+
 -- Returns the skillchain properties of this ability (e.g. `Light`, `Fire`, `Water`).
 -- @tparam boolean include_aeonic If true, include aeonic properties
 -- @treturn list List of skillchain properties (see util/skillchain_util.lua)
@@ -151,7 +160,7 @@ function SkillchainAbility:get_skillchain_properties(include_aeonic)
     if L{ SkillchainAbility.Auto, SkillchainAbility.Skip }:contains(self:get_name()) then
         return L{}
     end
-    local skill = skills[self.resource][self.ability_id]
+    local skill = self:get_skill()
     local properties = L{} + L(skill.skillchain)
     if include_aeonic and skill.aeonic then
         properties:append(skill.aeonic)
@@ -165,7 +174,7 @@ function SkillchainAbility:has_aeonic_properties()
     if L{ SkillchainAbility.Auto, SkillchainAbility.Skip }:contains(self:get_name()) then
         return false
     end
-    local skill = skills[self.resource][self.ability_id]
+    local skill = self:get_skill()
     return skill and skill.aeonic
 end
 
