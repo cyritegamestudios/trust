@@ -85,6 +85,11 @@ function TextFieldCollectionViewCell:onKeyboardEvent(key, pressed, flags, blocke
                     newText = currentText
                 elseif not S{ 'LShift', 'RShift' }:contains(key) then
                     local nextChar = key:lower()
+                    if S{ 'Minus', 'Numpad-' }:contains(key) then
+                        nextChar = '-'
+                    elseif key == '"' then
+                        nextChar = "'"
+                    end
                     if flags == 1 then
                         nextChar = nextChar:ucfirst()
                     end
