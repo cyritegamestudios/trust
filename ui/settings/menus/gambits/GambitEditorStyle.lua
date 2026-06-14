@@ -21,7 +21,7 @@ function GambitEditorStyle.named(abilityCategory, abilityCategoryPlural)
     local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
     return GambitEditorStyle.new(function(gambits)
         local configItem = MultiPickerConfigItem.new("Gambits", L{}, gambits, function(gambit)
-            return gambit:tostring()
+            return gambit:tostring(), gambit:isEnabled() and gambit:isValid()
         end)
         return L{ configItem }
     end, FFXIClassicStyle.WindowSize.Editor.ConfigEditorExtraLarge, abilityCategory, abilityCategoryPlural)
