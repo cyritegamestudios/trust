@@ -104,12 +104,16 @@ function Trust:init()
 	end)
 
 	WindowerEvents.Raise.DialogShown:addAction(function()
-		if not self:get_party():get_player():is_alive() then
-			local accept_raise = BlockAction.new(function()
+		if state.AutoAcceptRaiseMode.value ~= 'Auto' then
+			return
+		end
+		coroutine.schedule(function()
+			local player = self:get_party():get_player()
+			if not player:is_alive() and player:get_mob() then
 				local p = packets.new('outgoing', 0x01A)
 
-				p['Target'] = self:get_party():get_player():get_mob().id
-				p['Target Index'] = self:get_party():get_player():get_mob().index
+				p['Target'] = player:get_mob().id
+				p['Target Index'] = player:get_mob().index
 				p['Category'] = 0x0D -- Accept raise
 				p['Param'] = 0
 				p['X Offset'] = 0
@@ -118,9 +122,8 @@ function Trust:init()
 				p['_unknown1'] = 0
 
 				packets.inject(p)
-			end, 'accept-raise')
-			self.action_queue:push_action(accept_raise, true)
-		end
+			end
+		end, 2)
 	end)
 
 	-- NOTE: this must come after so on_trust_settings_changed gets called in parent class first

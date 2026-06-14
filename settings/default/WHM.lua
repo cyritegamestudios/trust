@@ -111,6 +111,10 @@ return {
                 Gambit.new("Enemy", L{GambitCondition.new(CombatSkillsCondition.new(L{"Staff"}), "Self"), GambitCondition.new(MaxManaPointsPercentCondition.new(40), "Self"), GambitCondition.new(MinTacticalPointsCondition.new(1000), "Self"), GambitCondition.new(StatusCondition.new("Engaged", 2, ">="), "Self"), GambitCondition.new(ModeCondition.new("AutoRestoreManaMode", "Auto"), "Self")}, WeaponSkill.new("Spirit Taker", L{}), "Self", L{"Weaponskill"}),
             },
             Gambits = L{
+                Gambit.new("Ally", L{GambitCondition.new(NotCondition.new(L{HasRaiseCondition.new()}), "Ally"), GambitCondition.new(StatusCondition.new("Dead", 5, ">="), "Ally")}, Spell.new("Arise", L{}, L{}, nil, L{}), "Ally", L{}, true),
+                Gambit.new("Ally", L{GambitCondition.new(NotCondition.new(L{HasRaiseCondition.new()}), "Ally"), GambitCondition.new(StatusCondition.new("Dead", 5, ">="), "Ally")}, Spell.new("Raise III", L{}, L{}, nil, L{}), "Ally", L{}, true),
+                Gambit.new("Ally", L{GambitCondition.new(NotCondition.new(L{HasRaiseCondition.new()}), "Ally"), GambitCondition.new(StatusCondition.new("Dead", 5, ">="), "Ally")}, Spell.new("Raise II", L{}, L{}, nil, L{}), "Ally", L{}, true),
+                Gambit.new("Ally", L{GambitCondition.new(NotCondition.new(L{HasRaiseCondition.new()}), "Ally"), GambitCondition.new(StatusCondition.new("Dead", 5, ">="), "Ally")}, Spell.new("Raise", L{}, L{}, nil, L{}), "Ally", L{}, true),
                 Gambit.new("Self", L{GambitCondition.new(ModeCondition.new("AutoFoodMode", "Auto"), "Self"), GambitCondition.new(NotCondition.new(L{HasBuffCondition.new("Food")}), "Self"), GambitCondition.new(MainJobCondition.new("WHM"), "Self")}, UseItem.new("Tropical Crepe", L{ItemCountCondition.new("Tropical Crepe", 1, ">=")}), "Self", L{"food"}),
             }
         },
