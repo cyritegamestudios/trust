@@ -41,6 +41,10 @@ return L{
         Gambit.new("Enemy", L{MaxManaPointsPercentCondition.new(40)}, Spell.new("Aspir III", L{}, L{}, nil, L{}), "Self", L{"Spells"}),
     }),
     GambitCategory.new("Ailments", "Remove status ailments.", L{
+        Gambit.new("Ally", L{GambitCondition.new(NotCondition.new(L{HasRaiseCondition.new()}), "Ally"), GambitCondition.new(StatusCondition.new("Dead", 5, ">="), "Ally")}, Spell.new("Arise", L{}, L{}, nil, L{}), "Ally", L{}, true),
+        Gambit.new("Ally", L{GambitCondition.new(NotCondition.new(L{HasRaiseCondition.new()}), "Ally"), GambitCondition.new(StatusCondition.new("Dead", 5, ">="), "Ally")}, Spell.new("Raise III", L{}, L{}, nil, L{}), "Ally", L{}, true),
+        Gambit.new("Ally", L{GambitCondition.new(NotCondition.new(L{HasRaiseCondition.new()}), "Ally"), GambitCondition.new(StatusCondition.new("Dead", 5, ">="), "Ally")}, Spell.new("Raise II", L{}, L{}, nil, L{}), "Ally", L{}, true),
+        Gambit.new("Ally", L{GambitCondition.new(NotCondition.new(L{HasRaiseCondition.new()}), "Ally"), GambitCondition.new(StatusCondition.new("Dead", 5, ">="), "Ally")}, Spell.new("Raise", L{}, L{}, nil, L{}), "Ally", L{}, true),
         Gambit.new("Ally", L{GambitCondition.new(HasBuffsCondition.new(L{"sleep"}, 1), "Ally")}, Spell.new("Curaga", L{}, L{}, nil, L{}), "Ally", L{}, true),
         Gambit.new("Ally", L{GambitCondition.new(HasBuffsCondition.new(L{"sleep"}, 1), "Ally")}, Spell.new("Cure", L{}, L{}, nil, L{}), "Ally", L{}, true),
         Gambit.new("Self", L{GambitCondition.new(HasBuffsCondition.new(L{"curse", "doom", "doomed"}, 1), "Self")}, Spell.new("Cursna", L{}, L{}, nil, L{}), "Self", L{}, true),
