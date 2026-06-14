@@ -25,6 +25,10 @@ function LoadGlobalsAction:perform()
     state.AutoUnloadOnDeathMode:set_description('Disable', "Pause Trust after getting knocked out.")
     state.AutoUnloadOnDeathMode:set_description('Auto', "Unload Trust after getting knocked out.")
 
+    state.AutoAcceptRaiseMode = M{['description'] = 'Auto Accept Raise Mode', 'Off', 'Auto'}
+    state.AutoAcceptRaiseMode:set_description('Off', "Do not automatically accept raises.")
+    state.AutoAcceptRaiseMode:set_description('Auto', "Automatically accept raises when knocked out.")
+
     state.AutoBuffMode = M{['description'] = 'Buff Self and Party', 'Off', 'Auto'}
     state.AutoBuffMode:set_description('Off', "Do not buff self and party members.")
     state.AutoBuffMode:set_description('Auto', "Automatically buff self and party members.")
