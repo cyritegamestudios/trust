@@ -280,7 +280,7 @@ function party_util.get_buffs(target_id)
     local data = windower.packets.last_incoming(0x076)
     if data and data ~= buffs.last_incoming then
         buffs.last_incoming = data
-        for  k = 0, 10 do
+        for  k = 0, 4 do
             local id = data:unpack('I', k*48+5)
             buffs['whitelist'][id] = T{}
 
