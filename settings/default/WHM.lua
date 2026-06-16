@@ -63,7 +63,9 @@ return {
                 }
             },
             MinNumAOETargets = 3,
-            Overcure = false
+            Overcure = false,
+            IncludeAlliance = false,
+            Blacklist = L{}
         },
         NukeSettings = {
             Delay = 10,

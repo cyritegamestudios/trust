@@ -37,7 +37,7 @@ function HitPointsPercentRangeCondition:tostring()
 end
 
 function HitPointsPercentRangeCondition.description()
-    return "HP >= X% and HP <= Y%"
+    return "HP >= X% and HP <= Y%."
 end
 
 function HitPointsPercentRangeCondition.valid_targets()

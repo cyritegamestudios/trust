@@ -18,7 +18,7 @@ state.AutoHealMode:set_description('Emergency', "Heal the party using the Emerge
 -- @tparam T heal_settings heal settings
 -- @treturn Healer A healer role
 function Healer.new(action_queue, heal_settings, job)
-    local self = setmetatable(Gambiter.new(action_queue, { Gambits = L{} }, L{ state.AutoHealMode }), Healer)
+    local self = setmetatable(Gambiter.new(action_queue, { Gambits = L{} }, L{ state.AutoHealMode }, heal_settings.IncludeAlliance == true), Healer)
 
     self.job = job
     self.party_member_blacklist = L{}
@@ -129,6 +129,8 @@ end
 -- @tparam T nuke_settings Nuke settings
 function Healer:set_heal_settings(heal_settings)
     self.heal_settings = heal_settings
+    self.include_alliance = heal_settings.IncludeAlliance == true
+    self.party_member_blacklist = heal_settings.Blacklist or L{}
 
     for gambit in heal_settings.Gambits:it() do
         if gambit:getAbility().set_requires_all_job_abilities ~= nil then
@@ -176,7 +178,7 @@ function Healer:get_tracker()
 end
 
 function Healer:set_party_member_blacklist(blacklist)
-    self.party_member_blacklist = blacklist
+    self.heal_settings.Blacklist = blacklist or L{}
     self:set_heal_settings(self.heal_settings)
 end
 
