@@ -3,6 +3,7 @@ local GambitTarget = require('cylibs/gambits/gambit_target')
 local HealerTracker = require('cylibs/analytics/trackers/healer_tracker')
 local TargetNamesCondition = require('cylibs/conditions/target_names')
 local Timer = require('cylibs/util/timers/timer')
+local ValidSpellTargetCondition = require('cylibs/conditions/valid_spell_target')
 
 local Gambiter = require('cylibs/trust/roles/gambiter')
 local Healer = setmetatable({}, {__index = Gambiter })
@@ -164,6 +165,9 @@ function Healer:get_default_conditions(gambit)
 
     if gambit:getAbilityTarget() == GambitTarget.TargetType.Ally then
         conditions:append(GambitCondition.new(MaxDistanceCondition.new(gambit:getAbility():get_range()), GambitTarget.TargetType.Ally))
+        if gambit:getAbility().__type == "Spell" then
+            conditions:append(GambitCondition.new(ValidSpellTargetCondition.new(gambit:getAbility():get_name(), alter_ego_util.untargetable_alter_egos()), GambitTarget.TargetType.Ally))
+        end
     end
 
     local ability_conditions = (L{} + self.job:get_conditions_for_ability(gambit:getAbility()))
