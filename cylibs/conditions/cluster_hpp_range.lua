@@ -68,7 +68,7 @@ function ClusterHitPointsPercentRangeCondition:tostring()
 end
 
 function ClusterHitPointsPercentRangeCondition.description()
-    return "Party HP >= X% and HP <= Y%"
+    return "Party HP >= X% and HP <= Y%."
 end
 
 function ClusterHitPointsPercentRangeCondition.valid_targets()

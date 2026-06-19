@@ -22,7 +22,7 @@ function Gambiter:on_active_changed()
 end
 
 
-function Gambiter.new(action_queue, gambit_settings, state_var)
+function Gambiter.new(action_queue, gambit_settings, state_var, include_alliance)
     local self = setmetatable(Role.new(action_queue), Gambiter)
 
     if class(state_var) ~= 'List' then
@@ -33,6 +33,7 @@ function Gambiter.new(action_queue, gambit_settings, state_var)
     self.state_vars = state_var or L{ state.AutoGambitMode }
     self.timer = Timer.scheduledTimer(1)
     self.enabled = true
+    self.include_alliance = include_alliance or false
     self.is_active = ValueRelay.new(false)
     self.last_gambit_time = os.time() - self:get_cooldown()
     self.gambiter_dispose_bag = DisposeBag.new()
@@ -44,8 +45,8 @@ function Gambiter.new(action_queue, gambit_settings, state_var)
     return self
 end
 
-function Gambiter.default(action_queue, gambit_settings, state_var)
-    return DefaultGambiter.new(action_queue, gambit_settings, state_var)
+function Gambiter.default(action_queue, gambit_settings, state_var, include_alliance)
+    return DefaultGambiter.new(action_queue, gambit_settings, state_var, nil, include_alliance)
 end
 
 function Gambiter:destroy()
@@ -165,8 +166,11 @@ function Gambiter:get_gambit_targets(gambit_target_types)
         if gambit_target_type == GambitTarget.TargetType.Self then
             target_group = self:get_player()
         elseif gambit_target_type == GambitTarget.TargetType.Ally then
-            target_group = self:get_party()
-            --target_group = self:get_alliance()
+            if self.include_alliance then
+                target_group = self:get_alliance()
+            else
+                target_group = self:get_party()
+            end
         elseif gambit_target_type == GambitTarget.TargetType.Enemy then
             target_group = self:get_target()
         elseif gambit_target_type == GambitTarget.TargetType.CurrentTarget then
@@ -269,8 +273,8 @@ end
 
 
 
-function DefaultGambiter.new(action_queue, gambit_settings, state_var, job)
-    local self = setmetatable(Gambiter.new(action_queue, {}, state_var), DefaultGambiter)
+function DefaultGambiter.new(action_queue, gambit_settings, state_var, job, include_alliance)
+    local self = setmetatable(Gambiter.new(action_queue, {}, state_var, include_alliance), DefaultGambiter)
 
     self.job = job
 

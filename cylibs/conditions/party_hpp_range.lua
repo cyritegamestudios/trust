@@ -54,7 +54,7 @@ function PartyHppRangeCondition:tostring()
 end
 
 function PartyHppRangeCondition.description()
-    return "N party members with HP in range"
+    return "Party members with HP in range."
 end
 
 function PartyHppRangeCondition.valid_targets()

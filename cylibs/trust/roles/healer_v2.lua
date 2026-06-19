@@ -3,6 +3,7 @@ local GambitTarget = require('cylibs/gambits/gambit_target')
 local HealerTracker = require('cylibs/analytics/trackers/healer_tracker')
 local TargetNamesCondition = require('cylibs/conditions/target_names')
 local Timer = require('cylibs/util/timers/timer')
+local ValidSpellTargetCondition = require('cylibs/conditions/valid_spell_target')
 
 local Gambiter = require('cylibs/trust/roles/gambiter')
 local Healer = setmetatable({}, {__index = Gambiter })
@@ -18,7 +19,7 @@ state.AutoHealMode:set_description('Emergency', "Heal the party using the Emerge
 -- @tparam T heal_settings heal settings
 -- @treturn Healer A healer role
 function Healer.new(action_queue, heal_settings, job)
-    local self = setmetatable(Gambiter.new(action_queue, { Gambits = L{} }, L{ state.AutoHealMode }), Healer)
+    local self = setmetatable(Gambiter.new(action_queue, { Gambits = L{} }, L{ state.AutoHealMode }, heal_settings.IncludeAlliance == true), Healer)
 
     self.job = job
     self.party_member_blacklist = L{}
@@ -129,6 +130,8 @@ end
 -- @tparam T nuke_settings Nuke settings
 function Healer:set_heal_settings(heal_settings)
     self.heal_settings = heal_settings
+    self.include_alliance = heal_settings.IncludeAlliance == true
+    self.party_member_blacklist = heal_settings.Blacklist or L{}
 
     for gambit in heal_settings.Gambits:it() do
         if gambit:getAbility().set_requires_all_job_abilities ~= nil then
@@ -162,6 +165,9 @@ function Healer:get_default_conditions(gambit)
 
     if gambit:getAbilityTarget() == GambitTarget.TargetType.Ally then
         conditions:append(GambitCondition.new(MaxDistanceCondition.new(gambit:getAbility():get_range()), GambitTarget.TargetType.Ally))
+        if gambit:getAbility().__type == "Spell" then
+            conditions:append(GambitCondition.new(ValidSpellTargetCondition.new(gambit:getAbility():get_name(), alter_ego_util.untargetable_alter_egos()), GambitTarget.TargetType.Ally))
+        end
     end
 
     local ability_conditions = (L{} + self.job:get_conditions_for_ability(gambit:getAbility()))
@@ -176,7 +182,7 @@ function Healer:get_tracker()
 end
 
 function Healer:set_party_member_blacklist(blacklist)
-    self.party_member_blacklist = blacklist
+    self.heal_settings.Blacklist = blacklist or L{}
     self:set_heal_settings(self.heal_settings)
 end
 

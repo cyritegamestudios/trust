@@ -14,6 +14,7 @@ function HealCommands.new(trust)
     self:add_command('auto', function(_) return self:handle_set_mode('AutoHealMode', 'Auto')  end, 'Heal self and party')
     self:add_command('emergency', function(_) return self:handle_set_mode('AutoHealMode', 'Emergency')  end, 'Heal self and party using Emergency threshold')
     self:add_command('off', function(_) return self:handle_set_mode('AutoHealMode', 'Off')  end, 'Do not heal self and party')
+    self:add_command('alliance', self.handle_toggle_alliance, 'Toggle healing alliance members')
 
     self:add_command('blacklistall', self.handle_blacklist_all, 'Toggle healing for groups of party or alliance members', L{
         PickerConfigItem.new('group_name', 'Alter Egos', L{ 'Alter Egos' }, nil, "Group Name"),
@@ -43,6 +44,20 @@ end
 
 function HealCommands:get_localized_command_name()
     return 'Heal'
+end
+
+function HealCommands:handle_toggle_alliance(_)
+    local healer = self.trust:role_with_type("healer")
+    if not healer then
+        return false, "No healer role is available"
+    end
+
+    local cure_settings = self.trust:get_trust_settings().CureSettings
+    cure_settings.IncludeAlliance = not (cure_settings.IncludeAlliance == true)
+
+    healer:set_heal_settings(cure_settings)
+
+    return true, "Alliance healing "..(cure_settings.IncludeAlliance and "enabled" or "disabled")
 end
 
 function HealCommands:handle_blacklist_all(_, ...)
