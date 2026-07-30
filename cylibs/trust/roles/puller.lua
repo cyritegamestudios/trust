@@ -12,6 +12,7 @@ local PartyClaimedCondition = require('cylibs/conditions/party_claimed')
 local PartyLeaderCondition = require('cylibs/conditions/party_leader')
 local PartyTargetedCondition = require('cylibs/conditions/party_targeted')
 local RunToLocationAction = require('cylibs/actions/runtolocation')
+local TargetIdsCondition = require('cylibs/conditions/target_ids')
 local TargetNamesCondition = require('cylibs/conditions/target_names')
 
 local Gambiter = require('cylibs/trust/roles/gambiter')
@@ -166,7 +167,7 @@ function Puller:get_all_targets()
         all_targets = sort_bucket(self.mob_filter:get_aggroed_mobs(L{ MobFilter.Type.PartyClaimed }))
                 + sort_bucket(self.mob_filter:get_aggroed_mobs(L{ MobFilter.Type.Unclaimed }))
                 + sort_bucket(self.mob_filter:get_nearby_mobs(L{ MobFilter.Type.Unclaimed }):filter(function(mob)
-            return self.target_names:contains(mob.name)
+            return self.target_names:contains(mob.name) or self.target_ids:contains(mob.id)
         end))
     elseif state.AutoPullMode.value == 'All' then
         -- 1. All mobs that are party claimed
@@ -260,6 +261,7 @@ function Puller:set_pull_settings(pull_settings)
         self.max_num_targets = 1
     end
     self:set_target_names(pull_settings.Targets or L{})
+    self:set_target_ids(pull_settings.TargetIds or L{})
 
     CooldownCondition.set_timestamp('last_mob_ko', os.time() - self.delay)
 
@@ -309,7 +311,10 @@ function Puller:get_default_conditions(gambit)
     if state.AutoPullMode.value == 'Aggroed' then
         conditions:append(GambitCondition.new(AggroedCondition.new(), GambitTarget.TargetType.Enemy))
     elseif state.AutoPullMode.value == 'Auto' then
-        conditions:append(GambitCondition.new(TargetNamesCondition.new(self:get_target_names()), GambitTarget.TargetType.Enemy))
+        conditions:append(GambitCondition.new(ConditionalCondition.new(L{
+            TargetNamesCondition.new(self:get_target_names()),
+            TargetIdsCondition.new(self:get_target_ids()),
+        }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Enemy))
     end
     local alter_ego_conditions = L{
         GambitCondition.new(ConditionalCondition.new(
@@ -339,6 +344,14 @@ end
 
 function Puller:get_target_names()
     return self.target_names
+end
+
+function Puller:set_target_ids(target_ids)
+    self.target_ids = target_ids
+end
+
+function Puller:get_target_ids()
+    return self.target_ids
 end
 
 function Puller:set_camp_position(position)
