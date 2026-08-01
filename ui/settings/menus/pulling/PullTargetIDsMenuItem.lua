@@ -6,14 +6,13 @@ local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
+local PullTargetUtil = require('cylibs/util/pull_target_util')
 
 local PullTargetIDsMenuItem = setmetatable({}, {__index = MenuItem })
 PullTargetIDsMenuItem.__index = PullTargetIDsMenuItem
 
-local function format_target_id(targetId)
-    local mob = windower.ffxi.get_mob_by_id(targetId)
-    local targetName = mob and mob.name or "Unknown"
-    return string.format("%s (%X)", targetName, targetId)
+local function format_target_id(targetId, targetName)
+    return string.format("%s (%X)", targetName or "Unknown", targetId)
 end
 
 function PullTargetIDsMenuItem.new(trust_settings, trust_settings_mode)
@@ -35,10 +34,15 @@ function PullTargetIDsMenuItem.new(trust_settings, trust_settings_mode)
     self:setChildMenuItem("Move Down", self:getMoveDownMenuItem())
 
     self.contentViewConstructor = function()
-        local currentTargetIds = self:getTargetIds()
+        self:updateTargetNames()
 
-        local configItem = MultiPickerConfigItem.new("Target IDs", L{}, currentTargetIds, function(targetId)
-            return format_target_id(targetId)
+        local currentTargets = self:getTargets()
+
+        local configItem = MultiPickerConfigItem.new("Target IDs", L{}, self:getTargetIds(), function(targetId)
+            local target = currentTargets:firstWhere(function(t)
+                return PullTargetUtil.get_id(t) == targetId
+            end)
+            return format_target_id(targetId, PullTargetUtil.get_name(target))
         end)
 
         self.targetsEditor = FFXIPickerView.new(L{ configItem }, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditor)
@@ -56,10 +60,40 @@ function PullTargetIDsMenuItem:destroy()
     self.dispose_bag:destroy()
 end
 
-function PullTargetIDsMenuItem:getTargetIds()
-    local pullSettings = self.trust_settings:getSettings()[self.trust_settings_mode.value].PullSettings
+function PullTargetIDsMenuItem:getPullSettings()
+    return self.trust_settings:getSettings()[self.trust_settings_mode.value].PullSettings
+end
+
+---
+-- Returns the targets to pull.
+--
+-- @treturn list Targets to pull.
+--
+function PullTargetIDsMenuItem:getTargets()
+    local pullSettings = self:getPullSettings()
     pullSettings.TargetIds = pullSettings.TargetIds or L{}
     return pullSettings.TargetIds
+end
+
+function PullTargetIDsMenuItem:getTargetIds()
+    return self:getTargets():map(PullTargetUtil.get_id)
+end
+
+---
+-- Updates the saved name of any target that's in the current zone, so the name
+-- still shows in the list after zoning away, when the mob can no longer be looked
+-- up by id.
+--
+function PullTargetIDsMenuItem:updateTargetNames()
+    local didUpdateNames = false
+
+    for target in self:getTargets():it() do
+        didUpdateNames = PullTargetUtil.update_name(target) or didUpdateNames
+    end
+
+    if didUpdateNames then
+        self.trust_settings:saveSettings(true)
+    end
 end
 
 function PullTargetIDsMenuItem:getAddMenuItem()
@@ -79,7 +113,7 @@ function PullTargetIDsMenuItem:getAddMenuItem()
         end
 
         local configItem = MultiPickerConfigItem.new("Target IDs", L{}, L(allTargetIds), function(targetId)
-            return format_target_id(targetId)
+            return format_target_id(targetId, PullTargetUtil.get_mob_name(targetId))
         end)
 
         local targetPickerView = FFXIPickerView.withConfig(configItem, true, FFXIClassicStyle.WindowSize.Editor.ConfigEditor)
@@ -88,8 +122,10 @@ function PullTargetIDsMenuItem:getAddMenuItem()
             targetPickerView:getDelegate():deselectAllItems()
 
             if newTargetIds:length() > 0 then
-                local pullSettings = self.trust_settings:getSettings()[self.trust_settings_mode.value].PullSettings
-                pullSettings.TargetIds = L(S(self:getTargetIds() + newTargetIds))
+                local newTargets = newTargetIds:map(function(targetId)
+                    return PullTargetUtil.new(targetId)
+                end)
+                self:getPullSettings().TargetIds = (self:getTargets() + newTargets):unique(PullTargetUtil.get_id)
 
                 self.trust_settings:saveSettings(true)
 
@@ -112,8 +148,8 @@ function PullTargetIDsMenuItem:getRemoveMenuItem()
         if self.targetsEditor then
             local cursorIndexPath = self.targetsEditor:getDelegate():getCursorIndexPath()
             if cursorIndexPath then
-                local currentTargetIds = self:getTargetIds()
-                currentTargetIds:remove(cursorIndexPath.row)
+                local currentTargets = self:getTargets()
+                currentTargets:remove(cursorIndexPath.row)
 
                 self.targetsEditor:getDataSource():removeItem(cursorIndexPath)
 
@@ -123,7 +159,7 @@ function PullTargetIDsMenuItem:getRemoveMenuItem()
             end
         end
     end, "Target IDs", "Remove selected target from list of enemies to pull.", false, function()
-        return self:getTargetIds():length() > 0
+        return self:getTargets():length() > 0
     end)
 end
 
@@ -132,14 +168,14 @@ function PullTargetIDsMenuItem:getMoveUpMenuItem()
         if self.targetsEditor then
             local selectedIndexPath = self.targetsEditor:getDelegate():getCursorIndexPath()
             if selectedIndexPath and selectedIndexPath.row > 1 then
-                local currentTargetIds = self:getTargetIds()
+                local currentTargets = self:getTargets()
                 local row = selectedIndexPath.row
                 local newIndexPath = IndexPath.new(selectedIndexPath.section, row - 1)
 
                 local item1 = self.targetsEditor:getDataSource():itemAtIndexPath(selectedIndexPath)
                 local item2 = self.targetsEditor:getDataSource():itemAtIndexPath(newIndexPath)
                 if item1 and item2 then
-                    currentTargetIds[row], currentTargetIds[row - 1] = currentTargetIds[row - 1], currentTargetIds[row]
+                    currentTargets[row], currentTargets[row - 1] = currentTargets[row - 1], currentTargets[row]
 
                     self.targetsEditor:getDataSource():swapItems(IndexedItem.new(item1, selectedIndexPath), IndexedItem.new(item2, newIndexPath))
                     self.targetsEditor:getDelegate():selectItemAtIndexPath(newIndexPath)
@@ -159,15 +195,15 @@ function PullTargetIDsMenuItem:getMoveDownMenuItem()
     return MenuItem.action(function()
         if self.targetsEditor then
             local selectedIndexPath = self.targetsEditor:getDelegate():getCursorIndexPath()
-            local currentTargetIds = self:getTargetIds()
-            if selectedIndexPath and selectedIndexPath.row < currentTargetIds:length() then
+            local currentTargets = self:getTargets()
+            if selectedIndexPath and selectedIndexPath.row < currentTargets:length() then
                 local row = selectedIndexPath.row
                 local newIndexPath = IndexPath.new(selectedIndexPath.section, row + 1)
 
                 local item1 = self.targetsEditor:getDataSource():itemAtIndexPath(selectedIndexPath)
                 local item2 = self.targetsEditor:getDataSource():itemAtIndexPath(newIndexPath)
                 if item1 and item2 then
-                    currentTargetIds[row], currentTargetIds[row + 1] = currentTargetIds[row + 1], currentTargetIds[row]
+                    currentTargets[row], currentTargets[row + 1] = currentTargets[row + 1], currentTargets[row]
 
                     self.targetsEditor:getDataSource():swapItems(IndexedItem.new(item1, selectedIndexPath), IndexedItem.new(item2, newIndexPath))
                     self.targetsEditor:getDelegate():selectItemAtIndexPath(newIndexPath)
@@ -179,8 +215,8 @@ function PullTargetIDsMenuItem:getMoveDownMenuItem()
     end, "Target IDs", "Move selected target down in priority.", false, function()
         if not self.targetsEditor then return false end
         local cursorIndexPath = self.targetsEditor:getDelegate():getCursorIndexPath()
-        local currentTargetIds = self:getTargetIds()
-        return cursorIndexPath and cursorIndexPath.row < currentTargetIds:length()
+        local currentTargets = self:getTargets()
+        return cursorIndexPath and cursorIndexPath.row < currentTargets:length()
     end)
 end
 

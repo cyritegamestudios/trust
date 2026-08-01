@@ -11,6 +11,7 @@ local MobFilter = require('cylibs/battle/monsters/mob_filter')
 local PartyClaimedCondition = require('cylibs/conditions/party_claimed')
 local PartyLeaderCondition = require('cylibs/conditions/party_leader')
 local PartyTargetedCondition = require('cylibs/conditions/party_targeted')
+local PullTargetUtil = require('cylibs/util/pull_target_util')
 local RunToLocationAction = require('cylibs/actions/runtolocation')
 local TargetIdsCondition = require('cylibs/conditions/target_ids')
 local TargetNamesCondition = require('cylibs/conditions/target_names')
@@ -261,7 +262,7 @@ function Puller:set_pull_settings(pull_settings)
         self.max_num_targets = 1
     end
     self:set_target_names(pull_settings.Targets or L{})
-    self:set_target_ids(pull_settings.TargetIds or L{})
+    self:set_target_ids((pull_settings.TargetIds or L{}):map(PullTargetUtil.get_id))
 
     CooldownCondition.set_timestamp('last_mob_ko', os.time() - self.delay)
 
