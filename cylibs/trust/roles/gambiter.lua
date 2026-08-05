@@ -17,6 +17,13 @@ DefaultGambiter.__class = "DefaultGambiter"
 state.AutoGambitMode = M{['description'] = 'Use Gambits', 'Auto', 'Off'}
 state.AutoGambitMode:set_description('Auto', "Automatically use gambits.")
 
+local all_gambit_target_types = L{
+    GambitTarget.TargetType.Self,
+    GambitTarget.TargetType.Enemy,
+    GambitTarget.TargetType.CurrentTarget,
+    GambitTarget.TargetType.Ally,
+}
+
 function Gambiter:on_active_changed()
     return self.is_active:onValueChanged()
 end
@@ -35,7 +42,7 @@ function Gambiter.new(action_queue, gambit_settings, state_var, include_alliance
     self.enabled = true
     self.include_alliance = include_alliance or false
     self.is_active = ValueRelay.new(false)
-    self.last_gambit_time = os.time() - self:get_cooldown()
+    self.last_gambit_time = os.clock() - self:get_cooldown()
     self.gambiter_dispose_bag = DisposeBag.new()
 
     self.gambiter_dispose_bag:addAny(L{ self.timer, self.is_active })
@@ -98,7 +105,7 @@ function Gambiter:get_cooldown()
 end
 
 function Gambiter:check_gambits(gambits, param, ignore_delay)
-    if not self:is_enabled() or not ignore_delay and (os.time() - self.last_gambit_time) < self:get_cooldown() then
+    if not self:is_enabled() or not ignore_delay and (os.clock() - self.last_gambit_time) < self:get_cooldown() then
         return
     end
 
@@ -110,8 +117,9 @@ function Gambiter:check_gambits(gambits, param, ignore_delay)
     end
 
     local gambits = (gambits or self:get_all_gambits()):filter(function(gambit) return gambit:isEnabled() end)
+    local resolved_targets = self:get_gambit_targets(all_gambit_target_types)
     for gambit in gambits:it() do
-        local success, target = self:is_gambit_satisfied(gambit, param)
+        local success, target = self:is_gambit_satisfied(gambit, param, resolved_targets)
         if success then
             self:perform_gambit(gambit, target, param)
             break
@@ -119,39 +127,46 @@ function Gambiter:check_gambits(gambits, param, ignore_delay)
     end
     logger.notice(self.__class, 'check_gambits', self:get_type(), 'checked', gambits:length(), 'gambits')
 
-    self.last_gambit_time = os.time() -- FIXME: should i really add this? Otherwise cooldown isn't respected
+    self.last_gambit_time = os.clock() -- FIXME: should i really add this? Otherwise cooldown isn't respected
 end
 
-function Gambiter:is_gambit_satisfied(gambit, param)
-    local target_types = L{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Enemy, GambitTarget.TargetType.CurrentTarget }
-    if gambit:hasConditionTarget(GambitTarget.TargetType.Ally) then
-        target_types:append(GambitTarget.TargetType.Ally)
-    end
-    local gambit_target_group = GambitTargetGroup.new(self:get_gambit_targets(target_types))
+function Gambiter:is_gambit_satisfied(gambit, param, resolved_targets)
+    resolved_targets = resolved_targets or self:get_gambit_targets(all_gambit_target_types)
 
+    local targets_by_type = {
+        [GambitTarget.TargetType.Self] = resolved_targets[GambitTarget.TargetType.Self],
+        [GambitTarget.TargetType.Enemy] = resolved_targets[GambitTarget.TargetType.Enemy],
+        [GambitTarget.TargetType.CurrentTarget] = resolved_targets[GambitTarget.TargetType.CurrentTarget],
+    }
     local comparator = gambit:getPriorityComparator()
-    local candidates
+
+    if gambit:hasConditionTarget(GambitTarget.TargetType.Ally) then
+        local allies = resolved_targets[GambitTarget.TargetType.Ally]
+
+        if comparator ~= nil and allies ~= nil and allies:length() > 1 then
+            allies = allies:copy(false):sort(comparator)
+        end
+
+        targets_by_type[GambitTarget.TargetType.Ally] = allies
+    end
+    local gambit_target_group = GambitTargetGroup.new(targets_by_type)
+    local current_targets_by_type
+
+    local function get_target_by_type(target_type)
+        return current_targets_by_type[target_type]
+    end
 
     for targets_by_type in gambit_target_group:it() do
-        local get_target_by_type = function(target_type)
-            return targets_by_type[target_type]
-        end
+        current_targets_by_type = targets_by_type
+
         if gambit:isSatisfied(get_target_by_type, param) then
             local target = get_target_by_type(gambit:getAbilityTarget())
-            if comparator == nil then
+            if comparator == nil or target ~= nil then
                 return true, target
-            end
-            if target ~= nil then
-                candidates = candidates or {}
-                candidates[#candidates + 1] = target
             end
         end
     end
 
-    if candidates and #candidates > 0 then
-        table.sort(candidates, comparator)
-        return true, candidates[1]
-    end
     return false, nil
 end
 
@@ -204,7 +219,7 @@ function Gambiter:perform_gambit(gambit, target, param)
         return success
     end
     if action then
-        self.last_gambit_time = os.time()
+        self.last_gambit_time = os.clock()
 
         if gambit:getTags():contains('reaction') or gambit:getTags():contains('Reaction') then
             self.action_queue:clear()

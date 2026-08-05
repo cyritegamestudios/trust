@@ -93,6 +93,12 @@ function ChatInput.new(trustSettings, trustSettingsMode)
 end
 
 function ChatInput:destroy()
+    if self.events then
+        for _,event in pairs(self.events) do
+            windower.unregister_event(event)
+        end
+        self.events = nil
+    end
     self.handlers = {}
 end
 
