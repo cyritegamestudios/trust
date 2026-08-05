@@ -1,4 +1,5 @@
 local gambit_commands = require('cylibs/trust/commands/gambit_commands')
+local GambitTarget = require('cylibs/gambits/gambit_target')
 local TrustCommands = require('cylibs/trust/commands/trust_commands')
 local DebuffCommands = setmetatable({}, {__index = TrustCommands })
 DebuffCommands.__index = DebuffCommands
@@ -15,9 +16,9 @@ function DebuffCommands.new(trust, trust_settings)
     self:add_command('off', function(_) return self:handle_set_mode('AutoDebuffMode', 'Off')  end, 'Disable debuffs')
 
     gambit_commands.register(self, {
-        noun = 'debuff',
+        noun = self:get_command_name(),
         trust = trust,
-        default_target = 'enemy',
+        default_target = GambitTarget.TargetType.Enemy,
         gambits = function(commands)
             local settings = commands.trust_settings:getSettings()[state.MainTrustSettingsMode.value]
             return settings and settings.DebuffSettings and settings.DebuffSettings.Gambits

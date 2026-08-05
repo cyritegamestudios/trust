@@ -4,11 +4,17 @@ local localization_util = require('cylibs/util/localization_util')
 
 local gambit_commands = {}
 
+local TARGETS = {
+    [GambitTarget.TargetType.Self] = { name = 'self', targets = S{ 'Self' } },
+    [GambitTarget.TargetType.Ally] = { name = 'party', targets = S{ 'Party', 'Corpse' } },
+    [GambitTarget.TargetType.Enemy] = { name = 'enemy', targets = S{ 'Enemy' } },
+}
+
 local TARGET_ALIASES = {
-    self = { type = GambitTarget.TargetType.Self, targets = S{ 'Self' } },
-    party = { type = GambitTarget.TargetType.Ally, targets = S{ 'Party', 'Corpse' } },
-    ally = { type = GambitTarget.TargetType.Ally, targets = S{ 'Party', 'Corpse' } },
-    enemy = { type = GambitTarget.TargetType.Enemy, targets = S{ 'Enemy' } },
+    self = GambitTarget.TargetType.Self,
+    party = GambitTarget.TargetType.Ally,
+    ally = GambitTarget.TargetType.Ally,
+    enemy = GambitTarget.TargetType.Enemy,
 }
 
 local function join(items, separator)
@@ -17,6 +23,12 @@ local function join(items, separator)
         result = result == '' and tostring(item) or result..separator..tostring(item)
     end
     return result
+end
+
+local function target_names(targets)
+    return L(targets):map(function(target)
+        return TARGETS[target].name
+    end)
 end
 
 local function abilities_for(trust, targets)
@@ -101,6 +113,7 @@ end
 function gambit_commands.register(commands, options)
     local noun = options.noun or 'rule'
     local allowed_targets = options.targets or L{ options.default_target }
+    local allowed_target_names = target_names(allowed_targets)
 
     commands:add_command('list', function(self)
         return gambit_commands.handle_list(self, options, noun)
@@ -109,7 +122,7 @@ function gambit_commands.register(commands, options)
     commands:add_command('add', function(self, _, ...)
         return gambit_commands.handle_add(self, options, noun, allowed_targets, ...)
     end, string.format('Add a %s, // trust %s add <ability> [%s]', noun,
-            commands:get_command_name(), join(allowed_targets, '|')))
+            commands:get_command_name(), join(allowed_target_names, '|')))
 
     commands:add_command('remove', function(self, _, ...)
         return gambit_commands.handle_remove(self, options, noun, ...)
@@ -159,37 +172,37 @@ function gambit_commands.handle_add(self, options, noun, allowed_targets, ...)
 
     local target = options.default_target
     if args:length() > 1 and TARGET_ALIASES[args[args:length()]:lower()] ~= nil then
-        target = args[args:length()]:lower()
+        target = TARGET_ALIASES[args[args:length()]:lower()]
         args:remove(args:length())
     end
     if not L(allowed_targets):contains(target) then
-        return false, string.format('%s cannot target %s. Try: %s', noun, target,
-                localization_util.commas(L(allowed_targets), 'or'))
+        return false, string.format('%s cannot target %s. Try: %s', noun, TARGETS[target].name,
+                localization_util.commas(target_names(allowed_targets), 'or'))
     end
 
     local name = windower.convert_auto_trans(join(args, ' '))
     if name == '' then
         return false, string.format('Usage: // trust %s add <ability> [%s]',
-                self:get_command_name(), join(allowed_targets, '|'))
+                self:get_command_name(), join(target_names(allowed_targets), '|'))
     end
     if gambit_commands.matches(gambits, name):length() > 0 then
         return false, string.format('A %s for %s already exists. Use enable, or remove it first',
                 noun, name)
     end
 
-    local target_alias = TARGET_ALIASES[target]
-    local ability = abilities_for(options.trust, target_alias.targets):firstWhere(function(candidate)
+    local target_options = TARGETS[target]
+    local ability = abilities_for(options.trust, target_options.targets):firstWhere(function(candidate)
         return candidate:get_name() == name
     end)
     if ability == nil then
         return false, string.format('%s is not an ability this job can use on a %s target',
-                name, target)
+                name, target_options.name)
     end
 
-    gambits:append(Gambit.new(target_alias.type, L{}, ability, target_alias.type))
+    gambits:append(Gambit.new(target, L{}, ability, target))
     options.save(self)
 
-    return true, string.format('%s added as a %s on %s.', name, noun, target)
+    return true, string.format('%s added as a %s on %s.', name, noun, target_options.name)
 end
 
 function gambit_commands.handle_remove(self, options, noun, ...)

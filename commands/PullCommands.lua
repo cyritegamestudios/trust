@@ -1,4 +1,5 @@
 local gambit_commands = require('cylibs/trust/commands/gambit_commands')
+local GambitTarget = require('cylibs/gambits/gambit_target')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 
 local TrustCommands = require('cylibs/trust/commands/trust_commands')
@@ -25,9 +26,9 @@ function PullTrustCommands.new(trust, trust_settings, action_queue, puller)
     self:add_command('delay', self.handle_delay, 'Set delay between pulls')
 
     gambit_commands.register(self, {
-        noun = 'pull rule',
+        noun = self:get_command_name(),
         trust = trust,
-        default_target = 'enemy',
+        default_target = GambitTarget.TargetType.Enemy,
         gambits = function(commands)
             local settings = commands:get_settings()
             return settings and settings.PullSettings and settings.PullSettings.Gambits

@@ -1,4 +1,5 @@
 local gambit_commands = require('cylibs/trust/commands/gambit_commands')
+local GambitTarget = require('cylibs/gambits/gambit_target')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 
 local TrustCommands = require('cylibs/trust/commands/trust_commands')
@@ -38,9 +39,9 @@ function HealCommands.new(trust, trust_settings)
     update_commands(trust:get_party():get_party_members(true))
 
     gambit_commands.register(self, {
-        noun = 'cure',
+        noun = self:get_command_name(),
         trust = trust,
-        default_target = 'party',
+        default_target = GambitTarget.TargetType.Ally,
         gambits = function(commands)
             local settings = commands.trust_settings:getSettings()[state.MainTrustSettingsMode.value]
             return settings and settings.CureSettings and settings.CureSettings.Gambits
@@ -181,9 +182,9 @@ function StatusRemovalCommands.new(trust, trust_settings)
     })
     
     gambit_commands.register(self, {
-        noun = 'status removal',
+        noun = self:get_command_name(),
         trust = trust,
-        default_target = 'party',
+        default_target = GambitTarget.TargetType.Ally,
         gambits = function(commands)
             local settings = commands.trust_settings:getSettings()[state.MainTrustSettingsMode.value]
             return settings and settings.StatusRemovalSettings and settings.StatusRemovalSettings.Gambits

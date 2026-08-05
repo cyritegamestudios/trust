@@ -1,4 +1,5 @@
 local gambit_commands = require('cylibs/trust/commands/gambit_commands')
+local GambitTarget = require('cylibs/gambits/gambit_target')
 local TrustCommands = require('cylibs/trust/commands/trust_commands')
 local NukeTrustCommands = setmetatable({}, {__index = TrustCommands })
 NukeTrustCommands.__index = NukeTrustCommands
@@ -24,9 +25,9 @@ function NukeTrustCommands.new(trust, trust_settings, action_queue)
     self:add_command('cleave', function(_) return self:handle_set_mode('AutoNukeMode', 'Cleave')  end, 'Cleave enemies with AOE spells')
 
     gambit_commands.register(self, {
-        noun = 'nuke',
+        noun = self:get_command_name(),
         trust = trust,
-        default_target = 'enemy',
+        default_target = GambitTarget.TargetType.Enemy,
         gambits = function(commands)
             local settings = commands:get_settings()
             return settings and settings.NukeSettings and settings.NukeSettings.Gambits
