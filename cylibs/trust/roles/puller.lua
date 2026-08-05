@@ -385,6 +385,7 @@ function Puller:return_to_camp()
     if distance > 40 then
         self:set_camp_position(nil)
         self:get_party():add_to_chat(self:get_party():get_player(), "I'm too far from camp to go back now.")
+        windower.ffxi.run(false)
         return false
     end
 
