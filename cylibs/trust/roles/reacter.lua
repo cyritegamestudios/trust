@@ -220,24 +220,31 @@ function Reacter:check_gambits(gambits, param)
 
     local gambit_target_group = GambitTargetGroup.new(self:get_gambit_targets())
 
-    -- FIXME: gambits have nil value here
-    local gambits = (gambits or self:get_all_gambits()):filter(function(gambit)
-        return gambit:isEnabled()
-    end)
+    local gambits = gambits or self:get_all_gambits()
     for gambit in gambits:it() do
-        for targets_by_type in gambit_target_group:it() do
-            local get_target_by_type = function(target_type)
-                return targets_by_type[target_type]
-            end
-            if gambit:isSatisfied(get_target_by_type, param) then
-                local target = get_target_by_type(gambit:getAbilityTarget())
-                self:perform_gambit(gambit, target)
-                break
+        if gambit:isEnabled() then
+            for targets_by_type in gambit_target_group:it() do
+                local get_target_by_type = function(target_type)
+                    return targets_by_type[target_type]
+                end
+                if gambit:isSatisfied(get_target_by_type, param) then
+                    local target = get_target_by_type(gambit:getAbilityTarget())
+                    self:perform_gambit(gambit, target)
+                    break
+                end
             end
         end
     end
 
-    logger.notice(self.__class, 'check_gambits', self:get_type(), 'checked', gambits:length(), 'gambits')
+    if logger.isEnabled then
+        local num_enabled_gambits = 0
+        for gambit in gambits:it() do
+            if gambit:isEnabled() then
+                num_enabled_gambits = num_enabled_gambits + 1
+            end
+        end
+        logger.notice(self.__class, 'check_gambits', self:get_type(), 'checked', num_enabled_gambits, 'gambits')
+    end
 end
 
 function Reacter:get_gambit_targets(gambit_target_types, flatten)
@@ -280,7 +287,9 @@ function Reacter:perform_gambit(gambit, target)
         return
     end
 
-    logger.notice(self.__class, 'perform_gambit', gambit:tostring(), target:get_mob().name)
+    if logger.isEnabled then
+        logger.notice(self.__class, 'perform_gambit', gambit:tostring(), target:get_mob().name)
+    end
     
 
     local action = gambit:getAbility():to_action(target:get_mob().index, self:get_player())

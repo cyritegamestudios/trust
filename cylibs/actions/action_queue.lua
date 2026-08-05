@@ -402,8 +402,10 @@ function ActionQueue:get_actions()
 end
 
 function ActionQueue:has_action(identifier)
-	local current_actions = self:get_actions()
-	for action in current_actions:it() do
+	if self.current_action and self.current_action:getidentifier() == identifier then
+		return true
+	end
+	for action in self.queue:it() do
 		if action:getidentifier() == identifier then
 			return true
 		end

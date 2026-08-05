@@ -109,23 +109,35 @@ function Gambiter:check_gambits(gambits, param, ignore_delay)
         return
     end
 
-    logger.notice(self.__class, 'check_gambits', self:get_type(), localization_util.commas(self.state_vars:map(function(state_var) return state_var.value end)))
+    if logger.isEnabled then
+        logger.notice(self.__class, 'check_gambits', self:get_type(), localization_util.commas(self.state_vars:map(function(state_var) return state_var.value end)))
+    end
 
     if not self:allows_multiple_actions() and self.action_queue:has_action(self:get_action_identifier()) then
         logger.notice(self.__class, 'check_gambits', self:get_type(), 'duplicate')
         return
     end
 
-    local gambits = (gambits or self:get_all_gambits()):filter(function(gambit) return gambit:isEnabled() end)
+    local gambits = gambits or self:get_all_gambits()
     local resolved_targets = self:get_gambit_targets(all_gambit_target_types)
     for gambit in gambits:it() do
-        local success, target = self:is_gambit_satisfied(gambit, param, resolved_targets)
-        if success then
-            self:perform_gambit(gambit, target, param)
-            break
+        if gambit:isEnabled() then
+            local success, target = self:is_gambit_satisfied(gambit, param, resolved_targets)
+            if success then
+                self:perform_gambit(gambit, target, param)
+                break
+            end
         end
     end
-    logger.notice(self.__class, 'check_gambits', self:get_type(), 'checked', gambits:length(), 'gambits')
+    if logger.isEnabled then
+        local num_enabled_gambits = 0
+        for gambit in gambits:it() do
+            if gambit:isEnabled() then
+                num_enabled_gambits = num_enabled_gambits + 1
+            end
+        end
+        logger.notice(self.__class, 'check_gambits', self:get_type(), 'checked', num_enabled_gambits, 'gambits')
+    end
 
     self.last_gambit_time = os.clock() -- FIXME: should i really add this? Otherwise cooldown isn't respected
 end
@@ -189,7 +201,10 @@ function Gambiter:get_gambit_targets(gambit_target_types)
         elseif gambit_target_type == GambitTarget.TargetType.Enemy then
             target_group = self:get_target()
         elseif gambit_target_type == GambitTarget.TargetType.CurrentTarget then
-            target_group = windower.ffxi.get_mob_by_target('t') and Monster.new(windower.ffxi.get_mob_by_target('t').id)
+            local current_target = windower.ffxi.get_mob_by_target('t')
+            if current_target then
+                target_group = self:get_party():get_target(current_target.id) or Monster.new(current_target.id)
+            end
         end
         if target_group then
             local targets = L{}
@@ -212,7 +227,9 @@ function Gambiter:perform_gambit(gambit, target, param)
     if target == nil or target:get_mob() == nil then
         return
     end
-    logger.notice(self.__class, 'perform_gambit', gambit:tostring(), target:get_mob().name)
+    if logger.isEnabled then
+        logger.notice(self.__class, 'perform_gambit', gambit:tostring(), target:get_mob().name)
+    end
     local action = gambit:getAbility():to_action(target:get_mob().index, self:get_player())
     action.validate = function()
         local success, _ = self:is_gambit_satisfied(gambit, param)
@@ -262,20 +279,23 @@ function Gambiter:set_gambit_settings(gambit_settings)
     self.job_gambits = (gambit_settings.Default or L{}):filter(function(gambit)
         return gambit:getAbility() ~= nil
     end)
+    self.all_gambits = L{}:extend(self.gambits):extend(self.job_gambits)
 end
 
 function Gambiter:get_all_gambits()
-    return L{}:extend(self.gambits):extend(self.job_gambits)
+    return self.all_gambits
 end
 
 function Gambiter:is_enabled()
-    local state_vars_enabled = self.state_vars:filter(function(state_var)
-        return state_var.value ~= 'Off'
-    end)
-    if state_vars_enabled:length() == 0 then
+    if not self.enabled then
         return false
     end
-    return self.enabled
+    for state_var in self.state_vars:it() do
+        if state_var.value ~= 'Off' then
+            return true
+        end
+    end
+    return false
 end
 
 function Gambiter:set_enabled(enabled)

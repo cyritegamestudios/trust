@@ -171,7 +171,9 @@ function Condition.check_conditions(conditions, param, ...)
             is_satisfied = not is_satisfied
         end
         if not is_satisfied then
-            logger.error(condition.__class, "Failed", condition:tostring(), target_index)
+            if logger.isEnabled then
+                logger.error(condition.__class, "Failed", condition:tostring(), target_index)
+            end
             return false
         end
     end
