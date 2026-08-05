@@ -23,7 +23,7 @@ function NukeTrustCommands.new(trust, trust_settings, action_queue)
     self:add_command('dark', function(_) return self:handle_set_mode('AutoNukeMode', 'Dark')  end, 'Free nuke with dark spells')
     self:add_command('cleave', function(_) return self:handle_set_mode('AutoNukeMode', 'Cleave')  end, 'Cleave enemies with AOE spells')
 
-    gambit_commands.install(self, {
+    gambit_commands.register(self, {
         noun = 'nuke',
         trust = trust,
         default_target = 'enemy',

@@ -14,7 +14,7 @@ function DebuffCommands.new(trust, trust_settings)
     self:add_command('auto', function(_) return self:handle_set_mode('AutoDebuffMode', 'Auto')  end, 'Enable debuffs')
     self:add_command('off', function(_) return self:handle_set_mode('AutoDebuffMode', 'Off')  end, 'Disable debuffs')
 
-    gambit_commands.install(self, {
+    gambit_commands.register(self, {
         noun = 'debuff',
         trust = trust,
         default_target = 'enemy',

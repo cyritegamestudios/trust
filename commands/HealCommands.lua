@@ -37,7 +37,7 @@ function HealCommands.new(trust, trust_settings)
 
     update_commands(trust:get_party():get_party_members(true))
 
-    gambit_commands.install(self, {
+    gambit_commands.register(self, {
         noun = 'cure',
         trust = trust,
         default_target = 'party',
@@ -180,7 +180,7 @@ function StatusRemovalCommands.new(trust, trust_settings)
         PickerConfigItem.new('mode_value', state.AutoStatusRemovalMode.value, L(state.AutoStatusRemovalMode:options()), nil, "Status Removals")
     })
     
-    gambit_commands.install(self, {
+    gambit_commands.register(self, {
         noun = 'status removal',
         trust = trust,
         default_target = 'party',

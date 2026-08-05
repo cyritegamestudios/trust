@@ -98,7 +98,7 @@ function gambit_commands.resolve(gambits, name, index, noun)
     return matches[1], nil
 end
 
-function gambit_commands.install(commands, options)
+function gambit_commands.register(commands, options)
     local noun = options.noun or 'rule'
     local allowed_targets = options.targets or L{ options.default_target }
 

@@ -15,7 +15,7 @@ function BuffCommands.new(trust, trust_settings)
     self:add_command('auto', self.handle_enable_buffs, 'Enable buffs on self and party')
     self:add_command('off', self.handle_disable_buffs, 'Disable buffs on self and party')
 
-    gambit_commands.install(self, {
+    gambit_commands.register(self, {
         noun = 'buff',
         trust = trust,
         default_target = 'self',

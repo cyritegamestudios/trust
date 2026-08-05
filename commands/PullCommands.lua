@@ -24,7 +24,7 @@ function PullTrustCommands.new(trust, trust_settings, action_queue, puller)
     self:add_command('ignore', self.handle_ignore, 'Add a mob to the blacklist')
     self:add_command('delay', self.handle_delay, 'Set delay between pulls')
 
-    gambit_commands.install(self, {
+    gambit_commands.register(self, {
         noun = 'pull rule',
         trust = trust,
         default_target = 'enemy',
