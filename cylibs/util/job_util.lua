@@ -106,7 +106,6 @@ function job_util.weapon_skill_id(weapon_skill_name)
     return nil
 end
 
-local missing_job_ability = {}
 local job_ability_cache = {}
 
 function job_util.job_ability_res(job_ability_name)
@@ -116,11 +115,11 @@ function job_util.job_ability_res(job_ability_name)
 
     local cached = job_ability_cache[job_ability_name]
     if cached ~= nil then
-        return cached ~= missing_job_ability and cached or nil
+        return cached
     end
 
     local job_ability = res.job_abilities:with('en', job_ability_name)
-    job_ability_cache[job_ability_name] = job_ability or missing_job_ability
+    job_ability_cache[job_ability_name] = job_ability
     return job_ability
 end
 
