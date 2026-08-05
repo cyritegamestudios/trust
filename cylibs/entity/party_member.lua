@@ -351,7 +351,7 @@ end
 -- @treturn List of localized debuff names (see buffs.lua)
 function PartyMember:get_debuffs()
     return L(self:get_debuff_ids():map(function(debuff_id)
-        return res.buffs:with('id', debuff_id).enl
+        return res.buffs[debuff_id].enl
     end))
 end
 
@@ -399,7 +399,7 @@ end
 -- @treturn List of localized buff names (see buffs.lua)
 function PartyMember:get_buffs()
     return L(self.buff_ids:map(function(buff_id)
-        return res.buffs:with('id', buff_id).enl
+        return res.buffs[buff_id].enl
     end))
 end
 

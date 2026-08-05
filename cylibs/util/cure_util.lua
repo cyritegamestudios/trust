@@ -108,7 +108,7 @@ cure_util.default_cure_settings = {
 -- @tparam number debuff_id Debuff id (see buffs.lua)
 -- @treturn number Spell id for the spell that can remove the debuff, or nil if none exists
 function cure_util.spell_id_for_debuff_id(debuff_id)
-	local debuff = res.buffs:with('id', debuff_id)
+	local debuff = res.buffs[debuff_id]
 	if debuff then
 		if debuff_id == 0 then
 			for spell_name in L{ 'Arise', 'Raise III', 'Raise II', 'Raise' }:it() do

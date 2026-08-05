@@ -258,7 +258,7 @@ function buff_util.buffs_overwritten(buff_id, buff_ids)
 	buff_ids = buff_ids or L{}
 	local spells = L(res.spells:with_all('status', buff_id)):map(function(spell) return L(spell.overwrites or {}) end):flatten()
 
-	local statuses = S(spells:map(function(spell_id) return res.spells:with('id', spell_id).status end)):filter(function(status_id) return status_id ~= buff_id and buff_ids:contains(status_id)  end)
+	local statuses = S(spells:map(function(spell_id) return res.spells[spell_id].status end)):filter(function(status_id) return status_id ~= buff_id and buff_ids:contains(status_id)  end)
 	return statuses
 end
 
@@ -326,7 +326,7 @@ end
 -- @tparam number buff_id Buff id (see buffs.lua)
 -- @treturn SpellMetadata Full metadata for the spell (see spells.lua)
 function buff_util.spell_for_buff(buff_id)
-	local buff = res.buffs:with('id', buff_id)
+	local buff = res.buffs[buff_id]
 	if buff then
 		return res.spells:with('status', buff.id)
 	end
@@ -347,7 +347,7 @@ function buff_util.buff_for_job_ability(job_ability_id)
 		job_ability = job_abilities_ext:with('id', job_ability_id)
 	end
 	if job_ability and job_ability.status then
-		return res.buffs:with('id', job_ability.status)
+		return res.buffs[job_ability.status]
 	end
 	return nil
 end

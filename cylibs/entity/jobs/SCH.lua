@@ -115,7 +115,7 @@ end
 -- @tparam number spell_id Spell id (see spells.lua)
 -- @treturn Boolean True if the spell can be cast and false otherwise
 function Scholar:can_cast_spell(spell_id)
-    if Grimoire.AddendumWhite:contains(res.spells:with('id', spell_id).en) then
+    if Grimoire.AddendumWhite:contains(res.spells[spell_id].en) then
         return buff_util.is_buff_active(buff_util.buff_id('Addendum: White'))
     end
     return spell_util.can_cast_spell(spell_id)

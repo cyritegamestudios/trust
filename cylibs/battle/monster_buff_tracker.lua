@@ -62,7 +62,7 @@ function MonsterBuffTracker:learn()
 end
 
 function MonsterBuffTracker:gain_buff(target_id, resource, monster_ability_id, buff_id)
-    local buff = res.buffs:with('id', buff_id)
+    local buff = res.buffs[buff_id]
     if buff == nil then return end
 
     local monster_ability = res[resource]:with('id', monster_ability_id)

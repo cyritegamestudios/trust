@@ -9,6 +9,10 @@ local Gambiter = require('cylibs/trust/roles/gambiter')
 local Healer = setmetatable({}, {__index = Gambiter })
 Healer.__index = Healer
 
+local function compare_hpp(a, b)
+    return a:get_hpp() < b:get_hpp()
+end
+
 state.AutoHealMode = M{['description'] = 'Heal Player and Party', 'Auto', 'Emergency', 'Off'}
 state.AutoHealMode:set_description('Auto', "Heal the party using the Default cure threshold.")
 state.AutoHealMode:set_description('Emergency', "Heal the party using the Emergency cure threshold.")
@@ -148,7 +152,7 @@ function Healer:set_heal_settings(heal_settings)
         end
 
         if gambit:getAbilityTarget() == GambitTarget.TargetType.Ally then
-            gambit:setPriorityComparator(function(a, b) return a:get_hpp() < b:get_hpp() end)
+            gambit:setPriorityComparator(compare_hpp)
         end
     end
 

@@ -32,7 +32,8 @@ end
 -- Returns the id for the roll.
 -- @treturn number Roll id
 function Roll:get_roll_id()
-    return res.job_abilities:with('en', self:get_roll_name()).id
+    local roll = job_util.job_ability_res(self:get_roll_name())
+    return roll and roll.id or nil
 end
 
 -------

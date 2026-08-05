@@ -133,7 +133,7 @@ function BuffTracker:on_gain_buff_from_spell(target_id, buff_id)
 
     if self.debug then
         local player = windower.ffxi.get_mob_by_id(target_id)
-        print(player.name..' gains the effect of '..res.buffs:with('id', buff_id).en..', buffs are now '..tostring(self.active_buffs[target_id]))
+        print(player.name..' gains the effect of '..res.buffs[buff_id].en..', buffs are now '..tostring(self.active_buffs[target_id]))
     end
 end
 
@@ -151,7 +151,7 @@ function BuffTracker:on_lose_buff_from_spell(target_id, buff_id)
 
     if self.debug then
         local player = windower.ffxi.get_mob_by_id(target_id)
-        print(player.name..' loses the effect of '..res.buffs:with('id', buff_id).en..', buffs are now '..tostring(self.active_buffs[target_id]))
+        print(player.name..' loses the effect of '..res.buffs[buff_id].en..', buffs are now '..tostring(self.active_buffs[target_id]))
     end
 end
 

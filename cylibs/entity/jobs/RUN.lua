@@ -31,7 +31,7 @@ end
 -- @treturn list Localized names of current runes
 function RuneFencer:get_current_runes()
     return L(windower.ffxi.get_player().buffs):map(function(buff_id)
-        return res.buffs:with('id', buff_id).en
+        return res.buffs[buff_id].en
     end):filter(function(buff_name)
         return rune_list:contains(buff_name)
     end)

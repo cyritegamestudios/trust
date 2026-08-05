@@ -290,7 +290,7 @@ function Roller:on_roll_used(roll_id, targets)
 end
 
 function Roller:get_roll_num(roll_name)
-    local roll = res.job_abilities:with('en', roll_name)
+    local roll = job_util.job_ability_res(roll_name)
     if roll then
         return self.roll_tracker[roll.id]
     end
