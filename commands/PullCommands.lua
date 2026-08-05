@@ -1,3 +1,5 @@
+local gambit_commands = require('cylibs/trust/commands/gambit_commands')
+local GambitTarget = require('cylibs/gambits/gambit_target')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 
 local TrustCommands = require('cylibs/trust/commands/trust_commands')
@@ -22,6 +24,17 @@ function PullTrustCommands.new(trust, trust_settings, action_queue, puller)
     self:add_command('camp', self.handle_camp, 'Automatically return to camp after battle')
     self:add_command('ignore', self.handle_ignore, 'Add a mob to the blacklist')
     self:add_command('delay', self.handle_delay, 'Set delay between pulls')
+
+    gambit_commands.register(self, {
+        noun = self:get_command_name(),
+        trust = trust,
+        default_target = GambitTarget.TargetType.Enemy,
+        gambits = function(commands)
+            local settings = commands:get_settings()
+            return settings and settings.PullSettings and settings.PullSettings.Gambits
+        end,
+        save = function(commands) commands.trust_settings:saveSettings(true) end,
+    })
     self:add_command('randomize', self.handle_set_randomize, 'Enable or disable randomizing pull targets', L{
         PickerConfigItem.new('value', 'true', L{ 'true', 'false' }, nil, "Randomize Target")
     })
