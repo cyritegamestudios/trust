@@ -138,34 +138,40 @@ function Gambiter:is_gambit_satisfied(gambit, param, resolved_targets)
         [GambitTarget.TargetType.Enemy] = resolved_targets[GambitTarget.TargetType.Enemy],
         [GambitTarget.TargetType.CurrentTarget] = resolved_targets[GambitTarget.TargetType.CurrentTarget],
     }
+    local comparator = gambit:getPriorityComparator()
+
     if gambit:hasConditionTarget(GambitTarget.TargetType.Ally) then
-        targets_by_type[GambitTarget.TargetType.Ally] = resolved_targets[GambitTarget.TargetType.Ally]
+        local allies = resolved_targets[GambitTarget.TargetType.Ally]
+
+        if comparator ~= nil and allies ~= nil and allies:length() > 1 then
+            local sorted = {}
+            for ally in allies:it() do
+                sorted[#sorted + 1] = ally
+            end
+            table.sort(sorted, comparator)
+            allies = L(sorted)
+        end
+
+        targets_by_type[GambitTarget.TargetType.Ally] = allies
     end
     local gambit_target_group = GambitTargetGroup.new(targets_by_type)
+    local current_targets_by_type
 
-    local comparator = gambit:getPriorityComparator()
-    local candidates
+    local function get_target_by_type(target_type)
+        return current_targets_by_type[target_type]
+    end
 
     for targets_by_type in gambit_target_group:it() do
-        local get_target_by_type = function(target_type)
-            return targets_by_type[target_type]
-        end
+        current_targets_by_type = targets_by_type
+
         if gambit:isSatisfied(get_target_by_type, param) then
             local target = get_target_by_type(gambit:getAbilityTarget())
-            if comparator == nil then
+            if comparator == nil or target ~= nil then
                 return true, target
-            end
-            if target ~= nil then
-                candidates = candidates or {}
-                candidates[#candidates + 1] = target
             end
         end
     end
 
-    if candidates and #candidates > 0 then
-        table.sort(candidates, comparator)
-        return true, candidates[1]
-    end
     return false, nil
 end
 
