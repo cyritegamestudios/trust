@@ -96,7 +96,7 @@ function Ninja:get_tools_for_spell(spell)
     end
     if match(Ninjutsu.Buffing, spell:get_name()) then
         if L{'Utsusemi: Ichi', 'Utsusemi: Ni', 'Utsusemi: San'}:contains(spell:get_name()) then
-            return L{'Shihei'}
+            return L{'Shihei','Shikanofuda'}
         end
         return L{'Shikanofuda'}
     elseif match(Ninjutsu.Enfeebling, spell:get_name()) then
