@@ -1384,6 +1384,40 @@ function Migration_v40:getDescription()
     return "Add pull target ids."
 end
 
+local Migration_v41 = setmetatable({}, { __index = Migration })
+Migration_v41.__index = Migration_v41
+Migration_v41.__class = 'Migration_v41'
+
+function Migration_v41.new()
+    local self = setmetatable(Migration.new(), Migration_v41)
+    return self
+end
+
+function Migration_v41:shouldPerform(trustSettings, _, _)
+    local modeNames = list.subtract(L(T(trustSettings:getSettings()):keyset()), L{'Version','Migrations'})
+    for modeName in modeNames:it() do
+        if trustSettings:getSettings()[modeName].RoleSettings == nil then
+            return true
+        end
+    end
+    return false
+end
+
+function Migration_v41:perform(trustSettings, _, _)
+    local modeNames = list.subtract(L(T(trustSettings:getSettings()):keyset()), L{'Version','Migrations'})
+    for modeName in modeNames:it() do
+        local currentSettings = trustSettings:getSettings()[modeName]
+        if currentSettings.RoleSettings == nil then
+            local defaultSettings = T(trustSettings:getDefaultSettings()):clone()
+            currentSettings.RoleSettings = defaultSettings.Default.RoleSettings
+        end
+    end
+end
+
+function Migration_v41:getDescription()
+    return 'Add role priority settings.'
+end
+
 return {
     Migration_v1 = Migration_v1,
     Migration_v2 = Migration_v2,
@@ -1423,5 +1457,6 @@ return {
     Migration_v38 = Migration_v38,
     Migration_v39 = Migration_v39,
     Migration_v40 = Migration_v40,
+    Migration_v41 = Migration_v41,
 }
 

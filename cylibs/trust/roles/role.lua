@@ -1,6 +1,35 @@
 local Role = {}
 Role.__index = Role
 
+local display_names = {
+    aftermather = 'Aftermath',
+    attacker = 'Attacking',
+    barspeller = 'Barspells',
+    bubbler = 'Geomancy',
+    buffer = 'Buffs',
+    cleaver = 'Cleave',
+    combatmode = 'Combat',
+    debuffer = 'Debuffs',
+    dispeler = 'Dispel',
+    follower = 'Following',
+    gambiter = 'Gambits',
+    healer = 'Healing',
+    magicburster = 'Magic Bursts',
+    nuker = 'Nukes',
+    pather = 'Paths',
+    puller = 'Pulling',
+    reacter = 'Reactions',
+    role = 'Role',
+    roller = 'Rolls',
+    shooter = 'Shooting',
+    skillchainer = 'Weaponskills',
+    singer = 'Songs',
+    sleeper = 'Sleep',
+    spammer = 'Weaponskill Spam',
+    statusremover = 'Ailments',
+    truster = 'Alter Egos',
+}
+
 function Role.new(action_queue, job)
     local self = setmetatable({
         action_queue = action_queue;
@@ -31,6 +60,14 @@ end
 
 function Role:get_type()
     return "role"
+end
+
+function Role.get_display_name_for_type(role_type)
+    return display_names[role_type] or role_type
+end
+
+function Role:get_display_name()
+    return Role.get_display_name_for_type(self:get_type())
 end
 
 function Role:get_localized_name()
