@@ -29,8 +29,16 @@ function RunToLocationAction.new(x, y, z, distance, description, keep_running)
 end
 
 function RunToLocationAction:destroy()
+	if not self.keep_running then
+		windower.ffxi.run(false)
+	end
 	self.dispose_bag:destroy()
 	Action.destroy(self)
+end
+
+function RunToLocationAction:cancel()
+	windower.ffxi.run(false)
+	Action.cancel(self)
 end
 
 function RunToLocationAction:can_perform()
