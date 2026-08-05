@@ -104,6 +104,11 @@ local outgoing_event_ids = S{
     0x00D,
 }
 
+local raise_spell_names = L{ 'Raise', 'Raise II', 'Raise III', 'Arise' }
+local ignored_debuff_spell_ids = L{ 260, 360 }
+local ready_ability_message_ids = L{ 43, 326, 675 }
+local defeated_statuses = L{ 2, 3 }
+
 -- Jump table with a mapping of message_id to handler for that message_id
 local incoming_event_dispatcher = {
     [0x028] = function(data)
@@ -113,7 +118,7 @@ local incoming_event_dispatcher = {
         if act.category == 4 then
             if act.param and res.spells[act.param] then
                 WindowerEvents.Spell.Finish:trigger(act.actor_id, act.param, act.targets)
-                if res.spells[act.param] and L{ 'Raise', 'Raise II', 'Raise III', 'Arise' }:contains(res.spells[act.param].en) then
+                if res.spells[act.param] and raise_spell_names:contains(res.spells[act.param].en) then
                     WindowerEvents.Raised:trigger(act.targets[1].id, act.param)
                 end
             end
@@ -166,7 +171,7 @@ local incoming_event_dispatcher = {
                     WindowerEvents.GainDebuff:trigger(target.id, res.spells[727].status)
                 elseif act.param == 728 then
                     WindowerEvents.GainDebuff:trigger(target.id, res.spells[728].status)
-                elseif action_message_util.is_gain_debuff_message(action.message) and act.param and not L{260, 360}:contains(act.param) then
+                elseif action_message_util.is_gain_debuff_message(action.message) and act.param and not ignored_debuff_spell_ids:contains(act.param) then
                     local debuff = buff_util.debuff_for_spell(act.param)
                     if debuff then
                         WindowerEvents.GainDebuff:trigger(target.id, debuff.id)
@@ -202,7 +207,7 @@ local incoming_event_dispatcher = {
             end
         end
 
-        if L{ 43, 326, 675 }:contains(message_id) then
+        if ready_ability_message_ids:contains(message_id) then
             WindowerEvents.Ability.Ready:trigger(target_id, param_1)
         end
     end,
@@ -318,7 +323,7 @@ local incoming_event_dispatcher = {
 
         WindowerEvents.PositionChanged:trigger(mob_id, packet['X'], packet['Y'], packet['Z'])
 
-        if L{ 2, 3 }:contains(status) and get_mob_info(mob_id).status ~= status then
+        if defeated_statuses:contains(status) and get_mob_info(mob_id).status ~= status then
             get_mob_info(mob_id).hpp = mob.hpp
             get_mob_info(mob_id).status = status -- NOTE: should probably set this outside of this block so it gets updated for other statuses
 
