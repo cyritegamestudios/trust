@@ -64,7 +64,7 @@ function spell_util.buff_id_for_spell(spell_id)
     local spell = res.spells[spell_id]
     if spell then
         if spell.status then
-            return res.buffs:with('id', spell.status).id
+            return res.buffs[spell.status].id
         elseif spells_ext:with('id', spell_id) then
             return spells_ext:with('id', spell_id).status
         end

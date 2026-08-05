@@ -63,7 +63,7 @@ function SongTracker.new(player, party, dummy_songs, songs, pianissimo_songs, jo
     local all_songs = L{}:extend(dummy_songs):extend(songs):extend(pianissimo_songs)
     for party_member in party:get_party_members(true, 30):it() do
         for song in all_songs:it() do
-            local buff_id = res.buffs:with('id', song:get_spell().status).id
+            local buff_id = res.buffs[song:get_spell().status].id
             if buff_util.is_buff_active(buff_id, party_member:get_buff_ids()) then
                 has_songs = true
                 self:on_gain_song(party_member:get_id(), song:get_spell().id, buff_id)

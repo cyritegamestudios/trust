@@ -21,7 +21,7 @@ end
 -- @treturn BuffMetadata Buff metadata (see buffs.lua)
 function DarkKnight:buff_for_absorb_spell(spell_name)
     if spell_name == 'Absorb-ACC' then
-        return res.buffs:with('id', 90)
+        return res.buffs[90]
     else
         return nil
     end
