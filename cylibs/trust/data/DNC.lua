@@ -5,7 +5,7 @@ DancerTrust.__index = DancerTrust
 local Buffer = require('cylibs/trust/roles/buffer')
 local Dancer = require('cylibs/entity/jobs/DNC')
 local DisposeBag = require('cylibs/events/dispose_bag')
-local Healer = require('cylibs/trust/roles/healer_v2')
+local Healer = require('cylibs/trust/roles/healer')
 local Puller = require('cylibs/trust/roles/puller')
 local StatusRemover = require('cylibs/trust/roles/status_remover')
 

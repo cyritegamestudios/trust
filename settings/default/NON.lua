@@ -2,6 +2,10 @@
 return {
     Version = 1,
     Default = {
+        RoleSettings = {
+            Priority = L{
+            }
+        },
         CombatSettings = {
             Distance = 2,
             EngageDistance = 30,

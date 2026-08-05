@@ -40,7 +40,9 @@ function Gambit:isSatisfied(target_by_type, param, verbose)
     if self:getAbility() == nil then
         return false
     end
-    logger.notice(self.__class, 'checking', self:tostring())
+    if logger.isEnabled then
+        logger.notice(self.__class, 'checking', self:tostring())
+    end
     local num_satisfied_conditions = 0
     for condition in self.conditions:it() do
         local target = target_by_type(condition:getTargetType())

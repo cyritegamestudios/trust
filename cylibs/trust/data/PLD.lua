@@ -4,7 +4,7 @@ local Trust = require('cylibs/trust/trust')
 local PaladinTrust = setmetatable({}, {__index = Trust })
 PaladinTrust.__index = PaladinTrust
 
-local Healer = require('cylibs/trust/roles/healer_v2')
+local Healer = require('cylibs/trust/roles/healer')
 local Puller = require('cylibs/trust/roles/puller')
 local Buffer = require('cylibs/trust/roles/buffer')
 local MagicBurster = require('cylibs/trust/roles/magic_burster')

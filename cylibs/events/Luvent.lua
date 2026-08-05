@@ -26,6 +26,7 @@ function Luvent.newEvent(debugKey)
     --
     -- @see newAction
     event.actions = {}
+    event.priorities_dirty = false
 
     return setmetatable(event, Luvent)
 end
@@ -217,10 +218,10 @@ end
 --
 -- @param event The event with the actions we sort.
 local function sortActionsByPriority(event)
-    table.sort(event.actions,
-               function (a1, a2)
-                   return a1.priority > a2.priority
+    table.sort(event.actions, function(a1, a2)
+        return a1.priority > a2.priority
     end)
+    event.priorities_dirty = false
 end
 
 --- Add an action to an event.
@@ -243,6 +244,7 @@ function Luvent:addAction(actionToAdd, priority)
         new.priority = priority or 0
     end
     table.insert(self.actions, new)
+    self.priorities_dirty = true
 
     return new.id
 end
@@ -269,6 +271,7 @@ end
 -- @see Luvent:removeAction
 function Luvent:removeAllActions()
     self.actions = {}
+    self.priorities_dirty = false
 end
 
 --- Return the number of actions associated with an event.
@@ -342,7 +345,9 @@ function Luvent:trigger(...)
             self:removeAction(action.id)
         end
     end
-    sortActionsByPriority(self)
+    if self.priorities_dirty then
+        sortActionsByPriority(self)
+    end
 
     for _,action in ipairs(self.actions) do
         if action.interval > 0 then
@@ -390,7 +395,12 @@ local function createActionSetter(property, valueType, default)
             assert(propertyValue >= 0)
         end
 
-        event.actions[index][property] = propertyValue
+        if event.actions[index][property] ~= propertyValue then
+            event.actions[index][property] = propertyValue
+            if property == 'priority' then
+                event.priorities_dirty = true
+            end
+        end
     end
 end
 

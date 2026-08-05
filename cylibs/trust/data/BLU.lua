@@ -6,7 +6,7 @@ BlueMageTrust.__index = BlueMageTrust
 
 local Buffer = require('cylibs/trust/roles/buffer')
 local Dispeler = require('cylibs/trust/roles/dispeler')
-local Healer = require('cylibs/trust/roles/healer_v2')
+local Healer = require('cylibs/trust/roles/healer')
 local MagicBurster = require('cylibs/trust/roles/magic_burster')
 local Nuker = require('cylibs/trust/roles/nuker')
 local Puller = require('cylibs/trust/roles/puller')

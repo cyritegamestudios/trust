@@ -2,6 +2,27 @@
 return {
     Version = 2,
     Default = {
+        RoleSettings = {
+            Priority = L{
+                'buffer',
+                'healer',
+                'magicburster',
+                'nuker',
+                'puller',
+                'statusremover',
+                'reacter',
+                'gambiter',
+                'attacker',
+                'combatmode',
+                'follower',
+                'pather',
+                'skillchainer',
+                'spammer',
+                'cleaver',
+                'truster',
+                'aftermather',
+            }
+        },
         CombatSettings = {
             Distance = 2,
             EngageDistance = 30,

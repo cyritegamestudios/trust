@@ -5,7 +5,7 @@ local WhiteMageTrust = setmetatable({}, {__index = Trust })
 WhiteMageTrust.__index = WhiteMageTrust
 
 local Barspeller = require('cylibs/trust/roles/barspeller')
-local Healer = require('cylibs/trust/roles/healer_v2')
+local Healer = require('cylibs/trust/roles/healer')
 local Debuffer = require('cylibs/trust/roles/debuffer')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local MagicBurster = require('cylibs/trust/roles/magic_burster')
