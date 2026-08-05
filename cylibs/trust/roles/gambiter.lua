@@ -144,12 +144,7 @@ function Gambiter:is_gambit_satisfied(gambit, param, resolved_targets)
         local allies = resolved_targets[GambitTarget.TargetType.Ally]
 
         if comparator ~= nil and allies ~= nil and allies:length() > 1 then
-            local sorted = {}
-            for ally in allies:it() do
-                sorted[#sorted + 1] = ally
-            end
-            table.sort(sorted, comparator)
-            allies = L(sorted)
+            allies = allies:copy(false):sort(comparator)
         end
 
         targets_by_type[GambitTarget.TargetType.Ally] = allies
