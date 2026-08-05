@@ -42,7 +42,7 @@ function Gambiter.new(action_queue, gambit_settings, state_var, include_alliance
     self.enabled = true
     self.include_alliance = include_alliance or false
     self.is_active = ValueRelay.new(false)
-    self.last_gambit_time = os.time() - self:get_cooldown()
+    self.last_gambit_time = os.clock() - self:get_cooldown()
     self.gambiter_dispose_bag = DisposeBag.new()
 
     self.gambiter_dispose_bag:addAny(L{ self.timer, self.is_active })
@@ -105,7 +105,7 @@ function Gambiter:get_cooldown()
 end
 
 function Gambiter:check_gambits(gambits, param, ignore_delay)
-    if not self:is_enabled() or not ignore_delay and (os.time() - self.last_gambit_time) < self:get_cooldown() then
+    if not self:is_enabled() or not ignore_delay and (os.clock() - self.last_gambit_time) < self:get_cooldown() then
         return
     end
 
@@ -127,7 +127,7 @@ function Gambiter:check_gambits(gambits, param, ignore_delay)
     end
     logger.notice(self.__class, 'check_gambits', self:get_type(), 'checked', gambits:length(), 'gambits')
 
-    self.last_gambit_time = os.time() -- FIXME: should i really add this? Otherwise cooldown isn't respected
+    self.last_gambit_time = os.clock() -- FIXME: should i really add this? Otherwise cooldown isn't respected
 end
 
 function Gambiter:is_gambit_satisfied(gambit, param, resolved_targets)
@@ -218,7 +218,7 @@ function Gambiter:perform_gambit(gambit, target, param)
         return success
     end
     if action then
-        self.last_gambit_time = os.time()
+        self.last_gambit_time = os.clock()
 
         if gambit:getTags():contains('reaction') or gambit:getTags():contains('Reaction') then
             self.action_queue:clear()
