@@ -6,17 +6,22 @@ local IndexedItem = require('cylibs/ui/collection_view/indexed_item')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
+local PullTargetUtil = require('cylibs/util/pull_target_util')
 
-local PullTargetsMenuItem = setmetatable({}, {__index = MenuItem })
-PullTargetsMenuItem.__index = PullTargetsMenuItem
+local PullTargetIDsMenuItem = setmetatable({}, {__index = MenuItem })
+PullTargetIDsMenuItem.__index = PullTargetIDsMenuItem
 
-function PullTargetsMenuItem.new(trust_settings, trust_settings_mode)
+local function format_target_id(targetId, targetName)
+    return string.format("%s (%X)", targetName or "Unknown", targetId)
+end
+
+function PullTargetIDsMenuItem.new(trust_settings, trust_settings_mode)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Add', 18),
         ButtonItem.default('Remove', 18),
         ButtonItem.default('Move Up', 18),
         ButtonItem.default('Move Down', 18),
-    }, {}, nil, "Targets", "Choose which enemies to pull."), PullTargetsMenuItem)
+    }, {}, nil, "Target IDs", "Choose which enemies to pull by id."), PullTargetIDsMenuItem)
 
     self.trust_settings = trust_settings
     self.trust_settings_mode = trust_settings_mode
@@ -29,10 +34,15 @@ function PullTargetsMenuItem.new(trust_settings, trust_settings_mode)
     self:setChildMenuItem("Move Down", self:getMoveDownMenuItem())
 
     self.contentViewConstructor = function()
+        self:updateTargetNames()
+
         local currentTargets = self:getTargets()
 
-        local configItem = MultiPickerConfigItem.new("Targets", L{}, currentTargets, function(targetName)
-            return targetName
+        local configItem = MultiPickerConfigItem.new("Target IDs", L{}, self:getTargetIds(), function(targetId)
+            local target = currentTargets:firstWhere(function(t)
+                return PullTargetUtil.get_id(t) == targetId
+            end)
+            return format_target_id(targetId, PullTargetUtil.get_name(target))
         end)
 
         self.targetsEditor = FFXIPickerView.new(L{ configItem }, false, FFXIClassicStyle.WindowSize.Editor.ConfigEditor)
@@ -44,44 +54,78 @@ function PullTargetsMenuItem.new(trust_settings, trust_settings_mode)
     return self
 end
 
-function PullTargetsMenuItem:destroy()
+function PullTargetIDsMenuItem:destroy()
     MenuItem.destroy(self)
 
     self.dispose_bag:destroy()
 end
 
-function PullTargetsMenuItem:getTargets()
-    return self.trust_settings:getSettings()[self.trust_settings_mode.value].PullSettings.Targets
+function PullTargetIDsMenuItem:getPullSettings()
+    return self.trust_settings:getSettings()[self.trust_settings_mode.value].PullSettings
 end
 
-function PullTargetsMenuItem:getAddMenuItem()
+---
+-- Returns the targets to pull.
+--
+-- @treturn list Targets to pull.
+--
+function PullTargetIDsMenuItem:getTargets()
+    local pullSettings = self:getPullSettings()
+    pullSettings.TargetIds = pullSettings.TargetIds or L{}
+    return pullSettings.TargetIds
+end
+
+function PullTargetIDsMenuItem:getTargetIds()
+    return self:getTargets():map(PullTargetUtil.get_id)
+end
+
+---
+-- Updates the saved name of any target that's in the current zone, so the name
+-- still shows in the list after zoning away, when the mob can no longer be looked
+-- up by id.
+--
+function PullTargetIDsMenuItem:updateTargetNames()
+    local didUpdateNames = false
+
+    for target in self:getTargets():it() do
+        didUpdateNames = PullTargetUtil.update_name(target) or didUpdateNames
+    end
+
+    if didUpdateNames then
+        self.trust_settings:saveSettings(true)
+    end
+end
+
+function PullTargetIDsMenuItem:getAddMenuItem()
     local chooseTargetsMenuItem = MenuItem.new(L{
         ButtonItem.localized('Confirm', i18n.translate('Button_Confirm')),
         ButtonItem.default('Clear All', 18),
     }, {
-        Clear = MenuItem.action(nil, "Targets", "Clear selected targets."),
+        Clear = MenuItem.action(nil, "Target IDs", "Clear selected targets."),
     },
     function()
-        local allMobs = S{}
+        local allTargetIds = S{}
         local nearbyMobs = windower.ffxi.get_mob_array()
         for _, mob in pairs(nearbyMobs) do
             if mob.valid_target and mob.spawn_type == 16 then
-                allMobs:add(mob.name)
+                allTargetIds:add(mob.id)
             end
         end
 
-        local configItem = MultiPickerConfigItem.new("Targets", L{}, L(allMobs), function(mobName)
-            return mobName
+        local configItem = MultiPickerConfigItem.new("Target IDs", L{}, L(allTargetIds), function(targetId)
+            return format_target_id(targetId, PullTargetUtil.get_mob_name(targetId))
         end)
 
         local targetPickerView = FFXIPickerView.withConfig(configItem, true, FFXIClassicStyle.WindowSize.Editor.ConfigEditor)
 
-        self.dispose_bag:add(targetPickerView:on_pick_items():addAction(function(_, newTargetNames)
+        self.dispose_bag:add(targetPickerView:on_pick_items():addAction(function(_, newTargetIds)
             targetPickerView:getDelegate():deselectAllItems()
 
-            if newTargetNames:length() > 0 then
-                local pullSettings = self.trust_settings:getSettings()[self.trust_settings_mode.value].PullSettings
-                pullSettings.Targets = L(S(pullSettings.Targets + newTargetNames))
+            if newTargetIds:length() > 0 then
+                local newTargets = newTargetIds:map(function(targetId)
+                    return PullTargetUtil.new(targetId)
+                end)
+                self:getPullSettings().TargetIds = (self:getTargets() + newTargets):unique(PullTargetUtil.get_id)
 
                 self.trust_settings:saveSettings(true)
 
@@ -90,16 +134,16 @@ function PullTargetsMenuItem:getAddMenuItem()
         end), targetPickerView:on_pick_items())
 
         return targetPickerView
-    end, "Targets", "Choose which enemies to pull.")
+    end, "Target IDs", "Choose which enemies to pull by id.")
 
     chooseTargetsMenuItem:setChildMenuItem("Confirm", MenuItem.action(function(menu)
         menu:showMenu(self)
-    end, "Targets", "Confirm enemies to pull."))
+    end, "Target IDs", "Confirm enemies to pull."))
 
     return chooseTargetsMenuItem
 end
 
-function PullTargetsMenuItem:getRemoveMenuItem()
+function PullTargetIDsMenuItem:getRemoveMenuItem()
     return MenuItem.action(function()
         if self.targetsEditor then
             local cursorIndexPath = self.targetsEditor:getDelegate():getCursorIndexPath()
@@ -114,12 +158,12 @@ function PullTargetsMenuItem:getRemoveMenuItem()
                 addon_message(260, '('..windower.ffxi.get_player().name..') '.."Alright, I won't pull this enemy anymore!")
             end
         end
-    end, "Targets", "Remove selected target from list of enemies to pull.", false, function()
+    end, "Target IDs", "Remove selected target from list of enemies to pull.", false, function()
         return self:getTargets():length() > 0
     end)
 end
 
-function PullTargetsMenuItem:getMoveUpMenuItem()
+function PullTargetIDsMenuItem:getMoveUpMenuItem()
     return MenuItem.action(function()
         if self.targetsEditor then
             local selectedIndexPath = self.targetsEditor:getDelegate():getCursorIndexPath()
@@ -140,14 +184,14 @@ function PullTargetsMenuItem:getMoveUpMenuItem()
                 end
             end
         end
-    end, "Targets", "Move selected target up in priority.", false, function()
+    end, "Target IDs", "Move selected target up in priority.", false, function()
         if not self.targetsEditor then return false end
         local cursorIndexPath = self.targetsEditor:getDelegate():getCursorIndexPath()
         return cursorIndexPath and cursorIndexPath.row > 1
     end)
 end
 
-function PullTargetsMenuItem:getMoveDownMenuItem()
+function PullTargetIDsMenuItem:getMoveDownMenuItem()
     return MenuItem.action(function()
         if self.targetsEditor then
             local selectedIndexPath = self.targetsEditor:getDelegate():getCursorIndexPath()
@@ -168,7 +212,7 @@ function PullTargetsMenuItem:getMoveDownMenuItem()
                 end
             end
         end
-    end, "Targets", "Move selected target down in priority.", false, function()
+    end, "Target IDs", "Move selected target down in priority.", false, function()
         if not self.targetsEditor then return false end
         local cursorIndexPath = self.targetsEditor:getDelegate():getCursorIndexPath()
         local currentTargets = self:getTargets()
@@ -176,4 +220,4 @@ function PullTargetsMenuItem:getMoveDownMenuItem()
     end)
 end
 
-return PullTargetsMenuItem
+return PullTargetIDsMenuItem

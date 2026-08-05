@@ -9,6 +9,7 @@ local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local PullActionMenuItem = require('ui/settings/menus/pulling/PullActionMenuItem')
+local PullTargetIDsMenuItem = require('ui/settings/menus/pulling/PullTargetIDsMenuItem')
 local PullTargetsMenuItem = require('ui/settings/menus/pulling/PullTargetsMenuItem')
 local TextInputConfigItem = require('ui/settings/editors/config/TextInputConfigItem')
 
@@ -25,6 +26,7 @@ end
 function PullSettingsMenuItem.new(abilities, trust, job_name_short, trust_settings, trust_settings_mode, trust_mode_settings)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('Targets', 18),
+        ButtonItem.default('Target IDs', 18),
         ButtonItem.default('Actions', 18),
         ButtonItem.default('Blacklist', 18),
         ButtonItem.localized('Modes', i18n.translate("Modes")),
@@ -55,6 +57,7 @@ end
 
 function PullSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Targets", PullTargetsMenuItem.new(self.trust_settings, self.trust_settings_mode))
+    self:setChildMenuItem("Target IDs", PullTargetIDsMenuItem.new(self.trust_settings, self.trust_settings_mode))
     self:setChildMenuItem("Actions", PullActionMenuItem.new(self.trust, self.trust_settings, self.trust_settings_mode))
     self:setChildMenuItem("Blacklist", self:getBlacklistMenuItem())
     self:setChildMenuItem("Modes", self:getModesMenuItem())

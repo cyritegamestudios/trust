@@ -1354,6 +1354,36 @@ function Migration_v39:getDescription()
     return "Add pull blacklist."
 end
 
+---------------------------
+-- Adds TargetIds to pull settings.
+-- @class module
+-- @name Migration_v40
+
+local Migration_v40 = setmetatable({}, { __index = Migration })
+Migration_v40.__index = Migration_v40
+Migration_v40.__class = "Migration_v40"
+
+function Migration_v40.new()
+    local self = setmetatable(Migration.new(), Migration_v40)
+    return self
+end
+
+function Migration_v40:shouldPerform(trustSettings, _, _)
+    return trustSettings:getSettings().Default.PullSettings.TargetIds == nil
+end
+
+function Migration_v40:perform(trustSettings, _, _)
+    local modeNames = list.subtract(L(T(trustSettings:getSettings()):keyset()), L{'Version','Migrations'})
+    for modeName in modeNames:it() do
+        local currentSettings = trustSettings:getSettings()[modeName].PullSettings
+        currentSettings.TargetIds = L{}
+    end
+end
+
+function Migration_v40:getDescription()
+    return "Add pull target ids."
+end
+
 return {
     Migration_v1 = Migration_v1,
     Migration_v2 = Migration_v2,
@@ -1392,5 +1422,6 @@ return {
     Migration_v37 = Migration_v37,
     Migration_v38 = Migration_v38,
     Migration_v39 = Migration_v39,
+    Migration_v40 = Migration_v40,
 }
 
