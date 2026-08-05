@@ -237,13 +237,7 @@ function Reacter:check_gambits(gambits, param)
     end
 
     if logger.isEnabled then
-        local num_enabled_gambits = 0
-        for gambit in gambits:it() do
-            if gambit:isEnabled() then
-                num_enabled_gambits = num_enabled_gambits + 1
-            end
-        end
-        logger.notice(self.__class, 'check_gambits', self:get_type(), 'checked', num_enabled_gambits, 'gambits')
+        logger.notice(self.__class, 'check_gambits', self:get_type(), 'checked', gambits:length(), 'gambits')
     end
 end
 
