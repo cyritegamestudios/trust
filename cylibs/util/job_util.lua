@@ -106,12 +106,30 @@ function job_util.weapon_skill_id(weapon_skill_name)
     return nil
 end
 
+local missing_job_ability = {}
+local job_ability_cache = {}
+
+function job_util.job_ability_res(job_ability_name)
+    if job_ability_name == nil then
+        return nil
+    end
+
+    local cached = job_ability_cache[job_ability_name]
+    if cached ~= nil then
+        return cached ~= missing_job_ability and cached or nil
+    end
+
+    local job_ability = res.job_abilities:with('en', job_ability_name)
+    job_ability_cache[job_ability_name] = job_ability or missing_job_ability
+    return job_ability
+end
+
 -------
 -- Returns the job ability id for the given localized job ability name.
 -- @tparam string job_ability_name Localized job ability name
 -- @treturn number Job ability id (see job_abilities.lua)
 function job_util.job_ability_id(job_ability_name)
-    local job_ability = res.job_abilities:with('en', job_ability_name)
+    local job_ability = job_util.job_ability_res(job_ability_name)
     if job_ability then
         return job_ability.id
     end
@@ -119,7 +137,10 @@ function job_util.job_ability_id(job_ability_name)
 end
 
 function job_util.can_use_job_ability(job_ability_name)
-    local job_ability = res.job_abilities:with('en', job_ability_name)
+    local job_ability = job_util.job_ability_res(job_ability_name)
+    if job_ability == nil then
+        return false
+    end
     if job_ability.tp_cost > 0 then
         if windower.ffxi.get_player().vitals.tp < job_ability.tp_cost then
             return false

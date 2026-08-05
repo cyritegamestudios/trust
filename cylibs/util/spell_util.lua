@@ -53,7 +53,7 @@ end
 -- @tparam number spell_id Spell id (see spells.lua)
 -- @treturn string spell_name Localized spell name
 function spell_util.spell_name(spell_id)
-    return res.spells:with('id', spell_id).en
+    return res.spells[spell_id].en
 end
 
 -------
@@ -61,7 +61,7 @@ end
 -- @tparam number spell_id Spell id (see spells.lua)
 -- @treturn number Buff id (see buffs.lua)
 function spell_util.buff_id_for_spell(spell_id)
-    local spell = res.spells:with('id', spell_id)
+    local spell = res.spells[spell_id]
     if spell then
         if spell.status then
             return res.buffs:with('id', spell.status).id

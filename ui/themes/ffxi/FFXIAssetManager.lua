@@ -52,16 +52,27 @@ function FFXIAssetManager.imageItemForElement(elementId)
     return ImageItem.new(windower.addon_path..'assets/icons/icon_light_small.png', 8, 8)
 end
 
+local abilityIconPathCache = {}
+
 function FFXIAssetManager.imageItemForAbility(abilityName)
-    if res.spells:with('en', abilityName) then
-        return FFXIAssetManager.imageItemForSpell(abilityName)
-    elseif res.job_abilities:with('en', abilityName) then
-        return FFXIAssetManager.imageItemForJobAbility(abilityName)
-    elseif res.weapon_skills[abilityName] then
-        return FFXIAssetManager.imageItemForWeaponSkill(abilityName)
-    else
-        return ImageItem.new(windower.addon_path..'assets/icons/icon_job_ability_light.png', 16, 16)
+    local cachedPath = abilityIconPathCache[abilityName]
+    if cachedPath then
+        return ImageItem.new(cachedPath, 16, 16)
     end
+
+    local item
+    if res.spells:with('en', abilityName) then
+        item = FFXIAssetManager.imageItemForSpell(abilityName)
+    elseif res.job_abilities:with('en', abilityName) then
+        item = FFXIAssetManager.imageItemForJobAbility(abilityName)
+    elseif res.weapon_skills[abilityName] then
+        item = FFXIAssetManager.imageItemForWeaponSkill(abilityName)
+    else
+        item = ImageItem.new(windower.addon_path..'assets/icons/icon_job_ability_light.png', 16, 16)
+    end
+
+    abilityIconPathCache[abilityName] = item:getImagePath()
+    return item
 end
 
 function FFXIAssetManager.imageItemForItem(itemId)
