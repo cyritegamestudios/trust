@@ -1,15 +1,31 @@
+local gambit_commands = require('cylibs/trust/commands/gambit_commands')
 local TrustCommands = require('cylibs/trust/commands/trust_commands')
 local BuffCommands = setmetatable({}, {__index = TrustCommands })
 BuffCommands.__index = BuffCommands
 BuffCommands.__class = "BuffCommands"
 
-function BuffCommands.new()
+function BuffCommands.new(trust, trust_settings)
     local self = setmetatable(TrustCommands.new(), BuffCommands)
+
+    self.trust = trust
+    self.trust_settings = trust_settings
 
     -- AutoBuffMode
     self:add_command('default', function(_) return self:handle_toggle_mode('AutoBuffMode', 'Auto', 'Off')  end, 'Toggle buffs on self and party')
     self:add_command('auto', self.handle_enable_buffs, 'Enable buffs on self and party')
     self:add_command('off', self.handle_disable_buffs, 'Disable buffs on self and party')
+
+    gambit_commands.install(self, {
+        noun = 'buff',
+        trust = trust,
+        default_target = 'self',
+        targets = L{ 'self', 'party' },
+        gambits = function(commands)
+            local settings = commands:get_settings()
+            return settings and settings.BuffSettings and settings.BuffSettings.Gambits
+        end,
+        save = function(commands) commands.trust_settings:saveSettings(true) end,
+    })
 
     return self
 end
