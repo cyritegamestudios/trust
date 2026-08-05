@@ -15,16 +15,24 @@ function ImportAction:gettype()
 end
 
 function ImportAction:perform()
-    local num_imports = 0
-    for import_path in self.import_paths:it() do
+    local index = 1
+
+    local function load_next()
+        local import_path = self.import_paths[index]
+        if import_path == nil then
+            self:complete(true)
+            return
+        end
+
         coroutine.schedule(function()
             require(import_path)
-            num_imports = num_imports + 1
-            if num_imports == self.import_paths:length() then
-                self:complete(true)
-            end
+
+            index = index + 1
+            load_next()
         end, 0.0)
     end
+
+    load_next()
 end
 
 function ImportAction:is_equal(action)
