@@ -17,6 +17,13 @@ DefaultGambiter.__class = "DefaultGambiter"
 state.AutoGambitMode = M{['description'] = 'Use Gambits', 'Auto', 'Off'}
 state.AutoGambitMode:set_description('Auto', "Automatically use gambits.")
 
+local all_gambit_target_types = L{
+    GambitTarget.TargetType.Self,
+    GambitTarget.TargetType.Enemy,
+    GambitTarget.TargetType.CurrentTarget,
+    GambitTarget.TargetType.Ally,
+}
+
 function Gambiter:on_active_changed()
     return self.is_active:onValueChanged()
 end
@@ -110,8 +117,9 @@ function Gambiter:check_gambits(gambits, param, ignore_delay)
     end
 
     local gambits = (gambits or self:get_all_gambits()):filter(function(gambit) return gambit:isEnabled() end)
+    local resolved_targets = self:get_gambit_targets(all_gambit_target_types)
     for gambit in gambits:it() do
-        local success, target = self:is_gambit_satisfied(gambit, param)
+        local success, target = self:is_gambit_satisfied(gambit, param, resolved_targets)
         if success then
             self:perform_gambit(gambit, target, param)
             break
@@ -122,12 +130,18 @@ function Gambiter:check_gambits(gambits, param, ignore_delay)
     self.last_gambit_time = os.time() -- FIXME: should i really add this? Otherwise cooldown isn't respected
 end
 
-function Gambiter:is_gambit_satisfied(gambit, param)
-    local target_types = L{ GambitTarget.TargetType.Self, GambitTarget.TargetType.Enemy, GambitTarget.TargetType.CurrentTarget }
+function Gambiter:is_gambit_satisfied(gambit, param, resolved_targets)
+    resolved_targets = resolved_targets or self:get_gambit_targets(all_gambit_target_types)
+
+    local targets_by_type = {
+        [GambitTarget.TargetType.Self] = resolved_targets[GambitTarget.TargetType.Self],
+        [GambitTarget.TargetType.Enemy] = resolved_targets[GambitTarget.TargetType.Enemy],
+        [GambitTarget.TargetType.CurrentTarget] = resolved_targets[GambitTarget.TargetType.CurrentTarget],
+    }
     if gambit:hasConditionTarget(GambitTarget.TargetType.Ally) then
-        target_types:append(GambitTarget.TargetType.Ally)
+        targets_by_type[GambitTarget.TargetType.Ally] = resolved_targets[GambitTarget.TargetType.Ally]
     end
-    local gambit_target_group = GambitTargetGroup.new(self:get_gambit_targets(target_types))
+    local gambit_target_group = GambitTargetGroup.new(targets_by_type)
 
     local comparator = gambit:getPriorityComparator()
     local candidates
