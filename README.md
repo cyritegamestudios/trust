@@ -46,6 +46,10 @@ You will need the latest version of [Trust](https://github.com/cyritegamestudios
 Trust also requires the following addons, which can be installed through [Windower](https://docs.windower.net/addons/). **After installing all dependencies, run the `// lua list` command and ensure both appear in the list of loaded addons**:
 * [Gearswap](https://docs.windower.net/addons/gearswap/) (vanilla or Selendrile)
 
+If you are multi-boxing, you also need the following plugins:
+* [dgVoodoo](https://www.bg-wiki.com/ffxi/DgVoodoo_Setup_Guide)
+* [Sandbox](https://docs.windower.net/plugins/sandbox/)
+
 ## Post Install
 1. Double check that the `Windower/addons/trust` folder exists.
 2. Run `// lua r trust` and you're ready to get started!

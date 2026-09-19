@@ -1,4 +1,5 @@
 local CommandMessage = require('cylibs/messages/command_message')
+local party_util = require('cylibs/util/party_util')
 
 local TrustCommands = require('cylibs/trust/commands/trust_commands')
 local GeneralTrustCommands = setmetatable({}, {__index = TrustCommands })
@@ -26,9 +27,9 @@ function GeneralTrustCommands.new(trust, action_queue, addon_enabled, trust_mode
 
     -- State
     self:add_command('start', self.handle_start, 'Start Trust')
-    self:add_command('startall', self.handle_start_all, 'Start Trust on all characters')
+    self:add_command('startall', self.handle_start_all, 'Start Trust on all characters, or only party members with // trust startall party')
     self:add_command('stop', self.handle_stop, 'Stop Trust')
-    self:add_command('stopall', self.handle_stop_all, 'Stop Trust on all characters')
+    self:add_command('stopall', self.handle_stop_all, 'Stop Trust on all characters, or only party members with // trust stopall party')
     self:add_command('toggle', self.handle_toggle, 'Toggle Trust On and Off')
     self:add_command('reload', self.handle_reload, 'Reload job settings files')
     self:add_command('status', self.handle_status, 'View Trust status')
@@ -130,9 +131,9 @@ function GeneralTrustCommands:handle_start(_, include_party)
     return success, message
 end
 
--- // trust startall
-function GeneralTrustCommands:handle_start_all(_)
-    return self:handle_start(_, true)
+-- // trust startall [party]
+function GeneralTrustCommands:handle_start_all(_, ...)
+    return self:handle_all(_, 'start', ...)
 end
 
 -- // trust stop
@@ -152,9 +153,32 @@ function GeneralTrustCommands:handle_stop(_, include_party)
     return success, message
 end
 
--- // trust stopall
-function GeneralTrustCommands:handle_stop_all(_)
-    return self:handle_stop(_, true)
+-- // trust stopall [party]
+function GeneralTrustCommands:handle_stop_all(_, ...)
+    return self:handle_all(_, 'stop', ...)
+end
+
+function GeneralTrustCommands:handle_all(_, command, ...)
+    local scope = select(1, ...)
+    local argument_count = select('#', ...)
+    if argument_count > 1 or (argument_count == 1 and (type(scope) ~= 'string' or scope:lower() ~= 'party')) then
+        return false, 'Usage: // trust '..command..'all [party]'
+    end
+
+    local handler = self['handle_'..command]
+    if argument_count == 0 then
+        return handler(self, _, true)
+    end
+
+    local success, message = handler(self, _)
+    local player_name = windower.ffxi.get_player().name
+    for party_member_name in party_util.get_party_member_names(false):it() do
+        if party_member_name and party_member_name ~= '' and party_member_name ~= player_name then
+            IpcRelay.shared():send_message(CommandMessage.new('trust '..command, party_member_name))
+        end
+    end
+
+    return success, message..' on party members'
 end
 
 -- // trust toggle
