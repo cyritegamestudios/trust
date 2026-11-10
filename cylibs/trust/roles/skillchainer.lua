@@ -7,13 +7,13 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local Event = require('cylibs/events/Luvent')
 local Gambit = require('cylibs/gambits/gambit')
 local GambitTarget = require('cylibs/gambits/gambit_target')
+local Item = require('resources/resources').Item
 local renderer = require('cylibs/ui/views/render')
 local SkillchainAbility = require('cylibs/battle/skillchains/abilities/skillchain_ability')
 local SkillchainBuilder = require('cylibs/battle/skillchains/skillchain_builder')
 local SkillchainPropertyCondition = require('cylibs/conditions/skillchain_property')
 local SkillchainTracker = require('cylibs/battle/skillchains/skillchain_tracker')
 local skillchain_util = require('cylibs/util/skillchain_util')
-local weapons = require('cylibs/res/weapons')
 
 state.AutoSkillchainMode = M{['description'] = 'Create Skillchains', 'Off', 'Auto', 'Cleave', 'Spam'}
 state.AutoSkillchainMode:set_description('Auto', "Automatically skillchain with self and party members.")
@@ -65,6 +65,7 @@ function Skillchainer.new(action_queue, weapon_skill_settings, job)
     self.num_skillchain_steps = 3
     self.action_identifier = self.__class..'_perform_skillchain'
     self.active_skills = L{}
+    self.equipped_weapon_names = {}
     self.skillchain_builder = SkillchainBuilder.new()
     self.skillchain_builder.include_aeonic = function(ability)
         local skill = ability:get_skill()
@@ -72,20 +73,7 @@ function Skillchainer.new(action_queue, weapon_skill_settings, job)
             return false
         end
 
-        local party = self:get_party()
-        local player = party and party:get_player()
-        if player == nil then
-            return false
-        end
-
-        local equipped_weapon_names = L{ player:get_main_weapon_id(), player:get_ranged_weapon_id() }
-                :compact_map()
-                :map(function(weapon_id)
-                    return weapons[weapon_id] and weapons[weapon_id].en
-                end)
-                :compact_map()
-
-        return equipped_weapon_names:contains(skill.weapon)
+        return self.equipped_weapon_names[skill.weapon] == true
     end
     self.last_check_skillchain_time = os.time() - 1
 
@@ -116,6 +104,11 @@ end
 
 function Skillchainer:on_add()
     Role.on_add(self)
+
+    self:update_weapons()
+    self.dispose_bag:add(self:get_party():get_player():on_equipment_change():addAction(function(_)
+        self:update_weapons()
+    end), self:get_party():get_player():on_equipment_change())
 
     self:update_abilities()
 
@@ -191,6 +184,22 @@ function Skillchainer:on_add()
     self.dispose_bag:add(state.WeaponSkillSettingsMode:on_state_change():addAction(function(_, new_value)
         self:set_current_settings(self.weapon_skill_settings:getSettings()[new_value])
     end), state.WeaponSkillSettingsMode:on_state_change())
+end
+
+function Skillchainer:update_weapons()
+    self.equipped_weapon_names = {}
+    local party = self:get_party()
+    local player = party and party:get_player()
+    if player then
+        for weapon_id in L{ player:get_main_weapon_id(), player:get_ranged_weapon_id() }:compact_map():it() do
+            local weapon = Item:get({ id = weapon_id, category = 'Weapon' })
+            if weapon and weapon.en then
+                self.equipped_weapon_names[weapon.en] = true
+            end
+        end
+    end
+
+    self.skillchain_builder:set_current_step(self.skillchain_builder:get_current_step())
 end
 
 function Skillchainer:on_skillchain_mode_changed(_, new_value)

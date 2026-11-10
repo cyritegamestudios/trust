@@ -5,6 +5,7 @@ local Event = require('cylibs/events/Luvent')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local EquipmentChangedMessage = require('cylibs/messages/equipment_changed_message')
 local inventory_util = require('cylibs/util/inventory_util')
+local Item = require('resources/resources').Item
 local IpcRelay = require('cylibs/messages/ipc/ipc_relay')
 local MobUpdateMessage = require('cylibs/messages/mob_update_message')
 local packets = require('packets')
@@ -406,8 +407,8 @@ local incoming_event_dispatcher = {
             if main_weapon_id == 65535 then
                 main_weapon_id = nil
             end
-            local weapons = require('cylibs/res/weapons')
-            if main_weapon_id == nil or weapons[main_weapon_id] == nil then
+            local weapon = main_weapon_id and Item:get({ id = main_weapon_id, category = 'Weapon' })
+            if weapon == nil then
                 return
             end
             coroutine.schedule(function()
@@ -420,8 +421,8 @@ local incoming_event_dispatcher = {
             if ranged_weapon_id == 65535 then
                 ranged_weapon_id = nil
             end
-            local weapons = require('cylibs/res/weapons')
-            if ranged_weapon_id == nil or weapons[ranged_weapon_id] == nil then
+            local weapon = ranged_weapon_id and Item:get({ id = ranged_weapon_id, category = 'Weapon' })
+            if weapon == nil then
                 return
             end
             coroutine.schedule(function()

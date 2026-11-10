@@ -1,4 +1,5 @@
 local DisposeBag = require('cylibs/events/dispose_bag')
+local Item = require('resources/resources').Item
 
 local Aftermather = setmetatable({}, {__index = Role })
 Aftermather.__index = Aftermather
@@ -165,12 +166,13 @@ end
 function Aftermather:update_weapons()
     self:set_aftermath_weapon_skill(nil)
 
-    local weapons = require('cylibs/res/weapons')
-
     local weapon_names = L{
         self:get_party():get_player():get_main_weapon_id(),
         self:get_party():get_player():get_ranged_weapon_id()
-    }:compact_map():map(function(weapon_id) return weapons[weapon_id].en end)
+    }:compact_map():map(function(weapon_id)
+        local weapon = Item:get({ id = weapon_id, category = 'Weapon' })
+        return weapon and weapon.en
+    end):compact_map()
 
     for weapon_name in weapon_names:it() do
         local aftermath_weapon_skill_id = aftermath_weapon_skills[weapon_name]
@@ -178,7 +180,6 @@ function Aftermather:update_weapons()
             self:set_aftermath_weapon_skill(WeaponSkill.new(res.weapon_skills[aftermath_weapon_skill_id].en, L{ MinTacticalPointsCondition.new(3000) }))
         end
     end
-    weapons = nil
 end
 
 function Aftermather:set_is_aftermath_active(is_aftermath_active)
