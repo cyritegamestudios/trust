@@ -1,5 +1,6 @@
 
 local serializer_util = require('cylibs/util/serializer_util')
+local Item = require('resources/resources').Item
 local SkillchainAbility = require('cylibs/battle/skillchains/abilities/skillchain_ability')
 
 local CombatSkillSettings = {}
@@ -18,16 +19,13 @@ function CombatSkillSettings.new(combatSkillName, blacklist, defaultWeaponSkillN
 end
 
 function CombatSkillSettings:is_valid(player)
-    local weapons = require('cylibs/res/weapons')
-
     local weapon_ids = L{ player:get_main_weapon_id(), player:get_ranged_weapon_id() }:compact_map()
     for weapon_id in weapon_ids:it() do
-        local main_weapon_skill = weapons[weapon_id].skill
-        if self.combatSkillId == main_weapon_skill then
+        local weapon = Item:get({ id = weapon_id, category = 'Weapon' })
+        if weapon and self.combatSkillId == weapon.skill then
             return true
         end
     end
-    weapons = nil
     return false
 end
 
