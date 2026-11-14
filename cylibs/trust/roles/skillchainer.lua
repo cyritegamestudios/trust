@@ -323,6 +323,9 @@ function Skillchainer:get_starter_ability(num_steps)
             return skillchains[1][1]
         end
     end
+    if self.active_skills:empty() then
+        return nil
+    end
     return self.active_skills:first():get_default_ability()
 end
 
@@ -394,6 +397,11 @@ function Skillchainer:update_abilities()
             self.active_skills:append(skill)
         end
     end
+
+    if self.active_skills:empty() then
+        addon_system_error("WARNING you do not have any weapons equipped. Trust may not function properly.")
+    end
+
     self.skillchain_builder:set_abilities(abilities)
 
     self:on_skills_changed():trigger(self, self.active_skills)

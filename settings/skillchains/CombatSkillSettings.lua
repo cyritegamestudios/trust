@@ -26,6 +26,10 @@ function CombatSkillSettings:is_valid(player)
             return true
         end
     end
+
+    if not player:get_main_weapon_id() then
+        return self.combatSkillId == 1 -- Hand-to-hand
+    end
     return false
 end
 
