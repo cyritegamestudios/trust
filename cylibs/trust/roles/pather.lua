@@ -83,32 +83,45 @@ function Pather:set_path(path)
 
     state.AutoFollowMode:set('Path')
 
-    self.path_target = PathTarget.new(path)
+    local path_target = PathTarget.new(path)
+    if self.path_target then
+        self.path_target:destroy()
+    end
+    self.path_target = path_target
 
-    self.follower:set_follow_target(self.path_target)
+    self.follower:set_follow_target(path_target)
 
     addon_system_message(string.format("Started path."))
 
-    self.path_target:on_path_finish():addAction(function(_, auto_reverse)
+    path_target:on_path_finish():addAction(function(_, auto_reverse)
+        if self.path_target ~= path_target then
+            return
+        end
         if not auto_reverse then
             self:stop(true)
         else
-            self.follower.walk_action_queue:push_action(WaitAction.new(0, 0, 0, self.path_target.path:get_reverse_delay()))
+            self.follower.walk_action_queue:push_action(WaitAction.new(0, 0, 0, path_target.path:get_reverse_delay()))
         end
     end)
 
-    self.path_target.timer:onTimeChange():addAction(function()
-        local position = self.path_target:get_position()
+    path_target.timer:onTimeChange():addAction(function()
+        if self.path_target ~= path_target then
+            return
+        end
+        local position = path_target:get_position()
+        if self.path_target ~= path_target then
+            return
+        end
 
         local dist = math.floor(player_util.distance(player_util.get_player_position(), position))
         if dist < 1 then
-            self.path_target.current_index = self.path_target.current_index + 1
+            path_target.current_index = path_target.current_index + 1
         end
         if state.AutoPullMode.value == 'Off' or not self.puller:get_pull_target() then
-            self.path_target:set_position(position[1], position[2], position[3])
+            path_target:set_position(position[1], position[2], position[3])
         end
     end)
-    self.path_target.timer:start()
+    path_target.timer:start()
 end
 
 function Pather:set_path_with_name(path_name, auto_reverse)
