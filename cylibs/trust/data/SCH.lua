@@ -42,7 +42,7 @@ function ScholarTrust.new(settings, action_queue, battle_settings, trust_setting
 end
 
 function ScholarTrust:destroy()
-    Role.destroy(self)
+    Trust.destroy(self)
 
     self.dispose_bag:destroy()
 end

@@ -103,8 +103,8 @@ function load_user_files(main_job_id, sub_job_id)
 			trust_for_job_short(player.sub_job_name_short, addon_settings:getSettings(), player.trust.sub_job_settings.Default, addon_settings, action_queue, player.player, player.alliance, player.party)
 	)
 
-	main_job_trust:init()
-	sub_job_trust:init()
+	main_job_trust:init(true)
+	sub_job_trust:init(false)
 
 	player.trust.main_job = main_job_trust
 	player.trust.sub_job = sub_job_trust
