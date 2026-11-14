@@ -3,6 +3,7 @@ require('lists')
 require('logger')
 
 local Event = require('cylibs/events/Luvent')
+local DisposeBag = require('cylibs/events/dispose_bag')
 local packets = require('packets')
 
 local Trust = {}
@@ -29,6 +30,7 @@ function Trust.new(action_queue, roles, trust_settings, job)
 		status = 0;
 		role_blacklist = S{};
 		gambits = L{};
+		dispose_bag = DisposeBag.new();
 		trust_settings_changed = Event.newEvent();
 		trust_roles_changed = Event.newEvent();
 		trust_modes_override = Event.newEvent();
@@ -40,7 +42,7 @@ function Trust.new(action_queue, roles, trust_settings, job)
 	return self
 end
 
-function Trust:init()
+function Trust:init(is_main_job)
 	for role in self.roles:it() do
 		self:add_role(role)
 	end
@@ -103,28 +105,30 @@ function Trust:init()
 		self:set_trust_settings(self.trust_settings)
 	end)
 
-	WindowerEvents.Raise.DialogShown:addAction(function()
-		if state.AutoAcceptRaiseMode.value ~= 'Auto' then
-			return
-		end
-		coroutine.schedule(function()
-			local player = self:get_party():get_player()
-			if not player:is_alive() and player:get_mob() then
-				local p = packets.new('outgoing', 0x01A)
-
-				p['Target'] = player:get_mob().id
-				p['Target Index'] = player:get_mob().index
-				p['Category'] = 0x0D -- Accept raise
-				p['Param'] = 0
-				p['X Offset'] = 0
-				p['Z Offset'] = 0
-				p['Y Offset'] = 0
-				p['_unknown1'] = 0
-
-				packets.inject(p)
+	if is_main_job then
+		self.dispose_bag:add(WindowerEvents.Raise.DialogShown:addAction(function()
+			if state.AutoAcceptRaiseMode.value ~= 'Auto' then
+				return
 			end
-		end, 2)
-	end)
+			coroutine.schedule(function()
+				local player = self:get_party():get_player()
+				if not player:is_alive() and player:get_mob() then
+					local p = packets.new('outgoing', 0x01A)
+
+					p['Target'] = player:get_mob().id
+					p['Target Index'] = player:get_mob().index
+					p['Category'] = 0x0D -- Accept raise
+					p['Param'] = 0
+					p['X Offset'] = 0
+					p['Z Offset'] = 0
+					p['Y Offset'] = 0
+					p['_unknown1'] = 0
+
+					packets.inject(p)
+				end
+			end, 2)
+		end), WindowerEvents.Raise.DialogShown)
+	end
 
 	-- NOTE: this must come after so on_trust_settings_changed gets called in parent class first
 	self:on_init()
@@ -149,6 +153,8 @@ function Trust:init()
 end
 
 function Trust:destroy()
+	self.dispose_bag:destroy()
+
 	for role in self.roles:it() do
 		if role.destroy then
 			role:destroy()

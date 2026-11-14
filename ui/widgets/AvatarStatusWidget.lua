@@ -1,13 +1,11 @@
 local Avatar = require('cylibs/entity/avatar')
 local CollectionViewDataSource = require('cylibs/ui/collection_view/collection_view_data_source')
 local Color = require('cylibs/ui/views/color')
-local DisposeBag = require('cylibs/events/dispose_bag')
 local IndexPath = require('cylibs/ui/collection_view/index_path')
 local Padding = require('cylibs/ui/style/padding')
 local TextCollectionViewCell = require('cylibs/ui/collection_view/cells/text_collection_view_cell')
 local TextItem = require('cylibs/ui/collection_view/items/text_item')
 local TextStyle = require('cylibs/ui/style/text_style')
-local Timer = require('cylibs/util/timers/timer')
 local VerticalFlowLayout = require('cylibs/ui/collection_view/layouts/vertical_flow_layout')
 local Widget = require('ui/widgets/Widget')
 
@@ -43,19 +41,6 @@ AvatarStatusWidget.TextSmall3 = TextStyle.new(
         Color.yellow,
         false
 )
-AvatarStatusWidget.Subheadline = TextStyle.new(
-        Color.clear,
-        Color.clear,
-        "Arial",
-        8,
-        Color.white,
-        Color.lightGrey,
-        0,
-        0.5,
-        Color.black,
-        true,
-        Color.red
-)
 
 function AvatarStatusWidget.new(frame, player, trustHud, trustSettings, trustSettingsMode)
     local dataSource = CollectionViewDataSource.new(function(item, indexPath)
@@ -71,12 +56,10 @@ function AvatarStatusWidget.new(frame, player, trustHud, trustSettings, trustSet
     local self = setmetatable(Widget.new(frame, "Pet", dataSource, VerticalFlowLayout.new(0, Padding.new(6, 4, 0, 0), 3), 10, true), AvatarStatusWidget)
 
     self.id = player:get_id()
-    self.actionDisposeBag = DisposeBag.new()
 
     self:getDataSource():addItem(TextItem.new("HP", AvatarStatusWidget.TextSmall), IndexPath.new(1, 1))
     self:getDataSource():addItem(TextItem.new("TP", AvatarStatusWidget.TextSmall), IndexPath.new(1, 2))
     self:getDataSource():addItem(TextItem.new(state.AutoAvatarMode.value, AvatarStatusWidget.TextSmall3), IndexPath.new(1, 3))
-    self:getDataSource():addItem(TextItem.new('Idle', AvatarStatusWidget.Subheadline), IndexPath.new(1, 4))
 
     self:getDisposeBag():add(player:on_pet_change():addAction(
             function (_, pet_id, pet_name)
@@ -118,7 +101,6 @@ function AvatarStatusWidget.new(frame, player, trustHud, trustSettings, trustSet
         --trustHud:openMenu(AutomatonSettingsMenuItem.new(trustSettings, trustSettingsMode))
     end), self:getDelegate():didSelectItemAtIndexPath())
 
-    self:setAction('Idle')
     self:setTp(0)
 
     if pet_util.has_pet() then
@@ -130,8 +112,6 @@ function AvatarStatusWidget.new(frame, player, trustHud, trustSettings, trustSet
 
     self:setNeedsLayout()
     self:layoutIfNeeded()
-
-    self:getDisposeBag():addAny(L{ self.actionDisposeBag })
 
     return self
 end
@@ -161,22 +141,6 @@ function AvatarStatusWidget:updateAvatar(petId, petName)
     if petId then
         self.avatar = Avatar.new(petId, self.action_queue)
         self.avatar:monitor()
-
-        --[[self:getDisposeBag():add(self.avatar:on_job_ability_finish():addAction(function(_, abilityName)
-            self.actionDisposeBag:destroy()
-
-            self:setAction(abilityName)
-
-            self.actionTimer = Timer.scheduledTimer(3, 3)
-
-            self.actionDisposeBag:add(self.actionTimer:onTimeChange():addAction(function(_)
-                self:setAction('Idle')
-            end), self.actionTimer:onTimeChange())
-
-            self.actionTimer:start()
-
-            self.actionDisposeBag:addAny(L{ self.actionTimer })
-        end), self.avatar:on_job_ability_finish())]]
     end
 end
 
@@ -186,10 +150,6 @@ end
 
 function AvatarStatusWidget:setTp(tp)
     self:getDataSource():updateItem(TextItem.new("TP  "..tp, AvatarStatusWidget.TextSmall), IndexPath.new(1, 2))
-end
-
-function AvatarStatusWidget:setAction(abilityName)
-    self:getDataSource():updateItem(TextItem.new(abilityName, AvatarStatusWidget.Subheadline), IndexPath.new(1, 4))
 end
 
 return AvatarStatusWidget
