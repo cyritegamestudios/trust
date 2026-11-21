@@ -3,6 +3,7 @@ local CooldownCondition = require('cylibs/conditions/cooldown')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Event = require('cylibs/events/Luvent')
 local GambitTarget = require('cylibs/gambits/gambit_target')
+local HasMaxNumAlterEgosCondition = require('cylibs/conditions/has_max_num_alter_egos')
 local HasMaxNumSongsCondition = require('cylibs/conditions/has_max_num_songs')
 local MaxNumSongsCondition = require('cylibs/conditions/max_num_songs')
 local NumExpiringSongsCondition = require('cylibs/conditions/num_expiring_songs')
@@ -268,6 +269,11 @@ end
 function Singer:get_default_conditions(gambit)
     local conditions = L{
         MinHitPointsPercentCondition.new(1),
+        -- Only sing once the party is full: the Truster summons all alter
+        -- egos first, then songs go up, then the puller pulls. Without this
+        -- the singer starts after the first trusts are out and its constant
+        -- re-singing keeps the Truster from ever finishing the party.
+        GambitCondition.new(HasMaxNumAlterEgosCondition.new(), GambitTarget.TargetType.Self),
     }
     if gambit:getAbilityTarget() ~= GambitTarget.TargetType.Self then
         conditions:append(MaxDistanceCondition.new(gambit:getAbility():get_range()))
