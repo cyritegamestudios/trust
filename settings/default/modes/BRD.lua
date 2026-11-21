@@ -42,6 +42,7 @@ return {
         ["autoenmityreductionmode"]="Off",
         ["autodebuffmode"]="Auto",
         ["autoclarioncallmode"]="Auto",
+        ["autosoulvoicemode"]="Auto",
         ["actionbatchingmode"]="Off",
         ["autonukemode"]="Off",
         ["autosleepmode"]="Off",
