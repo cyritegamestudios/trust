@@ -13,7 +13,6 @@ return {
         ["combatmode"]="Off",
         ["autofoodmode"]="Off",
         ["autobarspellmode"]="Off",
-        ["autotrustsmode"]="Off",
         ["autostatusremovalmode"]="Off",
     },
 }

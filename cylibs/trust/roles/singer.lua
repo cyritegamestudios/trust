@@ -3,6 +3,7 @@ local CooldownCondition = require('cylibs/conditions/cooldown')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Event = require('cylibs/events/Luvent')
 local GambitTarget = require('cylibs/gambits/gambit_target')
+local HasMaxNumAlterEgosCondition = require('cylibs/conditions/has_max_num_alter_egos')
 local HasMaxNumSongsCondition = require('cylibs/conditions/has_max_num_songs')
 local MaxNumSongsCondition = require('cylibs/conditions/max_num_songs')
 local NumExpiringSongsCondition = require('cylibs/conditions/num_expiring_songs')
@@ -87,9 +88,20 @@ function Singer:set_song_settings(song_settings)
         dummy_song_threshold = dummy_song_threshold + 1
     end
 
+    -- Maintain TWO dummy songs, back to back (not one): the
+    -- burst needs both dummies up so Minuet IV and V each
+    -- have a dummy to overwrite. The old count of 1 meant
+    -- only one dummy was ever kept up, so Minuet IV
+    -- overwrote Gavotte, the gambit refilled with Gavotte
+    -- again, then Minuet V overwrote it -- Gavotte, Minuet
+    -- IV, Gavotte, Minuet V, and the second dummy never
+    -- went off. Each dummy's gambit also checks that dummy
+    -- itself is not already active, so Gavotte does not just
+    -- refresh itself when the other dummy is the one missing.
     gambit_settings.DummySongs = song_settings.DummySongs:map(function(song)
         return Gambit.new(GambitTarget.TargetType.Self, L{
-            GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(song_settings.DummySongs:map(function(s) return s:get_name() end), 1) }), GambitTarget.TargetType.Self),
+            GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }) }), GambitTarget.TargetType.Self),
+            GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(song_settings.DummySongs:map(function(s) return s:get_name() end), 2) }), GambitTarget.TargetType.Self),
             GambitCondition.new(NumSongsCondition.new(dummy_song_threshold, Condition.Operator.GreaterThanOrEqualTo), GambitTarget.TargetType.Self),
             GambitCondition.new(HasMaxNumSongsCondition.new(Condition.Operator.LessThan), GambitTarget.TargetType.Self),
         }, song, Condition.TargetType.Self)
@@ -162,12 +174,46 @@ function Singer:set_song_settings(song_settings)
         Gambit.new(GambitTarget.TargetType.Self, L{
             GambitCondition.new(ModeCondition.new('AutoClarionCallMode', 'Auto'), GambitTarget.TargetType.Self),
             GambitCondition.new(ModeCondition.new('AutoNitroMode', 'Auto'), GambitTarget.TargetType.Self),
+            GambitCondition.new(ModeCondition.new('AutoSoulVoiceMode', 'Auto'), GambitTarget.TargetType.Self),
+            GambitCondition.new(NumSongsCondition.new(self.job.max_num_songs + 1, Condition.Operator.LessThan, true), GambitTarget.TargetType.Self),
+        }, Sequence.new(L{
+            Script.new(function()
+                self.song_tracker:set_all_expiring_soon()
+            end),
+            JobAbility.new("Soul Voice"),
+            Wait.new(1),
+            JobAbility.new("Clarion Call"),
+            Wait.new(1),
+            JobAbility.new("Nightingale"),
+            Wait.new(1),
+            JobAbility.new("Troubadour")
+        }), GambitTarget.TargetType.Self),
+        Gambit.new(GambitTarget.TargetType.Self, L{
+            GambitCondition.new(ModeCondition.new('AutoClarionCallMode', 'Auto'), GambitTarget.TargetType.Self),
+            GambitCondition.new(ModeCondition.new('AutoNitroMode', 'Auto'), GambitTarget.TargetType.Self),
             GambitCondition.new(NumSongsCondition.new(self.job.max_num_songs + 1, Condition.Operator.LessThan, true), GambitTarget.TargetType.Self),
         }, Sequence.new(L{
             Script.new(function()
                 self.song_tracker:set_all_expiring_soon()
             end),
             JobAbility.new("Clarion Call"),
+            Wait.new(1),
+            JobAbility.new("Nightingale"),
+            Wait.new(1),
+            JobAbility.new("Troubadour")
+        }), GambitTarget.TargetType.Self),
+        Gambit.new(GambitTarget.TargetType.Self, L{
+            GambitCondition.new(ModeCondition.new('AutoNitroMode', 'Auto'), GambitTarget.TargetType.Self),
+            GambitCondition.new(ModeCondition.new('AutoSoulVoiceMode', 'Auto'), GambitTarget.TargetType.Self),
+            GambitCondition.new(ConditionalCondition.new(L{
+                NumSongsCondition.new(0, Condition.Operator.Equals),
+                NumExpiringSongsCondition.new(1, Condition.Operator.GreaterThanOrEqualTo),
+            }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Self),
+        }, Sequence.new(L{
+            Script.new(function()
+                self.song_tracker:set_all_expiring_soon()
+            end),
+            JobAbility.new("Soul Voice"),
             Wait.new(1),
             JobAbility.new("Nightingale"),
             Wait.new(1),
@@ -223,6 +269,11 @@ end
 function Singer:get_default_conditions(gambit)
     local conditions = L{
         MinHitPointsPercentCondition.new(1),
+        -- Only sing once the party is full: the Truster summons all alter
+        -- egos first, then songs go up, then the puller pulls. Without this
+        -- the singer starts after the first trusts are out and its constant
+        -- re-singing keeps the Truster from ever finishing the party.
+        GambitCondition.new(HasMaxNumAlterEgosCondition.new(), GambitTarget.TargetType.Self),
     }
     if gambit:getAbilityTarget() ~= GambitTarget.TargetType.Self then
         conditions:append(MaxDistanceCondition.new(gambit:getAbility():get_range()))
@@ -230,6 +281,10 @@ function Singer:get_default_conditions(gambit)
     return conditions + self.job:get_conditions_for_ability(gambit:getAbility()):map(function(condition)
         return GambitCondition.new(condition, GambitTarget.TargetType.Self)
     end)
+end
+
+function Singer:get_dummy_songs()
+    return self.dummy_songs
 end
 
 function Singer:get_merged_songs(party_member, max_num_songs)

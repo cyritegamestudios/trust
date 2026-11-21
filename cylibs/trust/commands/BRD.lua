@@ -1,4 +1,5 @@
 local ActionQueue = require('cylibs/actions/action_queue')
+local job_util = require('cylibs/util/job_util')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local SongValidator = require('cylibs/entity/jobs/bard/song_validator')
 
@@ -116,6 +117,12 @@ function BardTrustCommands:handle_sing(_, use_nitro)
 
     local actions = L{}
     if use_nitro and self.trust:get_job():is_nitro_ready() then
+        -- Soul Voice has its own menu toggle (AutoSoulVoiceMode).
+        -- Off means never use it, even in the manual burst.
+        if state.AutoSoulVoiceMode.value == "Auto" and job_util.knows_job_ability(job_util.job_ability_id("Soul Voice")) and job_util.can_use_job_ability("Soul Voice") then
+            actions:append(JobAbilityAction.new(0, 0, 0, 'Soul Voice'))
+            actions:append(WaitAction.new(0, 0, 0, 1.5))
+        end
         actions:append(JobAbilityAction.new(0, 0, 0, 'Nightingale'))
         actions:append(WaitAction.new(0, 0, 0, 1.5))
         actions:append(JobAbilityAction.new(0, 0, 0, 'Troubadour'))
