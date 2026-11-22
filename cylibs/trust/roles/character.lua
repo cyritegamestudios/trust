@@ -41,17 +41,17 @@ Character.Persona = {
         longfight = {'Long engagement ended. All hostiles down.', 'Forty-five seconds plus. Hard fight. We endured.', 'Extended combat concluded. Vitals steady.', 'Tough target. It took longer than projected.', 'Prolonged fight over. Damage sustained, mission done.', 'That one resisted. We outlasted it.', 'Long battle finished. Readiness reduced, morale steady.', 'Extended engagement. It is over. Recovering now.', 'Hard fought. Long fight. We prevailed.', 'That target took time. We took it down.', 'Prolonged combat ended. Sector clear.', 'Long fight concluded. Standing by for recovery.'},
     },
     Playful = {
-        engage = {'Another fight? I was just getting comfortable.', 'Right, let us go bother that one.', 'Time to sing and swing. Let us go.', 'Oh good, a fight. I was getting bored.', 'Let us make this one quick and flashy.', 'Here we go. Try to look impressive.', 'A new challenger appears. How exciting.', 'Time to earn our keep. Let us go.', 'I hope this one appreciates good music.', 'Let us dance. The foe leads, unfortunately.', 'Another day, another dramatic entrance.', 'I was born ready. Mostly.', 'Let us show this one our best moves.', 'Time to turn up the volume.', 'Oh, it wants to fight? How rude. Let us oblige.', 'Let us go say hello. With swords.', 'I do love a good opening number.', 'Here comes the fun part. Probably.', 'Let us cause a little chaos. Fun chaos.', 'A fight! My favorite kind of cardio.', 'Time to put on a show. Curtain up.', 'I have a song for this exact occasion.', 'Let us go. The foe is waiting, impatiently.', 'Another one? They just keep coming.', 'I will handle the music. You handle the hitting.', 'Let us turn this into a performance.', 'Oh good, more practice for my battle ballad.', 'Time to shine. Or at least sparkle a little.', 'Let us go introduce ourselves. Loudly.', 'I have been waiting all day for this.', 'A new foe! Let us give it a warm welcome.', 'Let us make this look easy. Or at least fun.', 'Here we go again. Same song, new verse.', 'I do hope this one likes encores.', 'Time to play. Literally. I play an instrument.', 'Let us go. Adventure waits for no bard.', 'Another fight, another story to tell later.', 'I am ready. Are you ready? Too late, let us go.', 'Let us show them how a bard fights.', 'Onward! The music demands it.'},
-        idle = {'Well, that was dramatic. I loved it.', 'We survived. Again. I am getting good at this.', 'That was fun. Let us do it again. Later. Maybe.', 'All done. Who is next? Anyone? No?', 'I call that a solid performance.', 'That went well. I barely broke a sweat.', 'We are still here. That is the important part.', 'A round of applause for us, please.', 'That was exciting. My heart is still racing.', 'Victory! I will take a bow later.', 'We did it. High five? No? Fine.', 'That was a workout. I need a snack.', 'All clear. Time for a quick breather.', 'I think we looked great out there.', 'Another win for the history books.', 'That was easy. Suspiciously easy.', 'We make a great team. Obviously.', 'Done and done. What is next on the list?', 'I am going to hum our victory tune now.', 'That was a lot. But we handled it.', 'We are unstoppable. Mostly. Today, anyway.', 'A flawless victory. Well, nearly flawless.', 'That was fun. I want an encore.', 'We did it! Somebody write this down.', 'All quiet now. My favorite sound.', 'That was a good fight. I enjoyed it.', 'We survived another one. Cheers to us.', 'I am taking a bow. You should too.', 'That went better than expected. Nice.', 'Victory tastes sweet. Like a good rest.', 'We did that. All of that. Us.', 'That was intense. I need a minute.', 'Another foe down. We are on a roll.', 'I think that deserves a song. Oh wait, I am the song.', 'All done. That was almost too easy.', 'We are all here and mostly unharmed. I call that a win.', 'That was a performance worth remembering.', 'Done! Let us find the next adventure.', 'I am proud of us. Very proud.', 'That was great. Let us do it again sometime.'},
-        low = {'Ouch. That one actually stung.', 'Your HP is dropping. That is not ideal.', 'Hey, that hurt! Let us be careful.', 'You are looking a bit battered. Take it easy.', 'That was a big hit. Maybe dodge next time?', 'Your health is getting low. Not a fan.', 'Oof. That one left a mark.', 'You are hurt. Let us slow down a bit.', 'That was not fun. Let us avoid more of that.', 'Your HP is halfway gone. Yikes.', 'I think you need a bandage. Or ten.', 'That hit was rude. Very rude.', 'You are looking rough. Take a breather.', 'Okay, that was too much. Let us regroup.', 'Your health bar is giving me anxiety.', 'That was a lot of damage. Slow down.', 'You are bleeding. That is not part of the plan.', 'I did not like that hit. Not one bit.', 'Your HP is dropping fast. Careful now.', 'That was painful to watch. Are you okay?', 'You are taking a beating. Let us fix that.', 'I think the foe is winning this round. Let us change that.', 'Your health is low. Time for a tactical pause.', 'Ouch ouch ouch. That was three ouches.', 'You are hurt. I am officially worried.', 'That hit was uncalled for. Let us retaliate carefully.', 'Your HP is not looking great. Just saying.', 'I think you should dodge more. Just a thought.', 'You are looking a little squished. Take care.', 'That was a heavy blow. Let us recover.', 'Your health is slipping. Let us be smart.', 'I am not loving this damage. Let us heal up.', 'You are hurt, and I am concerned. Heal up.', 'That was a nasty one. Let us take a step back.', 'Your HP is half gone. That is half too much.', 'I think we need a breather. And maybe a potion.', 'You are taking too many hits. My nerves cannot take it.', 'That hurt. Let us not do that again.', 'Your health is dropping. I am keeping score, and it is bad.', 'Okay, new plan: less getting hit, more winning.'},
-        critical = {'Whoa whoa whoa! Your HP is almost gone!', 'That is a very small health bar. Very small!', 'Okay, this is officially an emergency!', 'Your HP is in the danger zone! Big time!', 'We need healing. Like, right now!', 'That health bar is basically a rumor at this point.', 'Red alert! Your HP is nearly gone!', 'Okay, no more heroics! Fall back!', 'Your HP is so low I can barely see it!', 'This is bad. This is very, very bad.', 'Heal! Dodge! Run! Anything! Just survive!', 'Your health is hanging by a thread. A thin one.', 'Okay, panic time. Just a little panic.', 'That was way too close. Way too close.', 'Your HP is critical! This is not a drill!', 'I can count your HP on one hand. Not good.', 'We are in trouble. Big trouble.', 'Your health is almost gone. Do something!', 'Okay, this is the part where we run away. A little.', 'That health bar is scaring me. Heal up!', 'Emergency! Your HP is nearly zero!', 'I am not panicking. You are panicking. Heal!', 'Your HP is so low it is practically a suggestion.', 'This is the worst time to be brave. Fall back!', 'Okay, that was terrifying. Let us not repeat it.', 'Your health is critical! I am officially worried!', 'We need a miracle. Or a potion. A potion works.', 'That was almost the end. Almost!', 'Your HP is in single digits territory. Run!', 'I am going to need you to not die, please.', 'Red flag! Red flag! Your HP is gone!', 'Okay, deep breaths. And healing. Mostly healing.', 'Your health is gone. Like, actually gone.', 'This is a five-alarm emergency. Heal now!', 'I did not sign up for this level of danger.', 'Your HP is critical. I repeat, critical!', 'Okay, that was too close for comfort. Way too close.', 'We are one hit from disaster. One hit!', 'Your health is nearly zero. This is fine. It is fine. It is not fine.', 'Heal now! I will hold the foe off! Probably!'},
-        recover = {'Your HP is coming back. Phew.', 'That is more like it. Looking good.', 'You are healing up. Excellent.', 'Crisis averted. For now, anyway.', 'Your health is back. What a relief.', 'That was scary. But you are better now.', 'HP rising. I can breathe again.', 'You are looking healthier. Thank goodness.', 'That was close. But look at you now.', 'Your HP is climbing. Music to my ears.', 'You are back on your feet. Bravo.', 'Health restored. Let us keep it that way.', 'That is better. Much, much better.', 'You are healing nicely. Keep it up.', 'Phew. That was a close one.', 'Your HP is looking good again. Nice.', 'You are back. I knew you would be.', 'That was a scare. But you are fine now.', 'Health is returning. Crisis over.', 'You are looking strong again. Great.', 'HP up. Worries down. That is the deal.', 'You are recovering well. I am relieved.', 'That was intense. But you made it.', 'Your health is back. Let us not lose it again.', 'Looking good. Let us keep it that way.', 'You are healing up fast. Impressive.', 'That was a close call. Glad you are okay.', 'HP rising. My nerves are calming down.', 'You are back to full-ish. Good enough.', 'Health is back. Let us celebrate quietly.', 'You are looking like yourself again. Good.', 'That was scary, but you pulled through.', 'HP climbing. I approve. Strongly.', 'You are better now. Let us move on.', 'Recovery complete. Mostly. Good enough.', 'Your health is back. Let us be careful this time.', 'That was a wild ride. You are okay now.', 'HP up. Crisis down. Perfect.', 'You are healing. I can stop worrying. Mostly.', 'Looking much better. Let us keep it that way.'},
-        ko = {'Well, that was dramatic. Even for us.', 'You are down. I am not even surprised. A little.', 'Okay, that was not part of the plan.', 'You fell down. I will get you back up.', 'That was a spectacular fall. Impressive, really.', 'Down you go. Up you come. That is the deal.', 'Well, that happened. Let us fix it.', 'You are taking a nap at a bad time.', 'I will revive you. This is not the end.', 'That was unexpected. Even for me.', 'You are down, but I have got a plan.', 'Oops. That was not supposed to happen.', 'Take a quick nap. I will handle the rest.', 'You fell. I will pick you up. Literally.', 'That was a rough one. Let us try again.', 'Down, but not out. I refuse to accept it.', 'You are resting. I will wake you soon.', 'Well, that was a plot twist.', 'I will get you back on your feet. Promise.', 'That was not ideal. Let us fix it.', 'You are down. I am on it. Do not worry.', 'A tactical nap. I like it. Let us revive you.', 'That was a big fall. Are you okay? You are not. I will fix it.', 'You are out cold. I will bring you back.', 'Okay, that was embarrassing. For the foe, I mean. We will win.', 'You are down. But I have seen worse. Probably.', 'Rest now. I will do the heavy lifting.', 'That was quite the tumble. Up you get.', 'You fell down. It happens to the best of us.', 'I will revive you. Just give me a moment.', 'Down you go. But not for long.', 'That was not in the script. Let us improvise.', 'You are taking a break. I will cover you.', 'Well, that was a surprise. Let us fix it.', 'You are down. I am not worried. Mostly.', 'A little nap in the middle of battle. Bold.', 'I will get you up. That is my job.', 'You fell. I will catch you. After I revive you.', 'That was a hard hit. Let us get you back.', 'Down, but never out. I will make sure of it.'},
-        target = {'That one. It looks like trouble. Good.', 'New target. Let us see what it can do.', 'That one looks interesting. In a bad way.', 'Found it. Let us go say hello.', 'That one has trouble written all over it.', 'Target picked. Let us make it count.', 'That one looks like a good time. Let us fight it.', 'A new foe. The plan is still to win.', 'That one. Definitely that one.', 'I have my eye on that one too.', 'That looks like our next adventure.', 'Target acquired. Let us have some fun.', 'That one is asking for it. Let us oblige.', 'New target. I like the look of that one. Not really.', 'That one looks tough. Perfect.', 'Found our next challenger. Let us go.', 'That one. It is giving me a look.', 'Target selected. Time to play.', 'That one looks like a good story later.', 'New target. Let us make it a quick one.', 'That one. I have a good feeling. A bad good feeling.', 'Target picked. Let us do this.', 'That one looks like it wants a fight. Good.', 'Found it. Let us go get it.', 'That one is our next big moment.', 'Target locked. Let us have at it.', 'That one looks spicy. I like it.', 'A fresh foe. Same energy as before.', 'That one. Let us show it our moves.', 'I see it. Let us go introduce ourselves.', 'That one looks like trouble. My favorite kind.', 'Target acquired. Let the fun begin.', 'That one is next. I can feel it.', 'New target. Let us make it memorable.', 'That one seems ready. Good. So are we.', 'There is our troublemaker. Back for more.', 'That one. Time for another performance.', 'Target picked. Let us put on a show.', 'That one looks entertaining. Dangerously entertaining.', 'New target. Let us go. Adventure awaits.'},
-        kill = {'One down. That was fun.', 'Got it. Who is next?', 'That one is history. Nice.', 'Down it goes. Beautiful.', 'Another one bites the dust. Literally.', 'That was easy. Too easy. I love it.', 'One less foe to worry about. Yay.', 'Target down. I am taking a bow.', 'That was a great hit. Encore?', 'Down. Done. Next, please.', 'That one is finished. Onward.', 'Nice work. That was satisfying.', 'One down, many to go. Probably.', 'That was a clean finish. Bravo.', 'Gotcha. Who is next on the list?', 'That one is finished. On to the next.', 'Perfect. That was textbook.', 'Down it goes. I love this part.', 'Another victory. I am counting them.', 'That was fun. Let us do it again.', 'One down. That felt good.', 'Target eliminated. With style.', 'That one is gone. Poof.', 'Nice. That felt really good.', 'Down. That was a good one.', 'That was quick. I like quick.', 'One more down. We are on fire.', 'Got it. That was almost too easy.', 'That one is done. What is next?', 'Beautiful. That was a great fight.', 'Down it goes. Another win for us.', 'That was excellent. Truly excellent.', 'One down. Let us keep this going.', 'Target down. I am impressed. With us.', 'That was a solid win. Well done, us.', 'Gotcha. That was fun.', 'One less foe. One more victory.', 'That was great. Let us keep rolling.', 'Down. Done. Next adventure.', 'That one is finished. Encore, please.'},
-        levelup = {'Ding! A new level! I heard it from here!', 'Level up! You are officially fancier now!', 'A whole new level! Look at you glow!', 'You leveled up! I knew you had it in you!', 'New level, new tricks! Show them off!', 'Level up! That glow is very flattering on you!', 'You just got stronger! I felt the ground shake! Well, a little!', 'Another level! You are collecting them like songs!', 'Level up! Time for a tiny celebration dance!', 'You grew a level! Somebody bring cake!', 'Level up! You are on a roll today!', 'A new level! The bats should be worried now!'},
-        longidle = {'It is so quiet I can hear my own humming.', 'Five minutes of nothing. The bats are shy today.', 'This quiet is getting suspicious. In a cozy way.', 'I have counted the torches twice. Still quiet.', 'No bats, no noise, just us. I like it. Mostly.', 'It is peaceful. Too peaceful. I am bored. A little.', 'I could nap standing up. Do not tell anyone.', 'The tomb is holding its breath. So am I.', 'Quiet, quiet, quiet. I miss the action. A tiny bit.', 'Five minutes with no fight. My feet are getting restless.', 'I am inventing songs about the silence. It is going well.', 'Still quiet. I will hum until something shows up.'},
-        longfight = {'Phew! That one took forever! My arms are tired!', 'That fight was long! I need a sit down. And a drink.', 'Finally! That foe just would not quit!', 'That was a marathon! I am exhausted. And thrilled!', 'Whew! That took ages! We did it anyway!', 'That foe was stubborn! We were stubborner! Is that a word? It is now!', 'Long fight! Big win! I need a breather!', 'That one really made us work for it! Worth it!', 'My goodness, that took a while! But we won!', 'That was the longest bat ever! I am so relieved!', 'We outlasted it! I am tired and proud and tired!', 'That fight went on and on! And we won it! Ha!'},
+        engage = {'No introductions. The {mob} already looks scared.', 'That {mob} just met its biggest fan. Me. Armed.', 'Sword, song, and too much confidence. That is me.', 'That {mob} picked a fight with a bard. Bold. Foolish.', 'That {mob} is about to get my worst review ever.', 'Some bards sing of heroes. I sing while being one.', 'That {mob} thinks it is scary. Cute. Watch this.', 'I came for quiet. Found a {mob} with opinions.', 'That {mob} will learn: my songs are warnings.', 'No luck needed. I have a sword and a soundtrack.', 'That {mob} is in my way. That is its whole story.', 'Quick fight. The {mob} has somewhere to be. Down.', 'A {mob}, a bard. One of us leaves in style.', 'I have a song for this. It is called Ouch, Bat.', 'That {mob} is about to be the verse nobody remembers.', 'I am the hero. The {mob} is the cautionary tale.', 'Time to turn this {mob} into a footnote in my legend.', 'That {mob} speaks fear. I speak fabulous.', 'I sing, I swing, I look great doing both.', 'That {mob} volunteered for my new song. Short one.', 'I have faced worse. Also bats. Same thing.', 'The {mob} wants a fight. I want an audience. I win.', 'Armed, loud, and right. Let us begin.', 'Run, {mob}, or be a funny story later.', 'I do not chase bats. They chase bad decisions.', 'My stage. The {mob} has no ticket. It pays anyway.', 'One hit and that {mob} starts a fan club. For me.', 'That {mob} will learn my sword has a punchline.', 'Not just a bard. A bard with a grudge and a groove.', 'Some heroes brood. I quip. The bats hate both.', 'That {mob} looks tough. I look tougher. And funnier.', 'I will write a ballad about this {mob}. Very short.', 'The tomb is quiet. I am about to fix that. Loudly.', 'That {mob} is the opening act. I am the whole show.', 'My plan: sing, swing, win. In that order.', 'That {mob} is outmatched, outclassed, and out of luck.', 'I never miss. Well, almost never. Today, never.', 'That {mob} thinks this is its tomb. It is mine now.', 'Loud, sharp, impossible to ignore. That is me.', 'Can that {mob} take a joke? And a sword? Let us see.', 'I brought a sword, a song, and zero fear.', 'Time to fight. I already wrote the victory song.', 'A hero walks in. The foe did not RSVP. Too bad.', 'My entrance is the best part. Fight is the encore.', 'I fight with steel, songs, and excellent timing.', 'Somebody cue the music. Oh wait. That is me.', 'I am here, I am loud, and I am winning.', 'This fight is about to be my favorite anecdote.', 'Watch closely. I only do this once. Per foe.', 'A new challenger. My sword is already bored.'},
+        idle = {'Flawless victory. I am ignoring the flaws.', 'We won. Full credit to me. Shared blame to us.', 'I fought brilliantly. The bats did not.', 'Another win. My autobiography grows daily.', 'I did not carry the team. I am just implying it.', 'That fight was easy. I say that now that it is over.', 'Victory looks good on me. Everything does.', 'Hazard pay and applause, please. Mostly applause.', 'We survived. I am as surprised as the bats are.', 'A masterpiece. I am the masterpiece. Obviously.', 'I am humble. Extremely humble. About my greatness.', 'Another {mob} down. My legend is a whole paragraph.', 'No sweat broken. A {mob} broken. Same energy.', 'That was fun. I am fun. Coincidence? I think not.', 'We are unstoppable. I decided this. It is official.', 'I will tell this story at every tavern. Twice.', 'That fight had drama, action, and me. Mostly me.', 'I am the hero this tomb deserves. And the one it got.', 'Victory is sweet. I am sweeter. The bats are sour.', 'Thanks to my sword, my songs, and myself.', 'That was almost too easy. I love almost too easy.', 'We won again. I am out of modest things to say.', 'A legend in my own mind. The bats agree. They must.', 'That {mob} never stood a chance. I did. I took it.', 'Taking a bow. The tomb is my audience. Thrilled.', 'We did it. Mostly me. The Trusts helped. A little.', 'My best fight yet. Until the next one. Obviously.', 'Exhausted, victorious, still extremely charming.', 'Bats, surrender now. Save everyone the trouble.', 'Fought, sang, conquered. In that order. Mostly.', 'Another victory. I collect them like compliments.', 'A close one. I planned it that way. For drama.', 'I am the star. The Trusts are my backup band.', 'We won. I am already writing the song. It is about me.', 'That fight was a gift. I gave it to myself.', 'Not tired. Theatrically winded. Big difference.', 'The tomb is quiet. My ego is loud. Balance restored.', 'We did that. I did that. We all did that. Mostly me.', 'That was great. I am great. Let us do it again soon.', 'Winning is my favorite hobby. After singing.'},
+        low = {'My HP is dropping. My dignity is dropping faster.', 'That {mob} hit me. I take that personally.', 'I am hurt. This was not in my five-year plan.', 'Health bar shrinking. Ego refuses to shrink.', 'Rude. I am writing an angry song about it.', 'Taking damage. Call my agent. And a healer.', 'HP low. Confidence still suspiciously high.', 'That {mob} just hit the star of the show. The nerve.', 'Bleeding. Very dramatically. Award-worthy bleeding.', 'Somebody heal me. I am too fabulous to faint.', 'That hit was uncalled for. I am calling a healer.', 'My health is fading. My jokes are not. Priorities.', 'Took a hit. Pride took a bigger one. Heal both.', 'That {mob} owes me an apology. And a potion.', 'Hurt, graceful, and complaining loudly.', 'HP bar half empty. Glass half full. Of pain.', 'That was a cheap shot. I only do expensive shots.', 'Need healing. And maybe a new agent. Healing first.', 'Health low. Wit still sharp. The {mob} is doomed.', 'That {mob} hit me right in the punchline.', 'In pain. The hero struggles here. Briefly.', 'Stop that {mob}. It is ruining my good looks.', 'Wounded. My songs are wounded too. Sad songs now.', 'That hit knocked the tune out of me. I have spares.', 'HP dropping like a bad review. Fast and unfair.', 'Hurt, but funnier than the {mob}. Small victory.', 'That {mob} is winning. I refuse to let it enjoy that.', 'Need a potion. And a minute. And an apology.', 'My health is low. My drama is high. It balances out.', 'That was not a love tap. That was a lawsuit.', 'I am taking hits like a drum. A drum with feelings.', 'My HP is fading. My spotlight is not. Heal me.', 'That {mob} hit me so hard I forgot the chorus.', 'I am half dead and still the funniest one here.', 'Somebody heal the hero. The hero is me. Obviously.', 'My health bar is vanishing. Bring it back.', 'That hurt. I am going to bill the {mob} for damages.', 'In pain. But my one-liners are painless. Mostly.', 'My HP is low. My comeback is loaded. Heal me first.', 'That {mob} hit me. I hit back. With jokes. And steel.'},
+        critical = {'HP gone. Save the comedian before the tragedy.', 'I am one hit from a very dramatic death scene.', 'This is bad. I am narrating my own downfall. Help.', 'My health bar is a rumor. A tiny, unfunny rumor.', 'Heal me or the jokes stop. Nobody wants that.', 'I see the light. A spotlight. Flattered. Help.', 'My HP is so low it qualifies as a rounding error.', 'The hero almost dies here. Emphasis on almost.', 'I am running on fumes, high notes, and pure spite.', 'Heal now or this becomes a tragedy. I do comedies.', 'Health hanging by a thread. A very funny thread.', 'In danger. Also hilarious. Save the hilarious one.', 'Somebody catch me. I fall with style. And speed.', 'My HP is critical. My timing is terrible. Heal me.', 'About to faint. All my sides are good sides.', 'This is an emergency. I am the emergency. Fix me.', 'Healer, potion, better plan. In that order.', 'Nearly dead and still the wittiest one here.', 'Health bar blinked out. I am blinking back. Help.', 'A bard on the edge. The edge is very high. Help.', 'This is bad. Really bad. Still joking. Heal me.', 'HP lower than my standards. My standards are low.', 'Going down like a bad joke. Save me first.', 'Press every heal button. All of them. At once.', 'I am dying. Beautifully. Hilariously. Help.', 'Health in the basement. The basement is on fire.', 'Five-alarm fire. I am the only firefighter. Help.', 'I am so close to dead I can hear the sad trombone.', 'Heal me now or I haunt this tomb. Annoyingly.', 'HP critical. The funny one is in danger.', 'I am a feather away from a flatline. And a punchline.', 'Save me. I have jokes left to tell. Many jokes.', 'Out of health. Not out of material.', 'Not a drill. A genuine bard emergency. With jokes.', 'My health bar is empty. My panic bar is overflowing.', 'About to be a cautionary tale. I prefer legend.', 'Somebody heal me. I am too funny to die.', 'Death door is asking for my autograph. Help.', 'My HP is gone. My wit remains. Barely. Heal me.', 'Fading fast. Write my epitaph. Make it funny.'},
+        recover = {'Health is back. The comedian returns to the stage.', 'I am alive. And still funny. Mostly funny.', 'Crisis over. Back to being the best part here.', 'My HP is climbing. My ego is climbing faster.', 'I am healed. Let us pretend the panic never happened.', 'Close call. I planned the drama. Not the dying.', 'Health restored. The star is back. Show resumes.', 'I am back. Did you miss the jokes? You did. I know.', 'Phew. I am alive and my punchlines survived too.', 'HP back. My near-death is now a funny story.', 'I survived. Write that down. Make it sound heroic.', 'Healing received. Wit restored. Let us go.', 'I am feeling better. The bats should be nervous.', 'Crisis dodged. I dodged it with style. And healing.', 'Health up. Spirits higher. Jokes sharpest.', 'Patched up. Ready for an encore. And a rematch.', 'Terrifying. Fine now. Mostly. Still funny.', 'HP rising. My theme music swells. Dramatically.', 'Back on my feet. The floor sends its regards.', 'Healed. The bats have no idea. Jokes. Swords.', 'Good as new. Better than new. And funnier.', 'HP full. Legend continues. Jokes continue louder.', 'A scare. Over it. Mostly. Do not bring it up.', 'Health back. Reckless again. Carefully. With jokes.', 'Alive. Never speak of it again. Unless it is funny.', 'Patched up. Ready to rock. And roast bats.', 'Recovering beautifully. Like a funny phoenix.', 'HP climbed back. Dignity still climbing. Slowly.', 'Back. The show was paused, not cancelled. Encore.', 'Feeling strong. Feeling brave. Feeling hilarious.', 'Wild ride. Still on it. Healed. And joking.', 'Health good. Mood great. Bats doomed. Jokes ready.', 'Mended. Let us break bats. And tension. With jokes.', 'Crisis over. Applause for the healer. And for me.', 'Whole again. Mostly. Whole enough to be funny.', 'HP back. Songs louder. Jokes sharper.', 'I survived that. I survive everything. With style.', 'Healed up. Fired up. Let us fight. And crack wise.', 'That was intense. I am intense. We match.', 'Back in action. The tomb is not ready.'},
+        ko = {'Down. Just an intermission. With floor seating.', 'Fallen. Cue the revival music. And the applause.', 'My dramatic exit. I need a dramatic entrance now.', 'Napping. On the floor. In battle. Wake me.', 'Down I go. Up I come. That is the arrangement.', 'Fainted. Very theatrically. Give me a revival.', 'Plot twist. I usually see those coming.', 'Out cold. The show goes on. Without me. Briefly.', 'Took a bow. A very low bow. On the floor. Help.', 'Down, but my legend is still standing. And joking.', 'Get the bard up. The encore needs me.', 'Resting. Involuntarily. Wake me. The jokes wait.', 'That hit sent me to the floor. Cold. Unimpressed.', 'Down. Not the finale. I refuse that ending.', 'Fainted mid-song. The {mob} has no taste.', 'Wake me. More songs to sing. More bats to roast.', 'Taking a dirt nap. Make it short. I have jokes.', 'Down, not done. I have a second act.', 'Out. Press revival. The funny one is down.', 'Heck of a fall. Catch the next one. Preferably me.', 'Reviewing my life choices down here. Mostly good.', 'Revive me. I am missing all the fun. And applause.', 'Down. The bats are laughing. I am funnier. Wake me.', 'This floor is cold. Lift me up. I am a star.', 'Fainted gracefully. Mostly. Do not ask the bats.', 'Out cold. My songs are still in my head.', 'Down I am. Up I shall be. That is the deal.', 'Took a hit and a nap at once. Efficient. And funny.', 'Wake the bard. The show is not over. Intermission.', 'On the ground. My dramatic low point. Temporary.', 'Fell down. The floor and I are friends. Reluctantly.', 'Unconscious. My ego is awake. And still funny.', 'A knockout. Literally. Knocked out. Still witty.', 'Down. Write a comeback song about me. Catchy.', 'Fainted mid-verse. Revive me. For art.', 'Resting my eyes. And my whole body. Help.', 'Down, dreaming of encores. Wake me for the revival.', 'Out. But I will be back. With better jokes.', 'End of act one. Act two starts now. With a revival.', 'Down. Get me up before the bats start doing comedy.'},
+        target = {'That {mob} has main character energy. Mistaken. I do.', 'That {mob} is auditioning to be my next victim.', 'That one owes me money. And an apology.', 'I pick that {mob}. It looks extra defeatable today.', 'That {mob} gives attitude. I give better attitude.', 'Behold, a {mob}. Very punchable, very doomed.', 'That one is trouble. My favorite kind.', 'I chose that {mob}. It does not know yet.', 'That {mob} made eye contact. Bold. Terrible.', 'Target locked. That {mob} becomes a funny story.', 'That one is begging for a beatdown. I accept.', 'That {mob} sees me. It regrets it. Smart one.', 'That {mob} has a face only a mother could love.', 'That {mob}. It is the one. The unlucky one.', 'That {mob} skipped leg day. And arm day. Every day.', 'I have a song for that {mob}. Goodbye, {mob}.', 'That {mob} is my next big number. A very short number.', 'I choose you, {mob}. Let us see what you have got.', 'That one is mine. I called it. Witnessed.', 'That {mob} stands like it owns the tomb. It rents.', 'Target found. Small, flappy, doomed. Mostly doomed.', 'That {mob} stars in my new song. A short song.', 'I like that one. Fight it until it falls.', 'Nervous bat. Good. Nervous bats make great stories.', 'My eye is on that {mob}. Both eyes. And a sword.', 'That one insulted my music. I am offended anyway.', 'Target acquired. That {mob} is funny history.', 'Chosen one. Chosen to be defeated. By me.', 'I see a {mob}. I see a victory. Same thing.', 'That one wants to dance. With my sword. Bad idea.', 'Behold the {mob}. It has no idea. Fun part.', 'My next volunteer. It did not volunteer.', 'I pick that one. Most punchable face.', 'Target spotted. That {mob} lives on borrowed time.', 'That {mob} is asking for it. Happy to oblige.', 'Found our next guest star. A {mob}. Doomed. Applause.', 'That one is giving me a look. A doomed look.', 'New {mob}, same story. It loses. I win.', 'That {mob} is in my spotlight. No escape.', 'I choose that {mob}. Unluckiest {mob} in the tomb.', 'That one is mine. I have already named the song.', 'I choose that one. It looks like a great anecdote.', 'That foe has a face only a bard could roast.', 'Target locked. That one becomes a funny story.', 'Behold the foe. It has no idea. Fun part.', 'That one gives attitude. I give better attitude.', 'My next guest star. Doomed. Applause.', 'I see a foe. I see a victory. Same thing.'},
+        kill = {'{mob} down. Get me a trophy. And a microphone.', 'One down. I am already bored. Next. Bigger. Funnier.', 'Standing ovation kill. I stood. I ovated. I won.', '{mob} down. Legend grows. Sword rests. Ego does not.', 'That one is history. I write the songs.', 'Victory. Applause accepted. Silence accepted.', 'That {mob} never had a chance. I made sure of it.', 'Down it goes. Doing a little victory dance.', 'Another {mob} bites the dust. I am the broom.', 'Beautiful. I am beautiful. The bat is dust.', 'One less {mob}. One more song. One more joke.', 'That kill was a masterpiece. I am the artist.', '{mob} defeated. Undefeated. Right now. Ask me later.', 'Quick. I like victories fast, flashy, funny.', 'Down. Done. Next. I am a musical machine.', 'That {mob} is gone. Poof. Like a magic trick. Mine.', 'I did that. Me. The bard. Sword, songs, jokes.', 'Another down. Kill count is fan count. Both growing.', 'Satisfying. Like popping a bubble. A bat bubble.', 'Victory is mine. Sharing it. Generously. With me.', 'That {mob} is finished. I am just getting started.', 'One down. My sword is still humming. It sings.', 'A perfect hit. I am a perfectionist. Obviously.', '{mob} down. Bring me a bigger {mob}. A funny one.', 'That kill deserves an award. I give it to myself.', 'Another victory. I collect them like applause.', 'That {mob} is done. I am done. Next. Bigger {mob}.', 'Down it goes. Barely broke a sweat. Or a joke.', 'That was fun. Time of my life. Literally.', 'One more bat down. My legend is slightly longer.', 'That kill was smooth. Like butter. Bat butter.', 'Victory. Taking a bow. And another. And another.', 'That {mob} is history. I am the future.', 'Down. Suspiciously easy. I love easy.', 'Another bites the dust. I am the dust maker.', 'A great hit. I hit bats. And punchlines.', '{mob} down. Songs lethal. Sword just for show.', 'One down. Who is next? I was born ready.', 'A showstopper. I stopped the show. To kill.', 'Victory again. Running out of ways to be amazing.'},
+        levelup = {'Leveled up. The tomb just got funnier. And musical.', 'New level. Officially too powerful for these bats.', 'Level up. Songs louder. Jokes sharper.', 'Stronger now. Bats should file a complaint.', 'New level. Same bard. More fabulous. Funnier.', 'Stronger now. Tell the bats. They will find out.', 'Level up. I feel the power. And the encores.', 'A whole new level. I deserve a parade. And cake.', 'Leveled up mid-fight. Perfect timing. Perfect me.', 'New level unlocked. The bats are in trouble now.', 'Stronger. High notes higher. Jokes sharper.', 'Level up. One step closer to legend. Comedy legend.', 'New level. Officially too powerful for this tomb.', 'Stronger now. The foes should file a complaint.', 'Level up. The whole tomb just got funnier.', 'New level unlocked. The foes are in trouble now.'},
+        longidle = {'Five quiet minutes. I wrote three songs about it.', 'So quiet I narrate my own life. Out loud.', 'No bats. Just me, the dark, and my humming.', 'Counted every torch. Twice. Bored. Calm. Funny.', 'Silence so loud I wrote a song about it. A hit.', 'Five minutes, no fight. My feet do a restless dance.', 'Bored. Teaching the Trusts my dance moves. Terrible.', 'Quiet tomb. Inventing a musical. Starring me.', 'Nothing happening. I narrate the nothing. Riveting.', 'Still for five minutes. A personal record. Thrilled.', 'Quiet is cozy. And weird. Mostly cozy. Very quiet.', 'Sleepy standing here. Do not tell the bats.', 'No foes. Just me, the dark, and my humming.', 'Sleepy standing here. Do not tell the foes.'},
+        longfight = {'That fight took forever. Jokes survived.', 'Finally. Marathon {mob}. Better jokes: mine.', 'A saga. A {mob} saga. Hero: me. Comic relief: also me.', 'Won. Eventually. I aged a little. Jokes aged well.', 'That {mob} would not quit. Neither would I. I won.', 'Long fight. Longer song. Legendary victory. Mine.', 'That took ages. Exhausted. Victorious. Still funny.', '{mob} fought hard. I fought harder. And funnier.', 'An epic. I am the epic. The {mob} was the footnote.', 'Outlasted it. Tired, proud, thirsty. Still witty.', 'A fight like my best ballad. With more stabbing.', 'Finally done. That {mob} was stubborn. I was stubborner.', 'Finally. Marathon foe. Better jokes: mine.', 'A saga. A foe saga. Hero: me. Comic relief: also me.', 'That foe would not quit. Neither would I. I won.', 'Foe fought hard. I fought harder. And funnier.', 'An epic. I am the epic. The foe was the footnote.', 'Finally done. That foe was stubborn. I was stubborner.'},
     },
 }
 
@@ -90,17 +90,17 @@ Character.PersonaOpeners = {
         longfight = {'Marathon fight.', 'Extended combat.', 'Hard target.', 'Survived it.', 'Long haul.', 'Stamina test.'},
     },
     Playful = {
-        engage = {'Oh joy,', 'Here it is!', 'Time to glow,', 'Let us do this!', 'A fight!', 'Lights, action!', 'My moment!', 'Time to dance,', 'Here comes fun,', 'Ready or not,', 'Showtime!', 'Off we go!'},
-        idle = {'Phew!', 'Well now,', 'So much fun,', 'Ta-da!', 'We won!', 'Victory dance?', 'All finished,', 'Breathe now,', 'That was grand,', 'Still alive!', 'Encore?', 'What a show,'},
-        low = {'Ouch!', 'Uh oh,', 'Yikes,', 'That smarted!', 'Oof!', 'Hey now,', 'Not good,', 'Careful!', 'Whoa,', 'That stung!', 'Ouch ouch,', 'Hmm,'},
-        critical = {'Whoa!', 'Uh oh!', 'Red alert!', 'Panic time!', 'Whoa there!', 'Emergency!', 'Yikes!', 'Oh no!', 'Run!', 'Heal now!', 'Danger!', 'Whoa nelly!'},
-        recover = {'Phew!', 'Way better,', 'Crisis done,', 'Look at that!', 'All better,', 'Whew!', 'Back again,', 'Good as new,', 'Relief!', 'Nice,', 'That was tight,', 'We are back,'},
-        ko = {'Oops!', 'Well,', 'Uh oh,', 'Down it goes!', 'Oopsie!', 'That was wild,', 'Well now,', 'Oh dear,', 'Tactical nap,', 'Plot twist!', 'Surprise!', 'Hmm,'},
-        target = {'That thing!', 'Ooh,', 'Found it!', 'Look!', 'There!', 'That thing,', 'Spotted!', 'Hello there,', 'Aha!', 'Fresh target!', 'Interesting,', 'Let us look,'},
-        kill = {'Boom!', 'Got it!', 'Nice!', 'Down one!', 'Poof!', 'Done!', 'Victory!', 'Bullseye!', 'Gotcha!', 'Sweet!', 'Clean!', 'Yes!'},
-        levelup = {'Ding ding!', 'Up a level!', 'Woo hoo!', 'Shiny!', 'Fresh level!', 'Hooray!'},
-        longidle = {'So quiet,', 'Shh,', 'Still nothing,', 'Yawn,', 'Hush now,', 'So serene,'},
-        longfight = {'Exhausting!', 'Finally!', 'Epic fight!', 'That dragged on!', 'Done at last!', 'Long one!'},
+        engage = {'Curtain up!', 'Showtime, folks!', 'Watch and learn!', 'My big moment!', 'Lights, camera!', 'Big entrance!', 'And... action!', 'Brace yourselves!', 'Here comes trouble!', 'Let the show begin!', 'Time to shine!', 'Drumroll, please!'},
+        idle = {'Ta-da, folks!', 'Standing ovation!', 'Curtain call!', 'We did it!', 'Bravo, me!', 'Victory lap!', 'What a show!', 'Encore, please!', 'Flawless!', 'I am a star!', 'Round of applause!', 'That was art!'},
+        low = {'My dignity!', 'Rude!', 'Unfair!', 'My hair!', 'Hey, watch it!', 'Not cool!', 'Ouch ouch!', 'Eek!', 'Bad {mob}!', 'So rude!', 'My outfit!', 'So mean!'},
+        critical = {'Mayday!', 'Bard emergency!', 'Code red!', 'Save me!', 'Panic!', 'Mayday, folks!', 'Somebody help!', 'Oh no no no!', 'Bard in danger!', 'Mayday mayday!', 'Help, quick!', 'This is bad!'},
+        recover = {'Huge relief!', 'Back on stage!', 'Crisis over!', 'What a save!', 'Saved!', 'Second wind!', 'Miracle!', 'Good as new!', 'Back in business!', 'Alive again!', 'Round two!', 'What a relief!'},
+        ko = {'Well, oops!', 'Intermission!', 'Twist ending!', 'Timber!', 'Curtain down!', 'Down I go!', 'Nap time!', 'So awkward!', 'Stage exit!', 'My big fall!', 'Not the finale!', 'Took a dive!'},
+        target = {'That one!', 'There it is!', 'Look there!', 'Hello, {mob}!', 'Eyes on it!', 'Behold!', 'Target locked!', 'I see you!', 'Right there!', 'Got my eye on it!', 'You there!', 'That {mob}!'},
+        kill = {'Bam!', 'Direct hit!', 'Gotcha, {mob}!', 'One less {mob}!', 'Winner!', 'Nailed it!', 'Vanished!', 'Poof, gone!', 'Gone!', 'Perfect hit!', 'Beautiful!', 'Encore!'},
+        levelup = {'Ding!', 'Level up!', 'Shiny and new!', 'Power up!', 'Hooray for me!', 'Glow time!'},
+        longidle = {'Shh...', 'So quiet...', 'Yawn...', 'Still waiting...', 'Tick tock...', 'Hush...'},
+        longfight = {'About time!', 'At last!', 'What a marathon!', 'So exhausting!', 'All done!', 'Whew, that was long!'},
     },
 }
 
@@ -132,17 +132,17 @@ Character.PersonaClosers = {
         longfight = {'target gone.', 'endurance logged.', 'recover now.', 'duty done.', 'outlasted them.', 'standing down.'},
     },
     Playful = {
-        engage = {'let us roll!', 'this will be fun!', 'keep up!', 'lights up!', 'let us shine!', 'here we are!', 'onward!', 'playtime!', 'make it flashy!', 'dance time!', 'adventure!', 'go go go!'},
-        idle = {'what now?', 'one more!', 'snack time!', 'victory!', 'so fun!', 'bow time!', 'rest up!', 'onward!', 'cheers!', 'great show!', 'what a ride!', 'next!'},
-        low = {'be careful!', 'dodge more!', 'heal up!', 'slow down!', 'ow!', 'easy now!', 'watch out!', 'stay safe!', 'eek!', 'it stings!', 'regroup!', 'careful now!'},
-        critical = {'flee!', 'heal fast!', 'fall back!', 'survive!', 'panic!', 'dodge!', 'hide!', 'help!', 'retreat!', 'act fast!', 'stay alive!', 'quick!'},
-        recover = {'back in action!', 'brand new!', 'onward!', 'sweet!', 'sigh!', 'looking good!', 'we made it!', 'crisis passed!', 'all good!', 'great!', 'relieved!', 'let us go!'},
-        ko = {'I will mend it!', 'up you rise!', 'power nap!', 'not over yet!', 'I have you now!', 'rest up!', 'back soon!', 'no worries!', 'we will mend it!', 'up up up!', 'take a nap!', 'I have a plan!'},
-        target = {'let us get it!', 'trouble time!', 'have fun!', 'go go go!', 'let us play!', 'game on!', 'here we go!', 'showtime!', 'let us try this!', 'bring it on!', 'let us move!', 'fun time!'},
-        kill = {'next victim?', 'encore?', 'so much fun!', 'onward!', 'next!', 'beautiful!', 'nailed it!', 'take a bow!', 'who is first?', 'more!', 'let us go!', 'cheers!'},
-        levelup = {'ring the bell!', 'shine on!', 'level up dance!', 'you glow!', 'fancy now!', 'party time!'},
-        longidle = {'too quiet!', 'nap time?', 'quiet as mice!', 'boring, huh?', 'so sleepy!', 'still waiting!'},
-        longfight = {'that was huge!', 'what a slog!', 'we finished it!', 'so tired!', 'victory at last!', 'that was epic!'},
+        engage = {'rock this tomb!', 'time to shine!', 'the show starts now!', 'bats beware!', 'sing it loud!', 'here comes the fun!', 'watch and learn!', 'this is my stage!', 'bring on the noise!', 'let the music play!', 'it is showtime!', 'make some noise!'},
+        idle = {'what a performance!', 'we are amazing!', 'bow, everyone!', 'that was a hit!', 'bravo to us!', 'we stole the show!', 'curtain call!', 'I love this job!', 'on to the next act!', 'applause, please!', 'we are legends!', 'smash hit!'},
+        low = {'that was rude!', 'my poor health bar!', 'not in the script!', 'somebody heal me!', 'this is not fair!', 'my hair is ruined!', 'ouch, my everything!', 'that was a low blow!', 'I need a potion!', 'this hurts, folks!', 'bad {mob}, bad!', 'my encore is ruined!'},
+        critical = {'heal me now!', 'this is bad!', 'save the bard!', 'I am almost a ghost!', 'emergency, folks!', 'do not let me die!', 'this is not funny!', 'panic stations!', 'my HP is a joke!', 'somebody, anybody!', 'I am fading fast!', 'this is the end? No!'},
+        recover = {'back in the game!', 'the show goes on!', 'I am alive again!', 'crisis averted!', 'good as new!', 'ready for more!', 'let us keep going!', 'that was close!', 'health is wealth!', 'feeling fabulous!', 'onward to victory!', 'the bard returns!'},
+        ko = {'wake me up soon!', 'this is not the end!', 'revive me, please!', 'intermission, folks!', 'I will be back!', 'do not forget me!', 'the show must go on!', 'I need a revival!', 'down but dreaming!', 'somebody pick me up!', 'encore coming soon!', 'I am just resting!'},
+        target = {'that is the one!', 'let us nab it!', 'it is doomed!', 'game on, {mob}!', 'wrong bard, {mob}!', 'glow up time!', 'it is bat time!', 'let us have fun!', 'that {mob} is toast!', 'bring it, {mob}!', 'no chance, {mob}!', 'let us do this!'},
+        kill = {'another one down!', 'who is next?', 'that was a blast!', 'I love winning!', 'encore, please!', 'we are unstoppable!', 'bow time, folks!', 'beautiful work!', 'the crowd goes wild!', 'one more, please!', 'victory is sweet!', 'let us keep rolling!'},
+        levelup = {'stronger than ever!', 'time to celebrate!', 'the bats are doomed!', 'brighter than ever!', 'I feel powerful!', 'onward to glory!'},
+        longidle = {'so very quiet!', 'anybody there?', 'the silence is loud!', 'waiting for action!', 'bored but cozy!', 'tick tock, bats!'},
+        longfight = {'what a marathon!', 'we survived it!', 'that took forever!', 'epic victory!', 'never again! Maybe!', 'I need a nap!'},
     },
 }
 
@@ -162,6 +162,18 @@ function Character.new(action_queue)
     self.idle_since = nil
     self.longidle_said = false
     self.fight_start = nil
+    -- Delayed engage line: set on engage, said by tic() 5s later
+    -- (see below). The engage line used to fire the instant the
+    -- Bard engaged, right in the Elegy -> Requiem VII window.
+    self.engage_line_pending = false
+    -- Last target mob name, cached on target change. The kill line
+    -- fires when the target clears (the mob died), so by then there
+    -- is no target to read the name from; the cache lets the kill
+    -- line still know what was just fought.
+    self.last_target_name = nil
+    -- Shuffled decks of middle indices, one per persona+category
+    -- (see draw_middle). Lazily rebuilt; nil-guarded there too.
+    self.line_decks = {}
 
     return self
 end
@@ -183,6 +195,85 @@ function Character:allows_duplicates()
     return false
 end
 
+-- A line is bat-specific when it mentions a bat as a whole word
+-- ("bat" / "bats"). The frontier pattern keeps "battle" and
+-- "combat" generic: those are ordinary words, not bat mentions.
+local function is_bat_line(line)
+    return line and string.find(string.lower(line), '%f[%a]bats?%f[%A]') ~= nil
+end
+
+-- The name of the mob being fought, for {mob} lines. Current target
+-- first, then the last target seen (the kill line fires after the
+-- target clears), else 'foe'. The full name as it appears in game
+-- ("Locus Dire Bat"), not a shortened type. Never crashes.
+function Character:get_target_mob_name()
+    if windower and windower.ffxi and windower.ffxi.get_mob_by_target then
+        local ok, mob = pcall(windower.ffxi.get_mob_by_target, 't')
+        if ok and mob and mob.name then
+            return mob.name
+        end
+    end
+    if self.last_target_name then
+        return self.last_target_name
+    end
+    return 'foe'
+end
+
+-- What kind of mob is the player fighting? Returns 'bat' when the
+-- target mob's name contains "bat", otherwise 'generic'. The client
+-- cannot read a mob's family (server-side only), so the name is the
+-- only signal -- the same approach as the mobweak addon. Only the
+-- bat-wordplay lines (bat puns, plural "bats") are gated on this;
+-- {mob} placeholder lines work on any mob because the real name
+-- goes in. Never crashes: no target and no cached name means
+-- generic.
+function Character:get_target_mob_kind()
+    local name = self:get_target_mob_name()
+    if name ~= 'foe' and string.find(string.lower(name), 'bat', 1, true) then
+        return 'bat'
+    end
+    return 'generic'
+end
+
+-- Draw the next middle from a shuffled deck, so every middle in a
+-- category is used once before any repeats, then the deck is
+-- reshuffled -- like a shuffled deck of cards. The deck is built
+-- from the middles allowed for the current mob kind; when the kind
+-- changes (bat to non-bat or vice versa) it is rebuilt from the
+-- newly allowed pool. Decks live on the Character object and
+-- survive across fights; they are only rebuilt when empty or when
+-- the kind changes. Lazily initialized and nil-guarded.
+local function draw_middle(self, persona_name, category, lines, kind)
+    self.line_decks = self.line_decks or {}
+    local by_persona = self.line_decks[persona_name]
+    if not by_persona then
+        by_persona = {}
+        self.line_decks[persona_name] = by_persona
+    end
+    local deck = by_persona[category]
+    if not deck or deck.kind ~= kind or not deck.remaining or #deck.remaining == 0 then
+        local allowed = {}
+        for i = 1, #lines do
+            if kind == 'bat' or not is_bat_line(lines[i]) then
+                allowed[#allowed + 1] = i
+            end
+        end
+        if #allowed == 0 then
+            return nil
+        end
+        -- Fisher-Yates shuffle.
+        for i = #allowed, 2, -1 do
+            local j = math.random(1, i)
+            allowed[i], allowed[j] = allowed[j], allowed[i]
+        end
+        deck = { kind = kind, remaining = allowed }
+        by_persona[category] = deck
+    end
+    local idx = deck.remaining[#deck.remaining]
+    deck.remaining[#deck.remaining] = nil
+    return lines[idx]
+end
+
 function Character:get_random_line(category)
     local persona_name = state.CharacterPersonaMode.value
     if not Character.Persona[persona_name] then
@@ -192,18 +283,65 @@ function Character:get_random_line(category)
     if not lines or #lines == 0 then
         return nil
     end
-    local middle = lines[math.random(1, #lines)]
-    local line = middle
+    -- Mob-aware pools: on a bat fight the full pool (bat-wordplay +
+    -- generic lines) is available; on anything else, bat-specific
+    -- lines are filtered out, so no part of the combined line can
+    -- mention a bat. Lines with a {mob} placeholder pass the
+    -- filter and get the real mob name inserted below, so the same
+    -- joke works on every mob.
+    local kind = self:get_target_mob_kind()
+    -- Middle: drawn from a shuffled deck (see draw_middle), so every
+    -- middle in the category is used once before any repeats.
+    local middle = draw_middle(self, persona_name, category, lines, kind)
+    if not middle then
+        return nil
+    end
+    -- Openers/closers stay random: short fragments that combine with
+    -- the middle, so each draw still feels different.
+    local function pick(pool)
+        if not pool or #pool == 0 then
+            return nil
+        end
+        if kind == 'bat' then
+            return pool[math.random(1, #pool)]
+        end
+        local generic = {}
+        for i = 1, #pool do
+            if not is_bat_line(pool[i]) then
+                generic[#generic + 1] = pool[i]
+            end
+        end
+        if #generic == 0 then
+            return nil
+        end
+        return generic[math.random(1, #generic)]
+    end
+    -- Insert the real mob name into {mob} lines. Substitute before
+    -- the length check, so a line that runs over 90 with a long mob
+    -- name falls back to the bare middle, as before. The fallback
+    -- middle is substituted too, so a placeholder never leaks
+    -- into chat.
+    local mob_name = self:get_target_mob_name()
+    local function fill(line)
+        return (string.gsub(line, '{mob}', function() return mob_name end))
+    end
+    local line = fill(middle)
     local openers = Character.PersonaOpeners and Character.PersonaOpeners[persona_name] and Character.PersonaOpeners[persona_name][category]
     if openers and #openers > 0 and math.random() < 0.5 then
-        line = openers[math.random(1, #openers)] .. ' ' .. line
+        local opener = pick(openers)
+        if opener then
+            line = fill(opener) .. ' ' .. line
+        end
     end
     local closers = Character.PersonaClosers and Character.PersonaClosers[persona_name] and Character.PersonaClosers[persona_name][category]
     if closers and #closers > 0 and math.random() < 0.5 then
-        line = line .. ' ' .. closers[math.random(1, #closers)]
+        local closer = pick(closers)
+        if closer then
+            line = line .. ' ' .. fill(closer)
+        end
     end
     if #line > 90 then
-        return middle
+        return fill(middle)
     end
     return line
 end
@@ -257,6 +395,15 @@ function Character:tic(new_time, old_time)
     if state.AutoCharacterMode.value == 'Off' then
         return
     end
+    -- Delayed engage line: say it 5 seconds after engaging, once
+    -- Requiem VII has landed, instead of in the Elegy -> Requiem
+    -- VII window where a chat line landing there flickered the TP
+    -- gear on. (tic runs once per second on the 'time change'
+    -- event, so the line lands 5-6s after engage.)
+    if self.engage_line_pending and self.fight_start and os.time() - self.fight_start >= 5 then
+        self.engage_line_pending = false
+        self:say('engage', 'character_engage')
+    end
     local player = self:get_party() and self:get_party():get_player()
     if not player or player:get_status() ~= 'Idle' then
         self.idle_since = nil
@@ -295,26 +442,37 @@ function Character:on_add()
             self.fight_start = os.time()
             self.idle_since = nil
             self.longidle_said = false
-            self:say('engage', 'character_engage')
-            -- No engage emote: it goes through the action queue
-            -- and can delay the follow-up debuff song (Requiem
-            -- VII) after the Elegy claim, which lets GearSwap's
-            -- tp_retry fire in the gap and flicker TP gear on.
-            -- Kill and idle emotes still fire; they do not
-            -- land in the middle of a song sequence.
+            -- Do NOT say the engage line now: it would land in the
+            -- Elegy -> Requiem VII window and the TP gear flickered
+            -- on whenever a chat line landed there. tic() says it
+            -- 5s later, once Requiem VII has landed. (Same reason
+            -- the engage emote was removed: anything that fires
+            -- in this window delays the follow-up debuff song.)
+            self.engage_line_pending = true
         elseif new_status == 'Idle' and old_status == 'Engaged' then
             self.fight_start = nil
+            self.engage_line_pending = false
             self.idle_since = os.time()
             self.longidle_said = false
             self:say('idle', 'character_idle')
             self:emote('idle', 0.3)
         elseif new_status == 'Dead' and old_status ~= 'Dead' then
+            self.engage_line_pending = false
             self:say('ko', 'character_ko')
         end
     end), player:on_status_change())
 
     self.dispose_bag:add(player:on_target_change():addAction(function(_, new_target_index, old_target_index)
         if new_target_index and new_target_index ~= old_target_index then
+            -- Remember what we are fighting: the kill line fires
+            -- when the target clears (the mob died), so by then
+            -- there is no target to read the name from.
+            if windower and windower.ffxi and windower.ffxi.get_mob_by_target then
+                local ok, mob = pcall(windower.ffxi.get_mob_by_target, 't')
+                if ok and mob and mob.name then
+                    self.last_target_name = mob.name
+                end
+            end
             self:say('target', 'character_target')
         elseif not new_target_index and old_target_index and self:get_party():get_player():get_status() == 'Engaged' then
             -- Target cleared while still engaged: the mob died.
