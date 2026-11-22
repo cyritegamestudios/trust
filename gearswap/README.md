@@ -23,6 +23,19 @@ Then reload it in game with:
 The file must be named `BRD.lua` (the Bard job abbreviation) — GearSwap only
 loads `data/<JOB>.lua`, so any other name will not be picked up.
 
+## To get 5 songs
+
+This file is built around a 5-song burst (Honor March, Blade Madrigal,
+Minuet III, IV, V) with two dummy songs in between — and that needs
+**Daurdabla 99**:
+
+- Without Daurdabla, a Bard can only keep 2 songs up (3 with Clarion Call).
+- Daurdabla 99 raises the limit to 4.
+- Clarion Call adds +1, making 5.
+
+So Daurdabla 99 is required to reach the full 5 songs. Without it, the
+dummy songs and the 5-song rotation in this file will not fit.
+
 ## What this file is
 
 `BRD.lua` is the current Bard GearSwap file (formerly BRD-29). It handles
