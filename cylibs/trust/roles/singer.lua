@@ -89,6 +89,22 @@ function Singer:set_song_settings(song_settings)
         dummy_song_threshold = dummy_song_threshold + 1
     end
 
+    -- Dummy songs are only for the initial burst: they fill empty
+    -- slots so the real songs each have a dummy to overwrite.
+    -- Once the real songs are up, a dummy must NOT be re-sung.
+    -- If a dummy's timer drifts off from the real songs, re-singing
+    -- it takes a slot and knocks out a real song, and the real song
+    -- comes back and knocks out another real song instead of the
+    -- (fresh, long-duration) dummy -- the singer loops recasting
+    -- real songs until the timers line up again. So a dummy only
+    -- goes off when at least two real songs are missing (the burst
+    -- is still building up), never to fill a single freed slot.
+    local real_song_names = self.songs:map(function(song) return song:get_name() end)
+    local num_real_songs = real_song_names:length()
+    -- With 5 real songs the gate closes once 4 are up (only 1 missing).
+    -- Clamp so a tiny song list never makes the required count <= 0.
+    local real_songs_to_close_gate = math.max(num_real_songs - 1, 1)
+
     -- Maintain TWO dummy songs, back to back (not one): the
     -- burst needs both dummies up so Minuet IV and V each
     -- have a dummy to overwrite. The old count of 1 meant
@@ -105,6 +121,7 @@ function Singer:set_song_settings(song_settings)
             GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(song_settings.DummySongs:map(function(s) return s:get_name() end), 2) }), GambitTarget.TargetType.Self),
             GambitCondition.new(NumSongsCondition.new(dummy_song_threshold, Condition.Operator.GreaterThanOrEqualTo), GambitTarget.TargetType.Self),
             GambitCondition.new(HasMaxNumSongsCondition.new(Condition.Operator.LessThan), GambitTarget.TargetType.Self),
+            GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(real_song_names, real_songs_to_close_gate) }), GambitTarget.TargetType.Self),
         }, song, Condition.TargetType.Self)
     end)
 
