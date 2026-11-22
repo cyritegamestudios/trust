@@ -35,7 +35,7 @@ function TrustModeSettings:loadFile(filePath)
     end)
 end
 
-function TrustModeSettings:loadSettings()
+function TrustModeSettings:loadSettings(preferredMode)
     local filePath = self:getSettingsFilePath()
     if filePath then
         local success, modeSettings, err = coroutine.resume(self:loadFile(filePath))
@@ -60,7 +60,11 @@ function TrustModeSettings:loadSettings()
             end)
 
             self.trustMode:options(options:unpack())
-            self.trustMode:reset()
+            if preferredMode and options:contains(preferredMode) then
+                self.trustMode:set(preferredMode)
+            else
+                self.trustMode:reset()
+            end
 
             self:onSettingsChanged():trigger(self:getSettings())
         end
@@ -69,8 +73,8 @@ function TrustModeSettings:loadSettings()
     end
 end
 
-function TrustModeSettings:reloadSettings()
-    self:loadSettings()
+function TrustModeSettings:reloadSettings(preferredMode)
+    self:loadSettings(preferredMode)
 end
 
 function TrustModeSettings:getSettingsFilePath()
@@ -123,11 +127,7 @@ function TrustModeSettings:saveSettings(setName, trust_modes, skip_set_mode)
 
     self.settings[setName] = trust_modes
 
-    self:reloadSettings()
-
-    if not skip_set_mode and setName ~= self.trustMode.value then
-        self.trustMode:set(setName)
-    end
+    self:reloadSettings(skip_set_mode and self.trustMode.value or setName)
 
     self:onSettingsChanged():trigger(self:getSettings())
 end

@@ -218,7 +218,7 @@ function load_trust_modes(job_name_short)
 				state_var:reset()
 			end
 		end
-		for state_name, value in pairs(new_modes) do
+		local function apply_mode(state_name, value)
 			local state_var = get_state(state_name)
 			if state_var then
 				unregister_help_text(state_name, state_var)
@@ -228,6 +228,16 @@ function load_trust_modes(job_name_short)
 					addon_system_error(get_state_name(state_name)..' has no value '..value..'. To fix this error, choose a new value and save your profile.')
 				end
 				register_help_text(state_name, state_var)
+			end
+		end
+
+		-- Job settings determine which song sets are available.
+		if new_modes.maintrustsettingsmode then
+			apply_mode('maintrustsettingsmode', new_modes.maintrustsettingsmode)
+		end
+		for state_name, value in pairs(new_modes) do
+			if state_name ~= 'maintrustsettingsmode' then
+				apply_mode(state_name, value)
 			end
 		end
 	end
