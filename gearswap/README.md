@@ -36,6 +36,23 @@ Minuet III, IV, V) with two dummy songs in between — and that needs
 So Daurdabla 99 is required to reach the full 5 songs. Without it, the
 dummy songs and the 5-song rotation in this file will not fit.
 
+## Without Daurdabla
+
+Trust checks your inventory when it loads and caps the song count from what
+you actually own — there is no error and no churning, just fewer songs:
+
+- **No extra-song instrument:** 2 songs (3 with Clarion Call)
+- **Terpander / Blurred Harp / Blurred Harp +1 / Miracle Cheer:** 3 songs
+  (4 with Clarion Call)
+- **Daurdabla / Loughnashade:** 4 songs (5 with Clarion Call)
+
+Without Daurdabla, the singer keeps the first songs in the list (Honor
+March, Blade Madrigal) and stops there. The dummy songs never go off,
+because there is no room under the cap for them. GearSwap is fine too —
+it only tries to equip Daurdabla for the dummy songs, and since those are
+never sung, that never triggers (and equipping an instrument you do not
+own would just fail silently, leaving Gjallarhorn on).
+
 ## What this file is
 
 `BRD.lua` is the current Bard GearSwap file (formerly BRD-29). It handles
