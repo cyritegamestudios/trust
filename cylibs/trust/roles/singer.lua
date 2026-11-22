@@ -5,6 +5,7 @@ local Event = require('cylibs/events/Luvent')
 local GambitTarget = require('cylibs/gambits/gambit_target')
 local HasMaxNumAlterEgosCondition = require('cylibs/conditions/has_max_num_alter_egos')
 local HasMaxNumSongsCondition = require('cylibs/conditions/has_max_num_songs')
+local JobAbilityRecastReadyCondition = require('cylibs/conditions/job_ability_recast_ready')
 local MaxNumSongsCondition = require('cylibs/conditions/max_num_songs')
 local NumExpiringSongsCondition = require('cylibs/conditions/num_expiring_songs')
 local NumSongsCondition = require('cylibs/conditions/num_songs')
@@ -175,6 +176,7 @@ function Singer:set_song_settings(song_settings)
             GambitCondition.new(ModeCondition.new('AutoClarionCallMode', 'Auto'), GambitTarget.TargetType.Self),
             GambitCondition.new(ModeCondition.new('AutoNitroMode', 'Auto'), GambitTarget.TargetType.Self),
             GambitCondition.new(ModeCondition.new('AutoSoulVoiceMode', 'Auto'), GambitTarget.TargetType.Self),
+            GambitCondition.new(JobAbilityRecastReadyCondition.new('Soul Voice'), GambitTarget.TargetType.Self),
             GambitCondition.new(NumSongsCondition.new(self.job.max_num_songs + 1, Condition.Operator.LessThan, true), GambitTarget.TargetType.Self),
         }, Sequence.new(L{
             Script.new(function()
@@ -205,6 +207,7 @@ function Singer:set_song_settings(song_settings)
         Gambit.new(GambitTarget.TargetType.Self, L{
             GambitCondition.new(ModeCondition.new('AutoNitroMode', 'Auto'), GambitTarget.TargetType.Self),
             GambitCondition.new(ModeCondition.new('AutoSoulVoiceMode', 'Auto'), GambitTarget.TargetType.Self),
+            GambitCondition.new(JobAbilityRecastReadyCondition.new('Soul Voice'), GambitTarget.TargetType.Self),
             GambitCondition.new(ConditionalCondition.new(L{
                 NumSongsCondition.new(0, Condition.Operator.Equals),
                 NumExpiringSongsCondition.new(1, Condition.Operator.GreaterThanOrEqualTo),
