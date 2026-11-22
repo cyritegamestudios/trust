@@ -100,7 +100,13 @@ function CombatMode:set_combat_settings(combat_settings)
 
     local distance_condition
     if self.distance < 4 then
-        distance_condition = GambitCondition.new(DistanceCondition.new(self.distance, Condition.Operator.GreaterThan), GambitTarget.TargetType.Enemy)
+        -- At close range the old code only corrected when the mob was too
+        -- far away (distance > Distance), so when a mob got right on top
+        -- of the character (distance < Distance) it never backed up.
+        -- Now it also fires when the mob is too close (distance < Distance - 1),
+        -- and RunTo backs away via RunAwayAction. The 1-yalm dead zone
+        -- (Distance - 1 to Distance) keeps the character from shuffling.
+        distance_condition = GambitCondition.new(ConditionalCondition.new(L{ DistanceCondition.new(self.distance, Condition.Operator.GreaterThan), DistanceCondition.new(self.distance - 1, Condition.Operator.LessThan) }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Enemy)
     else
         distance_condition = GambitCondition.new(ConditionalCondition.new(L{ DistanceCondition.new(self.distance + 1, Condition.Operator.GreaterThan), DistanceCondition.new(self.distance - 1, Condition.Operator.LessThan) }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Enemy)
     end
