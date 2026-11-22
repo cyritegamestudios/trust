@@ -106,12 +106,12 @@ function Singer:set_song_settings(song_settings)
     local real_songs_to_close_gate = math.max(num_real_songs - 1, 1)
 
     -- Maintain TWO dummy songs, back to back (not one): the
-    -- burst needs both dummies up so Minuet IV and V each
-    -- have a dummy to overwrite. The old count of 1 meant
-    -- only one dummy was ever kept up, so Minuet IV
+    -- burst needs both dummies up so Minuet V and Blade Madrigal
+    -- each have a dummy to overwrite. The old count of 1 meant
+    -- only one dummy was ever kept up, so Minuet V
     -- overwrote Gavotte, the gambit refilled with Gavotte
-    -- again, then Minuet V overwrote it -- Gavotte, Minuet
-    -- IV, Gavotte, Minuet V, and the second dummy never
+    -- again, then Blade Madrigal overwrote it -- Gavotte, Minuet
+    -- V, Gavotte, Blade Madrigal, and the second dummy never
     -- went off. Each dummy's gambit also checks that dummy
     -- itself is not already active, so Gavotte does not just
     -- refresh itself when the other dummy is the one missing.
