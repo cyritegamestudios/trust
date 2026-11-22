@@ -99,6 +99,11 @@ function Singer:set_song_settings(song_settings)
     -- real songs until the timers line up again. So a dummy only
     -- goes off when at least two real songs are missing (the burst
     -- is still building up), never to fill a single freed slot.
+    -- A dummy also never goes off while any song is expiring: that
+    -- means the singer is just refreshing the potent songs, and a
+    -- dummy would take a slot (and a cast) for nothing. During the
+    -- initial burst no song is expiring yet, so this does not block
+    -- the burst itself.
     local real_song_names = self.songs:map(function(song) return song:get_name() end)
     local num_real_songs = real_song_names:length()
     -- With 5 real songs the gate closes once 4 are up (only 1 missing).
@@ -122,6 +127,7 @@ function Singer:set_song_settings(song_settings)
             GambitCondition.new(NumSongsCondition.new(dummy_song_threshold, Condition.Operator.GreaterThanOrEqualTo), GambitTarget.TargetType.Self),
             GambitCondition.new(HasMaxNumSongsCondition.new(Condition.Operator.LessThan), GambitTarget.TargetType.Self),
             GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(real_song_names, real_songs_to_close_gate) }), GambitTarget.TargetType.Self),
+            GambitCondition.new(NotCondition.new(L{ NumExpiringSongsCondition.new(1, Condition.Operator.GreaterThanOrEqualTo) }), GambitTarget.TargetType.Self),
         }, song, Condition.TargetType.Self)
     end)
 
