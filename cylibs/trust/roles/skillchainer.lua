@@ -91,7 +91,7 @@ function Skillchainer.new(action_queue, weapon_skill_settings, job)
 end
 
 function Skillchainer:destroy()
-    Role.destroy(self)
+    Gambiter.destroy(self)
 
     self:on_ready_weaponskill():removeAllActions()
     self:on_skillchain():removeAllActions()
@@ -313,7 +313,7 @@ function Skillchainer:get_next_ability(current_step)
 end
 
 function Skillchainer:get_starter_ability(num_steps)
-    if self.skillchain_builder:has_ability(self.gambit_for_step[1]:getAbility():get_name()) then
+    if self.gambit_for_step:length() > 0 and self.skillchain_builder:has_ability(self.gambit_for_step[1]:getAbility():get_name()) then
         return self.gambit_for_step[1]
     end
     local default_skillchains = self:get_default_skillchains()
@@ -356,7 +356,14 @@ function Skillchainer:perform_ability(ability)
         return false
     end
 
-    local ability_action = ability:to_action(target:get_mob().index, self:get_player())
+    -- The mob can die/despawn between the target check and the use.
+    local mob = target:get_mob()
+    if mob == nil then
+        logger.notice(self.__class, 'perform_ability', ability:get_name(), 'target mob no longer in memory')
+        return false
+    end
+
+    local ability_action = ability:to_action(mob.index, self:get_player())
     if ability_action then
         ability_action.identifier = self.action_identifier
         ability_action.max_duration = 10
@@ -377,9 +384,19 @@ function Skillchainer:show_next_skillchain_info()
     if steps:length() > 0 then
         local message = "I can continue the skillchain with"
         for step in steps:it() do
-            message = "%s %s (%s),":format(message, localization_util.translate(step:get_ability():get_name()), step:get_skillchain())
+            -- get_skillchain() returns a Skillchain object (a table),
+            -- not a string, so string.format would fail with
+            -- "bad argument #3 to 'format' (string expected, got
+            -- table)". Use its name instead, nil-guarded.
+            local skillchain = step:get_skillchain()
+            local skillchain_name = skillchain and skillchain:get_name() or "?"
+            message = string.format("%s %s (%s),", message, localization_util.translate(step:get_ability():get_name()), skillchain_name)
         end
-        self:get_party():add_to_chat(self:get_party():get_player(), message, nil, nil, true)
+        -- is_local_only=false so this follows PartyChatMode (blue /p
+        -- chat) like the other Trust lines, instead of always showing
+        -- as a purple addon message. The party-size guard in
+        -- party.lua still forces local-only when the player is alone.
+        self:get_party():add_to_chat(self:get_party():get_player(), message, nil, nil, false)
     end
 end
 

@@ -1,6 +1,7 @@
 local ClaimedCondition = require('cylibs/conditions/claimed')
 local GambitTarget = require('cylibs/gambits/gambit_target')
 local ImmuneCondition = require('cylibs/conditions/immune')
+local MinHitPointsPercentCondition = require('cylibs/conditions/min_hpp')
 
 local Gambiter = require('cylibs/trust/roles/gambiter')
 local Debuffer = setmetatable({}, {__index = Gambiter })
@@ -40,6 +41,10 @@ function Debuffer:get_default_conditions(gambit)
         NotCondition.new(L{ HasDebuffCondition.new(gambit:getAbility():get_status().en) }),
         NotCondition.new(L{ ImmuneCondition.new(gambit:getAbility():get_name()) }),
         NumResistsCondition.new(gambit:getAbility():get_name(), Condition.Operator.LessThan, 4),
+        -- Do not waste a debuff cast on a mob that is about to
+        -- die; a 2s Requiem on a mob at 5% HP lands just as
+        -- melee finishes it.
+        MinHitPointsPercentCondition.new(5),
     }
     return conditions + self.job:get_conditions_for_ability(gambit:getAbility()):map(function(condition)
         return GambitCondition.new(condition, GambitTarget.TargetType.Self)

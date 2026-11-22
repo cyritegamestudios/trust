@@ -28,6 +28,9 @@ state.AutoNitroMode:set_description('Auto', "Use Nightingale and Troubadour befo
 state.AutoClarionCallMode = M{['description'] = 'Use Clarion Call', 'Off', 'Auto'}
 state.AutoClarionCallMode:set_description('Auto', "Use Clarion Call before Nightingale and Troubadour.")
 
+state.AutoSoulVoiceMode = M{['description'] = 'Use Soul Voice', 'Auto', 'Off'}
+state.AutoSoulVoiceMode:set_description('Auto', "Use Soul Voice before singing songs.")
+
 state.SongSet = M{['description'] = 'Song Set', 'Default'}
 
 function BardTrust.new(settings, action_queue, battle_settings, trust_settings, addon_settings)
@@ -37,7 +40,7 @@ function BardTrust.new(settings, action_queue, battle_settings, trust_settings, 
 		Singer.new(action_queue, trust_settings.SongSettings, job),
 		Dispeler.new(action_queue, L{ Spell.new('Magic Finale') }, L{}, true),
 		Puller.new(action_queue, trust_settings.PullSettings, job),
-		Sleeper.new(action_queue, L{ Spell.new('Horde Lullaby II'), Spell.new('Horde Lullaby') }, 3)
+		Sleeper.new(action_queue, L{ Spell.new('Horde Lullaby II'), Spell.new('Horde Lullaby') }, 2, L{ Spell.new('Foe Lullaby II'), Spell.new('Foe Lullaby') })
 	}
 	local self = setmetatable(Trust.new(action_queue, roles, trust_settings, job), BardTrust)
 
@@ -54,12 +57,21 @@ function BardTrust:on_init()
 
 	local singer = self:role_with_type("singer")
 	if singer then
+		-- The singer's begin/end events fire per song, because
+		-- the gambits go inactive in the gap between songs.
+		-- "hold tight" fires at the start (at most once per
+		-- 60s). The "good to go" line was removed at the
+		-- user's request (2026-11-21) after several attempts
+		-- to make it fire once per burst kept misfiring.
 		singer:on_songs_begin():addAction(function()
-			self:get_party():add_to_chat(self.party:get_player(), "Singing songs, hold tight.", "on_songs_begin", 5)
+			local now = os.time()
+			if now - (self.last_hold_tight_time or 0) > 60 then
+				self.last_hold_tight_time = now
+				self:get_party():add_to_chat(self.party:get_player(), "Singing songs, hold tight.", "on_songs_begin", 5)
+			end
 			self.song_modes_delta:apply(true)
 		end)
 		singer:on_songs_end():addAction(function()
-			self:get_party():add_to_chat(self.party:get_player(), "Alright, you're good to go!", "on_songs_end", 5)
 			self.song_modes_delta:remove(true)
 		end)
 	end

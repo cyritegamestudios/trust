@@ -6,13 +6,14 @@ local spell_util = require('cylibs/util/spell_util')
 local Sleeper = setmetatable({}, {__index = Role })
 Sleeper.__index = Sleeper
 
-state.AutoSleepMode = M{['description'] = 'Auto Sleep Mode', 'Off', 'Auto'}
-state.AutoSleepMode:set_description('Auto', "Automatically try to sleep large groups of monsters.")
+state.AutoSleepMode = M{['description'] = 'Auto Sleep Mode', 'Auto', 'Off'}
+state.AutoSleepMode:set_description('Auto', "Automatically sleep monsters.")
 
-function Sleeper.new(action_queue, sleep_spells, min_mobs_to_sleep)
+function Sleeper.new(action_queue, sleep_spells, min_mobs_to_sleep, single_target_sleep_spells)
     local self = setmetatable(Role.new(action_queue), Sleeper)
 
     self:set_sleep_spells(sleep_spells)
+    self:set_single_target_sleep_spells(single_target_sleep_spells)
 
     self.dispose_bag = DisposeBag.new()
     self.last_sleep_time = os.time()
@@ -47,16 +48,41 @@ function Sleeper:check_sleep()
         NotCondition.new(L{ HasDebuffCondition.new('sleep') })
     }
 
-    local targets = self.mob_filter:get_nearby_mobs(L{ MobFilter.Type.Aggroed, MobFilter.Type.Unclaimed }):filter(function(mob)
+    -- The mob the party is currently pulling/fighting is not an "extra"
+    -- aggro, so it does not count toward the sleep thresholds and is never
+    -- the sleep target. The Puller sets the party target to the mob it is
+    -- pulling, so read that: the player's own selected target does not
+    -- reliably track the pulled mob, since Elegy is cast on the pull
+    -- target without moving the target cursor. Keep the player's target
+    -- as a second exclusion for robustness.
+    local party = self:get_party()
+    local party_target_index = nil
+    if party and party.party_target and party.party_target.get_target_index then
+        party_target_index = party.party_target:get_target_index()
+    end
+    local player = party and party:get_player()
+    local current_target_index = player and player:get_target_index()
+
+    local targets = self.mob_filter:get_nearby_mobs(MobFilter.Type.Aggroed):filter(function(mob)
         local monster = self:get_alliance():get_target_by_index(mob.index)
         if monster then
-            return Condition.check_conditions(conditions, mob.index)
+            return mob.index ~= party_target_index
+                    and mob.index ~= current_target_index
+                    and Condition.check_conditions(conditions, mob.index)
                     and not monster_util.immune_to_debuff(mob.name, 'sleep')
         end
         return false
     end)
 
-    if targets:length() >= self.min_mobs_to_sleep then
+    if targets:length() == 1 and self.single_target_sleep_spells:length() > 0 then
+        -- A single extra aggroed mob gets a single-target sleep.
+        for spell in self.single_target_sleep_spells:it() do
+            if Condition.check_conditions(spell:get_conditions(), windower.ffxi.get_player().index) then
+                self:cast_spell(spell, targets[1].index)
+                return
+            end
+        end
+    elseif targets:length() >= self.min_mobs_to_sleep then
         for sleep_spell in self.sleep_spells:it() do
             if Condition.check_conditions(sleep_spell:get_conditions(), windower.ffxi.get_player().index) then
                 self:cast_spell(sleep_spell, targets[1].index)
@@ -88,6 +114,10 @@ function Sleeper:set_sleep_spells(sleep_spells)
     self.sleep_spells = (sleep_spells or L{}):filter(function(spell) return spell ~= nil and spell_util.knows_spell(spell:get_spell().id) end)
 end
 
+function Sleeper:set_single_target_sleep_spells(single_target_sleep_spells)
+    self.single_target_sleep_spells = (single_target_sleep_spells or L{}):filter(function(spell) return spell ~= nil and spell_util.knows_spell(spell:get_spell().id) end)
+end
+
 function Sleeper:allows_duplicates()
     return true
 end
@@ -100,7 +130,7 @@ function Sleeper:tostring()
     local result = ""
 
     result = result.."Spells:\n"
-    if self.debuff_spells:length() > 0 then
+    if self.sleep_spells:length() > 0 then
         for spell in self.sleep_spells:it() do
             result = result..'• '..spell:description()..'\n'
         end

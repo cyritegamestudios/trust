@@ -56,13 +56,19 @@ function Puller:on_add()
     Gambiter.on_add(self)
 
     local current_target = self:get_alliance():get_target_by_index(self:get_party():get_player():get_target_index())
-    if state.AutoPullMode.value ~= 'Off' and current_target and self:is_valid_target(current_target:get_mob()) then
+    if state.AutoPullMode.value ~= 'Off' and current_target and self:is_party_ready_to_pull() and self:is_valid_target(current_target:get_mob()) then
         self:set_pull_target(Monster.new(current_target.id))
     end
 
     local on_pull_mode_changed = function(new_value)
         self:get_party():set_should_ignore_assist_target(new_value ~= 'Off')
         if new_value ~= 'Off' then
+            state.AutoTrustsMode:set('Auto', true)
+            local singer = player.trust and player.trust.main_job and player.trust.main_job:role_with_type("singer")
+            if singer then
+                state.AutoSongMode:set('Auto', true)
+                state.AutoClarionCallMode:set('Auto', true)
+            end
             self:set_pull_settings(self.pull_settings)
             windower.send_command('input /autotarget off')
             self:get_party():set_assist_target(self:get_party():get_player())
@@ -78,7 +84,9 @@ function Puller:on_add()
 
     self.dispose_bag:add(WindowerEvents.MobKO:addAction(function(mob_id, mob_name, status)
         if self:get_target() and self:get_target():get_id() == mob_id then
-            logger.notice(self.__class, 'mob_ko', mob_name, self:get_target():get_mob().hpp, status)
+            -- The mob has just died, so it may already be out of memory.
+            local mob = self:get_target():get_mob()
+            logger.notice(self.__class, 'mob_ko', mob_name, mob and mob.hpp or 0, status)
             CooldownCondition.set_timestamp('last_mob_ko', os.time())
             self:set_pull_target(nil) -- this is necessary otherwise get_target() returns valid until next loop
             self:check_target(L{ mob_id })
@@ -114,6 +122,11 @@ function Puller:check_target(target_id_blacklist)
         return
     end
 
+    if not self:is_party_ready_to_pull() then
+        self:set_pull_target(nil)
+        return
+    end
+
     local next_target = self:get_pull_target()
 
     if not self:is_valid_target(next_target and next_target:get_mob(), target_id_blacklist) then
@@ -129,9 +142,10 @@ function Puller:check_target(target_id_blacklist)
         else
             self:set_pull_target(nil)
             logger.notice(self.__class, 'check_target', 'no valid targets')
-            if state.AutoPullMode.value == 'Auto' then
-                self:get_party():add_to_chat(self:get_party():get_player(), "I can't find anything to pull. I'll check again soon.", self.__class..'_no_valid_targets', 15)
-            end
+            -- No chat line here: after every kill the puller briefly
+            -- finds nothing to pull and the "I can't find anything
+            -- to pull" message spammed chat every time. It still
+            -- returns to camp below; the log line above records it.
             self:return_to_camp()
             return
         end
@@ -187,7 +201,7 @@ end
 function Puller:get_next_target(target_id_blacklist)
     target_id_blacklist = target_id_blacklist or L{}
 
-    if self:get_party():get_player():get_status() == 'Event' or not self:check_delay() then
+    if not self:is_party_ready_to_pull() or self:get_party():get_player():get_status() == 'Event' or not self:check_delay() then
         return nil
     end
 
@@ -208,6 +222,59 @@ function Puller:get_next_target(target_id_blacklist)
     else
         return nil
     end
+end
+
+function Puller:is_party_ready_to_pull()
+    if not windower.trust or not windower.trust.get_inventory then
+        return false
+    end
+
+    local party = self:get_party()
+    local required_trust_count = HasMaxNumAlterEgosCondition.new():get_max_num_alter_egos()
+    local trust_count = party:get_party_members():filter(function(party_member)
+        return party_member:is_trust()
+    end):length()
+    if trust_count < required_trust_count then
+        return false
+    end
+
+    local main_job_trust = player.trust and player.trust.main_job
+    local singer = main_job_trust and main_job_trust:role_with_type("singer")
+    if singer == nil then
+        return true
+    end
+    -- The singer's tracker is created in Singer:on_add(); until then there
+    -- is no song count to read, and PartyMember:get_num_songs() would index
+    -- a nil tracker, so do not pull yet.
+    if singer.song_tracker == nil then
+        return false
+    end
+    -- Do not hardcode 5 songs: the most songs the Bard can hold right now
+    -- is 4 while Clarion Call is inactive (2 below level 99 or with
+    -- GearSwap disabled), so requiring 5 blocked every pull until Clarion
+    -- Call came off recast. Cap by the songs the singer is configured to
+    -- sing, too, so a shorter song set does not block pulls either.
+    local player_member = party:get_player()
+    -- Do not pull while the player is badly hurt; give the
+    -- healer a moment to top the player off first instead of
+    -- charging into the next bat at low HP. The player can
+    -- still pull manually by targeting and engaging.
+    local player_hpp = player_member and player_member:get_hpp()
+    if player_hpp and player_hpp < 25 then
+        return false
+    end
+    local max_num_songs = player_member:get_max_num_songs()
+    if singer.songs then
+        max_num_songs = math.min(max_num_songs, singer.songs:length())
+    end
+    return player_member:get_num_songs() >= max_num_songs
+end
+
+function Puller:check_gambits(gambits, param, ignore_delay)
+    if not self:is_party_ready_to_pull() then
+        return
+    end
+    return Gambiter.check_gambits(self, gambits, param, ignore_delay)
 end
 
 function Puller:is_valid_target(target, target_id_blacklist)
