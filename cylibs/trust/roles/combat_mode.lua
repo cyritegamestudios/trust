@@ -107,6 +107,7 @@ function CombatMode:set_combat_settings(combat_settings)
     -- every fight. The roll happens when the settings are applied and
     -- again whenever the target changes (see on_add), never mid-fight,
     -- so the character picks a spot for each mob and stays there.
+    -- Confirmed working in game.
     local distance_rolls = {0.8, 0.5, 0.2, 0}
     self.distance = self.base_distance - distance_rolls[math.random(1, #distance_rolls)]
 
