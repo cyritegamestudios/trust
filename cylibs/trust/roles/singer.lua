@@ -150,14 +150,21 @@ local function nitro_ja_conditions(ja_names)
 end
 
 -- A Nitro sequence: first mark every song expiring soon, so the songs are
--- re-sung with the Nitro boost, then the abilities with a 1s wait between
--- each. The script reads the song tracker when it runs, not when the
+-- re-sung with the Nitro boost, then wait 2s, then the abilities with a 1s
+-- wait between each. The 2s head wait is for a fresh start: singing begins
+-- the moment the fifth Trust lands, and the first ability (Soul Voice) can
+-- go out while still in the tail of that summon cast, which the server
+-- rejects with "Unable to use job ability" even though its timer is ready.
+-- The wait costs 2s on every Nitro run (fresh burst and refresh alike);
+-- mid-session there is no cast to race, so it is just a harmless pause.
+-- The script reads the song tracker when it runs, not when the
 -- sequence is built, so it is safe to build before the tracker exists.
 local function nitro_sequence(singer, ja_names)
     local actions = L{
         Script.new(function()
             singer.song_tracker:set_all_expiring_soon()
         end),
+        Wait.new(2),
     }
     for i, name in ipairs(ja_names) do
         if i > 1 then

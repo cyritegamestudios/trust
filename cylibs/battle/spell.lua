@@ -309,6 +309,17 @@ function Spell:to_action(target_index, player, job_abilities)
         job_abilities = L{ job_abilities[1] }
     end
 
+    if job_abilities:length() > 0 then
+        -- A spell's job abilities (e.g. Marcato on Honor March) go out the
+        -- moment this sequence is performed. If the previous action (a
+        -- weaponskill, a summon cast) has only just finished, the first
+        -- ability can land in its tail and be rejected with "Unable to use
+        -- job ability" even though its timer is ready, so wait briefly
+        -- first, like the singer's Nitro sequences do. Spells without job
+        -- abilities are untouched.
+        actions:append(WaitAction.new(0, 0, 0, 2))
+    end
+
     for job_ability in job_abilities:it() do
         if job_ability.type == 'Scholar' then
             actions:append(StrategemAction.new(job_ability:get_job_ability_name()))
