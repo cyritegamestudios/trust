@@ -33,6 +33,21 @@ function Spammer:get_next_ability()
         return nil
     end
 
+    -- Do not weaponskill from out of position. When a mob is
+    -- claimed with held TP, CombatMode is still walking the player
+    -- to this fight's rolled distance (combat_mode.distance, one
+    -- of the random spots under the configured distance). Hold the
+    -- weaponskill until the player is there, plus a small
+    -- tolerance for the walk settling. Only while CombatMode is
+    -- on; mid-fight the player is already at distance, so this
+    -- changes nothing there.
+    local combat_mode = main_job and main_job:role_with_type("combatmode")
+    if combat_mode and combat_mode.is_enabled and combat_mode:is_enabled()
+            and combat_mode.distance and target_mob and target_mob.distance
+            and target_mob.distance:sqrt() > combat_mode.distance + 0.5 then
+        return nil
+    end
+
     local default_abilities = L{}
 
     for skill in self.active_skills:it() do
