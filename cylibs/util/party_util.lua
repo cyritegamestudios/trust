@@ -273,8 +273,9 @@ buffs.last_incoming = nil
 -- @param target_id Mob id
 -- @treturn list A list of buff ids for a party member, or an empty list if the target is not in the player's party.
 function party_util.get_buffs(target_id)
-    if target_id == windower.ffxi.get_player().id then
-        return L(windower.ffxi.get_player().buffs)
+    local ffxi_player = windower.ffxi.get_player()
+    if ffxi_player and target_id == ffxi_player.id then
+        return L(ffxi_player.buffs)
     end
     local data = windower.packets.last_incoming(0x076)
     if data and data ~= buffs.last_incoming then

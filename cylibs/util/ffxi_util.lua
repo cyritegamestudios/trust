@@ -47,7 +47,10 @@ function ffxi_util.distance(v1, v2)
 end
 
 function ffxi_util.get_player_position()
-	local player = windower.ffxi.get_mob_by_id(windower.ffxi.get_player().id)
+	local player_info = windower.ffxi.get_player()
+	if not player_info then return end
+	local player = windower.ffxi.get_mob_by_id(player_info.id)
+	if not player then return end
 
 	local v = vector.zero(3)
 

@@ -42,7 +42,9 @@ function player_util.get_direction_in_degrees(player_id)
 end
 
 function player_util.get_player_position()
-	local player = windower.ffxi.get_mob_by_id(windower.ffxi.get_player().id)
+	local player_info = windower.ffxi.get_player()
+	if not player_info then return end
+	local player = windower.ffxi.get_mob_by_id(player_info.id)
 	if not player then return end
 
 	local v = vector.zero(3)
@@ -175,7 +177,14 @@ function player_util.is_engaged()
 end
 
 function player_util.face(target)
-	local player = windower.ffxi.get_mob_by_id(windower.ffxi.get_player().id)
+	if target == nil then
+		return
+	end
+	local ffxi_player = windower.ffxi.get_player()
+	if ffxi_player == nil then
+		return
+	end
+	local player = windower.ffxi.get_mob_by_id(ffxi_player.id)
 	if player == nil or player.hpp <= 0 then
 		return
 	end
@@ -185,7 +194,14 @@ function player_util.face(target)
 end
 
 function player_util.face_away(target)
-	local player = windower.ffxi.get_mob_by_id(windower.ffxi.get_player().id)
+	if target == nil then
+		return
+	end
+	local ffxi_player = windower.ffxi.get_player()
+	if ffxi_player == nil then
+		return
+	end
+	local player = windower.ffxi.get_mob_by_id(ffxi_player.id)
 	if player == nil or player.hpp <= 0 then
 		return
 	end
@@ -196,6 +212,9 @@ end
 
 function player_util.get_job_abilities()
 	local abilities = windower.ffxi.get_abilities()
+	if abilities == nil then
+		return L{}
+	end
 
 	local result = L{}
 	for _, value in pairs(abilities.job_abilities) do
@@ -256,7 +275,7 @@ function player_util.get_ready_charges()
 	end
 
 	local abil_recasts = windower.ffxi.get_ability_recasts()
-	local readyRecast = abil_recasts[102]
+	local readyRecast = (abil_recasts and abil_recasts[102]) or 0
 
 	local maxCharges = 3
 
@@ -267,7 +286,9 @@ function player_util.get_ready_charges()
 		base_chargetimer = base_chargetimer - 5
 	end
 
-	base_chargetimer = base_chargetimer - (2 * windower.ffxi.get_player().merits.sic_recast)
+	local player = windower.ffxi.get_player()
+	local sic_recast = (player and player.merits and player.merits.sic_recast) or 0
+	base_chargetimer = base_chargetimer - (2 * sic_recast)
 
 	local ReadyChargeTimer = base_chargetimer
 
