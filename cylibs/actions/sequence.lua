@@ -20,8 +20,7 @@ function SequenceAction.new(actions, identifier, allows_partial_failure)
 		self.queue:push(action)
 		self.max_duration = self.max_duration + action:get_max_duration()
 	end
-	self.max_duration = 5
-	self.identifier = identifier or os.time()
+	self.identifier = identifier or actions_created
 
 	self:debug_log_create(self:gettype())
 
@@ -71,7 +70,10 @@ function SequenceAction:perform()
 	if self.queue:length() > 0 then
 		local next_action = self.queue:pop()
 		self.current_action = next_action
-		if next_action:can_perform() then
+		-- A child whose can_perform() throws (e.g. a condition indexing a
+		-- despawned target) counts as a failed child, not a wedged sequence.
+		local can_perform_ok, can_perform = pcall(function() return next_action:can_perform() end)
+		if can_perform_ok and can_perform then
 			next_action:on_action_complete():addAction(function(a, success)
 				if not success then
 					self.num_failed_actions = self.num_failed_actions + 1
@@ -81,7 +83,21 @@ function SequenceAction:perform()
 				self:perform()
 			end)
 			next_action:set_start_time(os.time())
-			next_action:perform()
+			local perform_ok = pcall(function() next_action:perform() end)
+			if not perform_ok and self.current_action == next_action and not next_action:is_completed() then
+				self.num_failed_actions = self.num_failed_actions + 1
+				self.current_action = nil
+				next_action:destroy()
+				self:perform()
+			end
+		elseif self.allows_partial_failure then
+			-- Skip the failed child and attempt the rest of the sequence,
+			-- matching how a child that completes with failure is already
+			-- handled above; only non-partial sequences abort outright.
+			self.num_failed_actions = self.num_failed_actions + 1
+			self.current_action = nil
+			next_action:destroy()
+			self:perform()
 		else
 			self:complete(false)
 		end

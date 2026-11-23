@@ -47,6 +47,10 @@ function RangedAttack:perform()
     end), self.player:on_ranged_attack_interrupted())
 
     local target = windower.ffxi.get_mob_by_index(self.target_index) or windower.ffxi.get_mob_by_target('bt')
+    if target == nil then
+        self:complete(false)
+        return
+    end
 
     local command = RangedAttackCommand.new('/ra', target.id)
     command:run(true)
@@ -68,12 +72,12 @@ end
 
 function RangedAttack:tostring()
     local target = windower.ffxi.get_mob_by_index(self.target_index)
-    return 'Ranged Attack → '..target.name
+    return 'Ranged Attack → '..(target and target.name or 'Unknown')
 end
 
 function RangedAttack:debug_string()
     local target = windower.ffxi.get_mob_by_index(self.target_index)
-    return "RangedAttack: %s":format(target.name)
+    return "RangedAttack: %s":format(target and target.name or 'Unknown')
 end
 
 return RangedAttack

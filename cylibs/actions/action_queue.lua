@@ -54,7 +54,7 @@ function ActionQueue.new(completion, is_priority_queue, max_size, debugging_enab
 	self.completion = completion
 	self.debugging_enabled = debugging_enabled
 	self.verbose = verbose
-	self.identifier = os.time()
+	self.identifier = actions_created
 	self.forced_delay_time = os.clock()
 	self.mode = ActionQueue.Mode.Default
 	self.dispose_bag = DisposeBag.new()
@@ -92,7 +92,7 @@ function ActionQueue.new(completion, is_priority_queue, max_size, debugging_enab
 			end
 		end), WindowerEvents.Action)
 
-		windower.register_event('outgoing chunk', function(id, data)
+		self.outgoing_chunk_event = windower.register_event('outgoing chunk', function(id, data)
 			if id == 0x015 then
 				self.next_action_time = os.clock() + 0.8
 			end
@@ -110,11 +110,23 @@ function ActionQueue.new(completion, is_priority_queue, max_size, debugging_enab
 end
 
 function ActionQueue:destroy()
-	Action.action_complete:removeAction(self.action_complete_id)
-
 	self:on_action_start():removeAllActions()
 	self:on_action_end():removeAllActions()
 	self:on_action_queued():removeAllActions()
+
+	if self.current_action then
+		self.current_action:destroy()
+		self.current_action = nil
+	end
+	for action in self.queue:it() do
+		action:destroy()
+	end
+	self.queue:clear()
+
+	if self.outgoing_chunk_event then
+		windower.unregister_event(self.outgoing_chunk_event)
+		self.outgoing_chunk_event = nil
+	end
 
 	self.dispose_bag:destroy()
 end
@@ -124,7 +136,12 @@ function ActionQueue:get_forced_delay(action)
 	if forced_delay > 0 then
 		local action_type = action.__type
 		if action_type == SequenceAction.__type and action.queue and action.queue:length() > 0 then
-			action_type = action.queue[1].__type
+			-- Windower Q is 1-based through its __index: queue[1] is the
+			-- front element, queue[0] is the slot before it (always nil).
+			local first_action = action.queue[1]
+			if first_action then
+				action_type = first_action.__type
+			end
 		end
 		if L{ JobAbilityAction.__type, SpellAction.__type, WeaponSkillAction.__type }:contains(action_type) then
 			return forced_delay
@@ -150,7 +167,14 @@ function ActionQueue:perform_next_action()
 	end
 
 	local next_action = self.queue:pop()
-	if next_action ~= nil and next_action:can_perform() and next_action:validate() then
+	-- A condition or validate() that throws (e.g. it indexes a party member
+	-- or mob that despawned/zoned mid-check) must not wedge the queue: the
+	-- action has already been popped, so treat a throw like a failed check
+	-- and destroy it below instead of leaking it and aborting the caller.
+	local can_perform_ok, can_perform = pcall(function()
+		return next_action ~= nil and next_action:can_perform() and next_action:validate()
+	end)
+	if can_perform_ok and can_perform then
 		local forced_delay = self:get_forced_delay(next_action)
 		if forced_delay > 0 then
 			local display_name = next_action.display_name
@@ -174,7 +198,14 @@ function ActionQueue:perform_next_action()
 
 		self.current_action:on_action_complete():addAction(function(a, success) self:handle_action_completed(a, success) end)
 		self.current_action:set_start_time(os.time())
-		self.current_action:perform()
+		-- If perform() throws before completing, current_action would stay
+		-- set until the cleanup timer notices; fail the action now instead
+		-- so the queue advances (complete() routes through
+		-- handle_action_completed, which destroys it).
+		local perform_ok = pcall(function() self.current_action:perform() end)
+		if not perform_ok and self.current_action == next_action and not next_action:is_completed() then
+			next_action:complete(false)
+		end
 	else
 		if next_action ~= nil then
 			next_action:destroy()
@@ -231,7 +262,7 @@ end
 
 -- Pushes the given actions onto the queue
 function ActionQueue:push_actions(actions, check_duplicates)
-	if not self.is_enabled or (self:length() + actions:length()) >= self.max_size then
+	if not self.is_enabled or (self:length() + actions:length()) > self.max_size then
 		for action in actions:it() do
 			action:destroy()
 		end
@@ -239,7 +270,17 @@ function ActionQueue:push_actions(actions, check_duplicates)
 	end
 
 	if check_duplicates then
-		actions = L(actions:filter(function(a) return not self:contains(a) end))
+		-- Filtered-out duplicates must be destroyed, not just dropped
+		-- (compare push_action, which destroys rejected actions).
+		local filtered_actions = L{}
+		for action in actions:it() do
+			if self:contains(action) then
+				action:destroy()
+			else
+				filtered_actions:append(action)
+			end
+		end
+		actions = filtered_actions
 	end
 
 	if actions:length() == 0 then
@@ -258,7 +299,7 @@ function ActionQueue:push_actions(actions, check_duplicates)
 			if action2 == nil then
 				return false
 			end
-			return action2 == nil or action1:getpriority() > action2:getpriority()
+			return action1:getpriority() > action2:getpriority()
 		end)
 	end
 	if self.current_action == nil then
@@ -319,14 +360,14 @@ end
 
 -- Clears all actions in the queue
 function ActionQueue:clear()
-	if self.current_action ~= nil then
-		self.current_action:cancel()
-	end
-
 	for action in self.queue:it() do
 		action:destroy()
 	end
 	self.queue:clear()
+
+	if self.current_action ~= nil then
+		self.current_action:cancel()
+	end
 end
 
 function ActionQueue:set_enabled(is_enabled)
