@@ -385,6 +385,20 @@ function Singer:destroy()
     self.dispose_bag:destroy()
 end
 
+function Singer:check_gambits(gambits, param, ignore_delay)
+    -- Hold songs while TP is banked for a weaponskill: the
+    -- weaponskill gets used first, then singing resumes on the
+    -- next tic once TP drops below 500. Applies between fights
+    -- (so the next mob is engaged and the weaponskill spent
+    -- before a burst starts) and mid-fight alike. Same 500 TP
+    -- trip point as the debuffer and puller holds.
+    local ffxi_player = windower.ffxi.get_player()
+    if ffxi_player and ffxi_player.tp and ffxi_player.tp >= 500 then
+        return
+    end
+    return Gambiter.check_gambits(self, gambits, param, ignore_delay)
+end
+
 -------
 -- Forwards the per-second tic to the song tracker so its expiration sweep
 -- actually runs (Trust:tic calls role:tic when it exists), and records each
