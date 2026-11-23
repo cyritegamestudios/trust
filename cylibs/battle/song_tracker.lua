@@ -87,14 +87,7 @@ function SongTracker.new(player, party, dummy_songs, songs, pianissimo_songs, jo
                 return buff_record_1:get_expire_time() < buff_record_2:get_expire_time()
             end)
             if song_records:length() > 0 then
-                local min_song_duration = math.max(song_records[1]:get_time_remaining(), 0)
-
-                local active_songs = all_songs:filter(function(song)
-                    return self:has_song(self.party:get_player().id, song:get_spell().id)
-                end)
-                for song in active_songs:it() do
-                    self:update_song_duration(self.party:get_player().id, song:get_spell().id, min_song_duration)
-                end
+                self:sync_song_durations(self.party:get_player().id, buff_records)
             else
                 -- get_player() is nil while zoning; this one-shot can
                 -- fire in that window.
@@ -196,6 +189,7 @@ function SongTracker:monitor()
         member_dispose_bag:add(party_member:on_buffs_duration_changed():addAction(function(p, buff_records)
             --print('pruning', 'buff_records', buff_records:map(function(b) return res.buffs[b:get_buff_id()].en end))
             self:prune_all_songs(p:get_id(), buff_records:map(function(b) return b:get_buff_id() end))
+            self:sync_song_durations(p:get_id(), buff_records)
         end), party_member:on_buffs_duration_changed())
 
         member_dispose_bag:add(party_member:on_ko():addAction(function(p)
@@ -477,6 +471,50 @@ function SongTracker:update_song_duration(target_id, song_id, song_duration)
                 logger.notice(self.__class, 'update_song_duration', res.spells[song_id].en, song_duration, 'old_duration', song_record:get_time_remaining())
                 song_record:set_song_duration(song_duration)
                 return
+            end
+        end
+    end
+end
+
+-------
+-- Corrects song records from the client's real buff durations.
+-- on_gain_song estimates a song's duration from the Bard's gear model
+-- (job:get_song_duration), but the model reads the equipment worn when
+-- the song lands -- by then GearSwap is already back in TP gear, so the
+-- song set's duration pieces are missed and estimates come out short.
+-- Records then "expire" a minute or more before the buffs do, which made
+-- the singer re-sing at ~2 minutes remaining instead of ResingDuration
+-- and re-sing songs as duplicates while they were still up. The buff
+-- duration packets carry the server's actual remaining times, so records
+-- are re-anchored to them whenever they arrive and the re-sing gambits
+-- fire ResingDuration seconds before a song really expires.
+-- Songs sharing one buff id (e.g. all Minuets share 198) are paired with
+-- that buff's records in expiration order, earliest with earliest.
+-- @tparam number target_id Target id
+-- @tparam List buff_records Buff records (see buff_record.lua)
+function SongTracker:sync_song_durations(target_id, buff_records)
+    if not self.active_songs[target_id] then
+        return
+    end
+    local buffs_by_id = {}
+    for buff_record in buff_records:it() do
+        local buff_id = buff_record:get_buff_id()
+        if self.job:is_bard_song_buff(buff_id) then
+            buffs_by_id[buff_id] = buffs_by_id[buff_id] or L{}
+            buffs_by_id[buff_id]:append(buff_record)
+        end
+    end
+    for buff_id, records in pairs(buffs_by_id) do
+        local song_records = L(self:get_songs(target_id, buff_id)):sort(function(r1, r2)
+            return r1:get_expire_time() < r2:get_expire_time()
+        end)
+        local sorted_buffs = records:sort(function(b1, b2)
+            return b1:get_expire_time() < b2:get_expire_time()
+        end)
+        for i = 1, math.min(song_records:length(), sorted_buffs:length()) do
+            local buff_record = sorted_buffs[i]
+            if buff_record:get_time_remaining() > 0 then
+                song_records[i]:set_expire_time(buff_record:get_expire_time())
             end
         end
     end
