@@ -61,6 +61,7 @@ function CombatMode:on_add()
         local target = self:get_target()
         if target == nil then
             self.last_target_index = nil
+            self:walk_in(nil)
             return
         end
         -- New target: re-roll the hold distance for this fight (see
@@ -86,7 +87,11 @@ end
 -- drive the same RunToAction from here as well: while the
 -- player is engaged and farther than the rolled distance
 -- (+0.5), keep one RunTo running. In position, disengaged, or
--- CombatMode not on Auto, it does nothing.
+-- CombatMode not on Auto, it does nothing. The mob is the
+-- role's target when it has one, and the player's own current
+-- target otherwise -- at the start of a fight the role target
+-- can lag behind the engage, and the walk-in must not wait
+-- for it.
 function CombatMode:walk_in(target)
     if state.CombatMode.value ~= 'Auto' or not self.distance then
         return
@@ -95,7 +100,7 @@ function CombatMode:walk_in(target)
     if not player or res.statuses[player.status].en ~= 'Engaged' then
         return
     end
-    local target_mob = target:get_mob()
+    local target_mob = target and target:get_mob() or windower.ffxi.get_mob_by_target('t')
     if not target_mob or not target_mob.distance then
         return
     end
