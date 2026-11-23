@@ -8,6 +8,8 @@ local math = require('math')
 require('tables')
 require('vectors')
 
+local ffxi_util = require('cylibs/util/ffxi_util')
+
 local player_util = {}
 
 _raw = _raw or {}
@@ -65,8 +67,7 @@ function player_util.find_closest_mob(target_mobs, black_list)
 	local player_mob = windower.ffxi.get_mob_by_id(player.id)
 	local closest_mob = nil
 
-	local mob_array = windower.ffxi.get_mob_array()
-    for i, mob in pairs(mob_array) do
+    for i, mob in pairs(ffxi_util.get_mob_snapshot()) do
     	local deltaZ = math.abs(player_mob.z - mob.z)
 		
 		-- Check to see if mob is in target_mob list

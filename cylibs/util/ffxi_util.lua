@@ -12,6 +12,33 @@ _raw = _raw or {}
 
 _libs.ffxi_util = ffxi_util
 
+-- Shared snapshot of the mob array. Several targeting helpers used to call
+-- windower.ffxi.get_mob_array() and rebuild the full list on every call,
+-- several times per gambit pass. The snapshot is reused for a tenth of a
+-- second -- one pass's worth of calls -- so a pass scans the array once.
+-- Mob entries are already snapshots at call time in Windower, and callers
+-- re-check live state by mob index where it matters, so this does not
+-- change which mobs get picked. A zone change forces a fresh snapshot.
+local snapshot_mobs = nil
+local snapshot_zone = nil
+local snapshot_time = 0
+local SNAPSHOT_TTL = 0.1
+
+function ffxi_util.get_mob_snapshot()
+	local zone = windower.ffxi.get_info().zone
+	local now = os.clock()
+	if snapshot_mobs == nil or zone ~= snapshot_zone or (now - snapshot_time) >= SNAPSHOT_TTL then
+		local mobs = L{}
+		for _, mob in pairs(windower.ffxi.get_mob_array()) do
+			mobs:append(mob)
+		end
+		snapshot_mobs = mobs
+		snapshot_zone = zone
+		snapshot_time = now
+	end
+	return snapshot_mobs
+end
+
 function ffxi_util.distance(v1, v2)
 	if not v1 or not v2 then
 		return 0
@@ -63,12 +90,7 @@ end
 function ffxi_util.find_closest_mobs(target_mobs, exclude_target_indices, exclude_names, distance)
 	distance = distance or 20
 	local player_mob = windower.ffxi.get_mob_by_target('me')
-	local mob_array = windower.ffxi.get_mob_array()
-	local mob_list = L{}
-	-- TODO(Aldros): Is there a more efficient way, maybe rekeying the mob_array table
-	for _, v in pairs(mob_array) do
-		mob_list:append(v)
-	end
+	local mob_list = ffxi_util.get_mob_snapshot()
 
 	local closest_mobs = mob_list:filter(function(t)
 		return t.valid_target -- Valid target

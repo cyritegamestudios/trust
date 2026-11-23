@@ -14,6 +14,10 @@ local MaxHeightDistanceCondition = require('cylibs/conditions/max_height_distanc
 local PartyClaimedCondition = require('cylibs/conditions/party_claimed')
 local TargetNamesCondition = require('cylibs/conditions/target_names')
 local UnclaimedCondition = require('cylibs/conditions/unclaimed')
+local ffxi_util = require('cylibs/util/ffxi_util')
+
+-- The mob array snapshot is shared via ffxi_util.get_mob_snapshot(): one
+-- scan per gambit pass instead of one per filter call.
 
 MobFilter.Type = {}
 MobFilter.Type.All = L{}
@@ -30,6 +34,8 @@ function MobFilter.new(alliance, max_distance, default_sort, blacklist)
         return mob1.distance < mob2.distance
     end
     self.blacklist = blacklist or L{}
+    self.default_conditions = nil
+    self.default_conditions_time = 0
     return self
 end
 
@@ -53,11 +59,9 @@ function MobFilter:get_nearby_mobs(conditions)
 
     conditions = self:get_default_conditions() + conditions
 
-    local mobs = L{}
-    for _, mob in pairs(windower.ffxi.get_mob_array()) do
-        mobs:append(mob)
-    end
-    mobs = mobs:filter(function(mob)
+    -- filter() returns a new list, so the shared snapshot is never mutated,
+    -- and the sort below only ever sorts the filtered copy.
+    local mobs = ffxi_util.get_mob_snapshot():filter(function(mob)
         if mob.spawn_type ~= 16 then
             return false
         end
@@ -75,16 +79,25 @@ end
 
 -------
 -- Returns the default conditions to use in every mob filter.
+-- The set only depends on this filter's construction parameters, so it is
+-- built once and reused for a tenth of a second at a time (the same window
+-- as the mob snapshot) instead of being rebuilt on every call. The window
+-- bounds how stale the captured alliance member ids can be. Callers never
+-- mutate the returned list: get_nearby_mobs concatenates it into a new one.
 -- @treturn list Default conditions
 function MobFilter:get_default_conditions()
-    return L{
-        ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos()),
-        MinHitPointsPercentCondition.new(1),
-        MaxDistanceCondition.new(self.max_distance, nil, self.center_position),
-        MaxHeightDistanceCondition.new(8, Condition.Operator.LessThanOrEqualTo),
-        ConditionalCondition.new(L{ ClaimedCondition.new(self.alliance:get_alliance_member_ids()), UnclaimedCondition.new() }, Condition.LogicalOperator.Or),
-        NotCondition.new(L{ TargetNamesCondition.new(self.blacklist) }),
-    }
+    if self.default_conditions == nil or (os.clock() - self.default_conditions_time) >= 0.1 then
+        self.default_conditions = L{
+            ValidTargetCondition.new(alter_ego_util.untargetable_alter_egos()),
+            MinHitPointsPercentCondition.new(1),
+            MaxDistanceCondition.new(self.max_distance, nil, self.center_position),
+            MaxHeightDistanceCondition.new(8, Condition.Operator.LessThanOrEqualTo),
+            ConditionalCondition.new(L{ ClaimedCondition.new(self.alliance:get_alliance_member_ids()), UnclaimedCondition.new() }, Condition.LogicalOperator.Or),
+            NotCondition.new(L{ TargetNamesCondition.new(self.blacklist) }),
+        }
+        self.default_conditions_time = os.clock()
+    end
+    return self.default_conditions
 end
 
 -------
@@ -92,6 +105,7 @@ end
 -- @tparam vector center_position Position
 function MobFilter:set_center_position(center_position)
     self.center_position = center_position
+    self.default_conditions = nil
 end
 
 -------

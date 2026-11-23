@@ -11,6 +11,7 @@ local HasKeyItemsCondition = require('cylibs/conditions/has_key_items')
 local table = require('table')
 local packets = require('packets')
 local player_util = require('cylibs/util/player_util')
+local ffxi_util = require('cylibs/util/ffxi_util')
 local tables_ext = require('cylibs/util/extensions/tables')
 
 local party_util = {}
@@ -181,8 +182,7 @@ end
 function party_util.get_party_claimed_mobs(range_check, party_member_ids)
     local party_claimed_mobs = L{}
 
-    local nearby_mobs = windower.ffxi.get_mob_array()
-    for _, target in pairs(nearby_mobs) do
+    for _, target in pairs(ffxi_util.get_mob_snapshot()) do
         if target and target.distance:sqrt() < (range_check or 15) and target.hpp > 0 and target.status ~= 3 and party_util.party_claimed(target.id, party_member_ids) then
             if target ~= nil then
                 party_claimed_mobs:append(target.index)
@@ -230,8 +230,7 @@ end
 function party_util.get_mobs_targeting_party()
     local mobs_targeting_party = L{}
 
-    local nearby_mobs = windower.ffxi.get_mob_array()
-    for _, target in pairs(nearby_mobs) do
+    for _, target in pairs(ffxi_util.get_mob_snapshot()) do
         if target and target.hpp > 0 and target.status ~= 3 and party_util.party_targeted(target.id) then
             mobs_targeting_party:append(target.index)
         end
