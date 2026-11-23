@@ -14,6 +14,39 @@ local Monster = require('cylibs/battle/monster')
 local monster_util = require('cylibs/util/monster_util')
 local packets = require('packets')
 
+-- Hoisted out of the per-packet 0x00E handler below: building this List on
+-- every NPC update (the most frequent incoming packet) just to test
+-- membership. :contains() never mutates the list, so sharing one is exact.
+local dead_or_engaged_statuses = L{'Dead', 'Engaged', 'Engaged dead'}
+
+-- Hoisted out of prune_mobs() below: same reason, one List per mob per prune.
+local idle_statuses = L{ 'Idle' }
+
+-- Safely compute a distance magnitude from whatever get_distance() returned.
+-- get_distance() may return a number, a V{} vector, a plain table, or nil.
+-- Never throws: returns nil when the value cannot be read as a distance.
+local function distance_magnitude(dist)
+    if type(dist) == 'number' then
+        return dist
+    end
+    if not dist or type(dist) ~= 'table' then
+        return nil
+    end
+    if dist.sqrt then
+        local ok, val = pcall(function() return dist:sqrt() end)
+        if ok and type(val) == 'number' then
+            return val
+        end
+    end
+    local x = dist[1] or dist.x or 0
+    local y = dist[2] or dist.y or 0
+    local z = dist[3] or dist.z or 0
+    if type(x) == 'number' and type(y) == 'number' and type(z) == 'number' then
+        return math.sqrt(x * x + y * y + z * z)
+    end
+    return nil
+end
+
 -- Event called when a mob is knocked out.
 function MobTracker:on_mob_ko()
     return self.mob_ko
@@ -31,21 +64,41 @@ function MobTracker.new(on_party_member_added, on_party_member_removed, party_ta
         action_events = {};
         party_target = party_target;
         dispose_bag = DisposeBag.new();
+        member_dispose_bags = {};
     }, MobTracker)
 
     self.mob_ko = Event.newEvent()
     self.targets_changed = Event.newEvent()
 
     self.dispose_bag:add(on_party_member_added:addAction(function(t)
-        self.dispose_bag:add(t:on_target_change():addAction(function(_, new_target_index, _)
+        -- Per-member dispose bag (same pattern as SongTracker): the
+        -- target_change registration must be removed when the member
+        -- leaves, not held in the tracker-level bag until destroy.
+        -- PartyMember objects are discarded on removal, so each add
+        -- used to leave one stale event + closure in the tracker-level
+        -- bag for the rest of the session (one per Trust summon/dismiss).
+        local member_id = t:get_id()
+        local member_dispose_bag = self.member_dispose_bags[member_id]
+        if member_dispose_bag then
+            member_dispose_bag:destroy()
+        end
+        member_dispose_bag = DisposeBag.new()
+        self.member_dispose_bags[member_id] = member_dispose_bag
+
+        member_dispose_bag:add(t:on_target_change():addAction(function(_, new_target_index, _)
             self:add_mob_by_index(new_target_index)
             self:prune_mobs()
         end), t:on_target_change())
-        self:add_player(t:get_id())
+        self:add_player(member_id)
         self:add_mob_by_index(t:get_target_index())
     end), on_party_member_added)
 
     self.dispose_bag:add(on_party_member_removed:addAction(function(t)
+        local member_dispose_bag = self.member_dispose_bags[t:get_id()]
+        if member_dispose_bag then
+            member_dispose_bag:destroy()
+            self.member_dispose_bags[t:get_id()] = nil
+        end
         self:remove_player(t:get_id())
     end), on_party_member_removed)
 
@@ -61,6 +114,11 @@ function MobTracker:destroy()
         mob:destroy()
     end
     self.mobs = {}
+
+    for _, member_dispose_bag in pairs(self.member_dispose_bags) do
+        member_dispose_bag:destroy()
+    end
+    self.member_dispose_bags = {}
 
     self.mob_ko:removeAllActions()
     self.targets_changed:removeAllActions()
@@ -82,6 +140,7 @@ function MobTracker:monitor()
     self.is_monitoring = true
 
     self.dispose_bag:add(WindowerEvents.Action:addAction(function(action)
+        if action.targets == nil then return end
         if monster_util.is_monster(action.actor_id) then
             for _, target in pairs(action.targets) do
                 if self.player_ids:contains(target.id) then
@@ -101,11 +160,12 @@ function MobTracker:monitor()
         if id == 0x00E then
             local p = packets.parse('incoming', data)
             local status = res.statuses[p['Status']]
-            if status and L{'Dead','Engaged', 'Engaged dead'}:contains(status.en) then
+            if status and dead_or_engaged_statuses:contains(status.en) then
                 local mob_id = monster_util.id_for_index(p['Index'])
                 if mob_id then
                     local mob = self:get_mob(mob_id)
-                    if mob and mob:get_mob().hpp <= 0 then
+                    local m = mob and mob:get_mob()
+                    if mob and m and m.hpp <= 0 then
                         self:remove_mob(mob_id)
                     end
                 end
@@ -134,7 +194,14 @@ function MobTracker:add_mob(target_id)
     end
     local mob = self:get_mob(target_id)
     if mob then
-        return
+        -- Mob ids are recycled: a new mob can spawn on a dead mob's id.
+        -- Entity stores the name seen at creation, so if the live mob's
+        -- name differs, the old mob's tracker state must not carry over.
+        local current_mob = windower.ffxi.get_mob_by_id(target_id)
+        if not current_mob or mob:get_name() == current_mob.name then
+            return
+        end
+        self:remove_mob(target_id)
     end
     mob = Monster.new(target_id)
     mob:monitor()
@@ -173,10 +240,19 @@ end
 -------
 -- Stops tracking mobs that are no longer targeted by the party.
 function MobTracker:prune_mobs()
+    -- party_target() is a pure read; call it once, not once per Idle mob.
+    local party_target_index = self.party_target():get_target_index()
     local mob_ids_to_remove = L{}
     for id, mob in pairs(self.mobs) do
-        if not battle_util.is_valid_target(id) or (mob:get_mob().claim_id ~= nil and mob:get_mob().claim_id ~= 0 and not self.player_ids:contains(mob:get_mob().claim_id))
-                or (L{ 'Idle' }:contains(mob:get_status()) and self.party_target():get_target_index() ~= mob:get_mob().index) or mob:get_distance():sqrt() > 50 then
+        -- get_mob() was called up to 3 times per mob here (claim_id twice,
+        -- .index once), one windower.ffxi.get_mob_by_id FFI call each.
+        -- Read it once. A nil mob means it left memory, which
+        -- is_valid_target() would also report as invalid, so it is pruned
+        -- instead of crashing on nil.claim_id as the old code did.
+        local mob_info = mob:get_mob()
+        local mob_dist = distance_magnitude(mob:get_distance())
+        if mob_info == nil or not battle_util.is_valid_target(id) or (mob_info.claim_id ~= nil and mob_info.claim_id ~= 0 and not self.player_ids:contains(mob_info.claim_id))
+                or (idle_statuses:contains(mob:get_status()) and party_target_index ~= mob_info.index) or (mob_dist ~= nil and mob_dist > 50) then
             mob_ids_to_remove:append(id)
         end
     end

@@ -9,7 +9,6 @@ local Entity = require('cylibs/entity/entity')
 local Event = require('cylibs/events/Luvent')
 local res = require('resources')
 local action_message_util = require('cylibs/util/action_message_util')
-local buff_util = require('cylibs/util/buff_util')
 local CumulativeMagicTracker = require('cylibs/battle/trackers/cumulative_magic_tracker')
 local logger = require('cylibs/logger/logger')
 local monster_abilities_ext = require('cylibs/res/monster_abilities')
@@ -136,8 +135,6 @@ function Monster.new(mob_id)
 
     self.dispose_bag = DisposeBag.new()
 
-    num_monsters = num_monsters + 1
-
     return self
 end
 
@@ -178,7 +175,7 @@ function Monster:destroy()
 
     self.dispose_bag:destroy()
 
-    num_monsters = num_monsters - 1
+    if self.counted then num_monsters = num_monsters - 1; self.counted = false end
 end
 
 -------
@@ -189,6 +186,7 @@ function Monster:monitor()
         return
     end
     self.is_monitoring = true
+    if not self.counted then num_monsters = num_monsters + 1; self.counted = true end
 
     self.debuff_tracker = DebuffTracker.new(self:get_id())
     self.debuff_tracker:monitor()
@@ -223,8 +221,8 @@ function Monster:monitor()
 
     self.dispose_bag:add(WindowerEvents.MobUpdate:addAction(function(mob_id, name, hpp, claimer_id)
         if mob_id == self:get_id() then
-            self:set_hpp(hpp)
-            self:set_claim_id(claimer_id)
+            if hpp ~= nil then self:set_hpp(hpp) end
+            if claimer_id ~= nil then self:set_claim_id(claimer_id) end
         end
     end), WindowerEvents.MobUpdate)
 
@@ -236,6 +234,10 @@ function Monster:monitor()
 end
 
 function Monster:handle_action_by_monster(act)
+    if act.targets == nil or act.targets[1] == nil then
+        return
+    end
+
     -- Mighty guard is category 11 and param 2667
     if action_message_util.is_finish_tp_move_category(act.category) then
         for _, target in pairs(act.targets) do
@@ -245,7 +247,8 @@ function Monster:handle_action_by_monster(act)
                 if L{ 185, 186, 187, 188 }:contains(action.message) then
                     local monster_ability = res.monster_abilities:with('id', act.param) or {id=-999,en="Unknown",ja="Unknown"}
                     local monster_ability_name = monster_ability.en
-                    self:on_tp_move_finish():trigger(self, monster_ability_name, windower.ffxi.get_mob_by_id(target.id).name, action.param)
+                    local target_mob = windower.ffxi.get_mob_by_id(target.id)
+                    self:on_tp_move_finish():trigger(self, monster_ability_name, target_mob and target_mob.name or "", action.param)
                 end
             end
         end
@@ -261,21 +264,25 @@ function Monster:handle_action_by_monster(act)
     end
 
     if action_message_util.is_finish_action_category(act.category) then
-        local action = act.targets[1].actions[1]
-        if action_message_util.is_monster_gain_buff(action.message, action.param) then
+        local action = (act.targets[1].actions or {})[1]
+        if action and action_message_util.is_monster_gain_buff(action.message, action.param) then
             self:handle_gain_buff(action.param)
-        elseif action_message_util.is_spell_finish_message(action.message, act.param) then
-            self:on_spell_finish():trigger(self, target.index, act.param)
+        elseif action and action_message_util.is_spell_finish_message(action.message, act.param) then
+            if target then
+                self:on_spell_finish():trigger(self, target.index, act.param)
+            end
         end
     end
 
-    if action_message_util.is_spikes_message(act.targets[1].actions[1].message) then
+    local first_action = (act.targets[1].actions or {})[1]
+    if first_action and action_message_util.is_spikes_message(first_action.message) then
         -- Note: since we don't know the source of the spikes, we are just using the id for Ice Spikes
         self:handle_gain_buff(35)
     end
 end
 
 function Monster:handle_action_on_monster(act)
+    if act.targets == nil then return end
     for _, target in pairs(act.targets) do
         if target.id == self.mob_id then
             local action = target.actions[1]
@@ -324,7 +331,10 @@ end
 function Monster:handle_gain_buff(buff_id)
     if not self.buff_ids:contains(buff_id) then
         self.buff_ids:add(buff_id)
-        self:on_gain_buff():trigger(self, self:get_mob().index, buff_id)
+        local mob = self:get_mob()
+        if mob then
+            self:on_gain_buff():trigger(self, mob.index, buff_id)
+        end
 
         logger.notice(self:get_name(), "gains the effect of", (res.buffs[buff_id] and res.buffs[buff_id].name) or 'unknown', self:get_buffs())
     end
@@ -333,7 +343,10 @@ end
 function Monster:handle_lose_buff(buff_id)
     if self.buff_ids:contains(buff_id) then
         self.buff_ids:remove(buff_id)
-        self:on_lose_buff():trigger(self, self:get_mob().index, buff_id)
+        local mob = self:get_mob()
+        if mob then
+            self:on_lose_buff():trigger(self, mob.index, buff_id)
+        end
 
         logger.notice(self:get_name(), "loses the effect of", (res.buffs[buff_id] and res.buffs[buff_id].name) or 'unknown', self:get_buffs())
     end
@@ -351,7 +364,10 @@ end
 -- @treturn List of localized buff names (see buffs.lua)
 function Monster:get_buffs()
     return L(self.buff_ids:map(function(buff_id)
-        return res.buffs[buff_id].enl
+        -- Same guard handle_gain_buff/handle_lose_buff already use for
+        -- the buff name in their log lines; an id missing from
+        -- res.buffs previously crashed here, inside those very calls.
+        return (res.buffs[buff_id] and res.buffs[buff_id].enl) or 'unknown'
     end))
 end
 
@@ -463,13 +479,6 @@ function Monster:set_hpp(hpp)
 end
 
 -------
--- Returns the monster's current hit point percentage.
--- @treturn number Hit point percentage
-function Monster:get_hpp()
-    return self.hpp
-end
-
--------
 -- Sets the (x, y, z) coordinate of the mob.
 -- @tparam number x X coordinate
 -- @tparam number y Y coordinate
@@ -531,9 +540,10 @@ end
 -- Return a description of the monster.
 -- @treturn string Description
 function Monster:description()
-    local result = self:get_name()..', HP: '..self:get_mob().hpp..'%'
-    if self:get_mob().claim_id and windower.ffxi.get_mob_by_id(self:get_mob().claim_id) then
-        result = result..', Claimed By: '..windower.ffxi.get_mob_by_id(self:get_mob().claim_id).name
+    local mob = self:get_mob()
+    local result = self:get_name()..', HP: '..(mob and mob.hpp or 100)..'%'
+    if mob and mob.claim_id and windower.ffxi.get_mob_by_id(mob.claim_id) then
+        result = result..', Claimed By: '..windower.ffxi.get_mob_by_id(mob.claim_id).name
     end
     return result
 end

@@ -97,9 +97,9 @@ local function read_state_file(path)
         return entries
     end
     for line in f:lines() do
-        local mob_id, debuff_id, added_at, duration = string.match(line, '^(%d+)%s+(%d+)%s+(%d+)%s+(%d+)$')
+        local mob_id, debuff_id, added_at, duration, name = string.match(line, '^(%d+)%s+(%d+)%s+(%d+)%s+(%d+)%s*(.-)%s*$')
         if mob_id then
-            entries[#entries + 1] = { mob_id = tonumber(mob_id), debuff_id = tonumber(debuff_id), added_at = tonumber(added_at), duration = tonumber(duration) }
+            entries[#entries + 1] = { mob_id = tonumber(mob_id), debuff_id = tonumber(debuff_id), added_at = tonumber(added_at), duration = tonumber(duration), name = (name ~= "" and name or nil) }
         end
     end
     f:close()
@@ -111,10 +111,21 @@ local function write_state_file(path, entries)
     if not f then
         return
     end
-    for _, e in ipairs(entries) do
-        f:write(string.format('%d %d %d %d\n', e.mob_id, e.debuff_id, e.added_at, e.duration))
-    end
+    -- Close the handle even if a write fails (disk full, etc.); the
+    -- error still propagates to save_state's pcall and is logged there.
+    local ok, err = pcall(function()
+        for _, e in ipairs(entries) do
+            local line = string.format('%d %d %d %d', e.mob_id, e.debuff_id, e.added_at, e.duration)
+            if e.name then
+                line = line .. ' ' .. e.name
+            end
+            f:write(line .. '\n')
+        end
+    end)
     f:close()
+    if not ok then
+        error(err)
+    end
 end
 
 
@@ -172,11 +183,24 @@ function DebuffTracker:save_state()
                 kept[#kept + 1] = e
             end
         end
-        for debuff_id in self.debuff_ids:it() do
-            local duration = self.debuff_durations[debuff_id]
-            local added_at = self.debuff_added_at[debuff_id]
-            if duration and added_at and added_at + duration > now then
-                kept[#kept + 1] = { mob_id = self.mob_id, debuff_id = debuff_id, added_at = added_at, duration = duration }
+        -- destroy() also runs when the mob dies or despawns (MobTracker
+        -- removal), not just on a Trust reload. A dead/gone mob's
+        -- debuffs are over: persisting them lets a new same-name mob
+        -- that recycles this id restore them via restore_state (the
+        -- name check cannot tell two same-species mobs apart), and the
+        -- Debuffer would skip recasting on a fresh mob. The mob's old
+        -- entries are already dropped by the filter above, so just
+        -- don't re-add them. On a genuine reload mid-fight the mob is
+        -- alive and in memory, so the feature is unchanged.
+        local mob = windower.ffxi.get_mob_by_id(self.mob_id)
+        local mob_alive = mob ~= nil and (mob.hpp == nil or mob.hpp > 0)
+        if mob_alive then
+            for debuff_id in self.debuff_ids:it() do
+                local duration = self.debuff_durations[debuff_id]
+                local added_at = self.debuff_added_at[debuff_id]
+                if duration and added_at and added_at + duration > now then
+                    kept[#kept + 1] = { mob_id = self.mob_id, debuff_id = debuff_id, added_at = added_at, duration = duration, name = monster_util.monster_name(self.mob_id) }
+                end
             end
         end
         write_state_file(path, kept)
@@ -194,8 +218,9 @@ end
 function DebuffTracker:restore_state()
     local ok, err = pcall(function()
         local now = os.time()
+        local current_name = monster_util.monster_name(self.mob_id)
         for _, e in ipairs(read_state_file(debuff_state_path())) do
-            if e.mob_id == self.mob_id and e.added_at + e.duration > now then
+            if e.mob_id == self.mob_id and e.added_at + e.duration > now and not (e.name and current_name ~= "Unknown" and e.name ~= current_name) then
                 self:add_debuff(e.debuff_id)
                 -- add_debuff stamps the current time; keep the original
                 -- time so the expiry stays correct.
@@ -277,6 +302,8 @@ function DebuffTracker:monitor()
                             local debuff_ids = self:get_debuff_ids():copy()
                             self.debuff_ids:clear()
                             for debuff_id in debuff_ids:it() do
+                                self.debuff_added_at[debuff_id] = nil
+                                self.debuff_durations[debuff_id] = nil
                                 self:on_lose_debuff():trigger(self.mob_id, debuff_id)
                             end
                         elseif L{ 1 }:contains(action.message) then
@@ -296,7 +323,8 @@ function DebuffTracker:monitor()
             if mob_id == self.mob_id then
                 local debuff_id = ipc_message:get_buff_id()
                 if debuff_id then
-                    logger.notice(self.__class, 'on_message_received', 'remove_debuff', res.buffs[debuff_id].en)
+                    local buff = res.buffs[debuff_id]
+                    logger.notice(self.__class, 'on_message_received', 'remove_debuff', (buff and buff.en or "unknown"))
                     self:remove_debuff(debuff_id)
                 end
             end
@@ -305,7 +333,8 @@ function DebuffTracker:monitor()
             if mob_id == self.mob_id then
                 local debuff_id = ipc_message:get_buff_id()
                 if debuff_id then
-                    logger.notice(self.__class, 'on_message_received', 'add_debuff', res.buffs[debuff_id].en)
+                    local buff = res.buffs[debuff_id]
+                    logger.notice(self.__class, 'on_message_received', 'add_debuff', (buff and buff.en or "unknown"))
                     self:add_debuff(debuff_id)
                 end
             end
@@ -337,7 +366,10 @@ function DebuffTracker:add_debuff(debuff_id)
         end
         self.debuff_ids:add(debuff_id)
         self.debuff_added_at[debuff_id] = os.time()
-        self.debuff_durations[debuff_id] = duration_for(debuff_id)
+        -- Debuffs with no known duration fall back to 180s so they
+        -- expire instead of living forever (purge_expired only
+        -- purges entries with a duration).
+        self.debuff_durations[debuff_id] = duration_for(debuff_id) or 180
         self:on_gain_debuff():trigger(self.mob_id, debuff_id)
     end
 end
