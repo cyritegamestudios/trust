@@ -6,6 +6,13 @@ local Event = require('cylibs/events/Luvent')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local packets = require('packets')
 
+-- Last time an auto-accept raise packet was scheduled, in seconds (os.time()).
+-- Shared across Trust instances (file-local, not per-instance) so a stale handler
+-- left over from a reload or job change cannot send a second accept for the same
+-- raise dialog. A second accept packet sent after Arise has already raised the
+-- player drops the Reraise III Arise grants ("Reraise effect wore off").
+local last_raise_accept_time = 0
+
 local Trust = {}
 Trust.__index = Trust
 Trust.__class = "Trust"
@@ -98,7 +105,8 @@ function Trust:init(is_main_job)
 
 	-- NOTE: this is necessary because some gambits add conditions that reference the player's index,
 	-- which changes when you zone.
-	self:get_party():get_player():on_zone_change():addAction(function(p, new_zone_id)
+	self.zone_change_event = self:get_party():get_player():on_zone_change()
+	self.on_zone_change_id = self.zone_change_event:addAction(function(p, new_zone_id)
 		if p:get_mob() == nil then
 			return
 		end
@@ -110,7 +118,19 @@ function Trust:init(is_main_job)
 			if state.AutoAcceptRaiseMode.value ~= 'Auto' then
 				return
 			end
+			-- Accept only once per raise. The dialog can fire more than once for the same
+			-- death, and this handler can be registered more than once after a reload or
+			-- job change. A second accept packet sent after Arise has already raised the
+			-- player drops the Reraise III Arise grants, so ignore any further dialogs
+			-- for a few seconds after scheduling an accept.
+			if os.time() - last_raise_accept_time < 10 then
+				return
+			end
+			last_raise_accept_time = os.time()
 			coroutine.schedule(function()
+				if self.destroyed then
+					return
+				end
 				local player = self:get_party():get_player()
 				if not player:is_alive() and player:get_mob() then
 					local p = packets.new('outgoing', 0x01A)
@@ -153,6 +173,18 @@ function Trust:init(is_main_job)
 end
 
 function Trust:destroy()
+	self.destroyed = true
+
+	if self.on_party_target_change_id then
+		self.party:on_party_target_change():removeAction(self.on_party_target_change_id)
+		self.on_party_target_change_id = nil
+	end
+	if self.zone_change_event and self.on_zone_change_id then
+		self.zone_change_event:removeAction(self.on_zone_change_id)
+		self.zone_change_event = nil
+		self.on_zone_change_id = nil
+	end
+
 	self.dispose_bag:destroy()
 
 	for role in self.roles:it() do
@@ -165,6 +197,10 @@ function Trust:destroy()
 		end
 	end
 
+	if self.job and self.job.destroy then
+		self.job:destroy()
+	end
+
 	self.trust_settings_changed:removeAllActions()
 	self.trust_roles_changed:removeAllActions()
 	self.trust_modes_override:removeAllActions()
@@ -172,21 +208,23 @@ function Trust:destroy()
 
 	self:on_deinit()
 
-	self.player:destroy()
-	self.player = nil
+	if self.player then
+		self.player:destroy()
+		self.player = nil
+	end
 end
 
 function Trust:on_init()
 	for party in self:get_alliance():get_parties():it() do
 		if party:get_player() == nil then
-			party:on_party_member_added():addAction(function(p)
+			self.dispose_bag:add(party:on_party_member_added():addAction(function(p)
 				for role in self.roles:it() do
 					if role.get_party_member_blacklist then
 						role:get_party_member_blacklist():append(p:get_name())
 					end
 				end
-			end)
-			party:on_party_member_removed():addAction(function(p)
+			end), party:on_party_member_added())
+			self.dispose_bag:add(party:on_party_member_removed():addAction(function(p)
 				for role in self.roles:it() do
 					if role.get_party_member_blacklist then
 						role:set_party_member_blacklist(role:get_party_member_blacklist():filter(function(party_member_name)
@@ -194,7 +232,7 @@ function Trust:on_init()
 						end))
 					end
 				end
-			end)
+			end), party:on_party_member_removed())
 		end
 	end
 end
@@ -229,18 +267,11 @@ function Trust:remove_role(role)
 	if role.destroy then
 		role:destroy()
 		role:set_player(nil)
+		role:set_alliance(nil)
 		role:set_party(nil)
 		role:set_job(nil)
 	end
 	self.roles = self.roles:filter(function(r) return r:get_type() ~= role:get_type() end)
-end
-
-function Trust:replace_role(role_type, new_role)
-	local old_role = self:role_with_type(role_type)
-	if old_role then
-		self:remove_role(old_role)
-	end
-	self:add_role(new_role)
 end
 
 function Trust:blacklist_role(role_type)
@@ -303,10 +334,6 @@ function Trust:tic(old_time, new_time)
 			role:tic(old_time, new_time)
 		end
 	end
-end
-
-function Trust:job_status_change(new_status)
-	self.status = new_status
 end
 
 function Trust:check_gambits(gambits)

@@ -7,6 +7,38 @@ _addon.release_url = "https://github.com/cyritegamestudios/trust/releases"
 _addon.start_time = os.time()
 _addon.timeout = nil
 
+-- Re-entry guard for unloaded(): handle_job_change() calls unloaded() and
+-- then runs '// lua unload trust', which fires the unload event and calls
+-- unloaded() a second time. Reset in loaded().
+local unloading = false
+local loaded_retry_pending = false
+local load_generation = 0
+-- Set once a load attempt gets past the player check, cleared in unloaded().
+-- A retry scheduled by a failed load cannot be cancelled, so without this a
+-- stale retry firing after a successful reload would run the load sequence
+-- a second time (duplicate trusts, roles, HUD and event registrations).
+local load_started = false
+-- PartyChat instance created in load_user_files(), destroyed in unloaded().
+-- File-local (not an implicit global) so unloaded() can reach it.
+local party_chat
+local state_event_actions = {}
+
+local function add_state_event_action(event, callback)
+	local action_id = event:addAction(callback)
+	state_event_actions[#state_event_actions + 1] = {
+		event = event,
+		action_id = action_id,
+	}
+	return action_id
+end
+
+local function remove_state_event_actions()
+	for _, action in ipairs(state_event_actions) do
+		action.event:removeAction(action.action_id)
+	end
+	state_event_actions = {}
+end
+
 windower.trust = {}
 windower.trust.get_temp_dir = function(file_name)
 	if file_name then
@@ -68,7 +100,7 @@ function load_user_files(main_job_id, sub_job_id)
 	player.player = Player.new(windower.ffxi.get_player().id)
 	player.player:monitor()
 
-	local party_chat = PartyChat.new(addon_settings:getSettings().chat.ipc_enabled)
+	party_chat = PartyChat.new(addon_settings:getSettings().chat.ipc_enabled)
 
 	player.alliance = Alliance.new(party_chat)
 	player.alliance:monitor()
@@ -88,12 +120,12 @@ function load_user_files(main_job_id, sub_job_id)
 		sub_job_migration_manager:perform()
 	end
 
-	state.MainTrustSettingsMode:on_state_change():addAction(function(_, new_value)
+	add_state_event_action(state.MainTrustSettingsMode:on_state_change(), function(_, new_value)
 		i18n.set_current_gearswap_locale(player.trust.main_job_settings[new_value].GearSwapSettings.Language or i18n.Locale.English)
 		player.trust.main_job:set_trust_settings(player.trust.main_job_settings[new_value])
 	end)
 
-	state.SubTrustSettingsMode:on_state_change():addAction(function(_, new_value)
+	add_state_event_action(state.SubTrustSettingsMode:on_state_change(), function(_, new_value)
 		player.trust.sub_job:set_trust_settings(player.trust.sub_job_settings[new_value])
 	end)
 
@@ -131,6 +163,7 @@ function load_user_files(main_job_id, sub_job_id)
 	player.trust.main_job:add_role(Cleaver.new(action_queue, weapon_skill_settings))
 	player.trust.main_job:add_role(Truster.new(action_queue, addon_settings:getSettings().battle.trusts))
 	player.trust.main_job:add_role(Aftermather.new(action_queue, player.trust.main_job:role_with_type("skillchainer")))
+	player.trust.main_job:add_role(Character.new(action_queue))
 
 	if player.sub_job_name_short ~= 'NON' then
 		player.trust.sub_job:add_role(Reacter.new(action_queue, player.trust.sub_job_settings.Default.ReactionSettings, skillchainer))
@@ -212,6 +245,11 @@ function load_trust_modes(job_name_short)
 	trust_mode_settings:copySettings()
 
 	local function update_for_new_modes(new_modes)
+		-- With a corrupt modes file the load below is skipped and the
+		-- settings are empty, so a mode change would pass nil here.
+		if not new_modes then
+			return
+		end
 		for state_name, state_var in pairs(state) do
 			if class(state_var) == 'mode' and state_name ~= 'TrustMode'
 					and new_modes[state_name:lower()] == nil then
@@ -232,13 +270,13 @@ function load_trust_modes(job_name_short)
 		end
 	end
 
-	state.TrustMode:on_state_change():addAction(function(_, new_value)
+	add_state_event_action(state.TrustMode:on_state_change(), function(_, new_value)
 		logger.notice("TrustMode is now", new_value)
 		local new_modes = trust_mode_settings:getSettings()[new_value]
 		update_for_new_modes(new_modes)
 	end)
 
-	state.AutoUnloadOnDeathMode:on_state_change():addAction(function(_, new_value)
+	add_state_event_action(state.AutoUnloadOnDeathMode:on_state_change(), function(_, new_value)
 		if new_value == 'Off' then
 			if addon_settings:getSettings().flags.show_death_warning then
 				windower.add_to_chat(122, "---== WARNING ==---- Disabling unload on death may result in unexpected Trust behavior. It is not recommended that you use this setting while AFK.")
@@ -248,7 +286,15 @@ function load_trust_modes(job_name_short)
 		end
 	end)
 
-	trust_mode_settings:loadSettings()
+	-- A corrupt modes file used to throw out of loadSettings() and abort
+	-- the whole load after the trusts were built but before load_ui(),
+	-- load_trust_commands() and register_chat_handlers(), leaving the
+	-- addon loaded-but-dead (hud nil, so every //trust command was
+	-- silently ignored). Load on defaults instead and tell the user.
+	local modes_ok, modes_err = pcall(function() trust_mode_settings:loadSettings() end)
+	if not modes_ok then
+		addon_system_error("Unable to load trust modes for "..job_name_short..", using defaults: "..tostring(modes_err))
+	end
 
 	set_help_text_enabled(addon_settings:getSettings().help.mode_text_enabled)
 
@@ -560,9 +606,14 @@ function handle_tic(old_time, new_time)
 		end
 	end
 
+	-- The guard below cannot protect the alliance tic if it runs after it:
+	-- player (or player.alliance, nilled partway through unloaded()) may
+	-- not exist when a tic fires in a load/unload window.
+	if not player or not player.alliance then return end
+
 	player.alliance:tic(old_time, new_time)
 
-	if not player.trust.main_job or not windower.ffxi.get_player() or not addon_enabled:getValue() or not player or not player.trust then return end
+	if not player.trust or not player.trust.main_job or not windower.ffxi.get_player() or not addon_enabled:getValue() then return end
 
 	action_queue:set_enabled(addon_enabled:getValue())
 
@@ -581,11 +632,20 @@ function handle_status_change(new_status_id, old_status_id)
 		if state.AutoUnloadOnDeathMode.value == 'Disable' then
 			handle_stop()
 		elseif state.AutoUnloadOnDeathMode.value == 'Auto' then
+			handle_stop()
 			handle_unload()
 		end
 	elseif player.status == 'Event' then
-		for queue in L{ action_queue, player.trust.main_job:role_with_type("follower").walk_action_queue }:it() do
-			queue:clear()
+		-- The trust objects may not exist yet (still loading) or any more
+		-- (already unloaded) when a status change fires, so guard each queue.
+		if action_queue then
+			action_queue:clear()
+		end
+		if player.trust and player.trust.main_job then
+			local follower = player.trust.main_job:role_with_type("follower")
+			if follower and follower.walk_action_queue then
+				follower.walk_action_queue:clear()
+			end
 		end
 	end
 end
@@ -611,8 +671,15 @@ end
 
 local function addon_command(cmd, ...)
     local cmd = cmd or 'help'
-	
-	if hud.trustMenu:isVisible() and not S{ 'assist', 'send', 'sendall'}:contains(cmd) then
+
+	-- The HUD is only created once Trust finishes loading (load_ui), but this
+	-- command handler is registered as soon as the file executes, so a command
+	-- sent during load would crash on a nil hud. Ignore commands until ready.
+	if not hud then
+		return
+	end
+
+	if hud.trustMenu and hud.trustMenu:isVisible() and not S{ 'assist', 'send', 'sendall'}:contains(cmd) then
 		addon_system_error("Unable to execute commands while the menu is open.")
 		return
 	end
@@ -643,20 +710,48 @@ function load_chunk_event()
 end
 
 function unload_chunk_event()
-	for key in L{'up','down','left','right','enter','numpadenter', addon_settings:getSettings().menu_key}:extend(L{'a','w','s','d','f','e','h','i','k','l'}):it() do
-		windower.send_command('unbind %s':format(key))
+	-- addon_settings is only set once the load sequence reaches
+	-- LoadSettingsAction, so if the addon is unloaded before the first
+	-- successful load there is nothing bound to unbind.
+	if addon_settings then
+		for key in L{'up','down','left','right','enter','numpadenter','escape','^up', addon_settings:getSettings().menu_key}:extend(L{'a','w','s','d','f','e','h','i','k','l'}):it() do
+			windower.send_command('unbind %s':format(key))
+		end
 	end
-	IpcRelay.shared():destroy()
+	if trust_remote_commands then
+		trust_remote_commands:destroy()
+		trust_remote_commands = nil
+	end
+	-- IpcRelay is only required once the load sequence reaches
+	-- LoadDependenciesAction; skip it on an unload before first load.
+	if IpcRelay then
+		IpcRelay.shared():destroy()
+	end
 end
 
 function unloaded()
+	-- handle_job_change() calls unloaded() and then '// lua unload trust',
+	-- which fires the unload event and calls unloaded() again. The second
+	-- run used to re-destroy trust_remote_commands and recreate + destroy
+	-- the IpcRelay singleton for nothing.
+	if unloading then
+		return
+	end
+	unloading = true
+	loaded_retry_pending = false
+	load_started = false
+	load_generation = load_generation + 1
+	remove_state_event_actions()
     if user_events then
         for _,event in pairs(user_events) do
             windower.unregister_event(event)
         end
         user_events = nil
     end
-	if player.trust then
+	-- player is only assigned once a load attempt gets past the player
+	-- check in loaded(), so an unload before the first successful load
+	-- must not index it.
+	if player and player.trust then
 		if player.trust.main_job then
 			player.trust.main_job:destroy()
 		end
@@ -664,20 +759,139 @@ function unloaded()
 			player.trust.sub_job:destroy()
 		end
 	end
-	player.trust = nil
+	-- If load_user_files threw after the trusts were constructed but
+	-- before they were assigned to player.trust, unloaded() would never
+	-- destroy them (it only destroys via player.trust). Destroy any
+	-- orphans here.
+	if main_job_trust and (not player.trust or player.trust.main_job ~= main_job_trust) then
+		main_job_trust:destroy()
+	end
+	if sub_job_trust and (not player.trust or player.trust.sub_job ~= sub_job_trust) then
+		sub_job_trust:destroy()
+	end
+	if player and player.player and (not player.trust or not player.trust.main_job) then
+		player.player:destroy()
+	end
+	-- Destroy the UI: Windower never destroys prims on unload, so without
+	-- this the menu, info bar and command widget texts stay on screen and
+	-- a reload creates a second set. Each destroy is nil-guarded and
+	-- View.destroy is idempotent, so a partial load is safe.
+	if hud then
+		hud:destroy()
+		hud = nil
+	end
+	if widgets then
+		widgets:destroy()
+		widgets = nil
+	end
+	if command_widget then
+		command_widget:destroy()
+		command_widget = nil
+	end
+	-- Destroy the action queues: ActionQueue:destroy() cancels the queue's
+	-- 5s timer (via its dispose bag, which holds the Timer) and unregisters
+	-- its outgoing-chunk event. Without this the timer kept firing into
+	-- the destroyed queue after unload.
+	if action_queue then
+		action_queue:destroy()
+		action_queue = nil
+	end
+	if init_action_queue then
+		init_action_queue:destroy()
+		init_action_queue = nil
+	end
+	-- Destroy the chat handlers and the alliance. Alliance:destroy()
+	-- destroys the parties (and their monitored members) through its
+	-- dispose bag, so the party Player is cleaned up here.
+	if chat_input then
+		chat_input:destroy()
+		chat_input = nil
+	end
+	if chat_auto_completer then
+		chat_auto_completer:destroy()
+		chat_auto_completer = nil
+	end
+	if party_chat then
+		party_chat:destroy()
+		party_chat = nil
+	end
+	if WindowerEvents and WindowerEvents.destroy then
+		WindowerEvents.destroy()
+	end
+	if player and player.alliance then
+		player.alliance:destroy()
+		player.alliance = nil
+	end
+	if player then
+		player.trust = nil
+	end
 	unload_chunk_event()
+	main_job_trust = nil
+	sub_job_trust = nil
+	if shortcuts then
+		for _, cmd in pairs(shortcuts) do
+			if type(cmd) == "table" and cmd.destroy then
+				cmd:destroy()
+			end
+		end
+	end
+	shortcuts = nil
+	-- ValueRelay:destroy() removes the onValueChanged action registered in
+	-- load_user_files (it closes over player/action_queue); without this
+	-- the relay is only dropped at GC. Every user of the relay (HUD,
+	-- widgets, roles) is already destroyed above, so destroy it here.
+	if addon_enabled then
+		addon_enabled:destroy()
+	end
+	addon_enabled = nil
+	trust_mode_settings = nil
+	addon_settings = nil
+	main_trust_settings = nil
+	sub_trust_settings = nil
+	weapon_skill_settings = nil
+	migration_manager = nil
+	sub_job_migration_manager = nil
+	player = nil
+	if windower.trust then
+		windower.trust.get_inventory = nil
+		windower.trust.settings = nil
+		windower.trust.ui = nil
+	end
 end
 
 function loaded()
+	-- A retry scheduled by an earlier failed load cannot be cancelled: if
+	-- the addon was reloaded in the meantime and this load already ran,
+	-- ignore the stale callback instead of loading twice.
+	if load_started then
+		return
+	end
+	unloading = false
 	addon_system_message("Loading Trust...")
 
 	if windower.ffxi.get_player() == nil or windower.ffxi.get_mob_by_id(windower.ffxi.get_player().id) == nil then
 		addon_system_error("Player not loaded, retrying in 5 seconds...")
-		coroutine.schedule(function()
-			loaded()
-		end, 5)
+		if not loaded_retry_pending then
+			loaded_retry_pending = true
+			local retry_generation = load_generation
+			coroutine.schedule(function()
+				if retry_generation ~= load_generation or unloading then
+					return
+				end
+				loaded_retry_pending = false
+				loaded()
+			end, 5)
+		end
 		return
 	end
+
+	-- The retry flag is cleared here, not at the top of loaded(): clearing
+	-- it on entry would defeat the dedupe in the player check above when
+	-- loaded() is called again while a retry is already pending.
+	loaded_retry_pending = false
+	load_generation = load_generation + 1
+	local generation = load_generation
+	load_started = true
 
 	addon_load_time = os.time()
 
@@ -710,6 +924,9 @@ function loaded()
 			user_events.zone_change = windower.register_event('zone change', handle_zone_change)
 		end
 		coroutine.schedule(function()
+			if generation ~= load_generation or unloading or not addon_settings then
+				return
+			end
 			windower.send_command('bind %s trust menu':format(addon_settings:getSettings().menu_key))
 		end, 0.2)
 	end
