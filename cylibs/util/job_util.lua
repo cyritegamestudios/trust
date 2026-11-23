@@ -57,7 +57,11 @@ end
 -- @treturn Boolean True if the player knows the given job ability
 function job_util.knows_job_ability(job_ability_id, job_id)
     local can_use_job_ability = false
-    local all_job_abilities = T(windower.ffxi.get_abilities().job_abilities)
+    local abilities = windower.ffxi.get_abilities()
+    if abilities == nil then
+        return false
+    end
+    local all_job_abilities = T(abilities.job_abilities)
     if all_job_abilities then
         for _,v in pairs(all_job_abilities) do
             if v == job_ability_id then
@@ -135,6 +139,22 @@ function job_util.job_ability_id(job_ability_name)
     return nil
 end
 
+-- JAs whose recast the client's table cannot be trusted for (it reads 0 on
+-- a fresh start and can lag a JA that was just used). The singer records
+-- each real use (seen via the JA's buff) as a CooldownCondition timestamp;
+-- until that timestamp + recast has passed, the JA is treated as unusable
+-- even if the recast table says it is ready. This covers both the gambit
+-- recast gates and the Spell JA filter (e.g. Marcato on Honor March), which
+-- both call can_use_job_ability. A JA with no recorded use falls back to
+-- the recast table alone.
+local TRACKED_JA_RECASTS = {
+    ['Soul Voice'] = { key = 'soul_voice', recast = 600 },
+    ['Clarion Call'] = { key = 'clarion_call', recast = 600 },
+    ['Nightingale'] = { key = 'nightingale', recast = 600 },
+    ['Troubadour'] = { key = 'troubadour', recast = 600 },
+    ['Marcato'] = { key = 'marcato', recast = 60 },
+}
+
 function job_util.can_use_job_ability(job_ability_name)
     local job_ability = job_util.job_ability_res(job_ability_name)
     if job_ability == nil then
@@ -152,6 +172,14 @@ function job_util.can_use_job_ability(job_ability_name)
     local recast = windower.ffxi.get_ability_recasts()[recast_id]
     if not recast or recast > 0 then
         return false
+    end
+    local tracked = TRACKED_JA_RECASTS[job_ability_name]
+    if tracked then
+        local CooldownCondition = require('cylibs/conditions/cooldown')
+        local last_use = CooldownCondition.get_timestamp(tracked.key)
+        if last_use and os.time() < last_use + tracked.recast then
+            return false
+        end
     end
     return true
 end
@@ -202,7 +230,6 @@ function job_util.getAbility(abilityName)
     elseif abilityName == 'Use Item' then
         return UseItem.new()
     elseif abilityName == 'Set Mode' then
-        print('mode')
         return SetMode.new()
     else
         return nil
