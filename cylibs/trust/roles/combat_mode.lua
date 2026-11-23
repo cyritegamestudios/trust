@@ -5,6 +5,7 @@ local GambitTarget = require('cylibs/gambits/gambit_target')
 local IsAssistTargetCondition = require('cylibs/conditions/is_assist_target')
 local player_util = require('cylibs/util/player_util')
 local flanking_util = require("cylibs/util/flanking_util")
+local RunToAction = require('cylibs/actions/runto')
 
 local Gambiter = require('cylibs/trust/roles/gambiter')
 local CombatMode = setmetatable({}, {__index = Gambiter })
@@ -73,7 +74,38 @@ function CombatMode:on_add()
             end
         end
         self:face_target(target:get_mob())
+        self:walk_in(target)
     end, self:get_priority() or ActionPriority.default, self:get_type())
+end
+
+-- Backstop for the RunTo gambit. The gambit is what normally
+-- walks the player to the rolled distance, but after a mob is
+-- claimed from far away (e.g. the puller's TP-engage) the
+-- character was seen standing engaged at range while the gambit
+-- never fired. This role's timer already runs every tic, so
+-- drive the same RunToAction from here as well: while the
+-- player is engaged and farther than the rolled distance
+-- (+0.5), keep one RunTo running. In position, disengaged, or
+-- CombatMode not on Auto, it does nothing.
+function CombatMode:walk_in(target)
+    if state.CombatMode.value ~= 'Auto' or not self.distance then
+        return
+    end
+    local player = windower.ffxi.get_player()
+    if not player or res.statuses[player.status].en ~= 'Engaged' then
+        return
+    end
+    local target_mob = target:get_mob()
+    if not target_mob or not target_mob.distance then
+        return
+    end
+    if target_mob.distance:sqrt() <= self.distance + 0.5 then
+        return
+    end
+    if self.action_queue:contains_action_of_type('runtoaction') then
+        return
+    end
+    self.action_queue:push_action(RunToAction.new(target_mob.index, self.distance), true)
 end
 
 function CombatMode:face_target(target)
