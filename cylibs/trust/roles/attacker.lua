@@ -72,6 +72,20 @@ function Attacker:target_change(target_index)
     self:check_gambits()
 end
 
+function Attacker:check_gambits(gambits, param, ignore_delay)
+    -- Do not engage a mob in the middle of a song: songs finish
+    -- first, then attacking resumes. Same is_singing check the
+    -- weaponskill spammer uses. If the player is already engaged,
+    -- melee swings continue on their own -- this only holds NEW
+    -- engages. On jobs with no Singer role this never holds.
+    local main_job = player.trust and player.trust.main_job
+    local singer = main_job and main_job:role_with_type("singer")
+    if singer and singer.get_is_singing and singer:get_is_singing() then
+        return
+    end
+    return Gambiter.check_gambits(self, gambits, param, ignore_delay)
+end
+
 function Attacker:set_attacker_settings(attacker_settings)
     self.engage_distance = attacker_settings.EngageDistance or 30
 
