@@ -42,9 +42,9 @@ function Debuffer:get_default_conditions(gambit)
         NotCondition.new(L{ ImmuneCondition.new(gambit:getAbility():get_name()) }),
         NumResistsCondition.new(gambit:getAbility():get_name(), Condition.Operator.LessThan, 4),
         -- Do not waste a debuff cast on a mob that is about to
-        -- die; a 2s Requiem on a mob at 5% HP lands just as
+        -- die; a 2s Requiem on a mob at 15% HP lands just as
         -- melee finishes it.
-        MinHitPointsPercentCondition.new(5),
+        MinHitPointsPercentCondition.new(15),
     }
     return conditions + self.job:get_conditions_for_ability(gambit:getAbility()):map(function(condition)
         return GambitCondition.new(condition, GambitTarget.TargetType.Self)
