@@ -147,6 +147,7 @@ end
 -- recast gates and the Spell JA filter (e.g. Marcato on Honor March), which
 -- both call can_use_job_ability. A JA with no recorded use falls back to
 -- the recast table alone.
+-- Confirmed working in game (2026-11-22).
 local TRACKED_JA_RECASTS = {
     ['Soul Voice'] = { key = 'soul_voice', recast = 600 },
     ['Clarion Call'] = { key = 'clarion_call', recast = 600 },

@@ -6,6 +6,7 @@
 -- on_songs_begin/on_songs_end events and the singer_gambits global are all
 -- used elsewhere in Trust), with the internals rebuilt around one clear
 -- priority order and one job-ability cooldown tracker.
+-- Confirmed working in game (2026-11-22).
 --
 -- How singing works, in priority order (the Gambiter fires the first gambit
 -- whose conditions all pass, one action at a time):
