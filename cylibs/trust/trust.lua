@@ -6,6 +6,19 @@ local Event = require('cylibs/events/Luvent')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local packets = require('packets')
 
+-- CoreAI wiring: loads the extension layer (cylibs/trust/extensions/).
+-- Failure-isolated: if CoreAI fails to load, Trust runs exactly as
+-- before. To remove CoreAI, delete this block and the two marked
+-- CoreAI lines in Trust:tic() and Trust:destroy().
+local CoreAI = nil
+do
+	local ok, mod = pcall(require, 'cylibs/trust/extensions/core_ai')
+	if ok and mod then
+		CoreAI = mod
+		pcall(require, 'cylibs/trust/extensions/load')
+	end
+end
+
 -- Last time an auto-accept raise packet was scheduled, in seconds (os.time()).
 -- Shared across Trust instances (file-local, not per-instance) so a stale handler
 -- left over from a reload or job change cannot send a second accept for the same
@@ -187,6 +200,11 @@ function Trust:destroy()
 
 	self.dispose_bag:destroy()
 
+	-- CoreAI wiring: tear down extension modules and hooks.
+	if CoreAI and CoreAI.destroy then
+		pcall(CoreAI.destroy)
+	end
+
 	for role in self.roles:it() do
 		if role.destroy then
 			role:destroy()
@@ -327,6 +345,11 @@ function Trust:job_target_change(target_index)
 end
 
 function Trust:tic(old_time, new_time)
+	-- CoreAI wiring: one-second extension tic (failure-isolated).
+	if CoreAI and CoreAI.tic then
+		pcall(CoreAI.tic)
+	end
+
 	local tic_time = os.time()
 	for role in self.roles:it() do
 		role:set_last_tic_time(tic_time)
