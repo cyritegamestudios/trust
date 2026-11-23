@@ -8,6 +8,7 @@ local Gambit = require('cylibs/gambits/gambit')
 local GambitTarget = require('cylibs/gambits/gambit_target')
 local HasMaxNumAlterEgosCondition = require('cylibs/conditions/has_max_num_alter_egos')
 local MobFilter = require('cylibs/battle/monsters/mob_filter')
+local MinTacticalPointsCondition = require('cylibs/conditions/min_tp')
 local PartyClaimedCondition = require('cylibs/conditions/party_claimed')
 local PartyLeaderCondition = require('cylibs/conditions/party_leader')
 local PartyTargetedCondition = require('cylibs/conditions/party_targeted')
@@ -33,6 +34,13 @@ state.PullActionMode = M{['description'] = 'Pull Actions', 'Auto', 'Target', 'Ap
 state.PullActionMode:set_description('Auto', "Pull with pull actions in settings.")
 state.PullActionMode:set_description('Target', "Pull by targeting and engaging.")
 state.PullActionMode:set_description('Approach', "Pull by engaging and approaching.")
+
+-- When the player is holding at least this much TP (e.g. a weaponskill was
+-- held because the previous mob was nearly dead), pull by engaging the next
+-- mob instead of casting the pull spell: casting would swap weapons in
+-- GearSwap and throw the held TP away, while engaging keeps the TP set on
+-- so the held weaponskill can be spent on the new mob.
+local TP_ENGAGE_PULL_THRESHOLD = 1000
 
 
 function Puller.new(action_queue, pull_settings, job)
@@ -338,7 +346,8 @@ function Puller:set_pull_settings(pull_settings)
             return condition:is_editable()
         end)
         local conditions = L{
-            GambitCondition.new(ModeCondition.new('PullActionMode', 'Auto'), GambitTarget.TargetType.Self)
+            GambitCondition.new(ModeCondition.new('PullActionMode', 'Auto'), GambitTarget.TargetType.Self),
+            GambitCondition.new(NotCondition.new(L{ MinTacticalPointsCondition.new(TP_ENGAGE_PULL_THRESHOLD) }), GambitTarget.TargetType.Self)
         } + self:get_default_conditions(gambit)
         for condition in conditions:it() do
             condition:set_editable(false)
@@ -353,7 +362,13 @@ function Puller:set_pull_settings(pull_settings)
 
     local auto_target = Gambit.new(GambitTarget.TargetType.Enemy, L{}, Engage.new(L{MaxDistanceCondition.new(30)}), GambitTarget.TargetType.Enemy, L{"Pulling","Reaction"})
     auto_target.conditions = L{
-        GambitCondition.new(ModeCondition.new('PullActionMode', 'Target'), GambitTarget.TargetType.Self),
+        GambitCondition.new(ConditionalCondition.new(L{
+            ModeCondition.new('PullActionMode', 'Target'),
+            ConditionalCondition.new(L{
+                ModeCondition.new('PullActionMode', 'Auto'),
+                MinTacticalPointsCondition.new(TP_ENGAGE_PULL_THRESHOLD),
+            }, Condition.LogicalOperator.And),
+        }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Self),
     } + self:get_default_conditions(auto_target)
 
     self.pull_abilities = {
