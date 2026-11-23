@@ -40,7 +40,7 @@ state.PullActionMode:set_description('Approach', "Pull by engaging and approachi
 -- mob instead of casting the pull spell: casting would swap weapons in
 -- GearSwap and throw the held TP away, while engaging keeps the TP set on
 -- so the held weaponskill can be spent on the new mob.
-local TP_ENGAGE_PULL_THRESHOLD = 1000
+local TP_ENGAGE_PULL_THRESHOLD = 500
 
 
 function Puller.new(action_queue, pull_settings, job)
@@ -280,6 +280,16 @@ end
 
 function Puller:check_gambits(gambits, param, ignore_delay)
     if not self:is_party_ready_to_pull() then
+        return
+    end
+    -- Do not claim a mob in the middle of a song, whether the claim
+    -- would be the pull spell or an engage at held TP: songs finish
+    -- first, then pulling resumes. Same is_singing check the
+    -- weaponskill spammer uses. On jobs with no Singer role this
+    -- never holds.
+    local main_job = player.trust and player.trust.main_job
+    local singer = main_job and main_job:role_with_type("singer")
+    if singer and singer.get_is_singing and singer:get_is_singing() then
         return
     end
     return Gambiter.check_gambits(self, gambits, param, ignore_delay)
