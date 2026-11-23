@@ -54,11 +54,25 @@ function CombatMode:on_add()
     end), WindowerEvents.ActionMessage)
 
     self.timer:onTimeChange():addAction(function(_)
-        if not self.addon_enabled:getValue()
-                or self:get_target() == nil then
+        if not self.addon_enabled:getValue() then
             return
         end
-        self:face_target(self:get_target():get_mob())
+        local target = self:get_target()
+        if target == nil then
+            self.last_target_index = nil
+            return
+        end
+        -- New target: re-roll the hold distance for this fight (see
+        -- set_combat_settings). Mob indices get recycled, so the last
+        -- index is forgotten whenever there is no target.
+        local target_index = target:get_index()
+        if target_index ~= self.last_target_index then
+            self.last_target_index = target_index
+            if self.combat_settings then
+                self:set_combat_settings(self.combat_settings)
+            end
+        end
+        self:face_target(target:get_mob())
     end, self:get_priority() or ActionPriority.default, self:get_type())
 end
 
@@ -84,8 +98,17 @@ function CombatMode:get_type()
 end
 
 function CombatMode:set_combat_settings(combat_settings)
-    self.distance = combat_settings.Distance
+    self.combat_settings = combat_settings
+    self.base_distance = combat_settings.Distance
     self.mirror_distance = combat_settings.MirrorDistance
+    -- Roll the distance to hold from the target: one of four spots under
+    -- the configured distance (base 2 -> 1.2, 1.5, 1.8, 2.0), picked at
+    -- random so the character does not stand at the exact same distance
+    -- every fight. The roll happens when the settings are applied and
+    -- again whenever the target changes (see on_add), never mid-fight,
+    -- so the character picks a spot for each mob and stays there.
+    local distance_rolls = {0.8, 0.5, 0.2, 0}
+    self.distance = self.base_distance - distance_rolls[math.random(1, #distance_rolls)]
 
     local gambit_settings = {
         Gambits = L{
@@ -99,7 +122,7 @@ function CombatMode:set_combat_settings(combat_settings)
     }
 
     local distance_condition
-    if self.distance < 4 then
+    if self.base_distance < 4 then
         -- At close range the old code only corrected when the mob was too
         -- far away (distance > Distance), so when a mob got right on top
         -- of the character (distance < Distance) it never backed up.
