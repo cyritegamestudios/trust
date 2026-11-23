@@ -78,7 +78,8 @@ Luvent.Action.__index = Luvent.Action
 -- boolean false if it is not.
 local function isActionCallable(callable)
     if type(callable) == "table" then
-        if type(getmetatable(callable)["__call"]) == "function" then
+        local mt = getmetatable(callable)
+        if mt and type(mt["__call"]) == "function" then
             return true
         end
     elseif type(callable) == "function" then
@@ -237,7 +238,11 @@ end
 function Luvent:addAction(actionToAdd, priority)
     assert(isActionCallable(actionToAdd) == true)
     -- We do not allow adding an action more than once to an event.
-    if self:hasAction(actionToAdd) then return end
+    -- Return the existing action's id (not nil) so callers that store
+    -- the id -- e.g. to remove the action later, or via DisposeBag --
+    -- still hold a valid id for the one registered action.
+    local exists, existing_index = findAction(self, actionToAdd)
+    if exists then return self.actions[existing_index].id end
 
     local new = newAction(actionToAdd)
     if type(priority) == 'number' then
@@ -349,14 +354,39 @@ function Luvent:trigger(...)
         sortActionsByPriority(self)
     end
 
+    -- Iterate over a snapshot, not self.actions itself. Handlers may
+    -- add or remove actions while an event is being triggered (and
+    -- call() itself removes dead coroutine actions): mutating the
+    -- live list mid-loop shifted entries, so the next handler was
+    -- skipped, an action added mid-trigger fired in the same pass,
+    -- and removeAllActions() (which swaps in a new list) did not stop
+    -- the remaining handlers of the old list from firing -- e.g. an
+    -- Action's on_action_complete handler destroys the action, which
+    -- removeAllActions()es the very event being triggered. With the
+    -- snapshot, actions added mid-trigger wait for the next trigger,
+    -- and an action is only invoked if it is still registered.
+    local actions = {}
     for _,action in ipairs(self.actions) do
-        if action.interval > 0 then
-            if os.difftime(os.time(), action.timeOfLastInvocation) >= action.interval then
-                call(action, ...)
-                action.timeOfLastInvocation = os.time()
+        actions[#actions + 1] = action
+    end
+
+    for _,action in ipairs(actions) do
+        local still_registered = false
+        for _,current in ipairs(self.actions) do
+            if current == action then
+                still_registered = true
+                break
             end
-        else
-            call(action, ...)
+        end
+        if still_registered then
+            if action.interval > 0 then
+                if os.difftime(os.time(), action.timeOfLastInvocation) >= action.interval then
+                    call(action, ...)
+                    action.timeOfLastInvocation = os.time()
+                end
+            else
+                call(action, ...)
+            end
         end
     end
 end
