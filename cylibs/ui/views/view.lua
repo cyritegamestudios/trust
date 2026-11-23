@@ -105,6 +105,11 @@ function View:setPosition(x, y)
     end
     self.frame = Frame.new(x, y, self.frame.width, self.frame.height)
 
+    -- NOTE: subview frames are RELATIVE to this view, so they must not be
+    -- shifted by this view's move. Do not "fix" this to shift subviews by
+    -- the delta: that double-counts the move and displaces subviews that
+    -- layout does not reposition -- e.g. a menu's background view ends up
+    -- drawn a full menu-position away from its buttons.
     for _, subview in pairs(self.subviews) do
         subview:setPosition(x - self.frame.x, y - self.frame.y)
     end
