@@ -71,7 +71,7 @@ function CombatMode:on_add()
         if target_index ~= self.last_target_index then
             self.last_target_index = target_index
             if self.combat_settings then
-                self:set_combat_settings(self.combat_settings)
+                self:set_combat_settings(self.combat_settings, target:get_mob())
             end
         end
         self:face_target(target:get_mob())
@@ -134,19 +134,48 @@ function CombatMode:get_type()
     return "combatmode"
 end
 
-function CombatMode:set_combat_settings(combat_settings)
+-- Rolls the distance to hold from the target for one fight.
+-- When the target is known and the configured distance is within melee
+-- reach of it, the window runs from a near spot (1.2) to the farthest
+-- spot the character can stand and still hit this target: melee range
+-- is the attacker's model size + the target's model size + ~1 yalm, so
+-- the far end depends on what is being fought (a bat can be hit from
+-- ~3, a very large mob from 5+). A 0.3 margin keeps every roll safely
+-- inside hitting range. The roll moves in 0.1 steps (an integer random
+-- scaled by the increment), so it can land anywhere in the window
+-- instead of on a few fixed spots. When there is no target yet, or the
+-- configured distance is beyond melee reach (a ranged setup), the
+-- window is the configured distance and just under it, as before.
+-- CombatMode is shared by every job, so this applies to all of them.
+function CombatMode:roll_distance(target_mob)
+    local nearest = math.max(0.5, self.base_distance - 0.8)
+    local farthest = self.base_distance
+    local player_mob = windower.ffxi.get_mob_by_target('me')
+    if target_mob and target_mob.model_size and player_mob and player_mob.model_size then
+        local reach = player_mob.model_size + target_mob.model_size + 1
+        if self.base_distance <= reach then
+            nearest = math.min(1.2, self.base_distance)
+            farthest = math.max(self.base_distance, reach - 0.3)
+        end
+    end
+    if farthest < nearest then
+        farthest = nearest
+    end
+    local steps = math.floor((farthest - nearest) / 0.1 + 0.001)
+    local roll = nearest + math.random(0, steps) * 0.1
+    return math.floor(roll * 10 + 0.5) / 10
+end
+
+function CombatMode:set_combat_settings(combat_settings, target_mob)
     self.combat_settings = combat_settings
     self.base_distance = combat_settings.Distance
     self.mirror_distance = combat_settings.MirrorDistance
-    -- Roll the distance to hold from the target: one of four spots under
-    -- the configured distance (base 2 -> 1.2, 1.5, 1.8, 2.0), picked at
-    -- random so the character does not stand at the exact same distance
-    -- every fight. The roll happens when the settings are applied and
-    -- again whenever the target changes (see on_add), never mid-fight,
-    -- so the character picks a spot for each mob and stays there.
-    -- Confirmed working in game.
-    local distance_rolls = {0.8, 0.5, 0.2, 0}
-    self.distance = self.base_distance - distance_rolls[math.random(1, #distance_rolls)]
+    -- Roll the distance to hold from the target (see roll_distance):
+    -- a random spot in the window for this fight's target, picked when
+    -- the settings are applied and again whenever the target changes
+    -- (see on_add), never mid-fight, so the character picks a spot for
+    -- each mob and stays there.
+    self.distance = self:roll_distance(target_mob)
 
     local gambit_settings = {
         Gambits = L{
