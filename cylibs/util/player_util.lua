@@ -242,9 +242,10 @@ function player_util.get_current_strategem_count()
 	local stratsRecast = allRecasts[231]
 	if stratsRecast == nil then return 0 end
 
-	local level = windower.ffxi.get_player().main_job_level
+	local player = windower.ffxi.get_player()
+	local level = player.main_job == 'SCH' and player.main_job_level or (player.sub_job_level or 0)
 	local jobPoints = job_util.get_job_points('SCH')
-	local maxStrategems = math.floor((windower.ffxi.get_player().main_job_level + 10) / 20)
+	local maxStrategems = math.floor((level + 10) / 20)
 
 	local rechargeTime = 33
 	if jobPoints < 550 then

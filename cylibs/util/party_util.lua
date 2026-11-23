@@ -280,11 +280,13 @@ function party_util.get_buffs(target_id)
     local data = windower.packets.last_incoming(0x076)
     if data and data ~= buffs.last_incoming then
         buffs.last_incoming = data
+        local present_ids = S{}
         for  k = 0, 4 do
             local id = data:unpack('I', k*48+5)
             buffs['whitelist'][id] = T{}
 
             if id ~= 0 then
+                present_ids:add(id)
                 for i = 1, 32 do
                     local buff = data:byte(k*48+5+16+i-1) + 256*( math.floor( data:byte(k*48+5+8+ math.floor((i-1)/4)) / 4^((i-1)%4) )%4) -- Credit: Byrth, GearSwap
                     if buffs['whitelist'][id][i] ~= buff then
@@ -292,6 +294,19 @@ function party_util.get_buffs(target_id)
                     end
                 end
             end
+        end
+        -- Prune whitelist entries for ids no longer in the party packet,
+        -- so a departed member's buffs cannot be returned if the id is
+        -- later reused. The player's own id is kept (their buffs come
+        -- from get_player(), but the entry is harmless to keep).
+        local stale_ids = L{}
+        for id in pairs(buffs['whitelist']) do
+            if not present_ids:contains(id) and not (ffxi_player and id == ffxi_player.id) then
+                stale_ids:append(id)
+            end
+        end
+        for id in stale_ids:it() do
+            buffs['whitelist'][id] = nil
         end
     end
     if buffs['whitelist'][target_id] then
