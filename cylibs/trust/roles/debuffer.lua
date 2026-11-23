@@ -2,7 +2,6 @@ local ClaimedCondition = require('cylibs/conditions/claimed')
 local GambitTarget = require('cylibs/gambits/gambit_target')
 local ImmuneCondition = require('cylibs/conditions/immune')
 local MinHitPointsPercentCondition = require('cylibs/conditions/min_hpp')
-local CoreAIDebuffHoldCondition = require('cylibs/conditions/core_ai_debuff_hold')
 
 local Gambiter = require('cylibs/trust/roles/gambiter')
 local Debuffer = setmetatable({}, {__index = Gambiter })
@@ -47,11 +46,6 @@ function Debuffer:get_default_conditions(gambit)
         -- melee finishes it.
         MinHitPointsPercentCondition.new(5),
     }
-    -- CoreAI debuff hold: every debuff waits while the player's TP
-    -- is at or above the debuff_hold module's threshold (500),
-    -- until the weaponskill has been used. Set by the debuff_hold
-    -- extension module; satisfied otherwise.
-    conditions:append(CoreAIDebuffHoldCondition.new())
     return conditions + self.job:get_conditions_for_ability(gambit:getAbility()):map(function(condition)
         return GambitCondition.new(condition, GambitTarget.TargetType.Self)
     end)
