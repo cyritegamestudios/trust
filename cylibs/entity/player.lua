@@ -117,6 +117,10 @@ end
 -------
 -- Stops tracking the player's actions and disposes of all registered event handlers.
 function Player:destroy()
+    if self.destroyed then
+        return
+    end
+    self.destroyed = true
     if self.action_events then
         for _,event in pairs(self.action_events) do
             windower.unregister_event(event)
@@ -194,7 +198,8 @@ function Player:monitor()
         end
     end), WindowerEvents.PetUpdate)
 
-    if windower.ffxi.get_player().id == self.id then
+    local ffxi_player = windower.ffxi.get_player()
+    if ffxi_player and ffxi_player.id == self.id then
         self.action_events.outgoing = windower.register_event('outgoing chunk', function(id, original, _, _, _)
             -- Notify target changes
             if id == 0x015 then
@@ -203,7 +208,8 @@ function Player:monitor()
             end
         end)
         self.dispose_bag:add(WindowerEvents.ActionMessage:addAction(function(actor_id, target_id, actor_index, target_index, message_id, param_1, param_2, param_3)
-            if actor_id ~= windower.ffxi.get_player().id then return end
+            local ffxi_player = windower.ffxi.get_player()
+            if ffxi_player == nil or actor_id ~= ffxi_player.id then return end
 
             if L{17, 18, 48, 49, 313}:contains(message_id) then
                 self:on_unable_to_cast():trigger(self, target_index, message_id, param_1)
@@ -216,7 +222,10 @@ function Player:monitor()
     end
 
     self.dispose_bag:add(Renderer.shared():onPrerender():addAction(function()
-        local player = windower.ffxi.get_mob_by_id(windower.ffxi.get_player().id)
+        -- Prerender fires through the zoning/logout window, where
+        -- get_player() is nil; get_mob_by_id(nil) must not be indexed from.
+        local ffxi_player = windower.ffxi.get_player()
+        local player = ffxi_player and windower.ffxi.get_mob_by_id(ffxi_player.id)
         if player then
             local current_position = V{ player.x, player.y, player.z }
             if ffxi_util.distance(self.last_position, current_position) > 0.01 then
@@ -269,7 +278,11 @@ end
 -- Returns the player's name
 -- @treturn string Player's name
 function Player:get_name()
-    return windower.ffxi.get_mob_by_id(self.id).name
+    local mob = windower.ffxi.get_mob_by_id(self.id)
+    if mob then
+        return mob.name
+    end
+    return self.name or "Unknown"
 end
 
 function Player:get_main_weapon()
@@ -291,7 +304,7 @@ function Player:set_moving(moving)
         return
     end
     self.moving = moving
-    if self.moving then
+    if not self.moving then
         self.idle_start_time = os.time()
     end
 end
@@ -310,7 +323,12 @@ end
 -- Returns whether the player is currently engaged.
 -- @treturn boolean True if the player is engaged, false otherwise.
 function Player:is_engaged()
-    return res.statuses[windower.ffxi.get_player().status].en == 'Engaged'
+    local ffxi_player = windower.ffxi.get_player()
+    if ffxi_player == nil then
+        return false
+    end
+    local status = res.statuses[ffxi_player.status]
+    return status ~= nil and status.en == 'Engaged'
 end
 
 return Player

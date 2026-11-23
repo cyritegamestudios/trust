@@ -163,8 +163,12 @@ function PartyMember.new(id, name)
         end
     end
 
-    self:set_buff_ids(party_util.get_buffs(self.id))
-    self:set_debuff_ids(L(buff_util.debuffs_for_buff_ids(party_util.get_buffs(self.id))))
+    -- get_buffs() is a pure read of the same buff state (single-threaded:
+    -- no packet can arrive between the two calls), so call it once and
+    -- share the result instead of unpacking the 0x076 whitelist twice.
+    local buff_ids = party_util.get_buffs(self.id)
+    self:set_buff_ids(buff_ids)
+    self:set_debuff_ids(L(buff_util.debuffs_for_buff_ids(buff_ids)))
 
     self.dispose_bag:addAny(L{ self.battle_stat_tracker })
 
@@ -415,11 +419,15 @@ end
 -- Returns the number of active songs.
 -- @treturn number Number of active songs.
 function PartyMember:get_num_songs(check_buff_ids_instead)
+    if player == nil or player.trust == nil or player.trust.main_job == nil then
+        return 0
+    end
     local singer = player.trust.main_job:role_with_type("singer")
     if singer then
         if check_buff_ids_instead then
             return singer.job:get_song_buff_ids(self:get_buff_ids()):length()
-        else
+        elseif singer.song_tracker then
+            -- song_tracker is only created in Singer:on_add(); before that it is nil.
             return singer.song_tracker:get_num_songs(self:get_id())
         end
     end
@@ -430,8 +438,11 @@ end
 -- Returns a list of active songs.
 -- @treturn list List of song records
 function PartyMember:get_songs()
+    if player == nil or player.trust == nil or player.trust.main_job == nil then
+        return L{}
+    end
     local singer = player.trust.main_job:role_with_type("singer")
-    if singer then
+    if singer and singer.song_tracker then
         return singer.song_tracker:get_songs(self:get_id())
     end
     return L{}
@@ -441,8 +452,11 @@ end
 -- Returns a list of active songs.
 -- @treturn list List of song records
 function PartyMember:get_max_num_songs()
+    if player == nil or player.trust == nil or player.trust.main_job == nil then
+        return 0
+    end
     local singer = player.trust.main_job:role_with_type("singer")
-    if singer then
+    if singer and singer.song_tracker then
         return singer.song_tracker:get_max_num_songs(self:get_id())
     end
     return 0
@@ -453,8 +467,11 @@ end
 -- @tparam number song_id Song id (see spells.lua)
 -- @treturn boolean True if the song is active, false otherwise
 function PartyMember:has_song(song_id)
+    if player == nil or player.trust == nil or player.trust.main_job == nil then
+        return false
+    end
     local singer = player.trust.main_job:role_with_type("singer")
-    if singer then
+    if singer and singer.song_tracker then
         return singer.song_tracker:has_song(self:get_id(), song_id, self:get_buff_ids())
     end
     return false
@@ -613,7 +630,8 @@ end
 -- Returns whether this party member is the player.
 -- @treturn Boolean True if the party member is the player, and false otherwise
 function PartyMember:is_player()
-    return self:get_id() == windower.ffxi.get_player().id
+    local ffxi_player = windower.ffxi.get_player()
+    return ffxi_player ~= nil and self:get_id() == ffxi_player.id
 end
 
 -------

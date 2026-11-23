@@ -43,6 +43,13 @@ function Player.new(id)
 end
 
 function Player:destroy()
+    -- The same Player object is shared by the main-job and sub-job Trusts
+    -- (both receive player.player), so Trust:destroy() used to destroy it
+    -- twice. Guard it here so the second destroy is a no-op.
+    if self.destroyed then
+        return
+    end
+    self.destroyed = true
     PartyMember.destroy(self)
 
     for _,event in pairs(self.events) do
@@ -64,12 +71,12 @@ function Player:monitor()
         if mob_id == self:get_id() then
             self:set_main_weapon_id(main_weapon_id)
         end
-    end))
+    end), WindowerEvents.Equipment.MainWeaponChanged)
     self.dispose_bag:add(WindowerEvents.Equipment.RangedWeaponChanged:addAction(function(mob_id, ranged_weapon_id)
         if mob_id == self:get_id() then
             self:set_ranged_weapon_id(ranged_weapon_id)
         end
-    end))
+    end), WindowerEvents.Equipment.RangedWeaponChanged)
     self.dispose_bag:add(WindowerEvents.PetUpdate:addAction(function(owner_id, pet_id, pet_index, pet_name, pet_hpp, pet_mpp, pet_tp)
         if owner_id == self:get_id() then
             self:set_pet(pet_id, pet_name)
@@ -83,7 +90,7 @@ function Player:monitor()
 
     self.dispose_bag:add(IpcRelay.shared():on_connected():addAction(function(_)
         IpcRelay.shared():send_message(EquipmentChangedMessage.new(self:get_id(), self:get_main_weapon_id(), self:get_ranged_weapon_id()))
-    end))
+    end), IpcRelay.shared():on_connected())
 
     self.events.level_up = windower.register_event('level up', function(new_level)
         self:on_level_change():trigger(self, new_level)
@@ -99,7 +106,8 @@ end
 -- @tparam number target_index Target index
 function Player:set_target_index(_)
     local target = windower.ffxi.get_mob_by_target('t')
-    PartyMember.set_target_index(self, target and target.index or windower.ffxi.get_player().target_index)
+    local ffxi_player = windower.ffxi.get_player()
+    PartyMember.set_target_index(self, target and target.index or (ffxi_player and ffxi_player.target_index))
 end
 
 -------

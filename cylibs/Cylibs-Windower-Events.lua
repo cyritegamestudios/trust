@@ -22,6 +22,7 @@ local ZoneMessage = require('cylibs/messages/zone_message')
 -- @name WindowerEvents
 
 local WindowerEvents = {}
+WindowerEvents.is_active = true
 
 WindowerEvents.DisposeBag = DisposeBag.new()
 
@@ -73,6 +74,7 @@ local vana_time = time - 1009810800
 local bufftime_offset = math.floor(time - (vana_time * 60 % 0x100000000) / 60)
 
 local mob_info = {}
+local last_player_status = nil
 local function get_mob_info(mob_id)
     if mob_info[mob_id] == nil then
         mob_info[mob_id] = {}
@@ -102,7 +104,8 @@ local outgoing_event_ids = S{
     0x015,
     0x05E,
     0x102,
-    0x00D,
+    -- 0x00D intentionally absent: its dispatcher entry was removed (mob_info
+    -- is now cleared on 0x05E zone requests), so the packet needs no handler.
 }
 
 local raise_spell_names = L{ 'Raise', 'Raise II', 'Raise III', 'Arise' }
@@ -110,22 +113,35 @@ local ignored_debuff_spell_ids = L{ 260, 360 }
 local ready_ability_message_ids = L{ 43, 326, 675 }
 local defeated_statuses = L{ 2, 3 }
 
+-- Hoisted out of the 0x028 action handler below. That handler runs for
+-- every action packet and built these Sets fresh for EVERY target of every
+-- action (up to 6+ allocations per packet in a busy fight) just to test
+-- membership. :contains() never mutates a Set, so sharing one is exact.
+local msg_252 = S{ 252 }
+local msg_2_or_252 = S{ 2, 252 }
+local dia_spell_ids = S{ 23, 24, 25 }
+local bio_spell_ids = S{ 230, 231, 232, 233, 234 }
+local helix_spell_ids = S{ 278, 279, 280, 281, 282, 283, 284, 285 }
+local helix2_spell_ids = S{ 885, 886, 887, 888, 889, 890, 891, 892 }
+
 -- Jump table with a mapping of message_id to handler for that message_id
 local incoming_event_dispatcher = {
     [0x028] = function(data)
         local act = windower.packets.parse_action(data)
-        act.size = data:byte(5)
 
         if act.category == 4 then
             if act.param and res.spells[act.param] then
                 WindowerEvents.Spell.Finish:trigger(act.actor_id, act.param, act.targets)
-                if res.spells[act.param] and raise_spell_names:contains(res.spells[act.param].en) then
+                if act.targets and act.targets[1] and res.spells[act.param] and raise_spell_names:contains(res.spells[act.param].en) then
                     WindowerEvents.Raised:trigger(act.targets[1].id, act.param)
                 end
             end
         elseif act.category == 7 then
-            if res.monster_abilities[act.targets[1].actions[1].param] then
-                WindowerEvents.Ability.Ready:trigger(act.actor_id, act.targets[1].actions[1].param)
+            if act.targets[1] and act.targets[1].actions[1] then
+                local ability_id = act.targets[1].actions[1].param
+                if res.monster_abilities[ability_id] then
+                    WindowerEvents.Ability.Ready:trigger(act.actor_id, ability_id)
+                end
             end
         elseif act.category == 8 then
             if act.targets[1] and act.targets[1].actions[1] then
@@ -140,32 +156,33 @@ local incoming_event_dispatcher = {
             end
         end
 
-        for _, target in pairs(act.targets) do
+        for _, target in pairs(act.targets or {}) do
             local action = target.actions[1]
             if action then
                 -- Dia
-                if act.param and S{23, 24, 25}:contains(act.param) and S{252}:contains(action.message) then
+                if act.param and dia_spell_ids:contains(act.param) and msg_252:contains(action.message) then
                     local debuff = buff_util.debuff_for_spell(act.param)
                     if debuff then
                         WindowerEvents.GainDebuff:trigger(target.id, debuff.id)
                     end
                 -- Bio
-                elseif act.param and S{230, 231, 232, 233, 234}:contains(act.param) and S{252}:contains(action.message) then
+                elseif act.param and bio_spell_ids:contains(act.param) and msg_252:contains(action.message) then
                     local debuff = buff_util.debuff_for_spell(act.param)
                     if debuff then
                         WindowerEvents.GainDebuff:trigger(target.id, debuff.id)
                     end
                 -- Kaustra
-                elseif act.param and act.param == 502 and S{2, 252}:contains(action.message) then
+                elseif act.param and act.param == 502 and msg_2_or_252:contains(action.message) then
                     WindowerEvents.GainDebuff:trigger(target.id, 23)
                 -- Helix
-                elseif act.param and S{278, 279, 280, 281, 282, 283, 284, 285}:contains(act.param) and S{2, 252}:contains(action.message) then
-                    if windower.ffxi.get_player().main_job ~= "SCH" or -- If main job not SCH
-                        windower.ffxi.get_player().job_points.sch.jp_spent < 100 -- Helix IIs are unlocked at 100 JP
-                    then
+                elseif act.param and helix_spell_ids:contains(act.param) and msg_2_or_252:contains(action.message) then
+                    local ffxi_player = windower.ffxi.get_player()
+                    if ffxi_player and (ffxi_player.main_job ~= "SCH" or -- If main job not SCH
+                        ffxi_player.job_points.sch.jp_spent < 100 -- Helix IIs are unlocked at 100 JP
+                    ) then
                         WindowerEvents.GainDebuff:trigger(target.id, 186)
                     end
-                elseif act.param and S{885, 886, 887, 888, 889, 890, 891, 892}:contains(act.param) and S{2, 252}:contains(action.message) then
+                elseif act.param and helix2_spell_ids:contains(act.param) and msg_2_or_252:contains(action.message) then
                     WindowerEvents.GainDebuff:trigger(target.id, 186)
                 -- Blue Magic
                 elseif act.param == 727 then
@@ -255,7 +272,7 @@ local incoming_event_dispatcher = {
         if not mob then
             return
         end
-        local name = windower.ffxi.get_mob_by_id(mob_id).name
+        local name = mob.name
         local hp = packet['HP']
         local hpp = packet['HPP']
         local mp = packet['MP']
@@ -284,8 +301,10 @@ local incoming_event_dispatcher = {
 
         local target_id = packet['Player']
 
+        -- get_mob_by_id() was called once per branch below (two FFI calls
+        -- per 0x00D); read it once — same mob table either way.
+        local target = windower.ffxi.get_mob_by_id(target_id)
         if packet['Update Position'] then
-            local target = windower.ffxi.get_mob_by_id(target_id)
             if target and not IpcRelay.shared():is_connected(target.name) then
                 WindowerEvents.PositionChanged:trigger(target_id, packet['X'], packet['Y'], packet['Z'])
                 WindowerEvents.TargetIndexChanged:trigger(target_id, packet['Target Index'])
@@ -293,9 +312,12 @@ local incoming_event_dispatcher = {
         end
 
         -- packet['Status'] doesn't always match mob.status and packet['Update Status'] doesn't work for 0x00D
-        if packet['Status'] then
-            local target = windower.ffxi.get_mob_by_id(target_id)
-            if target then
+        -- packet['Status'] is always present (0 is truthy in Lua), so
+        -- trigger only when the live status actually changed.
+        if target then
+            local info = get_mob_info(target_id)
+            if info.last_status ~= target.status then
+                info.last_status = target.status
                 WindowerEvents.StatusChanged:trigger(target_id, target.status)
             end
         end
@@ -316,18 +338,24 @@ local incoming_event_dispatcher = {
         local status = packet['Status']
         local type = packet['Mask']
 
-        if type == 7 then
-            local hpp = packet['HP %']
-            local claimer_id = packet['Claimer']
+        -- Mask bits: 1 = position, 2 = claimer, 4 = HP/status. Fields
+        -- whose bit is clear are zeroed by the parser, so only pass
+        -- through the fields that were actually updated.
+        if bit.band(type, 6) ~= 0 then
+            local hpp = bit.band(type, 4) ~= 0 and packet['HP %'] or nil
+            local claimer_id = bit.band(type, 2) ~= 0 and packet['Claimer'] or nil
             WindowerEvents.MobUpdate:trigger(mob_id, name, hpp, claimer_id)
         end
 
-        WindowerEvents.PositionChanged:trigger(mob_id, packet['X'], packet['Y'], packet['Z'])
+        if bit.band(type, 1) ~= 0 then
+            WindowerEvents.PositionChanged:trigger(mob_id, packet['X'], packet['Y'], packet['Z'])
+        end
 
-        if defeated_statuses:contains(status) and get_mob_info(mob_id).status ~= status then
-            get_mob_info(mob_id).hpp = mob.hpp
-            get_mob_info(mob_id).status = status -- NOTE: should probably set this outside of this block so it gets updated for other statuses
-
+        local mob_info = get_mob_info(mob_id)
+        local old_status = mob_info.status
+        mob_info.hpp = mob.hpp
+        mob_info.status = status
+        if defeated_statuses:contains(status) and old_status ~= status then
             WindowerEvents.MobKO:trigger(mob_id, name, status)
         end
     end,
@@ -353,9 +381,11 @@ local incoming_event_dispatcher = {
         end
 
         coroutine.schedule(function()
+            if not WindowerEvents.is_active then
+                return
+            end
             WindowerEvents.AllianceMemberListUpdate:trigger(alliance_members)
 
-            local alliance_index = 1
             for alliance_member in alliance_members:it() do
                 local party_member_info = party_util.get_party_member_info(alliance_member:get_id())
                 if party_member_info then
@@ -366,8 +396,6 @@ local incoming_event_dispatcher = {
                     end
                 end
                 WindowerEvents.ZoneUpdate:trigger(alliance_member:get_id(), alliance_member:get_zone_id())
-
-                alliance_index = alliance_index + 1
             end
         end, 0.2)
     end,
@@ -375,16 +403,20 @@ local incoming_event_dispatcher = {
     [0x037] = function(data)
         local packet = packets.parse('incoming', data)
 
+        local ffxi_player = windower.ffxi.get_player()
+        if ffxi_player == nil then return end
+
         local pet_index = packet['Pet Index']
         if pet_index and pet_index ~= 0 then
             local mob = windower.ffxi.get_mob_by_index(pet_index)
             if mob then
-                WindowerEvents.PetUpdate:trigger(windower.ffxi.get_player().id, mob.id, mob.index, mob.name, mob.hpp, mob.mpp, mob.tp)
+                WindowerEvents.PetUpdate:trigger(ffxi_player.id, mob.id, mob.index, mob.name, mob.hpp, mob.mpp, mob.tp)
             end
         end
 
-        if packet['Status'] then
-            WindowerEvents.StatusChanged:trigger(windower.ffxi.get_player().id, packet['Status'])
+        if packet['Status'] and packet['Status'] ~= last_player_status then
+            last_player_status = packet['Status']
+            WindowerEvents.StatusChanged:trigger(ffxi_player.id, packet['Status'])
         end
     end,
 
@@ -403,7 +435,11 @@ local incoming_event_dispatcher = {
     [0x050] = function(data)
         -- Main weapon
         if data:byte(6) == 0 then
-            main_weapon_id = windower.ffxi.get_items(data:byte(7), data:byte(5)).id
+            local main_weapon_item = windower.ffxi.get_items(data:byte(7), data:byte(5))
+            if main_weapon_item == nil then
+                return
+            end
+            main_weapon_id = main_weapon_item.id
             if main_weapon_id == 65535 then
                 main_weapon_id = nil
             end
@@ -412,12 +448,25 @@ local incoming_event_dispatcher = {
                 return
             end
             coroutine.schedule(function()
-                WindowerEvents.Equipment.MainWeaponChanged:trigger(windower.ffxi.get_player().id, main_weapon_id)
-                IpcRelay.shared():send_message(EquipmentChangedMessage.new(windower.ffxi.get_player().id, main_weapon_id, ranged_weapon_id))
+                if not WindowerEvents.is_active then
+                    return
+                end
+                -- Runs 1s after the packet; get_player() can be nil in
+                -- the zoning/logout window by then.
+                local ffxi_player = windower.ffxi.get_player()
+                if ffxi_player == nil then
+                    return
+                end
+                WindowerEvents.Equipment.MainWeaponChanged:trigger(ffxi_player.id, main_weapon_id)
+                IpcRelay.shared():send_message(EquipmentChangedMessage.new(ffxi_player.id, main_weapon_id, ranged_weapon_id))
             end, 1)
         -- Ranged weapon
         elseif data:byte(6) == 2 then
-            ranged_weapon_id = windower.ffxi.get_items(data:byte(7), data:byte(5)).id
+            local ranged_weapon_item = windower.ffxi.get_items(data:byte(7), data:byte(5))
+            if ranged_weapon_item == nil then
+                return
+            end
+            ranged_weapon_id = ranged_weapon_item.id
             if ranged_weapon_id == 65535 then
                 ranged_weapon_id = nil
             end
@@ -426,8 +475,15 @@ local incoming_event_dispatcher = {
                 return
             end
             coroutine.schedule(function()
-                WindowerEvents.Equipment.RangedWeaponChanged:trigger(windower.ffxi.get_player().id, ranged_weapon_id)
-                IpcRelay.shared():send_message(EquipmentChangedMessage.new(windower.ffxi.get_player().id, main_weapon_id, ranged_weapon_id))
+                if not WindowerEvents.is_active then
+                    return
+                end
+                local ffxi_player = windower.ffxi.get_player()
+                if ffxi_player == nil then
+                    return
+                end
+                WindowerEvents.Equipment.RangedWeaponChanged:trigger(ffxi_player.id, ranged_weapon_id)
+                IpcRelay.shared():send_message(EquipmentChangedMessage.new(ffxi_player.id, main_weapon_id, ranged_weapon_id))
             end, 1)
         end
     end,
@@ -442,7 +498,9 @@ local incoming_event_dispatcher = {
         local pet_tp = packet['Pet TP']
         local pet_name = packet['Pet Name']
 
-        if owner_id == windower.ffxi.get_player().id then
+        local ffxi_player = windower.ffxi.get_player()
+        if ffxi_player == nil then return end
+        if owner_id == ffxi_player.id then
             local mob = windower.ffxi.get_mob_by_index(pet_index)
             if mob and mob.name == pet_name then
                 WindowerEvents.PetUpdate:trigger(owner_id, tonumber(mob.id or 0), tonumber(pet_index or 0), pet_name, pet_hpp, pet_mpp, pet_tp)
@@ -469,7 +527,9 @@ local incoming_event_dispatcher = {
                 end
             end
             if buff_records:length() > 0 then
-                WindowerEvents.BuffDurationChanged:trigger(windower.ffxi.get_player().id, buff_records)
+                local ffxi_player = windower.ffxi.get_player()
+                if ffxi_player == nil then return end
+                WindowerEvents.BuffDurationChanged:trigger(ffxi_player.id, buff_records)
             end
         end
     end,
@@ -480,7 +540,9 @@ local incoming_event_dispatcher = {
         local target_id = packet['ID']
         local category = packet['Category']
 
-        if target_id == windower.ffxi.get_player().id then
+        local ffxi_player = windower.ffxi.get_player()
+        if ffxi_player == nil then return end
+        if target_id == ffxi_player.id then
             if category == 1 then
                 WindowerEvents.Raise.DialogShown:trigger()
             end
@@ -492,10 +554,6 @@ local incoming_event_dispatcher = {
 -- Jump table with a mapping of message_id to handler for that message_id
 local outgoing_event_dispatcher = {
 
-    [0x00D] = function(_)
-        mob_info = {} -- NOTE: probably does not clear when mobs respawn
-    end,
-
     -- 0x015
     -- Updates (x, y, z) and target_index and gets sent very rapidly
     -- Very reliable values
@@ -503,7 +561,13 @@ local outgoing_event_dispatcher = {
     [0x015] = function(data)
         local packet = packets.parse('outgoing', data)
 
-        local target_id = windower.ffxi.get_player().id
+        -- 0x015 fires very rapidly (every position update). get_player()
+        -- was called 3 times and IpcRelay.shared() twice per packet;
+        -- each returns the same value within one handler call, so read
+        -- each once.
+        local player = windower.ffxi.get_player()
+        if player == nil then return end
+        local target_id = player.id
         local x = packet['X']
         local y = packet['Y']
         local z = packet['Z']
@@ -511,22 +575,30 @@ local outgoing_event_dispatcher = {
         WindowerEvents.PositionChanged:trigger(target_id, x, y, z)
         if windower.ffxi.get_mob_by_target('st') == nil then
             WindowerEvents.TargetIndexChanged:trigger(target_id, packet['Target Index'])
-            IpcRelay.shared():send_message(MobUpdateMessage.new(windower.ffxi.get_player().name, x, y, z))
-            IpcRelay.shared():send_message(TargetChangeMessage.new(windower.ffxi.get_player().name, packet['Target Index']))
+            local ipc_relay = IpcRelay.shared()
+            ipc_relay:send_message(MobUpdateMessage.new(player.name, x, y, z))
+            ipc_relay:send_message(TargetChangeMessage.new(player.name, packet['Target Index']))
         end
     end,
 
     [0x05E] = function(data)
         local packet = packets.parse('outgoing', data)
 
-        local player = windower.ffxi.get_mob_by_id(windower.ffxi.get_player().id)
+        local ffxi_player = windower.ffxi.get_player()
+        if ffxi_player == nil then return end
+        local player = windower.ffxi.get_mob_by_id(ffxi_player.id)
+        if player == nil then return end
 
         local x = player.x
         local y = player.y
         local z = player.z
         local zone_id = windower.ffxi.get_info().zone
         local zone_line = packet['Zone Line']
-        local zone_type = packet['Zone Type']
+        local zone_type = packet['Type']
+
+        -- NPC IDs are scoped to the current zone. Keep stale entries from
+        -- accumulating across repeated zone changes.
+        mob_info = {}
 
         WindowerEvents.ZoneRequest:trigger(player.id, zone_id, zone_line, zone_type)
 
@@ -627,7 +699,15 @@ end
 WindowerEvents.Events = {}
 
 WindowerEvents.Events.GainBuff = windower.register_event('gain buff', function(buff_id)
-    local target_id = windower.ffxi.get_player().id
+    -- get_player() is nil after logout (buffs are stripped as the
+    -- character leaves); the addon unloads on logout but the unload runs
+    -- a frame later via chat input, so a buff event in that window must
+    -- not index a nil player.
+    local player = windower.ffxi.get_player()
+    if not player then
+        return
+    end
+    local target_id = player.id
 
     local buff_ids = party_util.get_buffs(target_id)
 
@@ -636,7 +716,12 @@ WindowerEvents.Events.GainBuff = windower.register_event('gain buff', function(b
 end)
 
 WindowerEvents.Events.LoseBuff = windower.register_event('lose buff', function(buff_id)
-    local target_id = windower.ffxi.get_player().id
+    -- See GainBuff above: same logout-window nil player.
+    local player = windower.ffxi.get_player()
+    if not player then
+        return
+    end
+    local target_id = player.id
 
     local buff_ids = party_util.get_buffs(target_id)
 
@@ -645,19 +730,26 @@ WindowerEvents.Events.LoseBuff = windower.register_event('lose buff', function(b
 end)
 
 local init_timer = Timer.scheduledTimer(5, 1)
+WindowerEvents.DisposeBag:addAny(L{ init_timer })
 
 WindowerEvents.DisposeBag:add(init_timer:onTimeChange():addAction(function(_)
     main_weapon_id = inventory_util.get_main_weapon_id()
     if main_weapon_id and main_weapon_id ~= 0 then
         init_timer:destroy()
-        WindowerEvents.Equipment.MainWeaponChanged:trigger(windower.ffxi.get_player().id, main_weapon_id)
+        local ffxi_player = windower.ffxi.get_player()
+        if ffxi_player == nil then
+            return
+        end
+        WindowerEvents.Equipment.MainWeaponChanged:trigger(ffxi_player.id, main_weapon_id)
     end
 end), init_timer:onTimeChange())
 
 WindowerEvents.DisposeBag:add(IpcRelay.shared():on_message_received():addAction(function(ipc_message)
     if ipc_message.__class == MobUpdateMessage.__class then
         local mob = windower.ffxi.get_mob_by_name(ipc_message:get_mob_name())
-        if mob == nil then
+        -- player.trust is only set later in the load sequence, so an IPC
+        -- mob update arriving mid-load would index a nil player.trust.
+        if mob == nil and player and player.trust and player.trust.main_job then
             local follower = player.trust.main_job:role_with_type("follower")
             if follower and follower:get_follow_target() and follower:get_follow_target():get_name() == ipc_message:get_mob_name() then
                 mob = follower:get_follow_target()
@@ -680,5 +772,33 @@ WindowerEvents.DisposeBag:add(IpcRelay.shared():on_message_received():addAction(
 end), IpcRelay.shared():on_message_received())
 
 init_timer:start()
+
+local function remove_all_event_actions(value)
+    if type(value) ~= 'table' then
+        return
+    end
+    if value.removeAllActions then
+        value:removeAllActions()
+        return
+    end
+    for _, child in pairs(value) do
+        remove_all_event_actions(child)
+    end
+end
+
+function WindowerEvents.destroy()
+    if not WindowerEvents.is_active then
+        return
+    end
+    WindowerEvents.is_active = false
+    WindowerEvents.DisposeBag:destroy()
+    for _, event_id in pairs(WindowerEvents.Events) do
+        windower.unregister_event(event_id)
+    end
+    windower.unregister_event(IncomingChunkHandler)
+    windower.unregister_event(OutgoingChunkHandler)
+    remove_all_event_actions(WindowerEvents)
+    WindowerEvents.Events = {}
+end
 
 return WindowerEvents
