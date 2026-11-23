@@ -2,6 +2,7 @@ local ClaimedCondition = require('cylibs/conditions/claimed')
 local GambitTarget = require('cylibs/gambits/gambit_target')
 local ImmuneCondition = require('cylibs/conditions/immune')
 local MinHitPointsPercentCondition = require('cylibs/conditions/min_hpp')
+local MinTacticalPointsCondition = require('cylibs/conditions/min_tp')
 
 local Gambiter = require('cylibs/trust/roles/gambiter')
 local Debuffer = setmetatable({}, {__index = Gambiter })
@@ -46,9 +47,32 @@ function Debuffer:get_default_conditions(gambit)
         -- melee finishes it.
         MinHitPointsPercentCondition.new(15),
     }
+    -- Hold debuffs while the player is saving TP for a weaponskill:
+    -- at 500 TP or more, every debuff waits until the weaponskill
+    -- has been used and TP drops below 500. (The check runs when
+    -- Trust decides to cast, so a cast decided just under 500 can
+    -- still land a little past it while the queue clears.) Same
+    -- Self-targeted TP check the puller uses for its TP-engage pull.
+    conditions:append(GambitCondition.new(NotCondition.new(L{ MinTacticalPointsCondition.new(500) }), GambitTarget.TargetType.Self))
     return conditions + self.job:get_conditions_for_ability(gambit:getAbility()):map(function(condition)
         return GambitCondition.new(condition, GambitTarget.TargetType.Self)
     end)
+end
+
+function Debuffer:check_gambits(gambits, param, ignore_delay)
+    -- Do not debuff in the middle of a song. Same is_singing check
+    -- the weaponskill spammer uses: while the Singer is mid-burst a
+    -- debuff cast would only queue behind the songs, so hold all
+    -- debuffs until the burst finishes. Checked before the
+    -- Gambiter's cooldown bookkeeping so the debuffer retries on
+    -- the next tic once singing stops. On jobs with no Singer role
+    -- this never holds.
+    local main_job = player.trust and player.trust.main_job
+    local singer = main_job and main_job:role_with_type("singer")
+    if singer and singer.get_is_singing and singer:get_is_singing() then
+        return
+    end
+    return Gambiter.check_gambits(self, gambits, param, ignore_delay)
 end
 
 function Debuffer:allows_duplicates()
