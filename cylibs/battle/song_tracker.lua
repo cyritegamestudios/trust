@@ -295,6 +295,7 @@ function SongTracker:set_expiring_soon(target_id, expiring_in)
     for song_record in active_songs:it() do
         local new_expire_time = math.min(song_record:get_expire_time(), os.time() + expiring_in)
         song_record:set_expire_time(new_expire_time)
+        song_record:set_expiring_soon(true)
         logger.notice(self.__class, "Setting expiration time of", res.spells[song_record:get_song_id()].name, "to", new_expire_time)
     end
 end
@@ -490,6 +491,9 @@ end
 -- fire ResingDuration seconds before a song really expires.
 -- Songs sharing one buff id (e.g. all Minuets share 198) are paired with
 -- that buff's records in expiration order, earliest with earliest.
+-- Records marked expiring soon by a Nitro refresh are the exception:
+-- they keep their capped expiration until they are re-sung, so the
+-- refresh stays together instead of dropping the marked songs.
 -- @tparam number target_id Target id
 -- @tparam List buff_records Buff records (see buff_record.lua)
 function SongTracker:sync_song_durations(target_id, buff_records)
@@ -513,7 +517,7 @@ function SongTracker:sync_song_durations(target_id, buff_records)
         end)
         for i = 1, math.min(song_records:length(), sorted_buffs:length()) do
             local buff_record = sorted_buffs[i]
-            if buff_record:get_time_remaining() > 0 then
+            if buff_record:get_time_remaining() > 0 and not song_records[i]:is_expiring_soon() then
                 song_records[i]:set_expire_time(buff_record:get_expire_time())
             end
         end

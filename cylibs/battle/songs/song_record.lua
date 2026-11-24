@@ -51,6 +51,24 @@ function SongRecord:set_expire_time(expire_time)
 end
 
 -------
+-- Sets whether this record was deliberately marked expiring soon.
+-- A Nitro refresh caps every record so all songs re-sing together;
+-- a marked record keeps its capped expiration, because re-anchoring
+-- it to the real buff timer would undo the mark and drop the song
+-- out of the refresh.
+-- @tparam boolean expiring_soon True if marked expiring soon
+function SongRecord:set_expiring_soon(expiring_soon)
+    self.expiring_soon = expiring_soon
+end
+
+-------
+-- Returns whether this record was marked expiring soon.
+-- @treturn Boolean True if marked expiring soon
+function SongRecord:is_expiring_soon()
+    return self.expiring_soon == true
+end
+
+-------
 -- Sets the song duration.
 -- @tparam number song_duration New song duration
 function SongRecord:set_song_duration(song_duration)
