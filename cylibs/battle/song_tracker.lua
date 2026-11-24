@@ -356,7 +356,9 @@ function SongTracker:on_gain_song(target_id, song_id, buff_id, song_duration)
     local song_duration = song_duration or self.job:get_song_duration(res.spells[song_id].en)
 
     local target_songs = (self.active_songs[target_id] or S{}):filter(function(song_record) return song_record:get_song_id() ~= song_id  end)
-    target_songs:add(SongRecord.new(song_id, song_duration))
+    local song_record = SongRecord.new(song_id, song_duration)
+    song_record.created_time = os.time()
+    target_songs:add(song_record)
 
     self.active_songs[target_id] = target_songs
 
@@ -436,7 +438,26 @@ function SongTracker:prune_songs(target_id, songs, buff_ids)
     for song in songs:it() do
         local buff_id = song:get_spell().status
         if not buff_util.is_buff_active(buff_id, buff_ids) then
-            self:on_lose_song(target_id, song:get_spell().id, song:get_spell().status)
+            -- The buff id lists prunes run with can be snapshots taken
+            -- just before this song landed (the duration packet for a
+            -- cast is generated before the cast), so a record only
+            -- seconds old can look "not active" while its buff is
+            -- really up. Deleting it makes the singer re-sing the song
+            -- solo at a random moment -- this is how songs came to
+            -- fire by themselves mid-cycle. A genuinely lost song is
+            -- still caught once its record is older, and an
+            -- overwritten one by the count prune below.
+            local record_is_fresh = false
+            if self.active_songs[target_id] then
+                for song_record in self.active_songs[target_id]:it() do
+                    if song_record:get_song_id() == song:get_spell().id and song_record.created_time and os.time() - song_record.created_time < 10 then
+                        record_is_fresh = true
+                    end
+                end
+            end
+            if not record_is_fresh then
+                self:on_lose_song(target_id, song:get_spell().id, song:get_spell().status)
+            end
         else
             song_buff_ids:add(buff_id)
         end
@@ -452,7 +473,16 @@ function SongTracker:prune_songs(target_id, songs, buff_ids)
 
         if song_records:length() > buff_count then
             logger.notice(self.__class, member_name, "has", buff_count, res.buffs[buff_id].name, "buffs but song records of", tostring(song_records:map(function(song) return res.spells[song:get_song_id()].name end)))
-            local songs_to_remove = L(song_records):sort(function(song_record1, song_record2)
+            -- Same snapshot problem as the not-active branch above:
+            -- the packet can under-count a buff whose newest instance
+            -- landed seconds ago, making a song that is really up
+            -- look like the excess record. Never count-prune a record
+            -- less than 10 seconds old; a genuine overwrite is caught
+            -- by the next prune once the record has aged.
+            local removable = L(song_records):filter(function(song_record)
+                return not (song_record.created_time and os.time() - song_record.created_time < 10)
+            end)
+            local songs_to_remove = removable:sort(function(song_record1, song_record2)
                 return song_record1:get_expire_time() < song_record2:get_expire_time()
             end):slice(1, song_records:length() - buff_count)
             for song in songs_to_remove:it() do
