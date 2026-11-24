@@ -528,14 +528,23 @@ function Singer:check_gambits(gambits, param, ignore_delay)
 end
 
 -------
--- Returns whether a burst is still pending: any configured song is
--- missing on the player or close to expiring. The singer is only
--- "active" while a cast is running, so between the songs of a burst
--- get_is_singing() reads false even though the burst is unfinished;
--- the puller uses this to avoid claiming a mob in those gaps, so a
--- burst always finishes before a claim. False when the auto singer
--- is off, when there is no tracker yet, or when every song is up
--- with time to spare.
+-- Returns whether a burst is still pending: a burst has not run yet
+-- (no configured songs up), one is under way, or the songs are close
+-- to expiring. The singer is only "active" while a cast is running,
+-- so between the songs of a burst get_is_singing() reads false even
+-- though the burst is unfinished; the puller uses this to avoid
+-- claiming a mob in those gaps, so a burst always finishes before a
+-- claim. False when the auto singer is off, when there is no tracker
+-- yet, or when every song is up with time to spare.
+--
+-- A partial loss is different: when one song of a full set drops
+-- mid-cycle (it expired early, or was overwritten), the singer
+-- deliberately leaves it until the next burst -- at the song cap a
+-- refill would knock out another real song. Counting it as pending
+-- would hold every claim and engage for the rest of the cycle, so a
+-- partial loss only counts while a burst is actually under way (a
+-- record from the last minute) or the remaining songs are about to
+-- expire anyway, which is when the burst that restores it runs.
 -- @treturn boolean True if the singer still has songs to sing
 function Singer:has_songs_pending()
     if not self.song_tracker then
@@ -549,9 +558,24 @@ function Singer:has_songs_pending()
         return false
     end
     local player_id = player:get_id()
+    local num_missing = 0
     for song in self.songs:it() do
         if not self.song_tracker:has_song(player_id, song:get_spell().id) then
-            return true
+            num_missing = num_missing + 1
+        end
+    end
+    if num_missing == 0 then
+        return self.song_tracker:is_expiring_soon(player_id, self.songs)
+    end
+    if num_missing >= self.songs:length() then
+        return true
+    end
+    local records = self.song_tracker:get_songs(player_id)
+    if records then
+        for song_record in records:it() do
+            if song_record.created_time and os.time() - song_record.created_time < 60 then
+                return true
+            end
         end
     end
     return self.song_tracker:is_expiring_soon(player_id, self.songs)
