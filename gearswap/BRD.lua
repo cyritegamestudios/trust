@@ -1,5 +1,12 @@
 -- ============================================================
 --  BRD.lua - Bard TP + Weaponskill + Song GearSwap
+--  BRD-30
+--  BRD-29 plus one change: a new real song with no
+--  dummy to overwrite, Clarion Call up, and 3+ songs
+--  already active is sung with Daurdabla (see
+--  equip_song). Without it that cast overwrote the
+--  oldest song instead of becoming the 5th, and the
+--  singer chased the missing song in a loop.
 --  BRD-29
 --  BRD-28 with the debug prints removed. The diagnostic
 --  pull confirmed the timing is correct: Elegy and Requiem
@@ -556,18 +563,31 @@ function equip_song(spell)
             equip({range = "Marsyas"})
         end
     end
-    -- Daurdabla is ONLY for the two dummy songs. Real songs
-    -- always keep their potency instrument (Gjallarhorn,
-    -- Marsyas for Honor March), even when no dummy is up:
-    -- Minuet IV and Minuet V were landing on Daurdabla
-    -- whenever they were sung with no dummy active (e.g.
-    -- re-sung after they expired), and with the potency
-    -- re-sing disabled there was nothing to fix them
-    -- afterwards, so they stayed weak. If a real song has
-    -- to overwrite a song because no dummy is up, the auto
-    -- singer re-sings the missing one.
+    -- Daurdabla is for the two dummy songs, and for one
+    -- recovery case: a new real song with no dummy to
+    -- overwrite while Clarion Call is up and 3+ songs are
+    -- already active. The game checks the song limit
+    -- against the instrument equipped when the song
+    -- lands -- 3 under Gjallarhorn with Clarion Call --
+    -- so that cast on the potency instrument overwrites
+    -- the oldest song instead of becoming the 5th, and
+    -- re-singing the overwritten song overwrites the
+    -- next one: the singer loops and the set never
+    -- reaches 5. With Daurdabla the limit is 5 and the
+    -- song lands; it is weaker for it, and the next
+    -- burst's refresh restores its potency instrument.
+    -- Real songs otherwise always keep their potency
+    -- instrument (Gjallarhorn, Marsyas for Honor March),
+    -- even when no dummy is up: Minuet IV and Minuet V
+    -- were landing on Daurdabla whenever they were sung
+    -- with no dummy active (e.g. re-sung after they
+    -- expired), and with the potency re-sing disabled
+    -- there was nothing to fix them afterwards, so they
+    -- stayed weak.
     if not is_song_active(spell) then
         if spell.name == "Goblin Gavotte" or spell.name == "Scop's Operetta" then
+            equip({range = "Daurdabla"})
+        elseif is_clarion_call_active() and not is_dummy_song_active() and count_active_songs() >= 3 then
             equip({range = "Daurdabla"})
         end
     end
