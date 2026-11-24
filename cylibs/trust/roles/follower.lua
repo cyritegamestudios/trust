@@ -33,6 +33,7 @@ function Follower.new(action_queue, follow_distance, addon_settings, state_var)
     self.walk_action_queue = ActionQueue.new(nil, false, 100, false, false)
     self.action_events = {}
     self.distance = follow_distance or 1
+    self.follow_jitter = 0
     self.auto_pause = addon_settings:getSettings().follow.auto_pause or false
     self.maxfollowdistance = 35
     self.maxfollowpoints = 100
@@ -57,10 +58,13 @@ function Follower:destroy()
         end
     end
     self.dispose_bag:destroy()
+    self.follow_target_dispose_bag:destroy()
 
     self.follow_target_changed:removeAllActions()
 
     self:stop_following()
+
+    self.walk_action_queue:destroy()
 end
 
 function Follower:on_add()
@@ -92,7 +96,7 @@ function Follower:on_add()
     self.dispose_bag:add(self.addon_settings:onSettingsChanged():addAction(function(settings)
         self.distance = settings.follow.distance or 1
         self.auto_pause = settings.follow.auto_pause or false
-    end, self.addon_settings:onSettingsChanged()))
+    end), self.addon_settings:onSettingsChanged())
 
     self.action_events.status = windower.register_event('status change', function(new_status_id, old_status_id)
         self:on_player_status_change(new_status_id, old_status_id)
@@ -102,7 +106,7 @@ function Follower:on_add()
         if self.auto_pause then
             self:stop_following()
         end
-    end), self.action_queue:on_action_end())
+    end), self.action_queue:on_action_start())
 
     self.dispose_bag:add(self.action_queue:on_action_end():addAction(function(a, success)
         if self.auto_pause then
@@ -120,12 +124,15 @@ end
 -- @tparam string target_name Name of the target
 -- @treturn string Error message, or nil if there is none
 function Follower:follow_target_named(target_name)
+    if not target_name or target_name == "" then
+        return "Usage: // trust follow <name>"
+    end
     target_name = target_name:gsub("^%l", string.upper)
 
     local target = self:get_alliance():get_alliance_member_named(target_name)
     if target == nil or not self:is_valid_target(target_name) then
         logger.error("Invalid target", target_name, target == nil, not self:is_valid_target(target_name))
-        return "Invalid target %s":format(target_name)
+        return string.format("Invalid target %s", target_name)
     end
     self:set_follow_target(target)
 
@@ -160,7 +167,11 @@ end
 function Follower:is_valid_target(target_name)
     local do_mob_check = not IpcRelay.shared():is_connected(target_name or "")
     local target = self:get_alliance():get_alliance_member_named(target_name, true)
-    if target == nil or do_mob_check and target:get_mob() == nil or target:get_name() == windower.ffxi.get_player().name or target:get_zone_id() ~= windower.ffxi.get_info().zone then
+    -- windower.ffxi.get_player()/get_info() are nil while zoning or
+    -- before login; skip the name/zone checks instead of erroring.
+    local ffxi_player = windower.ffxi.get_player()
+    local info = windower.ffxi.get_info()
+    if target == nil or (do_mob_check and target:get_mob() == nil) or (ffxi_player ~= nil and target:get_name() == ffxi_player.name) or (info ~= nil and target:get_zone_id() ~= info.zone) then
         return false
     end
     if not IpcRelay.shared():is_connected(target_name) then
@@ -189,7 +200,11 @@ function Follower:check_distance()
     local y = follow_target:get_position()[2]
     local z = follow_target:get_position()[3]
 
-    local player = windower.ffxi.get_mob_by_id(windower.ffxi.get_player().id)
+    local ffxi_player = windower.ffxi.get_player()
+    if ffxi_player == nil then
+        return
+    end
+    local player = windower.ffxi.get_mob_by_id(ffxi_player.id)
     if player then
         local distance = player_util.distance(player_util.get_player_position(), follow_target:get_position())
         local deltaZ = math.abs(z - player.z)
@@ -229,7 +244,12 @@ function Follower:get_distance()
     if state.AutoFollowMode.value == 'Path' then
         return 1
     else
-        return self.distance
+        -- Human-like following: stop at a slightly different
+        -- distance each time, instead of exactly the same spot.
+        -- The jitter is re-rolled per follow target (see
+        -- set_follow_target), not per frame, so the character
+        -- does not shuffle while standing still.
+        return math.max(0.5, self.distance + (self.follow_jitter or 0))
     end
 end
 
@@ -251,6 +271,10 @@ function Follower:set_follow_target(target)
     self:on_follow_target_changed():trigger(self, self.follow_target, target)
 
     self.follow_target = target
+    -- Re-roll the follow-distance jitter for the new target so the
+    -- character stops at a slightly different distance each time
+    -- it follows someone new (see get_distance).
+    self.follow_jitter = (math.random() - 0.5)
     self.follow_target_dispose_bag:destroy()
 
     if self.follow_target then
@@ -272,8 +296,11 @@ end
 
 function Follower:can_zone(zone_id)
     local player = self:get_party():get_player()
+    -- windower.ffxi.get_info() is nil before login (see the keyboard
+    -- B14 fix); without this, zoning checks error in that window.
+    local info = windower.ffxi.get_info()
     if state.AutoZoneMode.value == 'Off' or state.AutoFollowMode.value == 'Off' or not player or (os.time() - player:get_last_zone_time()) < self.zone_cooldown
-            or zone_id ~= windower.ffxi.get_info().zone or windower.ffxi.get_info().zone == 0 then
+            or info == nil or zone_id ~= info.zone or info.zone == 0 then
         return false
     end
     return true
