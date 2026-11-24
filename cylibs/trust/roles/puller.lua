@@ -339,7 +339,10 @@ function Puller:set_pull_target(target)
     if state.AutoPullMode.value == 'Off' then
         self:get_party():set_party_target_index(self:get_party():get_assist_target():get_target_index())
     else
-        self:get_party():set_party_target_index(target and target:get_mob().index)
+		local mob = target and target:get_mob()
+		if mob then
+			self:get_party():set_party_target_index(mob.index)
+		end
     end
 end
 
