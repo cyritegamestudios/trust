@@ -16,6 +16,12 @@ local Attacker = setmetatable({}, {__index = Gambiter })
 Attacker.__index = Attacker
 Attacker.__class = "Attacker"
 
+-- At or above this much TP a new engage goes first even if a song
+-- burst is pending: the singer holds its songs at the same threshold,
+-- and the held weaponskill is spent before singing resumes. Matches
+-- the puller's TP_ENGAGE_PULL_THRESHOLD and the singer's TP hold.
+local SONG_HOLD_TP_THRESHOLD = 500
+
 state.AutoEngageMode = M{['description'] = 'Auto Engage Mode', 'Off', 'Always', 'Mirror'}
 state.AutoEngageMode:set_description('Off', "Manually engage and disengage.")
 state.AutoEngageMode:set_description('Always', "Automatically engage when targeting a claimed mob.")
@@ -29,6 +35,7 @@ function Attacker.new(action_queue, attacker_settings)
     local self = setmetatable(Gambiter.new(action_queue, { Gambits = L{} }, L{ state.AutoEngageMode, state.AutoPullMode }), Attacker)
 
     self.dispose_bag = DisposeBag.new()
+    self.num_unable_attack = 0
 
     self:set_attacker_settings(attacker_settings)
 
@@ -52,12 +59,18 @@ function Attacker:on_add()
         if state.AutoDisengageMode.value == 'Off' then
             return
         end
-        if actor_id == windower.ffxi.get_player().id then
+        -- windower.ffxi.get_player() is nil while zoning; action
+        -- messages can still arrive in that window.
+        local ffxi_player = windower.ffxi.get_player()
+        if ffxi_player and actor_id == ffxi_player.id then
             if message_id == 4 or message_id == 5 then
                 -- 4: out of range, 5: unable to see
                 self.num_unable_attack = self.num_unable_attack + 1
                 if self.num_unable_attack > 5 then
-                    self.action_queue:push_action(Disengage.new():to_action())
+                    -- Pass true so a Disengage already queued or
+                    -- running is not queued again on every further
+                    -- out-of-range message (same identifier).
+                    self.action_queue:push_action(Disengage.new():to_action(), true)
                 end
             end
         end
@@ -82,6 +95,19 @@ function Attacker:check_gambits(gambits, param, ignore_delay)
     local singer = main_job and main_job:role_with_type("singer")
     if singer and singer.get_is_singing and singer:get_is_singing() then
         return
+    end
+    -- Also hold while a burst is pending between songs: the singer
+    -- goes inactive in the gaps between casts (one action at a time,
+    -- with its cooldown between), so the check above alone lets an
+    -- engage slip through mid-burst when a claimed or aggroed mob is
+    -- already waiting. Songs finish first. At or above the TP
+    -- threshold the engage and weaponskill go first, so do not wait
+    -- for songs then.
+    if singer and singer.has_songs_pending and singer:has_songs_pending() then
+        local ffxi_player = windower.ffxi.get_player()
+        if not ffxi_player or (ffxi_player.tp or 0) < SONG_HOLD_TP_THRESHOLD then
+            return
+        end
     end
     return Gambiter.check_gambits(self, gambits, param, ignore_delay)
 end
