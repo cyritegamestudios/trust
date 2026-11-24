@@ -47,6 +47,33 @@ end
 function CombatMode:on_add()
     Gambiter.on_add(self)
 
+    -- Track whether the player is casting a song or spell. Movement
+    -- started during a cast interrupts it, so walk_in (below) never
+    -- starts a chase while a cast is running; positioning resumes on
+    -- the next tic once the cast lands. Spell.Begin/Finish come from
+    -- the action packet (categories 8 and 4); an interrupted cast
+    -- only shows as category 8 with param 28787, which also clears
+    -- the flag so a stopped cast never wedges positioning.
+    self.is_casting = false
+    self.dispose_bag:add(WindowerEvents.Spell.Begin:addAction(function(actor_id, _)
+        local player = windower.ffxi.get_player()
+        if player and actor_id == player.id then
+            self.is_casting = true
+        end
+    end), WindowerEvents.Spell.Begin)
+    self.dispose_bag:add(WindowerEvents.Spell.Finish:addAction(function(actor_id, _, _)
+        local player = windower.ffxi.get_player()
+        if player and actor_id == player.id then
+            self.is_casting = false
+        end
+    end), WindowerEvents.Spell.Finish)
+    self.dispose_bag:add(WindowerEvents.Action:addAction(function(act)
+        local player = windower.ffxi.get_player()
+        if player and act.actor_id == player.id and act.category == 8 and act.param == 28787 then
+            self.is_casting = false
+        end
+    end), WindowerEvents.Action)
+
     self.dispose_bag:add(WindowerEvents.ActionMessage:addAction(function(actor_id, target_id, actor_index, target_index, message_id, param_1, param_2, param_3)
         -- Unable to see ${target}
         if message_id == 5 then
@@ -94,6 +121,9 @@ end
 -- for it.
 function CombatMode:walk_in(target)
     if state.CombatMode.value ~= 'Auto' or not self.distance then
+        return
+    end
+    if self.is_casting then
         return
     end
     local player = windower.ffxi.get_player()
