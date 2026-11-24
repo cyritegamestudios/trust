@@ -67,9 +67,21 @@ function Debuffer:check_gambits(gambits, param, ignore_delay)
     -- Gambiter's cooldown bookkeeping so the debuffer retries on
     -- the next tic once singing stops. On jobs with no Singer role
     -- this never holds.
+    -- The is_singing check alone is not enough: between the songs
+    -- of a burst the singer is briefly not casting (it queues one
+    -- song at a time), so a debuff -- Foe Requiem is the one that
+    -- kept slipping through -- could start in the gap and interrupt
+    -- the burst. has_songs_pending() covers the whole burst, gaps
+    -- included, the same check the puller and attacker already use
+    -- to stay out of the singer's way. At 500+ TP the debuffs are
+    -- held by the TP condition anyway, so this changes nothing
+    -- about the weaponskill-first order.
     local main_job = player.trust and player.trust.main_job
     local singer = main_job and main_job:role_with_type("singer")
     if singer and singer.get_is_singing and singer:get_is_singing() then
+        return
+    end
+    if singer and singer.has_songs_pending and singer:has_songs_pending() then
         return
     end
     return Gambiter.check_gambits(self, gambits, param, ignore_delay)
