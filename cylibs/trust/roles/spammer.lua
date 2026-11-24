@@ -20,7 +20,7 @@ function Spammer:get_next_ability()
     -- melee anyway; save the TP for the next mob instead.
     local target = self:get_target()
     local target_mob = target and target:get_mob()
-    if target_mob and target_mob.hpp and target_mob.hpp < 5 then
+    if target_mob and target_mob.hpp and target_mob.hpp < 3 then
         return nil
     end
 

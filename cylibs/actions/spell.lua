@@ -127,7 +127,7 @@ function SpellAction:cast_is_blocked()
 	end
 	-- A song must also wait while a weaponskill is banked for the
 	-- next mob: TP at 1000, but the current target is nearly dead
-	-- (under 5% HP, where the spammer deliberately holds the
+	-- (under 3% HP, where the spammer deliberately holds the
 	-- weaponskill for the next mob) or there is no target at all.
 	-- Singing then swaps to the song set -- a main-hand change --
 	-- and zeroes the banked TP before the weaponskill can fire.
@@ -146,7 +146,7 @@ function SpellAction:cast_is_blocked()
 				return false
 			end
 			local target_mob = player.target_index and windower.ffxi.get_mob_by_index(player.target_index)
-			if not target_mob or (target_mob.hpp and target_mob.hpp < 5) then
+			if not target_mob or (target_mob.hpp and target_mob.hpp < 3) then
 				return true
 			end
 		end
