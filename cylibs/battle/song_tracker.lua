@@ -496,7 +496,12 @@ end
 -- the timer of a song that is already anchored; the rest pair in
 -- expiration order, earliest with earliest. Records marked expiring
 -- soon are never touched. With forward_only, a record only moves to
--- a later expiration.
+-- a later expiration. Without it, a record still never moves DOWN
+-- by more than STALE_TIMER_TOLERANCE seconds: a packet generated
+-- just before a song landed carries the previous instance's much
+-- shorter timer for the same buff, and pairing the fresh record
+-- down to it is what re-sang songs minutes early.
+local STALE_TIMER_TOLERANCE = 15
 local function anchor_song_records(song_records, buff_records, forward_only)
     local sorted_buffs = L(buff_records):sort(function(b1, b2)
         return b1:get_expire_time() < b2:get_expire_time()
@@ -542,7 +547,8 @@ local function anchor_song_records(song_records, buff_records, forward_only)
     local buff_index = 1
     for i = 1, sorted_records:length() do
         while buff_index <= sorted_buffs:length() and (claimed[buff_index]
-                or (forward_only and sorted_buffs[buff_index]:get_expire_time() <= sorted_records[i]:get_expire_time())) do
+                or (forward_only and sorted_buffs[buff_index]:get_expire_time() <= sorted_records[i]:get_expire_time())
+                or (not forward_only and sorted_buffs[buff_index]:get_expire_time() < sorted_records[i]:get_expire_time() - STALE_TIMER_TOLERANCE)) do
             buff_index = buff_index + 1
         end
         if buff_index <= sorted_buffs:length() then
@@ -568,6 +574,14 @@ end
 -- Records marked expiring soon by a Nitro refresh are the exception:
 -- they keep their capped expiration until they are re-sung, so the
 -- refresh stays together instead of dropping the marked songs.
+-- One pairing guard applies here: a record never moves down by
+-- more than a few seconds (see STALE_TIMER_TOLERANCE below). A
+-- packet generated just before a song landed still carries the
+-- previous instance's much shorter timer, and pairing a fresh
+-- record down to it re-sings minutes early (measured in game: an
+-- Honor March record created at a 343s estimate was anchored down
+-- to 280s by the packet that arrived with the cast). Small downward
+-- corrections stay allowed for slight estimate overshoots.
 -- @tparam number target_id Target id
 -- @tparam List buff_records Buff records (see buff_record.lua)
 function SongTracker:sync_song_durations(target_id, buff_records)
