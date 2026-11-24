@@ -267,10 +267,21 @@ end
 -- is false, so a missing song is left alone rather than overwriting a
 -- real one.
 --
--- Re-sing fires when the song is up but its remaining duration drops below
--- the re-sing duration.
+-- Re-sing fires when the song is up and either its own remaining
+-- duration drops below the re-sing duration, or another real song
+-- drops below it while this song is inside the join window (the
+-- re-sing duration + 160s). Together with the burst marking in
+-- check_gambits (which pulls every record to the threshold the
+-- moment one song is due), this keeps the burst in song order: on
+-- the marking tic the due song's own condition is already true
+-- while the marked songs sit exactly at the threshold for a
+-- second, and without the shared trigger the due song would jump
+-- the queue and lead the burst. The join window stays below a
+-- fresh song's duration, so a song the burst just refreshed never
+-- re-fires while the rest catch up.
 local function build_song_gambits(singer, dummy_song_threshold)
     local dummy_names = singer.dummy_songs:map(function(s) return s:get_name() end)
+    local real_song_names = singer.songs:map(function(s) return s:get_name() end)
     local gambits = L{}
     for songNum, song in ipairs(singer.songs) do
         song:set_requires_all_job_abilities(false)
@@ -289,7 +300,13 @@ local function build_song_gambits(singer, dummy_song_threshold)
             Gambit.new(GambitTarget.TargetType.Self, L{
                 GambitCondition.new(NotCondition.new(L{ IsAlterEgoCondition.new() }), GambitTarget.TargetType.Self),
                 GambitCondition.new(HasSongsCondition.new(L{ song:get_name() }), GambitTarget.TargetType.Self),
-                GambitCondition.new(SongDurationCondition.new(L{ song:get_name() }, singer.expiring_duration, Condition.Operator.LessThan), GambitTarget.TargetType.Self),
+                GambitCondition.new(ConditionalCondition.new(L{
+                    SongDurationCondition.new(L{ song:get_name() }, singer.expiring_duration, Condition.Operator.LessThan),
+                    ConditionalCondition.new(L{
+                        SongDurationCondition.new(real_song_names, singer.expiring_duration, Condition.Operator.LessThan, 1, Condition.Operator.GreaterThanOrEqualTo),
+                        SongDurationCondition.new(L{ song:get_name() }, singer.expiring_duration + 160, Condition.Operator.LessThan),
+                    }, Condition.LogicalOperator.And),
+                }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Self),
             }, song, Condition.TargetType.Self),
         }
     end
@@ -370,6 +387,7 @@ function Singer.new(action_queue, song_settings, job)
     self.dispose_bag = DisposeBag.new()
     self.ja_last_use = {}
     self.last_weaponskill_time = 0
+    self.unit_burst_marked = false
 
     self:set_song_settings(song_settings)
 
@@ -406,6 +424,37 @@ function Singer:check_gambits(gambits, param, ignore_delay)
     -- levels out with the weaponskill instead of colliding with it.
     if self.last_weaponskill_time and os.clock() - self.last_weaponskill_time < 2 then
         return
+    end
+    -- Burst-as-a-unit marking: the moment any song is due, pull
+    -- every song's record down to the re-sing threshold, so the
+    -- per-song re-sing gambits refresh the whole set in order as
+    -- one burst instead of each song firing on its own clock. The
+    -- songs do not share one clock -- Honor March and Victory March
+    -- share a buff, so the tracker pairs the two anonymous March
+    -- timers to the two songs by expiry order, and which song gets
+    -- the short timer flips with packet timing; Marcato also
+    -- stretches Honor March past the others. Left to their own
+    -- triggers, the bursts split at random. A gambit in the nitro
+    -- block does this same marking, but only on a 100-second
+    -- cooldown and only when gambit evaluation reaches it; doing
+    -- it here, before the gambits are checked, starts the burst
+    -- together every time. The latch keeps the songs the burst has
+    -- just refreshed (fresh records, full duration) from being
+    -- marked again while the rest catch up; it clears once
+    -- nothing is expiring, ready for the next cycle.
+    if self.song_tracker then
+        local player = self:get_player()
+        if player then
+            local player_id = player:get_id()
+            if self.unit_burst_marked then
+                if not self.song_tracker:is_expiring_soon(player_id, self.songs) then
+                    self.unit_burst_marked = false
+                end
+            elseif self.song_tracker:is_expiring_soon(player_id, self.songs) then
+                self.song_tracker:set_all_expiring_soon()
+                self.unit_burst_marked = true
+            end
+        end
     end
     return Gambiter.check_gambits(self, gambits, param, ignore_delay)
 end
