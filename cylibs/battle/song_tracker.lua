@@ -352,6 +352,16 @@ function SongTracker:reset(target_id)
 end
 
 -------
+-- Note that the player just used Marcato. Called by the Singer when
+-- its action-packet hook sees the ability land, whether Trust queued
+-- it or the player used it manually. The next song record created
+-- within one cast's time is tagged as the song Marcato rode on (see
+-- on_gain_song), which is how the game consumes the ability.
+function SongTracker:note_marcato_used()
+    self.marcato_used_time = os.time()
+end
+
+-------
 -- Call when a target gains a song.
 -- @tparam number target_id Target id
 -- @tparam number song_id Song id (see spells.lua)
@@ -369,6 +379,16 @@ function SongTracker:on_gain_song(target_id, song_id, buff_id, song_duration)
     local target_songs = (self.active_songs[target_id] or S{}):filter(function(song_record) return song_record:get_song_id() ~= song_id  end)
     local song_record = SongRecord.new(song_id, song_duration)
     song_record.created_time = os.time()
+    -- If Marcato was used just before this cast, this is the song it
+    -- rode on (the game consumes Marcato with the next song that
+    -- lands): tag the record so the duration pairing can tell this
+    -- song's real timer apart from a same-buff partner's (see
+    -- anchor_song_records). The Singer reports the use from its
+    -- action-packet hook; a use older than one cast is stale.
+    if self.marcato_used_time and os.time() - self.marcato_used_time <= 20 then
+        song_record.marcato = true
+        self.marcato_used_time = nil
+    end
     target_songs:add(song_record)
 
     self.active_songs[target_id] = target_songs
@@ -548,9 +568,40 @@ local function anchor_song_records(song_records, buff_records, forward_only)
         return b1:get_expire_time() < b2:get_expire_time()
     end)
     local claimed = {}
+    -- A song cast with Marcato lasts far longer than its same-buff
+    -- partner, which inverts the pair's expiration order: the song
+    -- cast first expires LAST. The estimates cannot show this (the
+    -- duration model reads the gear worn when the song lands, and
+    -- Marcato is already consumed by then), so the pairing below
+    -- hands each song the other's timer for a cycle whenever no
+    -- packet lands between the two casts. A record tagged as
+    -- Marcato's (see on_gain_song) claims the latest timer instead --
+    -- but only when the timers are far enough apart for a stretch to
+    -- be the cause; with close timers the tag changes nothing.
+    local marcato_record = nil
+    if sorted_buffs:length() >= 2
+            and sorted_buffs[sorted_buffs:length()]:get_expire_time() - sorted_buffs[1]:get_expire_time() > 45 then
+        for song_record in L(song_records):it() do
+            if song_record.marcato and not song_record:is_expiring_soon() then
+                if marcato_record then
+                    marcato_record = nil
+                    break
+                end
+                marcato_record = song_record
+            end
+        end
+        if marcato_record and forward_only
+                and sorted_buffs[sorted_buffs:length()]:get_expire_time() <= marcato_record:get_expire_time() then
+            marcato_record = nil
+        end
+        if marcato_record then
+            claimed[sorted_buffs:length()] = true
+            marcato_record:set_expire_time(sorted_buffs[sorted_buffs:length()]:get_expire_time())
+        end
+    end
     local unanchored = L{}
     for song_record in L(song_records):it() do
-        local matched = song_record:is_expiring_soon()
+        local matched = song_record:is_expiring_soon() or song_record == marcato_record
         if not matched then
             for j = 1, sorted_buffs:length() do
                 if not claimed[j] and math.abs(sorted_buffs[j]:get_expire_time() - song_record:get_expire_time()) <= 2 then

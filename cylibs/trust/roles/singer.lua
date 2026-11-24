@@ -631,6 +631,14 @@ function Singer:on_add()
             local ja = TRACKED_JA_BY_ID[act.param]
             if ja then
                 record_ja_use(self, ja, os.time())
+                -- The tracker tags the next song record created as
+                -- the one Marcato rode on, so its duration pairing
+                -- can tell the two Marches' timers apart (Marcato
+                -- stretches its song past its same-buff partner,
+                -- which otherwise swaps their timers for a cycle).
+                if ja.key == 'marcato' and self.song_tracker and self.song_tracker.note_marcato_used then
+                    self.song_tracker:note_marcato_used()
+                end
                 -- If this was the last ability of a Nitro sequence
                 -- still holding the burst's songs, release the hold
                 -- now instead of waiting out the backstop timer.
