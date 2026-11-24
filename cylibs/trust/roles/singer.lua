@@ -77,7 +77,7 @@ local TRACKED_JAS = L{
     { name = 'Clarion Call', key = 'clarion_call', recast = 600, is_active = 'is_clarion_call_active' },
     { name = 'Nightingale',  key = 'nightingale',  recast = 600, is_active = 'is_nightingale_active' },
     { name = 'Troubadour',   key = 'troubadour',   recast = 600, is_active = 'is_troubadour_active' },
-    { name = 'Marcato',      key = 'marcato',      recast = 60,  is_active = 'is_marcato_active' },
+    { name = 'Marcato',      key = 'marcato',      recast = 600, is_active = 'is_marcato_active' },
 }
 
 local function tracked_ja(name)
@@ -494,7 +494,14 @@ end
 -- actually runs (Trust:tic calls role:tic when it exists), and records each
 -- tracked job ability's use the moment its buff appears. Only the buff
 -- proves the ability worked: a failed attempt shows no buff, so nothing is
--- recorded and the ability is not wrongly blocked.
+-- recorded and the ability is not wrongly blocked. The stamp is written
+-- once per activation: while the buff stays up, an existing stamp is left
+-- alone until it is older than the ability's own recast. Re-stamping as
+-- the buff ages would start the cooldown from the buff's last sighting
+-- instead of the use, leaving Trust's clock behind the game's — a burst
+-- that lands right as the real recasts clear would then start without
+-- the Nitro combo, which would slip in mid-burst once the clock caught
+-- up.
 function Singer:tic(_, _)
     if self.song_tracker then
         self.song_tracker:tic()
@@ -507,7 +514,7 @@ function Singer:tic(_, _)
             local is_active = self.job[ja.is_active]
             if type(is_active) == 'function' and is_active(self.job) then
                 local last_use = CooldownCondition.get_timestamp(ja.key)
-                if not last_use or now - last_use >= 60 then
+                if not last_use or now - last_use >= ja.recast then
                     CooldownCondition.set_timestamp(ja.key, now)
                     self.ja_last_use[ja.key] = now
                     changed = true
