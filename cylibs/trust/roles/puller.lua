@@ -292,6 +292,18 @@ function Puller:check_gambits(gambits, param, ignore_delay)
     if singer and singer.get_is_singing and singer:get_is_singing() then
         return
     end
+    -- Also hold while a burst is pending between songs: the singer
+    -- goes inactive in the gaps between casts (one action at a time,
+    -- with its cooldown between), so the check above alone lets a
+    -- claim slip through mid-burst. Songs finish first. At or above
+    -- the TP threshold the singer is holding anyway and the engage
+    -- and weaponskill go first, so do not wait for songs then.
+    if singer and singer.has_songs_pending and singer:has_songs_pending() then
+        local ffxi_player = windower.ffxi.get_player()
+        if not ffxi_player or (ffxi_player.tp or 0) < TP_ENGAGE_PULL_THRESHOLD then
+            return
+        end
+    end
     return Gambiter.check_gambits(self, gambits, param, ignore_delay)
 end
 

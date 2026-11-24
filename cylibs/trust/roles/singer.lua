@@ -400,6 +400,36 @@ function Singer:check_gambits(gambits, param, ignore_delay)
 end
 
 -------
+-- Returns whether a burst is still pending: any configured song is
+-- missing on the player or close to expiring. The singer is only
+-- "active" while a cast is running, so between the songs of a burst
+-- get_is_singing() reads false even though the burst is unfinished;
+-- the puller uses this to avoid claiming a mob in those gaps, so a
+-- burst always finishes before a claim. False when the auto singer
+-- is off, when there is no tracker yet, or when every song is up
+-- with time to spare.
+-- @treturn boolean True if the singer still has songs to sing
+function Singer:has_songs_pending()
+    if not self.song_tracker then
+        return false
+    end
+    if state.AutoSongMode.value ~= 'Auto' then
+        return false
+    end
+    local player = self:get_player()
+    if not player then
+        return false
+    end
+    local player_id = player:get_id()
+    for song in self.songs:it() do
+        if not self.song_tracker:has_song(player_id, song:get_spell().id) then
+            return true
+        end
+    end
+    return self.song_tracker:is_expiring_soon(player_id, self.songs)
+end
+
+-------
 -- Forwards the per-second tic to the song tracker so its expiration sweep
 -- actually runs (Trust:tic calls role:tic when it exists), and records each
 -- tracked job ability's use the moment its buff appears. Only the buff
