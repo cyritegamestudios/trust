@@ -7,12 +7,40 @@ local DisposeBag = require('cylibs/events/dispose_bag')
 local IsStandingCondition = require('cylibs/conditions/is_standing')
 local res = require('resources')
 local SpellCommand = require('cylibs/ui/input/chat/commands/spell')
+local Timer = require('cylibs/util/timers/timer')
 local ValidSpellTargetCondition = require('cylibs/conditions/valid_spell_target')
 
 local Action = require('cylibs/actions/action')
 local SpellAction = setmetatable({}, {__index = Action })
 SpellAction.__index = SpellAction
 SpellAction.__type = "SpellAction"
+
+-- Tracks when the player's weaponskill lands (action packet
+-- category 3). A cast sent within 2 seconds of that moment is
+-- rejected by the weaponskill's action lock ("Unable to cast at
+-- this time") -- Foe Requiem right after a Savage Blade is the
+-- usual victim. The role-level holds (Debuffer, Singer) cannot
+-- cover a spell that was already queued before the weaponskill
+-- fired, so perform() itself waits the lock out here, at the one
+-- point every cast passes through. Subscribed lazily on first
+-- use so the events module is loaded by then.
+local player_last_weaponskill_time = 0
+local ws_tracker_started = false
+local function start_ws_tracker()
+	if ws_tracker_started then
+		return
+	end
+	ws_tracker_started = true
+	WindowerEvents.Action:addAction(function(act)
+		local player = windower.ffxi.get_player()
+		if player and act.actor_id == player.id and act.category == 3 then
+			player_last_weaponskill_time = os.clock()
+		end
+	end)
+	windower.register_event('zone change', function()
+		player_last_weaponskill_time = 0
+	end)
+end
 
 function SpellAction.new(x, y, z, spell_id, target_index, player, conditions)
 	local conditions = (conditions or L{}):extend(L{
@@ -38,6 +66,8 @@ function SpellAction.new(x, y, z, spell_id, target_index, player, conditions)
 
 	self:debug_log_create(self:gettype())
 
+	start_ws_tracker()
+
  	return self
 end
 
@@ -53,6 +83,36 @@ end
 
 function SpellAction:perform()
 	windower.ffxi.run(false)
+
+	-- Inside the weaponskill's action lock (see the tracker at the
+	-- top of this file): hold the cast until the lock has passed
+	-- instead of sending it to be rejected. The timer re-checks
+	-- the clock, so a weaponskill landing during the wait simply
+	-- extends it. The finish/interrupt handlers are registered in
+	-- begin_cast, once the cast is really sent, so a delayed cast
+	-- cannot be completed early by another cast of the same spell.
+	local lock_remaining = 2 - (os.clock() - player_last_weaponskill_time)
+	if lock_remaining > 0 then
+		self.ws_lock_timer = Timer.scheduledTimer(0.25, lock_remaining)
+		self.dispose_bag:addAny(L{ self.ws_lock_timer })
+		self.dispose_bag:add(self.ws_lock_timer:onTimeChange():addAction(function()
+			if os.clock() - player_last_weaponskill_time >= 2 then
+				self.ws_lock_timer:cancel()
+				self:begin_cast()
+			end
+		end), self.ws_lock_timer:onTimeChange())
+		self.ws_lock_timer:start()
+		return
+	end
+
+	self:begin_cast()
+end
+
+function SpellAction:begin_cast()
+	if self:is_cancelled() then
+		self:complete(false)
+		return
+	end
 
 	self.dispose_bag:add(self.player:on_spell_finish():addAction(
 			function(p, spell_id, _)
