@@ -106,6 +106,13 @@ local debuffs = T{
 	[23] = S{}, -- Kaustra
 }
 
+-- The debuff table above is static resource data, so its keyset and
+-- set forms are built once here. buffs_for_buff_ids and
+-- debuffs_for_buff_ids used to rebuild them on every call, and they
+-- run on each gain/lose buff event.
+local debuff_keyset = L(debuffs:keyset())
+local debuff_set = S(debuff_keyset)
+
 -- Memoized buff ids by name: buff names are static resource data,
 -- and buff_id() used to rescan the buffs resource (up to three name
 -- variants, two fields each) on every call -- conditions call it on
@@ -243,7 +250,7 @@ end
 -- @tparam list buff_ids List of buff ids (see buffs.lua)
 -- @treturn list Full metadata for the buff (see buffs.lua)
 function buff_util.buffs_for_buff_ids(buff_ids)
-	return list.subtract(L(buff_ids), L(debuffs:keyset()))
+	return list.subtract(L(buff_ids), debuff_keyset)
 end
 
 -------
@@ -295,7 +302,7 @@ end
 -- @tparam list buff_ids List of buff ids (see buffs.lua)
 -- @treturn list Full metadata for the debuff (see buffs.lua)
 function buff_util.debuffs_for_buff_ids(buff_ids)
-	return set.intersection(S(buff_ids), S(debuffs:keyset()))
+	return set.intersection(S(buff_ids), debuff_set)
 end
 
 -------
