@@ -190,13 +190,26 @@ local function nitro_sequence(singer, ja_names)
     local actions = L{
         Script.new(function()
             singer.song_tracker:set_all_expiring_soon()
+            -- Circuit breaker: stamp the attempt so no combo can
+            -- fire again for 45 seconds, whatever happens to this
+            -- sequence (see build_nitro_gambits).
+            CooldownCondition.set_timestamp('nitro_attempt', os.time())
             -- Hold the burst's songs until the abilities have gone
             -- out (see Singer:check_gambits): the head wait, the
             -- waits between abilities and each ability's own action
             -- lock add up to roughly 3 seconds per ability, and the
             -- margin on top keeps a song from ever slipping in ahead
-            -- of the last ability.
+            -- of the last ability. The action hook releases the hold
+            -- the moment the last ability lands; this timer is the
+            -- backstop for abilities that never land.
             singer.nitro_block_until = os.clock() + 3 * ja_names:length() + 3
+            singer.nitro_block_jas = {}
+            for name in ja_names:it() do
+                local ja = tracked_ja(name)
+                if ja then
+                    singer.nitro_block_jas[ja.key] = true
+                end
+            end
         end),
         Wait.new(2),
     }
@@ -243,6 +256,15 @@ local function build_nitro_gambits(singer)
             conditions:append(GambitCondition.new(ModeCondition.new(mode, 'Auto'), GambitTarget.TargetType.Self))
         end
         conditions = conditions + nitro_ja_conditions(combo.jas)
+        -- Circuit breaker: after any combo fires, no combo may fire
+        -- again for 45 seconds (the firing sequence stamps
+        -- 'nitro_attempt'; see nitro_sequence). If a sequence's
+        -- abilities fail to land, their recast gates stay open and
+        -- the combo would otherwise re-fire the moment the song
+        -- hold lapses, re-arming it forever and locking the songs
+        -- out. With the latch, a failed burst sings un-boosted and
+        -- the next burst, minutes later, tries the combo again.
+        conditions:append(GambitCondition.new(CooldownCondition.new('nitro_attempt', 45), GambitTarget.TargetType.Self))
         if combo.trigger == 'slots' then
             conditions:append(GambitCondition.new(NumSongsCondition.new(singer.job.max_num_songs + 1, Condition.Operator.LessThan, true), GambitTarget.TargetType.Self))
         else
@@ -464,8 +486,10 @@ function Singer:check_gambits(gambits, param, ignore_delay)
     -- between them: the burst starts un-boosted and the remaining
     -- abilities land between songs instead of ahead of Honor March.
     -- The block is set by the sequence's first step (see
-    -- nitro_sequence) and clears itself on time, so an interrupted
-    -- sequence cannot wedge the singer.
+    -- nitro_sequence); the action hook clears it the moment the
+    -- sequence's last ability lands, and the timer behind it is
+    -- only a backstop, so an interrupted sequence cannot wedge
+    -- the singer.
     if self.nitro_block_until and os.clock() < self.nitro_block_until then
         return
     end
@@ -583,11 +607,28 @@ function Singer:on_add()
             local ja = TRACKED_JA_BY_ID[act.param]
             if ja then
                 record_ja_use(self, ja, os.time())
+                -- If this was the last ability of a Nitro sequence
+                -- still holding the burst's songs, release the hold
+                -- now instead of waiting out the backstop timer.
+                if self.nitro_block_jas and self.nitro_block_jas[ja.key] then
+                    self.nitro_block_jas[ja.key] = nil
+                    if next(self.nitro_block_jas) == nil then
+                        self.nitro_block_jas = nil
+                        self.nitro_block_until = nil
+                    end
+                end
             end
         end
     end), WindowerEvents.Action)
 
     CooldownCondition.set_timestamp('resing_songs', os.time())
+
+    -- Seed the Nitro attempt latch in the past so the combos start
+    -- allowed: a CooldownCondition whose key was never stamped is
+    -- never satisfied, so without this the latch would bar every
+    -- combo forever instead of only in the 45 seconds after one
+    -- fires.
+    CooldownCondition.set_timestamp('nitro_attempt', 0)
 
     -- Seed the tracked abilities' cooldowns from their last recorded uses,
     -- so a fresh start (or a //lua reload trust) inside a recast skips them
