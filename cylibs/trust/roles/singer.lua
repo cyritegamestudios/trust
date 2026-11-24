@@ -369,6 +369,7 @@ function Singer.new(action_queue, song_settings, job)
     self.songs_end = Event.newEvent()
     self.dispose_bag = DisposeBag.new()
     self.ja_last_use = {}
+    self.last_weaponskill_time = 0
 
     self:set_song_settings(song_settings)
 
@@ -394,6 +395,16 @@ function Singer:check_gambits(gambits, param, ignore_delay)
     -- trip point as the debuffer and puller holds.
     local ffxi_player = windower.ffxi.get_player()
     if ffxi_player and ffxi_player.tp and ffxi_player.tp >= 500 then
+        return
+    end
+    -- Also hold for 2 seconds after a weaponskill lands: the TP
+    -- hold above releases the moment the weaponskill spends the
+    -- TP, and a song cast sent inside the weaponskill's action
+    -- lock fails with "Unable to cast at this time" -- the same
+    -- failure the debuffer's post-weaponskill hold covers. Songs
+    -- resume on the next tic once the lock has passed, so singing
+    -- levels out with the weaponskill instead of colliding with it.
+    if self.last_weaponskill_time and os.clock() - self.last_weaponskill_time < 2 then
         return
     end
     return Gambiter.check_gambits(self, gambits, param, ignore_delay)
@@ -462,6 +473,16 @@ end
 
 function Singer:on_add()
     Gambiter.on_add(self)
+
+    -- Remember when the player's weaponskill lands (action packet
+    -- category 3) so check_gambits can hold songs for 2 seconds
+    -- after it, out of the weaponskill's action lock.
+    self.dispose_bag:add(WindowerEvents.Action:addAction(function(act)
+        local player = windower.ffxi.get_player()
+        if player and act.actor_id == player.id and act.category == 3 then
+            self.last_weaponskill_time = os.clock()
+        end
+    end), WindowerEvents.Action)
 
     CooldownCondition.set_timestamp('resing_songs', os.time())
 

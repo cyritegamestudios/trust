@@ -1,4 +1,5 @@
 local ClaimedCondition = require('cylibs/conditions/claimed')
+local DisposeBag = require('cylibs/events/dispose_bag')
 local GambitTarget = require('cylibs/gambits/gambit_target')
 local ImmuneCondition = require('cylibs/conditions/immune')
 local MinHitPointsPercentCondition = require('cylibs/conditions/min_hpp')
@@ -18,8 +19,34 @@ state.AutoSilenceMode:set_description('Auto', "Automatically silence mobs after 
 function Debuffer.new(action_queue, debuff_settings, job)
     local self = setmetatable(Gambiter.new(action_queue, {}, state.AutoDebuffMode), Debuffer)
     self.job = job
+    self.last_weaponskill_time = 0
+    self.dispose_bag = DisposeBag.new()
     self:set_debuff_settings(debuff_settings)
     return self
+end
+
+function Debuffer:destroy()
+    Gambiter.destroy(self)
+
+    self.dispose_bag:destroy()
+end
+
+function Debuffer:on_add()
+    Gambiter.on_add(self)
+
+    -- Remember when the player's weaponskill lands (action packet
+    -- category 3) so check_gambits can hold debuffs for 2 seconds
+    -- after it: a cast sent inside the weaponskill's action lock is
+    -- rejected with "Unable to cast at this time". That is exactly
+    -- when the TP hold releases -- the weaponskill spends the TP the
+    -- debuffs were waiting on -- so Foe Requiem right after a Savage
+    -- Blade was the usual victim.
+    self.dispose_bag:add(WindowerEvents.Action:addAction(function(act)
+        local player = windower.ffxi.get_player()
+        if player and act.actor_id == player.id and act.category == 3 then
+            self.last_weaponskill_time = os.clock()
+        end
+    end), WindowerEvents.Action)
 end
 
 function Debuffer:set_debuff_settings(debuff_settings)
@@ -82,6 +109,15 @@ function Debuffer:check_gambits(gambits, param, ignore_delay)
         return
     end
     if singer and singer.has_songs_pending and singer:has_songs_pending() then
+        return
+    end
+    -- Hold debuffs for 2 seconds after the player's weaponskill (see
+    -- on_add): a cast sent in that window hits the weaponskill's
+    -- action lock and fails with "Unable to cast at this time". The
+    -- debuffer retries on the next tic once the lock has passed.
+    -- This role is shared by every job, so the wait applies to all
+    -- jobs that debuff.
+    if self.last_weaponskill_time and os.clock() - self.last_weaponskill_time < 2 then
         return
     end
     return Gambiter.check_gambits(self, gambits, param, ignore_delay)
