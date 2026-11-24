@@ -84,29 +84,76 @@ end
 function SpellAction:perform()
 	windower.ffxi.run(false)
 
-	-- Inside the weaponskill's action lock (see the tracker at the
-	-- top of this file): hold the cast until the lock has passed
-	-- instead of sending it to be rejected. The timer re-checks
-	-- the clock, so a weaponskill landing during the wait simply
-	-- extends it. The finish/interrupt handlers are registered in
-	-- begin_cast, once the cast is really sent, so a delayed cast
-	-- cannot be completed early by another cast of the same spell.
-	local lock_remaining = 2 - (os.clock() - player_last_weaponskill_time)
-	if lock_remaining > 0 then
-		self.ws_lock_timer = Timer.scheduledTimer(0.25, lock_remaining)
-		self.dispose_bag:addAny(L{ self.ws_lock_timer })
-		self.dispose_bag:add(self.ws_lock_timer:onTimeChange():addAction(function()
-			if os.clock() - player_last_weaponskill_time >= 2 then
-				self.ws_lock_timer:cancel()
-				self:begin_cast()
-			end
-		end), self.ws_lock_timer:onTimeChange())
-		self.ws_lock_timer:start()
+	self:await_cast_window()
+end
+
+-- Holds the cast until it can really be sent, polling every
+-- quarter second. Two blocks, both checked by cast_is_blocked:
+-- the weaponskill action lock (a cast sent inside it is rejected
+-- with "Unable to cast at this time"), and the banked-weaponskill
+-- song hold below. The finish/interrupt handlers are registered
+-- in begin_cast, once the cast is really sent, so a delayed cast
+-- cannot be completed early by another cast of the same spell.
+function SpellAction:await_cast_window(target)
+	if not self:cast_is_blocked() then
+		self:begin_cast()
 		return
 	end
-
-	self:begin_cast()
+	self.hold_started = self.hold_started or os.clock()
+	-- First check lands when the weaponskill lock lifts (later
+	-- checks poll every quarter second while a song waits out a
+	-- banked weaponskill).
+	local initial_delay = 0.25
+	local lock_remaining = 2 - (os.clock() - player_last_weaponskill_time)
+	if lock_remaining > 0 then
+		initial_delay = lock_remaining
+	end
+	self.ws_lock_timer = Timer.scheduledTimer(0.25, initial_delay)
+	self.dispose_bag:addAny(L{ self.ws_lock_timer })
+	self.dispose_bag:add(self.ws_lock_timer:onTimeChange():addAction(function()
+		if not self:cast_is_blocked() then
+			self.ws_lock_timer:cancel()
+			self:begin_cast()
+		end
+	end), self.ws_lock_timer:onTimeChange())
+	self.ws_lock_timer:start()
 end
+
+function SpellAction:cast_is_blocked()
+	-- Inside the weaponskill's action lock (see the tracker at the
+	-- top of this file).
+	if os.clock() - player_last_weaponskill_time < 2 then
+		return true
+	end
+	-- A song must also wait while a weaponskill is banked for the
+	-- next mob: TP at 1000, but the current target is nearly dead
+	-- (under 5% HP, where the spammer deliberately holds the
+	-- weaponskill for the next mob) or there is no target at all.
+	-- Singing then swaps to the song set -- a main-hand change --
+	-- and zeroes the banked TP before the weaponskill can fire.
+	-- The singer's TP hold only gates new bursts; a burst already
+	-- under way when the TP was banked (it rebuilds fast between
+	-- songs, in TP gear) still queued its casts, so the hold has
+	-- to live here, at the cast. It releases the moment the
+	-- weaponskill is spent on the next mob, and has a 30 second
+	-- failsafe so a song can never be held forever if no next
+	-- mob comes.
+	local spell = res.spells[self.spell_id]
+	if spell and spell.type == 'BardSong' then
+		local player = windower.ffxi.get_player()
+		if player and player.tp and player.tp >= 1000 then
+			if self.hold_started and os.clock() - self.hold_started > 30 then
+				return false
+			end
+			local target_mob = player.target_index and windower.ffxi.get_mob_by_index(player.target_index)
+			if not target_mob or (target_mob.hpp and target_mob.hpp < 5) then
+				return true
+			end
+		end
+	end
+	return false
+end
+
 
 function SpellAction:begin_cast()
 	if self:is_cancelled() then
