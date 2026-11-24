@@ -68,16 +68,20 @@ local SongTracker = require('cylibs/battle/song_tracker')
 --
 -- One entry per tracked ability: its name (as used by JobAbility.new and
 -- the recast check), the key its last-use timestamp is stored under, its
--- recast in seconds, and the Bard method that reports whether its buff is
--- up. A use is only recorded when the buff is seen, so a failed attempt
--- (no buff) never wrongly blocks the ability.
+-- recast in seconds, its job-ability id (the id the player's action
+-- packets carry for it), and the Bard method that reports whether its
+-- buff is up. A use is recorded from the action packet the moment the
+-- ability lands; the per-second tic also records a use it finds no
+-- fresh stamp for when the ability's buff is up, which covers uses
+-- made while Trust was off. A failed attempt produces neither a
+-- packet nor a buff, so it never wrongly blocks the ability.
 
 local TRACKED_JAS = L{
-    { name = 'Soul Voice',   key = 'soul_voice',   recast = 600, is_active = 'is_soul_voice_active' },
-    { name = 'Clarion Call', key = 'clarion_call', recast = 600, is_active = 'is_clarion_call_active' },
-    { name = 'Nightingale',  key = 'nightingale',  recast = 600, is_active = 'is_nightingale_active' },
-    { name = 'Troubadour',   key = 'troubadour',   recast = 600, is_active = 'is_troubadour_active' },
-    { name = 'Marcato',      key = 'marcato',      recast = 600, is_active = 'is_marcato_active' },
+    { name = 'Soul Voice',   key = 'soul_voice',   recast = 600, id = 25,  is_active = 'is_soul_voice_active' },
+    { name = 'Clarion Call', key = 'clarion_call', recast = 600, id = 332, is_active = 'is_clarion_call_active' },
+    { name = 'Nightingale',  key = 'nightingale',  recast = 600, id = 163, is_active = 'is_nightingale_active' },
+    { name = 'Troubadour',   key = 'troubadour',   recast = 600, id = 164, is_active = 'is_troubadour_active' },
+    { name = 'Marcato',      key = 'marcato',      recast = 600, id = 284, is_active = 'is_marcato_active' },
 }
 
 local function tracked_ja(name)
@@ -87,6 +91,15 @@ local function tracked_ja(name)
         end
     end
     return nil
+end
+
+-- The same entries by job-ability id, for recognising the player's own
+-- ability uses in the action packet (category 6 carries the ability id
+-- in param -- the same field cylibs/entity/player.lua reports through
+-- on_job_ability_used).
+local TRACKED_JA_BY_ID = {}
+for ja in TRACKED_JAS:it() do
+    TRACKED_JA_BY_ID[ja.id] = ja
 end
 
 local function ja_state_path()
@@ -132,6 +145,19 @@ local function save_ja_state(states)
 end
 
 -------
+-- Records a tracked ability's use at the given time: the shared
+-- CooldownCondition timestamp every recast gate reads, the singer's
+-- own copy, and the state file, so a //lua reload keeps the clock.
+-- Called from the action-packet hook the moment a use lands, and
+-- from the per-second tic as a fallback for uses made while Trust
+-- was off (seen by their buff instead).
+local function record_ja_use(singer, ja, now)
+    CooldownCondition.set_timestamp(ja.key, now)
+    singer.ja_last_use[ja.key] = now
+    save_ja_state(singer.ja_last_use)
+end
+
+-------
 -- Gambit builders. set_song_settings assembles the gambit list from these,
 -- in the priority order described at the top of the file.
 
@@ -164,6 +190,13 @@ local function nitro_sequence(singer, ja_names)
     local actions = L{
         Script.new(function()
             singer.song_tracker:set_all_expiring_soon()
+            -- Hold the burst's songs until the abilities have gone
+            -- out (see Singer:check_gambits): the head wait, the
+            -- waits between abilities and each ability's own action
+            -- lock add up to roughly 3 seconds per ability, and the
+            -- margin on top keeps a song from ever slipping in ahead
+            -- of the last ability.
+            singer.nitro_block_until = os.clock() + 3 * ja_names:length() + 3
         end),
         Wait.new(2),
     }
@@ -425,6 +458,17 @@ function Singer:check_gambits(gambits, param, ignore_delay)
     if self.last_weaponskill_time and os.clock() - self.last_weaponskill_time < 2 then
         return
     end
+    -- Hold everything while a Nitro sequence is going out. The
+    -- sequence's abilities leave one at a time through the shared
+    -- action queue, and without this hold the burst's songs queue
+    -- between them: the burst starts un-boosted and the remaining
+    -- abilities land between songs instead of ahead of Honor March.
+    -- The block is set by the sequence's first step (see
+    -- nitro_sequence) and clears itself on time, so an interrupted
+    -- sequence cannot wedge the singer.
+    if self.nitro_block_until and os.clock() < self.nitro_block_until then
+        return
+    end
     -- Burst-as-a-unit marking: the moment any song is due, pull
     -- every song's record down to the re-sing threshold, so the
     -- per-song re-sing gambits refresh the whole set in order as
@@ -491,17 +535,17 @@ end
 
 -------
 -- Forwards the per-second tic to the song tracker so its expiration sweep
--- actually runs (Trust:tic calls role:tic when it exists), and records each
--- tracked job ability's use the moment its buff appears. Only the buff
--- proves the ability worked: a failed attempt shows no buff, so nothing is
--- recorded and the ability is not wrongly blocked. The stamp is written
--- once per activation: while the buff stays up, an existing stamp is left
--- alone until it is older than the ability's own recast. Re-stamping as
--- the buff ages would start the cooldown from the buff's last sighting
--- instead of the use, leaving Trust's clock behind the game's — a burst
--- that lands right as the real recasts clear would then start without
--- the Nitro combo, which would slip in mid-burst once the clock caught
--- up.
+-- actually runs (Trust:tic calls role:tic when it exists). Tracked job
+-- ability uses are recorded from the action packet when they land (see
+-- on_add); this tic is the fallback for a use made while Trust was off,
+-- recognised by its buff still being up when Trust returns. The stamp
+-- is written once per activation: while the buff stays up, an existing
+-- stamp is left alone until it is older than the ability's own recast.
+-- Re-stamping as the buff ages would start the cooldown from the
+-- buff's last sighting instead of the use, leaving Trust's clock
+-- behind the game's — a burst that lands right as the real recasts
+-- clear would then start without the Nitro combo, which would slip
+-- in mid-burst once the clock caught up.
 function Singer:tic(_, _)
     if self.song_tracker then
         self.song_tracker:tic()
@@ -509,20 +553,14 @@ function Singer:tic(_, _)
     local player = windower.ffxi.get_player()
     if player and self.job then
         local now = os.time()
-        local changed = false
         for ja in TRACKED_JAS:it() do
             local is_active = self.job[ja.is_active]
             if type(is_active) == 'function' and is_active(self.job) then
                 local last_use = CooldownCondition.get_timestamp(ja.key)
                 if not last_use or now - last_use >= ja.recast then
-                    CooldownCondition.set_timestamp(ja.key, now)
-                    self.ja_last_use[ja.key] = now
-                    changed = true
+                    record_ja_use(self, ja, now)
                 end
             end
-        end
-        if changed then
-            save_ja_state(self.ja_last_use)
         end
     end
 end
@@ -530,13 +568,22 @@ end
 function Singer:on_add()
     Gambiter.on_add(self)
 
-    -- Remember when the player's weaponskill lands (action packet
-    -- category 3) so check_gambits can hold songs for 2 seconds
-    -- after it, out of the weaponskill's action lock.
+    -- Watch the player's own action packets: a weaponskill landing
+    -- (category 3) starts the 2-second post-weaponskill song hold in
+    -- check_gambits, and a tracked job ability landing (category 6,
+    -- whose param is the ability id) records that ability's use at
+    -- the exact moment it happens -- the timestamp every recast gate
+    -- reads, for Trust's own uses and the player's manual ones alike.
     self.dispose_bag:add(WindowerEvents.Action:addAction(function(act)
         local player = windower.ffxi.get_player()
-        if player and act.actor_id == player.id and act.category == 3 then
+        if not player or act.actor_id ~= player.id then return end
+        if act.category == 3 then
             self.last_weaponskill_time = os.clock()
+        elseif act.category == 6 then
+            local ja = TRACKED_JA_BY_ID[act.param]
+            if ja then
+                record_ja_use(self, ja, os.time())
+            end
         end
     end), WindowerEvents.Action)
 
