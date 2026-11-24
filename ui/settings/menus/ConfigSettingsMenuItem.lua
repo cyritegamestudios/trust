@@ -7,14 +7,12 @@ local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
 local RemoteCommandsSettingsMenuItem = require('ui/settings/menus/RemoteCommandsSettingsMenuItem')
 local ShortcutListMenuItem = require('ui/settings/menus/ShortcutListMenuItem')
 local TextInputConfigItem = require('ui/settings/editors/config/TextInputConfigItem')
-local WidgetSettingsMenuItem = require('ui/settings/menus/widgets/WidgetSettingsMenuItem')
 
 local ConfigSettingsMenuItem = setmetatable({}, {__index = MenuItem })
 ConfigSettingsMenuItem.__index = ConfigSettingsMenuItem
 
 function ConfigSettingsMenuItem.new(addonSettings, trustSettings, trustSettingsMode, mediaPlayer)
     local self = setmetatable(MenuItem.new(L{
-        ButtonItem.default('Widgets', 18),
         ButtonItem.default('GearSwap', 18),
         ButtonItem.default('Remote', 18),
         ButtonItem.default('Shortcuts', 18),
@@ -36,7 +34,6 @@ function ConfigSettingsMenuItem:destroy()
 end
 
 function ConfigSettingsMenuItem:reloadSettings(addonSettings, trustSettings, trustSettingsMode)
-    self:setChildMenuItem("Widgets", WidgetSettingsMenuItem.new())
     self:setChildMenuItem("GearSwap", self:getGearSwapMenuItem(trustSettings, trustSettingsMode))
     self:setChildMenuItem("Logging", self:getLoggingMenuItem(addonSettings))
     self:setChildMenuItem("Remote", RemoteCommandsSettingsMenuItem.new(addonSettings))
