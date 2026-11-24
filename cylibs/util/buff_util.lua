@@ -144,7 +144,7 @@ local buff_conflicts = T{
 	[446] = S{66,444,445,446},
 }
 
-local buff_ids = list.from_range(32, 633)
+local buff_ids = list.from_range(32, 635)
 
 -------
 -- Determines if the player has a given buff active.

@@ -14,8 +14,14 @@ SongRecord.__class = "SongRecord"
 -- @tparam number song_duration Song duration in seconds
 -- @treturn SongRecord A song record
 function SongRecord.new(song_id, song_duration)
+    -- Cache the buff id: a song's buff never changes, and looking it
+    -- up with res.spells:with() is a linear scan of the whole spells
+    -- table that used to run on every get_buff_id() call (song
+    -- filters and conditions call it constantly).
+    local spell = res.spells:with('id', song_id)
     local self = setmetatable({
         song_id = song_id;
+        buff_id = spell and spell.status or nil;
         song_duration = song_duration;
         expire_time = os.time() + song_duration
     }, SongRecord)
@@ -94,7 +100,11 @@ end
 -- Returns the buff id for the song.
 -- @treturn number Buff id (see buffs.lua)
 function SongRecord:get_buff_id()
-    return res.spells:with('id', self:get_song_id()).status
+    if self.buff_id == nil then
+        local spell = res.spells:with('id', self:get_song_id())
+        self.buff_id = spell and spell.status or nil
+    end
+    return self.buff_id
 end
 
 -------
