@@ -11,6 +11,20 @@ local Bard = setmetatable({}, {__index = Job })
 Bard.__index = Bard
 
 -------
+-- Buff ids for the job abilities checked by the is_*_active helpers,
+-- resolved once: buff_util.buff_id() scans the buffs resource by name
+-- on every call, and these checks run on every song duration estimate.
+local ja_buff_ids = {}
+local function ja_buff_id(name)
+    local buff_id = ja_buff_ids[name]
+    if buff_id == nil then
+        buff_id = buff_util.buff_id(name)
+        ja_buff_ids[name] = buff_id
+    end
+    return buff_id
+end
+
+-------
 -- Buff ids for all songs (see buffs.lua)
 local all_song_buff_ids = L{
     195, 196, 197, 198, 199, 200, 201, 202, 203,
@@ -179,22 +193,22 @@ end
 -- @treturn Boolean True if clarion call is active
 function Bard:is_clarion_call_active()
     local player_buff_ids = L(windower.ffxi.get_player().buffs)
-    return player_buff_ids:contains(buff_util.buff_id('Clarion Call'))
+    return player_buff_ids:contains(ja_buff_id('Clarion Call'))
 end
 
 function Bard:is_soul_voice_active()
     local player_buff_ids = L(windower.ffxi.get_player().buffs)
-    return player_buff_ids:contains(buff_util.buff_id('Soul Voice'))
+    return player_buff_ids:contains(ja_buff_id('Soul Voice'))
 end
 
 function Bard:is_marcato_active()
     local player_buff_ids = L(windower.ffxi.get_player().buffs)
-    return player_buff_ids:contains(buff_util.buff_id('Marcato'))
+    return player_buff_ids:contains(ja_buff_id('Marcato'))
 end
 
 function Bard:is_tenuto_active()
     local player_buff_ids = L(windower.ffxi.get_player().buffs)
-    return player_buff_ids:contains(buff_util.buff_id('Tenuto'))
+    return player_buff_ids:contains(ja_buff_id('Tenuto'))
 end
 
 -------
@@ -266,20 +280,26 @@ function Bard:get_song_duration(song_name)
         end
     end
 
+    -- One buff snapshot for every check below: each is_*_active()
+    -- helper used to fetch the player's buffs again, so a single
+    -- estimate cost up to six get_player() calls plus the by-name
+    -- resource scans. The arithmetic is unchanged.
+    local player_buff_ids = L(windower.ffxi.get_player().buffs)
+
     local dur = 120
-    if self:is_troubadour_active() then mult = mult*2 end
+    if player_buff_ids:contains(348) then mult = mult*2 end
     if song_name == "Sentinel's Scherzo" then
-        if self:is_soul_voice_active() then
+        if player_buff_ids:contains(ja_buff_id('Soul Voice')) then
             mult = mult * 2
-        elseif self:is_marcato_active() then -- this might wear off
+        elseif player_buff_ids:contains(ja_buff_id('Marcato')) then -- this might wear off
             mult = mult * 1.5
         end
     end
     dur = math.floor(mult * dur)
 
-    if self:is_marcato_active() then dur = dur + self.jp_mods.marcato end
-    if self:is_tenuto_active() then dur = dur + self.jp_mods.tenuto end
-    if self:is_clarion_call_active() then dur = dur + self.jp_mods.clarion end
+    if player_buff_ids:contains(ja_buff_id('Marcato')) then dur = dur + self.jp_mods.marcato end
+    if player_buff_ids:contains(ja_buff_id('Tenuto')) then dur = dur + self.jp_mods.tenuto end
+    if player_buff_ids:contains(ja_buff_id('Clarion Call')) then dur = dur + self.jp_mods.clarion end
 
     return math.min(dur, 15 * 60)
 end

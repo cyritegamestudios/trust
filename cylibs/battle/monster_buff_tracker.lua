@@ -65,7 +65,7 @@ function MonsterBuffTracker:gain_buff(target_id, resource, monster_ability_id, b
     local buff = res.buffs[buff_id]
     if buff == nil then return end
 
-    local monster_ability = res[resource]:with('id', monster_ability_id)
+    local monster_ability = res[resource][monster_ability_id]
     if monster_ability == nil then return end
 
     if self.buff_events['gain buff'] ~= nil then

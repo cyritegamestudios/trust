@@ -23,6 +23,14 @@ local Monster = setmetatable({}, {__index = Entity })
 Monster.__index = Monster
 Monster.__class = "Monster"
 
+-- Message/param id sets checked in the action handler. Hoisted:
+-- building these lists on every action packet was pure allocation,
+-- and the handler runs for every combat action.
+local tp_move_finish_message_ids = L{ 185, 186, 187, 188 }
+local dispel_spell_params = L{ 260, 360 }
+local spell_resist_message_ids = L{ 85, 284 }
+local spell_full_resist_message_ids = L{ 655 }
+
 -- Event called when the monster's target changes.
 function Monster:on_target_change()
     return self.target_change
@@ -244,8 +252,8 @@ function Monster:handle_action_by_monster(act)
             local action = target.actions[1]
             if action then
                 -- ${actor} uses ${weapon_skill}.${lb}${target} takes ${number} points of damage.
-                if L{ 185, 186, 187, 188 }:contains(action.message) then
-                    local monster_ability = res.monster_abilities:with('id', act.param) or {id=-999,en="Unknown",ja="Unknown"}
+                if tp_move_finish_message_ids:contains(action.message) then
+                    local monster_ability = res.monster_abilities[act.param] or {id=-999,en="Unknown",ja="Unknown"}
                     local monster_ability_name = monster_ability.en
                     local target_mob = windower.ffxi.get_mob_by_id(target.id)
                     self:on_tp_move_finish():trigger(self, monster_ability_name, target_mob and target_mob.name or "", action.param)
@@ -302,15 +310,15 @@ function Monster:handle_action_on_monster(act)
                         self:handle_lose_buff(buff_id)
                     end
                 elseif action_message_util.is_spell_no_effect_message(action.message) then
-                    if L{260, 360}:contains(act.param) then -- Dispel
+                    if dispel_spell_params:contains(act.param) then -- Dispel
                         self:reset_buffs()
                     end
-                elseif L{85, 284}:contains(action.message) then -- regular resist spell
+                elseif spell_resist_message_ids:contains(action.message) then -- regular resist spell
                     local spell_name = spell_util.spell_name(act.param)
                     if spell_name then
                         self:on_spell_resisted():trigger(self, spell_name, false)
                     end
-                elseif L{655}:contains(action.message) then
+                elseif spell_full_resist_message_ids:contains(action.message) then
                     local spell_name = spell_util.spell_name(act.param)
                     if spell_name then
                         self:on_spell_resisted():trigger(self, spell_name, true)

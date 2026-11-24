@@ -66,7 +66,8 @@ end
 
 function SkillchainTracker:on_prerender()
     for mob_id, _ in pairs(self.steps) do
-        if self:get_current_step(mob_id) and os.clock() > self:get_current_step(mob_id):get_expiration_time() then
+        local current_step = self:get_current_step(mob_id)
+        if current_step and os.clock() > current_step:get_expiration_time() then
             logger.notice(self.__class, 'on_prerender', 'skillchain window ended', mob_id or 'unknown')
             self:reset(mob_id)
         end

@@ -698,7 +698,9 @@ end
 
 WindowerEvents.Events = {}
 
-WindowerEvents.Events.GainBuff = windower.register_event('gain buff', function(buff_id)
+-- Gain and lose buff share one body: recompute the player's buff and
+-- debuff lists once and fire both change events.
+local function handle_buffs_changed()
     -- get_player() is nil after logout (buffs are stripped as the
     -- character leaves); the addon unloads on logout but the unload runs
     -- a frame later via chat input, so a buff event in that window must
@@ -713,20 +715,14 @@ WindowerEvents.Events.GainBuff = windower.register_event('gain buff', function(b
 
     WindowerEvents.BuffsChanged:trigger(target_id, L(buff_util.buffs_for_buff_ids(buff_ids)))
     WindowerEvents.DebuffsChanged:trigger(target_id, L(buff_util.debuffs_for_buff_ids(buff_ids)))
+end
+
+WindowerEvents.Events.GainBuff = windower.register_event('gain buff', function(buff_id)
+    handle_buffs_changed()
 end)
 
 WindowerEvents.Events.LoseBuff = windower.register_event('lose buff', function(buff_id)
-    -- See GainBuff above: same logout-window nil player.
-    local player = windower.ffxi.get_player()
-    if not player then
-        return
-    end
-    local target_id = player.id
-
-    local buff_ids = party_util.get_buffs(target_id)
-
-    WindowerEvents.BuffsChanged:trigger(target_id, L(buff_util.buffs_for_buff_ids(buff_ids)))
-    WindowerEvents.DebuffsChanged:trigger(target_id, L(buff_util.debuffs_for_buff_ids(buff_ids)))
+    handle_buffs_changed()
 end)
 
 local init_timer = Timer.scheduledTimer(5, 1)

@@ -12,6 +12,11 @@ local tables_ext = require('cylibs/util/extensions/tables')
 
 local spell_util = {}
 
+-- Memoized spell ids: spell names are static resource data, and
+-- spell_id() used to rescan the whole spells table on every call --
+-- song and spell conditions call it on every gambit evaluation.
+local spell_id_cache = {}
+
 _raw = _raw or {}
 
 _libs.spell_util = spell_util
@@ -41,8 +46,13 @@ local aoe_spells = L{
 -- @tparam string spell_name Localized spell name
 -- @treturn number Spell id (see spells.lua)
 function spell_util.spell_id(spell_name)
+    local cached_id = spell_id_cache[spell_name]
+    if cached_id ~= nil then
+        return cached_id
+    end
     local spell = res.spells:with('en', spell_name)
     if spell then
+        spell_id_cache[spell_name] = spell.id
         return spell.id
     end
     return nil

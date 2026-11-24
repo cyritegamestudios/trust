@@ -106,6 +106,12 @@ local debuffs = T{
 	[23] = S{}, -- Kaustra
 }
 
+-- Memoized buff ids by name: buff names are static resource data,
+-- and buff_id() used to rescan the buffs resource (up to three name
+-- variants, two fields each) on every call -- conditions call it on
+-- every gambit evaluation.
+local buff_id_cache = {}
+
 local aura_debuff_names = L{'Defense Down','Magic Atk. Down','Magic Def. Down','Accuracy Down','Evasion Down','Magic Acc. Down','Magic Evasion Down','disease'}
 
 -- Buffs that are exceptions and not linked to their spell
@@ -200,6 +206,10 @@ end
 -- @tparam string buff_name Localized buff name
 -- @treturn number Buff id (see buffs.lua)
 function buff_util.buff_id(buff_name)
+	local cached_id = buff_id_cache[buff_name]
+	if cached_id ~= nil then
+		return cached_id
+	end
 	local buff_names = L{ buff_name, string.lower(buff_name), buff_name:gsub("^%l", string.upper) }
 	for buff_name in buff_names:it() do
 		local buff = res.buffs:with('en', buff_name) or res.buffs:with('enl', buff_name)
@@ -207,6 +217,7 @@ function buff_util.buff_id(buff_name)
 			buff = buffs_ext:with('en', buff_name)
 		end
 		if buff then
+			buff_id_cache[buff_names[1]] = buff.id
 			return buff.id
 		end
 	end

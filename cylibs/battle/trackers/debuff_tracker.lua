@@ -26,6 +26,12 @@ DebuffTracker.__class = 'DebuffTracker'
 -- tracker may think it is up until the base duration ends, then it
 -- self-corrects (see purge_expired). Debuffs not listed here are not
 -- persisted and behave as before (recast after a reload).
+-- Message ids that wake a slept mob, and the sleep debuffs removed
+-- when one lands. Hoisted: the action handler built both lists on
+-- every action packet for the tracked mob.
+local hit_message_ids = L{ 1 }
+local sleep_debuff_ids = L{ 2, 19 }
+
 local debuff_durations_by_name = {
     -- Bard songs
     ['Foe Requiem'] = 160,
@@ -306,8 +312,8 @@ function DebuffTracker:monitor()
                                 self.debuff_durations[debuff_id] = nil
                                 self:on_lose_debuff():trigger(self.mob_id, debuff_id)
                             end
-                        elseif L{ 1 }:contains(action.message) then
-                            for sleep_debuff_id in L{ 2, 19 }:it() do
+                        elseif hit_message_ids:contains(action.message) then
+                            for sleep_debuff_id in sleep_debuff_ids:it() do
                                 self:remove_debuff(sleep_debuff_id)
                             end
                         end
