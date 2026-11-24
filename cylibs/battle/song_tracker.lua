@@ -295,10 +295,21 @@ function SongTracker:set_expiring_soon(target_id, expiring_in)
     expiring_in = expiring_in or self.expiring_duration
     local active_songs = self.active_songs[target_id]
     for song_record in active_songs:it() do
-        local new_expire_time = math.min(song_record:get_expire_time(), os.time() + expiring_in)
-        song_record:set_expire_time(new_expire_time)
-        song_record:set_expiring_soon(true)
-        logger.notice(self.__class, "Setting expiration time of", res.spells[song_record:get_song_id()].name, "to", new_expire_time)
+        -- Never re-due a song that was just sung. A marking can land
+        -- mid-burst -- a Nitro sequence whose job abilities come off
+        -- cooldown seconds after a plain burst has started runs this
+        -- same marking at its head -- and pulling the fresh records
+        -- of the songs already sung back down to the threshold makes
+        -- the singer restart the whole burst once the abilities
+        -- land. Records older than a burst's length are unaffected,
+        -- so a marking at a burst's start (or from the resing
+        -- command) still pulls the full set in.
+        if not song_record.created_time or os.time() - song_record.created_time >= 45 then
+            local new_expire_time = math.min(song_record:get_expire_time(), os.time() + expiring_in)
+            song_record:set_expire_time(new_expire_time)
+            song_record:set_expiring_soon(true)
+            logger.notice(self.__class, "Setting expiration time of", res.spells[song_record:get_song_id()].name, "to", new_expire_time)
+        end
     end
 end
 
