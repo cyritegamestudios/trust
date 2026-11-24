@@ -48,6 +48,7 @@ function SongTracker.new(player, party, dummy_songs, songs, pianissimo_songs, jo
         songs = songs;
         job = job;
         active_songs = {};
+        buff_duration_cache = {};
         expiring_duration = expiring_duration or 85;
         last_expiration_check = os.time();
         member_dispose_bags = {};
@@ -241,6 +242,7 @@ function SongTracker:check_song_expiration()
 
     for target_id, song_records in pairs(self.active_songs) do
         if song_records then
+            self:anchor_songs_from_cache(target_id)
             local target = windower.ffxi.get_mob_by_id(target_id) or { name = 'Unknown'}
             for song_record in song_records:it() do
                 logger.notice(self.__class, target.name.."'s", res.spells[song_record:get_song_id()].name, "has", song_record:get_expire_time() - os.time(), "seconds remaining")
@@ -327,10 +329,14 @@ function SongTracker:reset(target_id)
     end
     if reset_all then
         self.active_songs = {}
+        self.buff_duration_cache = {}
     else
         -- Remove the key entirely: leaving an empty set behind grows
         -- active_songs by one entry per departed/KO'd member forever.
         self.active_songs[target_id] = nil
+        if self.buff_duration_cache then
+            self.buff_duration_cache[target_id] = nil
+        end
     end
 end
 
@@ -353,6 +359,11 @@ function SongTracker:on_gain_song(target_id, song_id, buff_id, song_duration)
     target_songs:add(SongRecord.new(song_id, song_duration))
 
     self.active_songs[target_id] = target_songs
+
+    -- The duration packet for this song may have arrived before this
+    -- record existed; anchor from the cached timers right away instead
+    -- of waiting for the next packet.
+    self:anchor_songs_from_cache(target_id)
 
     self:on_songs_changed():trigger(self, target_id, self.active_songs[target_id])
 
@@ -478,6 +489,71 @@ function SongTracker:update_song_duration(target_id, song_id, song_duration)
 end
 
 -------
+-- Pairs song records that share one buff id with that buff's real
+-- timers and sets each record's expiration from its timer. A record
+-- already sitting on a real timer claims that timer first (within 2
+-- seconds), so a short estimate for a song cast later cannot steal
+-- the timer of a song that is already anchored; the rest pair in
+-- expiration order, earliest with earliest. Records marked expiring
+-- soon are never touched. With forward_only, a record only moves to
+-- a later expiration.
+local function anchor_song_records(song_records, buff_records, forward_only)
+    local sorted_buffs = L(buff_records):sort(function(b1, b2)
+        return b1:get_expire_time() < b2:get_expire_time()
+    end)
+    local claimed = {}
+    local unanchored = L{}
+    for song_record in L(song_records):it() do
+        local matched = song_record:is_expiring_soon()
+        if not matched then
+            for j = 1, sorted_buffs:length() do
+                if not claimed[j] and math.abs(sorted_buffs[j]:get_expire_time() - song_record:get_expire_time()) <= 2 then
+                    claimed[j] = true
+                    matched = true
+                    break
+                end
+            end
+        end
+        if not matched then
+            unanchored:append(song_record)
+        end
+    end
+    -- Records marked expiring soon keep their capped expiration, but
+    -- they still own the earliest timers for their buff (they were
+    -- cast before any re-sung replacement): reserve those timers so
+    -- an unmarked record cannot take a marked song's timer.
+    local flagged_count = 0
+    for song_record in L(song_records):it() do
+        if song_record:is_expiring_soon() then
+            flagged_count = flagged_count + 1
+        end
+    end
+    local reserve_index = 1
+    while flagged_count > 0 and reserve_index <= sorted_buffs:length() do
+        if not claimed[reserve_index] then
+            claimed[reserve_index] = true
+            flagged_count = flagged_count - 1
+        end
+        reserve_index = reserve_index + 1
+    end
+    local sorted_records = unanchored:sort(function(r1, r2)
+        return r1:get_expire_time() < r2:get_expire_time()
+    end)
+    local buff_index = 1
+    for i = 1, sorted_records:length() do
+        while buff_index <= sorted_buffs:length() and (claimed[buff_index]
+                or (forward_only and sorted_buffs[buff_index]:get_expire_time() <= sorted_records[i]:get_expire_time())) do
+            buff_index = buff_index + 1
+        end
+        if buff_index <= sorted_buffs:length() then
+            sorted_records[i]:set_expire_time(sorted_buffs[buff_index]:get_expire_time())
+            claimed[buff_index] = true
+            buff_index = buff_index + 1
+        end
+    end
+end
+
+-------
 -- Corrects song records from the client's real buff durations.
 -- on_gain_song estimates a song's duration from the Bard's gear model
 -- (job:get_song_duration), but the model reads the equipment worn when
@@ -489,38 +565,66 @@ end
 -- duration packets carry the server's actual remaining times, so records
 -- are re-anchored to them whenever they arrive and the re-sing gambits
 -- fire ResingDuration seconds before a song really expires.
--- Songs sharing one buff id (e.g. all Minuets share 198) are paired with
--- that buff's records in expiration order, earliest with earliest.
 -- Records marked expiring soon by a Nitro refresh are the exception:
 -- they keep their capped expiration until they are re-sung, so the
 -- refresh stays together instead of dropping the marked songs.
 -- @tparam number target_id Target id
 -- @tparam List buff_records Buff records (see buff_record.lua)
 function SongTracker:sync_song_durations(target_id, buff_records)
+    -- Cache the real timers even for a target with no song records yet:
+    -- a record created later anchors from this cache (see
+    -- anchor_songs_from_cache), because the packet for a song can
+    -- arrive before the spell-finish event that creates its record.
+    self.buff_duration_cache = self.buff_duration_cache or {}
+    self.buff_duration_cache[target_id] = buff_records
+
     if not self.active_songs[target_id] then
         return
     end
     local buffs_by_id = {}
     for buff_record in buff_records:it() do
         local buff_id = buff_record:get_buff_id()
-        if self.job:is_bard_song_buff(buff_id) then
+        if self.job:is_bard_song_buff(buff_id) and buff_record:get_time_remaining() > 0 then
             buffs_by_id[buff_id] = buffs_by_id[buff_id] or L{}
             buffs_by_id[buff_id]:append(buff_record)
         end
     end
     for buff_id, records in pairs(buffs_by_id) do
-        local song_records = L(self:get_songs(target_id, buff_id)):sort(function(r1, r2)
-            return r1:get_expire_time() < r2:get_expire_time()
-        end)
-        local sorted_buffs = records:sort(function(b1, b2)
-            return b1:get_expire_time() < b2:get_expire_time()
-        end)
-        for i = 1, math.min(song_records:length(), sorted_buffs:length()) do
-            local buff_record = sorted_buffs[i]
-            if buff_record:get_time_remaining() > 0 and not song_records[i]:is_expiring_soon() then
-                song_records[i]:set_expire_time(buff_record:get_expire_time())
-            end
+        anchor_song_records(self:get_songs(target_id, buff_id), records, false)
+    end
+end
+
+-------
+-- Re-anchors song records to the most recent real buff timers seen for
+-- the target, cached by sync_song_durations. The duration packet for a
+-- song can arrive before the tracker's record for it exists -- the
+-- spell-finish event that creates the record is a separate event -- and
+-- without this the record keeps its short equipment estimate and fires
+-- the re-sing gambits a minute or more early (the icon still shows ~2
+-- minutes when the record says ResingDuration). Anchoring when a record
+-- is created and again on every expiration sweep closes that gap. Only
+-- ever moves a record's expiration forward (the real timers are longer
+-- than the estimates), so a stale cache cannot pull a freshly re-sung
+-- song backward, and marked records are never touched.
+-- @tparam number target_id Target id
+function SongTracker:anchor_songs_from_cache(target_id)
+    if not self.buff_duration_cache or not self.active_songs[target_id] then
+        return
+    end
+    local buff_records = self.buff_duration_cache[target_id]
+    if not buff_records then
+        return
+    end
+    local buffs_by_id = {}
+    for buff_record in buff_records:it() do
+        local buff_id = buff_record:get_buff_id()
+        if self.job:is_bard_song_buff(buff_id) and buff_record:get_time_remaining() > 0 then
+            buffs_by_id[buff_id] = buffs_by_id[buff_id] or L{}
+            buffs_by_id[buff_id]:append(buff_record)
         end
+    end
+    for buff_id, records in pairs(buffs_by_id) do
+        anchor_song_records(self:get_songs(target_id, buff_id), records, true)
     end
 end
 
