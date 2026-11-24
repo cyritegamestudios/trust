@@ -326,7 +326,12 @@ function Spell:to_action(target_index, player, job_abilities)
             actions:append(WaitAction.new(0, 0, 0, 1))
         else
             actions:append(JobAbilityAction.new(0, 0, 0, job_ability:get_job_ability_name()))
-            actions:append(WaitAction.new(0, 0, 0, 1))
+            -- A job ability locks casting for ~2s, not 1s: with only a
+            -- 1s wait the cast was attempted inside the lock and the
+            -- client answered "Unable to cast at this time" right
+            -- before the spell (e.g. Marcato into Honor March). Every
+            -- other wait around abilities in this sequence is 2s.
+            actions:append(WaitAction.new(0, 0, 0, 2))
         end
     end
 
