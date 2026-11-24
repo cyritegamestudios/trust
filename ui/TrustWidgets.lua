@@ -1,4 +1,3 @@
-local Frame = require('cylibs/ui/views/frame')
 local WidgetManager = require('ui/widgets/WidgetManager')
 
 local View = require('cylibs/ui/views/view')
@@ -22,30 +21,13 @@ function TrustWidgets.new(actionQueue, addonEnabled, trust, mediaPlayer, soundTh
 end
 
 function TrustWidgets:init()
-    local TrustStatusWidget = require('ui/widgets/TrustStatusWidget')
-    local trustStatusWidget = TrustStatusWidget.new(Frame.new(40, 324, 125, 69), self.addonEnabled, self.actionQueue, player.main_job_name, player.sub_job_name, self.trust:get_party():get_player())
-    self.widgetManager:addWidget(trustStatusWidget, "trust")
-
-    local TargetWidget = require('ui/widgets/TargetWidget')
-    local targetWidget = TargetWidget.new(Frame.new(40, 496, 125, 40), self.trust:get_party(), self.trust)
-    self.widgetManager:addWidget(targetWidget, "target")
-
-    local PartyStatusWidget = require('ui/widgets/PartyStatusWidget')
-    local partyStatusWidget = PartyStatusWidget.new(Frame.new(40, 397, 125, 55), self.trust:get_alliance(), self.trust:get_party(), self.trust, self.mediaPlayer, self.soundTheme)
-    self.widgetManager:addWidget(partyStatusWidget, "party")
-
-    for widget in self.widgetManager:getAllWidgets():it() do
-        self:addSubview(widget)
-    end
-    
-    for trust in L{ self.trust }:it() do
-        coroutine.schedule(function()
-            local widget, widgetName = trust:get_widget()
-            if widget and widgetName then
-                self:addWidget(widget, widgetName)
-            end
-        end, 0.5)
-    end
+    -- Widgets removed at the user's request (2026-11-15).
+    -- The three status widgets (Trust, Target, Party) and the
+    -- job widget (e.g. the Bard song display) are no longer
+    -- created, so nothing is drawn on screen. Trust itself,
+    -- its menu (Ctrl+Numpad+) and its commands are unaffected.
+    -- To bring the widgets back, restore the original
+    -- TrustWidgets.lua and //lua reload trust.
 end
 
 function TrustWidgets:addWidget(widget, widgetName)
