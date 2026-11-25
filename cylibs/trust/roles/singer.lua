@@ -314,6 +314,14 @@ local function build_nitro_gambits(singer)
         -- that started without the combo finishes without it, and
         -- the combo leads the next burst from its first song.
         conditions:append(GambitCondition.new(NoBurstUnderwayCondition.new(singer), GambitTarget.TargetType.Self))
+        -- The weaponskill goes first: a combo never fires while a
+        -- weaponskill is banked (1000+ TP). Firing Nitro first puts
+        -- the weaponskill in the middle of the burst it was meant to
+        -- precede -- it lands between songs, and a cast fails in its
+        -- action lock. Once the weaponskill is spent, the combo
+        -- leads the burst. (Below 1000 the check_gambits TP hold
+        -- already makes the singer wait for the weaponskill.)
+        conditions:append(GambitCondition.new(MaxTacticalPointsCondition.new(999), GambitTarget.TargetType.Self))
         if combo.trigger == 'slots' then
             conditions:append(GambitCondition.new(NumSongsCondition.new(singer.job.max_num_songs + 1, Condition.Operator.LessThan, true), GambitTarget.TargetType.Self))
         else
@@ -514,9 +522,15 @@ function Singer:check_gambits(gambits, param, ignore_delay)
     -- next tic once TP drops below 500. Applies between fights
     -- (so the next mob is engaged and the weaponskill spent
     -- before a burst starts) and mid-fight alike. Same 500 TP
-    -- trip point as the debuffer and puller holds.
+    -- trip point as the debuffer and puller holds. Exception: a
+    -- Nitro burst already under way sings through -- Nitro is
+    -- spent, so that burst finishes first and the weaponskill
+    -- waits for it (the spammer holds it; see
+    -- Singer:is_nitro_burst_underway). Pausing here would strand
+    -- the burst with the Nitro buffs ticking down.
     local ffxi_player = windower.ffxi.get_player()
-    if ffxi_player and ffxi_player.tp and ffxi_player.tp >= 500 then
+    if ffxi_player and ffxi_player.tp and ffxi_player.tp >= 500
+            and not self:is_nitro_burst_underway() then
         return
     end
     -- Also hold for 2 seconds after a weaponskill lands: the TP
@@ -607,6 +621,26 @@ function Singer:is_burst_underway()
         if song_record.created_time and os.time() - song_record.created_time < BURST_ACTIVE_WINDOW then
             return true
         end
+    end
+    return false
+end
+
+-------
+-- Returns whether a Nitro burst is under way: the combo's abilities
+-- are still going out (the nitro block), or Nitro is up and the
+-- burst it led still has songs to sing. Once Nitro is spent, the
+-- burst owns the fight until it finishes -- check_gambits does not
+-- pause it for a banked weaponskill, and the spammer holds the
+-- weaponskill until the burst completes. The hold is bounded by
+-- Nitro's own duration: if the burst cannot finish, it releases
+-- when the buffs wear off.
+-- @treturn boolean True while a Nitro burst is under way
+function Singer:is_nitro_burst_underway()
+    if self.nitro_block_until and os.clock() < self.nitro_block_until then
+        return true
+    end
+    if self.job and self.job.is_nitro_active and self.job:is_nitro_active() then
+        return self:has_songs_pending()
     end
     return false
 end

@@ -16,6 +16,10 @@ function Spammer:get_type()
 end
 
 function Spammer:get_next_ability()
+    local player_mob = self:get_party():get_player():get_mob()
+    if player_mob == nil then
+        return nil
+    end
     -- Do not burn 1000 TP on a mob that is about to die from
     -- melee anyway; save the TP for the next mob instead.
     local target = self:get_target()
@@ -30,6 +34,16 @@ function Spammer:get_next_ability()
     local main_job = player.trust and player.trust.main_job
     local singer = main_job and main_job:role_with_type("singer")
     if singer and singer.get_is_singing and singer:get_is_singing() then
+        return nil
+    end
+
+    -- Do not weaponskill into a Nitro burst. Once Nitro has gone
+    -- off, the burst finishes before the weaponskill: a weaponskill
+    -- landing between the burst's songs puts the next cast in its
+    -- action lock ("Unable to cast at this time"). The singer
+    -- sings a Nitro burst through regardless of TP, so this hold
+    -- releases the moment the burst completes.
+    if singer and singer.is_nitro_burst_underway and singer:is_nitro_burst_underway() then
         return nil
     end
 
@@ -63,7 +77,7 @@ function Spammer:get_next_ability()
 
     local ability = all_abilities:lastWhere(function(a)
         local all_conditions = L{}:extend(self.conditions):extend(a:get_conditions())
-        return Condition.check_conditions(all_conditions, self:get_party():get_player():get_mob().index)
+        return Condition.check_conditions(all_conditions, player_mob.index)
     end)
     if ability then
         return ability
