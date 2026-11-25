@@ -13,7 +13,7 @@ The per-fix record (what each bug was, how each fix was verified) lives in the c
 3. Set CombatMode with the command, not the menu: `//trust set CombatMode Auto`
 4. After the first install, run `//trust brd clear` once so the song tracker starts from a clean slate.
 
-The matching GearSwap file is `gearswap/BRD.lua` in this repo (install as `gearswap/data/BRD.lua`, then `//gs r`).
+The matching GearSwap lives in its own repo, [Bard-Fix](https://github.com/Jojo1980247/Bard-Fix) — five songs need both halves: that repo's `data/BRD.lua` (install as `gearswap/data/BRD.lua`, then `//gs r`) equips Daurdabla for the dummy songs and the fifth-slot cast while this Trust sings the burst. A copy is also kept in this repo under `gearswap/BRD.lua`.
 
 ## The burst
 
