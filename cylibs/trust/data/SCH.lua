@@ -73,7 +73,7 @@ function ScholarTrust:on_init()
         elseif L{'Dark Arts', 'Addendum: Black'}:contains(buff_name) then
             self:switch_arts(buff_name)
         end
-    end, self:get_party():get_player():on_gain_buff()))
+    end), self:get_party():get_player():on_gain_buff())
 end
 
 function ScholarTrust:tic(old_time, new_time)
@@ -95,12 +95,6 @@ end
 
 function ScholarTrust:update_for_arts(_)
     self:set_trust_settings(self.trust_settings)
-end
-
-function ScholarTrust:get_widget()
-    local ScholarWidget = require('ui/widgets/ScholarWidget')
-    local scholarWidget = ScholarWidget.new(Frame.new(40, 285, 125, 57), self:get_party():get_player(), self)
-    return scholarWidget, 'job'
 end
 
 return ScholarTrust

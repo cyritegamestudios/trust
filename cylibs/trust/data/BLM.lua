@@ -39,12 +39,6 @@ function BlackMageTrust:on_init()
 	end)
 end
 
-function BlackMageTrust:get_widget()
-	local BlackMageWidget = require('ui/widgets/BlackMageWidget')
-	local blackMageWidget = BlackMageWidget.new(Frame.new(40, 285, 125, 57), self:get_party():get_player(), self)
-	return blackMageWidget, 'job'
-end
-
 return BlackMageTrust
 
 

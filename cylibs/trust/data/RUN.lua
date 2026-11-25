@@ -59,12 +59,6 @@ function RuneFencerTrust:check_runes()
 	end
 end
 
-function RuneFencerTrust:get_widget()
-	local RuneFencerWidget = require('ui/widgets/RuneFencerWidget')
-	local runeFencerWidget = RuneFencerWidget.new(Frame.new(40, 285, 125, 57), self)
-	return runeFencerWidget, "job"
-end
-
 return RuneFencerTrust
 
 

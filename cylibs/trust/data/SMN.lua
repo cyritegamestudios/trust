@@ -78,12 +78,14 @@ function SummonerTrust:check_avatar()
 			}
 			self.action_queue:push_action(SequenceAction.new(actions, 'release_avatar'), true)
 		end
+		return
 	end
 
 	-- TODO: maybe use a mode delta to turn AutoAvatarMode Off when there are inactive buffs so I can use avatar gambits?
 	if state.AutoAvatarMode.value ~= 'Off' then
 		if self.avatar then
-			if self.avatar:get_mob().name ~= state.AutoAvatarMode.value then
+			local avatar_mob = self.avatar:get_mob()
+			if avatar_mob and avatar_mob.name ~= state.AutoAvatarMode.value then
 				local actions = L{
 					JobAbilityAction.new(0, 0, 0, 'Release'),
 					WaitAction.new(0, 0, 0, 2),
@@ -144,18 +146,6 @@ function SummonerTrust:update_avatar(pet_id, pet_name)
 	if skillchainer then
 		skillchainer:update_abilities()
 	end
-end
-
-function SummonerTrust:get_widget()
-	local AvatarStatusWidget = require('ui/widgets/AvatarStatusWidget')
-	local petStatusWidget = AvatarStatusWidget.new(
-			Frame.new(132, 324, 125, 57),
-			self:get_party():get_player(),
-			windower.trust.ui.get_hud(),
-			windower.trust.settings.get_job_settings('SMN'),
-			state.MainTrustSettingsMode
-	)
-	return petStatusWidget, "pet"
 end
 
 return SummonerTrust

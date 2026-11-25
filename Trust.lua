@@ -206,17 +206,19 @@ function load_user_files(main_job_id, sub_job_id)
 		return hud
 	end
 
+	-- The on-screen widgets are removed: nothing is ever created,
+	-- so there is no widget to get, add or remove. These stay as
+	-- no-ops so callers (e.g. the shortcuts menu, which checks
+	-- get_widget before registering a keybind) work unchanged.
 	windower.trust.ui.widgets = {}
 	windower.trust.ui.get_widget = function(widget_name)
-		return widgets:getWidget(widget_name)
+		return nil
 	end
 
 	windower.trust.ui.add_widget = function(widget, widget_name)
-		widgets:addWidget(widget, widget_name)
 	end
 
 	windower.trust.ui.remove_widget = function(widget_name)
-		widgets:removeWidget(widget_name)
 	end
 
 	load_ui()
@@ -338,7 +340,7 @@ function load_trust_commands(job_name_short, main_job_trust, sub_job_name_short,
 		add_command(command)
 	end
 
-	local CommandWidget = require('ui/widgets/CommandWidget')
+	local CommandWidget = require('ui/CommandWidget')
 
 	command_widget = CommandWidget.new()
 	command_widget:setPosition(16, windower.get_windower_settings().ui_y_res - 233)
@@ -450,16 +452,7 @@ function load_ui()
 
 	local soundTheme = FFXISoundTheme.default()
 
-	local TrustWidgets = require('ui/TrustWidgets')
-
-	widgets = TrustWidgets.new(action_queue, addon_enabled, player.trust.main_job, mediaPlayer, soundTheme)
-	widgets:setNeedsLayout()
-	widgets:layoutIfNeeded()
-	widgets:setUserInteractionEnabled(true)
-
 	hud = TrustHud.new(player, action_queue, addon_settings, trust_mode_settings, addon_enabled, 500, 500, mediaPlayer, soundTheme)
-
-	hud:addSubview(widgets)
 
 	hud:setNeedsLayout()
 	hud:layoutIfNeeded()
@@ -780,10 +773,6 @@ function unloaded()
 		hud:destroy()
 		hud = nil
 	end
-	if widgets then
-		widgets:destroy()
-		widgets = nil
-	end
 	if command_widget then
 		command_widget:destroy()
 		command_widget = nil
@@ -839,7 +828,7 @@ function unloaded()
 	-- ValueRelay:destroy() removes the onValueChanged action registered in
 	-- load_user_files (it closes over player/action_queue); without this
 	-- the relay is only dropped at GC. Every user of the relay (HUD,
-	-- widgets, roles) is already destroyed above, so destroy it here.
+	-- roles) is already destroyed above, so destroy it here.
 	if addon_enabled then
 		addon_enabled:destroy()
 	end

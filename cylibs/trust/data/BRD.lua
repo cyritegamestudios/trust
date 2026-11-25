@@ -130,19 +130,6 @@ function BardTrust:tic(old_time, new_time)
 	Trust.tic(self, old_time, new_time)
 end
 
-function BardTrust:get_widget()
-    local BardWidget = require('ui/widgets/BardWidget')
-    local bardWidget = BardWidget.new(
-			Frame.new(40, 285, 125, 57),
-			self,
-			windower.trust.ui.get_hud(),
-			windower.trust.settings.get_job_settings('BRD'),
-			state.MainTrustSettingsMode,
-			windower.trust.settings.get_mode_settings()
-	)
-    return bardWidget, 'job'
-end
-
 return BardTrust
 
 
