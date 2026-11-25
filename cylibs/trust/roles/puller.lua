@@ -249,9 +249,12 @@ function Puller:get_next_target(target_id_blacklist)
         -- is in front and another is behind, turning around to claim
         -- the one behind leaves the front mob at the player's back.
         -- Mobs behind are the second option -- they are only picked
-        -- when nothing in front qualifies.
+        -- when nothing in front qualifies. A mob already aggroed on
+        -- the party (status Engaged, slept or not) is exempt: it is
+        -- part of the current fight, keeps the priority its bucket
+        -- gave it, and is never filtered out by facing.
         local front_targets = all_targets:filter(function(target)
-            return self:is_in_front(target)
+            return target.status == 1 or self:is_in_front(target)
         end)
         if front_targets:length() > 0 then
             all_targets = front_targets
