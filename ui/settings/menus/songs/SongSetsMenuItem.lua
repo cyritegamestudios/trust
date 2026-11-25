@@ -258,7 +258,7 @@ function SongSetsMenuItem:getConfigMenuItem()
                 }
 
                 local configItems = L{
-                    ConfigItem.new('ResingDuration', 60, 180, 1, function(value) return value.."s" end, "Resing Threshold"),
+                    ConfigItem.new('ResingDuration', 60, 180, 1, function(value) return value.."s" end, "Song Time Left Before Resing"),
                     BooleanConfigItem.new('ResingMissingSongs', "Resing Missing Songs"),
                     ConfigItem.new('DummySongThreshold', 2, 4, 1, function(value) return value end, "Songs Before Dummy Songs"),
                 }
@@ -290,7 +290,7 @@ function SongSetsMenuItem:getConfigMenuItem()
                     local currentSettings = T(self.trustSettings:getSettings())[self.trustSettingsMode.value]
 
                     if indexPath.section == 1 then
-                        infoView:setDescription("Resing all songs when any song has less than "..currentSettings.SongSettings.ResingDuration.."s remaining.")
+                        infoView:setDescription("When any song drops under "..currentSettings.SongSettings.ResingDuration.."s left, all songs are resung together as a set.")
                     elseif indexPath.section == 2 then
                         infoView:setDescription("Resing missing songs onto party members using Pianissimo. May cause extra singing.")
                     elseif indexPath.section == 3 then
