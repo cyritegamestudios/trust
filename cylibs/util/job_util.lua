@@ -174,6 +174,19 @@ function job_util.can_use_job_ability(job_ability_name)
     if not recast or recast > 0 then
         return false
     end
+    if job_ability_name == 'Marcato' then
+        -- Marcato does not stack with Soul Voice: while Soul Voice is
+        -- up, Marcato's potency and duration boost is capped at Soul
+        -- Voice's modifier and its job-point duration bonus is
+        -- cancelled, so the use (and its 10-minute recast) buys
+        -- nothing. Report Marcato unusable until Soul Voice wears
+        -- off -- Honor March then casts without it, and Marcato
+        -- stays ready for a burst Soul Voice does not cover.
+        local buff_util = require('cylibs/util/buff_util')
+        if buff_util.is_buff_active(buff_util.buff_id('Soul Voice')) then
+            return false
+        end
+    end
     local tracked = TRACKED_JA_RECASTS[job_ability_name]
     if tracked then
         local CooldownCondition = require('cylibs/conditions/cooldown')
