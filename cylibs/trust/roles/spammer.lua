@@ -8,7 +8,25 @@ state.AutoSkillchainMode:set_description('Spam', "Spam weapon skills set with //
 function Spammer.new(action_queue, weapon_skill_settings)
     local self = setmetatable(WeaponSkiller.new(action_queue, weapon_skill_settings, 'Spam'), Spammer)
     self.conditions = L{}
+    self:set_spammer_settings(nil)
     return self
+end
+
+-- Menu-adjustable weaponskill holds, from the Combat settings
+-- (Trust menu -> Combat -> Config). Defaults reproduce the
+-- original fixed behaviour for settings files that predate the
+-- keys: save the weaponskill under 3% target HP, hold it while
+-- the Bard is singing, and hold it until the player reaches
+-- this fight's rolled combat distance. The save cutoff is a
+-- preference, not a constant: the HP a mob has left at a given
+-- percent depends on the mob, so the right cutoff for locus
+-- bats is not the right one for a stronger mob. 0 turns the
+-- save off entirely.
+function Spammer:set_spammer_settings(combat_settings)
+    combat_settings = combat_settings or {}
+    self.save_weaponskill_hpp = combat_settings.WeaponSkillSaveHPP or 3
+    self.hold_weaponskill_while_singing = combat_settings.WeaponSkillHoldWhileSinging ~= false
+    self.hold_weaponskill_for_distance = combat_settings.WeaponSkillHoldForDistance ~= false
 end
 
 function Spammer:get_type()
@@ -21,19 +39,21 @@ function Spammer:get_next_ability()
         return nil
     end
     -- Do not burn 1000 TP on a mob that is about to die from
-    -- melee anyway; save the TP for the next mob instead.
+    -- melee anyway; save the TP for the next mob instead. The
+    -- cutoff is the WeaponSkillSaveHPP combat setting.
     local target = self:get_target()
     local target_mob = target and target:get_mob()
-    if target_mob and target_mob.hpp and target_mob.hpp < 3 then
+    if target_mob and target_mob.hpp and target_mob.hpp < self.save_weaponskill_hpp then
         return nil
     end
 
     -- Do not weaponskill while the Bard is in the middle of
     -- singing; the song is the priority, and a WS queued during
-    -- a song delays the next song in the burst.
+    -- a song delays the next song in the burst. Can be turned
+    -- off with the WeaponSkillHoldWhileSinging combat setting.
     local main_job = player.trust and player.trust.main_job
     local singer = main_job and main_job:role_with_type("singer")
-    if singer and singer.get_is_singing and singer:get_is_singing() then
+    if self.hold_weaponskill_while_singing and singer and singer.get_is_singing and singer:get_is_singing() then
         return nil
     end
 
@@ -54,9 +74,10 @@ function Spammer:get_next_ability()
     -- weaponskill until the player is there, plus a small
     -- tolerance for the walk settling. Only while CombatMode is
     -- on; mid-fight the player is already at distance, so this
-    -- changes nothing there.
+    -- changes nothing there. Can be turned off with the
+    -- WeaponSkillHoldForDistance combat setting.
     local combat_mode = main_job and main_job:role_with_type("combatmode")
-    if combat_mode and combat_mode.is_enabled and combat_mode:is_enabled()
+    if self.hold_weaponskill_for_distance and combat_mode and combat_mode.is_enabled and combat_mode:is_enabled()
             and combat_mode.distance and target_mob and target_mob.distance
             and target_mob.distance:sqrt() > combat_mode.distance + 0.5 then
         return nil

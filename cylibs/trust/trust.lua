@@ -71,6 +71,10 @@ function Trust:init(is_main_job)
 		if combat_mode then
 			combat_mode:set_combat_settings(new_trust_settings.CombatSettings)
 		end
+		local spammer = self:role_with_type("spammer")
+		if spammer then
+			spammer:set_spammer_settings(new_trust_settings.CombatSettings)
+		end
 		local buffer = self:role_with_type("buffer")
 		if buffer then
 			buffer:set_buff_settings(new_trust_settings.BuffSettings, self:get_job())

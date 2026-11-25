@@ -1,6 +1,6 @@
 # Trust — Bard Fix
 
-**Branch:** `brd-soul-voice-toggle` (fork of cyritegamestudios/trust) · **PR #577** · 113 commits · base: stock Trust v17.7.8
+**Branch:** `brd-soul-voice-toggle` (fork of cyritegamestudios/trust) · **PR #577** · 115 commits · base: stock Trust v17.7.8
 
 One package that turns stock Trust into a coordinated Bard farming machine. The whole fight loop — summon all five Trusts, sing the five-song burst at full potency, then pull — runs as one system: the singer, puller, attacker, debuffer and spammer all watch the same TP and singing state, so a weaponskill is never wasted, a burst never starts at the wrong moment, and no cast collides with another action's lock. Everything is scoped to attended play — it coordinates what the player is already doing; nothing runs unattended.
 
@@ -37,14 +37,14 @@ Real players only. The game never sends a Trust's buffs (there is no 0x076 packe
 
 - A banked weaponskill goes first: at 500+ TP, songs, debuffs, claims and new engages all wait; Nitro combos additionally require TP ≤ 999, so Nitro is never spent while a weaponskill is waiting.
 - Once Nitro has gone off, that burst finishes first: the singer sings it through, and the weaponskill waits until the burst completes.
-- The weaponskill is saved on a mob under 3% HP, held until the player reaches the fight's rolled combat distance, and never fired mid-song.
+- The weaponskill is saved on a mob under 3% HP, held until the player reaches the fight's rolled combat distance, and never fired mid-song. All three are menu settings now (Trust menu → Combat → Config): **Save Weaponskill Under HP** (0–25%, default 3% — the right cutoff depends on the mob, since a stronger mob still has plenty of HP left at the same percent; 0% turns the save off), **Hold Weaponskill While Singing**, and **Hold Weaponskill For Distance** (both default on).
 - Debuffs hold while singing, while a burst is pending, and for 2 seconds after a weaponskill lands; casts hold the same 2 seconds, so nothing collides with the weaponskill's action lock.
 - The puller claims the mob in front of the player first; a mob behind is the second option — except a mob already aggroed on the party (a slept add keeps that status), which is never filtered out and is attacked next when the fought mob dies. Once claimed, the target sticks: a claim that drifts past pull range before it registers is held (out to a 50-yalm leash) instead of being dropped for an aggroed mob behind — it is released only when it dies, disengages after engaging, is claimed by another party, or is blacklisted.
 
 ## What is Bard, and what is every job
 
 - **Bard:** the singer and burst, the song tracker's timer handling (including the two Marches, whose shared buff timers can no longer be paired to the wrong song), dummy songs, the Nitro system, the Marcato rules.
-- **Every job:** front-first claiming and engage-claims, the weaponskill distance gate and 3% save, SpellAction waiting out the weaponskill lock for every spell, the 2-second wait after a spell's job abilities, casts not chasing the mob, the rolled combat distance and backpedal, the core audit (leaks, nil guards, queue protection), the menu background fix, the double raise-accept fix, debuffs remembered across a reload, and one Scholar strategem fix.
+- **Every job:** front-first claiming and engage-claims, the weaponskill distance gate and save (menu-adjustable, see above), SpellAction waiting out the weaponskill lock for every spell, the 2-second wait after a spell's job abilities, casts not chasing the mob, the rolled combat distance and backpedal, the core audit (leaks, nil guards, queue protection), the menu background fix, the double raise-accept fix, debuffs remembered across a reload, and one Scholar strategem fix.
 - **Shared, Bard-triggered:** the holds chain lives in shared role files — the TP rules apply to any job, and the singing/burst branches only activate when a Bard singer is present.
 
 ## Notes
