@@ -1,6 +1,6 @@
 # Trust — Bard Fix
 
-**Branch:** `brd-soul-voice-toggle` (fork of cyritegamestudios/trust) · **PR #577** · 88 commits · base: stock Trust v17.7.8
+**Branch:** `brd-soul-voice-toggle` (fork of cyritegamestudios/trust) · **PR #577** · 113 commits · base: stock Trust v17.7.8
 
 One package that turns stock Trust into a coordinated Bard farming machine. The whole fight loop — summon all five Trusts, sing the five-song burst at full potency, then pull — runs as one system: the singer, puller, attacker, debuffer and spammer all watch the same TP and singing state, so a weaponskill is never wasted, a burst never starts at the wrong moment, and no cast collides with another action's lock. Everything is scoped to attended play — it coordinates what the player is already doing; nothing runs unattended.
 
@@ -24,6 +24,14 @@ Boosters, as one system:
 - A combo that comes off cooldown mid-burst waits and leads the next burst instead of firing into the current one.
 - Marcato is paired with Nitro and never spent under Soul Voice (it does not stack — under Soul Voice its boost is capped and its duration bonus cancelled). Spent on plain bursts, its 10-minute recast desynced from Nitro's; now it fires on Honor March inside Nitro bursts only.
 - After the last combo ability lands, the first song waits out a 2-second grace so it never casts into the ability's tail ("Unable to cast at this time").
+
+## Catching up a party member (Resing Missing Songs on Party Members)
+
+A party member who missed part of the burst — out of range, or joined after it — no longer waits for the next re-sing. With the setting on (Trust menu, Song Sets), the singer checks each real player for a song they are missing and sings them that one song with Pianissimo, into their free slot, out of battle only, so a catch-up cast never takes the queue or swaps gear mid-fight. GearSwap's half of the rule: a Pianissimo patch is sung on Daurdabla, because the game checks the song limit against the instrument at landing — on the potency instrument the patch would overwrite the member's oldest song instead of adding the missing one.
+
+The patch lands weaker than the burst's copy, so the singer follows up right away instead of waiting for the next burst: the same song again, Pianissimo on that one member only, this time on the potency instrument (GearSwap is armed for that one cast by a `//gs c potencyfollowup` command the singer sends first), refreshing their copy to full strength. Pianissimo's short recast lets it work song by song until the member is fully caught up, and nobody else's songs are ever touched.
+
+Real players only. The game never sends a Trust's buffs (there is no 0x076 packet for Alter Egos), so a Trust's song records are reconstructed from the singer's own casts — and that reconstruction proved unreliable in game, firing Pianissimo in a Trust party whose songs were all up. A real player's buffs are reported by the game, so their records are real, and the feature acts on them.
 
 ## The ordering rules (the holds chain)
 
