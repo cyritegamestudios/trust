@@ -94,7 +94,7 @@ function SongTracker.new(player, party, dummy_songs, songs, pianissimo_songs, jo
                 -- fire in that window.
                 local player = windower.ffxi.get_player()
                 if player then
-                    self:set_expiring_soon(player.id)
+                    self:set_expiring_soon(player.id, nil, true)
                 end
             end
             return false
@@ -288,23 +288,22 @@ end
 -- Sets all songs to expire soon.
 -- @tparam number target_id Target id
 -- @tparam number expiring_in (optional) Number of seconds until first song expires (defaults to self.expiring_duration)
-function SongTracker:set_expiring_soon(target_id, expiring_in)
+-- @tparam boolean skip_fresh (optional) Automatic markings pass true
+-- to leave a song that was just sung alone: the burst-unit marking
+-- and the periodic re-sing trigger run on their own, and re-dueing a
+-- fresh record would churn a burst already under way. Deliberate
+-- markings -- a Nitro sequence starting, the resing command -- leave
+-- it nil and always pull the full set in: if Nitro comes off cooldown
+-- mid-burst and gets used, every song is refreshed under it, not just
+-- the ones not yet sung.
+function SongTracker:set_expiring_soon(target_id, expiring_in, skip_fresh)
     if not self.active_songs[target_id] then
         return
     end
     expiring_in = expiring_in or self.expiring_duration
     local active_songs = self.active_songs[target_id]
     for song_record in active_songs:it() do
-        -- Never re-due a song that was just sung. A marking can land
-        -- mid-burst -- a Nitro sequence whose job abilities come off
-        -- cooldown seconds after a plain burst has started runs this
-        -- same marking at its head -- and pulling the fresh records
-        -- of the songs already sung back down to the threshold makes
-        -- the singer restart the whole burst once the abilities
-        -- land. Records older than a burst's length are unaffected,
-        -- so a marking at a burst's start (or from the resing
-        -- command) still pulls the full set in.
-        if not song_record.created_time or os.time() - song_record.created_time >= 45 then
+        if not skip_fresh or not song_record.created_time or os.time() - song_record.created_time >= 45 then
             local new_expire_time = math.min(song_record:get_expire_time(), os.time() + expiring_in)
             song_record:set_expire_time(new_expire_time)
             song_record:set_expiring_soon(true)
@@ -315,14 +314,15 @@ end
 
 -------
 -- Sets all songs to expire soon for all party members.
-function SongTracker:set_all_expiring_soon()
+-- @tparam boolean skip_fresh (optional) See set_expiring_soon.
+function SongTracker:set_all_expiring_soon(skip_fresh)
     CooldownCondition.set_timestamp('resing_songs', os.time())
     local player = self.party:get_player()
     for party_member in list.extend(L{player}, self.party:get_party_members(false)):it() do
         if party_member:is_trust() then
             self:reset(party_member:get_id())
         else
-            self:set_expiring_soon(party_member:get_id(), self.expiring_duration)
+            self:set_expiring_soon(party_member:get_id(), self.expiring_duration, skip_fresh)
         end
     end
 end

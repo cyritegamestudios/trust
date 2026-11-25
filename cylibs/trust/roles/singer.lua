@@ -189,6 +189,9 @@ end
 local function nitro_sequence(singer, ja_names)
     local actions = L{
         Script.new(function()
+            -- Deliberate marking (no skip): if this sequence caught a
+            -- burst already under way, the whole set is refreshed
+            -- under the abilities, not just the songs not yet sung.
             singer.song_tracker:set_all_expiring_soon()
             -- Circuit breaker: stamp the attempt so no combo can
             -- fire again for 45 seconds, whatever happens to this
@@ -279,7 +282,7 @@ local function build_nitro_gambits(singer)
         burst_trigger_condition(),
     }, Sequence.new(L{
         Script.new(function()
-            singer.song_tracker:set_all_expiring_soon()
+            singer.song_tracker:set_all_expiring_soon(true)
         end),
     }), GambitTarget.TargetType.Self))
     return gambits
@@ -519,7 +522,7 @@ function Singer:check_gambits(gambits, param, ignore_delay)
                     self.unit_burst_marked = false
                 end
             elseif self.song_tracker:is_expiring_soon(player_id, self.songs) then
-                self.song_tracker:set_all_expiring_soon()
+                self.song_tracker:set_all_expiring_soon(true)
                 self.unit_burst_marked = true
             end
         end
