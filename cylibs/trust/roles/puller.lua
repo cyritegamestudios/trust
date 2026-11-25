@@ -42,6 +42,12 @@ state.PullActionMode:set_description('Approach', "Pull by engaging and approachi
 -- so the held weaponskill can be spent on the new mob.
 local TP_ENGAGE_PULL_THRESHOLD = 500
 
+-- A claimed pull target is held out to this distance even before its
+-- claim registers with the party (see Puller:is_sticky_pull_target).
+-- Pull range is ~21 yalms, so the leash never releases a real claim;
+-- it only lets go of a genuinely lost mob.
+local STICKY_PULL_TARGET_MAX_DISTANCE = 50
+
 
 function Puller.new(action_queue, pull_settings, job)
     local self = setmetatable(Gambiter.new(action_queue, { Gambits = L{} }, state.AutoPullMode), Puller)
@@ -136,8 +142,19 @@ function Puller:check_target(target_id_blacklist)
     end
 
     local next_target = self:get_pull_target()
+    local next_mob = next_target and next_target:get_mob()
 
-    if not self:is_valid_target(next_target and next_target:get_mob(), target_id_blacklist) then
+    -- Remember whether the claimed target has engaged with the party.
+    -- Puller:is_sticky_pull_target uses it to tell a claim that is
+    -- still being approached (never engaged: hold it) from a fight
+    -- that is over (engaged, then back to wandering unclaimed:
+    -- release it).
+    if next_mob and self.claimed_target_id == next_mob.id
+            and (next_mob.status == 1 or Condition.check_conditions(L{ PartyClaimedCondition.new(true) }, next_mob.index)) then
+        self.claimed_target_engaged = true
+    end
+
+    if not self:is_valid_target(next_mob, target_id_blacklist) and not self:is_sticky_pull_target(next_mob, target_id_blacklist) then
         if next_target and next_target:get_mob() then
             local previous_target = next_target:get_mob()
             logger.notice(self.__class, 'check_target', 'clear', previous_target.name, previous_target.hpp, previous_target.index, previous_target.status, previous_target.claim_id or 'unclaimed')
@@ -368,11 +385,49 @@ function Puller:is_valid_target(target, target_id_blacklist)
     return not L{ 2, 3 }:contains(target.status) and Condition.check_conditions(conditions, target.index)
 end
 
+-- A pull target the puller itself claimed stays the target until the
+-- claim resolves, even when it fails is_valid_target: a fresh claim on
+-- a far mob is neither party-claimed nor within pull range until the
+-- player walks it in, and dropping it there lets an aggroed mob
+-- behind the player steal the fight (and leaves the claimed mob to
+-- be slept as an extra). The claim is released when the mob dies, is
+-- blacklisted, is claimed by another party (it can never be engaged),
+-- strays beyond the leash, or disengages after having engaged.
+function Puller:is_sticky_pull_target(target, target_id_blacklist)
+    if not target or self.claimed_target_id ~= target.id then
+        return false
+    end
+    if target_id_blacklist and target_id_blacklist:contains(target.id) then
+        return false
+    end
+    if L{ 2, 3 }:contains(target.status) then
+        return false
+    end
+    local conditions = L{
+        MinHitPointsPercentCondition.new(1),
+        MaxDistanceCondition.new(STICKY_PULL_TARGET_MAX_DISTANCE),
+        ConditionalCondition.new(L{ PartyClaimedCondition.new(true), UnclaimedCondition.new() }, Condition.LogicalOperator.Or),
+    }
+    if not Condition.check_conditions(conditions, target.index) then
+        return false
+    end
+    if self.claimed_target_engaged and target.status ~= 1
+            and Condition.check_conditions(L{ UnclaimedCondition.new() }, target.index) then
+        return false
+    end
+    return true
+end
+
 function Puller:get_pull_target()
     return self:get_target()
 end
 
 function Puller:set_pull_target(target)
+    local claimed_target_id = target and target:get_id() or nil
+    if claimed_target_id ~= self.claimed_target_id then
+        self.claimed_target_engaged = false
+    end
+    self.claimed_target_id = claimed_target_id
     if state.AutoPullMode.value == 'Off' then
         self:get_party():set_party_target_index(self:get_party():get_assist_target():get_target_index())
     else

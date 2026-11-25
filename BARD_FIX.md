@@ -31,7 +31,7 @@ Boosters, as one system:
 - Once Nitro has gone off, that burst finishes first: the singer sings it through, and the weaponskill waits until the burst completes.
 - The weaponskill is saved on a mob under 3% HP, held until the player reaches the fight's rolled combat distance, and never fired mid-song.
 - Debuffs hold while singing, while a burst is pending, and for 2 seconds after a weaponskill lands; casts hold the same 2 seconds, so nothing collides with the weaponskill's action lock.
-- The puller claims the mob in front of the player first; a mob behind is the second option — except a mob already aggroed on the party (a slept add keeps that status), which is never filtered out and is attacked next when the fought mob dies.
+- The puller claims the mob in front of the player first; a mob behind is the second option — except a mob already aggroed on the party (a slept add keeps that status), which is never filtered out and is attacked next when the fought mob dies. Once claimed, the target sticks: a claim that drifts past pull range before it registers is held (out to a 50-yalm leash) instead of being dropped for an aggroed mob behind — it is released only when it dies, disengages after engaging, is claimed by another party, or is blacklisted.
 
 ## What is Bard, and what is every job
 
