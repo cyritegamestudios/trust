@@ -536,6 +536,26 @@ function is_pianissimo_active()
     return false
 end
 
+-- Trust's potency follow-up arms its Pianissimo refresh
+-- casts with //gs c potencyfollowup (see self_command):
+-- the arm lasts 15 seconds and is spent by the first
+-- Pianissimo cast that uses it. Patch casts are never
+-- armed, so they keep Daurdabla.
+local potency_follow_up_until = 0
+
+-- The instrument for a Pianissimo cast: nil keeps the
+-- potency instrument the song already has (an armed
+-- follow-up refresh -- the member already has the song,
+-- so the cast needs no extra slot); anything else is a
+-- patch adding a missing song, which needs Daurdabla.
+local function pianissimo_patch_instrument()
+    if os.clock() < potency_follow_up_until then
+        potency_follow_up_until = 0
+        return nil
+    end
+    return "Daurdabla"
+end
+
 -- Dummy song buff ids (SONG_BUFF_IDS above): Goblin Gavotte
 -- is 210, Scop's Operetta is 206. Only the two dummy
 -- songs are ever sung with Daurdabla.
@@ -617,12 +637,21 @@ function equip_song(spell)
     -- overwrite the member's oldest song instead of adding
     -- the missing one. On Daurdabla the limit is 4 (5 with
     -- Clarion Call) and the song lands in the free slot;
-    -- it is weaker for it, and the next burst's refresh
-    -- restores its potency instrument. This cannot key off
+    -- it is weaker for it. This cannot key off
     -- is_song_active: that reads your own songs, and you
     -- usually already have the patched song yourself.
+    -- One Pianissimo cast is not a patch: Trust's potency
+    -- follow-up re-sings a song the member already has (the
+    -- weak patch copy) to refresh it at full strength, and
+    -- arms the cast first with //gs c potencyfollowup. An
+    -- armed cast keeps the potency instrument above --
+    -- refreshing a song that is already up needs no slot,
+    -- and nobody else's songs are touched.
     if is_pianissimo_active() then
-        equip({range = "Daurdabla"})
+        local instrument = pianissimo_patch_instrument()
+        if instrument then
+            equip({range = instrument})
+        end
     end
 end
 
@@ -694,6 +723,9 @@ end
 --   //gs c pull    - equip the Carnage Elegy pulling set
 --   //gs c marsyas - equip Marsyas only (for Honor March, etc.)
 --   //gs c honor   - equip Marsyas, wait 1 second, sing Honor March
+--   //gs c potencyfollowup
+--                  - Trust arms a Pianissimo refresh (not a
+--                    patch): keep the potency instrument
 function self_command(command)
     if command == 'return_tp' then
         -- Do NOT swap to TP gear here. If you had TP ready,
@@ -745,5 +777,11 @@ function self_command(command)
     elseif command == 'honor' then
         equip({range = "Marsyas"})
         windower.send_command('wait 1; input /ma "Honor March" <me>')
+    elseif command == 'potencyfollowup' then
+        -- Sent by Trust's singer just before a Pianissimo
+        -- potency follow-up cast. No chat output: it can
+        -- fire several times in a row while a member is
+        -- being caught up song by song.
+        potency_follow_up_until = os.clock() + 15
     end
 end

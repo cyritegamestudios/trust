@@ -43,6 +43,7 @@
 local Condition = require('cylibs/conditions/condition')
 local ConditionalCondition = require('cylibs/conditions/conditional')
 local CooldownCondition = require('cylibs/conditions/cooldown')
+local CommandAction = require('cylibs/actions/command')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local Event = require('cylibs/events/Luvent')
 local GambitTarget = require('cylibs/gambits/gambit_target')
@@ -472,41 +473,6 @@ local function build_pianissimo_gambits(singer, dummy_gambits, dummy_song_thresh
     return gambits
 end
 
--- Potency follow-up gambits. When ResingMissingSongs is on, a
--- catch-up patch lands on Daurdabla (see the GearSwap rule), so
--- the member's copy of the song is weaker than the burst's.
--- These gambits re-sing each real song as a plain cast -- no
--- Pianissimo, so GearSwap gives it the potency instrument --
--- refreshing the patched member's copy to full strength
--- without waiting for the next burst. Refreshing a song that
--- is already up needs no free slot. The cast is an area cast,
--- so it refreshes the same song for everyone in range; that
--- skew is the same one a recovery fill already makes, and the
--- burst re-aligns the set at the next re-sing.
---
--- A follow-up is only offered while a party member actually
--- has that song in its weak form (the filter in
--- Singer:check_gambits); the conditions here cover the rest:
--- out of battle, and the singer already has the song, so the
--- cast is purely a refresh -- if the singer is missing it,
--- the normal fill gambits lead and fix everyone at once.
-local function build_potency_follow_up_gambits(singer)
-    if not singer.resing_missing_songs then
-        return L{}
-    end
-    return singer.songs:map(function(song)
-        local song = song:copy()
-        song:set_requires_all_job_abilities(false)
-
-        local gambit = Gambit.new(GambitTarget.TargetType.Self, L{
-            GambitCondition.new(NotCondition.new(L{ InBattleCondition.new() }), GambitTarget.TargetType.Self),
-            GambitCondition.new(HasSongsCondition.new(L{ song:get_name() }), GambitTarget.TargetType.Self),
-        }, song, Condition.TargetType.Self)
-        gambit.potency_follow_up_song_id = song:get_spell().id
-        return gambit
-    end)
-end
-
 -------
 -- The Singer role itself.
 
@@ -618,36 +584,82 @@ function Singer:check_gambits(gambits, param, ignore_delay)
             end
         end
     end
-    -- Potency follow-ups (see build_potency_follow_up_gambits):
-    -- offer one only while a party member other than the singer
-    -- has that song in its weak, patched form, and at most once
-    -- per 30 seconds per song. If the member was out of range
-    -- of the area cast, the weak record remains and the
-    -- follow-up is offered again once the latch passes, instead
-    -- of re-casting every tic until the song expires.
-    local player = self:get_player()
-    if self.song_tracker and gambits and player then
-        local player_id = player:get_id()
-        self.potency_follow_up_offered = self.potency_follow_up_offered or {}
-        gambits = gambits:filter(function(gambit)
-            local song_id = gambit.potency_follow_up_song_id
-            if not song_id then
-                return true
-            end
-            local last_offered = self.potency_follow_up_offered[song_id]
-            if last_offered and os.clock() - last_offered < 30 then
-                return false
-            end
-            for party_member in self:get_party():get_party_members(true):it() do
-                if party_member:get_id() ~= player_id and self.song_tracker:has_weak_song(party_member:get_id(), song_id) then
-                    self.potency_follow_up_offered[song_id] = os.clock()
-                    return true
+    self:check_potency_follow_up()
+    return Gambiter.check_gambits(self, gambits, param, ignore_delay)
+end
+
+-- Potency follow-up. When ResingMissingSongs is on, a catch-up
+-- patch lands on Daurdabla (see the GearSwap rule), so the
+-- member's copy of the song is weaker than the burst's. Instead
+-- of waiting for the next burst, re-sing that one song to that
+-- one member with Pianissimo, on the potency instrument: the
+-- member's weak copy is refreshed to full strength and nobody
+-- else's songs are touched. Pianissimo's recast is only a few
+-- seconds, so a member missing several songs is followed up
+-- song by song until none of their copies are weak.
+--
+-- This is a direct action, not a gambit: a gambit can only aim
+-- at "an ally", and the first ally with the song is not
+-- necessarily the one whose copy is weak. It runs from
+-- check_gambits, after the holds, so the weaponskill hold, the
+-- post-weaponskill grace and the Nitro block all gate it too.
+-- One follow-up at a time, out of battle only, and only while
+-- Pianissimo is ready -- without Pianissimo the cast would go
+-- out as an area song and overwrite the whole party's timers.
+-- A member whose refresh did not land (out of range) keeps the
+-- weak record and is retried once the per-song latch passes,
+-- instead of re-casting every tic.
+function Singer:check_potency_follow_up()
+    if not self.resing_missing_songs or not self.song_tracker then
+        return
+    end
+    if self.potency_follow_up_busy_until and os.clock() < self.potency_follow_up_busy_until then
+        return
+    end
+    local ffxi_player = windower.ffxi.get_player()
+    if not ffxi_player then
+        return
+    end
+    local player_mob = windower.ffxi.get_mob_by_index(ffxi_player.index)
+    if player_mob and player_mob.in_combat then
+        return
+    end
+    if not JobAbilityRecastReadyCondition.new('Pianissimo'):is_satisfied(ffxi_player.index) then
+        return
+    end
+    local player_id = self:get_player():get_id()
+    self.potency_follow_up_latch = self.potency_follow_up_latch or {}
+    for party_member in self:get_party():get_party_members(true):it() do
+        local member_id = party_member:get_id()
+        local member_mob = party_member:get_mob()
+        if member_id ~= player_id and member_mob then
+            for song in self.songs:it() do
+                local song_id = song:get_spell().id
+                local key = member_id .. ':' .. song_id
+                local latched = self.potency_follow_up_latch[key]
+                if self.song_tracker:has_weak_song(member_id, song_id)
+                        and not (latched and os.clock() - latched < 30) then
+                    local follow_up = song:copy()
+                    follow_up:set_job_abilities(L{ 'Pianissimo' })
+                    follow_up:set_requires_all_job_abilities(true)
+                    -- Tell GearSwap this Pianissimo cast is a
+                    -- refresh, not a patch, so it keeps the
+                    -- potency instrument instead of equipping
+                    -- Daurdabla (see BRD.lua's potencyfollowup
+                    -- command). The command action goes out
+                    -- first, in the same tic, so the arm is set
+                    -- before the cast starts.
+                    self.action_queue:push_action(CommandAction.new(0, 0, 0, '/console gs c potencyfollowup'), true)
+                    local action = follow_up:to_action(member_mob.index, self:get_player())
+                    action.priority = ActionPriority.high
+                    self.action_queue:push_action(action, true)
+                    self.potency_follow_up_latch[key] = os.clock()
+                    self.potency_follow_up_busy_until = os.clock() + 15
+                    return
                 end
             end
-            return false
-        end)
+        end
     end
-    return Gambiter.check_gambits(self, gambits, param, ignore_delay)
 end
 
 -------
@@ -900,9 +912,8 @@ function Singer:set_song_settings(song_settings)
         PianissimoSongs = L{},
     }
     gambit_settings.PianissimoSongs = build_pianissimo_gambits(self, gambit_settings.DummySongs, dummy_song_threshold)
-    gambit_settings.PotencyFollowUps = build_potency_follow_up_gambits(self)
 
-    gambit_settings.Gambits = gambit_settings.Nitro + gambit_settings.DummySongs + gambit_settings.Songs + gambit_settings.PianissimoSongs + gambit_settings.PotencyFollowUps
+    gambit_settings.Gambits = gambit_settings.Nitro + gambit_settings.DummySongs + gambit_settings.Songs + gambit_settings.PianissimoSongs
 
     self.gambit_settings = gambit_settings
 
