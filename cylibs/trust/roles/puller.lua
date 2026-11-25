@@ -206,6 +206,29 @@ function Puller:check_delay()
     return last_mob_ko == nil or os.time() >= last_mob_ko + self.delay
 end
 
+-------
+-- Returns whether the given mob is in front of the player. Uses the
+-- facing convention from geometry_util: a mob's facing direction is
+-- (cos(-facing), sin(-facing)), so a mob is in front when the
+-- direction to it has a positive component along the player's
+-- facing. A mob at the player's exact position, or a position that
+-- cannot be read, counts as in front so a claim is never blocked on
+-- missing data.
+-- @tparam MobMetadata target Mob to check
+-- @treturn boolean True if the mob is in front of the player
+function Puller:is_in_front(target)
+    local player_mob = self:get_party():get_player():get_mob()
+    if not player_mob or not target or not target.x or not target.y then
+        return true
+    end
+    local dx = target.x - player_mob.x
+    local dy = target.y - player_mob.y
+    if dx == 0 and dy == 0 then
+        return true
+    end
+    return math.cos(-player_mob.facing) * dx + math.sin(-player_mob.facing) * dy > 0
+end
+
 function Puller:get_next_target(target_id_blacklist)
     target_id_blacklist = target_id_blacklist or L{}
 
@@ -222,6 +245,17 @@ function Puller:get_next_target(target_id_blacklist)
         return not target_id_blacklist:contains(target.id) and self:is_valid_target(target)
     end)
     if all_targets:length() > 0 then
+        -- Claim a mob in front of the player first: when a valid mob
+        -- is in front and another is behind, turning around to claim
+        -- the one behind leaves the front mob at the player's back.
+        -- Mobs behind are the second option -- they are only picked
+        -- when nothing in front qualifies.
+        local front_targets = all_targets:filter(function(target)
+            return self:is_in_front(target)
+        end)
+        if front_targets:length() > 0 then
+            all_targets = front_targets
+        end
         if state.PullActionMode.value == 'Target' or self.max_num_targets > 1 then
             return Monster.new(all_targets:random().id)
         else
