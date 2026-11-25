@@ -40,6 +40,7 @@
 -- @class module
 -- @name Singer
 
+local Condition = require('cylibs/conditions/condition')
 local ConditionalCondition = require('cylibs/conditions/conditional')
 local CooldownCondition = require('cylibs/conditions/cooldown')
 local DisposeBag = require('cylibs/events/dispose_bag')
@@ -249,6 +250,45 @@ local function burst_trigger_condition()
     }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Self)
 end
 
+-- How long after a song lands the burst that sang it still counts as
+-- under way. A burst's songs land seconds apart (cast time plus the
+-- singer's cooldown), so 45 seconds covers a burst's span with room
+-- to spare, and a burst that stalls past it releases the hold below
+-- on its own.
+local BURST_ACTIVE_WINDOW = 45
+
+-- Condition that holds the Nitro combos while a burst is under way
+-- (see Singer:is_burst_underway). A combo whose abilities come off
+-- cooldown mid-burst waits and leads the next burst instead of
+-- firing into the middle of the current one, where it would boost
+-- only the songs not yet sung and leave the set on two clocks.
+local NoBurstUnderwayCondition = setmetatable({}, { __index = Condition })
+NoBurstUnderwayCondition.__index = NoBurstUnderwayCondition
+NoBurstUnderwayCondition.__type = "NoBurstUnderwayCondition"
+NoBurstUnderwayCondition.__class = "NoBurstUnderwayCondition"
+
+function NoBurstUnderwayCondition.new(singer)
+    local self = setmetatable(Condition.new(), NoBurstUnderwayCondition)
+    self.singer = singer
+    return self
+end
+
+function NoBurstUnderwayCondition:is_satisfied(_)
+    return not self.singer:is_burst_underway()
+end
+
+function NoBurstUnderwayCondition:get_config_items()
+    return L{}
+end
+
+function NoBurstUnderwayCondition:tostring()
+    return "No burst under way"
+end
+
+function NoBurstUnderwayCondition.valid_targets()
+    return S{ Condition.TargetType.Self }
+end
+
 local function build_nitro_gambits(singer)
     local gambits = L{}
     for _, combo in ipairs(NITRO_COMBOS) do
@@ -268,6 +308,11 @@ local function build_nitro_gambits(singer)
         -- out. With the latch, a failed burst sings un-boosted and
         -- the next burst, minutes later, tries the combo again.
         conditions:append(GambitCondition.new(CooldownCondition.new('nitro_attempt', 45), GambitTarget.TargetType.Self))
+        -- Hold for the next burst: a combo never fires into a burst
+        -- already under way (see NoBurstUnderwayCondition). A burst
+        -- that started without the combo finishes without it, and
+        -- the combo leads the next burst from its first song.
+        conditions:append(GambitCondition.new(NoBurstUnderwayCondition.new(singer), GambitTarget.TargetType.Self))
         if combo.trigger == 'slots' then
             conditions:append(GambitCondition.new(NumSongsCondition.new(singer.job.max_num_songs + 1, Condition.Operator.LessThan, true), GambitTarget.TargetType.Self))
         else
@@ -528,6 +573,40 @@ function Singer:check_gambits(gambits, param, ignore_delay)
         end
     end
     return Gambiter.check_gambits(self, gambits, param, ignore_delay)
+end
+
+-------
+-- Returns whether a burst is currently under way: a song cast is
+-- running right now, or any song on the player landed within the
+-- last BURST_ACTIVE_WINDOW seconds. Between the songs of a burst
+-- the singer is not casting, so the fresh records are what show the
+-- burst is unfinished; between bursts every record is minutes old.
+-- The Nitro combos hold while this is true (see
+-- NoBurstUnderwayCondition), so a combo that comes off cooldown
+-- mid-burst leads the next burst instead of boosting only the
+-- current one's remaining songs.
+-- @treturn boolean True if a burst is under way
+function Singer:is_burst_underway()
+    if self:get_is_singing() then
+        return true
+    end
+    if not self.song_tracker or not self.song_tracker.get_songs then
+        return false
+    end
+    local player = self:get_player()
+    if not player then
+        return false
+    end
+    local songs = self.song_tracker:get_songs(player:get_id())
+    if not songs then
+        return false
+    end
+    for song_record in songs:it() do
+        if song_record.created_time and os.time() - song_record.created_time < BURST_ACTIVE_WINDOW then
+            return true
+        end
+    end
+    return false
 end
 
 -------
