@@ -1,6 +1,6 @@
 # Trust — Bard Fix
 
-**Branch:** `brd-soul-voice-toggle` (fork of cyritegamestudios/trust) · **PR #577** · 116 commits · base: stock Trust v17.7.8
+**Branch:** `brd-soul-voice-toggle` (fork of cyritegamestudios/trust) · **PR #577** · 117 commits · base: stock Trust v17.7.8
 
 One package that turns stock Trust into a coordinated Bard farming machine. The whole fight loop — summon all five Trusts, sing the five-song burst at full potency, then pull — runs as one system: the singer, puller, attacker, debuffer and spammer all watch the same TP and singing state, so a weaponskill is never wasted, a burst never starts at the wrong moment, and no cast collides with another action's lock. Everything is scoped to attended play — it coordinates what the player is already doing; nothing runs unattended.
 
@@ -22,7 +22,7 @@ Order: Honor March (Marcato, Marsyas), Victory March, Valor Minuet IV, the two D
 Boosters, as one system:
 - Soul Voice never fires alone — it always goes out with Nightingale + Troubadour (and Clarion Call when a fifth slot is open).
 - A combo that comes off cooldown mid-burst waits and leads the next burst instead of firing into the current one.
-- Marcato is paired with Nitro and never spent under Soul Voice (it does not stack — under Soul Voice its boost is capped and its duration bonus cancelled). Spent on plain bursts, its 10-minute recast desynced from Nitro's; now it fires on Honor March inside Nitro bursts only.
+- Marcato is paired with Nitro and never spent under Soul Voice (it does not stack — under Soul Voice its boost is capped and its duration bonus cancelled). Spent on plain bursts, its 10-minute recast desynced from Nitro's; now it fires on Honor March inside Nitro bursts only. The two Nitro combos without Soul Voice also come in a Marcato variant, ranked just above the plain combo: when Marcato is ready it goes out as the sequence's last step and rides Honor March; when it is on cooldown the plain combo fires instead, so Marcato can never block Nitro. (Before, Marcato's only path in a burst was the song it was attached to in the set — on the wrong song, or reached after the Nitro buffs faded, it just sat unused.)
 - After the last combo ability lands, the first song waits out a 2-second grace so it never casts into the ability's tail ("Unable to cast at this time").
 
 ## Catching up a party member (Resing Missing Songs on Party Members)

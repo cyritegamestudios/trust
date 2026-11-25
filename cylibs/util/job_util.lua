@@ -153,7 +153,7 @@ local TRACKED_JA_RECASTS = {
     ['Clarion Call'] = { key = 'clarion_call', recast = 600 },
     ['Nightingale'] = { key = 'nightingale', recast = 600 },
     ['Troubadour'] = { key = 'troubadour', recast = 600 },
-    ['Marcato'] = { key = 'marcato', recast = 60 },
+    ['Marcato'] = { key = 'marcato', recast = 600 },
 }
 
 function job_util.can_use_job_ability(job_ability_name)

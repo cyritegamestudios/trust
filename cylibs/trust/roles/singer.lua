@@ -234,13 +234,30 @@ end
 -- AutoNitroMode must be Auto for all of them; the other modes are per
 -- combo. If a combo's abilities are on cooldown, its conditions fail and
 -- the Gambiter falls through to the next combo.
+--
+-- The two combos without Soul Voice also come in a Marcato variant,
+-- ranked just above the plain combo. Marcato never goes in a Soul Voice
+-- combo (it does not stack with Soul Voice), and outside the sequence
+-- it was effectively never used in a Nitro burst at all: the only other
+-- path is Honor March's spell abilities, which read the song the set
+-- has Marcato attached to -- on the wrong song, or reached after the
+-- Nitro buffs fade, it just sits ready. As the sequence's last step it
+-- lands after Nightingale and Troubadour are up and rides Honor March,
+-- the first song of the burst. The variant's gambit requires Marcato
+-- ready; on cooldown the Gambiter falls through to the plain combo, so
+-- Marcato can never block Nitro -- the two share a 10-minute recast,
+-- but a manual Marcato (or one spent through a song) desyncs them.
 local NITRO_COMBOS = {
     { modes = L{ 'AutoClarionCallMode', 'AutoSoulVoiceMode' },
       jas = L{ 'Soul Voice', 'Clarion Call', 'Nightingale', 'Troubadour' }, trigger = 'slots' },
     { modes = L{ 'AutoClarionCallMode' },
+      jas = L{ 'Clarion Call', 'Nightingale', 'Troubadour', 'Marcato' }, trigger = 'slots' },
+    { modes = L{ 'AutoClarionCallMode' },
       jas = L{ 'Clarion Call', 'Nightingale', 'Troubadour' }, trigger = 'slots' },
     { modes = L{ 'AutoSoulVoiceMode' },
       jas = L{ 'Soul Voice', 'Nightingale', 'Troubadour' }, trigger = 'burst' },
+    { modes = L{ },
+      jas = L{ 'Nightingale', 'Troubadour', 'Marcato' }, trigger = 'burst' },
     { modes = L{ },
       jas = L{ 'Nightingale', 'Troubadour' }, trigger = 'burst' },
 }
