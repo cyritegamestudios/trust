@@ -204,8 +204,9 @@ local function nitro_sequence(singer, ja_names)
             -- lock add up to roughly 3 seconds per ability, and the
             -- margin on top keeps a song from ever slipping in ahead
             -- of the last ability. The action hook releases the hold
-            -- the moment the last ability lands; this timer is the
-            -- backstop for abilities that never land.
+            -- into a short grace the moment the last ability lands;
+            -- this timer is the backstop for abilities that never
+            -- land.
             singer.nitro_block_until = os.clock() + 3 * ja_names:length() + 3
             singer.nitro_block_jas = {}
             for name in ja_names:it() do
@@ -534,10 +535,11 @@ function Singer:check_gambits(gambits, param, ignore_delay)
     -- between them: the burst starts un-boosted and the remaining
     -- abilities land between songs instead of ahead of Honor March.
     -- The block is set by the sequence's first step (see
-    -- nitro_sequence); the action hook clears it the moment the
-    -- sequence's last ability lands, and the timer behind it is
-    -- only a backstop, so an interrupted sequence cannot wedge
-    -- the singer.
+    -- nitro_sequence); the action hook releases it into a short
+    -- grace the moment the sequence's last ability lands (a cast
+    -- attempted in an ability's tail is rejected by the game), and
+    -- the timer behind it is only a backstop, so an interrupted
+    -- sequence cannot wedge the singer.
     if self.nitro_block_until and os.clock() < self.nitro_block_until then
         return
     end
@@ -723,12 +725,17 @@ function Singer:on_add()
                 end
                 -- If this was the last ability of a Nitro sequence
                 -- still holding the burst's songs, release the hold
-                -- now instead of waiting out the backstop timer.
+                -- now instead of waiting out the backstop timer --
+                -- into a short grace rather than clearing it: the
+                -- game rejects a cast attempted in the tail of an
+                -- ability ("Unable to cast at this time"), so the
+                -- first song waits out the ability lockout and goes
+                -- out clean instead of failing once and retrying.
                 if self.nitro_block_jas and self.nitro_block_jas[ja.key] then
                     self.nitro_block_jas[ja.key] = nil
                     if next(self.nitro_block_jas) == nil then
                         self.nitro_block_jas = nil
-                        self.nitro_block_until = nil
+                        self.nitro_block_until = os.clock() + 2
                     end
                 end
             end
