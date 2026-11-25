@@ -472,6 +472,41 @@ local function build_pianissimo_gambits(singer, dummy_gambits, dummy_song_thresh
     return gambits
 end
 
+-- Potency follow-up gambits. When ResingMissingSongs is on, a
+-- catch-up patch lands on Daurdabla (see the GearSwap rule), so
+-- the member's copy of the song is weaker than the burst's.
+-- These gambits re-sing each real song as a plain cast -- no
+-- Pianissimo, so GearSwap gives it the potency instrument --
+-- refreshing the patched member's copy to full strength
+-- without waiting for the next burst. Refreshing a song that
+-- is already up needs no free slot. The cast is an area cast,
+-- so it refreshes the same song for everyone in range; that
+-- skew is the same one a recovery fill already makes, and the
+-- burst re-aligns the set at the next re-sing.
+--
+-- A follow-up is only offered while a party member actually
+-- has that song in its weak form (the filter in
+-- Singer:check_gambits); the conditions here cover the rest:
+-- out of battle, and the singer already has the song, so the
+-- cast is purely a refresh -- if the singer is missing it,
+-- the normal fill gambits lead and fix everyone at once.
+local function build_potency_follow_up_gambits(singer)
+    if not singer.resing_missing_songs then
+        return L{}
+    end
+    return singer.songs:map(function(song)
+        local song = song:copy()
+        song:set_requires_all_job_abilities(false)
+
+        local gambit = Gambit.new(GambitTarget.TargetType.Self, L{
+            GambitCondition.new(NotCondition.new(L{ InBattleCondition.new() }), GambitTarget.TargetType.Self),
+            GambitCondition.new(HasSongsCondition.new(L{ song:get_name() }), GambitTarget.TargetType.Self),
+        }, song, Condition.TargetType.Self)
+        gambit.potency_follow_up_song_id = song:get_spell().id
+        return gambit
+    end)
+end
+
 -------
 -- The Singer role itself.
 
@@ -582,6 +617,35 @@ function Singer:check_gambits(gambits, param, ignore_delay)
                 self.unit_burst_marked = true
             end
         end
+    end
+    -- Potency follow-ups (see build_potency_follow_up_gambits):
+    -- offer one only while a party member other than the singer
+    -- has that song in its weak, patched form, and at most once
+    -- per 30 seconds per song. If the member was out of range
+    -- of the area cast, the weak record remains and the
+    -- follow-up is offered again once the latch passes, instead
+    -- of re-casting every tic until the song expires.
+    local player = self:get_player()
+    if self.song_tracker and gambits and player then
+        local player_id = player:get_id()
+        self.potency_follow_up_offered = self.potency_follow_up_offered or {}
+        gambits = gambits:filter(function(gambit)
+            local song_id = gambit.potency_follow_up_song_id
+            if not song_id then
+                return true
+            end
+            local last_offered = self.potency_follow_up_offered[song_id]
+            if last_offered and os.clock() - last_offered < 30 then
+                return false
+            end
+            for party_member in self:get_party():get_party_members(true):it() do
+                if party_member:get_id() ~= player_id and self.song_tracker:has_weak_song(party_member:get_id(), song_id) then
+                    self.potency_follow_up_offered[song_id] = os.clock()
+                    return true
+                end
+            end
+            return false
+        end)
     end
     return Gambiter.check_gambits(self, gambits, param, ignore_delay)
 end
@@ -836,8 +900,9 @@ function Singer:set_song_settings(song_settings)
         PianissimoSongs = L{},
     }
     gambit_settings.PianissimoSongs = build_pianissimo_gambits(self, gambit_settings.DummySongs, dummy_song_threshold)
+    gambit_settings.PotencyFollowUps = build_potency_follow_up_gambits(self)
 
-    gambit_settings.Gambits = gambit_settings.Nitro + gambit_settings.DummySongs + gambit_settings.Songs + gambit_settings.PianissimoSongs
+    gambit_settings.Gambits = gambit_settings.Nitro + gambit_settings.DummySongs + gambit_settings.Songs + gambit_settings.PianissimoSongs + gambit_settings.PotencyFollowUps
 
     self.gambit_settings = gambit_settings
 

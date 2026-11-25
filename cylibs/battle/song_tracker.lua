@@ -146,9 +146,10 @@ function SongTracker:monitor()
                         local action = target.actions[1]
                         if action then
                             self.last_song_id = song_id
-                            self:check_instrument(song_id, self.party:get_player():get_ranged_weapon_id())
+                            local instrument_id = self.party:get_player():get_ranged_weapon_id()
+                            self:check_instrument(song_id, instrument_id)
                             if L{ 230, 266 }:contains(action.message) then
-                                self:on_gain_song(target.id, song_id, action.param)
+                                self:on_gain_song(target.id, song_id, action.param, nil, self.job:get_extra_song_instrument_ids():contains(instrument_id))
                             end
                         end
                     end
@@ -367,7 +368,7 @@ end
 -- @tparam number song_id Song id (see spells.lua)
 -- @tparam number buff_id Buff id (see buffs.lua)
 -- @tparam number song_duration (optional) Song duration, or job default if not specified
-function SongTracker:on_gain_song(target_id, song_id, buff_id, song_duration)
+function SongTracker:on_gain_song(target_id, song_id, buff_id, song_duration, sung_with_extra_instrument)
     local party_member = self.party:get_party_member(target_id)
 
     if party_member then
@@ -379,6 +380,14 @@ function SongTracker:on_gain_song(target_id, song_id, buff_id, song_duration)
     local target_songs = (self.active_songs[target_id] or S{}):filter(function(song_record) return song_record:get_song_id() ~= song_id  end)
     local song_record = SongRecord.new(song_id, song_duration)
     song_record.created_time = os.time()
+    -- Remember whether the song was sung with the extra-song
+    -- instrument (Daurdabla): those copies are weaker, and the
+    -- Singer's potency follow-up re-sings exactly those songs
+    -- on party members (see SongTracker:has_weak_song). A
+    -- later cast of the same song replaces this record, so
+    -- the tag clears itself once the song is refreshed with
+    -- a potency instrument.
+    song_record.extra_instrument = sung_with_extra_instrument == true
     -- If Marcato was used just before this cast, this is the song it
     -- rode on (the game consumes Marcato with the next song that
     -- lands): tag the record so the duration pairing can tell this
@@ -790,6 +799,22 @@ function SongTracker:get_songs(target_id, buff_id)
     else
         return target_songs
     end
+end
+
+-------
+-- Returns whether the given target has the given song in its
+-- extra-instrument (weaker) form: patched on with Daurdabla
+-- and not refreshed with a potency instrument since.
+-- @tparam number target_id Target id
+-- @tparam number song_id Song id (see spells.lua)
+-- @treturn boolean True if the song is active in its weak form
+function SongTracker:has_weak_song(target_id, song_id)
+    for song_record in self:get_songs(target_id):it() do
+        if song_record:get_song_id() == song_id and song_record.extra_instrument then
+            return true
+        end
+    end
+    return false
 end
 
 -------
