@@ -631,20 +631,35 @@ function Singer:check_potency_follow_up()
     if player_mob and player_mob.in_combat then
         return
     end
-    if not JobAbilityRecastReadyCondition.new('Pianissimo'):is_satisfied(ffxi_player.index) then
+    -- The readiness condition is stateless apart from the
+    -- ability name, so build it once instead of allocating a
+    -- new one on every gambit check.
+    self.pianissimo_ready_condition = self.pianissimo_ready_condition or JobAbilityRecastReadyCondition.new('Pianissimo')
+    if not self.pianissimo_ready_condition:is_satisfied(ffxi_player.index) then
         return
     end
     local player_id = self:get_player():get_id()
     self.potency_follow_up_latch = self.potency_follow_up_latch or {}
+    local seen_member_ids = {}
     for party_member in self:get_party():get_party_members(true):it() do
         local member_id = party_member:get_id()
+        seen_member_ids[member_id] = true
         local member_mob = party_member:get_mob()
         if member_id ~= player_id and member_mob and not party_member:is_trust() then
             for song in self.songs:it() do
                 local song_id = song:get_spell().id
                 local key = member_id .. ':' .. song_id
                 local latched = self.potency_follow_up_latch[key]
-                if self.song_tracker:has_weak_song(member_id, song_id)
+                local is_weak = self.song_tracker:has_weak_song(member_id, song_id)
+                if not is_weak and latched then
+                    -- The copy has been refreshed (or the record
+                    -- is gone): the retry latch has done its job,
+                    -- so drop the entry instead of keeping it for
+                    -- the rest of the session.
+                    self.potency_follow_up_latch[key] = nil
+                    latched = nil
+                end
+                if is_weak
                         and not (latched and os.clock() - latched < 30) then
                     local follow_up = song:copy()
                     follow_up:set_job_abilities(L{ 'Pianissimo' })
@@ -665,6 +680,14 @@ function Singer:check_potency_follow_up()
                     return
                 end
             end
+        end
+    end
+    -- Drop latch entries for members who have left the party,
+    -- so the latch stays bounded by the current party's songs.
+    for key in pairs(self.potency_follow_up_latch) do
+        local latched_member_id = tonumber(string.match(key, '^(%d+):'))
+        if not latched_member_id or not seen_member_ids[latched_member_id] then
+            self.potency_follow_up_latch[key] = nil
         end
     end
 end
