@@ -433,10 +433,13 @@ end
 --     Out of battle only, so a catch-up cast never takes the action
 --     queue or swaps the singer's gear mid-fight. Dummy songs are
 --     never sung at a member -- they are slot-fillers for the singer's
---     own burst, not songs a member is missing -- and Trusts are
---     valid targets: the song tracker records each member's songs
---     from the singer's own casts, so the missing-song check works
---     for them too.
+--     own burst, not songs a member is missing. Real players only:
+--     the game never sends a Trust's buffs (no 0x076 packet for
+--     Alter Egos), so a Trust's song records are reconstructed from
+--     the singer's own casts and cannot be trusted -- in a Trust
+--     party the catch-up fired Pianissimo when every Trust already
+--     had all five songs. A real player's buffs are reported, so
+--     their records are real.
 --   * The dedicated Pianissimo songs (e.g. Mage's Ballad III), sung on
 --     self or an ally whose job matches the song's job list.
 local function build_pianissimo_gambits(singer, dummy_gambits, dummy_song_threshold)
@@ -449,6 +452,7 @@ local function build_pianissimo_gambits(singer, dummy_gambits, dummy_song_thresh
 
             return Gambit.new(GambitTarget.TargetType.Ally, L{
                 GambitCondition.new(NotCondition.new(L{ InBattleCondition.new() }), GambitTarget.TargetType.Self),
+                GambitCondition.new(NotCondition.new(L{ IsAlterEgoCondition.new() }), GambitTarget.TargetType.Ally),
                 GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }) }), GambitTarget.TargetType.Ally),
                 GambitCondition.new(HasMaxNumSongsCondition.new(Condition.Operator.LessThan), GambitTarget.TargetType.Ally),
             }, song, Condition.TargetType.Ally)
@@ -603,6 +607,9 @@ end
 -- necessarily the one whose copy is weak. It runs from
 -- check_gambits, after the holds, so the weaponskill hold, the
 -- post-weaponskill grace and the Nitro block all gate it too.
+-- Real players only, like the catch-up patches: a Trust's
+-- records are reconstructed (no 0x076 packet for Alter Egos),
+-- and a weak tag on a Trust cannot be trusted.
 -- One follow-up at a time, out of battle only, and only while
 -- Pianissimo is ready -- without Pianissimo the cast would go
 -- out as an area song and overwrite the whole party's timers.
@@ -632,7 +639,7 @@ function Singer:check_potency_follow_up()
     for party_member in self:get_party():get_party_members(true):it() do
         local member_id = party_member:get_id()
         local member_mob = party_member:get_mob()
-        if member_id ~= player_id and member_mob then
+        if member_id ~= player_id and member_mob and not party_member:is_trust() then
             for song in self.songs:it() do
                 local song_id = song:get_spell().id
                 local key = member_id .. ':' .. song_id
