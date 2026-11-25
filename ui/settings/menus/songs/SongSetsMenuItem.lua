@@ -260,7 +260,7 @@ function SongSetsMenuItem:getConfigMenuItem()
                 local configItems = L{
                     ConfigItem.new('ResingDuration', 60, 180, 1, function(value) return value.."s" end, "Resing Threshold"),
                     BooleanConfigItem.new('ResingMissingSongs', "Resing Missing Songs"),
-                    ConfigItem.new('DummySongThreshold', 2, 4, 1, function(value) return value end, "Dummy Song Threshold"),
+                    ConfigItem.new('DummySongThreshold', 2, 4, 1, function(value) return value end, "Songs Before Dummy Songs"),
                 }
 
                 local songConfigEditor = ConfigEditor.new(self.trustSettings, songSettings, configItems, infoView, function(_)
@@ -294,7 +294,7 @@ function SongSetsMenuItem:getConfigMenuItem()
                     elseif indexPath.section == 2 then
                         infoView:setDescription("Resing missing songs onto party members using Pianissimo. May cause extra singing.")
                     elseif indexPath.section == 3 then
-                        infoView:setDescription(string.format("Sing dummy songs after the target has %d songs (without Clarion Call).", currentSettings.SongSettings.DummySongThreshold))
+                        infoView:setDescription(string.format("Start the dummy songs once this many real songs are up - %d normally, %d with Clarion Call. In a burst the dummies fill the extra slots and the last real songs overwrite them.", currentSettings.SongSettings.DummySongThreshold, currentSettings.SongSettings.DummySongThreshold + 1))
                     else
                         infoView:setDescription("Configure general song settings.")
                     end
