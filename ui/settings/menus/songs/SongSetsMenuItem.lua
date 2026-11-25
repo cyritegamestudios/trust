@@ -259,7 +259,7 @@ function SongSetsMenuItem:getConfigMenuItem()
 
                 local configItems = L{
                     ConfigItem.new('ResingDuration', 60, 180, 1, function(value) return value.."s" end, "Song Time Left Before Resing"),
-                    BooleanConfigItem.new('ResingMissingSongs', "Resing Missing Songs"),
+                    BooleanConfigItem.new('ResingMissingSongs', "Resing Missing Songs on Party Members"),
                     ConfigItem.new('DummySongThreshold', 2, 4, 1, function(value) return value end, "Songs Before Dummy Songs"),
                 }
 
@@ -292,7 +292,7 @@ function SongSetsMenuItem:getConfigMenuItem()
                     if indexPath.section == 1 then
                         infoView:setDescription("When any song drops under "..currentSettings.SongSettings.ResingDuration.."s left, all songs are resung together as a set.")
                     elseif indexPath.section == 2 then
-                        infoView:setDescription("Resing missing songs onto party members using Pianissimo. May cause extra singing.")
+                        infoView:setDescription("Sing a party member the one song they are missing, with Pianissimo. Only out of battle, and only when they have a free song slot.")
                     elseif indexPath.section == 3 then
                         infoView:setDescription(string.format("Start the dummy songs once this many real songs are up - %d normally, %d with Clarion Call. In a burst the dummies fill the extra slots and the last real songs overwrite them.", currentSettings.SongSettings.DummySongThreshold, currentSettings.SongSettings.DummySongThreshold + 1))
                     else

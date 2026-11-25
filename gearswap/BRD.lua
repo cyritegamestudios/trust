@@ -520,6 +520,22 @@ function is_clarion_call_active()
     return false
 end
 
+-- Pianissimo buff id (Windower res/buffs.lua). While it
+-- is up, the next song lands on one party member only.
+local PIANISSIMO_BUFF_ID = 409
+
+-- Returns whether Pianissimo is active on you.
+function is_pianissimo_active()
+    if player and player.buffs then
+        for _, id in ipairs(player.buffs) do
+            if id == PIANISSIMO_BUFF_ID then
+                return true
+            end
+        end
+    end
+    return false
+end
+
 -- Dummy song buff ids (SONG_BUFF_IDS above): Goblin Gavotte
 -- is 210, Scop's Operetta is 206. Only the two dummy
 -- songs are ever sung with Daurdabla.
@@ -537,9 +553,10 @@ end
 -- One place for song gear, used by precast and midcast.
 -- Carnage Elegy gets its own set, Honor March gets Marsyas,
 -- every other song gets the normal SONG_SET.
--- Daurdabla is only for the dummy songs, and for a new real
+-- Daurdabla is only for the dummy songs, for a new real
 -- song when there is no dummy to overwrite and no room left
--- under Gjallarhorn. Every real song in the 5-song burst
+-- under Gjallarhorn, and for Pianissimo patch casts (see
+-- the end of this function). Every real song in the 5-song burst
 -- lands with its potency instrument the first time, so
 -- none of them needs a potency re-sing:
 --   Honor March (Marsyas) / Madrigal / Minuet III: 0-2
@@ -590,6 +607,22 @@ function equip_song(spell)
         elseif is_clarion_call_active() and not is_dummy_song_active() and count_active_songs() >= 3 then
             equip({range = "Daurdabla"})
         end
+    end
+    -- A Pianissimo cast is a patch: Trust only sings one at
+    -- a party member who is missing that song (the Resing
+    -- Missing Songs catch-up, or a dedicated Pianissimo
+    -- song), and the member may already hold songs the
+    -- patch has to fit beside. Under Gjallarhorn the limit
+    -- is 2 (3 with Clarion Call), so the patch would
+    -- overwrite the member's oldest song instead of adding
+    -- the missing one. On Daurdabla the limit is 4 (5 with
+    -- Clarion Call) and the song lands in the free slot;
+    -- it is weaker for it, and the next burst's refresh
+    -- restores its potency instrument. This cannot key off
+    -- is_song_active: that reads your own songs, and you
+    -- usually already have the patched song yourself.
+    if is_pianissimo_active() then
+        equip({range = "Daurdabla"})
     end
 end
 
