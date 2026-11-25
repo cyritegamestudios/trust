@@ -544,11 +544,23 @@ end
 local potency_follow_up_until = 0
 
 -- The instrument for a Pianissimo cast: nil keeps the
--- potency instrument the song already has (an armed
--- follow-up refresh -- the member already has the song,
--- so the cast needs no extra slot); anything else is a
--- patch adding a missing song, which needs Daurdabla.
-local function pianissimo_patch_instrument()
+-- potency instrument the song already has; "Daurdabla"
+-- switches. The potency instrument is kept by:
+--   * an armed follow-up refresh (the member already has
+--     the song, so the cast needs no extra slot), and
+--   * a dedicated Pianissimo song (Mage's Ballad III): a
+--     Ballad is a standing buff for the mages, sung when
+--     AutoPianissimoMode is on. It takes the place of the
+--     member's shortest song rather than adding into a
+--     free slot, so Daurdabla's higher limit buys nothing
+--     and would only cost the Ballad the duration the
+--     potency instrument gives it.
+-- Anything else is a patch adding a missing song, which
+-- needs Daurdabla.
+local function pianissimo_patch_instrument(spell_name)
+    if spell_name == "Mage's Ballad III" then
+        return nil
+    end
     if os.clock() < potency_follow_up_until then
         potency_follow_up_until = 0
         return nil
@@ -628,11 +640,10 @@ function equip_song(spell)
             equip({range = "Daurdabla"})
         end
     end
-    -- A Pianissimo cast is a patch: Trust only sings one at
-    -- a party member who is missing that song (the Resing
-    -- Missing Songs catch-up, or a dedicated Pianissimo
-    -- song), and the member may already hold songs the
-    -- patch has to fit beside. Under Gjallarhorn the limit
+    -- A Pianissimo cast is usually a patch: Trust sings one
+    -- at a party member who is missing that song (the Resing
+    -- Missing Songs catch-up), and the member may already
+    -- hold songs the patch has to fit beside. Under Gjallarhorn the limit
     -- is 2 (3 with Clarion Call), so the patch would
     -- overwrite the member's oldest song instead of adding
     -- the missing one. On Daurdabla the limit is 4 (5 with
@@ -646,9 +657,12 @@ function equip_song(spell)
     -- arms the cast first with //gs c potencyfollowup. An
     -- armed cast keeps the potency instrument above --
     -- refreshing a song that is already up needs no slot,
-    -- and nobody else's songs are touched.
+    -- and nobody else's songs are touched. A dedicated
+    -- Pianissimo song (Mage's Ballad III for the mages)
+    -- keeps the potency instrument too -- see
+    -- pianissimo_patch_instrument.
     if is_pianissimo_active() then
-        local instrument = pianissimo_patch_instrument()
+        local instrument = pianissimo_patch_instrument(spell.name)
         if instrument then
             equip({range = instrument})
         end
