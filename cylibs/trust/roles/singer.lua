@@ -308,6 +308,52 @@ function NoBurstUnderwayCondition.valid_targets()
     return S{ Condition.TargetType.Self }
 end
 
+-- Condition that holds the dedicated Pianissimo songs (e.g. Mage's
+-- Ballad III) while the singer's own set is due to be re-sung or a
+-- burst is under way. A Ballad sung just ahead of a re-sing is wasted
+-- motion: the re-sing's area casts trade it off the member again
+-- (there is no sixth song slot), and one sung mid-burst lands
+-- between the burst's songs. Held here, it goes out in the stable
+-- window after the burst, when the set is up and not due.
+local NoResingImminentCondition = setmetatable({}, { __index = Condition })
+NoResingImminentCondition.__index = NoResingImminentCondition
+NoResingImminentCondition.__type = "NoResingImminentCondition"
+NoResingImminentCondition.__class = "NoResingImminentCondition"
+
+function NoResingImminentCondition.new(singer)
+    local self = setmetatable(Condition.new(), NoResingImminentCondition)
+    self.singer = singer
+    return self
+end
+
+function NoResingImminentCondition:is_satisfied(_)
+    local singer = self.singer
+    if singer:is_burst_underway() then
+        return false
+    end
+    local tracker = singer.song_tracker
+    if not tracker or not tracker.is_expiring_soon then
+        return true
+    end
+    local player = singer:get_player()
+    if not player then
+        return true
+    end
+    return not tracker:is_expiring_soon(player:get_id(), singer.songs)
+end
+
+function NoResingImminentCondition:get_config_items()
+    return L{}
+end
+
+function NoResingImminentCondition:tostring()
+    return "No re-sing imminent"
+end
+
+function NoResingImminentCondition.valid_targets()
+    return S{ Condition.TargetType.Self }
+end
+
 local function build_nitro_gambits(singer)
     local gambits = L{}
     for _, combo in ipairs(NITRO_COMBOS) do
@@ -458,7 +504,15 @@ end
 --     had all five songs. A real player's buffs are reported, so
 --     their records are real.
 --   * The dedicated Pianissimo songs (e.g. Mage's Ballad III), sung on
---     self or an ally whose job matches the song's job list.
+--     self or an ally whose job matches the song's job list, once the
+--     singer's own set is fully up and no re-sing is imminent. The
+--     stock gate for "set first" was a max-songs count on the singer,
+--     which reads the same whether the cap is met by the set itself
+--     or by dummy songs, and says nothing about a re-sing about to
+--     trade the Ballad off the member again. These gambits name the
+--     set itself (every real song up on the singer) and hold through
+--     bursts and due re-sings (see NoResingImminentCondition), so
+--     the Ballad goes out in the stable window after a burst.
 local function build_pianissimo_gambits(singer, dummy_gambits, dummy_song_threshold)
     local gambits = L{}
     if singer.resing_missing_songs then
@@ -476,6 +530,7 @@ local function build_pianissimo_gambits(singer, dummy_gambits, dummy_song_thresh
         end)
     end
 
+    local set_song_names = singer.songs:map(function(s) return s:get_name() end)
     for song in singer.pianissimo_songs:it() do
         song:set_job_abilities(L{ "Pianissimo" })
         song:set_requires_all_job_abilities(true)
@@ -485,7 +540,8 @@ local function build_pianissimo_gambits(singer, dummy_gambits, dummy_song_thresh
                 Gambit.new(targetType, L{
                     GambitCondition.new(ModeCondition.new('AutoPianissimoMode', 'Auto'), GambitTarget.TargetType.Self),
                     GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }) }), targetType),
-                    GambitCondition.new(HasMaxNumSongsCondition.new(Condition.Operator.GreaterThanOrEqualTo), GambitTarget.TargetType.Self),
+                    GambitCondition.new(HasSongsCondition.new(set_song_names), GambitTarget.TargetType.Self),
+                    GambitCondition.new(NoResingImminentCondition.new(singer), GambitTarget.TargetType.Self),
                     GambitCondition.new(JobCondition.new(song:get_job_names()), targetType),
                 }, song, targetType),
             }
