@@ -175,15 +175,28 @@ function job_util.can_use_job_ability(job_ability_name)
         return false
     end
     if job_ability_name == 'Marcato' then
-        -- Marcato does not stack with Soul Voice: while Soul Voice is
-        -- up, Marcato's potency and duration boost is capped at Soul
-        -- Voice's modifier and its job-point duration bonus is
-        -- cancelled, so the use (and its 10-minute recast) buys
-        -- nothing. Report Marcato unusable until Soul Voice wears
-        -- off -- Honor March then casts without it, and Marcato
-        -- stays ready for a burst Soul Voice does not cover.
+        -- Marcato is saved for Nitro bursts, and never spent under
+        -- Soul Voice:
+        --   * It does not stack with Soul Voice -- while Soul Voice
+        --     is up, its potency and duration boost is capped at
+        --     Soul Voice's modifier and its job-point duration
+        --     bonus is cancelled, so the use buys nothing.
+        --   * Spent on a plain burst, its 10-minute recast (the
+        --     same as Nightingale and Troubadour's) desyncs from
+        --     Nitro -- a Soul Voice burst spends Nitro but not
+        --     Marcato, so Marcato then lands on a plain burst and
+        --     is still down for the next Nitro burst.
+        -- So Marcato only reads usable while Nitro is active (both
+        -- buffs up, the Bard job's is_nitro_active test) and Soul
+        -- Voice is down: it fires on Honor March inside Nitro
+        -- bursts, paired with the abilities it boosts alongside,
+        -- and stays ready in between.
         local buff_util = require('cylibs/util/buff_util')
         if buff_util.is_buff_active(buff_util.buff_id('Soul Voice')) then
+            return false
+        end
+        if not (buff_util.is_buff_active(buff_util.buff_id('Nightingale'))
+                and buff_util.is_buff_active(buff_util.buff_id('Troubadour'))) then
             return false
         end
     end
