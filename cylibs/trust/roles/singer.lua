@@ -426,35 +426,30 @@ local function build_song_gambits(singer, dummy_song_threshold)
 end
 
 -- Pianissimo gambits. Two groups:
---   * With ResingMissingSongs on, Pianissimo versions of the dummy and
---     real-song fill gambits, aimed at party members (allies), so a member
---     who missed the songs can be caught up one song at a time.
+--   * With ResingMissingSongs on, one Pianissimo gambit per real song,
+--     aimed at party members (allies): a member who is missing that
+--     song and has a free slot for it gets that one song sung to them.
+--     Out of battle only, so a catch-up cast never takes the action
+--     queue or swaps the singer's gear mid-fight. Dummy songs are
+--     never sung at a member -- they are slot-fillers for the singer's
+--     own burst, not songs a member is missing -- and Trusts are
+--     valid targets: the song tracker records each member's songs
+--     from the singer's own casts, so the missing-song check works
+--     for them too.
 --   * The dedicated Pianissimo songs (e.g. Mage's Ballad III), sung on
 --     self or an ally whose job matches the song's job list.
 local function build_pianissimo_gambits(singer, dummy_gambits, dummy_song_threshold)
     local gambits = L{}
     if singer.resing_missing_songs then
-        local dummy_names = singer.dummy_songs:map(function(s) return s:get_name() end)
-        gambits = dummy_gambits:map(function(gambit)
-            local song = gambit:getAbility():copy()
-            song:set_job_abilities(L{ "Pianissimo" })
-            song:set_requires_all_job_abilities(true)
-
-            return Gambit.new(GambitTarget.TargetType.Ally, gambit:getConditions():map(function(condition)
-                return GambitCondition.new(condition:getCondition(), GambitTarget.TargetType.Ally)
-            end), song, GambitTarget.TargetType.Ally)
-        end) + singer.songs:map(function(song)
+        gambits = singer.songs:map(function(song)
             local song = song:copy()
             song:set_job_abilities(L{ "Pianissimo" })
             song:set_requires_all_job_abilities(true)
 
             return Gambit.new(GambitTarget.TargetType.Ally, L{
-                GambitCondition.new(NotCondition.new(L{ IsAlterEgoCondition.new() }), GambitTarget.TargetType.Ally),
+                GambitCondition.new(NotCondition.new(L{ InBattleCondition.new() }), GambitTarget.TargetType.Self),
                 GambitCondition.new(NotCondition.new(L{ HasSongsCondition.new(L{ song:get_name() }) }), GambitTarget.TargetType.Ally),
-                GambitCondition.new(ConditionalCondition.new(L{
-                    HasSongsCondition.new(dummy_names, 1),
-                    NumSongsCondition.new(dummy_song_threshold, Condition.Operator.LessThan),
-                }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Ally),
+                GambitCondition.new(HasMaxNumSongsCondition.new(Condition.Operator.LessThan), GambitTarget.TargetType.Ally),
             }, song, Condition.TargetType.Ally)
         end)
     end
