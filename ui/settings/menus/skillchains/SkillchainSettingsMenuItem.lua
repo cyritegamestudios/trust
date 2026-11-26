@@ -39,7 +39,7 @@ function SkillchainSettingsMenuItem.new(weaponSkillSettings, weaponSkillSettings
     end, FFXIClassicStyle.WindowSize.Editor.ConfigEditor, "Skillchain", "Skillchain", function(ability, indexPath)
         return descriptionForGambit(ability, selectedStepNum)
     end, function(menuItemName)
-        return S{ 'Edit', 'Reset', 'Modes', 'Shortcuts', 'Find' }:contains(menuItemName)
+        return S{ 'Edit', 'Reset', 'Modes', 'Find' }:contains(menuItemName)
     end)
 
     local skillchainSettingsItem = GambitSettingsMenuItem.new(trust, weaponSkillSettings, weaponSkillSettingsMode, trustModeSettings, 'Skillchain', S{ GambitTarget.TargetType.Enemy }, function(targets)

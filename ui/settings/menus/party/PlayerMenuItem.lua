@@ -4,7 +4,6 @@ local IpcRelay = require('cylibs/messages/ipc/ipc_relay')
 local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
-local Whitelist = require('settings/settings').Whitelist
 
 local PlayerMenuItem = setmetatable({}, {__index = MenuItem })
 PlayerMenuItem.__index = PlayerMenuItem
@@ -99,14 +98,8 @@ function PlayerMenuItem:sendCommand(command, sendAll)
     for partyMemberName in partyMemberNames:it() do
         if IpcRelay.shared():is_connected(partyMemberName) then
             windower.send_command('trust send '..partyMemberName..' '..self.selectedCommand:get_windower_command())
-        elseif self:getWhitelist():contains(partyMemberName) then
-            windower.chat.input('/tell '..partyMemberName..' '..self.selectedCommand:get_windower_command())
         end
     end
-end
-
-function PlayerMenuItem:getWhitelist()
-    return Whitelist:all():map(function(user) return user.id end)
 end
 
 return PlayerMenuItem

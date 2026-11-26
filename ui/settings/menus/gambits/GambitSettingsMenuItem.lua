@@ -15,7 +15,6 @@ local IndexPath = require('cylibs/ui/collection_view/index_path')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local ModesMenuItem = require('ui/settings/menus/ModesMenuItem')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
-local ShortcutMenuItem = require('ui/settings/menus/ShortcutMenuItem')
 
 local GambitConditionSettingsMenuItem = require('ui/settings/menus/gambits/GambitConditionSettingsMenuItem')
 
@@ -204,11 +203,7 @@ function GambitSettingsMenuItem:reloadSettings()
     self:setChildMenuItem("Move Down", self:getMoveDownGambitMenuItem())
     self:setChildMenuItem("Toggle", self:getToggleMenuItem())
     self:setChildMenuItem("Reset", self:getResetGambitsMenuItem())
-    self:setChildMenuItem("Modes", self:getModesMenuItem())
-    if self:getConfigKey() then
-        self:setChildMenuItem("Shortcuts", ShortcutMenuItem.new(string.format("shortcut_%s", self:getConfigKey()), "Open the gambit editor.", false, string.format("// trust menu %s", self:getConfigKey())))
-    end
-end
+    self:setChildMenuItem("Modes", self:getModesMenuItem())end
 
 function GambitSettingsMenuItem:getAbilitiesForTargets(targets)
     return self.editorConfig:getAbilitiesForTargets(targets, self.trust)
@@ -529,10 +524,6 @@ end
 
 function GambitSettingsMenuItem:setConfigKey(configKey)
     MenuItem.setConfigKey(self, configKey)
-
-    if self:getConfigKey() then
-        self:setChildMenuItem("Shortcuts", ShortcutMenuItem.new(string.format("shortcut_%s", self:getConfigKey()), "Open the gambit editor.", false, string.format("// trust menu %s", self:getConfigKey())))
-    end
 end
 
 return GambitSettingsMenuItem

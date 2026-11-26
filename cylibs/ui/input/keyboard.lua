@@ -1,7 +1,6 @@
 local Event = require('cylibs/events/Luvent')
 local FocusManager = require('cylibs/ui/focus/focus_manager')
 local Keybind = require('cylibs/ui/input/keybind')
-local Shortcut = require('settings/settings').Shortcut
 local ValueRelay = require('cylibs/events/value_relay')
 
 local Keyboard = {}
@@ -56,7 +55,10 @@ function Keyboard.new()
 
     self.events.keyboard = windower.register_event('keyboard', function(key, pressed, flags, blocked)
         if not pressed then
-            self.chat_open:setValue(windower.ffxi.get_info().chat_open)
+            local info = windower.ffxi.get_info()
+            if info then
+                self.chat_open:setValue(info.chat_open)
+            end
         end
 
         self:on_key_pressed():trigger(key, pressed, flags, blocked)
@@ -75,31 +77,22 @@ function Keyboard.new()
         return blocked
     end)
 
-    self:setupKeybinds()
 
     return self
 end
 
-function Keyboard:setupKeybinds()
-    local shortcuts = Shortcut:all():filter(function(shortcut)
-        return shortcut.enabled == 1 and shortcut.command and shortcut.command:contains("//")
-    end)
-    for shortcut in shortcuts:it() do
-        self:registerKeybind(shortcut.key, shortcut.flags, function(_, _)
-            windower.chat.input(shortcut.command)
-        end)
-    end
-end
-
 function Keyboard:destroy()
+    self:setActive(false)
     self.keybinds = T{}
     if self.events then
         for _,event in pairs(self.events) do
             windower.unregister_event(event)
         end
+        self.events = nil
     end
     self:on_chat_toggle():removeAllActions()
     self.key_pressed:removeAllActions()
+    keyboardInput = nil
 end
 
 ---
@@ -192,7 +185,8 @@ function Keyboard:isValidKeybind(key, flags)
     if not keybind then
         return false
     end
-    return not windower.ffxi.get_info().chat_open
+    local info = windower.ffxi.get_info()
+    return info and not info.chat_open
 end
 
 function Keyboard:getKeybindHandler(key, flags)
@@ -226,6 +220,13 @@ function Keyboard.input()
         keyboardInput = Keyboard.new()
     end
     return keyboardInput
+end
+
+function Keyboard.reset()
+    if keyboardInput then
+        keyboardInput:destroy()
+    end
+    keyboardInput = nil
 end
 
 return Keyboard

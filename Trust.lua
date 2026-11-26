@@ -208,8 +208,8 @@ function load_user_files(main_job_id, sub_job_id)
 
 	-- The on-screen widgets are removed: nothing is ever created,
 	-- so there is no widget to get, add or remove. These stay as
-	-- no-ops so callers (e.g. the shortcuts menu, which checks
-	-- get_widget before registering a keybind) work unchanged.
+	-- no-ops so any caller that checks get_widget before acting
+	-- works unchanged.
 	windower.trust.ui.widgets = {}
 	windower.trust.ui.get_widget = function(widget_name)
 		return nil
@@ -689,8 +689,6 @@ end
 function load_chunk_event()
 	load_user_files(windower.ffxi.get_player().main_job_id, windower.ffxi.get_player().sub_job_id or 0)
 
-	trust_remote_commands = TrustRemoteCommands.new()
-
 	local CommandMessage = require('cylibs/messages/command_message')
 	IpcRelay.shared():on_message_received():addAction(function(ipc_message)
 		if ipc_message.__class == CommandMessage.__class then
@@ -711,10 +709,6 @@ function unload_chunk_event()
 			windower.send_command('unbind %s':format(key))
 		end
 	end
-	if trust_remote_commands then
-		trust_remote_commands:destroy()
-		trust_remote_commands = nil
-	end
 	-- IpcRelay is only required once the load sequence reaches
 	-- LoadDependenciesAction; skip it on an unload before first load.
 	if IpcRelay then
@@ -725,8 +719,8 @@ end
 function unloaded()
 	-- handle_job_change() calls unloaded() and then '// lua unload trust',
 	-- which fires the unload event and calls unloaded() again. The second
-	-- run used to re-destroy trust_remote_commands and recreate + destroy
-	-- the IpcRelay singleton for nothing.
+	-- run used to recreate and destroy the IpcRelay singleton for
+	-- nothing.
 	if unloading then
 		return
 	end

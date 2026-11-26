@@ -1,9 +1,6 @@
-local ButtonItem = require('cylibs/ui/collection_view/items/button_item')
 local FFXIClassicStyle = require('ui/themes/FFXI/FFXIClassicStyle')
-local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local GambitEditorStyle = require('ui/settings/menus/gambits/GambitEditorStyle')
 local GambitTarget = require('cylibs/gambits/gambit_target')
-local MenuItem = require('cylibs/ui/menu/menu_item')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 
 local GambitSettingsMenuItem = require('ui/settings/menus/gambits/GambitSettingsMenuItem')
@@ -34,7 +31,7 @@ function StatusRemovalSettingsMenuItem.new(trust, trustSettings, trustSettingsMo
         configItem:setNumItemsRequired(1, 1)
         return L{ configItem }
     end, nil, "Status Cure", "Status Cures", nil, function(menuItemName)
-        return L{ 'Add', 'Remove', 'Edit', 'Move Up', 'Move Down', 'Toggle', 'Reset', 'Modes', 'Shortcuts', 'Blacklist' }:contains(menuItemName)
+        return L{ 'Add', 'Remove', 'Edit', 'Move Up', 'Move Down', 'Toggle', 'Reset', 'Modes', 'Blacklist' }:contains(menuItemName)
     end)
     editorStyle:setEditPermissions(
             GambitEditorStyle.Permissions.Edit,

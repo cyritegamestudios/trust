@@ -5,7 +5,6 @@ local FFXIPickerView = require('ui/themes/ffxi/FFXIPickerView')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local MultiPickerConfigItem = require('ui/settings/editors/config/MultiPickerConfigItem')
 local TargetInfoView = require('cylibs/battle/monsters/ui/target_info_view')
-local Whitelist = require('settings/settings').Whitelist
 
 local PartyMemberMenuItem = setmetatable({}, {__index = MenuItem })
 PartyMemberMenuItem.__index = PartyMemberMenuItem
@@ -111,16 +110,10 @@ function PartyMemberMenuItem:sendCommand(command, sendAll)
     end
 
     for partyMemberName in partyMemberNames:it() do
-        if IpcRelay.shared():is_connected(self.partyMemberName) then
+        if IpcRelay.shared():is_connected(partyMemberName) then
             windower.send_command('trust send '..partyMemberName..' '..self.selectedCommand:get_windower_command())
-        elseif self:getWhitelist():contains(partyMemberName) then
-            windower.chat.input('/tell '..partyMemberName..' '..self.selectedCommand:get_windower_command())
         end
     end
-end
-
-function PartyMemberMenuItem:getWhitelist()
-    return Whitelist:all():map(function(user) return user.id end)
 end
 
 return PartyMemberMenuItem

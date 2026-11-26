@@ -2,8 +2,6 @@ local ORM = require('cylibs/database/orm/orm')
 local Database = ORM.ORM
 local Table = ORM.Table
 
-local sqlite3 = require("sqlite3")
-
 local Settings = {}
 Settings.__index = Settings
 
@@ -23,21 +21,6 @@ function Settings.new()
     end)
 
     self.tables = {
-        Shortcut = Table(self.database, {
-            table_name = "shortcuts",
-            schema = {
-                id = "VARCHAR(64) PRIMARY KEY UNIQUE",
-                key = "VARCHAR(8) DEFAULT A UNIQUE",
-                flags = "INTEGER DEFAULT 1",
-                enabled = "TINYINT(1) DEFAULT 1",
-                command = "VARCHAR(64)",
-                description = "VARCHAR(64)"
-            },
-            migrations = function(table)
-                table:add_column("command", "VARCHAR(64)")
-                table:add_column("description", "VARCHAR(64)")
-            end
-        }),
         User = Table(self.database, {
             table_name = "users",
             schema = {
@@ -57,12 +40,6 @@ function Settings.new()
                 y = "INTEGER",
                 visible = "TINYINT(1) DEFAULT 0",
                 user_id = "INTEGER",
-            }
-        }),
-        Whitelist = Table(self.database, {
-            table_name = "whitelist",
-            schema = {
-                id = "VARCHAR(64) PRIMARY KEY UNIQUE",
             }
         }),
         EquipSet = Table(self.database, {
@@ -140,9 +117,7 @@ function Settings.shared()
 end
 
 return {
-    Shortcut = Settings.shared().tables.Shortcut,
     User = Settings.shared().tables.User,
     Widget = Settings.shared().tables.Widget,
-    Whitelist = Settings.shared().tables.Whitelist,
     EquipSet = Settings.shared().tables.EquipSet,
 }
