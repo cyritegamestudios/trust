@@ -1043,7 +1043,13 @@ function Character:emote(moment, chance)
         return
     end
     local emote = emotes[math.random(1, #emotes)]
-    self.action_queue:push_action(CommandAction.new(0, 0, 0, emote), true)
+    -- Hold the emote for 2 seconds instead of firing it on the
+    -- transition itself: fired instantly, it lands right on top of
+    -- the weaponskill or kill that caused the transition (a Savage
+    -- Blade kill reads as ">> /wave" the moment the mob drops).
+    -- tic() pushes it once the pause is up.
+    self.pending_emote = emote
+    self.pending_emote_at = os.time() + 2
 end
 
 function Character:say(category, throttle_key)
@@ -1064,6 +1070,18 @@ end
 -- per tick, and not at all for the short idle right after a fight,
 -- which already has its own 'idle' line).
 function Character:tic(new_time, old_time)
+    -- Delayed emote: push it once its 2-second pause is up (tic
+    -- runs once per second, so it lands 2-3s after the transition).
+    -- If the character mode was turned off in the meantime, the
+    -- emote is dropped instead of firing late.
+    if self.pending_emote and os.time() >= (self.pending_emote_at or 0) then
+        local emote = self.pending_emote
+        self.pending_emote = nil
+        self.pending_emote_at = nil
+        if state.AutoCharacterMode.value ~= 'Off' and self.action_queue then
+            self.action_queue:push_action(CommandAction.new(0, 0, 0, emote), true)
+        end
+    end
     if state.AutoCharacterMode.value == 'Off' then
         return
     end
