@@ -221,6 +221,12 @@ function Skillchainer:target_change(target_index)
 end
 
 function Skillchainer:check_skillchain()
+    -- windower.ffxi.get_player() is nil while zoning and
+    -- Player:is_engaged() reads it unguarded, so check it first: these
+    -- run on every prerender frame (same guard as WeaponSkiller).
+    if windower.ffxi.get_player() == nil then
+        return
+    end
     if state.AutoSkillchainMode.value ~= 'Auto' or self.is_performing_ability or not self:get_player():is_engaged()
             or os.time() - self.last_check_skillchain_time < 1 then
         return
@@ -275,6 +281,10 @@ function Skillchainer:validate_step(current_step)
 end
 
 function Skillchainer:get_next_ability(current_step)
+    local player_mob = self:get_party():get_player():get_mob()
+    if player_mob == nil then
+        return nil
+    end
     if not self:validate_step(current_step) then
         return nil
     end
@@ -296,14 +306,14 @@ function Skillchainer:get_next_ability(current_step)
         end
         if current_step == nil then
             local ability = self:get_starter_ability(self.num_skillchain_steps)
-            if ability and Condition.check_conditions(ability:get_conditions(), self:get_party():get_player():get_mob().index) then
+            if ability and Condition.check_conditions(ability:get_conditions(), player_mob.index) then
                 return self:get_starter_ability(self.num_skillchain_steps)
             end
         else
             local next_steps = self.skillchain_builder:get_next_steps()
             for step in next_steps:it() do
                 local ability = step:get_ability()
-                if Condition.check_conditions(ability:get_conditions(), self:get_party():get_player():get_mob().index) and not ability:is_aoe() then
+                if Condition.check_conditions(ability:get_conditions(), player_mob.index) and not ability:is_aoe() then
                     return ability
                 end
             end
@@ -376,6 +386,12 @@ function Skillchainer:perform_ability(ability)
 end
 
 function Skillchainer:show_next_skillchain_info()
+    -- windower.ffxi.get_player() is nil while zoning and
+    -- Player:is_engaged() reads it unguarded, so check it first: these
+    -- run on every prerender frame (same guard as WeaponSkiller).
+    if windower.ffxi.get_player() == nil then
+        return
+    end
     if state.SkillchainAssistantMode.value == 'Off' or state.AutoSkillchainMode.value ~= 'Auto'
             or not self:get_player():is_engaged() then
         return

@@ -42,7 +42,7 @@ function Spell.new(spell_name, job_abilities, job_names, target, conditions, con
     }, Spell)
 
     if S(res.spells:with('en', spell_name)):contains('Party') then
-        job_names = job_names or job_util.all_jobs()
+        self.job_names = job_names or job_util.all_jobs()
     end
 
     local recast_ready_condition = SpellRecastReadyCondition.new(res.spells:with('en', spell_name).id)

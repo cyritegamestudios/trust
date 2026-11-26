@@ -87,7 +87,7 @@ function BardTrustCommands:handle_presing()
     local success
     local message
 
-    local singer = self.trust:role_with_type("healer")
+    local singer = self.trust:role_with_type("singer")
     singer.song_tracker:reset()
 
     success = true
@@ -103,8 +103,8 @@ function BardTrustCommands:handle_sing(_, use_nitro)
     local singer = self.trust:role_with_type("singer")
     local song_target = self.trust:get_party():get_player()
 
-    local dummy_songs = singer:get_dummy_songs()
-    local songs = singer:get_merged_songs(song_target)
+    local dummy_songs = singer:get_dummy_songs() or L{}
+    local songs = singer:get_merged_songs(song_target) or L{}
 
     local merged_songs = L{
         songs[1],

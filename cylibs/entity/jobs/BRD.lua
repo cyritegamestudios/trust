@@ -144,7 +144,7 @@ end
 -- @treturn Boolean True if nitro is active
 function Bard:is_nitro_active()
     local player_buff_ids = L(windower.ffxi.get_player().buffs)
-    return player_buff_ids:contains(347) and player_buff_ids:contains(player_buff_ids:contains(348))
+    return player_buff_ids:contains(347) and player_buff_ids:contains(348)
 end
 
 -------

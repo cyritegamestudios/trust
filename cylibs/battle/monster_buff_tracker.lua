@@ -27,6 +27,7 @@ MonsterBuffEvent.GainBuff = 'gain_buff'
 function MonsterBuffTracker.new()
     local self = setmetatable({
         user_events = {};
+        action_listener_id = nil;
         buff_events ={};
         buffed_mobs = {};
         is_learning_enabled = false;
@@ -68,9 +69,9 @@ function MonsterBuffTracker:gain_buff(target_id, resource, monster_ability_id, b
     local monster_ability = res[resource][monster_ability_id]
     if monster_ability == nil then return end
 
-    if self.buff_events['gain buff'] ~= nil then
+    if self.buff_events[MonsterBuffEvent.GainBuff] ~= nil then
         if party_util.party_claimed(target_id) then
-            self.buff_events['gain buff'](target_id, buff.id)
+            self.buff_events[MonsterBuffEvent.GainBuff](target_id, buff.id)
         end
     end
 
@@ -90,7 +91,11 @@ end
 -- Starts tracking monster buffs. Note that this function must be called before monster buffs will be recorded.
 -- Before this object is disposed of, stop() should be called.
 function MonsterBuffTracker:start()
-    user_events.action_packet = ActionPacket.open_listener(function(act)
+    if self.action_listener_id then
+        return
+    end
+
+    self.action_listener_id = ActionPacket.open_listener(function(act)
         local actionpacket = ActionPacket.new(act)
         local category = actionpacket:get_category_string()
 
@@ -115,6 +120,11 @@ end
 -------
 -- Stops tracking monster buffs and disposes of all registered event handlers.
 function MonsterBuffTracker:stop()
+    if self.action_listener_id then
+        ActionPacket.close_listener(self.action_listener_id)
+        self.action_listener_id = nil
+    end
+
     if self.user_events then
         for _,event in pairs(self.user_events) do
             windower.unregister_event(event)
