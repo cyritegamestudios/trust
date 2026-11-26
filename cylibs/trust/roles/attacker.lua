@@ -20,7 +20,7 @@ Attacker.__class = "Attacker"
 -- burst is pending: the singer holds its songs at the same threshold,
 -- and the held weaponskill is spent before singing resumes. Matches
 -- the puller's TP_ENGAGE_PULL_THRESHOLD and the singer's TP hold.
-local SONG_HOLD_TP_THRESHOLD = 700
+local SONG_HOLD_TP_THRESHOLD = 500
 
 state.AutoEngageMode = M{['description'] = 'Auto Engage Mode', 'Off', 'Always', 'Mirror'}
 state.AutoEngageMode:set_description('Off', "Manually engage and disengage.")

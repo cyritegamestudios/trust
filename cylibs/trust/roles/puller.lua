@@ -40,7 +40,7 @@ state.PullActionMode:set_description('Approach', "Pull by engaging and approachi
 -- mob instead of casting the pull spell: casting would swap weapons in
 -- GearSwap and throw the held TP away, while engaging keeps the TP set on
 -- so the held weaponskill can be spent on the new mob.
-local TP_ENGAGE_PULL_THRESHOLD = 700
+local TP_ENGAGE_PULL_THRESHOLD = 500
 
 -- A claimed pull target is held out to this distance even before its
 -- claim registers with the party (see Puller:is_sticky_pull_target).
