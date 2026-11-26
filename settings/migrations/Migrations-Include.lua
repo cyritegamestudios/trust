@@ -968,18 +968,14 @@ function Migration_v27:shouldPerform(_, addonSettings, _)
 end
 
 function Migration_v27:perform(_, addonSettings, _)
-    -- The whitelist table no longer exists (remote commands were
-    -- removed); when it is absent a legacy list is simply discarded.
     local User = require('settings/settings').Whitelist
 
     local whitelist = L(addonSettings:getSettings().remote_commands.whitelist)
-    if User then
-        for name in whitelist:it() do
-            local user = User({
-                id = name
-            })
-            user:save()
-        end
+    for name in whitelist:it() do
+        local user = User({
+            id = name
+        })
+        user:save()
     end
     addonSettings:getSettings().remote_commands.whitelist = L{}
     addonSettings:saveSettings(true)
