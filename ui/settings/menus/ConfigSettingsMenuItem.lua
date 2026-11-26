@@ -4,8 +4,6 @@ local ConfigEditor = require('ui/settings/editors/config/ConfigEditor')
 local DisposeBag = require('cylibs/events/dispose_bag')
 local MenuItem = require('cylibs/ui/menu/menu_item')
 local PickerConfigItem = require('ui/settings/editors/config/PickerConfigItem')
-local RemoteCommandsSettingsMenuItem = require('ui/settings/menus/RemoteCommandsSettingsMenuItem')
-local ShortcutListMenuItem = require('ui/settings/menus/ShortcutListMenuItem')
 local TextInputConfigItem = require('ui/settings/editors/config/TextInputConfigItem')
 
 local ConfigSettingsMenuItem = setmetatable({}, {__index = MenuItem })
@@ -14,8 +12,6 @@ ConfigSettingsMenuItem.__index = ConfigSettingsMenuItem
 function ConfigSettingsMenuItem.new(addonSettings, trustSettings, trustSettingsMode, mediaPlayer)
     local self = setmetatable(MenuItem.new(L{
         ButtonItem.default('GearSwap', 18),
-        ButtonItem.default('Remote', 18),
-        ButtonItem.default('Shortcuts', 18),
         ButtonItem.default('Sounds', 18),
         ButtonItem.default('Language', 18),
         ButtonItem.default('Logging', 18),
@@ -36,8 +32,6 @@ end
 function ConfigSettingsMenuItem:reloadSettings(addonSettings, trustSettings, trustSettingsMode)
     self:setChildMenuItem("GearSwap", self:getGearSwapMenuItem(trustSettings, trustSettingsMode))
     self:setChildMenuItem("Logging", self:getLoggingMenuItem(addonSettings))
-    self:setChildMenuItem("Remote", RemoteCommandsSettingsMenuItem.new(addonSettings))
-    self:setChildMenuItem("Shortcuts", ShortcutListMenuItem.new())
     self:setChildMenuItem("Sounds", self:getSoundSettingsMenuItem(addonSettings))
     self:setChildMenuItem("Language", self:getLanguageSettingsMenuItem(addonSettings))
 end
