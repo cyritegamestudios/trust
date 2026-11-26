@@ -1,6 +1,6 @@
 # Trust — Bard Fix
 
-**Branch:** `brd-soul-voice-toggle` (fork of cyritegamestudios/trust) · **PR #577** · 119 commits · base: stock Trust v17.7.8
+**Branch:** `brd-soul-voice-toggle` (fork of cyritegamestudios/trust) · **PR #577** · 120 commits · base: stock Trust v17.7.8
 
 One package that turns stock Trust into a coordinated Bard farming machine. The whole fight loop — summon all five Trusts, sing the five-song burst at full potency, then pull — runs as one system: the singer, puller, attacker, debuffer and spammer all watch the same TP and singing state, so a weaponskill is never wasted, a burst never starts at the wrong moment, and no cast collides with another action's lock. Everything is scoped to attended play — it coordinates what the player is already doing; nothing runs unattended.
 
@@ -34,6 +34,8 @@ The patch lands weaker than the burst's copy, so the singer follows up right awa
 Real players only. The game never sends a Trust's buffs (there is no 0x076 packet for Alter Egos), so a Trust's song records are reconstructed from the singer's own casts — and that reconstruction proved unreliable in game, firing Pianissimo in a Trust party whose songs were all up. A real player's buffs are reported by the game, so their records are real, and the feature acts on them.
 
 The dedicated Pianissimo songs are separate from the catch-up: with AutoPianissimoMode on, Mage's Ballad III is sung with Pianissimo to each party member whose job is on the song's list (WHM and RDM — the mages), Trusts and real players alike. The gambits are rebuilt: instead of stock's max-songs count on the singer (which reads the same whether the cap is met by the set or by dummies), they require the set itself — every real song up on the singer — and hold while a burst is under way or a re-sing is due, so the Ballad goes out in the stable window right after a burst instead of being traded off the member by the re-sing's area casts. A Ballad is a standing buff, not a patch, so GearSwap keeps it on the potency instrument — the patch rule's Daurdabla would only shorten it.
+
+Setup: Songs → your set → Pianissimo → Add Mage's Ballad III, then select it → Jobs → WHM and RDM (add PLD to cover a PLD tank Trust such as Amchuchu) → Confirm. The add creates the song with an empty job list — with no jobs selected it never fires, which is the most common reason Ballad looks broken. One Ballad only; adding a second can loop.
 
 ## The ordering rules (the holds chain)
 
