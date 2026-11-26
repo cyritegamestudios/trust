@@ -592,18 +592,26 @@ end
 function Singer:check_gambits(gambits, param, ignore_delay)
     -- Hold songs while TP is banked for a weaponskill: the
     -- weaponskill gets used first, then singing resumes on the
-    -- next tic once TP drops below 500. Applies between fights
-    -- (so the next mob is engaged and the weaponskill spent
-    -- before a burst starts) and mid-fight alike. Same 500 TP
-    -- trip point as the debuffer and puller holds. Exception: a
-    -- Nitro burst already under way sings through -- Nitro is
-    -- spent, so that burst finishes first and the weaponskill
-    -- waits for it (the spammer holds it; see
-    -- Singer:is_nitro_burst_underway). Pausing here would strand
-    -- the burst with the Nitro buffs ticking down.
+    -- next tic once TP drops. Applies between fights (so the
+    -- next mob is engaged and the weaponskill spent before a
+    -- burst starts) and mid-fight alike. Same 500 TP trip point
+    -- as the debuffer and puller holds. Exception: a Nitro burst
+    -- already under way sings through -- Nitro is spent, so that
+    -- burst finishes first and the weaponskill waits for it (the
+    -- spammer holds it; see Singer:is_nitro_burst_underway).
+    -- Pausing here would strand the burst with the Nitro buffs
+    -- ticking down. The exception ends at 1000 TP: with a full
+    -- weaponskill banked, songs hold even mid-burst until the
+    -- weaponskill is spent -- the spammer fires it through the
+    -- burst at 1000 TP -- so a banked weaponskill is never
+    -- overridden by the burst's remaining songs.
     local ffxi_player = windower.ffxi.get_player()
-    if ffxi_player and ffxi_player.tp and ffxi_player.tp >= 500
-            and not self:is_nitro_burst_underway() then
+    local tp = ffxi_player and ffxi_player.tp or 0
+    local burst_underway = self:is_nitro_burst_underway()
+    if tp >= 1000 and burst_underway then
+        return
+    end
+    if tp >= 500 and not burst_underway then
         return
     end
     -- Also hold for 2 seconds after a weaponskill lands: the TP

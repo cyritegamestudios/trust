@@ -61,9 +61,15 @@ function Spammer:get_next_ability()
     -- off, the burst finishes before the weaponskill: a weaponskill
     -- landing between the burst's songs puts the next cast in its
     -- action lock ("Unable to cast at this time"). The singer
-    -- sings a Nitro burst through regardless of TP, so this hold
-    -- releases the moment the burst completes.
-    if singer and singer.is_nitro_burst_underway and singer:is_nitro_burst_underway() then
+    -- sings a Nitro burst through below 1000 TP, so this hold
+    -- releases the moment the burst completes. Exception: with a
+    -- full 1000 TP banked, the weaponskill goes first even
+    -- mid-burst -- the singer pauses the burst's songs at 1000 TP
+    -- until the weaponskill is spent, so holding here as well
+    -- would freeze both until Nitro wears off.
+    local ffxi_player = windower.ffxi.get_player()
+    if singer and singer.is_nitro_burst_underway and singer:is_nitro_burst_underway()
+            and not (ffxi_player and ffxi_player.tp and ffxi_player.tp >= 1000) then
         return nil
     end
 
