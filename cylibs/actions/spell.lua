@@ -16,14 +16,20 @@ SpellAction.__index = SpellAction
 SpellAction.__type = "SpellAction"
 
 -- Tracks when the player's weaponskill lands (action packet
--- category 3). A cast sent within 2 seconds of that moment is
--- rejected by the weaponskill's action lock ("Unable to cast at
--- this time") -- Foe Requiem right after a Savage Blade is the
--- usual victim. The role-level holds (Debuffer, Singer) cannot
--- cover a spell that was already queued before the weaponskill
--- fired, so perform() itself waits the lock out here, at the one
--- point every cast passes through. Subscribed lazily on first
--- use so the events module is loaded by then.
+-- category 3). A cast sent within WEAPONSKILL_CAST_LOCK seconds
+-- of that moment is rejected by the weaponskill's action lock
+-- ("Unable to cast at this time") -- Foe Requiem right after a
+-- Savage Blade is the usual victim. The lock is 3 seconds, not
+-- the animation's nominal 2: the packet starts the clock, but
+-- the server's lock can run past 2 seconds (seen in game
+-- 2026-11-25: a cast released at the 2 second mark was still
+-- rejected, and the re-queued cast landed right after). The
+-- role-level holds (Debuffer, Singer) cannot cover a spell that
+-- was already queued before the weaponskill fired, so perform()
+-- itself waits the lock out here, at the one point every cast
+-- passes through. Subscribed lazily on first use so the events
+-- module is loaded by then.
+local WEAPONSKILL_CAST_LOCK = 3
 local player_last_weaponskill_time = 0
 local ws_tracker_started = false
 local function start_ws_tracker()
@@ -104,7 +110,7 @@ function SpellAction:await_cast_window(target)
 	-- checks poll every quarter second while a song waits out a
 	-- banked weaponskill).
 	local initial_delay = 0.25
-	local lock_remaining = 2 - (os.clock() - player_last_weaponskill_time)
+	local lock_remaining = WEAPONSKILL_CAST_LOCK - (os.clock() - player_last_weaponskill_time)
 	if lock_remaining > 0 then
 		initial_delay = lock_remaining
 	end
@@ -122,7 +128,7 @@ end
 function SpellAction:cast_is_blocked()
 	-- Inside the weaponskill's action lock (see the tracker at the
 	-- top of this file).
-	if os.clock() - player_last_weaponskill_time < 2 then
+	if os.clock() - player_last_weaponskill_time < WEAPONSKILL_CAST_LOCK then
 		return true
 	end
 	-- A song must also wait while a weaponskill is banked for the
