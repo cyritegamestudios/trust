@@ -75,12 +75,12 @@ function Debuffer:get_default_conditions(gambit)
         MinHitPointsPercentCondition.new(15),
     }
     -- Hold debuffs while the player is saving TP for a weaponskill:
-    -- at 500 TP or more, every debuff waits until the weaponskill
-    -- has been used and TP drops below 500. (The check runs when
-    -- Trust decides to cast, so a cast decided just under 500 can
+    -- at 700 TP or more, every debuff waits until the weaponskill
+    -- has been used and TP drops below 700. (The check runs when
+    -- Trust decides to cast, so a cast decided just under 700 can
     -- still land a little past it while the queue clears.) Same
     -- Self-targeted TP check the puller uses for its TP-engage pull.
-    conditions:append(GambitCondition.new(NotCondition.new(L{ MinTacticalPointsCondition.new(500) }), GambitTarget.TargetType.Self))
+    conditions:append(GambitCondition.new(NotCondition.new(L{ MinTacticalPointsCondition.new(700) }), GambitTarget.TargetType.Self))
     return conditions + self.job:get_conditions_for_ability(gambit:getAbility()):map(function(condition)
         return GambitCondition.new(condition, GambitTarget.TargetType.Self)
     end)
@@ -100,7 +100,7 @@ function Debuffer:check_gambits(gambits, param, ignore_delay)
     -- kept slipping through -- could start in the gap and interrupt
     -- the burst. has_songs_pending() covers the whole burst, gaps
     -- included, the same check the puller and attacker already use
-    -- to stay out of the singer's way. At 500+ TP the debuffs are
+    -- to stay out of the singer's way. At 700+ TP the debuffs are
     -- held by the TP condition anyway, so this changes nothing
     -- about the weaponskill-first order.
     local main_job = player.trust and player.trust.main_job
