@@ -378,14 +378,17 @@ local function build_nitro_gambits(singer)
         -- that started without the combo finishes without it, and
         -- the combo leads the next burst from its first song.
         conditions:append(GambitCondition.new(NoBurstUnderwayCondition.new(singer), GambitTarget.TargetType.Self))
-        -- The weaponskill goes first: a combo never fires while a
-        -- weaponskill is banked (1000+ TP). Firing Nitro first puts
-        -- the weaponskill in the middle of the burst it was meant to
-        -- precede -- it lands between songs, and a cast fails in its
-        -- action lock. Once the weaponskill is spent, the combo
-        -- leads the burst. (Below 1000 the check_gambits TP hold
-        -- already makes the singer wait for the weaponskill.)
-        conditions:append(GambitCondition.new(MaxTacticalPointsCondition.new(999), GambitTarget.TargetType.Self))
+        -- The weaponskill goes first: a combo never fires at
+        -- 500+ TP, the same trip point as the check_gambits song
+        -- hold. Firing Nitro first puts the weaponskill in the
+        -- middle of the burst it was meant to precede -- it lands
+        -- between songs, and a cast fails in its action lock.
+        -- Once the weaponskill is spent and TP drops below 500,
+        -- the combo leads the burst. The gate also covers the
+        -- windows where gambit evaluation runs at 500+ TP (a
+        -- previous burst still under way), where the check_gambits
+        -- hold alone would let a new combo through.
+        conditions:append(GambitCondition.new(MaxTacticalPointsCondition.new(499), GambitTarget.TargetType.Self))
         if combo.trigger == 'slots' then
             conditions:append(GambitCondition.new(NumSongsCondition.new(singer.job.max_num_songs + 1, Condition.Operator.LessThan, true), GambitTarget.TargetType.Self))
         else
@@ -592,26 +595,21 @@ end
 function Singer:check_gambits(gambits, param, ignore_delay)
     -- Hold songs while TP is banked for a weaponskill: the
     -- weaponskill gets used first, then singing resumes on the
-    -- next tic once TP drops. Applies between fights (so the
-    -- next mob is engaged and the weaponskill spent before a
-    -- burst starts) and mid-fight alike. Same 500 TP trip point
-    -- as the debuffer and puller holds. Exception: a Nitro burst
-    -- already under way sings through -- Nitro is spent, so that
-    -- burst finishes first and the weaponskill waits for it (the
-    -- spammer holds it; see Singer:is_nitro_burst_underway).
-    -- Pausing here would strand the burst with the Nitro buffs
-    -- ticking down. The exception ends at 1000 TP: with a full
-    -- weaponskill banked, songs hold even mid-burst until the
-    -- weaponskill is spent -- the spammer fires it through the
-    -- burst at 1000 TP -- so a banked weaponskill is never
-    -- overridden by the burst's remaining songs.
+    -- next tic once TP drops below 500. Applies between fights
+    -- (so the next mob is engaged and the weaponskill spent
+    -- before a burst starts) and mid-fight alike. Same 500 TP
+    -- trip point as the debuffer and puller holds. Exception: a
+    -- Nitro burst already under way sings through -- Nitro is
+    -- spent, so that burst finishes first and the weaponskill
+    -- waits for it (the spammer holds it; see
+    -- Singer:is_nitro_burst_underway). Pausing here would strand
+    -- the burst with the Nitro buffs ticking down. The priority
+    -- is decided at 500, before a burst starts: the Nitro combos
+    -- themselves are gated at 500 TP (see build_nitro_gambits),
+    -- so no burst ever starts over a banked weaponskill.
     local ffxi_player = windower.ffxi.get_player()
-    local tp = ffxi_player and ffxi_player.tp or 0
-    local burst_underway = self:is_nitro_burst_underway()
-    if tp >= 1000 and burst_underway then
-        return
-    end
-    if tp >= 500 and not burst_underway then
+    if ffxi_player and ffxi_player.tp and ffxi_player.tp >= 500
+            and not self:is_nitro_burst_underway() then
         return
     end
     -- Also hold for 2 seconds after a weaponskill lands: the TP
