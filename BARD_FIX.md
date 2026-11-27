@@ -1,6 +1,6 @@
 # Trust — Bard Fix
 
-**Branch:** `brd-soul-voice-toggle` (fork of cyritegamestudios/trust) · **PR #577** · 136 commits · base: stock Trust v17.7.8
+**Branch:** `brd-soul-voice-toggle` (fork of cyritegamestudios/trust) · **PR #577** · 137 commits · base: stock Trust v17.7.8
 
 One package that turns stock Trust into a coordinated Bard farming machine. The whole fight loop — summon all five Trusts, sing the five-song burst at full potency, then pull — runs as one system: the singer, puller, attacker, debuffer and spammer all watch the same TP and singing state, so a weaponskill is never wasted, a burst never starts at the wrong moment, and no cast collides with another action's lock. Everything is scoped to attended play — it coordinates what the player is already doing; nothing runs unattended.
 
@@ -41,7 +41,7 @@ Setup: Songs → your set → Pianissimo → Add Mage's Ballad III, then select 
 
 - A banked weaponskill goes first: at 700+ TP songs wait for it and Nitro combos require TP ≤ 699, so no burst starts over a nearly-banked weaponskill; debuffs, claims and new engages already wait from 500 TP. All four lines are menu settings now (Trust menu → Combat → Config): **Song Hold TP** (default 700 — the Nitro gate follows one point below it), **Debuff Hold TP**, **Pull Engage TP**, and **Attack Hold TP** (defaults 500).
 - Once Nitro has gone off, that burst finishes first: the singer sings it through, and the weaponskill waits until the burst completes.
-- The weaponskill is saved on a mob under 3% HP, held until the player reaches the fight's rolled combat distance, and never fired mid-song. All three are menu settings now (Trust menu → Combat → Config): **Save Weaponskill Under HP** (0–25%, default 3% — the right cutoff depends on the mob, since a stronger mob still has plenty of HP left at the same percent; 0% turns the save off), **Hold Weaponskill While Singing**, and **Hold Weaponskill For Distance** (both default on).
+- The weaponskill is saved on a mob under 3% HP, held until the player walks in to this fight's fighting spot, and never fired mid-song. All three are menu settings now (Trust menu → Combat → Config): **Save Weaponskill Under HP** (0–25%, default 3% — the right cutoff depends on the mob, since a stronger mob still has plenty of HP left at the same percent; 0% turns the save off), **Hold Weaponskill While Singing**, and **Hold Weaponskill While Walking In** (both default on).
 - Debuffs hold while singing, while a burst is pending, and for 2 seconds after a weaponskill lands; casts hold the same 2 seconds, so nothing collides with the weaponskill's action lock.
 - The puller claims the mob in front of the player first; a mob behind is the second option — except a mob already aggroed on the party (a slept add keeps that status), which is never filtered out and is attacked next when the fought mob dies. Once claimed, the target sticks: a claim that drifts past pull range before it registers is held (out to a 50-yalm leash) instead of being dropped for an aggroed mob behind — it is released only when it dies, disengages after engaging, is claimed by another party, or is blacklisted.
 

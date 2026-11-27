@@ -72,7 +72,7 @@ function CombatModeSettingsMenuItem:getConfigMenuItem()
             ConfigItem.new('MirrorDistance', 0.2, 10, 0.1, function(value) return value.." yalms" end, "Mirror Distance"),
             ConfigItem.new('WeaponSkillSaveHPP', 0, 25, 1, function(value) return value.."%" end, "Save Weaponskill Under HP"),
             BooleanConfigItem.new('WeaponSkillHoldWhileSinging', "Hold Weaponskill While Singing"),
-            BooleanConfigItem.new('WeaponSkillHoldForDistance', "Hold Weaponskill For Distance"),
+            BooleanConfigItem.new('WeaponSkillHoldForDistance', "Hold Weaponskill While Walking In"),
             ConfigItem.new('SongHoldTP', 0, 1000, 25, function(value) return value.." TP" end, "Song Hold TP"),
             ConfigItem.new('DebuffHoldTP', 0, 1000, 25, function(value) return value.." TP" end, "Debuff Hold TP"),
             ConfigItem.new('PullEngageTP', 0, 1000, 25, function(value) return value.." TP" end, "Pull Engage TP"),
@@ -92,7 +92,7 @@ function CombatModeSettingsMenuItem:getConfigMenuItem()
             elseif indexPath.section == 5 then
                 infoView:setDescription("Hold weaponskills while the Bard is singing, so a weaponskill never delays the next song in the burst.")
             elseif indexPath.section == 6 then
-                infoView:setDescription("Hold weaponskills until you reach this fight's rolled combat distance, so a weaponskill is not fired from out of position.")
+                infoView:setDescription("Distance means how far you stand from the mob to fight it: CombatMode walks you to a spot just inside your Combat Distance (the top setting) at the start of each fight. When a mob is claimed with TP already banked, this holds the weaponskill until you arrive, so it isn't fired while you're still walking in. Once you're in position it changes nothing for the rest of the fight.")
             elseif indexPath.section == 7 then
                 infoView:setDescription("Songs wait at or above this much TP so the weaponskill goes first. Nitro combos only fire below this line, so Nitro still gets its window to start a burst before the hold closes. A burst that already started always sings through.")
             elseif indexPath.section == 8 then
