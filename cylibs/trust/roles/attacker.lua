@@ -18,7 +18,7 @@ Attacker.__class = "Attacker"
 
 -- At or above this much TP a new engage goes first even if a song
 -- burst is pending, and the held weaponskill is spent before
--- singing resumes. The line is the Attack Hold TP combat setting
+-- singing resumes. The line is the 'Engage Goes First Above TP' combat setting
 -- (Trust menu -> Combat -> Config), read in set_attacker_settings;
 -- this constant is the default for settings files that predate
 -- the key, and matches the puller's engage-pull default.
@@ -116,7 +116,7 @@ end
 
 function Attacker:set_attacker_settings(attacker_settings)
     self.engage_distance = attacker_settings.EngageDistance or 30
-    -- Attack Hold TP (Combat settings): while a burst is pending,
+    -- Engage Goes First Above TP (Combat settings): while a burst is pending,
     -- new engages wait below this line and go first at or above it.
     self.attack_hold_tp = attacker_settings.AttackHoldTP or SONG_HOLD_TP_THRESHOLD
 

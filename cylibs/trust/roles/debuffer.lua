@@ -65,7 +65,7 @@ function Debuffer:set_debuff_settings(debuff_settings)
 end
 
 -- Menu-adjustable debuff hold, from the Combat settings (Trust
--- menu -> Combat -> Config -> Debuff Hold TP). At or above this
+-- menu -> Combat -> Config -> Hold Debuffs Above TP). At or above this
 -- much TP debuffs wait for the weaponskill. The default
 -- reproduces the fixed 500 hold for settings files that predate
 -- the key. Changing it rebuilds the gambit conditions.
@@ -89,7 +89,7 @@ function Debuffer:get_default_conditions(gambit)
         MinHitPointsPercentCondition.new(15),
     }
     -- Hold debuffs while the player is saving TP for a weaponskill:
-    -- at the Debuff Hold TP line (Combat settings, default 500) or
+    -- at the debuff hold line (Combat settings, default 500) or
     -- more, every debuff waits until the weaponskill has been used
     -- and TP drops below the line. (The check runs when Trust
     -- decides to cast, so a cast decided just under the line can

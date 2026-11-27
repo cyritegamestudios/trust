@@ -379,7 +379,7 @@ local function build_nitro_gambits(singer)
         -- the combo leads the next burst from its first song.
         conditions:append(GambitCondition.new(NoBurstUnderwayCondition.new(singer), GambitTarget.TargetType.Self))
         -- The weaponskill goes first: a combo never fires at or
-        -- above the Song Hold TP line (Combat settings, default
+        -- above the song hold line (Combat settings, default
         -- 700), the same trip point as the check_gambits song
         -- hold. Firing Nitro first puts the weaponskill in the
         -- middle of the burst it was meant to precede -- it lands
@@ -1049,7 +1049,7 @@ function Singer:set_song_settings(song_settings)
 end
 
 -- Menu-adjustable song hold, from the Combat settings (Trust
--- menu -> Combat -> Config -> Song Hold TP). At or above this
+-- menu -> Combat -> Config -> Hold Songs Above TP). At or above this
 -- much TP the songs wait for the weaponskill, and the Nitro
 -- combos only fire below it. The default reproduces the fixed
 -- 700 line for settings files that predate the key. Changing it

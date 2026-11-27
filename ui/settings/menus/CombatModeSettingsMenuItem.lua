@@ -73,10 +73,10 @@ function CombatModeSettingsMenuItem:getConfigMenuItem()
             ConfigItem.new('WeaponSkillSaveHPP', 0, 25, 1, function(value) return value.."%" end, "Save Weaponskill Under HP"),
             BooleanConfigItem.new('WeaponSkillHoldWhileSinging', "Hold Weaponskill While Singing"),
             BooleanConfigItem.new('WeaponSkillHoldForDistance', "Hold Weaponskill While Walking In"),
-            ConfigItem.new('SongHoldTP', 0, 1000, 25, function(value) return value.." TP" end, "Song Hold TP"),
-            ConfigItem.new('DebuffHoldTP', 0, 1000, 25, function(value) return value.." TP" end, "Debuff Hold TP"),
-            ConfigItem.new('PullEngageTP', 0, 1000, 25, function(value) return value.." TP" end, "Pull Engage TP"),
-            ConfigItem.new('AttackHoldTP', 0, 1000, 25, function(value) return value.." TP" end, "Attack Hold TP"),
+            ConfigItem.new('SongHoldTP', 0, 1000, 25, function(value) return value.." TP" end, "Hold Songs Above TP"),
+            ConfigItem.new('DebuffHoldTP', 0, 1000, 25, function(value) return value.." TP" end, "Hold Debuffs Above TP"),
+            ConfigItem.new('PullEngageTP', 0, 1000, 25, function(value) return value.." TP" end, "Pull by Engaging Above TP"),
+            ConfigItem.new('AttackHoldTP', 0, 1000, 25, function(value) return value.." TP" end, "Engage Goes First Above TP"),
         }
         local configEditor = ConfigEditor.new(self.trustSettings, combatSettings, configItems)
 
@@ -94,13 +94,13 @@ function CombatModeSettingsMenuItem:getConfigMenuItem()
             elseif indexPath.section == 6 then
                 infoView:setDescription("Distance means how far you stand from the mob to fight it: CombatMode walks you to a spot just inside your Combat Distance (the top setting) at the start of each fight. When a mob is claimed with TP already banked, this holds the weaponskill until you arrive, so it isn't fired while you're still walking in. Once you're in position it changes nothing for the rest of the fight.")
             elseif indexPath.section == 7 then
-                infoView:setDescription("Songs wait at or above this much TP so the weaponskill goes first. Nitro combos only fire below this line, so Nitro still gets its window to start a burst before the hold closes. A burst that already started always sings through.")
+                infoView:setDescription("At or above this much TP, songs wait so the weaponskill goes first — singing first would swap your gear and can strand the TP you saved up. Nitro combos only start below this line, so Nitro still gets its window to lead a burst while TP is building. A burst that already started always sings through to the end.")
             elseif indexPath.section == 8 then
-                infoView:setDescription("Debuffs wait at or above this much TP, so a debuff cast never delays the weaponskill the TP is being saved for.")
+                infoView:setDescription("At or above this much TP, debuffs (Foe Requiem, Carnage Elegy and the rest) wait until the weaponskill has been used, so a debuff cast never delays the weaponskill the TP is being saved for.")
             elseif indexPath.section == 9 then
-                infoView:setDescription("At or above this much TP the puller engage-claims the next mob instead of casting the pull spell, so the pull never delays the weaponskill.")
+                infoView:setDescription("How the next mob gets pulled changes at this much TP. Below it, the puller casts the pull spell as normal. At or above it, the puller runs up and engages the mob to claim it instead — casting the pull spell would swap weapons and throw away the TP you are saving for a weaponskill.")
             elseif indexPath.section == 10 then
-                infoView:setDescription("While a song burst is pending between songs, new engages wait while TP is under this. At or above it, the engage and the weaponskill go first.")
+                infoView:setDescription("This one works the other way around. While a song burst is still going out, you do not engage a new mob yet — the songs finish first. That wait ends at this much TP: at or above it, engaging and the weaponskill go first and the songs wait instead.")
             end
         end), configEditor:getDelegate():didMoveCursorToItemAtIndexPath())
 

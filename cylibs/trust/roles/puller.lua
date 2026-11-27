@@ -40,7 +40,7 @@ state.PullActionMode:set_description('Approach', "Pull by engaging and approachi
 -- mob instead of casting the pull spell: casting would swap weapons in
 -- GearSwap and throw the held TP away, while engaging keeps the TP set on
 -- so the held weaponskill can be spent on the new mob. The line is the
--- Pull Engage TP combat setting (Trust menu -> Combat -> Config); this
+-- 'Pull by Engaging Above TP' combat setting (menu -> Combat -> Config); this
 -- constant is the default for settings files that predate the key.
 local TP_ENGAGE_PULL_THRESHOLD = 500
 
@@ -505,7 +505,7 @@ function Puller:set_pull_settings(pull_settings)
 end
 
 -- Menu-adjustable engage-pull line, from the Combat settings
--- (Trust menu -> Combat -> Config -> Pull Engage TP). At or
+-- (Trust menu -> Combat -> Config -> Pull by Engaging Above TP). At or
 -- above this much TP the puller engage-claims instead of casting
 -- the pull spell. The default reproduces the fixed 500 line for
 -- settings files that predate the key. Changing it rebuilds the
