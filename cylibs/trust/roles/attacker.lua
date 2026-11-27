@@ -17,9 +17,11 @@ Attacker.__index = Attacker
 Attacker.__class = "Attacker"
 
 -- At or above this much TP a new engage goes first even if a song
--- burst is pending: the singer holds its songs at the same threshold,
--- and the held weaponskill is spent before singing resumes. Matches
--- the puller's TP_ENGAGE_PULL_THRESHOLD and the singer's TP hold.
+-- burst is pending, and the held weaponskill is spent before
+-- singing resumes. The line is the Attack Hold TP combat setting
+-- (Trust menu -> Combat -> Config), read in set_attacker_settings;
+-- this constant is the default for settings files that predate
+-- the key, and matches the puller's engage-pull default.
 local SONG_HOLD_TP_THRESHOLD = 500
 
 state.AutoEngageMode = M{['description'] = 'Auto Engage Mode', 'Off', 'Always', 'Mirror'}
@@ -105,7 +107,7 @@ function Attacker:check_gambits(gambits, param, ignore_delay)
     -- for songs then.
     if singer and singer.has_songs_pending and singer:has_songs_pending() then
         local ffxi_player = windower.ffxi.get_player()
-        if not ffxi_player or (ffxi_player.tp or 0) < SONG_HOLD_TP_THRESHOLD then
+        if not ffxi_player or (ffxi_player.tp or 0) < (self.attack_hold_tp or SONG_HOLD_TP_THRESHOLD) then
             return
         end
     end
@@ -114,6 +116,9 @@ end
 
 function Attacker:set_attacker_settings(attacker_settings)
     self.engage_distance = attacker_settings.EngageDistance or 30
+    -- Attack Hold TP (Combat settings): while a burst is pending,
+    -- new engages wait below this line and go first at or above it.
+    self.attack_hold_tp = attacker_settings.AttackHoldTP or SONG_HOLD_TP_THRESHOLD
 
     local gambit_settings = {
         Gambits = L{

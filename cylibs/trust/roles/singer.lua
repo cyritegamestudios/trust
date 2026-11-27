@@ -378,17 +378,18 @@ local function build_nitro_gambits(singer)
         -- that started without the combo finishes without it, and
         -- the combo leads the next burst from its first song.
         conditions:append(GambitCondition.new(NoBurstUnderwayCondition.new(singer), GambitTarget.TargetType.Self))
-        -- The weaponskill goes first: a combo never fires at
-        -- 700+ TP, the same trip point as the check_gambits song
+        -- The weaponskill goes first: a combo never fires at or
+        -- above the Song Hold TP line (Combat settings, default
+        -- 700), the same trip point as the check_gambits song
         -- hold. Firing Nitro first puts the weaponskill in the
         -- middle of the burst it was meant to precede -- it lands
         -- between songs, and a cast fails in its action lock.
-        -- Once the weaponskill is spent and TP drops below 700,
-        -- the combo leads the burst. The gate also covers the
-        -- windows where gambit evaluation runs at 700+ TP (a
-        -- previous burst still under way), where the check_gambits
-        -- hold alone would let a new combo through.
-        conditions:append(GambitCondition.new(MaxTacticalPointsCondition.new(699), GambitTarget.TargetType.Self))
+        -- Once the weaponskill is spent and TP drops below the
+        -- line, the combo leads the burst. The gate also covers
+        -- the windows where gambit evaluation runs at the line
+        -- (a previous burst still under way), where the
+        -- check_gambits hold alone would let a new combo through.
+        conditions:append(GambitCondition.new(MaxTacticalPointsCondition.new((singer.song_hold_tp or 700) - 1), GambitTarget.TargetType.Self))
         if combo.trigger == 'slots' then
             conditions:append(GambitCondition.new(NumSongsCondition.new(singer.job.max_num_songs + 1, Condition.Operator.LessThan, true), GambitTarget.TargetType.Self))
         else
@@ -595,22 +596,24 @@ end
 function Singer:check_gambits(gambits, param, ignore_delay)
     -- Hold songs while TP is banked for a weaponskill: the
     -- weaponskill gets used first, then singing resumes on the
-    -- next tic once TP drops below 700. Applies between fights
-    -- (so the next mob is engaged and the weaponskill spent
-    -- before a burst starts) and mid-fight alike. The debuffer
-    -- and puller holds trip lower, at 500 TP; the song line sits
-    -- at 700 so a burst has room to start before the weaponskill
-    -- is nearly banked. Exception: a
+    -- next tic once TP drops below the line. Applies between
+    -- fights (so the next mob is engaged and the weaponskill
+    -- spent before a burst starts) and mid-fight alike. The
+    -- debuffer and puller holds trip lower (500 TP by default);
+    -- the song line sits at 700 by default so a burst has room
+    -- to start before the weaponskill is nearly banked. Both
+    -- lines are menu settings (Combat -> Config). Exception: a
     -- Nitro burst already under way sings through -- Nitro is
     -- spent, so that burst finishes first and the weaponskill
     -- waits for it (the spammer holds it; see
     -- Singer:is_nitro_burst_underway). Pausing here would strand
     -- the burst with the Nitro buffs ticking down. The priority
-    -- is decided at 700, before a burst starts: the Nitro combos
-    -- themselves are gated at 700 TP (see build_nitro_gambits),
-    -- so no burst ever starts over a banked weaponskill.
+    -- is decided at the line, before a burst starts: the Nitro
+    -- combos themselves are gated at the same line (see
+    -- build_nitro_gambits), so no burst ever starts over a
+    -- banked weaponskill.
     local ffxi_player = windower.ffxi.get_player()
-    if ffxi_player and ffxi_player.tp and ffxi_player.tp >= 700
+    if ffxi_player and ffxi_player.tp and ffxi_player.tp >= (self.song_hold_tp or 700)
             and not self:is_nitro_burst_underway() then
         return
     end
@@ -990,6 +993,7 @@ function Singer:on_add()
 end
 
 function Singer:set_song_settings(song_settings)
+    self.song_settings = song_settings
     self.dummy_songs = song_settings.DummySongs
     self.songs = song_settings.SongSets[state.SongSet.value].Songs
     self.pianissimo_songs = song_settings.SongSets[state.SongSet.value].PianissimoSongs
@@ -1042,6 +1046,20 @@ function Singer:set_song_settings(song_settings)
     self:set_gambit_settings(gambit_settings)
 
     singer_gambits = gambit_settings.Gambits
+end
+
+-- Menu-adjustable song hold, from the Combat settings (Trust
+-- menu -> Combat -> Config -> Song Hold TP). At or above this
+-- much TP the songs wait for the weaponskill, and the Nitro
+-- combos only fire below it. The default reproduces the fixed
+-- 700 line for settings files that predate the key. Changing it
+-- rebuilds the gambits so the Nitro gate moves with the hold.
+function Singer:set_combat_settings(combat_settings)
+    combat_settings = combat_settings or {}
+    self.song_hold_tp = combat_settings.SongHoldTP or 700
+    if self.song_settings then
+        self:set_song_settings(self.song_settings)
+    end
 end
 
 function Singer:get_default_conditions(gambit)

@@ -39,7 +39,9 @@ state.PullActionMode:set_description('Approach', "Pull by engaging and approachi
 -- held because the previous mob was nearly dead), pull by engaging the next
 -- mob instead of casting the pull spell: casting would swap weapons in
 -- GearSwap and throw the held TP away, while engaging keeps the TP set on
--- so the held weaponskill can be spent on the new mob.
+-- so the held weaponskill can be spent on the new mob. The line is the
+-- Pull Engage TP combat setting (Trust menu -> Combat -> Config); this
+-- constant is the default for settings files that predate the key.
 local TP_ENGAGE_PULL_THRESHOLD = 500
 
 -- A claimed pull target is held out to this distance even before its
@@ -354,7 +356,7 @@ function Puller:check_gambits(gambits, param, ignore_delay)
     -- and weaponskill go first, so do not wait for songs then.
     if singer and singer.has_songs_pending and singer:has_songs_pending() then
         local ffxi_player = windower.ffxi.get_player()
-        if not ffxi_player or (ffxi_player.tp or 0) < TP_ENGAGE_PULL_THRESHOLD then
+        if not ffxi_player or (ffxi_player.tp or 0) < (self.pull_engage_tp or TP_ENGAGE_PULL_THRESHOLD) then
             return
         end
     end
@@ -443,6 +445,7 @@ function Puller:get_pull_settings()
 end
 
 function Puller:set_pull_settings(pull_settings)
+    local engage_tp = self.pull_engage_tp or TP_ENGAGE_PULL_THRESHOLD
     self.pull_settings = pull_settings
     self.distance = pull_settings.Distance
     self.blacklist = pull_settings.Blacklist
@@ -464,7 +467,7 @@ function Puller:set_pull_settings(pull_settings)
         end)
         local conditions = L{
             GambitCondition.new(ModeCondition.new('PullActionMode', 'Auto'), GambitTarget.TargetType.Self),
-            GambitCondition.new(NotCondition.new(L{ MinTacticalPointsCondition.new(TP_ENGAGE_PULL_THRESHOLD) }), GambitTarget.TargetType.Self)
+            GambitCondition.new(NotCondition.new(L{ MinTacticalPointsCondition.new(engage_tp) }), GambitTarget.TargetType.Self)
         } + self:get_default_conditions(gambit)
         for condition in conditions:it() do
             condition:set_editable(false)
@@ -483,7 +486,7 @@ function Puller:set_pull_settings(pull_settings)
             ModeCondition.new('PullActionMode', 'Target'),
             ConditionalCondition.new(L{
                 ModeCondition.new('PullActionMode', 'Auto'),
-                MinTacticalPointsCondition.new(TP_ENGAGE_PULL_THRESHOLD),
+                MinTacticalPointsCondition.new(engage_tp),
             }, Condition.LogicalOperator.And),
         }, Condition.LogicalOperator.Or), GambitTarget.TargetType.Self),
     } + self:get_default_conditions(auto_target)
@@ -499,6 +502,20 @@ function Puller:set_pull_settings(pull_settings)
     }
     
     self:set_gambit_settings(gambit_settings)
+end
+
+-- Menu-adjustable engage-pull line, from the Combat settings
+-- (Trust menu -> Combat -> Config -> Pull Engage TP). At or
+-- above this much TP the puller engage-claims instead of casting
+-- the pull spell. The default reproduces the fixed 500 line for
+-- settings files that predate the key. Changing it rebuilds the
+-- pull gambits.
+function Puller:set_combat_settings(combat_settings)
+    combat_settings = combat_settings or {}
+    self.pull_engage_tp = combat_settings.PullEngageTP or TP_ENGAGE_PULL_THRESHOLD
+    if self.pull_settings then
+        self:set_pull_settings(self.pull_settings)
+    end
 end
 
 function Puller:get_default_conditions(gambit)

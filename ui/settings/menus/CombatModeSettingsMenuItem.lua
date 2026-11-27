@@ -53,6 +53,18 @@ function CombatModeSettingsMenuItem:getConfigMenuItem()
         if combatSettings.WeaponSkillHoldForDistance == nil then
             combatSettings.WeaponSkillHoldForDistance = true
         end
+        if combatSettings.SongHoldTP == nil then
+            combatSettings.SongHoldTP = 700
+        end
+        if combatSettings.DebuffHoldTP == nil then
+            combatSettings.DebuffHoldTP = 500
+        end
+        if combatSettings.PullEngageTP == nil then
+            combatSettings.PullEngageTP = 500
+        end
+        if combatSettings.AttackHoldTP == nil then
+            combatSettings.AttackHoldTP = 500
+        end
 
         local configItems = L{
             ConfigItem.new('Distance', 1.0, 30.0, 0.1, function(value) return value.." yalms" end, "Combat Distance"),
@@ -61,6 +73,10 @@ function CombatModeSettingsMenuItem:getConfigMenuItem()
             ConfigItem.new('WeaponSkillSaveHPP', 0, 25, 1, function(value) return value.."%" end, "Save Weaponskill Under HP"),
             BooleanConfigItem.new('WeaponSkillHoldWhileSinging', "Hold Weaponskill While Singing"),
             BooleanConfigItem.new('WeaponSkillHoldForDistance', "Hold Weaponskill For Distance"),
+            ConfigItem.new('SongHoldTP', 0, 1000, 25, function(value) return value.." TP" end, "Song Hold TP"),
+            ConfigItem.new('DebuffHoldTP', 0, 1000, 25, function(value) return value.." TP" end, "Debuff Hold TP"),
+            ConfigItem.new('PullEngageTP', 0, 1000, 25, function(value) return value.." TP" end, "Pull Engage TP"),
+            ConfigItem.new('AttackHoldTP', 0, 1000, 25, function(value) return value.." TP" end, "Attack Hold TP"),
         }
         local configEditor = ConfigEditor.new(self.trustSettings, combatSettings, configItems)
 
@@ -77,6 +93,14 @@ function CombatModeSettingsMenuItem:getConfigMenuItem()
                 infoView:setDescription("Hold weaponskills while the Bard is singing, so a weaponskill never delays the next song in the burst.")
             elseif indexPath.section == 6 then
                 infoView:setDescription("Hold weaponskills until you reach this fight's rolled combat distance, so a weaponskill is not fired from out of position.")
+            elseif indexPath.section == 7 then
+                infoView:setDescription("Songs wait at or above this much TP so the weaponskill goes first. Nitro combos only fire below this line, so Nitro still gets its window to start a burst before the hold closes. A burst that already started always sings through.")
+            elseif indexPath.section == 8 then
+                infoView:setDescription("Debuffs wait at or above this much TP, so a debuff cast never delays the weaponskill the TP is being saved for.")
+            elseif indexPath.section == 9 then
+                infoView:setDescription("At or above this much TP the puller engage-claims the next mob instead of casting the pull spell, so the pull never delays the weaponskill.")
+            elseif indexPath.section == 10 then
+                infoView:setDescription("While a song burst is pending between songs, new engages wait while TP is under this. At or above it, the engage and the weaponskill go first.")
             end
         end), configEditor:getDelegate():didMoveCursorToItemAtIndexPath())
 

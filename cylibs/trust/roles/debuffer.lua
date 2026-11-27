@@ -50,6 +50,7 @@ function Debuffer:on_add()
 end
 
 function Debuffer:set_debuff_settings(debuff_settings)
+    self.debuff_settings = debuff_settings
     for gambit in debuff_settings.Gambits:it() do
         gambit.conditions = gambit.conditions:filter(function(condition)
             return condition:is_editable()
@@ -61,6 +62,19 @@ function Debuffer:set_debuff_settings(debuff_settings)
         end
     end
     self:set_gambit_settings(debuff_settings)
+end
+
+-- Menu-adjustable debuff hold, from the Combat settings (Trust
+-- menu -> Combat -> Config -> Debuff Hold TP). At or above this
+-- much TP debuffs wait for the weaponskill. The default
+-- reproduces the fixed 500 hold for settings files that predate
+-- the key. Changing it rebuilds the gambit conditions.
+function Debuffer:set_combat_settings(combat_settings)
+    combat_settings = combat_settings or {}
+    self.debuff_hold_tp = combat_settings.DebuffHoldTP or 500
+    if self.debuff_settings then
+        self:set_debuff_settings(self.debuff_settings)
+    end
 end
 
 function Debuffer:get_default_conditions(gambit)
@@ -75,12 +89,13 @@ function Debuffer:get_default_conditions(gambit)
         MinHitPointsPercentCondition.new(15),
     }
     -- Hold debuffs while the player is saving TP for a weaponskill:
-    -- at 500 TP or more, every debuff waits until the weaponskill
-    -- has been used and TP drops below 500. (The check runs when
-    -- Trust decides to cast, so a cast decided just under 500 can
+    -- at the Debuff Hold TP line (Combat settings, default 500) or
+    -- more, every debuff waits until the weaponskill has been used
+    -- and TP drops below the line. (The check runs when Trust
+    -- decides to cast, so a cast decided just under the line can
     -- still land a little past it while the queue clears.) Same
     -- Self-targeted TP check the puller uses for its TP-engage pull.
-    conditions:append(GambitCondition.new(NotCondition.new(L{ MinTacticalPointsCondition.new(500) }), GambitTarget.TargetType.Self))
+    conditions:append(GambitCondition.new(NotCondition.new(L{ MinTacticalPointsCondition.new(self.debuff_hold_tp or 500) }), GambitTarget.TargetType.Self))
     return conditions + self.job:get_conditions_for_ability(gambit:getAbility()):map(function(condition)
         return GambitCondition.new(condition, GambitTarget.TargetType.Self)
     end)

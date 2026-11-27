@@ -75,12 +75,23 @@ function Trust:init(is_main_job)
 		if spammer then
 			spammer:set_spammer_settings(new_trust_settings.CombatSettings)
 		end
+		local singer = self:role_with_type("singer")
+		if singer and singer.set_combat_settings then
+			singer:set_combat_settings(new_trust_settings.CombatSettings)
+		end
+		local debuffer = self:role_with_type("debuffer")
+		if debuffer and debuffer.set_combat_settings then
+			debuffer:set_combat_settings(new_trust_settings.CombatSettings)
+		end
 		local buffer = self:role_with_type("buffer")
 		if buffer then
 			buffer:set_buff_settings(new_trust_settings.BuffSettings, self:get_job())
 		end
 		local puller = self:role_with_type("puller")
 		if puller then
+			if puller.set_combat_settings then
+				puller:set_combat_settings(new_trust_settings.CombatSettings)
+			end
 			puller:set_pull_settings(new_trust_settings.PullSettings)
 		end
 		local healer = self:role_with_type("healer")
