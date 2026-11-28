@@ -68,8 +68,12 @@ function BardTrust:on_init()
 		self:get_job():set_trust_settings(new_trust_settings)
 
 		local current_set_name = state.SongSet.value
-		state.SongSet:options(L(T(new_trust_settings.SongSettings.SongSets):keyset()):unpack())
-		state.SongSet:set(current_set_name, true)
+		local song_sets = new_trust_settings.SongSettings.SongSets
+		local song_set_names = L(T(song_sets):keyset())
+		state.SongSet:options(song_set_names:unpack())
+		local selected_set_name = song_sets[current_set_name] and current_set_name
+				or (song_sets.Default and 'Default' or song_set_names[1])
+		state.SongSet:set(selected_set_name, true)
 
 		local singer = self:role_with_type("singer")
 
