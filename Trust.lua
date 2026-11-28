@@ -231,7 +231,6 @@ function load_trust_modes(job_name_short)
 			end
 		end
 
-		-- Job settings determine which song sets are available.
 		if new_modes.maintrustsettingsmode then
 			apply_mode('maintrustsettingsmode', new_modes.maintrustsettingsmode)
 		end
