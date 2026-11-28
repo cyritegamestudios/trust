@@ -13,7 +13,7 @@ return {
         ["autosongmode"]="Auto",
         ["autounloadondeathmode"]="Auto",
         ["autosilencemode"]="Off",
-        ["autohealmode"]="Emergency",
+        ["autohealmode"]="Off",
         ["autodetectauramode"]="Off",
         ["skillchainassistantmode"]="Auto",
         ["autodispelmode"]="Auto",

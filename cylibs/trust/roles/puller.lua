@@ -215,7 +215,7 @@ function Puller:is_valid_target(target, target_id_blacklist)
         return false
     end
 
-    local pull_abilities = self.pull_abilities[state.PullActionMode.value]
+    local pull_abilities = self.pull_abilities[state.PullActionMode.value]:filter(function(a) return a:isEnabled() end)
 
     local max_pull_ability_range = 0
     for gambit in pull_abilities:it() do
